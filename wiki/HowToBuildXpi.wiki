@@ -8,4 +8,4 @@
 
   # Download the Page Speed [http://code.google.com/p/page-speed/source/checkout source code].
   # Run `ant` from the trunk of the source tree.
-  # The resulting XPI is packaged at dist/page-speed.xpi
+  # The resulting XPI is packaged at `dist/page-speed.xpi`.
