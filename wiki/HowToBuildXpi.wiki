@@ -2,7 +2,7 @@
 
 = Prerequisites =
 
-  # Install [http://ant.apache.org Apache Ant].
+  # Install [http://ant.apache.org Apache Ant] (on Ubuntu, you can probably just run `sudo apt-get install ant`).
 
 = How to build =
 
