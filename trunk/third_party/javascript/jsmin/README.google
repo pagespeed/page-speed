@@ -1,0 +1,36 @@
+URL: http://www.crockford.com/javascript/jsmin.html
+     http://fmarcia.info/jsmin/fulljsmin.js
+Version: not versioned
+License: MIT-like
+License File: LICENSE
+
+Description:
+JSMin is a filter which removes comments and unnecessary whitespace
+from JavaScript files. It typically reduces filesize by half,
+resulting in faster downloads. It also encourages a more expressive
+programming style because it eliminates the download cost of clean,
+literate self-documentation.
+
+Local Modifications:
+
+1. Wrapped jsmin() in a namespace JSMIN, and renamed to compile(), so
+   it's now invoked by calling JSMIN.compile().
+
+2. Changed String.prototype.has() to a local function JSMIN.stringHas,
+   since we don't want to add new methods to the global String object.
+
+3. Removed variable ret, which wasn't locally scoped, and instead
+   leaked onto the global object (bad).
+
+4. Removed setting of jsmin.oldSize and jsmin.newSize.
+
+5. Various fixes to make jsmin.js match jsmin.c. This makes jsmin.js
+   behave differently than the original jsmin.js from fmarcia.info,
+   but makes jsmin.js behave exactly like jsmin.c, which is what we
+   want. This was necessary because the original jsmin.js failed to
+   properly process several different JavaScript files found on the
+   web.
+
+6. Changed API to no longer accept a level and/or comment, since this
+   functionality is not part of the original jsmin.c
+
