@@ -4,7 +4,7 @@
 = Prerequisites =
 
   # Install [http://ant.apache.org Apache Ant].
-  # Follow the instructions for your platform here: https://developer.mozilla.org/en/Build_Documentation#Getting_started (e.g. for Linux, run `sudo apt-get build-dep firefox`).
+  # Follow the Mozilla build instructions for your platform here: https://developer.mozilla.org/en/Build_Documentation#Getting_started (e.g. for Linux, run `sudo apt-get build-dep firefox`).
 
 = How to build =
 
