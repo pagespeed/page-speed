@@ -2,6 +2,7 @@
 
 = Prerequisites =
 
+  # Install [http://subversion.tigris.org/ Subversion]. On Ubuntu, you can probably just run `sudo apt-get install subversion`.
   # Install [http://ant.apache.org Apache Ant]. On Ubuntu, you can probably just run `sudo apt-get install ant`.
 
 = How to build =
