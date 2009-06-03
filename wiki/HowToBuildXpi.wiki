@@ -1,4 +1,4 @@
-#summary This page explains how to build the Page Speed XPI using the Apache Ant build system.
+#summary Explains how to build the Page Speed XPI using the Apache Ant build system.
 
 = Prerequisites =
 
