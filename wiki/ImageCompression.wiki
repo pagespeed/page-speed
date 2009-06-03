@@ -2,9 +2,11 @@
 
 = Introduction =
 
-The Page Speed image compression libraries use the Independent Jpeg Group's [http://www.ijg.org/ libjpeg] and Cosmin Truţa's 
+The Page Speed image compression libraries use the Independent JPEG Group's [http://www.ijg.org/ libjpeg] and Cosmin Truţa's 
 [http://optipng.sourceforge.net/ OptiPNG].
 
 = Details =
 
 More details to be added soon.
+
+This software is based in part on the work of the Independent JPEG Group.
