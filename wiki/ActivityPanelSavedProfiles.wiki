@@ -2,7 +2,7 @@
 
 = Introduction =
 
-The Page Speed Activity Panel supports saving of !JavaScript profiles to disk, in the [http://code.google.com/apis/protocolbuffers/docs/overview.html protocol buffer] format.
+The Page Speed Activity Panel supports saving of !JavaScript execution profiles to disk, in the [http://code.google.com/apis/protocolbuffers/docs/overview.html protocol buffer] format.
 
 Saving of protocol buffers allows developers to perform in-depth offline analysis of their !JavaScript execution. For instance, a developer could write a [http://code.google.com/apis/protocolbuffers/docs/pythontutorial.html python script] to:
 
