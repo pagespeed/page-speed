@@ -1,4 +1,4 @@
-#summary This page explains how to build the Page Speed shared objects using the Mozilla Build System
+#summary Explains how to build the Page Speed shared objects using the Mozilla Build System
 #labels tmp
 
 = Prerequisites =
