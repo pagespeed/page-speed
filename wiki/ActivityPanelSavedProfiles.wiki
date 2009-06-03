@@ -12,6 +12,14 @@ Serializing profiles to disk allows developers to perform in-depth offline analy
 
 When working with !JavaScript call graph protocol buffers, there's no limit (well, almost no limit) to the information you can extract about your !JavaScript execution.
 
+= How To Save Protocol Buffers =
+
+In order to build an Activity Panel profile that can be saved to disk, you first need to enable collection of full call graphs in the Activity Panel. Do this by enabling `Show JavaScript Events` and `Full Call Graphs (slow)` in the Activity Panel options menu.
+
+Once you've enabled these options, record a profile in the Activity Panel as you normally would. Once you've collected the profile with the !JavaScript you'd like to save to disk, click the `Save` button in the Activity Panel. Note that the `Save` feature is not available on Windows, but is available in Linux and OSX. Choose a location and filename for your profile, and click `Save` in the `Save JavaScript Activity` dialog.
+
+That's it! You've saved your profile to disk. Now it's time to write an analysis script for your protocol buffer. See the information below for details on the structure of the Activity Panel protocol buffer.
+
 = Protocol Buffer Format =
 
 Activity Panel profiles can be serialized to a [http://code.google.com/p/page-speed/source/browse/trunk/src/protobuf/activity/profile.proto Profile] protocol buffer. This protocol buffer contains a list of `FunctionMetadata` records, followed by a list of `CallTree` records. A `CallTree` is a recursive data structure that records a function trace, starting with the function at the root of the call stack. Each `CallTree` is associated with a `FunctionMetadata` by way of the `function_tag` attribute, a unique 32-bit identifier.
