@@ -16,6 +16,7 @@
  * @fileoverview AppStateObserver observes changes in Firefox
  * application state (shutdown) and takes appropriate action based on
  * those states.
+ *
  * @author Bryan McQuade
  */
 

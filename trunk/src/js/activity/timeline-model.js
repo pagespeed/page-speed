@@ -15,6 +15,7 @@
  *
  * @fileoverview Classes responsible for tracking the state of the timelines
  * and notifying listeners when that state changes.
+ *
  * @author Bryan McQuade
  */
 

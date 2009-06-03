@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * @fileoverview Code that hooks the activity profiler into the Firebug UI.
+ *
  * @author Bryan McQuade
  */
 

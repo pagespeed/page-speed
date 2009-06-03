@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * @fileoverview Classes responsible for rendering the timeline to the screen.
+ *
  * @author Bryan McQuade
  */
 

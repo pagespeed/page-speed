@@ -15,6 +15,7 @@
  *
  * @fileoverview FirebugProtector prevents firebug from stomping on our
  * handles to the JSD while our profiler is active.
+ *
  * @author Bryan McQuade
  */
 

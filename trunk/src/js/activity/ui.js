@@ -15,6 +15,7 @@
  *
  * @fileoverview Hooks called from various XUL UI components
  * declared in firebugOverlay.xul.
+ *
  * @author Bryan McQuade
  * @author David Bau
  */

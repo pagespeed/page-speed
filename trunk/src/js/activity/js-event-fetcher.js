@@ -15,6 +15,7 @@
  *
  * @fileoverview JsEventFetcher fetches JavaScript timeline events
  * and passes those events to the TimelineModel.
+ *
  * @author Bryan McQuade
  */
 

@@ -15,6 +15,7 @@
  *
  * @fileoverview Simple file utilities used to create temporary
  * directories and files.
+ *
  * @author David Bau
  * @author Bryan McQuade
  */
