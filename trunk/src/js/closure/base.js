@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @fileoverview Bootstrap for the Google JS Library (Closure)  Also includes
- * stuff taken from //depot/google3/javascript/lang.js.
+ * @fileoverview Bootstrap for the Google JS Library (Closure)
  */
 
 /**
@@ -66,7 +65,7 @@ goog.DEBUG = true;
  * For language codes you should use values defined by ISO 693-1. See it here
  * http://www.w3.org/WAI/ER/IG/ert/iso639.htm. There is only one exception from
  * this rule: the Hebrew language. For legacy reasons the old code (iw) should
- * be used instead of the new code (he), see http://wiki/Main/IIISynonyms.
+ * be used instead of the new code (he).
  */
 goog.LOCALE = 'en';  // default to en
 
@@ -996,7 +995,7 @@ goog.globalEval = function(script) {
       var scriptElt = doc.createElement('script');
       scriptElt.type = 'text/javascript';
       scriptElt.defer = false;
-      // Note(pupius): can't use .innerHTML since "t('<test>')" will fail and
+      // NOTE: can't use .innerHTML since "t('<test>')" will fail and
       // .text doesn't work in Safari 2.  Therefore we append a text node.
       scriptElt.appendChild(doc.createTextNode(script));
       doc.body.appendChild(scriptElt);
