@@ -1,8 +1,8 @@
 #summary Help for Page Speed code reviews at http://page-speed-codereview.appspot.com.
 
-Page Speed uses [http://code.google.com/p/rietveld Rietveld] to manage code reviews. You may want to read the Rietveld [http://code.google.com/p/rietveld/wiki/CodeReviewHelp code review help] first, then return to this wiki.
+Page Speed uses [http://code.google.com/p/rietveld Rietveld] for code reviews. You may want to read the Rietveld [http://code.google.com/p/rietveld/wiki/CodeReviewHelp code review help] first, then return to this wiki.
 
-Page Speed code reviews are managed at http://page-speed-codereview.appspot.com.
+The Page Speed code review server is http://page-speed-codereview.appspot.com.
 
 To submit a code review, we recommend using [http://page-speed-codereview.appspot.com/static/upload.py upload.py], which requires python 2.5. If you do not have python 2.5 on your system, you can still submit a code review through the [http://page-speed-codereview.appspot.com/new web interface].
 
