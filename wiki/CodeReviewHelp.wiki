@@ -1,0 +1,3 @@
+#summary Help for Page Speed code reviews at http://page-speed-codereview.appspot.com.
+
+See http://code.google.com/p/rietveld/wiki/CodeReviewHelp
