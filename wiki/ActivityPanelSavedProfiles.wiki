@@ -2,15 +2,15 @@
 
 = Introduction =
 
-The Page Speed Activity Panel supports saving of JavaScript profiles to disk, in the [http://code.google.com/apis/protocolbuffers/docs/overview.html protocol buffer] format.
+The Page Speed Activity Panel supports saving of !JavaScript profiles to disk, in the [http://code.google.com/apis/protocolbuffers/docs/overview.html protocol buffer] format.
 
-Saving of protocol buffers allows developers to perform in-depth offline analysis of their JavaScript execution. For instance, a developer could write a [http://code.google.com/apis/protocolbuffers/docs/pythontutorial.html python script] to:
+Saving of protocol buffers allows developers to perform in-depth offline analysis of their !JavaScript execution. For instance, a developer could write a [http://code.google.com/apis/protocolbuffers/docs/pythontutorial.html python script] to:
 
   * compute the number of times each function was called, the amount of time spent in each function, etc.
-  * identify all JavaScript that ran for longer than a certain time threshold (to identify code that should be broken up in order to improve application responsiveness)
+  * identify all !JavaScript that ran for longer than a certain time threshold (to identify code that should be broken up in order to improve application responsiveness)
   * transform the call tree into some other format (e.g. [http://www.graphviz.org/doc/info/lang.html dot]) in order to visualize the call graph.
 
-When working with JavaScript call graph protocol buffers, there's no limit (well, almost no limit) to the information you can extract about your JavaScript execution.
+When working with !JavaScript call graph protocol buffers, there's no limit (well, almost no limit) to the information you can extract about your !JavaScript execution.
 
 = Protocol Buffer Format =
 
