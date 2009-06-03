@@ -1,0 +1,10 @@
+#summary Describes how image compression works, which third party libs are used, etc.
+
+= Introduction =
+
+The Page Speed image compression libraries use the Independent Jpeg Group's [http://www.ijg.org/ libjpeg] and Cosmin Truţa's 
+[http://optipng.sourceforge.net/ OptiPNG].
+
+= Details =
+
+More details to be added soon.
