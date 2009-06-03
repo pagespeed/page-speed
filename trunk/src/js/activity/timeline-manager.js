@@ -15,6 +15,7 @@
  *
  * @fileoverview TimelineManager manages the timeline event sources,
  * as well as the timeline model and view instances.
+ *
  * @author Bryan McQuade
  */
 

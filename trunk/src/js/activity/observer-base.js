@@ -15,6 +15,7 @@
  *
  * @fileoverview Base class for event generators that use the
  * nsIObserverService.
+ *
  * @author Bryan McQuade
  */
 

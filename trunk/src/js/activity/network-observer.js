@@ -16,6 +16,7 @@
  * @fileoverview Observer of HTTP network events. NetworkObserver gets
  * called when a network request is created and when it gets
  * terminated (among other events).
+ *
  * @author Bryan McQuade
  */
 

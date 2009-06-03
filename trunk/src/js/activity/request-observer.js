@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * @fileoverview Observer of HTTP requests (both cache and network).
+ *
  * @author Bryan McQuade
  */
 
