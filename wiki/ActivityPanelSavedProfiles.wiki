@@ -1,0 +1,21 @@
+#summary Describes the format of Activity Panel profiles, and some common use cases.
+
+= Introduction =
+
+The Page Speed Activity Panel supports saving of JavaScript profiles to disk, in the [http://code.google.com/apis/protocolbuffers/docs/overview.html protocol buffer] format.
+
+Saving of protocol buffers allows developers to perform in-depth offline analysis of their JavaScript execution. For instance, a developer could write a [http://code.google.com/apis/protocolbuffers/docs/pythontutorial.html python script] to:
+
+  * compute the number of times each function was called, the amount of time spent in each function, etc.
+  * identify all JavaScript that ran for longer than a certain time threshold (to identify code that should be broken up in order to improve application responsiveness)
+  * transform the call tree into some other format (e.g. [http://www.graphviz.org/doc/info/lang.html dot]) in order to visualize the call graph.
+
+When working with JavaScript call graph protocol buffers, there's no limit (well, almost no limit) to the information you can extract about your JavaScript execution.
+
+= Protocol Buffer Format =
+
+Activity Panel profiles can be serialized to a [http://code.google.com/p/page-speed/source/browse/trunk/src/protobuf/activity/profile.proto Profile] protocol buffer. This protocol buffer contains a list of `FunctionMetadata` records, followed by a list of `CallTree` records. A `CallTree` is a recursive data structure that records a function trace, starting with the function at the root of the call stack. Each `CallTree` is associated with a `FunctionMetadata` by way of the `function_tag` attribute, a unique 32-bit identifier.
+
+Each `CallTree` record contains the invoked function's start and end times, a `function_tag`, and an ordered list of child `CallTrees` which were invoked by that function. Each `FunctionMetadata` record contains the function name, file name, and function source for a function, as well as a `function_tag` that uniquely identifies the function.
+
+The `function_tag` can be used to correlate `CallTree` records with `FunctionMetadata` records. For instance, to determine the name of the function in a `CallTree` record, one should extract the `CallTree.function_tag` field, and extract the `FunctionMetadata.function_name` entry for the `FunctionMetadata` record with the matching `function_tag`.
