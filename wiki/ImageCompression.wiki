@@ -7,6 +7,4 @@ The Page Speed image compression libraries use the Independent JPEG Group's [htt
 
 = Details =
 
-More details to be added soon.
-
-This software is based in part on the work of the Independent JPEG Group.
+We are required to state that: "This software is based in part on the work of the Independent JPEG Group."
