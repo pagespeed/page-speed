@@ -4,6 +4,8 @@ The Page Speed *"Defer loading of !JavaScript"* rule uses the [http://mxr.mozill
 
 Because this Page Speed rule runs some of its analysis when each page's onload handler is invoked, it is disabled by default. When this rule is enabled, it will slow down the browser, so we recommend leaving it disabled unless you are trying to determine which !JavaScript on a page can be delay loaded.
 
+If you are interested in profiling the execution of your !JavaScript, you might also be interested in ActivityPanelSavedProfiles.
+
 ==Profiling==
 
 For a given page, this rule iterates over all of the !JavaScript functions referenced by that page. This includes functions declared inline on the page, functions in external !JavaScript files loaded via `script` tags, and !JavaScript eval'd into the page. For each referenced function, we keep track of which were called, and which were not. Based on the information collected, we calculate the percentage of functions on the page that were called at least once.
