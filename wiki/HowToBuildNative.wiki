@@ -1,5 +1,4 @@
 #summary Explains how to build the Page Speed native shared libraries using the Mozilla Build System
-#labels tmp
 
 = Prerequisites =
 
