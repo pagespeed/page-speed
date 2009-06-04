@@ -1,3 +1,1 @@
-To download and install Page Speed, visit (while using Firefox):
-
-https://dl-ssl.google.com/page-speed/current/page-speed.xpi
+To download and install Page Speed, please visit http://code.google.com/speed/page-speed/download.html
