@@ -6,7 +6,7 @@ Here you will find information that you'll need to be able to contribute to Page
 
 Before you start working on a larger contribution you should get in touch with us first through the Page Speed [http://groups.google.com/group/page-speed-discuss discussion mailing list].
 
-Our list of [http://code.google.com/p/page-speed/issues/list open issues] is a good place to start when deciding what you'd like to contribute.
+Our list of [http://code.google.com/p/page-speed/issues/list open issues] is a good place to look for contribution ideas.
 
 == Getting the code ==
 
