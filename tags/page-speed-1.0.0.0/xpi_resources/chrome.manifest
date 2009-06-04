@@ -1,0 +1,6 @@
+content pagespeed chrome/pagespeed/content/ xpcnativewrappers=no
+content activity chrome/activity/content/ xpcnativewrappers=no
+
+overlay chrome://browser/content/browser.xul         chrome://pagespeed/content/pagespeedUtilOverlay.xul
+overlay chrome://firebug/content/firebugOverlay.xul         chrome://pagespeed/content/pagespeedOverlay.xul
+overlay chrome://firebug/content/firebugOverlay.xul         chrome://activity/content/firebugOverlay.xul
