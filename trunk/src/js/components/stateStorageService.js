@@ -19,12 +19,12 @@
  * @author Bryan McQuade
  */
 
-const IStateStorage = Components.interfaces.IStateStorage;
-const nsISupports = Components.interfaces.nsISupports;
+var IStateStorageIface = Components.interfaces.IStateStorage;
+var nsISupportsIface = Components.interfaces.nsISupports;
 
-const CLASS_ID = Components.ID('{7a596ebc-9a29-4f0e-8ad9-58d48eb79369}');
-const CLASS_NAME = 'StateStorageService';
-const CONTRACT_ID = '@code.google.com/p/page-speed/StateStorageService;1';
+var CLASS_ID = Components.ID('{7a596ebc-9a29-4f0e-8ad9-58d48eb79369}');
+var CLASS_NAME = 'StateStorageService';
+var CONTRACT_ID = '@code.google.com/p/page-speed/StateStorageService;1';
 
 /**
  * StateStorageService Constructor.
@@ -57,8 +57,8 @@ StateStorageService.prototype.getCachedObject = function(name) {
  * Implement nsISupports
  */
 StateStorageService.prototype.QueryInterface = function(aIID) {
-  if (!aIID.equals(IStateStorage) &&
-      !aIID.equals(nsISupports)) {
+  if (!aIID.equals(IStateStorageIface) &&
+      !aIID.equals(nsISupportsIface)) {
     throw Components.results.NS_ERROR_NO_INTERFACE;
   }
   return this;
