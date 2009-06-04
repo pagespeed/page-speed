@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+
+<!--
+ * Copyright 2008-2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<?xml-stylesheet href="chrome://activity/content/activity.css"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <vbox id="activityVbox">
+    <deck id="activityContent" flex="1" selectedIndex="0">
+      <!-- The info panel contains informational messages
+           (e.g. incompatible addons) -->
+      <vbox id="activityIntro" class="scroll" style="margin-left: 15px">
+        <spacer height="10"/>
+        <label value="Page Speed Activity" class="bold" style="font-size:medium"/>
+        <label>Displays a timeline of network, cache, and JavaScript events.</label>
+        <spacer height="10"/>
+        <hbox>
+          <button label="Record Activity"
+                  oncommand="window.top.activity.ui.performCommand('toggleProfiler')"/>
+          <spacer flex="1"/>
+        </hbox>
+        <spacer height="25"/>
+        <vbox id="activityInfo"/>
+        <spacer flex="1"/>
+        <spacer height="25"/>
+        <label>Page Speed Activity Copyright 2009 Google Inc.</label>
+        <spacer height="25"/>
+      </vbox>
+      <grid id="activityGrid" class="scroll">
+        <columns>
+          <!-- this column contains the URLs -->
+          <column flex="1" class="urlColumn"/>
+          <!-- this column contains the timelines -->
+          <column flex="10"/>
+        </columns>
+      </grid>
+    </deck>
+    <hbox pack="end" style="background-color:#fff">
+      <grid class="timelineLegend">
+        <columns>
+          <column class="timelineColumn"/>
+          <column class="timelineColumn"/>
+          <column class="timelineColumn"/>
+          <column class="timelineColumn"/>
+          <column class="timelineColumn"/>
+          <column class="timelineColumn"/>
+        </columns>
+        <rows>
+          <row>
+            <hbox align="center" tooltiptext="Time spent waiting for a connection to become available.">
+              <spacer class="timelineKeyBox networkWaitColor"/>
+              <label value="Connection Wait"/>
+            </hbox>
+            <hbox align="center" tooltiptext="Time spent waiting for a DNS lookup to complete.">
+              <spacer class="timelineKeyBox dnsLookupColor"/>
+              <label value="DNS"/>
+            </hbox>
+            <hbox align="center" tooltiptext="Time spent waiting for a TCP connection to be established.">
+              <spacer class="timelineKeyBox tcpConnectingColor"/>
+              <label value="Connect"/>
+            </hbox>
+            <hbox align="center" tooltiptext="TCP connection is open">
+              <spacer class="timelineKeyBox tcpConnectedColor"/>
+              <label value="Connected"/>
+            </hbox>
+            <hbox align="center" tooltiptext="Request data was written to the socket.">
+              <spacer class="timelineKeyBox requestSentColor"/>
+              <label value="Send"/>
+            </hbox>
+          </row>
+          <row>
+            <hbox align="center" tooltiptext="The resource was found in the browser cache.">
+              <spacer class="timelineKeyBox cacheHitColor"/>
+              <label value="Cache Hit"/>
+            </hbox>
+            <hbox align="center" tooltiptext="Response data was made available to the UI.">
+              <spacer class="timelineKeyBox dataAvailableColor"/>
+              <label value="Data Available"/>
+            </hbox>
+            <hbox align="center" tooltiptext="JavaScript was parsed.">
+              <spacer class="timelineKeyBox timelineParseColor"/>
+              <label value="JS Parse"/>
+            </hbox>
+            <hbox align="center" tooltiptext="JavaScript executed.">
+              <spacer class="timelineKeyBox timelineExecuteColor"/>
+              <label value="JS Execute"/>
+            </hbox>
+          </row>
+        </rows>
+      </grid>
+    </hbox>
+
+    <!-- We define the <rows> template here. The TimelineView will inject a
+         clone of this element into the DOM when the profiler is started. -->
+    <rows id="activity-rowsTemplate" collapsed="true">
+      <row class="headerRow">
+        <label class="header" value="URL"/>
+        <stack>
+          <hbox align="end">
+            <spacer class="timelineTick"/>
+            <spacer flex="1"/>
+            <spacer class="timelineTick"/>
+            <spacer flex="1"/>
+            <spacer class="timelineTick"/>
+            <spacer flex="1"/>
+            <spacer class="timelineTick"/>
+            <spacer flex="1"/>
+            <spacer class="timelineTick"/>
+          </hbox>
+          <hbox>
+            <label id="activity-startTimeLabel" value="0ms"/>
+            <spacer flex="1"/>
+            <label id="activity-endTimeLabel"/>
+          </hbox>
+        </stack>
+      </row>
+    </rows>
+  </vbox>
+
+</overlay>
