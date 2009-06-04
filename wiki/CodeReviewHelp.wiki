@@ -6,8 +6,8 @@ The Page Speed code review server is http://page-speed-codereview.appspot.com.
 
 To submit a code review, we recommend using [http://page-speed-codereview.appspot.com/static/upload.py upload.py], which requires python 2.5. If you do not have python 2.5 on your system, you can still submit a code review through the [http://page-speed-codereview.appspot.com/new web interface].
 
-If you use the default version of upload.py available from codereview.appspot.com, you will need to specify the `-s` command line option to indicate that the code review should be uploaded to the Page Speed code review server (as opposed to the Rietveld code review server), like so
+You will need to specify the destination code review server, as well as CC page-speed-codereview@googlegroups.com like so:
 
-`upload.py -s page-speed-codereview.appspot.com`
+`upload.py -s page-speed-codereview.appspot.com -cc page-speed-codereview@googlegroups.com`
 
 After uploading your code review, you can verify that it was submitted for review at the [http://page-speed-codereview.appspot.com/all recent issues] page.
