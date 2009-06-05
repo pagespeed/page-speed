@@ -110,6 +110,9 @@ var imageDimensionsLint = function() {
 
   var oWarnings = {};
   for (var i = 0, len = images.length; i < len; ++i) {
+    // Do not report images that have no source.
+    if (!images[i].src) continue;
+
     if (images[i].style.position != 'absolute' &&
         !hasHtmlDimensions(images[i]) &&
         !hasStyleAttributeDimensions(images[i]) &&
