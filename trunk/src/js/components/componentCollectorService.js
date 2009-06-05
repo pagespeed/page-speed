@@ -1327,18 +1327,13 @@ ComponentCollectorService.prototype.addWindowComponent = function(
 
   var elements = components[typeStr][key].elements;
 
-  // TODO: we should not be storing the wrapped object. if clients
-  // need access to the raw wrappedJSObject, they should explicitly
-  // dereference wrappedJSObject.
-  var valueToAdd = value.wrappedJSObject ? value.wrappedJSObject : value;
-
   // Bail out early if this element should be unique and it is already in the
   // array.
-  if (opt_isUnique && elements.indexOf(valueToAdd) != -1) {
+  if (opt_isUnique && elements.indexOf(value) != -1) {
     return null;
   }
 
-  elements.push(valueToAdd);
+  elements.push(value);
   if (type == ComponentCollectorService.TYPE_REDIRECT) {
     if (typeof value != 'string') {
       // This should never happen, since TYPE_REDIRECT always has
