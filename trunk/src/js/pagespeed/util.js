@@ -1956,6 +1956,19 @@ PAGESPEED.Utils = {  // Begin namespace
 
     helperAppService.deleteTemporaryFileOnExit(file);
     return true;
+  },
+
+  /**
+   * Open the given link, respecting the user's pref to open in a tab
+   * vs a new window.
+   * @param {string} url The url to open.
+   */
+  openLink: function(url) {
+    if (PAGESPEED.Utils.getIntPref('browser.link.open_newwindow', 3) == 3) {
+      gBrowser.selectedTab = gBrowser.addTab(url);
+    } else {
+      FirebugChrome.window.open(url, '_blank');
+    }
   }
 
 };  // End namespace
