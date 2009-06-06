@@ -112,19 +112,23 @@ ActivityPanel.prototype = domplate(Firebug.Panel, {
       menuOptions.push(menuItemObj);
     };
 
-    var profileJavaScriptEnabled =
-        activity.preference.getBool(
-            activity.ui.PREF_ENABLE_JS_PROFILING_, true);
-    addMenuOption(
-        'Show JavaScript Events',
-        function() {activity.ui.performCommand('toggleProfileJavaScript'); },
-        profileJavaScriptEnabled);
-    if (profileJavaScriptEnabled) {
-      addMenuOption(
-          'Full Call Graphs (slow)',
-          function() {activity.ui.performCommand('toggleCompleteCallGraphs'); },
+    if (activity.Profiler.isSupportedJsd()) {
+      var profileJavaScriptEnabled =
           activity.preference.getBool(
-              activity.ui.PREF_COLLECT_COMPLETE_CALL_GRAPHS_, false));
+              activity.ui.PREF_ENABLE_JS_PROFILING_, true);
+      addMenuOption(
+          'Show JavaScript Events',
+          function() {activity.ui.performCommand('toggleProfileJavaScript'); },
+          profileJavaScriptEnabled);
+      if (profileJavaScriptEnabled) {
+        addMenuOption(
+            'Full Call Graphs (slow)',
+            function() {
+              activity.ui.performCommand('toggleCompleteCallGraphs');
+            },
+            activity.preference.getBool(
+                activity.ui.PREF_COLLECT_COMPLETE_CALL_GRAPHS_, false));
+      }
     }
 
     return menuOptions;
