@@ -29,6 +29,24 @@ activity.Profiler = function() {
 };
 
 /**
+ * The interface ID of the version of the jsdIDebuggerService that we
+ * currently support. This is the version available up through FF3.0.x.
+ * @type {string}
+ * @private
+ */
+activity.Profiler.SUPPORTED_JSD_IID_ = '{9dd9006a-4e5e-4a80-ac3d-007fb7335ca4}';
+
+/**
+ * @return {boolean} whether or not the version of the
+ * jsdIDebuggerService matches the version we expect.
+ */
+activity.Profiler.isSupportedJsd = function() {
+  var jsdIface = activity.xpcom.CI('jsdIDebuggerService');
+  if (!jsdIface) return false;
+  return jsdIface.number.toLowerCase() == activity.Profiler.SUPPORTED_JSD_IID_;
+};
+
+/**
  * Handle to the Firefox JS debugger service singleton instance.
  * @type {jsdIDebuggerService}
  * @private

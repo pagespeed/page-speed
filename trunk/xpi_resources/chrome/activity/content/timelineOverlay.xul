@@ -36,6 +36,7 @@
         </hbox>
         <spacer height="25"/>
         <vbox id="activityInfo"/>
+        <label id="activityJsSupportLabel" collapsed="true">JavaScript Parse and Execute events are not currently supported for this version of Firefox. For JS event support, please use Firefox 3.0.x.</label>
         <spacer flex="1"/>
         <spacer height="25"/>
         <label>Page Speed Activity Copyright 2009 Google Inc.</label>
@@ -84,6 +85,10 @@
             </hbox>
           </row>
           <row>
+            <hbox align="center" tooltiptext="Response data was read from the socket.">
+              <spacer class="timelineKeyBox socketDataColor"/>
+              <label value="Receive"/>
+            </hbox>
             <hbox align="center" tooltiptext="The resource was found in the browser cache.">
               <spacer class="timelineKeyBox cacheHitColor"/>
               <label value="Cache Hit"/>
