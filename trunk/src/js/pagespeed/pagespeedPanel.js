@@ -162,8 +162,9 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                   TD({'class': 'netSizeCol netCol', 'width': '*',
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'},
-                         A({'href': '$rule.href', 'target': '_blank',
+                         A({'href': '$rule.href',
                             'style': 'color:black',
+                            'onclick': '$openLink',
                             'onmouseover': '$linkHover',
                             'onmouseout': '$linkHover'}, '$rule.name')
                         )
@@ -353,12 +354,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     // Install a function on the document that opens a link in a new window
     // or tab.
     this.document.openLink = function(anchorElem) {
-      var prefs = PAGESPEED.Utils.getPrefs();
-      if (prefs.getIntPref('browser.link.open_external') == 3) {
-        gBrowser.selectedTab = gBrowser.addTab(anchorElem.href);
-      } else {
-        FirebugChrome.window.open(anchorElem.href, '_blank');
-      }
+      PAGESPEED.Utils.openLink(anchorElem.href);
     };
 
     // Display the welcome page.
@@ -543,6 +539,15 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
       targetElem.style.color = 'black';
       targetElem.style.textDecoration = 'none';
     }
+  },
+
+  /**
+   * Handles links correctly (either new tab or new window).
+   * @param {Event} event The event to handle.
+   */
+  openLink: function(event) {
+    event.preventDefault();
+    PAGESPEED.Utils.openLink(event.target);
   },
 
   /**
