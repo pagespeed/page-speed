@@ -56,11 +56,24 @@ var LOG_MSG_NEG_DIFF = 'diff less than zero';
 var MAX_AGE_MS = 10000;
 
 function PS_LOG(msg) {
-  /* uncomment to enable logging
+  // We set PS_LOG.enabled below.
+  if (!PS_LOG.enabled) return;
   var consoleService = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
   consoleService.logStringMessage(msg);
-  */
+}
+
+try {
+  var prefClass = Components.classes['@mozilla.org/preferences-service;1'];
+  if (prefClass) {
+    var prefService = prefClass.getService(Components.interfaces.nsIPrefBranch);
+    if (prefService) {
+      PS_LOG.enabled = prefService.getBoolPref(
+          'extensions.PageSpeed.enable_console_logging');
+    }
+  }
+} catch (x) {
+  PS_LOG.enabled = false;
 }
 
 /**

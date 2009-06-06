@@ -28,11 +28,11 @@
  * @param {string} msg The message to log.
  */
 function PS_LOG(msg) {
-  /* uncomment to enable logging
+  // We set PS_LOG.enabled at the end of this file.
+  if (!PS_LOG.enabled) return;
   var consoleService = Components.classes['@mozilla.org/consoleservice;1']
     .getService(Components.interfaces.nsIConsoleService);
   consoleService.logStringMessage(msg);
-  */
 }
 
 // Define a namespace.
@@ -1972,5 +1972,9 @@ PAGESPEED.Utils = {  // Begin namespace
   }
 
 };  // End namespace
+
+// Check whether logging is enabled.
+PS_LOG.enabled = PAGESPEED.Utils.getBoolPref(
+    'extensions.PageSpeed.enable_console_logging', false);
 
 })();  // End closure
