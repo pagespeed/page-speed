@@ -300,9 +300,10 @@ PAGESPEED.LintRule.prototype.runRule_ = function() {
     } catch (e){
       self.score = 'error';
       self.information =
-      'Sorry, there was an error while running ' +
-      'this rule. Please file a bug with these ' +
-      'details: ' + e;
+        'Sorry, there was an error while running ' +
+        'this rule. Please file a bug with these ' +
+        'details: ' + PAGESPEED.Utils.formatException(e);
+
       PAGESPEED.LintRules.ruleCompleted();
     }
   };
