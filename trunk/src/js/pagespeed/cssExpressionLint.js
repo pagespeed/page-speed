@@ -38,14 +38,21 @@ var cssExpressionRule = function() {
 
     // TODO: It would be nice to return the contents of the expression,
     // but this doesn't seem possible with a regex alone.
-    aWarnings.push(aStyles[i].name + ': ' + m.length + ' CSS expression(s).');
+    aWarnings.push([aStyles[i].name,
+                    ' contains ',
+                    m.length,
+                    ' CSS expression' +
+                    (m.length > 1 ? 's' : ''),
+                    '.'].join(''));
     numExpressions += m.length;
   }
 
   if (numExpressions) {
     this.score = 100 - (11 * numExpressions);
     this.warnings = [
-      'Found ', numExpressions, ' CSS expression(s). CSS expressions ',
+      'Found ', numExpressions,
+      ' CSS expression', (numExpressions > 1 ? 's':''),
+      '. CSS expressions ',
       'should not be used because they degrade rendering performance ',
       'in Internet Explorer.<br>',
       PAGESPEED.Utils.formatWarnings(aWarnings)].join('');
