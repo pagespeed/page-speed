@@ -109,6 +109,15 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             ),
           INPUT({'type': 'button', 'value': 'Analyze Performance',
                  'onclick': '$showPerformance'}),
+          P({'style': 'padding-top:5px'},
+            'See the ',
+            A({'href': 'http://code.google.com/' +
+                       'speed/page-speed/docs/rules_intro.html',
+              'onclick': '$openLink'},
+              'Page Speed documentation'
+              ),
+            ' for detailed information on the rules used to evaluate web pages.'
+            ),
           P({'class': 'moduleManagerDecription'},
             'Page Speed Copyright &copy; 2009 Google Inc.'
            ),
@@ -163,6 +172,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'},
                          A({'href': '$rule.href',
+                            'title': 'Learn More',
                             'style': 'color:black',
                             'onclick': '$openLink',
                             'onmouseover': '$linkHover',
