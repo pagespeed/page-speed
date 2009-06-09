@@ -1969,8 +1969,25 @@ PAGESPEED.Utils = {  // Begin namespace
     } else {
       FirebugChrome.window.open(url, '_blank');
     }
-  }
+  },
 
+  /**
+   * Format an exception into a string.  Display just enough information
+   * to debug the problem without making the error too verbose.
+   * @param {Error} ex The exception object.
+   * @return {string} String representation of the error.
+   */
+  formatException: function(ex) {
+    // If there is no additional info to add, return ex.toString().
+    if (!ex.fileName && !ex.lineNum)
+      return ex.toString();
+
+    var resultArr = [ex.toString(),
+                     ' (', ex.fileName || '<file unknown>',
+                     ':', ex.lineNumber || '<line unknown>',
+                     ')'];
+    return resultArr.join('');
+  }
 };  // End namespace
 
 // Check whether logging is enabled.
