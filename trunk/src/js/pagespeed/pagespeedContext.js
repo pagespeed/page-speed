@@ -335,8 +335,9 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   },
 
   showPerformance: function() {
-    PAGESPEED.LintRules.stop();
     try {
+      PAGESPEED.LintRules.stop();
+
       // Get the object that represents the current tab.
       var browserOfCurrentTab = gBrowser.selectedBrowser;
 
@@ -372,12 +373,24 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   },
 
   showComponents: function() {
-    PAGESPEED.LintRules.stop();
     try {
+      PAGESPEED.LintRules.stop();
+
       PAGESPEED.PageSpeedContext.displayComponents(
           FirebugContext.getPanel('pagespeed'));
     } catch (e) {
       PS_LOG('Unexpected exception in showComponents().  Please file a bug' +
+             'with the following text: ' + e + '\n');
+    }
+  },
+
+  showHelp: function() {
+    try {
+      PAGESPEED.Utils.openLink(
+        'http://code.google.com/speed/page-speed/docs/using.html');
+
+    } catch (e) {
+      PS_LOG('Unexpected exception in showHelp().  Please file a bug' +
              'with the following text: ' + e + '\n');
     }
   },

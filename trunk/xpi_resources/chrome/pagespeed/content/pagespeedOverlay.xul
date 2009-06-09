@@ -73,6 +73,8 @@
              oncommand="Firebug.PageSpeedModule.showPerformance()"/>
     <command id="cmd_components"
              oncommand="Firebug.PageSpeedModule.showComponents()"/>
+    <command id="cmd_help"
+             oncommand="Firebug.PageSpeedModule.showHelp()"/>
   </commandset>
 
   <toolbar id="fbToolbar" align="center">
@@ -88,6 +90,10 @@
         <toolbarbutton id="psCompButton" label="Show Resources"
                        class="toolbar-text-button" group="pagespeedButtons"
                        command="cmd_components"/>
+        <spacer width="5px"/>
+        <toolbarbutton id="psHelpButton" label="Help"
+                       class="toolbar-text-button" group="pagespeedButtons"
+                       command="cmd_help"/>
         <spacer width="2px"/>
       </hbox>
     </hbox>
