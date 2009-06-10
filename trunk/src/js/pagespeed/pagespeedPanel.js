@@ -173,10 +173,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                      DIV({'class': 'netSizeLabel netLabel'},
                          A({'href': '$rule.href',
                             'title': 'Learn More',
-                            'style': 'color:black',
-                            'onclick': '$openLink',
-                            'onmouseover': '$linkHover',
-                            'onmouseout': '$linkHover'}, '$rule.name')
+                            'onclick': '$openLink'
+                           }, '$rule.name')
                         )
                     )
                  )
@@ -533,22 +531,6 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    */
   showPerformance: function(event) {
     Firebug.PageSpeedModule.showPerformance();
-  },
-
-  /**
-   * Changes the style of a link on hover.
-   *
-   * TODO: Move this and other inline styles to a .css file.
-   */
-  linkHover: function(event) {
-    var targetElem = event.target;
-    if (targetElem.style.color == 'black') {
-      targetElem.style.color = 'blue';
-      targetElem.style.textDecoration = 'underline';
-    } else {
-      targetElem.style.color = 'black';
-      targetElem.style.textDecoration = 'none';
-    }
   },
 
   /**
