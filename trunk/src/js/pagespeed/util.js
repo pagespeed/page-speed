@@ -1777,12 +1777,59 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
-   * @return {nsIFile} The user's home dir for the current client.
+   * Get a directory where rules can write files.
+   * @param {string} opt_subDir Return this sub-directory within the scratch dir.
+   * @return {nsIFile} The user's home dir for the current client.  null
+   *     on error.
    */
-  getHomeDir: function() {
-    return PAGESPEED.Utils.CCSV(
-        '@mozilla.org/file/directory_service;1', 'nsIProperties')
-        .get('Home', Ci.nsIFile);
+  getScratchDir: function(opt_subDir) {
+    var PERMISSIONS = 0755;
+
+    try {
+      var scratchDir =  PAGESPEED.Utils.CCSV(
+          '@mozilla.org/file/directory_service;1', 'nsIProperties')
+          .get('TmpD', Ci.nsIFile);
+
+      if (!scratchDir) {
+        PS_LOG('Failed to get a scratch dir.');
+        return null;
+      }
+
+      if (opt_subDir) {
+        scratchDir.append(opt_subDir);
+      }
+
+      if (scratchDir.exists() && !scratchDir.isDirectory()) {
+        PS_LOG('Failed to create scratch directory "' + scratchDir +
+               '": a file already exists at that path.');
+        return null;
+      }
+
+      if (!scratchDir.exists()) {
+        scratchDir.create(scratchDir.DIRECTORY_TYPE, PERMISSIONS);
+      }
+
+      // Check that the permissions are correct.
+      if (scratchDir.permissions != PERMISSIONS) {
+        try {
+          // Sometimes setting some permissions is not allowed.
+          // Try to set permissions, log if it is not possible.
+          scratchDir.permissions = PERMISSIONS;
+        } catch (e) {
+          PS_LOG('getScratchDir(): Failed to set permissions "' +
+             scratchDir +'" due to an exception: ' +
+             PAGESPEED.Utils.formatException(e) + ')');
+        }
+      }
+
+      return scratchDir.clone();
+
+    } catch (e) {
+      PS_LOG('getScratchDir(): Failed to create scratch directory "' +
+             scratchDir +'" due to an exception: ' +
+             PAGESPEED.Utils.formatException(e) + ')');
+      return null;
+    }
   },
 
   /**

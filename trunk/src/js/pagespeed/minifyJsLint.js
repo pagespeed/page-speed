@@ -56,38 +56,27 @@ var MINIFIED_OUTPUT_DIR_NAME = 'page-speed-javascript';
 var MINIFIED_OUTPUT_DIR_PERMISSIONS = 0755;
 
 /**
- * @return {nsIFile} the directory we should store minified output
- *    in, or null if we are unable to create the directory.
- */
-var getMinifiedOutputDir = function() {
-  var minifyDir = PAGESPEED.Utils.getHomeDir();
-  minifyDir.append(MINIFIED_OUTPUT_DIR_NAME);
-  if (minifyDir.exists() && !minifyDir.isDirectory()) {
-    return null;
-  }
-  if (!minifyDir.exists()) {
-    minifyDir.create(minifyDir.DIRECTORY_TYPE, MINIFIED_OUTPUT_DIR_PERMISSIONS);
-  }
-  if (minifyDir.permissions != MINIFIED_OUTPUT_DIR_PERMISSIONS) {
-    // Make sure permissions are correct.
-    minifyDir.permissions = MINIFIED_OUTPUT_DIR_PERMISSIONS;
-  }
-  return minifyDir.clone();
-};
-
-/**
  * Write the minified version of the JS to a file on disk, so we can
  * provide a link to it in the UI, and so the user is able to get a
  * copy of the minified version.
+ * @param {string} uncompiledSource The uncompiled JS.
+ * @param {string} compiledSource The minified version of uncompiledSource.
+ * @return {Object} The minified file on success, null on failure.
  */
 var writeMinifiedFile = function(uncompiledSource, compiledSource) {
-  var minifiedFile = getMinifiedOutputDir();
+  // minifiedFile starts as a directory.  The call to minifiedFile.append()
+  // below makes it a file.
+  var minifiedFile = PAGESPEED.Utils.getScratchDir(MINIFIED_OUTPUT_DIR_NAME);
   if (!minifiedFile) {
     return null;
   }
+
+  // Get the md5sum of the uncompiled source.
   var inputStream = PAGESPEED.Utils.wrapWithInputStream(uncompiledSource);
   var hash = PAGESPEED.Utils.getMd5HashForInputStream(inputStream);
   inputStream.close();
+
+  // Create the output file.
   inputStream = PAGESPEED.Utils.wrapWithInputStream(compiledSource);
   var fileName = hash + '.js';
   minifiedFile.append(fileName);
@@ -95,9 +84,12 @@ var writeMinifiedFile = function(uncompiledSource, compiledSource) {
     // If the file exists, remove it.
     minifiedFile.remove(true);
   }
+
+  // Write the compiled source to a file.
   PAGESPEED.Utils.copyCompleteInputToOutput(
       inputStream,
       PAGESPEED.Utils.openFileForWriting(minifiedFile.path));
+
   return minifiedFile;
 };
 
@@ -170,8 +162,10 @@ var doMinify = function(storage, script) {
   try {
     compiledSource = JSMIN.compile(uncompiledSource);
   } catch (e) {
-    storage.aErrors.push(['Minification of ', script.name, ' failed (',
-        e, ').'].join(''));
+    storage.aErrors.push([
+      'Minification of ', script.name, ' failed (',
+      PAGESPEED.Utils.formatException(e), ').'
+    ].join(''));
     return;
   }
   var compiledSourceLength = compiledSource.length;
@@ -184,15 +178,19 @@ var doMinify = function(storage, script) {
   storage.totalPossibleSavings += possibleSavings;
 
   var minifiedFile = writeMinifiedFile(uncompiledSource, compiledSource);
-  var minifiedFileUrl = PAGESPEED.Utils.getUrlForFile(minifiedFile);
 
-  // Make sure the temp file gets deleted when Firefox exits.
-  PAGESPEED.Utils.deleteTemporaryFileOnExit(minifiedFile);
+  var minifiedFileUrl;
+  if (minifiedFile) {
+    minifiedFileUrl = PAGESPEED.Utils.getUrlForFile(minifiedFile);
+
+    // Make sure the temp file gets deleted when Firefox exits.
+    PAGESPEED.Utils.deleteTemporaryFileOnExit(minifiedFile);
+  }
 
   storage.aResults.push({
       name: script.name,
       origSize: uncompiledSourceLength,
-      minifiedUrl: minifiedFileUrl,
+      minifiedUrl: minifiedFileUrl || '',
       savings: possibleSavings});
 };
 
@@ -227,7 +225,7 @@ var generateOutput = function(storage) {
 
   // Remove the path from the text of the link to the minified js, to
   // make it more readable.
-  var jsDir = getMinifiedOutputDir();
+  var jsDir = PAGESPEED.Utils.getScratchDir();
   if (jsDir) {
     var jsDirUrl = PAGESPEED.Utils.getUrlForFile(jsDir);
     var jsDirRegexp = new RegExp(

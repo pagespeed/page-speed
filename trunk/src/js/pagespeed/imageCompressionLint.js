@@ -252,26 +252,6 @@ function sortByBytesSaved(a, b) {
 }
 
 /**
- * @return {nsIFile} the directory we should store compressed images
- *    in, or null if we are unable to create the directory.
- */
-function getCompressedImagesDir() {
-  var imageDir = PAGESPEED.Utils.getHomeDir();
-  imageDir.append(COMPRESSED_IMAGE_DIR_NAME);
-  if (imageDir.exists() && !imageDir.isDirectory()) {
-    return null;
-  }
-  if (!imageDir.exists()) {
-    imageDir.create(imageDir.DIRECTORY_TYPE, COMPRESSED_IMAGE_DIR_PERMISSIONS);
-  }
-  if (imageDir.permissions != COMPRESSED_IMAGE_DIR_PERMISSIONS) {
-    // Make sure permissions are correct.
-    imageDir.permissions = COMPRESSED_IMAGE_DIR_PERMISSIONS;
-  }
-  return imageDir.clone();
-}
-
-/**
  * @param {string} url the URL of the resource.
  * @return {string?} the default file extension for the image at the
  *     given URL, based on the resource's Content-Type, or null.
@@ -342,7 +322,7 @@ function getContentType(url) {
  *     will attempt to compress.
  */
 function prepareFileForCompression(url, extension) {
-  var compressedFile = getCompressedImagesDir();
+  var compressedFile = PAGESPEED.Utils.getScratchDir(COMPRESSED_IMAGE_DIR_NAME);
   if (!compressedFile) {
     return null;
   }
@@ -533,7 +513,7 @@ var imageCompressionLint = function() {
 
       // Remove the path from the text of the link to the compressed images, to
       // make it more readable.
-      var imagesDir = getCompressedImagesDir();
+      var imagesDir = PAGESPEED.Utils.getScratchDir(COMPRESSED_IMAGE_DIR_NAME);
       if (imagesDir) {
         var imageDirUrl = PAGESPEED.Utils.getUrlForFile(imagesDir);
         var imageDirRegexp = new RegExp(
