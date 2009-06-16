@@ -445,7 +445,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
       PAGESPEED.Utils.setBoolPref(jsProfileEnabledPref, !oldValue);
     };
 
-    addMenuOption('Profile Deferrable JavaScript',
+    addMenuOption('Profile Deferrable JavaScript (slow)',
                   toggleProfileJavaScript,
                   PAGESPEED.Utils.getBoolPref(jsProfileEnabledPref));
 
