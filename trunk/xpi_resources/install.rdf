@@ -23,7 +23,7 @@
     <!-- This GUID is hard-coded into util.js.  If it is ever changed, util.js needs to be updated. -->
     <em:id>{e3f6c2cc-d8db-498c-af6c-499fb211db97}</em:id>
     <em:name>Page Speed</em:name>
-    <em:version>1.0.0.0</em:version>
+    <em:version>1.0.1</em:version>
     <em:description>Speed up your web pages with this performance diagnostics tool. Requires Firebug.</em:description>
     <em:creator>Google Inc.</em:creator>
     <em:homepageURL>http://code.google.com/speed/page-speed/</em:homepageURL>
@@ -35,7 +35,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>3.0</em:minVersion>
-        <em:maxVersion>3.0.*</em:maxVersion>
+        <em:maxVersion>3.5.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
