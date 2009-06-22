@@ -458,7 +458,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                   buildToggleBoolPrefFn(jsProfileEnabledPref),
                   PAGESPEED.Utils.getBoolPref(jsProfileEnabledPref));
 
-    addMenuOption('Automaticly Run at Onload',
+    addMenuOption('Automatically Run at Onload',
                   buildToggleBoolPrefFn(autoRunEnabledPref),
                   PAGESPEED.Utils.getBoolPref(autoRunEnabledPref));
 
