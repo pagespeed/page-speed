@@ -440,14 +440,27 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     };
 
     var jsProfileEnabledPref = 'extensions.PageSpeed.js_coverage.enable';
-    var toggleProfileJavaScript = function() {
-      var oldValue = PAGESPEED.Utils.getBoolPref(jsProfileEnabledPref);
-      PAGESPEED.Utils.setBoolPref(jsProfileEnabledPref, !oldValue);
+    var autoRunEnabledPref = 'extensions.PageSpeed.autorun';
+
+    /**
+     * @param {string} prefName The name of a boolean preference.
+     * @return {Function} A function that will toggle the value of that
+     *     preference.
+     */
+    var buildToggleBoolPrefFn = function(prefName) {
+      return function() {
+        var oldValue = PAGESPEED.Utils.getBoolPref(prefName);
+        PAGESPEED.Utils.setBoolPref(prefName, !oldValue);
+      };
     };
 
     addMenuOption('Profile Deferrable JavaScript (slow)',
-                  toggleProfileJavaScript,
+                  buildToggleBoolPrefFn(jsProfileEnabledPref),
                   PAGESPEED.Utils.getBoolPref(jsProfileEnabledPref));
+
+    addMenuOption('Automaticly Run at Onload',
+                  buildToggleBoolPrefFn(autoRunEnabledPref),
+                  PAGESPEED.Utils.getBoolPref(autoRunEnabledPref));
 
     menuOptions.push('-');
 
