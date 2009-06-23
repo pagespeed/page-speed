@@ -537,9 +537,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
         function() {
           var fp = PAGESPEED.Utils.CCIN(
               '@mozilla.org/filepicker;1', 'nsIFilePicker');
-          fp.init(window,
-                  'Select a directory to store optomized results',
-                  nsIFilePicker.modeGetFolder);
+          fp.init(window, 'Select a directory to store optomized results',
+                  Ci.nsIFilePicker.modeGetFolder);
 
           // Set the start directory to the user's desktop dir, if it was
           // found above.
@@ -548,7 +547,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             fp.displayDirectory = desktopDir;
           }
 
-          if (fp.show() != nsIFilePicker.returnOK) {
+          if (fp.show() != Ci.nsIFilePicker.returnOK) {
             // User canceled.  Don't change the pref.
             return;
           }

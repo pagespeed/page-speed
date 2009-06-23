@@ -1914,7 +1914,6 @@ PAGESPEED.Utils = {  // Begin namespace
     return path;
   },
 
-
   /**
    * Open a file for writing.
    * @param {string} fileName The file name to write.
