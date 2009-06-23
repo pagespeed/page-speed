@@ -522,7 +522,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                     );
     }
 
-    // If the value set in the preference has not been put in the menu yet, add it.
+    // If the value set in the preference has not been put in the menu
+    // yet, add it.
     if (!currentOutputDirSeen) {
       addMenuOption([' Custom Setting: ', currentOutputPath].join(''),
                     function() {},
@@ -534,9 +535,11 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     addMenuOption(
         ' Choose a Custom Path',
         function() {
-          var nsIFilePicker = Components.interfaces.nsIFilePicker;
-          var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-          fp.init(window, 'Select a directory to store optomized results', nsIFilePicker.modeGetFolder);
+          var fp = PAGESPEED.Utils.CCIN(
+              '@mozilla.org/filepicker;1', 'nsIFilePicker');
+          fp.init(window,
+                  'Select a directory to store optomized results',
+                  nsIFilePicker.modeGetFolder);
 
           // Set the start directory to the user's desktop dir, if it was
           // found above.
