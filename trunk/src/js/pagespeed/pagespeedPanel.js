@@ -464,86 +464,73 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
     menuOptions.push('-');
 
-    try {
-
     // Add an unselectable menu item that serves as the heading for
-    // the location of scratch files.
+    // the location of output files.
     addMenuOption('Save Optimized Files To:', function() {}, false, true);
 
     // The path and an nsILocalFile will be added to each object below.
-    var scratchDirOptions = {
-        Temp: {mozKey: 'TmpD'},
-        Home: {mozKey: 'Home'},
-        Desktop: {mozKey: 'Desk'}
+    var outputDirOptions = {
+      Temp: {mozKey: 'TmpD'},
+      Home: {mozKey: 'Home'},
+      Desktop: {mozKey: 'Desk'}
     };
 
     /**
      * Build a function that will set a preference to a file.
-     * @param {string} prefName The preference name to set.
      * @param {nsIFile} file The file whose path will be set.
      */
-    var buildSetFilePrefFn = function(prefName, file) {
+    var buildSetFilePrefFn = function(file) {
       return function() {
-        PAGESPEED.Utils.setFilePref(prefName, file);
+        PAGESPEED.Utils.setOutputDir(file);
       };
     }
 
-    // The preference where the chosen base directory is stored.
-    var OPTIMIZED_FILE_BASE_DIR =
-        'extensions.PageSpeed.optimized_file_base_dir';
+    // If the directory where optimized output will be written is unset, then
+    // set to the default value.
+    PAGESPEED.Utils.setDefaultOutputDir();
 
-    var currentPrefDir = PAGESPEED.Utils.getFilePref(OPTIMIZED_FILE_BASE_DIR);
-    var currentPrefDirPath;
-    if (currentPrefDir) {
-      currentPrefDirPath = PAGESPEED.Utils.getPathForFile(currentPrefDir);
-    } else {
-      // If the pref is unset, set it to the system temp directory.
-      // It is not possible to set the default vaule in preferences.js,
-      // because the value is different on different platforms.
-      PAGESPEED.Utils.setFilePref(OPTIMIZED_FILE_BASE_DIR,
-                                  PAGESPEED.Utils.getScratchDir('', 'TmpD'));
-    }
+    var currentOutputDir = PAGESPEED.Utils.getOutputDir();
+    var currentOutputPath = PAGESPEED.Utils.getPathForFile(currentOutputDir);
 
-    // Set to true when the pref value is added to the menu.  If it is not,
-    // than we will add an extra menu item to include it.
-    var prefValueSeen = false;
+    // Set to true when the current output directory is added to the menu.
+    // If it is not, than we will add an extra menu item to include it.
+    var currentOutputDirSeen = false;
 
-    for (var dirName in scratchDirOptions) {
-      var scratchDir = scratchDirOptions[dirName];
+    for (var dirName in outputDirOptions) {
+      var outDir = outputDirOptions[dirName];
 
-      var scratchDirFile = PAGESPEED.Utils.getScratchDir('', scratchDir.mozKey);
+      var outDirFile = PAGESPEED.Utils.CCSV(
+        '@mozilla.org/file/directory_service;1', 'nsIProperties')
+        .get(outDir.mozKey, Ci.nsIFile);
+
       // If the dir can not be accessed, than do not list it in the menu.
-      if (!scratchDirFile) continue;
+      if (!outDirFile) continue;
 
-      scratchDir.file = scratchDirFile;
-      scratchDir.path = PAGESPEED.Utils.getPathForFile(scratchDirFile);
+      outDir.file = outDirFile;
+      outDir.path = PAGESPEED.Utils.getPathForFile(outDirFile);
 
       var menuText = [' ', dirName,
-                      ' (', scratchDir.path, ')'].join('');
+                      ' (', outDir.path, ')'].join('');
 
-      var isSelected = (currentPrefDirPath === scratchDir.path);
-      dump('currentPrefDirPath = '+currentPrefDirPath+'\n');
-      dump('scratchDir.path = '+scratchDir.path+'\n');
-      dump('isSelected = '+isSelected+'\n');
-
+      var isSelected = (currentOutputPath === outDir.path);
       if (isSelected)
-        prefValueSeen = true;
+        currentOutputDirSeen = true;
 
       addMenuOption(menuText,
-                    buildSetFilePrefFn(OPTIMIZED_FILE_BASE_DIR, scratchDir.file),
+                    buildSetFilePrefFn(outDir.file),
                     isSelected
                     );
     }
 
     // If the value set in the preference has not been put in the menu yet, add it.
-    if (!prefValueSeen) {
-      addMenuOption([' Custom Setting: ', currentPrefDirPath].join(''),
+    if (!currentOutputDirSeen) {
+      addMenuOption([' Custom Setting: ', currentOutputPath].join(''),
                     function() {},
                     true
                     );
     }
 
-    // Add a menu option to set a new path.
+    // Add a menu option to set a custom path.
     addMenuOption(
         ' Choose a Custom Path',
         function() {
@@ -553,7 +540,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
           // Set the start directory to the user's desktop dir, if it was
           // found above.
-          var desktopDir = scratchDirOptions['Desktop']['file'];
+          var desktopDir = outputDirOptions['Desktop']['file'];
           if (desktopDir) {
             fp.displayDirectory = desktopDir;
           }
@@ -563,18 +550,12 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             return;
           }
 
-          PAGESPEED.Utils.setFilePref(OPTIMIZED_FILE_BASE_DIR, fp.file);
+          PAGESPEED.Utils.setOutputDir(fp.file);
         },
         false
         );
 
-
-
-    } catch(e) {
-      dump('Err.. '+e+'\n');
-    }
     menuOptions.push('-');
-
 
     var uac = PAGESPEED.UserAgentController;
 
