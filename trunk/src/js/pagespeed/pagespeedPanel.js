@@ -464,6 +464,118 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
     menuOptions.push('-');
 
+    try {
+
+    // Add an unselectable menu item that serves as the heading for
+    // the location of scratch files.
+    addMenuOption('Save Optimized Files To:', function() {}, false, true);
+
+    // The path and an nsILocalFile will be added to each object below.
+    var scratchDirOptions = {
+        Temp: {mozKey: 'TmpD'},
+        Home: {mozKey: 'Home'},
+        Desktop: {mozKey: 'Desk'}
+    };
+
+    /**
+     * Build a function that will set a preference to a file.
+     * @param {string} prefName The preference name to set.
+     * @param {nsIFile} file The file whose path will be set.
+     */
+    var buildSetFilePrefFn = function(prefName, file) {
+      return function() {
+        PAGESPEED.Utils.setFilePref(prefName, file);
+      };
+    }
+
+    // The preference where the chosen base directory is stored.
+    var OPTIMIZED_FILE_BASE_DIR =
+        'extensions.PageSpeed.optimized_file_base_dir';
+
+    var currentPrefDir = PAGESPEED.Utils.getFilePref(OPTIMIZED_FILE_BASE_DIR);
+    var currentPrefDirPath;
+    if (currentPrefDir) {
+      currentPrefDirPath = PAGESPEED.Utils.getPathForFile(currentPrefDir);
+    } else {
+      // If the pref is unset, set it to the system temp directory.
+      // It is not possible to set the default vaule in preferences.js,
+      // because the value is different on different platforms.
+      PAGESPEED.Utils.setFilePref(OPTIMIZED_FILE_BASE_DIR,
+                                  PAGESPEED.Utils.getScratchDir('', 'TmpD'));
+    }
+
+    // Set to true when the pref value is added to the menu.  If it is not,
+    // than we will add an extra menu item to include it.
+    var prefValueSeen = false;
+
+    for (var dirName in scratchDirOptions) {
+      var scratchDir = scratchDirOptions[dirName];
+
+      var scratchDirFile = PAGESPEED.Utils.getScratchDir('', scratchDir.mozKey);
+      // If the dir can not be accessed, than do not list it in the menu.
+      if (!scratchDirFile) continue;
+
+      scratchDir.file = scratchDirFile;
+      scratchDir.path = PAGESPEED.Utils.getPathForFile(scratchDirFile);
+
+      var menuText = [' ', dirName,
+                      ' (', scratchDir.path, ')'].join('');
+
+      var isSelected = (currentPrefDirPath === scratchDir.path);
+      dump('currentPrefDirPath = '+currentPrefDirPath+'\n');
+      dump('scratchDir.path = '+scratchDir.path+'\n');
+      dump('isSelected = '+isSelected+'\n');
+
+      if (isSelected)
+        prefValueSeen = true;
+
+      addMenuOption(menuText,
+                    buildSetFilePrefFn(OPTIMIZED_FILE_BASE_DIR, scratchDir.file),
+                    isSelected
+                    );
+    }
+
+    // If the value set in the preference has not been put in the menu yet, add it.
+    if (!prefValueSeen) {
+      addMenuOption([' Custom Setting: ', currentPrefDirPath].join(''),
+                    function() {},
+                    true
+                    );
+    }
+
+    // Add a menu option to set a new path.
+    addMenuOption(
+        ' Choose a Custom Path',
+        function() {
+          var nsIFilePicker = Components.interfaces.nsIFilePicker;
+          var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+          fp.init(window, 'Select a directory to store optomized results', nsIFilePicker.modeGetFolder);
+
+          // Set the start directory to the user's desktop dir, if it was
+          // found above.
+          var desktopDir = scratchDirOptions['Desktop']['file'];
+          if (desktopDir) {
+            fp.displayDirectory = desktopDir;
+          }
+
+          if (fp.show() != nsIFilePicker.returnOK) {
+            // User canceled.  Don't change the pref.
+            return;
+          }
+
+          PAGESPEED.Utils.setFilePref(OPTIMIZED_FILE_BASE_DIR, fp.file);
+        },
+        false
+        );
+
+
+
+    } catch(e) {
+      dump('Err.. '+e+'\n');
+    }
+    menuOptions.push('-');
+
+
     var uac = PAGESPEED.UserAgentController;
 
     /**
