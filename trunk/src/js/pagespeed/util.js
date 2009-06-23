@@ -1447,6 +1447,27 @@ PAGESPEED.Utils = {  // Begin namespace
     PAGESPEED.Utils.getPrefs().setBoolPref(prefName, value);
   },
 
+  setFilePref: function(prefName, file) {
+    try {
+      var pageSpeedPrefs = PAGESPEED.Utils.getPrefs();
+      pageSpeedPrefs.setComplexValue(prefName,
+                                     Ci.nsILocalFile,
+                                     file);
+    } catch (e) {
+      dump('Bah! '+e+'\n');
+    }
+  },
+
+  getFilePref: function(prefName) {
+    var pageSpeedPrefs = PAGESPEED.Utils.getPrefs()
+    try {
+      return pageSpeedPrefs.getComplexValue(prefName, Ci.nsILocalFile);
+    } catch (e) {
+      // If the pref is unset, an exception will be thrown.
+      return null;
+    }
+  },
+
   /**
    * @param {string} name The name of the cache object to fetch.
    * @return {Object} A singleton object stored in the IStateStorage
@@ -1776,19 +1797,61 @@ PAGESPEED.Utils = {  // Begin namespace
     return localFile;
   },
 
+  // Function getScratchDirOptions will add
+  // property 'path' to each object.
+  scratchDirOptions: [
+    {name: 'Temp', mozKey: 'TmpD'},
+    {name: 'Home', mozKey: 'Home'}
+  ],
+
+  /**
+   * Build a list of paths where scratch files can be placed.
+   * @return {Array.Object} List of objects representing paths.
+   *     Each class has:
+   *       name: Human readable name.
+   *       mozKey: Pass this into getScratchDir() to get this path.
+   *       path: Plain text path.
+   */
+  getScratchDirOptions: function() {
+    // Only compute once (per window).
+    if (PAGESPEED.Utils.getScratchDirOptions.alreadyRan) {
+      dump('Early out!\n');
+      return PAGESPEED.Utils.scratchDirOptions;
+    }
+
+    for (var i = 0, len = PAGESPEED.Utils.scratchDirOptions.length;
+         i < len; i++) {
+      var curOption = PAGESPEED.Utils.scratchDirOptions[i];
+
+      var scratchDir = PAGESPEED.Utils.getScratchDir('', curOption.mozKey);
+      if (!scratchDir) continue;
+
+      curOption.path = PAGESPEED.Utils.getPathForFile(scratchDir);
+    }
+
+    PAGESPEED.Utils.getScratchDirOptions.alreadyRan = true;
+    return PAGESPEED.Utils.scratchDirOptions;
+  },
+
   /**
    * Get a directory where rules can write files.
    * @param {string} opt_subDir Return this sub-directory within the scratch dir.
+   * @param {string} opt_baseDir The directory in which to put files.  See
+   *     https://developer.mozilla.org/en/Code_snippets/File_I%2F%2FO for
+   *     a list of options.  Common options include 'Home' for the user's
+   *     home directory, and 'TmpD' for the system temp directory.  Default is
+   *     'TmpD'.
    * @return {nsIFile} The user's home dir for the current client.  null
    *     on error.
    */
-  getScratchDir: function(opt_subDir) {
+  getScratchDir: function(opt_subDir, opt_baseDir) {
     var PERMISSIONS = 0755;
+    var baseDir = opt_baseDir || 'TmpD';
 
     try {
       var scratchDir =  PAGESPEED.Utils.CCSV(
           '@mozilla.org/file/directory_service;1', 'nsIProperties')
-          .get('TmpD', Ci.nsIFile);
+          .get(baseDir, Ci.nsIFile);
 
       if (!scratchDir) {
         PS_LOG('Failed to get a scratch dir.');
@@ -1834,11 +1897,25 @@ PAGESPEED.Utils = {  // Begin namespace
 
   /**
    * @param {nsIFile} f The file to generate a URL for.
-   * @return {string} the URL for the given file (e.g. file:///a/b.jpg).
+   * @return {string} The URL for the given file (e.g. file:///a/b.jpg).
    */
   getUrlForFile: function(f) {
     return PAGESPEED.Utils.getIOService().newFileURI(f).spec;
   },
+
+  /**
+   * @param {nsIFile} f The file to generate a path to.
+   * @return {string} The path for the given file (e.g. /a/b.jpg).
+   */
+  getPathForFile: function(f) {
+    var url = PAGESPEED.Utils.getUrlForFile(f);
+
+    // Strip off the 'file://', if present.
+    var path = url.replace(/^file:\/\//, '');
+
+    return path;
+  },
+
 
   /**
    * Open a file for writing.
