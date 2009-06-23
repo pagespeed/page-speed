@@ -322,7 +322,7 @@ function getContentType(url) {
  *     will attempt to compress.
  */
 function prepareFileForCompression(url, extension) {
-  var compressedFile = PAGESPEED.Utils.getScratchDir(COMPRESSED_IMAGE_DIR_NAME);
+  var compressedFile = PAGESPEED.Utils.getOutputDir(COMPRESSED_IMAGE_DIR_NAME);
   if (!compressedFile) {
     return null;
   }
@@ -513,7 +513,7 @@ var imageCompressionLint = function() {
 
       // Remove the path from the text of the link to the compressed images, to
       // make it more readable.
-      var imagesDir = PAGESPEED.Utils.getScratchDir(COMPRESSED_IMAGE_DIR_NAME);
+      var imagesDir = PAGESPEED.Utils.getOutputDir(COMPRESSED_IMAGE_DIR_NAME);
       if (imagesDir) {
         var imageDirUrl = PAGESPEED.Utils.getUrlForFile(imagesDir);
         var imageDirRegexp = new RegExp(

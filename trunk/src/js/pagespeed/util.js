@@ -83,6 +83,9 @@ var reLeadingSpaces = /^\s*/;
 var reTrailingSpaces = /\s*$/;
 var reHttpStatusLine = /^HTTP\/\S+\s+(\d+)\s+[\w\s]+$/;
 
+// This preference defines the path where optimized output is written.
+var OPTIMIZED_FILE_BASE_DIR = 'extensions.PageSpeed.optimized_file_base_dir';
+
 PAGESPEED.Utils = {  // Begin namespace
   /**
    * The key to the Request Header field in Net Panel.
@@ -1447,19 +1450,26 @@ PAGESPEED.Utils = {  // Begin namespace
     PAGESPEED.Utils.getPrefs().setBoolPref(prefName, value);
   },
 
+  /**
+   * Set a preference to the path of a file.
+   * @param {string} prefName The name of the preference to set.
+   * @param {nsIFile} file The file whose path is to be stored.
+   */
   setFilePref: function(prefName, file) {
-    try {
-      var pageSpeedPrefs = PAGESPEED.Utils.getPrefs();
-      pageSpeedPrefs.setComplexValue(prefName,
-                                     Ci.nsILocalFile,
-                                     file);
-    } catch (e) {
-      dump('Bah! '+e+'\n');
-    }
+    var pageSpeedPrefs = PAGESPEED.Utils.getPrefs();
+    pageSpeedPrefs.setComplexValue(prefName,
+                                   Ci.nsILocalFile,
+                                   file);
   },
 
+  /**
+   * Read a preference and construct a file object that represents it.
+   * @param {string} prefName The name of the preference to set.
+   * @return {nsIFile} The file named by the preference, or null if the
+   *     preference is unset.
+   */
   getFilePref: function(prefName) {
-    var pageSpeedPrefs = PAGESPEED.Utils.getPrefs()
+    var pageSpeedPrefs = PAGESPEED.Utils.getPrefs();
     try {
       return pageSpeedPrefs.getComplexValue(prefName, Ci.nsILocalFile);
     } catch (e) {
@@ -1797,99 +1807,87 @@ PAGESPEED.Utils = {  // Begin namespace
     return localFile;
   },
 
-  // Function getScratchDirOptions will add
-  // property 'path' to each object.
-  scratchDirOptions: [
-    {name: 'Temp', mozKey: 'TmpD'},
-    {name: 'Home', mozKey: 'Home'}
-  ],
+  /**
+   * If no output directory is set, then set to the equivalent of /tmp
+   * on the OS we are running under.  Setting a default in preferences.js
+   * is not possible because different OSes need different values.
+   */
+  setDefaultOutputDir: function() {
+    // Do nothing if the pref exists and has a non-empty value.
+    if (PAGESPEED.Utils.getFilePref(OPTIMIZED_FILE_BASE_DIR))
+      return;
+
+    // Get the system temp directory.
+    var tmpDir = PAGESPEED.Utils.CCSV(
+        '@mozilla.org/file/directory_service;1', 'nsIProperties')
+        .get('TmpD', Ci.nsIFile);
+
+    PAGESPEED.Utils.setFilePref(OPTIMIZED_FILE_BASE_DIR, tmpDir);
+  },
 
   /**
-   * Build a list of paths where scratch files can be placed.
-   * @return {Array.Object} List of objects representing paths.
-   *     Each class has:
-   *       name: Human readable name.
-   *       mozKey: Pass this into getScratchDir() to get this path.
-   *       path: Plain text path.
+   * @param {nsIFile} outDir Set the output directory to this directory.
    */
-  getScratchDirOptions: function() {
-    // Only compute once (per window).
-    if (PAGESPEED.Utils.getScratchDirOptions.alreadyRan) {
-      dump('Early out!\n');
-      return PAGESPEED.Utils.scratchDirOptions;
-    }
-
-    for (var i = 0, len = PAGESPEED.Utils.scratchDirOptions.length;
-         i < len; i++) {
-      var curOption = PAGESPEED.Utils.scratchDirOptions[i];
-
-      var scratchDir = PAGESPEED.Utils.getScratchDir('', curOption.mozKey);
-      if (!scratchDir) continue;
-
-      curOption.path = PAGESPEED.Utils.getPathForFile(scratchDir);
-    }
-
-    PAGESPEED.Utils.getScratchDirOptions.alreadyRan = true;
-    return PAGESPEED.Utils.scratchDirOptions;
+  setOutputDir: function(outDir) {
+    PAGESPEED.Utils.setFilePref(OPTIMIZED_FILE_BASE_DIR, outDir);
   },
 
   /**
    * Get a directory where rules can write files.
    * @param {string} opt_subDir Return this sub-directory within the scratch dir.
-   * @param {string} opt_baseDir The directory in which to put files.  See
-   *     https://developer.mozilla.org/en/Code_snippets/File_I%2F%2FO for
-   *     a list of options.  Common options include 'Home' for the user's
-   *     home directory, and 'TmpD' for the system temp directory.  Default is
-   *     'TmpD'.
    * @return {nsIFile} The user's home dir for the current client.  null
    *     on error.
    */
-  getScratchDir: function(opt_subDir, opt_baseDir) {
+  getOutputDir: function(opt_subDir) {
     var PERMISSIONS = 0755;
-    var baseDir = opt_baseDir || 'TmpD';
 
     try {
-      var scratchDir =  PAGESPEED.Utils.CCSV(
-          '@mozilla.org/file/directory_service;1', 'nsIProperties')
-          .get(baseDir, Ci.nsIFile);
+      var outputDir = PAGESPEED.Utils.getFilePref(OPTIMIZED_FILE_BASE_DIR);
+      if (!outputDir) {
+        // The first time this function is called, the preference might not
+        // be set.  Set a default value.
+        PAGESPEED.Utils.setDefaultOutputDir();
+        outputDir = PAGESPEED.Utils.getFilePref(OPTIMIZED_FILE_BASE_DIR);
+      }
 
-      if (!scratchDir) {
-        PS_LOG('Failed to get a scratch dir.');
+      // A failure after the default is set must be a bug.  Log and continue.
+      if (!outputDir) {
+        PS_LOG('Failed to get output dir.');
         return null;
       }
 
       if (opt_subDir) {
-        scratchDir.append(opt_subDir);
+        outputDir.append(opt_subDir);
       }
 
-      if (scratchDir.exists() && !scratchDir.isDirectory()) {
-        PS_LOG('Failed to create scratch directory "' + scratchDir +
+      if (outputDir.exists() && !outputDir.isDirectory()) {
+        PS_LOG('Failed to create output directory "' + outputDir +
                '": a file already exists at that path.');
         return null;
       }
 
-      if (!scratchDir.exists()) {
-        scratchDir.create(scratchDir.DIRECTORY_TYPE, PERMISSIONS);
+      if (!outputDir.exists()) {
+        outputDir.create(outputDir.DIRECTORY_TYPE, PERMISSIONS);
       }
 
       // Check that the permissions are correct.
-      if (scratchDir.permissions != PERMISSIONS) {
+      if (outputDir.permissions != PERMISSIONS) {
         try {
           // Sometimes setting some permissions is not allowed.
           // Try to set permissions, log if it is not possible.
-          scratchDir.permissions = PERMISSIONS;
+          outputDir.permissions = PERMISSIONS;
         } catch (e) {
-          PS_LOG('getScratchDir(): Failed to set permissions "' +
-             scratchDir +'" due to an exception: ' +
+          PS_LOG('getOutputDir(): Failed to set permissions "' +
+             outputDir +'" due to an exception: ' +
              PAGESPEED.Utils.formatException(e) + ')');
         }
       }
 
-      return scratchDir.clone();
+      return outputDir.clone();
 
     } catch (e) {
-      PS_LOG('getScratchDir(): Failed to create scratch directory "' +
-             scratchDir +'" due to an exception: ' +
+      PS_LOG('getOutputDir(): Failed to create output directory "' +
+             outputDir +'" due to an exception: ' +
              PAGESPEED.Utils.formatException(e) + ')');
       return null;
     }

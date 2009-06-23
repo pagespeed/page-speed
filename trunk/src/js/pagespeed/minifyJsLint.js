@@ -66,7 +66,7 @@ var MINIFIED_OUTPUT_DIR_PERMISSIONS = 0755;
 var writeMinifiedFile = function(uncompiledSource, compiledSource) {
   // minifiedFile starts as a directory.  The call to minifiedFile.append()
   // below makes it a file.
-  var minifiedFile = PAGESPEED.Utils.getScratchDir(MINIFIED_OUTPUT_DIR_NAME);
+  var minifiedFile = PAGESPEED.Utils.getOutputDir(MINIFIED_OUTPUT_DIR_NAME);
   if (!minifiedFile) {
     return null;
   }
@@ -225,7 +225,7 @@ var generateOutput = function(storage) {
 
   // Remove the path from the text of the link to the minified js, to
   // make it more readable.
-  var jsDir = PAGESPEED.Utils.getScratchDir();
+  var jsDir = PAGESPEED.Utils.getOutputDir();
   if (jsDir) {
     var jsDirUrl = PAGESPEED.Utils.getUrlForFile(jsDir);
     var jsDirRegexp = new RegExp(
