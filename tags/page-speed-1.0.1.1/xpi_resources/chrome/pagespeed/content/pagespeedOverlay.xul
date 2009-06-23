@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+
+<!--
+ * Copyright 2007-2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/jsmin.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/callbackHolder.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/userAgentController.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pagespeedContext.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pageLoadTimer.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pagespeedPanel.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/lint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/minifyJsLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/imageCompressionLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/imageDimensionsLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/combineScriptsAndStylesLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/styleBlocksInBodyLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/cacheControlLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/staticNoCookieLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/cookieSizeLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/parallelizeDownloadLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/cssEfficiencyChecker.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/stylesBeforeScriptsLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/jsCoverageLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/gzipLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/redirectLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/cssExpressionLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/unusedCssLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/dnsLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/duplicateResourceLint.js"/>
+
+  <commandset id="mainCommandSet">
+    <command id="cmd_performance"
+             oncommand="Firebug.PageSpeedModule.showPerformance()"/>
+    <command id="cmd_components"
+             oncommand="Firebug.PageSpeedModule.showComponents()"/>
+    <command id="cmd_help"
+             oncommand="Firebug.PageSpeedModule.showHelp()"/>
+  </commandset>
+
+  <toolbar id="fbToolbar" align="center">
+    <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1"
+          align="center">
+      <hbox id="fbPageSpeedButtons" insertafter="fbNetButtons" collapsed="true">
+        <toolbarseparator/>
+        <spacer width="2px"/>
+        <toolbarbutton id="psPerfButton" label="Analyze Performance"
+                       class="toolbar-text-button" group="pagespeedButtons"
+                       command="cmd_performance"/>
+        <spacer width="5px"/>
+        <toolbarbutton id="psCompButton" label="Show Resources"
+                       class="toolbar-text-button" group="pagespeedButtons"
+                       command="cmd_components"/>
+        <spacer width="5px"/>
+        <toolbarbutton id="psHelpButton" label="Help"
+                       class="toolbar-text-button" group="pagespeedButtons"
+                       command="cmd_help"/>
+        <spacer width="2px"/>
+      </hbox>
+    </hbox>
+  </toolbar>
+</overlay>
