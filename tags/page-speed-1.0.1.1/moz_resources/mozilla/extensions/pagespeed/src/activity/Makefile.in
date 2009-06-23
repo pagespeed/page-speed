@@ -1,0 +1,77 @@
+# Copyright 2009 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+DEPTH     = ../../../..
+topsrcdir = @top_srcdir@
+srcdir    = @srcdir@
+VPATH     = @srcdir@
+
+include $(DEPTH)/config/autoconf.mk
+
+MODULE = pagespeed
+
+LIBRARY_NAME = activity_s
+USE_STATIC_LIBS = 1
+FORCE_STATIC_LIB = 1
+
+REQUIRES = \
+    js \
+    jsdebug \
+    layout \
+    necko \
+    string \
+    xpcom \
+    $(NULL)
+
+CPPSRCS = \
+    basic_tree_view.cpp \
+    call_graph.cpp \
+    call_graph_metadata.cpp \
+    call_graph_profile.cpp \
+    call_graph_profile_snapshot.cpp \
+    call_graph_timeline_event_set.cpp \
+    call_graph_timeline_visitor.cpp \
+    call_graph_util.cpp \
+    call_graph_visitor_interface.cpp \
+    call_graph_visit_filter_interface.cpp \
+    clock.cpp \
+    delayable_function_tree_view_delegate.cpp \
+    find_first_invocations_visitor.cpp \
+    profiler.cpp \
+    profile.pb.cpp \
+    check_gecko.cpp \
+    profiler_event.cpp \
+    http_activity_distributor.cpp \
+    profiler_runnables.cpp \
+    jsd_call_hook.cpp \
+    jsd_function_info.cpp \
+    jsd_script_hook.cpp \
+    timer.cpp \
+    uncalled_function_tree_view_delegate.cpp \
+    $(NULL)
+
+include $(topsrcdir)/config/rules.mk
+
+LOCAL_INCLUDES  = -I$(srcdir)/..
+LOCAL_INCLUDES += -I$(srcdir)/../../dep/protobuf/src
+
+ifdef MOZILLA_1_8_BRANCH
+# Additional includes required when building as part of the 1.8 branch.
+LOCAL_INCLUDES += -I$(DIST)/include/$(MODULE)
+LOCAL_INCLUDES += -I$(srcdir)
+endif
+
+ifeq ($(OS_ARCH),WINNT)
+LOCAL_INCLUDES += -I$(srcdir)/port/win32
+endif
