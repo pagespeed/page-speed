@@ -21,3 +21,6 @@ Firefox 3.5/FB1.4. We will fix these issues in an upcoming release.
 
 == 1.0.0: 6/4/2009 ==
  * Initial release.
+
+
+*No Tech Support Here:  We don't read the comment section regularly.  If you have any issues, please email page-speed-discuss@googlegroups.com .*
