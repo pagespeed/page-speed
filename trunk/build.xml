@@ -18,7 +18,9 @@
 
 <project name="page-speed" default="pkg-xpi" basedir=".">
 
+  <property name="root" location="."/>
   <property name="src" location="src"/>
+  <property name="test" location="test"/>
   <property name="third_party" location="third_party"/>
   <property name="third_party_js" location="${third_party}/javascript"/>
   <property name="xpi_res" location="xpi_resources"/>
@@ -113,20 +115,46 @@
     </zip>
   </target>
 
+
+  <!--
+  TODO: This target builds a jsunit test page.  It is ugly.  A foreach loop
+  over files or a way to concatenate strings would help.  These things can
+  only be done after installing ant-contrib.  I would prefer not to require
+  even more software to be installed.
+   -->
   <target name="cssEfficiencyChecker_test">
-    <echo file="${dist}/cssEfficiencyChecker_test.html" append="false"><![CDATA[
-<html>
-  <head>
-    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/third_party/jsunit/app/jsUnitCore.js"></script>
-    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/util.js"></script>
-    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/lint.js"></script>
-    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/cssEfficiencyChecker_test.js"></script>
-    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/cssEfficiencyChecker.js"></script>
-    </head>
-    <body>
-    </body>
-</html>
-    ]]></echo>
+    <copy file="${test}/jsUnit.html.template"
+          tofile="${dist}/cssEfficiencyChecker_test.html"
+          overwrite="true" />
+    <replace file="${dist}/cssEfficiencyChecker_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/util.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/cssEfficiencyChecker_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/lint.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/cssEfficiencyChecker_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/cssEfficiencyChecker_test.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/cssEfficiencyChecker_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/cssEfficiencyChecker.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/cssEfficiencyChecker_test.html" token="JS_INCLUDE_HERE" value="" />
+
+    <replace file="${dist}/cssEfficiencyChecker_test.html" token="PS_SRC" value="file://${src}" />
+    <replace file="${dist}/cssEfficiencyChecker_test.html" token="PS_THIRD_PARTY" value="file://${third_party}" />
+
   </target>
 
 </project>
