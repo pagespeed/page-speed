@@ -79,15 +79,13 @@ function testAddSelectorTypeMultiplier() {
 
   selectorCost = new PAGESPEED.SelectorCost('a:hover .foo');
   PAGESPEED.CssEfficiencyChecker.addSelectorTypeMultiplier(selectorCost);
-  assertEquals(2, selectorCost.multipliers.length);
+  assertEquals(1, selectorCost.multipliers.length);
   assertEquals('descendant selector', selectorCost.multipliers[0].toString());
-  assertEquals('hover pseudo selector', selectorCost.multipliers[1].toString());
 
   selectorCost = new PAGESPEED.SelectorCost('.foo a:hover');
   PAGESPEED.CssEfficiencyChecker.addSelectorTypeMultiplier(selectorCost);
-  assertEquals(2, selectorCost.multipliers.length);
+  assertEquals(1, selectorCost.multipliers.length);
   assertEquals('descendant selector', selectorCost.multipliers[0].toString());
-  assertEquals('hover pseudo selector', selectorCost.multipliers[1].toString());
 }
 
 function testWarnAboutUniversalSelector() {
@@ -249,4 +247,38 @@ function testSelectorCostCalculation() {
   selectorCost.addMultiplier(new PAGESPEED.Cost(7, 'A multiplier'));
 
   assertEquals(21, selectorCost.getCost());
+}
+
+function testTestHoverWithoutLinks() {
+  var testHoverWithoutLinks =
+      PAGESPEED.CssEfficiencyChecker.testHoverWithoutLinks;
+
+  assertFalse('No :hover', testHoverWithoutLinks('div'));
+  assertFalse('No :hover', testHoverWithoutLinks('a'));
+
+  assertFalse('Has anchor', testHoverWithoutLinks('a:hover'));
+  assertFalse('Has anchor', testHoverWithoutLinks('A:hover'));
+  assertFalse('Has anchor', testHoverWithoutLinks('div a:hover'));
+
+  assertTrue('No anchor', testHoverWithoutLinks(':hover'));
+  assertTrue('No anchor', testHoverWithoutLinks('*:hover'));
+  assertTrue('No anchor', testHoverWithoutLinks('div :hover'));
+
+  assertFalse('Class, has anchor', testHoverWithoutLinks('a.class:hover'));
+  assertFalse('Class, has anchor', testHoverWithoutLinks('div a.class:hover'));
+  assertTrue('Class, no anchor', testHoverWithoutLinks('div.class:hover'));
+  assertTrue('Class, no anchor', testHoverWithoutLinks('div h1.class:hover'));
+
+  assertFalse('Attribute, anchor', testHoverWithoutLinks('a[attr]:hover'));
+  assertFalse('Attribute, anchor', testHoverWithoutLinks('div a[attr]:hover'));
+
+  assertFalse('~=, anchor', testHoverWithoutLinks('a[class~=\'x\']:hover'));
+  assertFalse('decedent, ~=, anchor',
+              testHoverWithoutLinks('div a[class~=\'x\']:hover'));
+
+  assertFalse('|=, anchor', testHoverWithoutLinks('a[lang|=\'en\']:hover'));
+  assertFalse('decedent, |=, anchor',
+              testHoverWithoutLinks('h1 a[lang|=\'en\']:hover'));
+
+  assertTrue('No anchor but starts with a', testHoverWithoutLinks('aaa:hover'));
 }
