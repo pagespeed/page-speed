@@ -470,8 +470,6 @@ PAGESPEED.Cost.prototype.toString = function() {
  *     an A tag?
  */
 PAGESPEED.CssEfficiencyChecker.testHoverWithoutLinks = function(selector) {
-  dump('testHoverWithoutLinks: selector = '+selector+'\n');
-
   // If there is no :hover, than we have nothing to report.
   if (selector.indexOf(':hover') == -1)
     return false;
@@ -484,43 +482,22 @@ PAGESPEED.CssEfficiencyChecker.testHoverWithoutLinks = function(selector) {
   // in a selector: ' ', '>', '+'.  We want the last item in the list,
   // so exclude those characters.
   var elementWithHoverMatch = selector.match(/([^ >+]*):hover/);
-  if (!elementWithHoverMatch) {
-    dump('   No match.\n');
+  if (!elementWithHoverMatch)
     return false;
-  }
 
   var elementWithHover = elementWithHoverMatch[1];
-  dump('   Match: '+elementWithHover+'\n');
 
-  // elementWithHover might be:
+  // Want to see if elementWithHover starts with an A tag.
+  // To do this, test that the string starts with [Aa], and
+  // is not followed by a letter.
+  // Matching strings include:
   // a
   // A
   // a.class
-  // *
-  // div
-  // div.class
-  // #item
-  // div#item
-  // a[attr]
-  // a[class~='x']
-  // a[lang|='en']
-
-
-  // Looking for [Aa] that is:
-  //  * not inside []
-  //  * not in #[a-zA-Z]
-  //  * not in .[a-zA-Z]
-  //  *
-
-  // Is it possible that the string matches, but does not start with A?  No.
-  // So the string must Start with [Aa], and
-
-  if (/^[Aa]($|\W)/.test(elementWithHover)) {
-    dump('   Has A!\n');
+  // a[yada yada]
+  if (/^[Aa]($|\W)/.test(elementWithHover))
     return false;
-  }
 
-  dump('   problem case.\n');
   return true;
 };
 
@@ -585,17 +562,13 @@ var inefficientCssLint = function() {
         }
       }
 
-      // For each selector, see if there is a :hover that is not applied to
-      // an A tag.
-      dump('=================\n');
-      dump('rule = '+rule+'\n');
-      dump('lineNum = '+lineNum+'\n');
-
       // Split the rule into an array of selectors.
       // For example, the CSS 'a:hover, t1 {color:red}' would cause
       // rule to be ''a:hover, t1', and selectors to be ['a:hover', 't1'].
       var selectors = rule.split(',').map(PAGESPEED.Utils.trim);
 
+      // For each selector, see if there is a :hover that is not applied to
+      // an A tag.
       for (var k = 0, klen = selectors.length; k < klen; ++k) {
         var selector = selectors[k];
         if (PAGESPEED.CssEfficiencyChecker.testHoverWithoutLinks(selector)) {
@@ -613,10 +586,6 @@ var inefficientCssLint = function() {
       blockNum = ' (inline block #' + (currInlineBlockNum++) + ')';
     }
 
-    if (!aVeryInefficientRules.length &&
-        !aInefficientRules.length &&
-        !aHoverWithoutLinkRules.length) continue;
-
     /**
      * @param {Array} arr An array.
      * @return {string} formatted string version of the array's length.
@@ -625,37 +594,43 @@ var inefficientCssLint = function() {
       return PAGESPEED.Utils.formatNumber(arr.length);
     }
 
-    // Print summary for this block.
-    this.warnings += [PAGESPEED.Utils.linkify(styleSheets[i].href), blockNum,
-                      ' has ',
-                      formatLen(aVeryInefficientRules),
-                      ' very inefficient rules, ',
-                      formatLen(aInefficientRules),
-                      ' inefficient rules, and ',
-                      formatLen(aHoverWithoutLinkRules),
-                      ' potentialy inefficient uses of :hover out of ',
-                      formatLen(allAvailableSelectors),
-                      ' total rules.<blockquote>'].join('');
+    if (aVeryInefficientRules.length || aInefficientRules.length) {
 
-    // Print actual warnings.
-    if (aVeryInefficientRules.length) {
-      this.warnings += 'Very inefficient rules (good to fix on any page):';
-      this.warnings += PAGESPEED.Utils.formatWarnings(
-          aVeryInefficientRules, true);
+      // Print summary for this block.
+      this.warnings += [PAGESPEED.Utils.linkify(styleSheets[i].href), blockNum,
+                        ' has ',
+                        formatLen(aVeryInefficientRules),
+                        ' very inefficient rules and ',
+                        formatLen(aInefficientRules),
+                        ' inefficient rules out of ',
+                        formatLen(allAvailableSelectors),
+                        ' total rules.<blockquote>'].join('');
+
+      // Print actual warnings.
+      if (aVeryInefficientRules.length) {
+        this.warnings += 'Very inefficient rules (good to fix on any page):';
+        this.warnings += PAGESPEED.Utils.formatWarnings(
+            aVeryInefficientRules, true);
+      }
+      if (aInefficientRules.length) {
+        this.warnings +=
+          'Inefficient rules (good to fix on interactive pages):';
+        this.warnings += PAGESPEED.Utils.formatWarnings(
+            aInefficientRules, true);
+      }
+      this.warnings += '</blockquote>';
     }
-    if (aInefficientRules.length) {
-      this.warnings += 'Inefficient rules (good to fix on interactive pages):';
-      this.warnings += PAGESPEED.Utils.formatWarnings(aInefficientRules, true);
-    }
+
     if (aHoverWithoutLinkRules.length) {
-      this.warnings += ['The :hover pseudo-selector can cause performance ',
-                        'problems in Internet Explorer 7 with a strict ',
-                        'doctype when it is not specifically applied to ',
-                        'anchor tags.'].join('');
-      this.warnings += PAGESPEED.Utils.formatWarnings(aHoverWithoutLinkRules,
-                                                      true);
+      this.information += [PAGESPEED.Utils.linkify(styleSheets[i].href),
+                           blockNum, ' uses the :hover pseudo-selector ',
+                           'on non-link elements.  This can cause performance ',
+                           'problems in Internet Explorer 7 with a strict ',
+                           'doctype.<blockquote>'].join('');
+      this.information += PAGESPEED.Utils.formatWarnings(
+          aHoverWithoutLinkRules, true);
+      this.information += '</blockquote>';
     }
-    this.warnings += '</blockquote>';
   }
 };
 
