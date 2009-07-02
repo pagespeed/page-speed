@@ -280,14 +280,6 @@ PAGESPEED.CssEfficiencyChecker.addSelectorTypeMultiplier = function(
                          'adjacent selector'));
     }
   }
-
-  // Double the cost of other multipliers if a hover is included.
-  //
-  // TODO: This is the least obvious multiplier. We should experiment
-  // and revisit this weight.
-  if (selectorCost.multipliers.length > 0 && selector.indexOf(':hover') >= 0) {
-    selectorCost.addMultiplier(new PAGESPEED.Cost(2, 'hover pseudo selector'));
-  }
 };
 
 /**
@@ -473,6 +465,66 @@ PAGESPEED.Cost.prototype.toString = function() {
 };
 
 /**
+ * @param {string} selector A CSS selecor.
+ * @return {boolean} Does the selector contain :hover that is not applied to
+ *     an A tag?
+ */
+PAGESPEED.CssEfficiencyChecker.testHoverWithoutLinks = function(selector) {
+  dump('testHoverWithoutLinks: selector = '+selector+'\n');
+
+  // If there is no :hover, than we have nothing to report.
+  if (selector.indexOf(':hover') == -1)
+    return false;
+
+  // Okay:
+  // a:hover
+  // div a:hover
+
+  // The following characters are delimiters in the list of elements
+  // in a selector: ' ', '>', '+'.  We want the last item in the list,
+  // so exclude those characters.
+  var elementWithHoverMatch = selector.match(/([^ >+]*):hover/);
+  if (!elementWithHoverMatch) {
+    dump('   No match.\n');
+    return false;
+  }
+
+  var elementWithHover = elementWithHoverMatch[1];
+  dump('   Match: '+elementWithHover+'\n');
+
+  // elementWithHover might be:
+  // a
+  // A
+  // a.class
+  // *
+  // div
+  // div.class
+  // #item
+  // div#item
+  // a[attr]
+  // a[class~='x']
+  // a[lang|='en']
+
+
+  // Looking for [Aa] that is:
+  //  * not inside []
+  //  * not in #[a-zA-Z]
+  //  * not in .[a-zA-Z]
+  //  *
+
+  // Is it possible that the string matches, but does not start with A?  No.
+  // So the string must Start with [Aa], and
+
+  if (/^[Aa]($|\W)/.test(elementWithHover)) {
+    dump('   Has A!\n');
+    return false;
+  }
+
+  dump('   problem case.\n');
+  return true;
+};
+
+/**
  * @this PAGESPEED.LintRule
  */
 var inefficientCssLint = function() {
@@ -501,6 +553,8 @@ var inefficientCssLint = function() {
     // An array to hold a SelectorCost for every CSS selector.
     var aVeryInefficientRules = [];
     var aInefficientRules = [];
+    var aHoverWithoutLinkRules = [];
+
     var totalCost = 0;
     for (var j = 0, jlen = allAvailableSelectors.length; j < jlen; ++j) {
       // The @import statements have an undefined id, so we ignore them;
@@ -530,6 +584,24 @@ var inefficientCssLint = function() {
           break;
         }
       }
+
+      // For each selector, see if there is a :hover that is not applied to
+      // an A tag.
+      dump('=================\n');
+      dump('rule = '+rule+'\n');
+      dump('lineNum = '+lineNum+'\n');
+
+      // Split the rule into an array of selectors.
+      // For example, the CSS 'a:hover, t1 {color:red}' would cause
+      // rule to be ''a:hover, t1', and selectors to be ['a:hover', 't1'].
+      var selectors = rule.split(',').map(PAGESPEED.Utils.trim);
+
+      for (var k = 0, klen = selectors.length; k < klen; ++k) {
+        var selector = selectors[k];
+        if (PAGESPEED.CssEfficiencyChecker.testHoverWithoutLinks(selector)) {
+          aHoverWithoutLinkRules.push(selector);
+        }
+      }
     }
 
     // If this is an inline block, set and increment the block number.
@@ -541,19 +613,28 @@ var inefficientCssLint = function() {
       blockNum = ' (inline block #' + (currInlineBlockNum++) + ')';
     }
 
-    if (!aVeryInefficientRules.length && !aInefficientRules.length) continue;
+    if (!aVeryInefficientRules.length &&
+        !aInefficientRules.length &&
+        !aHoverWithoutLinkRules.length) continue;
+
+    /**
+     * @param {Array} arr An array.
+     * @return {string} formatted string version of the array's length.
+     */
+    var formatLen = function(arr) {
+      return PAGESPEED.Utils.formatNumber(arr.length);
+    }
 
     // Print summary for this block.
     this.warnings += [PAGESPEED.Utils.linkify(styleSheets[i].href), blockNum,
                       ' has ',
-                      PAGESPEED.Utils.formatNumber(
-                          aVeryInefficientRules.length),
-                      ' very inefficient and ',
-                      PAGESPEED.Utils.formatNumber(
-                          aInefficientRules.length),
-                      ' inefficient rules of ',
-                      PAGESPEED.Utils.formatNumber(
-                          allAvailableSelectors.length),
+                      formatLen(aVeryInefficientRules),
+                      ' very inefficient rules, ',
+                      formatLen(aInefficientRules),
+                      ' inefficient rules, and ',
+                      formatLen(aHoverWithoutLinkRules),
+                      ' potentialy inefficient uses of :hover out of ',
+                      formatLen(allAvailableSelectors),
                       ' total rules.<blockquote>'].join('');
 
     // Print actual warnings.
@@ -565,6 +646,14 @@ var inefficientCssLint = function() {
     if (aInefficientRules.length) {
       this.warnings += 'Inefficient rules (good to fix on interactive pages):';
       this.warnings += PAGESPEED.Utils.formatWarnings(aInefficientRules, true);
+    }
+    if (aHoverWithoutLinkRules.length) {
+      this.warnings += ['The :hover pseudo-selector can cause performance ',
+                        'problems in Internet Explorer 7 with a strict ',
+                        'doctype when it is not specifically applied to ',
+                        'anchor tags.'].join('');
+      this.warnings += PAGESPEED.Utils.formatWarnings(aHoverWithoutLinkRules,
+                                                      true);
     }
     this.warnings += '</blockquote>';
   }
