@@ -19,7 +19,6 @@
  * @author Tony Gentilcore
  */
 
-
 // Stub out all necessary objects here.
 Components = {};
 Components.classes = {};
@@ -57,8 +56,8 @@ function testCalculateBaseCost() {
       PAGESPEED.CssEfficiencyChecker.calculateBaseCost('#x').toString());
 
   assertEquals(
-    'ID',
-    PAGESPEED.CssEfficiencyChecker.calculateBaseCost('#x:hover').toString());
+      'ID',
+      PAGESPEED.CssEfficiencyChecker.calculateBaseCost('#x:hover').toString());
 }
 
 function testAddSelectorTypeMultiplier() {
@@ -250,8 +249,10 @@ function testSelectorCostCalculation() {
 }
 
 function testTestHoverWithoutLinks() {
-  var testHoverWithoutLinks =
-      PAGESPEED.CssEfficiencyChecker.testHoverWithoutLinks;
+  var testHoverWithoutLinks = function(selector) {
+    selectorCost = new PAGESPEED.SelectorCost(selector);
+    return selectorCost.hasHoverWithoutAnchor();
+  }
 
   assertFalse('No :hover', testHoverWithoutLinks('div'));
   assertFalse('No :hover', testHoverWithoutLinks('a'));

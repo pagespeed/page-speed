@@ -2112,7 +2112,16 @@ PAGESPEED.Utils = {  // Begin namespace
 };  // End namespace
 
 // Check whether logging is enabled.
-PS_LOG.enabled = PAGESPEED.Utils.getBoolPref(
-    'extensions.PageSpeed.enable_console_logging', false);
+try {
+  PS_LOG.enabled = PAGESPEED.Utils.getBoolPref(
+      'extensions.PageSpeed.enable_console_logging', false);
+} catch (e) {
+  // Code above will fail in unit tests because the prefs service
+  // does not yet exist.  Even if the unit test mocks the prefs
+  // service, this code runs before that mock is created.  Disable
+  // logging for unit tests by default.  Tests that care about
+  // logging will enable it on a case-by-case basis.
+  PS_LOG.enabled = false;
+}
 
 })();  // End closure
