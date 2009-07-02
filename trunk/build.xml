@@ -113,6 +113,20 @@
     </zip>
   </target>
 
+  <target name="cssEfficiencyChecker_test">
+    <echo file="${dist}/cssEfficiencyChecker_test.html" append="false"><![CDATA[
+<html>
+  <head>
+    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/third_party/jsunit/app/jsUnitCore.js"></script>
+    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/util.js"></script>
+    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/lint.js"></script>
+    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/cssEfficiencyChecker_test.js"></script>
+    <script language="JavaScript" type="text/javascript" src="file:///home/skerner/ps/git/page-speed/src/js/pagespeed/cssEfficiencyChecker.js"></script>
+    </head>
+    <body>
+    </body>
+</html>
+    ]]></echo>
+  </target>
+
 </project>
-
-
