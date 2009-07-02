@@ -525,7 +525,7 @@ var inefficientCssLint = function() {
     // An array to hold a SelectorCost for every CSS selector.
     var aVeryInefficientRules = [];
     var aInefficientRules = [];
-    var aHoverWithoutLinkRules = [];
+    var aHoverWithoutAnchorRules = [];
 
     var totalCost = 0;
     for (var j = 0, jlen = allAvailableSelectors.length; j < jlen; ++j) {
@@ -557,8 +557,13 @@ var inefficientCssLint = function() {
           break;
         }
 
+        // TODO: :hover is only expensive when IE[78] renders a page
+        // with a strict doctype.  We could check the doctype, and
+        // suppress this warning if it would not put IE[78] in strict
+        // mode.  However, sites that serve content by user agent
+        // might miss the advice.
         if (selectorCost.hasHoverWithoutAnchor()) {
-          aHoverWithoutLinkRules.push(selectorCost.selector);
+          aHoverWithoutAnchorRules.push(selectorCost.selector);
         }
       }
     }
@@ -582,7 +587,7 @@ var inefficientCssLint = function() {
 
     if (!aVeryInefficientRules.length &&
         !aInefficientRules.length &&
-        !aHoverWithoutLinkRules.length)
+        !aHoverWithoutAnchorRules.length)
       continue;
 
     // Print summary for this block.
@@ -592,7 +597,7 @@ var inefficientCssLint = function() {
                       ' very inefficient rules, ',
                       formatLen(aInefficientRules),
                       ' inefficient rules, and ',
-                      formatLen(aHoverWithoutLinkRules),
+                      formatLen(aHoverWithoutAnchorRules),
                       ' potentially inefficient uses of :hover out of ',
                       formatLen(allAvailableSelectors),
                       ' total rules.<blockquote>'].join('');
@@ -614,14 +619,14 @@ var inefficientCssLint = function() {
           ].join('');
     }
 
-    if (aHoverWithoutLinkRules.length) {
+    if (aHoverWithoutAnchorRules.length) {
       this.warnings = [
           this.warnings,
           'Rules that use the :hover pseudo-selector on ',
-          'non-link elements.  This can cause performance ',
+          'non-anchor elements.  This can cause performance ',
           'problems in Internet Explorer versions 7 and 8 ',
           'when a strict doctype is used.',
-          PAGESPEED.Utils.formatWarnings(aHoverWithoutLinkRules, true)
+          PAGESPEED.Utils.formatWarnings(aHoverWithoutAnchorRules, true)
           ].join('');
     }
 
