@@ -75,3 +75,5 @@ endif
 ifeq ($(OS_ARCH),WINNT)
 LOCAL_INCLUDES += -I$(srcdir)/port/win32
 endif
+
+DEFINES += -DGOOGLE_PROTOBUF_NO_RTTI
