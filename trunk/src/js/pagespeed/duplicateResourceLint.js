@@ -76,7 +76,7 @@ PAGESPEED.LintRules.registerLintRule(
   new PAGESPEED.LintRule(
     'Serve resources from a consistent URL',
     PAGESPEED.PAYLOAD_GROUP,
-    '',  // TODO: add documentation for this rule
+    'payload.html#duplicate_resources',
     duplicateResourceRule,
     3.0
   )
