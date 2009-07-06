@@ -20,6 +20,8 @@
 
 #include "clock.h"
 
+#include <stddef.h>  // for NULL
+
 #if defined(_WINDOWS)
 
 #include <Windows.h>
