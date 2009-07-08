@@ -68,12 +68,18 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/duplicateResourceLint.js"/>
 
+  <!--
+    Command names exist in a namespace shared by all extensions.  To avoid
+    having our commands overridden by other extensions, their names should
+    have the prefix 'cmd_page_speed_'
+  -->
+
   <commandset id="mainCommandSet">
-    <command id="cmd_performance"
+    <command id="cmd_page_speed_performance"
              oncommand="Firebug.PageSpeedModule.showPerformance()"/>
-    <command id="cmd_components"
+    <command id="cmd_page_speed_components"
              oncommand="Firebug.PageSpeedModule.showComponents()"/>
-    <command id="cmd_help"
+    <command id="cmd_page_speed_help"
              oncommand="Firebug.PageSpeedModule.showHelp()"/>
   </commandset>
 
@@ -85,15 +91,15 @@
         <spacer width="2px"/>
         <toolbarbutton id="psPerfButton" label="Analyze Performance"
                        class="toolbar-text-button" group="pagespeedButtons"
-                       command="cmd_performance"/>
+                       command="cmd_page_speed_performance"/>
         <spacer width="5px"/>
         <toolbarbutton id="psCompButton" label="Show Resources"
                        class="toolbar-text-button" group="pagespeedButtons"
-                       command="cmd_components"/>
+                       command="cmd_page_speed_components"/>
         <spacer width="5px"/>
         <toolbarbutton id="psHelpButton" label="Help"
                        class="toolbar-text-button" group="pagespeedButtons"
-                       command="cmd_help"/>
+                       command="cmd_page_speed_help"/>
         <spacer width="2px"/>
       </hbox>
     </hbox>
