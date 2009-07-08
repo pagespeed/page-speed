@@ -46,7 +46,8 @@ class JSDObject;
 #define NS_ASTRING_NOT_INCLUDED 1
 #endif
 
-#include "jsdIDebuggerService.h"
+// jsdIDebuggerService.h from Firefox 3.0
+#include "jsdIDebuggerService_d9214124.h"
 
 // Undefine the nsAString.h include guard if it wasn't already
 // defined.

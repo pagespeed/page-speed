@@ -64,6 +64,9 @@
         <globmapper from="*.h" to="*.h"/>
       </mapper>
     </copy>
+    <copy todir="${dist_moz_ext}/dep/mozilla_idl">
+      <fileset dir="${third_party}/mozilla/idl" includes="*.idl"/>
+    </copy>
     <copy file="${third_party}/jpeg/src/jconfig.h" todir="${dist_moz_ext}/dep/jpeg/src"/>
     <copy file="${third_party}/protobuf/src/config.h" todir="${dist_moz_ext}/dep/protobuf/src"/>
 

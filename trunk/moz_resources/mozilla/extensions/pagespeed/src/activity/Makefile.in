@@ -65,12 +65,7 @@ include $(topsrcdir)/config/rules.mk
 
 LOCAL_INCLUDES  = -I$(srcdir)/..
 LOCAL_INCLUDES += -I$(srcdir)/../../dep/protobuf/src
-
-ifdef MOZILLA_1_8_BRANCH
-# Additional includes required when building as part of the 1.8 branch.
-LOCAL_INCLUDES += -I$(DIST)/include/$(MODULE)
-LOCAL_INCLUDES += -I$(srcdir)
-endif
+LOCAL_INCLUDES += -I../../dep/mozilla_idl/_xpidlgen
 
 ifeq ($(OS_ARCH),WINNT)
 LOCAL_INCLUDES += -I$(srcdir)/port/win32
