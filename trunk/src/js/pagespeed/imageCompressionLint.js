@@ -461,6 +461,17 @@ var imageCompressionLint = function() {
     return;
   }
 
+  var imagesDir = PAGESPEED.Utils.getOutputDir(COMPRESSED_IMAGE_DIR_NAME);
+  if (!imagesDir) {
+    this.score = 'error';
+    this.warnings = ['Unable to compress images because the directory where ',
+                     'optimized images are saved can not be ',
+                     'accessed.  Click the black triangle in the Page Speed ',
+                     'tab and select a different path under "Save Optimized ',
+                     'Files To:".'].join('');
+    return;
+  }
+
   var urls = PAGESPEED.Utils.getResources('image', 'cssimage', 'favicon');
 
   // Shortcut to get out early if the page doesn't have any images.

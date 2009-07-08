@@ -102,11 +102,17 @@ function sortByBytesSaved(a, b) {
 
 // Build a human-readable results string from the input data.
 function buildResultString(data) {
-  return ['Minifying ', data.name, ' could save ',
-          PAGESPEED.Utils.formatBytes(data.savings), ' (',
-          PAGESPEED.Utils.formatPercent(data.savings / data.origSize),
-          ' reduction). See ', data.minifiedUrl, '.'
-          ].join('');
+  var resultArr = [
+      'Minifying ', data.name, ' could save ',
+      PAGESPEED.Utils.formatBytes(data.savings), ' (',
+      PAGESPEED.Utils.formatPercent(data.savings / data.origSize),
+      ' reduction).'];
+
+  if (data.minifiedUrl) {
+    resultArr = resultArr.concat(['  See ', data.minifiedUrl, '.']);
+  }
+
+  return resultArr.join('');
 }
 
 /**
@@ -241,6 +247,16 @@ var generateOutput = function(storage) {
       PAGESPEED.Utils.formatBytes(storage.totalPossibleSavings), ' (',
       PAGESPEED.Utils.formatPercent(percentPossibleSavings),
       ' reduction).'].join('');
+
+  if (!PAGESPEED.Utils.getOutputDir(MINIFIED_OUTPUT_DIR_NAME)) {
+    this.warnings = [
+        this.warnings,
+        '<p> <b>Warning:</b> Can not save minified results because the ',
+        'directory where optimized javascript is saved can not be ',
+        'accessed.  Click the black triangle in the Page Speed ',
+        'tab and select a different path under "Save Optimized ',
+        'Files To:".'].join('');
+  }
 
   this.score -= 2 * (percentPossibleSavings * 100);
   this.warnings += messages;
