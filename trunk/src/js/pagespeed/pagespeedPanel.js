@@ -490,7 +490,9 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     PAGESPEED.Utils.setDefaultOutputDir();
 
     var currentOutputDir = PAGESPEED.Utils.getOutputDir();
-    var currentOutputPath = PAGESPEED.Utils.getPathForFile(currentOutputDir);
+    var currentOutputPath = null;
+    if (currentOutputDir)
+      currentOutputPath = PAGESPEED.Utils.getPathForFile(currentOutputDir);
 
     // Set to true when the current output directory is added to the menu.
     // If it is not, than we will add an extra menu item to include it.
@@ -524,7 +526,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
     // If the value set in the preference has not been put in the menu
     // yet, add it.
-    if (!currentOutputDirSeen) {
+    if (currentOutputPath && !currentOutputDirSeen) {
       addMenuOption([' Custom Setting: ', currentOutputPath].join(''),
                     function() {},
                     true
