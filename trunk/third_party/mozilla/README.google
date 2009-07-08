@@ -1,0 +1,17 @@
+URL: http://mxr.mozilla.org
+Version: Various
+License: MPL
+License File: LICENSE
+
+Description:
+Various Firefox source files.
+
+Local Modifications:
+
+Renamed idl files to include the first 8 characters of the md5sum of
+their contents.
+
+For instance:
+ jsdIDebuggerService.idl -> jsdIDebuggerService_<md5sum>.idl
+
+This allows us to support versions of the same IDL file.

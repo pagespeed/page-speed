@@ -20,12 +20,6 @@ VPATH     = @srcdir@
 include $(DEPTH)/config/autoconf.mk
 
 MODULE = pagespeed
-DIRS = jpeg optipng protobuf
-
-ifdef MOZILLA_1_8_BRANCH
-# When building against firefox 2 sources, we need to process some
-# additional IDL files.
-DIRS += custom_idl
-endif
+DIRS = jpeg mozilla_idl optipng protobuf
 
 include $(topsrcdir)/config/rules.mk

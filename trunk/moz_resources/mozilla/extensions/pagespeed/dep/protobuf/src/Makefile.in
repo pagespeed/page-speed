@@ -59,9 +59,4 @@ CPPSRCS = \
 
 include $(topsrcdir)/config/rules.mk
 
-ifdef MOZILLA_1_8_BRANCH
-# Additional includes required when building as part of the 1.8 branch.
-LOCAL_INCLUDES += -I$(srcdir)
-endif
-
 DEFINES += -DGOOGLE_PROTOBUF_NO_RTTI
