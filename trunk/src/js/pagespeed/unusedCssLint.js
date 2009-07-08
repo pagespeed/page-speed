@@ -137,7 +137,7 @@ PAGESPEED.UnusedCss = {  // Begin namespace
       // minifiedSize will be 0 as well, because the size returned
       // by PAGESPEED.UnusedCss.getMinifiedSize() will be positive.
       // If the total size of the input is 0, the possible savings
-      // are the entiore input size.  Return here to avoid dividing
+      // are the entire input size.  Return here to avoid dividing
       // by zero below.
       return size;
     }
