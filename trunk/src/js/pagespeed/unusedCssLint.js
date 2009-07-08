@@ -131,6 +131,17 @@ PAGESPEED.UnusedCss = {  // Begin namespace
     var minifiedSize = PAGESPEED.UnusedCss.getMinifiedSize(rules);
     var unusedMinifiedSize = PAGESPEED.UnusedCss.getMinifiedSize(unusedRules);
     var totalMinifiedSize = minifiedSize + unusedMinifiedSize;
+
+    if (totalMinifiedSize == 0) {
+      // If the total minified size is 0, unusedMinifiedSize and
+      // minifiedSize will be 0 as well, because the size returned
+      // by PAGESPEED.UnusedCss.getMinifiedSize() will be positive.
+      // If the total size of the input is 0, the possible savings
+      // are the entiore input size.  Return here to avoid dividing
+      // by zero below.
+      return size;
+    }
+
     return unusedMinifiedSize +
         (size - totalMinifiedSize) * unusedMinifiedSize / totalMinifiedSize;
   },
@@ -227,7 +238,7 @@ var unusedCssLint = function() {
   }
 
   var warnings = [];
-  for (var i = 0, len = styleSheets.length; i < len; ++i) {
+  for (var i = 0, iLen = styleSheets.length; i < iLen; ++i) {
     var sheet = styleSheets[i];
     if (!sheet) continue;
     var sheetRules = cssPanel.getStyleSheetRules(cssPanel.context, sheet);
@@ -239,7 +250,7 @@ var unusedCssLint = function() {
 
     // Format the warnings for this stylesheet.
     var ruleWarnings = [];
-    for (var j = 0, len = unusedSheetRules.length; j < len; ++j) {
+    for (var j = 0, jLen = unusedSheetRules.length; j < jLen; ++j) {
       // The ruleId format is 'selector/linenum', so we split it here and
       // do not display the line number if it is 0 or 1.
       var m = selectorLineNumberRegexp.exec(unusedSheetRules[j].id);
