@@ -1839,7 +1839,7 @@ PAGESPEED.Utils = {  // Begin namespace
    *     on error.
    */
   getOutputDir: function(opt_subDir) {
-    var PERMISSIONS = 0755;
+    var PERMISSIONS = 0700;
 
     try {
       var outputDir = PAGESPEED.Utils.getFilePref(OPTIMIZED_FILE_BASE_DIR);
@@ -1867,19 +1867,27 @@ PAGESPEED.Utils = {  // Begin namespace
       }
 
       if (!outputDir.exists()) {
+        // create() will create intermediate dirs.  For example,
+        // creating /none/of/these/dirs/exist/ will create five
+        // directories.  The only time we should set permissions
+        // on a directory is when we create that directory.
         outputDir.create(outputDir.DIRECTORY_TYPE, PERMISSIONS);
-      }
 
-      // Check that the permissions are correct.
-      if (outputDir.permissions != PERMISSIONS) {
-        try {
-          // Sometimes setting some permissions is not allowed.
-          // Try to set permissions, log if it is not possible.
-          outputDir.permissions = PERMISSIONS;
-        } catch (e) {
-          PS_LOG('getOutputDir(): Failed to set permissions "' +
-             outputDir +'" due to an exception: ' +
-             PAGESPEED.Utils.formatException(e) + ')');
+        // When create() fails to set permissioons as we ask, setting
+        // permissions with outputDir.permissions = PERMISSIONS fails
+        // in the same way, but throws an exception.  We log the
+        // permisions are logged if they are not what we expect,
+        // so that users who see problems can report issues including
+        // the permissions they see.
+        if (PERMISSIONS != outputDir.permissions) {
+          var permToOctal = function(perms) {
+            return Number(perms).toString(8);
+          };
+
+          PS_LOG(['getOutputDir(): Tried to set output directory ',
+                  'permissions to ', permToOctal(PERMISSIONS), '.  ',
+                  'Permissions are ', permToOctal(outputDir.permissions),
+                  '.'].join(''));
         }
       }
 
