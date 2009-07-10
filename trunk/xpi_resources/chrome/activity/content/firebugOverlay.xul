@@ -17,10 +17,10 @@
 -->
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
+  <script type="application/x-javascript"
+      src="chrome://activity/content/json2.js"/>
   <script type="application/x-javascript"
       src="chrome://activity/content/firebug-glue.js"/>
-
   <script type="application/x-javascript"
       src="chrome://activity/content/base.js"/>
   <script type="application/x-javascript"

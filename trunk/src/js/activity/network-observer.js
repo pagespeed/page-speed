@@ -40,17 +40,17 @@ goog.require('activity.xpcom');
  * @extends {activity.ObserverBase}
  */
 activity.NetworkObserver = function(currentTimeFactory,
-                                  observerService,
-                                  timelineModel,
-                                  startTimeUsec,
-                                  resolutionUsec) {
+                                    observerService,
+                                    timelineModel,
+                                    startTimeUsec,
+                                    resolutionUsec) {
   activity.ObserverBase.call(this,
-                           currentTimeFactory,
-                           observerService,
-                           activity.NetworkObserver.NETWORK_ACTIVITY_TOPIC_,
-                           timelineModel,
-                           startTimeUsec,
-                           resolutionUsec);
+                             currentTimeFactory,
+                             observerService,
+                             activity.NetworkObserver.NETWORK_ACTIVITY_TOPIC_,
+                             timelineModel,
+                             startTimeUsec,
+                             resolutionUsec);
 };
 goog.inherits(activity.NetworkObserver, activity.ObserverBase);
 
@@ -177,7 +177,13 @@ activity.NetworkObserver.prototype.onSocketTransportEvent = function(
   if (timelineEventType == activity.TimelineEventType.TCP_CONNECTED) {
     var event = this.getIncompleteEventForUrlAndType(
         url, activity.TimelineEventType.TCP_CONNECTING);
-    event.onComplete(timestampUsec);
+
+    if (event != null) {
+      event.onComplete(timestampUsec);
+    } else {
+      // TODO: For now we do nothing if the event is not found.
+      // Should this be an error?
+    }
   }
 
   if (timelineEventType == activity.TimelineEventType.REQUEST_SENT &&
