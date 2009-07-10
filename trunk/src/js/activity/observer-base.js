@@ -36,11 +36,11 @@ goog.require('activity.TimelineModel');
  * @extends {goog.Disposable}
  */
 activity.ObserverBase = function(currentTimeFactory,
-                               observerService,
-                               observerTopic,
-                               timelineModel,
-                               startTimeUsec,
-                               resolutionUsec) {
+                                 observerService,
+                                 observerTopic,
+                                 timelineModel,
+                                 startTimeUsec,
+                                 resolutionUsec) {
   goog.Disposable.call(this);
 
   /**
@@ -195,7 +195,20 @@ activity.ObserverBase.prototype.onTimeoutCallback = function() {
  * @protected
  */
 activity.ObserverBase.prototype.addEvent = function(url, timestampUsec, type) {
+
+  var existingEvent = this.getIncompleteEventForUrlAndType(url, type);
+  if (existingEvent) {
+    // TODO: Make sure all code paths that can get here have a try block to
+    // catch and report this error.
+    throw new Error([
+        'Adding a duplicate event.  Existing event:\n',
+        '\t', existingEvent, '\n',
+        '\tNew event data: url = ', url, ', type = ', type, '\n'
+        ].join(''));
+  }
+
   var event = new activity.ObserverBase.Event(url, timestampUsec, type);
+
   this.events_.push(event);
   return event;
 };
@@ -233,16 +246,32 @@ activity.ObserverBase.prototype.getCurrentTimeUsec = function() {
  */
 activity.ObserverBase.prototype.getIncompleteEventForUrlAndType = function(
     url, type) {
+
+  var matchingEvents = [];
+
   for (var i = 0, len = this.events_.length; i < len; i++) {
     var event = this.events_[i];
     if (!event.isComplete() &&
         event.getUrl() == url &&
         event.getType() == type) {
-      return event;
+      matchingEvents.push(event);
     }
   }
 
-  return null;
+  if (matchingEvents.length == 0) {
+    return null;
+  }
+
+  if (matchingEvents.length > 1) {
+    throw new Error([
+        'getIncompleteEventForUrlAndType: ',
+        matchingEvents.length, ' events match the url ', url,
+        ' and type ', type, '.  No more than one event should match.  ',
+        'Matching events are:\n', matchingEvents.join('\n')
+        ].join(''));
+  }
+
+  return matchingEvents[0];
 };
 
 /**
@@ -310,8 +339,14 @@ activity.ObserverBase.prototype.publishEvent_ = function(event, maxTimeUsec) {
     // clamp to the max time.
     eventEndUsec = maxTimeUsec;
   }
+
   if (eventStartUsec > eventEndUsec) {
-    throw new Error('event start exceeds event end');
+    throw new Error([
+        'Event start exceeds event end: ',
+        '  eventStartUsec =', eventStartUsec,
+        '  eventEndUsec =', eventEndUsec,
+        '  event = ', event
+        ].join(''));
   }
   var durationUsec;
   if (event.isInstantaneous()) {
@@ -456,9 +491,22 @@ activity.ObserverBase.Event.prototype.markAsInstantaneous = function() {
 activity.ObserverBase.Event.prototype.onComplete = function(
     endTimeUsec) {
   if (this.endTimeUsec_ != -1) {
-    throw new Error('Event already has end time.');
+    throw new Error([
+        'activity.ObserverBase.Event.onComplete(', endTimeUsec, '): ',
+        'Event already has end time of ', this.endTimeUsec_, '.  ',
+        'event = ', this
+        ].join(''));
   }
+
   this.endTimeUsec_ = endTimeUsec;
+
+  if (this.endTimeUsec_ <  this.startTimeUsec_) {
+    throw new Error([
+        'activity.ObserverBase.Event.onComplete(', endTimeUsec, '): ',
+        'Completed an event before it started!  ',
+        'event = ', this
+        ].join(''));
+  }
 };
 
 /**
@@ -466,4 +514,11 @@ activity.ObserverBase.Event.prototype.onComplete = function(
  */
 activity.ObserverBase.Event.prototype.getType = function() {
   return this.type_;
+};
+
+/**
+ * @return {string} String showing all data held in the event object.
+ */
+activity.ObserverBase.Event.prototype.toString = function() {
+  return JSON.stringify(this, null, '  ');
 };
