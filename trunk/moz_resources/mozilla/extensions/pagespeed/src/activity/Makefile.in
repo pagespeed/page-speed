@@ -26,8 +26,6 @@ USE_STATIC_LIBS = 1
 FORCE_STATIC_LIB = 1
 
 REQUIRES = \
-    js \
-    jsdebug \
     layout \
     necko \
     string \
