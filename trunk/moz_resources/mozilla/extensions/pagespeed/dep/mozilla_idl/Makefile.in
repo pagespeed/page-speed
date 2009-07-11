@@ -27,8 +27,8 @@ NO_GEN_XPT = 1
 NO_DIST_INSTALL = 1
 
 XPIDLSRCS = \
-    jsdIDebuggerService_a2670844.idl \
-    jsdIDebuggerService_d9214124.idl \
+    jsdIDebuggerService_3_0_11.idl \
+    jsdIDebuggerService_3_5.idl \
     $(NULL)
 
 include $(topsrcdir)/config/rules.mk

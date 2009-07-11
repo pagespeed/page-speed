@@ -27,32 +27,17 @@
 #ifndef JSD_WRAPPER_H_
 #define JSD_WRAPPER_H_
 
-// Forward declare the classes that jsdIDebuggerService cares about.
-class nsAString;
-class JSContext;
-class JSDContext;
-class JSRuntime;
-class JSDStackFrameInfo;
-class JSDThreadState;
-class JSDProperty;
-class JSDScript;
-class JSDValue;
-class JSDObject;
+// Use the jsdIDebuggerService.h from Firefox 3.0.11
+#include "jsdIDebuggerService_3_0_11.h"
 
-#ifndef nsAString_h___
-// Temporarily define the nsAString.h include guard, to prevent it
-// from failing the build.
-#define nsAString_h___
-#define NS_ASTRING_NOT_INCLUDED 1
-#endif
-
-// jsdIDebuggerService.h from Firefox 3.0
-#include "jsdIDebuggerService_d9214124.h"
-
-// Undefine the nsAString.h include guard if it wasn't already
-// defined.
-#if NS_ASTRING_NOT_INCLUDED
-#undef nsAString_h___
-#endif
+// For now, map the names of various jsd classes to the classes
+// associated with version 3.0.11.
+typedef jsdICallHook_3_0_11 jsdICallHook;
+typedef jsdIDebuggerService_3_0_11 jsdIDebuggerService;
+typedef jsdIScript_3_0_11 jsdIScript;
+typedef jsdIScriptHook_3_0_11 jsdIScriptHook;
+typedef jsdIStackFrame_3_0_11 jsdIStackFrame;
+#define NS_DECL_JSDICALLHOOK NS_DECL_JSDICALLHOOK_3_0_11
+#define NS_DECL_JSDISCRIPTHOOK NS_DECL_JSDISCRIPTHOOK_3_0_11
 
 #endif  // JSD_WRAPPER_H_

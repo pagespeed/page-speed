@@ -36,14 +36,24 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-    
+
 #include "nsISupports.idl"
 
 %{ C++
-#include "jsdebug.h"
-#include "nsAString.h"
+//#include "jsdebug.h"
+//#include "nsAString.h"
+class nsAString;
+class JSContext;
+class JSDContext;
+class JSRuntime;
+class JSDStackFrameInfo;
+class JSDThreadState;
+class JSDProperty;
+class JSDScript;
+class JSDValue;
+class JSDObject;
 %}
-    
+
 [ptr] native JSDContext(JSDContext);
 [ptr] native JSDObject(JSDObject);
 [ptr] native JSDProperty(JSDProperty);
@@ -55,30 +65,30 @@
 [ptr] native JSContext(JSContext);
 
 /* interfaces we declare in this file */
-interface jsdIDebuggerService;
-interface jsdIFilter;
-interface jsdINestCallback;
-interface jsdIFilterEnumerator;
-interface jsdIContextEnumerator;
-interface jsdIScriptEnumerator;
-interface jsdIScriptHook;
-interface jsdIErrorHook;
-interface jsdIExecutionHook;
-interface jsdICallHook;
-interface jsdIEphemeral;
-interface jsdIContext;
-interface jsdIStackFrame;
-interface jsdIScript;
-interface jsdIValue;
-interface jsdIObject;
-interface jsdIProperty;
+interface jsdIDebuggerService_3_0_11;
+interface jsdIFilter_3_0_11;
+interface jsdINestCallback_3_0_11;
+interface jsdIFilterEnumerator_3_0_11;
+interface jsdIContextEnumerator_3_0_11;
+interface jsdIScriptEnumerator_3_0_11;
+interface jsdIScriptHook_3_0_11;
+interface jsdIErrorHook_3_0_11;
+interface jsdIExecutionHook_3_0_11;
+interface jsdICallHook_3_0_11;
+interface jsdIEphemeral_3_0_11;
+interface jsdIContext_3_0_11;
+interface jsdIStackFrame_3_0_11;
+interface jsdIScript_3_0_11;
+interface jsdIValue_3_0_11;
+interface jsdIObject_3_0_11;
+interface jsdIProperty_3_0_11;
 
 /**
  * Debugger service.  It's not a good idea to have more than one active client of
  * the debugger service.
  */
-[scriptable, uuid(a074fcb4-73d7-4825-a4cd-7cbb1d6800b1)]
-interface jsdIDebuggerService : nsISupports
+[scriptable, uuid(9dd9006a-4e5e-4a80-ac3d-007fb7335ca4)]
+interface jsdIDebuggerService_3_0_11 : nsISupports
 {
     /** Internal use only. */
     [noscript] readonly attribute JSDContext        JSDContext;
@@ -86,39 +96,39 @@ interface jsdIDebuggerService : nsISupports
     /**
      * Called when an error or warning occurs.
      */
-    attribute jsdIErrorHook     errorHook;
+    attribute jsdIErrorHook_3_0_11     errorHook;
     /**
-     * Called when a jsdIScript is created or destroyed.
+     * Called when a jsdIScript_3_0_11 is created or destroyed.
      */
-    attribute jsdIScriptHook    scriptHook;
+    attribute jsdIScriptHook_3_0_11    scriptHook;
     /**
      * Called when the engine encounters a breakpoint.
      */
-    attribute jsdIExecutionHook breakpointHook;
+    attribute jsdIExecutionHook_3_0_11 breakpointHook;
     /**
      * Called when the engine encounters the debugger keyword.
      */
-    attribute jsdIExecutionHook debuggerHook;
+    attribute jsdIExecutionHook_3_0_11 debuggerHook;
     /**
      * Called when the errorHook returns false.
      */
-    attribute jsdIExecutionHook debugHook;
+    attribute jsdIExecutionHook_3_0_11 debugHook;
     /**
      * Called before the next PC is executed.
      */
-    attribute jsdIExecutionHook interruptHook;
+    attribute jsdIExecutionHook_3_0_11 interruptHook;
     /**
      * Called when an exception is thrown (even if it will be caught.)
      */
-    attribute jsdIExecutionHook throwHook;
+    attribute jsdIExecutionHook_3_0_11 throwHook;
     /**
      * Called before and after a toplevel script is evaluated.
      */
-    attribute jsdICallHook topLevelHook;
+    attribute jsdICallHook_3_0_11 topLevelHook;
     /**
      * Called before and after a function is called.
      */
-    attribute jsdICallHook functionHook;
+    attribute jsdICallHook_3_0_11 functionHook;
 
 
     /**
@@ -127,7 +137,7 @@ interface jsdIDebuggerService : nsISupports
      */
 
     /**
-     * Possible values for jsdIScript::version and jsdIContext::version.
+     * Possible values for jsdIScript_3_0_11::version and jsdIContext_3_0_11::version.
      */
     const long VERSION_1_0     = 100;
     const long VERSION_1_1     = 110;
@@ -190,12 +200,12 @@ interface jsdIDebuggerService : nsISupports
      * reduce the performance price you pay by enabling the debugger.
      */
     const unsigned long DISABLE_OBJECT_TRACE = 0x40;
-    
+
     /**
      * Debugger service flags.
      */
     attribute unsigned long flags;
-    
+
     /**
      * Major version number of implementation.
      */
@@ -208,7 +218,7 @@ interface jsdIDebuggerService : nsISupports
      * Free form string identifier for implementation.
      */
     readonly attribute string implementationString;
-    
+
     /**
      * |true| if the debugger should register an app-start observer in order
      * to begin collecting debug information when mozilla is launched.
@@ -217,7 +227,7 @@ interface jsdIDebuggerService : nsISupports
 
     /**
      * |true| if the debugger service has been turned on.  This does not
-     * necessarily mean another app is actively using the service, as the 
+     * necessarily mean another app is actively using the service, as the
      * autostart pref may have turned the service on.
      */
     readonly attribute boolean isOn;
@@ -236,7 +246,7 @@ interface jsdIDebuggerService : nsISupports
      */
     [noscript] void onForRuntime (in JSRuntime rt);
     /**
-     * Turn the debugger off.  This will invalidate all of your jsdIEphemeral
+     * Turn the debugger off.  This will invalidate all of your jsdIEphemeral_3_0_11
      * derived objects, and clear all of your breakpoints.  In theory you
      * should be able to turn the debugger back on at some later time without
      * any problems.
@@ -265,20 +275,27 @@ interface jsdIDebuggerService : nsISupports
      * @return depth The number of remaining pending pause calls.
      */
     unsigned long unPause();
-    
+
     /**
      * Force the engine to perform garbage collection.
      */
     void GC();
-    
+
+    /**
+     * Output dump of JS heap.
+     *
+     * @param fileName Filename to dump the heap into.
+     */
+    void DumpHeap(in string fileName);
+
     /**
      * Clear profile data for all scripts.
      */
     void clearProfileData();
-    
+
     /**
      * Adds an execution hook filter.  These filters are consulted each time one
-     * of the jsdIExecutionHooks is about to be called.  Filters are matched in
+     * of the jsdIExecutionHooks_3_0_11 is about to be called.  Filters are matched in
      * a first in, first compared fashion.  The first filter to match determines
      * whether or not the hook is called.  Use swapFilter to reorder existing
      * filters, and removeFilter to remove them.
@@ -289,11 +306,11 @@ interface jsdIDebuggerService : nsISupports
      * @param after  Insert |filter| after this one.  Pass null to insert at
      *               the beginning.
      */
-    void insertFilter (in jsdIFilter filter, in jsdIFilter after);
+    void insertFilter (in jsdIFilter_3_0_11 filter, in jsdIFilter_3_0_11 after);
     /**
      * Same as insertFilter, except always add to the end of the list.
      */
-    void appendFilter (in jsdIFilter filter);
+    void appendFilter (in jsdIFilter_3_0_11 filter);
     /**
      * Remove a filter.
      *
@@ -303,29 +320,29 @@ interface jsdIDebuggerService : nsISupports
      * object passed to addFilter, not just a new object with the same
      * properties.
      */
-    void removeFilter (in jsdIFilter filter);
+    void removeFilter (in jsdIFilter_3_0_11 filter);
     /**
      * Swap position of two filters.
-     * 
+     *
      * If |filter_a| is not present, this method throws NS_ERROR_INVALID_ARG.
      * If |filter_b| is not present, filter_a is replaced by filter_b.
      * If |filter_a| == |filter_b|, then filter is refreshed.
      */
-    void swapFilters (in jsdIFilter filter_a, in jsdIFilter filter_b);
+    void swapFilters (in jsdIFilter_3_0_11 filter_a, in jsdIFilter_3_0_11 filter_b);
     /**
      * Enumerate registered filters.  This routine refreshes each filter before
      * passing them on to the enumeration function.  Calling this with a null
-     * |enumerator| is equivalent to jsdIService::refreshFilters.
+     * |enumerator| is equivalent to jsdIService_3_0_11::refreshFilters.
      *
-     * @param enumerator jsdIFilterEnumerator instance to be called back for the
+     * @param enumerator jsdIFilterEnumerator_3_0_11 instance to be called back for the
      *                   enumeration.
      */
-    void enumerateFilters (in jsdIFilterEnumerator enumerator);
+    void enumerateFilters (in jsdIFilterEnumerator_3_0_11 enumerator);
     /**
      * Force the debugger to resync its internal filter cache with the
-     * actual values in the jsdIFilter objects.  To refresh a single filter
-     * use jsdIService::swapFilters.  This method is equivalent to
-     * jsdIService::enumerateFilters with a null enumerator.
+     * actual values in the jsdIFilter_3_0_11 objects.  To refresh a single filter
+     * use jsdIService_3_0_11::swapFilters.  This method is equivalent to
+     * jsdIService_3_0_11::enumerateFilters with a null enumerator.
      */
     void refreshFilters ();
     /**
@@ -336,43 +353,43 @@ interface jsdIDebuggerService : nsISupports
     /**
      * Enumerate all known contexts.
      */
-    void enumerateContexts (in jsdIContextEnumerator enumerator);
-    
+    void enumerateContexts (in jsdIContextEnumerator_3_0_11 enumerator);
+
     /**
      * Enumerate all scripts the debugger knows about.  Any scripts created
      * before you turned the debugger on, or after turning the debugger off
      * will not be available unless the autostart perf is set.
      *
-     * @param enumerator jsdIScriptEnumerator instance to be called back for
+     * @param enumerator jsdIScriptEnumerator_3_0_11 instance to be called back for
      *                   the enumeration.
      */
-    void enumerateScripts (in jsdIScriptEnumerator enumerator);
+    void enumerateScripts (in jsdIScriptEnumerator_3_0_11 enumerator);
     /**
      * Clear all breakpoints in all scripts.
      */
     void clearAllBreakpoints ();
 
     /**
-     * When called from JavaScript, this method returns the jsdIValue wrapper
+     * When called from JavaScript, this method returns the jsdIValue_3_0_11 wrapper
      * for the given value.  If a wrapper does not exist one will be created.
      * When called from another language this method returns an xpconnect
      * defined error code.
      */
-    jsdIValue wrapValue (/*in jsvalue value*/);
-    
+    jsdIValue_3_0_11 wrapValue (/*in jsvalue value*/);
+
     /* XXX these two routines are candidates for refactoring.  The only problem
      * is that it is not clear where and how they should land.
      */
 
     /**
      * Push a new network queue, and enter a new UI event loop.
-     * @param callback jsdINestCallback instance to be called back after the
+     * @param callback jsdINestCallback_3_0_11 instance to be called back after the
      *                 network queue has been pushed, but before the
      *                 UI loop starts.
      * @return depth returns the current number of times the event loop has been
      *               nested.  your code can use it for sanity checks.
      */
-    unsigned long enterNestedEventLoop (in jsdINestCallback callback);
+    unsigned long enterNestedEventLoop (in jsdINestCallback_3_0_11 callback);
     /**
      * Exit the current nested event loop after the current iteration completes,
      * and pop the network event queue.
@@ -381,13 +398,6 @@ interface jsdIDebuggerService : nsISupports
      *               nested.  your code can use it for sanity checks.
      */
     unsigned long exitNestedEventLoop ();
-
-    /**
-     * Output dump of JS heap.
-     *
-     * @param fileName Filename to dump the heap into.
-     */
-    void dumpHeap (in string fileName);
 };
 
 /* callback interfaces */
@@ -398,7 +408,7 @@ interface jsdIDebuggerService : nsISupports
  * objects.
  */
 [scriptable, uuid(05593438-1b83-4517-864f-3cea3d37a266)]
-interface jsdIFilter : nsISupports
+interface jsdIFilter_3_0_11 : nsISupports
 {
     /**
      * These two bytes of the flags attribute are reserved for interpretation
@@ -420,17 +430,17 @@ interface jsdIFilter : nsISupports
      * FLAG_* values from above, OR'd together.
      */
     attribute unsigned long flags;
-    
+
     /**
      * An nsISupports version of the global object to be filtered.  A null glob
      * matches all hooks.  This attribute must be QI'able to the
      * (non-scriptable) nsIScriptGlobalObject interface.
      *
-     * The jsdIService caches this value internally, so if it changes you must
-     * swap the filter with itself using jsdIService::swapFilters.
+     * The jsdIService_3_0_11 caches this value internally, so if it changes you must
+     * swap the filter with itself using jsdIService_3_0_11::swapFilters.
      */
     attribute nsISupports globalObject;
-    
+
     /**
      * String representing the url pattern to be filtered.  Supports limited
      * glob matching, at the beginning and end of the pattern only.  For example,
@@ -438,8 +448,8 @@ interface jsdIFilter : nsISupports
      * "*.cgi" filters all cgi's, and "http://myserver/utils.js" filters only
      * the utils.js file on "myserver".   A null urlPattern matches all urls.
      *
-     * The jsdIService caches this value internally, to if it changes you must
-     * swap the filter with itself using jsdIService::swapFilters.
+     * The jsdIService_3_0_11 caches this value internally, to if it changes you must
+     * swap the filter with itself using jsdIService_3_0_11::swapFilters.
      */
     attribute string urlPattern;
 
@@ -459,10 +469,10 @@ interface jsdIFilter : nsISupports
 };
 
 /**
- * Pass an instance of one of these to jsdIDebuggerService::enterNestedEventLoop.
+ * Pass an instance of one of these to jsdIDebuggerService_3_0_11::enterNestedEventLoop.
  */
 [scriptable, uuid(88bea60f-9b5d-4b39-b08b-1c3a278782c6)]
-interface jsdINestCallback : nsISupports
+interface jsdINestCallback_3_0_11 : nsISupports
 {
     /**
      * This method will be called after pre-nesting work has completed, such
@@ -473,67 +483,67 @@ interface jsdINestCallback : nsISupports
 };
 
 /**
- * Pass an instance of one of these to jsdIDebuggerService::enumerateFilters.
+ * Pass an instance of one of these to jsdIDebuggerService_3_0_11::enumerateFilters.
  */
 [scriptable, uuid(54382875-ed12-4f90-9a63-1f0498d0a3f2)]
-interface jsdIFilterEnumerator : nsISupports
+interface jsdIFilterEnumerator_3_0_11 : nsISupports
 {
     /**
      * The enumerateFilter method will be called once for every filter the
      * debugger knows about.
      */
-    void enumerateFilter (in jsdIFilter filter);
+    void enumerateFilter (in jsdIFilter_3_0_11 filter);
 };
 
 /**
- * Pass an instance of one of these to jsdIDebuggerService::enumerateScripts.
+ * Pass an instance of one of these to jsdIDebuggerService_3_0_11::enumerateScripts.
  */
 [scriptable, uuid(4c2f706e-1dd2-11b2-9ebc-85a06e948830)]
-interface jsdIScriptEnumerator : nsISupports
+interface jsdIScriptEnumerator_3_0_11 : nsISupports
 {
     /**
      * The enumerateScript method will be called once for every script the
      * debugger knows about.
      */
-    void enumerateScript (in jsdIScript script);
+    void enumerateScript (in jsdIScript_3_0_11 script);
 };
 
 /**
- * Pass an instance of one of these to jsdIDebuggerService::enumerateContexts.
+ * Pass an instance of one of these to jsdIDebuggerService_3_0_11::enumerateContexts.
  */
 [scriptable, uuid(912e342a-1dd2-11b2-b09f-cf3af38c15f0)]
-interface jsdIContextEnumerator : nsISupports
+interface jsdIContextEnumerator_3_0_11 : nsISupports
 {
     /**
      * The enumerateContext method will be called once for every context
      * currently in use.
      */
-    void enumerateContext (in jsdIContext executionContext);
+    void enumerateContext (in jsdIContext_3_0_11 executionContext);
 };
 
 /**
- * Set jsdIDebuggerService::scriptHook to an instance of one of these.
+ * Set jsdIDebuggerService_3_0_11::scriptHook to an instance of one of these.
  */
 [scriptable, uuid(ae89a7e2-1dd1-11b2-8c2f-af82086291a5)]
-interface jsdIScriptHook : nsISupports
+interface jsdIScriptHook_3_0_11 : nsISupports
 {
     /**
      * Called when scripts are created.
      */
-    void onScriptCreated (in jsdIScript script);
+    void onScriptCreated (in jsdIScript_3_0_11 script);
     /**
-     * Called when the JavaScript engine destroys a script.  The jsdIScript
+     * Called when the JavaScript engine destroys a script.  The jsdIScript_3_0_11
      * object passed in will already be invalidated.
      */
-    void onScriptDestroyed (in jsdIScript script);
+    void onScriptDestroyed (in jsdIScript_3_0_11 script);
 };
 
 /**
  * Hook instances of this interface up to the
- * jsdIDebuggerService::functionHook and toplevelHook properties.
+ * jsdIDebuggerService_3_0_11::functionHook and toplevelHook properties.
  */
 [scriptable, uuid(f102caf6-1dd1-11b2-bd43-c1dbacb95a98)]
-interface jsdICallHook : nsISupports
+interface jsdICallHook_3_0_11 : nsISupports
 {
     /**
      * TYPE_* values must be kept in sync with the JSD_HOOK_* #defines
@@ -556,22 +566,22 @@ interface jsdICallHook : nsISupports
      * Function is returning.
      */
     const unsigned long TYPE_FUNCTION_RETURN = 3;
-    
+
     /**
      * Called before the JavaScript engine executes a top level script or calls
      * a function.
      */
-    void onCall (in jsdIStackFrame frame, in unsigned long type);
+    void onCall (in jsdIStackFrame_3_0_11 frame, in unsigned long type);
 };
 
 [scriptable, uuid(b7dd3c1c-1dd1-11b2-83eb-8a857d199e0f)]
-interface jsdIErrorHook : nsISupports
+interface jsdIErrorHook_3_0_11 : nsISupports
 {
     /**
      * REPORT_* values must be kept in sync with JSREPORT_* #defines in
      * jsapi.h
      */
-    
+
     /**
      * Report is an error.
      */
@@ -596,16 +606,16 @@ interface jsdIErrorHook : nsISupports
     boolean onError (in string message, in string fileName,
                      in unsigned long line, in unsigned long pos,
                      in unsigned long flags, in unsigned long errnum,
-                     in jsdIValue exc);
+                     in jsdIValue_3_0_11 exc);
 };
 
 /**
  * Hook instances of this interface up to the
- * jsdIDebuggerService::breakpointHook, debuggerHook, errorHook, interruptHook,
+ * jsdIDebuggerService_3_0_11::breakpointHook, debuggerHook, errorHook, interruptHook,
  * and throwHook properties.
  */
 [scriptable, uuid(9a7b6ad0-1dd1-11b2-a789-fcfae96356a2)]
-interface jsdIExecutionHook : nsISupports
+interface jsdIExecutionHook_3_0_11 : nsISupports
 {
     /**
      * TYPE_* values must be kept in sync with JSD_HOOK_* #defines in jsdebug.h.
@@ -669,26 +679,26 @@ interface jsdIExecutionHook : nsISupports
     const unsigned long RETURN_CONTINUE_THROW = 5;
 
     /**
-     * @param frame A jsdIStackFrame object representing the bottom stack frame.
-     * @param type  One of the jsdIExecutionHook::TYPE_ constants.
+     * @param frame A jsdIStackFrame_3_0_11 object representing the bottom stack frame.
+     * @param type  One of the jsdIExecutionHook_3_0_11::TYPE_ constants.
      * @param val   in  - Current exception (if any) when this method is called.
      *              out - If you return RETURN_THROW_WITH_VAL, value to be
      *                    thrown.
      *                    If you return RETURN_RET_WITH_VAL, value to return.
      *                    All other return values, not significant.
-     * @retval      One of the jsdIExecutionHook::RETURN_* constants.
+     * @retval      One of the jsdIExecutionHook_3_0_11::RETURN_* constants.
      */
-    unsigned long onExecute (in jsdIStackFrame frame, 
-                             in unsigned long type, inout jsdIValue val);
+    unsigned long onExecute (in jsdIStackFrame_3_0_11 frame,
+                             in unsigned long type, inout jsdIValue_3_0_11 val);
 };
 
 /**
- * Objects which inherit this interface may go away, with (jsdIScript) or
+ * Objects which inherit this interface may go away, with (jsdIScript_3_0_11) or
  * without (all others) notification.  These objects are generally wrappers
  * around JSD structures that go away when you call jsdService::Off().
  */
 [scriptable, uuid(46f1e23e-1dd2-11b2-9ceb-8285f2e95e69)]
-interface jsdIEphemeral : nsISupports
+interface jsdIEphemeral_3_0_11 : nsISupports
 {
     /**
      * |true| if this object is still valid.  If not, many or all of the methods
@@ -698,8 +708,8 @@ interface jsdIEphemeral : nsISupports
     /**
      * Mark this instance as invalid.
      */
-    [noscript] void invalidate(); 
-};    
+    [noscript] void invalidate();
+};
 
 /* handle objects */
 
@@ -708,7 +718,7 @@ interface jsdIEphemeral : nsISupports
  * reflected by this interface.
  */
 [scriptable, uuid(a2dd25a4-1dd1-11b2-bda6-ed525acd4c35)]
-interface jsdIContext : jsdIEphemeral
+interface jsdIContext_3_0_11 : jsdIEphemeral_3_0_11
 {
     /* Internal use only. */
     [noscript] readonly attribute JSContext   JSContext;
@@ -743,12 +753,12 @@ interface jsdIContext : jsdIEphemeral
     /**
      * Last version set on this context.
      * Scripts typically select this with the "language" attribute.
-     * See the VERSION_* consts on jsdIDebuggerService.
+     * See the VERSION_* consts on jsdIDebuggerService_3_0_11.
      */
     attribute long                   version;
 
     /**
-     * Unique tag among all valid jsdIContext objects, useful as a hash key.
+     * Unique tag among all valid jsdIContext_3_0_11 objects, useful as a hash key.
      */
     readonly attribute unsigned long tag;
 
@@ -756,16 +766,16 @@ interface jsdIContext : jsdIEphemeral
      * Private data for this context, if it is an nsISupports, |null| otherwise.
      */
     readonly attribute nsISupports   privateData;
-    
+
     /**
-     * Retrieve the underlying context wrapped by this jsdIContext.
+     * Retrieve the underlying context wrapped by this jsdIContext_3_0_11.
      */
     readonly attribute nsISupports   wrappedContext;
 
     /**
      * Top of the scope chain for this context.
      */
-    readonly attribute jsdIValue     globalObject;
+    readonly attribute jsdIValue_3_0_11     globalObject;
 
     /**
      * |true| if this context should be allowed to run scripts, |false|
@@ -777,14 +787,14 @@ interface jsdIContext : jsdIEphemeral
 };
 
 /**
- * Stack frame objects.  These are only valid inside the jsdIExecutionHook which
+ * Stack frame objects.  These are only valid inside the jsdIExecutionHook_3_0_11 which
  * gave it to you.  After you return from that handler the bottom frame, and any
- * frame you found attached through it, are invalidated via the jsdIEphemeral
- * interface.  Once a jsdIStackFrame has been invalidated all method and
+ * frame you found attached through it, are invalidated via the jsdIEphemeral_3_0_11
+ * interface.  Once a jsdIStackFrame_3_0_11 has been invalidated all method and
  * property accesses will throw a NS_ERROR_NOT_AVAILABLE exception.
  */
 [scriptable, uuid(b6d50784-1dd1-11b2-a932-882246c6fe45)]
-interface jsdIStackFrame : jsdIEphemeral
+interface jsdIStackFrame_3_0_11 : jsdIEphemeral_3_0_11
 {
     /** Internal use only. */
     [noscript] readonly attribute JSDContext        JSDContext;
@@ -792,7 +802,7 @@ interface jsdIStackFrame : jsdIEphemeral
     [noscript] readonly attribute JSDThreadState    JSDThreadState;
     /** Internal use only. */
     [noscript] readonly attribute JSDStackFrameInfo JSDStackFrameInfo;
-   
+
     /**
      * True if stack frame represents a native frame.
      */
@@ -810,11 +820,11 @@ interface jsdIStackFrame : jsdIEphemeral
     /**
      * Link to the caller's stack frame.
      */
-    readonly attribute jsdIStackFrame callingFrame;
+    readonly attribute jsdIStackFrame_3_0_11 callingFrame;
     /**
      * Executon context.
      */
-    readonly attribute jsdIContext    executionContext;
+    readonly attribute jsdIContext_3_0_11    executionContext;
     /**
      * Function name executing in this stack frame.
      */
@@ -822,7 +832,7 @@ interface jsdIStackFrame : jsdIEphemeral
     /**
      * Script running in this stack frame, null for native frames.
      */
-    readonly attribute jsdIScript     script;
+    readonly attribute jsdIScript_3_0_11     script;
     /**
      * Current program counter in this stack frame.
      */
@@ -834,15 +844,15 @@ interface jsdIStackFrame : jsdIEphemeral
     /**
      * Function object running in this stack frame.
      */
-    readonly attribute jsdIValue      callee;
+    readonly attribute jsdIValue_3_0_11      callee;
     /**
      * Top object in the scope chain.
      */
-    readonly attribute jsdIValue      scope;
+    readonly attribute jsdIValue_3_0_11      scope;
     /**
      * |this| object for this stack frame.
      */
-    readonly attribute jsdIValue      thisValue;
+    readonly attribute jsdIValue_3_0_11      thisValue;
     /**
      * Evaluate arbitrary JavaScript in this stack frame.
      * @param bytes    Script to be evaluated.
@@ -852,8 +862,8 @@ interface jsdIStackFrame : jsdIEphemeral
      * @retval         Result of evaluating the script.
      */
     boolean eval (in AString bytes, in string fileName,
-                  in unsigned long line, out jsdIValue result);
-    
+                  in unsigned long line, out jsdIValue_3_0_11 result);
+
 };
 
 /**
@@ -861,22 +871,22 @@ interface jsdIStackFrame : jsdIEphemeral
  * function, and one for the top level script.
  */
 [scriptable, uuid(a38f65ca-1dd1-11b2-95d5-ff2947e9c920)]
-interface jsdIScript : jsdIEphemeral
+interface jsdIScript_3_0_11 : jsdIEphemeral_3_0_11
 {
     /** Internal use only. */
     [noscript] readonly attribute JSDContext JSDContext;
     /** Internal use only. */
     [noscript] readonly attribute JSDScript  JSDScript;
-    
+
     /**
      * Last version set on this context.
      * Scripts typically select this with the "language" attribute.
-     * See the VERSION_* consts on jsdIDebuggerService.
+     * See the VERSION_* consts on jsdIDebuggerService_3_0_11.
      */
     readonly attribute long          version;
 
     /**
-     * Tag value guaranteed unique among jsdIScript objects.  Useful as a
+     * Tag value guaranteed unique among jsdIScript_3_0_11 objects.  Useful as a
      * hash key in script.
      */
     readonly attribute unsigned long tag;
@@ -896,7 +906,7 @@ interface jsdIScript : jsdIEphemeral
      * The context flag JSD_DEBUG_WHEN_SET decides the logic.
      */
     const unsigned long FLAG_DEBUG   = 0x02;
-    
+
     /**
      * FLAG_* attributes from above, OR'd together.
      */
@@ -904,7 +914,7 @@ interface jsdIScript : jsdIEphemeral
 
     /**
      * Filename given for this script when it was compiled.
-     * This data is copied from the underlying structure when the jsdIScript
+     * This data is copied from the underlying structure when the jsdIScript_3_0_11
      * instance is created and is therefore available even after the script is
      * invalidated.
      */
@@ -912,29 +922,29 @@ interface jsdIScript : jsdIEphemeral
     /**
      * Function name for this script.  "anonymous" for unnamed functions (or
      * a function actually named anonymous), empty for top level scripts.
-     * This data is copied from the underlying structure when the jsdIScript
+     * This data is copied from the underlying structure when the jsdIScript_3_0_11
      * instance is created and is therefore available even after the script is
      * invalidated.
      */
     readonly attribute string        functionName;
     /**
-     * Fetch the function object as a jsdIValue.
+     * Fetch the function object as a jsdIValue_3_0_11.
      */
-    readonly attribute jsdIValue     functionObject;
+    readonly attribute jsdIValue_3_0_11     functionObject;
     /**
      * Source code for this script, without function declaration.
      */
     readonly attribute AString functionSource;
     /**
      * Line number in source file containing the first line of this script.
-     * This data is copied from the underlying structure when the jsdIScript
+     * This data is copied from the underlying structure when the jsdIScript_3_0_11
      * instance is created and is therefore available even after the script is
      * invalidated.
      */
     readonly attribute unsigned long baseLineNumber;
     /**
      * Total number of lines in this script.
-     * This data is copied from the underlying structure when the jsdIScript
+     * This data is copied from the underlying structure when the jsdIScript_3_0_11
      * instance is created and is therefore available even after the script is
      * invalidated.
      */
@@ -975,12 +985,12 @@ interface jsdIScript : jsdIEphemeral
      * in other called code.
      */
     readonly attribute double totalOwnExecutionTime;
-    
+
     /**
      * Clear profile data for this script.
      */
     void clearProfileData();
-    
+
     const unsigned long PCMAP_SOURCETEXT  = 1; /* map to actual source text    */
     const unsigned long PCMAP_PRETTYPRINT = 2; /* map to pretty printed source */
 
@@ -1017,11 +1027,11 @@ interface jsdIScript : jsdIEphemeral
 /**
  * Value objects.  Represents typeless JavaScript values (jsval in SpiderMonkey
  * terminology.)  These are valid until the debugger is turned off.  Holding a
- * jsdIValue adds a root for the underlying JavaScript value, so don't keep it
+ * jsdIValue_3_0_11 adds a root for the underlying JavaScript value, so don't keep it
  * if you don't need to.
  */
 [scriptable, uuid(b7964304-1dd1-11b2-ba20-cf4205772e9d)]
-interface jsdIValue : jsdIEphemeral
+interface jsdIValue_3_0_11 : jsdIEphemeral_3_0_11
 {
     /** Internal use only. */
     [noscript] readonly attribute JSDContext JSDContext;
@@ -1042,7 +1052,7 @@ interface jsdIValue : jsdIEphemeral
      * |true| if the value represents a JavaScript primitive number or string
      */
     readonly attribute boolean isPrimitive;
-    
+
     /** Value is either |true| or |false|. */
     const unsigned long TYPE_BOOLEAN  = 0;
     /** Value is a primitive number that is too large to fit in an integer. */
@@ -1059,7 +1069,7 @@ interface jsdIValue : jsdIEphemeral
     const unsigned long TYPE_STRING   = 6;
     /** Value is void. */
     const unsigned long TYPE_VOID     = 7;
-    
+
     /**
      * One of the TYPE_* values above.
      */
@@ -1068,12 +1078,12 @@ interface jsdIValue : jsdIEphemeral
      * Prototype value if this value represents an object, null if the value is
      * not an object or the object has no prototype.
      */
-    readonly attribute jsdIValue     jsPrototype;
+    readonly attribute jsdIValue_3_0_11     jsPrototype;
     /**
      * Parent value if this value represents an object, null if the value is not
      * an object or the object has no parent.
-     */    
-    readonly attribute jsdIValue     jsParent;
+     */
+    readonly attribute jsdIValue_3_0_11     jsParent;
     /**
      * Class name if this value represents an object.  Empty string if the value
      * is not an object.
@@ -1083,13 +1093,13 @@ interface jsdIValue : jsdIEphemeral
      * Constructor name if this value represents an object.  Empty string if the
      * value is not an object.
      */
-    readonly attribute jsdIValue     jsConstructor;
+    readonly attribute jsdIValue_3_0_11     jsConstructor;
     /**
      * Function name if this value represents a function.  Empty string if the
      * value is not a function.
      */
     readonly attribute string        jsFunctionName;
-    
+
     /**
      * Value if interpreted as a boolean.  Converts if necessary.
      */
@@ -1105,7 +1115,7 @@ interface jsdIValue : jsdIEphemeral
     /**
      * Value if interpreted as an object.
      */
-    readonly attribute jsdIObject objectValue;
+    readonly attribute jsdIObject_3_0_11 objectValue;
     /**
      * Value if interpreted as a string.  Converts if necessary.
      */
@@ -1116,34 +1126,34 @@ interface jsdIValue : jsdIEphemeral
      * an object but has no properties.
      */
     readonly attribute long propertyCount;
-    
+
     /**
      * Retrieves all properties if this value represents an object.  If this
      * value is not an object a 0 element array is returned.
-     * @param propArray Array of jsdIProperty values for this value.
+     * @param propArray Array of jsdIProperty_3_0_11 values for this value.
      * @param length    Size of array.
      */
-    void getProperties ([array, size_is(length)] out jsdIProperty propArray,
+    void getProperties ([array, size_is(length)] out jsdIProperty_3_0_11 propArray,
                         out unsigned long length);
     /**
      * Retrieves a single property from the value.  Only valid if the value
      * represents an object.
      * @param name Name of the property to retrieve.
-     * @retval     jsdIProperty for the requested property name or null if no
+     * @retval     jsdIProperty_3_0_11 for the requested property name or null if no
      *             property exists for the requested name.
      */
-    jsdIProperty getProperty (in string name);
+    jsdIProperty_3_0_11 getProperty (in string name);
 
     /**
-     * jsdIValues are wrappers around JavaScript engine structures.  Much of the
+     * jsdIValues_3_0_11 are wrappers around JavaScript engine structures.  Much of the
      * data is copied instead of shared.  The refresh method is used to resync
-     * the jsdIValue with the underlying structure.
+     * the jsdIValue_3_0_11 with the underlying structure.
      */
     void refresh();
 
     /**
      * When called from JavaScript, this method returns the JavaScript value
-     * wrapped by this jsdIValue.  The calling script is free to use the result
+     * wrapped by this jsdIValue_3_0_11.  The calling script is free to use the result
      * as it would any other JavaScript value.
      * When called from another language this method returns an xpconnect
      * defined error code.
@@ -1154,14 +1164,14 @@ interface jsdIValue : jsdIEphemeral
 /**
  * Properties specific to values which are also objects.
  * XXX We don't add roots for these yet, so make sure you hold on to the
- * jsdIValue from whence your jsdIObject instance came for at least as long as
- * you hold the jsdIObject.
+ * jsdIValue_3_0_11 from whence your jsdIObject_3_0_11 instance came for at least as long as
+ * you hold the jsdIObject_3_0_11.
  * XXX Maybe the jsClassName, jsConstructorName, and property related attribute/
- * functions from jsdIValue should move to this interface.  We could inherit from
- * jsdIValue or use interface flattening or something.
+ * functions from jsdIValue_3_0_11 should move to this interface.  We could inherit from
+ * jsdIValue_3_0_11 or use interface flattening or something.
  */
 [scriptable, uuid(d500e8b8-1dd1-11b2-89a1-cdf55d91cbbd)]
-interface jsdIObject : nsISupports
+interface jsdIObject_3_0_11 : nsISupports
 {
     /** Internal use only. */
     [noscript] readonly attribute JSDContext JSDContext;
@@ -1187,9 +1197,9 @@ interface jsdIObject : nsISupports
      */
     readonly attribute unsigned long constructorLine;
     /**
-     * jsdIValue for this object.
+     * jsdIValue_3_0_11 for this object.
      */
-    readonly attribute jsdIValue     value;
+    readonly attribute jsdIValue_3_0_11     value;
 };
 
 /**
@@ -1197,7 +1207,7 @@ interface jsdIObject : nsISupports
  * method and property access will result in a NS_UNAVAILABLE error.
  */
 [scriptable, uuid(b8816e56-1dd1-11b2-81dc-8ba99a833d9e)]
-interface jsdIProperty : jsdIEphemeral
+interface jsdIProperty_3_0_11 : jsdIEphemeral_3_0_11
 {
     /** Internal use only. */
     [noscript] readonly attribute JSDContext  JSDContext;
@@ -1210,7 +1220,7 @@ interface jsdIProperty : jsdIEphemeral
 
     /** visible to for/in loop */
     const unsigned long FLAG_ENUMERATE = 0x01;
-    /** assignment is error */    
+    /** assignment is error */
     const unsigned long FLAG_READONLY  = 0x02;
     /** property cannot be deleted */
     const unsigned long FLAG_PERMANENT = 0x04;
@@ -1229,12 +1239,12 @@ interface jsdIProperty : jsdIEphemeral
 
     /** FLAG_* values OR'd together, representing the flags for this property. */
     readonly attribute unsigned long flags;
-    /** jsdIValue representing the alias for this property. */
-    readonly attribute jsdIValue     alias;
+    /** jsdIValue_3_0_11 representing the alias for this property. */
+    readonly attribute jsdIValue_3_0_11     alias;
     /** name for this property. */
-    readonly attribute jsdIValue     name;
+    readonly attribute jsdIValue_3_0_11     name;
     /** value of this property. */
-    readonly attribute jsdIValue     value;
+    readonly attribute jsdIValue_3_0_11     value;
     /** slot number if this property is a local variable or parameter. */
     readonly attribute unsigned long varArgSlot;
 
@@ -1242,20 +1252,19 @@ interface jsdIProperty : jsdIEphemeral
 
 /*
 [scriptable, uuid(a47adad2-1dd1-11b2-b9e9-8e67a47beca5)]
-interface jsdISourceText : nsISupports
+interface jsdISourceText_3_0_11 : nsISupports
 {};
 
 [scriptable, uuid(b6d1c006-1dd1-11b2-b9d8-b4d1ccfb74d8)]
-interface jsdIThreadState : nsISupports
+interface jsdIThreadState_3_0_11 : nsISupports
 {
     [noscript] readonly attribute JSDContext     JSDContext;
     [noscript] readonly attribute JSDThreadState JSDThreadState;
-    
+
     readonly attribute unsigned long  frameCount;
-    readonly attribute jsdIStackFrame topFrame;
-    
-    attribute jsdIValue pendingException;
+    readonly attribute jsdIStackFrame_3_0_11 topFrame;
+
+    attribute jsdIValue_3_0_11 pendingException;
 };
 
 */
-
