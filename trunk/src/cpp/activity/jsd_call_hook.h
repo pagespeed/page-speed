@@ -23,6 +23,8 @@
 #define JSD_CALL_HOOK_H_
 
 #include "base/macros.h"
+#include "base/scoped_ptr.h"
+#include "jsd.h"
 #include "jsd_wrapper.h"
 
 namespace activity {
@@ -60,6 +62,8 @@ class JsdCallHook : public jsdICallHook {
   bool IsFunctionNamePopulated(jsdIStackFrame *frame);
 
   bool IsCallFilterActive() const;
+
+  scoped_ptr<JsdWrapper> jsd_;
 
   CallGraphProfile *const profile_;
 

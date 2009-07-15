@@ -27,7 +27,7 @@ NO_GEN_XPT = 1
 NO_DIST_INSTALL = 1
 
 XPIDLSRCS = \
-    jsdIDebuggerService_3_0_11.idl \
+    jsdIDebuggerService_3_0.idl \
     jsdIDebuggerService_3_5.idl \
     $(NULL)
 

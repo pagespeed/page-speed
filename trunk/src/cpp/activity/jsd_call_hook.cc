@@ -23,18 +23,14 @@
 #include "jsd_function_info.h"
 
 #include "nsCOMPtr.h"
-#include "nsServiceManagerUtils.h"
 
 NS_IMPL_ISUPPORTS1(activity::JsdCallHook, jsdICallHook)
-
-namespace {
-const char* kJsdContractStr = "@mozilla.org/js/jsd/debugger-service;1";
-}  // namespace
 
 namespace activity {
 
 JsdCallHook::JsdCallHook(CallGraphProfile *profile)
-    : profile_(profile),
+    : jsd_(JsdWrapper::Create()),
+      profile_(profile),
       filter_depth_(-1),
       apply_filter_pending_(false),
       collect_full_call_trees_(false),
@@ -44,6 +40,11 @@ JsdCallHook::JsdCallHook(CallGraphProfile *profile)
 JsdCallHook::~JsdCallHook() {}
 
 NS_IMETHODIMP JsdCallHook::OnCall(jsdIStackFrame *frame, PRUint32 type) {
+  if (jsd_ == NULL) {
+    // If we were unable to get a handle to the JSD, bail.
+    return NS_ERROR_FAILURE;
+  }
+
   if (!started_profiling_) {
     // We have to catch the case where we start profiling in the
     // middle of a call stack. We don't want to start recording
@@ -186,12 +187,6 @@ bool JsdCallHook::IsFunctionNamePopulated(jsdIStackFrame *frame) {
 
 void JsdCallHook::UpdateCallFilter(jsdIStackFrame *frame, bool filter) {
   nsresult rv = NS_OK;
-  nsCOMPtr<jsdIDebuggerService> jsd = do_GetService(kJsdContractStr, &rv);
-  if (NS_FAILED(rv)) {
-    GCHECK(false);
-    return;
-  }
-
   nsCOMPtr<jsdIScript> script;
   rv = frame->GetScript(getter_AddRefs(script));
   if (NS_FAILED(rv)) {
@@ -200,7 +195,7 @@ void JsdCallHook::UpdateCallFilter(jsdIStackFrame *frame, bool filter) {
   }
 
   PRUint32 jsd_flags = 0;
-  rv = jsd->GetFlags(&jsd_flags);
+  rv = jsd_->GetFlags(&jsd_flags);
   if (NS_FAILED(rv)) {
     GCHECK(false);
     return;
@@ -240,7 +235,7 @@ void JsdCallHook::UpdateCallFilter(jsdIStackFrame *frame, bool filter) {
     script_flags &= ~kScriptFilter;
     filter_depth_ = -1;
   }
-  nsresult jsd_rv = jsd->SetFlags(jsd_flags);
+  nsresult jsd_rv = jsd_->SetFlags(jsd_flags);
   nsresult script_rv = script->SetFlags(script_flags);
   if (NS_FAILED(jsd_rv)) {
     GCHECK(false);

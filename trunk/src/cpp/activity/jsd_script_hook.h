@@ -24,7 +24,7 @@
 #define JSD_SCRIPT_HOOK_H_
 
 #include "base/macros.h"
-#include "jsd_wrapper.h"
+#include "jsd.h"
 
 namespace activity {
 
