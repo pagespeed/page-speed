@@ -24,7 +24,7 @@
 
 #include "base/macros.h"
 #include "function_info_interface.h"
-#include "jsd_wrapper.h"
+#include "jsd.h"
 
 namespace activity {
 

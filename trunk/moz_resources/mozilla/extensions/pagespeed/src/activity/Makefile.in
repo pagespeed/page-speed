@@ -55,6 +55,9 @@ CPPSRCS = \
     jsd_call_hook.cpp \
     jsd_function_info.cpp \
     jsd_script_hook.cpp \
+    jsd_wrapper.cpp \
+    jsd_wrapper_3_0.cpp \
+    jsd_wrapper_3_5.cpp \
     timer.cpp \
     uncalled_function_tree_view_delegate.cpp \
     $(NULL)

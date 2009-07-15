@@ -44,7 +44,6 @@
 NS_IMPL_ISUPPORTS1(activity::Profiler, IActivityProfiler)
 
 namespace {
-const char* kJsdContractStr = "@mozilla.org/js/jsd/debugger-service;1";
 const char* kThreadManagerContactStr = "@mozilla.org/thread-manager;1";
 }  // namespace
 
@@ -100,10 +99,10 @@ NS_IMETHODIMP Profiler::Register(
     return rv;
   }
 
-  nsCOMPtr<jsdIDebuggerService> jsd = do_GetService(kJsdContractStr, &rv);
-  if (NS_FAILED(rv)) {
+  scoped_ptr<JsdWrapper> jsd(JsdWrapper::Create());
+  if (jsd == NULL) {
     error_ = true;
-    return rv;
+    return NS_ERROR_FAILURE;
   }
 
   profile_->Start(start_time_usec);
@@ -139,10 +138,9 @@ NS_IMETHODIMP Profiler::Unregister() {
     return NS_ERROR_FAILURE;
   }
 
-  nsresult rv;
-  nsCOMPtr<jsdIDebuggerService> jsd = do_GetService(kJsdContractStr, &rv);
-  if (NS_FAILED(rv)) {
-    return rv;
+  scoped_ptr<JsdWrapper> jsd(JsdWrapper::Create());
+  if (jsd == NULL) {
+    return NS_ERROR_FAILURE;
   }
 
   nsresult function_hook_rv = jsd->SetFunctionHook(NULL);

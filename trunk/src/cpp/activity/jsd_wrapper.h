@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2009 Google Inc.
+ * Copyright 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,40 @@
 
 // Author: Bryan McQuade
 
-// Wrapper around the jsdIDebuggerService. jsdIDebuggerService.idl
-// includes nsAString.h, even though it only needs to forward-declare
-// nsAString. Unfortunately, nsAString.h is a mozilla-internal API, so
-// when we attempt to include jsdIDebuggerService.h, our builds
-// fail. To remedy this, we forward-declare the structures we depend
-// on, and #define the include guard for nsAString.h, which prevents
-// nsAString.h from failing our build.
+// Wrapper around the jsdIDebuggerService that allows us to
+// interoperate with multiple versions of the jsdIDebuggerService
+// interface, depending on the version of Firefox we're running in.
 
 #ifndef JSD_WRAPPER_H_
 #define JSD_WRAPPER_H_
 
-// Use the jsdIDebuggerService.h from Firefox 3.0.11
-#include "jsdIDebuggerService_3_0_11.h"
+#include "nscore.h"
 
-// For now, map the names of various jsd classes to the classes
-// associated with version 3.0.11.
-typedef jsdICallHook_3_0_11 jsdICallHook;
-typedef jsdIDebuggerService_3_0_11 jsdIDebuggerService;
-typedef jsdIScript_3_0_11 jsdIScript;
-typedef jsdIScriptHook_3_0_11 jsdIScriptHook;
-typedef jsdIStackFrame_3_0_11 jsdIStackFrame;
-#define NS_DECL_JSDICALLHOOK NS_DECL_JSDICALLHOOK_3_0_11
-#define NS_DECL_JSDISCRIPTHOOK NS_DECL_JSDISCRIPTHOOK_3_0_11
+class nsISupports;
+
+namespace activity {
+
+class JsdWrapper {
+ public:
+  // Create a JsdWrapper instance that's compatible with the active
+  // jsdIDebuggerService, or NULL if we aren't compatible with the
+  // active jsdIDebuggerService.
+  static JsdWrapper* Create();
+
+  // Subset of the jsdIDebuggerService API that we require.
+  NS_IMETHOD SetScriptHook(nsISupports * script_hook_supports) = 0;
+  NS_IMETHOD SetTopLevelHook(nsISupports * top_level_hook_supports) = 0;
+  NS_IMETHOD SetFunctionHook(nsISupports * function_hook_supports) = 0;
+  NS_IMETHOD GetFlags(PRUint32 *flags) = 0;
+  NS_IMETHOD SetFlags(PRUint32 flags) = 0;
+
+ private:
+  // Helpers that create JsdWrappers for the given jsdIDebuggerService
+  // versions.
+  static JsdWrapper* Create_3_5(nsISupports *jsd);
+  static JsdWrapper* Create_3_0(nsISupports *jsd);
+};
+
+}  // namespace activity
 
 #endif  // JSD_WRAPPER_H_
