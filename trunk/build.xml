@@ -161,4 +161,42 @@
 
   </target>
 
+  <!--
+  Build an html page for use in jsUnit.  Loads all javascript required to run the util.js unit tests.
+   -->
+  <target name="util_test">
+    <copy file="${test}/jsUnit.html.template"
+          tofile="${dist}/util_test.html"
+          overwrite="true" />
+    <replace file="${dist}/util_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/util.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/util_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/lint.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/util_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/util_test.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/util_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/util.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/util_test.html" token="JS_INCLUDE_HERE" value="" />
+
+    <replace file="${dist}/util_test.html" token="PS_SRC" value="file://${src}" />
+    <replace file="${dist}/util_test.html" token="PS_THIRD_PARTY" value="file://${third_party}" />
+
+  </target>
+
 </project>
