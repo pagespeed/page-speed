@@ -44,8 +44,8 @@
       <zipfileset dir="${src}/js/activity" excludes="**/*_test.js" prefix="chrome/activity/content"/>
       <zipfileset dir="${src}/js/pagespeed" excludes="**/*_test.js" prefix="chrome/pagespeed/content"/>
       <zipfileset dir="${src}/js/components" excludes="*_test.js" prefix="components"/>
-      <zipfileset file="${third_party_js}/jsmin/jsmin.js" prefix="chrome/pagespeed/content"/>
-      <zipfileset file="${third_party_js}/json/json2.js" prefix="chrome/activity/content"/>
+      <zipfileset file="${third_party_js}/jsmin/jsmin.js" prefix="chrome/third_party/content"/>
+      <zipfileset file="${third_party_js}/json/json2.js" prefix="chrome/third_party/content"/>
       <zipfileset dir="${src}/js/closure" prefix="chrome/activity/content"/>
     </zip>
   </target>

@@ -40,18 +40,18 @@ goog.require('activity.xpcom');
  * @extends {activity.ObserverBase}
  */
 activity.RequestObserver = function(timeoutFactory,
-                                  currentTimeFactory,
-                                  observerService,
-                                  timelineModel,
-                                  startTimeUsec,
-                                  resolutionUsec) {
+                                    currentTimeFactory,
+                                    observerService,
+                                    timelineModel,
+                                    startTimeUsec,
+                                    resolutionUsec) {
   activity.ObserverBase.call(this,
-                           currentTimeFactory,
-                           observerService,
-                           activity.RequestObserver.HTTP_REQUEST_TOPIC_,
-                           timelineModel,
-                           startTimeUsec,
-                           resolutionUsec);
+                             currentTimeFactory,
+                             observerService,
+                             activity.RequestObserver.HTTP_REQUEST_TOPIC_,
+                             timelineModel,
+                             startTimeUsec,
+                             resolutionUsec);
 
   /**
    * Object that provides setTimeout, clearTimeout, etc.
