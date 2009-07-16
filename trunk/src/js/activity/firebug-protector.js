@@ -49,6 +49,7 @@ activity.FirebugProtector = function(firebugService, functionPatch) {
  */
 activity.FirebugProtector.prototype.functionWhitelist_ = {
   QueryInterface: true,
+  broadcast: true,
   countContext: true,
   findErrorBreakpoint: true,
   hasErrorBreakpoint: true,
