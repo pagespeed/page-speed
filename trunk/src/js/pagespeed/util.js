@@ -1304,6 +1304,22 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * Get the version of firefox we are using.  Note that this might not match
+   * the version in the user agent because the user agent can be faked.
+   * @return {string} The firefox version we are running in.
+   */
+  getFirefoxVersion: function() {
+    // See https://developer.mozilla.org/en/Using_nsIXULAppInfo
+    // for docs on this service.
+    var appInfo = PAGESPEED.Utils.CCSV('@mozilla.org/xre/app-info;1',
+                                       'nsIXULAppInfo');
+    // TODO: Would it be usefull to check that we are runing in firefox?
+    // See the link above for docs on how to do this.
+
+    return appInfo.version;
+  },
+
+  /**
    * Filter a list of component URLs by applying the given regexp to each
    * URL and returning only those that match.
    *
