@@ -18,7 +18,7 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/jsmin.js"/>
+          src="chrome://third_party/content/jsmin.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/callbackHolder.js"/>
   <script type="application/x-javascript"
