@@ -112,7 +112,7 @@ ActivityPanel.prototype = domplate(Firebug.Panel, {
       menuOptions.push(menuItemObj);
     };
 
-    if (activity.Profiler.isSupportedJsd()) {
+    if (activity.Profiler.isCompatibleJsd()) {
       var profileJavaScriptEnabled =
           activity.preference.getBool(
               activity.ui.PREF_ENABLE_JS_PROFILING_, true);
