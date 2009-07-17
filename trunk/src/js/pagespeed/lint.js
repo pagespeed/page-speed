@@ -19,16 +19,16 @@
  */
 
 /** @constructor */
-PAGESPEED.LintRules = function() {
+PAGESPEED.LintRulesImpl = function() {
   this.lintRules = [];
 };
 
 /**
  * Registers a lint rule with Page Speed for execution. Registered lint rules run
  * with performance tests.
- * @param {Function} lintRule A lint function.
+ * @param {PAGESPEED.LintRule} lintRule A lint function.
  */
-PAGESPEED.LintRules.prototype.registerLintRule = function(lintRule) {
+PAGESPEED.LintRulesImpl.prototype.registerLintRule = function(lintRule) {
   var placed = false;
   for (var i = 0, len = this.lintRules.length; i < len; i++) {
     if (lintRule.type.precedence < this.lintRules[i].type.precedence) {
@@ -45,7 +45,7 @@ PAGESPEED.LintRules.prototype.registerLintRule = function(lintRule) {
  * @param {Object} browserTab The browser object of the tab PageSpeed is
  *     linting.
  */
-PAGESPEED.LintRules.prototype.exec = function(browserTab) {
+PAGESPEED.LintRulesImpl.prototype.exec = function(browserTab) {
   this.browserTab_ = browserTab;
   this.onProgress(0, 'Running Page Speed rules');
   this.completed = false;  // Set in ruleCompleted() when all rules are done.
@@ -58,7 +58,7 @@ PAGESPEED.LintRules.prototype.exec = function(browserTab) {
  * @return {boolean} True iff the lint rules were running and were
  *     stopped, false if no rules were running.
  */
-PAGESPEED.LintRules.prototype.stop = function() {
+PAGESPEED.LintRulesImpl.prototype.stop = function() {
   var stopped = false;
 
   if (this.timeoutId_) {
@@ -79,7 +79,7 @@ PAGESPEED.LintRules.prototype.stop = function() {
  * Schedule the given function to run asynchronously.
  * @param {Function} fn The function to run asynchronously.
  */
-PAGESPEED.LintRules.prototype.runAsync = function(fn) {
+PAGESPEED.LintRulesImpl.prototype.runAsync = function(fn) {
   this.timeoutId_ = window.setTimeout(
       function(f, self) {
         return function() {
@@ -103,7 +103,7 @@ PAGESPEED.LintRules.prototype.runAsync = function(fn) {
  * @param {string?} opt_message The message to display in the progress
  *     bar, or undefined if the message should not be changed.
  */
-PAGESPEED.LintRules.prototype.onProgress = function(
+PAGESPEED.LintRulesImpl.prototype.onProgress = function(
     rulesCompleted, opt_message) {
   var numRules = this.lintRules.length;
 
@@ -121,7 +121,7 @@ PAGESPEED.LintRules.prototype.onProgress = function(
  * @param {string?} opt_message The submessage to display in the progress
  *     bar, or undefined if the submessage should be cleared.
  */
-PAGESPEED.LintRules.prototype.onPartialProgress = function(
+PAGESPEED.LintRulesImpl.prototype.onPartialProgress = function(
     rulePartialProgress, opt_message) {
   var numRules = this.lintRules.length;
 
@@ -144,7 +144,7 @@ PAGESPEED.LintRules.prototype.onPartialProgress = function(
  * kick off the next rule. If all rules have run, it will display the
  * performance score card.
  */
-PAGESPEED.LintRules.prototype.ruleCompleted = function() {
+PAGESPEED.LintRulesImpl.prototype.ruleCompleted = function() {
   var nextRuleToRun = this.lintRules.length - this.rulesRemaining;
 
   if (this.rulesRemaining > 0) {
@@ -178,7 +178,7 @@ PAGESPEED.LintRules.prototype.ruleCompleted = function() {
 };
 
 // Set up LintRules as a Singleton
-PAGESPEED.LintRules = new PAGESPEED.LintRules();
+PAGESPEED.LintRules = new PAGESPEED.LintRulesImpl();
 
 /**
  * Defines a lint rule.
