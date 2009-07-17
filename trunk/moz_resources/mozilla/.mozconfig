@@ -1,7 +1,11 @@
-# uncomment to enable universal builds on os x
-#. $topsrcdir/browser/config/mozconfig
-#. $topsrcdir/build/macosx/universal/mozconfig
-#ac_add_options --with-macos-sdk=/Developer/SDKs/MacOSX10.4u.sdk
+# Some OSX-specific stuff to enable universal binaries.
+case $(uname) in
+  Darwin)
+    . $topsrcdir/browser/config/mozconfig
+    . $topsrcdir/build/macosx/universal/mozconfig
+    ac_add_options --with-macos-sdk=/Developer/SDKs/MacOSX10.4u.sdk
+  ;;
+esac
 
 mk_add_options MOZ_CO_PROJECT=browser
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-firefox
