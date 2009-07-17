@@ -610,8 +610,8 @@ PAGESPEED.Utils = {  // Begin namespace
 
       return -1;
     }
-    return PAGESPEED.Utils.getAndCacheResourceProperty(
-        url, PAGESPEED.Utils.RESPONSE_CODE, fetchResponseCode);
+    return Number(PAGESPEED.Utils.getAndCacheResourceProperty(
+        url, PAGESPEED.Utils.RESPONSE_CODE, fetchResponseCode));
   },
 
   /**
@@ -662,8 +662,8 @@ PAGESPEED.Utils = {  // Begin namespace
       out_shouldCache.value = (content.length > 0);
       return content;
     }
-    return PAGESPEED.Utils.getAndCacheResourceProperty(
-        url, PAGESPEED.Utils.RESPONSE_BODY, fetchResponseBody);
+    return String(PAGESPEED.Utils.getAndCacheResourceProperty(
+        url, PAGESPEED.Utils.RESPONSE_BODY, fetchResponseBody));
   },
 
   /**
@@ -728,7 +728,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * external.
    *
    * @param {string} type Must be either 'script' or 'style'.
-   * @return {Array.<object>} An array of objects containing 'name' and
+   * @return {Array.<Object>} An array of objects containing 'name' and
    *     'content'.
    */
   getContentsOfAllScriptsOrStyles: function(type) {
@@ -847,8 +847,8 @@ PAGESPEED.Utils = {  // Begin namespace
 
       return 0;
     }
-    return PAGESPEED.Utils.getAndCacheResourceProperty(
-        url, PAGESPEED.Utils.TRANSFER_SIZE, fetchTransferSize);
+    return Number(PAGESPEED.Utils.getAndCacheResourceProperty(
+        url, PAGESPEED.Utils.TRANSFER_SIZE, fetchTransferSize));
   },
 
   /**
@@ -991,8 +991,8 @@ PAGESPEED.Utils = {  // Begin namespace
 
       return 0;
     }
-    return PAGESPEED.Utils.getAndCacheResourceProperty(
-        url, PAGESPEED.Utils.RESOURCE_SIZE, fetchResourceSize);
+    return Number(PAGESPEED.Utils.getAndCacheResourceProperty(
+        url, PAGESPEED.Utils.RESOURCE_SIZE, fetchResourceSize));
   },
 
   /**

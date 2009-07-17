@@ -278,6 +278,21 @@ goog.basePath = '';
 
 
 /**
+ * A hook for overriding the base path.
+ * @type {string|undefined}
+ */
+goog.global.CLOSURE_BASE_PATH;
+
+
+/**
+ * Whether to write out Closure's deps file. By default,
+ * the deps are written.
+ * @type {boolean|undefined}
+ */
+goog.global.CLOSURE_NO_DEPS;
+
+
+/**
  * Null function used for default values of callbacks, etc.
  * @type {!Function}
  */
@@ -380,9 +395,6 @@ if (!COMPILED) {
     if (goog.global.CLOSURE_BASE_PATH) {
       goog.basePath = goog.global.CLOSURE_BASE_PATH;
       return;
-    } else {
-      // HACKHACK to hide compiler warnings :(
-      goog.global.CLOSURE_BASE_PATH = null;
     }
     var scripts = doc.getElementsByTagName('script');
     for (var script, i = 0; script = scripts[i]; i++) {
@@ -489,7 +501,11 @@ if (!COMPILED) {
   };
 
   goog.findBasePath_();
-  goog.writeScriptTag_(goog.basePath + 'deps.js');
+
+  // Allow projects to manage the deps files themselves.
+  if (!goog.global.CLOSURE_NO_DEPS) {
+    goog.writeScriptTag_(goog.basePath + 'deps.js');
+  }
 }
 
 
@@ -667,7 +683,8 @@ goog.isNull = function(val) {
  * @return {boolean} Whether variable is defined and not null.
  */
 goog.isDefAndNotNull = function(val) {
-  return goog.isDef(val) && !goog.isNull(val);
+  // Note that undefined == null.
+  return val != null;
 };
 
 
@@ -868,10 +885,10 @@ Object.prototype.clone;
  * barMethBound('arg3', 'arg4');</pre>
  *
  * @param {Function} fn A function to partially apply.
- * @param {Object} selfObj Specifies the object which |this| should point to
- *     when the function is run. If the value is null or undefined, it will
- *     default to the global object.
- * @param {Object} var_args Additional arguments that are partially
+ * @param {Object|undefined} selfObj Specifies the object which |this| should
+ *     point to when the function is run. If the value is null or undefined, it
+ *     will default to the global object.
+ * @param {*} var_args Additional arguments that are partially
  *     applied to the function.
  *
  * @return {!Function} A partially-applied form of the function bind() was
@@ -924,7 +941,7 @@ goog.bind = function(fn, selfObj, var_args) {
  * g(arg3, arg4);
  *
  * @param {Function} fn A function to partially apply.
- * @param {Object} var_args Additional arguments that are partially
+ * @param {*} var_args Additional arguments that are partially
  *     applied to fn.
  * @return {!Function} A partially-applied form of the function bind() was
  *     invoked as a method of.

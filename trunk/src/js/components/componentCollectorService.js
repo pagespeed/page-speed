@@ -934,14 +934,14 @@ ComponentCollectorService.prototype.observeRedirect = function(
     // originalURI == A. Thus, we have to seek forward in the
     // pendingDocs_ map to find the last known entry in the chain
     // starting at fromURI.
-    fromURI = this.pendingDocs_.getTail(fromURI);
-    if (fromURI == null || fromURI == toURI) {
-      PS_LOG('getTail returned bad URI: ' + fromURI);
+    var tail = this.pendingDocs_.getTail(fromURI);
+    if (tail == null || tail == toURI) {
+      PS_LOG('getTail returned bad URI: ' + tail);
       return;
     }
 
     this.createDocumentEntry(toURI);
-    this.pendingDocs_.linkPrev(toURI, fromURI);
+    this.pendingDocs_.linkPrev(toURI, tail);
   } else {
     // TODO: fromURI points to the original URI. Need to seek forward
     // in the redirects map.
