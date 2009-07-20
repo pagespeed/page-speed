@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+
+<!--
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"
+      src="chrome://third_party/content/json2.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/firebug-glue.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/base.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/disposable.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/xpcom.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/preference.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/fileutil.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/firebug-protector.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/js-event-fetcher.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/observer-base.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/network-observer.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/request-observer.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/timeline-model.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/timeline-view.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/timeline-manager.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/profiler.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/app-state-observer.js"/>
+  <script type="application/x-javascript"
+      src="chrome://activity/content/ui.js"/>
+
+  <toolbar id="fbToolbar" align="center">
+    <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1"
+          align="center">
+      <hbox id="fbActivityButtons" insertafter="fbNetButtons" collapsed="true">
+        <toolbarseparator/>
+        <spacer width="2px"/>
+        <toolbarbutton id="button-activityToggleProfiler"
+            label="Record"
+            accesskey="R"
+            type="checkbox"
+            oncommand="activity.ui.performCommand('toggleProfiler')"/>
+        <spacer width="5px"/>
+        <toolbarbutton id="button-activityStopProfiler"
+            label="Stop"
+            oncommand="activity.ui.performCommand('stopProfiler')"/>
+        <spacer width="5px"/>
+        <toolbarbutton id="button-activitySave"
+            label="Save"
+            oncommand="activity.ui.performCommand('save')"
+            tooltiptext="Persist the current profile to a file."
+            disabled="true"/>
+        <spacer width="5px"/>
+        <toolbarbutton id="button-activityShowUncalled"
+            label="Show Uncalled Functions"
+            oncommand="activity.ui.performCommand('showUncalledFunctions')"
+            tooltiptext="Show the list of uncalled functions."
+            disabled="true"/>
+        <spacer width="5px"/>
+        <toolbarbutton id="button-activityShowDelayable"
+            label="Show Delayable Functions"
+            oncommand="activity.ui.performCommand('showDelayableFunctions')"
+            tooltiptext="Show the list of called functions, ordered by the difference between their instantiation time and their first invocation time."
+            disabled="true"/>
+        <spacer width="2px"/>
+      </hbox>
+    </hbox>
+  </toolbar>
+
+</overlay>
