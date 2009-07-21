@@ -22,15 +22,15 @@
 #ifndef PROFILER_RUNNABLES_H_
 #define PROFILER_RUNNABLES_H_
 
+#include <vector>
 
 #include "base/scoped_ptr.h"
 
 #include "nsCOMPtr.h"
 #include "nsIRunnable.h"
 
+class IActivityProfilerEvent;
 class IActivityProfilerTimelineEventCallback;
-class nsIArray;
-class nsIMutableArray;
 class nsIThread;
 
 namespace activity {
@@ -45,6 +45,9 @@ class CallGraphProfileSnapshot;
  * invoked on the main thread.
  */
 class GetTimelineEventsRunnable : public nsIRunnable {
+ private:
+  typedef std::vector<nsCOMPtr<IActivityProfilerEvent> > EventVector;
+
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIRUNNABLE
@@ -65,7 +68,7 @@ class GetTimelineEventsRunnable : public nsIRunnable {
    * IActivityProfilerEvents that we'll pass up to the UI via the
    * IActivityProfilerTimelineEventCallback.
    */
-  nsresult PopulateEventArray(nsIMutableArray *ns_array);
+  nsresult PopulateEventArray(EventVector *events);
 
   nsCOMPtr<nsIThread> main_thread_;
   nsCOMPtr<IActivityProfilerTimelineEventCallback> callback_;
@@ -79,22 +82,25 @@ class GetTimelineEventsRunnable : public nsIRunnable {
  * InvokeTimelineEventsCallbackRunnable is instantiated in a
  * background thread, but runs on the main
  * thread. InvokeTimelineEventsCallbackRunnable invokes the
- * IActivityProfilerTimelineEventCallback with the nsIArray of ProfilerEvents.
+ * IActivityProfilerTimelineEventCallback with the vector of ProfilerEvents.
  */
 class InvokeTimelineEventsCallbackRunnable : public nsIRunnable {
+ private:
+  typedef std::vector<nsCOMPtr<IActivityProfilerEvent> > EventVector;
+
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIRUNNABLE
 
   InvokeTimelineEventsCallbackRunnable(
       IActivityProfilerTimelineEventCallback *callback,
-      nsIArray *events);
+      EventVector *events);
 
  private:
   ~InvokeTimelineEventsCallbackRunnable();
 
   nsCOMPtr<IActivityProfilerTimelineEventCallback> callback_;
-  nsCOMPtr<nsIArray> events_;
+  scoped_ptr<EventVector> events_;
 };
 
 }  // namespace activity
