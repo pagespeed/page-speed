@@ -68,23 +68,25 @@ GetTimelineEventsRunnable::GetTimelineEventsRunnable(
 GetTimelineEventsRunnable::~GetTimelineEventsRunnable() {}
 
 NS_IMETHODIMP GetTimelineEventsRunnable::Run() {
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> ns_array =
-      do_CreateInstance(kArrayContractStr, &rv);
-  if (NS_FAILED(rv)) {
-    return rv;
-  }
-
   // Initialize the snapshot now that we're running in the background
   // thread.
   snapshot_->Init(start_time_usec_, end_time_usec_);
-  rv = PopulateEventArray(ns_array);
+
+  // We would like to use an nsIMutableArray to store the events, but
+  // there is a bug in Firefox 3.5 (see
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=471296) that can
+  // cause memory corruption when an nsIArray is instantiated on a
+  // background thread. So, instead, we store our events in a
+  // vector<>, proxy the vector over to the main thread, and then copy
+  // the events from the vector<> into an nsIMutableArray.
+  scoped_ptr<EventVector> events(new EventVector());
+  nsresult rv = PopulateEventArray(events.get());
   if (NS_FAILED(rv)) {
     return rv;
   }
 
   rv = main_thread_->Dispatch(
-      new InvokeTimelineEventsCallbackRunnable(callback_, ns_array),
+      new InvokeTimelineEventsCallbackRunnable(callback_, events.release()),
       nsIEventTarget::DISPATCH_NORMAL);
   if (NS_FAILED(rv)) {
     return rv;
@@ -93,8 +95,7 @@ NS_IMETHODIMP GetTimelineEventsRunnable::Run() {
   return NS_OK;
 }
 
-nsresult GetTimelineEventsRunnable::PopulateEventArray(
-    nsIMutableArray *ns_array) {
+nsresult GetTimelineEventsRunnable::PopulateEventArray(EventVector *events) {
   if (end_time_usec_ <= start_time_usec_) {
     return NS_OK;
   }
@@ -133,24 +134,19 @@ nsresult GetTimelineEventsRunnable::PopulateEventArray(
         event_type = -1;
         break;
     }
-    nsresult rv = ns_array->AppendElement(
-        new ProfilerEvent(
-            event->start_time_usec,
-            event_set.event_duration_usec(),
-            event->intensity,
-            event_type,
-            event->identifier),
-        PR_FALSE  /* Make the nsIArray instance the owner of the event. */);
-    if (NS_FAILED(rv)) {
-      return rv;
-    }
+    events->push_back(new ProfilerEvent(
+        event->start_time_usec,
+        event_set.event_duration_usec(),
+        event->intensity,
+        event_type,
+        event->identifier));
   }
   return NS_OK;
 }
 
 InvokeTimelineEventsCallbackRunnable::InvokeTimelineEventsCallbackRunnable(
     IActivityProfilerTimelineEventCallback *callback,
-    nsIArray *events)
+    EventVector *events)
     : callback_(callback),
       events_(events) {
 }
@@ -159,10 +155,38 @@ InvokeTimelineEventsCallbackRunnable::
 ~InvokeTimelineEventsCallbackRunnable() {}
 
 NS_IMETHODIMP InvokeTimelineEventsCallbackRunnable::Run() {
-  nsresult rv = callback_->ProcessTimelineEvents(events_);
+  nsresult rv;
+  nsCOMPtr<nsIMutableArray> ns_array =
+      do_CreateInstance(kArrayContractStr, &rv);
   if (NS_FAILED(rv)) {
     return rv;
   }
+
+  // Copy the events from the vector<> to the nsIMutableArray.
+  for (EventVector::const_iterator it = events_->begin(), end = events_->end();
+       it != end;
+       ++it) {
+    IActivityProfilerEvent *event = *it;
+    rv = ns_array->AppendElement(event, PR_FALSE);
+    if (NS_FAILED(rv)) {
+      return rv;
+    }
+  }
+
+  // Release the references held by the vector.
+  events_->clear();
+
+  // Dispatch the events, wrapped in an nsIArray, to the client.
+  rv = callback_->ProcessTimelineEvents(ns_array);
+
+  // Release the references held by the nsIMutableArray. This should
+  // free the event objects.
+  ns_array->Clear();
+
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
   return NS_OK;
 }
 
