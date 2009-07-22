@@ -14,7 +14,7 @@
   * Better error messages in the activity panel.
   * Support JS events in the activity panel for both FF3.0 and FF3.5.
   * Update to activity panel to work with firebug 1.4.
-  * Add a preference to enable full JS debugging on firefox 3.5.  This crashes the current version due to a firefox bug, so it is disabled by default.  The bug is tracked at https://bugzilla.mozilla.org/show_bug.cgi?id=505041 .
+  * Add a preference to enable full JS debugging on firefox 3.5.  This crashes in firefox 3.5, so it is disabled by default.  The bug is tracked at https://bugzilla.mozilla.org/show_bug.cgi?id=505041 .
 
 
 == 1.0.1.1: 6/23/2009 ==
