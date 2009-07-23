@@ -36,6 +36,8 @@ goog.require('activity.xpcom');
  * @param {number} startTimeUsec the start time of the profiling
  *     session, in microseconds.
  * @param {number} resolutionUsec the resolution, in microseconds.
+ * @param {Function} callbackWrapper wrapper function that handles
+ *     exceptions thrown by a callback function.
  * @constructor
  * @extends {activity.ObserverBase}
  */
@@ -44,7 +46,12 @@ activity.RequestObserver = function(timeoutFactory,
                                     observerService,
                                     timelineModel,
                                     startTimeUsec,
-                                    resolutionUsec) {
+                                    resolutionUsec,
+                                    callbackWrapper) {
+  this.observe = goog.partial(
+      callbackWrapper,
+      goog.bind(activity.RequestObserver.prototype.observe_, this));
+
   activity.ObserverBase.call(this,
                              currentTimeFactory,
                              observerService,
@@ -59,6 +66,13 @@ activity.RequestObserver = function(timeoutFactory,
    * @private
    */
   this.timeoutFactory_ = timeoutFactory;
+
+  /**
+   * Function that handles exceptions thrown by a callback function.
+   * @type {Function}
+   * @private
+   */
+  this.callbackWrapper_ = callbackWrapper;
 };
 goog.inherits(activity.RequestObserver, activity.ObserverBase);
 
@@ -114,8 +128,9 @@ activity.RequestObserver.prototype.register = function() {
  * @param {nsISupports} subject The object being observed.
  * @param {string} topic the topic being observed.
  * @param {string} data the data associated with the observed event.
+ * @private
  */
-activity.RequestObserver.prototype.observe = function(subject, topic, data) {
+activity.RequestObserver.prototype.observe_ = function(subject, topic, data) {
   if (this.isDisposed()) {
     return;
   }
@@ -140,8 +155,9 @@ activity.RequestObserver.prototype.observe = function(subject, topic, data) {
   // this in a callback because any work we do here will get stomped
   // on immedately after we do it (see the implementation of
   // nsHttpRequest::AsyncOpen() for details why this is so).
-  var callback = goog.bind(
-      this.attachStreamListener_, this, request, timestampUsec);
+  var callback = goog.partial(
+      this.callbackWrapper_,
+      goog.bind(this.attachStreamListener_, this, request, timestampUsec));
   this.timeoutFactory_.setTimeout(callback, 0);
 };
 

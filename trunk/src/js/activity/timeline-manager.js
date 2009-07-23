@@ -21,12 +21,12 @@
 
 goog.provide('activity.TimelineManager');
 
-goog.require('goog.dispose');
 goog.require('activity.JsEventFetcher');
 goog.require('activity.NetworkObserver');
 goog.require('activity.RequestObserver');
 goog.require('activity.TimelineModel');
 goog.require('activity.TimelineView');
+goog.require('goog.dispose');
 
 /**
  * The TimelineManager constructs and manages the timeline event
@@ -205,7 +205,8 @@ activity.TimelineManager.prototype.start = function(
     observerService,
     this.model_,
     startTimeUsec,
-    this.view_.getResolutionUsec());
+    this.view_.getResolutionUsec(),
+    this.callbackWrapper_);
 
   this.request_observer_ = new activity.RequestObserver(
     this.timeoutFactory_,
@@ -213,7 +214,8 @@ activity.TimelineManager.prototype.start = function(
     observerService,
     this.model_,
     startTimeUsec,
-    this.view_.getResolutionUsec());
+    this.view_.getResolutionUsec(),
+    this.callbackWrapper_);
 
   this.fetcher_.start();
   this.network_observer_.register();
@@ -298,6 +300,7 @@ activity.TimelineManager.prototype.getState = function() {
  * Called when our timer fires. We in turn tell each of the event
  * fetchers that the timer has fired, and optionally schedule the
  * timer to fire again.
+ * @private
  */
 activity.TimelineManager.prototype.onTimeoutCallback_ = function() {
   var fetcherResult = this.fetcher_.onTimeoutCallback();

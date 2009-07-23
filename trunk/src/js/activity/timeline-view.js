@@ -37,8 +37,8 @@ goog.require('goog.dispose');
  * @extends {goog.Disposable}
  */
 activity.TimelineView = function(xulRowsElement,
-                               xulElementFactory,
-                               resolutionUsec) {
+                                 xulElementFactory,
+                                 resolutionUsec) {
   goog.Disposable.call(this);
 
   /**
@@ -480,7 +480,8 @@ activity.TimelineView.Row_.prototype.addBarCharts_ = function() {
   var requestStack = this.createBarChartStack_();
   this.barChartStacks_.push(requestStack);
 
-  for (var ordinal = 1, len = activity.TimelineEventType.getNumberOfEventTypes();
+  for (var ordinal = 1,
+           len = activity.TimelineEventType.getNumberOfEventTypes();
        ordinal <= len;
        ordinal++) {
     var event = activity.TimelineEventType.getEventTypeForOrdinal(ordinal);
@@ -761,7 +762,8 @@ activity.TimelineView.Row_.prototype.clampToStartTime = function(startTime) {
  * @return {string} the CSS class name.
  * @private
  */
-activity.TimelineView.Row_.prototype.getCssClassNameForEvent_ = function(event) {
+activity.TimelineView.Row_.prototype.getCssClassNameForEvent_ =
+    function(event) {
   switch (event) {
     case activity.TimelineEventType.JS_PARSE:
       return 'timelineParseColor';
@@ -813,9 +815,21 @@ activity.TimelineView.Row_.sanitizeIntensity_ = function(intensity) {
     return 0.3;
   }
 
-  if (intensity > 1.0) {
+  if (intensity >= 1.0) {
     return 1.0;
   }
+
+  /*
+   * Take the square of the intensity. We want to make the difference
+   * between 'executed non-stop' and 'only executed for part of the
+   * time' very clear visually. Squaring helps to do this. If
+   * execution was non-stop, 1.0 squared stays as 1.0. As code
+   * executes less and less, we want the intensity to fall off more
+   * quickly. For instance, when code executes 80% of the time, we
+   * show intensity 0.64, which is visually clearer to be less than
+   * 1.0, as compared to 0.8.
+   */
+  intensity *= intensity;
 
   /*
    * Otherwise, scale the intensity up into the range 0.4..1.0. We do this
@@ -1052,7 +1066,8 @@ activity.TimelineView.BarChart_.prototype.padToEndTime = function(endTime) {
  * Remove all entries before the given time.
  * @param {number} startTime The start time to clamp to, in resolutions.
  */
-activity.TimelineView.BarChart_.prototype.clampToStartTime = function(startTime) {
+activity.TimelineView.BarChart_.prototype.clampToStartTime =
+    function(startTime) {
   this.throwIfDisposed_();
 
   if (this.isEmpty() || startTime >= this.endTime_) {
@@ -1103,7 +1118,8 @@ activity.TimelineView.BarChart_.prototype.clampToStartTime = function(startTime)
  * @param {number} opacity The opacity of the entry (from 0 to 1).
  * @param {number} duration The number of resolutions this entry spans.
  */
-activity.TimelineView.BarChart_.prototype.addEntry = function(opacity, duration) {
+activity.TimelineView.BarChart_.prototype.addEntry =
+    function(opacity, duration) {
   this.throwIfDisposed_();
 
   if (opacity == 0.0) {

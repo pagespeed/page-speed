@@ -411,7 +411,8 @@ activity.TimelineModel.Listener.prototype.onEndTimeChanged = function(
  * Notifies the listener that a new Timeline instance has been created.
  * @param {!activity.TimelineModel.Timeline} timeline the timeline.
  */
-activity.TimelineModel.Listener.prototype.onTimelineCreated = function(timeline) {
+activity.TimelineModel.Listener.prototype.onTimelineCreated =
+    function(timeline) {
 };
 
 /**

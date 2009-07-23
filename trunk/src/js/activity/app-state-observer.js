@@ -43,14 +43,16 @@ activity.AppStateObserver.OBSERVER_SERVICE_CONTRACTID_ =
  * @type {string}
  * @private
  */
-activity.AppStateObserver.OBSERVER_SERVICE_INTERFACE_NAME_ = 'nsIObserverService';
+activity.AppStateObserver.OBSERVER_SERVICE_INTERFACE_NAME_ =
+    'nsIObserverService';
 
 /**
  * Observer topic that gets triggered during application shutdown.
  * @type {string}
  * @private
  */
-activity.AppStateObserver.QUIT_APPLICATION_TOPIC_ = 'quit-application-requested';
+activity.AppStateObserver.QUIT_APPLICATION_TOPIC_ =
+    'quit-application-requested';
 
 /**
  * Register with the observer service.

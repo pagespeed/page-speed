@@ -36,6 +36,8 @@ goog.require('activity.xpcom');
  * @param {number} startTimeUsec the start time of the profiling
  *     session, in microseconds.
  * @param {number} resolutionUsec the resolution, in microseconds.
+ * @param {Function} callbackWrapper wrapper function that handles
+ *     exceptions thrown by a callback function.
  * @constructor
  * @extends {activity.ObserverBase}
  */
@@ -43,7 +45,12 @@ activity.NetworkObserver = function(currentTimeFactory,
                                     observerService,
                                     timelineModel,
                                     startTimeUsec,
-                                    resolutionUsec) {
+                                    resolutionUsec,
+                                    callbackWrapper) {
+  this.observeActivity = goog.partial(
+      callbackWrapper,
+      goog.bind(activity.NetworkObserver.prototype.observeActivity_, this));
+
   activity.ObserverBase.call(this,
                              currentTimeFactory,
                              observerService,
@@ -102,8 +109,9 @@ activity.NetworkObserver.prototype.QueryInterface = function(iid) {
  *     available with this event.
  * @param {string} extraStringData any extra string data optionally
  *     available with this event.
+ * @private
  */
-activity.NetworkObserver.prototype.observeActivity = function(
+activity.NetworkObserver.prototype.observeActivity_ = function(
     httpChannel,
     activityType,
     activitySubtype,

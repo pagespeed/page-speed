@@ -131,7 +131,8 @@ ActivityPanel.prototype = domplate(Firebug.Panel, {
       }
     }
 
-    // Firebug 1.4 betas show a menu even when there are no items, and it looks odd.
+    // Firebug 1.4 betas show a menu even when there are no items, and
+    // it looks odd.
     // Bryan filed a bug (http://code.google.com/p/fbug/issues/detail?id=1896).
     // Until it is resolved, add a disabled menu item.
     if (!menuOptions.length) {
