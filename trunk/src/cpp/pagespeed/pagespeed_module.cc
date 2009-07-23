@@ -38,7 +38,8 @@ const char *IMAGE_COMPRESSOR_CONTRACTID =
     "@code.google.com/p/page-speed/ImageCompressor;1";
 const char *IMAGE_COMPRESSOR_CLASSNAME = "ImageCompressor";
 
-const char* PROFILER_CONTRACTID = "@code.google.com/p/page-speed/ActivityProfiler;1";
+const char* PROFILER_CONTRACTID =
+    "@code.google.com/p/page-speed/ActivityProfiler;1";
 const char* PROFILER_CLASSNAME = "JavaScript Execution Tracer";
 const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
 

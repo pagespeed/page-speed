@@ -22,10 +22,10 @@
 
 namespace activity {
 
-Timer::Timer(ClockInterface *clock, int64_t start_time_usec) :
-    clock_(clock),
-    reference_time_usec_(start_time_usec),
-    last_time_usec_(start_time_usec) {
+Timer::Timer(ClockInterface *clock, int64_t start_time_usec)
+    : clock_(clock),
+      reference_time_usec_(start_time_usec),
+      last_time_usec_(start_time_usec) {
 }
 
 Timer::~Timer() {}

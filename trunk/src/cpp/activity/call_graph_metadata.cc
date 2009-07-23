@@ -20,6 +20,8 @@
 
 #include "call_graph_metadata.h"
 
+#include <string>
+
 #include "profile.pb.h"
 #include "check.h"
 

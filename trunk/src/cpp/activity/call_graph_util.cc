@@ -219,8 +219,8 @@ void FormatTime(int64_t time_usec, std::string *target) {
   // milliseconds. Otherwise, truncate to whole seconds.
   const long long msec = time_usec / 1000LL;
 
-  const size_t buf_size = 20;
-  char tmp[buf_size];
+  const size_t kBufSize = 20;
+  char tmp[kBufSize];
   if (msec < 10000LL) {
     snprintf(tmp, buf_size, "%lld ms", msec);
   } else {
