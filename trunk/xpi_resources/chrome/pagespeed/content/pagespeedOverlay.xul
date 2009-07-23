@@ -20,6 +20,8 @@
   <script type="application/x-javascript"
           src="chrome://third_party/content/jsmin.js"/>
   <script type="application/x-javascript"
+          src="chrome://third_party/content/json2.js"/>
+  <script type="application/x-javascript"
           src="chrome://pagespeed/content/callbackHolder.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/userAgentController.js"/>
@@ -65,6 +67,8 @@
           src="chrome://pagespeed/content/unusedCssLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/dnsLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/resultsContainer.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/duplicateResourceLint.js"/>
 
