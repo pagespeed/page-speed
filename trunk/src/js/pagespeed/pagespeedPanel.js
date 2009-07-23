@@ -441,6 +441,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
     var jsProfileEnabledPref = 'extensions.PageSpeed.js_coverage.enable';
     var autoRunEnabledPref = 'extensions.PageSpeed.autorun';
+    var showAllUserAgentsPref = 'extensions.PageSpeed.show_all_user_agents';
 
     /**
      * @param {string} prefName The name of a boolean preference.
@@ -461,6 +462,10 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     addMenuOption('Automatically Run at Onload',
                   buildToggleBoolPrefFn(autoRunEnabledPref),
                   PAGESPEED.Utils.getBoolPref(autoRunEnabledPref));
+
+    addMenuOption('Show All User Agents',
+                  buildToggleBoolPrefFn(showAllUserAgentsPref),
+                  PAGESPEED.Utils.getBoolPref(showAllUserAgentsPref));
 
     menuOptions.push('-');
 
@@ -586,8 +591,12 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                   function() {uac.resetUserAgent();},
                   uac.isDefaultUserAgent());
 
+    // To cut down on menu clutter, only show user agents of recent,
+    // popular browsers unless the user checks this option.
+    var showAllUseragents = PAGESPEED.Utils.getBoolPref(showAllUserAgentsPref);
+
     // Add an option for each registered user agent.
-    var userAgentNames = uac.getUserAgentNames();
+    var userAgentNames = uac.getUserAgentNames(showAllUseragents);
     for (var i = 0, len = userAgentNames.length; i < len; ++i) {
       addMenuOption('  ' + userAgentNames[i],
                     buildOnSelectUserAgentFn(userAgentNames[i]),

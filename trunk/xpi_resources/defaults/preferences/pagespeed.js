@@ -4,3 +4,4 @@ pref('extensions.PageSpeed.js_coverage.enable', false);
 pref('extensions.PageSpeed.js_coverage.max_functions_per_script', 100);
 pref('extensions.PageSpeed.js_coverage.track_function_size', false);
 pref('extensions.PageSpeed.enable_console_logging', false);
+pref('extensions.PageSpeed.show_all_user_agents', false);

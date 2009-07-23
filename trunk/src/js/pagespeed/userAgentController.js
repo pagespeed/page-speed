@@ -52,6 +52,7 @@ PAGESPEED.UserAgentSettings.prototype.init = function(
   this.userAgent = userAgent;
   this.vendor = opt_vendor;
   this.vendorSub = opt_vendorSub;
+  this.isHidden = false;
 };
 
 /**
@@ -141,16 +142,25 @@ PAGESPEED.UserAgentController = function() {
    * @param {string} appVersion The value navigator.appVersion should be set to.
    * @param {string} platform The value navigator.platform should be set to.
    * @param {string} userAgent The value navigator.userAgent should be set to.
-   * @param {string} opt_vendor The value navigator.vendor should be set to.
-   * @param {string} opt_vendorSub The value navigator.vendorSub
+   * @param {string|undefined} vendor The value navigator.vendor should be set to.
+   * @param {string|undefined} vendorSub The value navigator.vendorSub
    *     should be set to.
+   * @param {boolean} hidden If true, create a hidden user agent object.
+   *     Hidden user agents are not shown in the UI unless a pref is set.
    */
   var addUserAgentSettingsObj = function(
-      guiName, appName, appVersion, platform,
-      userAgent, opt_vendor, opt_vendorSub) {
+      guiName,
+      appName,
+      appVersion,
+      platform,
+      userAgent,
+      vendor,
+      vendorSub,
+      hidden) {
     var uas = new PAGESPEED.UserAgentSettings();
     uas.init(guiName, appName, appVersion, platform,
-             userAgent, opt_vendor, opt_vendorSub);
+             userAgent, vendor, vendorSub);
+    uas.isHidden = hidden;
     commonAgentSettings[uas.guiName] = uas;
   };
 
@@ -162,7 +172,8 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; ' +
       'rv:1.9.0.1) Gecko/2008070206 Firefox/3.0.1',
       '',
-      '');
+      '',
+      true);
 
   addUserAgentSettingsObj(
       'Firefox 3 on Windows',
@@ -172,7 +183,41 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; ' +
       'rv:1.9.0.1) Gecko/2008070206 Firefox/3.0.1',
       '',
-      '');
+      '',
+      true);
+
+  addUserAgentSettingsObj(
+      'Firefox 3.5 on Linux',
+      'Netscape',
+      '5.0 (X11; en-US)',
+      'Linux i686 (x86_64)',
+      'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1) ' +
+      'Gecko/20090621 Firefox/3.5',
+      '',
+      '',
+      false);
+
+  addUserAgentSettingsObj(
+      'Firefox 3.5 on Windows',
+      'Netscape',
+      '5.0 (Windows; en-US)',
+      'Win32',
+      'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.1) ' +
+      'Gecko/20090715 Firefox/3.5.1 (.NET CLR 3.5.30729)',
+      '',
+      '',
+      false);
+
+  addUserAgentSettingsObj(
+      'Firefox 3.5 on Macintosh',
+      'Netscape',
+      '5.0 (Macintosh; en-US)',
+      'MacIntel',
+      'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1.1) ' +
+      'Gecko/20090715 Firefox/3.5.1',
+      '',
+      '',
+      false);
 
   addUserAgentSettingsObj(
       'Firefox 2 on Linux',
@@ -182,7 +227,8 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; ' +
       'rv:1.8.1.16) Gecko/20080716 Firefox/2.0.0.16',
       '',
-      '');
+      '',
+      true);
 
   addUserAgentSettingsObj(
       'Firefox 2 on Windows',
@@ -192,7 +238,8 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; ' +
       'rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13',
       '',
-      '');
+      '',
+      true);
 
   addUserAgentSettingsObj(
       'Internet Explorer 7.0',
@@ -203,7 +250,8 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; ' +
       '.NET CLR 2.0.50727)',
       undefined,
-      undefined);
+      undefined,
+      false);
 
   addUserAgentSettingsObj(
       'Internet Explorer 6.0',
@@ -212,7 +260,8 @@ PAGESPEED.UserAgentController = function() {
       'Win32',
       'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)',
       undefined,
-      undefined);
+      undefined,
+      false);
 
   addUserAgentSettingsObj(
       'Internet Explorer 5.0',
@@ -223,10 +272,35 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0; ' +
       '.NET CLR 1.1.4322; .NET CLR 2.0.50727)',
       undefined,
-      undefined);
+      undefined,
+      true);
 
   addUserAgentSettingsObj(
-      'Safari 3',
+      'Safari 4 on Macintosh',
+      'Netscape',
+      '5.0 (Macintosh; U; Intel Mac OS X 10_5_7; en-us) AppleWebKit/530.18 ' +
+      '(KHTML, like Gecko) Version/4.0.1 Safari/530.18',
+      'MacIntel',
+      'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_7; en-us) ' +
+      'AppleWebKit/530.18 (KHTML, like Gecko) Version/4.0.1 Safari/530.18',
+      'Apple Computer, Inc.',
+      '',
+      false);
+
+  addUserAgentSettingsObj(
+      'Safari 4 on Windows',
+      'Netscape',
+      '5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/530.17 ' +
+      '(KHTML, like Gecko) Version/4.0 Safari/530.17',
+      'Win32',
+      'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/530.17 ' +
+      '(KHTML, like Gecko) Version/4.0 Safari/530.17',
+      'Apple Computer, Inc.',
+      '',
+      true);
+
+  addUserAgentSettingsObj(
+      'Safari 3 on Macintosh',
       'Netscape',
       '5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) ' +
       'AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 ' +
@@ -236,10 +310,11 @@ PAGESPEED.UserAgentController = function() {
       'AppleWebKit/525.13 (KHTML, like Gecko) Version/525.13 ' +
       'Safari/525.13',
       'Apple Computer, Inc.',
-      undefined);
+      undefined,
+      true);
 
   addUserAgentSettingsObj(
-      'Safari 2',
+      'Safari 2 on Macintosh',
       'Netscape',
       '5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/418.8 ' +
       '(KHTML, like Gecko) Safari/419.3',
@@ -247,7 +322,8 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) ' +
       'AppleWebKit/418.8 (KHTML, like Gecko) Safari/419.3',
       'Apple Computer, Inc.',
-      undefined);
+      undefined,
+      true);
 
   addUserAgentSettingsObj(
       'Opera 9 on Windows',
@@ -256,7 +332,8 @@ PAGESPEED.UserAgentController = function() {
       'Win32',
       'Opera/9.24 (Windows NT 5.1; U; en)',
       undefined,
-      undefined);
+      undefined,
+      true);
 
   addUserAgentSettingsObj(
       'Chrome 1.0 on Windows',
@@ -268,10 +345,11 @@ PAGESPEED.UserAgentController = function() {
       'AppleWebKit/525.19 (KHTML, like Gecko) Chrome/1.0.154.48 ' +
       'Safari/525.19',
       'Google Inc.',
-      '');
+      '',
+      true);
 
   addUserAgentSettingsObj(
-      'Chrome 2.0 Beta on Windows',
+      'Chrome 2.0 on Windows',
       'Netscape',
       '5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/530.5 ' +
       '(KHTML, like Gecko) Chrome/2.0.172.8 Safari/530.5',
@@ -280,7 +358,20 @@ PAGESPEED.UserAgentController = function() {
       'AppleWebKit/530.5 (KHTML, like Gecko) Chrome/2.0.172.8 ' +
       'Safari/530.5',
       'Google Inc.',
-      '');
+      '',
+      false);
+
+  addUserAgentSettingsObj(
+      'Chrome 3.0 on Windows',
+      'Netscape',
+      '5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/531.3 ' +
+      '(KHTML, like Gecko) Chrome/3.0.193.1 Safari/531.3',
+      'Win32',
+      'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/531.3 ' +
+      '(KHTML, like Gecko) Chrome/3.0.193.1 Safari/531.3',
+      'Google Inc.',
+      '',
+      true);
 
   // The Google Wireless Transcoder renders pages to be easy to read on a
   // mobile device.  See http://www.google.com/gwt/n .  Some google properties
@@ -296,7 +387,8 @@ PAGESPEED.UserAgentController = function() {
       'AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.3.154.9 ' +
       'Safari/525.19',
       'Google Inc.',
-      '');
+      '',
+      true);
 
   addUserAgentSettingsObj(
       'Android G1',
@@ -308,7 +400,8 @@ PAGESPEED.UserAgentController = function() {
       'AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 ' +
       'Mobile Safari/523.12.2',
       'Apple Computer, Inc.',
-      '');
+      '',
+      true);
 
   addUserAgentSettingsObj(
       'iPhone',
@@ -317,7 +410,8 @@ PAGESPEED.UserAgentController = function() {
       'Mobile/1A542a Safari/419.3',
       'Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en)',
       undefined,
-      undefined
+      undefined,
+      false
       );
 
   addUserAgentSettingsObj(
@@ -329,7 +423,8 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; ' +
       'Trident/4.0; GoogleT5; .NET CLR 1.1.4322; .NET CLR 2.0.50727)',
       undefined,
-      undefined);
+      undefined,
+      false);
 
   addUserAgentSettingsObj(
       'Internet Explorer 8.0, Compatibility View',
@@ -340,7 +435,8 @@ PAGESPEED.UserAgentController = function() {
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; ' +
       'Trident/4.0; GoogleT5; .NET CLR 1.1.4322; .NET CLR 2.0.50727)',
       undefined,
-      undefined);
+      undefined,
+      false);
 
   // initialUserAgentSettings_ holds user agent settings, so that initial
   // settings can be restored.  Set to null to indicate that no change
@@ -353,14 +449,22 @@ PAGESPEED.UserAgentController = function() {
  * COMMON_AGENT_SETTINGS_.  Used by the GUI to get a list of browsers
  * whose user agent settings can be emulated.  The array is sorted by
  * the name of the object as shown in the GUI.
- *
+ * @param {boolean} includeHiddenValues Return user agents that have the
+ *    isHidden property set.  Less comon user agents are 'hidden', meaning
+ *    that they are only displayed if the user asks for all user agents.
  * @return {Array} Array of objects, each of which holds the user agent
  *    settings of a specific browser.
  */
-PAGESPEED.UserAgentController.prototype.getUserAgentNames = function() {
+PAGESPEED.UserAgentController.prototype.getUserAgentNames = function(
+    includeHiddenValues) {
   var userAgentObjects = [];
   for (var name in this.COMMON_AGENT_SETTINGS_) {
-    userAgentObjects.push(this.COMMON_AGENT_SETTINGS_[name]);
+    var userAgent = this.COMMON_AGENT_SETTINGS_[name];
+
+    if (!includeHiddenValues && userAgent.isHidden)
+      continue;
+
+    userAgentObjects.push(userAgent);
   }
 
   userAgentObjects.sort()
