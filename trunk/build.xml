@@ -171,6 +171,12 @@
     <replace file="${dist}/util_test.html" token="JS_INCLUDE_HERE">
       <replacevalue>
         <![CDATA[
+    <script language='JavaScript' type='text/javascript' src='PS_THIRD_PARTY/javascript/json/json2.js'></script>JS_INCLUDE_HERE]]>
+      </replacevalue>
+    </replace>
+    <replace file="${dist}/util_test.html" token="JS_INCLUDE_HERE">
+      <replacevalue>
+        <![CDATA[
     <script language='JavaScript' type='text/javascript' src='PS_SRC/js/pagespeed/util.js'></script>JS_INCLUDE_HERE]]>
       </replacevalue>
     </replace>

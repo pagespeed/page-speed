@@ -62,8 +62,7 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
   var url = browserTab.currentURI.spec;
   this.results_.pageStats = {
     url: url,
-    // TODO: Get a version of the URL that the user entered.
-    // Redirects can make the url we see different from what the user expects.
+    initialUrl: PAGESPEED.Utils.findPreRedirectUrl(url),
     pageLoadTime: PAGESPEED.PageLoadTimer.getPageLoadTimeByTab(browserTab),
     numRequests: PAGESPEED.Utils.getTotalRequests(),
     pageSize: PAGESPEED.Utils.getTotalResourceSize(),

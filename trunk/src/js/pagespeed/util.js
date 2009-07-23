@@ -1130,6 +1130,126 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * Strip URI fragment, i.e. anything after the #.
+   * @param {string} uri A uri.
+   * @returns {string} |uri| without the #fragment.
+   */
+  stripUriFragment: function(uri) {
+    return uri.replace(/#.*$/, '');
+  },
+
+  /**
+   * The component collector saves redirects as an adjacency list which holds
+   * the redirect DAG.  For example, suppose we have the following graph:
+   *   a1.com -> b.com
+   *   a2.com -> b.com
+   *   b.com -> c.com
+   * The redirect object will look like this:
+   *
+   * PAGESPEED.Utils.getComponents().redirect = {
+   *   "http://a1.com/":{
+   *     "elements":["http://b.com/"],
+   *     lots of other info
+   *   },
+   *   "http://a2.com/":{
+   *     "elements":["http://b.com/"],
+   *     lots of other info
+   *   },
+   *   "http://b.com/":{
+   *     "elements":["http://c.com/"],
+   *     lots of other info
+   *   },
+   * }
+   * If a user types http://a1.com into firefox, we want to mark results as
+   * coming from a1.com, even though the browser was at c.com when the
+   * scoring was done.
+   *
+   * It is imposible to truly know what the user entered, but following the dag
+   * to a node with no incoming edge is going to be right most of the time.
+   *
+   * @param {string} url A url scored by page speed.
+   * @returns {string} The shortest url that we redirected from to get to |url|.
+   */
+  findPreRedirectUrl: function(url) {
+    url = PAGESPEED.Utils.stripUriFragment(url);
+
+    var redirects = PAGESPEED.Utils.getComponents().redirect;
+
+    // If we can't get the table of redirects, than there were no redirects.
+    // Return the initial url.
+    if (!redirects)
+      return url;
+
+    // We have a map from the url that redirects (source) to the url
+    // redirected to (dest).  We need to walk the graph from dest to
+    // source, so invert the graph.
+    var destToSource = {};
+    for (var fromUrl in redirects) {
+      var elements = redirects[fromUrl].elements;
+      for (var i = 0, len = elements.length; i < len; i++) {
+        var toUrl = elements[i];
+        if (!destToSource[toUrl]) {
+          destToSource[toUrl] = [];
+        }
+        destToSource[toUrl].push(fromUrl);
+      }
+    }
+
+    // Now find all urls reachable from |url|.
+    var reachableUrlSet = {};
+    var sourceUrls = [];  // Hold urls that are not destinations of any source.
+
+    var toAddToSet = [url];  // Hold the urls not yet traversed.
+
+    while (toAddToSet.length) {
+      var curUrl = toAddToSet.pop();
+
+      // Never visit a url more than once.
+      if (reachableUrlSet[curUrl]) continue;
+      reachableUrlSet[curUrl] = true;
+
+      // If |curUrl| is not redirected to from anouther url,
+      // than it is a good candidate for the initial url.
+      if (!destToSource[curUrl]) {
+        sourceUrls.push(curUrl);
+        continue;
+      }
+
+      // Add any urls that redirect to |curUrl| into the set of urls
+      // to test.  Duplicates are okay.  They are filtered by |reachableUrlSet|.
+      toAddToSet = toAddToSet.concat(destToSource[curUrl]);
+    }
+
+    if (!sourceUrls.length) {
+      // There are no URLs in the redirect chain that were not redirected to
+      // from some other URL.  This means there is a cycle in the graph of
+      // redirects, which is very unusual.  Just return the original url.
+      return url;
+    }
+
+    // Typical there will be only one source URL.
+    // To make sure this function is deterministic, return the shortest url,
+    // with alphabet order used to break ties.
+
+    var shortestFromUrl = sourceUrls[0];
+
+    for (var i = 1, len = sourceUrls.length; i < len; ++i ) {
+      var sourceUrl = sourceUrls[i];
+
+      if (shortestFromUrl.length < sourceUrl.length)
+        continue;
+
+      if (shortestFromUrl.length == sourceUrl.length &&
+          shortestFromUrl < sourceUrl)
+        continue;
+
+      shortestFromUrl = sourceUrl;
+    }
+
+    return shortestFromUrl;
+  },
+
+  /**
    * This function always returns true.  Useful as a callback.
    * @return {boolean} true.
    */
