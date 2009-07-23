@@ -1051,3 +1051,211 @@ function testReadInputStream() {
 
   PAGESPEED.Utils.CCIN = realCCIN;
 }
+
+// findPreRedirectUrl:
+
+function testFindPreRedirectUrl_noRedirects() {
+  // When there are no redirects, getComponents().redirect is undefined.
+  PAGESPEED.Utils.getComponents = function() {
+    return {};
+  }
+
+  assertEquals(
+      'http://www.example.com',
+      PAGESPEED.Utils.findPreRedirectUrl('http://www.example.com'));
+
+  // Strip fragments:
+  assertEquals(
+      'http://www.example.com/foo',
+      PAGESPEED.Utils.findPreRedirectUrl('http://www.example.com/foo#bar'));
+}
+
+function testFindPreRedirectUrl_simpleRedirectChain() {
+  // a.com -> b.com
+  // b.com -> c.com
+  PAGESPEED.Utils.getComponents = function() {
+    return {
+      redirect: {
+        'http://a.com/':{
+          'elements':['http://b.com/'],
+        },
+        'http://b.com/':{
+          'elements':['http://c.com/'],
+        },
+        'http://unrelated.junk.com/':{
+          'elements':['http://http://unrelated.junk.org'],
+        }
+      }
+    };
+  };
+
+  assertEquals(
+      'a.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://a.com/'));
+
+  assertEquals(
+      'b.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://b.com/'));
+
+  assertEquals(
+      'c.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://c.com/'));
+
+  assertEquals(
+      'no.redirect.com -> no.redirect.com',
+      'http://no.redirect.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://no.redirect.com/'));
+}
+
+function testFindPreRedirectUrl_complexRedirectChain() {
+  // a.com -> b1.com
+  // a.com -> b2.com
+  // b1.com -> c.com
+  // b2.com -> c.com
+  PAGESPEED.Utils.getComponents = function() {
+    return {
+      redirect: {
+        'http://a.com/':{
+          'elements':['http://b1.com/', 'http://b2.com/'],
+        },
+        'http://b1.com/':{
+          'elements':['http://c.com/'],
+        },
+        'http://b2.com/':{
+          'elements':['http://c.com/'],
+        },
+        'http://unrelated.junk.com/':{
+          'elements':['http://http://unrelated.junk.org'],
+        }
+      }
+    };
+  };
+
+  assertEquals(
+      'a.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://a.com/'));
+
+  assertEquals(
+      'b1.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://b1.com/'));
+
+  assertEquals(
+      'b2.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://b2.com/'));
+
+  assertEquals(
+      'c.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://c.com/'));
+}
+
+// Test that when there is more than one candidate source url,
+// the shortest one lowest in the alphabet is returned.
+function testFindPreRedirectUrl_preferShortUrls() {
+  // aaaaaaa.com -> dest.com
+  // longname.com -> b.com
+  // b.com -> dest.com
+  // c.com -> dest.com
+  // d.com -> dest.com
+
+  PAGESPEED.Utils.getComponents = function() {
+    return {
+      redirect: {
+        'http://aaaaaaa.com/':{
+          'elements':['http://dest.com/'],
+        },
+        'http://longname.com/':{
+          'elements':['http://b.com/'],
+        },
+        'http://b.com/':{
+          'elements':['http://dest.com/'],
+        },
+        'http://c.com/':{
+          'elements':['http://dest.com/'],
+        }
+      }
+    };
+  };
+
+  assertEquals(
+      'c.com is shorter than aaaaaaa.com and before d.com.  ' +
+      'b.com is redirected to.',
+      'http://c.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://dest.com/'));
+}
+
+// Test that a cycle in the graph does not cause an infinite loop.
+function testFindPreRedirectUrl_redirectCycle() {
+  // a.com -> cycle1.com
+  // cycle1.com -> cycle2.com
+  // cycle2.com -> cycle1.com
+  // cycle2.com -> dest.com
+  PAGESPEED.Utils.getComponents = function() {
+    return {
+      redirect: {
+        'http://a.com/':{
+          'elements':['http://cycle1.com/'],
+        },
+        'http://cycle1.com/':{
+          'elements':['http://cycle2.com/'],
+        },
+        'http://cycle2.com/':{
+          'elements':['http://cycle1.com/', 'http://dest.com/'],
+        }
+      }
+    };
+  };
+
+  assertEquals(
+      'a.com -> a.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://a.com/'));
+  assertEquals(
+      'a.com -> cycle1.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://cycle1.com/'));
+  assertEquals(
+      'a.com -> cycle2.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://cycle2.com/'));
+  assertEquals(
+      'a.com -> dest.com',
+      'http://a.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://dest.com/'));
+}
+
+// Test that when there are no urls which are not redirect targets,
+// the initial url is returned.
+function testFindPreRedirectUrl_noSourceUrlOutsiodeCycle() {
+  // cycle1.com -> cycle2.com
+  // cycle2.com -> cycle1.com
+  // cycle2.com -> dest.com
+  PAGESPEED.Utils.getComponents = function() {
+    return {
+      redirect: {
+        'http://cycle1.com/':{
+          'elements':['http://cycle2.com/'],
+        },
+        'http://cycle2.com/':{
+          'elements':['http://cycle1.com/', 'http://dest.com/'],
+        }
+      }
+    };
+  };
+
+  assertEquals(
+      'dest.com is the best we can do',
+      'http://dest.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://dest.com/'));
+
+  assertEquals(
+      'cycle1.com is in a clique',
+      'http://cycle1.com/',
+      PAGESPEED.Utils.findPreRedirectUrl('http://cycle1.com/'));
+}
