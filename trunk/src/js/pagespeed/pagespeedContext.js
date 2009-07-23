@@ -200,16 +200,18 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
     row = row.nextSibling;
   }
 
+  var resultsContainer = new PAGESPEED.ResultsContainer(
+      browserTab, overallScore);
+
   // Pass the browser object that holds data for the current tab.
   // There is only one callback holder per window (which can contain
   // many tabs).  Passing in a reference to the tab allows tab
   // specific information (such as the page load time) to be found.
   this.callbacks.postDisplay.execCallbacks(
       {
-        // TODO: we do not expose an overall score in the UI, so we
-        // should rethink the data that we send in this callback.
         overallScore: overallScore,
-        browserTab: browserTab
+        browserTab: browserTab,
+        resultsContainer: resultsContainer
       });
 };
 
