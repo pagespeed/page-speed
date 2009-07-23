@@ -21,10 +21,11 @@
 
 goog.provide('activity.JsEventFetcher');
 
-goog.require('goog.Disposable');
 goog.require('activity.TimelineEventType');
 goog.require('activity.TimelineModel');
 goog.require('activity.TimelineModel.Event');
+goog.require('activity.preference');
+goog.require('goog.Disposable');
 
 /**
  * JsEventFetcher fetches timeline events from the IActivityProfiler instance.
@@ -88,6 +89,15 @@ activity.JsEventFetcher.prototype.startTimeUsec_ = 0;
  * @private
  */
 activity.JsEventFetcher.INIT_FUNCTIONS_RATE_USEC_ = 200;
+
+/**
+ * The preference name indicating whether or not we should show
+ * non-HTTP URLs in the Activity panel. Can be helpful for debugging
+ * performance of JS running in the browser or an extension.
+ * @type {string}
+ * @private
+ */
+activity.JsEventFetcher.PREF_SHOW_NON_HTTP_URLS_ = 'ui_show_non_http_urls';
 
 /**
  * Whether or not the fetcher is running.
@@ -260,7 +270,8 @@ activity.JsEventFetcher.EventDispatcher_.prototype.populate = function(events) {
         timelineEvent = this.getOrCreateEvent_(
             event, activity.TimelineEventType.JS_PARSE);
         // Convert from a raw count to a rate.
-        intensity = intensity * activity.JsEventFetcher.INIT_FUNCTIONS_RATE_USEC_;
+        intensity =
+            intensity * activity.JsEventFetcher.INIT_FUNCTIONS_RATE_USEC_;
         break;
       case activity.JsEventFetcher.IActivityProfilerEvent_.JS_EXECUTE:
         timelineEvent = this.getOrCreateEvent_(
@@ -350,10 +361,17 @@ activity.JsEventFetcher.EventDispatcher_.prototype.getOrCreateEvent_ = function(
  * @private
  */
 activity.JsEventFetcher.getEventIdentifier_ = function(event) {
+  var identifier = event.getIdentifier();
+  if (activity.preference.getBool(
+        activity.JsEventFetcher.PREF_SHOW_NON_HTTP_URLS_)) {
+    // If we're showing non-HTTP URLs, then return the identifier
+    // as-is.
+    return identifier;
+  }
+
   // We special case a few types of URLs:
   // 1. All browser URLs are lumped into a single category.
   // 2. All javascript: URLs are lumped into a single category.
-  var identifier = event.getIdentifier();
   if (activity.JsEventFetcher.isBrowserUrl_(identifier)) {
     identifier = 'Firefox Javascript';
   }

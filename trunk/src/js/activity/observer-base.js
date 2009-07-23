@@ -500,7 +500,7 @@ activity.ObserverBase.Event.prototype.onComplete = function(
 
   this.endTimeUsec_ = endTimeUsec;
 
-  if (this.endTimeUsec_ <  this.startTimeUsec_) {
+  if (this.endTimeUsec_ < this.startTimeUsec_) {
     throw new Error([
         'activity.ObserverBase.Event.onComplete(', endTimeUsec, '): ',
         'Completed an event before it started!  ',
