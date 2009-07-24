@@ -225,6 +225,17 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
         browserTab: browserTab,
         resultsContainer: resultsContainer
       });
+
+  // When automating firefox, it is handy to be able to make firefox
+  // quit after computing scores.
+  // This pref is somewhat dangerous, because a user who sets it by
+  // mistake, and has 'run at onload' enabled, will see firefox quit
+  // every time a page is loaded.  Leave this setting out of the GUI,
+  // so that only those users who know what they are doing will set it.
+  if (PAGESPEED.Utils.getBoolPref(
+          'extensions.PageSpeed.quit_after_scoring', false)) {
+    PAGESPEED.Utils.quitFirefox();
+  }
 };
 
 /**

@@ -2252,6 +2252,13 @@ PAGESPEED.Utils = {  // Begin namespace
                      ':', ex.lineNumber || '<line unknown>',
                      ')'];
     return resultArr.join('');
+  },
+
+  quitFirefox: function() {
+    var service = PAGESPEED.Utils.CCSV(
+        '@mozilla.org/toolkit/app-startup;1',
+        'nsIAppStartup');
+    service.quit(Components.interfaces.nsIAppStartup.eForceQuit);
   }
 };  // End namespace
 
