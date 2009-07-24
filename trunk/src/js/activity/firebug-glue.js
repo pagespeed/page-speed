@@ -112,29 +112,27 @@ ActivityPanel.prototype = domplate(Firebug.Panel, {
       menuOptions.push(menuItemObj);
     };
 
-    if (activity.Profiler.isCompatibleJsd()) {
-      var profileJavaScriptEnabled =
-          activity.preference.getBool(
-              activity.ui.PREF_ENABLE_JS_PROFILING_, true);
+    var profileJavaScriptEnabled =
+        activity.preference.getBool(
+            activity.ui.PREF_ENABLE_JS_PROFILING_, true);
+    addMenuOption(
+        'Show JavaScript Events',
+        function() {activity.ui.performCommand('toggleProfileJavaScript'); },
+        profileJavaScriptEnabled);
+    if (profileJavaScriptEnabled) {
       addMenuOption(
-          'Show JavaScript Events',
-          function() {activity.ui.performCommand('toggleProfileJavaScript'); },
-          profileJavaScriptEnabled);
-      if (profileJavaScriptEnabled) {
-        addMenuOption(
-            'Full Call Graphs (slow)',
-            function() {
-              activity.ui.performCommand('toggleCompleteCallGraphs');
-            },
-            activity.preference.getBool(
-                activity.ui.PREF_COLLECT_COMPLETE_CALL_GRAPHS_, false));
-      }
+          'Full Call Graphs (slow)',
+          function() {
+            activity.ui.performCommand('toggleCompleteCallGraphs');
+          },
+          activity.preference.getBool(
+              activity.ui.PREF_COLLECT_COMPLETE_CALL_GRAPHS_, false));
     }
 
     // Firebug 1.4 betas show a menu even when there are no items, and
-    // it looks odd.
-    // Bryan filed a bug (http://code.google.com/p/fbug/issues/detail?id=1896).
-    // Until it is resolved, add a disabled menu item.
+    // it looks odd. http://code.google.com/p/fbug/issues/detail?id=1896
+    // tracks this issue. Until it is resolved, add a disabled menu
+    // item.
     if (!menuOptions.length) {
       addMenuOption('No Options',
                     function() {},

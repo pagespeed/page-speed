@@ -21,7 +21,6 @@
 
 goog.provide('activity.Profiler');
 
-goog.require('activity.preference');
 goog.require('activity.xpcom');
 
 /**
@@ -29,36 +28,6 @@ goog.require('activity.xpcom');
  * @constructor
  */
 activity.Profiler = function() {
-};
-
-/**
- * The interface ID of the version of the jsdIDebuggerService that we
- * currently support. This is the version available up through FF3.0.x.
- * @type {string}
- * @private
- */
-activity.Profiler.SUPPORTED_JSD_IID_ = '{9dd9006a-4e5e-4a80-ac3d-007fb7335ca4}';
-
-/**
- * The preference name indicating whether or not we should always
- * treat the JSD as compatible.
- * @type {string}
- * @private
- */
-activity.Profiler.PREF_FORCE_COMPATIBLE_JSD_ = 'force_compatible_jsd';
-
-/**
- * @return {boolean} whether or not the version of the
- * jsdIDebuggerService matches the version we expect.
- */
-activity.Profiler.isCompatibleJsd = function() {
-  if (activity.preference.getBool(
-        activity.Profiler.PREF_FORCE_COMPATIBLE_JSD_, false)) {
-    return true;
-  }
-  var jsdIface = activity.xpcom.CI('jsdIDebuggerService');
-  if (!jsdIface) return false;
-  return jsdIface.number.toLowerCase() == activity.Profiler.SUPPORTED_JSD_IID_;
 };
 
 /**
