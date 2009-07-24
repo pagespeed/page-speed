@@ -63,6 +63,18 @@ PAGESPEED.PageSpeedContext = function() {
 };
 
 /**
+ * Given a function name and an exception, log an eppor message.
+ * @param {string} functionName Name of the function where the
+ *     exception was caught.
+ * @param {Error} e The exception raised.
+ */
+function logException(functionName, e) {
+  PS_LOG(['Uncaught exception in function ', functionName, '.  \n',
+          'Please file a bug with the following text: ',
+          PAGESPEED.Utils.formatException(e)].join(''));
+}
+
+/**
  * Displays the score card.
  * @param {Object} panel Firebug-created object that stores state of the
  *     the panel where results are displayed.
@@ -303,8 +315,12 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
    * @override
    */
   initialize: function() {
-    PAGESPEED.PageSpeedContext.callbacks.initPageSpeedModule.execCallbacks(
-        {PageSpeedModule: this});
+    try {
+      PAGESPEED.PageSpeedContext.callbacks.initPageSpeedModule.execCallbacks(
+          {PageSpeedModule: this});
+    } catch (e) {
+      logException('PageSpeedModule.initialize()', e);
+    }
   },
 
   /**
@@ -312,8 +328,12 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
    * @override
    */
   initContext: function(context) {
-    // Invoke 'initContext' on any rules that implement that method.
-    PAGESPEED.PageSpeedContext.dispatchToRules('initContext', [context]);
+    try {
+      // Invoke 'initContext' on any rules that implement that method.
+      PAGESPEED.PageSpeedContext.dispatchToRules('initContext', [context]);
+    } catch (e) {
+      logException('PageSpeedModule.initContext()', e);
+    }
   },
 
   /**
@@ -321,18 +341,26 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
    * @override
    */
   destroyContext: function(context) {
-    // Invoke 'destroyContext' on any rules that implement that method.
-    PAGESPEED.PageSpeedContext.dispatchToRules('destroyContext', [context]);
+    try {
+      // Invoke 'destroyContext' on any rules that implement that method.
+      PAGESPEED.PageSpeedContext.dispatchToRules('destroyContext', [context]);
+    } catch (e) {
+      logException('PageSpeedModule.destroyContext()', e);
+    }
   },
 
   /** @override */
   showPanel: function(browser, panel) {
-    var isPageSpeed = panel && 'pagespeed' == panel.name;
-    var pagespeedButtons = browser.chrome.$('fbPageSpeedButtons');
-    FBL.collapse(pagespeedButtons, !isPageSpeed);
+    try {
+      var isPageSpeed = panel && 'pagespeed' == panel.name;
+      var pagespeedButtons = browser.chrome.$('fbPageSpeedButtons');
+      FBL.collapse(pagespeedButtons, !isPageSpeed);
 
-    if (isPageSpeed) {
-      PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.execCallbacks({});
+      if (isPageSpeed) {
+        PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.execCallbacks({});
+      }
+    } catch (e) {
+      logException('PageSpeedModule.showPanel()', e);
     }
   },
 
@@ -369,8 +397,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
         PAGESPEED.LintRules.exec(browserOfCurrentTab);
       }
     } catch (e) {
-      PS_LOG('Unexpected exception in showPerformance.  Please file a bug ' +
-            'with the following text: ' + e + '\n');
+      logException('PageSpeedModule.showPerformance()', e);
     }
   },
 
@@ -380,9 +407,9 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
 
       PAGESPEED.PageSpeedContext.displayComponents(
           FirebugContext.getPanel('pagespeed'));
+
     } catch (e) {
-      PS_LOG('Unexpected exception in showComponents().  Please file a bug' +
-             'with the following text: ' + e + '\n');
+      logException('PageSpeedModule.showComponents()', e);
     }
   },
 
@@ -392,31 +419,42 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
         'http://code.google.com/speed/page-speed/docs/using.html');
 
     } catch (e) {
-      PS_LOG('Unexpected exception in showHelp().  Please file a bug' +
-             'with the following text: ' + e + '\n');
+      logException('PageSpeedModule.showHelp()', e);
     }
   },
 
   pagespeedOnload: function(win) {
-    // Record a timestamp at onload.  A timestamp is also added to each resource
-    // when it is first fetched in the component collector.  This allows rules
-    // to figure out which resources are loaded before onload.
-    win.onloadTime = (new Date()).getTime();
+    try {
+      // Record a timestamp at onload.  A timestamp is also added to each
+      // resource when it is first fetched in the component collector.
+      // This allows rules to figure out which resources are loaded before
+      // onload.
+      win.onloadTime = (new Date()).getTime();
 
-    // If the autorun pref is set, then run Page Speed rules.
-    if (PAGESPEED.Utils.getBoolPref('extensions.PageSpeed.autorun')) {
-      var doc = win.document;
-      if (!doc || !doc.location || typeof(doc.location.hostname) == 'undefined')
-        return;
+      // If the autorun pref is set, then run Page Speed rules.
+      if (PAGESPEED.Utils.getBoolPref('extensions.PageSpeed.autorun')) {
+        var doc = win.document;
+        try {
+          if (!doc || !doc.location || !doc.location.hostname)
+            return;
+        } catch (e) {
+          // Accessing doc.location.hostname can throw NS_ERROR_FAILURE
+          // in firefox 3.5.0.  This error means there is no host,
+          // so return;
+          return;
+        }
 
-      // Want any javascript in the page which runs at onload to run before
-      // Page Speed starts.  To allow this, launch pagespeed after a delay.  The
-      // default is 100ms.  Users might want to set a longer delay to be sure
-      // all javascript has run.  This can be done with the preference
-      // extensions.PageSpeed.autorun.delay.
-      var delay = PAGESPEED.Utils.getIntPref(
-          'extensions.PageSpeed.autorun.delay', 100);
-      win.setTimeout(Firebug.PageSpeedModule.showPerformance, delay);
+        // Want any javascript in the page which runs at onload to run before
+        // Page Speed starts.  To allow this, launch pagespeed after a delay.
+        // The default is 100ms.  Users might want to set a longer delay to be
+        // sure all javascript has run.  This can be done with the preference
+        // extensions.PageSpeed.autorun.delay.
+        var delay = PAGESPEED.Utils.getIntPref(
+            'extensions.PageSpeed.autorun.delay', 100);
+        win.setTimeout(Firebug.PageSpeedModule.showPerformance, delay);
+      }
+    } catch (e) {
+      logException('PageSpeedModule.pagespeedOnload()', e);
     }
   },
 
@@ -429,20 +467,24 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
    *     being loaded.
    */
   watchWindow: function(context, win) {
-    // watchWindow is called on iframes as well as top level windows.  Only run
-    // Page Speed when the onload event for the top level window fires.
-    if (win == win.top) {
-      PAGESPEED.LintRules.stop();
-      PAGESPEED.PageSpeedContext.callbacks.watchWindow.execCallbacks(
-        {
-          window: win,
-          context: context
-        });
+    try {
+      // watchWindow is called on iframes as well as top level windows.  Only
+      // run Page Speed when the onload event for the top level window fires.
+      if (win == win.top) {
+        PAGESPEED.LintRules.stop();
+        PAGESPEED.PageSpeedContext.callbacks.watchWindow.execCallbacks(
+          {
+            window: win,
+            context: context
+          });
 
-      var onloadFn = function() {
-        Firebug.PageSpeedModule.pagespeedOnload(win);
-      };
-      win.addEventListener('load', onloadFn, false);
+        var onloadFn = function() {
+          Firebug.PageSpeedModule.pagespeedOnload(win);
+        };
+        win.addEventListener('load', onloadFn, false);
+      }
+    } catch (e) {
+      logException('PageSpeedModule.watchWindow()', e);
     }
   },
 
@@ -453,11 +495,15 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
    *     being loaded.
    */
   unwatchWindow: function(context, win) {
-    if (win == win.top) {
-      PAGESPEED.PageSpeedContext.callbacks.unwatchWindow.execCallbacks(
+    try {
+      if (win == win.top) {
+        PAGESPEED.PageSpeedContext.callbacks.unwatchWindow.execCallbacks(
           {
             window: win
           });
+      }
+    } catch (e) {
+      logException('PageSpeedModule.unwatchWindow()', e);
     }
   }
 });  // PageSpeedModule
