@@ -53,9 +53,8 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
   this.results_.versions = {
     pageSpeed: PAGESPEED.Utils.getPageSpeedVersion(),
     firebug: PAGESPEED.DEPENDENCIES['Firebug']['installedVersion'],
+    firefox: PAGESPEED.Utils.getFirefoxVersion(),
     userAgent: win.navigator.userAgent
-    // TODO: Add the real version of firefox.  The user agent
-    // may have been set.
   };
 
   // Store statistics about the page:
