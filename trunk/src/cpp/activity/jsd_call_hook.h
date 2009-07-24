@@ -72,9 +72,13 @@ class JsdCallHook : public jsdICallHook {
   // filter.
   int filter_depth_;
 
+  // The number of elements in the stack that were traversed in order
+  // to reach a function that should be included in the profile.
+  int pending_depth_;
+
   // Whether or not we should apply the filter on the next call to
   // OnEntry().
-  bool apply_filter_pending_;
+  bool apply_filter_delayed_;
 
   // Whether or not we should collect a complete profile.
   bool collect_full_call_trees_;

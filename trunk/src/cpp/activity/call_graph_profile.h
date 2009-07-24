@@ -73,7 +73,7 @@ class CallGraphProfile {
   bool SerializeToFileDescriptor(int fd) const;
 
   // Should a script from the given URL be included in the profile?
-  bool ShouldIncludeInProfile(const char *file_name) const;
+  static bool ShouldIncludeInProfile(const char *file_name);
 
   const Profile *profile() const { return profile_.get(); }
   const CallGraph *call_graph() const { return call_graph_.get(); }

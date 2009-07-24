@@ -171,7 +171,7 @@ bool CallGraphProfile::SerializeToFileDescriptor(int fd) const {
   return true;
 }
 
-bool CallGraphProfile::ShouldIncludeInProfile(const char *file_name) const {
+bool CallGraphProfile::ShouldIncludeInProfile(const char *file_name) {
   return !PrefixMatches(file_name) &&
       !SuffixMatches(file_name) &&
       !FullMatch(file_name);

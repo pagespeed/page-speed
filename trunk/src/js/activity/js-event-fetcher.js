@@ -21,6 +21,7 @@
 
 goog.provide('activity.JsEventFetcher');
 
+goog.require('activity.Profiler');
 goog.require('activity.TimelineEventType');
 goog.require('activity.TimelineModel');
 goog.require('activity.TimelineModel.Event');
@@ -198,24 +199,31 @@ activity.JsEventFetcher.prototype.onTimeoutCallback = function() {
  * @private
  */
 activity.JsEventFetcher.prototype.updateTimelineModel_ = function(events) {
-  if (this.isDisposed()) {
-    return;
-  }
+  // Pause the JSD so as to minimize the overhead introduced by our
+  // own JS execution.
+  activity.Profiler.pause();
+  try {
+    if (this.isDisposed()) {
+      return;
+    }
 
-  var dispatcher =
-      new activity.JsEventFetcher.EventDispatcher_(this.timelineModel_);
-  dispatcher.populate(events);
-  if (dispatcher.hasEvents()) {
-    dispatcher.dispatchEvents();
-    this.startTimeUsec_ = dispatcher.getMaxEventEndTimeUsec();
-  }
+    var dispatcher =
+        new activity.JsEventFetcher.EventDispatcher_(this.timelineModel_);
+    dispatcher.populate(events);
+    if (dispatcher.hasEvents()) {
+      dispatcher.dispatchEvents();
+      this.startTimeUsec_ = dispatcher.getMaxEventEndTimeUsec();
+    }
 
-  /*
-   * We're finished once we're no longer running and there are no more
-   * events to consume.
-   */
-  this.isFinished_ = (!this.isRunning_ && !dispatcher.hasEvents());
-  this.isCallbackPending_ = false;
+    /*
+     * We're finished once we're no longer running and there are no more
+     * events to consume.
+     */
+    this.isFinished_ = (!this.isRunning_ && !dispatcher.hasEvents());
+    this.isCallbackPending_ = false;
+  } finally {
+    activity.Profiler.unpause();
+  }
 };
 
 /**

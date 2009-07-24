@@ -30,6 +30,8 @@
   <script type="application/x-javascript"
       src="chrome://activity/content/preference.js"/>
   <script type="application/x-javascript"
+      src="chrome://activity/content/profiler.js"/>
+  <script type="application/x-javascript"
       src="chrome://activity/content/fileutil.js"/>
   <script type="application/x-javascript"
       src="chrome://activity/content/firebug-protector.js"/>
@@ -47,8 +49,6 @@
       src="chrome://activity/content/timeline-view.js"/>
   <script type="application/x-javascript"
       src="chrome://activity/content/timeline-manager.js"/>
-  <script type="application/x-javascript"
-      src="chrome://activity/content/profiler.js"/>
   <script type="application/x-javascript"
       src="chrome://activity/content/app-state-observer.js"/>
   <script type="application/x-javascript"
