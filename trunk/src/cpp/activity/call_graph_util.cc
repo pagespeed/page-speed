@@ -219,15 +219,16 @@ void FormatTime(int64_t time_usec, std::string *target) {
   // milliseconds. Otherwise, truncate to whole seconds.
   const long long msec = time_usec / 1000LL;
 
+  // 20 characters is enough to fit any 64 bit number divided by 1000.
   const size_t kBufSize = 20;
   char tmp[kBufSize];
   if (msec < 10000LL) {
-    snprintf(tmp, buf_size, "%lld ms", msec);
+    snprintf(tmp, kBufSize, "%lld ms", msec);
   } else {
-    snprintf(tmp, buf_size, "%lld seconds", (msec / 1000LL));
+    snprintf(tmp, kBufSize, "%lld seconds", (msec / 1000LL));
   }
 
-  target->append(tmp, buf_size);
+  target->append(tmp, kBufSize);
 }
 
 }  // namespace util

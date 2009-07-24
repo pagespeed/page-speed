@@ -21,6 +21,9 @@
 
 goog.provide('activity.Profiler');
 
+goog.require('activity.preference');
+goog.require('activity.xpcom');
+
 /**
  * Wrapper around the xpcom internals that enable JavaScript profiling.
  * @constructor
@@ -63,7 +66,7 @@ activity.Profiler.isCompatibleJsd = function() {
  * @type {jsdIDebuggerService}
  * @private
  */
-activity.Profiler.prototype.jsd_ = activity.xpcom.CCSV(
+activity.Profiler.jsd_ = activity.xpcom.CCSV(
     '@mozilla.org/js/jsd/debugger-service;1', 'jsdIDebuggerService');
 
 /**
@@ -78,52 +81,52 @@ activity.Profiler.prototype.jsdIDebuggerService_ =
  * Start the Firefox JavaScript debugger.
  */
 activity.Profiler.prototype.start = function() {
-  if (this.jsd_.isOn) {
+  if (activity.Profiler.jsd_.isOn) {
     // The JSD is already running. Presumably it was started by a
     // different extension (e.g. Firebug). Take a snapshot of the JSD
     // state before we take over, so we can restore the state once
     // we're finished.
     this.jsdSnapshot = {
-      breakpointHook: this.jsd_.breakpointHook,
-      debuggerHook: this.jsd_.debuggerHook,
-      debugHook: this.jsd_.debugHook,
-      errorHook: this.jsd_.errorHook,
-      functionHook: this.jsd_.functionHook,
-      interruptHook: this.jsd_.interruptHook,
-      scriptHook: this.jsd_.scriptHook,
-      throwHook: this.jsd_.throwHook,
-      topLevelHook: this.jsd_.topLevelHook,
-      flags: this.jsd_.flags
+      breakpointHook: activity.Profiler.jsd_.breakpointHook,
+      debuggerHook: activity.Profiler.jsd_.debuggerHook,
+      debugHook: activity.Profiler.jsd_.debugHook,
+      errorHook: activity.Profiler.jsd_.errorHook,
+      functionHook: activity.Profiler.jsd_.functionHook,
+      interruptHook: activity.Profiler.jsd_.interruptHook,
+      scriptHook: activity.Profiler.jsd_.scriptHook,
+      throwHook: activity.Profiler.jsd_.throwHook,
+      topLevelHook: activity.Profiler.jsd_.topLevelHook,
+      flags: activity.Profiler.jsd_.flags
     };
   } else {
-    this.jsd_.on();
+    activity.Profiler.jsd_.on();
     this.jsdSnapshot = null;
   }
 
-  while (this.jsd_.pauseDepth > 0) {
+  while (activity.Profiler.jsd_.pauseDepth > 0) {
     // Another extension (e.g. Firebug) may have paused the JSD. We
     // need to make sure the JSD is fully unpaused in order to get any
     // callbacks from it.
-    this.jsd_.unPause();
+    activity.Profiler.jsd_.unPause();
   }
 
   // Reduces the overhead of profiling.
-  this.jsd_.flags =
+  activity.Profiler.jsd_.flags =
       this.jsdIDebuggerService_.DISABLE_OBJECT_TRACE |
       this.jsdIDebuggerService_.HIDE_DISABLED_FRAMES;
 
   // Reset the JSD to a clean state.
-  this.jsd_.clearFilters();
-  this.jsd_.clearAllBreakpoints();
-  this.jsd_.breakpointHook = null;
-  this.jsd_.debuggerHook = null;
-  this.jsd_.debugHook = null;
-  this.jsd_.errorHook = null;
-  this.jsd_.functionHook = null;
-  this.jsd_.interruptHook = null;
-  this.jsd_.scriptHook = null;
-  this.jsd_.throwHook = null;
-  this.jsd_.topLevelHook = null;
+  activity.Profiler.jsd_.clearFilters();
+  activity.Profiler.jsd_.clearAllBreakpoints();
+  activity.Profiler.jsd_.breakpointHook = null;
+  activity.Profiler.jsd_.debuggerHook = null;
+  activity.Profiler.jsd_.debugHook = null;
+  activity.Profiler.jsd_.errorHook = null;
+  activity.Profiler.jsd_.functionHook = null;
+  activity.Profiler.jsd_.interruptHook = null;
+  activity.Profiler.jsd_.scriptHook = null;
+  activity.Profiler.jsd_.throwHook = null;
+  activity.Profiler.jsd_.topLevelHook = null;
 
   // NOTE: There is a bug in firefox (seems to be specific to 64-bit builds)
   // that causes crashes when dereferencing the program counter to map from
@@ -137,26 +140,44 @@ activity.Profiler.prototype.start = function() {
  * Stop the Firefox JavaScript debugger.
  */
 activity.Profiler.prototype.stop = function() {
-  if (!this.jsd_.isOn) {
+  if (!activity.Profiler.jsd_.isOn) {
     this.jsdSnapshot = null;
     return;
   }
   if (this.jsdSnapshot) {
     // Restore the previous JSD state.
-    this.jsd_.breakpointHook = this.jsdSnapshot.breakpointHook;
-    this.jsd_.debuggerHook = this.jsdSnapshot.debuggerHook;
-    this.jsd_.debugHook = this.jsdSnapshot.debugHook;
-    this.jsd_.errorHook = this.jsdSnapshot.errorHook;
-    this.jsd_.functionHook = this.jsdSnapshot.functionHook;
-    this.jsd_.interruptHook = this.jsdSnapshot.interruptHook;
-    this.jsd_.scriptHook = this.jsdSnapshot.scriptHook;
-    this.jsd_.throwHook = this.jsdSnapshot.throwHook;
-    this.jsd_.topLevelHook = this.jsdSnapshot.topLevelHook;
-    this.jsd_.flags = this.jsdSnapshot.flags;
+    activity.Profiler.jsd_.breakpointHook = this.jsdSnapshot.breakpointHook;
+    activity.Profiler.jsd_.debuggerHook = this.jsdSnapshot.debuggerHook;
+    activity.Profiler.jsd_.debugHook = this.jsdSnapshot.debugHook;
+    activity.Profiler.jsd_.errorHook = this.jsdSnapshot.errorHook;
+    activity.Profiler.jsd_.functionHook = this.jsdSnapshot.functionHook;
+    activity.Profiler.jsd_.interruptHook = this.jsdSnapshot.interruptHook;
+    activity.Profiler.jsd_.scriptHook = this.jsdSnapshot.scriptHook;
+    activity.Profiler.jsd_.throwHook = this.jsdSnapshot.throwHook;
+    activity.Profiler.jsd_.topLevelHook = this.jsdSnapshot.topLevelHook;
+    activity.Profiler.jsd_.flags = this.jsdSnapshot.flags;
     this.jsdSnapshot = null;
-    this.jsd_.clearFilters();
+    activity.Profiler.jsd_.clearFilters();
   } else {
-    this.jsd_.off();
-    this.jsd_.clearFilters();
+    activity.Profiler.jsd_.off();
+    activity.Profiler.jsd_.clearFilters();
+  }
+};
+
+/**
+ * Pause the Firefox JavaScript debugger.
+ */
+activity.Profiler.pause = function() {
+  if (activity.Profiler.jsd_.isOn) {
+    activity.Profiler.jsd_.pause();
+  }
+};
+
+/**
+ * Unpause the Firefox JavaScript debugger.
+ */
+activity.Profiler.unpause = function() {
+  if (activity.Profiler.jsd_.isOn) {
+    activity.Profiler.jsd_.unPause();
   }
 };

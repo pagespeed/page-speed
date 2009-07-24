@@ -32,7 +32,8 @@ JsdCallHook::JsdCallHook(CallGraphProfile *profile)
     : jsd_(JsdWrapper::Create()),
       profile_(profile),
       filter_depth_(-1),
-      apply_filter_pending_(false),
+      pending_depth_(-1),
+      apply_filter_delayed_(false),
       collect_full_call_trees_(false),
       started_profiling_(false) {
 }
@@ -60,6 +61,11 @@ NS_IMETHODIMP JsdCallHook::OnCall(jsdIStackFrame *frame, PRUint32 type) {
       // Only start profiling if we're at the bottom of the call stack.
       return NS_OK;
     }
+
+    // We're starting to profile, so reset our state.
+    filter_depth_ = -1;
+    pending_depth_ = 0;
+    apply_filter_delayed_ = false;
     started_profiling_ = true;
   }
 
@@ -94,41 +100,61 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame, bool is_top_level) {
     return;
   }
 
-  if (apply_filter_pending_) {
+  if (IsCallFilterActive()) {
+    // If already active, we don't need to collect any additional
+    // information, so bail.
+    return;
+  }
+
+  nsCOMPtr<jsdIScript> script;
+  nsresult rv = frame->GetScript(getter_AddRefs(script));
+  if (NS_FAILED(rv)) {
+    GCHECK(false);
+    return;
+  }
+
+  JsdFunctionInfo function_info(script);
+  if (apply_filter_delayed_ &&
+      profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
     // There is a pending request to apply the filter that prevents us
     // from being called at every js call point. Now that we've
     // re-entered the OnEntry() callback, we need to apply the
     // filter. See the comments below for details on why this pending
     // operation is necessary.
-    GCHECK(!IsCallFilterActive());
     UpdateCallFilter(frame, true);
-    apply_filter_pending_ = false;
+    apply_filter_delayed_ = false;
     return;
   }
 
-  if (!IsCallFilterActive()) {
-    // The filter is not currently applied. This means we're just
-    // beginning a new call stack. We need to record this function
-    // entry point and apply the filter.
-    profile_->OnFunctionEntry();
-    if (is_top_level || IsFunctionNamePopulated(frame)) {
-      // If this is a top-level script, or the function name is
-      // available, then we can enable the filter on this script.
-      UpdateCallFilter(frame, true);
-    } else {
-      // The Firefox JSD has a funny characteristic: when OnCall() is
-      // invoked with TYPE_FUNCTION_CALL, the jsdIScript at the top of
-      // the call stack might be for the previous stack frame (not for
-      // the function actually being called). In cases where the stack
-      // is just being constructed, this means that the top-level
-      // frame will be for a dummy function with no function name. We
-      // can't filter on such a function, because that function will
-      // never appear in the TYPE_FUNCTION_RETURN call path. Instead,
-      // we set a flag that indicates the next time OnCall() gets
-      // invoked with TYPE_FUNCTION_CALL, we should apply the filter on
-      // that function.
-      apply_filter_pending_ = true;
-    }
+  profile_->OnFunctionEntry();
+  if (!apply_filter_delayed_ &&
+      pending_depth_ == 0 &&
+      !is_top_level &&
+      !IsFunctionNamePopulated(frame)) {
+    // The Firefox JSD has a funny characteristic: when OnCall() is
+    // invoked with TYPE_FUNCTION_CALL, the jsdIScript at the top of
+    // the call stack might be for the previous stack frame (not for
+    // the function actually being called). In cases where the stack
+    // is just being constructed, this means that the top-level frame
+    // will be for a dummy function with no function name. We can't
+    // filter on such a function, because that function will never
+    // appear in the TYPE_FUNCTION_RETURN call path. Instead, we set a
+    // flag that indicates the next time OnCall() gets invoked with
+    // TYPE_FUNCTION_CALL, we should apply the filter on that
+    // function.
+    apply_filter_delayed_ = true;
+    return;
+  }
+
+  if (profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
+    // We found a function that should be included in the profile, so
+    // apply the call filter.
+    UpdateCallFilter(frame, true);
+  } else {
+    // This function shouldn't be included in the profile. We need to
+    // continue to build up the stack in case we find a function that
+    // should be included in a profile.
+    ++pending_depth_;
   }
 }
 
@@ -148,23 +174,19 @@ void JsdCallHook::OnExit(jsdIStackFrame *frame) {
     return;
   }
 
-  if (apply_filter_pending_) {
-    // We had a filter pending, but OnEntry() wasn't invoked
-    // again. This means that a function was entered and immediately
-    // exited (e.g. a setTimeout() callback that doesn't call any
-    // functions). Record the function exit and clear the pending
-    // filter operation.
-    GCHECK(!IsCallFilterActive());
-    profile_->OnFunctionExit(&function_info);
-    apply_filter_pending_ = false;
-    return;
-  }
-
   if (filter_depth_ == GetStackDepth(frame)) {
     // We're at the function return point that matches the point where we
     // applied the filter, so we should un-apply the filter here.
     profile_->OnFunctionExit(&function_info);
     UpdateCallFilter(frame, false);
+  } else if (!IsCallFilterActive()) {
+    if (pending_depth_ > 0) {
+      --pending_depth_;
+      profile_->OnFunctionExit(&function_info);
+    } else if (apply_filter_delayed_) {
+      profile_->OnFunctionExit(&function_info);
+      apply_filter_delayed_ = false;
+    }
   }
 }
 

@@ -19,6 +19,7 @@
 #include "call_graph_timeline_visitor.h"
 
 #include "call_graph_metadata.h"
+#include "call_graph_profile.h"
 #include "call_graph_timeline_event.h"
 #include "call_graph_timeline_event_set.h"
 #include "call_graph_util.h"
@@ -57,7 +58,9 @@ void CallGraphTimelineVisitor::OnEntry(
   const FunctionMetadata &data = *it->second;
   const char *identifier = data.file_name().c_str();
 
-  RecordTimelineEvents(tree, identifier);
+  if (CallGraphProfile::ShouldIncludeInProfile(identifier)) {
+    RecordTimelineEvents(tree, identifier);
+  }
 }
 
 void CallGraphTimelineVisitor::RecordTimelineEvents(

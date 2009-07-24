@@ -23,6 +23,7 @@ goog.provide('activity.TimelineManager');
 
 goog.require('activity.JsEventFetcher');
 goog.require('activity.NetworkObserver');
+goog.require('activity.Profiler');
 goog.require('activity.RequestObserver');
 goog.require('activity.TimelineModel');
 goog.require('activity.TimelineView');
@@ -303,15 +304,22 @@ activity.TimelineManager.prototype.getState = function() {
  * @private
  */
 activity.TimelineManager.prototype.onTimeoutCallback_ = function() {
-  var fetcherResult = this.fetcher_.onTimeoutCallback();
-  var networkResult = this.network_observer_.onTimeoutCallback();
-  var requestResult = this.request_observer_.onTimeoutCallback();
+  // Pause the JSD so as to minimize the overhead introduced by our
+  // own JS execution.
+  activity.Profiler.pause();
+  try {
+    var fetcherResult = this.fetcher_.onTimeoutCallback();
+    var networkResult = this.network_observer_.onTimeoutCallback();
+    var requestResult = this.request_observer_.onTimeoutCallback();
 
-  var shouldRunAgain = fetcherResult || networkResult || requestResult;
-  if (shouldRunAgain) {
-    this.timeoutId_ = this.timeoutFactory_.setTimeout(
-        this.boundOnTimeoutCallback_, this.timerDelayMsec_);
-  } else {
-    this.timeoutId_ = null;
+    var shouldRunAgain = fetcherResult || networkResult || requestResult;
+    if (shouldRunAgain) {
+      this.timeoutId_ = this.timeoutFactory_.setTimeout(
+          this.boundOnTimeoutCallback_, this.timerDelayMsec_);
+    } else {
+      this.timeoutId_ = null;
+    }
+  } finally {
+    activity.Profiler.unpause();
   }
 };
