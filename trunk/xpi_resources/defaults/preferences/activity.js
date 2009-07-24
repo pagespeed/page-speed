@@ -6,5 +6,3 @@ pref('extensions.Activity.ui_refresh_delay_msec', 150);
 pref('extensions.Activity.ui_data_available_instantaneous', true);
 
 pref('extensions.Activity.profile_js', true);
-pref('extensions.Activity.force_compatible_jsd', false);
-pref('extensions.Activity.ui_show_non_http_urls', false);

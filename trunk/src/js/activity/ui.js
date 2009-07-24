@@ -337,8 +337,6 @@ activity.ui.checkForIncompatibleAddOns_ = function(infoPanel) {
  * @private
  */
 activity.ui.timelineWindowOnLoad_ = function() {
-  var jsSupportLabel = activity.ui.getElementById_('activityJsSupportLabel');
-  jsSupportLabel.collapsed = activity.Profiler.isCompatibleJsd();
   activity.ui.populateIncompatibleAddOnsView_();
   activity.ui.updateUi_();
 };
@@ -445,8 +443,8 @@ activity.ui.startProfiler_ = function() {
   activity.ui.collectFullCallTrees_ = activity.preference.getBool(
       activity.ui.PREF_COLLECT_COMPLETE_CALL_GRAPHS_, false);
 
-  activity.ui.enableJsProfiling_ = activity.Profiler.isCompatibleJsd() &&
-      activity.preference.getBool(activity.ui.PREF_ENABLE_JS_PROFILING_, true);
+  activity.ui.enableJsProfiling_ = activity.preference.getBool(
+      activity.ui.PREF_ENABLE_JS_PROFILING_, true);
 
   activity.ui.appStateObserver_.register();
 
