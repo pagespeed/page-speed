@@ -68,9 +68,11 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/dnsLint.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/resultsContainer.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/duplicateResourceLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/resultsWriter.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/resultsContainer.js"/>
 
   <!--
     Command names exist in a namespace shared by all extensions.  To avoid
@@ -83,6 +85,8 @@
              oncommand="Firebug.PageSpeedModule.showPerformance()"/>
     <command id="cmd_page_speed_components"
              oncommand="Firebug.PageSpeedModule.showComponents()"/>
+    <command id="cmd_page_speed_json_export"
+             oncommand="Firebug.PageSpeedModule.openJsonExportDialog()"/>
     <command id="cmd_page_speed_help"
              oncommand="Firebug.PageSpeedModule.showHelp()"/>
   </commandset>
@@ -96,10 +100,21 @@
         <toolbarbutton id="psPerfButton" label="Analyze Performance"
                        class="toolbar-text-button" group="pagespeedButtons"
                        command="cmd_page_speed_performance"/>
+
         <spacer width="5px"/>
+
         <toolbarbutton id="psCompButton" label="Show Resources"
                        class="toolbar-text-button" group="pagespeedButtons"
                        command="cmd_page_speed_components"/>
+
+        <spacer width="5px"/>
+
+        <toolbarbutton id="psExportMenu" label="Export Results" group="pagespeedButtons" type="menu" disabled="true">
+          <menupopup>
+ 	    <menuitem id="psJsonExport" label="Write JSON file." command="cmd_page_speed_json_export"/>
+          </menupopup>
+        </toolbarbutton>
+
         <spacer width="5px"/>
         <toolbarbutton id="psHelpButton" label="Help"
                        class="toolbar-text-button" group="pagespeedButtons"

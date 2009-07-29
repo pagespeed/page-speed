@@ -79,8 +79,9 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
       // This will make them resistant to renaming, easier to encode,
       // and take fewer bytes when sending a beacon.
       name: lintRule.name,
-      score: lintRule.score
-      // TODO: Consider adding the html text of the rule.
+      score: lintRule.score,
+      warnings: lintRule.warnings,
+      information: lintRule.information
       // TODO: Add stats gathered by the rule, such as # bytes sent,
       // # extra RRTs, etc.
     };
@@ -128,6 +129,55 @@ PAGESPEED.ResultsContainer.prototype.addTags = function(tags, opt_prefix) {
  */
 PAGESPEED.ResultsContainer.prototype.toString = function(opt_space) {
   return JSON.stringify(this.results_, null, opt_space);
+};
+
+/**
+ * Attach a results container to a browser tab.
+ * @param {Object} browserTab The tab.
+ * @param {Object} The results container.
+ */
+PAGESPEED.ResultsContainer.addResultsContainerToTab = function(
+    browserTab, resultsContainer) {
+  if (!browserTab.pagespeed_) {
+    browserTab.pagespeed_ = {};
+  }
+  browserTab.pagespeed_.resultsContainer = resultsContainer;
+
+  // Because we just added results to |browserTab|, updateExportMenu()
+  // will enable the menu.
+  PAGESPEED.ResultsWriter.updateExportMenu({browserTab: browserTab});
+}
+
+/**
+ * Given a tabBrowser XUL object, get the results object for that tab.
+ * If scoring is not done, undefined is returned.
+ * @param {Object} browserTab The browser object which represents the tab
+ *     scores were computed in.
+ * @return {PAGESPEED.ResultsContainer|undefined} The results of the page in
+ *     |browserTab|.
+ */
+PAGESPEED.ResultsContainer.getResultsContainerByTab = function(browserTab) {
+  if (!browserTab.pagespeed_ || !browserTab.pagespeed_.resultsContainer) {
+    return undefined;
+  }
+  return browserTab.pagespeed_.resultsContainer;
+};
+
+if (PAGESPEED.PageSpeedContext) {
+  // When a user navigates from one URL to another, remove the results for
+  // the first URL.
+  PAGESPEED.PageSpeedContext.callbacks.unwatchWindow.addCallback(
+      function(data) {
+        var browserTab = data.browserTab;
+        if (!browserTab.pagespeed_ || !browserTab.pagespeed_.resultsContainer)
+          return;
+        delete browserTab.pagespeed_.resultsContainer;
+
+        // Update the status of the "Export Results" menu.
+        // We just removed the results container, so the menu
+        // will be disabled.
+        PAGESPEED.ResultsWriter.updateExportMenu(data);
+      });
 };
 
 })();  // End closure

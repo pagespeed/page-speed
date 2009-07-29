@@ -1132,7 +1132,7 @@ PAGESPEED.Utils = {  // Begin namespace
   /**
    * Strip URI fragment, i.e. anything after the #.
    * @param {string} uri A uri.
-   * @returns {string} |uri| without the #fragment.
+   * @return {string} |uri| without the #fragment.
    */
   stripUriFragment: function(uri) {
     return uri.replace(/#.*$/, '');
@@ -1168,7 +1168,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * to a node with no incoming edge is going to be right most of the time.
    *
    * @param {string} url A url scored by page speed.
-   * @returns {string} The shortest url that we redirected from to get to |url|.
+   * @return {string} The shortest url that we redirected from to get to |url|.
    */
   findPreRedirectUrl: function(url) {
     url = PAGESPEED.Utils.stripUriFragment(url);
