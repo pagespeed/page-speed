@@ -123,6 +123,7 @@ PAGESPEED.PageLoadTimer.prototype.onLinkIconAvailable = function() {return 0;};
  * Given a tabBrowser XUL object, get the time the last page load took.
  * @param {Object} browserTab The browser object which represents the tab
  *    scores were computed in.
+ * @return {number|undefined} The load time of the tab's page.
  */
 PAGESPEED.PageLoadTimer.getPageLoadTimeByTab = function(browserTab) {
   if (!browserTab.pagespeed_ || !browserTab.pagespeed_.pageLoadTimer) {

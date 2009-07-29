@@ -413,7 +413,7 @@ PAGESPEED.SelectorCost.prototype.getCost = function() {
 };
 
 /**
- * @returns {boolean} Does this selector have a :hover pseudo-selector
+ * @return {boolean} Does this selector have a :hover pseudo-selector
  *     applied to a non-anchor element?
  */
 PAGESPEED.SelectorCost.prototype.hasHoverWithoutAnchor = function() {

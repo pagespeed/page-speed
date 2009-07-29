@@ -212,8 +212,14 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
     row = row.nextSibling;
   }
 
+  // Build the results object.
   var resultsContainer = new PAGESPEED.ResultsContainer(
       browserTab, overallScore);
+
+  // Install the results container on the current tab, so that other code can
+  // fetch it.
+  PAGESPEED.ResultsContainer.addResultsContainerToTab(
+      browserTab, resultsContainer);
 
   // Pass the browser object that holds data for the current tab.
   // There is only one callback holder per window (which can contain
@@ -368,7 +374,9 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
       FBL.collapse(pagespeedButtons, !isPageSpeed);
 
       if (isPageSpeed) {
-        PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.execCallbacks({});
+        PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.execCallbacks({
+           browserTab: gBrowser.selectedBrowser
+        });
       }
     } catch (e) {
       logException('PageSpeedModule.showPanel()', e);
@@ -422,6 +430,13 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
     } catch (e) {
       logException('PageSpeedModule.showComponents()', e);
     }
+  },
+
+  openJsonExportDialog: function() {
+    // Get the object that represents the current tab.
+    var browserOfCurrentTab = gBrowser.selectedBrowser;
+
+    PAGESPEED.ResultsWriter.openJsonExportDialog(browserOfCurrentTab);
   },
 
   showHelp: function() {
@@ -510,7 +525,8 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
       if (win == win.top) {
         PAGESPEED.PageSpeedContext.callbacks.unwatchWindow.execCallbacks(
           {
-            window: win
+            window: win,
+            browserTab: gBrowser.selectedBrowser
           });
       }
     } catch (e) {
