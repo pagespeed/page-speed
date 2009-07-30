@@ -20,6 +20,7 @@
 
 goog.provide('activity.TimelineView');
 
+goog.require('activity.preference');
 goog.require('goog.Disposable');
 goog.require('goog.dispose');
 
@@ -783,6 +784,8 @@ activity.TimelineView.Row_.prototype.getCssClassNameForEvent_ =
       return 'cacheHitColor';
     case activity.TimelineEventType.DATA_AVAILABLE:
       return 'dataAvailableColor';
+    case activity.TimelineEventType.PAINT:
+      return 'paintColor';
     case activity.TimelineEventType.SOCKET_DATA:
       return 'socketDataColor';
   }

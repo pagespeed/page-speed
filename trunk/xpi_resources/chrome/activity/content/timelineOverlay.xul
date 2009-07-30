@@ -18,7 +18,8 @@
 
 <?xml-stylesheet href="chrome://activity/content/activity.css"?>
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
 
   <vbox id="activityVbox">
     <deck id="activityContent" flex="1" selectedIndex="0">
@@ -41,14 +42,20 @@
         <label>Page Speed Activity Copyright 2009 Google Inc.</label>
         <spacer height="25"/>
       </vbox>
-      <grid id="activityGrid" class="scroll">
-        <columns>
-          <!-- this column contains the URLs -->
-          <column flex="1" class="urlColumn"/>
-          <!-- this column contains the timelines -->
-          <column flex="10"/>
-        </columns>
-      </grid>
+      <hbox flex="1">
+        <grid id="activityGrid" class="scroll" flex="1">
+          <columns>
+            <!-- this column contains the URLs -->
+            <column flex="1" class="urlColumn"/>
+            <!-- this column contains the timelines -->
+            <column flex="10"/>
+          </columns>
+        </grid>
+        <splitter id="canvasSplitter" collapse="after" resizebefore="flex" collapsed="true">
+          <grippy/>
+        </splitter>
+        <vbox id="canvasPane" class="scrollY" align="center" collapsed="true"/>
+      </hbox>
     </deck>
     <hbox pack="end" style="background-color:#fff">
       <grid class="timelineLegend">
@@ -82,12 +89,13 @@
               <spacer class="timelineKeyBox requestSentColor"/>
               <label value="Send"/>
             </hbox>
-          </row>
-          <row>
             <hbox align="center" tooltiptext="Response data was read from the socket.">
               <spacer class="timelineKeyBox socketDataColor"/>
               <label value="Receive"/>
             </hbox>
+          </row>
+          <row>
+            <spacer/>
             <hbox align="center" tooltiptext="The resource was found in the browser cache.">
               <spacer class="timelineKeyBox cacheHitColor"/>
               <label value="Cache Hit"/>
@@ -95,6 +103,10 @@
             <hbox align="center" tooltiptext="Response data was made available to the UI.">
               <spacer class="timelineKeyBox dataAvailableColor"/>
               <label value="Data Available"/>
+            </hbox>
+            <hbox align="center" tooltiptext="The screen was repainted recently.">
+              <spacer class="timelineKeyBox paintColor"/>
+              <label value="Paint"/>
             </hbox>
             <hbox align="center" tooltiptext="JavaScript was parsed.">
               <spacer class="timelineKeyBox timelineParseColor"/>

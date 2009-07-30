@@ -73,6 +73,10 @@ spacer.dataAvailableColor {
   border-bottom: thin solid #121;
 }
 
+spacer.paintColor {
+  background-color: #000;
+}
+
 spacer.socketDataColor {
   background-color: #88c;
   border-top: thin solid #aae;
@@ -154,4 +158,8 @@ label.identifier {
 
 .scroll {
   overflow: auto;
+}
+
+.scrollY {
+  overflow-y: scroll;
 }

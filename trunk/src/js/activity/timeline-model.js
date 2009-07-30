@@ -114,8 +114,9 @@ activity.TimelineEventType = {
   CACHE_HIT: 6,
   SOCKET_DATA: 7,
   DATA_AVAILABLE: 8,
-  JS_PARSE: 9,
-  JS_EXECUTE: 10
+  PAINT: 9,
+  JS_PARSE: 10,
+  JS_EXECUTE: 11
 };
 
 /**
@@ -142,6 +143,7 @@ activity.TimelineEventType.ordinalToEventTypeMap_ = [
   activity.TimelineEventType.CACHE_HIT,
   activity.TimelineEventType.SOCKET_DATA,
   activity.TimelineEventType.DATA_AVAILABLE,
+  activity.TimelineEventType.PAINT,
   activity.TimelineEventType.JS_PARSE,
   activity.TimelineEventType.JS_EXECUTE
 ];
@@ -182,6 +184,7 @@ activity.TimelineEventType.isRequestEventType = function(eventType) {
     case activity.TimelineEventType.CACHE_HIT:
     case activity.TimelineEventType.SOCKET_DATA:
     case activity.TimelineEventType.DATA_AVAILABLE:
+    case activity.TimelineEventType.PAINT:
       return true;
     default:
       return false;

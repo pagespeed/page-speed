@@ -22,6 +22,7 @@
 goog.provide('activity.ObserverBase');
 
 goog.require('activity.TimelineModel');
+goog.require('goog.Disposable');
 
 /**
  * Construct a new ObserverBase.
@@ -153,6 +154,13 @@ activity.ObserverBase.prototype.unregister = function() {
   if (this.observerService_ != null) {
     this.observerService_.removeObserver(this, this.observerTopic_);
   }
+};
+
+/**
+ * @return {boolean} Whether or not this observer is registered.
+ */
+activity.ObserverBase.prototype.isRegistered = function() {
+  return this.isRegistered_;
 };
 
 /**
