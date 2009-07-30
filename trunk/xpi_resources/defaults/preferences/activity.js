@@ -6,3 +6,4 @@ pref('extensions.Activity.ui_refresh_delay_msec', 150);
 pref('extensions.Activity.ui_data_available_instantaneous', true);
 
 pref('extensions.Activity.profile_js', true);
+pref('extensions.Activity.canvas_width_px', 350);

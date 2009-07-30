@@ -23,6 +23,8 @@ goog.provide('activity.TimelineManager');
 
 goog.require('activity.JsEventFetcher');
 goog.require('activity.NetworkObserver');
+goog.require('activity.PaintObserver');
+goog.require('activity.PaintView');
 goog.require('activity.Profiler');
 goog.require('activity.RequestObserver');
 goog.require('activity.TimelineModel');
@@ -100,6 +102,20 @@ activity.TimelineManager.PREF_REFRESH_DELAY_MSEC_ = 'ui_refresh_delay_msec';
 activity.TimelineManager.DEFAULT_REFRESH_DELAY_MSEC_ = 150;
 
 /**
+ * Name of the preference that indicates the width of a canvas, in px.
+ * @type {string}
+ * @private
+ */
+activity.TimelineManager.PREF_CANVAS_WIDTH_PX_ = 'canvas_width_px';
+
+/**
+ * The default canvas width, in pixels.
+ * @type {number}
+ * @private
+ */
+activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_ = 350;
+
+/**
  * The js event fetcher, which queries the IActivityProfiler instance for
  * js timeline events, and pushes those events into the TimelineModel.
  * @type {activity.JsEventFetcher?}
@@ -111,13 +127,19 @@ activity.TimelineManager.prototype.fetcher_ = null;
  * @type {activity.NetworkObserver?}
  * @private
  */
-activity.TimelineManager.prototype.network_observer_ = null;
+activity.TimelineManager.prototype.networkObserver_ = null;
+
+/**
+ * @type {activity.PaintObserver?}
+ * @private
+ */
+activity.TimelineManager.prototype.paintObserver_ = null;
 
 /**
  * @type {activity.RequestObserver?}
  * @private
  */
-activity.TimelineManager.prototype.request_observer_ = null;
+activity.TimelineManager.prototype.requestObserver_ = null;
 
 /**
  * The timeline model, which dispatches timeline events to the view.
@@ -131,7 +153,14 @@ activity.TimelineManager.prototype.model_ = null;
  * @type {activity.TimelineView?}
  * @private
  */
-activity.TimelineManager.prototype.view_ = null;
+activity.TimelineManager.prototype.timelineView_ = null;
+
+/**
+ * The paint view, which renders the screen snapshots.
+ * @type {activity.PaintView?}
+ * @private
+ */
+activity.TimelineManager.prototype.paintView_ = null;
 
 /**
  * The handle returned from setTimeout, which we can use to cancel
@@ -163,15 +192,21 @@ activity.TimelineManager.prototype.state_ =
  * @param {number} startTimeUsec the start time, in microseconds.
  * @param {nsIDOMDocument} xulElementFactory A factory for creating DOM
  *     elements (e.g. the document object).
- * @param {nsIDOMElement} xulRowsElement The XUL rows element that we
+ * @param {nsIDOMElement} xulRowsElement The XUL rows element that
  *     will contain the UI timeline.
- */
+ * @param {nsIDOMElement} paintPaneElement The XUL element that
+ *     will contain the screen snapshots.
+ * @param {nsIDOMElement} paintPaneSplitter The XUL element that
+ *     is used to expand/collapse the paint pane.
+*/
 activity.TimelineManager.prototype.start = function(
     activityProfiler,
     observerService,
     startTimeUsec,
     xulElementFactory,
-    xulRowsElement) {
+    xulRowsElement,
+    paintPaneElement,
+    paintPaneSplitter) {
   this.reset();
 
   this.timerDelayMsec_ = activity.preference.getInt(
@@ -187,40 +222,62 @@ activity.TimelineManager.prototype.start = function(
     resolutionMsec = 2;
   }
 
-  this.view_ = new activity.TimelineView(
+  var canvasWidth = activity.preference.getInt(
+      activity.TimelineManager.PREF_CANVAS_WIDTH_PX_,
+      activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_);
+
+  this.timelineView_ = new activity.TimelineView(
       xulRowsElement,
       xulElementFactory,
       resolutionMsec * 1000);
 
+  this.paintView_ = new activity.PaintView(
+      paintPaneElement,
+      paintPaneSplitter,
+      xulElementFactory,
+      gBrowser,
+      canvasWidth);
+
   this.model_ = new activity.TimelineModel();
-  this.model_.addListener(this.view_);
+  this.model_.addListener(this.timelineView_);
 
   this.fetcher_ = new activity.JsEventFetcher(
     this.model_,
-    this.view_.getResolutionUsec(),
+    this.timelineView_.getResolutionUsec(),
     activityProfiler,
     this.callbackWrapper_);
 
-  this.network_observer_ = new activity.NetworkObserver(
+  this.networkObserver_ = new activity.NetworkObserver(
     activityProfiler,
     observerService,
     this.model_,
     startTimeUsec,
-    this.view_.getResolutionUsec(),
+    this.timelineView_.getResolutionUsec(),
     this.callbackWrapper_);
 
-  this.request_observer_ = new activity.RequestObserver(
+  this.paintObserver_ = new activity.PaintObserver(
+    activityProfiler,
+    xulElementFactory,
+    this.model_,
+    this.paintView_,
+    gBrowser,
+    startTimeUsec,
+    this.timelineView_.getResolutionUsec(),
+    this.callbackWrapper_);
+
+  this.requestObserver_ = new activity.RequestObserver(
     this.timeoutFactory_,
     activityProfiler,
     observerService,
     this.model_,
     startTimeUsec,
-    this.view_.getResolutionUsec(),
+    this.timelineView_.getResolutionUsec(),
     this.callbackWrapper_);
 
   this.fetcher_.start();
-  this.network_observer_.register();
-  this.request_observer_.register();
+  this.networkObserver_.register();
+  this.paintObserver_.register();
+  this.requestObserver_.register();
   this.timeoutId_ = this.timeoutFactory_.setTimeout(
       this.boundOnTimeoutCallback_, this.timerDelayMsec_);
 
@@ -235,11 +292,14 @@ activity.TimelineManager.prototype.stop = function() {
     this.fetcher_.stop();
   }
 
-  if (this.network_observer_) {
-    this.network_observer_.unregister();
+  if (this.networkObserver_) {
+    this.networkObserver_.unregister();
   }
-  if (this.request_observer_) {
-    this.request_observer_.unregister();
+  if (this.paintObserver_) {
+    this.paintObserver_.unregister();
+  }
+  if (this.requestObserver_) {
+    this.requestObserver_.unregister();
   }
   this.state_ = activity.TimelineManager.State.FINISHED;
 
@@ -255,12 +315,16 @@ activity.TimelineManager.prototype.stop = function() {
 activity.TimelineManager.prototype.reset = function() {
   this.stop();
 
-  if (this.view_) {
-    goog.dispose(this.view_);
+  if (this.timelineView_) {
+    goog.dispose(this.timelineView_);
+  }
+
+  if (this.paintView_) {
+    goog.dispose(this.paintView_);
   }
 
   if (this.model_) {
-    this.model_.removeListener(this.view_);
+    this.model_.removeListener(this.timelineView_);
     goog.dispose(this.model_);
   }
 
@@ -268,23 +332,29 @@ activity.TimelineManager.prototype.reset = function() {
     goog.dispose(this.fetcher_);
   }
 
-  if (this.network_observer_) {
-    goog.dispose(this.network_observer_);
+  if (this.networkObserver_) {
+    goog.dispose(this.networkObserver_);
   }
 
-  if (this.request_observer_) {
-    goog.dispose(this.request_observer_);
+  if (this.paintObserver_) {
+    goog.dispose(this.paintObserver_);
+  }
+
+  if (this.requestObserver_) {
+    goog.dispose(this.requestObserver_);
   }
 
   if (this.timeoutId_) {
     this.timeoutFactory_.clearTimeout(this.timeoutId_);
   }
 
-  this.view_ = null;
+  this.timelineView_ = null;
+  this.paintView_ = null;
   this.model_ = null;
   this.fetcher_ = null;
-  this.network_observer_ = null;
-  this.request_observer_ = null;
+  this.networkObserver_ = null;
+  this.paintObserver_ = null;
+  this.requestObserver_ = null;
   this.timeoutId_ = null;
   this.state_ = activity.TimelineManager.State.NOT_STARTED;
 };
@@ -309,15 +379,17 @@ activity.TimelineManager.prototype.onTimeoutCallback_ = function() {
   activity.Profiler.pause();
   try {
     var fetcherResult = this.fetcher_.onTimeoutCallback();
-    var networkResult = this.network_observer_.onTimeoutCallback();
-    var requestResult = this.request_observer_.onTimeoutCallback();
+    var networkResult = this.networkObserver_.onTimeoutCallback();
+    var paintResult = this.paintObserver_.onTimeoutCallback();
+    var requestResult = this.requestObserver_.onTimeoutCallback();
 
-    var shouldRunAgain = fetcherResult || networkResult || requestResult;
+    var shouldRunAgain =
+          fetcherResult || networkResult || paintResult || requestResult;
     if (shouldRunAgain) {
       this.timeoutId_ = this.timeoutFactory_.setTimeout(
           this.boundOnTimeoutCallback_, this.timerDelayMsec_);
     } else {
-      this.timeoutId_ = null;
+    this.timeoutId_ = null;
     }
   } finally {
     activity.Profiler.unpause();

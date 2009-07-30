@@ -469,12 +469,18 @@ activity.ui.startProfiler_ = function() {
       activity.ui.OBSERVER_SERVICE_INTERFACE_NAME_);
 
   var xulRowsElement = activity.ui.instantiateUi_();
+
+  var paintPaneElement = activity.ui.getElementById_('canvasPane');
+  var paintPaneSplitter = activity.ui.getElementById_('canvasSplitter');
+
   activity.ui.timelineManager_.start(
       activity.ui.activityProfiler_,
       observerService,
       activity.ui.startTimeUsec_,
       activity.ui.timelineWindow_.document,
-      xulRowsElement);
+      xulRowsElement,
+      paintPaneElement,
+      paintPaneSplitter);
 };
 
 /**
