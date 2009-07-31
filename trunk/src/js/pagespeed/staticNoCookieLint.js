@@ -110,7 +110,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.REQUEST_GROUP,
     'request.html#ServeFromCookielessDomain',
     staticNoCookieRule,
-    1.5
+    1.5,
+    'NoCookie'
   )
 );
 

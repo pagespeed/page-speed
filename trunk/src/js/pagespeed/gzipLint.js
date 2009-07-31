@@ -85,7 +85,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.PAYLOAD_GROUP,
     'payload.html#GzipCompression',
     compressionRule,
-    4.0
+    4.0,
+    'Gzip'
   )
 );
 

@@ -179,7 +179,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.REQUEST_GROUP,
     'request.html#MinimizeCookieSize',
     cookieSizeRule,
-    0.75
+    0.75,
+    'CookieSize'
   )
 );
 

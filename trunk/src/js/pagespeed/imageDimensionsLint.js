@@ -151,7 +151,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RENDERING_GROUP,
     'rendering.html#SpecifyImageDimensions',
     imageDimensionsLint,
-    1.75
+    1.75,
+    'ImgDims'
   )
 );
 
