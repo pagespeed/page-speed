@@ -165,7 +165,7 @@ PAGESPEED.UserAgentController = function() {
   };
 
   addUserAgentSettingsObj(
-      'Firefox 3 on Linux',
+      'Mozilla Firefox 3 on Linux',
       'Netscape',
       '5.0 (X11; en-US)',
       'Linux i686 (x86_64)',
@@ -176,7 +176,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Firefox 3 on Windows',
+      'Mozilla Firefox 3 on Windows',
       'Netscape',
       '5.0 (Windows; en-US)',
       'Win32',
@@ -187,7 +187,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Firefox 3.5 on Linux',
+      'Mozilla Firefox 3.5 on Linux',
       'Netscape',
       '5.0 (X11; en-US)',
       'Linux i686 (x86_64)',
@@ -198,7 +198,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Firefox 3.5 on Windows',
+      'Mozilla Firefox 3.5 on Windows',
       'Netscape',
       '5.0 (Windows; en-US)',
       'Win32',
@@ -209,7 +209,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Firefox 3.5 on Macintosh',
+      'Mozilla Firefox 3.5 on Macintosh',
       'Netscape',
       '5.0 (Macintosh; en-US)',
       'MacIntel',
@@ -220,7 +220,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Firefox 2 on Linux',
+      'Mozilla Firefox 2 on Linux',
       'Netscape',
       '5.0 (X11; en-US)',
       'Linux i686 (x86_64)',
@@ -231,7 +231,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Firefox 2 on Windows',
+      'Mozilla Firefox 2 on Windows',
       'Netscape',
       '5.0 (Windows; en-US)',
       'Win32',
@@ -242,7 +242,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Internet Explorer 7.0',
+      'Microsoft Internet Explorer 7.0',
       'Microsoft Internet Explorer',
       '4.0 (compatible; MSIE 7.0; Windows NT 5.1; ' +
       '.NET CLR 2.0.50727)',
@@ -254,7 +254,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Internet Explorer 6.0',
+      'Microsoft Internet Explorer 6.0',
       'Microsoft Internet Explorer',
       '4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)',
       'Win32',
@@ -264,7 +264,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Internet Explorer 5.0',
+      'Microsoft Internet Explorer 5.0',
       'Microsoft Internet Explorer',
       '4.0 (compatible; MSIE 5.01; Windows NT 5.0; ' +
       '.NET CLR 1.1.4322 .NET CLR 2.0.50727)',
@@ -276,7 +276,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Safari 4 on Macintosh',
+      'Apple Safari 4 on Macintosh',
       'Netscape',
       '5.0 (Macintosh; U; Intel Mac OS X 10_5_7; en-us) AppleWebKit/530.18 ' +
       '(KHTML, like Gecko) Version/4.0.1 Safari/530.18',
@@ -288,7 +288,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Safari 4 on Windows',
+      'Apple Safari 4 on Windows',
       'Netscape',
       '5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/530.17 ' +
       '(KHTML, like Gecko) Version/4.0 Safari/530.17',
@@ -300,7 +300,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Safari 3 on Macintosh',
+      'Apple Safari 3 on Macintosh',
       'Netscape',
       '5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) ' +
       'AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 ' +
@@ -314,7 +314,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Safari 2 on Macintosh',
+      'Apple Safari 2 on Macintosh',
       'Netscape',
       '5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/418.8 ' +
       '(KHTML, like Gecko) Safari/419.3',
@@ -336,7 +336,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Chrome 1.0 on Windows',
+      'Google Chrome 1.0 on Windows',
       'Netscape',
       '5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 ' +
       '(KHTML, like Gecko) Chrome/1.0.154.48 Safari/525.19',
@@ -349,7 +349,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Chrome 2.0 on Windows',
+      'Google Chrome 2.0 on Windows',
       'Netscape',
       '5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/530.5 ' +
       '(KHTML, like Gecko) Chrome/2.0.172.8 Safari/530.5',
@@ -362,7 +362,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Chrome 3.0 on Windows',
+      'Google Chrome 3.0 on Windows',
       'Netscape',
       '5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/531.3 ' +
       '(KHTML, like Gecko) Chrome/3.0.193.1 Safari/531.3',
@@ -391,7 +391,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'Android G1',
+      'Android Browser',
       'Netscape',
       '5.0 (Linux; U; Android 1.1; en-us; dream) AppleWebKit/525.10+ ' +
       '(KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2',
@@ -404,7 +404,7 @@ PAGESPEED.UserAgentController = function() {
       true);
 
   addUserAgentSettingsObj(
-      'iPhone',
+      'Apple Safari on iPhone',
       'AppleWebKit/420+ (KHTML, like Gecko)',
       'Version/3.0',
       'Mobile/1A542a Safari/419.3',
@@ -415,7 +415,7 @@ PAGESPEED.UserAgentController = function() {
       );
 
   addUserAgentSettingsObj(
-      'Internet Explorer 8.0',
+      'Microsoft Internet Explorer 8.0',
       'Microsoft Internet Explorer',
       '4.0 (compatible; MSIE 8.0; Windows NT 5.1; ' +
       'Trident/4.0; GoogleT5; .NET CLR 1.1.4322; .NET CLR 2.0.50727)',
@@ -427,7 +427,7 @@ PAGESPEED.UserAgentController = function() {
       false);
 
   addUserAgentSettingsObj(
-      'Internet Explorer 8.0, Compatibility View',
+      'Microsoft Internet Explorer 8.0, Compatibility View',
       'Microsoft Internet Explorer',
       '4.0 (compatible; MSIE 7.0; Windows NT 5.1; ' +
       'Trident/4.0; GoogleT5; .NET CLR 1.1.4322; .NET CLR 2.0.50727)',
