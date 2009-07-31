@@ -268,7 +268,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.PAYLOAD_GROUP,
     'payload.html#MinifyJS',
     minifyJsLint,
-    3.0
+    3.0,
+    'MinifyJS'
   )
 );
 

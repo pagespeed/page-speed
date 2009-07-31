@@ -110,7 +110,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RENDERING_GROUP,
     'rendering.html#PutCSSInHead',
     styleBlocksInBodyLint,
-    1.0
+    1.0,
+    'CssInHead'
   )
 );
 

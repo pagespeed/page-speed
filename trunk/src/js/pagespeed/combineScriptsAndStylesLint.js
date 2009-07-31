@@ -106,7 +106,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RTT_GROUP,
     'rtt.html#CombineJSandCSS',
     combineScriptsLint,
-    3.75
+    3.75,
+    'CombineJS'
   )
 );
 
@@ -116,7 +117,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RTT_GROUP,
     'rtt.html#CombineJSandCSS',
     combineStylesLint,
-    2.25
+    2.25,
+    'CombineCSS'
   )
 );
 

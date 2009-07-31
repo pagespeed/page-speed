@@ -639,7 +639,8 @@ var rule = new PAGESPEED.LintRule(
   PAGESPEED.PAYLOAD_GROUP,
   'payload.html#DeferLoadingJS',
   jsCoverageRule,
-  2.25
+  2.25,
+  'DeferJS'
 );
 
 /**

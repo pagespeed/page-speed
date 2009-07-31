@@ -152,7 +152,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RTT_GROUP,
     'rtt.html#ParallelizeDownloads',
     parallelizeDownloadRule,
-    2.5
+    2.5,
+    'ParallelDl'
   )
 );
 

@@ -640,7 +640,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RENDERING_GROUP,
     'rendering.html#UseEfficientCSSSelectors',
     inefficientCssLint,
-    0.75
+    0.75,
+    'CssSelect'
   )
 );
 

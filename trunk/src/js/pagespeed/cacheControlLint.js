@@ -591,7 +591,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.CACHE_GROUP,
     'caching.html#LeverageBrowserCaching',
     browserCachingRule,
-    4.0
+    4.0,
+    'BrowserCache'
   )
 );
 
@@ -601,7 +602,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.CACHE_GROUP,
     'caching.html#LeverageProxyCaching',
     proxyCachingRule,
-    3.0
+    3.0,
+    'ProxyCache'
   )
 );
 

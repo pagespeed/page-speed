@@ -228,7 +228,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RTT_GROUP,
     'rtt.html#MinimizeDNSLookups',
     dnsRule,
-    3.5
+    3.5,
+    'MinDns'
   )
 );
 

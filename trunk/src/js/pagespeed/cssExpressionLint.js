@@ -65,7 +65,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RENDERING_GROUP,
     'rendering.html#AvoidCSSExpressions',
     cssExpressionRule,
-    2.75
+    2.75,
+    'CssExpr'
   )
 );
 

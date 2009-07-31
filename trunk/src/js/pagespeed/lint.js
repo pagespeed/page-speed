@@ -192,14 +192,19 @@ PAGESPEED.LintRules = new PAGESPEED.LintRulesImpl();
  * @param {number} weight The weight for this rule [0.0-4.0]. Higher
  *     weighted rules have more impact on the overall score, and are
  *     displayed higher on the results list.
+ * @param {string} shortName A rule name short enough to be encoded as a
+ *     parameter in a beacon that sends results for storage.
  * @constructor
  */
-PAGESPEED.LintRule = function(name, type, href, lintFunction, weight) {
+PAGESPEED.LintRule = function(
+    name, type, href, lintFunction, weight, shortName) {
   this.name = name;
   this.type = type;
   this.weight = weight;
   this.href = href;
   this.lintFunction = lintFunction;
+  this.shortName = shortName;
+
   this.warnings = '';  // Used for lint warnings that count against the score.
   this.information = '';  // Used for information messages that don't count
                           // against the score.

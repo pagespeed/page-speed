@@ -79,6 +79,7 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
       // This will make them resistant to renaming, easier to encode,
       // and take fewer bytes when sending a beacon.
       name: lintRule.name,
+      shortName: lintRule.shortName,
       score: lintRule.score,
       warnings: lintRule.warnings,
       information: lintRule.information

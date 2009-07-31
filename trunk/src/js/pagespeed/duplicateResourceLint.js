@@ -78,7 +78,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.PAYLOAD_GROUP,
     'payload.html#duplicate_resources',
     duplicateResourceRule,
-    3.0
+    3.0,
+    'DupeRsrc'
   )
 );
 

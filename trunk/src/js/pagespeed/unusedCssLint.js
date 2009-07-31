@@ -310,7 +310,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.PAYLOAD_GROUP,
     'payload.html#RemoveUnusedCSS',
     unusedCssLint,
-    1.5
+    1.5,
+    'UnusedCSS'
   )
 );
 

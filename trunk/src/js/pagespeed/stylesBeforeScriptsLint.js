@@ -121,7 +121,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RTT_GROUP,
     'rtt.html#PutStylesBeforeScripts',
     stylesBeforeScriptsLint,
-    3.0
+    3.0,
+    'CssJsOrder'
   )
 );
 

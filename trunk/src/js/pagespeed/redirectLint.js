@@ -51,7 +51,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.RTT_GROUP,
     'rtt.html#AvoidRedirects',
     redirectRule,
-    1.5
+    1.5,
+    'MinRedirect'
   )
 );
 

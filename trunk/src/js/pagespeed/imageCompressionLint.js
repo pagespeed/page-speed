@@ -544,7 +544,8 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.PAYLOAD_GROUP,
     'payload.html#CompressImages',
     imageCompressionLint,
-    3.0
+    3.0,
+    'OptImgs'
   )
 );
 
