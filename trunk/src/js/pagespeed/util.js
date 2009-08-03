@@ -29,10 +29,14 @@
  */
 function PS_LOG(msg) {
   // We set PS_LOG.enabled at the end of this file.
-  if (!PS_LOG.enabled) return;
-  var consoleService = Components.classes['@mozilla.org/consoleservice;1']
-    .getService(Components.interfaces.nsIConsoleService);
-  consoleService.logStringMessage(msg);
+  if (PS_LOG.enabled) {
+    var consoleService = Components.classes['@mozilla.org/consoleservice;1']
+        .getService(Components.interfaces.nsIConsoleService);
+    consoleService.logStringMessage(msg);
+  }
+  if (PS_LOG.dump) {
+    dump(['PS_LOG: ', msg, '\n'].join(''));
+  }
 }
 
 // Define a namespace.
@@ -2266,6 +2270,10 @@ PAGESPEED.Utils = {  // Begin namespace
 try {
   PS_LOG.enabled = PAGESPEED.Utils.getBoolPref(
       'extensions.PageSpeed.enable_console_logging', false);
+
+  PS_LOG.dump = PAGESPEED.Utils.getBoolPref(
+      'extensions.PageSpeed.enable_dump_logging', false);
+
 } catch (e) {
   // Code above will fail in unit tests because the prefs service
   // does not yet exist.  Even if the unit test mocks the prefs
