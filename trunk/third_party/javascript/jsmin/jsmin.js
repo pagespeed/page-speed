@@ -279,7 +279,7 @@ var JSMIN = {
         return r.join('');
     }
 
-    return m(input);
+    return m();
 
 }
 

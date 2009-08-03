@@ -34,3 +34,4 @@ Local Modifications:
 6. Changed API to no longer accept a level and/or comment, since this
    functionality is not part of the original jsmin.c
 
+7. Removed unused 'input' parameter passed to function m().
