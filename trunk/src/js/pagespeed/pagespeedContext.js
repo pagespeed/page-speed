@@ -432,6 +432,32 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
     }
   },
 
+  exportMenuItemChosen: function(menuItem) {
+    try {
+      // Get the object that represents the current tab.
+      var browserOfCurrentTab = gBrowser.selectedBrowser;
+      var resultsContainer =
+          PAGESPEED.ResultsContainer.getResultsContainerByTab(
+              browserOfCurrentTab);
+
+      switch(menuItem) {
+        case 'psJsonExport':
+          PAGESPEED.ResultsWriter.openJsonExportDialog(resultsContainer);
+          break;
+
+        case 'psFullResultsBeacon':
+          PAGESPEED.fullResultsBeacon.sendBeacon(resultsContainer);
+          break;
+
+        default:
+          PS_LOG('Unknown menu item "' + menuItem + '".');
+      }
+
+    } catch (e) {
+      logException('PageSpeedModule.exportMenuItemChosen(' + menuItem + ')', e);
+    }
+  },
+
   openJsonExportDialog: function() {
     // Get the object that represents the current tab.
     var browserOfCurrentTab = gBrowser.selectedBrowser;

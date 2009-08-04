@@ -2263,6 +2263,26 @@ PAGESPEED.Utils = {  // Begin namespace
         '@mozilla.org/toolkit/app-startup;1',
         'nsIAppStartup');
     service.quit(Components.interfaces.nsIAppStartup.eForceQuit);
+  },
+
+  /**
+   * Get an nsIURL from a url string.
+   * @param {string} urlStr A url.
+   * @return {nsIURL|null} An nsIURL if the input is valid, null if not.
+   */
+  urlFromString: function(urlStr) {
+    try {
+      var uri = PAGESPEED.Utils.CCSV(
+          '@mozilla.org/network/io-service;1',
+          'nsIIOService').newURI(urlStr, null, null);
+
+      var url = uri.QueryInterface(Components.interfaces.nsIURL);
+    } catch(e) {
+      // the URI is not an URL
+      return null;
+    }
+
+    return url;
   }
 };  // End namespace
 

@@ -53,9 +53,9 @@ PAGESPEED.ResultsWriter.writeToFile = function(filePath, resultsContainer) {
 
 /**
  * Open a save dialog box, and save the current results.
- * @param {Object} browserTab The tab whose results will be written.
+ * @param {Object} resultsContainer The results to be exported.
  */
-PAGESPEED.ResultsWriter.openJsonExportDialog = function(browserTab) {
+PAGESPEED.ResultsWriter.openJsonExportDialog = function(resultsContainer) {
   // Open a save as dialog box:
   var fp = PAGESPEED.Utils.CCIN(
       '@mozilla.org/filepicker;1', 'nsIFilePicker');
@@ -69,10 +69,6 @@ PAGESPEED.ResultsWriter.openJsonExportDialog = function(browserTab) {
     // User canceled.  Nothing to do.
     return;
   }
-
-  // Get the results object.
-  var resultsContainer =
-    PAGESPEED.ResultsContainer.getResultsContainerByTab(browserTab);
 
   // Save the selected file.
   PAGESPEED.ResultsWriter.writeToFile(fp.file.path, resultsContainer);
