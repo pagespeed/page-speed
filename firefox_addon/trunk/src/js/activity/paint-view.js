@@ -24,8 +24,8 @@ goog.provide('activity.PaintView');
 goog.require('goog.Disposable');
 
 /**
- * @param {nsIDOMElement} paintPaneElement The DOM object we should
- *     add the canvas elements to.
+ * @param {nsIDOMElement} paintPaneRoot The root DOM object that
+ *     contains the canvas elements.
  * @param {nsIDOMElement} paintPaneSplitter The XUL element that
  *     is used to expand/collapse the paint pane.
  * @param {nsIDOMDocument} xulElementFactory A factory for creating DOM
@@ -35,7 +35,7 @@ goog.require('goog.Disposable');
  * @constructor
  * @extends {goog.Disposable}
  */
-activity.PaintView = function(paintPaneElement,
+activity.PaintView = function(paintPaneRoot,
                               paintPaneSplitter,
                               xulElementFactory,
                               tabBrowser,
@@ -47,7 +47,14 @@ activity.PaintView = function(paintPaneElement,
    * @type {nsIDOMElement}
    * @private
    */
-  this.paintPaneElement_ = paintPaneElement;
+  this.paintPaneRoot_ = paintPaneRoot;
+
+  /**
+   * The XUL dom element that contains the canvases.
+   * @type {nsIDOMElement}
+   * @private
+   */
+  this.paintPaneContainer_ = paintPaneRoot.firstChild;
 
   /**
    * The XUL dom element used to expand/collapse the paint pane.
@@ -90,6 +97,16 @@ goog.inherits(activity.PaintView, goog.Disposable);
 activity.PaintView.MIN_HIGHLIGHTED_PIXELS_ = 14;
 
 /**
+ * Maximum number of pixels to capture from screen to canvas, in
+ * either dimension (x or y). We set this limit because performing
+ * screen captures of very large pages causes the browser to come to a
+ * halt. Capturing max 2500x2500 is a nice compromise.
+ * @type {number}
+ * @private
+ */
+activity.PaintView.MAX_DIMENSION_PIXELS_ = 2500;
+
+/**
  * @type {string}
  * @private
  */
@@ -120,7 +137,8 @@ activity.PaintView.prototype.disposeInternal = function() {
   this.removeAllChildren_();
 
   this.xulElementFactory_ = null;
-  this.paintPaneElement_ = null;
+  this.paintPaneRoot_ = null;
+  this.paintPaneContainer_ = null;
   this.paintPaneSplitter_ = null;
 };
 
@@ -149,7 +167,35 @@ activity.PaintView.prototype.onPaintEvent = function(win, event) {
     return;
   }
 
-  var ratio = contentWidth / contentHeight;
+  var xOffset = 0;
+  var clampedWidth =
+      Math.min(contentWidth, activity.PaintView.MAX_DIMENSION_PIXELS_);
+  if (clampedWidth < contentWidth) {
+    if (win.scrollMaxX == 0) {
+      // If we're clamping the width, center the content if it
+      // can't be scrolled horizontally. We do this because most web
+      // pages center themselves left-to-right within the browser.
+      xOffset = Math.round((contentWidth - clampedWidth) / 2);
+    } else {
+      // Otherwise take a snapshot that starts at the x scroll point.
+      var maxScrollX = contentWidth - activity.PaintView.MAX_DIMENSION_PIXELS_;
+      xOffset = Math.max(0, Math.min(maxScrollX, win.scrollX));
+    }
+  }
+
+  var yOffset = 0;
+  var clampedHeight =
+      Math.min(contentHeight, activity.PaintView.MAX_DIMENSION_PIXELS_);
+  if (clampedHeight < contentHeight) {
+    // Start the snapshot at the y scroll point.
+    var maxScrollY = contentHeight - activity.PaintView.MAX_DIMENSION_PIXELS_;
+    yOffset = Math.max(0, Math.min(maxScrollY, win.scrollY));
+  }
+
+  // TODO: consider returning early if event.boundingClientRect falls
+  // entirely outside of the clipped region.
+
+  var ratio = clampedWidth / clampedHeight;
   var canvasHeight = Math.round(this.canvasWidth_ / ratio);
 
   var canvas = this.xulElementFactory_.createElementNS(
@@ -164,30 +210,41 @@ activity.PaintView.prototype.onPaintEvent = function(win, event) {
   // Specify the properties of the canvas within the canvas pane.
   canvas.style.width = this.canvasWidth_ + 'px';
   canvas.style.height = canvasHeight + 'px';
-  canvas.style.border = 'thin solid black';
+  canvas.className = 'screenshot';
 
   var ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, this.canvasWidth_, canvasHeight);
   ctx.save();
 
   // Scale the canvas so we can use screen coordinates.
-  ctx.scale(this.canvasWidth_ / contentWidth, canvasHeight / contentHeight);
+  ctx.scale(this.canvasWidth_ / clampedWidth, canvasHeight / clampedHeight);
 
   // Draw the window contents into the canvas.
   ctx.drawWindow(
-      win, 0, 0, contentWidth, contentHeight, activity.PaintView.WHITE_);
+      win,
+      xOffset,
+      yOffset,
+      clampedWidth,
+      clampedHeight,
+      activity.PaintView.WHITE_);
+
+  ctx.save();
+
+  // Translate the canvas coordinates by the x and y offsets.
+  ctx.translate(-xOffset, -yOffset);
 
   this.shadeOffScreenRegions_(ctx, win, contentWidth, contentHeight);
-  this.highlightPaintedRegions_(ctx, event.clientRects);
+  this.highlightPaintedRegions_(ctx, win, event.clientRects);
 
+  ctx.restore();
   ctx.restore();
 
   // Make sure the paint pane and its splitter are unhidden now that
   // we have captured a screen snapshot.
-  this.paintPaneElement_.setAttribute('collapsed', false);
+  this.paintPaneRoot_.setAttribute('collapsed', false);
   this.paintPaneSplitter_.setAttribute('collapsed', false);
 
-  this.paintPaneElement_.appendChild(canvas);
+  this.paintPaneContainer_.appendChild(canvas);
 };
 
 /**
@@ -234,11 +291,18 @@ function getHighlightedPixelsOffset(val) {
 /**
  * Highlight the regions that were just painted to the screen.
  * @param {Object} ctx The canvas context.
+ * @param {nsIDOMWindow} win The window.
  * @param {Array} rects The DOM window.
  * @private
  */
-activity.PaintView.prototype.highlightPaintedRegions_ = function(ctx, rects) {
+activity.PaintView.prototype.highlightPaintedRegions_ =
+    function(ctx, win, rects) {
   ctx.save();
+
+  // The highlighted region coordinates are relative to the window's
+  // current scroll region, so we need to translate into page
+  // coordinates.
+  ctx.translate(win.scrollX, win.scrollY);
   ctx.fillStyle = activity.PaintView.HIGHLIGHT_REGION_STYLE_;
   ctx.strokeStyle = activity.PaintView.BLACK_;
   for (var i = 0, len = rects.length; i < len; i++) {
@@ -266,7 +330,7 @@ activity.PaintView.prototype.highlightPaintedRegions_ = function(ctx, rects) {
  * @private
  */
 activity.PaintView.prototype.removeAllChildren_ = function() {
-  var canvasParent = this.paintPaneElement_;
+  var canvasParent = this.paintPaneContainer_;
   if (!canvasParent) {
     return;
   }

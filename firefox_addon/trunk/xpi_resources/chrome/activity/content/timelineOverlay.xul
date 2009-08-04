@@ -43,83 +43,107 @@
         <spacer height="25"/>
       </vbox>
       <hbox flex="1">
-        <grid id="activityGrid" class="scroll" flex="1">
-          <columns>
-            <!-- this column contains the URLs -->
-            <column flex="1" class="urlColumn"/>
-            <!-- this column contains the timelines -->
-            <column flex="10"/>
-          </columns>
-        </grid>
+        <vbox flex="1">
+          <grid id="activityGrid" class="scroll" flex="1">
+            <columns>
+              <!-- this column contains the URLs -->
+              <column flex="1" class="urlColumn"/>
+              <!-- this column contains the timelines -->
+              <column flex="10"/>
+            </columns>
+          </grid>
+	  <hbox pack="end">
+	    <grid class="legend">
+              <columns>
+		<column class="legendColumn"/>
+		<column class="legendColumn"/>
+		<column class="legendColumn"/>
+		<column class="legendColumn"/>
+		<column class="legendColumn"/>
+		<column class="legendColumn"/>
+              </columns>
+              <rows>
+		<row>
+		  <hbox align="center" tooltiptext="Time spent waiting for a connection to become available.">
+		    <spacer class="timelineKeyBox networkWaitColor"/>
+		    <label value="Wait"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="Time spent waiting for a DNS lookup to complete.">
+		    <spacer class="timelineKeyBox dnsLookupColor"/>
+		    <label value="DNS"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="Time spent waiting for a TCP connection to be established.">
+		    <spacer class="timelineKeyBox tcpConnectingColor"/>
+		    <label value="Connect"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="TCP connection is open">
+		    <spacer class="timelineKeyBox tcpConnectedColor"/>
+		    <label value="Connected"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="Request data was written to the socket.">
+		    <spacer class="timelineKeyBox requestSentColor"/>
+		    <label value="Send"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="Response data was read from the socket.">
+		    <spacer class="timelineKeyBox socketDataColor"/>
+		    <label value="Receive"/>
+		  </hbox>
+		</row>
+		<row>
+		  <spacer/>
+		  <hbox align="center" tooltiptext="The resource was found in the browser cache.">
+		    <spacer class="timelineKeyBox cacheHitColor"/>
+		    <label value="Cache Hit"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="Response data was made available to the UI.">
+		    <spacer class="timelineKeyBox dataAvailableColor"/>
+		    <label value="Data Available"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="The screen was repainted recently.">
+		    <spacer class="timelineKeyBox paintColor"/>
+		    <label value="Paint"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="JavaScript was parsed.">
+		    <spacer class="timelineKeyBox timelineParseColor"/>
+		    <label value="JS Parse"/>
+		  </hbox>
+		  <hbox align="center" tooltiptext="JavaScript executed.">
+		    <spacer class="timelineKeyBox timelineExecuteColor"/>
+		    <label value="JS Execute"/>
+		  </hbox>
+		</row>
+              </rows>
+	    </grid>
+	  </hbox>
+        </vbox>
         <splitter id="canvasSplitter" collapse="after" resizebefore="flex" collapsed="true">
           <grippy/>
         </splitter>
-        <vbox id="canvasPane" class="scrollY" align="center" collapsed="true"/>
+        <vbox id="canvasPane" collapsed="true">
+          <vbox class="scrollY" flex="1" align="center"/>
+          <hbox pack="end">
+            <grid class="legend">
+              <columns>
+                <column class="legendColumn"/>
+                <column class="legendColumn"/>
+              </columns>
+              <rows>
+                <row>
+                  <hbox align="center" tooltiptext="The region was painted to the screen.">
+                    <spacer class="timelineKeyBox canvasPaintHighlight"/>
+                    <label value="Paint"/>
+                  </hbox>
+                  <hbox align="center" tooltiptext="The region was outside of the viewport (not visible to the user).">
+                    <spacer class="timelineKeyBox canvasOffScreen"/>
+                    <label value="Off Screen"/>
+                  </hbox>
+                </row>
+              </rows>
+            </grid>
+          </hbox>
+        </vbox>
       </hbox>
     </deck>
-    <hbox pack="end" style="background-color:#fff">
-      <grid class="timelineLegend">
-        <columns>
-          <column class="timelineColumn"/>
-          <column class="timelineColumn"/>
-          <column class="timelineColumn"/>
-          <column class="timelineColumn"/>
-          <column class="timelineColumn"/>
-          <column class="timelineColumn"/>
-        </columns>
-        <rows>
-          <row>
-            <hbox align="center" tooltiptext="Time spent waiting for a connection to become available.">
-              <spacer class="timelineKeyBox networkWaitColor"/>
-              <label value="Connection Wait"/>
-            </hbox>
-            <hbox align="center" tooltiptext="Time spent waiting for a DNS lookup to complete.">
-              <spacer class="timelineKeyBox dnsLookupColor"/>
-              <label value="DNS"/>
-            </hbox>
-            <hbox align="center" tooltiptext="Time spent waiting for a TCP connection to be established.">
-              <spacer class="timelineKeyBox tcpConnectingColor"/>
-              <label value="Connect"/>
-            </hbox>
-            <hbox align="center" tooltiptext="TCP connection is open">
-              <spacer class="timelineKeyBox tcpConnectedColor"/>
-              <label value="Connected"/>
-            </hbox>
-            <hbox align="center" tooltiptext="Request data was written to the socket.">
-              <spacer class="timelineKeyBox requestSentColor"/>
-              <label value="Send"/>
-            </hbox>
-            <hbox align="center" tooltiptext="Response data was read from the socket.">
-              <spacer class="timelineKeyBox socketDataColor"/>
-              <label value="Receive"/>
-            </hbox>
-          </row>
-          <row>
-            <spacer/>
-            <hbox align="center" tooltiptext="The resource was found in the browser cache.">
-              <spacer class="timelineKeyBox cacheHitColor"/>
-              <label value="Cache Hit"/>
-            </hbox>
-            <hbox align="center" tooltiptext="Response data was made available to the UI.">
-              <spacer class="timelineKeyBox dataAvailableColor"/>
-              <label value="Data Available"/>
-            </hbox>
-            <hbox align="center" tooltiptext="The screen was repainted recently.">
-              <spacer class="timelineKeyBox paintColor"/>
-              <label value="Paint"/>
-            </hbox>
-            <hbox align="center" tooltiptext="JavaScript was parsed.">
-              <spacer class="timelineKeyBox timelineParseColor"/>
-              <label value="JS Parse"/>
-            </hbox>
-            <hbox align="center" tooltiptext="JavaScript executed.">
-              <spacer class="timelineKeyBox timelineExecuteColor"/>
-              <label value="JS Execute"/>
-            </hbox>
-          </row>
-        </rows>
-      </grid>
-    </hbox>
 
     <!-- We define the <rows> template here. The TimelineView will inject a
          clone of this element into the DOM when the profiler is started. -->
