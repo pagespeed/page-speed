@@ -174,7 +174,7 @@ Firebug.ActivityModule = extend(Firebug.Module, {
         !panel.panelBrowser ||
         !panel.panelBrowser.contentDocument) return;
 
-    var isActivityProfiler = 'activity' == panel.name;
+    var isActivityProfiler = ('activity' == panel.name);
     if (!isActivityProfiler) activity.ui.performCommand('stopProfiler');
 
     var iframe =
@@ -189,10 +189,39 @@ Firebug.ActivityModule = extend(Firebug.Module, {
    */
   hideUI: function() {
     activity.ui.performCommand('reset');
+  },
+
+  /**
+   * @param {Object} context The context to evaluate.
+   * @return {boolean} Whether or not we should show the given context.
+   */
+  shouldShowContext: function(context) {
+    if (!context || !context.panelName) {
+      return false;
+  }
+    var isActivityProfiler = ('activity' == context.panelName);
+    return isActivityProfiler;
+  },
+
+  /**
+   * @param {Object} browser The browser instance.
+   * @param {string} url The URL being evaluated.
+   * @param {boolean?} userCommands Whether the user commanded us to
+   * take this action.
+   * @return {boolean} Whether or not we should create a context.
+   */
+  shouldCreateContext: function(browser, url, userCommands) {
+    var panel = Firebug.chrome.getSelectedPanel();
+    if (!panel) {
+      return false;
+    }
+    var isActivityProfiler = ('activity' == panel.name);
+    return isActivityProfiler;
   }
 });  // ActivityModule
 
 Firebug.registerPanel(ActivityPanel);
 Firebug.registerModule(Firebug.ActivityModule);
+TabWatcher.addListener(Firebug.ActivityModule);
 
 }});  // FBL.ns
