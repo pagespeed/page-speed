@@ -1,5 +1,5 @@
+#summary Explain the format of the beacons Page Speed can send.
 #labels Phase-Design
-# Explain the format of the beacons Page Speed can send.
 
 = Introduction =
 
@@ -53,3 +53,7 @@ The parameters sent are documented below.
 == Full Beacon ==
 
    TODO(skerner): Document the full beacon.
+
+
+== Comments ==
+* Because there is no automatic way to be notified of comments, we may not read them often.*  If you want to comment on this page, email page-speed-discuss@googlegroups.com . 
