@@ -1,0 +1,55 @@
+#labels Phase-Design
+# Explain the format of the beacons Page Speed can send.
+
+= Introduction =
+
+  An upcoming release of Page Speed will make it possible to send results to a web service.  This will allow people to archive results and see trends over time.  This page documents the format of the beacons that send results.  It is aimed at developers who wish to receive and process the beacons.
+
+= Details =
+
+  Page Speed supports two types of beacons.  The full beacon aims to record *every* detail of Page Speed's output.  The minimal beacon aims to send enough information to track page scores and vital statistics over time, while keeping the volume of information sent reasonable.  If all the information you care about is in the minimal beacon, you should use it.  
+
+  If neither beacon meets your needs, bring it up on page-speed-discuss@googlegroups.com .  Implementing a beacon is not hard, and we would be happy to add a new one if the existing beacons don't cover your use case.
+
+== Minimal Beacon ==
+
+   Progress on implementing the minimal beacon is tracked as [http://code.google.com/p/page-speed/issues/detail?id=58 issue 58].
+
+   The minimal beacon sends an http GET to a url with a set of key-value pairs encoded in the parameter string.  
+
+   Both the key and value are escaped with the javascript function encodeURIComponent().  This matters for urls, which have characters like : and / which will be escaped.  For example, consider the url 'http://www.example.com/test'.  It can not be sent as-is, because it contains the characters '/' and ':'.  We encode that url like this: 'http%3A%2F%2Fwww.example.com%2Ftest'.  Most CGI libraries have functions to undo this encoding.
+
+The parameters sent are documented below.
+
+|| *key* || *value* || *example* ||
+|| v || The version of Page Speed || 1.1 ||
+|| u || The URL scored || http%3A%2F%2Fwww.example.com%2Ftest (see the discussion of escaping above)||
+|| r || The total number of requests made by the browser when loading the page.|| 10 ||
+|| w || The uncompressed total size of all resources loaded by the page, in bytes.|| 1024 ||
+|| o || The overall score of the page.  This will be in 0-100.|| 89.2 ||
+|| l || The page load time in milliseconds.|| 5000 ||
+|| t || Transfer size of all resources loaded by the page, in bytes.  Because web servers can send compressed data, transfer size may be less than the size reported with the 'w' key.|| 500 ||
+|| pMinifyJS || Score for the rule 'Minify JavaScript' || 100 ||
+|| pOptImgs || Score for the rule 'Optimize images' || 100 ||
+|| pImgDims || Score for the rule 'Specify image dimensions' || 100 ||
+|| pCombineJS || Score for the rule 'Combine external JavaScript' || 100 ||
+|| pCombineCSS || Score for the rule 'Combine external CSS' || 100 ||
+|| pCssInHead || Score for the rule 'Put CSS in the document head' || 100 ||
+|| pBrowserCache || Score for the rule 'Leverage browser caching' || 100 ||
+|| pProxyCache || Score for the rule 'Leverage proxy caching' || 100 ||
+|| pNoCookie || Score for the rule 'Serve static content from a cookieless domain' || 100 ||
+|| pCookieSize || Score for the rule 'Minimize cookie size' || 100 ||
+|| pParallelDl || Score for the rule 'Parallelize downloads across hostnames' || 100 ||
+|| pCssSelect || Score for the rule 'Use efficient CSS selectors' || 100 ||
+|| pCssJsOrder || Score for the rule 'Optimize the order of styles and scripts' || 100 ||
+|| pDeferJS || Score for the rule 'Defer loading of JavaScript' || 100 ||
+|| pGzip || Score for the rule 'Enable gzip compression' || 100 ||
+|| pMinRedirect || Score for the rule 'Minimize redirects' || 100 ||
+|| pCssExpr || Score for the rule 'Avoid CSS expressions' || 100 ||
+|| pUnusedCSS || Score for the rule 'Remove unused CSS' || 100 ||
+|| pMinDns || Score for the rule 'Minimize DNS lookups' || 100 ||
+|| pDupeRsrc || Score for the rule 'Serve resources from a consistent URL' || 100 ||
+
+== Full Beacon ==
+
+   TODO(skerner): Document the full beacon.
