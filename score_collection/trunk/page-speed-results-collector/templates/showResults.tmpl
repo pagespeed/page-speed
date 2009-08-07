@@ -1,0 +1,24 @@
+<html>
+  <body>
+    <h1> {{ num_results }} most recent Page Speed results: </h1>
+
+    {% for ps_result in ps_results %}
+	{{ ps_result.time_received }}: Got a beacon.
+
+
+      {% if ps_result.is_valid %}
+	Url was {{ ps_result.initial_url }}.
+        Overall score was {{ ps_result.overall_score }}.
+      {% else %}
+	<b>It was invalid!</b>
+      {% endif %}
+
+      <br>
+
+    {% endfor %}
+    <br>
+
+    <a href="{{ page_speed_url }}">Page Speed Home</a>
+
+  </body>
+</html>
