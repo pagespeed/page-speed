@@ -66,7 +66,8 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
     numRequests: PAGESPEED.Utils.getTotalRequests(),
     pageSize: PAGESPEED.Utils.getTotalResourceSize(),
     transferSize: PAGESPEED.Utils.getTotalTransferSize(),
-    dateTime: (new Date).toString()
+    dateTime: (new Date).toString(),
+    overallScore: overallScore
   };
 
   // For each lint rule, save an object holding the rule name, score,
