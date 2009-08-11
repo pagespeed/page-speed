@@ -30,50 +30,53 @@ from google.appengine.ext.webapp import template
 import record_results
 
 
-class TestPostResults(unittest.TestCase):
+class TestFullBeaconReceiver(unittest.TestCase):
 
   def setUp(self):
     self.mox = mox.Mox()
 
     # Mock all datastore access calls.
-    self.mox.StubOutWithMock(record_results, 'BuildPageSpeedResult')
+    self.mox.StubOutWithMock(record_results, 'BuildFullResultRecord')
 
   def tearDown(self):
     self.mox.UnsetStubs()
 
   def testPostInvalidData(self):
-    """POST to PostResults with bad data should generate an invalid record."""
+    """Bad data POSTed to FullBeaconReceiver creates a record marked invalid."""
 
-    post_results = record_results.PostResults()
+    receiver = record_results.FullBeaconReceiver()
 
-    # Create a mock datastore object, and make BuildPageSpeedResult() return it.
-    mock_page_speed_result = self.mox.CreateMock(record_results.PageSpeedResult)
-    record_results.BuildPageSpeedResult().AndReturn(mock_page_speed_result)
+    # Have BuildFullResultRecord() return a mock datastore object.
+    mock_page_speed_result = self.mox.CreateMock(
+        record_results.FullResultRecord)
+    record_results.BuildFullResultRecord().AndReturn(mock_page_speed_result)
 
-    # Mock out post_results.request
-    post_results.request = self.mox.CreateMockAnything()
-    post_results.request.get('content').AndReturn('this is not valid JSON')
+    # Mock out receiver.request
+    receiver.request = self.mox.CreateMockAnything()
+    receiver.request.get('content').AndReturn('this is not valid JSON')
 
     mock_page_speed_result.put()
 
     self.mox.ReplayAll()
-    post_results.post()
+    receiver.post()
     self.mox.VerifyAll()
 
     self.assertFalse(mock_page_speed_result.is_valid)
 
   def testPostValidData(self):
-    """POST to PostResults with good data should generate a valid record."""
+    """POST to FullBeaconReceiver with good data should generate a valid record.
+    """
 
-    post_results = record_results.PostResults()
+    receiver = record_results.FullBeaconReceiver()
 
-    # Create a mock datastore object, and make BuildPageSpeedResult() return it.
-    mock_page_speed_result = self.mox.CreateMock(record_results.PageSpeedResult)
-    record_results.BuildPageSpeedResult().AndReturn(mock_page_speed_result)
+    # Have BuildFullResultRecord() return a mock datastore object.
+    mock_page_speed_result = self.mox.CreateMock(
+        record_results.FullResultRecord)
+    record_results.BuildFullResultRecord().AndReturn(mock_page_speed_result)
 
-    # Mock out post_results.request
-    post_results.request = self.mox.CreateMockAnything()
-    post_results.request.get('content').AndReturn(
+    # Mock out receiver.request
+    receiver.request = self.mox.CreateMockAnything()
+    receiver.request.get('content').AndReturn(
         '{'
         '  "pageStats": {'
         '    "initialUrl": "http://a.com/b",'
@@ -85,7 +88,7 @@ class TestPostResults(unittest.TestCase):
     mock_page_speed_result.put()
 
     self.mox.ReplayAll()
-    post_results.post()
+    receiver.post()
     self.mox.VerifyAll()
 
     self.assertTrue(mock_page_speed_result.is_valid)
@@ -93,23 +96,23 @@ class TestPostResults(unittest.TestCase):
     self.assertEquals(12345, mock_page_speed_result.transfer_size)
     self.assertEquals(100, mock_page_speed_result.overall_score)
 
-  def setupRequestHandlerObjs(self, request_handler):
+  def SetupRequestHandlerObjs(self, request_handler):
     """Add mocks for the web app objects set on a request handler."""
     request_handler.response = self.mox.CreateMockAnything()
     request_handler.response.out = self.mox.CreateMockAnything()
 
-  def testShowResultsNoData(self):
-    """Test that if there are no results, ShowResults shows nothing."""
+  def testFullBeaconShowerNoData(self):
+    """Test that if there are no results, FullBeaconShower shows nothing."""
 
-    self.mox.StubOutWithMock(record_results.PageSpeedResult, 'all')
+    self.mox.StubOutWithMock(record_results.FullResultRecord, 'all')
 
     # Object under test:
-    show_results = record_results.ShowResults()
-    self.setupRequestHandlerObjs(show_results)
+    results_show_handler = record_results.FullBeaconShower()
+    self.SetupRequestHandlerObjs(results_show_handler)
 
-    # Ask for all PageSpeedResult datastore records:
+    # Ask for all FullResultRecord datastore records:
     ps_result_query = self.mox.CreateMockAnything()
-    record_results.PageSpeedResult.all().AndReturn(ps_result_query)
+    record_results.FullResultRecord.all().AndReturn(ps_result_query)
 
     ps_result_all = self.mox.CreateMockAnything()
     ps_result_query.order('-time_received').AndReturn(ps_result_all)
@@ -127,23 +130,23 @@ class TestPostResults(unittest.TestCase):
                             ),
                     ).AndReturn('Render This String')
 
-    show_results.response.out.write('Render This String')
+    results_show_handler.response.out.write('Render This String')
 
     self.mox.ReplayAll()
-    show_results.get()
+    results_show_handler.get()
     self.mox.VerifyAll()
 
-  def testShowResultsShowsAllAvailable(self):
-    """Test that if there are a few results, ShowResults shows them."""
-    self.mox.StubOutWithMock(record_results.PageSpeedResult, 'all')
+  def testFullBeaconShowerShowsAllAvailable(self):
+    """Test that if there are a few results, FullBeaconShower shows them."""
+    self.mox.StubOutWithMock(record_results.FullResultRecord, 'all')
 
     # Object under test:
-    show_results = record_results.ShowResults()
-    self.setupRequestHandlerObjs(show_results)
+    results_show_handler = record_results.FullBeaconShower()
+    self.SetupRequestHandlerObjs(results_show_handler)
 
-    # Ask for all PageSpeedResult datastore records:
+    # Ask for all FullResultRecord datastore records:
     ps_result_query = self.mox.CreateMockAnything()
-    record_results.PageSpeedResult.all().AndReturn(ps_result_query)
+    record_results.FullResultRecord.all().AndReturn(ps_result_query)
 
     ps_result_all = self.mox.CreateMockAnything()
     ps_result_query.order('-time_received').AndReturn(ps_result_all)
@@ -161,10 +164,10 @@ class TestPostResults(unittest.TestCase):
                             ),
                     ).AndReturn('Render This String')
 
-    show_results.response.out.write('Render This String')
+    results_show_handler.response.out.write('Render This String')
 
     self.mox.ReplayAll()
-    show_results.get()
+    results_show_handler.get()
     self.mox.VerifyAll()
 
 
