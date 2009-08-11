@@ -171,5 +171,58 @@ class TestFullBeaconReceiver(unittest.TestCase):
     self.mox.VerifyAll()
 
 
+class TestMinimalBeaconReceiver(unittest.TestCase):
+
+  def setUp(self):
+    self.mox = mox.Mox()
+
+  def tearDown(self):
+    self.mox.UnsetStubs()
+
+  def testStoreMinimalBeacon(self):
+    """Test that a minimal beacon is stored properly."""
+
+    minimal_beacon_receiver = record_results.MinimalBeaconReceiver()
+
+    # Mock out minimal_beacon_receiver.request.params .
+    minimal_beacon_receiver.request = self.mox.CreateMockAnything()
+    minimal_beacon_receiver.request.params = self.mox.CreateMockAnything()
+
+    # Create a realistic beacon input by taking a set of key value
+    # pairs and turning it into a param string.  Also create the
+    # params that we expect.  This test almost re-implements the
+    # function under test, but it is useful because it ensures that
+    # a sample input will not throw an exception.
+    param_dict = {
+        'v': '1.1',
+        'u': 'http://www.example.com/path/to/data.html#label',
+        'w': '55975',
+        'pBrowserCache': '87.5'
+    }
+    # Send in the dict as a sequence of key-value pairs, just as the
+    # webapp framework will.
+    param_key_value_pairs = list(param_dict.iteritems())
+
+    minimal_beacon_receiver.request.params.items().AndReturn(
+        param_key_value_pairs)
+
+
+    # Expect that the datastore object has those params (with a prefix).
+    param_prefix_dict = dict(
+        [('param_%s' % k, param_dict[k]) for k in param_dict])
+
+    self.mox.StubOutWithMock(
+        record_results, 'MinimalBeaconRecord', use_mock_anything=True)
+    mock_min_beacon_record = self.mox.CreateMockAnything()
+
+    record_results.MinimalBeaconRecord(**param_prefix_dict).AndReturn(
+        mock_min_beacon_record)
+
+    mock_min_beacon_record.put()
+
+    self.mox.ReplayAll()
+    minimal_beacon_receiver.get()
+    self.mox.VerifyAll()
+
 if __name__ == '__main__':
     unittest.main()

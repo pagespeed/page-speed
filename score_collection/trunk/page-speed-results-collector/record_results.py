@@ -28,6 +28,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+PAGE_SPEED_URL = 'http://code.google.com/p/page-speed'
 
 class MainPage(webapp.RequestHandler):
   """A page to allow a user to see that they set up the server correctly."""
@@ -116,7 +117,6 @@ class FullBeaconShower(webapp.RequestHandler):
   """Produce a simple list of recorded results."""
 
   MAX_RESULTS_TO_DISPLAY = 100
-  PAGE_SPEED_URL = 'http://code.google.com/p/page-speed'
 
   def get(self):
     # Get the most recent results, ordered by the time they were recorded.
@@ -126,11 +126,61 @@ class FullBeaconShower(webapp.RequestHandler):
     template_values = {
       'num_results': len(ps_results),
       'ps_results': ps_results,
-      'page_speed_url': self.PAGE_SPEED_URL
+      'page_speed_url': PAGE_SPEED_URL
     }
     template_path = os.path.join(os.path.dirname(__file__),
                                  'templates',
                                  'showResults.tmpl')
+    self.response.out.write(template.render(template_path, template_values))
+
+
+class MinimalBeaconRecord(db.Expando):
+  """Store data from a minimal beacon."""
+
+  # Time we received the beacon.
+  time_received = db.DateTimeProperty(auto_now_add=True)
+
+  # This is an expando object, meaning that other properties
+  # will be added by users.  These properties will always
+  # start with 'param_' to ensure a malicious beacon can
+  # not overwrite methods of this object.  See MinimalBeacon.get().
+  # Docs on expando class:
+  # http://code.google.com/appengine/docs/python/datastore/expandoclass.html
+
+
+class MinimalBeaconReceiver(webapp.RequestHandler):
+  """Recieve and store results in the minimal beacon format."""
+
+  def get(self):
+    parms_dict = {}
+
+    for item, value in self.request.params.items():
+      # item and value are unicode strings.  Represent them as UTF8,
+      # so that the use of **params_dict below is legal python.
+      parms_dict['param_%s' % item.encode('utf-8')] = value.encode('utf-8')
+
+    record = MinimalBeaconRecord(**parms_dict)
+    record.put()
+
+
+class MinimalBeaconShower(webapp.RequestHandler):
+  """Produce a simple list of minimal beacon results."""
+
+  MAX_RESULTS_TO_DISPLAY = 100
+
+  def get(self):
+    # Get the most recent results, ordered by the time they were recorded.
+    query = MinimalBeaconRecord.all().order('-time_received')
+    query_results = query.fetch(self.MAX_RESULTS_TO_DISPLAY)
+
+    template_values = {
+      'num_results': len(query_results),
+      'min_beacon_data': query_results,
+      'page_speed_url': PAGE_SPEED_URL
+    }
+    template_path = os.path.join(os.path.dirname(__file__),
+                                 'templates',
+                                 'showMinResults.tmpl')
     self.response.out.write(template.render(template_path, template_values))
 
 
@@ -141,14 +191,18 @@ application = webapp.WSGIApplication(
      ('/beacon/full/receive', FullBeaconReceiver),
 
      # Show the last few page speed results objects received.
-     ('/beacon/full/show', FullBeaconShower)],
+     ('/beacon/full/show', FullBeaconShower),
+
+     # Recieve the minimal page speed results object.
+     ('/beacon/minimal/receive', MinimalBeaconReceiver),
+
+     # Show the last few  minimal page speed results received.
+     ('/beacon/minimal/show', MinimalBeaconShower)],
 
      debug=True)
 
-
 def main():
   run_wsgi_app(application)
-
 
 if __name__ == "__main__":
   main()
