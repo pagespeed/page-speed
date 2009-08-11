@@ -14,8 +14,8 @@
  * limitations under the License.
  *
  * @fileoverview Creates a control flow that makes multiple XMLHttpRequests in
- * parallel with a callback after each is completed and a callback after all are
- * completed.
+ * parallel with a callback after each is completed and a callback after all
+ * are completed.
  *
  * Example usage:
  *
@@ -29,8 +29,10 @@
  *   // Handle all complete.
  * }
  * var flow = new ParallelXhrFlow(onAllComplete);
- * flow.addRequest('http://myurl.com/path', 'foo=bar1', onComplete, onError);
- * flow.addRequest('http://myurl.com/path', 'foo=bar2', onComplete, onError);
+ * flow.addRequest('GET', 'http://myurl.com/path',
+                   'foo=bar1', null, onComplete, onError);
+ * flow.addRequest('POST', 'http://myurl.com/path',
+                   'foo=bar2', 'Post this string', onComplete, onError);
  * flow.sendRequests();
  *
  * @author Tony Gentilcore
@@ -54,8 +56,11 @@ PAGESPEED.ParallelXhrFlow = function(onAllComplete) {
  * Adds a new request that will be sent in parallel when sendRequests is
  * called.
  *
+ * @param {string} type The type of http message.  Usualy 'GET' or 'POST'.
  * @param {string} url The URL to POST to.
  * @param {string} params Parameters to pass to the URL.
+ * @param {string} data The text to send in the request.  Only used
+ *     when type=='POST'.
  * @param {Function} opt_onComplete Function to call when one request completes
  *     successfully with a 200 response code. The responseText of the response
  *     will be passed to this callback.
@@ -63,11 +68,20 @@ PAGESPEED.ParallelXhrFlow = function(onAllComplete) {
  *     an error or receives a non-200 status code. The status code of the
  *     response will be passed to this callback.
  */
-PAGESPEED.ParallelXhrFlow.prototype.addRequest = function(url, params,
+PAGESPEED.ParallelXhrFlow.prototype.addRequest = function(type,
+                                                          url,
+                                                          params,
+                                                          data,
                                                           opt_onComplete,
                                                           opt_onError) {
+  if (type != 'POST' && data) {
+    throw Error(['Can only send data with a POST.  type = ', type,
+                 ' url = ', url,
+                 ' data = ', data].join(''));
+  }
+
   var self = this;
-  var request = new PAGESPEED.XhrRequest(url, params,
+  var request = new PAGESPEED.XhrRequest(type, url, params, data,
                                          function(responseText) {
                                            self.onComplete_(
                                                opt_onComplete || null,
@@ -146,16 +160,21 @@ PAGESPEED.ParallelXhrFlow.prototype.onComplete_ = function(callback,
 /**
  * Creates an XMLHttpRequest for asynchronous POST.
  *
+ * @param {string} type The type of http message.  Usualy 'GET' or 'POST'.
  * @param {string} url The URL to POST to.
  * @param {string} params Parameters to pass to the URL.
+ * @param {string} data The text to send in the request.  Only used
+ *     when type=='POST'.
  * @param {Function} onComplete This is called on a change in the state of the
  *     request.
  * @param {Function} onError The function to call in the event of an error.
  * @constructor
  */
-PAGESPEED.XhrRequest = function(url, params, onComplete, onError) {
+PAGESPEED.XhrRequest = function(type, url, params, data, onComplete, onError) {
+  this.type = type;
   this.url = url;
   this.params = params;
+  this.data = data;
   this.onComplete = onComplete;
   this.onError = onError;
   this.didCallback = false;
@@ -167,7 +186,15 @@ PAGESPEED.XhrRequest = function(url, params, onComplete, onError) {
 PAGESPEED.XhrRequest.prototype.send = function() {
   var self = this;
   var oXhr = new XMLHttpRequest();
-  oXhr.open('POST', this.url, true);
+
+  var fullUrl;
+  if (this.params) {
+    fullUrl = [this.url, '?', this.params].join('');
+  } else {
+    fullUrl = this.url;
+  }
+
+  oXhr.open(this.type, fullUrl, true);
   oXhr.onerror = function() {
     if (!self.didCallback) {
       PS_LOG('ERROR making request:' +
@@ -190,7 +217,11 @@ PAGESPEED.XhrRequest.prototype.send = function() {
     }
   };
   oXhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  oXhr.setRequestHeader('Content-Length', this.params.length);
   oXhr.setRequestHeader('Connection', 'close');
-  oXhr.send(this.params);
+
+  if (this.data) {
+    oXhr.send(this.data);
+  } else {
+    oXhr.send();
+  }
 };
