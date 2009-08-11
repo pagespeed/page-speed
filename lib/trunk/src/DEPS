@@ -72,10 +72,10 @@ deps = {
 deps_os = {
   "win": {
     "src/third_party/cygwin":
-      "/trunk/deps/third_party/cygwin@11984",
+      Var("chromium_trunk") + "/deps/third_party/cygwin@11984",
 
     "src/third_party/python_24":
-      "/trunk/deps/third_party/python_24@19441",
+      Var("chromium_trunk") + "/deps/third_party/python_24@19441",
   },
   "mac": {
   },
