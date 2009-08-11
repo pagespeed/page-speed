@@ -23,6 +23,9 @@
 var FULL_RESULTS_BEACON_URL_PREF =
     'extensions.PageSpeed.beacon.full_results.url';
 
+var FULL_RESULTS_BEACON_ENABLED_PREF =
+    'extensions.PageSpeed.beacon.full_results.enabled';
+
 /**
  * @constructor
  */
@@ -30,37 +33,58 @@ PAGESPEED.FullResultsBeacon = function(beaconUrlPref) {
   this.beaconUrlPref_ = beaconUrlPref;
 };
 
+/**
+ * Build the string representation of the results container,
+ * which holds all page spped results.
+ * @param {Object} resultsContainer Object holding resilts data.
+ * @return {string} JSON encoded results.
+ */
 PAGESPEED.FullResultsBeacon.prototype.buildBeacon = function(resultsContainer) {
   return resultsContainer.toString();
 };
 
+/**
+ * Send a beacon to a service.
+ * @param {Object} resultsContainer The object which holds all results
+ *     for the tab we are scoring.
+ * @return {boolean} False if the beacon can not be sent.
+ */
 PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(resultsContainer) {
+
+  if (!PAGESPEED.Utils.getBoolPref(FULL_RESULTS_BEACON_ENABLED_PREF, false)) {
+    PS_LOG('Full beacon is not enabled.');
+    return false;
+  }
 
   var beaconUrl = PAGESPEED.Utils.getStringPref(this.beaconUrlPref_);
 
   if (!beaconUrl) {
     // TODO: If the user asked for a beacon to be sent, prompt
     // for a URL and set it in the pref.
-    PS_LOG('No Url to send full beacon to.');
-    return;
+    PS_LOG('No url to send full beacon to.');
+    return false;
   }
 
   if (!PAGESPEED.Utils.urlFromString(beaconUrl)) {
     PS_LOG(['Can\'t send full beacon, because the beacon url is ',
-            'not a valid URL: "', beaconUrl, '" .'].join(''));
+            'not well formed: "', beaconUrl, '" .'].join(''));
     return;
   }
 
   var xhrFlow = new PAGESPEED.ParallelXhrFlow();
-  xhrFlow.addRequest(beaconUrl,
+  xhrFlow.addRequest('POST',  // Contents are too large for a GET.
+                     beaconUrl,
+                     '',  // No params.
                      ['content=',
                       encodeURIComponent(resultsContainer.toString())
                       ].join(''),
-                     function() {PS_LOG('Beacon success.');},
-                     function() {PS_LOG('Beacon fail.');}
+                     null,  // no action on success.
+                     function() {PS_LOG('Full beacon fail.');}
                      );
 
   xhrFlow.sendRequests();
+
+  return true;
 };
 
 PAGESPEED.fullResultsBeacon =
