@@ -41,7 +41,7 @@ class MainPage(webapp.RequestHandler):
 # Objects that inherit from db.Model represent entries in the app
 # engine datastore.  See app engine docs for details:
 # http://code.google.com/appengine/docs/python/datastore/entitiesandmodels.html
-class PageSpeedResult(db.Model):
+class FullResultRecord(db.Model):
   """Datastore record which holds a single set of Page Speed results."""
 
   # Store the raw JSON encoded results sent to us.  This ensures that
@@ -66,16 +66,16 @@ class PageSpeedResult(db.Model):
   time_received = db.DateTimeProperty(auto_now_add=True)
 
 
-def BuildPageSpeedResult():
-  """Call this to build a PageSpeedResult object.  Makes unit tests simpler."""
-  return PageSpeedResult()
+def BuildFullResultRecord():
+  """Call this to build a FullResultRecord object.  Makes unit tests simpler."""
+  return FullResultRecord()
 
 
-class PostResults(webapp.RequestHandler):
+class FullBeaconReceiver(webapp.RequestHandler):
   """A JSON-encoded results object is decoded and stored in the data store."""
 
   def post(self):
-    page_speed_results = BuildPageSpeedResult()
+    page_speed_results = BuildFullResultRecord()
 
     # Save the raw data we receive.  We only parse and store parts of
     # it, and having the original content ensures that we never lose
@@ -112,7 +112,7 @@ class PostResults(webapp.RequestHandler):
       page_speed_results.put()
 
 
-class ShowResults(webapp.RequestHandler):
+class FullBeaconShower(webapp.RequestHandler):
   """Produce a simple list of recorded results."""
 
   MAX_RESULTS_TO_DISPLAY = 100
@@ -120,7 +120,7 @@ class ShowResults(webapp.RequestHandler):
 
   def get(self):
     # Get the most recent results, ordered by the time they were recorded.
-    ps_results_query = PageSpeedResult.all().order('-time_received')
+    ps_results_query = FullResultRecord.all().order('-time_received')
     ps_results = ps_results_query.fetch(self.MAX_RESULTS_TO_DISPLAY)
 
     template_values = {
@@ -136,8 +136,13 @@ class ShowResults(webapp.RequestHandler):
 
 application = webapp.WSGIApplication(
     [('/', MainPage),
-     ('/recordResults/postResults', PostResults),
-     ('/recordResults/showResults', ShowResults)],
+
+     # Recieve the full page speed results object.
+     ('/beacon/full/receive', FullBeaconReceiver),
+
+     # Show the last few page speed results objects received.
+     ('/beacon/full/show', FullBeaconShower)],
+
      debug=True)
 
 
