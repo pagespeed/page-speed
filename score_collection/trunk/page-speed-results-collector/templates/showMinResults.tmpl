@@ -1,0 +1,31 @@
+<html>
+  <body>
+    <h1> {{ num_results }} most recent Minimal Page Speed Beacons: </h1>
+
+
+    <!-- The beacon we expect is documented at
+         http://code.google.com/p/page-speed/wiki/BeaconDocs .
+         For now, we show a few sample parameters to demonstrate
+         that the beacon was recieved and stored. -->
+
+    {% for min_beacon in min_beacon_data %}
+	{{ min_beacon.time_received }}: Got a beacon. <br>
+	Url: {{ min_beacon.param_u }} <br>
+	Version: {{ min_beacon.param_v }} <br>
+	Requests: {{ min_beacon.param_r }} <br>
+	Page Size: {{ min_beacon.param_o }} <br>
+	Load time: {{ min_beacon.param_l }} <br>
+        Transfer Size: {{ min_beacon.param_t }} <br>
+
+	Css in Head: {{ min_beacon.param_pCssInHead }} <br>
+	Gzip contents: {{ min_beacon.param_pGzip }} <br>
+
+      <br>
+
+    {% endfor %}
+    <br>
+
+    <a href="{{ page_speed_url }}">Page Speed Home</a>
+
+  </body>
+</html>
