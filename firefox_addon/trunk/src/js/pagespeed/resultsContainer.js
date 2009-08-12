@@ -180,6 +180,6 @@ if (PAGESPEED.PageSpeedContext) {
         // will be disabled.
         PAGESPEED.ResultsWriter.updateExportMenu(data);
       });
-};
+}
 
 })();  // End closure

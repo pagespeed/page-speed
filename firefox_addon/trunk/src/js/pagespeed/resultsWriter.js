@@ -37,7 +37,7 @@ PAGESPEED.ResultsWriter.writeToFile = function(filePath, resultsContainer) {
     }
 
     var resultsStream = PAGESPEED.Utils.wrapWithInputStream(
-        resultsContainer.toString(2)+'\n');
+        resultsContainer.toString(2) + '\n');
 
     PAGESPEED.Utils.copyCompleteInputToOutput(
       resultsStream,
@@ -78,7 +78,7 @@ PAGESPEED.ResultsWriter.openJsonExportDialog = function(resultsContainer) {
  * This function enables or disables the "Export Results" menu
  * based on the presence of a resuls object on a tab.
  * @param {Object} data The properties of data we look at are:
- *     browserTab: The current tab
+ *     browserTab: The current tab.
  */
 PAGESPEED.ResultsWriter.updateExportMenu = function(data) {
   var browserTab = data.browserTab;

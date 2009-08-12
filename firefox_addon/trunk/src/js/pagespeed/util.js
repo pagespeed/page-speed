@@ -1237,7 +1237,7 @@ PAGESPEED.Utils = {  // Begin namespace
 
     var shortestFromUrl = sourceUrls[0];
 
-    for (var i = 1, len = sourceUrls.length; i < len; ++i ) {
+    for (var i = 1, len = sourceUrls.length; i < len; ++i) {
       var sourceUrl = sourceUrls[i];
 
       if (shortestFromUrl.length < sourceUrl.length)
@@ -2035,7 +2035,7 @@ PAGESPEED.Utils = {  // Begin namespace
 
     } catch (e) {
       PS_LOG('getOutputDir(): Failed to create output directory "' +
-             outputDir +'" due to an exception: ' +
+             outputDir + '" due to an exception: ' +
              PAGESPEED.Utils.formatException(e) + ')');
       return null;
     }
@@ -2268,7 +2268,7 @@ PAGESPEED.Utils = {  // Begin namespace
   /**
    * Get an nsIURL from a url string.
    * @param {string} urlStr A url.
-   * @return {nsIURL|null} An nsIURL if the input is valid, null if not.
+   * @return {?nsIURL} An nsIURL if the input is valid, null if not.
    */
   urlFromString: function(urlStr) {
     try {
@@ -2277,7 +2277,7 @@ PAGESPEED.Utils = {  // Begin namespace
           'nsIIOService').newURI(urlStr, null, null);
 
       var url = uri.QueryInterface(Components.interfaces.nsIURL);
-    } catch(e) {
+    } catch (e) {
       // the URI is not an URL
       return null;
     }
