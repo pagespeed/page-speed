@@ -440,7 +440,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
           PAGESPEED.ResultsContainer.getResultsContainerByTab(
               browserOfCurrentTab);
 
-      switch(menuItem) {
+      switch (menuItem) {
         case 'psJsonExport':
           PAGESPEED.ResultsWriter.openJsonExportDialog(resultsContainer);
           break;

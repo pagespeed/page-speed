@@ -1076,14 +1076,14 @@ function testFindPreRedirectUrl_simpleRedirectChain() {
   PAGESPEED.Utils.getComponents = function() {
     return {
       redirect: {
-        'http://a.com/':{
-          'elements':['http://b.com/'],
+        'http://a.com/': {
+          'elements': ['http://b.com/']
         },
-        'http://b.com/':{
-          'elements':['http://c.com/'],
+        'http://b.com/': {
+          'elements': ['http://c.com/']
         },
-        'http://unrelated.junk.com/':{
-          'elements':['http://http://unrelated.junk.org'],
+        'http://unrelated.junk.com/': {
+          'elements': ['http://http://unrelated.junk.org']
         }
       }
     };
@@ -1118,17 +1118,17 @@ function testFindPreRedirectUrl_complexRedirectChain() {
   PAGESPEED.Utils.getComponents = function() {
     return {
       redirect: {
-        'http://a.com/':{
-          'elements':['http://b1.com/', 'http://b2.com/'],
+        'http://a.com/': {
+          'elements': ['http://b1.com/', 'http://b2.com/']
         },
-        'http://b1.com/':{
-          'elements':['http://c.com/'],
+        'http://b1.com/': {
+          'elements': ['http://c.com/']
         },
-        'http://b2.com/':{
-          'elements':['http://c.com/'],
+        'http://b2.com/': {
+          'elements': ['http://c.com/']
         },
-        'http://unrelated.junk.com/':{
-          'elements':['http://http://unrelated.junk.org'],
+        'http://unrelated.junk.com/': {
+          'elements': ['http://http://unrelated.junk.org']
         }
       }
     };
@@ -1167,17 +1167,17 @@ function testFindPreRedirectUrl_preferShortUrls() {
   PAGESPEED.Utils.getComponents = function() {
     return {
       redirect: {
-        'http://aaaaaaa.com/':{
-          'elements':['http://dest.com/'],
+        'http://aaaaaaa.com/': {
+          'elements': ['http://dest.com/']
         },
-        'http://longname.com/':{
-          'elements':['http://b.com/'],
+        'http://longname.com/': {
+          'elements': ['http://b.com/']
         },
-        'http://b.com/':{
-          'elements':['http://dest.com/'],
+        'http://b.com/': {
+          'elements': ['http://dest.com/']
         },
-        'http://c.com/':{
-          'elements':['http://dest.com/'],
+        'http://c.com/': {
+          'elements': ['http://dest.com/']
         }
       }
     };
@@ -1199,14 +1199,14 @@ function testFindPreRedirectUrl_redirectCycle() {
   PAGESPEED.Utils.getComponents = function() {
     return {
       redirect: {
-        'http://a.com/':{
-          'elements':['http://cycle1.com/'],
+        'http://a.com/': {
+          'elements': ['http://cycle1.com/']
         },
-        'http://cycle1.com/':{
-          'elements':['http://cycle2.com/'],
+        'http://cycle1.com/': {
+          'elements': ['http://cycle2.com/']
         },
-        'http://cycle2.com/':{
-          'elements':['http://cycle1.com/', 'http://dest.com/'],
+        'http://cycle2.com/': {
+          'elements': ['http://cycle1.com/', 'http://dest.com/']
         }
       }
     };
@@ -1239,11 +1239,11 @@ function testFindPreRedirectUrl_noSourceUrlOutsiodeCycle() {
   PAGESPEED.Utils.getComponents = function() {
     return {
       redirect: {
-        'http://cycle1.com/':{
-          'elements':['http://cycle2.com/'],
+        'http://cycle1.com/': {
+          'elements': ['http://cycle2.com/']
         },
-        'http://cycle2.com/':{
-          'elements':['http://cycle1.com/', 'http://dest.com/'],
+        'http://cycle2.com/': {
+          'elements': ['http://cycle1.com/', 'http://dest.com/']
         }
       }
     };

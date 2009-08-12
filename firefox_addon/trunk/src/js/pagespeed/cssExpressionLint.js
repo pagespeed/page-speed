@@ -51,7 +51,7 @@ var cssExpressionRule = function() {
     this.score = 100 - (11 * numExpressions);
     this.warnings = [
       'Found ', numExpressions,
-      ' CSS expression', (numExpressions > 1 ? 's':''),
+      ' CSS expression', (numExpressions > 1 ? 's': ''),
       '. CSS expressions ',
       'should not be used because they degrade rendering performance ',
       'in Internet Explorer.<br>',
