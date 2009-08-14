@@ -15,7 +15,7 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@22936",
+  "chromium_revision": "@23366",
 }
 
 
