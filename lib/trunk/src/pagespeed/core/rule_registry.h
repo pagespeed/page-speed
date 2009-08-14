@@ -20,7 +20,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/singleton.h"
 
 namespace pagespeed {
 
@@ -52,7 +51,6 @@ class RuleFactoryTmpl : public RuleFactory {
 
 class RuleRegistry {
   typedef std::map<std::string, pagespeed::RuleFactory*> FactoryMap;
-  friend class DefaultSingletonTraits<RuleRegistry>;
 
  public:
   // Create a rule factory and associates it with the given rule id.
@@ -74,6 +72,7 @@ class RuleRegistry {
  private:
   // For singleton creation
   RuleRegistry();
+  static RuleRegistry* Singleton();
 
   pagespeed::Rule* New(const std::string& name) const;
   static void RegisterImpl(const std::string& name, RuleFactory* factory);

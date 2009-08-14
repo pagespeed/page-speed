@@ -26,10 +26,19 @@ RuleFactory::~RuleFactory() {
 RuleRegistry::RuleRegistry() : frozen_(false) {
 }
 
+RuleRegistry* RuleRegistry::Singleton() {
+  static RuleRegistry *singleton = NULL;
+  if (singleton == NULL) {
+    singleton = new RuleRegistry();
+  }
+
+  return singleton;
+}
+
 void RuleRegistry::CreateRuleInstances(const Options& options,
                                        std::vector<Rule*> *rule_instances) {
   CHECK(rule_instances != NULL);
-  RuleRegistry* instance = Singleton<RuleRegistry>::get();
+  RuleRegistry* instance = Singleton();
   CHECK(instance->frozen_)
       << "Tried to get a RuleFactory but the RuleRegistry is not frozen.  "
       << "Please call RuleRegistry::Freeze before instantiating rule engines.";
@@ -60,7 +69,7 @@ void RuleRegistry::CreateRuleInstances(const Options& options,
 }
 
 void RuleRegistry::Freeze() {
-  RuleRegistry* instance = Singleton<RuleRegistry>::get();
+  RuleRegistry* instance = Singleton();
   CHECK(!instance->frozen_) << "RuleRegistry::Freeze called multiple times.";
   instance->frozen_ = true;
 }
@@ -76,7 +85,7 @@ pagespeed::Rule* RuleRegistry::New(const std::string& name) const {
 }
 
 void RuleRegistry::RegisterImpl(const std::string& name, RuleFactory* factory) {
-  RuleRegistry* instance = Singleton<RuleRegistry>::get();
+  RuleRegistry* instance = Singleton();
   FactoryMap& factories = instance->factories_;
   CHECK(!instance->frozen_)
       << "Tried to register a rule but RuleRegistry is already frozen.  "
