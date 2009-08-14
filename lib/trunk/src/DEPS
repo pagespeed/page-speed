@@ -30,7 +30,7 @@ deps = {
     "http://protobuf.googlecode.com/svn/trunk@154",
 
   "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@580",
+    "http://gyp.googlecode.com/svn/trunk@591",
 
   # chromium deps
   "src/build/temp_gyp":
@@ -75,7 +75,7 @@ deps_os = {
       Var("chromium_trunk") + "/deps/third_party/cygwin@11984",
 
     "src/third_party/python_24":
-      Var("chromium_trunk") + "/deps/third_party/python_24@19441",
+      Var("chromium_trunk") + "/deps/third_party/python_24@22967",
   },
   "mac": {
   },
