@@ -113,7 +113,7 @@ activity.TimelineManager.PREF_CANVAS_WIDTH_PX_ = 'canvas_width_px';
  * @type {number}
  * @private
  */
-activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_ = 350;
+activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_ = 250;
 
 /**
  * The js event fetcher, which queries the IActivityProfiler instance for
