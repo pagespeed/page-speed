@@ -114,11 +114,12 @@ activity.PaintObserver.PAINT_EVENT_NAME_ = 'MozAfterPaint';
  *     version of Firefox.
  */
 activity.PaintObserver.prototype.isSupported = function() {
-  // We depend on MozAfterPaint events and the
-  // addTabsProgressListener, both of which were added in FF3.5. We
-  // aren't aware of a way to ask an event source if it dispatches
-  // events of a given name, so we just check for the presence of the
-  // addTabsProgressListener method on the tabbrowser object.
+  // We depend on the MozAfterPaint event, which was added in
+  // FF3.5. We know that addTabsProgressListener was also added in
+  // FF3.5. We aren't aware of a way to ask an event source if it
+  // dispatches events of a given name, so we just check for the
+  // presence of the addTabsProgressListener method on the tabbrowser
+  // object.
   return this.tabBrowser_.addTabsProgressListener != null;
 };
 
@@ -138,15 +139,14 @@ activity.PaintObserver.prototype.register = function() {
 
   this.paintListeners_ = [];
 
-  var browsers = this.tabBrowser_.browsers;
-  if (browsers && browsers.length) {
-    for (var i = 0, len = browsers.length; i < len; i++) {
-      this.registerPaintListener(new activity.PaintObserver.Listener_(
-          this, browsers[i].webProgress.DOMWindow, this.callbackWrapper_));
-    }
-  }
-
-  this.tabBrowser_.addTabsProgressListener(this);
+  // The MozAfterPaint event dispatcher will only send us cross-origin
+  // paint events (e.g. events for a child frame on a different
+  // origin) if we are registered as a listener on a window hosting a
+  // chrome: URL. So we bind to the parent window of the tabbrowser
+  // object, which is a chrome: URL.
+  this.registerPaintListener(new activity.PaintObserver.Listener_(
+      this, this.tabBrowser_.ownerDocument.defaultView,
+      this.callbackWrapper_));
 };
 
 /**
@@ -159,8 +159,6 @@ activity.PaintObserver.prototype.unregister = function() {
   }
 
   activity.PaintObserver.superClass_.unregister.call(this);
-
-  this.tabBrowser_.removeTabsProgressListener(this);
 
   // Have to iterate in reverse order, since unregisterPaintListener
   // removes the listener from the array.
@@ -175,11 +173,17 @@ activity.PaintObserver.prototype.unregister = function() {
 
 /**
  * Add a new paint event for the specified URL, at the current time.
- * @param {nsIDOMWindow} win The window that generated the event.
  * @param {MozAfterPaintEvent} event The MozAfterPaint event.
  */
-activity.PaintObserver.prototype.onPaintEvent = function(win, event) {
-  if (win.closed) {
+activity.PaintObserver.prototype.onPaintEvent = function(event) {
+  var win = event.target;
+  if (win.closed || !win.location) {
+    return;
+  }
+
+  var protocol = win.location.protocol;
+  if (protocol != 'http:' && protocol != 'https:') {
+    // Only track HTTP(S) events.
     return;
   }
 
@@ -196,7 +200,7 @@ activity.PaintObserver.prototype.onPaintEvent = function(win, event) {
 
   // Dispatch the event to the PaintView which will render a snapshot
   // of the screen to the paint panel.
-  this.paintView_.onPaintEvent(win, event);
+  this.paintView_.onPaintEvent(event);
 };
 
 /**
@@ -227,102 +231,6 @@ activity.PaintObserver.prototype.unregisterPaintListener = function(listener) {
 };
 
 /**
- * Implement nsIWebProgressListener.
- * @param {Object} browser The browser associated with the given
- *     change.
- * @param {nsIWebProgress} aWebProgress The web progress instance
- *     associated with the state change.
- * @param {nsIRequest} aRequest The request instance associated with
- *     the state change.
- * @param {number} aStateFlags The flags for the state change.
- * @param {number} aStatus The status of the state change.
- */
-activity.PaintObserver.prototype.onStateChange = function(
-    browser, aWebProgress, aRequest, aStateFlags, aStatus) {
-  // do nothing
-};
-
-/**
- * Implement nsIWebProgressListener.
- * @param {Object} browser The browser associated with the given
- *     change.
- * @param {nsIWebProgress} aWebProgress The web progress instance
- *     associated with the progress change.
- * @param {nsIRequest} aRequest The request instance associated with
- *     the progress change.
- * @param {number} aCurSelfProgress current progress for the request.
- * @param {number} aMaxSelfProgress max progress for the request.
- * @param {number} aCurTotalProgress current progress for the page load.
- * @param {number} aMaxTotalProgress max progress for the page load.
- */
-activity.PaintObserver.prototype.onProgressChange = function(
-    browser,
-    aWebProgress,
-    aRequest,
-    aCurSelfProgress,
-    aMaxSelfProgress,
-    aCurTotalProgress,
-    aMaxTotalProgress) {
-  // do nothing
-};
-
-/**
- * Implement nsIWebProgressListener.
- * @param {Object} browser The browser associated with the given
- *     change.
- * @param {nsIWebProgress} aWebProgress The web progress instance
- *     associated with the location change.
- * @param {nsIRequest} aRequest The request instance associated with
- *     the location change.
- * @param {nsIURI} aLocation The new location.
- */
-activity.PaintObserver.prototype.onLocationChange = function(
-    browser, aWebProgress, aRequest, aLocation) {
-  // Ideally, we would set up a MozAfterPaint listener right here, and
-  // not have PaintObserver.Listener instances. However, the
-  // MozAfterPaint callback doesn't indicate the window that was being
-  // painted, so we have to have separate listener state for each
-  // window. The simplest way to accomplish this is to have one
-  // listener object per window, each of which keeps track of the
-  // state for that window.
-  this.registerPaintListener(new activity.PaintObserver.Listener_(
-      this, aWebProgress.DOMWindow, this.callbackWrapper_));
-};
-
-/**
- * Implement nsIWebProgressListener.
- * @param {Object} browser The browser associated with the given
- *     change.
- * @param {nsIWebProgress} aWebProgress The web progress instance
- *     associated with the status change.
- * @param {nsIRequest} aRequest The request instance associated with
- *     the status change.
- * @param {number} aStatus The new status.
- * @param {string} aMessage The message associated with the new
- *     status.
- */
-activity.PaintObserver.prototype.onStatusChange = function(
-    browser, aWebProgress, aRequest, aStatus, aMessage) {
-  // do nothing
-};
-
-/**
- * Implement nsIWebProgressListener.
- * @param {Object} browser The browser associated with the given
- *     change.
- * @param {nsIWebProgress} aWebProgress The web progress instance
- *     associated with the security change.
- * @param {nsIRequest} aRequest The request instance associated with
- *     the security change.
- * @param {number} aState The state associated with the security
- *     change.
- */
-activity.PaintObserver.prototype.onSecurityChange = function(
-  browser, aWebProgress, aRequest, aState) {
-  // do nothing
-};
-
-/**
  * @param {activity.PaintObserver} observer The paint observer for this
  *     Listener.
  * @param {nsIDOMWindow} win The window to listen to.
@@ -337,7 +245,7 @@ activity.PaintObserver.Listener_ = function(observer, win, callbackWrapper) {
 
   this.boundEventCallback_ = goog.partial(
       callbackWrapper,
-      goog.bind(this.observer_.onPaintEvent, this.observer_, this.win_));
+      goog.bind(this.observer_.onPaintEvent, this.observer_));
   this.boundUnloadCallback_ = goog.partial(
       callbackWrapper,
       goog.bind(this.observer_.unregisterPaintListener, this.observer_));

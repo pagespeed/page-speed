@@ -143,11 +143,22 @@ activity.PaintView.prototype.disposeInternal = function() {
 };
 
 /**
- * @param {nsIDOMWindow} win The window being painted.
  * @param {MozAfterPaintEvent} event The MozAfterPaint event.
  */
-activity.PaintView.prototype.onPaintEvent = function(win, event) {
+activity.PaintView.prototype.onPaintEvent = function(event) {
   if (this.isDisposed()) {
+    return;
+  }
+
+  var win = event.target;
+  if (win != win.top) {
+    // We would like to capture paint events in child frames, but
+    // doing so requires translating coordinate spaces between the
+    // frames, which is non-trivial. Until we have the ability to
+    // perform these translations, we do not perform screen captures
+    // for child frames. Closure's style utility
+    // http://code.google.com/p/doctype/source/browse/trunk/goog/style/style.js
+    // looks like it can perform the needed translations.
     return;
   }
 
