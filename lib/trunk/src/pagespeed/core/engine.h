@@ -23,23 +23,29 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 
 namespace pagespeed {
 
-class Options;
 class PagespeedInput;
 class Results;
+class Rule;
 
 class Engine {
  public:
-  Engine();
+  // Instantiate an Engine that uses the given Rule
+  // instances. Ownership of the std::vector<Rule*> and its Rule
+  // instances is transferred to the Engine object.
+  explicit Engine(std::vector<Rule*> *rules);
+  virtual ~Engine();
 
   // Compute and add results to the result set by querying rule
   // objects about results they produce.
   // @return true iff the computation was completed without errors.
-  static bool GetResults(const PagespeedInput& input,
-                         const Options& options,
-                         Results* results);
+  bool GetResults(const PagespeedInput& input, Results* results);
+
+ private:
+  const scoped_ptr<std::vector<Rule*> > rules_;
 
   DISALLOW_COPY_AND_ASSIGN(Engine);
 };

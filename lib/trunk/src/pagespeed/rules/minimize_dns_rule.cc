@@ -20,7 +20,6 @@
 #include "base/logging.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
-#include "pagespeed/core/rule_registry.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_dns_details.pb.h"
 
@@ -51,9 +50,6 @@ bool IsAnIPAddress(const char* str) {
 }  // namespace
 
 namespace pagespeed {
-
-// Register the minimize dns rule
-REGISTER_PAGESPEED_RULE(MinimizeDnsRule);
 
 MinimizeDnsRule::MinimizeDnsRule() {
 }

@@ -26,8 +26,9 @@
 #include "pagespeed/rules/minimize_resources_rule.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using pagespeed::MinimizeCssResourcesRule;
+using pagespeed::MinimizeJsResourcesRule;
 using pagespeed::MinimizeResourcesDetails;
-using pagespeed::MinimizeResourcesRule;
 using pagespeed::PagespeedInput;
 using pagespeed::ProtoInput;
 using pagespeed::ProtoResource;
@@ -36,6 +37,7 @@ using pagespeed::ResourceType;
 using pagespeed::Result;
 using pagespeed::ResultDetails;
 using pagespeed::Results;
+using pagespeed::Rule;
 
 namespace {
 
@@ -68,18 +70,20 @@ class MinimizeResourcesTest : public ::testing::Test {
                        const std::vector<std::string>& expected_violations) {
     PagespeedInput input(proto_input_.get());
 
+    scoped_ptr<Rule> resource_rule;
     const char* rule_name = NULL;
     if (type == pagespeed::CSS) {
-      rule_name = "minimize css resources";
+      resource_rule.reset(new MinimizeCssResourcesRule());
+      rule_name = "MinimizeCssResourcesRule";
     } else if (type == pagespeed::JS) {
-      rule_name = "minimize js resources";
+      resource_rule.reset(new MinimizeJsResourcesRule());
+      rule_name = "MinimizeJsResourcesRule";
     } else {
       CHECK(false);
     }
-    MinimizeResourcesRule resource_rule(rule_name, type);
 
     Results results;
-    resource_rule.AppendResults(input, &results);
+    resource_rule->AppendResults(input, &results);
     ASSERT_EQ(results.results_size(), 1);
     const Result* result = &results.results(0);
 

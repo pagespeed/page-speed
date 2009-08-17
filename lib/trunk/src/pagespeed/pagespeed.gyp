@@ -59,47 +59,6 @@
       }
     },
     {
-      'target_name': 'pagespeed_options_pb',
-      'type': '<(library)',
-      'dependencies': [
-          '../third_party/protobuf2/protobuf.gyp:protobuf',
-          '../third_party/protobuf2/protobuf.gyp:protoc',
-       ],
-      'actions': [
-        {
-          'action_name': 'my_proto',
-          'inputs': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            'core/pagespeed_options.proto',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_options.pb.cc',
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_options.pb.h',
-          ],
-          'dependencies': [
-            '../third_party/protobuf2/protobuf.gyp:protoc',
-          ],
-          'action': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '../pagespeed/core/pagespeed_options.proto',
-            '--proto_path=..',
-            '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
-          ],
-        },
-      ],
-      'sources': [
-        '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_options.pb.cc',
-      ],
-      'include_dirs': [
-        '<(SHARED_INTERMEDIATE_DIR)',
-      ],
-      'all_dependent_settings': {
-        'include_dirs': [
-          '<(SHARED_INTERMEDIATE_DIR)',
-        ],
-      }
-    },
-    {
       'target_name': 'pagespeed_output_pb',
       'type': '<(library)',
       'dependencies': [
@@ -271,7 +230,6 @@
       'type': '<(library)',
       'dependencies': [
         'pagespeed_input_pb',
-        'pagespeed_options_pb',
         'pagespeed_output_pb',
         '../base/base.gyp:base',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -282,7 +240,6 @@
         'core/proto_resource_utils.cc',
         'core/resource.cc',
         'core/rule.cc',
-        'core/rule_registry.cc',
       ],
       'all_dependent_settings': {
         'include_dirs': [
@@ -303,21 +260,10 @@
         'rules/gzip_rule.cc',
         'rules/minimize_dns_rule.cc',
         'rules/minimize_resources_rule.cc',
+        'rules/rule_provider.cc',
       ],
       'include_dirs': [
         '..',
-      ],
-      'conditions': [
-        ['OS == "linux"', {
-          'all_dependent_settings': {
-            'ldflags': [
-              '--export-dynamic',
-              '-Wl,--whole-archive',
-              '-lpagespeed_rules',
-              '-Wl,--no-whole-archive',
-            ]
-          }
-        }]
       ],
     },
     {
@@ -401,30 +347,6 @@
       ],
       'sources': [
         'core/resource_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_rule_registry_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed_core',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        'core/rule_registry_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_rule_registration_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        'apps/rule_registration_test.cc',
       ],
     },
   ],

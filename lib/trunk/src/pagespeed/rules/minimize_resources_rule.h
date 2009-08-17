@@ -25,9 +25,10 @@ namespace pagespeed {
  * off the same domain.
  */
 class MinimizeResourcesRule : public Rule {
- public:
+ protected:
   MinimizeResourcesRule(const char* rule_name, ResourceType resource_type);
 
+ public:
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
 
@@ -35,6 +36,22 @@ class MinimizeResourcesRule : public Rule {
   const char* rule_name_;
   const ResourceType resource_type_;
   DISALLOW_COPY_AND_ASSIGN(MinimizeResourcesRule);
+};
+
+class MinimizeJsResourcesRule : public MinimizeResourcesRule {
+ public:
+  MinimizeJsResourcesRule();
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MinimizeJsResourcesRule);
+};
+
+class MinimizeCssResourcesRule : public MinimizeResourcesRule {
+ public:
+  MinimizeCssResourcesRule();
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MinimizeCssResourcesRule);
 };
 
 }  // namespace pagespeed

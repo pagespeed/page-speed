@@ -17,26 +17,26 @@
 #include <fstream>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
 #include "google/protobuf/text_format.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_input.pb.h"
-#include "pagespeed/core/pagespeed_options.pb.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
-#include "pagespeed/core/rule_registry.h"
+#include "pagespeed/rules/rule_provider.h"
 
 namespace {
 
 void ProcessInput(const pagespeed::ProtoInput& input_proto) {
-  pagespeed::Engine engine;
+  std::vector<pagespeed::Rule*>* rules(new std::vector<pagespeed::Rule*>());
+  pagespeed::rule_provider::AppendCoreRules(rules);
+
+  // Ownership of rules is transferred to the Engine instance.
+  pagespeed::Engine engine(rules);
 
   pagespeed::PagespeedInput input(&input_proto);
 
-  pagespeed::Options options;
-
   pagespeed::Results results;
-  engine.GetResults(input, options, &results);
+  engine.GetResults(input, &results);
 
   printf("%s\n", results.DebugString().c_str());
 }
@@ -55,8 +55,6 @@ int main(int argc, char** argv) {
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
     return 1;
   }
-
-  pagespeed::RuleRegistry::Freeze();
 
   std::string file_contents;
   std::string line;

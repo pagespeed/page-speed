@@ -20,38 +20,9 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
-#include "pagespeed/core/rule_registry.h"
 #include "pagespeed/rules/minimize_resources_details.pb.h"
 
-namespace {
-
-template<pagespeed::ResourceType type>
-class MinimizeRuleRunner : public pagespeed::MinimizeResourcesRule {
- public:
-  MinimizeRuleRunner() : pagespeed::MinimizeResourcesRule(name_str(), type) {}
-  const char* name_str() const;
-};
-
-template<>
-const char* MinimizeRuleRunner<pagespeed::CSS>::name_str() const {
-  return "MinimizeCssResources";
-}
-
-template<>
-const char* MinimizeRuleRunner<pagespeed::JS>::name_str() const {
-  return "MinimizeJsResources";
-}
-
-}  // namespace
-
 namespace pagespeed {
-
-// Register the minimize resources rules
-typedef MinimizeRuleRunner<CSS> MinimizeCssResourcesRule;
-REGISTER_PAGESPEED_RULE(MinimizeCssResourcesRule);
-
-typedef MinimizeRuleRunner<JS> MinimizeJsResourcesRule;
-REGISTER_PAGESPEED_RULE(MinimizeJsResourcesRule);
 
 MinimizeResourcesRule::MinimizeResourcesRule(const char* rule_name,
                                              ResourceType resource_type)
@@ -119,6 +90,14 @@ bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
   savings->set_requests_saved(requests_saved);
 
   return true;
+}
+
+MinimizeJsResourcesRule::MinimizeJsResourcesRule()
+    : MinimizeResourcesRule("MinimizeJsResourcesRule", JS) {
+}
+
+MinimizeCssResourcesRule::MinimizeCssResourcesRule()
+    : MinimizeResourcesRule("MinimizeCssResourcesRule", CSS) {
 }
 
 }  // namespace pagespeed
