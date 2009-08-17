@@ -76,6 +76,8 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/parallelXhrFlow.js"/>
   <script type="application/x-javascript"
+          src="chrome://pagespeed/content/minimalBeacon.js"/>
+  <script type="application/x-javascript"
           src="chrome://pagespeed/content/fullResultsBeacon.js"/>
 
   <!--
@@ -91,6 +93,8 @@
              oncommand="Firebug.PageSpeedModule.showComponents()"/>
     <command id="cmd_page_speed_json_export"
              oncommand="Firebug.PageSpeedModule.exportMenuItemChosen('psJsonExport')"/>
+    <command id="cmd_page_speed_minimal_beacon"
+             oncommand="Firebug.PageSpeedModule.exportMenuItemChosen('psMinimalBeacon')"/>
     <command id="cmd_page_speed_full_results_beacon"
              oncommand="Firebug.PageSpeedModule.exportMenuItemChosen('psFullResultsBeacon')"/>
     <command id="cmd_page_speed_help"
@@ -120,6 +124,8 @@
  	    <menuitem id="psJsonExport"
                label="Write JSON file" command="cmd_page_speed_json_export"/>
 <!-- Commented out until we decide to enable full beacon support.
+ 	    <menuitem id="psMinimalBeacon"
+               label="Send minimal beacon to service" command="cmd_page_speed_minimal_beacon"/>
  	    <menuitem id="psFullResultsBeacon"
                label="Send all results to service" command="cmd_page_speed_full_results_beacon"/>
 -->

@@ -30,9 +30,9 @@
  * }
  * var flow = new ParallelXhrFlow(onAllComplete);
  * flow.addRequest('GET', 'http://myurl.com/path',
-                   'foo=bar1', null, onComplete, onError);
+ *                 'foo=bar1', null, onComplete, onError);
  * flow.addRequest('POST', 'http://myurl.com/path',
-                   'foo=bar2', 'Post this string', onComplete, onError);
+ *                 'foo=bar2', 'Post this string', onComplete, onError);
  * flow.sendRequests();
  *
  * @author Tony Gentilcore
@@ -41,15 +41,15 @@
 /**
  * Creates a new Parallel XHR Flow.
  *
- * @param {Function} onAllComplete Function to call after all requests have
+ * @param {Function} opt_onAllComplete Function to call after all requests have
  *     completed. Note that in the case no requests have been registered, this
  *     method will be called directly by sendRequests().
  * @constructor
  */
-PAGESPEED.ParallelXhrFlow = function(onAllComplete) {
+PAGESPEED.ParallelXhrFlow = function(opt_onAllComplete) {
   /** @type {Array.<PAGESPEED.XhrRequest>} */ this.requests_ = [];
   /** @type {number} */ this.numOutstandingRequests_ = 0;
-  this.onAllComplete_ = onAllComplete;
+  this.onAllComplete_ = opt_onAllComplete;
 };
 
 /**
@@ -110,7 +110,8 @@ PAGESPEED.ParallelXhrFlow.prototype.sendRequests = function() {
   // Invoke the all complete handler and bail out early if there are no
   // requests to be made.
   if (this.getTotalRequests() == 0) {
-    this.onAllComplete_();
+    if (this.onAllComplete_)
+      this.onAllComplete_();
     return;
   }
 
@@ -152,7 +153,8 @@ PAGESPEED.ParallelXhrFlow.prototype.onComplete_ = function(callback,
 
   // If this is the final completion, call the onAllComplete callback.
   if (!--this.numOutstandingRequests_) {
-    this.onAllComplete_();
+    if (this.onAllComplete_)
+      this.onAllComplete_();
   }
 };
 

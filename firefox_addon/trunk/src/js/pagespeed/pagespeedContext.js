@@ -445,6 +445,10 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
           PAGESPEED.ResultsWriter.openJsonExportDialog(resultsContainer);
           break;
 
+        case 'psMinimalBeacon':
+          PAGESPEED.MinimalBeacon.sendBeacon(resultsContainer);
+          break;
+
         case 'psFullResultsBeacon':
           PAGESPEED.fullResultsBeacon.sendBeacon(resultsContainer);
           break;
