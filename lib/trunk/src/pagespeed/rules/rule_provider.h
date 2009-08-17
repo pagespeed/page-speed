@@ -12,12 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Protocol buffer used by the pagespeed library to specify options.
+#ifndef PAGESPEED_RULES_RULE_PROVIDER_H_
+#define PAGESPEED_RULES_RULE_PROVIDER_H_
 
-syntax = "proto2";
+#include <vector>
 
-package pagespeed;
+namespace pagespeed {
 
-message Options {
-  repeated string rule_names = 1;
-}
+class Rule;
+
+namespace rule_provider {
+
+/**
+ * Append the core Page Speed rules to the given vector of Rule
+ * instances.
+ */
+void AppendCoreRules(std::vector<Rule*> *rules);
+
+}  // namespace rule_provider
+
+}  // namespace pagespeed
+
+#endif  // PAGESPEED_RULES_RULE_PROVIDER_H_

@@ -15,20 +15,16 @@
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_input.pb.h"
-#include "pagespeed/core/pagespeed_options.pb.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/core/rule_registry.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Engine;
-using pagespeed::Options;
 using pagespeed::PagespeedInput;
 using pagespeed::ProtoInput;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::Rule;
-using pagespeed::RuleRegistry;
 
 namespace {
 
@@ -47,20 +43,17 @@ class TestRule : public Rule {
   DISALLOW_COPY_AND_ASSIGN(TestRule);
 };
 
-REGISTER_PAGESPEED_RULE(TestRule);
-
 TEST(EngineTest, BasicTest) {
-  RuleRegistry::Freeze();
   ProtoInput proto_input;
 
   PagespeedInput input(&proto_input);
 
-  Options options;
-  options.add_rule_names("TestRule");
+  std::vector<Rule*> *rules = new std::vector<Rule*>();
+  rules->push_back(new TestRule());
 
-  Engine engine;
+  Engine engine(rules);
   Results results;
-  engine.GetResults(input, options, &results);
+  engine.GetResults(input, &results);
   ASSERT_EQ(results.results_size(), 1);
 
   const Result& result = results.results(0);

@@ -20,13 +20,9 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
-#include "pagespeed/core/rule_registry.h"
 #include "pagespeed/rules/gzip_details.pb.h"
 
 namespace pagespeed {
-
-// Register the gzip rule
-REGISTER_PAGESPEED_RULE(GzipRule);
 
 GzipRule::GzipRule() {
 }

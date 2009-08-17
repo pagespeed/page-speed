@@ -14,34 +14,28 @@
 
 #include "pagespeed/core/engine.h"
 
-#include "base/scoped_ptr.h"
-#include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/core/rule_registry.h"
 
 namespace pagespeed {
 
-Engine::Engine() {
+Engine::Engine(std::vector<Rule*> *rules) : rules_(rules) {
 }
 
-bool Engine::GetResults(const PagespeedInput& input,
-                        const Options& options,
-                        Results* results) {
-  std::vector<Rule*> rule_instances;
-  RuleRegistry::CreateRuleInstances(options, &rule_instances);
+Engine::~Engine() {
+  STLDeleteContainerPointers(rules_->begin(), rules_->end());
+}
 
+bool Engine::GetResults(const PagespeedInput& input, Results* results) {
   bool success = true;
-  for (std::vector<Rule*>::const_iterator iter = rule_instances.begin(),
-           end = rule_instances.end();
+  for (std::vector<Rule*>::const_iterator iter = rules_->begin(),
+           end = rules_->end();
        iter != end;
        ++iter) {
     Rule* rule = *iter;
     success = rule->AppendResults(input, results) && success;
   }
-
-  STLDeleteContainerPointers(rule_instances.begin(), rule_instances.end());
 
   return success;
 }
