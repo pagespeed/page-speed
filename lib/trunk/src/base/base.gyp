@@ -38,6 +38,7 @@
         'lock_impl_posix.cc',
         'lock_impl_win.cc',
         'logging.cc',
+        'platform_thread_mac.mm',
         'platform_thread_posix.cc',
         'platform_thread_win.cc',
         'string16.cc',
@@ -69,8 +70,29 @@
                 '-lrt',
               ],
             },
+          },
+          {  # else: OS != "linux"
+            'sources!': [
+              'atomicops_internals_x86_gcc.cc',
+            ],
           }
-        ]
+        ],
+        [ 'OS == "mac"', {
+            'sources/': [ ['exclude', '_(linux|win|chromeos)\\.cc$'] ],
+            'sources!': [
+            ],
+            'link_settings': {
+              'libraries': [
+                '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+                '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
+                '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
+                '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+                '$(SDKROOT)/System/Library/Frameworks/Security.framework',
+              ],
+            },
+          }
+        ],
+
       ]
     },
     {

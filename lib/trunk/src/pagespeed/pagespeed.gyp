@@ -248,7 +248,7 @@
       },
     },
     {
-      'target_name': 'pagespeed_rules',
+      'target_name': 'pagespeed',
       'type': '<(library)',
       'dependencies': [
         'pagespeed_core',
@@ -261,19 +261,6 @@
         'rules/minimize_dns_rule.cc',
         'rules/minimize_resources_rule.cc',
         'rules/rule_provider.cc',
-      ],
-      'include_dirs': [
-        '..',
-      ],
-    },
-    {
-      'target_name': 'pagespeed',
-      'type': '<(library)',
-      'dependencies': [
-        'pagespeed_core',
-        'pagespeed_rules',
-      ],
-      'sources': [
       ],
       'include_dirs': [
         '..',
