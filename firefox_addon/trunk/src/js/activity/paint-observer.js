@@ -34,7 +34,7 @@ goog.require('activity.TimelineModel.Event');
  * @param {nsIDOMDocument} xulElementFactory A factory for creating DOM
  *     elements (e.g. the document object).
  * @param {!activity.TimelineModel} timelineModel the timeline model.
- * @param {!activity.PaintView} paintView the paint view.
+ * @param {activity.PaintView} paintView the paint view.
  * @param {Object} tabBrowser The tabbrowser instance.
  * @param {number} startTimeUsec the start time of the profiling
  *     session, in microseconds.
@@ -81,7 +81,7 @@ activity.PaintObserver = function(currentTimeFactory,
 
   /**
    * The paint view we should dispatch paint events to.
-   * @type {!activity.PaintView}
+   * @type {activity.PaintView}
    * @private
    */
   this.paintView_ = paintView;
@@ -198,9 +198,12 @@ activity.PaintObserver.prototype.onPaintEvent = function(event) {
       url, timestampUsec, activity.TimelineEventType.PAINT);
   evt.markAsInstantaneous();
 
-  // Dispatch the event to the PaintView which will render a snapshot
-  // of the screen to the paint panel.
-  this.paintView_.onPaintEvent(event);
+  if (this.paintView_) {
+    // Dispatch the event to the PaintView which will render a snapshot
+    // of the screen to the paint panel. The PaintView will be null if
+    // capturing of screenshots is disabled.
+    this.paintView_.onPaintEvent(event);
+  }
 };
 
 /**

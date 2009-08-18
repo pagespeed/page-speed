@@ -99,7 +99,7 @@
 		    <spacer class="timelineKeyBox dataAvailableColor"/>
 		    <label value="Data Available"/>
 		  </hbox>
-		  <hbox align="center" tooltiptext="The screen was repainted recently.">
+		  <hbox align="center" tooltiptext="The screen was recently repainted.">
 		    <spacer class="timelineKeyBox paintColor"/>
 		    <label value="Paint"/>
 		  </hbox>

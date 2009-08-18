@@ -116,6 +116,22 @@ activity.TimelineManager.PREF_CANVAS_WIDTH_PX_ = 'canvas_width_px';
 activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_ = 250;
 
 /**
+ * Name of the preference that indicates whether we should enable
+ * screen snapshots.
+ * @type {string}
+ * @private
+ */
+activity.TimelineManager.PREF_ENABLE_SCREEN_SNAPSHOTS_ =
+    'enable_screen_snapshots';
+
+/**
+ * Default value for whether or not to enable screen snapshots.
+ * @type {boolean}
+ * @private
+ */
+activity.TimelineManager.DEFAULT_ENABLE_SCREEN_SNAPSHOTS_ = false;
+
+/**
  * The js event fetcher, which queries the IActivityProfiler instance for
  * js timeline events, and pushes those events into the TimelineModel.
  * @type {activity.JsEventFetcher?}
@@ -222,21 +238,25 @@ activity.TimelineManager.prototype.start = function(
     resolutionMsec = 2;
   }
 
-  var canvasWidth = activity.preference.getInt(
-      activity.TimelineManager.PREF_CANVAS_WIDTH_PX_,
-      activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_);
-
   this.timelineView_ = new activity.TimelineView(
       xulRowsElement,
       xulElementFactory,
       resolutionMsec * 1000);
 
-  this.paintView_ = new activity.PaintView(
-      paintPaneElement,
-      paintPaneSplitter,
-      xulElementFactory,
-      gBrowser,
-      canvasWidth);
+  if (activity.preference.getBool(
+      activity.TimelineManager.PREF_ENABLE_SCREEN_SNAPSHOTS_,
+      activity.TimelineManager.DEFAULT_ENABLE_SCREEN_SNAPSHOTS_)) {
+    var canvasWidth = activity.preference.getInt(
+        activity.TimelineManager.PREF_CANVAS_WIDTH_PX_,
+        activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_);
+
+    this.paintView_ = new activity.PaintView(
+        paintPaneElement,
+        paintPaneSplitter,
+        xulElementFactory,
+        gBrowser,
+        canvasWidth);
+  }
 
   this.model_ = new activity.TimelineModel();
   this.model_.addListener(this.timelineView_);
