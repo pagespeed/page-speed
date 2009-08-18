@@ -48,8 +48,8 @@ TEST(EngineTest, BasicTest) {
 
   PagespeedInput input(&proto_input);
 
-  std::vector<Rule*> *rules = new std::vector<Rule*>();
-  rules->push_back(new TestRule());
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
 
   Engine engine(rules);
   Results results;
