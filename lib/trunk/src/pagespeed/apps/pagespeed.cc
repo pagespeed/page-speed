@@ -27,8 +27,8 @@
 namespace {
 
 void ProcessInput(const pagespeed::ProtoInput& input_proto) {
-  std::vector<pagespeed::Rule*>* rules(new std::vector<pagespeed::Rule*>());
-  pagespeed::rule_provider::AppendCoreRules(rules);
+  std::vector<pagespeed::Rule*> rules;
+  pagespeed::rule_provider::AppendCoreRules(&rules);
 
   // Ownership of rules is transferred to the Engine instance.
   pagespeed::Engine engine(rules);

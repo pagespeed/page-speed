@@ -20,17 +20,17 @@
 
 namespace pagespeed {
 
-Engine::Engine(std::vector<Rule*> *rules) : rules_(rules) {
+Engine::Engine(const std::vector<Rule*>& rules) : rules_(rules) {
 }
 
 Engine::~Engine() {
-  STLDeleteContainerPointers(rules_->begin(), rules_->end());
+  STLDeleteContainerPointers(rules_.begin(), rules_.end());
 }
 
 bool Engine::GetResults(const PagespeedInput& input, Results* results) {
   bool success = true;
-  for (std::vector<Rule*>::const_iterator iter = rules_->begin(),
-           end = rules_->end();
+  for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
+           end = rules_.end();
        iter != end;
        ++iter) {
     Rule* rule = *iter;
