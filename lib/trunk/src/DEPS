@@ -15,7 +15,7 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@23366",
+  "chromium_revision": "@23644",
 }
 
 
@@ -27,7 +27,7 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@267",
 
   "src/third_party/protobuf2/src":
-    "http://protobuf.googlecode.com/svn/trunk@154",
+    "http://protobuf.googlecode.com/svn/trunk@219",
 
   "src/tools/gyp":
     "http://gyp.googlecode.com/svn/trunk@591",
