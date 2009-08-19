@@ -30,7 +30,7 @@ deps = {
     "http://protobuf.googlecode.com/svn/trunk@219",
 
   "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@591",
+    "http://gyp.googlecode.com/svn/trunk@601",
 
   # chromium deps
   "src/build/temp_gyp":
