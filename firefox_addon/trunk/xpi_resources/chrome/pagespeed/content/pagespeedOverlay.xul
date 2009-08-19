@@ -123,12 +123,14 @@
           <menupopup>
  	    <menuitem id="psJsonExport"
                label="Write JSON file" command="cmd_page_speed_json_export"/>
-<!-- Commented out until we decide to enable full beacon support.
- 	    <menuitem id="psMinimalBeacon"
-               label="Send minimal beacon to service" command="cmd_page_speed_minimal_beacon"/>
- 	    <menuitem id="psFullResultsBeacon"
-               label="Send all results to service" command="cmd_page_speed_full_results_beacon"/>
--->
+	    <menuitem id="psMinimalBeacon"
+               label="Send scores to service"
+               command="cmd_page_speed_minimal_beacon"
+               collapsed="true"/>
+	    <menuitem id="psFullResultsBeacon"
+               label="Send all results to service"
+               command="cmd_page_speed_full_results_beacon"
+               collapsed="true"/>
           </menupopup>
         </toolbarbutton>
 
