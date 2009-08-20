@@ -3,6 +3,13 @@
 
 =Page Speed Version History=
 
+== 1.2.0.0: 8/20/2009 ==
+  * Activity panel now shows paint events, which indicate time firefox spends drawing a page.
+  * Add a menu which allows users to export results as JSON encoded text.
+  * User agent list now shows only the most recent versions of browsers, unless "Show All User Agents" is checked in the options menu.
+  * Add FB support through 1.4.2 .
+
+
 == 1.1.0.0: 7/22/2009 ==
   * Make the directory where optimized output is written a choice in the options menu.
   * Make CSS rule warning about :hover non-scoring.
