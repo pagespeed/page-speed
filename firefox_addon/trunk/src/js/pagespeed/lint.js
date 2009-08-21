@@ -336,6 +336,35 @@ PAGESPEED.LintRule.prototype.clipScore_ = function() {
 };
 
 /**
+ * Add statistics about the page being scored.  Statistics
+ * are stored as key value pairs for each rule in the results
+ * container.
+ * @param {Object} stats Statistics to store, encoded like
+ *     this: {'key': 'value'}.
+ */
+PAGESPEED.LintRule.prototype.addStatistics_ = function(stats) {
+  if (!this.statistics)
+    this.statistics_ = {};
+
+  for (var key in stats) {
+    // TODO: Consider throwing an error if a key is overwritten.
+    this.statistics_[key] = stats[key];
+  }
+};
+
+/**
+ * Get statistics that were set on this rule.  Today this
+ * function is trivial, but it should be used so that if we
+ * want to lazily compute statistics in the future, the
+ * change will be easy.
+ * @return {Object} The statistics set by calls to
+ *     LintRule.addStatistics_().
+ */
+PAGESPEED.LintRule.prototype.getStatistics = function(stats) {
+  return this.statistics_ || {};
+};
+
+/**
  * Defines a lint rule group which each lint rule should pass to its ctor.
  *
  * @param {string} name A name that is displayed to the user to describe this
