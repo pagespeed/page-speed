@@ -76,16 +76,16 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
   for (var i = 0, len = lintRules.length; i < len; i++) {
     var lintRule = lintRules[i];
     var lintRuleInfo = {
-      // TODO: Consider creating an enum to encode rule names.
-      // This will make them resistant to renaming, easier to encode,
-      // and take fewer bytes when sending a beacon.
+      // TODO: The short name for each rule is almost an enum value for
+      // each rule.  We could take it one step further and have an integer
+      // mapping from short name to rule, saving bytes in the minimal
+      // beacon.
       name: lintRule.name,
       shortName: lintRule.shortName,
       score: lintRule.score,
       warnings: lintRule.warnings,
-      information: lintRule.information
-      // TODO: Add stats gathered by the rule, such as # bytes sent,
-      // # extra RRTs, etc.
+      information: lintRule.information,
+      statistics: lintRule.getStatistics()
     };
     ruleResults.push(lintRuleInfo);
   }

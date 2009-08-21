@@ -27,11 +27,16 @@ var redirectRule = function() {
   // Loop through all resources and deduct 6 points per redirect.
   var redirects = PAGESPEED.Utils.getComponents().redirect;
   var aWarnings = [];
-  for (var url in redirects) {
+  var totalRedirects = 0;
 
+  for (var url in redirects) {
     // Chained redirects are listed in the elements array.
+
+    var numRedirects = redirects[url].elements.length;
+    totalRedirects += numRedirects;
+
     var previousUrl = url;
-    for (var i = 0, len = redirects[url].elements.length; i < len; ++i) {
+    for (var i = 0, len = numRedirects; i < len; ++i) {
       var thisUrl = redirects[url].elements[i];
       aWarnings.push('From ' + previousUrl + ' to ' + thisUrl);
       previousUrl = thisUrl;
@@ -43,6 +48,10 @@ var redirectRule = function() {
     this.warnings = ('Remove the following redirects if possible: ' +
                      PAGESPEED.Utils.formatWarnings(aWarnings));
   }
+
+  this.addStatistics_({
+    numRedirects: totalRedirects
+  });
 };
 
 PAGESPEED.LintRules.registerLintRule(
