@@ -26,7 +26,8 @@ var BYTES_PER_POINT_ =
     (MAX_COOKIE_SIZE_THRESHOLD_ - MIN_COOKIE_SIZE_THRESHOLD_) / 40;
 
 /**
- * Given an array of numbers, returns their average rounded to an integer.
+ * @param {Array} aNumbers An array of numbers.
+ * @return {number} The average of |aNumbers|, rounded to an integer.
  */
 var average = function(aNumbers) {
   var total = 0;
@@ -37,7 +38,8 @@ var average = function(aNumbers) {
 };
 
 /**
- * Given an array of numbers, returns the element with the max value.
+ * @param {Array} aNumbers An array of numbers.
+ * @return {number} The maximum element in |aNumbers|.  0 if aNumbers==[].
  */
 var max = function(aNumbers) {
   var maxval = 0;
@@ -94,11 +96,12 @@ var cookieSizeRule = function() {
 
   var sortedCookieLengths = [];
   for (var domain in cookieLengthsByDomain) {
+    var cookieLengths = cookieLengthsByDomain[domain];
     sortedCookieLengths.push({
         domain: domain,
-        averageCookieSize: average(cookieLengthsByDomain[domain]),
-        maxCookieSize: max(cookieLengthsByDomain[domain])
-        });
+        averageCookieSize: average(cookieLengths),
+        maxCookieSize: max(cookieLengths)
+    });
   }
 
   var sortByMaxSize = function(a, b) {
@@ -139,6 +142,10 @@ var cookieSizeRule = function() {
   aOutput.push('The average cookie size for all requests on this page is ');
   aOutput.push(PAGESPEED.Utils.formatBytes(iAverageCookieLength));
   aOutput.push('.<br/><br/>');
+
+  this.addStatistics_({
+    averageCookieSize: iAverageCookieLength
+  });
 
   if (aHugeCookieWarnings.length) {
     // Give a max score of C if any cookie is >1000 bytes.

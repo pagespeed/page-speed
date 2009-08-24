@@ -517,6 +517,11 @@ var inefficientCssLint = function() {
     this.score = 'n/a';
     return;
   }
+
+  var totalVeryInefficientRules = 0;
+  var totalInefficientRules = 0;
+  var totalHoverWithoutAnchorRules = 0;
+
   for (var i = 0, len = styleSheets.length; i < len; ++i) {
     // Get all rules in the current stylesheet.
     var allAvailableSelectors = cssPanel.getStyleSheetRules(cssPanel.context,
@@ -577,18 +582,22 @@ var inefficientCssLint = function() {
       blockNum = ' (inline block #' + (currInlineBlockNum++) + ')';
     }
 
+    totalVeryInefficientRules += aVeryInefficientRules.length;
+    totalInefficientRules += aInefficientRules.length;
+    totalHoverWithoutAnchorRules += aHoverWithoutAnchorRules.length;
+
+    if (!aVeryInefficientRules.length &&
+        !aInefficientRules.length &&
+        !aHoverWithoutAnchorRules.length)
+      continue;
+
     /**
      * @param {Array} arr An array.
      * @return {string} formatted string version of the array's length.
      */
     var formatLen = function(arr) {
       return PAGESPEED.Utils.formatNumber(arr.length);
-    }
-
-    if (!aVeryInefficientRules.length &&
-        !aInefficientRules.length &&
-        !aHoverWithoutAnchorRules.length)
-      continue;
+    };
 
     // Print summary for this block.
     this.warnings += [PAGESPEED.Utils.linkify(styleSheets[i].href), blockNum,
@@ -632,6 +641,12 @@ var inefficientCssLint = function() {
 
     this.warnings += '</blockquote>';
   }
+
+  this.addStatistics_({
+    numVeryInefficientRules: totalVeryInefficientRules,
+    numInefficientRules: totalInefficientRules,
+    numHoverWithoutAnchorRules: totalHoverWithoutAnchorRules
+  });
 };
 
 PAGESPEED.LintRules.registerLintRule(
