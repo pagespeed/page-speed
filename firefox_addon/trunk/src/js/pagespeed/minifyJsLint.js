@@ -126,10 +126,21 @@ var minifyJsLint = function() {
   }
 
   var storage = {
+    // How many bytes of javascript can be saved by minimization?
     totalPossibleSavings: 0,
+
+    // How many bytes of javascript in the page?
     totalUncompiledBytes: 0,
+
+    // How many external JS files?
+    totalExternalFiles: 0,
+
+    // How many files can be minimized?
+    totalExternalMinifyableFiles: 0,
+
     aResults: [],
-    aErrors: []
+    aErrors: [],
+    addStatistics: function(obj) { self.addStatistics_(obj); }
   };
 
   for (var i = 0, len = allScripts.length; i < len; i++) {
@@ -164,6 +175,8 @@ var doMinify = function(storage, script) {
   var uncompiledSourceLength = uncompiledSource.length;
   storage.totalUncompiledBytes += uncompiledSourceLength;
 
+  var isInline = /inline block \#/.test(script.name);
+
   var compiledSource;
   try {
     compiledSource = JSMIN.compile(uncompiledSource);
@@ -176,9 +189,17 @@ var doMinify = function(storage, script) {
   }
   var compiledSourceLength = compiledSource.length;
 
+  if (!isInline) {
+    storage.totalExternalFiles++;
+  }
+
   var possibleSavings = uncompiledSourceLength - compiledSourceLength;
   if (possibleSavings <= MIN_BYTES_SAVED) {
     return;
+  }
+
+  if (!isInline) {
+    storage.totalExternalMinifyableFiles++;
   }
 
   storage.totalPossibleSavings += possibleSavings;
@@ -210,6 +231,13 @@ var generateOutput = function(storage) {
     // Tell the user about any errors we encountered.
     this.information = PAGESPEED.Utils.formatWarnings(storage.aErrors);
   }
+
+  storage.addStatistics({
+    totalPossibleSavings: storage.totalPossibleSavings,
+    totalUncompiledBytes: storage.totalUncompiledBytes,
+    totalExternalFiles: storage.totalExternalFiles,
+    totalExternalMinifyableFiles: storage.totalExternalMinifyableFiles
+  });
 
   if (storage.totalUncompiledBytes < MIN_UNCOMPILED_THRESHOLD) {
     this.score = 'n/a';
