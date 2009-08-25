@@ -265,13 +265,16 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                    TBODY(
                     TR({'class': 'netRow netSummaryRow'},
                        TD({'class': 'netCol'}, ''),
-                       TD({'class': 'netCol'}, 'Status'),
+                       TD({'class': 'netCol',
+                           'style': 'text-align:center',
+                           'colspan': 2}, 'Status'),
                        TD({'class': 'netCol'}, 'Domain'),
                        TD({'class': 'netCol'}, 'Type'),
                        TD({'class': 'netCol'}, 'File Size'),
                        TD({'class': 'netCol'}, 'Transfer Size')
                       ),
                     TR({'class': 'netRow netSummaryRow'},
+                       TD({'class': 'netCol'}, ''),
                        TD({'class': 'netCol'}, ''),
                        TD({'class': 'netCol'}, ''),
                        TD({'class': 'netCol'}, ''),
@@ -287,7 +290,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                TR({'class': 'netRow netRow.loaded',
                    '$hasHeaders': 'true',
                    '$loaded': true},
-                  TD({'class': 'netHrefCol netCol', 'width': '50%'},
+                  TD({'class': 'netHrefCol netCol', 'width': '45%'},
                      DIV({'class': 'netHrefLabel netLabel',
                           'style': 'max-width:45%'}, '$component.path'),
                      DIV({'class': 'netFullHrefLabel netHrefLabel netLabel'},
@@ -295,16 +298,21 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                          '$component.href'))
                     ),
                   TD({'class': 'netSizeCol netCol', 'width': '5%',
-                      'style': 'text-align:left'},
+                      'style': 'text-align:right'},
                      DIV({'class': 'netSizeLabel netLabel'},
                          '$component.statusCode')
                     ),
-                  TD({'class': 'netSizeCol netCol', 'width': '17%',
+                  TD({'class': 'netSizeCol netCol', 'width': '5%',
+                      'style': 'text-align:left'},
+                     DIV({'class': 'netSizeLabel netLabel'},
+                         '$component.fromCache')
+                    ),
+                  TD({'class': 'netSizeCol netCol', 'width': '15%',
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'},
                          '$component.domain')
                     ),
-                  TD({'class': 'netSizeCol netCol', 'width': '10%',
+                  TD({'class': 'netSizeCol netCol', 'width': '12%',
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'}, '$component.type')
                     ),
@@ -323,7 +331,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
   // Domplate for the expanded view of a resource's headers.
   headersTag: TR({'class': 'netInfoRow'},
-                 TD({'colspan': '6',
+                 TD({'colspan': '7',
                      'class': 'netInfoCol'},
                     DIV({'class': 'netInfoBody',
                          'style': 'border-bottom:1px solid #efefef'})

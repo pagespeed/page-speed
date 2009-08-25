@@ -45,6 +45,8 @@ var CLASS_NAME = 'ComponentCollectorService';
 var CONTRACT_ID = '@code.google.com/p/page-speed/ComponentCollectorService;1';
 var HTTP_ON_MODIFY_REQUEST = 'http-on-modify-request';
 var HTTP_ON_EXAMINE_RESPONSE = 'http-on-examine-response';
+// The cached response callback was added in FF3.5.
+var HTTP_ON_EXAMINE_CACHED_RESPONSE = 'http-on-examine-cached-response';
 var HTTP_ON_EXAMINE_MERGED_RESPONSE = 'http-on-examine-merged-response';
 var LOG_MSG_FOUND_CYCLE = 'Found cycle in linked list for ';
 var LOG_MSG_NEG_DIFF = 'diff less than zero';
@@ -509,6 +511,7 @@ function ComponentCollectorService() {
                                   .getService(nsIObserverServiceIface);
   observerService.addObserver(this, HTTP_ON_MODIFY_REQUEST, false);
   observerService.addObserver(this, HTTP_ON_EXAMINE_RESPONSE, false);
+  observerService.addObserver(this, HTTP_ON_EXAMINE_CACHED_RESPONSE, false);
   observerService.addObserver(this, HTTP_ON_EXAMINE_MERGED_RESPONSE, false);
 
   // pendingDocs_ is a map and doubly-linked list that tracks
@@ -762,7 +765,8 @@ ComponentCollectorService.prototype.getDocumentForContentType = function(
   }
 
   if (contentType == ComponentCollectorService.TYPE_OTHER) {
-    // Needed in FF2. TYPE_OTHER does not appear to be sent in FF3.
+    // Sent in FF2. TYPE_OTHER does not appear to be sent in FF3.
+    PS_LOG('Received unexpected TYPE_OTHER.');
     if (!node.ownerDocument) {
       if (node.documentElement &&
           node.documentElement.ownerDocument &&
@@ -772,16 +776,15 @@ ComponentCollectorService.prototype.getDocumentForContentType = function(
     }
   }
 
-  if (contentType == ComponentCollectorService.TYPE_CSSIMAGE ||
-      contentType == ComponentCollectorService.TYPE_XMLHTTPREQUEST) {
-    if (node.defaultView) {
-      return node;
-    }
+  // If none of the specific types matched, use the default cases.
+  if (node.defaultView) {
+    // The node is itself a document.
+    return node;
   }
 
-  // If none of the specific types matched, use the default case.
   if (node.ownerDocument &&
       node.ownerDocument.defaultView) {
+    // Standard DOM Node.
     return node.ownerDocument;
   }
 
@@ -866,9 +869,11 @@ ComponentCollectorService.prototype.observe = function(aSubject,
   if (HTTP_ON_MODIFY_REQUEST == aTopic) {
     this.observeRequest(httpChannel);
   } else if (HTTP_ON_EXAMINE_RESPONSE == aTopic) {
-    this.observeResponse(httpChannel, false);
+    this.observeResponse(httpChannel, false, false);
+  } else if (HTTP_ON_EXAMINE_CACHED_RESPONSE == aTopic) {
+    this.observeResponse(httpChannel, true, false);
   } else if (HTTP_ON_EXAMINE_MERGED_RESPONSE == aTopic) {
-    this.observeResponse(httpChannel, true);
+    this.observeResponse(httpChannel, false, true);
   }
 };
 
@@ -988,11 +993,13 @@ function responseCodeCanHaveBody(responseCode) {
  *
  * @param {nsIHttpChannel} httpChannel The http channel that is
  *     receiving a response.
+ * @param {boolean} isCachedResponse True if the response is
+ *     served from cache, false otherwise.
  * @param {boolean} isMergedResponse True if part of the response is
  *     merged from cache, false otherwise.
  */
 ComponentCollectorService.prototype.observeResponse = function(
-    httpChannel, isMergedResponse) {
+    httpChannel, isCachedResponse, isMergedResponse) {
   var win = this.getDomWindowForRequest(httpChannel);
   if (!win || !win.wrappedJSObject) {
     // This is not a response that originated from a DOM node (might be
@@ -1022,6 +1029,7 @@ ComponentCollectorService.prototype.observeResponse = function(
   // Attach the response headers and status code to the associated
   // component entry.
   var srcObject = {};
+  srcObject.fromCache = isCachedResponse;
   if (!mergedResponseComing) {
     // Only use the responseHeaders if this response isn't going to be
     // merged with cached data. In that case, wait for the merged

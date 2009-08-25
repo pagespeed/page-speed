@@ -255,18 +255,21 @@ PAGESPEED.PageSpeedContext.prototype.displayComponents = function(panel) {
   var urls = PAGESPEED.Utils.getResources();
 
   for (var i = 0, len = urls.length; i < len; ++i) {
-    var fileSize = PAGESPEED.Utils.getResourceSize(urls[i]);
-    var transferSize = PAGESPEED.Utils.getResourceTransferSize(urls[i]);
+    var url = urls[i];
+    var fileSize = PAGESPEED.Utils.getResourceSize(url);
+    var transferSize = PAGESPEED.Utils.getResourceTransferSize(url);
+    var cachedStr = PAGESPEED.Utils.getFromCache(url) ? '(cache)' : '';
     ++totalComponents;
     totalFileSize += fileSize;
     totalTransferSize += transferSize;
 
     comps.push({
-                 'type': PAGESPEED.Utils.getResourceTypes(urls[i]).join(','),
-                 'href': urls[i],
-                 'path': PAGESPEED.Utils.getDisplayUrl(urls[i]),
-                 'statusCode': PAGESPEED.Utils.getResponseCode(urls[i]),
-                 'domain': PAGESPEED.Utils.getDomainFromUrl(urls[i]),
+                 'type': PAGESPEED.Utils.getResourceTypes(url).join(','),
+                 'href': url,
+                 'path': PAGESPEED.Utils.getDisplayUrl(url),
+                 'statusCode': PAGESPEED.Utils.getResponseCode(url),
+                 'fromCache': cachedStr,
+                 'domain': PAGESPEED.Utils.getDomainFromUrl(url),
                  'filesize': PAGESPEED.Utils.formatBytes(fileSize),
                  'xfersize': PAGESPEED.Utils.formatBytes(transferSize)
     });
