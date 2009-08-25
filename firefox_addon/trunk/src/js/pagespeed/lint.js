@@ -173,7 +173,7 @@ PAGESPEED.LintRulesImpl.prototype.ruleCompleted = function() {
     // At this point, this.rulesRemaining==0 and this.completed was already
     // set to true by a previous call to this function.
     PS_LOG('In ruleCompleted(), more rules have been completed ' +
-           'than were run.\n');
+           'than were run.');
   }
 };
 

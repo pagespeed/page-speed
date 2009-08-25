@@ -128,6 +128,12 @@ PAGESPEED.Utils = {  // Begin namespace
   RESPONSE_CODE: 'responseCode',
 
   /**
+   * The name of the response from cache field.
+   * @type {string}
+   */
+  RESPONSE_FROM_CACHE: 'fromCache',
+
+  /**
    * The name of the response body field.
    * @type {string}
    */
@@ -567,6 +573,13 @@ PAGESPEED.Utils = {  // Begin namespace
         }
       }
       out_shouldCache.value = (headerCount > 0);
+      if (out_shouldCache.value) {
+        // This response came from the browser cache, so update the
+        // fromCache property accordingly. See comment in
+        // getFromCache for more details.
+        PAGESPEED.Utils.setResourceProperty(
+            url, PAGESPEED.Utils.RESPONSE_FROM_CACHE, true);
+      }
       return headers;
     }
 
@@ -583,7 +596,7 @@ PAGESPEED.Utils = {  // Begin namespace
   getResponseCode: function(url) {
     /**
      * Fetch the response code from the cache.
-     * @param {string} url The URL to fetch headers for.
+     * @param {string} url The URL to fetch the response code for.
      * @param {Object} out_shouldCache Out parameter. If the return
      *     value should be cached by the caller, we set
      *     out_shouldCache.value to true.
@@ -616,6 +629,23 @@ PAGESPEED.Utils = {  // Begin namespace
     }
     return Number(PAGESPEED.Utils.getAndCacheResourceProperty(
         url, PAGESPEED.Utils.RESPONSE_CODE, fetchResponseCode));
+  },
+
+  /**
+   * @param {string} url the URL to check.
+   * @return {boolean} whether or not the URL was served from cache.
+   */
+  getFromCache: function(url) {
+    // In Firefox 3.5 there is a callback to indicate that a response
+    // was read from cache. In Firefox 3.0, however, there is no such
+    // callback. In Firefox 3.0, we infer that a response came from
+    // cache by checking to see if we were unable to record the response
+    // headers. If we were unable to record response headers (meaning
+    // we had to read them out of the cache), then it indicates that
+    // the response, too, was read from cache.
+    PAGESPEED.Utils.getResponseHeaders(url);
+    return Boolean(PAGESPEED.Utils.getResourceProperty(
+        url, PAGESPEED.Utils.RESPONSE_FROM_CACHE));
   },
 
   /**
