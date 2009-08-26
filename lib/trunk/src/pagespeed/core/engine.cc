@@ -40,4 +40,25 @@ bool Engine::GetResults(const PagespeedInput& input, Results* results) {
   return success;
 }
 
+bool Engine::ComputeResultText(const PagespeedInput& input,
+                               std::vector<ResultText*>* results_text) {
+  bool success = true;
+  for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
+           end = rules_.end();
+       iter != end;
+       ++iter) {
+    Rule* rule = *iter;
+    Results results;
+    success = rule->AppendResults(input, &results) && success;
+
+    if (results.results_size() > 0) {
+      ResultText* result_text = new ResultText;
+      rule->InterpretResults(results, result_text);
+      results_text->push_back(result_text);
+    }
+  }
+
+  return success;
+}
+
 }  // namespace pagespeed

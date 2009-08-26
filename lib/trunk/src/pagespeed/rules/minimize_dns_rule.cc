@@ -120,4 +120,42 @@ bool MinimizeDnsRule::AppendResults(const PagespeedInput& input,
   return true;
 }
 
+void MinimizeDnsRule::InterpretResults(const Results& results,
+                                       ResultText* result_text) {
+  std::vector<std::string> violation_urls;
+  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
+    const Result& result = results.results(result_idx);
+    const ResultDetails& details = result.details();
+    const MinimizeDnsDetails& dns_details = details.GetExtension(
+        MinimizeDnsDetails::message_set_extension);
+
+    for (int idx = 0; idx < dns_details.violation_urls_size(); idx++) {
+      violation_urls.push_back(dns_details.violation_urls(idx));
+    }
+  }
+
+  if (violation_urls.empty()) {
+    return;
+  }
+
+  result_text->set_format("Minimize DNS lookups");
+
+  ResultText* body = result_text->add_children();
+  body->set_format("The domains of the following urls only serve one "
+                   "resource each. If possible, avoid the extra DNS "
+                   "lookups by serving these resources from existing domains.");
+
+  for (std::vector<std::string>::const_iterator iter = violation_urls.begin(),
+           end = violation_urls.end();
+       iter != end;
+       ++iter) {
+    ResultText* url = body->add_children();
+    url->set_format("$1");
+
+    FormatArgument* url_arg = url->add_args();
+    url_arg->set_type(FormatArgument::URL);
+    url_arg->set_url(*iter);
+  }
+}
+
 }  // namespace pagespeed

@@ -31,6 +31,8 @@ class MinimizeResourcesRule : public Rule {
  public:
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
+  virtual void InterpretResults(const Results& results,
+                                ResultText* result_text);
 
  private:
   const char* rule_name_;

@@ -17,6 +17,8 @@
 #include <fstream>
 
 #include "base/logging.h"
+#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
+#include "base/string_util.h"
 #include "google/protobuf/text_format.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -25,6 +27,67 @@
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
+
+template <typename FormatArguments>
+std::string Format(const std::string& format_str, const FormatArguments& args) {
+  std::vector<string16> subst;
+
+  for (typename FormatArguments::const_iterator iter = args.begin(),
+           end = args.end();
+       iter != end;
+       ++iter) {
+    const pagespeed::FormatArgument& arg = *iter;
+    switch (arg.type()) {
+      case pagespeed::FormatArgument::URL:
+        subst.push_back(UTF8ToUTF16(arg.url()));
+        break;
+      case pagespeed::FormatArgument::STRING_LITERAL:
+        subst.push_back(UTF8ToUTF16(arg.string_literal()));
+        break;
+      case pagespeed::FormatArgument::INT_LITERAL:
+        subst.push_back(IntToString16(arg.int_literal()));
+        break;
+      case pagespeed::FormatArgument::DOUBLE_LITERAL:
+        char buffer[100];
+        snprintf(buffer, arraysize(buffer), "%.1f", arg.double_literal());
+        subst.push_back(UTF8ToUTF16(buffer));
+        break;
+      default:
+        CHECK(false);
+        break;
+    }
+  }
+
+  return UTF16ToUTF8(
+      ReplaceStringPlaceholders(UTF8ToUTF16(format_str), subst, NULL));
+}
+
+void Dump(const pagespeed::ResultText& result, int indent = 0) {
+  const std::string& str = Format(result.format(), result.args());
+
+  for (int indent_idx = 0; indent_idx < indent; indent_idx++) {
+    printf("  ");
+  }
+
+  switch (indent) {
+    case 0:
+      // header
+      printf("_%s_\n", str.c_str());
+      break;
+    case 1:
+      // regular text
+      printf("%s\n", str.c_str());
+      break;
+    default:
+      // bullet
+      printf("* %s\n", str.c_str());
+      break;
+  }
+
+  for (int idx = 0; idx < result.children_size(); idx++) {
+    Dump(result.children(idx), indent + 1);
+  }
+}
 
 void ProcessInput(const pagespeed::ProtoInput& input_proto) {
   std::vector<pagespeed::Rule*> rules;
@@ -35,10 +98,18 @@ void ProcessInput(const pagespeed::ProtoInput& input_proto) {
 
   pagespeed::PagespeedInput input(&input_proto);
 
-  pagespeed::Results results;
-  engine.GetResults(input, &results);
+  std::vector<pagespeed::ResultText*> results;
+  engine.ComputeResultText(input, &results);
 
-  printf("%s\n", results.DebugString().c_str());
+  for (std::vector<pagespeed::ResultText*>::const_iterator
+           iter = results.begin(), end = results.end();
+       iter != end;
+       ++iter) {
+    pagespeed::ResultText* result = *iter;
+    Dump(*result);
+    printf("\n");
+  }
+  STLDeleteContainerPointers(results.begin(), results.end());
 }
 
 }  // namespace
