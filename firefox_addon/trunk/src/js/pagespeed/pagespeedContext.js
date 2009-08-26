@@ -572,4 +572,16 @@ Firebug.registerModule(Firebug.PageSpeedModule);
 
 }});  // FBL.ns
 
+
+// Features under development that change the GUI need to be able to
+// hide changes for non-developers.  We do this by setting a pref
+// to un-hide the feature, and removing the pref when the feature is
+// done.
+PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.addCallback(
+    function() {
+      PAGESPEED.Utils.setItemVisibilityByPref(
+          'extensions.PageSpeed.content_filter.enabled',
+          'psContentFilterMenu');
+    });
+
 })();  // End closure

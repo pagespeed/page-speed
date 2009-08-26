@@ -119,18 +119,40 @@
 
         <spacer width="5px"/>
 
-        <toolbarbutton id="psExportMenu" label="Export Results" group="pagespeedButtons" type="menu" disabled="true">
+        <toolbarbutton id="psExportMenu"
+                       label="Export Results"
+                       group="pagespeedButtons"
+                       type="menu"
+                       disabled="true">
           <menupopup>
  	    <menuitem id="psJsonExport"
-               label="Write JSON file" command="cmd_page_speed_json_export"/>
+                      label="Write JSON file"
+                      command="cmd_page_speed_json_export"/>
 	    <menuitem id="psMinimalBeacon"
-               label="Send scores to service"
-               command="cmd_page_speed_minimal_beacon"
-               collapsed="true"/>
-	    <menuitem id="psFullResultsBeacon"
-               label="Send all results to service"
-               command="cmd_page_speed_full_results_beacon"
-               collapsed="true"/>
+                      label="Send scores to service"
+                      command="cmd_page_speed_minimal_beacon"
+                      collapsed="true"/>
+            <menuitem id="psFullResultsBeacon"
+                      label="Send all results to service"
+                      command="cmd_page_speed_full_results_beacon"
+                      collapsed="true"/>
+          </menupopup>
+        </toolbarbutton>
+
+	<toolbarbutton id="psContentFilterMenu"
+                       label="Filter Results"
+                       group="pagespeedButtons"
+                       type="menu"
+ 	               collapsed="true">
+          <menupopup>
+ 	    <menuitem id="psAnalyzeAds"
+                      label="Analyze Ads"
+                      type="checkbox"
+                      checked="true"/>
+ 	    <menuitem id="psAnalyzeNonAds"
+                      label="Analyze Non-Ads"
+                      type="checkbox"
+                      checked="true"/>
           </menupopup>
         </toolbarbutton>
 
