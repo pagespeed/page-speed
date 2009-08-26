@@ -75,27 +75,6 @@ PAGESPEED.ResultsWriter.openJsonExportDialog = function(resultsContainer) {
 };
 
 /**
- * Each beacon can be enabled or disabled by a preference.
- * For a given beacon menu item, this function reads the preference
- * and sets the visibility of the menu item appropriately.
- * @param {string} prefName The boolean preference that enables
- *     this menu item.
- * @param {string} menuItemId An id for the menu item, used to
- *     locate it with document.getElementById().
- */
-PAGESPEED.ResultsWriter.setItemVisibilityByPref = function(
-    prefName, menuItemId) {
-
-  // Should the menu item be in the menu?  An unset pref means the
-  // menu item is disabled.
-  var menuItemEnabled = PAGESPEED.Utils.getBoolPref(prefName, false);
-
-  // Collapsed menu items are not shown.
-  var menuItem = document.getElementById(menuItemId);
-  menuItem.setAttribute('collapsed', !menuItemEnabled);
-};
-
-/**
  * This function enables or disables the "Export Results" menu
  * based on the presence of a resuls object on a tab.
  * @param {Object} data The properties of data we look at are:
@@ -117,12 +96,12 @@ PAGESPEED.ResultsWriter.updateExportMenu = function(data) {
 
   exportMenu.removeAttribute('disabled');
 
-  PAGESPEED.ResultsWriter.setItemVisibilityByPref(
+  PAGESPEED.Utils.setItemVisibilityByPref(
       'extensions.PageSpeed.beacon.minimal.enabled',
       'psMinimalBeacon'
       );
 
-  PAGESPEED.ResultsWriter.setItemVisibilityByPref(
+  PAGESPEED.Utils.setItemVisibilityByPref(
       'extensions.PageSpeed.beacon.full_results.enabled',
       'psFullResultsBeacon'
       );

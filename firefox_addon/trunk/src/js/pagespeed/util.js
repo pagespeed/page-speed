@@ -2313,6 +2313,25 @@ PAGESPEED.Utils = {  // Begin namespace
     }
 
     return url;
+  },
+
+  /**
+   * Some menus and menu items can be enabled or disabled by a preference.
+   * For a given XUL element, this function reads a preference
+   * and sets the visibility of the XUL element appropriately.
+   * @param {string} prefName The boolean preference that enables
+   *     this element.
+   * @param {string} menuItemId An id for the XUL element, used to
+   *     locate it with document.getElementById().
+   */
+  setItemVisibilityByPref: function(prefName, menuItemId) {
+    // Should the menu item be in the menu?  An unset pref means the
+    // menu item is disabled.
+    var menuItemEnabled = PAGESPEED.Utils.getBoolPref(prefName, false);
+
+    // Collapsed menu items are not shown.
+    var menuItem = document.getElementById(menuItemId);
+    menuItem.setAttribute('collapsed', !menuItemEnabled);
   }
 };  // End namespace
 
