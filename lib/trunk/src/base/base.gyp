@@ -41,6 +41,7 @@
         'platform_thread_mac.mm',
         'platform_thread_posix.cc',
         'platform_thread_win.cc',
+        'registry.cc',
         'string16.cc',
         'string_piece.cc',
         'string_util.cc',
@@ -51,6 +52,7 @@
         'sys_string_conversions_linux.cc',
         'sys_string_conversions_mac.mm',
         'sys_string_conversions_win.cc',
+        'win_util.cc',
       ],
       'include_dirs': [
         '..',
@@ -92,7 +94,20 @@
             },
           }
         ],
-
+        [ 'OS == "win"', {
+            'sources/': [ ['exclude', '_(linux|mac|posix|chromeos)\\.cc$'],
+                          ['exclude', '\\.mm?$' ] ],
+            'sources!': [
+              'string16.cc',
+            ],
+          },
+          {  # else: OS != "win"
+            'sources!': [
+              'registry.cc',
+              'win_util.cc',
+            ],
+          },
+        ],
       ]
     },
     {
@@ -106,12 +121,20 @@
         'string_piece_unittest.cc',
         'string_util_unittest.cc',
         'sys_string_conversions_unittest.cc',
+        'win_util_unittest.cc',
       ],
       'dependencies': [
         'base',
         '../testing/gmock.gyp:gmock',
         '../testing/gtest.gyp:gtest',
         '../testing/gtest.gyp:gtestmain',
+      ],
+      'conditions': [
+        ['OS != "win"', {
+          'sources!': [
+            'win_util_unittest.cc',
+          ],
+        }],
       ],
     },
   ]
