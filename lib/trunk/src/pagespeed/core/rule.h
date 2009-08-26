@@ -21,6 +21,7 @@ namespace pagespeed {
 
 class PagespeedInput;
 class Resource;
+class ResultText;
 class Results;
 
 /**
@@ -37,6 +38,14 @@ class Rule {
   // @param results
   // @return true iff the computation was completed without errors.
   virtual bool AppendResults(const PagespeedInput& input, Results* results) = 0;
+
+  // Interpret the results structure to produce a text representation
+  // of the result.
+  //
+  // @param results Results to interpret
+  // @param result_text Text output
+  virtual void InterpretResults(const Results& results,
+                                ResultText* result_text) = 0;
 };
 
 }  // namespace pagespeed

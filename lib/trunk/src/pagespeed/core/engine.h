@@ -27,6 +27,7 @@
 namespace pagespeed {
 
 class PagespeedInput;
+class ResultText;
 class Results;
 class Rule;
 
@@ -42,6 +43,10 @@ class Engine {
   // objects about results they produce.
   // @return true iff the computation was completed without errors.
   bool GetResults(const PagespeedInput& input, Results* results);
+
+  // @return true iff the computation was completed without errors.
+  bool ComputeResultText(const PagespeedInput& input,
+                         std::vector<ResultText*>* results);
 
  private:
   std::vector<Rule*> rules_;

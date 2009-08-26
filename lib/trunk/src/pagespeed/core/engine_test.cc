@@ -24,6 +24,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::ProtoInput;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultText;
 using pagespeed::Rule;
 
 namespace {
@@ -37,6 +38,10 @@ class TestRule : public Rule {
     Result* result = results->add_results();
     result->set_rule_name("TestRule");
     return true;
+  }
+
+  virtual void InterpretResults(const Results& results,
+                                ResultText* result_text) {
   }
 
  private:

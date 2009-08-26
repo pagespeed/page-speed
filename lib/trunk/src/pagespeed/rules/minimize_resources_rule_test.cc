@@ -41,6 +41,21 @@ using pagespeed::Rule;
 
 namespace {
 
+class Violation {
+ public:
+  Violation(int _expected_rt_savings,
+            const std::string& _host,
+            const std::vector<std::string>& _urls)
+      : expected_rt_savings(_expected_rt_savings),
+        host(_host),
+        urls(_urls) {
+  }
+
+  int expected_rt_savings;
+  std::string host;
+  std::vector<std::string> urls;
+};
+
 class MinimizeResourcesTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
@@ -65,9 +80,7 @@ class MinimizeResourcesTest : public ::testing::Test {
   }
 
   void CheckViolations(ResourceType type,
-                       int expected_rt_savings,
-                       int expected_violation_hosts,
-                       const std::vector<std::string>& expected_violations) {
+                       const std::vector<Violation>& expected_violations) {
     PagespeedInput input(proto_input_.get());
 
     scoped_ptr<Rule> resource_rule;
@@ -84,25 +97,33 @@ class MinimizeResourcesTest : public ::testing::Test {
 
     Results results;
     resource_rule->AppendResults(input, &results);
-    ASSERT_EQ(results.results_size(), 1);
-    const Result* result = &results.results(0);
+    ASSERT_EQ(results.results_size(), expected_violations.size());
+    for (int idx = 0; idx < results.results_size(); idx++) {
+      const Result* result = &results.results(idx);
+      const Violation& violation = expected_violations[idx];
 
-    ASSERT_EQ(result->rule_name(), rule_name);
-    ASSERT_EQ(result->savings().requests_saved(), expected_rt_savings);
+      ASSERT_EQ(result->rule_name(), rule_name);
+      ASSERT_EQ(result->savings().requests_saved(),
+                violation.expected_rt_savings);
 
-    const ResultDetails& details = result->details();
-    const pagespeed::MinimizeResourcesDetails& resource_details =
-        details.GetExtension(
-            pagespeed::MinimizeResourcesDetails::message_set_extension);
+      const ResultDetails& details = result->details();
+      const pagespeed::MinimizeResourcesDetails& resource_details =
+          details.GetExtension(
+              pagespeed::MinimizeResourcesDetails::message_set_extension);
 
-    EXPECT_EQ(resource_details.num_violation_hosts(), expected_violation_hosts);
-    ASSERT_EQ(resource_details.violation_urls_size(),
-              expected_violations.size());
+      ASSERT_EQ(resource_details.violation_urls_size(),
+                violation.urls.size());
 
-    for (int idx = 0; idx < resource_details.violation_urls_size(); ++idx) {
-      EXPECT_EQ(resource_details.violation_urls(idx),
-                expected_violations[idx]);
-                }
+      EXPECT_EQ(resource_details.violation_host(),
+                violation.host);
+
+      for (int url_idx = 0;
+           url_idx < resource_details.violation_urls_size();
+           ++url_idx) {
+        EXPECT_EQ(resource_details.violation_urls(url_idx),
+                  violation.urls[url_idx]);
+      }
+    }
   }
 
  private:
@@ -114,10 +135,10 @@ TEST_F(MinimizeResourcesTest, OneUrlNoViolation) {
 
   AddTestResource(url, "text/css");
 
-  std::vector<std::string> no_violations;
+  std::vector<Violation> no_violations;
 
-  CheckViolations(pagespeed::JS, 0, 0, no_violations);
-  CheckViolations(pagespeed::CSS, 0, 0, no_violations);
+  CheckViolations(pagespeed::JS, no_violations);
+  CheckViolations(pagespeed::CSS, no_violations);
 }
 
 TEST_F(MinimizeResourcesTest, TwoCssResourcesFromOneHostViolation) {
@@ -127,14 +148,17 @@ TEST_F(MinimizeResourcesTest, TwoCssResourcesFromOneHostViolation) {
   AddTestResource(url1, "text/css");
   AddTestResource(url2, "text/css");
 
-  std::vector<std::string> no_violations;
+  std::vector<Violation> no_violations;
 
-  std::vector<std::string> css_violations;
-  css_violations.push_back(url1);
-  css_violations.push_back(url2);
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
 
-  CheckViolations(pagespeed::CSS, 1, 1, css_violations);
-  CheckViolations(pagespeed::JS, 0, 0, no_violations);
+  std::vector<Violation> css_violations;
+  css_violations.push_back(Violation(1, "foo.com", urls));
+
+  CheckViolations(pagespeed::CSS, css_violations);
+  CheckViolations(pagespeed::JS, no_violations);
 }
 
 TEST_F(MinimizeResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
@@ -144,10 +168,10 @@ TEST_F(MinimizeResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
   AddTestResource(url1, "text/css");
   AddTestResource(url2, "text/css");
 
-  std::vector<std::string> no_violations;
+  std::vector<Violation> no_violations;
 
-  CheckViolations(pagespeed::CSS, 0, 0, no_violations);
-  CheckViolations(pagespeed::JS, 0, 0, no_violations);
+  CheckViolations(pagespeed::CSS, no_violations);
+  CheckViolations(pagespeed::JS, no_violations);
 }
 
 TEST_F(MinimizeResourcesTest, FourCssResourcesFromTwoHostsViolation) {
@@ -161,16 +185,22 @@ TEST_F(MinimizeResourcesTest, FourCssResourcesFromTwoHostsViolation) {
   AddTestResource(url3, "text/css");
   AddTestResource(url4, "text/css");
 
-  std::vector<std::string> no_violations;
+  std::vector<Violation> no_violations;
 
-  std::vector<std::string> css_violations;
-  css_violations.push_back(url1);
-  css_violations.push_back(url2);
-  css_violations.push_back(url3);
-  css_violations.push_back(url4);
+  std::vector<std::string> aUrls;
+  aUrls.push_back(url1);
+  aUrls.push_back(url2);
 
-  CheckViolations(pagespeed::CSS, 2, 2, css_violations);
-  CheckViolations(pagespeed::JS, 0, 0, no_violations);
+  std::vector<std::string> bUrls;
+  bUrls.push_back(url3);
+  bUrls.push_back(url4);
+
+  std::vector<Violation> css_violations;
+  css_violations.push_back(Violation(1, "a.com", aUrls));
+  css_violations.push_back(Violation(1, "b.com", bUrls));
+
+  CheckViolations(pagespeed::CSS, css_violations);
+  CheckViolations(pagespeed::JS, no_violations);
 }
 
 TEST_F(MinimizeResourcesTest, ThreeCssResourcesFromOneHostViolation) {
@@ -182,14 +212,18 @@ TEST_F(MinimizeResourcesTest, ThreeCssResourcesFromOneHostViolation) {
   AddTestResource(url2, "text/css");
   AddTestResource(url3, "text/css");
 
-  std::vector<std::string> no_violations;
-  std::vector<std::string> css_violations;
-  css_violations.push_back(url1);
-  css_violations.push_back(url2);
-  css_violations.push_back(url3);
+  std::vector<Violation> no_violations;
 
-  CheckViolations(pagespeed::CSS, 2, 1, css_violations);
-  CheckViolations(pagespeed::JS, 0, 0, no_violations);
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+  urls.push_back(url3);
+
+  std::vector<Violation> css_violations;
+  css_violations.push_back(Violation(2, "foo.com", urls));
+
+  CheckViolations(pagespeed::CSS, css_violations);
+  CheckViolations(pagespeed::JS, no_violations);
 }
 
 TEST_F(MinimizeResourcesTest, TwoJsResourcesFromOneHostViolation) {
@@ -199,13 +233,17 @@ TEST_F(MinimizeResourcesTest, TwoJsResourcesFromOneHostViolation) {
   AddTestResource(url1, "application/x-javascript");
   AddTestResource(url2, "application/x-javascript");
 
-  std::vector<std::string> no_violations;
-  std::vector<std::string> js_violations;
-  js_violations.push_back(url1);
-  js_violations.push_back(url2);
+  std::vector<Violation> no_violations;
 
-  CheckViolations(pagespeed::CSS, 0, 0, no_violations);
-  CheckViolations(pagespeed::JS, 1, 1, js_violations);
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+
+  std::vector<Violation> js_violations;
+  js_violations.push_back(Violation(1, "foo.com", urls));
+
+  CheckViolations(pagespeed::CSS, no_violations);
+  CheckViolations(pagespeed::JS, js_violations);
 }
 
 }  // namespace

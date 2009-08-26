@@ -26,8 +26,8 @@ message MinimizeResourcesDetails {
     optional MinimizeResourcesDetails message_set_extension = 5073262;  // int('Min')
   }
 
-  // Number of hosts that contain violations.
-  optional int32 num_violation_hosts = 1;
+  // Host where the violation happened
+  optional string violation_host = 1;
 
   // List of wasteful url requests
   repeated string violation_urls = 2;

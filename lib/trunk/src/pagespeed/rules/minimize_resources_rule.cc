@@ -31,18 +31,7 @@ MinimizeResourcesRule::MinimizeResourcesRule(const char* rule_name,
 
 bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
                                           Results* results) {
-  Result* result = results->add_results();
-  result->set_rule_name(rule_name_);
-
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
-
-  ResultDetails* details = result->mutable_details();
-  pagespeed::MinimizeResourcesDetails* resources_details =
-      details->MutableExtension(
-      pagespeed::MinimizeResourcesDetails::message_set_extension);
-
-  int requests_saved = 0;
-  int num_violation_hosts = 0;
 
   for (HostResourceMap::const_iterator iter = host_resource_map.begin(),
            end = host_resource_map.end();
@@ -72,7 +61,15 @@ bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
     }
 
     if (violations.size() > 1) {
-      num_violation_hosts++;
+      Result* result = results->add_results();
+      result->set_rule_name(rule_name_);
+
+      ResultDetails* details = result->mutable_details();
+      pagespeed::MinimizeResourcesDetails* resources_details =
+          details->MutableExtension(
+              pagespeed::MinimizeResourcesDetails::message_set_extension);
+
+      int requests_saved = 0;
       requests_saved += (violations.size() - 1);
       for (ResourceVector::const_iterator violation_iter = violations.begin(),
                violation_end = violations.end();
@@ -81,15 +78,56 @@ bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
         resources_details->add_violation_urls(
           (*violation_iter)->GetRequestUrl());
       }
+
+      resources_details->set_violation_host(iter->first);
+
+      pagespeed::Savings* savings = result->mutable_savings();
+      savings->set_requests_saved(requests_saved);
     }
   }
 
-  resources_details->set_num_violation_hosts(num_violation_hosts);
-
-  pagespeed::Savings* savings = result->mutable_savings();
-  savings->set_requests_saved(requests_saved);
-
   return true;
+}
+
+void MinimizeResourcesRule::InterpretResults(const Results& results,
+                                             ResultText* result_text) {
+  const char* body_tmpl = NULL;
+  if (resource_type_ == CSS) {
+    result_text->set_format("Combine external CSS");
+    body_tmpl = "There are $1 CSS files served from $2. "
+        "They should be combined into as few files as possible.";
+  } else if (resource_type_ == JS) {
+    result_text->set_format("Combine external Javascript");
+    body_tmpl = "There are $1 JavaScript files served from $2. "
+        "They should be combined into as few files as possible.";
+  } else {
+    CHECK(false);
+  }
+
+  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
+    const Result& result = results.results(result_idx);
+    const ResultDetails& details = result.details();
+    const MinimizeResourcesDetails& minimize_details = details.GetExtension(
+        MinimizeResourcesDetails::message_set_extension);
+
+    ResultText* body = result_text->add_children();
+    body->set_format(body_tmpl);
+    FormatArgument* count = body->add_args();
+    count->set_type(FormatArgument::INT_LITERAL);
+    count->set_int_literal(minimize_details.violation_urls_size());
+    FormatArgument* host = body->add_args();
+    host->set_type(FormatArgument::STRING_LITERAL);
+    host->set_string_literal(minimize_details.violation_host());
+
+    for (int idx = 0; idx < minimize_details.violation_urls_size(); idx++) {
+      ResultText* url = body->add_children();
+      url->set_format("$1");
+
+      FormatArgument* url_arg = url->add_args();
+      url_arg->set_type(FormatArgument::URL);
+      url_arg->set_url(minimize_details.violation_urls(idx));
+    }
+  }
 }
 
 MinimizeJsResourcesRule::MinimizeJsResourcesRule()
