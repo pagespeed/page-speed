@@ -14,7 +14,6 @@
 
 #include "pagespeed/rules/minimize_dns_rule.h"
 
-#include <arpa/inet.h>
 #include <string>
 
 #include "base/logging.h"
@@ -23,6 +22,18 @@
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_dns_details.pb.h"
 
+// Unfortunately, including Winsock2.h before the other dependencies
+// causes a build error due to a conflict with the protobuf library,
+// so we are forced to push these includes to the bottom of the
+// include list. See
+// http://code.google.com/p/protobuf/issues/detail?id=44 for more
+// information.
+#if defined(_WINDOWS)
+#include <Winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 namespace {
 
 bool IsAnIPAddress(const char* str) {
@@ -30,19 +41,13 @@ bool IsAnIPAddress(const char* str) {
     return false;
   }
 
-  // Try to parse the string as an IPv4 address first. (glibc does not
-  // yet recognize IPv4 addresses when given an address family of
-  // AF_INET, but at some point it will, and at that point the other way
-  // around would break.)
-  in_addr addr4;
-  if (inet_pton(AF_INET, str, &addr4) > 0) {
+  if (inet_addr(str) != INADDR_NONE) {
     return true;
   }
 
-  in6_addr addr6;
-  if (inet_pton(AF_INET6, str, &addr6) > 0) {
-    return true;
-  }
+  // TODO: add support for IPv6 addresses. See
+  // http://code.google.com/p/page-speed/issues/detail?id=109 for more
+  // information.
 
   return false;
 }

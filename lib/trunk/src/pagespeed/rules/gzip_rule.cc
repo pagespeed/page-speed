@@ -14,7 +14,6 @@
 
 #include "pagespeed/rules/gzip_rule.h"
 
-#include <math.h>
 #include <string>
 
 #include "base/string_util.h"
@@ -22,13 +21,6 @@
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/rules/gzip_details.pb.h"
-
-namespace {
-static double ToKiloBytes(int bytes) {
-  return round(bytes / 102.4f) / 10.0f;
-}
-
-}  // namespace
 
 namespace pagespeed {
 
@@ -91,13 +83,13 @@ void GzipRule::InterpretResults(const Results& results,
 
       FormatArgument* savings = item->add_args();
       savings->set_type(FormatArgument::DOUBLE_LITERAL);
-      savings->set_double_literal(ToKiloBytes(url_savings.saved_bytes()));
+      savings->set_double_literal(url_savings.saved_bytes() / 1024.0f);
 
       total_bytes_saved += url_savings.saved_bytes();
     }
   }
 
-  float total_kb_saved = ToKiloBytes(total_bytes_saved);
+  float total_kb_saved = total_bytes_saved / 1024.0f;
 
   body->set_format("Compressing the following "
                    "resources with gzip could reduce "
