@@ -15,13 +15,13 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@23644",
+  "chromium_revision": "@24599",
 }
 
 
 deps = {
   "src/googleurl":
-    "http://google-url.googlecode.com/svn/trunk@110",
+    "http://google-url.googlecode.com/svn/trunk@115",
 
   "src/testing/gtest":
     "http://googletest.googlecode.com/svn/trunk@267",
