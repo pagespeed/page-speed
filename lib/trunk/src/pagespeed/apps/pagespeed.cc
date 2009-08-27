@@ -16,6 +16,8 @@
 
 #include <fstream>
 
+#include <stdio.h>
+
 #include "base/logging.h"
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "base/string_util.h"
@@ -27,6 +29,19 @@
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
+
+#if defined(_WINDOWS)
+// Windows defines its own variants of the printf functions, so we
+// must write our own version of snprintf that delegates to the
+// Windows implementation.
+int snprintf(char *str, size_t size, const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  int result = vsnprintf_s(str, size, _TRUNCATE, format, args);
+  va_end(args);
+  return result;
+}
+#endif
 
 template <typename FormatArguments>
 std::string Format(const std::string& format_str, const FormatArguments& args) {
