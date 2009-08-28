@@ -22,8 +22,6 @@
 
 namespace pagespeed {
 
-class ProtoResource;
-
 enum ResourceType {
   HTML,
   TEXT,
@@ -34,12 +32,23 @@ enum ResourceType {
 };
 
 /**
- * Resource backed by pagespeed_input.proto::ProtoResource.
+ * Represents an individual input resource.
  */
 class Resource {
  public:
-  explicit Resource(const ProtoResource& input);
+  Resource();
   virtual ~Resource();
+
+  // Setter methods
+  void SetRequestUrl(const std::string& value);
+  void SetRequestMethod(const std::string& value);
+  void SetRequestProtocol(const std::string& value);
+  void AddRequestHeader(const std::string& name, const std::string& value);
+  void SetRequestBody(const std::string& value);
+  void SetResponseStatusCode(int code);
+  void SetResponseProtocol(const std::string& value);
+  void AddResponseHeader(const std::string& name, const std::string& value);
+  void SetResponseBody(const std::string& value);
 
   // Accessor methods
   const std::string& GetRequestUrl() const;
@@ -64,15 +73,15 @@ class Resource {
   ResourceType GetResourceType() const;
 
  private:
-  const std::string request_url_;
-  const std::string request_method_;
-  const std::string request_protocol_;
+  std::string request_url_;
+  std::string request_method_;
+  std::string request_protocol_;
   std::map<std::string, std::string> request_headers_;
-  const std::string request_body_;
-  const int status_code_;
-  const std::string response_protocol_;
+  std::string request_body_;
+  int status_code_;
+  std::string response_protocol_;
   std::map<std::string, std::string> response_headers_;
-  const std::string response_body_;
+  std::string response_body_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
 };

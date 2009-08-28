@@ -23,19 +23,24 @@
 
 namespace pagespeed {
 
-class ProtoInput;
 class Resource;
 
 typedef std::vector<const Resource*> ResourceVector;
 typedef std::map<std::string, ResourceVector> HostResourceMap;
 
 /**
- * Input backed by pagespeed_input.proto::ProtoInput.
+ * Input set representation
  */
 class PagespeedInput {
  public:
-  explicit PagespeedInput(const ProtoInput* input_proto);
-  ~PagespeedInput();
+  PagespeedInput();
+  virtual ~PagespeedInput();
+
+  // Setters
+  // Adds a resource to the list.
+  // Ownership of the resource is transfered over to the
+  // PagespeedInput object.
+  void AddResource(const Resource* resource);
 
   // Resource access.
   int num_resources() const;
@@ -44,7 +49,6 @@ class PagespeedInput {
 
  private:
   std::vector<const Resource*> resources_;
-  const ProtoInput* input_proto_;
   HostResourceMap host_resource_map_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);

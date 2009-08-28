@@ -14,14 +14,12 @@
 
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/rule.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Engine;
 using pagespeed::PagespeedInput;
-using pagespeed::ProtoInput;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultText;
@@ -49,9 +47,7 @@ class TestRule : public Rule {
 };
 
 TEST(EngineTest, BasicTest) {
-  ProtoInput proto_input;
-
-  PagespeedInput input(&proto_input);
+  PagespeedInput input;
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());

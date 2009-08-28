@@ -20,7 +20,6 @@
 
 #include "base/logging.h"
 #include "googleurl/src/gurl.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
 
 namespace {
 
@@ -43,44 +42,70 @@ std::string GetNormalizedIdentifier(const std::string& name) {
 
 namespace pagespeed {
 
-typedef ::google::protobuf::RepeatedPtrField<ProtoResource::Header> HeaderList;
-
-Resource::Resource(const ProtoResource& input)
-    : request_url_(input.request_url()),
-      request_method_(input.request_method()),
-      request_protocol_(input.request_protocol()),
-      request_body_(input.request_body()),
-      status_code_(input.response_status_code()),
-      response_protocol_(input.response_protocol()),
-      response_body_(input.response_body()) {
-  const HeaderList& request_headers = input.request_headers();
-  for (HeaderList::const_iterator iter = request_headers.begin(),
-           end = request_headers.end();
-       iter != end;
-       ++iter) {
-    const std::string key = GetNormalizedIdentifier(iter->key());
-    std::string& header = request_headers_[key];
-    if (!header.empty()) {
-      header += ",";
-    }
-    header += iter->value();
-  }
-
-  const HeaderList& response_headers = input.response_headers();
-  for (HeaderList::const_iterator iter = response_headers.begin(),
-           end = response_headers.end();
-       iter != end;
-       ++iter) {
-    const std::string key = GetNormalizedIdentifier(iter->key());
-    std::string& header = response_headers_[key];
-    if (!header.empty()) {
-      header += ",";
-    }
-    header += iter->value();
-  }
+Resource::Resource() {
 }
 
 Resource::~Resource() {
+}
+
+void Resource::SetRequestUrl(const std::string& value) {
+  request_url_ = value;
+}
+
+void Resource::SetRequestMethod(const std::string& value) {
+  request_method_ = value;
+}
+
+void Resource::SetRequestProtocol(const std::string& value) {
+  request_protocol_ = value;
+}
+
+void Resource::AddRequestHeader(const std::string& name,
+				const std::string& value) {
+  const std::string key = GetNormalizedIdentifier(name);
+  std::string& header = request_headers_[key];
+  if (!header.empty()) {
+    // In order to avoid keeping headers in a multi-map, we merge
+    // duplicate headers are merged using commas.  This transformation is
+    // allowed by the http 1.1 RFC.
+    //
+    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+    // TODO change to preserve header structure if we need to.
+    header += ",";
+  }
+  header += value;
+}
+
+void Resource::SetRequestBody(const std::string& value) {
+  request_body_ = value;
+}
+
+void Resource::SetResponseStatusCode(int code) {
+  status_code_ = code;
+}
+
+void Resource::SetResponseProtocol(const std::string& value) {
+  response_protocol_ = value;
+}
+
+void Resource::AddResponseHeader(const std::string& name,
+				 const std::string& value) {
+  const std::string key = GetNormalizedIdentifier(name);
+  std::string& header = response_headers_[key];
+  if (!header.empty()) {
+    // In order to avoid keeping headers in a multi-map, we merge
+    // duplicate headers are merged using commas.  This transformation is
+    // allowed by the http 1.1 RFC.
+    //
+    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+    // TODO change to preserve header structure if we need to.
+    header += ",";
+  }
+  header += value;
+}
+
+void Resource::SetResponseBody(const std::string& value) {
+  response_body_ = value;
 }
 
 const std::string& Resource::GetRequestUrl() const {

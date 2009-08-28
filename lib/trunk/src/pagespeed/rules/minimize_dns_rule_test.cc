@@ -17,8 +17,8 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/rules/minimize_dns_details.pb.h"
 #include "pagespeed/rules/minimize_dns_rule.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -26,8 +26,7 @@
 using pagespeed::MinimizeDnsDetails;
 using pagespeed::MinimizeDnsRule;
 using pagespeed::PagespeedInput;
-using pagespeed::ProtoInput;
-using pagespeed::ProtoResource;
+using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::ResultDetails;
 using pagespeed::Results;
@@ -37,30 +36,31 @@ namespace {
 class MinimizeDnsTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    proto_input_.reset(new ProtoInput);
+    input_.reset(new PagespeedInput);
   }
 
   virtual void TearDown() {
-    proto_input_.reset();
+    input_.reset();
   }
 
   void AddTestResource(const std::string& url) {
-    ProtoResource* proto_resource = proto_input_->add_resources();
-    proto_resource->set_request_url(url);
-    proto_resource->set_request_method("GET");
-    proto_resource->set_request_protocol("HTTP");
-    proto_resource->set_response_status_code(200);
-    proto_resource->set_response_protocol("HTTP/1.1");
+    Resource* resource = new Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetRequestProtocol("HTTP");
+    resource->SetResponseStatusCode(200);
+    resource->SetResponseProtocol("HTTP/1.1");
+
+    input_->AddResource(resource);
   }
 
   void CheckViolations(int expected_num_hosts,
                        int expected_dns_savings,
                        const std::vector<std::string>& expected_violations) {
-    PagespeedInput input(proto_input_.get());
     MinimizeDnsRule dns_rule;
 
     Results results;
-    dns_rule.AppendResults(input, &results);
+    dns_rule.AppendResults(*input_, &results);
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -76,11 +76,11 @@ class MinimizeDnsTest : public ::testing::Test {
 
     for (int idx = 0; idx < dns_details.violation_urls_size(); ++idx) {
       EXPECT_EQ(dns_details.violation_urls(idx), expected_violations[idx]);
-      }
+    }
   }
 
  private:
-  scoped_ptr<ProtoInput> proto_input_;
+  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(MinimizeDnsTest, OneUrlNoViolation) {
