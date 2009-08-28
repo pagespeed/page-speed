@@ -18,9 +18,7 @@
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
-#include "pagespeed/core/proto_resource_utils.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/rules/minimize_resources_details.pb.h"
 #include "pagespeed/rules/minimize_resources_rule.h"
@@ -30,9 +28,7 @@ using pagespeed::MinimizeCssResourcesRule;
 using pagespeed::MinimizeJsResourcesRule;
 using pagespeed::MinimizeResourcesDetails;
 using pagespeed::PagespeedInput;
-using pagespeed::ProtoInput;
-using pagespeed::ProtoResource;
-using pagespeed::ProtoResourceUtils;
+using pagespeed::Resource;
 using pagespeed::ResourceType;
 using pagespeed::Result;
 using pagespeed::ResultDetails;
@@ -59,30 +55,27 @@ class Violation {
 class MinimizeResourcesTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    proto_input_.reset(new ProtoInput);
+    input_.reset(new PagespeedInput);
   }
 
   virtual void TearDown() {
-    proto_input_.reset();
+    input_.reset();
   }
 
   void AddTestResource(const std::string& url,
                        const std::string& content_type) {
-    ProtoResource* proto_resource = proto_input_->add_resources();
-    proto_resource->set_request_url(url);
-    ProtoResourceUtils::AddResponseHeader(
-        proto_resource, "Content-Type", content_type);
-
-    proto_resource->set_request_method("GET");
-    proto_resource->set_request_protocol("HTTP");
-    proto_resource->set_response_status_code(200);
-    proto_resource->set_response_protocol("HTTP/1.1");
+    Resource* resource = new Resource;
+    resource->SetRequestUrl(url);
+    resource->AddResponseHeader("Content-Type", content_type);
+    resource->SetRequestMethod("GET");
+    resource->SetRequestProtocol("HTTP");
+    resource->SetResponseStatusCode(200);
+    resource->SetResponseProtocol("HTTP/1.1");
+    input_->AddResource(resource);
   }
 
   void CheckViolations(ResourceType type,
                        const std::vector<Violation>& expected_violations) {
-    PagespeedInput input(proto_input_.get());
-
     scoped_ptr<Rule> resource_rule;
     const char* rule_name = NULL;
     if (type == pagespeed::CSS) {
@@ -96,7 +89,7 @@ class MinimizeResourcesTest : public ::testing::Test {
     }
 
     Results results;
-    resource_rule->AppendResults(input, &results);
+    resource_rule->AppendResults(*input_, &results);
     ASSERT_EQ(results.results_size(), expected_violations.size());
     for (int idx = 0; idx < results.results_size(); idx++) {
       const Result* result = &results.results(idx);
@@ -127,7 +120,7 @@ class MinimizeResourcesTest : public ::testing::Test {
   }
 
  private:
-  scoped_ptr<ProtoInput> proto_input_;
+  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(MinimizeResourcesTest, OneUrlNoViolation) {

@@ -16,9 +16,8 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
-#include "pagespeed/core/proto_resource_utils.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/rules/gzip_details.pb.h"
 #include "pagespeed/rules/gzip_rule.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -26,9 +25,7 @@
 using pagespeed::GzipDetails;
 using pagespeed::GzipRule;
 using pagespeed::PagespeedInput;
-using pagespeed::ProtoInput;
-using pagespeed::ProtoResource;
-using pagespeed::ProtoResourceUtils;
+using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::ResultDetails;
 using pagespeed::Results;
@@ -38,11 +35,11 @@ namespace {
 class GzipRuleTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    proto_input_.reset(new ProtoInput);
+    input_.reset(new PagespeedInput);
   }
 
   virtual void TearDown() {
-    proto_input_.reset();
+    input_.reset();
   }
 
   void AddTestResource(const char* url,
@@ -50,31 +47,29 @@ class GzipRuleTest : public ::testing::Test {
                        const char* content_encoding,
                        const char* content_length,
                        const char* body) {
-    ProtoResource* proto_resource = proto_input_->add_resources();
-    proto_resource->set_request_url(url);
-    proto_resource->set_request_method("GET");
-    proto_resource->set_request_protocol("HTTP");
-    proto_resource->set_response_status_code(200);
-    proto_resource->set_response_protocol("HTTP/1.1");
+    Resource* resource = new Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetRequestProtocol("HTTP");
+    resource->SetResponseStatusCode(200);
+    resource->SetResponseProtocol("HTTP/1.1");
 
     if (content_type != NULL) {
-      ProtoResourceUtils::AddResponseHeader(
-          proto_resource, "Content-Type", content_type);
+      resource->AddResponseHeader("Content-Type", content_type);
     }
 
     if (content_encoding != NULL) {
-      ProtoResourceUtils::AddResponseHeader(
-          proto_resource, "Content-Encoding", content_encoding);
+      resource->AddResponseHeader("Content-Encoding", content_encoding);
     }
 
     if (content_length != NULL) {
-      ProtoResourceUtils::AddResponseHeader(
-          proto_resource, "Content-Length", content_length);
+      resource->AddResponseHeader("Content-Length", content_length);
     }
 
     if (body != NULL) {
-      proto_resource->set_response_body(body);
+      resource->SetResponseBody(body);
     }
+    input_->AddResource(resource);
   }
 
   void AddFirstLargeHtmlResource(const char* charset,
@@ -121,20 +116,18 @@ class GzipRuleTest : public ::testing::Test {
   }
 
   void CheckNoViolations() {
-    PagespeedInput input(proto_input_.get());
     GzipRule gzip_rule;
 
     Results results;
-    gzip_rule.AppendResults(input, &results);
+    gzip_rule.AppendResults(*input_, &results);
     ASSERT_EQ(results.results_size(), 0);
   }
 
   void CheckOneViolation() {
-    PagespeedInput input(proto_input_.get());
     GzipRule gzip_rule;
 
     Results results;
-    gzip_rule.AppendResults(input, &results);
+    gzip_rule.AppendResults(*input_, &results);
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -149,11 +142,10 @@ class GzipRuleTest : public ::testing::Test {
   }
 
   void CheckTwoViolations() {
-    PagespeedInput input(proto_input_.get());
     GzipRule gzip_rule;
 
     Results results;
-    gzip_rule.AppendResults(input, &results);
+    gzip_rule.AppendResults(*input_, &results);
     ASSERT_EQ(results.results_size(), 2);
 
     const Result& result0 = results.results(0);
@@ -178,7 +170,7 @@ class GzipRuleTest : public ::testing::Test {
   }
 
  private:
-  scoped_ptr<ProtoInput> proto_input_;
+  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(GzipRuleTest, ViolationLargeHtmlNoGzip) {

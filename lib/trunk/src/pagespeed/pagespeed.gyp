@@ -229,7 +229,6 @@
       'target_name': 'pagespeed_core',
       'type': '<(library)',
       'dependencies': [
-        'pagespeed_input_pb',
         'pagespeed_output_pb',
         '../base/base.gyp:base',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -237,7 +236,6 @@
       'sources': [
         'core/engine.cc',
         'core/pagespeed_input.cc',
-        'core/proto_resource_utils.cc',
         'core/resource.cc',
         'core/rule.cc',
       ],
@@ -270,6 +268,7 @@
       'target_name': 'pagespeed_bin',
       'type': 'executable',
       'dependencies': [
+        'pagespeed_input_pb',
         'pagespeed',
       ],
       'sources': [

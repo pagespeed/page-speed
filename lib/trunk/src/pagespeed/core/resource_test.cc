@@ -13,29 +13,23 @@
 // limitations under the License.
 
 #include "base/scoped_ptr.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
-#include "pagespeed/core/proto_resource_utils.h"
 #include "pagespeed/core/resource.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::ProtoResource;
-using pagespeed::ProtoResourceUtils;
 using pagespeed::Resource;
 
 namespace {
 
 // Verify that builder setters and resource getters work.
 TEST(ResourceTest, SetFields) {
-  ProtoResource proto_resource;
-  proto_resource.set_request_url("http://www.test.com/");
-  proto_resource.set_request_method("GET");
-  proto_resource.set_request_protocol("HTTP");
-  proto_resource.set_request_body("request body");
-  proto_resource.set_response_status_code(200);
-  proto_resource.set_response_protocol("HTTP/1.1");
-  proto_resource.set_response_body("response body");
-
-  const Resource resource(proto_resource);
+  Resource resource;
+  resource.SetRequestUrl("http://www.test.com/");
+  resource.SetRequestMethod("GET");
+  resource.SetRequestProtocol("HTTP");
+  resource.SetRequestBody("request body");
+  resource.SetResponseStatusCode(200);
+  resource.SetResponseProtocol("HTTP/1.1");
+  resource.SetResponseBody("response body");
 
   EXPECT_EQ(resource.GetRequestUrl(), "http://www.test.com/");
   EXPECT_EQ(resource.GetRequestMethod(), "GET");
@@ -48,25 +42,15 @@ TEST(ResourceTest, SetFields) {
 
 // Verify that http header matching is case-insensitive.
 TEST(ResourceTest, HeaderFields) {
-  ProtoResource proto_resource;
-  ProtoResourceUtils::AddRequestHeader(
-      &proto_resource, "request_lower", "Re 1");
-  ProtoResourceUtils::AddRequestHeader(
-      &proto_resource, "REQUEST_UPPER", "Re 2");
-  ProtoResourceUtils::AddResponseHeader(
-      &proto_resource, "response_lower", "Re 3");
-  ProtoResourceUtils::AddResponseHeader(
-      &proto_resource, "RESPONSE_UPPER", "Re 4");
-  ProtoResourceUtils::AddRequestHeader(
-      &proto_resource, "duplicate request", "1");
-  ProtoResourceUtils::AddRequestHeader(
-      &proto_resource, "Duplicate request", "2");
-  ProtoResourceUtils::AddResponseHeader(
-      &proto_resource, "duplicate response", "3");
-  ProtoResourceUtils::AddResponseHeader(
-      &proto_resource, "Duplicate response", "4");
-
-  const Resource resource(proto_resource);
+  Resource resource;
+  resource.AddRequestHeader("request_lower", "Re 1");
+  resource.AddRequestHeader("REQUEST_UPPER", "Re 2");
+  resource.AddResponseHeader("response_lower", "Re 3");
+  resource.AddResponseHeader("RESPONSE_UPPER", "Re 4");
+  resource.AddRequestHeader("duplicate request", "1");
+  resource.AddRequestHeader("Duplicate request", "2");
+  resource.AddResponseHeader("duplicate response", "3");
+  resource.AddResponseHeader("Duplicate response", "4");
 
   EXPECT_EQ(resource.GetRequestHeader("request_lower"), "Re 1");
   EXPECT_EQ(resource.GetRequestHeader("Request_Lower"), "Re 1");

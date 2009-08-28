@@ -16,35 +16,20 @@
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
 #include "pagespeed/core/resource.h"
 
 namespace pagespeed {
 
-PagespeedInput::PagespeedInput(const ProtoInput* input_proto)
-    : input_proto_(input_proto) {
-  CHECK(input_proto != NULL);
-
-  typedef ::google::protobuf::RepeatedPtrField<pagespeed::ProtoResource>
-      ResourceList;
-
-  const ResourceList& serialized_resources = input_proto->resources();
-  for (ResourceList::const_iterator iter = serialized_resources.begin(),
-           end = serialized_resources.end();
-       iter != end;
-       ++iter) {
-    pagespeed::Resource* resource = new pagespeed::Resource(*iter);
-    resources_.push_back(resource);
-  }
-
-  for (int idx = 0, num = num_resources(); idx < num; ++idx) {
-    const Resource& resource = GetResource(idx);
-    host_resource_map_[resource.GetHost()].push_back(&resource);
-  }
+PagespeedInput::PagespeedInput() {
 }
 
 PagespeedInput::~PagespeedInput() {
   STLDeleteContainerPointers(resources_.begin(), resources_.end());
+}
+
+void PagespeedInput::AddResource(const Resource* resource) {
+  resources_.push_back(resource);
+  host_resource_map_[resource->GetHost()].push_back(resource);
 }
 
 int PagespeedInput::num_resources() const {
