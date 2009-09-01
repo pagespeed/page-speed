@@ -20,6 +20,7 @@
     {
       'target_name': 'pagespeed_input_pb',
       'type': '<(library)',
+      'hard_dependency': 1,
       'dependencies': [
           '../third_party/protobuf2/protobuf.gyp:protobuf',
           '../third_party/protobuf2/protobuf.gyp:protoc',
@@ -61,6 +62,7 @@
     {
       'target_name': 'pagespeed_output_pb',
       'type': '<(library)',
+      'hard_dependency': 1,
       'dependencies': [
           '../third_party/protobuf2/protobuf.gyp:protobuf',
           '../third_party/protobuf2/protobuf.gyp:protoc',
@@ -102,6 +104,7 @@
     {
       'target_name': 'gzip_details_pb',
       'type': '<(library)',
+      'hard_dependency': 1,
       'dependencies': [
           'pagespeed_output_pb',
           '../third_party/protobuf2/protobuf.gyp:protoc',
@@ -144,6 +147,7 @@
     {
       'target_name': 'minimize_dns_details_pb',
       'type': '<(library)',
+      'hard_dependency': 1,
       'dependencies': [
           'pagespeed_output_pb',
           '../third_party/protobuf2/protobuf.gyp:protoc',
@@ -186,6 +190,7 @@
     {
       'target_name': 'minimize_resources_details_pb',
       'type': '<(library)',
+      'hard_dependency': 1,
       'dependencies': [
           'pagespeed_output_pb',
           '../third_party/protobuf2/protobuf.gyp:protoc',
