@@ -40,8 +40,7 @@ bool Engine::GetResults(const PagespeedInput& input, Results* results) {
   return success;
 }
 
-bool Engine::ComputeResultText(const PagespeedInput& input,
-                               std::vector<ResultText*>* results_text) {
+bool Engine::FormatResults(const PagespeedInput& input, Formatter* formatter) {
   bool success = true;
   for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
            end = rules_.end();
@@ -52,9 +51,7 @@ bool Engine::ComputeResultText(const PagespeedInput& input,
     success = rule->AppendResults(input, &results) && success;
 
     if (results.results_size() > 0) {
-      ResultText* result_text = new ResultText;
-      rule->InterpretResults(results, result_text);
-      results_text->push_back(result_text);
+      rule->FormatResults(results, formatter);
     }
   }
 

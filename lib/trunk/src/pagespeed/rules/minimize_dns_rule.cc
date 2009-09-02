@@ -17,6 +17,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
@@ -125,8 +126,8 @@ bool MinimizeDnsRule::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void MinimizeDnsRule::InterpretResults(const Results& results,
-                                       ResultText* result_text) {
+void MinimizeDnsRule::FormatResults(const Results& results,
+                                    Formatter* formatter) {
   std::vector<std::string> violation_urls;
   for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
     const Result& result = results.results(result_idx);
@@ -143,23 +144,19 @@ void MinimizeDnsRule::InterpretResults(const Results& results,
     return;
   }
 
-  result_text->set_format("Minimize DNS lookups");
+  Formatter* header = formatter->AddChild("Minimize DNS lookups");
 
-  ResultText* body = result_text->add_children();
-  body->set_format("The domains of the following urls only serve one "
-                   "resource each. If possible, avoid the extra DNS "
-                   "lookups by serving these resources from existing domains.");
+  Formatter* body = header->AddChild(
+      "The domains of the following urls only serve one "
+      "resource each. If possible, avoid the extra DNS "
+      "lookups by serving these resources from existing domains.");
 
   for (std::vector<std::string>::const_iterator iter = violation_urls.begin(),
            end = violation_urls.end();
        iter != end;
        ++iter) {
-    ResultText* url = body->add_children();
-    url->set_format("$1");
-
-    FormatArgument* url_arg = url->add_args();
-    url_arg->set_type(FormatArgument::URL);
-    url_arg->set_url(*iter);
+    Argument url(Argument::URL, *iter);
+    body->AddChild("$1", url);
   }
 }
 

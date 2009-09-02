@@ -17,6 +17,7 @@
 #include <string>
 
 #include "base/string_util.h"
+#include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
@@ -56,13 +57,23 @@ bool GzipRule::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void GzipRule::InterpretResults(const Results& results,
-                                ResultText* result_text) {
-  result_text->set_format("Enable Gzip");
-
-  ResultText* body = result_text->add_children();
+void GzipRule::FormatResults(const Results& results, Formatter* formatter) {
+  Formatter* header = formatter->AddChild("Enable Gzip");
 
   int total_bytes_saved = 0;
+
+  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
+    const Result& result = results.results(result_idx);
+    const Savings& savings = result.savings();
+    total_bytes_saved += savings.response_bytes_saved();
+  }
+
+  Argument arg(Argument::BYTES, total_bytes_saved);
+  Formatter* body = header->AddChild("Compressing the following "
+                                     "resources with gzip could reduce "
+                                     "their transfer size by about two "
+                                     "thirds (~$1).",
+                                     arg);
 
   for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
     const Result& result = results.results(result_idx);
@@ -74,30 +85,12 @@ void GzipRule::InterpretResults(const Results& results,
       const GzipDetails::PerUrlSavings& url_savings =
           gzip_details.url_savings(idx);
 
-      ResultText* item = body->add_children();
-      item->set_format("Compressing $1 could save ~$2kB");
-
-      FormatArgument* url = item->add_args();
-      url->set_type(FormatArgument::URL);
-      url->set_url(url_savings.url());
-
-      FormatArgument* savings = item->add_args();
-      savings->set_type(FormatArgument::DOUBLE_LITERAL);
-      savings->set_double_literal(url_savings.saved_bytes() / 1024.0f);
-
-      total_bytes_saved += url_savings.saved_bytes();
+      Argument url(Argument::URL, url_savings.url());
+      Argument savings(Argument::BYTES, url_savings.saved_bytes());
+      body->AddChild("Compressing $1 could save ~$2", url,
+                     savings);
     }
   }
-
-  float total_kb_saved = total_bytes_saved / 1024.0f;
-
-  body->set_format("Compressing the following "
-                   "resources with gzip could reduce "
-                   "their transfer size by about two "
-                   "thirds (~$1kB).");
-  FormatArgument* arg = body->add_args();
-  arg->set_type(FormatArgument::DOUBLE_LITERAL);
-  arg->set_double_literal(total_kb_saved);
 }
 
 bool GzipRule::isCompressed(const Resource& resource) const {

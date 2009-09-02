@@ -240,6 +240,7 @@
       ],
       'sources': [
         'core/engine.cc',
+        'core/formatter.cc',
         'core/pagespeed_input.cc',
         'core/resource.cc',
         'core/rule.cc',
@@ -270,11 +271,24 @@
       ],
     },
     {
-      'target_name': 'pagespeed_bin',
-      'type': 'executable',
+      'target_name': 'pagespeed_proto',
+      'type': '<(library)',
       'dependencies': [
         'pagespeed_input_pb',
         'pagespeed',
+      ],
+      'sources': [
+        'apps/proto_formatter.cc',
+      ],
+      'include_dirs': [
+        '..',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_bin',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_proto',
       ],
       'sources': [
         'apps/pagespeed.cc',
@@ -338,6 +352,18 @@
       ],
       'sources': [
         'core/resource_test.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_proto_formatter_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_proto',
+        '../testing/gtest.gyp:gtest',
+        '../testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        'apps/proto_formatter_test.cc',
       ],
     },
   ],

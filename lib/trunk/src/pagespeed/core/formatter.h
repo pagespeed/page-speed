@@ -1,0 +1,101 @@
+// Copyright 2009 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#ifndef PAGESPEED_CORE_FORMATTER_H_
+#define PAGESPEED_CORE_FORMATTER_H_
+
+#include <string>
+#include <vector>
+
+#include "base/basictypes.h"
+#include "base/scoped_ptr.h"
+
+namespace pagespeed {
+
+/**
+ * Typed format argument representation.
+ */
+class Argument {
+ public:
+  enum ArgumentType {
+    BYTES,
+    INTEGER,
+    STRING,
+    URL,
+  };
+
+  Argument(ArgumentType type, int value);
+  Argument(ArgumentType type, const std::string& value);
+
+  int int_value() const;
+  const std::string& string_value() const;
+  ArgumentType type() const;
+
+ private:
+  ArgumentType type_;
+  int int_value_;
+  std::string string_value_;
+
+  DISALLOW_COPY_AND_ASSIGN(Argument);
+};
+
+/**
+ * Result text formatter interface.
+ */
+class Formatter {
+ public:
+  virtual ~Formatter();
+
+  // Format an item and add it to the formatter's output stream.
+  // Returns a child formatter, which is valid until the next call to
+  // AddChild on this formatter or one of its parents.  Calls to this
+  // method also delete the previous child and all of its decendents.
+  Formatter* AddChild(const std::string& format_str);
+
+  Formatter* AddChild(const std::string& format_str,
+                      const Argument& arg1);
+
+  Formatter* AddChild(const std::string& format_str,
+                      const Argument& arg1,
+                      const Argument& arg2);
+
+  Formatter* AddChild(const std::string& format_str,
+                      const Argument& arg1,
+                      const Argument& arg2,
+                      const Argument& arg3);
+
+  Formatter* AddChild(const std::string& format_str,
+                      const Argument& arg1,
+                      const Argument& arg2,
+                      const Argument& arg3,
+                      const Argument& arg4);
+
+ protected:
+  Formatter();
+  // Child constructor; to be implemented by sub classes.
+  virtual Formatter* NewChild(
+      const std::string& format_str,
+      const std::vector<const Argument*>& arguments) = 0;
+
+ private:
+  Formatter* AddChild(std::string format_str,
+                      const std::vector<const Argument*>& arguments);
+
+  scoped_ptr<Formatter> active_child_;
+  DISALLOW_COPY_AND_ASSIGN(Formatter);
+};
+
+}  // namespace pagespeed
+
+#endif  // PAGESPEED_CORE_FORMATTER_H_

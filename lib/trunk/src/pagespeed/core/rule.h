@@ -19,6 +19,7 @@
 
 namespace pagespeed {
 
+class Formatter;
 class PagespeedInput;
 class Resource;
 class ResultText;
@@ -39,13 +40,11 @@ class Rule {
   // @return true iff the computation was completed without errors.
   virtual bool AppendResults(const PagespeedInput& input, Results* results) = 0;
 
-  // Interpret the results structure to produce a text representation
-  // of the result.
+  // Interpret the results structure and produce a formatted representation.
   //
   // @param results Results to interpret
-  // @param result_text Text output
-  virtual void InterpretResults(const Results& results,
-                                ResultText* result_text) = 0;
+  // @param formatter Output formatter
+  virtual void FormatResults(const Results& results, Formatter* formatter) = 0;
 };
 
 }  // namespace pagespeed

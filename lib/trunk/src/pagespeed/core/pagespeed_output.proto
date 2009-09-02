@@ -64,14 +64,12 @@ message FormatArgument {
     URL = 1;
     STRING_LITERAL = 2;
     INT_LITERAL = 3;
-    DOUBLE_LITERAL = 4;
+    BYTES = 4;
   }
 
   required ArgumentType type = 1;
-  optional string url = 2;
-  optional string string_literal = 3;
-  optional int64 int_literal = 4;
-  optional double double_literal = 5;
+  optional string string_value = 2;
+  optional int64 int_value = 3;
 }
 
 // Result as text document node that contains the markup type, format

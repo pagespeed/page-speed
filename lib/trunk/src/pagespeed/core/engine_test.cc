@@ -19,6 +19,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Engine;
+using pagespeed::Formatter;
 using pagespeed::PagespeedInput;
 using pagespeed::Result;
 using pagespeed::Results;
@@ -38,8 +39,7 @@ class TestRule : public Rule {
     return true;
   }
 
-  virtual void InterpretResults(const Results& results,
-                                ResultText* result_text) {
+  virtual void FormatResults(const Results& results, Formatter* formatter) {
   }
 
  private:

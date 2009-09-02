@@ -22,6 +22,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "base/string_util.h"
 #include "google/protobuf/text_format.h"
+#include "pagespeed/apps/proto_formatter.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_input.pb.h"
@@ -85,17 +86,16 @@ std::string Format(const std::string& format_str, const FormatArguments& args) {
     const pagespeed::FormatArgument& arg = *iter;
     switch (arg.type()) {
       case pagespeed::FormatArgument::URL:
-        subst.push_back(UTF8ToUTF16(arg.url()));
-        break;
       case pagespeed::FormatArgument::STRING_LITERAL:
-        subst.push_back(UTF8ToUTF16(arg.string_literal()));
+        subst.push_back(UTF8ToUTF16(arg.string_value()));
         break;
       case pagespeed::FormatArgument::INT_LITERAL:
-        subst.push_back(IntToString16(arg.int_literal()));
+        subst.push_back(IntToString16(arg.int_value()));
         break;
-      case pagespeed::FormatArgument::DOUBLE_LITERAL:
+      case pagespeed::FormatArgument::BYTES:
         char buffer[100];
-        snprintf(buffer, arraysize(buffer), "%.1f", arg.double_literal());
+        snprintf(buffer, arraysize(buffer), "%.1fKiB",
+                 arg.int_value() / 1024.0f);
         subst.push_back(UTF8ToUTF16(buffer));
         break;
       default:
@@ -135,7 +135,7 @@ void Dump(const pagespeed::ResultText& result, int indent = 0) {
   }
 }
 
-void ProcessInput(const pagespeed::ProtoInput& input_proto) {
+void ProcessInput(const pagespeed::ProtoInput& input_proto, bool dump_proto) {
   std::vector<pagespeed::Rule*> rules;
   pagespeed::rule_provider::AppendCoreRules(&rules);
 
@@ -157,15 +157,20 @@ void ProcessInput(const pagespeed::ProtoInput& input_proto) {
   }
 
   std::vector<pagespeed::ResultText*> results;
-  engine.ComputeResultText(input, &results);
+  pagespeed::ProtoFormatter formatter(&results);
+  engine.FormatResults(input, &formatter);
 
   for (std::vector<pagespeed::ResultText*>::const_iterator
            iter = results.begin(), end = results.end();
        iter != end;
        ++iter) {
     pagespeed::ResultText* result = *iter;
-    Dump(*result);
-    printf("\n");
+    if (dump_proto) {
+      printf("%s\n", result->DebugString().c_str());
+    } else {
+      Dump(*result);
+      printf("\n");
+    }
   }
   STLDeleteContainerPointers(results.begin(), results.end());
 }
@@ -197,7 +202,7 @@ int main(int argc, char** argv) {
       file_contents, &input);
   CHECK(success);
 
-  ProcessInput(input);
+  ProcessInput(input, false);
 
   return 0;
 }
