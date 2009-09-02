@@ -17,6 +17,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
@@ -89,20 +90,23 @@ bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void MinimizeResourcesRule::InterpretResults(const Results& results,
-                                             ResultText* result_text) {
+void MinimizeResourcesRule::FormatResults(const Results& results,
+                                          Formatter* formatter) {
+  const char* header_str = NULL;
   const char* body_tmpl = NULL;
   if (resource_type_ == CSS) {
-    result_text->set_format("Combine external CSS");
+    header_str = "Combine external CSS";
     body_tmpl = "There are $1 CSS files served from $2. "
         "They should be combined into as few files as possible.";
   } else if (resource_type_ == JS) {
-    result_text->set_format("Combine external Javascript");
+    header_str = "Combine external Javascript";
     body_tmpl = "There are $1 JavaScript files served from $2. "
         "They should be combined into as few files as possible.";
   } else {
     CHECK(false);
   }
+
+  Formatter* header = formatter->AddChild(header_str);
 
   for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
     const Result& result = results.results(result_idx);
@@ -110,22 +114,13 @@ void MinimizeResourcesRule::InterpretResults(const Results& results,
     const MinimizeResourcesDetails& minimize_details = details.GetExtension(
         MinimizeResourcesDetails::message_set_extension);
 
-    ResultText* body = result_text->add_children();
-    body->set_format(body_tmpl);
-    FormatArgument* count = body->add_args();
-    count->set_type(FormatArgument::INT_LITERAL);
-    count->set_int_literal(minimize_details.violation_urls_size());
-    FormatArgument* host = body->add_args();
-    host->set_type(FormatArgument::STRING_LITERAL);
-    host->set_string_literal(minimize_details.violation_host());
+    Argument count(Argument::INTEGER, minimize_details.violation_urls_size());
+    Argument host(Argument::STRING, minimize_details.violation_host());
+    Formatter* body = header->AddChild(body_tmpl, count, host);
 
     for (int idx = 0; idx < minimize_details.violation_urls_size(); idx++) {
-      ResultText* url = body->add_children();
-      url->set_format("$1");
-
-      FormatArgument* url_arg = url->add_args();
-      url_arg->set_type(FormatArgument::URL);
-      url_arg->set_url(minimize_details.violation_urls(idx));
+      Argument url(Argument::URL, minimize_details.violation_urls(idx));
+      body->AddChild("$1", url);
     }
   }
 }

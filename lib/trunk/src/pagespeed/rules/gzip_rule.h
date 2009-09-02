@@ -34,9 +34,7 @@ class GzipRule : public Rule {
 
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
-
-  virtual void InterpretResults(const Results& results,
-                                ResultText* result_text);
+  virtual void FormatResults(const Results& results, Formatter* formatter);
 
  private:
   bool isCompressed(const Resource& resource) const;

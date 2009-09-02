@@ -26,6 +26,7 @@
 
 namespace pagespeed {
 
+class Formatter;
 class PagespeedInput;
 class ResultText;
 class Results;
@@ -45,8 +46,7 @@ class Engine {
   bool GetResults(const PagespeedInput& input, Results* results);
 
   // @return true iff the computation was completed without errors.
-  bool ComputeResultText(const PagespeedInput& input,
-                         std::vector<ResultText*>* results);
+  bool FormatResults(const PagespeedInput& input, Formatter* formatter);
 
  private:
   std::vector<Rule*> rules_;

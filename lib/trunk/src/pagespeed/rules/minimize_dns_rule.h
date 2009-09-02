@@ -34,8 +34,7 @@ class MinimizeDnsRule : public Rule {
 
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
-  virtual void InterpretResults(const Results& results,
-                                ResultText* result_text);
+  virtual void FormatResults(const Results& results, Formatter* formatter);
 
   DISALLOW_COPY_AND_ASSIGN(MinimizeDnsRule);
 };
