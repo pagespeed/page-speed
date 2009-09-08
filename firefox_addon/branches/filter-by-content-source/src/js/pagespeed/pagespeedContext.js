@@ -465,6 +465,21 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
     }
   },
 
+  filterMenuItemChosen: function(event) {
+    try {
+      // The Filter Results menu has items with a name and a value.
+      // Names define groups of mutualy exclusive options.
+      // All names start with 'filter', which we remove.
+      PAGESPEED.filterResultsModel.setFilterState(
+          event.target.getAttribute('name').replace('filter', ''),
+          event.target.getAttribute('value')
+          );
+
+    } catch (e) {
+      logException('PageSpeedModule.filterMenuItemChosen()', e);
+    }
+  },
+
   openJsonExportDialog: function() {
     // Get the object that represents the current tab.
     var browserOfCurrentTab = gBrowser.selectedBrowser;
@@ -581,7 +596,7 @@ PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.addCallback(
     function() {
       PAGESPEED.Utils.setItemVisibilityByPref(
           'extensions.PageSpeed.content_filter.enabled',
-          'psContentFilterMenu');
+          'psContentFilterButton');
     });
 
 })();  // End closure
