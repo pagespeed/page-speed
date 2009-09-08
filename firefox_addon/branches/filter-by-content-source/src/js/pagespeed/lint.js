@@ -24,8 +24,8 @@ PAGESPEED.LintRulesImpl = function() {
 };
 
 /**
- * Registers a lint rule with Page Speed for execution. Registered lint rules run
- * with performance tests.
+ * Registers a lint rule with Page Speed for execution. Registered lint
+ * rules run with performance tests.
  * @param {PAGESPEED.LintRule} lintRule A lint function.
  */
 PAGESPEED.LintRulesImpl.prototype.registerLintRule = function(lintRule) {
@@ -46,8 +46,11 @@ PAGESPEED.LintRulesImpl.prototype.registerLintRule = function(lintRule) {
  *     linting.
  */
 PAGESPEED.LintRulesImpl.prototype.exec = function(browserTab) {
-  this.browserTab_ = browserTab;
   this.onProgress(0, 'Running Page Speed rules');
+
+  this.browserTab_ = browserTab;
+  this.resourceAccessor_ = new PAGESPEED.ResourceAccessor(
+      PAGESPEED.filterResultsModel.createFilter());
   this.completed = false;  // Set in ruleCompleted() when all rules are done.
   this.rulesRemaining = this.lintRules.length;
   this.ruleCompleted();
@@ -71,6 +74,7 @@ PAGESPEED.LintRulesImpl.prototype.stop = function() {
   this.browserTab_ = null;
   this.rulesRemaining = 0;
   this.completed = false;
+  this.resourceAccessor_ = null;
 
   return stopped;
 };
@@ -154,7 +158,8 @@ PAGESPEED.LintRulesImpl.prototype.ruleCompleted = function() {
                            self.onProgress(
                                index,
                                'Running ' + self.lintRules[index].name);
-                           self.lintRules[index].runRule_();
+                           self.lintRules[index].runRule_(
+                               self.resourceAccessor_);
                          };
                        })(this, nextRuleToRun));
 
@@ -169,6 +174,7 @@ PAGESPEED.LintRulesImpl.prototype.ruleCompleted = function() {
         this.browserTab_);
 
     this.browserTab_ = null;
+    this.resourceAccessor_ = null;
   } else {
     // At this point, this.rulesRemaining==0 and this.completed was already
     // set to true by a previous call to this function.
@@ -256,11 +262,12 @@ PAGESPEED.LintRule.prototype.initializeRule_ = function() {
 /**
  * Executes this lint rule and, if it returns a number score, clips it
  * to the range [0..100].
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  * @private
  */
-PAGESPEED.LintRule.prototype.runRule_ = function() {
+PAGESPEED.LintRule.prototype.runRule_ = function(resourceAccessor) {
   var self = this;
-  var lintFnArgs = arguments;
 
   self.initializeRule_();
   self.lintFnsToRun_ = [this.lintFunction];
@@ -280,7 +287,7 @@ PAGESPEED.LintRule.prototype.runRule_ = function() {
 
       var lintFunction = self.lintFnsToRun_.shift();
 
-      var opt_msg = lintFunction.apply(self, lintFnArgs);
+      var opt_msg = lintFunction.apply(self, [resourceAccessor]);
       if (self.numDeclaredContinuations_ > 0) {
         // Update progress.
         var numContinuationsExecuted =
@@ -304,10 +311,11 @@ PAGESPEED.LintRule.prototype.runRule_ = function() {
       }
     } catch (e){
       self.score = 'error';
-      self.information =
-        'Sorry, there was an error while running ' +
-        'this rule. Please file a bug with these ' +
-        'details: ' + PAGESPEED.Utils.formatException(e);
+      self.information = [
+          'Sorry, there was an error while running ',
+          'this rule. Please file a bug with these ',
+          'details: ', PAGESPEED.Utils.formatException(e)
+          ].join('');
 
       PAGESPEED.LintRules.ruleCompleted();
     }
@@ -341,6 +349,7 @@ PAGESPEED.LintRule.prototype.clipScore_ = function() {
  * container.
  * @param {Object} stats Statistics to store, encoded like
  *     this: {'key': 'value'}.
+ * @private
  */
 PAGESPEED.LintRule.prototype.addStatistics_ = function(stats) {
   if (!this.statistics)
@@ -360,7 +369,7 @@ PAGESPEED.LintRule.prototype.addStatistics_ = function(stats) {
  * @return {Object} The statistics set by calls to
  *     LintRule.addStatistics_().
  */
-PAGESPEED.LintRule.prototype.getStatistics = function(stats) {
+PAGESPEED.LintRule.prototype.getStatistics = function() {
   return this.statistics_ || {};
 };
 

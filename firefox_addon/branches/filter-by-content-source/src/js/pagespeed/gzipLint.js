@@ -22,8 +22,10 @@
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var compressionRule = function() {
+var compressionRule = function(resourceAccessor) {
   // Sort resource URLs by the size of their contents.
   var sortBySize = function(a, b) {
      return PAGESPEED.Utils.getResourceSize(b) -
@@ -48,7 +50,7 @@ var compressionRule = function() {
   for (var j = 0, je = resourceTypes.length; j < je; ++j) {
     var type = resourceTypes[j];
 
-    var urls = PAGESPEED.Utils.getResources(type);
+    var urls = resourceAccessor.getResources(type);
     numUrlsConsidered += urls.length;
 
     var uncompressedResources = [];
