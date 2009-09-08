@@ -52,8 +52,37 @@ PAGESPEED.FilterResultsModel.prototype.setFilterState = function(
  *     the current filter state.
  */
 PAGESPEED.FilterResultsModel.prototype.createFilter = function() {
-  // TODO: Implement this.
-  return null;
+  // |resourceAccessors| holds ResourceTest objects that must pass
+  // for a resource to be allowed by the current state of the
+  // "Filter Results" menu.  They will be ANDed to create the final
+  // test that a resource must pass.
+  var resourceAccessors = [];
+
+  switch (this.filterState_['Ads']) {
+    case 'noFilter':
+      break;
+
+    case 'onlyNonAds':
+      resourceAccessors.push(
+          new PAGESPEED.ResourceFilters.Not(
+              new PAGESPEED.ResourceFilters.IsAd()));
+      break;
+
+    case 'onlyAds':
+      resourceAccessors.push(
+          new PAGESPEED.ResourceFilters.IsAd());
+      break;
+
+    default:
+      PS_LOG(['Unexpected value ',
+              this.filterState_['Ads'],
+              ' in filter state for key "Ads".'
+              ].join(''));
+  }
+
+  // ANDing [] will create a filter that allows all content,
+  // so this works as expected if |resourceAccessors| is empty.
+  return new PAGESPEED.ResourceFilters.And(resourceAccessors);
 };
 
 PAGESPEED.filterResultsModel = new PAGESPEED.FilterResultsModel();

@@ -81,7 +81,10 @@
           src="chrome://pagespeed/content/fullResultsBeacon.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/filterResultsModel.js"/>
-
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/resourceFilter.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/resourceAccessor.js"/>
   <!--
     Command names exist in a namespace shared by all extensions.  To avoid
     having our commands overridden by other extensions, their names should
