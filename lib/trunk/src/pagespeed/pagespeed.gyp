@@ -30,25 +30,25 @@
           'action_name': 'my_proto',
           'inputs': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            'core/pagespeed_input.proto',
+            'proto/pagespeed_input.proto',
           ],
           'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_input.pb.cc',
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_input.pb.h',
+            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.cc',
+            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.h',
           ],
           'dependencies': [
             '../third_party/protobuf2/protobuf.gyp:protoc',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '../pagespeed/core/pagespeed_input.proto',
+            '../pagespeed/proto/pagespeed_input.proto',
             '--proto_path=..',
             '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
           ],
         },
       ],
       'sources': [
-        '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_input.pb.cc',
+        '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.cc',
       ],
       'include_dirs': [
         '<(SHARED_INTERMEDIATE_DIR)',
@@ -72,25 +72,25 @@
           'action_name': 'my_proto',
           'inputs': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            'core/pagespeed_output.proto',
+            'proto/pagespeed_output.proto',
           ],
           'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_output.pb.cc',
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_output.pb.h',
+            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.cc',
+            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.h',
           ],
           'dependencies': [
             '../third_party/protobuf2/protobuf.gyp:protoc',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '../pagespeed/core/pagespeed_output.proto',
+            '../pagespeed/proto/pagespeed_output.proto',
             '--proto_path=..',
             '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
           ],
         },
       ],
       'sources': [
-        '<(SHARED_INTERMEDIATE_DIR)/pagespeed/core/pagespeed_output.pb.cc',
+        '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.cc',
       ],
       'include_dirs': [
         '<(SHARED_INTERMEDIATE_DIR)',
@@ -115,7 +115,7 @@
           'inputs': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
             'rules/gzip_details.proto',
-            'core/pagespeed_output.proto',
+            'proto/pagespeed_output.proto',
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/pagespeed/rules/gzip_details.pb.cc',
@@ -158,7 +158,7 @@
           'inputs': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
             'rules/minimize_dns_details.proto',
-            'core/pagespeed_output.proto',
+            'proto/pagespeed_output.proto',
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/pagespeed/rules/minimize_dns_details.pb.cc',
@@ -201,7 +201,7 @@
           'inputs': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
             'rules/minimize_resources_details.proto',
-            'core/pagespeed_output.proto',
+            'proto/pagespeed_output.proto',
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/pagespeed/rules/minimize_resources_details.pb.cc',
@@ -278,7 +278,8 @@
         'pagespeed',
       ],
       'sources': [
-        'apps/proto_formatter.cc',
+        'proto/proto_formatter.cc',
+        'proto/proto_resource_utils.cc',
       ],
       'include_dirs': [
         '..',
@@ -363,7 +364,7 @@
         '../testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'apps/proto_formatter_test.cc',
+        'proto/proto_formatter_test.cc',
       ],
     },
   ],

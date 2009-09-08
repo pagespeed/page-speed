@@ -61,6 +61,11 @@ class Resource {
   const std::string& GetResponseHeader(const std::string& name) const;
   const std::string& GetResponseBody() const;
 
+  // For serialization purposes only.
+  // Use GetRequestHeader/GetResponseHeader methods above for key lookup.
+  const std::map<std::string, std::string>* GetRequestHeaders() const;
+  const std::map<std::string, std::string>* GetResponseHeaders() const;
+
   // Helper methods
 
   // extract the host std::string from the request url

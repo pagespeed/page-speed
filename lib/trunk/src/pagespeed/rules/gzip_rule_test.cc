@@ -16,8 +16,8 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/gzip_details.pb.h"
 #include "pagespeed/rules/gzip_rule.h"
 #include "testing/gtest/include/gtest/gtest.h"

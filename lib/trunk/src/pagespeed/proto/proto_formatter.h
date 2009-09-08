@@ -21,6 +21,8 @@ namespace pagespeed {
 
 class ResultText;
 
+namespace proto {
+
 /**
  * Formatter that populates a ResultText protobuf.
  */
@@ -42,6 +44,8 @@ class ProtoFormatter : public Formatter {
   std::vector<ResultText*>* results_;
   ResultText* result_text_;
 };
+
+}  // namespace proto
 
 }  // namespace pagespeed
 

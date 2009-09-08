@@ -19,8 +19,8 @@
 #include "base/logging.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_resources_details.pb.h"
 
 namespace pagespeed {

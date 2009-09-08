@@ -16,7 +16,7 @@
 
 syntax = "proto2";
 
-import "pagespeed/core/pagespeed_output.proto";
+import "pagespeed/proto/pagespeed_output.proto";
 
 package pagespeed;
 

@@ -20,7 +20,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
-#include "pagespeed/core/pagespeed_output.pb.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_dns_details.pb.h"
 
 // Unfortunately, including Winsock2.h before the other dependencies
