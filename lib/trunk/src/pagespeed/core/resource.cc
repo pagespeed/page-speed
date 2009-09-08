@@ -143,6 +143,18 @@ const std::string& Resource::GetResponseProtocol() const {
   return response_protocol_;
 }
 
+const std::map<std::string, std::string>* Resource::GetResponseHeaders() const {
+  return &response_headers_;
+}
+
+const std::string& Resource::GetResponseBody() const {
+  return response_body_;
+}
+
+const std::map<std::string, std::string>* Resource::GetRequestHeaders() const {
+  return &request_headers_;
+}
+
 const std::string& Resource::GetResponseHeader(
     const std::string& name) const {
   std::map<std::string, std::string>::const_iterator it =
@@ -152,10 +164,6 @@ const std::string& Resource::GetResponseHeader(
   } else {
     return GetEmptyString();
   }
-}
-
-const std::string& Resource::GetResponseBody() const {
-  return response_body_;
 }
 
 std::string Resource::GetHost() const {

@@ -15,8 +15,8 @@
 #include "pagespeed/core/engine.h"
 
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
-#include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
 

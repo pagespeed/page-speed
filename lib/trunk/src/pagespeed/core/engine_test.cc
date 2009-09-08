@@ -14,8 +14,8 @@
 
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Engine;

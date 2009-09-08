@@ -22,12 +22,13 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "base/string_util.h"
 #include "google/protobuf/text_format.h"
-#include "pagespeed/apps/proto_formatter.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/core/pagespeed_input.pb.h"
-#include "pagespeed/core/pagespeed_output.pb.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/proto/pagespeed_input.pb.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/proto_formatter.h"
+#include "pagespeed/proto/proto_resource_utils.h"
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
@@ -44,36 +45,6 @@ int snprintf(char *str, size_t size, const char *format, ...) {
   return result;
 }
 #endif
-
-typedef ::google::protobuf::RepeatedPtrField<pagespeed::ProtoResource::Header>
-    HeaderList;
-
-void PopulateResource(const pagespeed::ProtoResource& input,
-                      pagespeed::Resource* output) {
-  output->SetRequestUrl(input.request_url());
-  output->SetRequestMethod(input.request_method());
-  output->SetRequestProtocol(input.request_protocol());
-  output->SetRequestBody(input.request_body());
-  output->SetResponseStatusCode(input.response_status_code());
-  output->SetResponseProtocol(input.response_protocol());
-  output->SetResponseBody(input.response_body());
-
-  const HeaderList& request_headers = input.request_headers();
-  for (HeaderList::const_iterator iter = request_headers.begin(),
-           end = request_headers.end();
-       iter != end;
-       ++iter) {
-    output->AddRequestHeader(iter->key(), iter->value());
-  }
-
-  const HeaderList& response_headers = input.response_headers();
-  for (HeaderList::const_iterator iter = response_headers.begin(),
-           end = response_headers.end();
-       iter != end;
-       ++iter) {
-    output->AddResponseHeader(iter->key(), iter->value());
-  }
-}
 
 template <typename FormatArguments>
 std::string Format(const std::string& format_str, const FormatArguments& args) {
@@ -143,21 +114,10 @@ void ProcessInput(const pagespeed::ProtoInput& input_proto, bool dump_proto) {
   pagespeed::Engine engine(rules);
 
   pagespeed::PagespeedInput input;
-  typedef ::google::protobuf::RepeatedPtrField<pagespeed::ProtoResource>
-      ResourceList;
-
-  const ResourceList& serialized_resources = input_proto.resources();
-  for (ResourceList::const_iterator iter = serialized_resources.begin(),
-           end = serialized_resources.end();
-       iter != end;
-       ++iter) {
-    pagespeed::Resource* resource = new pagespeed::Resource;
-    PopulateResource(*iter, resource);
-    input.AddResource(resource);
-  }
+  pagespeed::proto::PopulatePagespeedInput(input_proto, &input);
 
   std::vector<pagespeed::ResultText*> results;
-  pagespeed::ProtoFormatter formatter(&results);
+  pagespeed::proto::ProtoFormatter formatter(&results);
   engine.FormatResults(input, &formatter);
 
   for (std::vector<pagespeed::ResultText*>::const_iterator
