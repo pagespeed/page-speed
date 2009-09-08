@@ -61,7 +61,7 @@ void Resource::SetRequestProtocol(const std::string& value) {
 }
 
 void Resource::AddRequestHeader(const std::string& name,
-				const std::string& value) {
+                                const std::string& value) {
   const std::string key = GetNormalizedIdentifier(name);
   std::string& header = request_headers_[key];
   if (!header.empty()) {
@@ -89,7 +89,7 @@ void Resource::SetResponseProtocol(const std::string& value) {
 }
 
 void Resource::AddResponseHeader(const std::string& name,
-				 const std::string& value) {
+                                 const std::string& value) {
   const std::string key = GetNormalizedIdentifier(name);
   std::string& header = response_headers_[key];
   if (!header.empty()) {
