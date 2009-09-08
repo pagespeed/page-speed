@@ -79,6 +79,8 @@
           src="chrome://pagespeed/content/minimalBeacon.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/fullResultsBeacon.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/filterResultsModel.js"/>
 
   <!--
     Command names exist in a namespace shared by all extensions.  To avoid
@@ -139,20 +141,29 @@
           </menupopup>
         </toolbarbutton>
 
-	<toolbarbutton id="psContentFilterMenu"
+	<toolbarbutton id="psContentFilterButton"
                        label="Filter Results"
                        group="pagespeedButtons"
                        type="menu"
  	               collapsed="true">
-          <menupopup>
+          <menupopup id="psContentFilterMenu"
+                     oncommand="Firebug.PageSpeedModule.filterMenuItemChosen(event)">
+            <menuitem id="psAnalyzeAds"
+                      label="Analyze Adds and Non-Ads"
+                      type="radio"
+                      name="filterAds"
+                      checked="true"
+                      value="noFilter"/>
  	    <menuitem id="psAnalyzeAds"
                       label="Analyze Ads"
-                      type="checkbox"
-                      checked="true"/>
+                      type="radio"
+                      name="filterAds"
+                      value="onlyAds"/>
  	    <menuitem id="psAnalyzeNonAds"
                       label="Analyze Non-Ads"
-                      type="checkbox"
-                      checked="true"/>
+                      name="filterAds"
+                      type="radio"
+                      value="onlyNonAds"/>
           </menupopup>
         </toolbarbutton>
 
