@@ -21,7 +21,6 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/gzip_details.pb.h"
 
 namespace pagespeed {
 
@@ -42,16 +41,10 @@ bool GzipRule::AppendResults(const PagespeedInput& input,
     int length = GetContentLength(resource);
     int bytes_saved = 2 * length / 3;
 
-    ResultDetails* details = result->mutable_details();
-    GzipDetails* gzip_details = details->MutableExtension(
-        GzipDetails::message_set_extension);
-
-    GzipDetails::PerUrlSavings* url_savings = gzip_details->add_url_savings();
-    url_savings->set_url(resource.GetRequestUrl());
-    url_savings->set_saved_bytes(bytes_saved);
-
     Savings* savings = result->mutable_savings();
     savings->set_response_bytes_saved(bytes_saved);
+
+    result->add_resource_urls(resource.GetRequestUrl());
   }
 
   return true;
@@ -77,19 +70,11 @@ void GzipRule::FormatResults(const Results& results, Formatter* formatter) {
 
   for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
     const Result& result = results.results(result_idx);
-    const ResultDetails& details = result.details();
-    const GzipDetails& gzip_details = details.GetExtension(
-        GzipDetails::message_set_extension);
-
-    for (int idx = 0; idx < gzip_details.url_savings_size(); idx++) {
-      const GzipDetails::PerUrlSavings& url_savings =
-          gzip_details.url_savings(idx);
-
-      Argument url(Argument::URL, url_savings.url());
-      Argument savings(Argument::BYTES, url_savings.saved_bytes());
-      body->AddChild("Compressing $1 could save ~$2", url,
-                     savings);
-    }
+    CHECK(result.resource_urls_size() == 1);
+    Argument url(Argument::URL, result.resource_urls(0));
+    Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
+    body->AddChild("Compressing $1 could save ~$2", url,
+                   savings);
   }
 }
 

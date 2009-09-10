@@ -45,13 +45,13 @@ message Result {
   required string rule_name = 1;
 
   // Potential savings if page was optimized.
-  required Savings savings = 3;
+  optional Savings savings = 2;
 
   // Resource urls that were processed to compute this result.
-  repeated string resource_urls = 4;
+  repeated string resource_urls = 3;
 
   // Full details about the rule violation.
-  optional ResultDetails details = 5;
+  optional ResultDetails details = 4;
 }
 
 message Results {

@@ -21,7 +21,6 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/minimize_dns_details.pb.h"
 
 // Unfortunately, including Winsock2.h before the other dependencies
 // causes a build error due to a conflict with the protobuf library,
@@ -67,11 +66,6 @@ bool MinimizeDnsRule::AppendResults(const PagespeedInput& input,
 
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
 
-  ResultDetails* details = result->mutable_details();
-  MinimizeDnsDetails* dns_details = details->MutableExtension(
-      MinimizeDnsDetails::message_set_extension);
-      dns_details->set_num_hosts(host_resource_map.size());
-
   int dns_requests_saved = 0;
 
   // Only check if resources are sharded among 2 or more hosts.  We
@@ -114,7 +108,7 @@ bool MinimizeDnsRule::AppendResults(const PagespeedInput& input,
                  url_end = filtered.end();
              resource_iter != url_end;
              ++resource_iter) {
-          dns_details->add_violation_urls((*resource_iter)->GetRequestUrl());
+          result->add_resource_urls((*resource_iter)->GetRequestUrl());
         }
       }
     }
@@ -131,12 +125,9 @@ void MinimizeDnsRule::FormatResults(const Results& results,
   std::vector<std::string> violation_urls;
   for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
     const Result& result = results.results(result_idx);
-    const ResultDetails& details = result.details();
-    const MinimizeDnsDetails& dns_details = details.GetExtension(
-        MinimizeDnsDetails::message_set_extension);
 
-    for (int idx = 0; idx < dns_details.violation_urls_size(); idx++) {
-      violation_urls.push_back(dns_details.violation_urls(idx));
+    for (int idx = 0; idx < result.resource_urls_size(); idx++) {
+      violation_urls.push_back(result.resource_urls(idx));
     }
   }
 

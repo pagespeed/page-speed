@@ -18,16 +18,13 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/gzip_details.pb.h"
 #include "pagespeed/rules/gzip_rule.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::GzipDetails;
 using pagespeed::GzipRule;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
-using pagespeed::ResultDetails;
 using pagespeed::Results;
 
 namespace {
@@ -132,13 +129,8 @@ class GzipRuleTest : public ::testing::Test {
 
     const Result& result = results.results(0);
     ASSERT_EQ(result.savings().response_bytes_saved(), 6000);
-
-    const ResultDetails& details = result.details();
-    const GzipDetails& gzip_details = details.GetExtension(
-        GzipDetails::message_set_extension);
-    ASSERT_EQ(gzip_details.url_savings_size(), 1);
-    ASSERT_EQ(gzip_details.url_savings(0).url(), "http://www.test.com/");
-    ASSERT_EQ(gzip_details.url_savings(0).saved_bytes(), 6000);
+    ASSERT_EQ(result.resource_urls_size(), 1);
+    ASSERT_EQ(result.resource_urls(0), "http://www.test.com/");
   }
 
   void CheckTwoViolations() {
@@ -150,23 +142,13 @@ class GzipRuleTest : public ::testing::Test {
 
     const Result& result0 = results.results(0);
     ASSERT_EQ(result0.savings().response_bytes_saved(), 6000);
-
-    const ResultDetails& details0 = result0.details();
-    const GzipDetails& gzip_details0 = details0.GetExtension(
-        GzipDetails::message_set_extension);
-    ASSERT_EQ(gzip_details0.url_savings_size(), 1);
-    ASSERT_EQ(gzip_details0.url_savings(0).url(), "http://www.test.com/");
-    ASSERT_EQ(gzip_details0.url_savings(0).saved_bytes(), 6000);
+    ASSERT_EQ(result0.resource_urls_size(), 1);
+    ASSERT_EQ(result0.resource_urls(0), "http://www.test.com/");
 
     const Result& result1 = results.results(1);
     ASSERT_EQ(result1.savings().response_bytes_saved(), 3000);
-
-    const ResultDetails& details1 = result1.details();
-    const GzipDetails& gzip_details1 = details1.GetExtension(
-        GzipDetails::message_set_extension);
-    ASSERT_EQ(gzip_details0.url_savings_size(), 1);
-    ASSERT_EQ(gzip_details1.url_savings(0).url(), "http://www.test.com/foo");
-    ASSERT_EQ(gzip_details1.url_savings(0).saved_bytes(), 3000);
+    ASSERT_EQ(result1.resource_urls_size(), 1);
+    ASSERT_EQ(result1.resource_urls(0), "http://www.test.com/foo");
   }
 
  private:
