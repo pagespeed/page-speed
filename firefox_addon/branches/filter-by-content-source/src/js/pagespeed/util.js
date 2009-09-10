@@ -1497,6 +1497,8 @@ PAGESPEED.Utils = {  // Begin namespace
   /**
    * Filter a list of Components by protocol, keeping only Components
    * retrieved via http and https.
+   * TODO: Deprecate this function, and use filters passed to a
+   * ResourceAccessor instead.
    *
    * @param {Array.<string>} urls A list of component URLs to filter.
    * @return {Array.<string>} The filtered components.
@@ -2004,7 +2006,8 @@ PAGESPEED.Utils = {  // Begin namespace
 
   /**
    * Get a directory where rules can write files.
-   * @param {string} opt_subDir Return this sub-directory within the scratch dir.
+   * @param {string} opt_subDir Return this sub-directory within the scratch
+   *     directory.
    * @return {nsIFile} The user's home dir for the current client.  null
    *     on error.
    */
@@ -2124,8 +2127,8 @@ PAGESPEED.Utils = {  // Begin namespace
    * throw. We want to always attempt to close a stream, so we just
    * wrap the close call in a try/catch to handle these error cases as
    * well.
-   * @param {nsIInputStream|nsIOutputStream} stream The stream to
-   *     attempt to close.
+   * @param {nsIInputStream|nsIOutputStream|nsIFileOutputStream} stream The
+   *     stream to attempt to close.
    */
   tryToCloseStream: function(stream) {
     try {
@@ -2169,8 +2172,8 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
-   * @param {nsIInputStream} input The stream to copy from.
-   * @param {nsIOutputStream} output The stream to copy to.
+   * @param {nsIInputStream|nsIStringInputStream} input The stream to copy from.
+   * @param {nsIOutputStream|nsIFileOutputStream} output The stream to copy to.
    * @return {number} The number of bytes written.
    */
   copyCompleteInputToOutput: function(input, output) {

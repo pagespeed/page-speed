@@ -353,8 +353,10 @@ PAGESPEED.CacheControlLint.findCacheCollisions = function(
 /**
  * A Cache-Control Lint Rule
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var browserCachingRule = function() {
+var browserCachingRule = function(resourceAccessor) {
   var rules = [
     new CacheRule('The following resources are missing a cache expiration.' +
                   ' Resources that do not specify an expiration may not be' +
@@ -437,7 +439,9 @@ var browserCachingRule = function() {
   var aNonCacheableResources = [];
   var numCacheableResources = 0;
 
-  var urls = PAGESPEED.Utils.filterProtocols(PAGESPEED.Utils.getResources());
+  var urls = resourceAccessor.getResources(
+      'all',
+      new PAGESPEED.ResourceFilters.FetchedByProtocol(['http', 'https']));
 
   // Firefox has a feeble hash algorithm that is prone to collisions. Check
   // for collisions among resources on the same page here.
@@ -445,6 +449,12 @@ var browserCachingRule = function() {
   // TODO: If possible, it would be nice to determine if IE has the
   // same problem. However, it could be impossible to figure out its hashing
   // algorithm.
+  //
+  // TODO: If resourceAccessor has a filter enabled, it will miss cache
+  // collisions between elements if there is no run with a filter that
+  // allows both resources.  For example, if an ad resource and a non-ad
+  // resource collide, and we run with ads filtered and then with non-ads
+  // filtered, we scored the whole page but never saw the cache collision.
   var urlCacheCollisions = PAGESPEED.CacheControlLint.findCacheCollisions(
       urls, PAGESPEED.CacheControlLint.generateMozillaHashKey);
 
@@ -497,8 +507,10 @@ var browserCachingRule = function() {
 /**
  * A Cache-Control Lint Rule
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var proxyCachingRule = function() {
+var proxyCachingRule = function(resourceAccessor) {
   var rules = [
     new CacheRule('Due to a bug in some proxy caching servers,' +
                   ' the following publicly' +
@@ -567,7 +579,10 @@ var proxyCachingRule = function() {
   var numCacheableResources = 0;
 
   // Loop through all files finding suboptimal caching headers.
-  var urls = PAGESPEED.Utils.filterProtocols(PAGESPEED.Utils.getResources());
+  var urls = resourceAccessor.getResources(
+      'all',
+      new PAGESPEED.ResourceFilters.FetchedByProtocol(['http', 'https']));
+
   for (var i = 0, len = urls.length; i < len; i++) {
     var type = PAGESPEED.Utils.getResourceTypes(urls[i])[0];
     if (isNonCacheableResourceType(type)) {
