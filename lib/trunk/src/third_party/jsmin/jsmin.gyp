@@ -18,6 +18,21 @@
   ],
   'targets': [
     {
+      'target_name': 'jsmin',
+      'type': '<(library)',
+      'dependencies': [
+        '../../base/base.gyp:base',
+      ],
+      'sources': [
+        'cpp/jsmin.cc',
+      ],
+      'all_dependent_settings': {
+        'include_dirs': [
+          '../..',
+        ],
+      },
+    },
+    {
       'target_name': 'jsmin_bin',
       'type': 'executable',
       'sources': [
