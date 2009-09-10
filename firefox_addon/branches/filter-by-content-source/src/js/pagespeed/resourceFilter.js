@@ -102,4 +102,40 @@ PAGESPEED.ResourceFilters.IsAd.prototype.isResourceAllowed = function(data) {
   return /ad[^/]*\.(com|net)/.test(url);
 };
 
+/**
+ * This filter tests that a resource's url uses one of a given set of
+ * protocols.
+ * @param {Array.<string>} protocols A list of protocols to accept.
+ * @constructor
+ */
+PAGESPEED.ResourceFilters.FetchedByProtocol = function(protocols) {
+  if (!protocols.length) {
+    // If there are no protocols that could match, do not build a regexp.
+    return;
+  }
+
+  // Build a regexp that looks like this:
+  // /^(http|https|gopher):/
+  var regexpStr = [
+      '^(',  // Protocols must start at the beginning of the string.
+      protocols.join('|'),
+      '):'].join('');  // They must be followed by ':'.
+
+  this.protocolMatcher_ = new RegExp(regexpStr);
+};
+
+/**
+ * @param {object} data An object holding information about a resource.
+ * @return {boolean} True if the resource url starts with 'http:' or 'https:'.
+ */
+PAGESPEED.ResourceFilters.FetchedByProtocol.prototype.isResourceAllowed =
+    function(data) {
+  var url = data.url;
+
+  if (!url || !this.protocolMatcher_)
+    return false;
+
+  return this.protocolMatcher_.test(url);
+};
+
 })();  // End closure

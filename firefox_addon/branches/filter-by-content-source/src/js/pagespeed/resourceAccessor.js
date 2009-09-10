@@ -37,28 +37,40 @@ PAGESPEED.ResourceAccessor = function(opt_resourceFilter) {
  * This function fetches all resources of a given type fetched by the
  * current page.  Lint rules that iterate over all resources of a given
  * set of types should use it to get resources.
- * @param {string} type Return urls with this resource type.
+ * @param {string} type Return urls with this resource type.  'all' means
+ *     resources of any type.
+ * @param {object} opt_extraFilter An extra filter resources must pass,
+ *     in addition to this.resourceFilter_.
  * @return {Array.<string>} A list of urls that are of type |type|,
  *     and allowed by the resource filter set by this object's constructor.
  */
-PAGESPEED.ResourceAccessor.prototype.getResources = function(type) {
+PAGESPEED.ResourceAccessor.prototype.getResources = function(type,
+                                                             opt_extraFilter) {
   // TODO: Until we update every lint rule to use this class instead of
   // PAGESPEED.Utils.* for resource access, we can't get rid of them. To
   // avoid duplicate code, use PAGESPEED.Utils.* here.  When all other
   // users are removed, move the code to this file.
-  var unfilteredResources = PAGESPEED.Utils.getResources(type);
+  var unfilteredResources;
+
+  if (type == 'all') {
+    unfilteredResources = PAGESPEED.Utils.getResources();
+  } else {
+    unfilteredResources = PAGESPEED.Utils.getResources(type);
+  }
 
   var filteredResults = [];
   for (var i = 0, ie = unfilteredResources.length; i < ie; ++i) {
     var url = unfilteredResources[i];
 
-    var resourcedata = {
+    var resourceData = {
       url: url
     };
 
-    if (!this.resourceFilter_.isResourceAllowed(resourcedata)) {
+    if (!this.resourceFilter_.isResourceAllowed(resourceData))
       continue;
-    }
+
+    if (opt_extraFilter && !opt_extraFilter.isResourceAllowed(resourceData))
+      continue;
 
     filteredResults.push(url);
   }
