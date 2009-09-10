@@ -19,16 +19,13 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/minimize_dns_details.pb.h"
 #include "pagespeed/rules/minimize_dns_rule.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::MinimizeDnsDetails;
 using pagespeed::MinimizeDnsRule;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
-using pagespeed::ResultDetails;
 using pagespeed::Results;
 
 namespace {
@@ -67,15 +64,10 @@ class MinimizeDnsTest : public ::testing::Test {
     ASSERT_EQ(result.rule_name(), "MinimizeDnsRule");
     ASSERT_EQ(result.savings().dns_requests_saved(), expected_dns_savings);
 
-    const ResultDetails& details = result.details();
-    const MinimizeDnsDetails& dns_details = details.GetExtension(
-        MinimizeDnsDetails::message_set_extension);
+    ASSERT_EQ(result.resource_urls_size(), expected_violations.size());
 
-    EXPECT_EQ(dns_details.num_hosts(), expected_num_hosts);
-    ASSERT_EQ(dns_details.violation_urls_size(), expected_violations.size());
-
-    for (int idx = 0; idx < dns_details.violation_urls_size(); ++idx) {
-      EXPECT_EQ(dns_details.violation_urls(idx), expected_violations[idx]);
+    for (int idx = 0; idx < result.resource_urls_size(); ++idx) {
+      EXPECT_EQ(result.resource_urls(idx), expected_violations[idx]);
     }
   }
 

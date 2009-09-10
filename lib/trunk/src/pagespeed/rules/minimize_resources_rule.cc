@@ -17,11 +17,11 @@
 #include <string>
 
 #include "base/logging.h"
+#include "googleurl/src/gurl.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/minimize_resources_details.pb.h"
 
 namespace pagespeed {
 
@@ -65,22 +65,14 @@ bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
       Result* result = results->add_results();
       result->set_rule_name(rule_name_);
 
-      ResultDetails* details = result->mutable_details();
-      pagespeed::MinimizeResourcesDetails* resources_details =
-          details->MutableExtension(
-              pagespeed::MinimizeResourcesDetails::message_set_extension);
-
       int requests_saved = 0;
       requests_saved += (violations.size() - 1);
       for (ResourceVector::const_iterator violation_iter = violations.begin(),
                violation_end = violations.end();
            violation_iter != violation_end;
            ++violation_iter) {
-        resources_details->add_violation_urls(
-          (*violation_iter)->GetRequestUrl());
+        result->add_resource_urls((*violation_iter)->GetRequestUrl());
       }
-
-      resources_details->set_violation_host(iter->first);
 
       pagespeed::Savings* savings = result->mutable_savings();
       savings->set_requests_saved(requests_saved);
@@ -110,16 +102,14 @@ void MinimizeResourcesRule::FormatResults(const Results& results,
 
   for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
     const Result& result = results.results(result_idx);
-    const ResultDetails& details = result.details();
-    const MinimizeResourcesDetails& minimize_details = details.GetExtension(
-        MinimizeResourcesDetails::message_set_extension);
 
-    Argument count(Argument::INTEGER, minimize_details.violation_urls_size());
-    Argument host(Argument::STRING, minimize_details.violation_host());
+    Argument count(Argument::INTEGER, result.resource_urls_size());
+    GURL url(result.resource_urls(0));
+    Argument host(Argument::STRING, url.host());
     Formatter* body = header->AddChild(body_tmpl, count, host);
 
-    for (int idx = 0; idx < minimize_details.violation_urls_size(); idx++) {
-      Argument url(Argument::URL, minimize_details.violation_urls(idx));
+    for (int idx = 0; idx < result.resource_urls_size(); idx++) {
+      Argument url(Argument::URL, result.resource_urls(idx));
       body->AddChild("$1", url);
     }
   }

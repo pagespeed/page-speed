@@ -20,18 +20,15 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/minimize_resources_details.pb.h"
 #include "pagespeed/rules/minimize_resources_rule.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::MinimizeCssResourcesRule;
 using pagespeed::MinimizeJsResourcesRule;
-using pagespeed::MinimizeResourcesDetails;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::ResourceType;
 using pagespeed::Result;
-using pagespeed::ResultDetails;
 using pagespeed::Results;
 using pagespeed::Rule;
 
@@ -99,21 +96,13 @@ class MinimizeResourcesTest : public ::testing::Test {
       ASSERT_EQ(result->savings().requests_saved(),
                 violation.expected_rt_savings);
 
-      const ResultDetails& details = result->details();
-      const pagespeed::MinimizeResourcesDetails& resource_details =
-          details.GetExtension(
-              pagespeed::MinimizeResourcesDetails::message_set_extension);
-
-      ASSERT_EQ(resource_details.violation_urls_size(),
+      ASSERT_EQ(result->resource_urls_size(),
                 violation.urls.size());
 
-      EXPECT_EQ(resource_details.violation_host(),
-                violation.host);
-
       for (int url_idx = 0;
-           url_idx < resource_details.violation_urls_size();
+           url_idx < result->resource_urls_size();
            ++url_idx) {
-        EXPECT_EQ(resource_details.violation_urls(url_idx),
+        EXPECT_EQ(result->resource_urls(url_idx),
                   violation.urls[url_idx]);
       }
     }
