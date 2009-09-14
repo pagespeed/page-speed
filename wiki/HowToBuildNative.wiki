@@ -24,5 +24,4 @@ Downloading and building in the Mozilla build system:
 
 = Troubleshooting =
 
-  * To build an [https://developer.mozilla.org/en/Mac_OS_X_Universal_Binaries OS X Universal binary], uncomment the first few lines in the [http://code.google.com/p/page-speed/source/browse/trunk/moz_resources/mozilla/.mozconfig .mozconfig] file.
   * To build without [https://developer.mozilla.org/en/atlbase.h atlbase.h] on Windows, uncomment the appropriate lines in the [http://code.google.com/p/page-speed/source/browse/trunk/moz_resources/mozilla/.mozconfig .mozconfig] file.
