@@ -450,8 +450,10 @@ function buildImageCompressionCallback(url) {
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var imageCompressionLint = function() {
+var imageCompressionLint = function(resourceAccessor) {
   if (!compressor) {
     this.score = 'error';
     var xulRuntime = PAGESPEED.Utils.CCSV(
@@ -472,7 +474,7 @@ var imageCompressionLint = function() {
     return;
   }
 
-  var urls = PAGESPEED.Utils.getResources('image', 'cssimage', 'favicon');
+  var urls = resourceAccessor.getResources(['image', 'cssimage', 'favicon']);
 
   // Shortcut to get out early if the page doesn't have any images.
   if (urls.length == 0) {
