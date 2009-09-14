@@ -61,9 +61,13 @@ var formatDomainAndSize = function(domain, size) {
 /**
  * Rule to find requests with large cookies.
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var cookieSizeRule = function() {
-  var urls = PAGESPEED.Utils.filterProtocols(PAGESPEED.Utils.getResources());
+var cookieSizeRule = function(resourceAccessor) {
+  var urls = resourceAccessor.getResources(
+      'all',
+      new PAGESPEED.ResourceFilters.FetchedByProtocol(['http', 'https']));
 
   // Create a map of domain: [cookie_lengths].
   var cookieLengthsByDomain = {};

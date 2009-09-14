@@ -25,9 +25,11 @@ var MIN_RESOURCE_SIZE = 100;
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var duplicateResourceRule = function() {
-  var allResources = PAGESPEED.Utils.getResources();
+var duplicateResourceRule = function(resourceAccessor) {
+  var allResources = resourceAccessor.getResources('all');
   var hashToResourceMap = {};
   for (var i = 0, len = allResources.length; i < len; i++) {
     var url = allResources[i];

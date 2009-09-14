@@ -29,15 +29,18 @@ var MIN_RESOURCES = 5;
 /**
  * Rule to find static content served from a domain that sets cookies.
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var staticNoCookieRule = function() {
+var staticNoCookieRule = function(resourceAccessor) {
   var badUrls = [];
 
   // Find all "static" resources. Exclude JS since we suggest serving
   // some JS on the main domain (see dnsInHeadLint.js), which may have
   // cookies.
-  var urls = PAGESPEED.Utils.filterProtocols(
-    PAGESPEED.Utils.getResources('css', 'image', 'object', 'cssimage'));
+  var urls = resourceAccessor.getResources(
+      ['css', 'image', 'object', 'cssimage'],
+      new PAGESPEED.ResourceFilters.FetchedByProtocol(['http', 'https']));
 
   var violations = 0;
   var staticComponentCount = 0;
