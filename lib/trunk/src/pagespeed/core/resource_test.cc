@@ -78,4 +78,23 @@ TEST(ResourceTest, HeaderFields) {
   EXPECT_EQ(resource.GetResponseHeader("duplicate response"), "3,4");
 }
 
+void ExpectResourceType(
+    const char *content_type, pagespeed::ResourceType type) {
+  Resource r;
+  r.AddResponseHeader("Content-Type", content_type);
+  EXPECT_EQ(type, r.GetResourceType());
+}
+
+TEST(ResourceTest, ResourceTypes) {
+  ExpectResourceType("text/html", pagespeed::HTML);
+  ExpectResourceType("text/html; charset=UTF-8", pagespeed::HTML);
+  ExpectResourceType("text/css", pagespeed::CSS);
+  ExpectResourceType("text/javascript", pagespeed::JS);
+  ExpectResourceType("application/x-javascript", pagespeed::JS);
+  ExpectResourceType("text/plain", pagespeed::TEXT);
+  ExpectResourceType("image/png", pagespeed::IMAGE);
+  ExpectResourceType("image/jpeg", pagespeed::IMAGE);
+  ExpectResourceType("application/x-binary", pagespeed::OTHER);
+}
+
 }  // namespace
