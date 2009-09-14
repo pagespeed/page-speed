@@ -24,5 +24,6 @@
       'dependencies': [
         '../base/base.gyp:*',
         '../pagespeed/pagespeed.gyp:*',
+        '../third_party/jsmin/jsmin.gyp:*',
       ],} ]
 }
