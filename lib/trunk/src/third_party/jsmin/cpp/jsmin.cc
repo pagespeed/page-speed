@@ -91,7 +91,10 @@ Minifier::get()
     int c = theLookahead;
     theLookahead = EOF;
     if (c == EOF) {
-        c = input_[input_index_++];
+        c = (0xff & input_[input_index_++]);
+        if (c == '\0') {
+            c = EOF;
+        }
     }
     if (c >= ' ' || c == '\n' || c == EOF) {
         return c;
@@ -211,7 +214,8 @@ Minifier::action(int d)
                     theA = get();
                 }
                 if (theA == EOF) {
-                    LOG(WARNING) << "Error: JSMIN unterminated Regular Expression literal.\n";
+                    LOG(WARNING) << "Error: JSMIN unterminated "
+                                 << "Regular Expression literal.\n";
                     error_ = true;
                     return;
                 }

@@ -39,5 +39,17 @@
         'jsmin.c',
       ],
     },
+    {
+      'target_name': 'jsmin_test',
+      'type': 'executable',
+      'dependencies': [
+        'jsmin',
+        '../../testing/gtest.gyp:gtest',
+        '../../testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        'cpp/jsmin_test.cc',
+      ],
+    },
   ],
 }

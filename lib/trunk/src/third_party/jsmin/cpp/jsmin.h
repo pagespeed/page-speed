@@ -31,7 +31,7 @@ class Minifier {
    * Construct a new Minifier instance that minifies the specified
    * JavaScript input.
    */
-  Minifier(const char *input);
+  explicit Minifier(const char *input);
   ~Minifier();
 
   /**
