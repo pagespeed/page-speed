@@ -191,6 +191,8 @@ ResourceType Resource::GetResourceType() const {
       return HTML;
     } else if (type == "text/css") {
       return CSS;
+    } else if (type == "text/javascript") {
+      return JS;
     } else {
       return TEXT;
     }
