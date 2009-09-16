@@ -12,7 +12,7 @@ To build Page Speed you will need to install the prerequisite software for your 
 
 Regardless of platform, you will need to install the Chromium [http://dev.chromium.org/developers/how-tos/install-gclient depot tools].
 
-= Sync the code =
+= Get the code =
 
   # `gclient config http://page-speed.googlecode.com/svn/lib/trunk/src`
   # `gclient sync --force`
