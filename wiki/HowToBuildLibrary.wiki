@@ -23,4 +23,4 @@ On Windows, using Visual Studio, open the `all.sln` file in the `src\build` dire
 
 On Mac OS X, navigate to the `src/build` directory and invoke `xcodebuild -project all.xcodeproj -activeconfiguration -target All`.
 
-On Linux, navigate to the `src/build` directory and invoke `hammer`.
+On Linux, navigate to the `src/build` directory and invoke `hammer --mode=Release`.
