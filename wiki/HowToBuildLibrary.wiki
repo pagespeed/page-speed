@@ -8,7 +8,7 @@ To build Page Speed you will need to install the prerequisite software for your 
 
   # [http://dev.chromium.org/developers/how-tos/build-instructions-windows#TOC-Prerequisite-software Windows]
   # [http://code.google.com/p/chromium/wiki/MacBuildInstructions Mac OS X]
-  # [http://code.google.com/p/chromium/wiki/LinuxBuildInstructionsPrerequisites Linux]).
+  # [http://code.google.com/p/chromium/wiki/LinuxBuildInstructionsPrerequisites Linux].
 
 Regardless of platform, you will need to install the Chromium [http://dev.chromium.org/developers/how-tos/install-gclient depot tools].
 
