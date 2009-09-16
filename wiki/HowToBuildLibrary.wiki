@@ -19,7 +19,7 @@ Regardless of platform, you will need to install the Chromium [http://dev.chromi
 
 = How to build =
 
-On Windows, using Visual Studio, open the `all.sln` file in the `build` subdirectory, and build the solution.
+On Windows, using Visual Studio, open the `all.sln` file in the `build` directory, and build the solution.
 
 On Mac OS X, navigate to the `build` directory and invoke `xcodebuild -project all.xcodeproj -activeconfiguration -target All`.
 
