@@ -129,9 +129,9 @@
         'pagespeed_core',
       ],
       'sources': [
-        'rules/gzip_rule.cc',
-        'rules/minimize_dns_rule.cc',
-        'rules/minimize_resources_rule.cc',
+        'rules/combine_external_resources.cc',
+        'rules/enable_gzip_compression.cc',
+        'rules/minimize_dns_lookups.cc',
         'rules/rule_provider.cc',
       ],
       'include_dirs': [
@@ -164,7 +164,7 @@
       ],
     },
     {
-      'target_name': 'pagespeed_gzip_rule_test',
+      'target_name': 'pagespeed_enable_gzip_compression_test',
       'type': 'executable',
       'dependencies': [
         'pagespeed',
@@ -172,11 +172,11 @@
         '../testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/gzip_rule_test.cc',
+        'rules/enable_gzip_compression_test.cc',
       ],
     },
     {
-      'target_name': 'pagespeed_minimize_dns_rule_test',
+      'target_name': 'pagespeed_minimize_dns_lookups_test',
       'type': 'executable',
       'dependencies': [
         'pagespeed',
@@ -184,11 +184,11 @@
         '../testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/minimize_dns_rule_test.cc',
+        'rules/minimize_dns_lookups_test.cc',
       ],
     },
     {
-      'target_name': 'pagespeed_minimize_resources_rule_test',
+      'target_name': 'pagespeed_combine_external_resources_test',
       'type': 'executable',
       'dependencies': [
         'pagespeed',
@@ -196,7 +196,7 @@
         '../testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/minimize_resources_rule_test.cc',
+        'rules/combine_external_resources_test.cc',
       ],
     },
     {

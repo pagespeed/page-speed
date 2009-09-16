@@ -19,10 +19,10 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/minimize_dns_rule.h"
+#include "pagespeed/rules/minimize_dns_lookups.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::MinimizeDnsRule;
+using pagespeed::rules::MinimizeDnsLookups;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
@@ -54,14 +54,14 @@ class MinimizeDnsTest : public ::testing::Test {
   void CheckViolations(int expected_num_hosts,
                        int expected_dns_savings,
                        const std::vector<std::string>& expected_violations) {
-    MinimizeDnsRule dns_rule;
+    MinimizeDnsLookups dns_rule;
 
     Results results;
     dns_rule.AppendResults(*input_, &results);
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
-    ASSERT_EQ(result.rule_name(), "MinimizeDnsRule");
+    ASSERT_EQ(result.rule_name(), "MinimizeDnsLookups");
     ASSERT_EQ(result.savings().dns_requests_saved(), expected_dns_savings);
 
     ASSERT_EQ(result.resource_urls_size(), expected_violations.size());

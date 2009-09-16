@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_RULES_GZIP_RULE_H_
-#define PAGESPEED_RULES_GZIP_RULE_H_
+#ifndef PAGESPEED_RULES_ENABLE_GZIP_COMPRESSION_H_
+#define PAGESPEED_RULES_ENABLE_GZIP_COMPRESSION_H_
 
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
@@ -24,13 +24,15 @@ class PagespeedInput;
 class Resource;
 class Results;
 
+namespace rules {
+
 /**
  * Lint rule that checks that text resources are compressed before
  * they are sent over the wire.
  */
-class GzipRule : public Rule {
+class EnableGzipCompression : public Rule {
  public:
-  GzipRule();
+  EnableGzipCompression();
 
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
@@ -44,9 +46,11 @@ class GzipRule : public Rule {
   // TODO: move this method to class Resource
   int GetContentLength(const Resource& resource) const;
 
-  DISALLOW_COPY_AND_ASSIGN(GzipRule);
+  DISALLOW_COPY_AND_ASSIGN(EnableGzipCompression);
 };
+
+}  // namespace rules
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_RULES_GZIP_RULE_H_
+#endif  // PAGESPEED_RULES_ENABLE_GZIP_COMPRESSION_H_

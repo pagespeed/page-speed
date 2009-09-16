@@ -20,11 +20,11 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/minimize_resources_rule.h"
+#include "pagespeed/rules/combine_external_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::MinimizeCssResourcesRule;
-using pagespeed::MinimizeJsResourcesRule;
+using pagespeed::rules::CombineExternalCSS;
+using pagespeed::rules::CombineExternalJavaScript;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::ResourceType;
@@ -49,7 +49,7 @@ class Violation {
   std::vector<std::string> urls;
 };
 
-class MinimizeResourcesTest : public ::testing::Test {
+class CombineExternalResourcesTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
     input_.reset(new PagespeedInput);
@@ -76,11 +76,11 @@ class MinimizeResourcesTest : public ::testing::Test {
     scoped_ptr<Rule> resource_rule;
     const char* rule_name = NULL;
     if (type == pagespeed::CSS) {
-      resource_rule.reset(new MinimizeCssResourcesRule());
-      rule_name = "MinimizeCssResourcesRule";
+      resource_rule.reset(new CombineExternalCSS());
+      rule_name = "CombineExternalCSS";
     } else if (type == pagespeed::JS) {
-      resource_rule.reset(new MinimizeJsResourcesRule());
-      rule_name = "MinimizeJsResourcesRule";
+      resource_rule.reset(new CombineExternalJavaScript());
+      rule_name = "CombineExternalJavaScript";
     } else {
       CHECK(false);
     }
@@ -112,7 +112,7 @@ class MinimizeResourcesTest : public ::testing::Test {
   scoped_ptr<PagespeedInput> input_;
 };
 
-TEST_F(MinimizeResourcesTest, OneUrlNoViolation) {
+TEST_F(CombineExternalResourcesTest, OneUrlNoViolation) {
   std::string url = "http://foo.com";
 
   AddTestResource(url, "text/css");
@@ -123,7 +123,7 @@ TEST_F(MinimizeResourcesTest, OneUrlNoViolation) {
   CheckViolations(pagespeed::CSS, no_violations);
 }
 
-TEST_F(MinimizeResourcesTest, TwoCssResourcesFromOneHostViolation) {
+TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromOneHostViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://foo.com/bar";
 
@@ -143,7 +143,7 @@ TEST_F(MinimizeResourcesTest, TwoCssResourcesFromOneHostViolation) {
   CheckViolations(pagespeed::JS, no_violations);
 }
 
-TEST_F(MinimizeResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
+TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://bar.com";
 
@@ -156,7 +156,7 @@ TEST_F(MinimizeResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
   CheckViolations(pagespeed::JS, no_violations);
 }
 
-TEST_F(MinimizeResourcesTest, FourCssResourcesFromTwoHostsViolation) {
+TEST_F(CombineExternalResourcesTest, FourCssResourcesFromTwoHostsViolation) {
   std::string url1 = "http://a.com";
   std::string url2 = "http://a.com/foo";
   std::string url3 = "http://b.com";
@@ -185,7 +185,7 @@ TEST_F(MinimizeResourcesTest, FourCssResourcesFromTwoHostsViolation) {
   CheckViolations(pagespeed::JS, no_violations);
 }
 
-TEST_F(MinimizeResourcesTest, ThreeCssResourcesFromOneHostViolation) {
+TEST_F(CombineExternalResourcesTest, ThreeCssResourcesFromOneHostViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://foo.com/bar";
   std::string url3 = "http://foo.com/baz";
@@ -208,7 +208,7 @@ TEST_F(MinimizeResourcesTest, ThreeCssResourcesFromOneHostViolation) {
   CheckViolations(pagespeed::JS, no_violations);
 }
 
-TEST_F(MinimizeResourcesTest, TwoJsResourcesFromOneHostViolation) {
+TEST_F(CombineExternalResourcesTest, TwoJsResourcesFromOneHostViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://foo.com/bar";
 

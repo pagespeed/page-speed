@@ -18,10 +18,10 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/gzip_rule.h"
+#include "pagespeed/rules/enable_gzip_compression.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::GzipRule;
+using pagespeed::rules::EnableGzipCompression;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
@@ -29,7 +29,7 @@ using pagespeed::Results;
 
 namespace {
 
-class GzipRuleTest : public ::testing::Test {
+class EnableGzipCompressionTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
     input_.reset(new PagespeedInput);
@@ -113,7 +113,7 @@ class GzipRuleTest : public ::testing::Test {
   }
 
   void CheckNoViolations() {
-    GzipRule gzip_rule;
+    EnableGzipCompression gzip_rule;
 
     Results results;
     gzip_rule.AppendResults(*input_, &results);
@@ -121,7 +121,7 @@ class GzipRuleTest : public ::testing::Test {
   }
 
   void CheckOneViolation() {
-    GzipRule gzip_rule;
+    EnableGzipCompression gzip_rule;
 
     Results results;
     gzip_rule.AppendResults(*input_, &results);
@@ -134,7 +134,7 @@ class GzipRuleTest : public ::testing::Test {
   }
 
   void CheckTwoViolations() {
-    GzipRule gzip_rule;
+    EnableGzipCompression gzip_rule;
 
     Results results;
     gzip_rule.AppendResults(*input_, &results);
@@ -155,43 +155,43 @@ class GzipRuleTest : public ::testing::Test {
   scoped_ptr<PagespeedInput> input_;
 };
 
-TEST_F(GzipRuleTest, ViolationLargeHtmlNoGzip) {
+TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
 
   CheckOneViolation();
 }
 
-TEST_F(GzipRuleTest, ViolationLargeHtmlUtf8NoGzip) {
+TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlUtf8NoGzip) {
   AddFirstLargeHtmlResource("utf-8", false);
 
   CheckOneViolation();
 }
 
-TEST_F(GzipRuleTest, NoViolationLargeHtmlGzip) {
+TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzip) {
   AddFirstLargeHtmlResource(true);
 
   CheckNoViolations();
 }
 
-TEST_F(GzipRuleTest, NoViolationSmallHtmlNoGzip) {
+TEST_F(EnableGzipCompressionTest, NoViolationSmallHtmlNoGzip) {
   AddShortHtmlResource();
 
   CheckNoViolations();
 }
 
-TEST_F(GzipRuleTest, NoViolationLargeNoContentTypeNoGzip) {
+TEST_F(EnableGzipCompressionTest, NoViolationLargeNoContentTypeNoGzip) {
   AddTestResource("http://www.test.com/", NULL, NULL, "9000", NULL);
 
   CheckNoViolations();
 }
 
-TEST_F(GzipRuleTest, NoViolationLargeImageNoGzip) {
+TEST_F(EnableGzipCompressionTest, NoViolationLargeImageNoGzip) {
   AddTestResource("http://www.test.com/", "image/jpeg", NULL, "9000", NULL);
 
   CheckNoViolations();
 }
 
-TEST_F(GzipRuleTest, ViolationLargeHtmlNoGzipNoContentLength) {
+TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlNoGzipNoContentLength) {
   std::string body;
   body.resize(9000, 'a');
   AddHtmlResourceWithBody(body.c_str(), false);
@@ -199,7 +199,7 @@ TEST_F(GzipRuleTest, ViolationLargeHtmlNoGzipNoContentLength) {
   CheckOneViolation();
 }
 
-TEST_F(GzipRuleTest, NoViolationLargeHtmlGzipNoContentLength) {
+TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzipNoContentLength) {
   std::string body;
   body.resize(9000, 'a');
   AddHtmlResourceWithBody(body.c_str(), true);
@@ -207,21 +207,21 @@ TEST_F(GzipRuleTest, NoViolationLargeHtmlGzipNoContentLength) {
   CheckNoViolations();
 }
 
-TEST_F(GzipRuleTest, NoViolationTwoHtmlGzip) {
+TEST_F(EnableGzipCompressionTest, NoViolationTwoHtmlGzip) {
   AddFirstLargeHtmlResource(true);
   AddSecondLargeHtmlResource(true);
 
   CheckNoViolations();
 }
 
-TEST_F(GzipRuleTest, OneViolationTwoHtmlNoGzip) {
+TEST_F(EnableGzipCompressionTest, OneViolationTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(true);
 
   CheckOneViolation();
 }
 
-TEST_F(GzipRuleTest, TwoViolationsTwoHtmlNoGzip) {
+TEST_F(EnableGzipCompressionTest, TwoViolationsTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(false);
 

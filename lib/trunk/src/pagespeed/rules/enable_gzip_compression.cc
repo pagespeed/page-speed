@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/rules/gzip_rule.h"
+#include "pagespeed/rules/enable_gzip_compression.h"
 
 #include <string>
 
@@ -24,11 +24,13 @@
 
 namespace pagespeed {
 
-GzipRule::GzipRule() {
+namespace rules {
+
+EnableGzipCompression::EnableGzipCompression() {
 }
 
-bool GzipRule::AppendResults(const PagespeedInput& input,
-                             Results* results) {
+bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
+                                          Results* results) {
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     if (!isViolation(resource)) {
@@ -36,7 +38,7 @@ bool GzipRule::AppendResults(const PagespeedInput& input,
     }
 
     Result* result = results->add_results();
-    result->set_rule_name("GzipRule");
+    result->set_rule_name("EnableGzipCompression");
 
     int length = GetContentLength(resource);
     int bytes_saved = 2 * length / 3;
@@ -50,7 +52,8 @@ bool GzipRule::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void GzipRule::FormatResults(const Results& results, Formatter* formatter) {
+void EnableGzipCompression::FormatResults(
+    const Results& results, Formatter* formatter) {
   Formatter* header = formatter->AddChild("Enable Gzip");
 
   int total_bytes_saved = 0;
@@ -78,12 +81,12 @@ void GzipRule::FormatResults(const Results& results, Formatter* formatter) {
   }
 }
 
-bool GzipRule::isCompressed(const Resource& resource) const {
+bool EnableGzipCompression::isCompressed(const Resource& resource) const {
   const std::string& encoding = resource.GetResponseHeader("Content-Encoding");
   return encoding == "gzip" || encoding == "deflate";
 }
 
-bool GzipRule::isText(const Resource& resource) const {
+bool EnableGzipCompression::isText(const Resource& resource) const {
   ResourceType type = resource.GetResourceType();
   ResourceType text_types[] = { HTML, TEXT, JS, CSS };
   for (int idx = 0; idx < arraysize(text_types); ++idx) {
@@ -95,13 +98,13 @@ bool GzipRule::isText(const Resource& resource) const {
   return false;
 }
 
-bool GzipRule::isViolation(const Resource& resource) const {
+bool EnableGzipCompression::isViolation(const Resource& resource) const {
   return !isCompressed(resource) &&
       isText(resource) &&
       GetContentLength(resource) >= 150;
 }
 
-int GzipRule::GetContentLength(const Resource& resource) const {
+int EnableGzipCompression::GetContentLength(const Resource& resource) const {
   const std::string& length_header =
       resource.GetResponseHeader("Content-Length");
   if (!length_header.empty()) {
@@ -115,5 +118,7 @@ int GzipRule::GetContentLength(const Resource& resource) const {
 
   return 0;
 }
+
+}  // namespace rules
 
 }  // namespace pagespeed
