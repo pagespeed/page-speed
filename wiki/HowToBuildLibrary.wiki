@@ -4,7 +4,7 @@
 
 At the moment the Page Speed native library builds using the Chromium build system.
 
-To build Page Speed you will need to install the prerequisite software for your platform:
+To build Page Speed you will need to install the prerequisite software for your platform. You only need to get the prerequisites for your platform. Don't sync the chromium source tree or anything like that.
 
   # [http://dev.chromium.org/developers/how-tos/build-instructions-windows#TOC-Prerequisite-software Windows]
   # [http://code.google.com/p/chromium/wiki/MacBuildInstructions Mac OS X]
