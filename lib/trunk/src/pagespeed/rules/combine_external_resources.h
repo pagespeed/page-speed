@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_RULES_MINIMIZE_RESOURCES_RULE_H_
-#define PAGESPEED_RULES_MINIMIZE_RESOURCES_RULE_H_
+#ifndef PAGESPEED_RULES_COMBINE_EXTERNAL_RESOURCES_H_
+#define PAGESPEED_RULES_COMBINE_EXTERNAL_RESOURCES_H_
 
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
 
 namespace pagespeed {
 
+namespace rules {
+
 /**
  * Checks for multiple, combinable resources of the same type served
  * off the same domain.
  */
-class MinimizeResourcesRule : public Rule {
+class CombineExternalResources : public Rule {
  protected:
-  MinimizeResourcesRule(const char* rule_name, ResourceType resource_type);
+  CombineExternalResources(const char* rule_name, ResourceType resource_type);
 
  public:
   // Rule interface.
@@ -36,25 +38,27 @@ class MinimizeResourcesRule : public Rule {
  private:
   const char* rule_name_;
   const ResourceType resource_type_;
-  DISALLOW_COPY_AND_ASSIGN(MinimizeResourcesRule);
+  DISALLOW_COPY_AND_ASSIGN(CombineExternalResources);
 };
 
-class MinimizeJsResourcesRule : public MinimizeResourcesRule {
+class CombineExternalJavaScript : public CombineExternalResources {
  public:
-  MinimizeJsResourcesRule();
+  CombineExternalJavaScript();
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(MinimizeJsResourcesRule);
+  DISALLOW_COPY_AND_ASSIGN(CombineExternalJavaScript);
 };
 
-class MinimizeCssResourcesRule : public MinimizeResourcesRule {
+class CombineExternalCSS : public CombineExternalResources {
  public:
-  MinimizeCssResourcesRule();
+  CombineExternalCSS();
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(MinimizeCssResourcesRule);
+  DISALLOW_COPY_AND_ASSIGN(CombineExternalCSS);
 };
+
+}  // namespace rules
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_RULES_MINIMIZE_RESOURCES_RULE_H_
+#endif  // PAGESPEED_RULES_COMBINE_EXTERNAL_RESOURCES_H_

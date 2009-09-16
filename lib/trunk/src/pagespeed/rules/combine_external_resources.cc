@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/rules/minimize_resources_rule.h"
+#include "pagespeed/rules/combine_external_resources.h"
 
 #include <string>
 
@@ -25,13 +25,15 @@
 
 namespace pagespeed {
 
-MinimizeResourcesRule::MinimizeResourcesRule(const char* rule_name,
-                                             ResourceType resource_type)
+namespace rules {
+
+CombineExternalResources::CombineExternalResources(const char* rule_name,
+                                                   ResourceType resource_type)
     : rule_name_(rule_name), resource_type_(resource_type) {
 }
 
-bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
-                                          Results* results) {
+bool CombineExternalResources::AppendResults(const PagespeedInput& input,
+                                             Results* results) {
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
 
   for (HostResourceMap::const_iterator iter = host_resource_map.begin(),
@@ -82,8 +84,8 @@ bool MinimizeResourcesRule::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void MinimizeResourcesRule::FormatResults(const Results& results,
-                                          Formatter* formatter) {
+void CombineExternalResources::FormatResults(const Results& results,
+                                             Formatter* formatter) {
   const char* header_str = NULL;
   const char* body_tmpl = NULL;
   if (resource_type_ == CSS) {
@@ -115,12 +117,14 @@ void MinimizeResourcesRule::FormatResults(const Results& results,
   }
 }
 
-MinimizeJsResourcesRule::MinimizeJsResourcesRule()
-    : MinimizeResourcesRule("MinimizeJsResourcesRule", JS) {
+CombineExternalJavaScript::CombineExternalJavaScript()
+    : CombineExternalResources("CombineExternalJavaScript", JS) {
 }
 
-MinimizeCssResourcesRule::MinimizeCssResourcesRule()
-    : MinimizeResourcesRule("MinimizeCssResourcesRule", CSS) {
+CombineExternalCSS::CombineExternalCSS()
+    : CombineExternalResources("CombineExternalCSS", CSS) {
 }
+
+}  // namespace rules
 
 }  // namespace pagespeed

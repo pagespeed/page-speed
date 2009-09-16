@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/rules/minimize_dns_rule.h"
+#include "pagespeed/rules/minimize_dns_lookups.h"
 
 #include <string>
 
@@ -56,13 +56,15 @@ bool IsAnIPAddress(const char* str) {
 
 namespace pagespeed {
 
-MinimizeDnsRule::MinimizeDnsRule() {
+namespace rules {
+
+MinimizeDnsLookups::MinimizeDnsLookups() {
 }
 
-bool MinimizeDnsRule::AppendResults(const PagespeedInput& input,
-                                    Results* results) {
+bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
+                                       Results* results) {
   Result* result = results->add_results();
-  result->set_rule_name("MinimizeDnsRule");
+  result->set_rule_name("MinimizeDnsLookups");
 
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
 
@@ -120,8 +122,8 @@ bool MinimizeDnsRule::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void MinimizeDnsRule::FormatResults(const Results& results,
-                                    Formatter* formatter) {
+void MinimizeDnsLookups::FormatResults(const Results& results,
+                                       Formatter* formatter) {
   std::vector<std::string> violation_urls;
   for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
     const Result& result = results.results(result_idx);
@@ -150,5 +152,7 @@ void MinimizeDnsRule::FormatResults(const Results& results,
     body->AddChild("$1", url);
   }
 }
+
+}  // namespace rules
 
 }  // namespace pagespeed

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_RULES_MINIMIZE_DNS_RULE_H_
-#define PAGESPEED_RULES_MINIMIZE_DNS_RULE_H_
+#ifndef PAGESPEED_RULES_MINIMIZE_DNS_LOOKUPS_H_
+#define PAGESPEED_RULES_MINIMIZE_DNS_LOOKUPS_H_
 
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
@@ -23,22 +23,26 @@ namespace pagespeed {
 class PagespeedInput;
 class Results;
 
+namespace rules {
+
 /**
  * Checks for DNS requests that each only serve one resource.  A DNS
  * request is considered wasteful if it doesn't serve at least 2
  * resources.
  */
-class MinimizeDnsRule : public Rule {
+class MinimizeDnsLookups : public Rule {
  public:
-  MinimizeDnsRule();
+  MinimizeDnsLookups();
 
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
   virtual void FormatResults(const Results& results, Formatter* formatter);
 
-  DISALLOW_COPY_AND_ASSIGN(MinimizeDnsRule);
+  DISALLOW_COPY_AND_ASSIGN(MinimizeDnsLookups);
 };
+
+}  // namespace rules
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_RULES_MINIMIZE_DNS_RULE_H_
+#endif  // PAGESPEED_RULES_MINIMIZE_DNS_LOOKUPS_H_
