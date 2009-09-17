@@ -63,7 +63,8 @@ class RedirectGraph {
   // exclude all redirect targets because we would like to warn about
   // pure redirect loops.
   void GetPriorizedRoots(std::vector<std::string>* roots);
-  void PopulateRedirectChainResult(std::string root, pagespeed::Result* result);
+  void PopulateRedirectChainResult(const std::string& root,
+                                   pagespeed::Result* result);
 
   typedef std::map<std::string, std::vector<std::string> > RedirectMap;
   RedirectMap redirect_map_;
@@ -121,7 +122,7 @@ void RedirectGraph::GetPriorizedRoots(std::vector<std::string>* roots) {
   roots->insert(roots->end(), secondary_roots.begin(), secondary_roots.end());
 }
 
-void RedirectGraph::PopulateRedirectChainResult(std::string root,
+void RedirectGraph::PopulateRedirectChainResult(const std::string& root,
                                                 pagespeed::Result* result) {
   result->set_rule_name("MinimizeRedirects");
 
@@ -129,7 +130,7 @@ void RedirectGraph::PopulateRedirectChainResult(std::string root,
   std::vector<std::string> work_stack;
   work_stack.push_back(root);
   while (!work_stack.empty()) {
-    const std::string& current = work_stack.back();
+    std::string current = work_stack.back();
     work_stack.pop_back();
     result->add_resource_urls(current);
 
