@@ -173,11 +173,12 @@ function getBlockingDnsLookupWarnings(documentHostname, docContents) {
 
 /**
  * @param {string} documentHostname The hostname of the root document.
+ * @param {Array.<string>} resourceUrls Urls of resources to test for wasteful
+ *     DNS lookups.
  * @return {Array.<string>} An array of warnings about blocking DNS lookups.
  */
-function getWastefulDnsLookupWarnings(documentHostname) {
-  var urls = PAGESPEED.Utils.getResourcesBeforeOnload();
-  var map = PAGESPEED.Utils.getHostToResourceMap(urls);
+function getWastefulDnsLookupWarnings(documentHostname, resourceUrls) {
+  var map = PAGESPEED.Utils.getHostToResourceMap(resourceUrls);
 
   var aWarnings = [];
   for (var hostname in map) {
@@ -193,8 +194,10 @@ function getWastefulDnsLookupWarnings(documentHostname) {
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var dnsRule = function() {
+var dnsRule = function(resourceAccessor) {
   var docUri = PAGESPEED.Utils.getElementsByType('doc')[0].documentURIObject;
   var docContents = PAGESPEED.Utils.getResourceContent(
       docUri.spec.replace(/#.*$/, ''));
@@ -211,7 +214,14 @@ var dnsRule = function() {
          aBlockingWarnings.join('')].join('');
   }
 
-  var aWastefulWarnings = getWastefulDnsLookupWarnings(documentHostname);
+  var resourceUrls = resourceAccessor.getResources(
+      'all',
+      null,  // No extra filter.
+      true); // Only return resources fetched before onload.
+
+  var aWastefulWarnings = getWastefulDnsLookupWarnings(
+      documentHostname, resourceUrls);
+
   if (aWastefulWarnings.length > 3) {
     this.score -= aWastefulWarnings.length * 6;
     this.warnings +=

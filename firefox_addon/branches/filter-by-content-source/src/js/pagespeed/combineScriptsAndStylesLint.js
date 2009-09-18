@@ -66,12 +66,20 @@ function processResourceMap(resourceMap, type, out_aWarnings) {
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
+ * @param {string} type The type of resource to score.
+ * @param {string} displayName |type| as a human-readable name.
  */
-var combineResourcesCommon = function(type, displayName) {
+var combineResourcesCommon = function(resourceAccessor, type, displayName) {
 
   // TODO: Consider warning about many items fetched after onload if they are
   // fetched at roughly the same time.
-  var resources = PAGESPEED.Utils.getResourcesBeforeOnload([type]);
+
+  var resources = resourceAccessor.getResources(
+      type,
+      null,  // No extra filter.
+      true); // Only return resources fetched before onload.
 
   if (resources.length == 0) {
     this.score = 'n/a';
@@ -88,16 +96,20 @@ var combineResourcesCommon = function(type, displayName) {
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var combineScriptsLint = function() {
-  combineResourcesCommon.call(this, 'js', 'JavaScript');
+var combineScriptsLint = function(resourceAccessor) {
+  combineResourcesCommon.call(this, resourceAccessor, 'js', 'JavaScript');
 };
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var combineStylesLint = function() {
-  combineResourcesCommon.call(this, 'css', 'CSS');
+var combineStylesLint = function(resourceAccessor) {
+  combineResourcesCommon.call(this, resourceAccessor, 'css', 'CSS');
 };
 
 PAGESPEED.LintRules.registerLintRule(

@@ -40,14 +40,18 @@ var MIN_BALANCE_THRESHOLD_ = 0.5;
  * Rule to find resources that could be parallelized
  * across hostnames to decrease page load time.
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var parallelizeDownloadRule = function() {
+var parallelizeDownloadRule = function(resourceAccessor) {
   // Find all "static" resources, except for JS, since choice of
   // domain serving for JS downloads can't be parallelized in most
   // browsers.
-  var urls = PAGESPEED.Utils.filterProtocols(
-      PAGESPEED.Utils.getResourcesBeforeOnload(
-          ['css', 'image', 'object', 'cssimage']));
+
+  var urls = resourceAccessor.getResources(
+      ['css', 'image', 'object', 'cssimage'],
+      new PAGESPEED.ResourceFilters.FetchedByProtocol(['http', 'https']),
+      true);  // Only return resources fetched before onload.
 
   // Create a mapping from hostname to an array of resources served by
   // that hostname.

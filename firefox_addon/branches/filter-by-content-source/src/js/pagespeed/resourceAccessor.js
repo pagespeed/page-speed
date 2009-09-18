@@ -41,26 +41,46 @@ PAGESPEED.ResourceAccessor = function(opt_resourceFilter) {
  *     types.  'all' means resources of any type.
  * @param {object} opt_extraFilter An extra filter resources must pass,
  *     in addition to this.resourceFilter_.
+ * @param {bool} opt_onlyBeforeOnload If true, only return resources
+ *     fetched before onload.  See TODO below.
  * @return {Array.<string>} A list of urls that are of the types in |types|,
  *     and allowed by the resource filter set by this object's constructor.
  */
-PAGESPEED.ResourceAccessor.prototype.getResources = function(types,
-                                                             opt_extraFilter) {
+PAGESPEED.ResourceAccessor.prototype.getResources = function(
+    types,
+    opt_extraFilter,
+    opt_onlyBeforeOnload) {
   // TODO: Until we update every lint rule to use this class instead of
   // PAGESPEED.Utils.* for resource access, we can't get rid of them. To
   // avoid duplicate code, use PAGESPEED.Utils.* here.  When all other
   // users are removed, move the code to this file.
   var unfilteredResources;
 
+  // Find the set of types of resources we are interested in.  [] means
+  // return all types.
+  var argsToGetResources;
   if (types == 'all') {
-    unfilteredResources = PAGESPEED.Utils.getResources();
-
+    argsToGetResources = [];
   } else if (typeof types == 'string') {
-    unfilteredResources = PAGESPEED.Utils.getResources(types);
-
+    argsToGetResources = [types];
   } else {
-    unfilteredResources =
-        PAGESPEED.Utils.getResources.apply(PAGESPEED.Utils, types);
+    argsToGetResources = types;
+  }
+
+  // TODO: opt_onlyBeforeOnload filters by onload time.  This
+  // functionality should be implemented as a filter, and this
+  // will be trivial to do once the code in
+  // PAGESPEED.Utils.getResourcesWithFilter() is moved into
+  // this file.  Until that happens, it is painful to filter
+  // by access time because we need access to the resource
+  // object to get resource.requestTime.
+  var unfilteredResources;
+  if (opt_onlyBeforeOnload) {
+    unfilteredResources = PAGESPEED.Utils.getResourcesBeforeOnload(
+        argsToGetResources);
+  } else {
+    unfilteredResources = PAGESPEED.Utils.getResources.apply(
+        PAGESPEED.Utils, argsToGetResources);
   }
 
   var filteredResults = [];
