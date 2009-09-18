@@ -126,11 +126,13 @@
       'target_name': 'pagespeed',
       'type': '<(library)',
       'dependencies': [
+        '../third_party/jsmin/jsmin.gyp:jsmin',
         'pagespeed_core',
       ],
       'sources': [
         'rules/combine_external_resources.cc',
         'rules/enable_gzip_compression.cc',
+        'rules/minify_javascript.cc',
         'rules/minimize_dns_lookups.cc',
         'rules/minimize_redirects.cc',
         'rules/rule_provider.cc',
@@ -174,6 +176,18 @@
       ],
       'sources': [
         'rules/enable_gzip_compression_test.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_minify_javascript_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed',
+        '../testing/gtest.gyp:gtest',
+        '../testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        'rules/minify_javascript_test.cc',
       ],
     },
     {
