@@ -44,10 +44,13 @@ PAGESPEED.MinimalBeacon.buildBeacon = function(resultsContainer) {
   /**
    * Encode a key-value pair into the params portion of a URL.
    * @param {string} key The key.
-   * @param {string} value The value.
+   * @param {*} value The value.  Will be cast to a string.
    * @return {string} The string key=value, suitably escaped.
    */
-  var encodeKeyValuePair = function(key,value) {
+  var encodeKeyValuePair = function(key, value) {
+    if (typeof value == 'undefined') {
+      value = 'err';
+    }
     return [encodeURIComponent(key),
             '=',
             encodeURIComponent(value)].join('');
