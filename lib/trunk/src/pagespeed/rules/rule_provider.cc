@@ -16,6 +16,7 @@
 
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
+#include "pagespeed/rules/minify_javascript.h"
 #include "pagespeed/rules/minimize_dns_lookups.h"
 #include "pagespeed/rules/minimize_redirects.h"
 
@@ -27,6 +28,7 @@ void AppendCoreRules(std::vector<Rule*> *rules) {
   rules->push_back(new rules::EnableGzipCompression());
   rules->push_back(new rules::CombineExternalCSS());
   rules->push_back(new rules::CombineExternalJavaScript());
+  rules->push_back(new rules::MinifyJavaScript());
   rules->push_back(new rules::MinimizeDnsLookups());
   rules->push_back(new rules::MinimizeRedirects());
 }
