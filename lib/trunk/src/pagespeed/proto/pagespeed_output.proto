@@ -26,11 +26,8 @@ message Savings {
   // Number of request that could be saved if page was optimized.
   optional int32 requests_saved = 2;
 
-  // Upload bytes that could be saved if page was optimized.
-  optional int32 request_bytes_saved = 3;
-
   // Download bytes that could be saved if page was optimized.
-  optional int32 response_bytes_saved = 4;
+  optional int32 response_bytes_saved = 3;
 }
 
 // Base class for result details
