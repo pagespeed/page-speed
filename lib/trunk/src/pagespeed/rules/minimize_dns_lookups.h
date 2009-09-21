@@ -36,7 +36,7 @@ class MinimizeDnsLookups : public Rule {
 
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
-  virtual void FormatResults(const Results& results, Formatter* formatter);
+  virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 
   DISALLOW_COPY_AND_ASSIGN(MinimizeDnsLookups);
 };

@@ -231,6 +231,7 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed_core',
+        'pagespeed_proto',
         '../testing/gtest.gyp:gtest',
         '../testing/gtest.gyp:gtestmain',
       ],

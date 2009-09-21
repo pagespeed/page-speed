@@ -29,6 +29,8 @@
 
 namespace {
 
+const char* kRuleName = "MinimizeRedirects";
+
 std::string ResolveUri(const std::string& uri, const std::string& base_url) {
   GURL url(base_url);
   if (!url.is_valid()) {
@@ -74,6 +76,7 @@ class RedirectGraph {
 
 void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
   int code = resource.GetResponseStatusCode();
+  // TODO: 304 is not a redirect.
   if (code < 300 || code >= 400) {
     return;  // not a redirect
   }
@@ -124,7 +127,7 @@ void RedirectGraph::GetPriorizedRoots(std::vector<std::string>* roots) {
 
 void RedirectGraph::PopulateRedirectChainResult(const std::string& root,
                                                 pagespeed::Result* result) {
-  result->set_rule_name("MinimizeRedirects");
+  result->set_rule_name(kRuleName);
 
   // Perform a DFS on the redirect graph.
   std::vector<std::string> work_stack;
@@ -156,7 +159,7 @@ namespace pagespeed {
 
 namespace rules {
 
-MinimizeRedirects::MinimizeRedirects() {
+MinimizeRedirects::MinimizeRedirects() : Rule(kRuleName) {
 }
 
 /**
@@ -180,7 +183,7 @@ MinimizeRedirects::MinimizeRedirects() {
  *     output: a, b, d, c, d
  */
 bool MinimizeRedirects::AppendResults(const PagespeedInput& input,
-                                   Results* results) {
+                                      Results* results) {
   RedirectGraph redirect_graph;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     redirect_graph.AddResource(input.GetResource(idx));
@@ -190,19 +193,18 @@ bool MinimizeRedirects::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void MinimizeRedirects::FormatResults(const Results& results,
-                                   Formatter* formatter) {
-  if (results.results_size() == 0) {
-    return;
-  }
-
+void MinimizeRedirects::FormatResults(const ResultVector& results,
+                                      Formatter* formatter) {
   Formatter* header = formatter->AddChild("Minimize redirects");
 
-  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
+       iter != end;
+       ++iter) {
     Formatter* body = header->AddChild(
         "Remove the following redirect chain if possible:");
 
-    const Result& result = results.results(result_idx);
+    const Result& result = **iter;
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
       Argument url(Argument::URL, result.resource_urls(url_idx));
       body->AddChild("$1", url);

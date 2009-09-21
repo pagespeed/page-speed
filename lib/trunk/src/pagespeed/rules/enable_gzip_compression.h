@@ -36,7 +36,7 @@ class EnableGzipCompression : public Rule {
 
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
-  virtual void FormatResults(const Results& results, Formatter* formatter);
+  virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 
  private:
   bool isCompressed(const Resource& resource) const;

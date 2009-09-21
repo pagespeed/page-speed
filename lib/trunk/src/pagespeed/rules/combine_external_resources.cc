@@ -29,7 +29,7 @@ namespace rules {
 
 CombineExternalResources::CombineExternalResources(const char* rule_name,
                                                    ResourceType resource_type)
-    : rule_name_(rule_name), resource_type_(resource_type) {
+    : Rule(rule_name), resource_type_(resource_type) {
 }
 
 bool CombineExternalResources::AppendResults(const PagespeedInput& input,
@@ -65,7 +65,7 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
 
     if (violations.size() > 1) {
       Result* result = results->add_results();
-      result->set_rule_name(rule_name_);
+      result->set_rule_name(name());
 
       int requests_saved = 0;
       requests_saved += (violations.size() - 1);
@@ -84,7 +84,7 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void CombineExternalResources::FormatResults(const Results& results,
+void CombineExternalResources::FormatResults(const ResultVector& results,
                                              Formatter* formatter) {
   const char* header_str = NULL;
   const char* body_tmpl = NULL;
@@ -102,8 +102,11 @@ void CombineExternalResources::FormatResults(const Results& results,
 
   Formatter* header = formatter->AddChild(header_str);
 
-  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
-    const Result& result = results.results(result_idx);
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
+       iter != end;
+       ++iter) {
+    const Result& result = **iter;
 
     Argument count(Argument::INTEGER, result.resource_urls_size());
     GURL url(result.resource_urls(0));

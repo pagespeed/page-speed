@@ -14,6 +14,9 @@
 
 #include "pagespeed/proto/proto_formatter.h"
 
+#include <string>
+#include <vector>
+
 #include "base/logging.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 

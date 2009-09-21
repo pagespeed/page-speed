@@ -14,6 +14,10 @@
 
 #include "pagespeed/proto/proto_resource_utils.h"
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
