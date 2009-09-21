@@ -15,6 +15,7 @@
 #ifndef PAGESPEED_CORE_RULE_H_
 #define PAGESPEED_CORE_RULE_H_
 
+#include <string>
 #include <vector>
 
 namespace pagespeed {
@@ -22,16 +23,21 @@ namespace pagespeed {
 class Formatter;
 class PagespeedInput;
 class Resource;
-class ResultText;
+class Result;
 class Results;
+class ResultText;
 
 /**
  * Lint rule checker interface.
  */
 class Rule {
  public:
-  Rule();
+  typedef std::vector<const Result*> ResultVector;
+
+  explicit Rule(const char* name);
   virtual ~Rule();
+
+  const std::string& name() const { return name_; }
 
   // Compute results and append it to the results set.
   //
@@ -44,7 +50,11 @@ class Rule {
   //
   // @param results Results to interpret
   // @param formatter Output formatter
-  virtual void FormatResults(const Results& results, Formatter* formatter) = 0;
+  virtual void FormatResults(const ResultVector& results,
+                             Formatter* formatter) = 0;
+
+ private:
+  const std::string name_;
 };
 
 }  // namespace pagespeed

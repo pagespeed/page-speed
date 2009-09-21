@@ -15,6 +15,7 @@
 #include "pagespeed/rules/minimize_dns_lookups.h"
 
 #include <string>
+#include <vector>
 
 #include "base/logging.h"
 #include "pagespeed/core/formatter.h"
@@ -58,13 +59,13 @@ namespace pagespeed {
 
 namespace rules {
 
-MinimizeDnsLookups::MinimizeDnsLookups() {
+MinimizeDnsLookups::MinimizeDnsLookups() : Rule("MinimizeDnsLookups") {
 }
 
 bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
                                        Results* results) {
   Result* result = results->add_results();
-  result->set_rule_name("MinimizeDnsLookups");
+  result->set_rule_name(name());
 
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
 
@@ -122,11 +123,14 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
   return true;
 }
 
-void MinimizeDnsLookups::FormatResults(const Results& results,
+void MinimizeDnsLookups::FormatResults(const ResultVector& results,
                                        Formatter* formatter) {
   std::vector<std::string> violation_urls;
-  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
-    const Result& result = results.results(result_idx);
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
+       iter != end;
+       ++iter) {
+    const Result& result = **iter;
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       violation_urls.push_back(result.resource_urls(idx));

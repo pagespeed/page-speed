@@ -27,7 +27,7 @@ namespace pagespeed {
 
 namespace rules {
 
-MinifyJavaScript::MinifyJavaScript() {
+MinifyJavaScript::MinifyJavaScript() : Rule("MinifyJavaScript") {
 }
 
 bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
@@ -53,7 +53,7 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
     }
 
     Result* result = results->add_results();
-    result->set_rule_name("MinifyJavaScript");
+    result->set_rule_name(name());
 
     Savings* savings = result->mutable_savings();
     savings->set_response_bytes_saved(bytes_saved);
@@ -64,14 +64,17 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
   return !error;
 }
 
-void MinifyJavaScript::FormatResults(const Results& results,
+void MinifyJavaScript::FormatResults(const ResultVector& results,
                                      Formatter* formatter) {
   Formatter* header = formatter->AddChild("Minify JavaScript");
 
   int total_bytes_saved = 0;
 
-  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
-    const Result& result = results.results(result_idx);
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
+       iter != end;
+       ++iter) {
+    const Result& result = **iter;
     const Savings& savings = result.savings();
     total_bytes_saved += savings.response_bytes_saved();
   }
@@ -81,8 +84,11 @@ void MinifyJavaScript::FormatResults(const Results& results,
                                      "resources using JSMin could reduce "
                                      "their size by $1.", arg);
 
-  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
-    const Result& result = results.results(result_idx);
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
+       iter != end;
+       ++iter) {
+    const Result& result = **iter;
     CHECK(result.resource_urls_size() == 1);
     Argument url(Argument::URL, result.resource_urls(0));
     Argument savings(Argument::BYTES, result.savings().response_bytes_saved());

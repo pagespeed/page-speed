@@ -20,6 +20,7 @@
 #ifndef PAGESPEED_CORE_ENGINE_H_
 #define PAGESPEED_CORE_ENGINE_H_
 
+#include <map>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -40,16 +41,35 @@ class Engine {
   explicit Engine(const std::vector<Rule*>& rules);
   virtual ~Engine();
 
+  // Initialize the engine. Must be called once, immediately after
+  // instantiating the engine.
+  void Init();
+
   // Compute and add results to the result set by querying rule
   // objects about results they produce.
   // @return true iff the computation was completed without errors.
-  bool GetResults(const PagespeedInput& input, Results* results);
+  bool ComputeResults(const PagespeedInput& input, Results* results);
 
-  // @return true iff the computation was completed without errors.
-  bool FormatResults(const PagespeedInput& input, Formatter* formatter);
+  // Generate a formatted representation of the results, such as
+  // human-readable markup that will be displayed to a user.
+  // @return true iff the formatting was completed without errors.
+  bool FormatResults(const Results& results, Formatter* formatter);
+
+  // Compute the results and generate their formatted
+  // representation. This is a convenience method that invokes both
+  // ComputeResults and FormatResults.
+  // @return true iff the computation was completed without errors. if
+  // false is returned, the formatter will only be invoked for those
+  // results that did not generate errors.
+  bool ComputeAndFormatResults(const PagespeedInput& input,
+                               Formatter* formatter);
 
  private:
+  void PopulateNameToRuleMap();
+
   std::vector<Rule*> rules_;
+  std::map<std::string, Rule*> name_to_rule_map_;
+  bool init_;
 
   DISALLOW_COPY_AND_ASSIGN(Engine);
 };

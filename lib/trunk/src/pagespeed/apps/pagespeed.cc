@@ -14,9 +14,9 @@
 
 // Command line utility that runs lint rules on the provided input set.
 
-#include <fstream>
-
 #include <stdio.h>
+
+#include <fstream>
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
@@ -112,13 +112,14 @@ void ProcessInput(const pagespeed::ProtoInput& input_proto, bool dump_proto) {
 
   // Ownership of rules is transferred to the Engine instance.
   pagespeed::Engine engine(rules);
+  engine.Init();
 
   pagespeed::PagespeedInput input;
   pagespeed::proto::PopulatePagespeedInput(input_proto, &input);
 
   std::vector<pagespeed::ResultText*> results;
   pagespeed::proto::ProtoFormatter formatter(&results);
-  engine.FormatResults(input, &formatter);
+  engine.ComputeAndFormatResults(input, &formatter);
 
   for (std::vector<pagespeed::ResultText*>::const_iterator
            iter = results.begin(), end = results.end();

@@ -26,7 +26,7 @@ namespace pagespeed {
 
 namespace rules {
 
-EnableGzipCompression::EnableGzipCompression() {
+EnableGzipCompression::EnableGzipCompression() : Rule("EnableGzipCompression") {
 }
 
 bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
@@ -38,7 +38,7 @@ bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
     }
 
     Result* result = results->add_results();
-    result->set_rule_name("EnableGzipCompression");
+    result->set_rule_name(name());
 
     int length = GetContentLength(resource);
     int bytes_saved = 2 * length / 3;
@@ -53,13 +53,16 @@ bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
 }
 
 void EnableGzipCompression::FormatResults(
-    const Results& results, Formatter* formatter) {
+    const ResultVector& results, Formatter* formatter) {
   Formatter* header = formatter->AddChild("Enable Gzip");
 
   int total_bytes_saved = 0;
 
-  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
-    const Result& result = results.results(result_idx);
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
+       iter != end;
+       ++iter) {
+    const Result& result = **iter;
     const Savings& savings = result.savings();
     total_bytes_saved += savings.response_bytes_saved();
   }
@@ -71,8 +74,11 @@ void EnableGzipCompression::FormatResults(
                                      "thirds (~$1).",
                                      arg);
 
-  for (int result_idx = 0; result_idx < results.results_size(); result_idx++) {
-    const Result& result = results.results(result_idx);
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
+       iter != end;
+       ++iter) {
+    const Result& result = **iter;
     CHECK(result.resource_urls_size() == 1);
     Argument url(Argument::URL, result.resource_urls(0));
     Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
