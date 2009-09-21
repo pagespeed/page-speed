@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
+#include "pagespeed/core/formatter.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -92,6 +93,7 @@ bool Engine::FormatResults(const Results& results, Formatter* formatter) {
     const std::vector<const Result*>& rule_results = iter->second;
     rule->FormatResults(rule_results, formatter);
   }
+  formatter->Done();
 
   return success;
 }

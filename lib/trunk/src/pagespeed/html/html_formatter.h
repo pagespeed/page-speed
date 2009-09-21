@@ -12,24 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_APPS_PROTO_FORMATTER_H_
-#define PAGESPEED_APPS_PROTO_FORMATTER_H_
+#ifndef PAGESPEED_APPS_HTML_FORMATTER_H_
+#define PAGESPEED_APPS_HTML_FORMATTER_H_
+
+#include <iostream>
 
 #include "pagespeed/core/formatter.h"
 
 namespace pagespeed {
 
-class ResultText;
-
-namespace proto {
+namespace html {
 
 /**
- * Formatter that populates a ResultText protobuf.
+ * Formatter that produces HTML.
  */
-class ProtoFormatter : public Formatter {
+class HtmlFormatter : public Formatter {
  public:
-  explicit ProtoFormatter(std::vector<ResultText*>* results);
-  explicit ProtoFormatter(ResultText* parent_text);
+  explicit HtmlFormatter(std::ostream* output);
 
  protected:
   // Formatter interface
@@ -38,16 +37,17 @@ class ProtoFormatter : public Formatter {
   virtual void DoneAddingChildren();
 
  private:
-  static void Format(ResultText* result_text,
-                     const std::string& format_str,
+  HtmlFormatter(std::ostream* output, int level);
+  void Indent(int level);
+  std::string Format(const std::string& format_str,
                      const std::vector<const Argument*>& arguments);
-
-  std::vector<ResultText*>* results_;
-  ResultText* result_text_;
+  std::ostream* output_;
+  int level_;
+  bool has_children_;
 };
 
-}  // namespace proto
+}  // namespace html
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_APPS_PROTO_FORMATTER_H_
+#endif  // PAGESPEED_APPS_HTML_FORMATTER_H_

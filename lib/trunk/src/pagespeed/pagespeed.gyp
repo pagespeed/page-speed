@@ -142,6 +142,19 @@
       ],
     },
     {
+      'target_name': 'pagespeed_html',
+      'type': '<(library)',
+      'dependencies': [
+        'pagespeed_core',
+      ],
+      'sources': [
+        'html/html_formatter.cc',
+      ],
+      'include_dirs': [
+        '..',
+      ],
+    },
+    {
       'target_name': 'pagespeed_proto',
       'type': '<(library)',
       'dependencies': [
@@ -261,6 +274,18 @@
       ],
       'sources': [
         'proto/proto_formatter_test.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_html_formatter_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_html',
+        '../testing/gtest.gyp:gtest',
+        '../testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        'html/html_formatter_test.cc',
       ],
     },
   ],
