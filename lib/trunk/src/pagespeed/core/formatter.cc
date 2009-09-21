@@ -96,8 +96,18 @@ Formatter* Formatter::AddChild(const std::string& format_str,
 
 Formatter* Formatter::AddChild(std::string format_str,
                                const std::vector<const Argument*>& arguments) {
+  if (active_child_ != NULL) {
+    active_child_->Done();
+  }
   active_child_.reset(NewChild(format_str, arguments));
   return active_child_.get();
+}
+
+void Formatter::Done() {
+  if (active_child_ != NULL) {
+    active_child_->Done();
+  }
+  DoneAddingChildren();
 }
 
 }  // namespace pagespeed

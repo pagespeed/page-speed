@@ -81,12 +81,17 @@ class Formatter {
                       const Argument& arg3,
                       const Argument& arg4);
 
+  // Calls DoneAddingChildren for all descendants, from bottom to top.
+  void Done();
+
  protected:
   Formatter();
   // Child constructor; to be implemented by sub classes.
   virtual Formatter* NewChild(
       const std::string& format_str,
       const std::vector<const Argument*>& arguments) = 0;
+  // Indicates that no more children will be added.
+  virtual void DoneAddingChildren() = 0;
 
  private:
   Formatter* AddChild(std::string format_str,

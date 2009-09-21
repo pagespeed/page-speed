@@ -34,6 +34,9 @@ ProtoFormatter::ProtoFormatter(ResultText* result_text)
       result_text_(result_text) {
 }
 
+void ProtoFormatter::DoneAddingChildren() {
+}
+
 Formatter* ProtoFormatter::NewChild(
     const std::string& format_str,
     const std::vector<const Argument*>& arguments) {
