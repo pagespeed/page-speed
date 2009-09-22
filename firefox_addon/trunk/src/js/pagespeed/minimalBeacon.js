@@ -28,6 +28,7 @@
 
 var MINIMAL_BEACON_URL_PREF = 'extensions.PageSpeed.beacon.minimal.url';
 var MINIMAL_BEACON_ENABLED_PREF = 'extensions.PageSpeed.beacon.minimal.enabled';
+var MINIMAL_BEACON_AUTORUN_PREF = 'extensions.PageSpeed.beacon.minimal.autorun';
 
 PAGESPEED.MinimalBeacon = {};
 
@@ -123,9 +124,13 @@ PAGESPEED.MinimalBeacon.buildBeacon = function(resultsContainer) {
  * Send the beacon.
  * @param {Object} resultsContainer The object which holds all results
  *     for the tab we are scoring.
+ * @param {boolean} opt_prefOverride If true, don't check the preference
+ *     to see if the minimal beacon is enabled.  Used by autorun, which
+ *     checks its own pref.
  * @return {boolean} False if the beacon can not be sent.
  */
-PAGESPEED.MinimalBeacon.sendBeacon = function(resultsContainer) {
+PAGESPEED.MinimalBeacon.sendBeacon = function(resultsContainer,
+                                              opt_prefOverride) {
 
   if (!PAGESPEED.Utils.getBoolPref(MINIMAL_BEACON_ENABLED_PREF, false)) {
     PS_LOG('Minimal beacon is not enabled.');
@@ -165,5 +170,18 @@ PAGESPEED.MinimalBeacon.sendBeacon = function(resultsContainer) {
 
   return true;
 };
+
+if (PAGESPEED.PageSpeedContext) {
+  PAGESPEED.PageSpeedContext.callbacks.postDisplay.addCallback(
+      function(data) {
+        var resultsContainer = data.resultsContainer;
+
+        if (!PAGESPEED.Utils.getBoolPref(MINIMAL_BEACON_AUTORUN_PREF, false)) {
+          return;
+        }
+
+        PAGESPEED.MinimalBeacon.sendBeacon(resultsContainer, true);
+      });
+}
 
 })();  // End closure
