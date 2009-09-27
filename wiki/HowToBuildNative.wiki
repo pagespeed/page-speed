@@ -15,8 +15,9 @@ Preparing the Page Speed sources:
 
 Downloading and building in the Mozilla build system:
 
-  # Download mozilla Firefox source: http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/source/
+  # Download mozilla Firefox 3.5 source. We currently build against the 3.5 source (other versions are not currently supported): http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest-3.5/source/ 
   # Run `tar xjf firefox-*-source.tar.bz2` (you should probably do this somewhere outside of the Page Speed source tree, e.g. `/tmp`.
+  # Rename the `mozilla-1.9.1` directory to `mozilla`: `mv mozilla-1.9.1 mozilla`
   # Unzip `page-speed-moz.zip` in the same directory that you untarred the mozilla source. This will overlay the Page Speed source in the mozilla extensions directory.
   # `cd mozilla`
   # `make -f client.mk build` This will build Firefox as well as Page Speed. It can take an hour or more.
