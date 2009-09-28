@@ -74,6 +74,14 @@ activity.ui.PREF_COLLECT_COMPLETE_CALL_GRAPHS_ = 'collect_complete_call_graphs';
 activity.ui.PREF_ENABLE_JS_PROFILING_ = 'profile_js';
 
 /**
+ * The preference name indicating whether or not we should take screen
+ * snapshots during MozAfterPaint events.
+ * @type {string}
+ * @private
+ */
+activity.ui.PREF_ENABLE_SCREEN_SNAPSHOTS_ = 'enable_screen_snapshots';
+
+/**
  * The preference name to indicate whether data available events
  * should be instantaneous events, or they should show their full
  * start and end times.
@@ -394,6 +402,13 @@ activity.ui.toggleProfileJavaScript = function() {
 };
 
 /**
+ * Toggle the "paint snapshots" pref.
+ */
+activity.ui.togglePaintSnapshots = function() {
+  activity.ui.toggleBoolPref_(activity.ui.PREF_ENABLE_SCREEN_SNAPSHOTS_);
+};
+
+/**
  * Toggle the "complete call graphs" pref.
  */
 activity.ui.toggleCompleteCallGraphs = function() {
@@ -446,6 +461,9 @@ activity.ui.startProfiler_ = function() {
   activity.ui.enableJsProfiling_ = activity.preference.getBool(
       activity.ui.PREF_ENABLE_JS_PROFILING_, true);
 
+  activity.ui.enableScreenSnapshots_ = activity.preference.getBool(
+      activity.ui.PREF_ENABLE_SCREEN_SNAPSHOTS_, false);
+
   activity.ui.appStateObserver_.register();
 
   activity.ui.activityProfiler_ = activity.xpcom.CCIN(
@@ -480,7 +498,8 @@ activity.ui.startProfiler_ = function() {
       activity.ui.timelineWindow_.document,
       xulRowsElement,
       paintPaneElement,
-      paintPaneSplitter);
+      paintPaneSplitter,
+      activity.ui.enableScreenSnapshots_);
 };
 
 /**
@@ -610,9 +629,19 @@ activity.ui.updateUi_ = function() {
   var activitySaveButton = gebi('button-activitySave');
   var activityShowUncalledButton = gebi('button-activityShowUncalled');
   var activityShowDelayableButton = gebi('button-activityShowDelayable');
+  var paintPaneElement = gebi('canvasPane');
+  var paintPaneSplitter = gebi('canvasSplitter');
 
   activityProfileRecordButton.checked = activity.ui.isProfiling_;
   activityProfileStopButton.disabled = !activity.ui.isProfiling_;
+  if (!activity.ui.enableScreenSnapshots_) {
+    if (paintPaneElement) {
+      paintPaneElement.setAttribute('collapsed', true);
+    }
+    if (paintPaneSplitter) {
+      paintPaneSplitter.setAttribute('collapsed', true);
+    }
+  }
 
   var isProfileAvailable = activity.ui.activityProfilerHasProfile_();
   activitySaveButton.disabled = !isProfileAvailable;
@@ -928,6 +957,13 @@ activity.ui.collectFullCallTrees_ = false;
  * @private
  */
 activity.ui.enableJsProfiling_ = true;
+
+/**
+ * Whether or not to enable screen snapshots.
+ * @type {boolean}
+ * @private
+ */
+activity.ui.enableScreenSnapshots_ = false;
 
 /**
  * The window to render the activity profiler timeline within.
