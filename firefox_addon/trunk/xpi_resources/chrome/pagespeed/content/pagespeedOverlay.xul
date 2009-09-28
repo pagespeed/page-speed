@@ -143,23 +143,6 @@
           </menupopup>
         </toolbarbutton>
 
-	<toolbarbutton id="psContentFilterMenu"
-                       label="Filter Results"
-                       group="pagespeedButtons"
-                       type="menu"
- 	               collapsed="true">
-          <menupopup>
- 	    <menuitem id="psAnalyzeAds"
-                      label="Analyze Ads"
-                      type="checkbox"
-                      checked="true"/>
- 	    <menuitem id="psAnalyzeNonAds"
-                      label="Analyze Non-Ads"
-                      type="checkbox"
-                      checked="true"/>
-          </menupopup>
-        </toolbarbutton>
-
         <spacer width="5px"/>
         <toolbarbutton id="psHelpButton" label="Help"
                        class="toolbar-text-button" group="pagespeedButtons"
