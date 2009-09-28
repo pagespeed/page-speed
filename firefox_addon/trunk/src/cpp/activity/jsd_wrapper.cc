@@ -37,19 +37,25 @@ JsdWrapper* JsdWrapper::Create() {
     return NULL;
   }
 
-  // First try to create the version for FF3.5.
-  scoped_ptr<JsdWrapper> wrapper(JsdWrapper::Create_3_5(jsd));
+  // First try to create the version for FF3.6.
+  scoped_ptr<JsdWrapper> wrapper(JsdWrapper::Create_3_6(jsd));
   if (wrapper != NULL) {
     return wrapper.release();
   }
 
-  // First try to create the version for FF3.0.11.
+  // Next try to create the version for FF3.5.
+  wrapper.reset(JsdWrapper::Create_3_5(jsd));
+  if (wrapper != NULL) {
+    return wrapper.release();
+  }
+
+  // Next try to create the version for FF3.0.11.
   wrapper.reset(JsdWrapper::Create_3_0(jsd));
   if (wrapper != NULL) {
     return wrapper.release();
   }
 
-  // If neither of the above matched, bail.
+  // If none of the above matched, bail.
   return NULL;
 }
 

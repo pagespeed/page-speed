@@ -58,6 +58,7 @@ CPPSRCS = \
     jsd_wrapper.cpp \
     jsd_wrapper_3_0.cpp \
     jsd_wrapper_3_5.cpp \
+    jsd_wrapper_3_6.cpp \
     timer.cpp \
     uncalled_function_tree_view_delegate.cpp \
     $(NULL)

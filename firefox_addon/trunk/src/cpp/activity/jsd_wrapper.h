@@ -46,6 +46,7 @@ class JsdWrapper {
  private:
   // Helpers that create JsdWrappers for the given jsdIDebuggerService
   // versions.
+  static JsdWrapper* Create_3_6(nsISupports *jsd);
   static JsdWrapper* Create_3_5(nsISupports *jsd);
   static JsdWrapper* Create_3_0(nsISupports *jsd);
 };
