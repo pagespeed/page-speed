@@ -116,22 +116,6 @@ activity.TimelineManager.PREF_CANVAS_WIDTH_PX_ = 'canvas_width_px';
 activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_ = 250;
 
 /**
- * Name of the preference that indicates whether we should enable
- * screen snapshots.
- * @type {string}
- * @private
- */
-activity.TimelineManager.PREF_ENABLE_SCREEN_SNAPSHOTS_ =
-    'enable_screen_snapshots';
-
-/**
- * Default value for whether or not to enable screen snapshots.
- * @type {boolean}
- * @private
- */
-activity.TimelineManager.DEFAULT_ENABLE_SCREEN_SNAPSHOTS_ = false;
-
-/**
  * The js event fetcher, which queries the IActivityProfiler instance for
  * js timeline events, and pushes those events into the TimelineModel.
  * @type {activity.JsEventFetcher?}
@@ -214,6 +198,8 @@ activity.TimelineManager.prototype.state_ =
  *     will contain the screen snapshots.
  * @param {nsIDOMElement} paintPaneSplitter The XUL element that
  *     is used to expand/collapse the paint pane.
+ * @param {bool} enableScreenSnapshots Whether or not to enable screen
+ *     snapshots.
 */
 activity.TimelineManager.prototype.start = function(
     activityProfiler,
@@ -222,7 +208,8 @@ activity.TimelineManager.prototype.start = function(
     xulElementFactory,
     xulRowsElement,
     paintPaneElement,
-    paintPaneSplitter) {
+    paintPaneSplitter,
+    enableScreenSnapshots) {
   this.reset();
 
   this.timerDelayMsec_ = activity.preference.getInt(
@@ -243,9 +230,7 @@ activity.TimelineManager.prototype.start = function(
       xulElementFactory,
       resolutionMsec * 1000);
 
-  if (activity.preference.getBool(
-      activity.TimelineManager.PREF_ENABLE_SCREEN_SNAPSHOTS_,
-      activity.TimelineManager.DEFAULT_ENABLE_SCREEN_SNAPSHOTS_)) {
+  if (enableScreenSnapshots) {
     var canvasWidth = activity.preference.getInt(
         activity.TimelineManager.PREF_CANVAS_WIDTH_PX_,
         activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_);

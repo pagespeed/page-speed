@@ -129,6 +129,14 @@ ActivityPanel.prototype = domplate(Firebug.Panel, {
               activity.ui.PREF_COLLECT_COMPLETE_CALL_GRAPHS_, false));
     }
 
+    addMenuOption(
+        'Paint Snapshots (slow)',
+        function() {
+          activity.ui.performCommand('togglePaintSnapshots');
+        },
+        activity.preference.getBool(
+            activity.ui.PREF_ENABLE_SCREEN_SNAPSHOTS_, false));
+
     // Firebug 1.4 betas show a menu even when there are no items, and
     // it looks odd. http://code.google.com/p/fbug/issues/detail?id=1896
     // tracks this issue. Until it is resolved, add a disabled menu

@@ -83,6 +83,10 @@ activity.PaintView = function(paintPaneRoot,
    * @private
    */
   this.canvasWidth_ = canvasWidth;
+
+  // Make sure the paint pane and its splitter start hidden.
+  this.paintPaneRoot_.setAttribute('collapsed', true);
+  this.paintPaneSplitter_.setAttribute('collapsed', true);
 };
 goog.inherits(activity.PaintView, goog.Disposable);
 
