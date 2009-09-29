@@ -13,9 +13,6 @@
 # limitations under the License.
 
 {
-  'includes': [
-    '../common.gypi',
-  ],
   'targets': [
     {
       'target_name': 'googleurl',

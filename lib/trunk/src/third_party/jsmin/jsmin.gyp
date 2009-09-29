@@ -13,9 +13,6 @@
 # limitations under the License.
 
 {
-  'includes': [
-    '../../build/common.gypi',
-  ],
   'targets': [
     {
       'target_name': 'jsmin',
