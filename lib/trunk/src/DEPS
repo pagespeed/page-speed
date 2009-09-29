@@ -21,7 +21,7 @@ vars = {
 
 deps = {
   "src/googleurl":
-    "http://google-url.googlecode.com/svn/trunk@115",
+    "http://google-url.googlecode.com/svn/trunk@119",
 
   "src/testing/gtest":
     "http://googletest.googlecode.com/svn/trunk@267",
@@ -31,10 +31,6 @@ deps = {
 
   "src/tools/gyp":
     "http://gyp.googlecode.com/svn/trunk@601",
-
-  # chromium deps
-  "src/build/temp_gyp":
-    Var("chromium_trunk") + "/src/build/temp_gyp" + Var("chromium_revision"),
 
   "src/build/chrome_build":
     Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
