@@ -18,9 +18,9 @@
       'msvs_guid': 'EF5E94AB-B646-4E5B-A058-52EF07B8351C',
       'dependencies': [
         '../base/base.gyp:base',
-        '../third_party/icu38/icu38.gyp:icudata',
-        '../third_party/icu38/icu38.gyp:icui18n',
-        '../third_party/icu38/icu38.gyp:icuuc',
+        '../third_party/icu/icu.gyp:icudata',
+        '../third_party/icu/icu.gyp:icui18n',
+        '../third_party/icu/icu.gyp:icuuc',
       ],
       'sources': [
         '../googleurl/src/gurl.cc',
@@ -63,7 +63,7 @@
       'dependencies': [
         'googleurl_noicu',
         '../testing/gtest.gyp:gtest',
-        '../third_party/icu38/icu38.gyp:icuuc',
+        '../third_party/icu/icu.gyp:icuuc',
       ],
       'sources': [
         '../googleurl/src/gurl_unittest.cc',

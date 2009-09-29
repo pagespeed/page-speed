@@ -308,15 +308,15 @@ WNDPROC GetSuperclassWNDPROC(HWND window) {
 #pragma warning(pop)
 
 bool IsShiftPressed() {
-  return (::GetKeyState(VK_SHIFT) & 0x80) == 0x80;
+  return (::GetKeyState(VK_SHIFT) & 0x8000) == 0x8000;
 }
 
 bool IsCtrlPressed() {
-  return (::GetKeyState(VK_CONTROL) & 0x80) == 0x80;
+  return (::GetKeyState(VK_CONTROL) & 0x8000) == 0x8000;
 }
 
 bool IsAltPressed() {
-  return (::GetKeyState(VK_MENU) & 0x80) == 0x80;
+  return (::GetKeyState(VK_MENU) & 0x8000) == 0x8000;
 }
 
 std::wstring GetClassName(HWND window) {
@@ -371,6 +371,14 @@ std::wstring FormatMessage(unsigned messageid) {
 
 std::wstring FormatLastWin32Error() {
   return FormatMessage(GetLastError());
+}
+
+WORD KeyboardCodeToWin(base::KeyboardCode keycode) {
+  return static_cast<WORD>(keycode);
+}
+
+base::KeyboardCode WinToKeyboardCode(WORD keycode) {
+  return static_cast<base::KeyboardCode>(keycode);
 }
 
 }  // namespace win_util

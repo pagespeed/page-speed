@@ -15,9 +15,8 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@24599",
+  "chromium_revision": "@27465",
 }
-
 
 deps = {
   "src/googleurl":
@@ -30,7 +29,7 @@ deps = {
     "http://protobuf.googlecode.com/svn/trunk@219",
 
   "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@601",
+    "http://gyp.googlecode.com/svn/trunk@668",
 
   "src/build/chrome_build":
     Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
@@ -50,9 +49,8 @@ deps = {
   "src/testing":
     Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
 
-  "src/third_party/icu38":
-    (Var("chromium_trunk") + "/deps/third_party/icu38" +
-     Var("chromium_revision")),
+  "src/third_party/icu":
+    Var("chromium_trunk") + "/deps/third_party/icu42@26673",
 
   "src/third_party/scons":
     Var("chromium_trunk") + "/src/third_party/scons" + Var("chromium_revision"),
@@ -95,8 +93,8 @@ skip_child_includes = [
 
 hooks = [
   {
-    # A change to a .gyp, .gypi, or to GYP itself shound run the generator.
-    "pattern": "\\.gypi?$|[/\\\\]src[/\\\\]tools[/\\\\]gyp[/\\\\]",
-    "action": ["python", "src/tools/gyp/gyp_chromium"],
+    # A change to a .gyp, .gypi, or to GYP itself should run the generator.
+    "pattern": ".",
+    "action": ["python", "src/build/gyp_chromium"],
   },
 ]

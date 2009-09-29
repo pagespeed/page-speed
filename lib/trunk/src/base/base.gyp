@@ -2,23 +2,23 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Base was branched from the chronium version to reduce the number of
+# Base was branched from the chromium version to reduce the number of
 # dependencies of this package.  Specifically, we would like to avoid
 # depending on the chrome directory, which contains the chrome version
 # and branding information.
 # TODO: push this refactoring to chronium trunk.
 
 {
-  'includes': [
-    '../build/common.gypi',
-  ],
+  'variables': {
+    'chromium_code': 1,
+  },
   'targets': [
     {
       'target_name': 'base',
       'type': '<(library)',
       'dependencies': [
-        '../third_party/icu38/icu38.gyp:icui18n',
-        '../third_party/icu38/icu38.gyp:icuuc',
+        '../third_party/icu/icu.gyp:icui18n',
+        '../third_party/icu/icu.gyp:icuuc',
       ],
       'sources': [
         '../build/build_config.h',
@@ -42,6 +42,7 @@
         'platform_thread_posix.cc',
         'platform_thread_win.cc',
         'registry.cc',
+        'setproctitle_linux.c',
         'string16.cc',
         'string_piece.cc',
         'string_util.cc',
@@ -73,14 +74,21 @@
               ],
             },
           },
-          {  # else: OS != "linux"
+          {  # else: OS != "linux" && OS != "freebsd"
             'sources!': [
               'atomicops_internals_x86_gcc.cc',
             ],
-          }
+          },
+        ],
+        [ 'OS != "linux"', {
+            'sources!': [
+              # Not automatically excluded by the *linux.cc rules.
+              'setproctitle_linux.c',
+            ],
+          },
         ],
         [ 'OS == "mac"', {
-            'sources/': [ ['exclude', '_(linux|win|chromeos)\\.cc$'] ],
+            'sources/': [ ['exclude', '_(linux|gtk|win|chromeos)\\.cc$'] ],
             'sources!': [
             ],
             'link_settings': {
@@ -95,7 +103,7 @@
           }
         ],
         [ 'OS == "win"', {
-            'sources/': [ ['exclude', '_(linux|mac|posix|chromeos)\\.cc$'],
+            'sources/': [ ['exclude', '_(linux|gtk|mac|posix|chromeos)\\.cc$'],
                           ['exclude', '\\.mm?$' ] ],
             'sources!': [
               'string16.cc',
