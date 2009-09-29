@@ -136,6 +136,7 @@
         'rules/minimize_dns_lookups.cc',
         'rules/minimize_redirects.cc',
         'rules/rule_provider.cc',
+        'rules/serve_resources_from_a_consistent_url.cc',
       ],
       'include_dirs': [
         '..',
@@ -237,6 +238,18 @@
       ],
       'sources': [
         'rules/minimize_redirects_test.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_serve_resources_from_a_consistent_url_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed',
+        '../testing/gtest.gyp:gtest',
+        '../testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        'rules/serve_resources_from_a_consistent_url_test.cc',
       ],
     },
     {
