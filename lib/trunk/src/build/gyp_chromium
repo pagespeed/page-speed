@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Copyright 2009 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{
-  'targets': [
-    {
-      'target_name': 'All',
-      'type': 'none',
-      'xcode_create_dependents_test_runner': 1,
-      'dependencies': [
-        '../base/base.gyp:*',
-        '../pagespeed/pagespeed.gyp:*',
-        '../third_party/jsmin/jsmin.gyp:*',
-      ],} ]
-}
+# This script is wrapper for the Chromium version of gyp_chromium.
+
+import os
+
+script_dir = os.path.dirname(__file__)
+execfile(os.path.join(script_dir, 'chrome_build', 'gyp_chromium'))

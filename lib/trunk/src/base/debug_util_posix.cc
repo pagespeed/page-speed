@@ -6,7 +6,6 @@
 #include "base/debug_util.h"
 
 #include <errno.h>
-#include <execinfo.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -14,7 +13,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#if defined(OS_MACOSX)
+#include <AvailabilityMacros.h>
+#endif
+
 #include "base/basictypes.h"
+#include "base/compat_execinfo.h"
 #include "base/eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
@@ -92,11 +96,11 @@ bool DebugUtil::BeingDebugged() {
   if (num_read <= 0)
     return false;
 
-  StringPiece status(buf, num_read);
-  StringPiece tracer("TracerPid:\t");
+  base::StringPiece status(buf, num_read);
+  base::StringPiece tracer("TracerPid:\t");
 
-  StringPiece::size_type pid_index = status.find(tracer);
-  if (pid_index == StringPiece::npos)
+  base::StringPiece::size_type pid_index = status.find(tracer);
+  if (pid_index == base::StringPiece::npos)
     return false;
 
   // Our pid is 0 without a debugger, assume this for any pid starting with 0.
@@ -116,42 +120,44 @@ void DebugUtil::BreakDebugger() {
 }
 
 StackTrace::StackTrace() {
-  const int kMaxCallers = 256;
-
-  void* callers[kMaxCallers];
-  int count = backtrace(callers, kMaxCallers);
-
-  // Though the backtrace API man page does not list any possible negative
-  // return values, we still still exclude them because they would break the
-  // memcpy code below.
-  if (count > 0) {
-    trace_.resize(count);
-    memcpy(&trace_[0], callers, sizeof(callers[0]) * count);
-  } else {
-    trace_.resize(0);
+#if defined(OS_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+  if (backtrace == NULL) {
+    count_ = 0;
+    return;
   }
+#endif
+  // Though the backtrace API man page does not list any possible negative
+  // return values, we take no chance.
+  count_ = std::max(backtrace(trace_, arraysize(trace_)), 0);
 }
 
 void StackTrace::PrintBacktrace() {
+#if defined(OS_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+  if (backtrace_symbols_fd == NULL)
+    return;
+#endif
   fflush(stderr);
-  backtrace_symbols_fd(&trace_[0], trace_.size(), STDERR_FILENO);
+  backtrace_symbols_fd(trace_, count_, STDERR_FILENO);
 }
 
 void StackTrace::OutputToStream(std::ostream* os) {
-  scoped_ptr_malloc<char*> trace_symbols(
-      backtrace_symbols(&trace_[0], trace_.size()));
+#if defined(OS_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+  if (backtrace_symbols == NULL)
+    return;
+#endif
+  scoped_ptr_malloc<char*> trace_symbols(backtrace_symbols(trace_, count_));
 
   // If we can't retrieve the symbols, print an error and just dump the raw
   // addresses.
   if (trace_symbols.get() == NULL) {
     (*os) << "Unable get symbols for backtrace (" << strerror(errno)
           << "). Dumping raw addresses in trace:\n";
-    for (size_t i = 0; i < trace_.size(); ++i) {
+    for (int i = 0; i < count_; ++i) {
       (*os) << "\t" << trace_[i] << "\n";
     }
   } else {
     (*os) << "Backtrace:\n";
-    for (size_t i = 0; i < trace_.size(); ++i) {
+    for (int i = 0; i < count_; ++i) {
       (*os) << "\t" << trace_symbols.get()[i] << "\n";
     }
   }

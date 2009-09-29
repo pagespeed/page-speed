@@ -8,7 +8,7 @@ SConstruct
 /sconsbuild
 /site_scons
 /testing
-/third_party/icu38
+/third_party/icu
 /third_party/protobuf2/src
 /third_party/scons
 /tools
