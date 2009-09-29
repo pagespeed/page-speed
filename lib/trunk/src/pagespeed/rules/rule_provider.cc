@@ -19,6 +19,7 @@
 #include "pagespeed/rules/minify_javascript.h"
 #include "pagespeed/rules/minimize_dns_lookups.h"
 #include "pagespeed/rules/minimize_redirects.h"
+#include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
 
 namespace pagespeed {
 
@@ -31,6 +32,7 @@ void AppendCoreRules(std::vector<Rule*> *rules) {
   rules->push_back(new rules::MinifyJavaScript());
   rules->push_back(new rules::MinimizeDnsLookups());
   rules->push_back(new rules::MinimizeRedirects());
+  rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
 }
 
 }  // namespace rule_provider
