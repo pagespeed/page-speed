@@ -15,7 +15,7 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@27465",
+  "chromium_revision": "@27640",
 }
 
 deps = {
@@ -33,7 +33,7 @@ deps = {
      Var("chromium_revision")),
 
   "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@668",
+    "http://gyp.googlecode.com/svn/trunk@671",
 
   "src/third_party/chromium/src/build":
     Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
