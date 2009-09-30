@@ -44,8 +44,8 @@
       'type': 'executable',
       'dependencies': [
         'jsmin',
-        '../../testing/gtest.gyp:gtest',
-        '../../testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
         'cpp/jsmin_test.cc',
