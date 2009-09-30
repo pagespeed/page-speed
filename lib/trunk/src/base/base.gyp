@@ -21,7 +21,7 @@
         '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
       ],
       'sources': [
-        '<(DEPTH)/build/build_config.h',
+        '../third_party/chromium/src/build/build_config.h',
         '../third_party/chromium/src/base/third_party/dmg_fp/dmg_fp.h',
         '../third_party/chromium/src/base/third_party/dmg_fp/dtoa.cc',
         '../third_party/chromium/src/base/third_party/dmg_fp/g_fmt.cc',
