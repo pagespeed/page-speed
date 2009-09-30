@@ -15,9 +15,6 @@
       'msvs_guid': 'EF5E94AB-B646-4E5B-A058-52EF07B8351C',
       'dependencies': [
         '../base/base.gyp:base',
-        '../third_party/icu/icu.gyp:icudata',
-        '../third_party/icu/icu.gyp:icui18n',
-        '../third_party/icu/icu.gyp:icuuc',
       ],
       'sources': [
         '../googleurl/src/gurl.cc',
@@ -26,7 +23,7 @@
         '../googleurl/src/url_canon_etc.cc',
         '../googleurl/src/url_canon_fileurl.cc',
         '../googleurl/src/url_canon_host.cc',
-        '../googleurl/src/url_canon_icu.cc',
+        'url_canon_noicu.cc',
         '../googleurl/src/url_canon_icu.h',
         '../googleurl/src/url_canon_internal.cc',
         '../googleurl/src/url_canon_internal.h',
