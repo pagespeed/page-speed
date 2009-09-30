@@ -19,4 +19,6 @@
 import os
 
 script_dir = os.path.dirname(__file__)
-execfile(os.path.join(script_dir, 'chrome_build', 'gyp_chromium'))
+chrome_src = os.path.normpath(os.path.join(script_dir, os.pardir, 'third_party', 'chromium', 'src'))
+
+execfile(os.path.join(chrome_src, 'build', 'gyp_chromium'))

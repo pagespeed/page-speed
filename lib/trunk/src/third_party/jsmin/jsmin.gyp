@@ -18,12 +18,15 @@
       'target_name': 'jsmin',
       'type': '<(library)',
       'dependencies': [
-        '../../base/base.gyp:base',
+        '<(DEPTH)/base/base.gyp:base',
       ],
       'sources': [
         'cpp/jsmin.cc',
       ],
-      'all_dependent_settings': {
+      'include_dirs': [
+        '../..',
+      ],
+      'direct_dependent_settings': {
         'include_dirs': [
           '../..',
         ],

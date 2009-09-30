@@ -45,6 +45,9 @@
         '../googleurl/src/url_util.cc',
         '../googleurl/src/url_util.h',
       ],
+      'include_dirs': [
+        '..',
+      ],
       'direct_dependent_settings': {
         'include_dirs': [
           '..',

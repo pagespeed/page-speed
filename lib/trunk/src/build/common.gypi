@@ -14,6 +14,6 @@
 
 {
   'includes': [
-    'chrome_build/common.gypi',
+    '../third_party/chromium/src/build/common.gypi',
   ],
 }

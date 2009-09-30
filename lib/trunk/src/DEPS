@@ -28,19 +28,18 @@ deps = {
   "src/third_party/protobuf2/src":
     "http://protobuf.googlecode.com/svn/trunk@219",
 
+  "src/third_party/protobuf2":
+    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
+     Var("chromium_revision")),
+
   "src/tools/gyp":
     "http://gyp.googlecode.com/svn/trunk@668",
 
-  "src/build/chrome_build":
+  "src/third_party/chromium/src/build":
     Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
 
-  "src/base/third_party/dmg_fp":
-    (Var("chromium_trunk") + "/src/base/third_party/dmg_fp" +
-     Var("chromium_revision")),
-
-  "src/base/third_party/valgrind":
-    (Var("chromium_trunk") + "/src/base/third_party/valgrind" +
-     Var("chromium_revision")),
+  "src/third_party/chromium/src/base":
+    Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
 
   "src/site_scons/site_tools":
     (Var("chromium_trunk") + "/src/site_scons/site_tools" +
