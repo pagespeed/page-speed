@@ -13,33 +13,36 @@
 # limitations under the License.
 
 {
+  'variables': {
+    'pagespeed_root': '..'
+  },
   'targets': [
     {
       'target_name': 'pagespeed_input_pb',
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
-          '../third_party/protobuf2/protobuf.gyp:protobuf',
-          '../third_party/protobuf2/protobuf.gyp:protoc',
+          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
        ],
       'actions': [
         {
           'action_name': 'my_proto',
           'inputs': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            'proto/pagespeed_input.proto',
+            '<(pagespeed_root)/pagespeed/proto/pagespeed_input.proto',
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.cc',
             '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.h',
           ],
           'dependencies': [
-            '../third_party/protobuf2/protobuf.gyp:protoc',
+            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '../pagespeed/proto/pagespeed_input.proto',
-            '--proto_path=..',
+            '<(pagespeed_root)/pagespeed/proto/pagespeed_input.proto',
+            '--proto_path=<(pagespeed_root)',
             '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
           ],
         },
@@ -50,38 +53,41 @@
       'include_dirs': [
         '<(SHARED_INTERMEDIATE_DIR)',
       ],
-      'all_dependent_settings': {
+      'direct_dependent_settings': {
         'include_dirs': [
           '<(SHARED_INTERMEDIATE_DIR)',
         ],
-      }
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+      ]
     },
     {
       'target_name': 'pagespeed_output_pb',
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
-          '../third_party/protobuf2/protobuf.gyp:protobuf',
-          '../third_party/protobuf2/protobuf.gyp:protoc',
+          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
        ],
       'actions': [
         {
           'action_name': 'my_proto',
           'inputs': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            'proto/pagespeed_output.proto',
+            '<(pagespeed_root)/pagespeed/proto/pagespeed_output.proto',
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.cc',
             '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.h',
           ],
           'dependencies': [
-            '../third_party/protobuf2/protobuf.gyp:protoc',
+            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '../pagespeed/proto/pagespeed_output.proto',
-            '--proto_path=..',
+            '<(pagespeed_root)/pagespeed/proto/pagespeed_output.proto',
+            '--proto_path=<(pagespeed_root)',
             '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
           ],
         },
@@ -92,89 +98,133 @@
       'include_dirs': [
         '<(SHARED_INTERMEDIATE_DIR)',
       ],
-      'all_dependent_settings': {
+      'direct_dependent_settings': {
         'include_dirs': [
           '<(SHARED_INTERMEDIATE_DIR)',
         ],
-      }
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+      ]
     },
     {
       'target_name': 'pagespeed_core',
       'type': '<(library)',
       'dependencies': [
         'pagespeed_output_pb',
-        '../base/base.gyp:base',
-        '../build/temp_gyp/googleurl.gyp:googleurl',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
       ],
       'sources': [
-        'core/engine.cc',
-        'core/formatter.cc',
-        'core/pagespeed_input.cc',
-        'core/resource.cc',
-        'core/rule.cc',
+        '<(pagespeed_root)/pagespeed/core/engine.cc',
+        '<(pagespeed_root)/pagespeed/core/formatter.cc',
+        '<(pagespeed_root)/pagespeed/core/pagespeed_input.cc',
+        '<(pagespeed_root)/pagespeed/core/resource.cc',
+        '<(pagespeed_root)/pagespeed/core/rule.cc',
       ],
-      'all_dependent_settings': {
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
         'include_dirs': [
-          '..',
+          '<(pagespeed_root)',
         ],
       },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ]
     },
     {
       'target_name': 'pagespeed',
       'type': '<(library)',
       'dependencies': [
-        '../third_party/jsmin/jsmin.gyp:jsmin',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
         'pagespeed_core',
+        'pagespeed_output_pb',
       ],
       'sources': [
-        'rules/combine_external_resources.cc',
-        'rules/enable_gzip_compression.cc',
-        'rules/minify_javascript.cc',
-        'rules/minimize_dns_lookups.cc',
-        'rules/minimize_redirects.cc',
-        'rules/rule_provider.cc',
-        'rules/serve_resources_from_a_consistent_url.cc',
+        '<(pagespeed_root)/pagespeed/rules/combine_external_resources.cc',
+        '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression.cc',
+        '<(pagespeed_root)/pagespeed/rules/minify_javascript.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_redirects.cc',
+        '<(pagespeed_root)/pagespeed/rules/rule_provider.cc',
+        '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url.cc',
       ],
       'include_dirs': [
-        '..',
+        '<(pagespeed_root)',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        'pagespeed_core'
+      ]
     },
     {
       'target_name': 'pagespeed_html',
       'type': '<(library)',
       'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
         'pagespeed_core',
       ],
       'sources': [
-        'html/html_formatter.cc',
+        '<(pagespeed_root)/pagespeed/html/html_formatter.cc',
       ],
       'include_dirs': [
-        '..',
+        '<(pagespeed_root)',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        'pagespeed_core'
+      ]
     },
     {
       'target_name': 'pagespeed_proto',
       'type': '<(library)',
       'dependencies': [
-        'pagespeed_input_pb',
+        '<(DEPTH)/base/base.gyp:base',
         'pagespeed',
+        'pagespeed_core',
+        'pagespeed_input_pb',
       ],
       'sources': [
-        'proto/proto_formatter.cc',
-        'proto/proto_resource_utils.cc',
+        '<(pagespeed_root)/pagespeed/proto/proto_formatter.cc',
+        '<(pagespeed_root)/pagespeed/proto/proto_resource_utils.cc',
       ],
       'include_dirs': [
-        '..',
+        '<(pagespeed_root)',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        'pagespeed_core'
+      ]
     },
     {
       'target_name': 'pagespeed_bin',
       'type': 'executable',
       'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        'pagespeed_input_pb',
+        'pagespeed_output_pb',
         'pagespeed_proto',
       ],
       'sources': [
-        'apps/pagespeed.cc',
+        '<(pagespeed_root)/pagespeed/apps/pagespeed.cc',
       ],
     },
     {
@@ -182,11 +232,14 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        'pagespeed_core',
+        'pagespeed_output_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/enable_gzip_compression_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression_test.cc',
       ],
     },
     {
@@ -194,11 +247,14 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        'pagespeed_core',
+        'pagespeed_output_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/minify_javascript_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minify_javascript_test.cc',
       ],
     },
     {
@@ -206,11 +262,14 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        'pagespeed_core',
+        'pagespeed_output_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/combine_external_resources_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/combine_external_resources_test.cc',
       ],
     },
     {
@@ -218,11 +277,14 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        'pagespeed_core',
+        'pagespeed_output_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/minimize_dns_lookups_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups_test.cc',
       ],
     },
     {
@@ -230,11 +292,14 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        'pagespeed_core',
+        'pagespeed_output_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/minimize_redirects_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_redirects_test.cc',
       ],
     },
     {
@@ -242,11 +307,14 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        'pagespeed_core',
+        'pagespeed_output_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'rules/serve_resources_from_a_consistent_url_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url_test.cc',
       ],
     },
     {
@@ -254,12 +322,13 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed_core',
+        'pagespeed_output_pb',
         'pagespeed_proto',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'core/engine_test.cc',
+        '<(pagespeed_root)/pagespeed/core/engine_test.cc',
       ],
     },
     {
@@ -267,23 +336,26 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed_core',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'core/resource_test.cc',
+        '<(pagespeed_root)/pagespeed/core/resource_test.cc',
       ],
     },
     {
       'target_name': 'pagespeed_proto_formatter_test',
       'type': 'executable',
       'dependencies': [
+        'pagespeed_output_pb',
         'pagespeed_proto',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'proto/proto_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/proto/proto_formatter_test.cc',
       ],
     },
     {
@@ -291,11 +363,11 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed_html',
-        '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'html/html_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/html/html_formatter_test.cc',
       ],
     },
   ],
