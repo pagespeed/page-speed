@@ -54,22 +54,5 @@
         ],
       },
     },
-    {
-      'target_name': 'googleurl_unittests',
-      'type': 'executable',
-      'dependencies': [
-        'googleurl_noicu',
-        '../testing/gtest.gyp:gtest',
-        '../third_party/icu/icu.gyp:icuuc',
-      ],
-      'sources': [
-        '../googleurl/src/gurl_unittest.cc',
-        '../googleurl/src/url_canon_unittest.cc',
-        '../googleurl/src/url_parse_unittest.cc',
-        '../googleurl/src/url_test_utils.h',
-        '../googleurl/src/url_util_unittest.cc',
-        '../googleurl/src/gurl_test_main.cc',
-      ],
-    },
   ],
 }
