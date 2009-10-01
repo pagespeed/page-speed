@@ -19,7 +19,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/proto/proto_formatter.h"
+#include "pagespeed/formatters/proto_formatter.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Argument;
@@ -30,7 +30,7 @@ using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultText;
 using pagespeed::Rule;
-using pagespeed::proto::ProtoFormatter;
+using pagespeed::formatters::ProtoFormatter;
 
 namespace {
 

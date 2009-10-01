@@ -14,28 +14,28 @@
 
 #include <iostream>
 
-#include "pagespeed/html/html_formatter.h"
+#include "pagespeed/formatters/text_formatter.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Argument;
 using pagespeed::Formatter;
-using pagespeed::html::HtmlFormatter;
+using pagespeed::formatters::TextFormatter;
 
 namespace {
 
-TEST(HtmlFormatterTest, BasicTest) {
+TEST(TextFormatterTest, BasicTest) {
   std::stringstream output;
-  HtmlFormatter formatter(&output);
+  TextFormatter formatter(&output);
   formatter.AddChild("foo");
   formatter.AddChild("bar");
   formatter.Done();
   std::string result = output.str();
-  EXPECT_EQ("<h1>foo</h1>\n<h1>bar</h1>\n", result);
+  EXPECT_EQ("_foo_\n_bar_\n", result);
 }
 
-TEST(HtmlFormatterTest, TreeTest) {
+TEST(TextFormatterTest, TreeTest) {
   std::stringstream output;
-  HtmlFormatter formatter(&output);
+  TextFormatter formatter(&output);
   Formatter* level1 = formatter.AddChild("l1-1");
   Formatter* level2 = level1->AddChild("l2-1");
   Formatter* level3 = level2->AddChild("l3-1");
@@ -46,25 +46,19 @@ TEST(HtmlFormatterTest, TreeTest) {
   level3->AddChild("l4-4");
   formatter.Done();
   std::string result = output.str();
-  EXPECT_EQ("<h1>l1-1</h1>\n"
-            " <h2>l2-1</h2>\n"
-            " <ul>\n"
-            "  <li>l3-1</li>\n"
-            "  <ul>\n"
-            "   <li>l4-1</li>\n"
-            "   <li>l4-2</li>\n"
-            "  </ul>\n"
-            "  <li>l3-2</li>\n"
-            "  <ul>\n"
-            "   <li>l4-3</li>\n"
-            "   <li>l4-4</li>\n"
-            "  </ul>\n"
-            " </ul>\n", result);
+  EXPECT_EQ("_l1-1_\n"
+            "  l2-1\n"
+            "    * l3-1\n"
+            "      * l4-1\n"
+            "      * l4-2\n"
+            "    * l3-2\n"
+            "      * l4-3\n"
+            "      * l4-4\n", result);
 }
 
-TEST(HtmlFormatterTest, ArgumentTypesTest) {
+TEST(TextFormatterTest, ArgumentTypesTest) {
   std::stringstream output;
-  HtmlFormatter formatter(&output);
+  TextFormatter formatter(&output);
   Argument bytes_arg(Argument::BYTES, 1536);
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
@@ -75,16 +69,16 @@ TEST(HtmlFormatterTest, ArgumentTypesTest) {
   formatter.AddChild("$1", url_arg);
   formatter.Done();
   std::string result = output.str();
-  EXPECT_EQ("<h1>1.5KiB</h1>\n"
-            "<h1>42</h1>\n"
-            "<h1>test</h1>\n"
-            "<h1><a href=\"http://test.com/\">http://test.com/</a></h1>\n",
+  EXPECT_EQ("_1.5KiB_\n"
+            "_42_\n"
+            "_test_\n"
+            "_http://test.com/_\n",
             result);
 }
 
-TEST(HtmlFormatterTest, ArgumentListTest) {
+TEST(TextFormatterTest, ArgumentListTest) {
   std::stringstream output;
-  HtmlFormatter formatter(&output);
+  TextFormatter formatter(&output);
   Argument bytes_arg(Argument::BYTES, 1536);
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
@@ -95,12 +89,11 @@ TEST(HtmlFormatterTest, ArgumentListTest) {
   formatter.AddChild("$1 $2 $3", bytes_arg, int_arg, string_arg);
   formatter.AddChild("$1 $2 $3 $4", bytes_arg, int_arg, string_arg, url_arg);
   std::string result = output.str();
-  EXPECT_EQ("<h1></h1>\n"
-            "<h1>1.5KiB</h1>\n"
-            "<h1>1.5KiB 42</h1>\n"
-            "<h1>1.5KiB 42 test</h1>\n"
-            "<h1>1.5KiB 42 test"
-            " <a href=\"http://test.com/\">http://test.com/</a></h1>\n",
+  EXPECT_EQ("__\n"
+            "_1.5KiB_\n"
+            "_1.5KiB 42_\n"
+            "_1.5KiB 42 test_\n"
+            "_1.5KiB 42 test http://test.com/_\n",
             result);
 }
 

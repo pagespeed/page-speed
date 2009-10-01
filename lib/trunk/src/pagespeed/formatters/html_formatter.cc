@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/html/html_formatter.h"
+#include "pagespeed/formatters/html_formatter.h"
 
 #include "base/logging.h"
 #include "base/string_util.h"
 
 namespace pagespeed {
 
-namespace html {
+namespace formatters {
 
 HtmlFormatter::HtmlFormatter(std::ostream* output) :
     output_(output), level_(0), has_children_(false) {
@@ -53,7 +53,7 @@ Formatter* HtmlFormatter::NewChild(
     }
   }
 
-  const std::string& str = Format(format_str, arguments);
+  const std::string str = Format(format_str, arguments);
   Indent(level_);
   switch (level_) {
     case 0:
@@ -106,6 +106,6 @@ std::string HtmlFormatter::Format(
   return ReplaceStringPlaceholders(format_str, subst, NULL);
 }
 
-}  // namespace html
+}  // namespace formatters
 
 }  // namespace pagespeed
