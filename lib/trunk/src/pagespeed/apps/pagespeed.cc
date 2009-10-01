@@ -48,7 +48,7 @@ int snprintf(char *str, size_t size, const char *format, ...) {
 
 template <typename FormatArguments>
 std::string Format(const std::string& format_str, const FormatArguments& args) {
-  std::vector<string16> subst;
+  std::vector<std::string> subst;
 
   for (typename FormatArguments::const_iterator iter = args.begin(),
            end = args.end();
@@ -58,16 +58,16 @@ std::string Format(const std::string& format_str, const FormatArguments& args) {
     switch (arg.type()) {
       case pagespeed::FormatArgument::URL:
       case pagespeed::FormatArgument::STRING_LITERAL:
-        subst.push_back(UTF8ToUTF16(arg.string_value()));
+        subst.push_back(arg.string_value());
         break;
       case pagespeed::FormatArgument::INT_LITERAL:
-        subst.push_back(IntToString16(arg.int_value()));
+        subst.push_back(IntToString(arg.int_value()));
         break;
       case pagespeed::FormatArgument::BYTES:
         char buffer[100];
         snprintf(buffer, arraysize(buffer), "%.1fKiB",
                  arg.int_value() / 1024.0f);
-        subst.push_back(UTF8ToUTF16(buffer));
+        subst.push_back(std::string(buffer));
         break;
       default:
         CHECK(false);
@@ -75,8 +75,7 @@ std::string Format(const std::string& format_str, const FormatArguments& args) {
     }
   }
 
-  return UTF16ToUTF8(
-      ReplaceStringPlaceholders(UTF8ToUTF16(format_str), subst, NULL));
+  return ReplaceStringPlaceholders(format_str, subst, NULL);
 }
 
 void Dump(const pagespeed::ResultText& result, int indent = 0) {

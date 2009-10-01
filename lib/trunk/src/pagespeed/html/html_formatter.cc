@@ -70,9 +70,10 @@ Formatter* HtmlFormatter::NewChild(
   return new HtmlFormatter(output_, level_ + 1);
 }
 
-std::string HtmlFormatter::Format(const std::string& format_str,
-                                  const std::vector<const Argument*>& arguments) {
-  std::vector<string16> subst;
+std::string HtmlFormatter::Format(
+    const std::string& format_str,
+    const std::vector<const Argument*>& arguments) {
+  std::vector<std::string> subst;
 
   for (std::vector<const Argument*>::const_iterator iter = arguments.begin(),
            end = arguments.end();
@@ -81,20 +82,20 @@ std::string HtmlFormatter::Format(const std::string& format_str,
     const Argument& arg = **iter;
     switch (arg.type()) {
       case Argument::URL:
-        subst.push_back(UTF8ToUTF16("<a href=\"" + arg.string_value() + "\">" +
-                                    arg.string_value() + "</a>"));
+        subst.push_back("<a href=\"" + arg.string_value() + "\">" +
+                        arg.string_value() + "</a>");
         break;
       case Argument::STRING:
-        subst.push_back(UTF8ToUTF16(arg.string_value()));
+        subst.push_back(arg.string_value());
         break;
       case Argument::INTEGER:
-        subst.push_back(IntToString16(arg.int_value()));
+        subst.push_back(IntToString(arg.int_value()));
         break;
       case Argument::BYTES:
         char buffer[100];
         snprintf(buffer, arraysize(buffer), "%.1fKiB",
                  arg.int_value() / 1024.0f);
-        subst.push_back(UTF8ToUTF16(buffer));
+        subst.push_back(buffer);
         break;
       default:
         CHECK(false);
@@ -102,8 +103,7 @@ std::string HtmlFormatter::Format(const std::string& format_str,
     }
   }
 
-  return UTF16ToUTF8(
-      ReplaceStringPlaceholders(UTF8ToUTF16(format_str), subst, NULL));
+  return ReplaceStringPlaceholders(format_str, subst, NULL);
 }
 
 }  // namespace html
