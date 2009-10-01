@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/proto/proto_formatter.h"
+#include "pagespeed/formatters/proto_formatter.h"
 
 #include <string>
 #include <vector>
@@ -22,7 +22,7 @@
 
 namespace pagespeed {
 
-namespace proto {
+namespace formatters {
 
 ProtoFormatter::ProtoFormatter(std::vector<ResultText*>* results)
     : results_(results),
@@ -91,6 +91,6 @@ void ProtoFormatter::Format(ResultText* result_text,
   }
 }
 
-}  // namespace proto
+}  // namespace formatters
 
 }  // namespace pagespeed

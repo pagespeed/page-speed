@@ -19,93 +19,19 @@
 #include <fstream>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "base/string_util.h"
 #include "google/protobuf/text_format.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
-#include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/proto/proto_formatter.h"
 #include "pagespeed/proto/proto_resource_utils.h"
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
 
-#if defined(_WINDOWS)
-// Windows defines its own variants of the printf functions, so we
-// must write our own version of snprintf that delegates to the
-// Windows implementation.
-int snprintf(char *str, size_t size, const char *format, ...) {
-  va_list args;
-  va_start(args, format);
-  int result = vsnprintf_s(str, size, _TRUNCATE, format, args);
-  va_end(args);
-  return result;
-}
-#endif
-
-template <typename FormatArguments>
-std::string Format(const std::string& format_str, const FormatArguments& args) {
-  std::vector<std::string> subst;
-
-  for (typename FormatArguments::const_iterator iter = args.begin(),
-           end = args.end();
-       iter != end;
-       ++iter) {
-    const pagespeed::FormatArgument& arg = *iter;
-    switch (arg.type()) {
-      case pagespeed::FormatArgument::URL:
-      case pagespeed::FormatArgument::STRING_LITERAL:
-        subst.push_back(arg.string_value());
-        break;
-      case pagespeed::FormatArgument::INT_LITERAL:
-        subst.push_back(IntToString(arg.int_value()));
-        break;
-      case pagespeed::FormatArgument::BYTES:
-        char buffer[100];
-        snprintf(buffer, arraysize(buffer), "%.1fKiB",
-                 arg.int_value() / 1024.0f);
-        subst.push_back(std::string(buffer));
-        break;
-      default:
-        CHECK(false);
-        break;
-    }
-  }
-
-  return ReplaceStringPlaceholders(format_str, subst, NULL);
-}
-
-void Dump(const pagespeed::ResultText& result, int indent = 0) {
-  const std::string& str = Format(result.format(), result.args());
-
-  for (int indent_idx = 0; indent_idx < indent; indent_idx++) {
-    printf("  ");
-  }
-
-  switch (indent) {
-    case 0:
-      // header
-      printf("_%s_\n", str.c_str());
-      break;
-    case 1:
-      // regular text
-      printf("%s\n", str.c_str());
-      break;
-    default:
-      // bullet
-      printf("* %s\n", str.c_str());
-      break;
-  }
-
-  for (int idx = 0; idx < result.children_size(); idx++) {
-    Dump(result.children(idx), indent + 1);
-  }
-}
-
-void ProcessInput(const pagespeed::ProtoInput& input_proto, bool dump_proto) {
+void ProcessInput(const pagespeed::ProtoInput& input_proto) {
   std::vector<pagespeed::Rule*> rules;
   pagespeed::rule_provider::AppendCoreRules(&rules);
 
@@ -116,23 +42,8 @@ void ProcessInput(const pagespeed::ProtoInput& input_proto, bool dump_proto) {
   pagespeed::PagespeedInput input;
   pagespeed::proto::PopulatePagespeedInput(input_proto, &input);
 
-  std::vector<pagespeed::ResultText*> results;
-  pagespeed::proto::ProtoFormatter formatter(&results);
+  pagespeed::formatters::TextFormatter formatter(&std::cout);
   engine.ComputeAndFormatResults(input, &formatter);
-
-  for (std::vector<pagespeed::ResultText*>::const_iterator
-           iter = results.begin(), end = results.end();
-       iter != end;
-       ++iter) {
-    pagespeed::ResultText* result = *iter;
-    if (dump_proto) {
-      printf("%s\n", result->DebugString().c_str());
-    } else {
-      Dump(*result);
-      printf("\n");
-    }
-  }
-  STLDeleteContainerPointers(results.begin(), results.end());
 }
 
 }  // namespace
@@ -162,7 +73,7 @@ int main(int argc, char** argv) {
       file_contents, &input);
   CHECK(success);
 
-  ProcessInput(input, false);
+  ProcessInput(input);
 
   return 0;
 }

@@ -21,7 +21,7 @@ namespace pagespeed {
 
 class ResultText;
 
-namespace proto {
+namespace formatters {
 
 /**
  * Formatter that populates a ResultText protobuf.
@@ -46,7 +46,7 @@ class ProtoFormatter : public Formatter {
   ResultText* result_text_;
 };
 
-}  // namespace proto
+}  // namespace formatters
 
 }  // namespace pagespeed
 

@@ -16,13 +16,13 @@
 
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/proto/proto_formatter.h"
+#include "pagespeed/formatters/proto_formatter.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Argument;
 using pagespeed::FormatArgument;
 using pagespeed::Formatter;
-using pagespeed::proto::ProtoFormatter;
+using pagespeed::formatters::ProtoFormatter;
 using pagespeed::ResultText;
 
 namespace {

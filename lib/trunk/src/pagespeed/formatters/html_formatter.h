@@ -21,7 +21,7 @@
 
 namespace pagespeed {
 
-namespace html {
+namespace formatters {
 
 /**
  * Formatter that produces HTML.
@@ -46,7 +46,7 @@ class HtmlFormatter : public Formatter {
   bool has_children_;
 };
 
-}  // namespace html
+}  // namespace formatters
 
 }  // namespace pagespeed
 

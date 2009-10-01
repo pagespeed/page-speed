@@ -166,14 +166,17 @@
       ]
     },
     {
-      'target_name': 'pagespeed_html',
+      'target_name': 'pagespeed_formatters',
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         'pagespeed_core',
+        'pagespeed_output_pb',
       ],
       'sources': [
-        '<(pagespeed_root)/pagespeed/html/html_formatter.cc',
+        '<(pagespeed_root)/pagespeed/formatters/html_formatter.cc',
+        '<(pagespeed_root)/pagespeed/formatters/proto_formatter.cc',
+        '<(pagespeed_root)/pagespeed/formatters/text_formatter.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -193,12 +196,10 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        'pagespeed',
         'pagespeed_core',
         'pagespeed_input_pb',
       ],
       'sources': [
-        '<(pagespeed_root)/pagespeed/proto/proto_formatter.cc',
         '<(pagespeed_root)/pagespeed/proto/proto_resource_utils.cc',
       ],
       'include_dirs': [
@@ -219,8 +220,9 @@
       'type': 'executable',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
+        'pagespeed',
+        'pagespeed_formatters',
         'pagespeed_input_pb',
-        'pagespeed_output_pb',
         'pagespeed_proto',
       ],
       'sources': [
@@ -323,7 +325,7 @@
       'dependencies': [
         'pagespeed_core',
         'pagespeed_output_pb',
-        'pagespeed_proto',
+        'pagespeed_formatters',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
@@ -349,25 +351,39 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed_output_pb',
-        'pagespeed_proto',
+        'pagespeed_formatters',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        '<(pagespeed_root)/pagespeed/proto/proto_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
       ],
     },
     {
       'target_name': 'pagespeed_html_formatter_test',
       'type': 'executable',
       'dependencies': [
-        'pagespeed_html',
+        'pagespeed',
+        'pagespeed_formatters',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        '<(pagespeed_root)/pagespeed/html/html_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/formatters/html_formatter_test.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_text_formatter_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed',
+        'pagespeed_formatters',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
       ],
     },
   ],
