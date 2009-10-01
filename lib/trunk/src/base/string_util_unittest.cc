@@ -12,6 +12,7 @@
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#ifdef ICU_DEPENDENCY
 namespace {
 
 // Given a null-terminated string of wchar_t with each wchar_t representing
@@ -36,6 +37,7 @@ string16 BuildString16(const wchar_t* s) {
 }
 
 }  // namespace
+#endif  // ICU_DEPENDENCY
 
 static const struct trim_case {
   const wchar_t* input;
@@ -100,6 +102,7 @@ TEST(StringUtilTest, TrimWhitespace) {
   }
 }
 
+#ifdef ICU_DEPENDENCY
 static const struct trim_case_utf8 {
   const char* input;
   const TrimPositions positions;
@@ -145,6 +148,7 @@ TEST(StringUtilTest, TrimWhitespaceUTF8) {
     EXPECT_EQ(value.output, output_utf8);
   }
 }
+#endif  // ICU_DEPENDENCY
 
 static const struct collapse_case {
   const wchar_t* input;
@@ -273,6 +277,7 @@ TEST(StringUtilTest, IsStringUTF8) {
   EXPECT_FALSE(IsStringUTF8("\xe3\xe5\xe9\xdC"));
 }
 
+#ifdef ICU_DEPENDENCY
 static const wchar_t* const kConvertRoundtripCases[] = {
   L"Google Video",
   // "网页 图片 资讯更多 »"
@@ -772,6 +777,7 @@ TEST(StringUtilTest, ConvertASCII) {
             narrow_with_nul.length());
   EXPECT_EQ(0, string_with_nul.compare(narrow_with_nul));
 }
+#endif  // ICU_DEPENDENCY
 
 TEST(StringUtilTest, ToUpperASCII) {
   EXPECT_EQ('C', ToUpperASCII('C'));
@@ -872,6 +878,7 @@ TEST(StringUtilTest, FormatBytes) {
   }
 }
 
+#ifdef ICU_DEPENDENCY
 TEST(StringUtilTest, ReplaceSubstringsAfterOffset) {
   static const struct {
     const char* str;
@@ -932,6 +939,7 @@ TEST(StringUtilTest, ReplaceFirstSubstringAfterOffset) {
     EXPECT_EQ(ASCIIToUTF16(cases[i].expected), str);
   }
 }
+#endif  // ICU_DEPENDENCY
 
 namespace {
 
@@ -966,16 +974,24 @@ TEST(StringUtilTest, IntToString) {
   for (size_t i = 0; i < arraysize(int_tests); ++i) {
     const IntToStringTest<int>* test = &int_tests[i];
     EXPECT_EQ(IntToString(test->num), test->sexpected);
+#ifdef ICU_DEPENDENCY
     EXPECT_EQ(IntToWString(test->num), UTF8ToWide(test->sexpected));
+#endif  // ICU_DEPENDENCY
     EXPECT_EQ(UintToString(test->num), test->uexpected);
+#ifdef ICU_DEPENDENCY
     EXPECT_EQ(UintToWString(test->num), UTF8ToWide(test->uexpected));
+#endif  // ICU_DEPENDENCY
   }
   for (size_t i = 0; i < arraysize(int64_tests); ++i) {
     const IntToStringTest<int64>* test = &int64_tests[i];
     EXPECT_EQ(Int64ToString(test->num), test->sexpected);
+#ifdef ICU_DEPENDENCY
     EXPECT_EQ(Int64ToWString(test->num), UTF8ToWide(test->sexpected));
+#endif  // ICU_DEPENDENCY
     EXPECT_EQ(Uint64ToString(test->num), test->uexpected);
+#ifdef ICU_DEPENDENCY
     EXPECT_EQ(Uint64ToWString(test->num), UTF8ToWide(test->uexpected));
+#endif  // ICU_DEPENDENCY
   }
 }
 
@@ -1030,11 +1046,13 @@ TEST(StringUtilTest, StringToInt) {
     EXPECT_EQ(cases[i].success, StringToInt(cases[i].input, &output));
     EXPECT_EQ(cases[i].output, output);
 
+#ifdef ICU_DEPENDENCY
     std::wstring wide_input = ASCIIToWide(cases[i].input);
     EXPECT_EQ(cases[i].output, StringToInt(WideToUTF16Hack(wide_input)));
     EXPECT_EQ(cases[i].success, StringToInt(WideToUTF16Hack(wide_input),
                                             &output));
     EXPECT_EQ(cases[i].output, output);
+#endif  // ICU_DEPENDENCY
   }
 
   // One additional test to verify that conversion of numbers in strings with
@@ -1046,9 +1064,11 @@ TEST(StringUtilTest, StringToInt) {
   EXPECT_FALSE(StringToInt(input_string, &output));
   EXPECT_EQ(6, output);
 
+#ifdef ICU_DEPENDENCY
   std::wstring wide_input = ASCIIToWide(input_string);
   EXPECT_FALSE(StringToInt(WideToUTF16Hack(wide_input), &output));
   EXPECT_EQ(6, output);
+#endif  // ICU_DEPENDENCY
 }
 
 TEST(StringUtilTest, StringToInt64) {
@@ -1095,11 +1115,13 @@ TEST(StringUtilTest, StringToInt64) {
     EXPECT_EQ(cases[i].success, StringToInt64(cases[i].input, &output));
     EXPECT_EQ(cases[i].output, output);
 
+#ifdef ICU_DEPENDENCY
     std::wstring wide_input = ASCIIToWide(cases[i].input);
     EXPECT_EQ(cases[i].output, StringToInt64(WideToUTF16Hack(wide_input)));
     EXPECT_EQ(cases[i].success, StringToInt64(WideToUTF16Hack(wide_input),
                                               &output));
     EXPECT_EQ(cases[i].output, output);
+#endif  // ICU_DEPENDENCY
   }
 
   // One additional test to verify that conversion of numbers in strings with
@@ -1111,9 +1133,11 @@ TEST(StringUtilTest, StringToInt64) {
   EXPECT_FALSE(StringToInt64(input_string, &output));
   EXPECT_EQ(6, output);
 
+#ifdef ICU_DEPENDENCY
   std::wstring wide_input = ASCIIToWide(input_string);
   EXPECT_FALSE(StringToInt64(WideToUTF16Hack(wide_input), &output));
   EXPECT_EQ(6, output);
+#endif  // ICU_DEPENDENCY
 }
 
 TEST(StringUtilTest, HexStringToInt) {
@@ -1157,11 +1181,13 @@ TEST(StringUtilTest, HexStringToInt) {
     EXPECT_EQ(cases[i].success, HexStringToInt(cases[i].input, &output));
     EXPECT_EQ(cases[i].output, output);
 
+#ifdef ICU_DEPENDENCY
     std::wstring wide_input = ASCIIToWide(cases[i].input);
     EXPECT_EQ(cases[i].output, HexStringToInt(WideToUTF16Hack(wide_input)));
     EXPECT_EQ(cases[i].success, HexStringToInt(WideToUTF16Hack(wide_input),
                                                &output));
     EXPECT_EQ(cases[i].output, output);
+#endif  // ICU_DEPENDENCY
   }
   // One additional test to verify that conversion of numbers in strings with
   // embedded NUL characters.  The NUL and extra data after it should be
@@ -1172,9 +1198,11 @@ TEST(StringUtilTest, HexStringToInt) {
   EXPECT_FALSE(HexStringToInt(input_string, &output));
   EXPECT_EQ(0xc0ffee, output);
 
+#ifdef ICU_DEPENDENCY
   std::wstring wide_input = ASCIIToWide(input_string);
   EXPECT_FALSE(HexStringToInt(WideToUTF16Hack(wide_input), &output));
   EXPECT_EQ(0xc0ffee, output);
+#endif  // ICU_DEPENDENCY
 }
 
 TEST(StringUtilTest, HexStringToBytes) {
@@ -1215,6 +1243,7 @@ TEST(StringUtilTest, HexStringToBytes) {
     EXPECT_TRUE(std::equal(output.begin(), output.end(), compare.begin())) <<
         i << ": " << cases[i].input;
 
+#ifdef ICU_DEPENDENCY
     output.clear();
     compare.clear();
 
@@ -1227,6 +1256,7 @@ TEST(StringUtilTest, HexStringToBytes) {
     ASSERT_EQ(output.size(), compare.size()) << i << ": " << cases[i].input;
     EXPECT_TRUE(std::equal(output.begin(), output.end(), compare.begin())) <<
         i << ": " << cases[i].input;
+#endif  // ICU_DEPENDENCY
   }
 }
 
@@ -1271,12 +1301,14 @@ TEST(StringUtilTest, StringToDouble) {
     EXPECT_EQ(cases[i].success, StringToDouble(cases[i].input, &output));
     EXPECT_DOUBLE_EQ(cases[i].output, output);
 
+#ifdef ICU_DEPENDENCY
     std::wstring wide_input = ASCIIToWide(cases[i].input);
     EXPECT_DOUBLE_EQ(cases[i].output,
                      StringToDouble(WideToUTF16Hack(wide_input)));
     EXPECT_EQ(cases[i].success, StringToDouble(WideToUTF16Hack(wide_input),
                                                &output));
     EXPECT_DOUBLE_EQ(cases[i].output, output);
+#endif  // ICU_DEPENDENCY
   }
 
   // One additional test to verify that conversion of numbers in strings with
@@ -1288,9 +1320,11 @@ TEST(StringUtilTest, StringToDouble) {
   EXPECT_FALSE(StringToDouble(input_string, &output));
   EXPECT_DOUBLE_EQ(3.14, output);
 
+#ifdef ICU_DEPENDENCY
   std::wstring wide_input = ASCIIToWide(input_string);
   EXPECT_FALSE(StringToDouble(WideToUTF16Hack(wide_input), &output));
   EXPECT_DOUBLE_EQ(3.14, output);
+#endif  // ICU_DEPENDENCY
 }
 
 // This checks where we can use the assignment operator for a va_list. We need
@@ -1595,6 +1629,7 @@ TEST(StringUtilTest, EndsWith) {
   EXPECT_TRUE(EndsWith(L"", L"", true));
 }
 
+#ifdef ICU_DEPENDENCY
 TEST(StringUtilTest, GetStringFWithOffsets) {
   std::vector<string16> subst;
   subst.push_back(ASCIIToUTF16("1"));
@@ -1651,6 +1686,7 @@ TEST(StringUtilTest, ReplaceStringPlaceholdersTooFew) {
 
   EXPECT_EQ(formatted, ASCIIToUTF16("9aa,8bb,7cc,d,e,f,9ag,8bh,7ci"));
 }
+#endif  // ICU_DEPENDENCY
 
 TEST(StringUtilTest, StdStringReplaceStringPlaceholders) {
   std::vector<std::string> subst;

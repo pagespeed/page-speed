@@ -17,23 +17,16 @@
       'target_name': 'base',
       'type': '<(library)',
       'dependencies': [
-        '<(DEPTH)/third_party/icu/icu.gyp:icui18n',
-        '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
       ],
       'sources': [
         '../third_party/chromium/src/build/build_config.h',
         '../third_party/chromium/src/base/third_party/dmg_fp/dmg_fp.h',
         '../third_party/chromium/src/base/third_party/dmg_fp/dtoa.cc',
         '../third_party/chromium/src/base/third_party/dmg_fp/g_fmt.cc',
-        '../third_party/chromium/src/base/atomicops_internals_x86_gcc.cc',
-        '../third_party/chromium/src/base/at_exit.cc',
-        '../third_party/chromium/src/base/base_switches.cc',
-        '../third_party/chromium/src/base/command_line.cc',
         '../third_party/chromium/src/base/debug_util.cc',
         '../third_party/chromium/src/base/debug_util_mac.cc',
         '../third_party/chromium/src/base/debug_util_posix.cc',
         '../third_party/chromium/src/base/debug_util_win.cc',
-        '../third_party/chromium/src/base/dynamic_annotations.cc',
         '../third_party/chromium/src/base/lock.cc',
         '../third_party/chromium/src/base/lock_impl_posix.cc',
         '../third_party/chromium/src/base/lock_impl_win.cc',
@@ -47,12 +40,7 @@
         '../third_party/chromium/src/base/string_piece.cc',
         'string_util.cc',
         '../third_party/chromium/src/base/string_util.h',
-        '../third_party/chromium/src/base/string_util_icu.cc',
         '../third_party/chromium/src/base/string_util_win.h',
-        '../third_party/chromium/src/base/sys_string_conversions.h',
-        '../third_party/chromium/src/base/sys_string_conversions_linux.cc',
-        '../third_party/chromium/src/base/sys_string_conversions_mac.mm',
-        '../third_party/chromium/src/base/sys_string_conversions_win.cc',
         '../third_party/chromium/src/base/win_util.cc',
       ],
       'include_dirs': [
@@ -73,11 +61,6 @@
                 '-lrt',
               ],
             },
-          },
-          {  # else: OS != "linux" && OS != "freebsd"
-            'sources!': [
-              '../third_party/chromium/src/base/atomicops_internals_x86_gcc.cc',
-            ],
           },
         ],
         [ 'OS != "linux"', {
@@ -122,13 +105,9 @@
       'target_name': 'base_unittests',
       'type': 'executable',
       'sources': [
-        '../third_party/chromium/src/base/at_exit_unittest.cc',
-        '../third_party/chromium/src/base/atomicops_unittest.cc',
-        '../third_party/chromium/src/base/command_line_unittest.cc',
         '../third_party/chromium/src/base/debug_util_unittest.cc',
         '../third_party/chromium/src/base/string_piece_unittest.cc',
         'string_util_unittest.cc',
-        '../third_party/chromium/src/base/sys_string_conversions_unittest.cc',
         '../third_party/chromium/src/base/win_util_unittest.cc',
       ],
       'dependencies': [
