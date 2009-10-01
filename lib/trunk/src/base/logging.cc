@@ -239,6 +239,7 @@ void InitLogMutex() {
 #endif
 }
 
+#ifdef ICU_DEPENDENCY
 void InitLogging(const PathChar* new_log_file, LoggingDestination logging_dest,
                  LogLockingState lock_log, OldFileDeletionState delete_old) {
   g_enable_dcheck =
@@ -273,6 +274,7 @@ void InitLogging(const PathChar* new_log_file, LoggingDestination logging_dest,
 
   InitializeLogFileHandle();
 }
+#endif  // ICU_DEPENDENCY
 
 void SetMinLogLevel(int level) {
   min_log_level = level;
@@ -577,6 +579,14 @@ void CloseLogFile() {
 
 }  // namespace logging
 
+// We can't completely remove this operator with an #ifdef ICU_DEPENDENCY
+// because there's an inline function in logging.h (which we don't want to have
+// to branch) that refers to this operator.
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
+#ifdef ICU_DEPENDENCY
   return out << base::SysWideToUTF8(std::wstring(wstr));
+#else
+  CHECK(false) << "ostream << wchar_t not supported (non-icu build)";
+  return out;
+#endif  // ICU_DEPENDENCY
 }

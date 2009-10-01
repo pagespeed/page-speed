@@ -22,11 +22,14 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#ifdef ICU_DEPENDENCY
 #include "base/singleton.h"
+#endif  // ICU_DEPENDENCY
 #include "base/third_party/dmg_fp/dmg_fp.h"
 
 namespace {
 
+#ifdef ICU_DEPENDENCY
 // Force the singleton used by Empty[W]String[16] to be a unique type. This
 // prevents other code that might accidentally use Singleton<string> from
 // getting our internal one.
@@ -36,6 +39,7 @@ struct EmptyStrings {
   const std::wstring ws;
   const string16 s16;
 };
+#endif  // ICU_DEPENDENCY
 
 // Used by ReplaceStringPlaceholders to track the position in the string of
 // replaced parameters.
@@ -137,6 +141,7 @@ class StringToIntTraits {
   }
 };
 
+#ifdef ICU_DEPENDENCY
 class String16ToIntTraits {
  public:
   typedef string16 string_type;
@@ -161,6 +166,7 @@ class String16ToIntTraits {
     return !str.empty() && !iswspace(str[0]);
   }
 };
+#endif  // ICU_DEPENDENCY
 
 class StringToInt64Traits {
  public:
@@ -180,6 +186,7 @@ class StringToInt64Traits {
   }
 };
 
+#ifdef ICU_DEPENDENCY
 class String16ToInt64Traits {
  public:
   typedef string16 string_type;
@@ -204,6 +211,7 @@ class String16ToInt64Traits {
     return !str.empty() && !iswspace(str[0]);
   }
 };
+#endif  // ICU_DEPENDENCY
 
 // For the HexString variants, use the unsigned variants like strtoul for
 // convert_func so that input like "0x80000000" doesn't result in an overflow.
@@ -222,6 +230,7 @@ class HexStringToIntTraits {
   }
 };
 
+#ifdef ICU_DEPENDENCY
 class HexString16ToIntTraits {
  public:
   typedef string16 string_type;
@@ -246,6 +255,7 @@ class HexString16ToIntTraits {
     return !str.empty() && !iswspace(str[0]);
   }
 };
+#endif  // ICU_DEPENDENCY
 
 class StringToDoubleTraits {
  public:
@@ -260,6 +270,7 @@ class StringToDoubleTraits {
   }
 };
 
+#ifdef ICU_DEPENDENCY
 class String16ToDoubleTraits {
  public:
   typedef string16 string_type;
@@ -285,6 +296,7 @@ class String16ToDoubleTraits {
     return !str.empty() && !iswspace(str[0]);
   }
 };
+#endif  // ICU_DEPENDENCY
 
 }  // namespace
 
@@ -332,6 +344,7 @@ bool IsWprintfFormatPortable(const wchar_t* format) {
 }  // namespace base
 
 
+#ifdef ICU_DEPENDENCY
 const std::string& EmptyString() {
   return Singleton<EmptyStrings>::get()->s;
 }
@@ -343,6 +356,7 @@ const std::wstring& EmptyWString() {
 const string16& EmptyString16() {
   return Singleton<EmptyStrings>::get()->s16;
 }
+#endif  // ICU_DEPENDENCY
 
 const wchar_t kWhitespaceWide[] = {
   0x0009,  // <control-0009> to <control-000D>
@@ -511,6 +525,7 @@ std::wstring ASCIIToWide(const base::StringPiece& ascii) {
   return std::wstring(ascii.begin(), ascii.end());
 }
 
+#ifdef ICU_DEPENDENCY
 std::string UTF16ToASCII(const string16& utf16) {
   DCHECK(IsStringASCII(utf16)) << utf16;
   return std::string(utf16.begin(), utf16.end());
@@ -520,6 +535,7 @@ string16 ASCIIToUTF16(const base::StringPiece& ascii) {
   DCHECK(IsStringASCII(ascii)) << ascii;
   return string16(ascii.begin(), ascii.end());
 }
+#endif  // ICU_DEPENDENCY
 
 // Latin1 is just the low range of Unicode, so we can copy directly to convert.
 bool WideToLatin1(const std::wstring& wide, std::string* latin1) {
@@ -557,11 +573,13 @@ bool IsStringASCII(const std::wstring& str) {
   return DoIsStringASCII(str);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 bool IsStringASCII(const string16& str) {
   return DoIsStringASCII(str);
 }
 #endif
+#endif  // ICU_DEPENDENCY
 
 bool IsStringASCII(const base::StringPiece& str) {
   return DoIsStringASCII(str);
@@ -745,11 +763,13 @@ bool LowerCaseEqualsASCII(const wchar_t* a_begin,
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
 
+#ifdef ICU_DEPENDENCY
 bool EqualsASCII(const string16& a, const base::StringPiece& b) {
   if (a.length() != b.length())
     return false;
   return std::equal(b.begin(), b.end(), a.begin());
 }
+#endif  // ICU_DEPENDENCY
 
 bool StartsWithASCII(const std::string& str,
                      const std::string& search,
@@ -896,6 +916,7 @@ void DoReplaceSubstringsAfterOffset(StringType* str,
   }
 }
 
+#ifdef ICU_DEPENDENCY
 void ReplaceFirstSubstringAfterOffset(string16* str,
                                       string16::size_type start_offset,
                                       const string16& find_this,
@@ -903,6 +924,7 @@ void ReplaceFirstSubstringAfterOffset(string16* str,
   DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
                                  false);  // replace first instance
 }
+#endif  // ICU_DEPENDENCY
 
 void ReplaceFirstSubstringAfterOffset(std::string* str,
                                       std::string::size_type start_offset,
@@ -912,6 +934,7 @@ void ReplaceFirstSubstringAfterOffset(std::string* str,
                                  false);  // replace first instance
 }
 
+#ifdef ICU_DEPENDENCY
 void ReplaceSubstringsAfterOffset(string16* str,
                                   string16::size_type start_offset,
                                   const string16& find_this,
@@ -919,6 +942,7 @@ void ReplaceSubstringsAfterOffset(string16* str,
   DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
                                  true);  // replace all instances
 }
+#endif  // ICU_DEPENDENCY
 
 void ReplaceSubstringsAfterOffset(std::string* str,
                                   std::string::size_type start_offset,
@@ -1094,10 +1118,12 @@ std::wstring IntToWString(int value) {
   return IntToStringT<std::wstring, int, unsigned int, true>::
       IntToString(value);
 }
+#ifdef ICU_DEPENDENCY
 string16 IntToString16(int value) {
   return IntToStringT<string16, int, unsigned int, true>::
       IntToString(value);
 }
+#endif  // ICU_DEPENDENCY
 std::string UintToString(unsigned int value) {
   return IntToStringT<std::string, unsigned int, unsigned int, false>::
       IntToString(value);
@@ -1106,10 +1132,12 @@ std::wstring UintToWString(unsigned int value) {
   return IntToStringT<std::wstring, unsigned int, unsigned int, false>::
       IntToString(value);
 }
+#ifdef ICU_DEPENDENCY
 string16 UintToString16(unsigned int value) {
   return IntToStringT<string16, unsigned int, unsigned int, false>::
       IntToString(value);
 }
+#endif  // ICU_DEPENDENCY
 std::string Int64ToString(int64 value) {
   return IntToStringT<std::string, int64, uint64, true>::
       IntToString(value);
@@ -1363,11 +1391,13 @@ StringType DoReplaceStringPlaceholders(const StringType& format_string,
   return formatted;
 }
 
+#ifdef ICU_DEPENDENCY
 string16 ReplaceStringPlaceholders(const string16& format_string,
                                    const std::vector<string16>& subst,
                                    std::vector<size_t>* offsets) {
   return DoReplaceStringPlaceholders(format_string, subst, offsets);
 }
+#endif  // ICU_DEPENDENCY
 
 std::string ReplaceStringPlaceholders(const std::string& format_string,
                                       const std::vector<std::string>& subst,
@@ -1375,6 +1405,7 @@ std::string ReplaceStringPlaceholders(const std::string& format_string,
   return DoReplaceStringPlaceholders(format_string, subst, offsets);
 }
 
+#ifdef ICU_DEPENDENCY
 string16 ReplaceStringPlaceholders(const string16& format_string,
                                    const string16& a,
                                    size_t* offset) {
@@ -1389,6 +1420,7 @@ string16 ReplaceStringPlaceholders(const string16& format_string,
   }
   return result;
 }
+#endif  // ICU_DEPENDENCY
 
 template <class CHAR>
 static bool IsWildcard(CHAR character) {
@@ -1502,25 +1534,31 @@ bool StringToInt(const std::string& input, int* output) {
   return StringToNumber<StringToIntTraits>(input, output);
 }
 
+#ifdef ICU_DEPENDENCY
 bool StringToInt(const string16& input, int* output) {
   return StringToNumber<String16ToIntTraits>(input, output);
 }
+#endif  // ICU_DEPENDENCY
 
 bool StringToInt64(const std::string& input, int64* output) {
   return StringToNumber<StringToInt64Traits>(input, output);
 }
 
+#ifdef ICU_DEPENDENCY
 bool StringToInt64(const string16& input, int64* output) {
   return StringToNumber<String16ToInt64Traits>(input, output);
 }
+#endif  // ICU_DEPENDENCY
 
 bool HexStringToInt(const std::string& input, int* output) {
   return StringToNumber<HexStringToIntTraits>(input, output);
 }
 
+#ifdef ICU_DEPENDENCY
 bool HexStringToInt(const string16& input, int* output) {
   return StringToNumber<HexString16ToIntTraits>(input, output);
 }
+#endif  // ICU_DEPENDENCY
 
 namespace {
 
@@ -1560,9 +1598,11 @@ bool HexStringToBytes(const std::string& input, std::vector<uint8>* output) {
   return HexStringToBytesT(input, output);
 }
 
+#ifdef ICU_DEPENDENCY
 bool HexStringToBytes(const string16& input, std::vector<uint8>* output) {
   return HexStringToBytesT(input, output);
 }
+#endif  // ICU_DEPENDENCY
 
 int StringToInt(const std::string& value) {
   int result;
@@ -1570,11 +1610,13 @@ int StringToInt(const std::string& value) {
   return result;
 }
 
+#ifdef ICU_DEPENDENCY
 int StringToInt(const string16& value) {
   int result;
   StringToInt(value, &result);
   return result;
 }
+#endif  // ICU_DEPENDENCY
 
 int64 StringToInt64(const std::string& value) {
   int64 result;
@@ -1582,11 +1624,13 @@ int64 StringToInt64(const std::string& value) {
   return result;
 }
 
+#ifdef ICU_DEPENDENCY
 int64 StringToInt64(const string16& value) {
   int64 result;
   StringToInt64(value, &result);
   return result;
 }
+#endif  // ICU_DEPENDENCY
 
 int HexStringToInt(const std::string& value) {
   int result;
@@ -1594,19 +1638,23 @@ int HexStringToInt(const std::string& value) {
   return result;
 }
 
+#ifdef ICU_DEPENDENCY
 int HexStringToInt(const string16& value) {
   int result;
   HexStringToInt(value, &result);
   return result;
 }
+#endif  // ICU_DEPENDENCY
 
 bool StringToDouble(const std::string& input, double* output) {
   return StringToNumber<StringToDoubleTraits>(input, output);
 }
 
+#ifdef ICU_DEPENDENCY
 bool StringToDouble(const string16& input, double* output) {
   return StringToNumber<String16ToDoubleTraits>(input, output);
 }
+#endif  // ICU_DEPENDENCY
 
 double StringToDouble(const std::string& value) {
   double result;
@@ -1614,11 +1662,13 @@ double StringToDouble(const std::string& value) {
   return result;
 }
 
+#ifdef ICU_DEPENDENCY
 double StringToDouble(const string16& value) {
   double result;
   StringToDouble(value, &result);
   return result;
 }
+#endif  // ICU_DEPENDENCY
 
 // The following code is compatible with the OpenBSD lcpy interface.  See:
 //   http://www.gratisoft.us/todd/papers/strlcpy.html

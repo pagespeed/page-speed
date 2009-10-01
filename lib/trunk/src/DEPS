@@ -48,9 +48,6 @@ deps = {
   "src/testing":
     Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
 
-  "src/third_party/icu":
-    Var("chromium_trunk") + "/deps/third_party/icu42@26673",
-
   "src/third_party/scons":
     Var("chromium_trunk") + "/src/third_party/scons" + Var("chromium_revision"),
 
