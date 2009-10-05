@@ -20,16 +20,27 @@
 
 namespace pagespeed {
 
-PagespeedInput::PagespeedInput() {
+PagespeedInput::PagespeedInput() : allow_duplicate_resources_(false) {
 }
 
 PagespeedInput::~PagespeedInput() {
   STLDeleteContainerPointers(resources_.begin(), resources_.end());
 }
 
-void PagespeedInput::AddResource(const Resource* resource) {
+bool PagespeedInput::AddResource(const Resource* resource) {
+  const std::string& url = resource->GetRequestUrl();
+  if (!allow_duplicate_resources_ &&
+      resource_urls_.find(url) != resource_urls_.end()) {
+    LOG(WARNING) << "Ignoring duplicate AddResource for resource at \""
+                 << url << "\".";
+    delete resource;  // Resource is owned by PagespeedInput.
+    return false;
+  }
+
   resources_.push_back(resource);
+  resource_urls_.insert(url);
   host_resource_map_[resource->GetHost()].push_back(resource);
+  return true;
 }
 
 int PagespeedInput::num_resources() const {

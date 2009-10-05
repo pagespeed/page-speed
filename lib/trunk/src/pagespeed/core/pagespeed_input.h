@@ -16,6 +16,7 @@
 #define PAGESPEED_CORE_PAGESPEED_INPUT_H_
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -37,10 +38,18 @@ class PagespeedInput {
   virtual ~PagespeedInput();
 
   // Setters
+
   // Adds a resource to the list.
+  // Returns true if resource was added to the list.
+  //
   // Ownership of the resource is transfered over to the
   // PagespeedInput object.
-  void AddResource(const Resource* resource);
+  bool AddResource(const Resource* resource);
+
+  // Normally we only allow one resource per URL.  Setting this flag
+  // allows duplicate resource addition, which is useful when
+  // constructing an input set that is meant for serialization.
+  void set_allow_duplicate_resources() { allow_duplicate_resources_ = true; }
 
   // Resource access.
   int num_resources() const;
@@ -49,7 +58,9 @@ class PagespeedInput {
 
  private:
   std::vector<const Resource*> resources_;
+  std::set<std::string> resource_urls_;
   HostResourceMap host_resource_map_;
+  bool allow_duplicate_resources_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };
