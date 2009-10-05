@@ -347,6 +347,19 @@
       ],
     },
     {
+      'target_name': 'pagespeed_input_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_core',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/core/pagespeed_input_test.cc',
+      ],
+    },
+    {
       'target_name': 'pagespeed_proto_formatter_test',
       'type': 'executable',
       'dependencies': [

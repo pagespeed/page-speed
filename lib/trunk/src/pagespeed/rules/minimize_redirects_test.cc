@@ -49,6 +49,7 @@ class MinimizeRedirectsTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
     input_.reset(new PagespeedInput);
+    input_->set_allow_duplicate_resources();
   }
 
   virtual void TearDown() {
