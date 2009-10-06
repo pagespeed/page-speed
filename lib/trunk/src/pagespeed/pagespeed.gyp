@@ -139,6 +139,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
         '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
         'pagespeed_core',
         'pagespeed_output_pb',
@@ -150,6 +151,7 @@
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_redirects.cc',
         '<(pagespeed_root)/pagespeed/rules/rule_provider.cc',
+        '<(pagespeed_root)/pagespeed/rules/savings_computer.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url.cc',
       ],
       'include_dirs': [

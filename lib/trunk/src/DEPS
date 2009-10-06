@@ -28,10 +28,6 @@ deps = {
   "src/third_party/protobuf2/src":
     "http://protobuf.googlecode.com/svn/trunk@219",
 
-  "src/third_party/protobuf2":
-    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
-     Var("chromium_revision")),
-
   "src/tools/gyp":
     "http://gyp.googlecode.com/svn/trunk@671",
 
@@ -56,6 +52,13 @@ deps = {
 
   "src/tools/grit":
     Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
+
+  "src/third_party/protobuf2":
+    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
+     Var("chromium_revision")),
+
+  "src/third_party/zlib":
+    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
 }
 
 

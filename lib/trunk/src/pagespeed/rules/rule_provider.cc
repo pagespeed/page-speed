@@ -26,7 +26,8 @@ namespace pagespeed {
 namespace rule_provider {
 
 void AppendCoreRules(std::vector<Rule*> *rules) {
-  rules->push_back(new rules::EnableGzipCompression());
+  rules->push_back(new rules::EnableGzipCompression(
+      new rules::compression_computer::ZlibComputer()));
   rules->push_back(new rules::CombineExternalCSS());
   rules->push_back(new rules::CombineExternalJavaScript());
   rules->push_back(new rules::MinifyJavaScript());

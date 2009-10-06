@@ -16,7 +16,11 @@
 #define PAGESPEED_RULES_ENABLE_GZIP_COMPRESSION_H_
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/rules/savings_computer.h"
+
+typedef struct z_stream_s z_stream;
 
 namespace pagespeed {
 
@@ -32,22 +36,46 @@ namespace rules {
  */
 class EnableGzipCompression : public Rule {
  public:
-  EnableGzipCompression();
+  // @param computer Object responsible for computing the compressed
+  // size of the resource.
+  explicit EnableGzipCompression(SavingsComputer* computer);
 
   // Rule interface.
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
   virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 
  private:
-  bool isCompressed(const Resource& resource) const;
-  bool isText(const Resource& resource) const;
-  bool isViolation(const Resource& resource) const;
+  bool IsCompressed(const Resource& resource) const;
+  bool IsText(const Resource& resource) const;
+  bool IsViolation(const Resource& resource) const;
 
-  // TODO: move this method to class Resource
-  int GetContentLength(const Resource& resource) const;
+  bool GetSavings(const Resource& resource, int* savings) const;
+
+  scoped_ptr<SavingsComputer> computer_;
 
   DISALLOW_COPY_AND_ASSIGN(EnableGzipCompression);
 };
+
+namespace compression_computer {
+
+// Uses zlib to compute the exact savings from using gzip compression.
+class ZlibComputer : public pagespeed::rules::SavingsComputer {
+ public:
+  ZlibComputer() {}
+  virtual ~ZlibComputer() {}
+
+  virtual bool ComputeSavings(const pagespeed::Resource& resource,
+                              pagespeed::Savings* savings);
+
+ private:
+  static const int kBufferSize = 4096;  // compress 4K at a time
+
+  bool GetCompressedSize(z_stream* c_stream, int* compressed_size);
+
+  DISALLOW_COPY_AND_ASSIGN(ZlibComputer);
+};
+
+}  // namespace compression_computer
 
 }  // namespace rules
 
