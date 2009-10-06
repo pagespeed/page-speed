@@ -17,32 +17,47 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/string_util.h"  // for StringToInt
+#include "base/string_util.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "third_party/zlib/zlib.h"
+
+namespace {
+
+const char* kRuleName = "EnableGzipCompression";
+
+}  // namespace
 
 namespace pagespeed {
 
 namespace rules {
 
-EnableGzipCompression::EnableGzipCompression() : Rule("EnableGzipCompression") {
+EnableGzipCompression::EnableGzipCompression(SavingsComputer* computer)
+    : Rule(kRuleName),
+      computer_(computer) {
+  CHECK(NULL != computer) << "SavingsComputer must be non-null.";
 }
 
 bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
                                           Results* results) {
+  bool success = true;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
-    if (!isViolation(resource)) {
+    int bytes_saved = 0;
+    bool resource_success = GetSavings(resource, &bytes_saved);
+    if (!resource_success) {
+      success = false;
+      continue;
+    }
+
+    if (bytes_saved <= 0) {
       continue;
     }
 
     Result* result = results->add_results();
     result->set_rule_name(name());
-
-    int length = GetContentLength(resource);
-    int bytes_saved = 2 * length / 3;
 
     Savings* savings = result->mutable_savings();
     savings->set_response_bytes_saved(bytes_saved);
@@ -50,12 +65,12 @@ bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
     result->add_resource_urls(resource.GetRequestUrl());
   }
 
-  return true;
+  return success;
 }
 
 void EnableGzipCompression::FormatResults(
     const ResultVector& results, Formatter* formatter) {
-  Formatter* header = formatter->AddChild("Enable Gzip");
+  Formatter* header = formatter->AddChild("Enable gzip compression");
 
   int total_bytes_saved = 0;
 
@@ -71,8 +86,7 @@ void EnableGzipCompression::FormatResults(
   Argument arg(Argument::BYTES, total_bytes_saved);
   Formatter* body = header->AddChild("Compressing the following "
                                      "resources with gzip could reduce "
-                                     "their transfer size by about two "
-                                     "thirds (~$1).",
+                                     "their transfer size by $1.",
                                      arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
@@ -83,17 +97,23 @@ void EnableGzipCompression::FormatResults(
     CHECK(result.resource_urls_size() == 1);
     Argument url(Argument::URL, result.resource_urls(0));
     Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
-    body->AddChild("Compressing $1 could save ~$2", url,
-                   savings);
+    body->AddChild("Compressing $1 could save $2.", url, savings);
   }
 }
 
-bool EnableGzipCompression::isCompressed(const Resource& resource) const {
+bool EnableGzipCompression::IsCompressed(const Resource& resource) const {
   const std::string& encoding = resource.GetResponseHeader("Content-Encoding");
-  return encoding == "gzip" || encoding == "deflate";
+
+  // HTTP allows Content-Encodings to be "stacked" in which case they
+  // are comma-separated. Instead of splitting on commas and checking
+  // each token, we just see if a valid known encoding appears in the
+  // header, and if so, assume that encoding was applied to the
+  // response.
+  return encoding.find("gzip") != std::string::npos ||
+      encoding.find("deflate") != std::string::npos;
 }
 
-bool EnableGzipCompression::isText(const Resource& resource) const {
+bool EnableGzipCompression::IsText(const Resource& resource) const {
   ResourceType type = resource.GetResourceType();
   ResourceType text_types[] = { HTML, TEXT, JS, CSS };
   for (int idx = 0; idx < arraysize(text_types); ++idx) {
@@ -105,26 +125,101 @@ bool EnableGzipCompression::isText(const Resource& resource) const {
   return false;
 }
 
-bool EnableGzipCompression::isViolation(const Resource& resource) const {
-  return !isCompressed(resource) &&
-      isText(resource) &&
-      GetContentLength(resource) >= 150;
+bool EnableGzipCompression::IsViolation(const Resource& resource) const {
+  return !IsCompressed(resource) &&
+      IsText(resource) &&
+      resource.GetResponseBody().size() >= 150;
 }
 
-int EnableGzipCompression::GetContentLength(const Resource& resource) const {
-  const std::string& length_header =
-      resource.GetResponseHeader("Content-Length");
-  if (!length_header.empty()) {
-    int output = 0;
-    bool status = StringToInt(length_header, &output);
-    DCHECK(status);
-    return output;
-  } else {
-    return resource.GetResponseBody().size();
+bool EnableGzipCompression::GetSavings(const Resource& resource,
+                                       int* out_savings) const {
+  *out_savings = 0;
+  if (!IsViolation(resource)) {
+    return true;
   }
 
-  return 0;
+  Savings savings;
+  bool result = computer_->ComputeSavings(resource, &savings);
+  *out_savings = savings.response_bytes_saved();
+  return result;
 }
+
+namespace compression_computer {
+
+bool ZlibComputer::ComputeSavings(const pagespeed::Resource& resource,
+                                  pagespeed::Savings* savings) {
+  z_stream c_stream; /* compression stream */
+  c_stream.zalloc = (alloc_func)0;
+  c_stream.zfree = (free_func)0;
+  c_stream.opaque = (voidpf)0;
+
+  int err = deflateInit2(
+      &c_stream,
+      Z_DEFAULT_COMPRESSION,
+      Z_DEFLATED,
+      31,  // window size of 15, plus 16 for gzip
+      8,   // default mem level (no zlib constant exists for this value)
+      Z_DEFAULT_STRATEGY);
+  if (err != Z_OK) {
+    LOG(WARNING) << "Failed to deflateInit2: " << err;
+    return false;
+  }
+
+  c_stream.next_in = reinterpret_cast<Bytef*>(
+      const_cast<char*>(resource.GetResponseBody().data()));
+  c_stream.avail_in = resource.GetResponseBody().size();
+
+  int compressed_size = 0;
+  bool result = GetCompressedSize(&c_stream, &compressed_size);
+
+  // clean up.
+  err = deflateEnd(&c_stream);
+  if (err != Z_OK) {
+    LOG(WARNING) << "Failed to deflateEnd: " << err;
+    return false;
+  }
+
+  savings->set_response_bytes_saved(
+      resource.GetResponseBody().size() - compressed_size);
+  return result;
+}
+
+
+bool ZlibComputer::GetCompressedSize(z_stream* c_stream, int* compressed_size) {
+  scoped_array<char> buffer(new char[kBufferSize]);
+
+  int err = Z_OK;
+  bool finished = false;
+
+  while (!finished) {
+    c_stream->next_out = reinterpret_cast<Bytef*>(buffer.get());
+    c_stream->avail_out = kBufferSize;
+    err = deflate(c_stream, Z_FINISH);
+
+    switch (err) {
+      case Z_OK:
+        break;
+
+      case Z_STREAM_END:
+        finished = true;
+        break;
+
+      default:
+        LOG(WARNING) << "GetCompressedSize encountered error: " << err;
+        return false;
+    }
+
+    *compressed_size += (kBufferSize - c_stream->avail_out);
+  }
+
+  const bool success = (err == Z_STREAM_END);
+  if (!success) {
+    LOG(WARNING) << "GetCompressedSize expected Z_STREAM_END, got " << err;
+  }
+  return success;
+}
+
+}  // namespace compression_computer
 
 }  // namespace rules
 

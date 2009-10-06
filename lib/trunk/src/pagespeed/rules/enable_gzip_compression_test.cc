@@ -19,13 +19,17 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
+#include "pagespeed/rules/savings_computer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using pagespeed::rules::compression_computer::ZlibComputer;
 using pagespeed::rules::EnableGzipCompression;
+using pagespeed::rules::SavingsComputer;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::Savings;
 
 namespace {
 
@@ -42,8 +46,7 @@ class EnableGzipCompressionTest : public ::testing::Test {
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* content_encoding,
-                       const char* content_length,
-                       const char* body) {
+                       const std::string& body) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
@@ -59,14 +62,17 @@ class EnableGzipCompressionTest : public ::testing::Test {
       resource->AddResponseHeader("Content-Encoding", content_encoding);
     }
 
-    if (content_length != NULL) {
-      resource->AddResponseHeader("Content-Length", content_length);
-    }
-
-    if (body != NULL) {
-      resource->SetResponseBody(body);
-    }
+    resource->SetResponseBody(body);
     input_->AddResource(resource);
+  }
+
+  void AddTestResource(const char* url,
+                       const char* content_type,
+                       const char* content_encoding,
+                       size_t content_length) {
+    std::string body;
+    body.append(content_length, ' ');
+    AddTestResource(url, content_type, content_encoding, body);
   }
 
   void AddFirstLargeHtmlResource(const char* charset,
@@ -79,8 +85,7 @@ class EnableGzipCompressionTest : public ::testing::Test {
     AddTestResource("http://www.test.com/",
                     content_type.c_str(),
                     gzip ? "gzip" : NULL,
-                    "9000",
-                    NULL);
+                    9000);
   }
 
   void AddFirstLargeHtmlResource(bool gzip) {
@@ -91,80 +96,90 @@ class EnableGzipCompressionTest : public ::testing::Test {
     AddTestResource("http://www.test.com/foo",
                     "text/html",
                     gzip ? "gzip" : NULL,
-                    "4500",
-                    NULL);
-  }
-
-  void AddHtmlResourceWithBody(const char* body,
-                               bool gzip) {
-    AddTestResource("http://www.test.com/",
-                    "text/html",
-                    gzip ? "gzip" : NULL,
-                    NULL,
-                    body);
+                    4500);
   }
 
   void AddShortHtmlResource() {
     AddTestResource("http://www.test.com/",
                     "text/html",
                     NULL,
-                    "10",
-                    NULL);
+                    10);
   }
 
   void CheckNoViolations() {
-    EnableGzipCompression gzip_rule;
-
-    Results results;
-    gzip_rule.AppendResults(*input_, &results);
-    ASSERT_EQ(results.results_size(), 0);
+    CheckNoViolationsInternal(true);
   }
 
-  void CheckOneViolation() {
-    EnableGzipCompression gzip_rule;
-
-    Results results;
-    gzip_rule.AppendResults(*input_, &results);
-    ASSERT_EQ(results.results_size(), 1);
-
-    const Result& result = results.results(0);
-    ASSERT_EQ(result.savings().response_bytes_saved(), 6000);
-    ASSERT_EQ(result.resource_urls_size(), 1);
-    ASSERT_EQ(result.resource_urls(0), "http://www.test.com/");
+  void CheckErrorAndNoViolations() {
+    CheckNoViolationsInternal(false);
   }
 
-  void CheckTwoViolations() {
-    EnableGzipCompression gzip_rule;
+  void CheckOneViolation(int expected_savings) {
+    CheckOneViolationInternal(new ZlibComputer(), expected_savings, true);
+  }
+
+  void CheckErrorAndOneViolation(SavingsComputer* computer,
+                                 int expected_savings) {
+    CheckOneViolationInternal(computer, expected_savings, false);
+  }
+
+  void CheckTwoViolations(int first_expected_savings,
+                          int second_expected_savings) {
+    EnableGzipCompression gzip_rule(new ZlibComputer());
 
     Results results;
-    gzip_rule.AppendResults(*input_, &results);
+    ASSERT_TRUE(gzip_rule.AppendResults(*input_, &results));
     ASSERT_EQ(results.results_size(), 2);
 
     const Result& result0 = results.results(0);
-    ASSERT_EQ(result0.savings().response_bytes_saved(), 6000);
+    ASSERT_EQ(result0.savings().response_bytes_saved(), first_expected_savings);
     ASSERT_EQ(result0.resource_urls_size(), 1);
     ASSERT_EQ(result0.resource_urls(0), "http://www.test.com/");
 
     const Result& result1 = results.results(1);
-    ASSERT_EQ(result1.savings().response_bytes_saved(), 3000);
+    ASSERT_EQ(result1.savings().response_bytes_saved(),
+              second_expected_savings);
     ASSERT_EQ(result1.resource_urls_size(), 1);
     ASSERT_EQ(result1.resource_urls(0), "http://www.test.com/foo");
   }
 
  private:
+  void CheckNoViolationsInternal(bool expect_success) {
+    EnableGzipCompression gzip_rule(new ZlibComputer());
+
+    Results results;
+    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &results));
+    ASSERT_EQ(results.results_size(), 0);
+  }
+
+  void CheckOneViolationInternal(SavingsComputer* computer,
+                                 int expected_savings,
+                                 bool expect_success) {
+    EnableGzipCompression gzip_rule(computer);
+
+    Results results;
+    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &results));
+    ASSERT_EQ(results.results_size(), 1);
+
+    const Result& result = results.results(0);
+    ASSERT_EQ(result.savings().response_bytes_saved(), expected_savings);
+    ASSERT_EQ(result.resource_urls_size(), 1);
+    ASSERT_EQ(result.resource_urls(0), "http://www.test.com/");
+  }
+
   scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
 
-  CheckOneViolation();
+  CheckOneViolation(8956);
 }
 
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlUtf8NoGzip) {
   AddFirstLargeHtmlResource("utf-8", false);
 
-  CheckOneViolation();
+  CheckOneViolation(8956);
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzip) {
@@ -180,29 +195,19 @@ TEST_F(EnableGzipCompressionTest, NoViolationSmallHtmlNoGzip) {
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeNoContentTypeNoGzip) {
-  AddTestResource("http://www.test.com/", NULL, NULL, "9000", NULL);
+  AddTestResource("http://www.test.com/", NULL, NULL, 9000);
 
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeImageNoGzip) {
-  AddTestResource("http://www.test.com/", "image/jpeg", NULL, "9000", NULL);
+  AddTestResource("http://www.test.com/", "image/jpeg", NULL, 9000);
 
   CheckNoViolations();
 }
 
-TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlNoGzipNoContentLength) {
-  std::string body;
-  body.resize(9000, 'a');
-  AddHtmlResourceWithBody(body.c_str(), false);
-
-  CheckOneViolation();
-}
-
-TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzipNoContentLength) {
-  std::string body;
-  body.resize(9000, 'a');
-  AddHtmlResourceWithBody(body.c_str(), true);
+TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzipSdch) {
+  AddTestResource("http://www.test.com/", "text/html", "gzip,sdch", 9000);
 
   CheckNoViolations();
 }
@@ -218,14 +223,58 @@ TEST_F(EnableGzipCompressionTest, OneViolationTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(true);
 
-  CheckOneViolation();
+  CheckOneViolation(8956);
 }
 
 TEST_F(EnableGzipCompressionTest, TwoViolationsTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(false);
 
-  CheckTwoViolations();
+  CheckTwoViolations(8956, 4460);
+}
+
+TEST_F(EnableGzipCompressionTest, NullComputer) {
+  ASSERT_DEATH(new EnableGzipCompression(NULL),
+               "SavingsComputer must be non-null.");
+}
+
+TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
+  std::string body;
+  body.append(9000, ' ');
+  body[0] = '\0';
+  AddTestResource("http://www.test.com/", "text/html", NULL, body);
+  CheckOneViolation(8955);
+}
+
+class FailAtSpecifiedIndexComputer : public SavingsComputer {
+ public:
+  explicit FailAtSpecifiedIndexComputer(int index)
+      : index_(index),
+        counter_(0) {}
+  ~FailAtSpecifiedIndexComputer() {}
+
+  virtual bool ComputeSavings(const Resource& resource, Savings* savings) {
+    savings->set_response_bytes_saved(10);
+    return (counter_++ != index_);
+  }
+
+ private:
+  const int index_;
+  int counter_;
+};
+
+TEST_F(EnableGzipCompressionTest, FailedComputationsNotAddedToResults) {
+  AddFirstLargeHtmlResource(false);
+  AddSecondLargeHtmlResource(false);
+
+  CheckErrorAndOneViolation(new FailAtSpecifiedIndexComputer(1), 10);
+}
+
+TEST_F(EnableGzipCompressionTest, FailedComputationsNotAddedToResults2) {
+  AddSecondLargeHtmlResource(false);
+  AddFirstLargeHtmlResource(false);
+
+  CheckErrorAndOneViolation(new FailAtSpecifiedIndexComputer(0), 10);
 }
 
 }  // namespace
