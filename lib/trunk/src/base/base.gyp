@@ -51,6 +51,10 @@
           '../third_party/chromium/src',
         ],
       },
+      # These warnings are needed for the files in third_party\dmg_fp.
+      'msvs_disabled_warnings': [
+        4244, 4554, 4018, 4102,
+      ],
       'conditions': [
         [ 'OS == "linux"', {
             'sources/': [ ['exclude', '_(mac|win|chromeos)\\.cc$'],
@@ -89,7 +93,7 @@
             'sources/': [ ['exclude', '_(linux|gtk|mac|posix|chromeos)\\.cc$'],
                           ['exclude', '\\.mm?$' ] ],
             'sources!': [
-              '../third_party/chromium/src/base/string16.cc',
+              'string16.cc',
             ],
           },
           {  # else: OS != "win"
