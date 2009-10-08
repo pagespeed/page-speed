@@ -322,6 +322,7 @@ void DisplayDebugMessage(const std::string& str) {
     return;
 
 #if defined(OS_WIN)
+#ifdef ICU_DEPENDENCY
   // look for the debug dialog program next to our application
   wchar_t prog_name[MAX_PATH];
   GetModuleFileNameW(NULL, prog_name, MAX_PATH);
@@ -349,6 +350,7 @@ void DisplayDebugMessage(const std::string& str) {
     MessageBoxW(NULL, &cmdline[0], L"Fatal error",
                 MB_OK | MB_ICONHAND | MB_TOPMOST);
   }
+#endif
 #else
   fprintf(stderr, "%s\n", str.c_str());
 #endif

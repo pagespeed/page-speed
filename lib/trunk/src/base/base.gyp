@@ -23,6 +23,7 @@
         '../third_party/chromium/src/base/third_party/dmg_fp/dmg_fp.h',
         '../third_party/chromium/src/base/third_party/dmg_fp/dtoa.cc',
         '../third_party/chromium/src/base/third_party/dmg_fp/g_fmt.cc',
+        '../third_party/chromium/src/base/at_exit.cc',
         '../third_party/chromium/src/base/debug_util.cc',
         '../third_party/chromium/src/base/debug_util_mac.cc',
         '../third_party/chromium/src/base/debug_util_posix.cc',
