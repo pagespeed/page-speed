@@ -92,10 +92,7 @@ std::string HtmlFormatter::Format(
         subst.push_back(IntToString(arg.int_value()));
         break;
       case Argument::BYTES:
-        char buffer[100];
-        snprintf(buffer, arraysize(buffer), "%.1fKiB",
-                 arg.int_value() / 1024.0f);
-        subst.push_back(buffer);
+        subst.push_back(StringPrintf("%.1fKiB", arg.int_value() / 1024.0f));
         break;
       default:
         CHECK(false);
