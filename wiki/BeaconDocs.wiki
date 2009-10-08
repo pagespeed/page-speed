@@ -19,7 +19,17 @@
 
    Both the key and value are escaped with the javascript function encodeURIComponent().  This matters for urls, which have characters like : and / which will be escaped.  For example, consider the url 'http://www.example.com/test'.  It can not be sent as-is, because it contains the characters '/' and ':'.  We encode that url like this: 'http%3A%2F%2Fwww.example.com%2Ftest'.  Most CGI libraries have functions to undo this encoding.
 
-The parameters sent are documented below.
+=== Enabling the Minimal Beacon ===
+
+   The following preferences can be set in about:config to control the minimal beacon:
+
+  * {{{extensions.PageSpeed.beacon.minimal.url}}} Set to the URL which takes GETs.
+  * {{{extensions.PageSpeed.beacon.minimal.enabled}}} Set to true to enable the minimal beacon.  
+  * {{{extensions.PageSpeed.beacon.minimal.autorun}}} Set to true to automatically send the minimal beacon once scores are computed.
+
+=== Data Encoded in the Minimal Beacon ===
+
+The following table lists the parameters sent in the minimal beacon:
 
 || *key* || *value* || *example* ||
 || v || The version of Page Speed. || 1.1 ||
