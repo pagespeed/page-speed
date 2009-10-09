@@ -94,6 +94,7 @@ TEST(HtmlFormatterTest, ArgumentListTest) {
   formatter.AddChild("$1 $2", bytes_arg, int_arg);
   formatter.AddChild("$1 $2 $3", bytes_arg, int_arg, string_arg);
   formatter.AddChild("$1 $2 $3 $4", bytes_arg, int_arg, string_arg, url_arg);
+  formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("<h1></h1>\n"
             "<h1>1.5KiB</h1>\n"
