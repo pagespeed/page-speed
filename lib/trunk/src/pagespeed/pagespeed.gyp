@@ -177,6 +177,7 @@
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/formatters/html_formatter.cc',
+        '<(pagespeed_root)/pagespeed/formatters/json_formatter.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter.cc',
       ],
@@ -386,6 +387,19 @@
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/formatters/html_formatter_test.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_json_formatter_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed',
+        'pagespeed_formatters',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
       ],
     },
     {
