@@ -776,16 +776,20 @@ ComponentCollectorService.prototype.getDocumentForContentType = function(
     }
   }
 
-  // If none of the specific types matched, use the default cases.
-  if (node.defaultView) {
-    // The node is itself a document.
-    return node;
-  }
-
+  // If none of the specific types matched, use the default cases. For
+  // some reason it is necessary to perform the test for
+  // node.ownerDocument before the test for
+  // node.defaultView. Performing the tests in the other order causes
+  // flash embedded using JavaScript (swfobject) to fail to load.
   if (node.ownerDocument &&
       node.ownerDocument.defaultView) {
     // Standard DOM Node.
     return node.ownerDocument;
+  }
+
+  if (node.defaultView) {
+    // The node is itself a document.
+    return node;
   }
 
   return null;
