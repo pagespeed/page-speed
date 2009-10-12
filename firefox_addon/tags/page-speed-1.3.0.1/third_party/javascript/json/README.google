@@ -1,0 +1,12 @@
+From www.json.org:
+JSON (Java Script Object Notation) is a subset of the object literal
+notation of JavaScript.  Since JSON is a subset of JavaScript, it can be
+used in the language with no muss or fuss.
+
+More documentation is available on the website.
+
+
+Original location:
+http://www.json.org/json2.js
+
+License:  see LICENSE

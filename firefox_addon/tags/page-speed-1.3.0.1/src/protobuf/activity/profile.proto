@@ -1,0 +1,54 @@
+/**
+ * Copyright 2008-2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Author: Bryan McQuade
+//
+// profile.proto
+// Definition of tracing structures.
+
+syntax = "proto2";
+
+package activity;
+
+// A data structure that contains information about a given JavaScript
+// function.
+message FunctionMetadata {
+  required int32 function_tag = 1 [default = -1];
+  required string file_name = 2;
+  required string function_name = 3;
+  required string function_source_utf8 = 4;
+
+  // The time that the function was first parsed/eval'd/constructed,
+  // if known. If the function instantiation time is unknown, this
+  // value will be unset.
+  optional int64 function_instantiation_time_usec = 5;
+}
+
+// A recursive data structure that contains information about the
+// execution of a function and all its descendents.
+message CallTree {
+  required int32 function_tag = 1 [default = -1];
+  required int64 entry_time_usec = 2 [default = -1];
+  required int64 exit_time_usec = 3 [default = -1];
+  repeated CallTree children = 4;
+};
+
+message Profile {
+  required int64 start_time_usec = 1 [default = -1];
+  required int64 duration_usec = 2 [default = -1];
+  repeated activity.FunctionMetadata function_metadata = 3;
+  repeated activity.CallTree call_tree = 4;
+};
