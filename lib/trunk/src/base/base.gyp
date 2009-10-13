@@ -19,37 +19,37 @@
       'dependencies': [
       ],
       'sources': [
-        '../third_party/chromium/src/build/build_config.h',
-        '../third_party/chromium/src/base/third_party/dmg_fp/dmg_fp.h',
-        '../third_party/chromium/src/base/third_party/dmg_fp/dtoa.cc',
-        '../third_party/chromium/src/base/third_party/dmg_fp/g_fmt.cc',
-        '../third_party/chromium/src/base/at_exit.cc',
-        '../third_party/chromium/src/base/debug_util.cc',
-        '../third_party/chromium/src/base/debug_util_mac.cc',
-        '../third_party/chromium/src/base/debug_util_posix.cc',
-        '../third_party/chromium/src/base/debug_util_win.cc',
-        '../third_party/chromium/src/base/lock.cc',
-        '../third_party/chromium/src/base/lock_impl_posix.cc',
-        '../third_party/chromium/src/base/lock_impl_win.cc',
+        '<(DEPTH)/third_party/chromium/src/build/build_config.h',
+        '<(DEPTH)/third_party/chromium/src/base/third_party/dmg_fp/dmg_fp.h',
+        '<(DEPTH)/third_party/chromium/src/base/third_party/dmg_fp/dtoa.cc',
+        '<(DEPTH)/third_party/chromium/src/base/third_party/dmg_fp/g_fmt.cc',
+        '<(DEPTH)/third_party/chromium/src/base/at_exit.cc',
+        '<(DEPTH)/third_party/chromium/src/base/debug_util.cc',
+        '<(DEPTH)/third_party/chromium/src/base/debug_util_mac.cc',
+        '<(DEPTH)/third_party/chromium/src/base/debug_util_posix.cc',
+        '<(DEPTH)/third_party/chromium/src/base/debug_util_win.cc',
+        '<(DEPTH)/third_party/chromium/src/base/lock.cc',
+        '<(DEPTH)/third_party/chromium/src/base/lock_impl_posix.cc',
+        '<(DEPTH)/third_party/chromium/src/base/lock_impl_win.cc',
         'logging.cc',
-        '../third_party/chromium/src/base/platform_thread_mac.mm',
-        '../third_party/chromium/src/base/platform_thread_posix.cc',
-        '../third_party/chromium/src/base/platform_thread_win.cc',
-        '../third_party/chromium/src/base/registry.cc',
-        '../third_party/chromium/src/base/setproctitle_linux.c',
+        '<(DEPTH)/third_party/chromium/src/base/platform_thread_mac.mm',
+        '<(DEPTH)/third_party/chromium/src/base/platform_thread_posix.cc',
+        '<(DEPTH)/third_party/chromium/src/base/platform_thread_win.cc',
+        '<(DEPTH)/third_party/chromium/src/base/registry.cc',
+        '<(DEPTH)/third_party/chromium/src/base/setproctitle_linux.c',
         'string16.cc',
-        '../third_party/chromium/src/base/string_piece.cc',
+        '<(DEPTH)/third_party/chromium/src/base/string_piece.cc',
         'string_util.cc',
-        '../third_party/chromium/src/base/string_util.h',
-        '../third_party/chromium/src/base/string_util_win.h',
-        '../third_party/chromium/src/base/win_util.cc',
+        '<(DEPTH)/third_party/chromium/src/base/string_util.h',
+        '<(DEPTH)/third_party/chromium/src/base/string_util_win.h',
+        '<(DEPTH)/third_party/chromium/src/base/win_util.cc',
       ],
       'include_dirs': [
-        '../third_party/chromium/src',
+        '<(DEPTH)/third_party/chromium/src',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '../third_party/chromium/src',
+          '<(DEPTH)/third_party/chromium/src',
         ],
       },
       # These warnings are needed for the files in third_party\dmg_fp.
@@ -71,7 +71,7 @@
         [ 'OS != "linux"', {
             'sources!': [
               # Not automatically excluded by the *linux.cc rules.
-              '../third_party/chromium/src/base/setproctitle_linux.c',
+              '<(DEPTH)/third_party/chromium/src/base/setproctitle_linux.c',
             ],
           },
         ],
@@ -99,8 +99,8 @@
           },
           {  # else: OS != "win"
             'sources!': [
-              '../third_party/chromium/src/base/registry.cc',
-              '../third_party/chromium/src/base/win_util.cc',
+              '<(DEPTH)/third_party/chromium/src/base/registry.cc',
+              '<(DEPTH)/third_party/chromium/src/base/win_util.cc',
             ],
           },
         ],
@@ -110,10 +110,10 @@
       'target_name': 'base_unittests',
       'type': 'executable',
       'sources': [
-        '../third_party/chromium/src/base/debug_util_unittest.cc',
-        '../third_party/chromium/src/base/string_piece_unittest.cc',
+        '<(DEPTH)/third_party/chromium/src/base/debug_util_unittest.cc',
+        '<(DEPTH)/third_party/chromium/src/base/string_piece_unittest.cc',
         'string_util_unittest.cc',
-        '../third_party/chromium/src/base/win_util_unittest.cc',
+        '<(DEPTH)/third_party/chromium/src/base/win_util_unittest.cc',
       ],
       'dependencies': [
         'base',
@@ -127,7 +127,7 @@
       'conditions': [
         ['OS != "win"', {
           'sources!': [
-            '../third_party/chromium/src/base/win_util_unittest.cc',
+            '<(DEPTH)/third_party/chromium/src/base/win_util_unittest.cc',
           ],
         }],
       ],
