@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "basic_tree_view_delegate_interface.h"
 
 namespace activity {

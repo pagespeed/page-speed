@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "clock.h"
 
 namespace activity {

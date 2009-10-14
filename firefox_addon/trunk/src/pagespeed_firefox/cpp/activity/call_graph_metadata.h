@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "portable_hash_map.h"
 
 namespace activity {

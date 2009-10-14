@@ -30,7 +30,7 @@
 #include <utility>     // for pair
 
 #include "call_graph_timeline_event.h"
-#include "base/macros.h"
+#include "base/basictypes.h"
 
 namespace activity {
 

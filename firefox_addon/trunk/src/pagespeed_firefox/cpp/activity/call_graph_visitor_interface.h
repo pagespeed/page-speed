@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 
 namespace activity {

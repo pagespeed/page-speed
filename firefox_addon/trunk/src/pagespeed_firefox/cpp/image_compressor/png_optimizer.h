@@ -21,7 +21,7 @@
 
 #include "optipng.h"
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 
 namespace pagespeed {
 

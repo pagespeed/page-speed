@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "call_graph_visitor_interface.h"
 
 namespace activity {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef BASE_MACROS_H_
-#define BASE_MACROS_H_
+#ifndef BASE_BASICTYPES_H_
+#define BASE_BASICTYPES_H_
 
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
@@ -23,4 +23,4 @@
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
 
-#endif  // BASE_MACROS_H_
+#endif  // BASE_BASICTYPES_H_

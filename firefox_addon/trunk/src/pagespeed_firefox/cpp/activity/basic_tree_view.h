@@ -25,7 +25,7 @@
 #ifndef BASIC_TREE_VIEW_H_
 #define BASIC_TREE_VIEW_H_
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 
 #include "nsCOMPtr.h"
