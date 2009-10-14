@@ -23,7 +23,7 @@
 #ifndef JSD_SCRIPT_HOOK_H_
 #define JSD_SCRIPT_HOOK_H_
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "jsd.h"
 
 namespace activity {

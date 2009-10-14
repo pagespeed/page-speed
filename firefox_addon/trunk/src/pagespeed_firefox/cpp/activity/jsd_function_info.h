@@ -22,7 +22,7 @@
 #ifndef JSD_FUNCTION_INFO_H_
 #define JSD_FUNCTION_INFO_H_
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "function_info_interface.h"
 #include "jsd.h"
 

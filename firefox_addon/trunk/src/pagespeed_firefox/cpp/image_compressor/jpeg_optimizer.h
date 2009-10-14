@@ -22,7 +22,7 @@
 #include <stdio.h>  // libjpeg forward-references FILE, so we're
                     // forced to include stdio here.
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 
 extern "C" {
 #include "jpeglib.h"

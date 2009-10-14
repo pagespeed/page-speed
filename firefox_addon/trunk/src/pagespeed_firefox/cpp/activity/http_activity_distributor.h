@@ -32,7 +32,7 @@
 #ifndef HTTP_ACTIVITY_DISTRIBUTOR_H_
 #define HTTP_ACTIVITY_DISTRIBUTOR_H_
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 
 #include "nsCOMPtr.h"

@@ -25,7 +25,7 @@
 #include "jpeg_optimizer.h"
 #include "png_optimizer.h"
 
-#include "base/macros.h"
+#include "base/basictypes.h"
 
 namespace pagespeed {
 
