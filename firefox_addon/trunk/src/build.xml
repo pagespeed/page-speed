@@ -19,12 +19,12 @@
 <project name="page-speed" default="pkg-xpi" basedir=".">
 
   <property name="root" location="."/>
-  <property name="src" location="src"/>
+  <property name="src" location="pagespeed_firefox"/>
   <property name="test" location="test"/>
   <property name="third_party" location="third_party"/>
   <property name="third_party_js" location="${third_party}/javascript"/>
-  <property name="xpi_res" location="xpi_resources"/>
-  <property name="moz_res" location="moz_resources"/>
+  <property name="xpi_res" location="pagespeed_firefox/xpi_resources"/>
+  <property name="moz_res" location="pagespeed_firefox/moz_resources"/>
   <property name="dist" location="dist"/>
   <property name="dist_moz" location="${dist}/mozilla"/>
   <property name="dist_moz_ext" location="${dist_moz}/extensions/pagespeed"/>
