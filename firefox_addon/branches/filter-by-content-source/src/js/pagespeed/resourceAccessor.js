@@ -103,4 +103,22 @@ PAGESPEED.ResourceAccessor.prototype.getResources = function(
   return filteredResults;
 };
 
+/**
+ * Test a resource to see if it would be returned by |getResources|.
+ * @param {string} url The url of the resource to test.
+ * @param {Array.<string>} types Only resources of these types will be
+ *     considered.
+ * @param {object} opt_extraFilter An extra filter resources must pass,
+ *     in addition to this.resourceFilter_.
+ * @return {boolean} True if the resource should be tested by Page Speed
+ *     rules.  False if it should be ignored.
+ */
+PAGESPEED.ResourceAccessor.prototype.isResourceUnderTest = function(
+    url,
+    types,
+    opt_extraFilter) {
+  var resourceUrls = this.getResources(types, opt_extraFilter);
+  return (resourceUrls.indexOf(url) != -1);
+}
+
 })();  // End closure

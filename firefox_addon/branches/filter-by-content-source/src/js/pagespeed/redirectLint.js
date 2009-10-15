@@ -22,8 +22,10 @@
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var redirectRule = function() {
+var redirectRule = function(resourceAccessor) {
   // Loop through all resources and deduct 6 points per redirect.
   var redirects = PAGESPEED.Utils.getComponents().redirect;
   var aWarnings = [];
@@ -31,15 +33,21 @@ var redirectRule = function() {
 
   for (var url in redirects) {
     // Chained redirects are listed in the elements array.
+    var redirectElements = redirects[url].elements;
 
-    var numRedirects = redirects[url].elements.length;
-    totalRedirects += numRedirects;
+    for (var i = 0, len = redirectElements.length; i < len; ++i) {
 
-    var previousUrl = url;
-    for (var i = 0, len = numRedirects; i < len; ++i) {
-      var thisUrl = redirects[url].elements[i];
-      aWarnings.push('From ' + previousUrl + ' to ' + thisUrl);
-      previousUrl = thisUrl;
+      // The first url in the chain is |url|, so use it when i==0.
+      var fromUrl = (i == 0) ? url : redirects[url].elements[i-1];
+      var toUrl = redirects[url].elements[i];
+
+      // If a.com redirects to b.net, removing the redirect means altering
+      // a.com.  Therefore, filtering should test the url redirected from.
+      if (!resourceAccessor.isResourceUnderTest(url, ['redirect']))
+        continue;
+
+      aWarnings.push('From ' + fromUrl + ' to ' + toUrl);
+      totalRedirects++;
       this.score -= 6;
     }
   }
