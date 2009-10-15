@@ -25,7 +25,7 @@ typedef jsdIScriptHook_3_5 jsdIScriptHook;
 
 // Next import the implementation of JsdWrapper, which will use the
 // jsdIDebuggerService imported above.
-#include "jsd_wrapper_common.cpp"
+#include "jsd_wrapper_common.h"
 
 namespace activity {
 
