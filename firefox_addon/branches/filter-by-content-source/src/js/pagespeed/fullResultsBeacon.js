@@ -68,7 +68,7 @@ PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(resultsContainer) {
   if (!PAGESPEED.Utils.urlFromString(beaconUrl)) {
     PS_LOG(['Can\'t send full beacon, because the beacon url is ',
             'not well formed: "', beaconUrl, '" .'].join(''));
-    return;
+    return false;
   }
 
   var xhrFlow = new PAGESPEED.ParallelXhrFlow();
