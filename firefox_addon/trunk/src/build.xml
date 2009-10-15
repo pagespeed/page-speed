@@ -61,6 +61,7 @@
     </copy>
     <copy todir="${dist_moz_ext}/src">
       <fileset dir="${src}/cpp" includes="**/*.cc,**/*.h" excludes="**/*_test.cc"/>
+      <fileset dir="${src}/generated" includes="**/*.cc,**/*.h"/>
       <mapper>
         <globmapper from="*.cc" to="*.cpp"/>
         <globmapper from="*.h" to="*.h"/>
