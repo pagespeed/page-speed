@@ -136,7 +136,7 @@ PAGESPEED.ResultsContainer.prototype.toString = function(opt_space) {
 /**
  * Attach a results container to a browser tab.
  * @param {Object} browserTab The tab.
- * @param {Object} The results container.
+ * @param {Object} resultsContainer The results container.
  */
 PAGESPEED.ResultsContainer.addResultsContainerToTab = function(
     browserTab, resultsContainer) {
