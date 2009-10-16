@@ -16,26 +16,22 @@
 
 // Author: Bryan McQuade
 
-// First import the appropriate version of the jsdIDebuggerService.
 #include "jsdIDebuggerService_3_0.h"
+#include "jsd_wrapper_tmpl.h"
 
-typedef jsdICallHook_3_0 jsdICallHook;
-typedef jsdIDebuggerService_3_0 jsdIDebuggerService;
-typedef jsdIScriptHook_3_0 jsdIScriptHook;
-
-// Next import the implementation of JsdWrapper, which will use the
-// jsdIDebuggerService imported above.
-#include "jsd_wrapper_common.h"
+class Jsd3_0Traits {
+ public:
+  typedef jsdICallHook_3_0 jsdICallHook;
+  typedef jsdIDebuggerService_3_0 jsdIDebuggerService;
+  typedef jsdIScriptHook_3_0 jsdIScriptHook;
+ private:
+  Jsd3_0Traits();
+};
 
 namespace activity {
 
 JsdWrapper* JsdWrapper::Create_3_0(nsISupports *jsd) {
-  scoped_ptr<JsdWrapperImpl> wrapper(new JsdWrapperImpl(jsd));
-  if (wrapper->IsSupportedJsd()) {
-    return wrapper.release();
-  }
-
-  return NULL;
+  return JsdWrapperTmpl<Jsd3_0Traits>::Create(jsd);
 }
 
 }  // namespace activity
