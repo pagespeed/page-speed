@@ -30,9 +30,12 @@ namespace {
 
 // Implementation of JsdWrapper that delegates to a
 // jsdIDebuggerService implementation.
-class JsdWrapperImpl : public activity::JsdWrapper {
+template<typename jsdTraits>
+class JsdWrapperTmpl : public activity::JsdWrapper {
  public:
-  explicit JsdWrapperImpl(nsISupports *jsd);
+  // Create a JsdWrapper instance if jsdTraits is compatible with the active
+  // jsdIDebuggerService, else NULL.
+  static activity::JsdWrapper* Create(nsISupports *jsd);
 
   NS_IMETHOD SetScriptHook(nsISupports *script_hook_supports);
   NS_IMETHOD SetTopLevelHook(nsISupports *top_level_hook_supports);
@@ -40,13 +43,25 @@ class JsdWrapperImpl : public activity::JsdWrapper {
   NS_IMETHOD GetFlags(PRUint32 *flags);
   NS_IMETHOD SetFlags(PRUint32 flags);
 
+ private:
+  explicit JsdWrapperTmpl(nsISupports *jsd);
   bool IsSupportedJsd() const;
 
- private:
-  nsCOMPtr<jsdIDebuggerService> jsd_;
+  nsCOMPtr<typename jsdTraits::jsdIDebuggerService> jsd_;
 };
 
-JsdWrapperImpl::JsdWrapperImpl(nsISupports *jsd) {
+template<typename jsdTraits>
+activity::JsdWrapper* JsdWrapperTmpl<jsdTraits>::Create(nsISupports *jsd) {
+  scoped_ptr<JsdWrapperTmpl> wrapper(new JsdWrapperTmpl<jsdTraits>(jsd));
+  if (wrapper->IsSupportedJsd()) {
+    return wrapper.release();
+  }
+
+  return NULL;
+}
+
+template<typename jsdTraits>
+JsdWrapperTmpl<jsdTraits>::JsdWrapperTmpl(nsISupports *jsd) {
   nsresult rv = NS_OK;
   jsd_ = do_QueryInterface(jsd, &rv);
   if (NS_FAILED(rv)) {
@@ -54,13 +69,14 @@ JsdWrapperImpl::JsdWrapperImpl(nsISupports *jsd) {
   }
 }
 
-NS_IMETHODIMP JsdWrapperImpl::SetScriptHook(
+template<typename jsdTraits>
+NS_IMETHODIMP JsdWrapperTmpl<jsdTraits>::SetScriptHook(
     nsISupports *script_hook_supports) {
   if (script_hook_supports == NULL) {
     return jsd_->SetScriptHook(NULL);
   }
   nsresult rv = NS_OK;
-  nsCOMPtr<jsdIScriptHook> script_hook(
+  nsCOMPtr<typename jsdTraits::jsdIScriptHook> script_hook(
       do_QueryInterface(script_hook_supports, &rv));
   if (NS_FAILED(rv)) {
     return rv;
@@ -68,13 +84,14 @@ NS_IMETHODIMP JsdWrapperImpl::SetScriptHook(
   return jsd_->SetScriptHook(script_hook);
 }
 
-NS_IMETHODIMP JsdWrapperImpl::SetTopLevelHook(
+template<typename jsdTraits>
+NS_IMETHODIMP JsdWrapperTmpl<jsdTraits>::SetTopLevelHook(
     nsISupports *top_level_hook_supports) {
   if (top_level_hook_supports == NULL) {
     return jsd_->SetTopLevelHook(NULL);
   }
   nsresult rv = NS_OK;
-  nsCOMPtr<jsdICallHook> call_hook(
+  nsCOMPtr<typename jsdTraits::jsdICallHook> call_hook(
       do_QueryInterface(top_level_hook_supports, &rv));
   if (NS_FAILED(rv)) {
     return rv;
@@ -82,13 +99,14 @@ NS_IMETHODIMP JsdWrapperImpl::SetTopLevelHook(
   return jsd_->SetTopLevelHook(call_hook);
 }
 
-NS_IMETHODIMP JsdWrapperImpl::SetFunctionHook(
+template<typename jsdTraits>
+NS_IMETHODIMP JsdWrapperTmpl<jsdTraits>::SetFunctionHook(
     nsISupports *function_hook_supports) {
   if (function_hook_supports == NULL) {
     return jsd_->SetFunctionHook(NULL);
   }
   nsresult rv = NS_OK;
-  nsCOMPtr<jsdICallHook> call_hook(
+  nsCOMPtr<typename jsdTraits::jsdICallHook> call_hook(
       do_QueryInterface(function_hook_supports, &rv));
   if (NS_FAILED(rv)) {
     return rv;
@@ -96,15 +114,18 @@ NS_IMETHODIMP JsdWrapperImpl::SetFunctionHook(
   return jsd_->SetFunctionHook(call_hook);
 }
 
-NS_IMETHODIMP JsdWrapperImpl::GetFlags(PRUint32 *flags) {
+template<typename jsdTraits>
+NS_IMETHODIMP JsdWrapperTmpl<jsdTraits>::GetFlags(PRUint32 *flags) {
   return jsd_->GetFlags(flags);
 }
 
-NS_IMETHODIMP JsdWrapperImpl::SetFlags(PRUint32 flags) {
+template<typename jsdTraits>
+NS_IMETHODIMP JsdWrapperTmpl<jsdTraits>::SetFlags(PRUint32 flags) {
   return jsd_->SetFlags(flags);
 }
 
-bool JsdWrapperImpl::IsSupportedJsd() const {
+template<typename jsdTraits>
+bool JsdWrapperTmpl<jsdTraits>::IsSupportedJsd() const {
   return jsd_ != NULL;
 }
 
