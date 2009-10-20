@@ -13,9 +13,6 @@
 # limitations under the License.
 
 {
-  'includes': [
-    '../third_party/WebKit/WebCore/WebCore.gypi',
-  ],
   'variables': {
     'package_root': '..'
   },
