@@ -135,6 +135,43 @@
       ]
     },
     {
+      'target_name': 'pagespeed_jpeg_optimizer',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/jpeg_optimizer.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_jpeg_optimizer_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_jpeg_optimizer',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/jpeg_optimizer_test.cc',
+      ],
+      'defines': [
+        'JPEG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/jpeg/"',
+      ],
+    },
+    {
       'target_name': 'pagespeed',
       'type': '<(library)',
       'dependencies': [
