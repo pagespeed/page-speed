@@ -205,6 +205,29 @@
       ]
     },
     {
+      'target_name': 'pagespeed_png_optimizer',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+        '<(pagespeed_root)/third_party/optipng/optipng.gyp:opngreduc',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/png_optimizer.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ]
+    },
+    {
       'target_name': 'pagespeed_formatters',
       'type': '<(library)',
       'dependencies': [
@@ -267,6 +290,33 @@
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/apps/pagespeed.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_png_optimizer_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_png_optimizer',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/png_optimizer_test.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'defines': [
+        'PNG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/pngsuite/"',
       ],
     },
     {
