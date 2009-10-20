@@ -179,7 +179,9 @@
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
         '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
         'pagespeed_core',
+        'pagespeed_jpeg_optimizer',
         'pagespeed_output_pb',
+        'pagespeed_png_optimizer',
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources.cc',
@@ -187,6 +189,7 @@
         '<(pagespeed_root)/pagespeed/rules/minify_javascript.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_redirects.cc',
+        '<(pagespeed_root)/pagespeed/rules/optimize_images.cc',
         '<(pagespeed_root)/pagespeed/rules/rule_provider.cc',
         '<(pagespeed_root)/pagespeed/rules/savings_computer.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url.cc',
@@ -316,6 +319,25 @@
         '<(DEPTH)/base/base.gyp:base',
       ],
       'defines': [
+        'PNG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/pngsuite/"',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_optimize_images_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed',
+        'pagespeed_core',
+        'pagespeed_output_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/rules/optimize_images_test.cc',
+      ],
+      'defines': [
+        'JPEG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/jpeg/"',
         'PNG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/pngsuite/"',
       ],
     },

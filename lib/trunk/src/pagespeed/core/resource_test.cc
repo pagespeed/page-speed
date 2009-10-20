@@ -97,4 +97,19 @@ TEST(ResourceTest, ResourceTypes) {
   ExpectResourceType("application/x-binary", pagespeed::OTHER);
 }
 
+void ExpectImageType(
+    const char *content_type, pagespeed::ImageType type) {
+  Resource r;
+  r.AddResponseHeader("Content-Type", content_type);
+  EXPECT_EQ(type, r.GetImageType());
+}
+
+TEST(ResourceTest, ImageTypes) {
+  ExpectImageType("image/gif", pagespeed::GIF);
+  ExpectImageType("image/png", pagespeed::PNG);
+  ExpectImageType("image/jpg", pagespeed::JPEG);
+  ExpectImageType("image/jpeg", pagespeed::JPEG);
+  ExpectImageType("image/xyz", pagespeed::UNKNOWN_IMAGE_TYPE);
+}
+
 }  // namespace

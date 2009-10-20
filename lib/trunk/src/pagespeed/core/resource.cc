@@ -205,4 +205,23 @@ ResourceType Resource::GetResourceType() const {
   }
 }
 
+ImageType Resource::GetImageType() const {
+  std::string type = GetResponseHeader("Content-Type");
+
+  int separator_idx = type.find(";");
+  if (separator_idx != std::string::npos) {
+    type.erase(separator_idx);
+  }
+
+  if (type == "image/png") {
+    return PNG;
+  } else if (type == "image/gif") {
+    return GIF;
+  } else if (type == "image/jpg" || type == "image/jpeg") {
+    return JPEG;
+  } else {
+    return UNKNOWN_IMAGE_TYPE;
+  }
+}
+
 }  // namespace pagespeed

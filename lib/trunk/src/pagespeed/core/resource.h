@@ -31,6 +31,13 @@ enum ResourceType {
   OTHER
 };
 
+enum ImageType {
+  JPEG,
+  PNG,
+  GIF,
+  UNKNOWN_IMAGE_TYPE
+};
+
 /**
  * Represents an individual input resource.
  */
@@ -76,6 +83,7 @@ class Resource {
 
   // Extract resource type from the Content-Type header.
   ResourceType GetResourceType() const;
+  ImageType GetImageType() const;
 
  private:
   std::string request_url_;
