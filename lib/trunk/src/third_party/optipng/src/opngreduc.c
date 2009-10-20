@@ -39,11 +39,6 @@
 __error__ "OPNG_IMAGE_REDUCTIONS_SUPPORTED" requires "PNG_INFO_IMAGE_SUPPORTED"
 #endif
 
-#if !defined(PNG_bKGD_SUPPORTED) || !defined(PNG_hIST_SUPPORTED) || \
-    !defined(PNG_sBIT_SUPPORTED) || !defined(PNG_tRNS_SUPPORTED)
-__error__ "OPNG_IMAGE_REDUCTIONS_SUPPORTED" requires support for bKGD,hIST,sBIT,tRNS
-#endif
-
 
 #if !(PNG_LIBPNG_BUILD_TYPE & PNG_LIBPNG_BUILD_PRIVATE)
 /*
@@ -57,9 +52,15 @@ _opng_validate_internal(png_structp png_ptr, png_infop info_ptr)
 {
    png_uint_32 width, height;
    int bit_depth, color_type;
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    png_color_16p background;
+#endif
+#if defined(PNG_hIST_SUPPORTED)
    png_uint_16p hist;
+#endif
+#if defined(PNG_sBIT_SUPPORTED)
    png_color_8p sig_bit;
+#endif
    png_bytep trans;
    int num_trans;
    png_color_16p trans_values;
@@ -75,15 +76,21 @@ _opng_validate_internal(png_structp png_ptr, png_infop info_ptr)
       goto error;
    if (png_get_rows(png_ptr, info_ptr) != info_ptr->row_pointers)
       goto error;
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    if (png_get_bKGD(png_ptr, info_ptr, &background))
       if (background != &info_ptr->background)
          goto error;
+#endif
+#if defined(PNG_hIST_SUPPORTED)
    if (png_get_hIST(png_ptr, info_ptr, &hist))
       if (hist != info_ptr->hist)
          goto error;
+#endif
+#if defined(PNG_sBIT_SUPPORTED)
    if (png_get_sBIT(png_ptr, info_ptr, &sig_bit))
       if (sig_bit != &info_ptr->sig_bit)
          goto error;
+#endif
    if (png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, &trans_values))
       if ((trans != NULL &&
            (trans != info_ptr->trans || num_trans != info_ptr->num_trans)) ||
@@ -398,6 +405,7 @@ opng_analyze_bits(png_structp png_ptr, png_infop info_ptr,
    else
       offset_alpha = (channels - 1) * byte_depth;
 
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    /* Check if the ancillary chunk info allows these reductions. */
    if (info_ptr->valid & PNG_INFO_bKGD)
    {
@@ -417,6 +425,7 @@ opng_analyze_bits(png_structp png_ptr, png_infop info_ptr,
             reductions &= ~OPNG_REDUCE_RGB_TO_GRAY;
       }
    }
+#endif
 
    /* Check for each possible reduction, row by row. */
    row_ptr = info_ptr->row_pointers;
@@ -635,6 +644,7 @@ opng_reduce_bits(png_structp png_ptr, png_infop info_ptr,
       }
    }
 
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    /* Update the ancillary chunk info. */
    if (info_ptr->valid & PNG_INFO_bKGD)
    {
@@ -649,6 +659,8 @@ opng_reduce_bits(png_structp png_ptr, png_infop info_ptr,
       if (reductions & OPNG_REDUCE_RGB_TO_GRAY)
          background->gray = background->red;
    }
+#endif
+#if defined(PNG_sBIT_SUPPORTED)
    if (info_ptr->valid & PNG_INFO_sBIT)
    {
       png_color_8p sig_bits = &info_ptr->sig_bit;
@@ -675,6 +687,7 @@ opng_reduce_bits(png_structp png_ptr, png_infop info_ptr,
          png_ptr->sig_bit.gray = sig_bits->gray = max_sig_bit;
       }
    }
+#endif
    if (info_ptr->valid & PNG_INFO_tRNS)
    {
       png_color_16p trans_values = &info_ptr->trans_values;
@@ -934,6 +947,7 @@ opng_reduce_to_palette(png_structp png_ptr, png_infop info_ptr,
          }
       }
    }
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    if ((num_palette >= 0) && (info_ptr->valid & PNG_INFO_bKGD))
    {
       /* bKGD has an alpha-agnostic palette entry. */
@@ -951,6 +965,7 @@ opng_reduce_to_palette(png_structp png_ptr, png_infop info_ptr,
       if (index >= 0)
          background->index = (png_byte)index;
    }
+#endif
 
    /* Continue only if the uncompressed indexed image (pixels + PLTE + tRNS)
     * is smaller than the uncompressed RGB(A) image.
@@ -1114,9 +1129,11 @@ opng_analyze_sample_usage(png_structp png_ptr, png_infop info_ptr,
          }
    }
 
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    /* bKGD also counts as a used sample. */
    if (info_ptr->valid & PNG_INFO_bKGD)
       usage_map[info_ptr->background.index] = 1;
+#endif
 }
 
 
@@ -1264,14 +1281,19 @@ opng_reduce_palette(png_structp png_ptr, png_infop info_ptr,
       for (j = 0; j < width; ++j)
          rows[i][j] = palette[rows[i][j]].red;
 
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    /* Update the ancillary chunk info. */
    if (info_ptr->valid & PNG_INFO_bKGD)
       info_ptr->background.gray = palette[info_ptr->background.index].red;
+#endif
+#if defined(PNG_hIST_SUPPORTED)
    if (info_ptr->valid & PNG_INFO_hIST)
    {
       png_free_data(png_ptr, info_ptr, PNG_FREE_HIST, -1);
       info_ptr->valid &= ~PNG_INFO_hIST;
    }
+#endif
+#if defined(PNG_sBIT_SUPPORTED)
    if (info_ptr->valid & PNG_INFO_sBIT)
    {
       png_color_8p sig_bit_ptr = &info_ptr->sig_bit;
@@ -1282,6 +1304,7 @@ opng_reduce_palette(png_structp png_ptr, png_infop info_ptr,
          max_sig_bit = sig_bit_ptr->blue;
       png_ptr->sig_bit.gray = info_ptr->sig_bit.gray = max_sig_bit;
    }
+#endif
    if (info_ptr->valid & PNG_INFO_tRNS)
       png_set_tRNS(png_ptr, info_ptr, NULL, 0, &gray_trans);
 

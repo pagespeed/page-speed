@@ -14,3 +14,4 @@ optimization".
 
 Local Modifications:
 Only OptiPNG opngreduc.h and opngreduc.c, which perform lossless reductions on PNG images, are included.
+opngreduc has been modified to conditionally include support for ancillary chunks.
