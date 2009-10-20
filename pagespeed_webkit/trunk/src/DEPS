@@ -1,0 +1,169 @@
+# Copyright 2009 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+vars = {
+  "chromium_trunk":
+    "http://src.chromium.org/svn/trunk",
+  "chromium_revision": "@27889",
+
+  "webkit_trunk":
+    "http://svn.webkit.org/repository/webkit/trunk",
+  "webkit_revision": "49278",
+}
+
+deps = {
+  "src/base":
+    Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
+
+  "src/build/linux":
+    Var("chromium_trunk") + "/src/build/linux" + Var("chromium_revision"),
+
+  "src/build/temp_gyp":
+    Var("chromium_trunk") + "/src/build/temp_gyp" + Var("chromium_revision"),
+
+  "src/build/util":
+    Var("chromium_trunk") + "/src/build/util" + Var("chromium_revision"),
+
+  "src/googleurl":
+    "http://google-url.googlecode.com/svn/trunk@119",
+
+  "src/site_scons/site_tools":
+    (Var("chromium_trunk") + "/src/site_scons/site_tools" +
+     Var("chromium_revision")),
+
+  "src/skia":
+    Var("chromium_trunk") + "/src/skia" + Var("chromium_revision"),
+
+  "src/testing":
+    Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
+
+  "src/testing/gtest":
+    "http://googletest.googlecode.com/svn/trunk@267",
+
+  "src/tools/data_pack":
+    Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
+
+  "src/tools/grit":
+    Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
+
+  "src/tools/gyp":
+    "http://gyp.googlecode.com/svn/trunk@671",
+
+  "src/tools/xdisplaycheck":
+    Var("chromium_trunk") + "/src/tools/xdisplaycheck" + Var("chromium_revision"),
+
+  "src/third_party/harfbuzz":
+    Var("chromium_trunk") + "/src/third_party/harfbuzz" + Var("chromium_revision"),
+
+  "src/third_party/libjpeg":
+    Var("chromium_trunk") + "/src/third_party/libjpeg" + Var("chromium_revision"),
+
+  "src/third_party/chromium/src/build":
+    Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
+
+  "src/third_party/icu":
+    Var("chromium_trunk") + "/deps/third_party/icu42@26673",
+
+  "src/third_party/libpng":
+    Var("chromium_trunk") + "/src/third_party/libpng" + Var("chromium_revision"),
+
+  "src/third_party/libevent":
+    Var("chromium_trunk") + "/src/third_party/libevent" + Var("chromium_revision"),
+
+  "src/third_party/libxml":
+    Var("chromium_trunk") + "/src/third_party/libxml" + Var("chromium_revision"),
+
+  "src/third_party/libxslt":
+    Var("chromium_trunk") + "/src/third_party/libxslt" + Var("chromium_revision"),
+
+  "src/third_party/npapi":
+    Var("chromium_trunk") + "/src/third_party/npapi" + Var("chromium_revision"),
+
+  "src/third_party/pagespeed":
+    "http://page-speed.googlecode.com/svn/lib/trunk@252",
+
+  "src/third_party/protobuf2/src":
+    "http://protobuf.googlecode.com/svn/trunk@219",
+
+  "src/third_party/protobuf2":
+    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
+     Var("chromium_revision")),
+
+  "src/third_party/scons":
+    Var("chromium_trunk") + "/src/third_party/scons" + Var("chromium_revision"),
+
+  "src/third_party/skia":
+    "http://skia.googlecode.com/svn/trunk@376",
+
+  "src/third_party/sqlite":
+    Var("chromium_trunk") + "/src/third_party/sqlite" + Var("chromium_revision"),
+
+  "src/third_party/WebKit/JavaScriptCore":
+    Var("webkit_trunk") + "/JavaScriptCore@" + Var("webkit_revision"),
+
+  "src/third_party/WebKit/WebCore":
+    Var("webkit_trunk") + "/WebCore@" + Var("webkit_revision"),
+
+  "src/third_party/WebKit/WebKit/chromium":
+    Var("webkit_trunk") + "/WebKit/chromium@" + Var("webkit_revision"),
+
+  "src/third_party/zlib":
+    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
+
+  "src/v8":
+    "http://v8.googlecode.com/svn/trunk@3030",
+
+#  "src/webkit":
+#    Var("chromium_trunk") + "/src/webkit" + Var("chromium_revision"),
+
+  "src/webkit/build":
+    Var("chromium_trunk") + "/src/webkit/build" + Var("chromium_revision"),
+}
+
+
+deps_os = {
+  "win": {
+    "src/third_party/cygwin":
+      Var("chromium_trunk") + "/deps/third_party/cygwin@11984",
+
+    "src/third_party/python_24":
+      Var("chromium_trunk") + "/deps/third_party/python_24@22967",
+  },
+  "mac": {
+  },
+  "unix": {
+  },
+}
+
+
+include_rules = [
+  # Everybody can use some things.
+  "+base",
+  "+build",
+]
+
+
+# checkdeps.py shouldn't check include paths for files in these dirs:
+skip_child_includes = [
+   "testing",
+]
+
+
+hooks = [
+  {
+    # A change to a .gyp, .gypi, or to GYP itself should run the generator.
+    "pattern": ".",
+    "action": ["python", "src/build/gyp_chromium"],
+  },
+]
