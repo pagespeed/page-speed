@@ -90,7 +90,6 @@ bool PngOptimizer::CreateOptimizedPng(const std::string& in, std::string* out) {
   png_set_filter(write_ptr, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
   png_set_compression_window_bits(write_ptr, 9);
 
-  std::string buffer;
   if (!WritePng(out)) {
     return false;
   }

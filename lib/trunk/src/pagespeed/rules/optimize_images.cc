@@ -84,7 +84,7 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
 
 void OptimizeImages::FormatResults(const ResultVector& results,
                                    Formatter* formatter) {
-  Formatter* header = formatter->AddChild("Optimize Images");
+  Formatter* header = formatter->AddChild("Optimize images");
 
   int total_bytes_saved = 0;
 
