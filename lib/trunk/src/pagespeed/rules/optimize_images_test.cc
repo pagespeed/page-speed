@@ -135,7 +135,7 @@ TEST_F(OptimizeImagesTest, BasicJpeg) {
 TEST_F(OptimizeImagesTest, BasicPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
-                 "ct0n0g04.png");
+                 "basi3p02.png");
   CheckOneViolation("http://www.example.com/foo.png");
 }
 
