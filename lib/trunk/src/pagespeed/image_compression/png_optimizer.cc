@@ -119,16 +119,11 @@ bool PngOptimizer::ReadPng(const std::string& body) {
 
 bool PngOptimizer::WritePng(std::string* buffer) {
   png_set_write_fn(write_ptr, buffer, &WritePngToString, &PngFlush);
-
-  // TODO: make sure tRNS chunk is included if present (check to see
-  // if it gets thrown out). Also make sure gAMA is included.
   png_write_png(write_ptr, write_info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
   return true;
 }
 
-// based on opng_store_image_info. Copies necessary data from the read
-// structs to the write structs.
 void PngOptimizer::CopyReadToWrite() {
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type, compression_type, filter_type;
@@ -169,8 +164,11 @@ void PngOptimizer::CopyReadToWrite() {
   png_bytep trans;
   int num_trans;
   png_color_16p trans_values;
-  if (png_get_tRNS(
-          read_ptr, read_info_ptr, &trans, &num_trans, &trans_values) != 0) {
+  if (png_get_tRNS(read_ptr,
+                   read_info_ptr,
+                   &trans,
+                   &num_trans, &
+                   trans_values) != 0) {
     png_set_tRNS(write_ptr,
                  write_info_ptr,
                  trans,
