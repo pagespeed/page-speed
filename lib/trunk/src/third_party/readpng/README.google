@@ -1,0 +1,12 @@
+URL: http://www.libpng.org/pub/png/book/sources.html
+Version: 20080316
+License: BSD-like with advertising clause
+License File: LICENSE
+
+Description:
+readpng is a "simple PNG display program". It expands PNGs into "raw"
+(A)RGB image data.
+readpng is only intended for use in unittests.
+
+Local Modifications:
+None.
