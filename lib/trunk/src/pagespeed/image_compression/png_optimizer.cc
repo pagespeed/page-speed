@@ -167,8 +167,8 @@ void PngOptimizer::CopyReadToWrite() {
   if (png_get_tRNS(read_ptr,
                    read_info_ptr,
                    &trans,
-                   &num_trans, &
-                   trans_values) != 0) {
+                   &num_trans,
+                   &trans_values) != 0) {
     png_set_tRNS(write_ptr,
                  write_info_ptr,
                  trans,
