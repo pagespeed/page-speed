@@ -130,51 +130,77 @@ bool PngOptimizer::WritePng(std::string* buffer) {
 // based on opng_store_image_info. Copies necessary data from the read
 // structs to the write structs.
 void PngOptimizer::CopyReadToWrite() {
+  png_uint_32 width, height;
+  int bit_depth, color_type, interlace_type, compression_type, filter_type;
+  png_get_IHDR(read_ptr,
+               read_info_ptr,
+               &width,
+               &height,
+               &bit_depth,
+               &color_type,
+               &interlace_type,
+               &compression_type,
+               &filter_type);
+
   png_set_IHDR(write_ptr,
                write_info_ptr,
-               read_info_ptr->width,
-               read_info_ptr->height,
-               read_info_ptr->bit_depth,
-               read_info_ptr->color_type,
-               read_info_ptr->interlace_type,
-               read_info_ptr->compression_type,
-               read_info_ptr->filter_type);
+               width,
+               height,
+               bit_depth,
+               color_type,
+               interlace_type,
+               compression_type,
+               filter_type);
 
-  png_set_rows(write_ptr, write_info_ptr, read_info_ptr->row_pointers);
+  png_bytepp row_pointers = png_get_rows(read_ptr, read_info_ptr);
+  png_set_rows(write_ptr, write_info_ptr, row_pointers);
 
-  if (read_info_ptr->palette != NULL) {
+  png_colorp palette;
+  int num_palette;
+  if (png_get_PLTE(read_ptr, read_info_ptr, &palette, &num_palette) != 0) {
     png_set_PLTE(write_ptr,
                  write_info_ptr,
-                 read_info_ptr->palette,
-                 read_info_ptr->num_palette);
+                 palette,
+                 num_palette);
   }
 
   // Transparency is not considered metadata, although tRNS is
   // ancillary.  See the comment in opng_is_critical_chunk() above.
-  if (read_info_ptr->valid & PNG_INFO_tRNS != 0) {
+  png_bytep trans;
+  int num_trans;
+  png_color_16p trans_values;
+  if (png_get_tRNS(
+          read_ptr, read_info_ptr, &trans, &num_trans, &trans_values) != 0) {
     png_set_tRNS(write_ptr,
                  write_info_ptr,
-                 read_info_ptr->trans,
-                 read_info_ptr->num_trans,
-                 &read_info_ptr->trans_values);
+                 trans,
+                 num_trans,
+                 trans_values);
+  }
+
+  double gamma;
+  if (png_get_gAMA(read_ptr, read_info_ptr, &gamma) != 0) {
+    png_set_gAMA(write_ptr, write_info_ptr, gamma);
   }
 
 #if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
-  if (read_info_ptr->valid & PNG_INFO_bKGD != 0) {
-    png_set_bKGD(write_ptr, write_info_ptr, &read_info_ptr->background);
+  png_color_16p background;
+  if (png_get_bKGD(read_ptr, read_info_ptr, &background) != 0) {
+    png_set_bKGD(write_ptr, write_info_ptr, background);
   }
 #endif
 
 #if defined(PNG_hIST_SUPPORTED)
-  if (read_info_ptr->valid & PNG_INFO_hIST != 0 &&
-      read_info_ptr->hist != NULL) {
-    png_set_hIST(write_ptr, write_info_ptr, read_info_ptr->hist);
+  png_color_16p hist;
+  if (png_get_hIST(read_ptr, read_info_ptr, &hist) != 0) {
+    png_set_hIST(write_ptr, write_info_ptr, hist);
   }
 #endif
 
 #if defined(PNG_sBIT_SUPPORTED)
-  if (read_info_ptr->valid & PNG_INFO_sBIT != 0) {
-    png_set_sBIT(write_ptr, write_info_ptr, &read_info_ptr->sig_bit);
+  png_color_8p sig_bit;
+  if (png_get_sBIT(read_ptr, read_info_ptr, &sig_bit) != 0) {
+    png_set_sBIT(write_ptr, write_info_ptr, sig_bit);
   }
 #endif
 }
