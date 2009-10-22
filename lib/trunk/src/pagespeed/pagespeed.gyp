@@ -157,21 +157,6 @@
       ],
     },
     {
-      'target_name': 'pagespeed_jpeg_optimizer_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed_jpeg_optimizer',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/image_compression/jpeg_optimizer_test.cc',
-      ],
-      'defines': [
-        'JPEG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/jpeg/"',
-      ],
-    },
-    {
       'target_name': 'pagespeed',
       'type': '<(library)',
       'dependencies': [
@@ -296,232 +281,42 @@
       ],
     },
     {
-      'target_name': 'pagespeed_png_optimizer_test',
+      'target_name': 'pagespeed_test',
       'type': 'executable',
       'dependencies': [
-        'pagespeed_png_optimizer',
+        'pagespeed',
+        'pagespeed_formatters',
+        'pagespeed_input_pb',
+        'pagespeed_output_pb',
+        'pagespeed_proto',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/image_compression/png_optimizer_test.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
       ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(pagespeed_root)',
-        ],
-      },
-      'export_dependent_settings': [
-        '<(DEPTH)/base/base.gyp:base',
-      ],
-      'defines': [
-        'PNG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/pngsuite/"',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_optimize_images_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
       'sources': [
+        '<(pagespeed_root)/pagespeed/core/engine_test.cc',
+        '<(pagespeed_root)/pagespeed/core/pagespeed_input_test.cc',
+        '<(pagespeed_root)/pagespeed/core/resource_test.cc',
+        '<(pagespeed_root)/pagespeed/formatters/html_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/image_compression/jpeg_optimizer_test.cc',
+        '<(pagespeed_root)/pagespeed/image_compression/png_optimizer_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/combine_external_resources_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minify_javascript_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_redirects_test.cc',
         '<(pagespeed_root)/pagespeed/rules/optimize_images_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url_test.cc',
       ],
       'defines': [
         'JPEG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/jpeg/"',
         'PNG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/pngsuite/"',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_enable_gzip_compression_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_minify_javascript_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/rules/minify_javascript_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_combine_external_resources_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/rules/combine_external_resources_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_minimize_dns_lookups_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_minimize_redirects_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/rules/minimize_redirects_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_serve_resources_from_a_consistent_url_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_engine_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed_core',
-        'pagespeed_output_pb',
-        'pagespeed_formatters',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/core/engine_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_resource_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed_core',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/core/resource_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_input_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed_core',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/core/pagespeed_input_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_proto_formatter_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed_output_pb',
-        'pagespeed_formatters',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_html_formatter_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_formatters',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/formatters/html_formatter_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_json_formatter_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_formatters',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_text_formatter_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed',
-        'pagespeed_formatters',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
       ],
     },
   ],
