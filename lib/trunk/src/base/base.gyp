@@ -36,6 +36,7 @@
         '<(DEPTH)/third_party/chromium/src/base/platform_thread_posix.cc',
         '<(DEPTH)/third_party/chromium/src/base/platform_thread_win.cc',
         '<(DEPTH)/third_party/chromium/src/base/registry.cc',
+        '<(DEPTH)/third_party/chromium/src/base/safe_strerror_posix.cc',
         '<(DEPTH)/third_party/chromium/src/base/setproctitle_linux.c',
         'string16.cc',
         '<(DEPTH)/third_party/chromium/src/base/string_piece.cc',
