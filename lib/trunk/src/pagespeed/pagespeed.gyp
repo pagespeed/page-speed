@@ -292,6 +292,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(pagespeed_root)/third_party/readpng/readpng.gyp:readpng',
       ],
       'include_dirs': [
         '<(pagespeed_root)',

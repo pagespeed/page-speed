@@ -21,6 +21,8 @@
 #include <string>
 
 #include "pagespeed/image_compression/png_optimizer.h"
+#include "third_party/libpng/png.h"
+#include "third_party/readpng/cpp/readpng.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -38,6 +40,87 @@ void ReadFileToString(const char* file_name, std::string *dest) {
   dest->assign(std::istreambuf_iterator<char>(file_stream),
                std::istreambuf_iterator<char>());
   file_stream.close();
+}
+
+// Structure that holds metadata and actual pixel data for a decoded
+// PNG.
+struct ReadPngDescriptor {
+  unsigned char* img_bytes;  // The actual pixel data.
+  unsigned long width;
+  unsigned long height;
+  int channels;              // 3 for RGB, 4 for RGB+alpha
+  unsigned long row_bytes;   // number of bytes in a row
+  unsigned char bg_red, bg_green, bg_blue;
+  int bgcolor_retval;
+};
+
+// Decode the PNG and store the decoded data and metadata in the
+// ReadPngDescriptor struct.
+void PopulateDescriptor(const std::string& img,
+                        ReadPngDescriptor* desc,
+                        const char* identifier) {
+  readpng::ReadPNG reader;
+  std::istringstream stream(img, std::istringstream::binary);
+  ASSERT_EQ(0, reader.readpng_init(stream, &desc->width, &desc->height))
+      << "Failed to init for img " << identifier;
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
+  desc->bgcolor_retval = reader.readpng_get_bgcolor(&desc->bg_red,
+                                                    &desc->bg_green,
+                                                    &desc->bg_blue);
+#endif
+  desc->img_bytes = reader.readpng_get_image(&desc->channels, &desc->row_bytes);
+  reader.readpng_cleanup(0);
+}
+
+void AssertPngEq(
+    const std::string& orig, const std::string& opt, const char* identifier) {
+  // Gather data and metadata for the original and optimized PNGs.
+  ReadPngDescriptor orig_desc;
+  PopulateDescriptor(orig, &orig_desc, identifier);
+  ReadPngDescriptor opt_desc;
+  PopulateDescriptor(opt, &opt_desc, identifier);
+
+  // Verify that the dimensions match.
+  EXPECT_EQ(orig_desc.width, opt_desc.width)
+      << "width mismatch for " << identifier;
+  EXPECT_EQ(orig_desc.height, opt_desc.height)
+      << "height mismatch for " << identifier;
+
+  // If PNG background chunks are supported, verify that the
+  // background chunks match.
+#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
+  EXPECT_EQ(orig_desc.bgcolor_retval, opt_desc.bgcolor_retval)
+      << "readpng_get_bgcolor mismatch for " << identifier;
+  if (orig_desc.bgcolor_retval == 0 && opt_desc.bgcolor_retval == 0) {
+    EXPECT_EQ(orig_desc.bg_red, opt_desc.bg_red)
+        << "red mismatch for " << identifier;
+    EXPECT_EQ(orig_desc.bg_green, opt_desc.bg_green)
+        << "green mismatch for " << identifier;
+    EXPECT_EQ(orig_desc.bg_blue, opt_desc.bg_blue)
+        << "blue mismatch for " << identifier;
+  }
+#endif
+
+  // Verify that the number of channels matches (should be 3 for RGB
+  // or 4 for RGB+alpha)
+  EXPECT_EQ(orig_desc.channels, opt_desc.channels)
+      << "channel mismatch for " << identifier;
+
+  // Verify that the number of bytes in a row matches.
+  EXPECT_EQ(orig_desc.row_bytes, opt_desc.row_bytes)
+      << "row_bytes mismatch for " << identifier;
+
+  // Verify that the actual image data matches.
+  if (orig_desc.row_bytes == opt_desc.row_bytes &&
+      orig_desc.height == opt_desc.height) {
+    const unsigned long img_bytes_size = orig_desc.row_bytes * orig_desc.height;
+    EXPECT_EQ(0,
+              memcmp(orig_desc.img_bytes, opt_desc.img_bytes, img_bytes_size))
+        << "image data mismatch for " << identifier;
+  }
+
+  free(orig_desc.img_bytes);
+  free(opt_desc.img_bytes);
 }
 
 const char *kValidFiles[] = {
@@ -212,7 +295,11 @@ TEST(PngOptimizerTest, ValidPngs) {
   for (int i = 0; i < kValidFileCount; i++) {
     std::string in, out;
     ReadFileToString(kValidFiles[i], &in);
-    ASSERT_TRUE(PngOptimizer::OptimizePng(in, &out));
+    ASSERT_TRUE(PngOptimizer::OptimizePng(in, &out)) << kValidFiles[i];
+
+    // Make sure the pixels in the original match the pixels in the
+    // optimized version.
+    AssertPngEq(in, out, kValidFiles[i]);
   }
 }
 
