@@ -43,11 +43,19 @@ namespace jsmin {
 class Minifier {
  public:
   /**
+   * @return true if minification was successful, false otherwise. If
+   * false, the output string is cleared, not populated.
+   */
+  static bool MinifyJs(const std::string& input, std::string* out);
+
+  virtual ~Minifier();
+
+ private:
+  /**
    * Construct a new Minifier instance that minifies the specified
    * JavaScript input.
    */
-  explicit Minifier(const char *input);
-  ~Minifier();
+  explicit Minifier(const std::string* input);
 
   /**
    * @return true if minification was successful, false otherwise. If
@@ -55,7 +63,6 @@ class Minifier {
    */
   bool GetMinifiedOutput(std::string *out);
 
- private:
   // The various methods from jsmin.c, ported to this class.
   int get();
   int peek();
@@ -69,7 +76,7 @@ class Minifier {
   int theLookahead;
 
   // Our custom data members, not from jsmin.c
-  const char *const input_;
+  const std::string *input_;
   int input_index_;
   std::string output_buffer_;
   bool error_;

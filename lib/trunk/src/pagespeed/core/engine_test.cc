@@ -96,6 +96,7 @@ TEST(EngineTest, FormatResults) {
   ASSERT_EQ(2, root.children_size());
   ASSERT_EQ(kBody1, root.children(0).format());
   ASSERT_EQ(kBody2, root.children(1).format());
+  delete result_text[0];
 }
 
 TEST(EngineTest, FormatResultsNoInitFails) {

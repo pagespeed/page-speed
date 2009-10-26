@@ -68,32 +68,28 @@ const char *kAfterCompilation =
     "if(is.ua.indexOf('gecko')>=0){is.ie=is.ns=false;is.gecko=true;}";
 
 TEST(JsminTest, Basic) {
-  jsmin::Minifier minifier(kBeforeCompilation);
   std::string output;
-  ASSERT_TRUE(minifier.GetMinifiedOutput(&output));
-  ASSERT_STREQ(kAfterCompilation, output.c_str());
+  ASSERT_TRUE(jsmin::Minifier::MinifyJs(kBeforeCompilation, &output));
+  ASSERT_EQ(kAfterCompilation, output);
 }
 
 TEST(JsminTest, AlreadyMinified) {
-  jsmin::Minifier minifier(kAfterCompilation);
   std::string output;
-  ASSERT_TRUE(minifier.GetMinifiedOutput(&output));
-  ASSERT_STREQ(kAfterCompilation, output.c_str());
+  ASSERT_TRUE(jsmin::Minifier::MinifyJs(kAfterCompilation, &output));
+  ASSERT_EQ(kAfterCompilation, output);
 }
 
 TEST(JsminTest, Error) {
-  jsmin::Minifier minifier("/* not valid javascript");
   std::string output;
-  ASSERT_FALSE(minifier.GetMinifiedOutput(&output));
+  ASSERT_FALSE(jsmin::Minifier::MinifyJs("/* not valid javascript", &output));
   ASSERT_TRUE(output.empty());
 }
 
 TEST(JsminTest, SignedCharDoesntSignExtend) {
   const char input[] = { '\n', 0xff, 0x00 };
-  jsmin::Minifier minifier(input);
   std::string output;
-  ASSERT_TRUE(minifier.GetMinifiedOutput(&output));
-  ASSERT_STREQ(input, output.c_str());
+  ASSERT_TRUE(jsmin::Minifier::MinifyJs(input, &output));
+  ASSERT_EQ(input, output);
 }
 
 }  // namespace

@@ -52,7 +52,12 @@ isAlphanum(int c)
 
 namespace jsmin {
 
-Minifier::Minifier(const char *input)
+bool Minifier::MinifyJs(const std::string& input, std::string* out) {
+  Minifier minifier(&input);
+  return minifier.GetMinifiedOutput(out);
+}
+
+Minifier::Minifier(const std::string *input)
   : theA(-1),
     theB(-1),
     theLookahead(EOF),
@@ -89,9 +94,8 @@ Minifier::get()
     int c = theLookahead;
     theLookahead = EOF;
     if (c == EOF) {
-        c = (0xff & input_[input_index_++]);
-        if (c == '\0') {
-            c = EOF;
+        if (input_index_ < input_->length()) {
+            c = (0xff & input_->at(input_index_++));
         }
     }
     if (c >= ' ' || c == '\n' || c == EOF) {
