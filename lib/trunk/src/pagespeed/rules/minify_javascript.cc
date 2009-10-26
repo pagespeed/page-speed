@@ -39,9 +39,8 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    jsmin::Minifier minifier(resource.GetResponseBody().c_str());
     std::string minified_js;
-    if (!minifier.GetMinifiedOutput(&minified_js)) {
+    if (!jsmin::Minifier::MinifyJs(resource.GetResponseBody(), &minified_js)) {
       error = true;
       continue;
     }
