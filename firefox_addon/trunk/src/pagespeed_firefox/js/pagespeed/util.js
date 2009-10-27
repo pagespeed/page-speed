@@ -219,6 +219,29 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * Returns the directory where an extension is installed expressed as a file:
+   * URL terminated by a slash.
+   * @return {string?}
+   */
+  getExtensionRoot: function() {
+    var mgr = PAGESPEED.Utils.CCSV('@mozilla.org/extensions/manager;1',
+      'nsIExtensionManager');
+    var loc = mgr.getInstallLocation(PAGESPEED_GUID_);
+    if (!loc) {
+      return null;
+    }
+    var file = loc.getItemLocation(PAGESPEED_GUID_);
+    if (!file) {
+      return null;
+    }
+    var fileHandler = PAGESPEED.Utils.CCSV(
+      '@mozilla.org/network/protocol;1?name=file',
+      'nsIFileProtocolHandler');
+    var url = fileHandler.newFileURI(file);
+    return uri.spec;
+  },
+
+  /**
    * Given a list of resource URLs, returns an object that is a map
    * from hostname to all URLs at that hostname. For instance, if the
    * input contains http://www.example.com/foo,
