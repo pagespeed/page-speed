@@ -14,15 +14,22 @@
 
 vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk/",
-  "chromium_revision": "@27889",
+  "chromium_revision": "@29798",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk/",
-  "libpagespeed_revision": "@278",
+  "libpagespeed_revision": "@289",
 }
 
 deps = {
 
   "src/base":
     Var("libpagespeed_trunk") + "src/base" + Var("libpagespeed_revision"),
+
+  "src/googleurl":
+    "http://google-url.googlecode.com/svn/trunk@120",
+
+  "src/googleurl_noicu":
+    (Var("libpagespeed_trunk") + "src/googleurl_noicu" +
+     Var("libpagespeed_revision")),
 
   "src/site_scons/site_tools":
     (Var("chromium_trunk") + "src/site_scons/site_tools" +
@@ -32,7 +39,7 @@ deps = {
     Var("chromium_trunk") + "src/testing" + Var("chromium_revision"),
 
   "src/testing/gtest":
-    "http://googletest.googlecode.com/svn/trunk@267",
+    "http://googletest.googlecode.com/svn/trunk@329",
 
   "src/third_party/chromium/src/base":
     Var("chromium_trunk") + "src/base" + Var("chromium_revision"),
@@ -47,6 +54,18 @@ deps = {
   "src/third_party/libpng":
     (Var("chromium_trunk") + "src/third_party/libpng" +
      Var("chromium_revision")),
+
+  "src/third_party/libpagespeed/src/pagespeed":
+    (Var("libpagespeed_trunk") + "src/pagespeed" +
+     Var("libpagespeed_revision")),
+
+  "src/third_party/libpagespeed/src/third_party/jsmin":
+    (Var("libpagespeed_trunk") + "src/third_party/jsmin" +
+     Var("libpagespeed_revision")),
+
+  "src/third_party/libpagespeed/src/third_party/optipng":
+    (Var("libpagespeed_trunk") + "src/third_party/optipng" +
+     Var("libpagespeed_revision")),
 
   "src/third_party/protobuf2":
     (Var("chromium_trunk") + "src/third_party/protobuf2" +
@@ -69,7 +88,7 @@ deps = {
     Var("chromium_trunk") + "src/tools/grit" + Var("chromium_revision"),
 
   "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@705",
+    "http://gyp.googlecode.com/svn/trunk@720",
 }
 
 
@@ -105,6 +124,8 @@ hooks = [
   {
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
     "pattern": ".",
-    "action": ["python", "src/build/gyp_chromium"],
+    "action": ["python", "src/build/gyp_chromium",
+               "-Ddebug_extra_cflags=-fPIC",
+               "-Drelease_extra_cflags=-fPIC"],
   },
 ]
