@@ -237,7 +237,7 @@ PAGESPEED.Utils = {  // Begin namespace
     var fileHandler = PAGESPEED.Utils.CCSV(
       '@mozilla.org/network/protocol;1?name=file',
       'nsIFileProtocolHandler');
-    var url = fileHandler.newFileURI(file);
+    var uri = fileHandler.newFileURI(file);
     return uri.spec;
   },
 
