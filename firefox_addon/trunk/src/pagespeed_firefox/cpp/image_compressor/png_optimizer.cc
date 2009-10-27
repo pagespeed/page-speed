@@ -94,6 +94,9 @@ bool PngOptimizer::Finalize() {
 }
 
 bool PngOptimizer::CreateOptimizedPng(const char *infile, const char *outfile) {
+#ifdef PAGESPEED_DISABLE_PNG_OPTIMIZATION
+  return false;
+#else
   // opng_options.out_name expects a non-const char*, even though it
   // does not modify the contents of the character buffer. Thus, we
   // cast away constness to interoperate with the third-party optipng
@@ -106,6 +109,7 @@ bool PngOptimizer::CreateOptimizedPng(const char *infile, const char *outfile) {
   }
 
   return true;
+#endif
 }
 
 }  // namespace pagespeed

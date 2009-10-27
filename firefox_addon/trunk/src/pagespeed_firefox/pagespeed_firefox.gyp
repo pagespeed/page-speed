@@ -240,6 +240,11 @@
           ],
         },
       ],
+      'defines': [
+        # Disable PNG optimization for now; we're having issues getting optipng
+        # to not crash when we build using gyp instead of mozilla.
+        'PAGESPEED_DISABLE_PNG_OPTIMIZATION',
+      ],
       'sources': [
         '<(image_compressor_root)/image_compressor.cc',
         '<(image_compressor_root)/jpeg_optimizer.cc',
@@ -250,6 +255,7 @@
         '<(SHARED_INTERMEDIATE_DIR)',
       ],
       'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/optipng/optipng.gyp:optipng',
       ],
     },
