@@ -52,8 +52,8 @@ class TestRule : public Rule {
   virtual void FormatResults(const ResultVector& results,
                              Formatter* formatter) {
     Formatter* header = formatter->AddChild(kHeader);
-    Formatter* body = header->AddChild(kBody1);
-    Formatter* body2 = header->AddChild(kBody2);
+    header->AddChild(kBody1);
+    header->AddChild(kBody2);
   }
 
  private:
