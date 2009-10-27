@@ -18,7 +18,6 @@
 
 #include "pagespeed/image_compression/png_optimizer.h"
 
-#include <sstream>
 #include <string>
 
 extern "C" {
@@ -28,11 +27,17 @@ extern "C" {
 
 namespace {
 
+struct PngInput {
+  const std::string* data_;
+  int offset_;
+};
+
 void ReadPngFromStream(
     png_structp read_ptr, png_bytep data, png_size_t length) {
-  std::istringstream& response_body =
-      *reinterpret_cast<std::istringstream*>(read_ptr->io_ptr);
-  response_body.read(reinterpret_cast<char*>(data), length);
+  PngInput* input = reinterpret_cast<PngInput*>(read_ptr->io_ptr);
+  input->data_->copy(reinterpret_cast<char*>(data), length,
+                     input->offset_);
+  input->offset_ += length;
 }
 
 void WritePngToString(
@@ -103,11 +108,14 @@ bool PngOptimizer::OptimizePng(const std::string& in, std::string* out) {
 }
 
 bool PngOptimizer::ReadPng(const std::string& body) {
-  // Wrap the resource's response body in an istringstream, and pass
-  // a pointer to the istringstream as the user data to be received
-  // by the PNG read function.
-  std::istringstream body_stream(body, std::istringstream::in);
-  png_set_read_fn(read_ptr, &body_stream, &ReadPngFromStream);
+  // Wrap the resource's response body in a structure that keeps a
+  // pointer to the body and a read offset, and pass a pointer to this
+  // object as the user data to be received by the PNG read function.
+
+  PngInput input;
+  input.data_ = &body;
+  input.offset_ = 0;
+  png_set_read_fn(read_ptr, &input, &ReadPngFromStream);
   png_read_png(read_ptr, read_info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
   if (!opng_validate_image(read_ptr, read_info_ptr)) {
