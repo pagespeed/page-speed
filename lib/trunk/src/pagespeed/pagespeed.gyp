@@ -132,6 +132,7 @@
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
       ]
     },
     {
@@ -204,10 +205,12 @@
         '<(pagespeed_root)/pagespeed/image_compression/png_optimizer.cc',
       ],
       'include_dirs': [
+        '<(DEPTH)',
         '<(pagespeed_root)',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
+          '<(DEPTH)',
           '<(pagespeed_root)',
         ],
       },
