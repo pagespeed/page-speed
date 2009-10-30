@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+#include "base/basictypes.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
@@ -29,17 +30,23 @@ namespace {
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
 const std::string kJpegTestDir = JPEG_TEST_DIR_PATH;
 
-const char *kValidFiles[] = {
-  "sjpeg1.jpg",
-  "sjpeg2.jpg",
-  "sjpeg3.jpg",
-  "sjpeg4.jpg",
-  "sjpeg5.jpg",
-  "sjpeg6.jpg",
-  "test411.jpg",
-  "test420.jpg",
-  "test422.jpg",
-  "testgray.jpg",
+struct ImageCompressionInfo {
+  const char* filename;
+  int original_size;
+  int compressed_size;
+};
+
+ImageCompressionInfo kValidImages[] = {
+  { "sjpeg1.jpg", 1552, 1972 },
+  { "sjpeg2.jpg", 3612, 3612 },
+  { "sjpeg3.jpg", 44084, 44084 },
+  { "sjpeg4.jpg", 168895, 181631 },
+  { "sjpeg5.jpg", 1589842, 1633457 },
+  { "sjpeg6.jpg", 149600, 215677 },
+  { "test411.jpg", 6883, 4819 },
+  { "test420.jpg", 6173, 4385 },
+  { "test422.jpg", 6501, 4452 },
+  { "testgray.jpg", 5014, 3331 },
 };
 
 const char *kInvalidFiles[] = {
@@ -69,21 +76,23 @@ void WriteStringToFile(const std::string &file_name, std::string &src) {
   stream.close();
 }
 
-const size_t kValidFileCount = sizeof(kValidFiles) / sizeof(kValidFiles[0]);
-const size_t kInvalidFileCount =
-    sizeof(kInvalidFiles) / sizeof(kInvalidFiles[0]);
+const size_t kValidImageCount = arraysize(kValidImages);
+const size_t kInvalidFileCount = arraysize(kInvalidFiles);
 
 TEST(JpegOptimizerTest, ValidJpegs) {
-  for (int i = 0; i < kValidFileCount; ++i) {
+  for (int i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
-    ReadFileToString(kValidFiles[i], &src_data);
+    ReadFileToString(kValidImages[i].filename, &src_data);
     std::string dest_data;
     pagespeed::image_compression::JpegOptimizer optimizer;
     ASSERT_TRUE(optimizer.CreateOptimizedJpeg(src_data, &dest_data));
-    ASSERT_GT(dest_data.size(), 0);
+    EXPECT_EQ(kValidImages[i].original_size, src_data.size())
+        << kValidImages[i].filename;
+    EXPECT_EQ(kValidImages[i].compressed_size, dest_data.size())
+        << kValidImages[i].filename;
 
     // Uncomment this next line for debugging:
-    //WriteStringToFile(std::string("z") + kValidFiles[i], dest_data);
+    //WriteStringToFile(std::string("z") + kValidImages[i], dest_data);
 
     // You'd think we'd want this next line, but it's not always true.  At
     // some point we should look into why libjpeg sometimes makes it bigger.
@@ -108,9 +117,9 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
   // We will compare these files with the output we get from
   // a JpegOptimizer that had an error.
   std::vector<std::string> correctly_compressed;
-  for (int i = 0; i < kValidFileCount; ++i) {
+  for (int i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
-    ReadFileToString(kValidFiles[i], &src_data);
+    ReadFileToString(kValidImages[i].filename, &src_data);
     correctly_compressed.push_back("");
     std::string &dest_data = correctly_compressed.back();
     pagespeed::image_compression::JpegOptimizer optimizer;
@@ -120,7 +129,7 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
   // The invalid files are all invalid in different ways, and we want to cover
   // all the ways jpeg decoding can fail.  So, we want at least as many valid
   // images as invalid ones.
-  ASSERT_GE(kValidFileCount, kInvalidFileCount);
+  ASSERT_GE(kValidImageCount, kInvalidFileCount);
 
   for (int i = 0; i < kInvalidFileCount; ++i) {
     std::string invalid_src_data;
@@ -128,7 +137,7 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
     std::string invalid_dest_data;
 
     std::string valid_src_data;
-    ReadFileToString(kValidFiles[i], &valid_src_data);
+    ReadFileToString(kValidImages[i].filename, &valid_src_data);
     std::string valid_dest_data;
 
     pagespeed::image_compression::JpegOptimizer optimizer;

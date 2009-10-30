@@ -190,6 +190,7 @@ void PngOptimizer::CopyReadToWrite() {
   }
 
 #if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
+#error "Unexpected: PNG_bKGD_SUPPORTED || PNG_READ_BACKGROUND_SUPPORTED support enabled."
   png_color_16p background;
   if (png_get_bKGD(read_ptr, read_info_ptr, &background) != 0) {
     png_set_bKGD(write_ptr, write_info_ptr, background);
@@ -197,6 +198,7 @@ void PngOptimizer::CopyReadToWrite() {
 #endif
 
 #if defined(PNG_hIST_SUPPORTED)
+#error "Unexpected: PNG_hIST_SUPPORTED support enabled."
   png_color_16p hist;
   if (png_get_hIST(read_ptr, read_info_ptr, &hist) != 0) {
     png_set_hIST(write_ptr, write_info_ptr, hist);
@@ -204,6 +206,7 @@ void PngOptimizer::CopyReadToWrite() {
 #endif
 
 #if defined(PNG_sBIT_SUPPORTED)
+#error "Unexpected: PNG_sBIT_SUPPORTED support enabled."
   png_color_8p sig_bit;
   if (png_get_sBIT(read_ptr, read_info_ptr, &sig_bit) != 0) {
     png_set_sBIT(write_ptr, write_info_ptr, sig_bit);

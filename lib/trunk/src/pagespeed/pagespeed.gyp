@@ -284,6 +284,17 @@
       ],
     },
     {
+      'target_name': 'optimize_image_bin',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_jpeg_optimizer',
+        'pagespeed_png_optimizer',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/apps/optimize_image.cc',
+      ],
+    },
+    {
       'target_name': 'pagespeed_test',
       'type': 'executable',
       'dependencies': [
