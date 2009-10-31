@@ -34,7 +34,7 @@ var staticNoCookieRule = function() {
   var badUrls = [];
 
   // Find all "static" resources. Exclude JS since we suggest serving
-  // some JS on the main domain (see dnsInHeadLint.js), which may have
+  // some JS on the main domain (see dnsLint.js), which may have
   // cookies.
   var urls = PAGESPEED.Utils.filterProtocols(
     PAGESPEED.Utils.getResources('css', 'image', 'object', 'cssimage'));
