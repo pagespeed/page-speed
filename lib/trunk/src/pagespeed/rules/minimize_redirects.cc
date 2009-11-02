@@ -76,8 +76,7 @@ class RedirectGraph {
 
 void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
   int code = resource.GetResponseStatusCode();
-  // TODO: 304 is not a redirect.
-  if (code < 300 || code >= 400) {
+  if (code < 300 || code >= 400 || code == 304) {
     return;  // not a redirect
   }
 
