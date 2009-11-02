@@ -12,18 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * @fileoverview Interface for the Page Speed rules library.
- *
- * @author Matthew Steele
  */
-#include "nsISupports.idl"
 
-/**
- * IPageSpeedRules is the entry point into the Page Speed rules library.
- */
-[scriptable, uuid(80de7ee1-673d-4718-a91b-2f3111bd675a)]
-interface IPageSpeedRules : nsISupports {
-  // Run all the rules and return the formatted results as a string.
-  string computeAndFormatResults(in string data);
-};
+// Author: Matthew Steele
+
+#include "pagespeed_rules.h"
+
+#include <string>
+
+#include "nsStringAPI.h"
+
+namespace pagespeed {
+
+NS_IMPL_ISUPPORTS1(PageSpeedRules, IPageSpeedRules)
+
+PageSpeedRules::PageSpeedRules() {}
+
+PageSpeedRules::~PageSpeedRules() {}
+
+NS_IMETHODIMP
+PageSpeedRules::ComputeAndFormatResults(const char *data,
+                                        char **_retval NS_OUTPARAM) {
+  std::string result("\"Hello, world!\"");
+  nsCString retval(result.c_str());
+  *_retval = NS_CStringCloneData(retval);
+  return NS_OK;
+}
+
+}  // namespace pagespeed

@@ -12,18 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * @fileoverview Interface for the Page Speed rules library.
- *
- * @author Matthew Steele
  */
-#include "nsISupports.idl"
 
-/**
- * IPageSpeedRules is the entry point into the Page Speed rules library.
- */
-[scriptable, uuid(80de7ee1-673d-4718-a91b-2f3111bd675a)]
-interface IPageSpeedRules : nsISupports {
-  // Run all the rules and return the formatted results as a string.
-  string computeAndFormatResults(in string data);
+// Author: Matthew Steele
+
+#ifndef PAGE_SPEED_RULES_H_
+#define PAGE_SPEED_RULES_H_
+
+#include "IPageSpeedRules.h"
+
+namespace pagespeed {
+
+class PageSpeedRules : public IPageSpeedRules {
+public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IPAGESPEEDRULES
+
+  PageSpeedRules();
+
+private:
+  ~PageSpeedRules();
 };
+
+}  // namespace pagespeed
+
+#endif  // PAGE_SPEED_RULES_H_

@@ -260,6 +260,45 @@
       ],
     },
     {
+      'target_name': 'pagespeed_firefox_library_rules',
+      'type': '<(library)',
+      'variables': {
+        'library_rules_root': 'cpp/pagespeed',
+      },
+      'dependencies': [
+        'xulrunner_sdk',
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'actions': [
+        {
+          'action_name': 'generate_IPageSpeedRules_h',
+          'inputs': [
+            'idl/IPageSpeedRules.idl',
+          ],
+          'outputs': [
+            '<(SHARED_INTERMEDIATE_DIR)/IPageSpeedRules.h',
+          ],
+          'action': [
+            '<(xulrunner_sdk_root)/bin/xpidl',
+            '-m', 'header',
+            '-I', '<(xulrunner_sdk_root)/idl',
+            '-e', '<(_outputs)',
+            '<(_inputs)',
+          ],
+        },
+      ],
+      'sources': [
+        '<(library_rules_root)/pagespeed_rules.cc',
+      ],
+      'include_dirs': [
+        '<(library_rules_root)',
+        '<(SHARED_INTERMEDIATE_DIR)',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+    },
+    {
       'target_name': 'pagespeed_firefox_module',
       'type': 'loadable_module',
       'variables': {
@@ -270,6 +309,7 @@
         '<(DEPTH)/base/base.gyp:base',
         'pagespeed_firefox_activity',
         'pagespeed_firefox_image_compressor',
+        'pagespeed_firefox_library_rules',
       ],
       'sources': [
         '<(src_root)/pagespeed/pagespeed_module.cc',
