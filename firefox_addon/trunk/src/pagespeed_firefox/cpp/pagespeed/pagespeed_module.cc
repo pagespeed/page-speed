@@ -20,10 +20,12 @@
 #include "activity/http_activity_distributor.h"
 #include "activity/profiler.h"
 #include "image_compressor/image_compressor.h"
+#include "pagespeed/pagespeed_rules.h"
 
 #include "nsIGenericFactory.h"
 
 namespace pagespeed {
+NS_GENERIC_FACTORY_CONSTRUCTOR(PageSpeedRules)
 NS_GENERIC_FACTORY_CONSTRUCTOR(ImageCompressor)
 }  // namespace pagespeed
 
@@ -33,6 +35,10 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(HttpActivityDistributor)
 }  // namespace pagespeed
 
 namespace {
+
+const char *PAGE_SPEED_RULES_CONTRACTID =
+    "@code.google.com/p/page-speed/PageSpeedRules;1";
+const char *PAGE_SPEED_RULES_CLASSNAME = "PageSpeedRules";
 
 const char *IMAGE_COMPRESSOR_CONTRACTID =
     "@code.google.com/p/page-speed/ImageCompressor;1";
@@ -47,6 +53,14 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
 // identify a class or component. See
 // http://www.mozilla.org/projects/xpcom/book/cxc/html/quicktour2.html#1005329
 // for more information.
+#define PAGE_SPEED_RULES_CID                             \
+{ /* 9d5c2098-b43c-4874-a12a-57c4b93896aa */             \
+     0x9d5c2098,                                         \
+     0xb43c,                                             \
+     0x4874,                                             \
+     { 0xa1, 0x2a, 0x57, 0xc4, 0xb9, 0x38, 0x96, 0xaa }  \
+}
+
 #define IMAGE_COMPRESSOR_CID                          \
 { /* 972a3d18-1fed-4bfe-9465-fd419354233e */          \
   0x972a3d18,                                         \
@@ -72,6 +86,12 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
 }
 
 static nsModuleComponentInfo components[] = {
+  {
+    PAGE_SPEED_RULES_CLASSNAME,
+    PAGE_SPEED_RULES_CID,
+    PAGE_SPEED_RULES_CONTRACTID,
+    pagespeed::PageSpeedRulesConstructor,
+  },
   {
     IMAGE_COMPRESSOR_CLASSNAME,
     IMAGE_COMPRESSOR_CID,
