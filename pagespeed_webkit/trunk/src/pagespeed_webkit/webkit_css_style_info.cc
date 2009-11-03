@@ -21,22 +21,11 @@
 #include "Frame.h"
 #include "NodeList.h"
 #include "Page.h"
-#include "PlatformString.h"
 #include "StyleSheetList.h"
-#include "TextEncoding.h"
+
+#include "pagespeed_webkit/util.h"
 
 namespace pagespeed_webkit {
-
-static std::string ToAscii(const WebCore::String& string) {
-  const WebCore::TextEncoding& ascii = WebCore::ASCIIEncoding();
-
-  const WebCore::CString& encoded =
-      ascii.encode(string.characters(),
-                   string.length(),
-                   WebCore::URLEncodedEntitiesForUnencodables);
-
-  return std::string(encoded.data(), encoded.length());
-}
 
 void GatherCssStyles(WebCore::Page* page, std::vector<CssStyleInfo*>* styles) {
   WebCore::Document* document = page->mainFrame()->document();

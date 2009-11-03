@@ -28,6 +28,8 @@
       ],
       'sources': [
         '<(package_root)/pagespeed_webkit/remove_unused_css.cc',
+        '<(package_root)/pagespeed_webkit/rule_runner.cc',
+        '<(package_root)/pagespeed_webkit/util.cc',
         '<(package_root)/pagespeed_webkit/webkit_css_style_info.cc',
         '<(package_root)/pagespeed_webkit/webkit_rule_provider.cc',
       ],
