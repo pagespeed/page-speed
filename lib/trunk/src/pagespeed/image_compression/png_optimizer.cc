@@ -81,12 +81,12 @@ bool PngOptimizer::CreateOptimizedPng(const std::string& in, std::string* out) {
     return false;
   }
 
-  // Perform all possible lossless image reductions
-  // (e.g. RGB->palette, etc).
-  opng_reduce_image(read_ptr, read_info_ptr, OPNG_REDUCE_ALL);
-
   // Copy the image data from the read structures to the write structures.
   CopyReadToWrite();
+
+  // Perform all possible lossless image reductions
+  // (e.g. RGB->palette, etc).
+  opng_reduce_image(write_ptr, write_info_ptr, OPNG_REDUCE_ALL);
 
   // TODO: try a few different strategies and pick the best one.
   png_set_compression_level(write_ptr, Z_BEST_COMPRESSION);
@@ -189,29 +189,8 @@ void PngOptimizer::CopyReadToWrite() {
     png_set_gAMA(write_ptr, write_info_ptr, gamma);
   }
 
-#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
-#error "Unexpected: PNG_bKGD_SUPPORTED || PNG_READ_BACKGROUND_SUPPORTED support enabled."
-  png_color_16p background;
-  if (png_get_bKGD(read_ptr, read_info_ptr, &background) != 0) {
-    png_set_bKGD(write_ptr, write_info_ptr, background);
-  }
-#endif
-
-#if defined(PNG_hIST_SUPPORTED)
-#error "Unexpected: PNG_hIST_SUPPORTED support enabled."
-  png_color_16p hist;
-  if (png_get_hIST(read_ptr, read_info_ptr, &hist) != 0) {
-    png_set_hIST(write_ptr, write_info_ptr, hist);
-  }
-#endif
-
-#if defined(PNG_sBIT_SUPPORTED)
-#error "Unexpected: PNG_sBIT_SUPPORTED support enabled."
-  png_color_8p sig_bit;
-  if (png_get_sBIT(read_ptr, read_info_ptr, &sig_bit) != 0) {
-    png_set_sBIT(write_ptr, write_info_ptr, sig_bit);
-  }
-#endif
+  // Do not copy bkgd, hist or sbit sections, since they are not
+  // supported in most browsers.
 }
 
 }  // namespace image_compression
