@@ -64,12 +64,7 @@ MinimizeDnsLookups::MinimizeDnsLookups() : Rule("MinimizeDnsLookups") {
 
 bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
                                        Results* results) {
-  Result* result = results->add_results();
-  result->set_rule_name(name());
-
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
-
-  int dns_requests_saved = 0;
 
   // Only check if resources are sharded among 2 or more hosts.  We
   // should not warn about simple pages that consist of a single
@@ -106,19 +101,20 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
           continue;
         }
 
-        dns_requests_saved++;
         for (ResourceVector::const_iterator resource_iter = filtered.begin(),
                  url_end = filtered.end();
              resource_iter != url_end;
              ++resource_iter) {
+
+          Result* result = results->add_results();
+          result->set_rule_name(name());
           result->add_resource_urls((*resource_iter)->GetRequestUrl());
+          Savings* savings = result->mutable_savings();
+          savings->set_dns_requests_saved(1);
         }
       }
     }
   }
-
-  Savings* savings = result->mutable_savings();
-  savings->set_dns_requests_saved(dns_requests_saved);
 
   return true;
 }
