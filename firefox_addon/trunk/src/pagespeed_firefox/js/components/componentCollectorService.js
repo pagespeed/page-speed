@@ -1447,6 +1447,9 @@ function mergeProperties(src, component, redirect) {
         typeof dest[i].push == 'function') {
       // Array property. Concatenate the arrays.
       Array.prototype.push.apply(dest[i], src[i]);
+    } else if (!(i in dest)) {
+      // dest has no such property, so copy without logging.
+      dest[i] = src[i];
     } else if (dest[i] !== src[i] && !KEEP_OLD_VALUE_WHEN_MERGING[i]) {
       // Non-array property. If the property exists at the
       // destination, the best we can do is replace it. Log so
