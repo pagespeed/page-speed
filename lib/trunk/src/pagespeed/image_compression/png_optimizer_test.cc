@@ -88,18 +88,9 @@ void AssertPngEq(
       << "height mismatch for " << identifier;
 
   // If PNG background chunks are supported, verify that the
-  // background chunks match.
+  // background chunks are not present in the optimized image.
 #if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
-  EXPECT_EQ(orig_desc.bgcolor_retval, opt_desc.bgcolor_retval)
-      << "readpng_get_bgcolor mismatch for " << identifier;
-  if (orig_desc.bgcolor_retval == 0 && opt_desc.bgcolor_retval == 0) {
-    EXPECT_EQ(orig_desc.bg_red, opt_desc.bg_red)
-        << "red mismatch for " << identifier;
-    EXPECT_EQ(orig_desc.bg_green, opt_desc.bg_green)
-        << "green mismatch for " << identifier;
-    EXPECT_EQ(orig_desc.bg_blue, opt_desc.bg_blue)
-        << "blue mismatch for " << identifier;
-  }
+  EXPECT_EQ(1, opt_desc.bgcolor_retval) << "Unexpected: bgcolor";
 #endif
 
   // Verify that the number of channels matches (should be 3 for RGB
