@@ -58,16 +58,22 @@ class MinimizeDnsTest : public ::testing::Test {
 
     Results results;
     dns_rule.AppendResults(*input_, &results);
-    ASSERT_EQ(results.results_size(), 1);
+    ASSERT_EQ(results.results_size(), expected_dns_savings);
 
-    const Result& result = results.results(0);
-    ASSERT_EQ(result.rule_name(), "MinimizeDnsLookups");
-    ASSERT_EQ(result.savings().dns_requests_saved(), expected_dns_savings);
+    std::vector<std::string> urls;
+    for (int idx = 0; idx < results.results_size(); idx++) {
+      const Result& result = results.results(idx);
+      ASSERT_EQ(result.rule_name(), "MinimizeDnsLookups") << idx;
+      ASSERT_EQ(result.savings().dns_requests_saved(), 1);
 
-    ASSERT_EQ(result.resource_urls_size(), expected_violations.size());
+      ASSERT_EQ(result.resource_urls_size(), 1);
+      urls.push_back(result.resource_urls(0));
+    }
 
-    for (int idx = 0; idx < result.resource_urls_size(); ++idx) {
-      EXPECT_EQ(result.resource_urls(idx), expected_violations[idx]);
+    ASSERT_EQ(urls.size(), expected_violations.size());
+
+    for (int idx = 0; idx < urls.size(); ++idx) {
+      EXPECT_EQ(urls[idx], expected_violations[idx]);
     }
   }
 
