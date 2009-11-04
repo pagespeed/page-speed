@@ -18,9 +18,15 @@
 
 #include "pagespeed_rules.h"
 
-#include <string>
+#include <sstream>
+#include <vector>
 
 #include "nsStringAPI.h"
+
+#include "pagespeed_json_input.h"
+#include "pagespeed/core/engine.h"
+#include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/formatters/json_formatter.h"
 
 namespace pagespeed {
 
@@ -33,10 +39,24 @@ PageSpeedRules::~PageSpeedRules() {}
 NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const char *data,
                                         char **_retval NS_OUTPARAM) {
-  std::string result("\"Hello, world!\"");
-  nsCString retval(result.c_str());
-  *_retval = NS_CStringCloneData(retval);
-  return NS_OK;
+  std::vector<Rule*> rules;
+  // TODO Add rules, or use rule_provider.
+
+  Engine engine(rules);  // Ownership of rules is transferred to engine.
+  engine.Init();
+
+  PagespeedInput input;
+  if (PopulateInputFromJSON(&input, data)) {
+    std::stringstream stream;
+    formatters::JsonFormatter formatter(&stream);
+    engine.ComputeAndFormatResults(input, &formatter);
+
+    nsCString retval(stream.str().c_str());
+    *_retval = NS_CStringCloneData(retval);
+    return NS_OK;
+  } else {
+    return NS_ERROR_FAILURE;
+  }
 }
 
 }  // namespace pagespeed
