@@ -14,6 +14,7 @@
 
 {
   'variables': {
+    'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
     'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk',
   },
   'targets': [
@@ -194,24 +195,60 @@
       ],
     },
     {
-      'target_name': 'pagespeed_firefox_library_rules',
+      'target_name': 'pagespeed_firefox_json_input',
       'type': '<(library)',
-      'variables': {
-        'library_rules_root': 'cpp/pagespeed',
-      },
       'dependencies': [
-        'xulrunner_sdk',
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/cJSON/cJSON.gyp:cJSON',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
       ],
       'sources': [
-        'idl/IPageSpeedRules.idl',
-        '<(library_rules_root)/pagespeed_rules.cc',
+        'cpp/pagespeed/pagespeed_json_input.cc',
       ],
       'include_dirs': [
-        '<(library_rules_root)',
+        'cpp/pagespeed',
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_firefox_json_input_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_firefox_json_input',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        'cpp/pagespeed/pagespeed_json_input_test.cc',
+      ],
+      'include_dirs': [
+        'cpp/pagespeed',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_firefox_library_rules',
+      'type': '<(library)',
+      'dependencies': [
+        'xulrunner_sdk',
+        'pagespeed_firefox_json_input',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
+      ],
+      'sources': [
+        'idl/IPageSpeedRules.idl',
+        'cpp/pagespeed/pagespeed_rules.cc',
+      ],
+      'include_dirs': [
+        'cpp/pagespeed',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
       ],
     },
     {

@@ -16,7 +16,7 @@ vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk/",
   "chromium_revision": "@29798",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk/",
-  "libpagespeed_revision": "@289",
+  "libpagespeed_revision": "@310",
 }
 
 deps = {
@@ -59,12 +59,8 @@ deps = {
     (Var("libpagespeed_trunk") + "src/pagespeed" +
      Var("libpagespeed_revision")),
 
-  "src/third_party/libpagespeed/src/third_party/jsmin":
-    (Var("libpagespeed_trunk") + "src/third_party/jsmin" +
-     Var("libpagespeed_revision")),
-
-  "src/third_party/libpagespeed/src/third_party/optipng":
-    (Var("libpagespeed_trunk") + "src/third_party/optipng" +
+  "src/third_party/libpagespeed/src/third_party":
+    (Var("libpagespeed_trunk") + "src/third_party" +
      Var("libpagespeed_revision")),
 
   "src/third_party/protobuf2":
