@@ -21,7 +21,22 @@
       'target_name': 'xulrunner_sdk',
       'type': 'none',
       'direct_dependent_settings': {
+        'rules': [
+          {
+            'rule_name': 'xpidl',
+            'extension': 'idl',
+            'outputs': ['<(SHARED_INTERMEDIATE_DIR)/<(RULE_INPUT_ROOT).h'],
+            'action': [
+              '<(xulrunner_sdk_root)/bin/xpidl',
+              '-m', 'header',
+              '-I', '<(xulrunner_sdk_root)/idl',
+              '-e', '<(SHARED_INTERMEDIATE_DIR)/<(RULE_INPUT_ROOT).h',
+              '<(RULE_INPUT_PATH)',
+            ],
+          },
+        ],
         'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
           '<(xulrunner_sdk_root)/include/dom',
           '<(xulrunner_sdk_root)/include/layout',
           '<(xulrunner_sdk_root)/include/necko',
@@ -109,73 +124,11 @@
         'pagespeed_firefox_profile_pb',
         '<(DEPTH)/base/base.gyp:base',
       ],
-      'actions': [
-        {
-          'action_name': 'generate_IActivityProfiler',
-          'inputs': [
-            'idl/IActivityProfiler.idl',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/IActivityProfiler.h',
-          ],
-          'action': [
-            '<(xulrunner_sdk_root)/bin/xpidl',
-            '-m', 'header',
-            '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(_outputs)',
-            '<(_inputs)',
-          ],
-        },
-        {
-          'action_name': 'generate_jsdIDebuggerService_3_0',
-          'inputs': [
-            '<(mozilla_idl_root)/jsdIDebuggerService_3_0.idl',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/jsdIDebuggerService_3_0.h',
-          ],
-          'action': [
-            '<(xulrunner_sdk_root)/bin/xpidl',
-            '-m', 'header',
-            '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(_outputs)',
-            '<(_inputs)',
-          ],
-        },
-        {
-          'action_name': 'generate_jsdIDebuggerService_3_5',
-          'inputs': [
-            '<(mozilla_idl_root)/jsdIDebuggerService_3_5.idl',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/jsdIDebuggerService_3_5.h',
-          ],
-          'action': [
-            '<(xulrunner_sdk_root)/bin/xpidl',
-            '-m', 'header',
-            '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(_outputs)',
-            '<(_inputs)',
-          ],
-        },
-        {
-          'action_name': 'generate_jsdIDebuggerService_3_6',
-          'inputs': [
-            '<(mozilla_idl_root)/jsdIDebuggerService_3_6.idl',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/jsdIDebuggerService_3_6.h',
-          ],
-          'action': [
-            '<(xulrunner_sdk_root)/bin/xpidl',
-            '-m', 'header',
-            '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(_outputs)',
-            '<(_inputs)',
-          ],
-        },
-      ],
       'sources': [
+        'idl/IActivityProfiler.idl',
+        '<(mozilla_idl_root)/jsdIDebuggerService_3_0.idl',
+        '<(mozilla_idl_root)/jsdIDebuggerService_3_5.idl',
+        '<(mozilla_idl_root)/jsdIDebuggerService_3_6.idl',
         '<(activity_root)/basic_tree_view.cc',
         '<(activity_root)/call_graph.cc',
         '<(activity_root)/call_graph_metadata.cc',
@@ -206,7 +159,6 @@
         '<(activity_root)/uncalled_function_tree_view_delegate.cc',
       ],
       'include_dirs': [
-        '<(SHARED_INTERMEDIATE_DIR)',
         '<(activity_root)',
       ],
     },
@@ -222,37 +174,19 @@
         '<(DEPTH)/third_party/optipng/optipng.gyp:optipng',
         '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
       ],
-      'actions': [
-        {
-          'action_name': 'generate_IImageCompressor',
-          'inputs': [
-            'idl/IImageCompressor.idl',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/IImageCompressor.h',
-          ],
-          'action': [
-            '<(xulrunner_sdk_root)/bin/xpidl',
-            '-m', 'header',
-            '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(_outputs)',
-            '<(_inputs)',
-          ],
-        },
-      ],
       'defines': [
         # Disable PNG optimization for now; we're having issues getting optipng
         # to not crash when we build using gyp instead of mozilla.
         'PAGESPEED_DISABLE_PNG_OPTIMIZATION',
       ],
       'sources': [
+        'idl/IImageCompressor.idl',
         '<(image_compressor_root)/image_compressor.cc',
         '<(image_compressor_root)/jpeg_optimizer.cc',
         '<(image_compressor_root)/png_optimizer.cc',
       ],
       'include_dirs': [
         '<(image_compressor_root)',
-        '<(SHARED_INTERMEDIATE_DIR)',
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
@@ -269,30 +203,12 @@
         'xulrunner_sdk',
         '<(DEPTH)/base/base.gyp:base',
       ],
-      'actions': [
-        {
-          'action_name': 'generate_IPageSpeedRules_h',
-          'inputs': [
-            'idl/IPageSpeedRules.idl',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/IPageSpeedRules.h',
-          ],
-          'action': [
-            '<(xulrunner_sdk_root)/bin/xpidl',
-            '-m', 'header',
-            '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(_outputs)',
-            '<(_inputs)',
-          ],
-        },
-      ],
       'sources': [
+        'idl/IPageSpeedRules.idl',
         '<(library_rules_root)/pagespeed_rules.cc',
       ],
       'include_dirs': [
         '<(library_rules_root)',
-        '<(SHARED_INTERMEDIATE_DIR)',
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
@@ -317,7 +233,6 @@
       'include_dirs': [
         '<(src_root)',
         '<(src_root)/pagespeed',
-        '<(SHARED_INTERMEDIATE_DIR)',
       ],
     },
   ],
