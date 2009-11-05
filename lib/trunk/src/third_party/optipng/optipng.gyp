@@ -27,5 +27,21 @@
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
       ]
     },
+    {
+      'target_name': 'pngxrgif',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+      ],
+      'sources': [
+        'lib/pngxtern/gif/gifread.c',
+        'lib/pngxtern/pngxmem.c',
+        'lib/pngxtern/pngxrgif.c',
+        'lib/pngxtern/pngxset.c',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+      ]
+    },
   ],
 }
