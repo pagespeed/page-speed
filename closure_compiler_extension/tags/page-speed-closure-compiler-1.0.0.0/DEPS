@@ -1,0 +1,4 @@
+deps = {
+  "src/third_party/closure_compiler":
+     "http://closure-compiler.googlecode.com/svn/trunk/@2",
+}
