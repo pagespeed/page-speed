@@ -61,7 +61,7 @@ var MINIFIED_OUTPUT_DIR_PERMISSIONS = 0755;
  * copy of the minified version.
  * @param {string} uncompiledSource The uncompiled JS.
  * @param {string} compiledSource The minified version of uncompiledSource.
- * @return {Object} The minified file on success, null on failure.
+ * @return {nsIFile} The minified file on success, null on failure.
  */
 var writeMinifiedFile = function(uncompiledSource, compiledSource) {
   // minifiedFile starts as a directory.  The call to minifiedFile.append()
@@ -103,7 +103,7 @@ function sortByBytesSaved(a, b) {
 // Build a human-readable results string from the input data.
 function buildResultString(data) {
   var resultArr = [
-      'Minifying ', data.name, ' could save ',
+      'Minifying ', data.name, ' using ', data.minifier, ' could save ',
       PAGESPEED.Utils.formatBytes(data.savings), ' (',
       PAGESPEED.Utils.formatPercent(data.savings / data.origSize),
       ' reduction).'];
@@ -165,6 +165,45 @@ var buildMinifyJsCallback = function(storage, script) {
   return function() { doMinify(storage, script); return script.name; };
 };
 
+var ClosureCompiler = {}
+
+/*
+ * Returns true if ClosureCompiler support is available for the current
+ * platform.  Support for Firefox running under Mac and Linux is not
+ * available at this time due to problems with java plugins available
+ * in those environments.
+ * @return {boolean} true iff compiler support is available.
+ */
+ClosureCompiler.platformSupported = function() {
+  return (navigator &&
+          navigator.platform &&
+          navigator.platform.indexOf("Win") != -1);
+}
+
+/*
+ * Compile the js source using the Closure Compiler.
+ * @param {string} uncompiledSource Source to compile.
+ * @return {string} compiled javascript.
+ */
+ClosureCompiler.compile = function(uncompiledSource) {
+  var compiler = PAGESPEED.Utils.CCSV(
+    '@code.google.com/p/page-speed/ClosureCompilerService;1',
+    'IClosureCompiler');
+  if (compiler) {
+    compiler = compiler.wrappedJSObject;
+  }
+
+  var compilerXpiPath = compiler ? compiler.getExtensionFileUrl() : undefined;
+  if (!compilerXpiPath) {
+    throw new Error(
+        'Pagespeed Closure Compiler extension is not installed.  See '  +
+        'http://code.google.com/speed/page-speed ' +
+        'for installation instructions');
+  }
+
+  return compiler.compile(PAGESPEED, uncompiledSource);
+}
+
 /*
  * Minify the given script.
  * @param {Object} storage The data storage object.
@@ -177,15 +216,44 @@ var doMinify = function(storage, script) {
 
   var isInline = /inline block \#/.test(script.name);
 
+  var minifier;
   var compiledSource;
-  try {
-    compiledSource = JSMIN.compile(uncompiledSource);
-  } catch (e) {
-    storage.aErrors.push([
-      'Minification of ', script.name, ' failed (',
-      PAGESPEED.Utils.formatException(e), ').'
-    ].join(''));
-    return;
+  var runJsMin = true;
+  if (!isInline && ClosureCompiler.platformSupported()) {
+    try {
+      compiledSource = ClosureCompiler.compile(uncompiledSource);
+      minifier = 'Closure Compiler';
+      runJsMin = false;
+    } catch (e) {
+      // Initializing the compiler is tricky because it is a Java jar and a
+      // user could have all sorts of problems with their Java plugin, so
+      // just catch all possible errors and fall back on JSMIN.
+
+      var appErrorMsg = [PAGESPEED.Utils.formatException(e),
+                         '  Falling back to JSMin.'].join('');
+      var found = false;
+      for (var i = 0; i < storage.aErrors.length; i++) {
+        if (storage.aErrors[i] == appErrorMsg) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        storage.aErrors.push(appErrorMsg);
+      }
+    }
+  }
+  if (runJsMin) {
+    try {
+      compiledSource = JSMIN.compile(uncompiledSource);
+      minifier = 'JSMin';
+    } catch (e) {
+      storage.aErrors.push([
+        'Minification of ', script.name, ' failed (',
+        PAGESPEED.Utils.formatException(e), ').'
+      ].join(''));
+      return;
+    }
   }
   var compiledSourceLength = compiledSource.length;
 
@@ -216,6 +284,7 @@ var doMinify = function(storage, script) {
 
   storage.aResults.push({
       name: script.name,
+      minifier: minifier,
       origSize: uncompiledSourceLength,
       minifiedUrl: minifiedFileUrl || '',
       savings: possibleSavings});
