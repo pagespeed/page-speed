@@ -32,13 +32,34 @@
 #define MAX_LZW_BITS    12
 
 
+static size_t GIFInputRead(unsigned char *buf,
+                           size_t len,
+                           struct GIFInput *input) {
+  size_t remaining = input->len - input->pos;
+  if (remaining < len) {
+    len = remaining;
+  }
+  memcpy(buf, input->buf + input->pos, len);
+  input->pos += len;
+  return len;
+}
+
+static int GIFInputReadChar(struct GIFInput *input) {
+  unsigned char c;
+  if (GIFInputRead(&c, 1, input) != 1) {
+    return EOF;
+  }
+  return c & 0xff;
+}
+
+
 /* These macros are masquerading as inline functions. */
 
 #define GIF_FREAD(buf, len, file) \
-    { if (fread(buf, len, 1, file) <= 0) GIFError(ErrRead); }
+    { if (GIFInputRead(buf, len, file) <= 0) GIFError(ErrRead); }
 
 #define GIF_FGETC(ch, file) \
-    { if ((ch = getc(file)) == EOF) GIFError(ErrRead); }
+    { if ((ch = GIFInputReadChar(file)) == EOF) GIFError(ErrRead); }
 
 #define GIF_GETW(buf) \
     ((buf)[0] + ((buf)[1] << 8))
@@ -53,19 +74,19 @@
 static const char *ErrRead = "Error reading file or unexpected end of file";
 
 
-static void GIFReadNextImage(struct GIFImage *image, FILE *stream);
-static void GIFReadNextExtension(struct GIFExtension *ext, FILE *stream);
-static void ReadImageData(struct GIFImage *image, FILE *stream);
-static void SkipDataBlocks(FILE *stream);
-static int  ReadDataBlock(unsigned char *buf, FILE *stream);
-static int  LZWGetCode(int code_size, int flag, FILE *stream);
-static int  LZWReadByte(int flag, int input_code_size, FILE *stream);
+static void GIFReadNextImage(struct GIFImage *image, struct GIFInput *stream);
+static void GIFReadNextExtension(struct GIFExtension *ext, struct GIFInput *stream);
+static void ReadImageData(struct GIFImage *image, struct GIFInput *stream);
+static void SkipDataBlocks(struct GIFInput *stream);
+static int  ReadDataBlock(unsigned char *buf, struct GIFInput *stream);
+static int  LZWGetCode(int code_size, int flag, struct GIFInput *stream);
+static int  LZWReadByte(int flag, int input_code_size, struct GIFInput *stream);
 
 
 /**
  * Reads the GIF screen and the global color table.
  **/
-void GIFReadScreen(struct GIFScreen *screen, FILE *stream)
+void GIFReadScreen(struct GIFScreen *screen, struct GIFInput *stream)
 {
     unsigned char buf[7];
 
@@ -140,7 +161,7 @@ void GIFInitExtension(struct GIFExtension *ext, struct GIFScreen *screen,
  * Reads the next GIF block (image or extension) structure.
  **/
 int GIFReadNextBlock(struct GIFImage *image, struct GIFExtension *ext,
-                     FILE *stream)
+                     struct GIFInput *stream)
 {
     int ch;
     int foundBogus;
@@ -171,7 +192,7 @@ int GIFReadNextBlock(struct GIFImage *image, struct GIFExtension *ext,
 /**
  * Reads the next GIF image and local color table.
  **/
-static void GIFReadNextImage(struct GIFImage *image, FILE *stream)
+static void GIFReadNextImage(struct GIFImage *image, struct GIFInput *stream)
 {
     struct GIFScreen *screen;
     unsigned char    buf[9];
@@ -214,7 +235,7 @@ static void GIFReadNextImage(struct GIFImage *image, FILE *stream)
 /**
  * Reads the next GIF extension.
  **/
-static void GIFReadNextExtension(struct GIFExtension *ext, FILE *stream)
+static void GIFReadNextExtension(struct GIFExtension *ext, struct GIFInput *stream)
 {
     unsigned int offset, len;
     int          count, label;
@@ -251,7 +272,7 @@ static void GIFReadNextExtension(struct GIFExtension *ext, FILE *stream)
 
 static int ZeroDataBlock = FALSE;
 
-static int ReadDataBlock(unsigned char *buf, FILE *stream)
+static int ReadDataBlock(unsigned char *buf, struct GIFInput *stream)
 {
     int count;
 
@@ -267,7 +288,7 @@ static int ReadDataBlock(unsigned char *buf, FILE *stream)
     return count;
 }
 
-static void SkipDataBlocks(FILE *stream)
+static void SkipDataBlocks(struct GIFInput *stream)
 {
     int           count;
     unsigned char buf[UCHAR_MAX];
@@ -284,7 +305,7 @@ static void SkipDataBlocks(FILE *stream)
     }
 }
 
-static int LZWGetCode(int code_size, int flag, FILE *stream)
+static int LZWGetCode(int code_size, int flag, struct GIFInput *stream)
 {
     static unsigned char buf[280];
     static int           curbit, lastbit, done, last_byte;
@@ -325,7 +346,7 @@ static int LZWGetCode(int code_size, int flag, FILE *stream)
     return ret;
 }
 
-static int LZWReadByte(int flag, int input_code_size, FILE *stream)
+static int LZWReadByte(int flag, int input_code_size, struct GIFInput *stream)
 {
     static int fresh = FALSE;
     int        code, incode;
@@ -457,7 +478,7 @@ static int LZWReadByte(int flag, int input_code_size, FILE *stream)
 }
 
 
-static void ReadImageData(struct GIFImage *image, FILE *stream)
+static void ReadImageData(struct GIFImage *image, struct GIFInput *stream)
 {
     int           minCodeSize, interlaced, val, pass;
     unsigned int  width, height, numColors, xpos, ypos;
@@ -651,4 +672,3 @@ void (*GIFError)(const char *msg)
 
 void (*GIFWarning)(const char *msg)
     = GIFDefaultWarning;
-
