@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+
+<!--
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<project name="page-speed-closure-compiler" default="pkg-xpi" basedir=".">
+
+  <property name="root" location="."/>
+  <property name="src" location="${root}"/>
+  <property name="third_party" location="third_party"/>
+  <property name="closure_compiler" location="${third_party}/closure_compiler"/>
+  <property name="xpi_res" location="xpi_resources"/>
+  <property name="dist" location="dist"/>
+  <property name="dist_classes" location="${dist}/classes" />
+  <property name="dist_jars" location="${dist}/jars" />
+
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${dist}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${dist}"/>
+    <subant buildpath="${closure_compiler}" target="clean" failonerror="false" />
+  </target>
+
+  <target name="java" depends="init">
+    <mkdir dir="${dist_classes}" />
+    <mkdir dir="${dist_jars}" />
+    <subant buildpath="${closure_compiler}" target="jar" />
+    <javac srcdir="${src}/java"
+           includes="com/**"
+           classpath="${closure_compiler}/build/compiler.jar"
+           destdir="${dist_classes}" />
+    <jar destfile="${dist_jars}/simple_compiler.jar">
+      <fileset dir="${dist_classes}" includes="com/**" />
+      <fileset dir="${src}/java/" includes="com/**/*.js" />
+    </jar>
+  </target>
+
+  <target name="pkg-xpi" depends="init,java">
+    <zip destfile="${dist}/${ant.project.name}.xpi" filesonly="true" level="9">
+      <zipfileset dir="${xpi_res}"/>
+      <zipfileset dir="${dist_jars}" includes="*.jar" prefix="java" />
+      <zipfileset file="${closure_compiler}/build/compiler.jar" prefix="java" />
+    </zip>
+  </target>
+
+  <target name="stage-xpi" depends="pkg-xpi">
+    <unzip src="${dist}/${ant.project.name}.xpi" dest="${dist}/xpi"/>
+  </target>
+
+</project>
