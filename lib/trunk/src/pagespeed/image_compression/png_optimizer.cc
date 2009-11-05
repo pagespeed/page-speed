@@ -168,7 +168,7 @@ void PngOptimizer::CopyReadToWrite() {
   }
 
   // Transparency is not considered metadata, although tRNS is
-  // ancillary.  See the comment in opng_is_critical_chunk() above.
+  // ancillary.
   png_bytep trans;
   int num_trans;
   png_color_16p trans_values;
