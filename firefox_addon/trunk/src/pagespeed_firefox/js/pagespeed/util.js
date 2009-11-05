@@ -1777,7 +1777,7 @@ PAGESPEED.Utils = {  // Begin namespace
   /**
    * @param {string} dataString The desired content of the input
    *     stream.
-   * @return {nsIStringInputStream} An input stream.
+   * @return {nsIInputStream} An input stream.
    */
   wrapWithInputStream: function(dataString) {
     var stringStream = PAGESPEED.Utils.CCIN(
@@ -2118,7 +2118,7 @@ PAGESPEED.Utils = {  // Begin namespace
   /**
    * Open a file for writing.
    * @param {string} fileName The file name to write.
-   * @return {nsIFileOutputStream} The file output stream.  null on error.
+   * @return {nsIOutputStream} The file output stream.  null on error.
    */
   openFileForWriting: function(fileName) {
     try {
