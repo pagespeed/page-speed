@@ -113,7 +113,7 @@ pngx_set_GIF_meta(png_structp png_ptr, png_infop info_ptr,
 
 
 int /* PRIVATE */
-pngx_read_gif(png_structp png_ptr, png_infop info_ptr, FILE *stream)
+pngx_read_gif(png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream)
 {
    /* GIF-specific data */
    struct GIFScreen screen;

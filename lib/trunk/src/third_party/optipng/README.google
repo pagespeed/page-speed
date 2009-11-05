@@ -13,5 +13,7 @@ other similar tools, read the PNG-Tech article "A guide to PNG
 optimization".
 
 Local Modifications:
-Only OptiPNG opngreduc.h and opngreduc.c, which perform lossless reductions on PNG images, are included.
-opngreduc has been modified to conditionally include support for ancillary chunks.
+1. opngreduc has been modified to conditionally include support for ancillary chunks.
+2. the pngxtern GIF reader has been modified to read from in-memory buffers instead of FILE pointers.
+3. the pngxtern API has been modified to only include support for GIF files.
+4. a call to png_get_image_height has been inlined since not all versions of libpng provide this function.

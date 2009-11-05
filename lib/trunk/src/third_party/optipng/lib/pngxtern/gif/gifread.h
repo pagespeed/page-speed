@@ -22,6 +22,7 @@
 #ifndef GIFREAD_H
 #define GIFREAD_H
 
+#include "gifinput.h"
 
 #define GIF_PLAINTEXT   0x01
 #define GIF_EXTENSION   0x21  /* '!' */
@@ -103,7 +104,7 @@ struct GIFGraphicCtlExt
  * @param screen  (out)     a screen structure.
  * @param stream  (in out)  a file stream.
  **/
-void GIFReadScreen(struct GIFScreen *screen, FILE *stream);
+void GIFReadScreen(struct GIFScreen *screen, struct GIFInput *stream);
 
 /**
  * Initializes the GIF image structure.
@@ -133,7 +134,7 @@ void GIFInitExtension(struct GIFExtension *ext, struct GIFScreen *screen,
  * @return                  the block code.
  **/
 int GIFReadNextBlock(struct GIFImage *image, struct GIFExtension *ext,
-                     FILE *stream);
+                     struct GIFInput *stream);
 
 /**
  * Constructs a GIF graphic control extension structure

@@ -41,7 +41,7 @@ pngx_malloc_rows_extended(png_structp png_ptr, png_infop info_ptr,
    png_free_data(png_ptr, info_ptr, PNG_FREE_ROWS, 0);
 
    /* Allocate memory for the row index. */
-   height = png_get_image_height(png_ptr, info_ptr);
+   height = info_ptr->height;
    rows = (png_bytepp)png_malloc(png_ptr,
       (pngx_alloc_size_t)(height * sizeof(png_bytep)));
    if (rows == NULL)
