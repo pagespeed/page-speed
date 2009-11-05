@@ -27,6 +27,7 @@
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/rules/rule_provider.h"
 
 namespace pagespeed {
 
@@ -40,7 +41,7 @@ NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const char *data,
                                         char **_retval NS_OUTPARAM) {
   std::vector<Rule*> rules;
-  // TODO Add rules, or use rule_provider.
+  rule_provider::AppendCoreRules(&rules);
 
   Engine engine(rules);  // Ownership of rules is transferred to engine.
   engine.Init();

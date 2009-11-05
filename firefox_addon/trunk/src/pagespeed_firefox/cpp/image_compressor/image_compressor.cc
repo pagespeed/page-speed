@@ -18,6 +18,11 @@
 
 #include "image_compressor.h"
 
+#include "jpeg_optimizer.h"
+#ifndef PAGESPEED_DISABLE_PNG_OPTIMIZATION
+#include "png_optimizer.h"
+#endif
+
 NS_IMPL_ISUPPORTS1(pagespeed::ImageCompressor, IImageCompressor)
 
 namespace pagespeed {
@@ -30,28 +35,36 @@ ImageCompressor::~ImageCompressor() {
 
 NS_IMETHODIMP ImageCompressor::CompressToPng(
     const char *infile, const char *outfile) {
-  if (!png_optimizer_.Initialize()) {
+#ifdef PAGESPEED_DISABLE_PNG_OPTIMIZATION
+  return NS_ERROR_FAILURE;
+#else
+  PngOptimizer png_optimizer;
+
+  if (!png_optimizer.Initialize()) {
     return NS_ERROR_FAILURE;
   }
 
-  bool result = png_optimizer_.CreateOptimizedPng(infile, outfile);
+  bool result = png_optimizer.CreateOptimizedPng(infile, outfile);
 
-  if (!png_optimizer_.Finalize()) {
+  if (!png_optimizer.Finalize()) {
     return NS_ERROR_FAILURE;
   }
 
   return result ? NS_OK : NS_ERROR_FAILURE;
+#endif
 }
 
 NS_IMETHODIMP ImageCompressor::CompressJpeg(
     const char *infile, const char *outfile) {
-  if (!jpeg_optimizer_.Initialize()) {
+  JpegOptimizer jpeg_optimizer;
+
+  if (!jpeg_optimizer.Initialize()) {
     return NS_ERROR_FAILURE;
   }
 
-  bool result = jpeg_optimizer_.CreateOptimizedJpeg(infile, outfile);
+  bool result = jpeg_optimizer.CreateOptimizedJpeg(infile, outfile);
 
-  if (!jpeg_optimizer_.Finalize()) {
+  if (!jpeg_optimizer.Finalize()) {
     return NS_ERROR_FAILURE;
   }
 

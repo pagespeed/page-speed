@@ -20,12 +20,16 @@
 #include "activity/http_activity_distributor.h"
 #include "activity/profiler.h"
 #include "image_compressor/image_compressor.h"
+#ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
 #include "pagespeed/pagespeed_rules.h"
+#endif
 
 #include "nsIGenericFactory.h"
 
 namespace pagespeed {
+#ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
 NS_GENERIC_FACTORY_CONSTRUCTOR(PageSpeedRules)
+#endif
 NS_GENERIC_FACTORY_CONSTRUCTOR(ImageCompressor)
 }  // namespace pagespeed
 
@@ -36,9 +40,11 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(HttpActivityDistributor)
 
 namespace {
 
+#ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
 const char *PAGE_SPEED_RULES_CONTRACTID =
     "@code.google.com/p/page-speed/PageSpeedRules;1";
 const char *PAGE_SPEED_RULES_CLASSNAME = "PageSpeedRules";
+#endif
 
 const char *IMAGE_COMPRESSOR_CONTRACTID =
     "@code.google.com/p/page-speed/ImageCompressor;1";
@@ -53,6 +59,8 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
 // identify a class or component. See
 // http://www.mozilla.org/projects/xpcom/book/cxc/html/quicktour2.html#1005329
 // for more information.
+
+#ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
 #define PAGE_SPEED_RULES_CID                             \
 { /* 9d5c2098-b43c-4874-a12a-57c4b93896aa */             \
      0x9d5c2098,                                         \
@@ -60,6 +68,7 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
      0x4874,                                             \
      { 0xa1, 0x2a, 0x57, 0xc4, 0xb9, 0x38, 0x96, 0xaa }  \
 }
+#endif
 
 #define IMAGE_COMPRESSOR_CID                          \
 { /* 972a3d18-1fed-4bfe-9465-fd419354233e */          \
@@ -86,12 +95,14 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
 }
 
 static nsModuleComponentInfo components[] = {
+#ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
   {
     PAGE_SPEED_RULES_CLASSNAME,
     PAGE_SPEED_RULES_CID,
     PAGE_SPEED_RULES_CONTRACTID,
     pagespeed::PageSpeedRulesConstructor,
   },
+#endif
   {
     IMAGE_COMPRESSOR_CLASSNAME,
     IMAGE_COMPRESSOR_CID,

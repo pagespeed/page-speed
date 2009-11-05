@@ -172,7 +172,6 @@
       'dependencies': [
         'xulrunner_sdk',
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/optipng/optipng.gyp:optipng',
         '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
       ],
       'defines': [
@@ -180,18 +179,21 @@
         # to not crash when we build using gyp instead of mozilla.
         'PAGESPEED_DISABLE_PNG_OPTIMIZATION',
       ],
+      'direct_dependent_settings': {
+        'defines': [
+          'PAGESPEED_DISABLE_PNG_OPTIMIZATION',
+        ],
+      },
       'sources': [
         'idl/IImageCompressor.idl',
         '<(image_compressor_root)/image_compressor.cc',
         '<(image_compressor_root)/jpeg_optimizer.cc',
-        '<(image_compressor_root)/png_optimizer.cc',
       ],
       'include_dirs': [
         '<(image_compressor_root)',
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/optipng/optipng.gyp:optipng',
       ],
     },
     {
@@ -235,7 +237,7 @@
         'xulrunner_sdk',
         'pagespeed_firefox_json_input',
         '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
       ],
       'sources': [
@@ -247,7 +249,7 @@
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
       ],
     },
@@ -263,6 +265,9 @@
         'pagespeed_firefox_activity',
         'pagespeed_firefox_image_compressor',
         'pagespeed_firefox_library_rules',
+      ],
+      'defines': [
+        'PAGESPEED_INCLUDE_LIBRARY_RULES',
       ],
       'sources': [
         '<(src_root)/pagespeed/pagespeed_module.cc',

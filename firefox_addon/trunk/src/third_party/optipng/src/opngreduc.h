@@ -17,10 +17,6 @@
 #ifndef OPNG_NO_IMAGE_REDUCTIONS
 #  define OPNG_IMAGE_REDUCTIONS_SUPPORTED
 #  define PNG_INFO_IMAGE_SUPPORTED
-#  if !defined(PNG_bKGD_SUPPORTED) || !defined(PNG_hIST_SUPPORTED) || \
-      !defined(PNG_sBIT_SUPPORTED) || !defined(PNG_tRNS_SUPPORTED)
-__error__ "OPNG_IMAGE_REDUCTIONS_SUPPORTED requires support for bKGD, hIST, sBIT and tRNS"
-#  endif
 #endif
 
 /*

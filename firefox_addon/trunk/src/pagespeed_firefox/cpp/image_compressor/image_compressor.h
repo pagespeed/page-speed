@@ -22,8 +22,6 @@
 #define IMAGE_COMPRESSOR_H_
 
 #include "IImageCompressor.h"
-#include "jpeg_optimizer.h"
-#include "png_optimizer.h"
 
 #include "base/basictypes.h"
 
@@ -42,9 +40,6 @@ class ImageCompressor : public IImageCompressor {
   // illegal to use any other means to do memory management on these
   // objects.
   ~ImageCompressor();
-
-  JpegOptimizer jpeg_optimizer_;
-  PngOptimizer png_optimizer_;
 
   DISALLOW_COPY_AND_ASSIGN(ImageCompressor);
 };
