@@ -37,25 +37,25 @@ namespace image_compression {
 
 class PngOptimizer {
  public:
+  static bool OptimizePng(const std::string& in, std::string* out);
+
+ private:
   PngOptimizer();
   ~PngOptimizer();
-
-  static bool OptimizePng(const std::string& in, std::string* out);
 
   // Take the given input and losslessly compress it by removing
   // all unnecessary chunks, and by choosing an optimal PNG encoding.
   // @return true on success, false on failure.
   bool CreateOptimizedPng(const std::string& in, std::string* out);
 
- private:
   bool ReadPng(const std::string& body);
   bool WritePng(std::string* buffer);
   void CopyReadToWrite();
 
-  png_structp read_ptr;
-  png_infop read_info_ptr;
-  png_structp write_ptr;
-  png_infop write_info_ptr;
+  png_structp read_ptr_;
+  png_infop read_info_ptr_;
+  png_structp write_ptr_;
+  png_infop write_info_ptr_;
 
   DISALLOW_COPY_AND_ASSIGN(PngOptimizer);
 };
