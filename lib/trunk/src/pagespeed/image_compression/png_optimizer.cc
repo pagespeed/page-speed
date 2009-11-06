@@ -32,16 +32,18 @@ struct PngInput {
   int offset_;
 };
 
-void ReadPngFromStream(
-    png_structp read_ptr, png_bytep data, png_size_t length) {
+void ReadPngFromStream(png_structp read_ptr,
+                       png_bytep data,
+                       png_size_t length) {
   PngInput* input = reinterpret_cast<PngInput*>(read_ptr->io_ptr);
   input->data_->copy(reinterpret_cast<char*>(data), length,
                      input->offset_);
   input->offset_ += length;
 }
 
-void WritePngToString(
-    png_structp write_ptr, png_bytep data, png_size_t length) {
+void WritePngToString(png_structp write_ptr,
+                      png_bytep data,
+                      png_size_t length) {
   std::string& buffer = *reinterpret_cast<std::string*>(write_ptr->io_ptr);
   buffer.append(reinterpret_cast<char*>(data), length);
 }
@@ -56,24 +58,27 @@ namespace pagespeed {
 namespace image_compression {
 
 PngOptimizer::PngOptimizer() {
-  read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  read_info_ptr = png_create_info_struct(read_ptr);
-  write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  write_info_ptr = png_create_info_struct(write_ptr);
+  read_ptr_ = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+                                     NULL, NULL, NULL);
+  read_info_ptr_ = png_create_info_struct(read_ptr_);
+  write_ptr_ = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+                                       NULL, NULL, NULL);
+  write_info_ptr_ = png_create_info_struct(write_ptr_);
 }
 
 PngOptimizer::~PngOptimizer() {
-  png_destroy_read_struct(&read_ptr, &read_info_ptr, NULL);
-  png_destroy_write_struct(&write_ptr, &write_info_ptr);
+  png_destroy_read_struct(&read_ptr_, &read_info_ptr_, NULL);
+  png_destroy_write_struct(&write_ptr_, &write_info_ptr_);
 }
 
-bool PngOptimizer::CreateOptimizedPng(const std::string& in, std::string* out) {
+bool PngOptimizer::CreateOptimizedPng(const std::string& in,
+                                      std::string* out) {
   // Configure error handlers.
-  if (setjmp(read_ptr->jmpbuf)) {
+  if (setjmp(read_ptr_->jmpbuf)) {
     return false;
   }
 
-  if (setjmp(write_ptr->jmpbuf)) {
+  if (setjmp(write_ptr_->jmpbuf)) {
     return false;
   }
 
@@ -86,14 +91,14 @@ bool PngOptimizer::CreateOptimizedPng(const std::string& in, std::string* out) {
 
   // Perform all possible lossless image reductions
   // (e.g. RGB->palette, etc).
-  opng_reduce_image(write_ptr, write_info_ptr, OPNG_REDUCE_ALL);
+  opng_reduce_image(write_ptr_, write_info_ptr_, OPNG_REDUCE_ALL);
 
   // TODO: try a few different strategies and pick the best one.
-  png_set_compression_level(write_ptr, Z_BEST_COMPRESSION);
-  png_set_compression_mem_level(write_ptr, 8);
-  png_set_compression_strategy(write_ptr, Z_DEFAULT_STRATEGY);
-  png_set_filter(write_ptr, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
-  png_set_compression_window_bits(write_ptr, 9);
+  png_set_compression_level(write_ptr_, Z_BEST_COMPRESSION);
+  png_set_compression_mem_level(write_ptr_, 8);
+  png_set_compression_strategy(write_ptr_, Z_DEFAULT_STRATEGY);
+  png_set_filter(write_ptr_, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
+  png_set_compression_window_bits(write_ptr_, 9);
 
   if (!WritePng(out)) {
     return false;
@@ -115,10 +120,10 @@ bool PngOptimizer::ReadPng(const std::string& body) {
   PngInput input;
   input.data_ = &body;
   input.offset_ = 0;
-  png_set_read_fn(read_ptr, &input, &ReadPngFromStream);
-  png_read_png(read_ptr, read_info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+  png_set_read_fn(read_ptr_, &input, &ReadPngFromStream);
+  png_read_png(read_ptr_, read_info_ptr_, PNG_TRANSFORM_IDENTITY, NULL);
 
-  if (!opng_validate_image(read_ptr, read_info_ptr)) {
+  if (!opng_validate_image(read_ptr_, read_info_ptr_)) {
     return false;
   }
 
@@ -126,8 +131,8 @@ bool PngOptimizer::ReadPng(const std::string& body) {
 }
 
 bool PngOptimizer::WritePng(std::string* buffer) {
-  png_set_write_fn(write_ptr, buffer, &WritePngToString, &PngFlush);
-  png_write_png(write_ptr, write_info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+  png_set_write_fn(write_ptr_, buffer, &WritePngToString, &PngFlush);
+  png_write_png(write_ptr_, write_info_ptr_, PNG_TRANSFORM_IDENTITY, NULL);
 
   return true;
 }
@@ -135,8 +140,8 @@ bool PngOptimizer::WritePng(std::string* buffer) {
 void PngOptimizer::CopyReadToWrite() {
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type, compression_type, filter_type;
-  png_get_IHDR(read_ptr,
-               read_info_ptr,
+  png_get_IHDR(read_ptr_,
+               read_info_ptr_,
                &width,
                &height,
                &bit_depth,
@@ -145,8 +150,8 @@ void PngOptimizer::CopyReadToWrite() {
                &compression_type,
                &filter_type);
 
-  png_set_IHDR(write_ptr,
-               write_info_ptr,
+  png_set_IHDR(write_ptr_,
+               write_info_ptr_,
                width,
                height,
                bit_depth,
@@ -155,14 +160,14 @@ void PngOptimizer::CopyReadToWrite() {
                compression_type,
                filter_type);
 
-  png_bytepp row_pointers = png_get_rows(read_ptr, read_info_ptr);
-  png_set_rows(write_ptr, write_info_ptr, row_pointers);
+  png_bytepp row_pointers = png_get_rows(read_ptr_, read_info_ptr_);
+  png_set_rows(write_ptr_, write_info_ptr_, row_pointers);
 
   png_colorp palette;
   int num_palette;
-  if (png_get_PLTE(read_ptr, read_info_ptr, &palette, &num_palette) != 0) {
-    png_set_PLTE(write_ptr,
-                 write_info_ptr,
+  if (png_get_PLTE(read_ptr_, read_info_ptr_, &palette, &num_palette) != 0) {
+    png_set_PLTE(write_ptr_,
+                 write_info_ptr_,
                  palette,
                  num_palette);
   }
@@ -172,21 +177,21 @@ void PngOptimizer::CopyReadToWrite() {
   png_bytep trans;
   int num_trans;
   png_color_16p trans_values;
-  if (png_get_tRNS(read_ptr,
-                   read_info_ptr,
+  if (png_get_tRNS(read_ptr_,
+                   read_info_ptr_,
                    &trans,
                    &num_trans,
                    &trans_values) != 0) {
-    png_set_tRNS(write_ptr,
-                 write_info_ptr,
+    png_set_tRNS(write_ptr_,
+                 write_info_ptr_,
                  trans,
                  num_trans,
                  trans_values);
   }
 
   double gamma;
-  if (png_get_gAMA(read_ptr, read_info_ptr, &gamma) != 0) {
-    png_set_gAMA(write_ptr, write_info_ptr, gamma);
+  if (png_get_gAMA(read_ptr_, read_info_ptr_, &gamma) != 0) {
+    png_set_gAMA(write_ptr_, write_info_ptr_, gamma);
   }
 
   // Do not copy bkgd, hist or sbit sections, since they are not
