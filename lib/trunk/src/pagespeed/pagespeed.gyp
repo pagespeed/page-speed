@@ -190,8 +190,9 @@
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        'pagespeed_core'
-      ]
+        'pagespeed_core',
+        'pagespeed_png_optimizer'
+      ],
     },
     {
       'target_name': 'pagespeed_png_optimizer',
@@ -200,8 +201,10 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
         '<(pagespeed_root)/third_party/optipng/optipng.gyp:opngreduc',
+        '<(pagespeed_root)/third_party/optipng/optipng.gyp:pngxrgif',
       ],
       'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/gif_reader.cc',
         '<(pagespeed_root)/pagespeed/image_compression/png_optimizer.cc',
       ],
       'include_dirs': [
@@ -213,9 +216,15 @@
           '<(DEPTH)',
           '<(pagespeed_root)',
         ],
+        'defines': [
+          'PAGESPEED_PNG_OPTIMIZER_GIF_READER'
+        ],
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
+      ],
+      'defines': [
+        'PAGESPEED_PNG_OPTIMIZER_GIF_READER'
       ]
     },
     {
@@ -349,6 +358,7 @@
         '<(pagespeed_root)/pagespeed/rules/optimize_images_test.cc',
       ],
       'defines': [
+        'GIF_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/gif/"',
         'JPEG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/jpeg/"',
         'PNG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/pngsuite/"',
       ],

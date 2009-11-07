@@ -35,9 +35,23 @@ namespace pagespeed {
 
 namespace image_compression {
 
+// Helper class that provides an API to read a PNG image from some
+// source.
+class PngReaderInterface {
+ public:
+  // Parse the contents of body, convert to a PNG, and populate the
+  // PNG structures with the PNG representation. Returns true on
+  // success, false on failure.
+  virtual bool ReadPng(const std::string& body,
+                       png_structp png_ptr,
+                       png_infop info_ptr) = 0;
+};
+
 class PngOptimizer {
  public:
-  static bool OptimizePng(const std::string& in, std::string* out);
+  static bool OptimizePng(PngReaderInterface& reader,
+                          const std::string& in,
+                          std::string* out);
 
  private:
   PngOptimizer();
@@ -46,9 +60,10 @@ class PngOptimizer {
   // Take the given input and losslessly compress it by removing
   // all unnecessary chunks, and by choosing an optimal PNG encoding.
   // @return true on success, false on failure.
-  bool CreateOptimizedPng(const std::string& in, std::string* out);
+  bool CreateOptimizedPng(PngReaderInterface& reader,
+                          const std::string& in,
+                          std::string* out);
 
-  bool ReadPng(const std::string& body);
   bool WritePng(std::string* buffer);
   void CopyReadToWrite();
 
@@ -58,6 +73,14 @@ class PngOptimizer {
   png_infop write_info_ptr_;
 
   DISALLOW_COPY_AND_ASSIGN(PngOptimizer);
+};
+
+// Reader for PNG-encoded data.
+class PngReader : public PngReaderInterface {
+ public:
+  virtual bool ReadPng(const std::string& body,
+                       png_structp png_ptr,
+                       png_infop info_ptr);
 };
 
 }  // namespace image_compression

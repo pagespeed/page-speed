@@ -20,6 +20,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -54,14 +55,27 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
       compressed_size = compressed.size();
     } else if (type == PNG) {
       std::string compressed;
-      if (!image_compression::PngOptimizer::OptimizePng(original,
+      image_compression::PngReader reader;
+      if (!image_compression::PngOptimizer::OptimizePng(reader,
+                                                        original,
                                                         &compressed)) {
         error = true;
         continue;
       }
       compressed_size = compressed.size();
+#if defined(PAGESPEED_PNG_OPTIMIZER_GIF_READER)
+    } else if (type == GIF) {
+      std::string compressed;
+      image_compression::GifReader reader;
+      if (!image_compression::PngOptimizer::OptimizePng(reader,
+                                                        original,
+                                                        &compressed)) {
+        error = true;
+        continue;
+      }
+      compressed_size = compressed.size();
+#endif
     } else {
-      // TODO(mdsteele) add a case for GIF (and maybe other formats?)
       continue;
     }
 

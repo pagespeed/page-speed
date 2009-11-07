@@ -20,6 +20,8 @@
 
 #include <string>
 
+#include "pagespeed/image_compression/gif_reader.h"
+
 extern "C" {
 #include "third_party/libpng/png.h"
 #include "third_party/optipng/src/opngreduc.h"
@@ -71,7 +73,8 @@ PngOptimizer::~PngOptimizer() {
   png_destroy_write_struct(&write_ptr_, &write_info_ptr_);
 }
 
-bool PngOptimizer::CreateOptimizedPng(const std::string& in,
+bool PngOptimizer::CreateOptimizedPng(PngReaderInterface& reader,
+                                      const std::string& in,
                                       std::string* out) {
   // Configure error handlers.
   if (setjmp(read_ptr_->jmpbuf)) {
@@ -82,7 +85,11 @@ bool PngOptimizer::CreateOptimizedPng(const std::string& in,
     return false;
   }
 
-  if (!ReadPng(in)) {
+  if (!reader.ReadPng(in, read_ptr_, read_info_ptr_)) {
+    return false;
+  }
+
+  if (!opng_validate_image(read_ptr_, read_info_ptr_)) {
     return false;
   }
 
@@ -107,25 +114,24 @@ bool PngOptimizer::CreateOptimizedPng(const std::string& in,
   return true;
 }
 
-bool PngOptimizer::OptimizePng(const std::string& in, std::string* out) {
+bool PngOptimizer::OptimizePng(PngReaderInterface& reader,
+                               const std::string& in,
+                               std::string* out) {
   PngOptimizer o;
-  return o.CreateOptimizedPng(in, out);
+  return o.CreateOptimizedPng(reader, in, out);
 }
 
-bool PngOptimizer::ReadPng(const std::string& body) {
+bool PngReader::ReadPng(const std::string& body,
+                        png_structp png_ptr,
+                        png_infop info_ptr) {
   // Wrap the resource's response body in a structure that keeps a
   // pointer to the body and a read offset, and pass a pointer to this
   // object as the user data to be received by the PNG read function.
-
   PngInput input;
   input.data_ = &body;
   input.offset_ = 0;
-  png_set_read_fn(read_ptr_, &input, &ReadPngFromStream);
-  png_read_png(read_ptr_, read_info_ptr_, PNG_TRANSFORM_IDENTITY, NULL);
-
-  if (!opng_validate_image(read_ptr_, read_info_ptr_)) {
-    return false;
-  }
+  png_set_read_fn(png_ptr, &input, &ReadPngFromStream);
+  png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
   return true;
 }
