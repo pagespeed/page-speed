@@ -19,11 +19,14 @@
 #include <fstream>
 #include <string>
 
+#include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
+using pagespeed::image_compression::GifReader;
 using pagespeed::image_compression::JpegOptimizer;
 using pagespeed::image_compression::PngOptimizer;
+using pagespeed::image_compression::PngReader;
 
 namespace {
 
@@ -31,6 +34,7 @@ enum ImageType {
   NOT_SUPPORTED,
   JPEG,
   PNG,
+  GIF,
 };
 
 // use file extension to determine what optimizer should be used.
@@ -45,6 +49,8 @@ ImageType DetermineImageType(const std::string& filename) {
       return JPEG;
     } else if (extension == "png") {
       return PNG;
+    } else if (extension == "gif") {
+      return GIF;
     }
   }
   return NOT_SUPPORTED;
@@ -84,8 +90,17 @@ int main(int argc, char** argv) {
     success = JpegOptimizer::OptimizeJpeg(file_contents,
                                           &compressed);
   } else if (type == PNG) {
-    success = PngOptimizer::OptimizePng(file_contents,
+    PngReader reader;
+    success = PngOptimizer::OptimizePng(reader,
+                                        file_contents,
                                         &compressed);
+#if defined(PAGESPEED_PNG_OPTIMIZER_GIF_READER)
+  } else if (type == GIF) {
+    GifReader reader;
+    success = PngOptimizer::OptimizePng(reader,
+                                        file_contents,
+                                        &compressed);
+#endif
   } else {
     fprintf(stderr,
             "Unsupported image type when processing %s\n",
