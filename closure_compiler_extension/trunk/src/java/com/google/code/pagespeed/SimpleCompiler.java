@@ -15,11 +15,10 @@
  */
 package com.google.code.pagespeed;
 
-import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.JSSourceFile;
-import com.google.javascript.jscomp.VariableRenamingPolicy;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,34 +42,16 @@ public class SimpleCompiler {
    * @return the compiled equivalent of the input JS
    */
   public String doCompile(String uncompiledSource) {
+    CompilerOptions options = new CompilerOptions();
+    CompilationLevel.SIMPLE_OPTIMIZATIONS.
+        setOptionsForCompilationLevel(options);
+
     Compiler compiler = new Compiler();
     JSSourceFile[] code = new JSSourceFile[] {
         JSSourceFile.fromCode("uncompiledSource.js", uncompiledSource)
       };
     JSSourceFile[] externs = new JSSourceFile[] {};
-    compiler.compile(externs, code, createOptions());
+    compiler.compile(externs, code, options);
     return compiler.toSource();
-  }
-
-  /**
-   * Creates a fresh CompilerOptions object that only has safe transformations
-   * enabled.
-   */
-  private static CompilerOptions createOptions() {
-    CompilerOptions options = new CompilerOptions();
-    options.variableRenaming = VariableRenamingPolicy.LOCAL;
-    options.checkGlobalThisLevel = CheckLevel.OFF;
-    options.foldConstants = true;
-    options.removeConstantExpressions = true;
-    options.coalesceVariableNames = true;
-    options.deadAssignmentElimination = true;
-    options.extractPrototypeMemberDeclarations = true;
-    options.collapseVariableDeclarations = true;
-    options.collapseAnonymousFunctions = true;
-    options.convertToDottedProperties = true;
-    options.labelRenaming = true;
-    options.removeDeadCode = true;
-    options.optimizeArgumentsArray = true;
-    return options;
   }
 }
