@@ -21,7 +21,9 @@
 #include <string>
 
 #include "base/basictypes.h"
+#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #include "pagespeed/image_compression/gif_reader.h"
+#endif
 #include "pagespeed/image_compression/png_optimizer.h"
 #include "third_party/libpng/png.h"
 #include "third_party/readpng/cpp/readpng.h"
@@ -30,7 +32,9 @@
 
 namespace {
 
+#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 using pagespeed::image_compression::GifReader;
+#endif
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 
