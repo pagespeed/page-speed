@@ -346,7 +346,7 @@ TEST(PngOptimizerTest, InvalidPngs) {
   }
 }
 
-#if defined(PAGESPEED_PNG_OPTIMIZER_GIF_READER)
+#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 TEST(PngOptimizerTest, ValidGifs) {
   GifReader reader;
   for (int i = 0; i < kValidGifImageCount; i++) {

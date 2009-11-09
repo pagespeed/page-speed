@@ -20,8 +20,6 @@
 
 #include <string>
 
-#include "pagespeed/image_compression/gif_reader.h"
-
 extern "C" {
 #include "third_party/libpng/png.h"
 #include "third_party/optipng/src/opngreduc.h"
@@ -58,6 +56,9 @@ void PngFlush(png_structp write_ptr) {}
 namespace pagespeed {
 
 namespace image_compression {
+
+PngReaderInterface::~PngReaderInterface() {
+}
 
 PngOptimizer::PngOptimizer() {
   read_ptr_ = png_create_read_struct(PNG_LIBPNG_VER_STRING,
@@ -119,6 +120,9 @@ bool PngOptimizer::OptimizePng(PngReaderInterface& reader,
                                std::string* out) {
   PngOptimizer o;
   return o.CreateOptimizedPng(reader, in, out);
+}
+
+PngReader::~PngReader() {
 }
 
 bool PngReader::ReadPng(const std::string& body,
