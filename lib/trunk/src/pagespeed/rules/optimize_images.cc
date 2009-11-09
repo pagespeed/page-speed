@@ -20,7 +20,11 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+
+#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #include "pagespeed/image_compression/gif_reader.h"
+#endif  // PAGESPEED_PNG_OPTIMIZER_GIF_READER
+
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -63,7 +67,7 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
         continue;
       }
       compressed_size = compressed.size();
-#if defined(PAGESPEED_PNG_OPTIMIZER_GIF_READER)
+#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
     } else if (type == GIF) {
       std::string compressed;
       image_compression::GifReader reader;

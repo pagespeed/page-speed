@@ -19,6 +19,10 @@
 #ifndef PNG_OPTIMIZER_GIF_READER_H_
 #define PNG_OPTIMIZER_GIF_READER_H_
 
+#ifndef PAGESPEED_PNG_OPTIMIZER_GIF_READER
+#error "PAGESPEED_PNG_OPTIMIZER_GIF_READER is not set."
+#endif
+
 #include <string>
 
 #include "base/logging.h"
@@ -31,6 +35,8 @@ namespace image_compression {
 // Reader for GIF-encoded data.
 class GifReader : public PngReaderInterface {
  public:
+  virtual ~GifReader();
+
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr);

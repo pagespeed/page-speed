@@ -39,6 +39,8 @@ namespace image_compression {
 // source.
 class PngReaderInterface {
  public:
+  virtual ~PngReaderInterface();
+
   // Parse the contents of body, convert to a PNG, and populate the
   // PNG structures with the PNG representation. Returns true on
   // success, false on failure.
@@ -78,6 +80,7 @@ class PngOptimizer {
 // Reader for PNG-encoded data.
 class PngReader : public PngReaderInterface {
  public:
+  virtual ~PngReader();
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr);

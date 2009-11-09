@@ -28,6 +28,9 @@ namespace pagespeed {
 
 namespace image_compression {
 
+GifReader::~GifReader() {
+}
+
 bool GifReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
                         png_infop info_ptr) {
