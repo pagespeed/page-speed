@@ -19,11 +19,15 @@
 #include <fstream>
 #include <string>
 
+#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #include "pagespeed/image_compression/gif_reader.h"
+#endif
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
+#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 using pagespeed::image_compression::GifReader;
+#endif
 using pagespeed::image_compression::JpegOptimizer;
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
