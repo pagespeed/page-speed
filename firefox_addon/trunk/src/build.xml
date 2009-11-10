@@ -97,7 +97,7 @@
       <globmapper from="jpeg-6b/*" to="src/*"/>
     </copy>
     <copy todir="${dist_moz_ext}/dep/optipng">
-      <fileset dir="${third_party}/optipng" includes="**/*.c,**/*.h"/>
+      <fileset dir="${third_party}/optipng-all" includes="**/*.c,**/*.h"/>
       <filtermapper>
         <replacestring from="strutil.c" to="strutil_optipng.c"/>
       </filtermapper>
