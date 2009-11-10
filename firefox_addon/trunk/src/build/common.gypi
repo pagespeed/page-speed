@@ -16,4 +16,13 @@
   'includes': [
     '../third_party/chromium/src/build/common.gypi',
   ],
+  # As of r30253, Chromium's src/build/common.gypi turns on -fvisibility=hidden
+  # under certain conditions.  However, that breaks our build for some reason,
+  # so the setting below turns it back off.  A better fix for the future might
+  # be to add visibility pragmas to our code, or something.  (mdsteele)
+  'target_defaults': {
+    'cflags!': [
+      '-fvisibility=hidden',
+    ],
+  },
 }
