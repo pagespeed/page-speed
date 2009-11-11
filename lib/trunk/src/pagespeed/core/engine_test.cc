@@ -34,14 +34,24 @@ using pagespeed::formatters::ProtoFormatter;
 
 namespace {
 
+const char* kRuleName = "TestRule";
 const char* kHeader = "Test Rule";
 const char* kBody1 = "Example format string";
 const char* kBody2 = "Another format string";
 
 class TestRule : public Rule {
  public:
-  TestRule() : Rule("TestRule") {}
+  TestRule() {}
   virtual ~TestRule() {}
+
+  virtual const char* name() const {
+    return kRuleName;
+  }
+
+  // Human readable rule name.
+  virtual const char* header() const {
+    return kHeader;
+  }
 
   virtual bool AppendResults(const PagespeedInput& input, Results* results) {
     Result* result = results->add_results();
@@ -51,9 +61,8 @@ class TestRule : public Rule {
 
   virtual void FormatResults(const ResultVector& results,
                              Formatter* formatter) {
-    Formatter* header = formatter->AddChild(kHeader);
-    header->AddChild(kBody1);
-    header->AddChild(kBody2);
+    formatter->AddChild(kBody1);
+    formatter->AddChild(kBody2);
   }
 
  private:

@@ -16,7 +16,7 @@
 
 namespace pagespeed {
 
-Rule::Rule(const char* name) : name_(name) {}
+Rule::Rule() {}
 
 Rule::~Rule() {}
 

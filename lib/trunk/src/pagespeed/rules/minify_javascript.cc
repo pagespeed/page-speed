@@ -27,7 +27,15 @@ namespace pagespeed {
 
 namespace rules {
 
-MinifyJavaScript::MinifyJavaScript() : Rule("MinifyJavaScript") {
+MinifyJavaScript::MinifyJavaScript() {
+}
+
+const char* MinifyJavaScript::name() const {
+  return "MinifyJavaScript";
+}
+
+const char* MinifyJavaScript::header() const {
+  return "Minify JavaScript";
 }
 
 bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
@@ -65,8 +73,6 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
 
 void MinifyJavaScript::FormatResults(const ResultVector& results,
                                      Formatter* formatter) {
-  Formatter* header = formatter->AddChild("Minify JavaScript");
-
   int total_bytes_saved = 0;
 
   for (ResultVector::const_iterator iter = results.begin(),
@@ -79,9 +85,9 @@ void MinifyJavaScript::FormatResults(const ResultVector& results,
   }
 
   Argument arg(Argument::BYTES, total_bytes_saved);
-  Formatter* body = header->AddChild("Minifying the following JavaScript "
-                                     "resources using JSMin could reduce "
-                                     "their size by $1.", arg);
+  Formatter* body = formatter->AddChild("Minifying the following JavaScript "
+                                        "resources using JSMin could reduce "
+                                        "their size by $1.", arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();

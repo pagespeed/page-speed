@@ -33,7 +33,15 @@ namespace pagespeed {
 
 namespace rules {
 
-OptimizeImages::OptimizeImages() : Rule("OptimizeImages") {}
+OptimizeImages::OptimizeImages() : Rule() {}
+
+const char* OptimizeImages::name() const {
+  return "OptimizeImages";
+}
+
+const char* OptimizeImages::header() const {
+  return "Optimize images";
+}
 
 bool OptimizeImages::AppendResults(const PagespeedInput& input,
                                    Results* results) {
@@ -102,8 +110,6 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
 
 void OptimizeImages::FormatResults(const ResultVector& results,
                                    Formatter* formatter) {
-  Formatter* header = formatter->AddChild("Optimize images");
-
   int total_bytes_saved = 0;
 
   for (ResultVector::const_iterator iter = results.begin(),
@@ -116,9 +122,9 @@ void OptimizeImages::FormatResults(const ResultVector& results,
   }
 
   Argument arg(Argument::BYTES, total_bytes_saved);
-  Formatter* body = header->AddChild("Optimizing the following image "
-                                     "resources could reduce "
-                                     "their size by $1.", arg);
+  Formatter* body = formatter->AddChild("Optimizing the following image "
+                                        "resources could reduce "
+                                        "their size by $1.", arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();

@@ -49,8 +49,15 @@ namespace pagespeed {
 
 namespace rules {
 
-ServeResourcesFromAConsistentUrl::ServeResourcesFromAConsistentUrl()
-    : Rule("ServeResourcesFromAConsistentUrl") {
+ServeResourcesFromAConsistentUrl::ServeResourcesFromAConsistentUrl() {
+}
+
+const char* ServeResourcesFromAConsistentUrl::name() const {
+  return "ServeResourcesFromAConsistentUrl";
+}
+
+const char* ServeResourcesFromAConsistentUrl::header() const {
+  return "Serve resources from a consistent URL";
 }
 
 bool ServeResourcesFromAConsistentUrl::AppendResults(
@@ -98,9 +105,6 @@ bool ServeResourcesFromAConsistentUrl::AppendResults(
 
 void ServeResourcesFromAConsistentUrl::FormatResults(
     const ResultVector& results, Formatter* formatter) {
-  Formatter* header =
-      formatter->AddChild("Serve resources from a consistent URL");
-
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
@@ -110,7 +114,7 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
         Argument::INTEGER, result.savings().requests_saved());
     Argument num_bytes_arg(
         Argument::BYTES, result.savings().response_bytes_saved());
-    Formatter* body = header->AddChild(
+    Formatter* body = formatter->AddChild(
         "The following resources have identical contents, but are served from "
         "different URLs. Serve these resources from a consistent URL to save "
         "$1 requests and $2.",

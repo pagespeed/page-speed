@@ -59,7 +59,15 @@ namespace pagespeed {
 
 namespace rules {
 
-MinimizeDnsLookups::MinimizeDnsLookups() : Rule("MinimizeDnsLookups") {
+MinimizeDnsLookups::MinimizeDnsLookups() {
+}
+
+const char* MinimizeDnsLookups::name() const {
+  return "MinimizeDnsLookups";
+}
+
+const char* MinimizeDnsLookups::header() const {
+  return "Minimize DNS lookups";
 }
 
 bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
@@ -137,9 +145,7 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
     return;
   }
 
-  Formatter* header = formatter->AddChild("Minimize DNS lookups");
-
-  Formatter* body = header->AddChild(
+  Formatter* body = formatter->AddChild(
       "The domains of the following urls only serve one "
       "resource each. If possible, avoid the extra DNS "
       "lookups by serving these resources from existing domains.");

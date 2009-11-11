@@ -91,7 +91,8 @@ bool Engine::FormatResults(const Results& results, Formatter* formatter) {
       continue;
     }
     const std::vector<const Result*>& rule_results = iter->second;
-    rule->FormatResults(rule_results, formatter);
+    Formatter* rule_formatter = formatter->AddChild(rule->header());
+    rule->FormatResults(rule_results, rule_formatter);
   }
   formatter->Done();
 
