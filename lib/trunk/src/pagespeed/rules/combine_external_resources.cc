@@ -27,9 +27,8 @@ namespace pagespeed {
 
 namespace rules {
 
-CombineExternalResources::CombineExternalResources(const char* rule_name,
-                                                   ResourceType resource_type)
-    : Rule(rule_name), resource_type_(resource_type) {
+CombineExternalResources::CombineExternalResources(ResourceType resource_type)
+    : resource_type_(resource_type) {
 }
 
 bool CombineExternalResources::AppendResults(const PagespeedInput& input,
@@ -86,21 +85,16 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
 
 void CombineExternalResources::FormatResults(const ResultVector& results,
                                              Formatter* formatter) {
-  const char* header_str = NULL;
   const char* body_tmpl = NULL;
   if (resource_type_ == CSS) {
-    header_str = "Combine external CSS";
     body_tmpl = "There are $1 CSS files served from $2. "
         "They should be combined into as few files as possible.";
   } else if (resource_type_ == JS) {
-    header_str = "Combine external Javascript";
     body_tmpl = "There are $1 JavaScript files served from $2. "
         "They should be combined into as few files as possible.";
   } else {
     CHECK(false);
   }
-
-  Formatter* header = formatter->AddChild(header_str);
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -111,7 +105,7 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
     Argument count(Argument::INTEGER, result.resource_urls_size());
     GURL url(result.resource_urls(0));
     Argument host(Argument::STRING, url.host());
-    Formatter* body = header->AddChild(body_tmpl, count, host);
+    Formatter* body = formatter->AddChild(body_tmpl, count, host);
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       Argument url(Argument::URL, result.resource_urls(idx));
@@ -121,11 +115,27 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
 }
 
 CombineExternalJavaScript::CombineExternalJavaScript()
-    : CombineExternalResources("CombineExternalJavaScript", JS) {
+    : CombineExternalResources(JS) {
+}
+
+const char* CombineExternalJavaScript::name() const {
+  return "CombineExternalJavaScript";
+}
+
+const char* CombineExternalJavaScript::header() const {
+  return "Combine external JavaScript";
 }
 
 CombineExternalCSS::CombineExternalCSS()
-    : CombineExternalResources("CombineExternalCSS", CSS) {
+    : CombineExternalResources(CSS) {
+}
+
+const char* CombineExternalCSS::name() const {
+  return "CombineExternalCSS";
+}
+
+const char* CombineExternalCSS::header() const {
+  return "Combine external CSS";
 }
 
 }  // namespace rules

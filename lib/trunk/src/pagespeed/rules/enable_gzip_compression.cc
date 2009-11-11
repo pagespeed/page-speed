@@ -24,20 +24,21 @@
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "third_party/zlib/zlib.h"
 
-namespace {
-
-const char* kRuleName = "EnableGzipCompression";
-
-}  // namespace
-
 namespace pagespeed {
 
 namespace rules {
 
 EnableGzipCompression::EnableGzipCompression(SavingsComputer* computer)
-    : Rule(kRuleName),
-      computer_(computer) {
+    : computer_(computer) {
   CHECK(NULL != computer) << "SavingsComputer must be non-null.";
+}
+
+const char* EnableGzipCompression::name() const {
+  return "EnableGzipCompression";
+}
+
+const char* EnableGzipCompression::header() const {
+  return "Enable gzip compression";
 }
 
 bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
@@ -70,8 +71,6 @@ bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
 
 void EnableGzipCompression::FormatResults(
     const ResultVector& results, Formatter* formatter) {
-  Formatter* header = formatter->AddChild("Enable gzip compression");
-
   int total_bytes_saved = 0;
 
   for (ResultVector::const_iterator iter = results.begin(),
@@ -84,10 +83,10 @@ void EnableGzipCompression::FormatResults(
   }
 
   Argument arg(Argument::BYTES, total_bytes_saved);
-  Formatter* body = header->AddChild("Compressing the following "
-                                     "resources with gzip could reduce "
-                                     "their transfer size by $1.",
-                                     arg);
+  Formatter* body = formatter->AddChild("Compressing the following "
+                                        "resources with gzip could reduce "
+                                        "their transfer size by $1.",
+                                        arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();

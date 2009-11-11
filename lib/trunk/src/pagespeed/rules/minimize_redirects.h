@@ -35,6 +35,8 @@ class MinimizeRedirects : public Rule {
   MinimizeRedirects();
 
   // Rule interface.
+  virtual const char* name() const;
+  virtual const char* header() const;
   virtual bool AppendResults(const PagespeedInput& input, Results* results);
   virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 

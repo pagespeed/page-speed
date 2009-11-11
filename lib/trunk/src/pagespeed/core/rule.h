@@ -34,10 +34,15 @@ class Rule {
  public:
   typedef std::vector<const Result*> ResultVector;
 
-  explicit Rule(const char* name);
+  Rule();
   virtual ~Rule();
 
-  const std::string& name() const { return name_; }
+  // String that should be used to identify this rule during result
+  // serialization.
+  virtual const char* name() const = 0;
+
+  // Human readable rule name.
+  virtual const char* header() const = 0;
 
   // Compute results and append it to the results set.
   //
@@ -52,9 +57,6 @@ class Rule {
   // @param formatter Output formatter
   virtual void FormatResults(const ResultVector& results,
                              Formatter* formatter) = 0;
-
- private:
-  const std::string name_;
 };
 
 }  // namespace pagespeed

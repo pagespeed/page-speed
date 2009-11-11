@@ -158,7 +158,15 @@ namespace pagespeed {
 
 namespace rules {
 
-MinimizeRedirects::MinimizeRedirects() : Rule(kRuleName) {
+MinimizeRedirects::MinimizeRedirects() {
+}
+
+const char* MinimizeRedirects::name() const {
+  return kRuleName;
+}
+
+const char* MinimizeRedirects::header() const {
+  return "Minimize redirects";
 }
 
 /**
@@ -194,13 +202,11 @@ bool MinimizeRedirects::AppendResults(const PagespeedInput& input,
 
 void MinimizeRedirects::FormatResults(const ResultVector& results,
                                       Formatter* formatter) {
-  Formatter* header = formatter->AddChild("Minimize redirects");
-
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
        ++iter) {
-    Formatter* body = header->AddChild(
+    Formatter* body = formatter->AddChild(
         "Remove the following redirect chain if possible:");
 
     const Result& result = **iter;

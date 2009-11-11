@@ -28,7 +28,7 @@ namespace rules {
  */
 class CombineExternalResources : public Rule {
  protected:
-  CombineExternalResources(const char* rule_name, ResourceType resource_type);
+  explicit CombineExternalResources(ResourceType resource_type);
 
  public:
   // Rule interface.
@@ -44,6 +44,10 @@ class CombineExternalJavaScript : public CombineExternalResources {
  public:
   CombineExternalJavaScript();
 
+  // Rule interface.
+  virtual const char* name() const;
+  virtual const char* header() const;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(CombineExternalJavaScript);
 };
@@ -51,6 +55,10 @@ class CombineExternalJavaScript : public CombineExternalResources {
 class CombineExternalCSS : public CombineExternalResources {
  public:
   CombineExternalCSS();
+
+  // Rule interface.
+  virtual const char* name() const;
+  virtual const char* header() const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CombineExternalCSS);
