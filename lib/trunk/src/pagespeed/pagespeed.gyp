@@ -139,8 +139,8 @@
       'target_name': 'pagespeed_jpeg_optimizer',
       'type': '<(library)',
       'dependencies': [
-        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
         '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/third_party/libjpeg/libjpeg.gyp:libjpeg',
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/image_compression/jpeg_optimizer.cc',
@@ -153,9 +153,6 @@
           '<(pagespeed_root)',
         ],
       },
-      'export_dependent_settings': [
-        '<(DEPTH)/base/base.gyp:base',
-      ],
     },
     {
       'target_name': 'pagespeed',

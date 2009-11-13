@@ -21,7 +21,10 @@
 #include <setjmp.h>  // for setjmp/longjmp
 #include <string.h>  // for memset
 
+#include "base/basictypes.h"
+
 extern "C" {
+#include "jpeglib.h"
 #include "jerror.h"
 }
 
@@ -155,11 +158,32 @@ void OutputMessage(j_common_ptr jpeg_decompress) {
   */
 }
 
-}  // namespace
+class JpegOptimizer {
+ public:
+  JpegOptimizer();
+  ~JpegOptimizer();
 
-namespace pagespeed {
+  // Take the given input file and losslessly compress it by removing
+  // all unnecessary chunks.  If this function fails (returns false),
+  // it can be called again.
+  // @return true on success, false on failure.
+  bool CreateOptimizedJpeg(const std::string &original,
+                           std::string *compressed);
 
-namespace image_compression {
+ private:
+  bool DoCreateOptimizedJpeg(const std::string &original,
+                             std::string *compressed);
+
+  // Structures for jpeg decompression
+  jpeg_decompress_struct jpeg_decompress_;
+  jpeg_error_mgr decompress_error_;
+
+  // Structures for jpeg compression.
+  jpeg_compress_struct jpeg_compress_;
+  jpeg_error_mgr compress_error_;
+
+  DISALLOW_COPY_AND_ASSIGN(JpegOptimizer);
+};
 
 JpegOptimizer::JpegOptimizer() {
   memset(&jpeg_decompress_, 0, sizeof(jpeg_decompress_struct));
@@ -245,8 +269,14 @@ bool JpegOptimizer::CreateOptimizedJpeg(const std::string &original,
   return result;
 }
 
-bool JpegOptimizer::OptimizeJpeg(const std::string &original,
-                                 std::string *compressed) {
+}  // namespace
+
+namespace pagespeed {
+
+namespace image_compression {
+
+bool OptimizeJpeg(const std::string &original,
+                  std::string *compressed) {
   JpegOptimizer optimizer;
   return optimizer.CreateOptimizedJpeg(original, compressed);
 }
