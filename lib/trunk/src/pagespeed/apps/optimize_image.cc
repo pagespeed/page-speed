@@ -28,7 +28,7 @@
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 using pagespeed::image_compression::GifReader;
 #endif
-using pagespeed::image_compression::JpegOptimizer;
+using pagespeed::image_compression::OptimizeJpeg;
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 
@@ -91,8 +91,7 @@ int main(int argc, char** argv) {
 
   bool success = false;
   if (type == JPEG) {
-    success = JpegOptimizer::OptimizeJpeg(file_contents,
-                                          &compressed);
+    success = OptimizeJpeg(file_contents, &compressed);
   } else if (type == PNG) {
     PngReader reader;
     success = PngOptimizer::OptimizePng(reader,

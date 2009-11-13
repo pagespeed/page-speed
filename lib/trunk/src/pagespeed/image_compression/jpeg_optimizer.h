@@ -21,46 +21,12 @@
 
 #include <string>
 
-#include "base/basictypes.h"
-
-extern "C" {
-#include "jpeglib.h"
-}
-
 namespace pagespeed {
 
 namespace image_compression {
 
-class JpegOptimizer {
- public:
-  JpegOptimizer();
-  ~JpegOptimizer();
-
-  static bool OptimizeJpeg(const std::string &original,
-                           std::string *compressed);
-
-  // Take the given input file and losslessly compress it by removing
-  // all unnecessary chunks.  If this function fails (returns false),
-  // it can be called again.
-  // @return true on success, false on failure.
-  bool CreateOptimizedJpeg(const std::string &original,
-                           std::string *compressed);
-
- private:
-  bool DoCreateOptimizedJpeg(const std::string &original,
-                             std::string *compressed);
-
- private:
-  // Structures for jpeg decompression
-  jpeg_decompress_struct jpeg_decompress_;
-  jpeg_error_mgr decompress_error_;
-
-  // Structures for jpeg compression.
-  jpeg_compress_struct jpeg_compress_;
-  jpeg_error_mgr compress_error_;
-
-  DISALLOW_COPY_AND_ASSIGN(JpegOptimizer);
-};
+bool OptimizeJpeg(const std::string &original,
+                  std::string *compressed);
 
 }  // namespace image_compression
 

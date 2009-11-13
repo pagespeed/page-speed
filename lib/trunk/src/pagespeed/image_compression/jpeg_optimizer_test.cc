@@ -27,6 +27,8 @@
 
 namespace {
 
+using pagespeed::image_compression::OptimizeJpeg;
+
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
 const std::string kJpegTestDir = JPEG_TEST_DIR_PATH;
 
@@ -84,8 +86,7 @@ TEST(JpegOptimizerTest, ValidJpegs) {
     std::string src_data;
     ReadFileToString(kValidImages[i].filename, &src_data);
     std::string dest_data;
-    pagespeed::image_compression::JpegOptimizer optimizer;
-    ASSERT_TRUE(optimizer.CreateOptimizedJpeg(src_data, &dest_data));
+    ASSERT_TRUE(OptimizeJpeg(src_data, &dest_data));
     EXPECT_EQ(kValidImages[i].original_size, src_data.size())
         << kValidImages[i].filename;
     EXPECT_EQ(kValidImages[i].compressed_size, dest_data.size())
@@ -105,8 +106,7 @@ TEST(JpegOptimizerTest, InvalidJpegs) {
     std::string src_data;
     ReadFileToString(kInvalidFiles[i], &src_data);
     std::string dest_data;
-    pagespeed::image_compression::JpegOptimizer optimizer;
-    ASSERT_FALSE(optimizer.CreateOptimizedJpeg(src_data, &dest_data));
+    ASSERT_FALSE(OptimizeJpeg(src_data, &dest_data));
   }
 }
 
@@ -122,8 +122,7 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
     ReadFileToString(kValidImages[i].filename, &src_data);
     correctly_compressed.push_back("");
     std::string &dest_data = correctly_compressed.back();
-    pagespeed::image_compression::JpegOptimizer optimizer;
-    ASSERT_TRUE(optimizer.CreateOptimizedJpeg(src_data, &dest_data));
+    ASSERT_TRUE(OptimizeJpeg(src_data, &dest_data));
   }
 
   // The invalid files are all invalid in different ways, and we want to cover
@@ -140,11 +139,8 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
     ReadFileToString(kValidImages[i].filename, &valid_src_data);
     std::string valid_dest_data;
 
-    pagespeed::image_compression::JpegOptimizer optimizer;
-    ASSERT_FALSE(optimizer.CreateOptimizedJpeg(invalid_src_data,
-                                               &invalid_dest_data));
-    ASSERT_TRUE(optimizer.CreateOptimizedJpeg(valid_src_data,
-                                              &valid_dest_data));
+    ASSERT_FALSE(OptimizeJpeg(invalid_src_data, &invalid_dest_data));
+    ASSERT_TRUE(OptimizeJpeg(valid_src_data, &valid_dest_data));
 
     // Diff the jpeg created by CreateOptimizedJpeg() with the one created
     // with a reinitialized JpegOptimizer.

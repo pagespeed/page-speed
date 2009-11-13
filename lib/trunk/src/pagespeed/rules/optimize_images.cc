@@ -59,8 +59,7 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
 
     if (type == JPEG) {
       std::string compressed;
-      if (!image_compression::JpegOptimizer::OptimizeJpeg(original,
-                                                          &compressed)) {
+      if (!image_compression::OptimizeJpeg(original, &compressed)) {
         error = true;
         continue;
       }
