@@ -89,6 +89,22 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
     };
     ruleResults.push(lintRuleInfo);
   }
+
+  // Sorting the rules by a stable key makes it easier to compare
+  // results written to a file with diff.
+  ruleResults.sort(function(ruleA, ruleB) {
+    var ruleAshortName = ruleA.shortName;
+    var ruleBshortName = ruleB.shortName;
+
+    if (ruleAshortName > ruleBshortName) {
+      return 1;
+    } else if (ruleAshortName == ruleBshortName) {
+      return 0;
+    } else {
+      return -1;
+    }
+  });
+
   this.results_.rules = ruleResults;
 
   // The tags object holds tags.  See PAGESPEED.ResultsContainer.addTags().
