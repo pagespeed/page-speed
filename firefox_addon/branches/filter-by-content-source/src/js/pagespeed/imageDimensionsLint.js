@@ -93,8 +93,6 @@ function hasCssDimensions(element) {
  *     allows rules to fetch content by type.
  */
 var imageDimensionsLint = function(resourceAccessor) {
-  // TODO: Update this rule to use |resourceAccessor|.
-
   if (!domUtils) {
     this.information = ('This rule requires the DOM Inspector extension to ' +
                         'be installed and enabled.');
@@ -116,6 +114,10 @@ var imageDimensionsLint = function(resourceAccessor) {
   for (var i = 0, len = images.length; i < len; ++i) {
     // Do not report images that have no source.
     if (!images[i].src) continue;
+
+    // Is this image one we should be scoring?
+    if (!resourceAccessor.isResourceUnderTest(images[i].src, ['image']))
+      continue;
 
     if (images[i].style.position != 'absolute' &&
         !hasHtmlDimensions(images[i]) &&
