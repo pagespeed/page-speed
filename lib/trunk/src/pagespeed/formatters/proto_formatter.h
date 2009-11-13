@@ -26,10 +26,13 @@ namespace formatters {
 /**
  * Formatter that populates a ResultText protobuf.
  */
-class ProtoFormatter : public Formatter {
+class ProtoFormatter : public RuleFormatter {
  public:
   explicit ProtoFormatter(std::vector<ResultText*>* results);
   explicit ProtoFormatter(ResultText* parent_text);
+
+  // RuleFormatter interface
+  virtual Formatter* AddHeader(const std::string& header, int score);
 
  protected:
   // Formatter interface

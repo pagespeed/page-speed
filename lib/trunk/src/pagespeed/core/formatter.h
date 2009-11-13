@@ -50,9 +50,6 @@ class Argument {
   DISALLOW_COPY_AND_ASSIGN(Argument);
 };
 
-/**
- * Result text formatter interface.
- */
 class Formatter {
  public:
   virtual ~Formatter();
@@ -99,6 +96,16 @@ class Formatter {
 
   scoped_ptr<Formatter> active_child_;
   DISALLOW_COPY_AND_ASSIGN(Formatter);
+};
+
+class RuleFormatter : public Formatter {
+ public:
+  virtual ~RuleFormatter();
+
+  // Higher-level overridable method that adds a rule header.
+  // Reference implementations are implemented in terms of AddChild;
+  // ignoring the rule score.
+  virtual Formatter* AddHeader(const std::string& header, int score) = 0;
 };
 
 }  // namespace pagespeed

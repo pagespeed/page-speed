@@ -26,9 +26,12 @@ namespace formatters {
 /**
  * Formatter that produces JSON.
  */
-class JsonFormatter : public Formatter {
+class JsonFormatter : public RuleFormatter {
  public:
   explicit JsonFormatter(std::ostream* output);
+
+  // RuleFormatter interface.
+  virtual Formatter* AddHeader(const std::string& header, int score);
 
  protected:
   // Formatter interface

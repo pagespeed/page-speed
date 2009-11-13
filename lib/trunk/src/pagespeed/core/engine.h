@@ -21,17 +21,19 @@
 #define PAGESPEED_CORE_ENGINE_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
 
 namespace pagespeed {
 
-class Formatter;
+class InputInformation;
 class PagespeedInput;
 class ResultText;
 class Results;
 class Rule;
+class RuleFormatter;
 
 class Engine {
  public:
@@ -48,12 +50,14 @@ class Engine {
   // Compute and add results to the result set by querying rule
   // objects about results they produce.
   // @return true iff the computation was completed without errors.
-  bool ComputeResults(const PagespeedInput& input, Results* results);
+  bool ComputeResults(const PagespeedInput& input, Results* results) const;
 
   // Generate a formatted representation of the results, such as
   // human-readable markup that will be displayed to a user.
   // @return true iff the formatting was completed without errors.
-  bool FormatResults(const Results& results, Formatter* formatter);
+  bool FormatResults(const Results& results,
+                     const InputInformation& input_info,
+                     RuleFormatter* formatter) const;
 
   // Compute the results and generate their formatted
   // representation. This is a convenience method that invokes both
@@ -62,13 +66,15 @@ class Engine {
   // false is returned, the formatter will only be invoked for those
   // results that did not generate errors.
   bool ComputeAndFormatResults(const PagespeedInput& input,
-                               Formatter* formatter);
+                               RuleFormatter* formatter) const;
 
  private:
   void PopulateNameToRuleMap();
 
+  typedef std::map<std::string, Rule*> NameToRuleMap;
+
   std::vector<Rule*> rules_;
-  std::map<std::string, Rule*> name_to_rule_map_;
+  NameToRuleMap name_to_rule_map_;
   bool init_;
 
   DISALLOW_COPY_AND_ASSIGN(Engine);

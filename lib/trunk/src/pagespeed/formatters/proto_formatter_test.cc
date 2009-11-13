@@ -46,6 +46,31 @@ TEST(ProtoFormatterTest, BasicTest) {
   STLDeleteContainerPointers(results.begin(), results.end());
 }
 
+TEST(ProtoFormatterTest, BasicHeaderTest) {
+  std::vector<ResultText*> results;
+  ProtoFormatter formatter(&results);
+  Formatter* child_formatter = formatter.AddHeader("head", 42);
+  child_formatter->AddChild("foo");
+  child_formatter->AddChild("bar");
+  formatter.AddHeader("head2", 23);
+  formatter.Done();
+
+  ASSERT_EQ(results.size(), 2);
+  ResultText* first = results[0];
+  EXPECT_EQ("head", first->format());
+  EXPECT_EQ(0, first->args_size());
+  ASSERT_EQ(2, first->children_size());
+  EXPECT_EQ("foo", first->children(0).format());
+  EXPECT_EQ("bar", first->children(1).format());
+
+  ResultText* second = results[1];
+  EXPECT_EQ("head2", second->format());
+  EXPECT_EQ(0, second->args_size());
+  EXPECT_EQ(0, second->children_size());
+
+  STLDeleteContainerPointers(results.begin(), results.end());
+}
+
 TEST(ProtoFormatterTest, TreeTest) {
   std::vector<ResultText*> results;
   ProtoFormatter formatter(&results);

@@ -33,6 +33,21 @@ TEST(HtmlFormatterTest, BasicTest) {
   EXPECT_EQ("<h1>foo</h1>\n<h1>bar</h1>\n", result);
 }
 
+TEST(HtmlFormatterTest, BasicHeaderTest) {
+  std::stringstream output;
+  HtmlFormatter formatter(&output);
+  Formatter* child_formatter = formatter.AddHeader("head", 42);
+  child_formatter->AddChild("foo");
+  child_formatter->AddChild("bar");
+  formatter.AddHeader("head2", 23);
+  formatter.Done();
+  std::string result = output.str();
+  EXPECT_EQ("<h1>42 head</h1>\n"
+            " <h2>foo</h2>\n"
+            " <h2>bar</h2>\n"
+            "<h1>23 head2</h1>\n", result);
+}
+
 TEST(HtmlFormatterTest, TreeTest) {
   std::stringstream output;
   HtmlFormatter formatter(&output);

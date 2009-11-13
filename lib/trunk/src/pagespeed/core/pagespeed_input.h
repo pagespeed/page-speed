@@ -21,9 +21,11 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 
 namespace pagespeed {
 
+class InputInformation;
 class Resource;
 
 typedef std::vector<const Resource*> ResourceVector;
@@ -55,12 +57,14 @@ class PagespeedInput {
   int num_resources() const;
   const Resource& GetResource(int idx) const;
   const HostResourceMap* GetHostResourceMap() const;
+  const InputInformation* input_information() const;
 
  private:
   std::vector<const Resource*> resources_;
   std::set<std::string> resource_urls_;
   HostResourceMap host_resource_map_;
   bool allow_duplicate_resources_;
+  scoped_ptr<InputInformation> input_info_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };

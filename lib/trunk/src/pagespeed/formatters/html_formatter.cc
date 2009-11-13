@@ -35,11 +35,10 @@ void HtmlFormatter::Indent(int level) {
   }
 }
 
-void HtmlFormatter::DoneAddingChildren() {
-  if (has_children_ && level_ >= 2) {
-    Indent(level_ - 1);
-    *output_ << "</ul>" << std::endl;
-  }
+Formatter* HtmlFormatter::AddHeader(const std::string& header, int score) {
+  Argument score_arg(Argument::INTEGER, score);
+  Argument header_arg(Argument::STRING, header);
+  return AddChild("$1 $2", score_arg, header_arg);
 }
 
 Formatter* HtmlFormatter::NewChild(
@@ -68,6 +67,13 @@ Formatter* HtmlFormatter::NewChild(
   }
 
   return new HtmlFormatter(output_, level_ + 1);
+}
+
+void HtmlFormatter::DoneAddingChildren() {
+  if (has_children_ && level_ >= 2) {
+    Indent(level_ - 1);
+    *output_ << "</ul>" << std::endl;
+  }
 }
 
 std::string HtmlFormatter::Format(

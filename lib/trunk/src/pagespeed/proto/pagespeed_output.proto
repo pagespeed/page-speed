@@ -32,6 +32,17 @@ message Savings {
   optional int32 response_bytes_saved = 3;
 }
 
+message InputInformation {
+  // Number of resources accessed while rendering the page.
+  optional int32 number_resources = 1;
+
+  // Number of hosts among which the page was sharded.
+  optional int32 number_hosts = 2;
+
+  // Total server response bytes.
+  optional int64 total_response_bytes = 3;
+}
+
 // Base class for result details
 // Ids 1000 and above are reserved for custom result details.  All
 // custom details must have different ids.

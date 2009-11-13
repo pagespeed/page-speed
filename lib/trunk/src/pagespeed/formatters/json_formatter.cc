@@ -107,6 +107,13 @@ void JsonFormatter::DoneAddingChildren() {
   }
 }
 
+Formatter* JsonFormatter::AddHeader(const std::string& header, int score) {
+  Argument arg(Argument::STRING, header);
+  Formatter* child_formatter = AddChild("$1", arg);
+  *output_ << ",\"score\":" << score;
+  return child_formatter;
+}
+
 Formatter* JsonFormatter::NewChild(
     const std::string& format_str,
     const std::vector<const Argument*>& arguments) {

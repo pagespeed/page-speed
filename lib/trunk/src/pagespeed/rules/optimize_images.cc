@@ -33,7 +33,7 @@ namespace pagespeed {
 
 namespace rules {
 
-OptimizeImages::OptimizeImages() : Rule() {}
+OptimizeImages::OptimizeImages() {}
 
 const char* OptimizeImages::name() const {
   return "OptimizeImages";
@@ -119,6 +119,10 @@ void OptimizeImages::FormatResults(const ResultVector& results,
     const Result& result = **iter;
     const Savings& savings = result.savings();
     total_bytes_saved += savings.response_bytes_saved();
+  }
+
+  if (total_bytes_saved == 0) {
+    return;
   }
 
   Argument arg(Argument::BYTES, total_bytes_saved);

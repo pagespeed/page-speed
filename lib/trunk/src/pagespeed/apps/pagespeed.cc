@@ -19,19 +19,56 @@
 #include <fstream>
 
 #include "base/logging.h"
+#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "google/protobuf/text_format.h"
+#include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/formatters/html_formatter.h"
+#include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
 
-void ProcessInput(const pagespeed::ProtoInput& input_proto) {
+/**
+ * Formatter that prints the binary ResultText protobuf output.
+ */
+class PrintProtoFormatter : public pagespeed::formatters::ProtoFormatter {
+ public:
+  PrintProtoFormatter() : ProtoFormatter(&results_) {}
+  virtual ~PrintProtoFormatter() {
+    STLDeleteContainerPointers(results_.begin(), results_.end());
+  }
+
+ protected:
+  // Formatter interface
+  virtual void DoneAddingChildren() {
+    ProtoFormatter::DoneAddingChildren();
+
+    ::google::protobuf::io::OstreamOutputStream out_stream(&std::cout);
+    for (std::vector<pagespeed::ResultText*>::const_iterator
+             it = results_.begin(),
+             end = results_.end();
+         it != end;
+         ++it) {
+      (*it)->SerializeToZeroCopyStream(&out_stream);
+    }
+  }
+
+ private:
+  std::vector<pagespeed::ResultText*> results_;
+};
+
+void ProcessInput(const pagespeed::ProtoInput& input_proto,
+                  pagespeed::RuleFormatter* formatter) {
   std::vector<pagespeed::Rule*> rules;
   pagespeed::rule_provider::AppendCoreRules(&rules);
 
@@ -42,22 +79,27 @@ void ProcessInput(const pagespeed::ProtoInput& input_proto) {
   pagespeed::PagespeedInput input;
   pagespeed::proto::PopulatePagespeedInput(input_proto, &input);
 
-  pagespeed::formatters::TextFormatter formatter(&std::cout);
-  engine.ComputeAndFormatResults(input, &formatter);
+  engine.ComputeAndFormatResults(input, formatter);
+}
+
+void PrintUsage() {
+  fprintf(stderr, "Usage: pagespeed <format> <input>\n");
 }
 
 }  // namespace
 
 int main(int argc, char** argv) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: pagespeed <input>\n");
+  if (argc != 3) {
+    PrintUsage();
     return 1;
   }
 
-  std::string filename = argv[1];
+  std::string format = argv[1];
+  std::string filename = argv[2];
   std::ifstream in(filename.c_str());
   if (!in) {
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
+    PrintUsage();
     return 1;
   }
 
@@ -73,7 +115,22 @@ int main(int argc, char** argv) {
       file_contents, &input);
   CHECK(success);
 
-  ProcessInput(input);
+  scoped_ptr<pagespeed::RuleFormatter> formatter;
+  if (format == "html") {
+    formatter.reset(new pagespeed::formatters::HtmlFormatter(&std::cout));
+  } else if (format == "json") {
+    formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout));
+  } else if (format == "proto") {
+    formatter.reset(new PrintProtoFormatter);
+  } else if (format == "text") {
+    formatter.reset(new pagespeed::formatters::TextFormatter(&std::cout));
+  } else {
+    fprintf(stderr, "Invalid output format %s\n", format.c_str());
+    PrintUsage();
+    return 1;
+  }
+
+  ProcessInput(input, formatter.get());
 
   return 0;
 }
