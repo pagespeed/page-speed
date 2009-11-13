@@ -41,8 +41,12 @@ var TRACK_FUNCTION_SIZES_DEFAULT = false;
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var jsCoverageRule = function() {
+var jsCoverageRule = function(resourceAccessor) {
+  // TODO: Update this rule to use |resourceAccessor|.
+
   if (!PAGESPEED.Utils.getBoolPref(JS_PROFILER_ENABLE_PREF)) {
     this.score = 'disabled';
     this.warnings = '';

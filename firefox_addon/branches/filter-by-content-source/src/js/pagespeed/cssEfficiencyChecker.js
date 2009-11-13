@@ -498,8 +498,11 @@ PAGESPEED.Cost.prototype.toString = function() {
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var inefficientCssLint = function() {
+var inefficientCssLint = function(resourceAccessor) {
+  // TODO: Update this rule to use |resourceAccessor|.
   if (!domUtils) {
     this.information = ('This rule requires the DOM Inspector extension to ' +
                         'be installed and enabled.');

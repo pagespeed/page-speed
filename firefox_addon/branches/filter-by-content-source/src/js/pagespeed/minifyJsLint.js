@@ -117,8 +117,12 @@ function buildResultString(data) {
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var minifyJsLint = function() {
+var minifyJsLint = function(resourceAccessor) {
+  // TODO: Update this rule to use |resourceAccessor|.
+
   var allScripts = PAGESPEED.Utils.getContentsOfAllScriptsOrStyles('script');
   if (allScripts.length == 0) {
     this.score = 'n/a';
