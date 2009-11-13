@@ -213,8 +213,12 @@ PAGESPEED.UnusedCss = {  // Begin namespace
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var unusedCssLint = function() {
+var unusedCssLint = function(resourceAccessor) {
+  // TODO: Update this rule to use |resourceAccessor|.
+
   if (!domUtils) {
     this.information = ('This rule requires the DOM Inspector extension to ' +
                         'be installed and enabled.');

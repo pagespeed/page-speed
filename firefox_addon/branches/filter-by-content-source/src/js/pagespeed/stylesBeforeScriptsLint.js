@@ -29,8 +29,12 @@
 
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var stylesBeforeScriptsLint = function() {
+var stylesBeforeScriptsLint = function(resourceAccessor) {
+  // TODO: Update this rule to use |resourceAccessor|.
+
   // Bail out early if there is no head.
   var sHtml = PAGESPEED.Utils.getDocumentContent();
   var aHeads = PAGESPEED.Utils.getContentsOfAllTags(sHtml, 'head');

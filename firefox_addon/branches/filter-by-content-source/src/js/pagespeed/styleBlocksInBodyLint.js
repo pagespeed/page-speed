@@ -45,8 +45,12 @@ function getAllBodyNodes() {
 }
 /**
  * @this PAGESPEED.LintRule
+ * @param {PAGESPEED.ResourceAccessor} resourceAccessor An object that
+ *     allows rules to fetch content by type.
  */
-var styleBlocksInBodyLint = function() {
+var styleBlocksInBodyLint = function(resourceAccessor) {
+  // TODO: Update this rule to use |resourceAccessor|.
+
   var aBodyNodes = getAllBodyNodes();
   if (!aBodyNodes || aBodyNodes.length == 0) {
     this.score = 'n/a';
