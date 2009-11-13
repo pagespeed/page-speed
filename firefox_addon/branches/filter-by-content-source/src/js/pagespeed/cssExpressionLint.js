@@ -26,10 +26,8 @@
  *     allows rules to fetch content by type.
  */
 var cssExpressionRule = function(resourceAccessor) {
-  // TODO: Update this rule to use |resourceAccessor|.
-
   var aWarnings = [];
-  var aStyles = PAGESPEED.Utils.getContentsOfAllScriptsOrStyles('style');
+  var aStyles = resourceAccessor.getContentsOfAllScriptsOrStyles('style');
   if (aStyles.length == 0) {
     this.score = 'n/a';
     return;
