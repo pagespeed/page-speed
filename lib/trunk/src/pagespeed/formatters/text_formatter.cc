@@ -36,6 +36,17 @@ void TextFormatter::Indent(int level) {
 void TextFormatter::DoneAddingChildren() {
 }
 
+Formatter* TextFormatter::AddHeader(const std::string& header, int score) {
+  Argument header_arg(Argument::STRING, header);
+  scoped_ptr<Argument> score_arg;
+  if (score != -1) {
+    score_arg.reset(new Argument(Argument::INTEGER, score));
+  } else {
+    score_arg.reset(new Argument(Argument::STRING, "n/a"));
+  }
+  return AddChild("_$1_ (score=$2)", header_arg, *score_arg);
+}
+
 Formatter* TextFormatter::NewChild(
     const std::string& format_str,
     const std::vector<const Argument*>& arguments) {
@@ -45,7 +56,7 @@ Formatter* TextFormatter::NewChild(
   Indent(level_);
   switch (level_) {
     case 0:
-      *output_ << "_" << str << "_" << std::endl;
+      *output_ << str << std::endl;
       break;
     case 1:
       *output_ << str << std::endl;

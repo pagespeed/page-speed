@@ -30,13 +30,23 @@ TEST(TextFormatterTest, BasicTest) {
   formatter.AddChild("bar");
   formatter.Done();
   std::string result = output.str();
-  EXPECT_EQ("_foo_\n_bar_\n", result);
+  EXPECT_EQ("foo\nbar\n", result);
+}
+
+TEST(TextFormatterTest, BasicHeaderTest) {
+  std::stringstream output;
+  TextFormatter formatter(&output);
+  formatter.AddHeader("foo", 0);
+  formatter.AddHeader("bar", 1);
+  formatter.Done();
+  std::string result = output.str();
+  EXPECT_EQ("_foo_ (score=0)\n_bar_ (score=1)\n", result);
 }
 
 TEST(TextFormatterTest, TreeTest) {
   std::stringstream output;
   TextFormatter formatter(&output);
-  Formatter* level1 = formatter.AddChild("l1-1");
+  Formatter* level1 = formatter.AddHeader("l1-1", -1);
   Formatter* level2 = level1->AddChild("l2-1");
   Formatter* level3 = level2->AddChild("l3-1");
   level3->AddChild("l4-1");
@@ -46,7 +56,7 @@ TEST(TextFormatterTest, TreeTest) {
   level3->AddChild("l4-4");
   formatter.Done();
   std::string result = output.str();
-  EXPECT_EQ("_l1-1_\n"
+  EXPECT_EQ("_l1-1_ (score=n/a)\n"
             "  l2-1\n"
             "    * l3-1\n"
             "      * l4-1\n"
@@ -69,10 +79,10 @@ TEST(TextFormatterTest, ArgumentTypesTest) {
   formatter.AddChild("$1", url_arg);
   formatter.Done();
   std::string result = output.str();
-  EXPECT_EQ("_1.5KiB_\n"
-            "_42_\n"
-            "_test_\n"
-            "_http://test.com/_\n",
+  EXPECT_EQ("1.5KiB\n"
+            "42\n"
+            "test\n"
+            "http://test.com/\n",
             result);
 }
 
@@ -89,11 +99,11 @@ TEST(TextFormatterTest, ArgumentListTest) {
   formatter.AddChild("$1 $2 $3", bytes_arg, int_arg, string_arg);
   formatter.AddChild("$1 $2 $3 $4", bytes_arg, int_arg, string_arg, url_arg);
   std::string result = output.str();
-  EXPECT_EQ("__\n"
-            "_1.5KiB_\n"
-            "_1.5KiB 42_\n"
-            "_1.5KiB 42 test_\n"
-            "_1.5KiB 42 test http://test.com/_\n",
+  EXPECT_EQ("\n"
+            "1.5KiB\n"
+            "1.5KiB 42\n"
+            "1.5KiB 42 test\n"
+            "1.5KiB 42 test http://test.com/\n",
             result);
 }
 

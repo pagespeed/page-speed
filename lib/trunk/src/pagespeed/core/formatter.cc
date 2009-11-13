@@ -110,4 +110,7 @@ void Formatter::Done() {
   DoneAddingChildren();
 }
 
+RuleFormatter::~RuleFormatter() {
+}
+
 }  // namespace pagespeed

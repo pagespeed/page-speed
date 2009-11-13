@@ -21,19 +21,20 @@
 namespace pagespeed {
 
 class Formatter;
+class InputInformation;
 class PagespeedInput;
 class Resource;
 class Result;
 class Results;
 class ResultText;
 
+typedef std::vector<const Result*> ResultVector;
+
 /**
  * Lint rule checker interface.
  */
 class Rule {
  public:
-  typedef std::vector<const Result*> ResultVector;
-
   Rule();
   virtual ~Rule();
 
@@ -57,6 +58,14 @@ class Rule {
   // @param formatter Output formatter
   virtual void FormatResults(const ResultVector& results,
                              Formatter* formatter) = 0;
+
+  // Compute the Rule score from InputInformation and ResultVector.
+  //
+  // @param input_info Information about resources that are part of the page.
+  // @param results Result vector that contains savings information.
+  // @returns 0-100 score.
+  int ComputeScore(const InputInformation& input_info,
+                   const ResultVector& results);
 };
 
 }  // namespace pagespeed

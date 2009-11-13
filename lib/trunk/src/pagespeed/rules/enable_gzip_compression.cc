@@ -82,6 +82,10 @@ void EnableGzipCompression::FormatResults(
     total_bytes_saved += savings.response_bytes_saved();
   }
 
+  if (total_bytes_saved == 0) {
+    return;
+  }
+
   Argument arg(Argument::BYTES, total_bytes_saved);
   Formatter* body = formatter->AddChild("Compressing the following "
                                         "resources with gzip could reduce "

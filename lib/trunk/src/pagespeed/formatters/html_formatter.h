@@ -26,9 +26,12 @@ namespace formatters {
 /**
  * Formatter that produces HTML.
  */
-class HtmlFormatter : public Formatter {
+class HtmlFormatter : public RuleFormatter {
  public:
   explicit HtmlFormatter(std::ostream* output);
+
+  // RuleFormatter interface.
+  virtual Formatter* AddHeader(const std::string& header, int score);
 
  protected:
   // Formatter interface

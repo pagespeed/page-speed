@@ -19,6 +19,8 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -49,7 +51,8 @@ void Engine::PopulateNameToRuleMap() {
   }
 }
 
-bool Engine::ComputeResults(const PagespeedInput& input, Results* results) {
+bool Engine::ComputeResults(const PagespeedInput& input,
+                            Results* results) const {
   CHECK(init_);
 
   bool success = true;
@@ -64,24 +67,25 @@ bool Engine::ComputeResults(const PagespeedInput& input, Results* results) {
   return success;
 }
 
-bool Engine::FormatResults(const Results& results, Formatter* formatter) {
+bool Engine::FormatResults(const Results& results,
+                           const InputInformation& input_info,
+                           RuleFormatter* formatter) const {
   CHECK(init_);
 
   typedef std::map<std::string, std::vector<const Result*> > RuleToResultMap;
-
-  bool success = true;
   RuleToResultMap rule_to_result_map;
+
   for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
     const Result& result = results.results(idx);
     rule_to_result_map[result.rule_name()].push_back(&result);
   }
 
+  bool success = true;
   for (RuleToResultMap::const_iterator iter = rule_to_result_map.begin(),
            end = rule_to_result_map.end();
        iter != end;
        ++iter) {
-    Rule* rule = name_to_rule_map_[iter->first];
-    if (!rule) {
+    if (name_to_rule_map_.find(iter->first) == name_to_rule_map_.end()) {
       // No rule registered to handle the given rule name. This could
       // happen if the Results object was generated with a different
       // version of the Page Speed library, so we do not want to CHECK
@@ -90,8 +94,19 @@ bool Engine::FormatResults(const Results& results, Formatter* formatter) {
       success = false;
       continue;
     }
-    const std::vector<const Result*>& rule_results = iter->second;
-    Formatter* rule_formatter = formatter->AddChild(rule->header());
+  }
+
+  for (NameToRuleMap::const_iterator iter = name_to_rule_map_.begin(),
+           end = name_to_rule_map_.end();
+       iter != end;
+       ++iter) {
+    Rule* rule = iter->second;
+
+    const std::vector<const Result*>& rule_results =
+        rule_to_result_map[iter->first];
+
+    int score = rule->ComputeScore(input_info, rule_results);
+    Formatter* rule_formatter = formatter->AddHeader(rule->header(), score);
     rule->FormatResults(rule_results, rule_formatter);
   }
   formatter->Done();
@@ -100,12 +115,14 @@ bool Engine::FormatResults(const Results& results, Formatter* formatter) {
 }
 
 bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
-                                     Formatter* formatter) {
+                                     RuleFormatter* formatter) const {
   CHECK(init_);
 
   Results results;
   bool success = ComputeResults(input, &results);
-  success = FormatResults(results, formatter) && success;
+
+  const InputInformation* input_info = input.input_information();
+  success = FormatResults(results, *input_info, formatter) && success;
   return success;
 }
 

@@ -26,9 +26,12 @@ namespace formatters {
 /**
  * Formatter that produces plain text.
  */
-class TextFormatter : public Formatter {
+class TextFormatter : public RuleFormatter {
  public:
   explicit TextFormatter(std::ostream* output);
+
+  // Formatter interface
+  virtual Formatter* AddHeader(const std::string& header, int score);
 
  protected:
   // Formatter interface

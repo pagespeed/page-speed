@@ -35,6 +35,28 @@ TEST(JsonFormatterTest, BasicTest) {
             result);
 }
 
+TEST(JsonFormatterTest, BasicHeaderTest) {
+  std::stringstream output;
+  JsonFormatter formatter(&output);
+  Formatter* child_formatter = formatter.AddHeader("head", 42);
+  child_formatter->AddChild("foo");
+  child_formatter->AddChild("bar");
+  formatter.AddHeader("head2", 23);
+  formatter.Done();
+  std::string result = output.str();
+  EXPECT_EQ("[\n"
+            "{\"format\":[{\"type\":\"str\",\"value\":\"head\"}],"
+            "\"score\":42,"
+            "\"children\":[\n"
+            "{\"format\":[{\"type\":\"str\",\"value\":\"foo\"}]},\n"
+            "{\"format\":[{\"type\":\"str\",\"value\":\"bar\"}]}]"
+            "},\n"
+            "{\"format\":[{\"type\":\"str\",\"value\":\"head2\"}],"
+            "\"score\":23}"
+            "]\n",
+            result);
+}
+
 TEST(JsonFormatterTest, EscapeTest) {
   std::stringstream output;
   JsonFormatter formatter(&output);

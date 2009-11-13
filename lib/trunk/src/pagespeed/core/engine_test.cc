@@ -24,12 +24,15 @@
 
 using pagespeed::Argument;
 using pagespeed::Engine;
+using pagespeed::FormatArgument;
 using pagespeed::Formatter;
+using pagespeed::InputInformation;
 using pagespeed::PagespeedInput;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultText;
 using pagespeed::Rule;
+using pagespeed::RuleFormatter;
 using pagespeed::formatters::ProtoFormatter;
 
 namespace {
@@ -59,7 +62,7 @@ class TestRule : public Rule {
     return true;
   }
 
-  virtual void FormatResults(const ResultVector& results,
+  virtual void FormatResults(const pagespeed::ResultVector& results,
                              Formatter* formatter) {
     formatter->AddChild(kBody1);
     formatter->AddChild(kBody2);
@@ -82,7 +85,7 @@ TEST(EngineTest, ComputeResults) {
   ASSERT_EQ(results.results_size(), 1);
 
   const Result& result = results.results(0);
-  EXPECT_EQ(result.rule_name(), "TestRule");
+  EXPECT_EQ(result.rule_name(), kRuleName);
 }
 
 TEST(EngineTest, FormatResults) {
@@ -97,11 +100,13 @@ TEST(EngineTest, FormatResults) {
   engine.Init();
 
   std::vector<ResultText*> result_text;
+  InputInformation input_info;
   ProtoFormatter formatter(&result_text);
-  ASSERT_TRUE(engine.FormatResults(results, &formatter));
+  ASSERT_TRUE(engine.FormatResults(results, input_info, &formatter));
   ASSERT_EQ(1, result_text.size());
   const ResultText& root = *result_text[0];
   ASSERT_EQ(kHeader, root.format());
+  ASSERT_EQ(0, root.args_size());
   ASSERT_EQ(2, root.children_size());
   ASSERT_EQ(kBody1, root.children(0).format());
   ASSERT_EQ(kBody2, root.children(1).format());
@@ -119,8 +124,9 @@ TEST(EngineTest, FormatResultsNoInitFails) {
   Engine engine(rules);
 
   std::vector<ResultText*> result_text;
+  InputInformation input_info;
   ProtoFormatter formatter(&result_text);
-  ASSERT_DEATH(engine.FormatResults(results, &formatter),
+  ASSERT_DEATH(engine.FormatResults(results, input_info, &formatter),
                "Check failed: init_.");
 }
 
@@ -131,13 +137,13 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   result->set_rule_name("NoSuchRule");
 
   std::vector<Rule*> rules;
-  rules.push_back(new TestRule());
   Engine engine(rules);
   engine.Init();
 
   std::vector<ResultText*> result_text;
+  InputInformation input_info;
   ProtoFormatter formatter(&result_text);
-  ASSERT_FALSE(engine.FormatResults(results, &formatter));
+  ASSERT_FALSE(engine.FormatResults(results, input_info, &formatter));
   ASSERT_EQ(0, result_text.size());
 }
 

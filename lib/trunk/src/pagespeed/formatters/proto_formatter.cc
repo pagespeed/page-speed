@@ -34,7 +34,8 @@ ProtoFormatter::ProtoFormatter(ResultText* result_text)
       result_text_(result_text) {
 }
 
-void ProtoFormatter::DoneAddingChildren() {
+Formatter* ProtoFormatter::AddHeader(const std::string& header, int score) {
+  return AddChild(header);
 }
 
 Formatter* ProtoFormatter::NewChild(
@@ -89,6 +90,9 @@ void ProtoFormatter::Format(ResultText* result_text,
         break;
     }
   }
+}
+
+void ProtoFormatter::DoneAddingChildren() {
 }
 
 }  // namespace formatters
