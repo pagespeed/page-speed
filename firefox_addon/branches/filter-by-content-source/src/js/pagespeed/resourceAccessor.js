@@ -119,6 +119,57 @@ PAGESPEED.ResourceAccessor.prototype.isResourceUnderTest = function(
     opt_extraFilter) {
   var resourceUrls = this.getResources(types, opt_extraFilter);
   return (resourceUrls.indexOf(url) != -1);
-}
+};
+
+/**
+ * Returns the contents of all scripts or styles including both inline and
+ * external.
+ *
+ * @param {string} type Must be either 'script' or 'style'.
+ * @return {Array.<Object>} An array of objects containing 'name' and
+ *     'content'.
+ */
+PAGESPEED.ResourceAccessor.prototype.getContentsOfAllScriptsOrStyles =
+    function(type) {
+
+  if ('script' != type && 'style' != type) {
+    throw new Error(
+        'PAGESPEED.ResourceAccessor.getContentsOfAllScriptsOrStyles():  ' +
+        'Invalid paramter type = ' + type);
+  }
+
+  var allTags = [];
+
+  // Get inline content:
+  var docUrls = this.getResources(['doc', 'iframe']);
+
+  for (var i = 0, len = docUrls.length; i < len; ++i) {
+    var sHTML = PAGESPEED.Utils.getResourceContent(docUrls[i]);
+    var inline = PAGESPEED.Utils.getContentsOfAllTags(sHTML, type);
+    var iNextInlineNumber = 1;
+    for (var j = 0, jlen = inline.length; j < jlen; ++j) {
+      if (inline[j]) {
+        allTags.push({
+            name: [
+                docUrls[i],
+                ' (inline block #', iNextInlineNumber++, ')'
+                ].join(''),
+            content: inline[j]
+        });
+      }
+    }
+  }
+
+  // Get external resources:
+  var urls = this.getResources([type == 'script' ? 'js' : 'css']);
+  for (var i = 0, len = urls.length; i < len; ++i) {
+    allTags.push({
+        name: urls[i],
+        content: PAGESPEED.Utils.getResourceContent(urls[i])
+    });
+  }
+
+  return allTags;
+};
 
 })();  // End closure

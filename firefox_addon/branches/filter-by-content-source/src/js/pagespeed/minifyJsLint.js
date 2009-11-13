@@ -121,9 +121,8 @@ function buildResultString(data) {
  *     allows rules to fetch content by type.
  */
 var minifyJsLint = function(resourceAccessor) {
-  // TODO: Update this rule to use |resourceAccessor|.
+  var allScripts = resourceAccessor.getContentsOfAllScriptsOrStyles('script');
 
-  var allScripts = PAGESPEED.Utils.getContentsOfAllScriptsOrStyles('script');
   if (allScripts.length == 0) {
     this.score = 'n/a';
     return;
