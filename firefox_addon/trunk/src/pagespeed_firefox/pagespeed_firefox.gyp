@@ -172,7 +172,7 @@
       'dependencies': [
         'xulrunner_sdk',
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
+        '<(libpagespeed_root)/third_party/libjpeg/libjpeg.gyp:libjpeg',
       ],
       'defines': [
         # Disable PNG optimization for now; we're having issues getting optipng
@@ -261,7 +261,6 @@
       },
       'dependencies': [
         'xulrunner_sdk',
-        '<(DEPTH)/base/base.gyp:base',
         'pagespeed_firefox_activity',
         'pagespeed_firefox_image_compressor',
         'pagespeed_firefox_library_rules',
