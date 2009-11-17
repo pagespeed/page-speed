@@ -24,7 +24,7 @@ PAGESPEED.ResultsWriter = {};
 
 /**
  * Write the results of the current page to a file.
- * @param {sring} filePath File path to wrirte to.
+ * @param {string} filePath File path to write to.
  * @param {Object} resultsContainer Results to write.
  */
 PAGESPEED.ResultsWriter.writeToFile = function(filePath, resultsContainer) {

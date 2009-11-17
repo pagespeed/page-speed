@@ -80,6 +80,8 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/parallelXhrFlow.js"/>
   <script type="application/x-javascript"
+          src="chrome://pagespeed/content/beaconBase.js"/>
+  <script type="application/x-javascript"
           src="chrome://pagespeed/content/minimalBeacon.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/fullResultsBeacon.js"/>
