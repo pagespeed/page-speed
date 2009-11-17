@@ -48,38 +48,102 @@ isAlphanum(int c)
         c > 126);
 }
 
-}  // namespace
+class StringConsumer {
+ public:
+  void push_back(int character) {
+    output_.push_back(character);
+  }
 
-namespace jsmin {
+  std::string output_;
+};
 
-bool Minifier::MinifyJs(const std::string& input, std::string* out) {
-  Minifier minifier(&input);
-  return minifier.GetMinifiedOutput(out);
-}
+class SizeConsumer {
+ public:
+  SizeConsumer() : size_(0) {
+  }
 
-Minifier::Minifier(const std::string *input)
+  void push_back(int character) {
+    ++size_;
+  }
+
+  int size_;
+};
+
+/**
+ * jsmin::Minifier is a C++ port of jsmin.c. Minifier uses member
+ * variables instead of the static globals used by jsmin.c. Minifier
+ * also uses strings to read input and write output, where jsmin.c
+ * uses stdin/stdout.
+ */
+template<typename OutputConsumer>
+class Minifier {
+ public:
+
+  /**
+   * Construct a new Minifier instance that minifies the specified
+   * JavaScript input.
+   */
+  explicit Minifier(const std::string* input);
+  virtual ~Minifier();
+
+  /**
+   * @return a pointer to an OutputConsumer instance if minification
+   * was successful, NULL otherwise.
+   */
+  OutputConsumer* GetOutput();
+
+ private:
+  // The various methods from jsmin.c, ported to this class.
+  int get();
+  int peek();
+  int next();
+  void action(int d);
+  void jsmin();
+
+  // action 1 - Output A. Copy B to A. Get the next B.
+  void AdvanceAndOutputA();
+
+  // action 2 - Copy B to A. Get the next B. (Delete A).
+  void AdvanceAndDeleteA();
+
+  // action 3 - Get the next B. (Delete B).
+  void DeleteB();
+
+  // Data members from jsmin.c, ported to this class.
+  int theA;
+  int theB;
+  int theLookahead;
+
+  // Our custom data members, not from jsmin.c
+  const std::string *input_;
+  int input_index_;
+  OutputConsumer output_consumer_;
+  bool error_;
+};
+
+
+template<typename OutputConsumer>
+Minifier<OutputConsumer>::Minifier(const std::string *input)
   : theA(-1),
     theB(-1),
     theLookahead(EOF),
     input_(input),
     input_index_(0),
-    output_buffer_(),
-    error_(false),
-    done_(false) {
+    error_(false) {
 }
 
-Minifier::~Minifier() {}
+template<typename OutputConsumer>
+Minifier<OutputConsumer>::~Minifier() {}
 
-bool
-Minifier::GetMinifiedOutput(std::string *out)
+template<typename OutputConsumer>
+OutputConsumer*
+Minifier<OutputConsumer>::GetOutput()
 {
-    if (!done_) {
-        jsmin();
-    }
+    jsmin();
     if (!error_) {
-        *out = output_buffer_;
+        return &output_consumer_;
     }
-    return !error_;
+    return NULL;
 }
 
 
@@ -87,44 +151,49 @@ Minifier::GetMinifiedOutput(std::string *out)
         the character is a control character, translate it to a space or
         linefeed.
 */
-
+template<typename OutputConsumer>
 int
-Minifier::get()
+Minifier<OutputConsumer>::get()
 {
-    int c = theLookahead;
-    theLookahead = EOF;
-    if (c == EOF) {
+    if (theLookahead == EOF) {
         if (input_index_ < input_->length()) {
-            c = (0xff & input_->at(input_index_++));
+            int c = (0xff & input_->at(input_index_++));
+            if (c >= ' ' || c == '\n' || c == EOF) {
+                return c;
+            }
+            if (c == '\r') {
+                return '\n';
+            }
+            return ' ';
+        } else {
+            return EOF;
         }
+    } else {
+      int c = theLookahead;
+      theLookahead = EOF;
+      return c;
     }
-    if (c >= ' ' || c == '\n' || c == EOF) {
-        return c;
-    }
-    if (c == '\r') {
-        return '\n';
-    }
-    return ' ';
 }
 
 
 /* peek -- get the next character without getting it.
 */
 
+template<typename OutputConsumer>
 int
-Minifier::peek()
+Minifier<OutputConsumer>::peek()
 {
     theLookahead = get();
     return theLookahead;
 }
 
-
 /* next -- get the next character, excluding comments. peek() is used to see
         if a '/' is followed by a '/' or '*'.
 */
 
+template<typename OutputConsumer>
 int
-Minifier::next()
+Minifier<OutputConsumer>::next()
 {
     int c = get();
     if  (c == '/') {
@@ -159,75 +228,69 @@ Minifier::next()
     return c;
 }
 
-
-/* action -- do something! What you do is determined by the argument:
-        1   Output A. Copy B to A. Get the next B.
-        2   Copy B to A. Get the next B. (Delete A).
-        3   Get the next B. (Delete B).
-   action treats a string as a single character. Wow!
-   action recognizes a regular expression if it is preceded by ( or , or =.
-*/
-
-void
-Minifier::action(int d)
-{
-    switch (d) {
-    case 1:
-        output_buffer_.push_back(theA);
-    case 2:
-        theA = theB;
-        if (theA == '\'' || theA == '"') {
-            for (;;) {
-                output_buffer_.push_back(theA);
-                theA = get();
-                if (theA == theB) {
-                    break;
-                }
-                if (theA == '\\') {
-                    output_buffer_.push_back(theA);
-                    theA = get();
-                }
-                if (theA == EOF) {
-                    LOG(WARNING) << "Error: JSMIN unterminated string literal.";
-                    error_ = true;
-                    return;
-                }
-            }
-        }
-    case 3:
-        theB = next();
-        if (error_) {
-            return;
-        }
-        if (theB == '/' && (theA == '(' || theA == ',' || theA == '=' ||
-                            theA == ':' || theA == '[' || theA == '!' ||
-                            theA == '&' || theA == '|' || theA == '?' ||
-                            theA == '{' || theA == '}' || theA == ';' ||
-                            theA == '\n')) {
-            output_buffer_.push_back(theA);
-            output_buffer_.push_back(theB);
-            for (;;) {
-                theA = get();
-                if (theA == '/') {
-                    break;
-                }
-                if (theA =='\\') {
-                    output_buffer_.push_back(theA);
-                    theA = get();
-                }
-                if (theA == EOF) {
-                    LOG(WARNING) << "Error: JSMIN unterminated "
-                                 << "Regular Expression literal.\n";
-                    error_ = true;
-                    return;
-                }
-                output_buffer_.push_back(theA);
-            }
-            theB = next();
-        }
-    }
+template<typename OutputConsumer>
+void Minifier<OutputConsumer>::AdvanceAndOutputA() {
+  output_consumer_.push_back(theA);
+  AdvanceAndDeleteA();
 }
 
+template<typename OutputConsumer>
+void Minifier<OutputConsumer>::AdvanceAndDeleteA() {
+  theA = theB;
+  if (theA == '\'' || theA == '"') {
+    for (;;) {
+      output_consumer_.push_back(theA);
+      theA = get();
+      if (theA == theB) {
+        break;
+      }
+      if (theA == '\\') {
+        output_consumer_.push_back(theA);
+        theA = get();
+      }
+      if (theA == EOF) {
+        LOG(WARNING) << "Error: JSMIN unterminated string literal.";
+        error_ = true;
+        return;
+      }
+    }
+  }
+  DeleteB();
+}
+
+template<typename OutputConsumer>
+void Minifier<OutputConsumer>::DeleteB() {
+  theB = next();
+  if (error_) {
+    return;
+  }
+  if (theB == '/' && (theA == '(' || theA == ',' || theA == '=' ||
+                      theA == ':' || theA == '[' || theA == '!' ||
+                      theA == '&' || theA == '|' || theA == '?' ||
+                      theA == '{' || theA == '}' || theA == ';' ||
+                      theA == '\n')) {
+    output_consumer_.push_back(theA);
+    output_consumer_.push_back(theB);
+    for (;;) {
+      theA = get();
+      if (theA == '/') {
+        break;
+      }
+      if (theA =='\\') {
+        output_consumer_.push_back(theA);
+        theA = get();
+      }
+      if (theA == EOF) {
+        LOG(WARNING) << "Error: JSMIN unterminated "
+                     << "Regular Expression literal.\n";
+        error_ = true;
+        return;
+      }
+      output_consumer_.push_back(theA);
+    }
+    theB = next();
+  }
+}
 
 /* jsmin -- Copy the input to the output, deleting the characters which are
         insignificant to JavaScript. Comments will be removed. Tabs will be
@@ -235,11 +298,12 @@ Minifier::action(int d)
         Most spaces and linefeeds will be removed.
 */
 
+template<typename OutputConsumer>
 void
-Minifier::jsmin()
+Minifier<OutputConsumer>::jsmin()
 {
     theA = '\n';
-    action(3);
+    DeleteB();
     if (error_) {
         return;
     }
@@ -247,9 +311,9 @@ Minifier::jsmin()
         switch (theA) {
         case ' ':
             if (isAlphanum(theB)) {
-                action(1);
+                AdvanceAndOutputA();
             } else {
-                action(2);
+                AdvanceAndDeleteA();
             }
             break;
         case '\n':
@@ -259,16 +323,16 @@ Minifier::jsmin()
             case '(':
             case '+':
             case '-':
-                action(1);
+                AdvanceAndOutputA();
                 break;
             case ' ':
-                action(3);
+                DeleteB();
                 break;
             default:
                 if (isAlphanum(theB)) {
-                    action(1);
+                    AdvanceAndOutputA();
                 } else {
-                    action(2);
+                    AdvanceAndDeleteA();
                 }
             }
             break;
@@ -276,10 +340,10 @@ Minifier::jsmin()
             switch (theB) {
             case ' ':
                 if (isAlphanum(theA)) {
-                    action(1);
+                    AdvanceAndOutputA();
                     break;
                 }
-                action(3);
+                DeleteB();
                 break;
             case '\n':
                 switch (theA) {
@@ -290,22 +354,48 @@ Minifier::jsmin()
                 case '-':
                 case '"':
                 case '\'':
-                    action(1);
+                    AdvanceAndOutputA();
                     break;
                 default:
                     if (isAlphanum(theA)) {
-                        action(1);
+                        AdvanceAndOutputA();
                     } else {
-                        action(3);
+                        DeleteB();
                     }
                 }
                 break;
             default:
-                action(1);
+                AdvanceAndOutputA();
                 break;
             }
         }
     }
+}
+
+}  // namespace
+
+namespace jsmin {
+
+bool MinifyJs(const std::string& input, std::string* out) {
+  Minifier<StringConsumer> minifier(&input);
+  StringConsumer* output = minifier.GetOutput();
+  if (output) {
+    *out = output->output_;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool GetMinifiedJsSize(const std::string& input, int* minimized_size) {
+  Minifier<SizeConsumer> minifier(&input);
+  SizeConsumer* output = minifier.GetOutput();
+  if (output) {
+    *minimized_size = output->size_;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 }  // namespace jsmin

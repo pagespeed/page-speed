@@ -47,14 +47,15 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    std::string minified_js;
-    if (!jsmin::Minifier::MinifyJs(resource.GetResponseBody(), &minified_js)) {
+    int minified_js_size;
+    if (!jsmin::GetMinifiedJsSize(resource.GetResponseBody(),
+                                  &minified_js_size)) {
       error = true;
       continue;
     }
 
     const int bytes_saved =
-        resource.GetResponseBody().size() - minified_js.size();
+        resource.GetResponseBody().size() - minified_js_size;
     if (bytes_saved <= 0) {
       continue;
     }

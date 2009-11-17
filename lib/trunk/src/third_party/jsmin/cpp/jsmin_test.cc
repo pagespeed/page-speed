@@ -69,27 +69,44 @@ const char *kAfterCompilation =
 
 TEST(JsminTest, Basic) {
   std::string output;
-  ASSERT_TRUE(jsmin::Minifier::MinifyJs(kBeforeCompilation, &output));
+  ASSERT_TRUE(jsmin::MinifyJs(kBeforeCompilation, &output));
   ASSERT_EQ(kAfterCompilation, output);
+
+  int minimized_size = -1;
+  ASSERT_TRUE(jsmin::GetMinifiedJsSize(kBeforeCompilation, &minimized_size));
+  ASSERT_EQ(strlen(kAfterCompilation), minimized_size);
 }
 
 TEST(JsminTest, AlreadyMinified) {
   std::string output;
-  ASSERT_TRUE(jsmin::Minifier::MinifyJs(kAfterCompilation, &output));
+  ASSERT_TRUE(jsmin::MinifyJs(kAfterCompilation, &output));
   ASSERT_EQ(kAfterCompilation, output);
+
+  int minimized_size = -1;
+  ASSERT_TRUE(jsmin::GetMinifiedJsSize(kAfterCompilation, &minimized_size));
+  ASSERT_EQ(strlen(kAfterCompilation), minimized_size);
 }
 
 TEST(JsminTest, Error) {
+  std::string input = "/* not valid javascript";
   std::string output;
-  ASSERT_FALSE(jsmin::Minifier::MinifyJs("/* not valid javascript", &output));
+  ASSERT_FALSE(jsmin::MinifyJs(input, &output));
   ASSERT_TRUE(output.empty());
+
+  int minimized_size = -1;
+  ASSERT_FALSE(jsmin::GetMinifiedJsSize(input, &minimized_size));
+  ASSERT_EQ(-1, minimized_size);
 }
 
 TEST(JsminTest, SignedCharDoesntSignExtend) {
   const char input[] = { '\n', 0xff, 0x00 };
   std::string output;
-  ASSERT_TRUE(jsmin::Minifier::MinifyJs(input, &output));
+  ASSERT_TRUE(jsmin::MinifyJs(input, &output));
   ASSERT_EQ(input, output);
+
+  int minimized_size = -1;
+  ASSERT_TRUE(jsmin::GetMinifiedJsSize(input, &minimized_size));
+  ASSERT_EQ(2, minimized_size);
 }
 
 }  // namespace
