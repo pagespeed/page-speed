@@ -25,7 +25,7 @@
  * @constructor
  */
 PAGESPEED.MinimalBeacon = function() {
-  this.beaconBase_ = new PAGESPEED.BeaconBase('minimal');
+  this.beaconTraits_ = new PAGESPEED.BeaconTraits('minimal');
 };
 
 /**
@@ -37,7 +37,7 @@ PAGESPEED.MinimalBeacon = function() {
  * @param {Object} resultsContainer The results of a page speed run.
  * @returns {string} The params string of the beacon to send.
  */
-PAGESPEED.MinimalBeacon.prototype.buildBeacon = function(resultsContainer) {
+PAGESPEED.MinimalBeacon.prototype.buildBeacon_ = function(resultsContainer) {
   /**
    * Encode a key-value pair into the params portion of a URL.
    * @param {string} key The key.
@@ -127,18 +127,18 @@ PAGESPEED.MinimalBeacon.prototype.buildBeacon = function(resultsContainer) {
 PAGESPEED.MinimalBeacon.prototype.sendBeacon = function(
     resultsContainer, checkAutorunPref) {
 
-  if (!this.beaconBase_.isBeaconEnabled(checkAutorunPref)) {
+  if (!this.beaconTraits_.isBeaconEnabled(checkAutorunPref)) {
     PS_LOG('Minimal beacon is not enabled.');
     return false;
   }
 
-  var beaconUrl = this.beaconBase_.getBeaconUrl();
+  var beaconUrl = this.beaconTraits_.getBeaconUrl();
   if (!beaconUrl) {
     // Error already logged by getBeaconUrl().
     return false;
   }
 
-  var beaconParams = this.buildBeacon(resultsContainer);
+  var beaconParams = this.buildBeacon_(resultsContainer);
 
   // For now there is only one XHR to send.  We use the parallel XHR
   // class anyway.  The class hides some ugly XHR details.  If other

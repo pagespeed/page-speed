@@ -24,17 +24,17 @@
  * @constructor
  */
 PAGESPEED.FullResultsBeacon = function() {
-  this.beaconBase_ = new PAGESPEED.BeaconBase('full_results');
+  this.beaconTraits_ = new PAGESPEED.BeaconTraits('full_results');
 };
 
 /**
  * Build the string representation of the results container,
  * which holds all page speed results.
- * @param {Object} resultsContainer Object holding resilts data.
- * @return {string} JSON encoded results.
+ * @param {Object} resultsContainer Object holding results data.
+ * @return {string} JSON encoded results, suitable for POSTing.
  */
-PAGESPEED.FullResultsBeacon.prototype.buildBeacon = function(resultsContainer) {
-  return resultsContainer.toString();
+PAGESPEED.FullResultsBeacon.prototype.buildBeacon_ = function(resultsContainer) {
+  return ['content=', encodeURIComponent(resultsContainer.toString())].join('');
 };
 
 /**
@@ -48,12 +48,12 @@ PAGESPEED.FullResultsBeacon.prototype.buildBeacon = function(resultsContainer) {
 PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(
     resultsContainer, checkAutorunPref) {
 
-  if (!this.beaconBase_.isBeaconEnabled(checkAutorunPref)) {
+  if (!this.beaconTraits_.isBeaconEnabled(checkAutorunPref)) {
     PS_LOG('Full beacon is not enabled.');
     return false;
   }
 
-  var beaconUrl = this.beaconBase_.getBeaconUrl();
+  var beaconUrl = this.beaconTraits_.getBeaconUrl();
   if (!beaconUrl) {
     // Error already logged by getBeaconUrl().
     return false;
@@ -63,9 +63,7 @@ PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(
   xhrFlow.addRequest('POST',  // Contents are too large for a GET.
                      beaconUrl,
                      '',  // No params.
-                     ['content=',
-                      encodeURIComponent(resultsContainer.toString())
-                      ].join(''),
+                     this.buildBeacon_(resultsContainer),
                      null,  // no action on success.
                      function() {PS_LOG('Full beacon fail.');}
                      );
@@ -77,6 +75,8 @@ PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(
 
 PAGESPEED.fullResultsBeacon = new PAGESPEED.FullResultsBeacon();
 
+// PAGESPEED.PageSpeedContext may not be defined in unit tests.
+// If it is not, there is no object to install the callback on.
 if (PAGESPEED.PageSpeedContext) {
   PAGESPEED.PageSpeedContext.callbacks.postDisplay.addCallback(
       function(data) {

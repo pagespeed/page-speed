@@ -449,7 +449,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
           break;
 
         case 'psMinimalBeacon':
-          PAGESPEED.MinimalBeacon.sendBeacon(resultsContainer);
+          PAGESPEED.minimalBeacon.sendBeacon(resultsContainer);
           break;
 
         case 'psFullResultsBeacon':
