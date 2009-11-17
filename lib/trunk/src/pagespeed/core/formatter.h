@@ -50,6 +50,35 @@ class Argument {
   DISALLOW_COPY_AND_ASSIGN(Argument);
 };
 
+/**
+ * Formatter format string, arguments and additional information wrapper.
+ * Additional information should be interpreted directly or ignored by
+ * specific formatter subclasses.
+ * Note: This class does not own the pointers it refers to.
+ */
+class FormatterParameters {
+ public:
+  explicit FormatterParameters(const std::string* format_str);
+  FormatterParameters(const std::string* format_str,
+                  const std::vector<const Argument*>* arguments);
+  void set_optimized_content(const std::string* content);
+
+  const std::string& format_str() const;
+  const std::vector<const Argument*>& arguments() const;
+  bool has_optimized_content() const;
+  const std::string& optimized_content() const;
+
+ private:
+  const std::string* format_str_;
+  const std::vector<const Argument*>* arguments_;
+  const std::string* optimized_content_;
+
+  DISALLOW_COPY_AND_ASSIGN(FormatterParameters);
+};
+
+/**
+ * Result text formatter interface.
+ */
 class Formatter {
  public:
   virtual ~Formatter();
@@ -58,6 +87,9 @@ class Formatter {
   // Returns a child formatter, which is valid until the next call to
   // AddChild on this formatter or one of its parents.  Calls to this
   // method also delete the previous child and all of its decendents.
+  Formatter* AddChild(const FormatterParameters& params);
+
+  // Convenience methods implemented in terms of AddChild(FormatterParameters).
   Formatter* AddChild(const std::string& format_str);
 
   Formatter* AddChild(const std::string& format_str,
@@ -84,16 +116,12 @@ class Formatter {
  protected:
   Formatter();
   // Child constructor; to be implemented by sub classes.
-  virtual Formatter* NewChild(
-      const std::string& format_str,
-      const std::vector<const Argument*>& arguments) = 0;
+  virtual Formatter* NewChild(const FormatterParameters& params) = 0;
+
   // Indicates that no more children will be added.
   virtual void DoneAddingChildren() = 0;
 
  private:
-  Formatter* AddChild(std::string format_str,
-                      const std::vector<const Argument*>& arguments);
-
   scoped_ptr<Formatter> active_child_;
   DISALLOW_COPY_AND_ASSIGN(Formatter);
 };

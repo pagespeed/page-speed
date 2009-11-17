@@ -55,17 +55,14 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
     const ImageType type = resource.GetImageType();
     const std::string& original = resource.GetResponseBody();
     const int original_size = original.size();
-    int compressed_size = original_size;
 
+    std::string compressed;
     if (type == JPEG) {
-      std::string compressed;
       if (!image_compression::OptimizeJpeg(original, &compressed)) {
         error = true;
         continue;
       }
-      compressed_size = compressed.size();
     } else if (type == PNG) {
-      std::string compressed;
       image_compression::PngReader reader;
       if (!image_compression::PngOptimizer::OptimizePng(reader,
                                                         original,
@@ -73,10 +70,8 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
         error = true;
         continue;
       }
-      compressed_size = compressed.size();
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
     } else if (type == GIF) {
-      std::string compressed;
       image_compression::GifReader reader;
       if (!image_compression::PngOptimizer::OptimizePng(reader,
                                                         original,
@@ -84,13 +79,12 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
         error = true;
         continue;
       }
-      compressed_size = compressed.size();
 #endif
     } else {
       continue;
     }
 
-    const int bytes_saved = original_size - compressed_size;
+    const int bytes_saved = original_size - compressed.size();
     if (bytes_saved <= 0) {
       continue;
     }
@@ -102,6 +96,8 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
     savings->set_response_bytes_saved(bytes_saved);
 
     result->add_resource_urls(resource.GetRequestUrl());
+
+    result->set_optimized_content(compressed);
   }
 
   return !error;
@@ -137,7 +133,19 @@ void OptimizeImages::FormatResults(const ResultVector& results,
     CHECK(result.resource_urls_size() == 1);
     Argument url(Argument::URL, result.resource_urls(0));
     Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
-    body->AddChild("Compressing $1 could save $2", url, savings);
+
+    std::string format_str = "Compressing $1 could save $2.";
+    std::vector<const Argument*> args;
+    args.push_back(&url);
+    args.push_back(&savings);
+
+    FormatterParameters formatter_args(&format_str, &args);
+
+    if (result.has_optimized_content()) {
+      formatter_args.set_optimized_content(&result.optimized_content());
+    }
+
+    body->AddChild(formatter_args);
   }
 }
 

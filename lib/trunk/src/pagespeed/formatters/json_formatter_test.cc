@@ -19,6 +19,7 @@
 
 using pagespeed::Argument;
 using pagespeed::Formatter;
+using pagespeed::FormatterParameters;
 using pagespeed::formatters::JsonFormatter;
 
 namespace {
@@ -114,6 +115,24 @@ TEST(JsonFormatterTest, ArgumentTypesTest) {
             "{\"format\":[{\"type\":\"str\",\"value\":\"test\"}]},\n"
             "{\"format\":[{\"type\":\"url\","
             "\"value\":\"http://test.com/\"}]}]\n",
+            result);
+}
+
+TEST(JsonFormatterTest, OptimizedTest) {
+  std::string format_str = "FooBar";
+  FormatterParameters args(&format_str);
+  std::string optimized = "<optimized result>";
+  args.set_optimized_content(&optimized);
+
+  std::stringstream output;
+  JsonFormatter formatter(&output);
+  formatter.AddChild(args);
+  formatter.Done();
+
+  // optimized content is ignored for now
+  std::string result = output.str();
+  EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\","
+            "\"value\":\"FooBar\"}]}]\n",
             result);
 }
 

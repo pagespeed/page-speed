@@ -62,6 +62,9 @@ message Result {
 
   // Full details about the rule violation.
   optional ResultDetails details = 4;
+
+  // Optimized version of the current resource, if applicable.
+  optional bytes optimized_content = 5;
 }
 
 message Results {
@@ -88,9 +91,12 @@ message ResultText {
   // format string.  Use '$<number>' to specify position information.
   optional string format = 1;
 
-  // format string arguments
+  // format string arguments.
   repeated FormatArgument args = 2;
 
-  // Children
+  // Children.
   repeated ResultText children = 3;
+
+  // Optimized version of the current resource, if applicable.
+  optional bytes optimized_content = 4;
 }

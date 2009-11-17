@@ -47,11 +47,8 @@ Formatter* TextFormatter::AddHeader(const std::string& header, int score) {
   return AddChild("_$1_ (score=$2)", header_arg, *score_arg);
 }
 
-Formatter* TextFormatter::NewChild(
-    const std::string& format_str,
-    const std::vector<const Argument*>& arguments) {
-
-  const std::string str = Format(format_str, arguments);
+Formatter* TextFormatter::NewChild(const FormatterParameters& params) {
+  const std::string str = Format(params.format_str(), params.arguments());
 
   Indent(level_);
   switch (level_) {

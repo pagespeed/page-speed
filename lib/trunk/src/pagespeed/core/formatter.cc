@@ -16,6 +16,13 @@
 
 #include "base/logging.h"
 
+namespace {
+
+const std::string kEmptyString;
+const std::vector<const pagespeed::Argument*> kEmptyParameterList;
+
+}  // namespace
+
 namespace pagespeed {
 
 Argument::Argument(Argument::ArgumentType type, int value)
@@ -44,6 +51,57 @@ Argument::ArgumentType Argument::type() const {
   return type_;
 }
 
+FormatterParameters::FormatterParameters(const std::string* format_str)
+    : format_str_(format_str),
+      arguments_(&kEmptyParameterList),
+      optimized_content_(NULL) {
+  DCHECK_NE(format_str, static_cast<const std::string*>(NULL));
+}
+
+FormatterParameters::FormatterParameters(
+    const std::string* format_str,
+    const std::vector<const Argument*>* arguments)
+    : format_str_(format_str),
+      arguments_(arguments),
+      optimized_content_(NULL) {
+  DCHECK_NE(format_str, static_cast<const std::string*>(NULL));
+  DCHECK_NE(arguments,
+            static_cast<std::vector<const pagespeed::Argument*>*>(NULL));
+}
+
+void FormatterParameters::set_optimized_content(const std::string* content) {
+  optimized_content_ = content;
+}
+
+const std::string& FormatterParameters::format_str() const {
+  if (format_str_ != NULL) {
+    return *format_str_;
+  } else {
+    return kEmptyString;
+  }
+}
+
+const std::vector<const Argument*>& FormatterParameters::arguments() const {
+  if (arguments_ != NULL) {
+    return *arguments_;
+  } else {
+    return kEmptyParameterList;
+  }
+}
+
+bool FormatterParameters::has_optimized_content() const {
+  return optimized_content_ != NULL;
+}
+
+const std::string& FormatterParameters::optimized_content() const {
+  DCHECK_NE(optimized_content_, static_cast<const std::string*>(NULL));
+  if (optimized_content_ != NULL) {
+    return *optimized_content_;
+  } else {
+    return kEmptyString;
+  }
+}
+
 Formatter::Formatter() {
 }
 
@@ -51,14 +109,17 @@ Formatter::~Formatter() {
 }
 
 Formatter* Formatter::AddChild(const std::string& format_str) {
-  return AddChild(format_str, std::vector<const Argument*>());
+  FormatterParameters formatter_params(&format_str);
+  return AddChild(formatter_params);
 }
 
 Formatter* Formatter::AddChild(const std::string& format_str,
                                const Argument& arg1) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
-  return AddChild(format_str, args);
+
+  FormatterParameters formatter_params(&format_str, &args);
+  return AddChild(formatter_params);
 }
 
 Formatter* Formatter::AddChild(const std::string& format_str,
@@ -67,7 +128,8 @@ Formatter* Formatter::AddChild(const std::string& format_str,
   std::vector<const Argument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
-  return AddChild(format_str, args);
+  FormatterParameters formatter_params(&format_str, &args);
+  return AddChild(formatter_params);
 }
 
 Formatter* Formatter::AddChild(const std::string& format_str,
@@ -78,7 +140,8 @@ Formatter* Formatter::AddChild(const std::string& format_str,
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
-  return AddChild(format_str, args);
+  FormatterParameters formatter_params(&format_str, &args);
+  return AddChild(formatter_params);
 }
 
 Formatter* Formatter::AddChild(const std::string& format_str,
@@ -91,15 +154,15 @@ Formatter* Formatter::AddChild(const std::string& format_str,
   args.push_back(&arg2);
   args.push_back(&arg3);
   args.push_back(&arg4);
-  return AddChild(format_str, args);
+  FormatterParameters formatter_params(&format_str, &args);
+  return AddChild(formatter_params);
 }
 
-Formatter* Formatter::AddChild(std::string format_str,
-                               const std::vector<const Argument*>& arguments) {
+Formatter* Formatter::AddChild(const FormatterParameters& params) {
   if (active_child_ != NULL) {
     active_child_->Done();
   }
-  active_child_.reset(NewChild(format_str, arguments));
+  active_child_.reset(NewChild(params));
   return active_child_.get();
 }
 

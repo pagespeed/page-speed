@@ -36,8 +36,7 @@ class ProtoFormatter : public RuleFormatter {
 
  protected:
   // Formatter interface
-  virtual Formatter* NewChild(const std::string& format_str,
-                              const std::vector<const Argument*>& arguments);
+  virtual Formatter* NewChild(const FormatterParameters& params);
   virtual void DoneAddingChildren();
 
  private:

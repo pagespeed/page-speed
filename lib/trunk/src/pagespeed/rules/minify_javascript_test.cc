@@ -87,6 +87,8 @@ class MinifyJavaScriptTest : public ::testing::Test {
               strlen(kUnminified) - strlen(kMinified));
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), "http://www.example.com/foo.js");
+
+    ASSERT_EQ(kMinified, result.optimized_content());
   }
 
   void CheckError() {
