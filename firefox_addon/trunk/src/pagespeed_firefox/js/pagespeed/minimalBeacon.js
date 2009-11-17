@@ -17,20 +17,16 @@
  *     http://www.showslow.com .
  *
  * @author Sam Kerner
- *
- * TODO: The code in this file is similar to the code in fullResultsBeacon.js.
- * Both files may be changed substantially as we get user feedback, so they are
- * implemented separately for now.  Once they are mature, consider merging
- * common parts.
  */
 
 (function() {  // Begin closure
 
-var MINIMAL_BEACON_URL_PREF = 'extensions.PageSpeed.beacon.minimal.url';
-var MINIMAL_BEACON_ENABLED_PREF = 'extensions.PageSpeed.beacon.minimal.enabled';
-var MINIMAL_BEACON_AUTORUN_PREF = 'extensions.PageSpeed.beacon.minimal.autorun';
-
-PAGESPEED.MinimalBeacon = {};
+/**
+ * @constructor
+ */
+PAGESPEED.MinimalBeacon = function() {
+  this.beaconBase_ = new PAGESPEED.BeaconBase('minimal');
+};
 
 /**
  * Given a results container, build the param string which encodes
@@ -41,7 +37,7 @@ PAGESPEED.MinimalBeacon = {};
  * @param {Object} resultsContainer The results of a page speed run.
  * @returns {string} The params string of the beacon to send.
  */
-PAGESPEED.MinimalBeacon.buildBeacon = function(resultsContainer) {
+PAGESPEED.MinimalBeacon.prototype.buildBeacon = function(resultsContainer) {
   /**
    * Encode a key-value pair into the params portion of a URL.
    * @param {string} key The key.
@@ -124,33 +120,25 @@ PAGESPEED.MinimalBeacon.buildBeacon = function(resultsContainer) {
  * Send the beacon.
  * @param {Object} resultsContainer The object which holds all results
  *     for the tab we are scoring.
- * @param {boolean} opt_prefOverride If true, don't check the preference
- *     to see if the minimal beacon is enabled.  Used by autorun, which
- *     checks its own pref.
+ * @param {boolean} checkAutorunPref If true, only run if the autorun pref
+ *     is set.
  * @return {boolean} False if the beacon can not be sent.
  */
-PAGESPEED.MinimalBeacon.sendBeacon = function(resultsContainer,
-                                              opt_prefOverride) {
+PAGESPEED.MinimalBeacon.prototype.sendBeacon = function(
+    resultsContainer, checkAutorunPref) {
 
-  if (!PAGESPEED.Utils.getBoolPref(MINIMAL_BEACON_ENABLED_PREF, false)) {
+  if (!this.beaconBase_.isBeaconEnabled(checkAutorunPref)) {
     PS_LOG('Minimal beacon is not enabled.');
     return false;
   }
 
-  var beaconUrl = PAGESPEED.Utils.getStringPref(MINIMAL_BEACON_URL_PREF);
-
+  var beaconUrl = this.beaconBase_.getBeaconUrl();
   if (!beaconUrl) {
-    PS_LOG('Can\'t send minimal beacon because the URL is not set.');
+    // Error already logged by getBeaconUrl().
     return false;
   }
 
-  if (!PAGESPEED.Utils.urlFromString(beaconUrl)) {
-    PS_LOG(['Can\'t send minimal beacon, because the beacon url is ',
-            'not a valid URL: "', beaconUrl, '" .'].join(''));
-    return false;
-  }
-
-  var beaconParams = PAGESPEED.MinimalBeacon.buildBeacon(resultsContainer);
+  var beaconParams = this.buildBeacon(resultsContainer);
 
   // For now there is only one XHR to send.  We use the parallel XHR
   // class anyway.  The class hides some ugly XHR details.  If other
@@ -163,25 +151,26 @@ PAGESPEED.MinimalBeacon.sendBeacon = function(resultsContainer,
                      beaconParams,
                      '',  // No data (all data is in the params).
                      null,  // No action on success.
-                     function() {PS_LOG('Minimal beacon fail.');}
-                     );
+                     function() {
+                       PS_LOG('Minimal beacon failed to send results.');
+                     });
 
   xhrFlow.sendRequests();
 
   return true;
 };
 
+PAGESPEED.minimalBeacon = new PAGESPEED.MinimalBeacon();
+
+
+// PAGESPEED.PageSpeedContext may not be defined in unit tests.
+// If it is not, there is no object to install the callback on.
 if (PAGESPEED.PageSpeedContext) {
   PAGESPEED.PageSpeedContext.callbacks.postDisplay.addCallback(
       function(data) {
         var resultsContainer = data.resultsContainer;
-
-        if (!PAGESPEED.Utils.getBoolPref(MINIMAL_BEACON_AUTORUN_PREF, false)) {
-          return;
-        }
-
-        PAGESPEED.MinimalBeacon.sendBeacon(resultsContainer, true);
+        PAGESPEED.minimalBeacon.sendBeacon(resultsContainer, true);
       });
-}
+};
 
 })();  // End closure

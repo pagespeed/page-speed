@@ -20,22 +20,16 @@
 
 (function() {  // Begin closure
 
-var FULL_RESULTS_BEACON_URL_PREF =
-    'extensions.PageSpeed.beacon.full_results.url';
-
-var FULL_RESULTS_BEACON_ENABLED_PREF =
-    'extensions.PageSpeed.beacon.full_results.enabled';
-
 /**
  * @constructor
  */
-PAGESPEED.FullResultsBeacon = function(beaconUrlPref) {
-  this.beaconUrlPref_ = beaconUrlPref;
+PAGESPEED.FullResultsBeacon = function() {
+  this.beaconBase_ = new PAGESPEED.BeaconBase('full_results');
 };
 
 /**
  * Build the string representation of the results container,
- * which holds all page spped results.
+ * which holds all page speed results.
  * @param {Object} resultsContainer Object holding resilts data.
  * @return {string} JSON encoded results.
  */
@@ -47,28 +41,22 @@ PAGESPEED.FullResultsBeacon.prototype.buildBeacon = function(resultsContainer) {
  * Send a beacon to a service.
  * @param {Object} resultsContainer The object which holds all results
  *     for the tab we are scoring.
+ * @param {boolean} checkAutorunPref If true, only run if the autorun pref
+ *     is set.
  * @return {boolean} False if the beacon can not be sent.
  */
-PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(resultsContainer) {
+PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(
+    resultsContainer, checkAutorunPref) {
 
-  if (!PAGESPEED.Utils.getBoolPref(FULL_RESULTS_BEACON_ENABLED_PREF, false)) {
+  if (!this.beaconBase_.isBeaconEnabled(checkAutorunPref)) {
     PS_LOG('Full beacon is not enabled.');
     return false;
   }
 
-  var beaconUrl = PAGESPEED.Utils.getStringPref(this.beaconUrlPref_);
-
+  var beaconUrl = this.beaconBase_.getBeaconUrl();
   if (!beaconUrl) {
-    // TODO: If the user asked for a beacon to be sent, prompt
-    // for a URL and set it in the pref.
-    PS_LOG('No url to send full beacon to.');
+    // Error already logged by getBeaconUrl().
     return false;
-  }
-
-  if (!PAGESPEED.Utils.urlFromString(beaconUrl)) {
-    PS_LOG(['Can\'t send full beacon, because the beacon url is ',
-            'not well formed: "', beaconUrl, '" .'].join(''));
-    return;
   }
 
   var xhrFlow = new PAGESPEED.ParallelXhrFlow();
@@ -87,7 +75,14 @@ PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(resultsContainer) {
   return true;
 };
 
-PAGESPEED.fullResultsBeacon =
-    new PAGESPEED.FullResultsBeacon(FULL_RESULTS_BEACON_URL_PREF);
+PAGESPEED.fullResultsBeacon = new PAGESPEED.FullResultsBeacon();
+
+if (PAGESPEED.PageSpeedContext) {
+  PAGESPEED.PageSpeedContext.callbacks.postDisplay.addCallback(
+      function(data) {
+        var resultsContainer = data.resultsContainer;
+        PAGESPEED.fullResultsBeacon.sendBeacon(resultsContainer, true);
+      });
+}
 
 })();  // End closure
