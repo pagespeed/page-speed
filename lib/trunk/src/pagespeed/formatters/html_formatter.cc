@@ -41,9 +41,7 @@ Formatter* HtmlFormatter::AddHeader(const std::string& header, int score) {
   return AddChild("$1 $2", score_arg, header_arg);
 }
 
-Formatter* HtmlFormatter::NewChild(
-    const std::string& format_str,
-    const std::vector<const Argument*>& arguments) {
+Formatter* HtmlFormatter::NewChild(const FormatterParameters& params) {
   if (!has_children_) {
     has_children_ = true;
     if (level_ >= 2) {
@@ -52,7 +50,8 @@ Formatter* HtmlFormatter::NewChild(
     }
   }
 
-  const std::string str = Format(format_str, arguments);
+  const std::string str = Format(params.format_str(),
+                                 params.arguments());
   Indent(level_);
   switch (level_) {
     case 0:

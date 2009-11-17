@@ -21,6 +21,7 @@
 
 using pagespeed::Argument;
 using pagespeed::FormatArgument;
+using pagespeed::FormatterParameters;
 using pagespeed::Formatter;
 using pagespeed::formatters::ProtoFormatter;
 using pagespeed::ResultText;
@@ -42,6 +43,27 @@ TEST(ProtoFormatterTest, BasicTest) {
   EXPECT_EQ("bar", second->format());
   EXPECT_EQ(0, second->args_size());
   EXPECT_EQ(0, second->children_size());
+
+  STLDeleteContainerPointers(results.begin(), results.end());
+}
+
+TEST(ProtoFormatterTest, OptimizedTest) {
+  std::string format_str = "FooBar";
+  FormatterParameters args(&format_str);
+  std::string optimized = "<optimized result>";
+  args.set_optimized_content(&optimized);
+
+  std::vector<ResultText*> results;
+  ProtoFormatter formatter(&results);
+  formatter.AddChild(args);
+  formatter.Done();
+
+  ASSERT_EQ(results.size(), 1);
+  ResultText* first = results[0];
+  EXPECT_EQ("FooBar", first->format());
+  EXPECT_EQ(0, first->args_size());
+  EXPECT_EQ(0, first->children_size());
+  EXPECT_EQ("<optimized result>", first->optimized_content());
 
   STLDeleteContainerPointers(results.begin(), results.end());
 }

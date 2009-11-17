@@ -38,9 +38,7 @@ Formatter* ProtoFormatter::AddHeader(const std::string& header, int score) {
   return AddChild(header);
 }
 
-Formatter* ProtoFormatter::NewChild(
-    const std::string& format_str,
-    const std::vector<const Argument*>& arguments) {
+Formatter* ProtoFormatter::NewChild(const FormatterParameters& params) {
   ResultText* new_child = NULL;
   if (results_ != NULL) {
     CHECK(result_text_ == NULL);
@@ -51,7 +49,12 @@ Formatter* ProtoFormatter::NewChild(
     new_child = result_text_->add_children();
   }
 
-  Format(new_child, format_str, arguments);
+  Format(new_child, params.format_str(), params.arguments());
+
+  if (params.has_optimized_content()) {
+    new_child->set_optimized_content(params.optimized_content());
+  }
+
   return new ProtoFormatter(new_child);
 }
 

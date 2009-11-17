@@ -44,6 +44,9 @@ std::string QuotedJsonString(std::string str) {
       default:
         // Unicode escape ASCII control and Extended ASCII characters.
         if (*i < 0x20 || *i >= 0x7F) {
+          // TODO this doesn't represent binary data properly.  Also,
+          // it does weird things when the format argument is
+          // negative.
           quoted.append(StringPrintf("\\u%04x", static_cast<int>(*i)));
         } else {
           quoted.push_back(*i);
@@ -114,9 +117,7 @@ Formatter* JsonFormatter::AddHeader(const std::string& header, int score) {
   return child_formatter;
 }
 
-Formatter* JsonFormatter::NewChild(
-    const std::string& format_str,
-    const std::vector<const Argument*>& arguments) {
+Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
   if (has_children_) {
     *output_ << ",";
   } else if (level_ > 0) {
@@ -127,6 +128,8 @@ Formatter* JsonFormatter::NewChild(
   has_children_ = true;
 
   *output_ << "\n{\"format\":[";
+
+  const std::string& format_str = params.format_str();
 
   bool needs_comma = false;
   std::string str;
@@ -140,7 +143,7 @@ Formatter* JsonFormatter::NewChild(
           str.push_back('$');
         } else {
           const int index = *i - '1';
-          const Argument& arg = *arguments.at(index);
+          const Argument& arg = *params.arguments().at(index);
           switch (arg.type()) {
             case Argument::URL:
               *output_ << StringElement(needs_comma, str);

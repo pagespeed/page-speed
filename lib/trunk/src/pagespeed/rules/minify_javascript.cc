@@ -23,6 +23,53 @@
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "third_party/jsmin/cpp/jsmin.h"
 
+namespace {
+
+struct MinifierOutput {
+ public:
+  MinifierOutput(int bytes_saved) : bytes_saved_(bytes_saved) {
+  }
+
+  MinifierOutput(int bytes_saved, const std::string& minified_js)
+      : bytes_saved_(bytes_saved),
+        minified_js_(new std::string(minified_js)) {
+  }
+
+  int bytes_saved() { return bytes_saved_; }
+  std::string* minified_js() { return minified_js_.get(); }
+ private:
+  int bytes_saved_;
+  scoped_ptr<std::string> minified_js_;
+
+  DISALLOW_COPY_AND_ASSIGN(MinifierOutput);
+};
+
+MinifierOutput* MinifyJs(const std::string& input, bool save_optimized_output) {
+  if (save_optimized_output) {
+    std::string minified_js;
+    if (!jsmin::MinifyJs(input, &minified_js)) {
+      return NULL;  // error
+    }
+
+    const int bytes_saved = input.size() - minified_js.size();
+    if (bytes_saved > 0) {
+      return new MinifierOutput(bytes_saved, minified_js);
+    } else {
+      return new MinifierOutput(0);
+    }
+  } else {
+    int minified_js_size = 0;
+    if (!jsmin::GetMinifiedJsSize(input, &minified_js_size)) {
+      return NULL;  // error
+    }
+
+    const int bytes_saved = input.size() - minified_js_size;
+    return new MinifierOutput(bytes_saved);
+  }
+}
+
+}  // namespace
+
 namespace pagespeed {
 
 namespace rules {
@@ -47,15 +94,16 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    int minified_js_size;
-    if (!jsmin::GetMinifiedJsSize(resource.GetResponseBody(),
-                                  &minified_js_size)) {
+    bool save_optimized_content = true;
+    scoped_ptr<MinifierOutput> minified_output(
+        MinifyJs(resource.GetResponseBody(), save_optimized_content));
+
+    if (!minified_output.get()) {
       error = true;
       continue;
     }
 
-    const int bytes_saved =
-        resource.GetResponseBody().size() - minified_js_size;
+    const int bytes_saved = minified_output->bytes_saved();
     if (bytes_saved <= 0) {
       continue;
     }
@@ -67,6 +115,11 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
     savings->set_response_bytes_saved(bytes_saved);
 
     result->add_resource_urls(resource.GetRequestUrl());
+
+    const std::string* minified_js = minified_output->minified_js();
+    if (minified_js) {
+      result->set_optimized_content(*minified_js);
+    }
   }
 
   return !error;
@@ -96,9 +149,22 @@ void MinifyJavaScript::FormatResults(const ResultVector& results,
        ++iter) {
     const Result& result = **iter;
     CHECK(result.resource_urls_size() == 1);
+
     Argument url(Argument::URL, result.resource_urls(0));
     Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
-    body->AddChild("Minifying $1 could save $2", url, savings);
+
+    std::string format_str = "Minifying $1 could save $2.";
+    std::vector<const Argument*> args;
+    args.push_back(&url);
+    args.push_back(&savings);
+
+    FormatterParameters formatter_args(&format_str, &args);
+
+    if (result.has_optimized_content()) {
+      formatter_args.set_optimized_content(&result.optimized_content());
+    }
+
+    body->AddChild(formatter_args);
   }
 }
 
