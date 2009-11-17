@@ -35,53 +35,19 @@ SOFTWARE.
 namespace jsmin {
 
 /**
- * jsmin::Minifier is a C++ port of jsmin.c. Minifier uses member
- * variables instead of the static globals used by jsmin.c. Minifier
- * also uses strings to read input and write output, where jsmin.c
- * uses stdin/stdout.
+ * jsmin::MinifyJs is a C++ port of jsmin.c
+ * @return true if minification was successful, false otherwise. If
+ * false, the output string is not populated.
  */
-class Minifier {
- public:
-  /**
-   * @return true if minification was successful, false otherwise. If
-   * false, the output string is cleared, not populated.
-   */
-  static bool MinifyJs(const std::string& input, std::string* out);
+bool MinifyJs(const std::string& input, std::string* out);
 
-  virtual ~Minifier();
-
- private:
-  /**
-   * Construct a new Minifier instance that minifies the specified
-   * JavaScript input.
-   */
-  explicit Minifier(const std::string* input);
-
-  /**
-   * @return true if minification was successful, false otherwise. If
-   * false, the output string is cleared, not populated.
-   */
-  bool GetMinifiedOutput(std::string *out);
-
-  // The various methods from jsmin.c, ported to this class.
-  int get();
-  int peek();
-  int next();
-  void action(int d);
-  void jsmin();
-
-  // Data members from jsmin.c, ported to this class.
-  int theA;
-  int theB;
-  int theLookahead;
-
-  // Our custom data members, not from jsmin.c
-  const std::string *input_;
-  int input_index_;
-  std::string output_buffer_;
-  bool error_;
-  bool done_;
-};
+/**
+ * jsmin::GetMinifiedJsSize is a C++ port of jsmin.c that only returns
+ * the minified size.
+ * @return true if minification was successful, false otherwise. If
+ * false, the minimized_size is not populated.
+ */
+bool GetMinifiedJsSize(const std::string& input, int* minimized_size);
 
 }  // namespace jsmin
 
