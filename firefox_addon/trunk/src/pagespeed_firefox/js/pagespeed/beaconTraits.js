@@ -23,19 +23,28 @@
 (function() {  // Begin closure
 
 /**
+ * Given the type of beacon and a suffix, build the string name
+ * of a preference.  See
+ * http://code.google.com/p/page-speed/wiki/BeaconDocs
+ * for a list of relevant preferences.
+ * @param {string} beaconName The name of the beacon this pref will apply to.
+ * @param {string} suffix The final part of the pref name.
+ * @return {string} The name of a firefox preference controling a beacon.
+ */
+var buildPrefName = function(beaconName, suffix) {
+  return ['extensions.PageSpeed.beacon.',
+          beaconName, '.',
+          suffix].join('');
+};
+
+/**
  * @constructor
  */
-PAGESPEED.BeaconBase = function(beaconName) {
-  function buildPrefName(suffix) {
-    return ['extensions.PageSpeed.beacon.',
-            beaconName, '.',
-            suffix].join('');
-  }
-
+PAGESPEED.BeaconTraits = function(beaconName) {
   this.beaconName_ = beaconName;
-  this.beaconUrlPref_ = buildPrefName('url');
-  this.beaconEnabledPref_ = buildPrefName('enabled');
-  this.beaconAutorunPref_ = buildPrefName('autorun');
+  this.beaconUrlPref_ = buildPrefName(beaconName, 'url');
+  this.beaconEnabledPref_ = buildPrefName(beaconName, 'enabled');
+  this.beaconAutorunPref_ = buildPrefName(beaconName, 'autorun');
 };
 
 /**
@@ -45,7 +54,7 @@ PAGESPEED.BeaconBase = function(beaconName) {
  *     is set.
  * @return {boolean} True if a beacon should be sent.  False otherwise.
  */
-PAGESPEED.BeaconBase.prototype.isBeaconEnabled = function(checkAutorunPref) {
+PAGESPEED.BeaconTraits.prototype.isBeaconEnabled = function(checkAutorunPref) {
   if (!PAGESPEED.Utils.getBoolPref(this.beaconEnabledPref_, false))
     return false;
 
@@ -63,7 +72,7 @@ PAGESPEED.BeaconBase.prototype.isBeaconEnabled = function(checkAutorunPref) {
  * @return {string} The url to send a beacon to.  '' if the URL pref
  *     is unset or malformed.
  */
-PAGESPEED.BeaconBase.prototype.getBeaconUrl = function() {
+PAGESPEED.BeaconTraits.prototype.getBeaconUrl = function() {
   var beaconUrl = PAGESPEED.Utils.getStringPref(this.beaconUrlPref_);
 
   if (!beaconUrl) {
