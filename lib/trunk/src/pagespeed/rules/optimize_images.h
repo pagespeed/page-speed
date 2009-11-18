@@ -31,7 +31,7 @@ namespace rules {
  */
 class OptimizeImages : public Rule {
  public:
-  OptimizeImages();
+  OptimizeImages(bool save_optimized_content);
 
   // Rule interface.
   virtual const char* name() const;
@@ -40,6 +40,8 @@ class OptimizeImages : public Rule {
   virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 
  private:
+  bool save_optimized_content_;
+
   DISALLOW_COPY_AND_ASSIGN(OptimizeImages);
 };
 

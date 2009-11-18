@@ -74,7 +74,8 @@ namespace pagespeed {
 
 namespace rules {
 
-MinifyJavaScript::MinifyJavaScript() {
+MinifyJavaScript::MinifyJavaScript(bool save_optimized_content)
+    : save_optimized_content_(save_optimized_content) {
 }
 
 const char* MinifyJavaScript::name() const {
@@ -94,9 +95,8 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    bool save_optimized_content = true;
     scoped_ptr<MinifierOutput> minified_output(
-        MinifyJs(resource.GetResponseBody(), save_optimized_content));
+        MinifyJs(resource.GetResponseBody(), save_optimized_content_));
 
     if (!minified_output.get()) {
       error = true;

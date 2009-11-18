@@ -68,15 +68,31 @@ class MinifyJavaScriptTest : public ::testing::Test {
   }
 
   void CheckNoViolations() {
-    MinifyJavaScript minify;
+    CheckNoViolationsInternal(false);
+    CheckNoViolationsInternal(true);
+  }
+
+  void CheckOneViolation() {
+    CheckOneViolationInternal(false);
+    CheckOneViolationInternal(true);
+  }
+
+  void CheckError() {
+    CheckErrorInternal(false);
+    CheckErrorInternal(true);
+  }
+
+ private:
+  void CheckNoViolationsInternal(bool save_optimized_content) {
+    MinifyJavaScript minify(save_optimized_content);
 
     Results results;
     ASSERT_TRUE(minify.AppendResults(*input_, &results));
     ASSERT_EQ(results.results_size(), 0);
   }
 
-  void CheckOneViolation() {
-    MinifyJavaScript minify;
+  void CheckOneViolationInternal(bool save_optimized_content) {
+    MinifyJavaScript minify(save_optimized_content);
 
     Results results;
     ASSERT_TRUE(minify.AppendResults(*input_, &results));
@@ -88,18 +104,22 @@ class MinifyJavaScriptTest : public ::testing::Test {
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), "http://www.example.com/foo.js");
 
-    ASSERT_EQ(kMinified, result.optimized_content());
+    if (save_optimized_content) {
+      ASSERT_TRUE(result.has_optimized_content());
+      EXPECT_EQ(kMinified, result.optimized_content());
+    } else {
+      ASSERT_FALSE(result.has_optimized_content());
+    }
   }
 
-  void CheckError() {
-    MinifyJavaScript minify;
+  void CheckErrorInternal(bool save_optimized_content) {
+    MinifyJavaScript minify(save_optimized_content);
 
     Results results;
     ASSERT_FALSE(minify.AppendResults(*input_, &results));
     ASSERT_EQ(results.results_size(), 0);
   }
 
- private:
   scoped_ptr<PagespeedInput> input_;
 };
 
