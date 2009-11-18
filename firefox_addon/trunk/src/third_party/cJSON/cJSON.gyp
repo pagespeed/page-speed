@@ -20,11 +20,15 @@
       'sources': [
         'cJSON.c',
       ],
-      'link_settings': {
-        'libraries': [
-          '-lm',
-        ],
-      },
+      'conditions': [
+        ['OS == "linux"', {
+          'link_settings': {
+            'libraries': [
+              '-lm',
+            ],
+          },
+        }],
+      ],
     },
     {
       'target_name': 'cJSON_test',
