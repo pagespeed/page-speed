@@ -14,6 +14,7 @@
 
 #include "pagespeed/core/rule.h"
 
+#include <algorithm>
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -83,7 +84,7 @@ int Rule::ComputeScore(const InputInformation& input_info,
         kRequestImpact * requests_saved / input_info.number_resources();
   }
 
-  return MAX(0, 100 * (1.0 - normalized_savings));
+  return std::max(0, (int)(100 * (1.0 - normalized_savings)));
 }
 
 }  // namespace pagespeed
