@@ -45,13 +45,13 @@
           '<(xulrunner_sdk_root)/include/string',
           '<(xulrunner_sdk_root)/include/xpcom',
         ],
-        'conditions': [
+        'conditions': [  # See https://developer.mozilla.org/en/XPCOM_Glue
           ['OS == "linux"', {
             'cflags': [
               '-fshort-wchar',
               '-include', '<(xulrunner_sdk_root)/include/xpcom/xpcom-config.h',
             ],
-            'ldflags': [  # See https://developer.mozilla.org/en/XPCOM_Glue
+            'ldflags': [
               '-L<(xulrunner_sdk_root)/lib',
               '-L<(xulrunner_sdk_root)/bin',
               '-Wl,-rpath-link,<(xulrunner_sdk_root)/bin',
@@ -61,6 +61,25 @@
               '-lnspr4',
               '-Wl,--no-whole-archive',
             ],
+          }],
+          ['OS == "mac"', {
+            'link_settings': {
+              'libraries': [
+                'libxpcomglue_s.a',
+                'libxpcom.dylib',
+                'libnspr4.dylib',
+              ],
+            },
+            'xcode_settings': {
+              'LIBRARY_SEARCH_PATHS': [
+                '<(xulrunner_sdk_root)/lib',
+                '<(xulrunner_sdk_root)/bin',
+              ],
+              'OTHER_CFLAGS': [
+                '-fshort-wchar',
+                '-include <(xulrunner_sdk_root)/include/xpcom/xpcom-config.h',
+              ],
+            },
           }],
         ],
       },
@@ -275,6 +294,14 @@
         '<(src_root)',
         '<(src_root)/pagespeed',
       ],
+      'conditions': [['OS == "mac"', {
+        'xcode_settings': {
+          # We must null out these two variables when building this target,
+          # because it is a loadable_module (-bundle).
+          'DYLIB_COMPATIBILITY_VERSION':'',
+          'DYLIB_CURRENT_VERSION':'',
+        }
+      }]],
     },
   ],
 }
