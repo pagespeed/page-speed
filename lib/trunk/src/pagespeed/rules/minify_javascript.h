@@ -31,7 +31,7 @@ namespace rules {
  */
 class MinifyJavaScript : public Rule {
  public:
-  MinifyJavaScript();
+  MinifyJavaScript(bool save_optimized_content);
 
   // Rule interface.
   virtual const char* name() const;
@@ -40,6 +40,8 @@ class MinifyJavaScript : public Rule {
   virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 
  private:
+  const bool save_optimized_content_;
+
   DISALLOW_COPY_AND_ASSIGN(MinifyJavaScript);
 };
 

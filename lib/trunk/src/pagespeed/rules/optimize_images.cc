@@ -33,7 +33,9 @@ namespace pagespeed {
 
 namespace rules {
 
-OptimizeImages::OptimizeImages() {}
+OptimizeImages::OptimizeImages(bool save_optimized_content)
+    : save_optimized_content_(save_optimized_content) {
+}
 
 const char* OptimizeImages::name() const {
   return "OptimizeImages";
@@ -97,7 +99,9 @@ bool OptimizeImages::AppendResults(const PagespeedInput& input,
 
     result->add_resource_urls(resource.GetRequestUrl());
 
-    result->set_optimized_content(compressed);
+    if (save_optimized_content_) {
+      result->set_optimized_content(compressed);
+    }
   }
 
   return !error;

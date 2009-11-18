@@ -86,15 +86,32 @@ class OptimizeImagesTest : public ::testing::Test {
   }
 
   void CheckNoViolations() {
-    OptimizeImages optimize;
+    CheckNoViolationsInternal(false);
+    CheckNoViolationsInternal(true);
+  }
+
+  void CheckOneViolation(const std::string &url) {
+    CheckOneViolationInternal(url, false);
+    CheckOneViolationInternal(url, true);
+  }
+
+  void CheckError() {
+    CheckErrorInternal(false);
+    CheckErrorInternal(true);
+  }
+
+ private:
+  void CheckNoViolationsInternal(bool save_optimized_content) {
+    OptimizeImages optimize(save_optimized_content);
 
     Results results;
     ASSERT_TRUE(optimize.AppendResults(*input_, &results));
     ASSERT_EQ(results.results_size(), 0);
   }
 
-  void CheckOneViolation(const std::string &url) {
-    OptimizeImages optimize;
+  void CheckOneViolationInternal(const std::string &url,
+                             bool save_optimized_content) {
+    OptimizeImages optimize(save_optimized_content);
 
     Results results;
     ASSERT_TRUE(optimize.AppendResults(*input_, &results));
@@ -104,17 +121,18 @@ class OptimizeImagesTest : public ::testing::Test {
     ASSERT_GT(result.savings().response_bytes_saved(), 0);
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), url);
+
+    ASSERT_EQ(save_optimized_content, result.has_optimized_content());
   }
 
-  void CheckError() {
-    OptimizeImages optimize;
+  void CheckErrorInternal(bool save_optimized_content) {
+    OptimizeImages optimize(save_optimized_content);
 
     Results results;
     ASSERT_FALSE(optimize.AppendResults(*input_, &results));
     ASSERT_EQ(results.results_size(), 0);
   }
 
- private:
   scoped_ptr<PagespeedInput> input_;
 };
 
