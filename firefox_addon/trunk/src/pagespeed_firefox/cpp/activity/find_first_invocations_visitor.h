@@ -23,8 +23,6 @@
 #ifndef FIND_FIRST_INVOCATIONS_VISITOR_H_
 #define FIND_FIRST_INVOCATIONS_VISITOR_H_
 
-#include <stdint.h>
-
 #include <vector>
 
 #include "base/basictypes.h"
@@ -37,7 +35,7 @@ class CallTree;
 
 class FindFirstInvocationsVisitor : public CallGraphVisitorInterface {
  public:
-  typedef portable_hash_set<int32_t> InvokedFunctionTags;
+  typedef portable_hash_set<int32> InvokedFunctionTags;
   typedef std::vector<const CallTree*> FirstInvocations;
 
   FindFirstInvocationsVisitor();

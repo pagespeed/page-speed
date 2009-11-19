@@ -101,7 +101,7 @@ void CallGraphProfile::Start() {
   Start(clock_->GetCurrentTimeUsec());
 }
 
-void CallGraphProfile::Start(int64_t start_time_usec) {
+void CallGraphProfile::Start(int64 start_time_usec) {
   GCHECK(!profiling());
   timer_.reset(new Timer(clock_, start_time_usec));
   profile_.reset(new Profile);
@@ -132,7 +132,7 @@ void CallGraphProfile::OnFunctionExit(
     FunctionInfoInterface *function_info) {
   GCHECK(profiling());
 
-  const int32_t tag = function_info->GetFunctionTag();
+  const int32 tag = function_info->GetFunctionTag();
 
   // If we haven't recorded the metadata for this function already, do
   // so now.
@@ -152,10 +152,10 @@ void CallGraphProfile::OnFunctionInstantiated(
     FunctionInfoInterface *function_info) {
   GCHECK(profiling());
 
-  const int32_t tag = function_info->GetFunctionTag();
+  const int32 tag = function_info->GetFunctionTag();
   GCHECK(!metadata_->HasEntry(tag));
 
-  const int64_t function_instantiation_time_usec = timer_->GetElapsedTimeUsec();
+  const int64 function_instantiation_time_usec = timer_->GetElapsedTimeUsec();
 
   metadata_->AddEntry(
       tag,

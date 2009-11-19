@@ -22,7 +22,7 @@
 
 namespace activity {
 
-Timer::Timer(ClockInterface *clock, int64_t start_time_usec)
+Timer::Timer(ClockInterface *clock, int64 start_time_usec)
     : clock_(clock),
       reference_time_usec_(start_time_usec),
       last_time_usec_(start_time_usec) {
@@ -30,9 +30,9 @@ Timer::Timer(ClockInterface *clock, int64_t start_time_usec)
 
 Timer::~Timer() {}
 
-int64_t Timer::GetElapsedTimeUsec() {
-  int64_t now_usec = clock_->GetCurrentTimeUsec();
-  const int64_t duration_since_last_time_usec = now_usec - last_time_usec_;
+int64 Timer::GetElapsedTimeUsec() {
+  int64 now_usec = clock_->GetCurrentTimeUsec();
+  const int64 duration_since_last_time_usec = now_usec - last_time_usec_;
   if (duration_since_last_time_usec < 0) {
     // The clock went backwards. Offset the reference time by the
     // amount we went backwards, in order to guarantee that we always

@@ -51,8 +51,8 @@ class DelayableFunctionTreeViewDelegate
   void Initialize(const FindFirstInvocationsVisitor &visitor);
 
   // Implement BasicTreeViewDelegateInterface.
-  virtual int32_t GetRowCount();
-  virtual bool GetCellText(int32_t row, int32_t column, std::string *retval);
+  virtual int32 GetRowCount();
+  virtual bool GetCellText(int32 row, int32 column, std::string *retval);
 
   // The columns in the tree view. Must be declared in the same order
   // as the XUL tree widget.
@@ -67,7 +67,7 @@ class DelayableFunctionTreeViewDelegate
   };
 
  private:
-  typedef std::pair<int64_t, int32_t> TimeTagPair;
+  typedef std::pair<int64, int32> TimeTagPair;
 
   // Populate the given vector with pairs that contain the difference
   // between the function instantiation time and the first function
@@ -77,7 +77,7 @@ class DelayableFunctionTreeViewDelegate
 
   // Get the FunctionMetadata for the given tag, or NULL if there is
   // no FunctionMetadata for the given tag.
-  const FunctionMetadata *GetMetadataOrNull(int32_t function_tag) const;
+  const FunctionMetadata *GetMetadataOrNull(int32 function_tag) const;
 
   std::vector<TimeTagPair> tags_in_delay_order_;
   const CallGraphProfile &profile_;

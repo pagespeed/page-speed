@@ -46,8 +46,8 @@ class UncalledFunctionTreeViewDelegate : public BasicTreeViewDelegateInterface {
   void Initialize(const FindFirstInvocationsVisitor &visitor);
 
   // Implement BasicTreeViewDelegateInterface.
-  virtual int32_t GetRowCount();
-  virtual bool GetCellText(int32_t row, int32_t column, std::string *retval);
+  virtual int32 GetRowCount();
+  virtual bool GetCellText(int32 row, int32 column, std::string *retval);
 
   // The columns in the tree view. Must be declared in the same order
   // as the XUL tree widget.
@@ -64,7 +64,7 @@ class UncalledFunctionTreeViewDelegate : public BasicTreeViewDelegateInterface {
   // functions.
   void PopulateUncalledVector(const FindFirstInvocationsVisitor &visitor);
 
-  std::vector<int32_t> uncalled_function_tags_;
+  std::vector<int32> uncalled_function_tags_;
   const CallGraphProfile &profile_;
 
   DISALLOW_COPY_AND_ASSIGN(UncalledFunctionTreeViewDelegate);

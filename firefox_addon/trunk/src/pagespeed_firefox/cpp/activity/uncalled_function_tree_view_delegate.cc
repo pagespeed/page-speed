@@ -43,12 +43,12 @@ void UncalledFunctionTreeViewDelegate::Initialize(
   ::std::sort(uncalled_function_tags_.begin(), uncalled_function_tags_.end());
 }
 
-int32_t UncalledFunctionTreeViewDelegate::GetRowCount() {
+int32 UncalledFunctionTreeViewDelegate::GetRowCount() {
   return uncalled_function_tags_.size();
 }
 
 bool UncalledFunctionTreeViewDelegate::GetCellText(
-    int32_t row_index, int32_t column, std::string *retval) {
+    int32 row_index, int32 column, std::string *retval) {
   if (row_index < 0 || row_index >= GetRowCount()) {
     return false;
   }
@@ -58,7 +58,7 @@ bool UncalledFunctionTreeViewDelegate::GetCellText(
   }
 
   const ColumnId column_id = static_cast<ColumnId>(column);
-  const int32_t function_tag = uncalled_function_tags_[row_index];
+  const int32 function_tag = uncalled_function_tags_[row_index];
   CallGraphMetadata::MetadataMap::const_iterator it =
       profile_.metadata()->map()->find(function_tag);
   GCHECK(it != profile_.metadata()->map()->end());
@@ -108,7 +108,7 @@ void UncalledFunctionTreeViewDelegate::PopulateUncalledVector(
       continue;
     }
 
-    const int32_t function_tag = function_metadata.function_tag();
+    const int32 function_tag = function_metadata.function_tag();
     if (invoked_tags.find(function_tag) == invoked_tags.end()) {
       uncalled_function_tags_.push_back(function_tag);
     }

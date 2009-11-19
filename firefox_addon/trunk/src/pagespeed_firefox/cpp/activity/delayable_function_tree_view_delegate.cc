@@ -43,12 +43,12 @@ void DelayableFunctionTreeViewDelegate::Initialize(
   ::std::sort(tags_in_delay_order_.begin(), tags_in_delay_order_.end());
 }
 
-int32_t DelayableFunctionTreeViewDelegate::GetRowCount() {
+int32 DelayableFunctionTreeViewDelegate::GetRowCount() {
   return tags_in_delay_order_.size();
 }
 
 bool DelayableFunctionTreeViewDelegate::GetCellText(
-    int32_t row_index, int32_t column_index, std::string *retval) {
+    int32 row_index, int32 column_index, std::string *retval) {
   // Reverse the order so entries are shown from most delayable to
   // least delayable.
   row_index = (GetRowCount() - row_index) - 1;
@@ -62,8 +62,8 @@ bool DelayableFunctionTreeViewDelegate::GetCellText(
   }
 
   const ColumnId column_id = static_cast<ColumnId>(column_index);
-  const int32_t function_tag = tags_in_delay_order_[row_index].second;
-  const int64_t delay_time_usec = tags_in_delay_order_[row_index].first;
+  const int32 function_tag = tags_in_delay_order_[row_index].second;
+  const int64 delay_time_usec = tags_in_delay_order_[row_index].first;
   CallGraphMetadata::MetadataMap::const_iterator it =
       profile_.metadata()->map()->find(function_tag);
   GCHECK(it != profile_.metadata()->map()->end());
@@ -106,7 +106,7 @@ bool DelayableFunctionTreeViewDelegate::GetCellText(
 }
 
 const FunctionMetadata *DelayableFunctionTreeViewDelegate::GetMetadataOrNull(
-    int32_t function_tag) const {
+    int32 function_tag) const {
   const CallGraphMetadata::MetadataMap::const_iterator it =
       profile_.metadata()->map()->find(function_tag);
   if (it == profile_.metadata()->map()->end()) {
@@ -124,7 +124,7 @@ void DelayableFunctionTreeViewDelegate::PopulateInstantiationDelayVector(
        it != end;
        ++it) {
     const CallTree &call_tree = **it;
-    const int32_t function_tag = call_tree.function_tag();
+    const int32 function_tag = call_tree.function_tag();
     const FunctionMetadata *function_metadata = GetMetadataOrNull(function_tag);
     if (function_metadata == NULL) {
       // No metadata for this function. Skip it.
@@ -147,7 +147,7 @@ void DelayableFunctionTreeViewDelegate::PopulateInstantiationDelayVector(
       continue;
     }
 
-    const int64_t possible_instantiation_delay_usec =
+    const int64 possible_instantiation_delay_usec =
         call_tree.entry_time_usec() -
         function_metadata->function_instantiation_time_usec();
     GCHECK_GE(possible_instantiation_delay_usec, 0);

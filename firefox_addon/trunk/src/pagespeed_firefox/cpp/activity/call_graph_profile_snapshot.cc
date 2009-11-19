@@ -40,12 +40,12 @@ CallGraphProfileSnapshot::CallGraphProfileSnapshot(
 CallGraphProfileSnapshot::~CallGraphProfileSnapshot() {}
 
 void CallGraphProfileSnapshot::Init(
-    int64_t start_time_usec, int64_t end_time_usec) {
+    int64 start_time_usec, int64 end_time_usec) {
   PopulateInitTimeMap(start_time_usec, end_time_usec);
 }
 
 void CallGraphProfileSnapshot::PopulateInitTimeMap(
-    int64_t start_time_usec, int64_t end_time_usec) {
+    int64 start_time_usec, int64 end_time_usec) {
   GCHECK_EQ(0, init_time_map_.size());
   GCHECK_GE(start_time_usec, 0);
   GCHECK_GE(end_time_usec, 0);
@@ -58,7 +58,7 @@ void CallGraphProfileSnapshot::PopulateInitTimeMap(
        ++it) {
     const FunctionMetadata &function_metadata = *it->second;
     if (function_metadata.has_function_instantiation_time_usec()) {
-      int64_t function_instantiation_time_usec =
+      int64 function_instantiation_time_usec =
           function_metadata.function_instantiation_time_usec();
       if (function_instantiation_time_usec >= start_time_usec &&
           function_instantiation_time_usec <= end_time_usec) {

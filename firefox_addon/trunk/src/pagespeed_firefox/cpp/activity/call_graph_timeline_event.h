@@ -25,7 +25,7 @@
 #ifndef CALL_GRAPH_TIMELINE_EVENT_H_
 #define CALL_GRAPH_TIMELINE_EVENT_H_
 
-#include <stdint.h>
+#include "base/basictypes.h"
 
 namespace activity {
 
@@ -37,8 +37,8 @@ struct CallGraphTimelineEvent {
   };
 
   CallGraphTimelineEvent(
-      int64_t start_time_usec,
-      int64_t duration_usec,
+      int64 start_time_usec,
+      int64 duration_usec,
       Type type,
       const char *identifier)
       : start_time_usec(start_time_usec),
@@ -49,16 +49,16 @@ struct CallGraphTimelineEvent {
   }
 
   /** Start time of the event. */
-  const int64_t start_time_usec;
+  const int64 start_time_usec;
 
   /** Duration of the event. */
-  const int64_t duration_usec;
+  const int64 duration_usec;
 
   /**
    * The intensity of the event. The range of the intensity is event
    * type-dependent.
    */
-  int64_t intensity;
+  int64 intensity;
 
   /** The type of the event. */
   Type type;

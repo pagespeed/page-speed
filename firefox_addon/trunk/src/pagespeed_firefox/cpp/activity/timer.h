@@ -22,8 +22,6 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
-#include <stdint.h>
-
 #include "base/basictypes.h"
 #include "clock.h"
 
@@ -31,7 +29,7 @@ namespace activity {
 
 class Timer {
  public:
-  Timer(ClockInterface *clock, int64_t start_time_usec);
+  Timer(ClockInterface *clock, int64 start_time_usec);
   ~Timer();
 
   /**
@@ -39,12 +37,12 @@ class Timer {
    * was initialized.  The values returned from GetElapsedTimeUsec are
    * guaranteed to be monotonically increasing.
    */
-  int64_t GetElapsedTimeUsec();
+  int64 GetElapsedTimeUsec();
 
  private:
   ClockInterface *const clock_;
-  int64_t reference_time_usec_;
-  int64_t last_time_usec_;
+  int64 reference_time_usec_;
+  int64 last_time_usec_;
 
   DISALLOW_COPY_AND_ASSIGN(Timer);
 };

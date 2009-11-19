@@ -24,9 +24,9 @@ NS_IMPL_THREADSAFE_ISUPPORTS1(activity::ProfilerEvent, IActivityProfilerEvent)
 
 namespace activity {
 
-ProfilerEvent::ProfilerEvent(int64_t start_time_usec,
-                         int64_t duration_usec,
-                         int64_t intensity,
+ProfilerEvent::ProfilerEvent(int64 start_time_usec,
+                         int64 duration_usec,
+                         int64 intensity,
                          int16_t type,
                          const char *identifier)
     : start_time_usec_(start_time_usec),

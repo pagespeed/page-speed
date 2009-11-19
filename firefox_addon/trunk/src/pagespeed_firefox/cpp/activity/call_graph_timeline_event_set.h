@@ -23,8 +23,6 @@
 #ifndef CALL_GRAPH_TIMELINE_EVENT_SET_H_
 #define CALL_GRAPH_TIMELINE_EVENT_SET_H_
 
-#include <stdint.h>    // for int64_t
-
 #include <functional>  // for binary_function
 #include <map>
 #include <utility>     // for pair
@@ -37,7 +35,7 @@ namespace activity {
 class CallGraphTimelineEventSet {
  private:
   typedef std::pair<CallGraphTimelineEvent::Type, const char *> TypeIdPair;
-  typedef std::pair<int64_t, TypeIdPair> Key;
+  typedef std::pair<int64, TypeIdPair> Key;
 
   // STL StrictWeakOrdering implementation used to sort Keys by their
   // start times.
@@ -50,7 +48,7 @@ class CallGraphTimelineEventSet {
  public:
   typedef std::map<Key, CallGraphTimelineEvent*, KeyLessThan> EventMap;
 
-  explicit CallGraphTimelineEventSet(int64_t event_duration_usec);
+  explicit CallGraphTimelineEventSet(int64 event_duration_usec);
   ~CallGraphTimelineEventSet();
 
   /**
@@ -63,15 +61,15 @@ class CallGraphTimelineEventSet {
   CallGraphTimelineEvent *GetOrCreateEvent(
       const char *identifier,
       CallGraphTimelineEvent::Type type,
-      int64_t start_time_usec);
+      int64 start_time_usec);
 
-  int64_t event_duration_usec() const { return event_duration_usec_; }
+  int64 event_duration_usec() const { return event_duration_usec_; }
 
   const EventMap *event_map() const { return &event_map_; }
 
  private:
   EventMap event_map_;
-  const int64_t event_duration_usec_;
+  const int64 event_duration_usec_;
 
   DISALLOW_COPY_AND_ASSIGN(CallGraphTimelineEventSet);
 };

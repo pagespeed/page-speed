@@ -23,9 +23,8 @@
 #ifndef PROFILER_EVENT_H_
 #define PROFILER_EVENT_H_
 
-#include <stdint.h>
-
 #include "IActivityProfiler.h"
+#include "base/basictypes.h"
 
 class nsCStringContainer;
 
@@ -36,9 +35,9 @@ class ProfilerEvent : public IActivityProfilerEvent {
   NS_DECL_ISUPPORTS
   NS_DECL_IACTIVITYPROFILEREVENT
 
-  ProfilerEvent(int64_t start_time_usec,
-              int64_t duration_usec,
-              int64_t intensity,
+  ProfilerEvent(int64 start_time_usec,
+              int64 duration_usec,
+              int64 intensity,
               int16_t type,
               const char *identifier);
 

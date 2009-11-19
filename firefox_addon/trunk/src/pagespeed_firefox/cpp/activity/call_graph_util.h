@@ -21,9 +21,9 @@
 #ifndef CALL_GRAPH_UTIL_H_
 #define CALL_GRAPH_UTIL_H_
 
-#include <stdint.h>
-
 #include <string>
+
+#include "base/basictypes.h"
 
 namespace activity {
 
@@ -34,31 +34,31 @@ class CallTree;
 
 namespace util {
 
-int64_t RoundDownToNearestWholeMultiple(
-    int64_t value, int64_t multiple);
+int64 RoundDownToNearestWholeMultiple(
+    int64 value, int64 multiple);
 
-int64_t RoundUpToNearestWholeMultiple(
-    int64_t value, int64_t multiple);
+int64 RoundUpToNearestWholeMultiple(
+    int64 value, int64 multiple);
 
 /**
  * Helper that determines how much time the current CallTree
  * executed within the given window, including the execution time of
  * its children.
  */
-int64_t GetTotalExecutionTimeUsec(
+int64 GetTotalExecutionTimeUsec(
     const CallTree &tree,
-    int64_t start_time_usec,
-    int64_t end_time_usec);
+    int64 start_time_usec,
+    int64 end_time_usec);
 
 /**
  * Helper that determines how much time the current CallTree
  * executed within the given window, excluding the execution time of
  * its children.
  */
-int64_t GetOwnExecutionTimeUsec(
+int64 GetOwnExecutionTimeUsec(
     const CallTree &tree,
-    int64_t start_time_usec,
-    int64_t end_time_usec);
+    int64 start_time_usec,
+    int64 end_time_usec);
 
 /**
  * Populate the function initialization counts for the given
@@ -70,8 +70,8 @@ int64_t GetOwnExecutionTimeUsec(
 void PopulateFunctionInitCounts(
     const CallGraphProfileSnapshot &snapshot,
     CallGraphTimelineEventSet *events,
-    int64_t start_time_usec,
-    int64_t end_time_usec);
+    int64 start_time_usec,
+    int64 end_time_usec);
 
 /**
  * Populate the execution times for the given
@@ -83,20 +83,20 @@ void PopulateFunctionInitCounts(
 void PopulateExecutionTimes(
     const CallGraphProfileSnapshot &snapshot,
     CallGraphTimelineEventSet *events,
-    int64_t start_time_usec,
-    int64_t end_time_usec);
+    int64 start_time_usec,
+    int64 end_time_usec);
 
 /**
  * Get the largest timestamp for the fully constructed portion of the
  * call graph.
  */
-int64_t GetMaxFullyConstructedCallGraphTimeUsec(const CallGraph &call_graph);
+int64 GetMaxFullyConstructedCallGraphTimeUsec(const CallGraph &call_graph);
 
 /**
  * Convert a numeric time stamp to a pretty-printed string suitable
  * for display in a UI.
  */
-void FormatTime(int64_t timestamp_usec, std::string *target);
+void FormatTime(int64 timestamp_usec, std::string *target);
 
 }  // namespace util
 

@@ -22,8 +22,6 @@
 #ifndef FUNCTION_CALL_PROFILE_H_
 #define FUNCTION_CALL_PROFILE_H_
 
-#include <stdint.h>
-
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 
@@ -51,7 +49,7 @@ class CallGraphProfile {
 
   // Start a profiling session, using the specified time for the start
   // time.
-  void Start(int64_t start_time_usec);
+  void Start(int64 start_time_usec);
 
   // Stop the current profiling session.
   void Stop();

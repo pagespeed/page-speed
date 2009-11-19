@@ -24,7 +24,7 @@
 #ifndef FUNCTION_INFO_INTERFACE_H_
 #define FUNCTION_INFO_INTERFACE_H_
 
-#include <stdint.h>
+#include "base/basictypes.h"
 
 namespace activity {
 
@@ -32,7 +32,7 @@ namespace activity {
 class FunctionInfoInterface {
  public:
   virtual ~FunctionInfoInterface() {}
-  virtual int32_t GetFunctionTag() = 0;
+  virtual int32 GetFunctionTag() = 0;
   virtual const char *GetFileName() = 0;
   virtual const char *GetFunctionName() = 0;
   virtual const char *GetFunctionSourceUtf8() = 0;

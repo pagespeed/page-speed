@@ -17,6 +17,24 @@
 #ifndef BASE_BASICTYPES_H_
 #define BASE_BASICTYPES_H_
 
+typedef signed char         schar;
+typedef signed char         int8;
+typedef short               int16;
+// TODO(mbelshe) Remove these type guards.  These are
+//               temporary to avoid conflicts with npapi.h.
+#ifndef _INT32
+#define _INT32
+typedef int                 int32;
+#endif
+
+// The NSPR system headers define 64-bit as |long| when possible.  In order to
+// not have typedef mismatches, we do the same on LP64.
+#if __LP64__
+typedef long                int64;
+#else
+typedef long long           int64;
+#endif
+
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \

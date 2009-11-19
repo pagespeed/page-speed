@@ -28,8 +28,6 @@
 #ifndef CALL_GRAPH_METADATA_H_
 #define CALL_GRAPH_METADATA_H_
 
-#include <stdint.h>
-
 #include "base/basictypes.h"
 #include "portable_hash_map.h"
 
@@ -41,12 +39,12 @@ class Profile;
 // See comment at top of file for a complete description
 class CallGraphMetadata {
  public:
-  typedef portable_hash_map<int32_t, const FunctionMetadata*> MetadataMap;
+  typedef portable_hash_map<int32, const FunctionMetadata*> MetadataMap;
 
   explicit CallGraphMetadata(Profile *profile);
 
   // Do we have an entry for the function with the given tag?
-  bool HasEntry(int32_t tag) const;
+  bool HasEntry(int32 tag) const;
 
   // Add an entry for the function with the associated
   // identifier. tag, file_name, function_name, and
@@ -54,11 +52,11 @@ class CallGraphMetadata {
   // function_instantiation_time_usec is optional; if the
   // instantiation time of the function is unknown, you should pass -1
   // for this value.
-  void AddEntry(int32_t tag,
+  void AddEntry(int32 tag,
                 const char *file_name,
                 const char *function_name,
                 const char *function_source_utf8,
-                int64_t function_instantiation_time_usec);
+                int64 function_instantiation_time_usec);
 
   const MetadataMap *map() const { return &metadata_map_; }
 

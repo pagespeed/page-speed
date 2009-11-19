@@ -24,8 +24,6 @@
 #ifndef CLOCK_H_
 #define CLOCK_H_
 
-#include <stdint.h>
-
 #include "base/basictypes.h"
 
 namespace activity {
@@ -35,7 +33,7 @@ class ClockInterface {
   ClockInterface();
   virtual ~ClockInterface();
 
-  virtual int64_t GetCurrentTimeUsec() = 0;
+  virtual int64 GetCurrentTimeUsec() = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ClockInterface);
@@ -47,7 +45,7 @@ class Clock : public ClockInterface {
   Clock();
   virtual ~Clock();
 
-  virtual int64_t GetCurrentTimeUsec();
+  virtual int64 GetCurrentTimeUsec();
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Clock);
@@ -65,9 +63,9 @@ class MockClock : public activity::ClockInterface {
   MockClock();
   virtual ~MockClock();
 
-  virtual int64_t GetCurrentTimeUsec();
+  virtual int64 GetCurrentTimeUsec();
 
-  int64_t current_time_usec_;
+  int64 current_time_usec_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MockClock);

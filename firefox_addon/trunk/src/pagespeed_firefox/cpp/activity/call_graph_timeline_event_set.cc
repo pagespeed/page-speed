@@ -18,7 +18,6 @@
 
 #include "call_graph_timeline_event_set.h"
 
-#include <stdint.h>        // for int64_t
 #include <string.h>        // for strcmp
 
 #include "call_graph_timeline_event.h"
@@ -27,7 +26,7 @@
 namespace activity {
 
 CallGraphTimelineEventSet::CallGraphTimelineEventSet(
-    int64_t event_duration_usec)
+    int64 event_duration_usec)
     : event_duration_usec_(event_duration_usec) {
   GCHECK_GT(event_duration_usec, 0LL);
 }
@@ -44,7 +43,7 @@ CallGraphTimelineEventSet::~CallGraphTimelineEventSet() {
 CallGraphTimelineEvent *CallGraphTimelineEventSet::GetOrCreateEvent(
     const char *identifier,
     CallGraphTimelineEvent::Type type,
-    int64_t start_time_usec) {
+    int64 start_time_usec) {
   GCHECK(identifier != NULL);
   GCHECK_GE(start_time_usec, 0LL);
 

@@ -42,13 +42,13 @@ namespace {
 // GetSystemTimeAsFileTime(), which returns a 100-nanosecond
 // resolution timestamp.
 
-int64_t GetCurrentTimeUsecImpl() {
-  const int64_t EPOCH_DIFF_USEC = 11644473600000000ULL;
+int64 GetCurrentTimeUsecImpl() {
+  const int64 EPOCH_DIFF_USEC = 11644473600000000ULL;
 
   FILETIME now;
   GetSystemTimeAsFileTime(&now);
 
-  int64_t retval = 0;
+  int64 retval = 0;
 
   // Set the high bits
   retval |= now.dwHighDateTime;
@@ -71,7 +71,7 @@ int64_t GetCurrentTimeUsecImpl() {
 
 #else
 
-int64_t GetCurrentTimeUsecImpl() {
+int64 GetCurrentTimeUsecImpl() {
   timeval now;
   gettimeofday(&now, NULL);
   return now.tv_sec * 1000000LL + now.tv_usec;
@@ -91,7 +91,7 @@ Clock::Clock() {}
 
 Clock::~Clock() {}
 
-int64_t Clock::GetCurrentTimeUsec() {
+int64 Clock::GetCurrentTimeUsec() {
   return GetCurrentTimeUsecImpl();
 }
 
@@ -104,7 +104,7 @@ MockClock::MockClock() : current_time_usec_(0) {}
 
 MockClock::~MockClock() {}
 
-int64_t MockClock::GetCurrentTimeUsec() {
+int64 MockClock::GetCurrentTimeUsec() {
   return current_time_usec_++;
 }
 

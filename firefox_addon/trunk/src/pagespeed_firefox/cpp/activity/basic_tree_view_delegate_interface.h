@@ -22,8 +22,6 @@
 #ifndef BASIC_TREE_VIEW_DELEGATE_INTERFACE_H_
 #define BASIC_TREE_VIEW_DELEGATE_INTERFACE_H_
 
-#include <stdint.h>
-
 #include <string>
 
 #include "base/basictypes.h"
@@ -39,7 +37,7 @@ class BasicTreeViewDelegateInterface {
   /**
    * Get the number of rows to render.
    */
-  virtual int32_t GetRowCount() = 0;
+  virtual int32 GetRowCount() = 0;
 
   /**
    * Get the contents of the given row and given column. Rows and
@@ -47,7 +45,7 @@ class BasicTreeViewDelegateInterface {
    * indices start at the left.
    * @return true if success, false if failure.
    */
-  virtual bool GetCellText(int32_t row, int32_t column, std::string *out) = 0;
+  virtual bool GetCellText(int32 row, int32 column, std::string *out) = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BasicTreeViewDelegateInterface);

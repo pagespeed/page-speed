@@ -31,7 +31,7 @@ FindFirstInvocationsVisitor::~FindFirstInvocationsVisitor() {}
 void FindFirstInvocationsVisitor::OnEntry(
     const std::vector<const CallTree*>& stack) {
   const CallTree &tree = *stack.back();
-  const int32_t function_tag = tree.function_tag();
+  const int32 function_tag = tree.function_tag();
   if (function_tags_encountered_.find(function_tag) ==
       function_tags_encountered_.end()) {
     function_tags_encountered_.insert(function_tag);
