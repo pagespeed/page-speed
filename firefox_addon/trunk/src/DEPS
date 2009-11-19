@@ -116,8 +116,6 @@ hooks = [
   {
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
     "pattern": ".",
-    "action": ["python", "src/build/gyp_chromium",
-               "-Ddebug_extra_cflags=-fPIC",
-               "-Drelease_extra_cflags=-fPIC"],
+    "action": ["python", "src/build/gyp_chromium"],
   },
 ]
