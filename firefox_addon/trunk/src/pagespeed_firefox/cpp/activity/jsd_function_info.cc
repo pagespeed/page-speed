@@ -49,7 +49,7 @@ JsdFunctionInfo::~JsdFunctionInfo() {
   }
 }
 
-int32_t JsdFunctionInfo::GetFunctionTag() {
+int32 JsdFunctionInfo::GetFunctionTag() {
   if (tag_ == -1) {
     PRUint32 tag = 0;
     nsresult rv = script_->GetTag(&tag);

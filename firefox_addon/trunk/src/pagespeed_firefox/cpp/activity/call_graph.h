@@ -24,8 +24,6 @@
 #ifndef CALL_GRAPH_H_
 #define CALL_GRAPH_H_
 
-#include <stdint.h>
-
 #include <vector>
 
 #include "base/basictypes.h"
@@ -54,7 +52,7 @@ class CallGraph {
   //
   // @INVARIANT(# calls to OnFunctionEntry >= # calls to OnFunctionExit)
   void OnFunctionEntry();
-  void OnFunctionExit(int32_t tag);
+  void OnFunctionExit(int32 tag);
 
   // Do dfs(execution order) traversal of the data structure.
   // Traversal is limited to nodes rooted in a member of roots_,

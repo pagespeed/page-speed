@@ -36,14 +36,14 @@ class JsdFunctionInfo : public FunctionInfoInterface {
   explicit JsdFunctionInfo(jsdIScript *script);
   virtual ~JsdFunctionInfo();
 
-  virtual int32_t GetFunctionTag();
+  virtual int32 GetFunctionTag();
   virtual const char *GetFileName();
   virtual const char *GetFunctionName();
   virtual const char *GetFunctionSourceUtf8();
 
  private:
   jsdIScript *const script_;
-  int32_t tag_;
+  int32 tag_;
   char *file_name_;
   char *function_name_;
   char *function_source_utf8_;

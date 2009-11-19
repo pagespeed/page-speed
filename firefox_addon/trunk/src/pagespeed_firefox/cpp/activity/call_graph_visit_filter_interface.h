@@ -23,8 +23,6 @@
 #ifndef CALL_GRAPH_VISIT_FILTER_INTERFACE_H_
 #define CALL_GRAPH_VISIT_FILTER_INTERFACE_H_
 
-#include <stdint.h>
-
 #include <vector>
 
 #include "base/basictypes.h"
@@ -105,15 +103,15 @@ class CompositeVisitFilter : public CallGraphVisitFilterInterface {
 class TimeRangeVisitFilter : public CallGraphVisitFilterInterface {
  public:
   TimeRangeVisitFilter(
-      int64_t start_time_usec,
-      int64_t end_time_usec);
+      int64 start_time_usec,
+      int64 end_time_usec);
   virtual ~TimeRangeVisitFilter();
   virtual bool ShouldTraverse(
       const CallTree &tree, const std::vector<const CallTree*>& parent_stack);
 
  private:
-  int64_t start_time_usec_;
-  int64_t end_time_usec_;
+  int64 start_time_usec_;
+  int64 end_time_usec_;
 
   DISALLOW_COPY_AND_ASSIGN(TimeRangeVisitFilter);
 };

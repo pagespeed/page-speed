@@ -22,8 +22,6 @@
 #ifndef CALL_GRAPH_TIMELINE_VISITOR_H_
 #define CALL_GRAPH_TIMELINE_VISITOR_H_
 
-#include <stdint.h>
-
 #include <vector>
 
 #include "base/basictypes.h"
@@ -48,8 +46,8 @@ class CallGraphTimelineVisitor : public CallGraphVisitorInterface {
       CallGraphVisitFilterInterface *filter,
       const CallGraphMetadata &metadata,
       CallGraphTimelineEventSet *event_set,
-      int64_t start_time_usec,
-      int64_t end_time_usec);
+      int64 start_time_usec,
+      int64 end_time_usec);
 
   virtual ~CallGraphTimelineVisitor();
 
@@ -69,13 +67,13 @@ class CallGraphTimelineVisitor : public CallGraphVisitorInterface {
    */
   void GetRoundedStartTimeAndEndTime(
       const CallTree &tree,
-      int64_t *rounded_start_time_usec,
-      int64_t *rounded_end_time_usec) const;
+      int64 *rounded_start_time_usec,
+      int64 *rounded_end_time_usec) const;
 
   const CallGraphMetadata &metadata_;
   CallGraphTimelineEventSet *const event_set_;
-  const int64_t start_time_usec_;
-  const int64_t end_time_usec_;
+  const int64 start_time_usec_;
+  const int64 end_time_usec_;
 
   DISALLOW_COPY_AND_ASSIGN(CallGraphTimelineVisitor);
 };

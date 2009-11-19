@@ -22,8 +22,6 @@
 #ifndef CALL_GRAPH_PROFILE_SNAPSHOT_H_
 #define CALL_GRAPH_PROFILE_SNAPSHOT_H_
 
-#include <stdint.h>
-
 #include <map>
 
 #include "base/basictypes.h"
@@ -38,7 +36,7 @@ class FunctionMetadata;
 
 class CallGraphProfileSnapshot {
  public:
-  typedef std::multimap<int64_t, const FunctionMetadata*> InitTimeMap;
+  typedef std::multimap<int64, const FunctionMetadata*> InitTimeMap;
 
   ~CallGraphProfileSnapshot();
 
@@ -47,7 +45,7 @@ class CallGraphProfileSnapshot {
 
   // Initialize the metadata's init time map and any other structures
   // used by this snapshot.
-  void Init(int64_t start_time_usec, int64_t end_time_usec);
+  void Init(int64 start_time_usec, int64 end_time_usec);
 
   // A map from function init time to function metadata.
   const InitTimeMap *init_time_map() const { return &init_time_map_; }
@@ -62,7 +60,7 @@ class CallGraphProfileSnapshot {
       CallGraphMetadata *metadata);
 
   // Populate the init_time_map_.
-  void PopulateInitTimeMap(int64_t start_time_usec, int64_t end_time_usec);
+  void PopulateInitTimeMap(int64 start_time_usec, int64 end_time_usec);
 
   // Map from the time a function was initialized to the associated
   // metadata.

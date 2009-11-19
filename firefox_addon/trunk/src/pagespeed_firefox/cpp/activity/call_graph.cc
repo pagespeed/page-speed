@@ -49,7 +49,7 @@ void CallGraph::OnFunctionEntry() {
   working_set_.push_back(node);
 }
 
-void CallGraph::OnFunctionExit(int32_t tag) {
+void CallGraph::OnFunctionExit(int32 tag) {
   GCHECK(!working_set_.empty());
 
   CallTree* node = working_set_.back();

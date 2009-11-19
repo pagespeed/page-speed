@@ -37,15 +37,15 @@ CallGraphMetadata *CallGraphMetadata::CreateSnapshot() const {
   return metadata;
 }
 
-bool CallGraphMetadata::HasEntry(int32_t tag) const {
+bool CallGraphMetadata::HasEntry(int32 tag) const {
   return metadata_map_.count(tag) != 0;
 }
 
-void CallGraphMetadata::AddEntry(int32_t tag,
+void CallGraphMetadata::AddEntry(int32 tag,
                                  const char *file_name,
                                  const char *function_name,
                                  const char *function_source_utf8,
-                                 int64_t function_instantiation_time_usec) {
+                                 int64 function_instantiation_time_usec) {
   GCHECK(!HasEntry(tag));
   FunctionMetadata *entry = profile_->add_function_metadata();
 

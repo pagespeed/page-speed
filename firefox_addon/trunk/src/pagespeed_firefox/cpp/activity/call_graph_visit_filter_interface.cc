@@ -57,8 +57,8 @@ bool CompositeVisitFilter::ShouldTraverse(
 }
 
 TimeRangeVisitFilter::TimeRangeVisitFilter(
-    int64_t start_time_usec,
-    int64_t end_time_usec)
+    int64 start_time_usec,
+    int64 end_time_usec)
     : start_time_usec_(start_time_usec),
       end_time_usec_(end_time_usec) {
   GCHECK(start_time_usec_ <= end_time_usec_);

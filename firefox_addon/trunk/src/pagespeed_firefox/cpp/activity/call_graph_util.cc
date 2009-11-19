@@ -61,24 +61,24 @@ namespace activity {
 
 namespace util {
 
-int64_t RoundDownToNearestWholeMultiple(
-    int64_t value, int64_t multiple) {
+int64 RoundDownToNearestWholeMultiple(
+    int64 value, int64 multiple) {
   GCHECK_GE(value, 0LL);
   GCHECK_GT(multiple, 0LL);
   return value - (value % multiple);
 }
 
-int64_t RoundUpToNearestWholeMultiple(
-    int64_t value, int64_t multiple) {
+int64 RoundUpToNearestWholeMultiple(
+    int64 value, int64 multiple) {
   GCHECK_GE(value, 0LL);
   GCHECK_GT(multiple, 0LL);
 
-  const int64_t mod = value % multiple;
+  const int64 mod = value % multiple;
   if (mod == 0) {
     return value;
   }
 
-  const int64_t mod_complement = multiple - mod;
+  const int64 mod_complement = multiple - mod;
   if (LONG_LONG_MAX - mod_complement < value) {
     // Rounding up would cause overflow. The best we can do without
     // overflowing, while returning a value that is a multiple of
@@ -86,15 +86,15 @@ int64_t RoundUpToNearestWholeMultiple(
     return value - mod;
   }
 
-  const int64_t result = value + mod_complement;
+  const int64 result = value + mod_complement;
   GCHECK_GE(result, 0LL);
   return result;
 }
 
-int64_t GetTotalExecutionTimeUsec(
+int64 GetTotalExecutionTimeUsec(
     const CallTree &tree,
-    int64_t start_time_usec,
-    int64_t end_time_usec) {
+    int64 start_time_usec,
+    int64 end_time_usec) {
   GCHECK_GE(start_time_usec, 0LL);
   GCHECK_GE(end_time_usec, start_time_usec);
 
@@ -105,12 +105,12 @@ int64_t GetTotalExecutionTimeUsec(
     return 0LL;
   }
 
-  const int64_t clamped_start_time_usec =
-      std::max(int64_t(tree.entry_time_usec()), start_time_usec);
-  const int64_t clamped_end_time_usec =
-      std::min(int64_t(tree.exit_time_usec()), end_time_usec);
+  const int64 clamped_start_time_usec =
+      std::max(int64(tree.entry_time_usec()), start_time_usec);
+  const int64 clamped_end_time_usec =
+      std::min(int64(tree.exit_time_usec()), end_time_usec);
 
-  const int64_t execution_time_usec =
+  const int64 execution_time_usec =
       clamped_end_time_usec - clamped_start_time_usec;
 
   // Make sure the execution time falls between 0 and the duration.
@@ -120,15 +120,15 @@ int64_t GetTotalExecutionTimeUsec(
   return execution_time_usec;
 }
 
-int64_t GetOwnExecutionTimeUsec(
+int64 GetOwnExecutionTimeUsec(
     const CallTree &tree,
-    int64_t start_time_usec,
-    int64_t end_time_usec) {
+    int64 start_time_usec,
+    int64 end_time_usec) {
   GCHECK_GE(start_time_usec, 0LL);
   GCHECK_GE(end_time_usec, start_time_usec);
 
   // First compute the total execution time for this node.
-  int64_t execution_time_usec =
+  int64 execution_time_usec =
       GetTotalExecutionTimeUsec(tree, start_time_usec, end_time_usec);
 
   if (execution_time_usec == 0LL) {
@@ -153,8 +153,8 @@ int64_t GetOwnExecutionTimeUsec(
 void PopulateFunctionInitCounts(
     const CallGraphProfileSnapshot &snapshot,
     CallGraphTimelineEventSet *events,
-    int64_t start_time_usec,
-    int64_t end_time_usec) {
+    int64 start_time_usec,
+    int64 end_time_usec) {
   GCHECK_GE(start_time_usec, 0LL);
   GCHECK_GE(end_time_usec, 0LL);
   GCHECK_GE(end_time_usec, start_time_usec);
@@ -167,7 +167,7 @@ void PopulateFunctionInitCounts(
        it != end;
        ++it) {
     const FunctionMetadata *metadata = it->second;
-    const int64_t function_instantiation_time_usec =
+    const int64 function_instantiation_time_usec =
         RoundDownToNearestWholeMultiple(
             metadata->function_instantiation_time_usec(),
             events->event_duration_usec());
@@ -183,8 +183,8 @@ void PopulateFunctionInitCounts(
 void PopulateExecutionTimes(
     const CallGraphProfileSnapshot &snapshot,
     CallGraphTimelineEventSet *events,
-    int64_t start_time_usec,
-    int64_t end_time_usec) {
+    int64 start_time_usec,
+    int64 end_time_usec) {
   GCHECK_GE(start_time_usec, 0LL);
   GCHECK_GE(end_time_usec, 0LL);
   GCHECK_EQ(0LL, start_time_usec % events->event_duration_usec());
@@ -205,8 +205,8 @@ void PopulateExecutionTimes(
   snapshot.call_graph()->Traverse(&visitor);
 }
 
-int64_t GetMaxFullyConstructedCallGraphTimeUsec(const CallGraph &call_graph) {
-  int64_t max_time_usec = 0LL;
+int64 GetMaxFullyConstructedCallGraphTimeUsec(const CallGraph &call_graph) {
+  int64 max_time_usec = 0LL;
   const CallGraph::CallForest *forest = call_graph.call_forest();
   if (!forest->empty()) {
     max_time_usec = forest->back()->exit_time_usec();
@@ -214,7 +214,7 @@ int64_t GetMaxFullyConstructedCallGraphTimeUsec(const CallGraph &call_graph) {
   return max_time_usec;
 }
 
-void FormatTime(int64_t time_usec, std::string *target) {
+void FormatTime(int64 time_usec, std::string *target) {
   // Very simple format for now: if under 10 seconds, show
   // milliseconds. Otherwise, truncate to whole seconds.
   const long long msec = time_usec / 1000LL;
