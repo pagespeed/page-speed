@@ -19,6 +19,11 @@
   'target_defaults': {
     'conditions': [
       ['OS == "linux"', {
+        'cflags': [
+          # We're building a shared library, so everything needs to be built
+          # with Position-Independent Code.
+          '-fPIC',
+        ],
         # As of r30253, Chromium's src/build/common.gypi turns on
         # -fvisibility=hidden under certain conditions.  However, that breaks
         # our build for some reason, so the setting below turns it back off.  A
@@ -30,6 +35,9 @@
       }],
       ['OS == "mac"', {
         'xcode_settings': {
+          'OTHER_CFLAGS': [
+            '-fPIC',  # See note for -fPIC above.
+          ],
           # We must build for 10.4 for compatibility with Firefox.
           'MACOSX_DEPLOYMENT_TARGET': '10.4',
           # This is equivalent to turning off -fvisibility-hidden, as above.
