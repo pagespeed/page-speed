@@ -46,7 +46,10 @@ void Engine::PopulateNameToRuleMap() {
        iter != end;
        ++iter) {
     Rule *rule = *iter;
-    CHECK(name_to_rule_map_.find(rule->name()) == name_to_rule_map_.end());
+    if (name_to_rule_map_.find(rule->name()) != name_to_rule_map_.end()) {
+      LOG(DFATAL) << "Found duplicate rule while populating name to rule map.  "
+                  << rule->name();
+    }
     name_to_rule_map_[rule->name()] = rule;
   }
 }

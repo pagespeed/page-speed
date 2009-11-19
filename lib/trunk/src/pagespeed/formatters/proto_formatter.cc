@@ -41,11 +41,11 @@ Formatter* ProtoFormatter::AddHeader(const std::string& header, int score) {
 Formatter* ProtoFormatter::NewChild(const FormatterParameters& params) {
   ResultText* new_child = NULL;
   if (results_ != NULL) {
-    CHECK(result_text_ == NULL);
+    DCHECK(result_text_ == NULL);
     new_child = new ResultText;
     results_->push_back(new_child);
   } else {
-    CHECK(results_ == NULL);
+    DCHECK(results_ == NULL);
     new_child = result_text_->add_children();
   }
 
@@ -61,7 +61,10 @@ Formatter* ProtoFormatter::NewChild(const FormatterParameters& params) {
 void ProtoFormatter::Format(ResultText* result_text,
                             const std::string& format_str,
                             const std::vector<const Argument*>& arguments) {
-  CHECK(result_text != NULL);
+  if (result_text == NULL) {
+    LOG(DFATAL) << "NULL result_text.";
+    return;
+  }
 
   result_text->set_format(format_str);
 
@@ -89,7 +92,10 @@ void ProtoFormatter::Format(ResultText* result_text,
         format_arg->set_string_value(arg->string_value());
         break;
       default:
-        CHECK(false);
+        LOG(DFATAL) << "Unknown argument type "
+                    << arg->type();
+        format_arg->set_type(FormatArgument::STRING_LITERAL);
+        format_arg->set_string_value("?");
         break;
     }
   }

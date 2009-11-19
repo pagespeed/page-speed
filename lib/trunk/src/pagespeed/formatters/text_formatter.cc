@@ -88,7 +88,9 @@ std::string TextFormatter::Format(
         subst.push_back(StringPrintf("%.1fKiB", arg.int_value() / 1024.0f));
         break;
       default:
-        CHECK(false);
+        LOG(DFATAL) << "Unknown argument type "
+                    << arg.type();
+        subst.push_back("?");
         break;
     }
   }

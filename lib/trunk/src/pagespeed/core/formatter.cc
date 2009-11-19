@@ -28,22 +28,22 @@ namespace pagespeed {
 Argument::Argument(Argument::ArgumentType type, int value)
     : type_(type),
       int_value_(value) {
-  CHECK(type_ == INTEGER || type_ == BYTES);
+  DCHECK(type_ == INTEGER || type_ == BYTES);
 }
 
 Argument::Argument(Argument::ArgumentType type, const std::string& value)
     : type_(type), int_value_(-1),
       string_value_(value) {
-  CHECK(type_ == STRING || type_ == URL);
+  DCHECK(type_ == STRING || type_ == URL);
 }
 
 int Argument::int_value() const {
-  CHECK(type_ == INTEGER || type_ == BYTES);
+  DCHECK(type_ == INTEGER || type_ == BYTES);
   return int_value_;
 }
 
 const std::string& Argument::string_value() const {
-  CHECK(type_ == STRING || type_ == URL);
+  DCHECK(type_ == STRING || type_ == URL);
   return string_value_;
 }
 

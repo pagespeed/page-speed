@@ -81,7 +81,10 @@ void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
   }
 
   const std::string& source = resource.GetRequestUrl();
-  CHECK(!source.empty());
+  if (source.empty()) {
+    LOG(DFATAL) << "Empty request url.";
+    return;
+  }
   const std::string& destination =
       ResolveUri(resource.GetResponseHeader("Location"), source);
   if (!destination.empty()) {

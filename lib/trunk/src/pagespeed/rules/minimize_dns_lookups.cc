@@ -98,7 +98,10 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
           continue;
         }
 
-        CHECK(!host.empty());
+        if (host.empty()) {
+          LOG(DFATAL) << "Empty host while processing "
+                      << resource->GetRequestUrl();
+        }
         filtered.push_back(resource);
       }
 

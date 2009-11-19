@@ -159,7 +159,9 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
               str.append(StringPrintf("%.1fKiB", arg.int_value() / 1024.0f));
               break;
             default:
-              CHECK(false);
+              LOG(DFATAL) << "Unknown argument type "
+                          << arg.type();
+              str.append("?");
               break;
           }
         }
