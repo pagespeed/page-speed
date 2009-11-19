@@ -64,10 +64,12 @@ class InputPopulator {
  public:
   // Parse the JSON string and use it to populate the input.  If any errors
   // occur, log them and return false, otherwise return true.
-  static bool Populate(PagespeedInput *input, const char *json_data);
+  static bool Populate(PagespeedInput *input, const char *json_data,
+                       const std::vector<std::string> &contents);
 
  private:
-  InputPopulator() : error_(false) {};
+  explicit InputPopulator(const std::vector<std::string> &contents) :
+      contents_(contents), error_(false) {};
   ~InputPopulator() {};
 
   // Extract an integer from a JSON value.
@@ -97,6 +99,7 @@ class InputPopulator {
   void PopulateInput(PagespeedInput *input, cJSON *resources_json);
 
   bool error_;  // true if there's been at least one error, false otherwise
+  const std::vector<std::string> &contents_;
 
   DISALLOW_COPY_AND_ASSIGN(InputPopulator);
 };
@@ -123,8 +126,13 @@ const std::string InputPopulator::ToString(cJSON *value) {
 }
 
 const std::string InputPopulator::RetrieveBody(cJSON *attribute_json) {
-  // TODO(mdsteele) Get request/response body, from cache or otherwise.
-  return "";
+  const int index = ToInt(attribute_json);
+  if (0 <= index && index < contents_.size()) {
+    return contents_.at(index);
+  } else {
+    INPUT_POPULATOR_ERROR() << "Body index out of range: " << index;
+    return "";
+  }
 }
 
 template <class AddHeader>
@@ -209,9 +217,10 @@ void InputPopulator::PopulateInput(PagespeedInput *input,
   }
 }
 
-bool InputPopulator::Populate(PagespeedInput *input, const char *json_data) {
+bool InputPopulator::Populate(PagespeedInput *input, const char *json_data,
+                              const std::vector<std::string> &contents) {
   bool ok = true;
-  InputPopulator populator;
+  InputPopulator populator(contents);
   cJSON *resources_json = cJSON_Parse(json_data);
 
   if (resources_json != NULL) {
@@ -228,8 +237,9 @@ bool InputPopulator::Populate(PagespeedInput *input, const char *json_data) {
 
 }  // namespace
 
-bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data) {
-  InputPopulator::Populate(input, json_data);
+bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data,
+                           const std::vector<std::string> &contents) {
+  InputPopulator::Populate(input, json_data, contents);
 }
 
 }  // namespace pagespeed

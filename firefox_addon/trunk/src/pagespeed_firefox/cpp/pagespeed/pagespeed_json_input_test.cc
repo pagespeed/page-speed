@@ -24,14 +24,16 @@ using namespace pagespeed;
 namespace {
 
 TEST(PagespeedJsonInputTest, Empty) {
+  std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = "[]";
-  const bool ok = PopulateInputFromJSON(&input, data);
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_TRUE(ok);
   ASSERT_EQ(0, input.num_resources());
 }
 
 TEST(PagespeedJsonInputTest, OneResource) {
+  std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = ("[{"
                       "\"req_url\":\"http://www.example.com/foo\","
@@ -42,7 +44,7 @@ TEST(PagespeedJsonInputTest, OneResource) {
                       "\"res_protocol\":\"http\","
                       "\"res_headers\":[]"
                       "}]");
-  const bool ok = PopulateInputFromJSON(&input, data);
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_TRUE(ok);
   ASSERT_EQ(1, input.num_resources());
   const Resource &resource = input.GetResource(0);
@@ -56,34 +58,73 @@ TEST(PagespeedJsonInputTest, OneResource) {
 }
 
 TEST(PagespeedJsonInputTest, TwoResources) {
+  std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\"},"
                        "{\"req_url\":\"http://www.example.com/bar\"}]");
-  const bool ok = PopulateInputFromJSON(&input, data);
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_TRUE(ok);
   ASSERT_EQ(2, input.num_resources());
+  const Resource &resource1 = input.GetResource(0);
+  ASSERT_EQ("http://www.example.com/foo", resource1.GetRequestUrl());
+  const Resource &resource2 = input.GetResource(1);
+  ASSERT_EQ("http://www.example.com/bar", resource2.GetRequestUrl());
+}
+
+TEST(PagespeedJsonInputTest, BodyIndices) {
+  std::vector<std::string> contents;
+  contents.push_back("The quick brown fox jumped over the lazy dog.");
+  contents.push_back("\xDE\xAD\xBE\xEF");
+  PagespeedInput input;
+  const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
+                        "\"res_body\":1},"
+                       "{\"req_url\":\"http://www.example.com/bar\","
+                        "\"res_body\":0}]");
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
+  ASSERT_TRUE(ok);
+  ASSERT_EQ(2, input.num_resources());
+  const Resource &resource1 = input.GetResource(0);
+  ASSERT_EQ("http://www.example.com/foo", resource1.GetRequestUrl());
+  ASSERT_EQ("\xDE\xAD\xBE\xEF", resource1.GetResponseBody());
+  const Resource &resource2 = input.GetResource(1);
+  ASSERT_EQ("http://www.example.com/bar", resource2.GetRequestUrl());
+  ASSERT_EQ("The quick brown fox jumped over the lazy dog.",
+            resource2.GetResponseBody());
 }
 
 TEST(PagespeedJsonErrorHandlingTest, Garbage) {
+  std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = "]{!#&$*@";
-  const bool ok = PopulateInputFromJSON(&input, data);
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
 }
 
 TEST(PagespeedJsonErrorHandlingTest, InvalidKey) {
+  std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
-                         "\"the_answer\":42}]");
-  const bool ok = PopulateInputFromJSON(&input, data);
+                        "\"the_answer\":42}]");
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
 }
 
 TEST(PagespeedJsonErrorHandlingTest, InvalidType) {
+  std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
-                         "\"req_method\":42}]");
-  const bool ok = PopulateInputFromJSON(&input, data);
+                        "\"req_method\":42}]");
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
+  ASSERT_FALSE(ok);
+}
+
+TEST(PagespeedJsonErrorHandlingTest, InvalidBodyIndex) {
+  std::vector<std::string> contents;
+  contents.push_back("The quick brown fox jumped over the lazy dog.");
+  PagespeedInput input;
+  const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
+                        "\"res_body\":1}]");
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
 }
 
