@@ -48,7 +48,6 @@ PageSpeedRules::ComputeAndFormatResults(const char *data,
                                         char **_retval NS_OUTPARAM) {
   std::vector<std::string> contents;
   if (inputStreams != NULL) {
-    char buffer[1024];
     PRUint32 length;
     inputStreams->GetLength(&length);
     for (PRUint32 i = 0; i < length; ++i) {
@@ -58,6 +57,7 @@ PageSpeedRules::ComputeAndFormatResults(const char *data,
         nsIInputStream &inputStream = *ptr;
         PRUint32 bytes_read = 0;
         do {
+          char buffer[1024];
           inputStream.Read(buffer, arraysize(buffer), &bytes_read);
           content.append(buffer, static_cast<size_t>(bytes_read));
         } while (bytes_read > 0);

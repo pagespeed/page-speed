@@ -68,9 +68,9 @@ class InputPopulator {
                        const std::vector<std::string> &contents);
 
  private:
-  explicit InputPopulator(const std::vector<std::string> &contents) :
-      contents_(contents), error_(false) {};
-  ~InputPopulator() {};
+  explicit InputPopulator(const std::vector<std::string> *contents)
+      : contents_(contents), error_(false) {}
+  ~InputPopulator() {}
 
   // Extract an integer from a JSON value.
   int ToInt(cJSON *value);
@@ -99,7 +99,7 @@ class InputPopulator {
   void PopulateInput(PagespeedInput *input, cJSON *resources_json);
 
   bool error_;  // true if there's been at least one error, false otherwise
-  const std::vector<std::string> &contents_;
+  const std::vector<std::string> *contents_;
 
   DISALLOW_COPY_AND_ASSIGN(InputPopulator);
 };
@@ -127,8 +127,8 @@ const std::string InputPopulator::ToString(cJSON *value) {
 
 const std::string InputPopulator::RetrieveBody(cJSON *attribute_json) {
   const int index = ToInt(attribute_json);
-  if (0 <= index && index < contents_.size()) {
-    return contents_.at(index);
+  if (0 <= index && index < contents_->size()) {
+    return contents_->at(index);
   } else {
     INPUT_POPULATOR_ERROR() << "Body index out of range: " << index;
     return "";
@@ -220,7 +220,7 @@ void InputPopulator::PopulateInput(PagespeedInput *input,
 bool InputPopulator::Populate(PagespeedInput *input, const char *json_data,
                               const std::vector<std::string> &contents) {
   bool ok = true;
-  InputPopulator populator(contents);
+  InputPopulator populator(&contents);
   cJSON *resources_json = cJSON_Parse(json_data);
 
   if (resources_json != NULL) {
