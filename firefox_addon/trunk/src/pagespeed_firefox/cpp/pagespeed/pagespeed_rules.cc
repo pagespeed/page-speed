@@ -21,7 +21,12 @@
 #include <sstream>
 #include <vector>
 
+#include "nsArrayUtils.h" // for do_QueryElementAt
+#include "nsCOMPtr.h"
+#include "nsIInputStream.h"
 #include "nsStringAPI.h"
+
+#include "base/basictypes.h"
 
 #include "pagespeed_json_input.h"
 #include "pagespeed/core/engine.h"
@@ -39,7 +44,28 @@ PageSpeedRules::~PageSpeedRules() {}
 
 NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const char *data,
+                                        nsIArray *inputStreams,
                                         char **_retval NS_OUTPARAM) {
+  std::vector<std::string> contents;
+  if (inputStreams != NULL) {
+    char buffer[1024];
+    PRUint32 length;
+    inputStreams->GetLength(&length);
+    for (PRUint32 i = 0; i < length; ++i) {
+      nsCOMPtr<nsIInputStream> ptr(do_QueryElementAt(inputStreams, i));
+      std::string content;
+      if (ptr != NULL) {
+        nsIInputStream &inputStream = *ptr;
+        PRUint32 bytes_read = 0;
+        do {
+          inputStream.Read(buffer, arraysize(buffer), &bytes_read);
+          content.append(buffer, static_cast<size_t>(bytes_read));
+        } while (bytes_read > 0);
+      }
+      contents.push_back(content);
+    }
+  }
+
   std::vector<Rule*> rules;
   rule_provider::AppendCoreRules(&rules);
 
@@ -47,7 +73,7 @@ PageSpeedRules::ComputeAndFormatResults(const char *data,
   engine.Init();
 
   PagespeedInput input;
-  if (PopulateInputFromJSON(&input, data)) {
+  if (PopulateInputFromJSON(&input, data, contents)) {
     std::stringstream stream;
     formatters::JsonFormatter formatter(&stream);
     engine.ComputeAndFormatResults(input, &formatter);

@@ -19,13 +19,17 @@
 #ifndef PAGESPEED_JSON_INPUT_H_
 #define PAGESPEED_JSON_INPUT_H_
 
+#include <string>
+#include <vector>
+
 #include "pagespeed/core/pagespeed_input.h"
 
 namespace pagespeed {
 
 // Parse the JSON string and use it to populate the input.  If any errors
 // occur, log them and return false, otherwise return true.
-bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data);
+bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data,
+                           const std::vector<std::string> &contents);
 
 }  // namespace pagespeed
 
