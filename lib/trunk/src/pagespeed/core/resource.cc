@@ -168,14 +168,24 @@ const std::string& Resource::GetResponseHeader(
 
 std::string Resource::GetHost() const {
   GURL url(GetRequestUrl());
-  CHECK(url.is_valid());
-  return url.host();
+  if (!url.is_valid()) {
+    LOG(DFATAL) << "Url parsing failed while processing "
+                << GetRequestUrl();
+    return "";
+  } else {
+    return url.host();
+  }
 }
 
 std::string Resource::GetProtocol() const {
   GURL url(GetRequestUrl());
-  CHECK(url.is_valid());
-  return url.scheme();
+  if (!url.is_valid()) {
+    LOG(DFATAL) << "Url parsing failed while processing "
+                << GetRequestUrl();
+    return "";
+  } else {
+    return url.scheme();
+  }
 }
 
 ResourceType Resource::GetResourceType() const {

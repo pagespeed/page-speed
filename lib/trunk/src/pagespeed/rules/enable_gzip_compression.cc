@@ -97,7 +97,11 @@ void EnableGzipCompression::FormatResults(
        iter != end;
        ++iter) {
     const Result& result = **iter;
-    CHECK(result.resource_urls_size() == 1);
+    if (result.resource_urls_size() != 1) {
+      LOG(DFATAL) << "Unexpected number of resource URLs.  Expected 1, Got "
+                  << result.resource_urls_size() << ".";
+      continue;
+    }
     Argument url(Argument::URL, result.resource_urls(0));
     Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
     body->AddChild("Compressing $1 could save $2.", url, savings);

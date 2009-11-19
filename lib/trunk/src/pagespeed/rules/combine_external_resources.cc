@@ -57,7 +57,10 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
       }
 
       const std::string& host = iter->first;
-      CHECK(!host.empty());
+      if (host.empty()) {
+        LOG(DFATAL) << "Empty host while processing "
+                    << resource->GetRequestUrl();
+      }
 
       violations.push_back(resource);
     }
@@ -93,7 +96,8 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
     body_tmpl = "There are $1 JavaScript files served from $2. "
         "They should be combined into as few files as possible.";
   } else {
-    CHECK(false);
+    LOG(DFATAL) << "Unknown violation type " << resource_type_;
+    return;
   }
 
   for (ResultVector::const_iterator iter = results.begin(),
