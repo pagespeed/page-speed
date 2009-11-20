@@ -18,6 +18,7 @@
 #include <iostream>
 
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/serializer.h"
 
 namespace pagespeed {
 
@@ -28,7 +29,7 @@ namespace formatters {
  */
 class JsonFormatter : public RuleFormatter {
  public:
-  explicit JsonFormatter(std::ostream* output);
+  JsonFormatter(std::ostream* output, Serializer* content_serializer);
 
   // RuleFormatter interface.
   virtual Formatter* AddHeader(const std::string& header, int score);
@@ -39,8 +40,11 @@ class JsonFormatter : public RuleFormatter {
   virtual void DoneAddingChildren();
 
  private:
-  JsonFormatter(std::ostream* output, int level);
+  JsonFormatter(std::ostream* output,
+                Serializer* content_serializer,
+                int level);
   std::ostream* output_;
+  Serializer* content_serializer_;
   int level_;
   bool has_children_;
 };

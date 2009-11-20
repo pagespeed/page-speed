@@ -60,7 +60,7 @@ class FormatterParameters {
  public:
   explicit FormatterParameters(const std::string* format_str);
   FormatterParameters(const std::string* format_str,
-                  const std::vector<const Argument*>* arguments);
+                      const std::vector<const Argument*>* arguments);
   void set_optimized_content(const std::string* content);
 
   const std::string& format_str() const;

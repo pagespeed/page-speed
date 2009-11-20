@@ -120,7 +120,8 @@ int main(int argc, char** argv) {
   if (format == "html") {
     formatter.reset(new pagespeed::formatters::HtmlFormatter(&std::cout));
   } else if (format == "json") {
-    formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout));
+    formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout,
+                                                             NULL));
   } else if (format == "proto") {
     formatter.reset(new PrintProtoFormatter);
   } else if (format == "text") {

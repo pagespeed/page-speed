@@ -19,7 +19,7 @@
 
 namespace {
 
-std::string QuotedJsonString(std::string str) {
+std::string QuotedJsonString(const std::string& str) {
   std::string quoted("\"");
   for (std::string::const_iterator i = str.begin(); i != str.end(); ++i) {
     switch (*i) {
@@ -58,31 +58,31 @@ std::string QuotedJsonString(std::string str) {
   return quoted;
 }
 
-std::string StringElement(bool &comma, std::string &str) {
+std::string StringElement(const std::string& str) {
   std::string result;
   if (!str.empty()) {
-    if (comma) {
-      result.push_back(',');
-    }
     result.append("{\"type\":\"str\",\"value\":");
     result.append(QuotedJsonString(str));
     result.push_back('}');
-    comma = true;
-    str.clear();
   }
   return result;
 }
 
-std::string UrlElement(bool &comma, const std::string &url) {
+std::string UrlElementWithAltText(const std::string& url,
+                                  const std::string& alt_text) {
   std::string result;
-  if (comma) {
-    result.push_back(',');
-  }
   result.append("{\"type\":\"url\",\"value\":");
   result.append(QuotedJsonString(url));
+  if (!alt_text.empty()) {
+    result.append(",\"alt\":");
+    result.append(QuotedJsonString(alt_text));
+  }
   result.push_back('}');
-  comma = true;
   return result;
+}
+
+std::string UrlElement(const std::string& url) {
+  return UrlElementWithAltText(url, "");
 }
 
 }
@@ -91,12 +91,21 @@ namespace pagespeed {
 
 namespace formatters {
 
-JsonFormatter::JsonFormatter(std::ostream* output) :
-    output_(output), level_(0), has_children_(false) {
+JsonFormatter::JsonFormatter(std::ostream* output,
+                             Serializer* content_serializer)
+    : output_(output),
+      content_serializer_(content_serializer),
+      level_(0),
+      has_children_(false) {
 }
 
-JsonFormatter::JsonFormatter(std::ostream* output, int level) :
-    output_(output), level_(level), has_children_(false) {
+JsonFormatter::JsonFormatter(std::ostream* output,
+                             Serializer* content_serializer,
+                             int level)
+    : output_(output),
+      content_serializer_(content_serializer),
+      level_(level),
+      has_children_(false) {
 }
 
 void JsonFormatter::DoneAddingChildren() {
@@ -143,11 +152,19 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
           str.push_back('$');
         } else {
           const int index = *i - '1';
-          const Argument& arg = *params.arguments().at(index);
+          const Argument& arg = *params.arguments()[index];
           switch (arg.type()) {
             case Argument::URL:
-              *output_ << StringElement(needs_comma, str);
-              *output_ << UrlElement(needs_comma, arg.string_value());
+              if (needs_comma) {
+                *output_ << ",";
+              }
+              if (!str.empty()) {
+                *output_ << StringElement(str);
+                *output_ << ",";
+                str.clear();
+              }
+              *output_ << UrlElement(arg.string_value());
+              needs_comma = true;
               break;
             case Argument::STRING:
               str.append(arg.string_value());
@@ -170,11 +187,42 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
       str.push_back(*i);
     }
   }
-  *output_ << StringElement(needs_comma, str);
+  if (!str.empty()) {
+    if (needs_comma) {
+      *output_ << ",";
+    }
+    *output_ << StringElement(str);
+    needs_comma = true;
+  }
+
+  if (params.has_optimized_content() && content_serializer_ != NULL) {
+    std::string orig_url;
+    const std::vector<const Argument*>& args = params.arguments();
+    for (std::vector<const Argument*>::const_iterator iter = args.begin(),
+             end = args.end();
+         iter != end;
+         ++iter) {
+      const Argument* arg = *iter;
+      if (arg->type() == Argument::URL) {
+        orig_url = arg->string_value();
+        break;
+      }
+    }
+
+    std::string optimized_uri = content_serializer_->SerializeToFile(
+        orig_url, params.optimized_content());
+    if (!optimized_uri.empty()) {
+      if (needs_comma) {
+        *output_ << ",";
+      }
+      *output_ << UrlElementWithAltText(optimized_uri, "Optimized version.");
+      needs_comma = true;
+    }
+  }
 
   *output_ << "]";
 
-  return new JsonFormatter(output_, level_ + 1);
+  return new JsonFormatter(output_, content_serializer_, level_ + 1);
 }
 
 }  // namespace formatters
