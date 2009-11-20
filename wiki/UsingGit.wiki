@@ -1,0 +1,16 @@
+#summary Instructions for using git
+
+= Checking out the source with Git =
+
+   Our source is stored in a subversion repository.  If you prefer git, you can use git-svn.
+
+{{{
+# Install git.  This command does the right thing on Ubuntu.  Adjust for your OS:
+$ sudo apt-get install git-core git-svn
+
+# Download the repo holding the firefox add-on.
+# The options (-T,-b,-t) tels git where to look for subversion tabs and branches.
+$ git svn clone http://page-speed.googlecode.com/svn/ firefox_addon -T firefox_addon/trunk -b firefox_addon/branches -t firefox_addon/tags
+}}} 
+
+* No tech support here.* There is no automatic way for us to see comments, so we may not answer them in a timely manner.  If you have questions, send email to page-speed-discuss@googlegroups.com .
