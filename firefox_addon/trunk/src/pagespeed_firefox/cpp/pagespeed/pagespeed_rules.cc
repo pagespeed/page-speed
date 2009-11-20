@@ -67,7 +67,7 @@ PageSpeedRules::ComputeAndFormatResults(const char *data,
   }
 
   std::vector<Rule*> rules;
-  rule_provider::AppendCoreRules(&rules);
+  rule_provider::AppendCoreRules(true, &rules);
 
   Engine engine(rules);  // Ownership of rules is transferred to engine.
   engine.Init();
