@@ -14,6 +14,7 @@
 
 #include <iostream>
 
+#include "pagespeed/core/serializer.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -24,9 +25,18 @@ using pagespeed::formatters::JsonFormatter;
 
 namespace {
 
+class DummyTestSerializer : public pagespeed::Serializer {
+ public:
+  // Serializer interface
+  virtual std::string SerializeToFile(const std::string& content_url,
+                                      const std::string& body) {
+    return "serialize url: " + content_url + " body: " + body;
+  }
+};
+
 TEST(JsonFormatterTest, BasicTest) {
   std::stringstream output;
-  JsonFormatter formatter(&output);
+  JsonFormatter formatter(&output, NULL);
   formatter.AddChild("foo");
   formatter.AddChild("bar");
   formatter.Done();
@@ -38,7 +48,7 @@ TEST(JsonFormatterTest, BasicTest) {
 
 TEST(JsonFormatterTest, BasicHeaderTest) {
   std::stringstream output;
-  JsonFormatter formatter(&output);
+  JsonFormatter formatter(&output, NULL);
   Formatter* child_formatter = formatter.AddHeader("head", 42);
   child_formatter->AddChild("foo");
   child_formatter->AddChild("bar");
@@ -60,7 +70,7 @@ TEST(JsonFormatterTest, BasicHeaderTest) {
 
 TEST(JsonFormatterTest, EscapeTest) {
   std::stringstream output;
-  JsonFormatter formatter(&output);
+  JsonFormatter formatter(&output, NULL);
   formatter.AddChild("\n\\\t\x12\f\"\r");
   formatter.Done();
   std::string result = output.str();
@@ -71,7 +81,7 @@ TEST(JsonFormatterTest, EscapeTest) {
 
 TEST(JsonFormatterTest, TreeTest) {
   std::stringstream output;
-  JsonFormatter formatter(&output);
+  JsonFormatter formatter(&output, NULL);
   Formatter* level1 = formatter.AddChild("l1-1");
   Formatter* level2 = level1->AddChild("l2-1");
   Formatter* level3 = level2->AddChild("l3-1");
@@ -99,7 +109,7 @@ TEST(JsonFormatterTest, TreeTest) {
 
 TEST(JsonFormatterTest, ArgumentTypesTest) {
   std::stringstream output;
-  JsonFormatter formatter(&output);
+  JsonFormatter formatter(&output, NULL);
   Argument bytes_arg(Argument::BYTES, 1536);
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
@@ -119,26 +129,57 @@ TEST(JsonFormatterTest, ArgumentTypesTest) {
 }
 
 TEST(JsonFormatterTest, OptimizedTest) {
+  std::string format_str = "FooBar $1";
+  Argument url_arg(Argument::URL, "http://test.com/");
+  std::vector<const Argument*> arguments;
+  arguments.push_back(&url_arg);
+  FormatterParameters args(&format_str, &arguments);
+  std::string optimized = "<optimized result>";
+  args.set_optimized_content(&optimized);
+
+  std::stringstream output;
+  DummyTestSerializer serializer;
+  JsonFormatter formatter(&output, &serializer);
+  formatter.AddChild(args);
+  formatter.Done();
+
+  std::string result = output.str();
+  EXPECT_EQ(
+      "[\n{\"format\":[{\"type\":\"str\","
+      "\"value\":\"FooBar \"},"
+      "{\"type\":\"url\",\"value\":\"http://test.com/\"},"
+      "{\"type\":\"url\","
+      "\"value\":\"serialize url: http://test.com/ body: <optimized result>\","
+      "\"alt\":\"Optimized version.\"}"
+      "]}]\n",
+      result);
+}
+
+TEST(JsonFormatterTest, OptimizedTestNoUrl) {
   std::string format_str = "FooBar";
   FormatterParameters args(&format_str);
   std::string optimized = "<optimized result>";
   args.set_optimized_content(&optimized);
 
   std::stringstream output;
-  JsonFormatter formatter(&output);
+  DummyTestSerializer serializer;
+  JsonFormatter formatter(&output, &serializer);
   formatter.AddChild(args);
   formatter.Done();
 
-  // optimized content is ignored for now
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\","
-            "\"value\":\"FooBar\"}]}]\n",
+            "\"value\":\"FooBar\"},"
+            "{\"type\":\"url\","
+            "\"value\":\"serialize url:  body: <optimized result>\","
+            "\"alt\":\"Optimized version.\"}"
+            "]}]\n",
             result);
 }
 
 TEST(JsonFormatterTest, ArgumentListTest) {
   std::stringstream output;
-  JsonFormatter formatter(&output);
+  JsonFormatter formatter(&output, NULL);
   Argument bytes_arg(Argument::BYTES, 1536);
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
