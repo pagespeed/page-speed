@@ -95,8 +95,9 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
       continue;
     }
 
+    const std::string& content = resource.GetResponseBody();
     scoped_ptr<MinifierOutput> minified_output(
-        MinifyJs(resource.GetResponseBody(), save_optimized_content_));
+        MinifyJs(content, save_optimized_content_));
 
     if (!minified_output.get()) {
       error = true;
@@ -110,6 +111,7 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
 
     Result* result = results->add_results();
     result->set_rule_name(name());
+    result->set_original_response_bytes(content.size());
 
     Savings* savings = result->mutable_savings();
     savings->set_response_bytes_saved(bytes_saved);
@@ -128,12 +130,14 @@ bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
 void MinifyJavaScript::FormatResults(const ResultVector& results,
                                      Formatter* formatter) {
   int total_bytes_saved = 0;
+  int total_bytes_original = 0;
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
        ++iter) {
     const Result& result = **iter;
+    total_bytes_original += result.original_response_bytes();
     const Savings& savings = result.savings();
     total_bytes_saved += savings.response_bytes_saved();
   }
@@ -142,10 +146,14 @@ void MinifyJavaScript::FormatResults(const ResultVector& results,
     return;
   }
 
-  Argument arg(Argument::BYTES, total_bytes_saved);
+  Argument size_arg(Argument::BYTES, total_bytes_saved);
+  Argument percent_arg(Argument::INTEGER, total_bytes_original == 0 ? 0 :
+                       static_cast<int>((100.0 * total_bytes_saved) /
+                                        total_bytes_original));
   Formatter* body = formatter->AddChild("Minifying the following JavaScript "
                                         "resources using JSMin could reduce "
-                                        "their size by $1.", arg);
+                                        "their size by $1 ($2% reduction).",
+                                        size_arg, percent_arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -158,13 +166,19 @@ void MinifyJavaScript::FormatResults(const ResultVector& results,
       continue;
     }
 
-    Argument url(Argument::URL, result.resource_urls(0));
-    Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
+    const int bytes_saved = result.savings().response_bytes_saved();
+    const int original_size = result.original_response_bytes();
+    Argument url_arg(Argument::URL, result.resource_urls(0));
+    Argument size_arg(Argument::BYTES, bytes_saved);
+    Argument percent_arg(Argument::INTEGER, original_size == 0 ? 0 :
+                         static_cast<int>((100.0 * bytes_saved) /
+                                          original_size));
 
-    std::string format_str = "Minifying $1 could save $2.";
+    std::string format_str = "Minifying $1 could save $2 ($3% reduction).";
     std::vector<const Argument*> args;
-    args.push_back(&url);
-    args.push_back(&savings);
+    args.push_back(&url_arg);
+    args.push_back(&size_arg);
+    args.push_back(&percent_arg);
 
     FormatterParameters formatter_args(&format_str, &args);
 
