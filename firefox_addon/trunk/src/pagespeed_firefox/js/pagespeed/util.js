@@ -781,6 +781,27 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * Returns a human file name for the given resource URL.
+   * @param {string} url The URL of the request.
+   * @return {string} Filename from the original URL without extension.
+   */
+  getHumanFileName: function(url, opt_blockNum) {
+    var originalFileName = url.substring(url.lastIndexOf('/')+1);
+
+    // Check if originalFileName has extension
+    var lastDotIdx = originalFileName.lastIndexOf('.');
+    if (lastDotIdx != -1) {
+      originalFileName = originalFileName.substring(0, lastDotIdx);
+    }
+    if(opt_blockNum){
+      originalFileName = [originalFileName,
+                          ' (inline block #', opt_blockNum, ')'
+                          ].join('');
+    }
+    return originalFileName;
+  },
+
+  /**
    * Returns the contents of all scripts or styles including both inline and
    * external.
    *
@@ -806,8 +827,10 @@ PAGESPEED.Utils = {  // Begin namespace
         if (inline[j]) {
           allTags.push({
             'name': [docUrls[i],
-                     ' (inline block #', iNextInlineNumber++, ')'].join(''),
-            'content': inline[j]
+                     ' (inline block #', iNextInlineNumber, ')'].join(''),
+            'content': inline[j],
+            'url':docUrls[i],
+            'blockNum':iNextInlineNumber++
           });
         }
       }
@@ -818,7 +841,9 @@ PAGESPEED.Utils = {  // Begin namespace
     for (var i = 0, len = urls.length; i < len; ++i) {
       allTags.push({
         'name': urls[i],
-        'content': PAGESPEED.Utils.getResourceContent(urls[i])
+        'content': PAGESPEED.Utils.getResourceContent(urls[i]),
+        'url': urls[i],
+        'blockNum': undefined
       });
     }
 
