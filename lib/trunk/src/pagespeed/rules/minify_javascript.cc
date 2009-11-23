@@ -138,6 +138,10 @@ void MinifyJavaScript::FormatResults(const ResultVector& results,
     total_bytes_saved += savings.response_bytes_saved();
   }
 
+  if (total_bytes_saved == 0) {
+    return;
+  }
+
   Argument arg(Argument::BYTES, total_bytes_saved);
   Formatter* body = formatter->AddChild("Minifying the following JavaScript "
                                         "resources using JSMin could reduce "
