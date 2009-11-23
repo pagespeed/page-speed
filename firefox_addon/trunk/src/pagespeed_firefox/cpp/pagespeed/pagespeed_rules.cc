@@ -45,7 +45,7 @@ PageSpeedRules::~PageSpeedRules() {}
 NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const char *data,
                                         nsIArray *inputStreams,
-                                        char **_retval NS_OUTPARAM) {
+                                        char **_retval) {
   std::vector<std::string> contents;
   if (inputStreams != NULL) {
     PRUint32 length;

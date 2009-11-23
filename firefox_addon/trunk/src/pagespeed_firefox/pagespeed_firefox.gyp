@@ -81,6 +81,22 @@
               ],
             },
           }],
+          ['OS == "win"', {
+            'cflags': [
+              '/FI "xpcom-config.h"',
+              '/Zc:wchar_t-',
+            ],
+            'defines': [
+              'XP_WIN',
+            ],
+            'link_settings': {
+              'libraries': [
+                '<(xulrunner_sdk_root)/lib/xpcomglue_s.lib',
+                '<(xulrunner_sdk_root)/lib/xpcom.lib',
+                '<(xulrunner_sdk_root)/lib/nspr4.lib',
+              ],
+            },
+          }]
         ],
       },
     },
