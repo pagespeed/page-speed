@@ -65,6 +65,9 @@ message Result {
 
   // Optimized version of the current resource, if applicable.
   optional bytes optimized_content = 5;
+
+  // Total response size before savings.
+  optional int32 original_response_bytes = 6;
 }
 
 message Results {
