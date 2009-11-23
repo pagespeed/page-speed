@@ -327,10 +327,11 @@ function prepareFileForCompression(url, extension) {
     return null;
   }
   var inputStream = PAGESPEED.Utils.getResourceInputStream(url);
+  var humanFileName = PAGESPEED.Utils.getHumanFileName(url);
   var hash = PAGESPEED.Utils.getMd5HashForInputStream(inputStream);
   inputStream.close();
 
-  var fileName = [hash, extension].join('.');
+  var fileName = [[humanFileName, hash].join('_'), extension].join('.');
   compressedFile.append(fileName);
   if (compressedFile.exists()) {
     // If the file exists, remove it.

@@ -61,9 +61,14 @@ var MINIFIED_OUTPUT_DIR_PERMISSIONS = 0755;
  * copy of the minified version.
  * @param {string} uncompiledSource The uncompiled JS.
  * @param {string} compiledSource The minified version of uncompiledSource.
+ * @param {string} url The url of the resource being scored.
+ * @param {number} blockNum For inline blocks, the block number.
  * @return {nsIFile} The minified file on success, null on failure.
  */
-var writeMinifiedFile = function(uncompiledSource, compiledSource) {
+var writeMinifiedFile = function(uncompiledSource,
+                                 compiledSource,
+                                 url,
+                                 blockNum) {
   // minifiedFile starts as a directory.  The call to minifiedFile.append()
   // below makes it a file.
   var minifiedFile = PAGESPEED.Utils.getOutputDir(MINIFIED_OUTPUT_DIR_NAME);
@@ -78,7 +83,8 @@ var writeMinifiedFile = function(uncompiledSource, compiledSource) {
 
   // Create the output file.
   inputStream = PAGESPEED.Utils.wrapWithInputStream(compiledSource);
-  var fileName = hash + '.js';
+  var humanFileName = PAGESPEED.Utils.getHumanFileName(url, blockNum);
+  var fileName = [humanFileName, hash].join('_') + '.js';
   minifiedFile.append(fileName);
   if (minifiedFile.exists()) {
     // If the file exists, remove it.
@@ -272,7 +278,8 @@ var doMinify = function(storage, script) {
 
   storage.totalPossibleSavings += possibleSavings;
 
-  var minifiedFile = writeMinifiedFile(uncompiledSource, compiledSource);
+  var minifiedFile = writeMinifiedFile(
+      uncompiledSource, compiledSource, script.url, script.blockNum);
 
   var minifiedFileUrl;
   if (minifiedFile) {
