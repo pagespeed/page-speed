@@ -201,4 +201,18 @@ TEST(JsonFormatterTest, ArgumentListTest) {
             result);
 }
 
+TEST(JsonFormatterTest, FormatBytesTest) {
+  std::stringstream output;
+  JsonFormatter formatter(&output, NULL);
+  Argument bytes1(Argument::BYTES, 617);
+  Argument bytes2(Argument::BYTES, 1024);
+  Argument bytes3(Argument::BYTES, 1 << 21);
+  formatter.AddChild("$1 | $2 | $3", bytes1, bytes2, bytes3);
+  formatter.Done();
+  std::string result = output.str();
+  EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\",\"value\":\"617B | 1.0KiB |"
+            " 2.0MiB\"}]}]\n",
+            result);
+}
+
 }  // namespace

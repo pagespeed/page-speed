@@ -116,8 +116,8 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
         Argument::BYTES, result.savings().response_bytes_saved());
     Formatter* body = formatter->AddChild(
         "The following resources have identical contents, but are served from "
-        "different URLs. Serve these resources from a consistent URL to save "
-        "$1 requests and $2.",
+        "different URLs.  Serve these resources from a consistent URL to save "
+        "$1 request(s) and $2.",
         num_resources_arg,
         num_bytes_arg);
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {

@@ -19,6 +19,19 @@
 
 namespace {
 
+const int kBytesPerKiB = 1 << 10;
+const int kBytesPerMiB = 1 << 20;
+
+std::string FormatBytes(const int bytes) {
+  if (bytes < kBytesPerKiB) {
+    return StringPrintf("%dB", bytes);
+  } else if (bytes < kBytesPerMiB) {
+    return StringPrintf("%.1fKiB", bytes / static_cast<double>(kBytesPerKiB));
+  } else {
+    return StringPrintf("%.1fMiB", bytes / static_cast<double>(kBytesPerMiB));
+  }
+}
+
 std::string QuotedJsonString(const std::string& str) {
   std::string quoted("\"");
   for (std::string::const_iterator i = str.begin(); i != str.end(); ++i) {
@@ -85,7 +98,7 @@ std::string UrlElement(const std::string& url) {
   return UrlElementWithAltText(url, "");
 }
 
-}
+}  // namespace
 
 namespace pagespeed {
 
@@ -147,7 +160,9 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
     if ('$' == *i) {
       if (i + 1 != format_str.end()) {
         ++i;
-        DCHECK('$' == *i || '1' <= *i) << "Invalid placeholder: " << *i;
+        DCHECK('$' == *i || ('1' <= *i && *i <= '9' &&
+                             *i <= '0' + params.arguments().size()))
+            << "Invalid placeholder: " << *i;
         if ('$' == *i) {
           str.push_back('$');
         } else {
@@ -173,7 +188,7 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
               str.append(IntToString(arg.int_value()));
               break;
             case Argument::BYTES:
-              str.append(StringPrintf("%.1fKiB", arg.int_value() / 1024.0f));
+              str.append(FormatBytes(arg.int_value()));
               break;
             default:
               LOG(DFATAL) << "Unknown argument type "
