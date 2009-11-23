@@ -84,19 +84,19 @@ deps = {
 }
 
 
-# deps_os = {
-#   "win": {
-#     "src/third_party/cygwin":
-#       Var("chromium_trunk") + "/deps/third_party/cygwin@11984",
+deps_os = {
+  "win": {
+    "src/third_party/cygwin":
+      Var("chromium_trunk") + "/deps/third_party/cygwin@11984",
 
-#     "src/third_party/python_24":
-#       Var("chromium_trunk") + "/deps/third_party/python_24@22967",
-#   },
-#   "mac": {
-#   },
-#   "unix": {
-#   },
-# }
+    "src/third_party/python_24":
+      Var("chromium_trunk") + "/deps/third_party/python_24@22967",
+  },
+  "mac": {
+  },
+  "unix": {
+  },
+}
 
 
 # include_rules = [

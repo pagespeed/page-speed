@@ -239,7 +239,7 @@ bool InputPopulator::Populate(PagespeedInput *input, const char *json_data,
 
 bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data,
                            const std::vector<std::string> &contents) {
-  InputPopulator::Populate(input, json_data, contents);
+  return InputPopulator::Populate(input, json_data, contents);
 }
 
 }  // namespace pagespeed

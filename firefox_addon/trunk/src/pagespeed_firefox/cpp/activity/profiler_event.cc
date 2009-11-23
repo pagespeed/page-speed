@@ -27,7 +27,7 @@ namespace activity {
 ProfilerEvent::ProfilerEvent(int64 start_time_usec,
                          int64 duration_usec,
                          int64 intensity,
-                         int16_t type,
+                         int16 type,
                          const char *identifier)
     : start_time_usec_(start_time_usec),
       duration_usec_(duration_usec),
