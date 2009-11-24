@@ -113,28 +113,28 @@
       <hbox id="fbPageSpeedButtons" insertafter="fbNetButtons" collapsed="true">
         <toolbarseparator/>
         <spacer width="2px"/>
-        <toolbarbutton id="psPerfButton" label="Analyze Performance"
+        <toolbarbutton id="psPerfButton" label="Performance"
                        class="toolbar-text-button" group="pagespeedButtons"
                        command="cmd_page_speed_performance"/>
 
         <spacer width="5px"/>
 
-        <toolbarbutton id="psCompButton" label="Show Resources"
+        <toolbarbutton id="psCompButton" label="Resources"
                        class="toolbar-text-button" group="pagespeedButtons"
                        command="cmd_page_speed_components"/>
 
         <spacer width="5px"/>
 
         <toolbarbutton id="psExportMenu"
-                       label="Export Results"
+                       label="Export"
                        group="pagespeedButtons"
                        type="menu"
                        disabled="true">
           <menupopup>
- 	    <menuitem id="psJsonExport"
-                      label="Write JSON file"
+            <menuitem id="psJsonExport"
+                      label="Write Results in JSON format"
                       command="cmd_page_speed_json_export"/>
-	    <menuitem id="psMinimalBeacon"
+            <menuitem id="psMinimalBeacon"
                       label="Send scores to service"
                       command="cmd_page_speed_minimal_beacon"
                       collapsed="true"/>

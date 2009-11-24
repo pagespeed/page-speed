@@ -108,7 +108,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
              'Page Speed'
             ),
           INPUT({'type': 'button', 'value': 'Analyze Performance',
-                 'onclick': '$showPerformance'}),
+                 'onclick': '$analyzePerformance'}),
           P({'style': 'padding-top:5px'},
             'See the ',
             A({'href': 'http://code.google.com/' +
@@ -144,7 +144,10 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                           generateIconHtml(
                               '$overallStyle',
                               CSS_STYLE_SCORE_SIZER_OVERALL_,
-                              '$overallSummary')
+                              '$overallSummary'),
+                         SPAN({'style': 'text-align:right'},
+                         INPUT({'type': 'button', 'value': 'Analyze Performance',
+                                'onclick': '$analyzePerformance'}))
                          )
                       )
                   )
@@ -656,8 +659,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
   /**
    * Handles the onClick event for the "Analyze Performance" button.
    */
-  showPerformance: function(event) {
-    Firebug.PageSpeedModule.showPerformance();
+  analyzePerformance: function(event) {
+    Firebug.PageSpeedModule.analyzePerformance();
   },
 
   /**
