@@ -18,12 +18,76 @@
 
 #include "image_compressor.h"
 
+#ifdef PAGESPEED_GYP_BUILD
+#include <fstream>
+
+#include "pagespeed/image_compression/jpeg_optimizer.h"
+#include "pagespeed/image_compression/png_optimizer.h"
+#else
 #include "jpeg_optimizer.h"
-#ifndef PAGESPEED_DISABLE_PNG_OPTIMIZATION
 #include "png_optimizer.h"
 #endif
 
 NS_IMPL_ISUPPORTS1(pagespeed::ImageCompressor, IImageCompressor)
+
+namespace {
+
+#ifdef PAGESPEED_GYP_BUILD
+enum ImageType {
+  JPEG,
+  PNG,
+};
+
+// Build the optimized image and write it to a file.
+// return true on success
+bool OptimizeImage(const char *in_filename,
+                   const char *out_filename,
+                   ImageType type) {
+  std::ifstream in(in_filename, std::ios::in | std::ios::binary);
+  if (!in) {
+    fprintf(stderr, "Could not read input from %s\n", in_filename);
+    return false;
+  }
+
+  in.seekg (0, std::ios::end);
+  int length = in.tellg();
+  in.seekg (0, std::ios::beg);
+
+  char* buffer = new char[length];
+  in.read(buffer, length);
+  in.close();
+
+  std::string original(buffer, length);
+  delete[] buffer;
+
+  std::string compressed;
+  if (type == PNG) {
+    pagespeed::image_compression::PngReader reader;
+    if (!pagespeed::image_compression::PngOptimizer::OptimizePng(
+            reader, original, &compressed)) {
+      return false;
+    }
+  } else if (type == JPEG) {
+    if (!pagespeed::image_compression::OptimizeJpeg(original, &compressed)) {
+      return false;
+    }
+  }
+
+  std::ofstream out(out_filename, std::ios::out | std::ios::binary);
+  if (!out) {
+    fprintf(stderr, "Could open %s for write.\n", out_filename);
+    return false;
+  }
+
+  out.write(compressed.data(), compressed.length());
+  out.close();
+
+  return true;
+}
+
+#endif  // PAGESPEED_GYP_BUILD
+
+}  // namespace
 
 namespace pagespeed {
 
@@ -35,8 +99,12 @@ ImageCompressor::~ImageCompressor() {
 
 NS_IMETHODIMP ImageCompressor::CompressToPng(
     const char *infile, const char *outfile) {
-#ifdef PAGESPEED_DISABLE_PNG_OPTIMIZATION
-  return NS_ERROR_FAILURE;
+#ifdef PAGESPEED_GYP_BUILD
+  if (!OptimizeImage(infile, outfile, PNG)) {
+    return NS_ERROR_FAILURE;
+  }
+
+  return NS_OK;
 #else
   PngOptimizer png_optimizer;
 
@@ -56,6 +124,13 @@ NS_IMETHODIMP ImageCompressor::CompressToPng(
 
 NS_IMETHODIMP ImageCompressor::CompressJpeg(
     const char *infile, const char *outfile) {
+#ifdef PAGESPEED_GYP_BUILD
+  if (!OptimizeImage(infile, outfile, JPEG)) {
+    return NS_ERROR_FAILURE;
+  }
+
+  return NS_OK;
+#else
   JpegOptimizer jpeg_optimizer;
 
   if (!jpeg_optimizer.Initialize()) {
@@ -69,6 +144,7 @@ NS_IMETHODIMP ImageCompressor::CompressJpeg(
   }
 
   return result ? NS_OK : NS_ERROR_FAILURE;
+#endif
 }
 
 }  // namespace pagespeed

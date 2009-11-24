@@ -17,6 +17,9 @@
     '../third_party/chromium/src/build/common.gypi',
   ],
   'target_defaults': {
+    'defines': [
+      'PAGESPEED_GYP_BUILD',
+    ],
     'conditions': [
       ['OS == "linux"', {
         'cflags': [

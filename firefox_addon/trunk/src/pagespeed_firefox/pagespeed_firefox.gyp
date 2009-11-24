@@ -209,16 +209,6 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/third_party/libjpeg/libjpeg.gyp:libjpeg',
       ],
-      'defines': [
-        # Disable PNG optimization for now; we're having issues getting optipng
-        # to not crash when we build using gyp instead of mozilla.
-        'PAGESPEED_DISABLE_PNG_OPTIMIZATION',
-      ],
-      'direct_dependent_settings': {
-        'defines': [
-          'PAGESPEED_DISABLE_PNG_OPTIMIZATION',
-        ],
-      },
       'sources': [
         'idl/IImageCompressor.idl',
         '<(image_compressor_root)/image_compressor.cc',
@@ -226,6 +216,7 @@
       ],
       'include_dirs': [
         '<(image_compressor_root)',
+        '<(libpagespeed_root)',
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
