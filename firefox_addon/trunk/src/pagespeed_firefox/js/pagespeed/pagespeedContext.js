@@ -211,6 +211,24 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
     rules[i].row = row;
     row = row.nextSibling;
   }
+  return overallScore;
+}
+
+/**
+ * Displays the score card and continue going through state machine
+ * of analyzing, displaying and reporting new results.
+ *
+ * @param {Object} panel Firebug-created object that stores state of the
+ *     the panel where results are displayed.
+ * @param {Object} browserTab The browser object of the tab PageSpeed is
+ *     running on.
+ */
+PAGESPEED.PageSpeedContext.prototype.processResults = function(
+    panel, browserTab) {
+
+  // Display the results
+  var overallScore = PAGESPEED.PageSpeedContext.displayPerformance(
+      panel, browserTab);
 
   // Build the results object.
   var resultsContainer = new PAGESPEED.ResultsContainer(
@@ -387,6 +405,26 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   },
 
   showPerformance: function() {
+    var panel = FirebugContext.getPanel('pagespeed');
+    var browserTab = gBrowser.selectedBrowser;
+
+    // Only if we are still displaying the same page as the most
+    // recently computed rules will we redisplay the panel.  Otherwise
+    // put up the default panel with a button to analyze results
+    var currentURI = browserTab.currentURI;
+        
+    if (currentURI &&
+        currentURI.spec &&
+        (currentURI.spec == PAGESPEED.LintRules.url)) {
+      PAGESPEED.PageSpeedContext.displayPerformance(
+          panel,
+          browserTab);
+    } else {
+      panel.initializeNode(panel);
+    }
+  },
+  
+  analyzePerformance: function() {
     try {
       PAGESPEED.LintRules.stop();
 
@@ -510,7 +548,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
         // extensions.PageSpeed.autorun.delay.
         var delay = PAGESPEED.Utils.getIntPref(
             'extensions.PageSpeed.autorun.delay', 100);
-        win.setTimeout(Firebug.PageSpeedModule.showPerformance, delay);
+        win.setTimeout(Firebug.PageSpeedModule.analyzePerformance, delay);
       }
     } catch (e) {
       logException('PageSpeedModule.pagespeedOnload()', e);

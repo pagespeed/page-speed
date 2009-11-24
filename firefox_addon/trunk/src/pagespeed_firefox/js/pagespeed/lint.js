@@ -49,6 +49,7 @@ PAGESPEED.LintRulesImpl.prototype.exec = function(browserTab) {
   this.browserTab_ = browserTab;
   this.onProgress(0, 'Running Page Speed rules');
   this.completed = false;  // Set in ruleCompleted() when all rules are done.
+  this.url = null; // Set in ruleCompleted() when all rules are done.
   this.rulesRemaining = this.lintRules.length;
   this.ruleCompleted();
 };
@@ -160,11 +161,18 @@ PAGESPEED.LintRulesImpl.prototype.ruleCompleted = function() {
 
     --this.rulesRemaining;
   } else if (!this.completed) {
-    // Ensure that displayPerformance() is only called once.
+    // Ensure that processResults() is only called once.
     this.completed = true;
     this.onProgress(this.lintRules.length, 'Done');
 
-    PAGESPEED.PageSpeedContext.displayPerformance(
+    var currentURI = this.browserTab_.currentURI;
+    if (currentURI && currentURI.spec) {
+      this.url = currentURI.spec;
+    } else {
+      this.url = null;
+    }
+
+    PAGESPEED.PageSpeedContext.processResults(
         FirebugContext.getPanel('pagespeed'),
         this.browserTab_);
 
