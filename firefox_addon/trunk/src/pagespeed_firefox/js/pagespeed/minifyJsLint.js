@@ -84,7 +84,7 @@ var writeMinifiedFile = function(uncompiledSource,
   // Create the output file.
   inputStream = PAGESPEED.Utils.wrapWithInputStream(compiledSource);
   var humanFileName = PAGESPEED.Utils.getHumanFileName(url, blockNum);
-  var fileName = [humanFileName, hash].join('_') + '.js';
+  var fileName = [humanFileName, '_', hash, '.js'].join('');
   minifiedFile.append(fileName);
   if (minifiedFile.exists()) {
     // If the file exists, remove it.
@@ -220,7 +220,7 @@ var doMinify = function(storage, script) {
   var uncompiledSourceLength = uncompiledSource.length;
   storage.totalUncompiledBytes += uncompiledSourceLength;
 
-  var isInline = /inline block \#/.test(script.name);
+  var isInline = !!script.blockNum;
 
   var minifier;
   var compiledSource;
