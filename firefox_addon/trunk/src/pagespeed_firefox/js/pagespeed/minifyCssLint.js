@@ -57,9 +57,14 @@ var MINIFIED_OUTPUT_DIR_PERMISSIONS = 0755;
  * version.
  * @param {string} uncompiledSource The uncompiled CSS.
  * @param {string} compiledSource The minified version of uncompiledSource.
- * @return {Object} The minified file on success, null on failure.
+ * @param {string} url The url of the resource being scored.
+ * @param {number} blockNum For inline blocks, the block number.
+ * @return {nsIFile} The minified file on success, null on failure.
  */
-var writeMinifiedFile = function(uncompiledSource, compiledSource) {
+var writeMinifiedFile = function(uncompiledSource,
+                                 compiledSource,
+                                 url,
+                                 blockNum) {
   // minifiedFile starts as a directory.  The call to minifiedFile.append()
   // below makes it a file.
   var minifiedFile = PAGESPEED.Utils.getOutputDir(MINIFIED_OUTPUT_DIR_NAME);
@@ -74,7 +79,8 @@ var writeMinifiedFile = function(uncompiledSource, compiledSource) {
 
   // Create the output file.
   inputStream = PAGESPEED.Utils.wrapWithInputStream(compiledSource);
-  var fileName = hash + '.css';
+  var humanFileName = PAGESPEED.Utils.getHumanFileName(url, blockNum);
+  var fileName = [humanFileName, '_', hash, '.css'].join('');
   minifiedFile.append(fileName);
   if (minifiedFile.exists()) {
     // If the file exists, remove it.
@@ -171,7 +177,7 @@ var doMinify = function(storage, style) {
   var uncompiledSourceLength = uncompiledSource.length;
   storage.totalUncompiledBytes += uncompiledSourceLength;
 
-  var isInline = /inline block \#/.test(style.name);
+  var isInline = !!style.blockNum;
 
   var compiledSource;
   try {
@@ -200,7 +206,8 @@ var doMinify = function(storage, style) {
 
   storage.totalPossibleSavings += possibleSavings;
 
-  var minifiedFile = writeMinifiedFile(uncompiledSource, compiledSource);
+  var minifiedFile = writeMinifiedFile(
+      uncompiledSource, compiledSource, style.url, style.blockNum);
 
   var minifiedFileUrl;
   if (minifiedFile) {
