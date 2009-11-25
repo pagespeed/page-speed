@@ -3,7 +3,15 @@
 
 = Introduction =
 
-  An upcoming release of Page Speed will make it possible to send results to a web service.  This will allow people to archive results and see trends over time.  This page documents the format of the beacons that send results.  It is aimed at developers who wish to receive and process the beacons.
+  Page Speed can be configured to send results to a web service.  This will allow people to archive results and see trends over time.  This page documents the format of the beacons that send results.  It is aimed at developers who wish to receive and process the beacons.
+
+  A reference implementation of a service that listens for beacons is available in our subversion repository.  To check out a copy, run the following command:
+
+{{{
+$ svn checkout http://page-speed.googlecode.com/svn/score_collection/trunk/ score_collection
+}}}
+
+  The best mailing list to ask questions about the beacon is page-speed-discuss@googlegroups.com .
 
 = Details =
 
