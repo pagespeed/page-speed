@@ -230,7 +230,9 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
       if (needs_comma) {
         *output_ << ",";
       }
-      *output_ << UrlElementWithAltText(optimized_uri, "Optimized version.");
+      *output_ << StringElement("  See ") << ","
+               << UrlElementWithAltText(optimized_uri, "optimized version")
+               << "," << StringElement(".");
       needs_comma = true;
     }
   }
