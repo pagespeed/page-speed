@@ -32,6 +32,7 @@
         '<(DEPTH)/third_party/chromium/src/base/lock_impl_posix.cc',
         '<(DEPTH)/third_party/chromium/src/base/lock_impl_win.cc',
         'logging.cc',
+        '<(DEPTH)/third_party/chromium/src/base/md5.cc',
         '<(DEPTH)/third_party/chromium/src/base/platform_thread_mac.mm',
         '<(DEPTH)/third_party/chromium/src/base/platform_thread_posix.cc',
         '<(DEPTH)/third_party/chromium/src/base/platform_thread_win.cc',
