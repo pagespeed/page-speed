@@ -148,9 +148,11 @@ TEST(JsonFormatterTest, OptimizedTest) {
       "[\n{\"format\":[{\"type\":\"str\","
       "\"value\":\"FooBar \"},"
       "{\"type\":\"url\",\"value\":\"http://test.com/\"},"
+      "{\"type\":\"str\",\"value\":\"  See \"},"
       "{\"type\":\"url\","
       "\"value\":\"serialize url: http://test.com/ body: <optimized result>\","
-      "\"alt\":\"Optimized version.\"}"
+      "\"alt\":\"optimized version\"},"
+      "{\"type\":\"str\",\"value\":\".\"}"
       "]}]\n",
       result);
 }
@@ -170,9 +172,11 @@ TEST(JsonFormatterTest, OptimizedTestNoUrl) {
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\","
             "\"value\":\"FooBar\"},"
+            "{\"type\":\"str\",\"value\":\"  See \"},"
             "{\"type\":\"url\","
             "\"value\":\"serialize url:  body: <optimized result>\","
-            "\"alt\":\"Optimized version.\"}"
+            "\"alt\":\"optimized version\"},"
+            "{\"type\":\"str\",\"value\":\".\"}"
             "]}]\n",
             result);
 }
