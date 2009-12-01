@@ -14,6 +14,7 @@
 
 #include "pagespeed/rules/rule_provider.h"
 
+#include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/minify_javascript.h"
@@ -28,10 +29,11 @@ namespace rule_provider {
 
 void AppendCoreRules(bool save_optimized_content,
                      std::vector<Rule*> *rules) {
-  rules->push_back(new rules::EnableGzipCompression(
-      new rules::compression_computer::ZlibComputer()));
+  rules->push_back(new rules::AvoidBadRequests());
   rules->push_back(new rules::CombineExternalCSS());
   rules->push_back(new rules::CombineExternalJavaScript());
+  rules->push_back(new rules::EnableGzipCompression(
+      new rules::compression_computer::ZlibComputer()));
   rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
   rules->push_back(new rules::MinimizeDnsLookups());
   rules->push_back(new rules::MinimizeRedirects());
