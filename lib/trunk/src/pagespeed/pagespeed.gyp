@@ -167,6 +167,7 @@
         'pagespeed_png_optimizer',
       ],
       'sources': [
+        '<(pagespeed_root)/pagespeed/rules/avoid_bad_requests.cc',
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources.cc',
         '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression.cc',
         '<(pagespeed_root)/pagespeed/rules/minify_javascript.cc',
@@ -324,6 +325,7 @@
         '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/avoid_bad_requests_test.cc',
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources_test.cc',
         '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression_test.cc',
         '<(pagespeed_root)/pagespeed/rules/minify_javascript_test.cc',
