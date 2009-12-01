@@ -223,6 +223,24 @@
       ],
     },
     {
+      'target_name': 'pagespeed_firefox_file_util',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+      ],
+      'sources': [
+        'cpp/pagespeed/file_util.cc',
+      ],
+      'include_dirs': [
+        'cpp/pagespeed',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+      ],
+    },
+    {
       'target_name': 'pagespeed_firefox_json_input',
       'type': '<(library)',
       'dependencies': [
@@ -242,14 +260,16 @@
       ],
     },
     {
-      'target_name': 'pagespeed_firefox_json_input_test',
+      'target_name': 'pagespeed_firefox_test',
       'type': 'executable',
       'dependencies': [
+        'pagespeed_firefox_file_util',
         'pagespeed_firefox_json_input',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
+        'cpp/pagespeed/file_util_test.cc',
         'cpp/pagespeed/pagespeed_json_input_test.cc',
       ],
       'include_dirs': [
@@ -261,8 +281,10 @@
       'type': '<(library)',
       'dependencies': [
         'xulrunner_sdk',
+        'pagespeed_firefox_file_util',
         'pagespeed_firefox_json_input',
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
       ],

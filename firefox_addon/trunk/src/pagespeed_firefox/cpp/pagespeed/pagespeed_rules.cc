@@ -18,23 +18,126 @@
 
 #include "pagespeed_rules.h"
 
+#include <fstream>
 #include <sstream>
 #include <vector>
 
 #include "nsArrayUtils.h" // for do_QueryElementAt
+#include "nsComponentManagerUtils.h" // for do_CreateInstance
 #include "nsCOMPtr.h"
 #include "nsIInputStream.h"
+#include "nsIIOService.h"
+#include "nsILocalFile.h"
+#include "nsIURI.h"
+#include "nsNetCID.h" // for NS_IOSERVICE_CONTRACTID
+#include "nsServiceManagerUtils.h" // for do_GetService
 #include "nsStringAPI.h"
 
 #include "base/basictypes.h"
-
+#include "base/logging.h"
+#include "base/md5.h"
+#include "file_util.h"
+#include "googleurl/src/gurl.h"
 #include "pagespeed_json_input.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/serializer.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/rules/rule_provider.h"
 
 namespace pagespeed {
+
+namespace {
+
+class PluginSerializer : public Serializer {
+ public:
+  explicit PluginSerializer(nsILocalFile* base_dir)
+      : base_dir_(base_dir) {}
+  virtual ~PluginSerializer() {}
+
+  virtual std::string SerializeToFile(const std::string& content_url,
+                                      const std::string& body);
+
+ private:
+  nsCOMPtr<nsILocalFile> base_dir_;
+
+  DISALLOW_COPY_AND_ASSIGN(PluginSerializer);
+};
+
+std::string PluginSerializer::SerializeToFile(const std::string& content_url,
+                                              const std::string& body) {
+  // Make a copy of the base_dir_ nsIFile object.
+  nsCOMPtr<nsIFile> file;
+  base_dir_->Clone(getter_AddRefs(file));
+  if (NULL == file) {
+    LOG(ERROR) << "Unable to clone nsILocalFile";
+    return "";
+  }
+
+  // Choose a filename for the saved data.
+  const GURL url(content_url);
+  if (!url.is_valid()) {
+    LOG(ERROR) << "Invalid url: " << content_url;
+    return "";
+  }
+  const std::string filename = ChooseOutputFilename(url, MD5String(body));
+  file->Append(NS_ConvertASCIItoUTF16(filename.c_str()));
+
+  // Get the absolute path of the nsIFile as a C++ string.
+  nsString nsString_path;
+  file->GetPath(nsString_path);
+  const NS_ConvertUTF16toUTF8 utf8_path(nsString_path);
+  const std::string string_path(utf8_path.get());
+
+  // Write the data to the file.
+  std::ofstream out(string_path.c_str(), std::ios::out | std::ios::binary);
+  if (!out) {
+    LOG(ERROR) << "Unable to save to file: " << string_path;
+    return "";
+  }
+  out.write(body.c_str(), body.size());
+  out.close();
+
+  // Get the file URI for the nsIFile where we stored the data.
+  nsCOMPtr<nsIIOService> io_service(do_GetService(NS_IOSERVICE_CONTRACTID));
+  if (io_service == NULL) {
+    LOG(ERROR) << "Unable to get nsIIOService";
+    return "";
+  }
+  nsCOMPtr<nsIURI> uri;
+  io_service->NewFileURI(file, getter_AddRefs(uri));
+  if (uri == NULL) {
+    LOG(ERROR) << "Unable to get file URI for path: " << string_path;
+    return "";
+  }
+  nsCString uri_spec;
+  uri->GetSpec(uri_spec);
+  return uri_spec.get();
+}
+
+void AppendInputStreamsContents(nsIArray *input_streams,
+                                std::vector<std::string>* contents) {
+  if (input_streams != NULL) {
+    PRUint32 length;
+    input_streams->GetLength(&length);
+    for (PRUint32 i = 0; i < length; ++i) {
+      nsCOMPtr<nsIInputStream> input_stream(
+          do_QueryElementAt(input_streams, i));
+      std::string content;
+      if (input_stream != NULL) {
+        PRUint32 bytes_read = 0;
+        do {
+          char buffer[1024];
+          input_stream->Read(buffer, arraysize(buffer), &bytes_read);
+          content.append(buffer, static_cast<size_t>(bytes_read));
+        } while (bytes_read > 0);
+      }
+      contents->push_back(content);
+    }
+  }
+}
+
+}  // namespace
 
 NS_IMPL_ISUPPORTS1(PageSpeedRules, IPageSpeedRules)
 
@@ -44,27 +147,11 @@ PageSpeedRules::~PageSpeedRules() {}
 
 NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const char *data,
-                                        nsIArray *inputStreams,
+                                        nsIArray *input_streams,
+                                        nsILocalFile *output_dir,
                                         char **_retval) {
   std::vector<std::string> contents;
-  if (inputStreams != NULL) {
-    PRUint32 length;
-    inputStreams->GetLength(&length);
-    for (PRUint32 i = 0; i < length; ++i) {
-      nsCOMPtr<nsIInputStream> ptr(do_QueryElementAt(inputStreams, i));
-      std::string content;
-      if (ptr != NULL) {
-        nsIInputStream &inputStream = *ptr;
-        PRUint32 bytes_read = 0;
-        do {
-          char buffer[1024];
-          inputStream.Read(buffer, arraysize(buffer), &bytes_read);
-          content.append(buffer, static_cast<size_t>(bytes_read));
-        } while (bytes_read > 0);
-      }
-      contents.push_back(content);
-    }
-  }
+  AppendInputStreamsContents(input_streams, &contents);
 
   std::vector<Rule*> rules;
   rule_provider::AppendCoreRules(true, &rules);
@@ -75,7 +162,8 @@ PageSpeedRules::ComputeAndFormatResults(const char *data,
   PagespeedInput input;
   if (PopulateInputFromJSON(&input, data, contents)) {
     std::stringstream stream;
-    formatters::JsonFormatter formatter(&stream);
+    PluginSerializer serializer(output_dir);
+    formatters::JsonFormatter formatter(&stream, &serializer);
     engine.ComputeAndFormatResults(input, &formatter);
 
     nsCString retval(stream.str().c_str());

@@ -19,6 +19,7 @@
  */
 
 #include "nsIArray.idl"
+#include "nsILocalFile.idl"
 #include "nsISupports.idl"
 
 /**
@@ -27,5 +28,6 @@
 [scriptable, uuid(80de7ee1-673d-4718-a91b-2f3111bd675a)]
 interface IPageSpeedRules : nsISupports {
   // Run all the rules and return the formatted results as a string.
-  string computeAndFormatResults(in string data, in nsIArray inputStreams);
+  string computeAndFormatResults(in string data, in nsIArray inputStreams,
+                                 in nsILocalFile outputDir);
 };
