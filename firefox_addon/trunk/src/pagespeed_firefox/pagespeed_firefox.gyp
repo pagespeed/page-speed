@@ -55,12 +55,13 @@
               '-L<(xulrunner_sdk_root)/lib',
               '-L<(xulrunner_sdk_root)/bin',
               '-Wl,-rpath-link,<(xulrunner_sdk_root)/bin',
-              '-Wl,--whole-archive',
-              '-lxpcomglue_s',
-              '-lxpcom',
-              '-lnspr4',
-              '-Wl,--no-whole-archive',
             ],
+            'link_settings': {
+              'libraries': [
+                '-lxpcomglue_s',
+                '-lxpcom',
+                '-lnspr4',
+              ]}
           }],
           ['OS == "mac"', {
             'link_settings': {
@@ -207,15 +208,14 @@
       'dependencies': [
         'xulrunner_sdk',
         '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/third_party/libjpeg/libjpeg.gyp:libjpeg',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_jpeg_optimizer',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_png_optimizer',
       ],
       'sources': [
         'idl/IImageCompressor.idl',
         '<(image_compressor_root)/image_compressor.cc',
-        '<(image_compressor_root)/jpeg_optimizer.cc',
       ],
       'include_dirs': [
-        '<(image_compressor_root)',
         '<(libpagespeed_root)',
       ],
       'export_dependent_settings': [
