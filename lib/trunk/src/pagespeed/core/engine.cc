@@ -14,6 +14,7 @@
 
 #include "pagespeed/core/engine.h"
 
+#include <algorithm> // for stable_sort
 #include <string>
 
 #include "base/logging.h"
@@ -25,6 +26,26 @@
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
+
+namespace {
+
+/* Return true if result1 is judged to have (strictly) greater impact than
+ * result2, false otherwise.  Note that this function imposes a total order on
+ * what is essentially partially-ordered data, and thus gives somewhat
+ * arbitrary answers. */
+bool CompareResults(const Result* result1, const Result* result2) {
+  const Savings& savings1 = result1->savings();
+  const Savings& savings2 = result2->savings();
+  if (savings1.dns_requests_saved() != savings2.dns_requests_saved()) {
+    return savings1.dns_requests_saved() > savings2.dns_requests_saved();
+  } else if (savings1.requests_saved() != savings2.requests_saved()) {
+    return savings1.requests_saved() > savings2.requests_saved();
+  } else {
+    return savings1.response_bytes_saved() > savings2.response_bytes_saved();
+  }
+}
+
+}  // namespace
 
 Engine::Engine(const std::vector<Rule*>& rules) : rules_(rules), init_(false) {
 }
@@ -75,7 +96,7 @@ bool Engine::FormatResults(const Results& results,
                            RuleFormatter* formatter) const {
   CHECK(init_);
 
-  typedef std::map<std::string, std::vector<const Result*> > RuleToResultMap;
+  typedef std::map<std::string, ResultVector> RuleToResultMap;
   RuleToResultMap rule_to_result_map;
 
   for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
@@ -105,8 +126,8 @@ bool Engine::FormatResults(const Results& results,
        ++iter) {
     Rule* rule = iter->second;
 
-    const std::vector<const Result*>& rule_results =
-        rule_to_result_map[iter->first];
+    ResultVector& rule_results = rule_to_result_map[iter->first];
+    std::stable_sort(rule_results.begin(), rule_results.end(), CompareResults);
 
     int score = rule->ComputeScore(input_info, rule_results);
     Formatter* rule_formatter = formatter->AddHeader(rule->header(), score);
