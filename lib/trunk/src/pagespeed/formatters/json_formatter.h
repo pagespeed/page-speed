@@ -32,7 +32,7 @@ class JsonFormatter : public RuleFormatter {
   JsonFormatter(std::ostream* output, Serializer* content_serializer);
 
   // RuleFormatter interface.
-  virtual Formatter* AddHeader(const std::string& header, int score);
+  virtual Formatter* AddHeader(const Rule& rule, int score);
 
  protected:
   // Formatter interface

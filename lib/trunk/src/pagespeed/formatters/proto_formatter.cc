@@ -34,8 +34,8 @@ ProtoFormatter::ProtoFormatter(ResultText* result_text)
       result_text_(result_text) {
 }
 
-Formatter* ProtoFormatter::AddHeader(const std::string& header, int score) {
-  return AddChild(header);
+Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
+  return AddChild(rule.header());
 }
 
 Formatter* ProtoFormatter::NewChild(const FormatterParameters& params) {

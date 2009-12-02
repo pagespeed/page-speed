@@ -32,7 +32,7 @@ class ProtoFormatter : public RuleFormatter {
   explicit ProtoFormatter(ResultText* parent_text);
 
   // RuleFormatter interface
-  virtual Formatter* AddHeader(const std::string& header, int score);
+  virtual Formatter* AddHeader(const Rule& rule, int score);
 
  protected:
   // Formatter interface

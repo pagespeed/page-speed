@@ -23,6 +23,20 @@ using pagespeed::formatters::TextFormatter;
 
 namespace {
 
+class DummyTestRule : public pagespeed::Rule {
+ public:
+  explicit DummyTestRule(const char* header) : header_(header) {}
+
+  virtual const char* name() const { return "Dummy Test Rule"; }
+  virtual const char* header() const { return header_; }
+  virtual bool AppendResults(const pagespeed::PagespeedInput& input,
+                             pagespeed::Results* results) { return true; }
+  virtual void FormatResults(const pagespeed::ResultVector& results,
+                             Formatter* formatter) {}
+ private:
+  const char* header_;
+};
+
 TEST(TextFormatterTest, BasicTest) {
   std::stringstream output;
   TextFormatter formatter(&output);
@@ -35,9 +49,11 @@ TEST(TextFormatterTest, BasicTest) {
 
 TEST(TextFormatterTest, BasicHeaderTest) {
   std::stringstream output;
+  DummyTestRule rule1("foo");
+  DummyTestRule rule2("bar");
   TextFormatter formatter(&output);
-  formatter.AddHeader("foo", 0);
-  formatter.AddHeader("bar", 1);
+  formatter.AddHeader(rule1, 0);
+  formatter.AddHeader(rule2, 1);
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("_foo_ (score=0)\n_bar_ (score=1)\n", result);
@@ -46,7 +62,8 @@ TEST(TextFormatterTest, BasicHeaderTest) {
 TEST(TextFormatterTest, TreeTest) {
   std::stringstream output;
   TextFormatter formatter(&output);
-  Formatter* level1 = formatter.AddHeader("l1-1", -1);
+  DummyTestRule rule("l1-1");
+  Formatter* level1 = formatter.AddHeader(rule, -1);
   Formatter* level2 = level1->AddChild("l2-1");
   Formatter* level3 = level2->AddChild("l3-1");
   level3->AddChild("l4-1");

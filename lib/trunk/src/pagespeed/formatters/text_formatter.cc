@@ -36,8 +36,8 @@ void TextFormatter::Indent(int level) {
 void TextFormatter::DoneAddingChildren() {
 }
 
-Formatter* TextFormatter::AddHeader(const std::string& header, int score) {
-  Argument header_arg(Argument::STRING, header);
+Formatter* TextFormatter::AddHeader(const Rule& rule, int score) {
+  Argument header_arg(Argument::STRING, rule.header());
   scoped_ptr<Argument> score_arg;
   if (score != -1) {
     score_arg.reset(new Argument(Argument::INTEGER, score));

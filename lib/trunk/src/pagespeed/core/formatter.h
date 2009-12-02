@@ -20,6 +20,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "pagespeed/core/rule.h"
 
 namespace pagespeed {
 
@@ -133,7 +134,7 @@ class RuleFormatter : public Formatter {
   // Higher-level overridable method that adds a rule header.
   // Reference implementations are implemented in terms of AddChild;
   // ignoring the rule score.
-  virtual Formatter* AddHeader(const std::string& header, int score) = 0;
+  virtual Formatter* AddHeader(const Rule& rule, int score) = 0;
 };
 
 }  // namespace pagespeed
