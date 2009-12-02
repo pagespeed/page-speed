@@ -130,7 +130,7 @@ bool Engine::FormatResults(const Results& results,
     std::stable_sort(rule_results.begin(), rule_results.end(), CompareResults);
 
     int score = rule->ComputeScore(input_info, rule_results);
-    Formatter* rule_formatter = formatter->AddHeader(rule->header(), score);
+    Formatter* rule_formatter = formatter->AddHeader(*rule, score);
     rule->FormatResults(rule_results, rule_formatter);
   }
   formatter->Done();

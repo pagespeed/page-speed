@@ -23,6 +23,20 @@ using pagespeed::formatters::HtmlFormatter;
 
 namespace {
 
+class DummyTestRule : public pagespeed::Rule {
+ public:
+  explicit DummyTestRule(const char* header) : header_(header) {}
+
+  virtual const char* name() const { return "Dummy Test Rule"; }
+  virtual const char* header() const { return header_; }
+  virtual bool AppendResults(const pagespeed::PagespeedInput& input,
+                             pagespeed::Results* results) { return true; }
+  virtual void FormatResults(const pagespeed::ResultVector& results,
+                             Formatter* formatter) {}
+ private:
+  const char* header_;
+};
+
 TEST(HtmlFormatterTest, BasicTest) {
   std::stringstream output;
   HtmlFormatter formatter(&output);
@@ -36,10 +50,12 @@ TEST(HtmlFormatterTest, BasicTest) {
 TEST(HtmlFormatterTest, BasicHeaderTest) {
   std::stringstream output;
   HtmlFormatter formatter(&output);
-  Formatter* child_formatter = formatter.AddHeader("head", 42);
+  DummyTestRule rule1("head");
+  DummyTestRule rule2("head2");
+  Formatter* child_formatter = formatter.AddHeader(rule1, 42);
   child_formatter->AddChild("foo");
   child_formatter->AddChild("bar");
-  formatter.AddHeader("head2", 23);
+  formatter.AddHeader(rule2, 23);
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("<h1>42 head</h1>\n"

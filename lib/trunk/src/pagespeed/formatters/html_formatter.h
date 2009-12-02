@@ -31,7 +31,7 @@ class HtmlFormatter : public RuleFormatter {
   explicit HtmlFormatter(std::ostream* output);
 
   // RuleFormatter interface.
-  virtual Formatter* AddHeader(const std::string& header, int score);
+  virtual Formatter* AddHeader(const Rule& rule, int score);
 
  protected:
   // Formatter interface

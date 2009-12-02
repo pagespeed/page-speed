@@ -35,9 +35,9 @@ void HtmlFormatter::Indent(int level) {
   }
 }
 
-Formatter* HtmlFormatter::AddHeader(const std::string& header, int score) {
+Formatter* HtmlFormatter::AddHeader(const Rule& rule, int score) {
   Argument score_arg(Argument::INTEGER, score);
-  Argument header_arg(Argument::STRING, header);
+  Argument header_arg(Argument::STRING, rule.header());
   return AddChild("$1 $2", score_arg, header_arg);
 }
 

@@ -31,7 +31,7 @@ class TextFormatter : public RuleFormatter {
   explicit TextFormatter(std::ostream* output);
 
   // Formatter interface
-  virtual Formatter* AddHeader(const std::string& header, int score);
+  virtual Formatter* AddHeader(const Rule& rule, int score);
 
  protected:
   // Formatter interface
