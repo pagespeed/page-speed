@@ -74,8 +74,8 @@
             },
             'xcode_settings': {
               'LIBRARY_SEARCH_PATHS': [
-                '<(xulrunner_sdk_root)/lib',
-                '<(xulrunner_sdk_root)/bin',
+                '<(xulrunner_sdk_arch_root)/lib',
+                '<(xulrunner_sdk_arch_root)/bin',
               ],
               'OTHER_CFLAGS': [
                 '-fshort-wchar',
