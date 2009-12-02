@@ -16,6 +16,7 @@
   'variables': {
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
     'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk',
+    'xulrunner_sdk_arch_root': '<(xulrunner_sdk_root)/arch/<(OS)/<(target_arch)'
   },
   'targets': [
     {
@@ -28,7 +29,7 @@
             'extension': 'idl',
             'outputs': ['<(SHARED_INTERMEDIATE_DIR)/<(RULE_INPUT_ROOT).h'],
             'action': [
-              '<(xulrunner_sdk_root)/bin/xpidl',
+              '<(xulrunner_sdk_arch_root)/bin/xpidl',
               '-m', 'header',
               '-I', '<(xulrunner_sdk_root)/idl',
               '-e', '<(SHARED_INTERMEDIATE_DIR)/<(RULE_INPUT_ROOT).h',
@@ -38,10 +39,10 @@
         ],
         'include_dirs': [
           '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
+          '<(xulrunner_sdk_root)/arch/<(OS)/all/include/nspr',
           '<(xulrunner_sdk_root)/include/dom',
           '<(xulrunner_sdk_root)/include/layout',
           '<(xulrunner_sdk_root)/include/necko',
-          '<(xulrunner_sdk_root)/include/nspr',
           '<(xulrunner_sdk_root)/include/string',
           '<(xulrunner_sdk_root)/include/xpcom',
         ],
@@ -52,16 +53,16 @@
               '-include', '<(xulrunner_sdk_root)/include/xpcom/xpcom-config.h',
             ],
             'ldflags': [
-              '-L<(xulrunner_sdk_root)/lib',
-              '-L<(xulrunner_sdk_root)/bin',
-              '-Wl,-rpath-link,<(xulrunner_sdk_root)/bin',
+              '-L<(xulrunner_sdk_arch_root)/lib',
+              '-L<(xulrunner_sdk_arch_root)/bin',
+              '-Wl,-rpath-link,<(xulrunner_sdk_arch_root)/bin',
             ],
             'link_settings': {
               'libraries': [
                 '-lxpcomglue_s',
                 '-lxpcom',
                 '-lnspr4',
-              ]}
+            ]},
           }],
           ['OS == "mac"', {
             'link_settings': {
@@ -92,9 +93,9 @@
             ],
             'link_settings': {
               'libraries': [
-                '<(xulrunner_sdk_root)/lib/xpcomglue_s.lib',
-                '<(xulrunner_sdk_root)/lib/xpcom.lib',
-                '<(xulrunner_sdk_root)/lib/nspr4.lib',
+                '<(xulrunner_sdk_arch_root)/lib/xpcomglue_s.lib',
+                '<(xulrunner_sdk_arch_root)/lib/xpcom.lib',
+                '<(xulrunner_sdk_arch_root)/lib/nspr4.lib',
               ],
             },
           }]
