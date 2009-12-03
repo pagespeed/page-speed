@@ -23,4 +23,6 @@
             src="chrome://pagespeed/content/javaUtil.js"/>
     <script type="application/x-javascript"
             src="chrome://pagespeed/content/deps.js"/>
+    <script type="application/x-javascript"
+            src="chrome://pagespeed/content/pagespeedLibraryRules.js"/>
 </overlay>
