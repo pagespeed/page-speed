@@ -39,8 +39,9 @@ using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 
 // The *_TEST_DIR_PATH macros are set by the gyp target that builds this file.
-const std::string kGifTestDir = GIF_TEST_DIR_PATH;
-const std::string kPngTestDir = PNG_TEST_DIR_PATH;
+const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "gif/";
+const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
+const std::string kPngTestDir = IMAGE_TEST_DIR_PATH "png/";
 
 void ReadFileToString(const std::string& dir,
                       const char* file_name,
@@ -54,8 +55,8 @@ void ReadFileToString(const std::string& dir,
   file_stream.close();
 }
 
-void ReadPngToString(const char* file_name, std::string* dest) {
-  ReadFileToString(kPngTestDir, file_name, "png", dest);
+void ReadPngSuiteFileToString(const char* file_name, std::string* dest) {
+  ReadFileToString(kPngSuiteTestDir, file_name, "png", dest);
 }
 
 // Structure that holds metadata and actual pixel data for a decoded
@@ -327,7 +328,7 @@ TEST(PngOptimizerTest, ValidPngs) {
   PngReader reader;
   for (int i = 0; i < kValidImageCount; i++) {
     std::string in, out;
-    ReadPngToString(kValidImages[i].filename, &in);
+    ReadPngSuiteFileToString(kValidImages[i].filename, &in);
     ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out))
         << kValidImages[i].filename;
     EXPECT_EQ(kValidImages[i].original_size, in.size())
@@ -345,9 +346,17 @@ TEST(PngOptimizerTest, InvalidPngs) {
   PngReader reader;
   for (int i = 0; i < kInvalidFileCount; i++) {
     std::string in, out;
-    ReadPngToString(kInvalidFiles[i], &in);
+    ReadPngSuiteFileToString(kInvalidFiles[i], &in);
     ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
   }
+}
+
+TEST(PngOptimizerTest, FixPngOutOfBoundReadCrash) {
+  PngReader reader;
+  std::string in, out;
+  ReadFileToString(kPngTestDir, "read_from_stream_crash", "png", &in);
+  ASSERT_EQ(193, in.length());
+  ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 }
 
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
@@ -356,8 +365,8 @@ TEST(PngOptimizerTest, ValidGifs) {
   for (int i = 0; i < kValidGifImageCount; i++) {
     std::string in, out, ref;
     ReadFileToString(
-        kPngTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
-    ReadPngToString(kValidGifImages[i].filename, &ref);
+        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+    ReadPngSuiteFileToString(kValidGifImages[i].filename, &ref);
     ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out))
         << kValidGifImages[i].filename;
     EXPECT_EQ(kValidGifImages[i].original_size, in.size())
@@ -385,14 +394,14 @@ TEST(PngOptimizerTest, InvalidGifs) {
   GifReader reader;
   for (int i = 0; i < kValidImageCount; i++) {
     std::string in, out;
-    ReadPngToString(kValidImages[i].filename, &in);
+    ReadPngSuiteFileToString(kValidImages[i].filename, &in);
     ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
   }
 
   // Also verify we fail gracefully for the invalid PNG images.
   for (int i = 0; i < kInvalidFileCount; i++) {
     std::string in, out;
-    ReadPngToString(kInvalidFiles[i], &in);
+    ReadPngSuiteFileToString(kInvalidFiles[i], &in);
     ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
   }
 }
@@ -405,13 +414,13 @@ TEST(PngOptimizerTest, SuccessAfterFailure) {
   for (int i = 0; i < kInvalidFileCount; i++) {
     {
       std::string in, out;
-      ReadPngToString(kInvalidFiles[i], &in);
+      ReadPngSuiteFileToString(kInvalidFiles[i], &in);
       ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
     }
 
     {
       std::string in, out;
-      ReadPngToString(kValidImages[i].filename, &in);
+      ReadPngSuiteFileToString(kValidImages[i].filename, &in);
       ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
     }
   }

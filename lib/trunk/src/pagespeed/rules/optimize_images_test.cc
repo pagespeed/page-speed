@@ -32,8 +32,8 @@ namespace {
 
 // The JPEG_TEST_DIR_PATH and PNG_TEST_DIR_PATH macros are set by the gyp
 // target that builds this file.
-const std::string kJpegTestDir = JPEG_TEST_DIR_PATH;
-const std::string kPngTestDir = PNG_TEST_DIR_PATH;
+const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
+const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
 
 void ReadFileToString(const std::string &path, std::string *dest) {
   std::ifstream file_stream;
@@ -67,7 +67,7 @@ class OptimizeImagesTest : public ::testing::Test {
                       const std::string &content_type,
                       const std::string &file_name) {
     std::string body;
-    ReadFileToString(kPngTestDir + file_name, &body);
+    ReadFileToString(kPngSuiteTestDir + file_name, &body);
     AddTestResource(url, content_type, body);
   }
 

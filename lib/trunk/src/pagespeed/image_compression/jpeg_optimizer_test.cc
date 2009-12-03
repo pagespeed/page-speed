@@ -30,7 +30,7 @@ namespace {
 using pagespeed::image_compression::OptimizeJpeg;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
-const std::string kJpegTestDir = JPEG_TEST_DIR_PATH;
+const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
 
 struct ImageCompressionInfo {
   const char* filename;
