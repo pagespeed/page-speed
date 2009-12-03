@@ -54,6 +54,16 @@ std::string QuotedJsonString(const std::string& str) {
       case '\t':
         quoted.append("\\t");
         break;
+      case '<':
+      case '>':
+        // Escape < and > to avoid security issues related to json
+        // string contents being interpreted as html by a browser.
+        if (*i == '<') {
+          quoted.append("\\x3c");
+        } else {
+          quoted.append("\\x3e");
+        }
+        break;
       default:
         // Unicode escape ASCII control and Extended ASCII characters.
         if (*i < 0x20 || *i >= 0x7F) {

@@ -234,7 +234,6 @@
         'pagespeed_output_pb',
       ],
       'sources': [
-        '<(pagespeed_root)/pagespeed/formatters/html_formatter.cc',
         '<(pagespeed_root)/pagespeed/formatters/json_formatter.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter.cc',
@@ -321,7 +320,6 @@
         '<(pagespeed_root)/pagespeed/core/engine_test.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input_test.cc',
         '<(pagespeed_root)/pagespeed/core/resource_test.cc',
-        '<(pagespeed_root)/pagespeed/formatters/html_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',

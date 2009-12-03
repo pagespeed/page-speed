@@ -27,7 +27,6 @@
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
-#include "pagespeed/formatters/html_formatter.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/formatters/text_formatter.h"
@@ -117,9 +116,7 @@ int main(int argc, char** argv) {
   CHECK(success);
 
   scoped_ptr<pagespeed::RuleFormatter> formatter;
-  if (format == "html") {
-    formatter.reset(new pagespeed::formatters::HtmlFormatter(&std::cout));
-  } else if (format == "json") {
+  if (format == "json") {
     formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout,
                                                              NULL));
   } else if (format == "proto") {
