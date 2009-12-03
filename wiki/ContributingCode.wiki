@@ -1,8 +1,8 @@
 #summary How to contribute to Page Speed
 
-== Getting Started ==
+== Getting started ==
 
-Here is a suggested procedure for contributing to the Page Speed codebase:
+Here is a suggested procedure for getting started with the Page Speed codebase:
 
   # [http://code.google.com/speed/page-speed/download.html Install Page Speed].
   # [http://code.google.com/speed/page-speed/docs/using.html Run Page Speed] on a few websites, and see what the tool recommends.
@@ -12,7 +12,7 @@ Here is a suggested procedure for contributing to the Page Speed codebase:
   # To debug Page Speed, use the function `PS_LOG`, which prints log messages. To the see the messages, you also need to set two Firefox preferences: see https://developer.mozilla.org/en/DOM/window.dump, and follow the instructions to enable `dump()`. Also set the preference `extensions.PageSpeed.enable_dump_logging` to True. The first few lines of [http://code.google.com/p/page-speed/source/browse/firefox_addon/trunk/src/pagespeed_firefox/js/pagespeed/util.js util.js] define `PS_LOG`, and the last few read the preference you just set.
   # Take any issue from our [http://code.google.com/p/page-speed/issues bug tracker] to get a good introduction to the codebase.
   # Build the code, as described in [http://code.google.com/p/page-speed/wiki/HowToBuildXpi How to Build XPI].
-  # Submit your changes for code review, as described in [
+  # Submit your changes for code review, as described in [CodeReviewHelp Code Review Help].
   # Sign a license agreement, as described below.
 
 == Making a larger contribution ==
