@@ -36,9 +36,12 @@ void ReadPngFromStream(png_structp read_ptr,
                        png_bytep data,
                        png_size_t length) {
   PngInput* input = reinterpret_cast<PngInput*>(read_ptr->io_ptr);
-  input->data_->copy(reinterpret_cast<char*>(data), length,
-                     input->offset_);
-  input->offset_ += length;
+  int copied = input->data_->copy(reinterpret_cast<char*>(data), length,
+                                  input->offset_);
+  input->offset_ += copied;
+  if (copied < length) {
+    png_error(read_ptr, "ReadPngFromStream: Unexpected EOF.");
+  }
 }
 
 void WritePngToString(png_structp write_ptr,

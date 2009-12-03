@@ -355,9 +355,7 @@
         '<(pagespeed_root)/pagespeed/rules/optimize_images_test.cc',
       ],
       'defines': [
-        'GIF_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/gif/"',
-        'JPEG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/jpeg/"',
-        'PNG_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/pngsuite/"',
+        'IMAGE_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/"',
       ],
     },
   ],
