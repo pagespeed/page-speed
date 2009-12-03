@@ -1,19 +1,26 @@
 #summary How to contribute to Page Speed
 
-Here you will find information that you'll need to be able to contribute to Page Speed.  Be sure to read the whole thing before sending us a contribution, including the small print at the end.
+== Getting Started ==
 
-== Before you contribute ==
+Here is a suggested procedure for contributing to the Page Speed codebase:
+
+  # [http://code.google.com/speed/page-speed/download.html Install Page Speed].
+  # [http://code.google.com/speed/page-speed/docs/using.html Run Page Speed] on a few websites, and see what the tool recommends.
+  # [http://code.google.com/speed/page-speed/docs/rules_intro.html Read the documentation] on the rules for which a page gets a bad score, and see if you can figure out how to improve the page.
+  # [http://code.google.com/p/page-speed/wiki/HowToBuildXpi Check out] a copy of the source.
+  # Look at the code for a rule. The simplest rule is implemented in the file [http://code.google.com/p/page-speed/source/browse/firefox_addon/trunk/src/pagespeed_firefox/js/pagespeed/duplicateResourceLint.js duplicateResourceLint.js]. Read this file, and figure out what the call to `PAGESPEED.LintRules.registerLintRule()` does by looking in [http://code.google.com/p/page-speed/source/browse/firefox_addon/trunk/src/pagespeed_firefox/js/pagespeed/lint.js lint.js].
+  # To debug Page Speed, use the function `PS_LOG`, which prints log messages. To the see the messages, you also need to set two Firefox preferences: see https://developer.mozilla.org/en/DOM/window.dump, and follow the instructions to enable `dump()`. Also set the preference `extensions.PageSpeed.enable_dump_logging` to True. The first few lines of [http://code.google.com/p/page-speed/source/browse/firefox_addon/trunk/src/pagespeed_firefox/js/pagespeed/util.js util.js] define `PS_LOG`, and the last few read the preference you just set.
+  # Take any issue from our [http://code.google.com/p/page-speed/issues bug tracker] to get a good introduction to the codebase.
+  # Build the code, as described in [CodeReviewHelp 
+  # Submit your changes for code review, as described in [
+  # Sign a license agreement, as described below.
+
+== Making a larger contribution ==
 
 Before you start working on a larger contribution you should get in touch with us first through the Page Speed [http://groups.google.com/group/page-speed-discuss discussion mailing list].
 
-Our list of [http://code.google.com/p/page-speed/issues/list open issues] is a good place to look for contribution ideas.
-
-== Getting the code ==
-
-See HowToBuildXpi and CodeReviewHelp for information on how to build, and on how to submit a code review.
-
-== The small print ==
+== Signing the license agreement ==
 
 Before we can use your code you have to sign the [http://code.google.com/legal/individual-cla-v1.0.html Google Individual Contributor License Agreement], which you can do online.  This is mainly because you own the copyright to your changes, even after your contribution becomes part of our codebase, so we need your permission to use and distribute your code.  We also need to be sure of various other things, for instance that you'll tell us if you know that your code infringes on other people's patents.  You don't have to do this until after you've submitted your code for review and a member has approved it, but you will have to do it before we can put your code into our codebase.
 
-Contributions made by corporations are covered by a different agreement than the one above, the [http://code.google.com/legal/corporate-cla-v1.0.html Software Grant and Corporate Contributor License Agreement].
+Contributions made by corporations are covered by a different agreement from the one above, the [http://code.google.com/legal/corporate-cla-v1.0.html Software Grant and Corporate Contributor License Agreement].
