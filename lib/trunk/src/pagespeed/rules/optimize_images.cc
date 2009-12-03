@@ -45,6 +45,10 @@ const char* OptimizeImages::header() const {
   return "Optimize images";
 }
 
+const char* OptimizeImages::documentation_url() const {
+  return "payload.html#CompressImages";
+}
+
 bool OptimizeImages::AppendResults(const PagespeedInput& input,
                                    Results* results) {
   bool error = false;

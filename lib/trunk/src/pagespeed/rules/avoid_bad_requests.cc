@@ -35,6 +35,10 @@ const char* AvoidBadRequests::header() const {
   return "Avoid bad requests";
 }
 
+const char* AvoidBadRequests::documentation_url() const {
+  return "rtt.html#AvoidBadRequests";
+}
+
 bool AvoidBadRequests::AppendResults(const PagespeedInput& input,
                                      Results* results) {
   for (int i = 0, num = input.num_resources(); i < num; ++i) {

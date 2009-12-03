@@ -86,6 +86,10 @@ const char* MinifyJavaScript::header() const {
   return "Minify JavaScript";
 }
 
+const char* MinifyJavaScript::documentation_url() const {
+  return "payload.html#MinifyJS";
+}
+
 bool MinifyJavaScript::AppendResults(const PagespeedInput& input,
                                      Results* results) {
   bool error = false;
