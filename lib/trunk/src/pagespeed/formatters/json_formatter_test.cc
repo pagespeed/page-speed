@@ -91,12 +91,28 @@ TEST(JsonFormatterTest, BasicHeaderTest) {
 TEST(JsonFormatterTest, EscapeTest) {
   std::stringstream output;
   JsonFormatter formatter(&output, NULL);
-  formatter.AddChild("\n\\\t\x12\f\"\r");
+  formatter.AddChild("\n\\\t\x12\f\"\r<>");
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\","
-            "\"value\":\"\\n\\\\\\t\\u0012\\f\\\"\\r\"}]}]\n",
+            "\"value\":\"\\n\\\\\\t\\u0012\\f\\\"\\r\\x3c\\x3e\"}]}]\n",
             result);
+}
+
+TEST(JsonFormatterTest, UrlEscapeTest) {
+  std::stringstream output;
+  JsonFormatter formatter(&output, NULL);
+  Argument url_arg(Argument::URL, "http://a.com/\n\\\t\x12\f\"\r<>");
+  formatter.AddChild("url: $1", url_arg);
+  formatter.Done();
+  std::string result = output.str();
+  EXPECT_EQ(
+      "[\n{\"format\":[{\"type\":\"str\","
+      "\"value\":\"url: \"},"
+      "{\"type\":\"url\","
+      "\"value\":\"http://a.com/\\n\\\\\\t\\u0012\\f\\\"\\r\\x3c\\x3e\"}]}]\n",
+      result);
+
 }
 
 TEST(JsonFormatterTest, TreeTest) {
@@ -170,7 +186,8 @@ TEST(JsonFormatterTest, OptimizedTest) {
       "{\"type\":\"url\",\"value\":\"http://test.com/\"},"
       "{\"type\":\"str\",\"value\":\"  See \"},"
       "{\"type\":\"url\","
-      "\"value\":\"serialize url: http://test.com/ body: <optimized result>\","
+      "\"value\":"
+      "\"serialize url: http://test.com/ body: \\x3coptimized result\\x3e\","
       "\"alt\":\"optimized version\"},"
       "{\"type\":\"str\",\"value\":\".\"}"
       "]}]\n",
@@ -194,7 +211,7 @@ TEST(JsonFormatterTest, OptimizedTestNoUrl) {
             "\"value\":\"FooBar\"},"
             "{\"type\":\"str\",\"value\":\"  See \"},"
             "{\"type\":\"url\","
-            "\"value\":\"serialize url:  body: <optimized result>\","
+            "\"value\":\"serialize url:  body: \\x3coptimized result\\x3e\","
             "\"alt\":\"optimized version\"},"
             "{\"type\":\"str\",\"value\":\".\"}"
             "]}]\n",
