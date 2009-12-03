@@ -63,7 +63,7 @@ PAGESPEED.PageSpeedContext = function() {
 };
 
 /**
- * Given a function name and an exception, log an eppor message.
+ * Given a function name and an exception, log an error message.
  * @param {string} functionName Name of the function where the
  *     exception was caught.
  * @param {Error} e The exception raised.
@@ -88,7 +88,8 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
   var rules = [];
   var totalScore = 0;
   var totalWeight = 0;
-  var lintRules = PAGESPEED.LintRules.lintRules;
+  var lintRules = PAGESPEED.LintRules.lintRules.concat(
+    PAGESPEED.LintRules.nativeRuleResults);
 
   /**
    * Sorts rules by their name.

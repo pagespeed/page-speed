@@ -189,6 +189,25 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * Create an nsIArray from a Javascript array.
+   * @param {array} jsArray The Javascript array object.
+   * @return {nsIArray} A new nsIArray object with the contents of jsArray.
+   */
+  newNsIArray: function (jsArray) {
+    var nsArray = PAGESPEED.Utils.CCIN('@mozilla.org/array;1',
+                                       'nsIMutableArray');
+    if (nsArray) {
+      for (var i = 0, length = jsArray.length; i < length; ++i) {
+        // The false below indicates that the reference should not be weak.
+        nsArray.appendElement(jsArray[i], false);
+      }
+    } else {
+      PS_LOG("Unable to create nsIMutableArray.");
+    }
+    return nsArray;
+  },
+
+  /**
    * Reads a file from the chrome directory and returns its contents.
    * @param {string} extName Name of the extension the file was installed with.
    * @param {string} fileName Name of the file to read.
