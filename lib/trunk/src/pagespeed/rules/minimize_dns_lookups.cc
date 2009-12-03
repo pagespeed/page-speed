@@ -70,6 +70,10 @@ const char* MinimizeDnsLookups::header() const {
   return "Minimize DNS lookups";
 }
 
+const char* MinimizeDnsLookups::documentation_url() const {
+  return "rtt.html#MinimizeDNSLookups";
+}
+
 bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
                                        Results* results) {
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();

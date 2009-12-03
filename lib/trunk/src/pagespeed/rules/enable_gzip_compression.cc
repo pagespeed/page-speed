@@ -41,6 +41,10 @@ const char* EnableGzipCompression::header() const {
   return "Enable gzip compression";
 }
 
+const char* EnableGzipCompression::documentation_url() const {
+  return "payload.html#GzipCompression";
+}
+
 bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
                                           Results* results) {
   bool success = true;

@@ -172,6 +172,10 @@ const char* MinimizeRedirects::header() const {
   return "Minimize redirects";
 }
 
+const char* MinimizeRedirects::documentation_url() const {
+  return "rtt.html#AvoidRedirects";
+}
+
 /**
  * Gather redirects to compute the redirect graph, then traverse the
  * redirect graph and append a result for each redirect sequence

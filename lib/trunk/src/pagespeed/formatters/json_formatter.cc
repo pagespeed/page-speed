@@ -135,7 +135,8 @@ void JsonFormatter::DoneAddingChildren() {
 Formatter* JsonFormatter::AddHeader(const Rule& rule, int score) {
   Argument arg(Argument::STRING, rule.header());
   Formatter* child_formatter = AddChild("$1", arg);
-  *output_ << ",\"score\":" << score;
+  *output_ << ",\"score\":" << score
+           << ",\"url\":" << QuotedJsonString(rule.documentation_url());
   return child_formatter;
 }
 

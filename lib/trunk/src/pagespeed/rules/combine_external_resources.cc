@@ -130,6 +130,10 @@ const char* CombineExternalJavaScript::header() const {
   return "Combine external JavaScript";
 }
 
+const char* CombineExternalJavaScript::documentation_url() const {
+  return "rtt.html#CombineJSandCSS";
+}
+
 CombineExternalCSS::CombineExternalCSS()
     : CombineExternalResources(CSS) {
 }
@@ -140,6 +144,10 @@ const char* CombineExternalCSS::name() const {
 
 const char* CombineExternalCSS::header() const {
   return "Combine external CSS";
+}
+
+const char* CombineExternalCSS::documentation_url() const {
+  return "rtt.html#CombineJSandCSS";
 }
 
 }  // namespace rules

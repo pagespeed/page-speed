@@ -45,6 +45,9 @@ class Rule {
   // Human readable rule name.
   virtual const char* header() const = 0;
 
+  // URL linking to the canonical documentation for this rule.
+  virtual const char* documentation_url() const = 0;
+
   // Compute results and append it to the results set.
   //
   // @param input Input to process.

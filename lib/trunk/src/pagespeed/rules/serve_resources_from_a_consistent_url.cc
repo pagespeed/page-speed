@@ -60,6 +60,10 @@ const char* ServeResourcesFromAConsistentUrl::header() const {
   return "Serve resources from a consistent URL";
 }
 
+const char* ServeResourcesFromAConsistentUrl::documentation_url() const {
+  return "payload.html#duplicate_resources";
+}
+
 bool ServeResourcesFromAConsistentUrl::AppendResults(
     const PagespeedInput& input, Results* results) {
   ResourcesWithSameBodyMap map;
