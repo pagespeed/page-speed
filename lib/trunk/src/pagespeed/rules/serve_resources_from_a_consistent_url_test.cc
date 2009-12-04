@@ -32,8 +32,15 @@ using pagespeed::Results;
 namespace {
 
 const char *kResponseBodies[] = {
-  "first response body",
-  "second response body",
+  "first response body"
+  "                                                  "
+  "                                                  ",
+  "second response body"
+  "                                                  "
+  "                                                  ",
+  "third response body"
+  "                                                  "
+  "                                                  ",
 };
 
 const char *kResponseUrls[2][3] = {
@@ -142,9 +149,9 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, MultipleEmptyResources) {
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, DifferentResources) {
-  AddTestResource(kResponseUrls[0][0], "first response body");
-  AddTestResource(kResponseUrls[0][1], "second response body");
-  AddTestResource(kResponseUrls[0][2], "third response body");
+  AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
+  AddTestResource(kResponseUrls[0][1], kResponseBodies[1]);
+  AddTestResource(kResponseUrls[0][2], kResponseBodies[2]);
   CheckNoViolations();
 }
 
