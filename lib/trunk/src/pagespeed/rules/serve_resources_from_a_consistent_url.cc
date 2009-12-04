@@ -70,7 +70,13 @@ bool ServeResourcesFromAConsistentUrl::AppendResults(
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     const std::string& body = resource.GetResponseBody();
-    if (body.empty()) {
+    // Exclude tiny resources (like 1x1 gif images).
+    // Serving tiny non-cacheable resources from a large number of
+    // locations is a necessity for performance and/or ad tracking
+    // purposes.  These extra requests are expensive and should be
+    // treated as diffirent kind of violation instead of being clumped
+    // together with larger resources served from multiple locations.
+    if (body.length() < 100) {
       continue;
     }
     map[&resource.GetResponseBody()].push_back(&resource);
