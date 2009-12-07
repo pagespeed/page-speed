@@ -30,6 +30,12 @@
 (function() {  // Begin closure
 
 /**
+ * JsMin minifier implementation.
+ */
+var NATIVE_JSMIN = PAGESPEED.Utils.CCSV(
+    '@code.google.com/p/page-speed/JsMin;1', 'IJsMin');
+
+/**
  * Minimum number of bytes we expect to save when minifying JS
  * before we warn the user about it.
  * @type {number}
@@ -251,7 +257,11 @@ var doMinify = function(storage, script) {
   }
   if (runJsMin) {
     try {
-      compiledSource = JSMIN.compile(uncompiledSource);
+      if (NATIVE_JSMIN) {
+	compiledSource = NATIVE_JSMIN.minifyJs(uncompiledSource);
+      } else {
+	compiledSource = JSMIN.compile(uncompiledSource);
+      }
       minifier = 'JSMin';
     } catch (e) {
       storage.aErrors.push([

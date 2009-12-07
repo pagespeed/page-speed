@@ -224,6 +224,28 @@
       ],
     },
     {
+      'target_name': 'pagespeed_firefox_js_min',
+      'type': '<(library)',
+      'variables': {
+        'js_min_root': 'cpp/js_min',
+      },
+      'dependencies': [
+        'xulrunner_sdk',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
+      ],
+      'sources': [
+        'idl/IJsMin.idl',
+        '<(js_min_root)/js_minifier.cc',
+      ],
+      'include_dirs': [
+        '<(libpagespeed_root)',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+    },
+    {
       'target_name': 'pagespeed_firefox_file_util',
       'type': '<(library)',
       'dependencies': [
@@ -312,6 +334,7 @@
         'xulrunner_sdk',
         'pagespeed_firefox_activity',
         'pagespeed_firefox_image_compressor',
+        'pagespeed_firefox_js_min',
         'pagespeed_firefox_library_rules',
       ],
       'defines': [
