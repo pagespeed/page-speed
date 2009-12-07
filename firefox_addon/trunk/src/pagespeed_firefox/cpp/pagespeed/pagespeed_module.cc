@@ -20,6 +20,7 @@
 #include "activity/http_activity_distributor.h"
 #include "activity/profiler.h"
 #include "image_compressor/image_compressor.h"
+#include "js_min/js_minifier.h"
 #ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
 #include "pagespeed/pagespeed_rules.h"
 #endif
@@ -31,6 +32,7 @@ namespace pagespeed {
 NS_GENERIC_FACTORY_CONSTRUCTOR(PageSpeedRules)
 #endif
 NS_GENERIC_FACTORY_CONSTRUCTOR(ImageCompressor)
+NS_GENERIC_FACTORY_CONSTRUCTOR(JsMinifier)
 }  // namespace pagespeed
 
 namespace activity {
@@ -49,6 +51,10 @@ const char *PAGE_SPEED_RULES_CLASSNAME = "PageSpeedRules";
 const char *IMAGE_COMPRESSOR_CONTRACTID =
     "@code.google.com/p/page-speed/ImageCompressor;1";
 const char *IMAGE_COMPRESSOR_CLASSNAME = "ImageCompressor";
+
+const char *JS_MINIFIER_CONTRACTID =
+    "@code.google.com/p/page-speed/JsMin;1";
+const char *JS_MINIFIER_CLASSNAME = "JsMinifier";
 
 const char* PROFILER_CONTRACTID =
     "@code.google.com/p/page-speed/ActivityProfiler;1";
@@ -76,6 +82,14 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
   0x1fed,                                             \
   0x4bfe,                                             \
   { 0x94, 0x65, 0xfd, 0x41, 0x93, 0x54, 0x23, 0x3e }  \
+}
+
+#define JS_MINIFIER_CID                               \
+{ /* 9e97eb52-2bea-4f77-9aa4-6eb2664db987 */          \
+  0x9e97eb52,                                         \
+  0x2bea,                                             \
+  0x4f77,                                             \
+  { 0x9a, 0xa4, 0x6e, 0xb26, 0x64, 0xd, 0xb9, 0x87 }  \
 }
 
 #define PROFILER_CID                                     \
@@ -108,6 +122,12 @@ static nsModuleComponentInfo components[] = {
     IMAGE_COMPRESSOR_CID,
     IMAGE_COMPRESSOR_CONTRACTID,
     pagespeed::ImageCompressorConstructor,
+  },
+  {
+    JS_MINIFIER_CLASSNAME,
+    JS_MINIFIER_CID,
+    JS_MINIFIER_CONTRACTID,
+    pagespeed::JsMinifierConstructor,
   },
   {
     PROFILER_CLASSNAME,
