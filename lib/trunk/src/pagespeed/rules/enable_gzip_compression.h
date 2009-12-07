@@ -17,7 +17,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "pagespeed/core/rule.h"
+#include "pagespeed/rules/minify_rule.h"
 #include "pagespeed/rules/savings_computer.h"
 
 typedef struct z_stream_s z_stream;
@@ -34,28 +34,13 @@ namespace rules {
  * Lint rule that checks that text resources are compressed before
  * they are sent over the wire.
  */
-class EnableGzipCompression : public Rule {
+class EnableGzipCompression : public MinifyRule {
  public:
   // @param computer Object responsible for computing the compressed
   // size of the resource.
   explicit EnableGzipCompression(SavingsComputer* computer);
 
-  // Rule interface.
-  virtual const char* name() const;
-  virtual const char* header() const;
-  virtual const char* documentation_url() const;
-  virtual bool AppendResults(const PagespeedInput& input, Results* results);
-  virtual void FormatResults(const ResultVector& results, Formatter* formatter);
-
  private:
-  bool IsCompressed(const Resource& resource) const;
-  bool IsText(const Resource& resource) const;
-  bool IsViolation(const Resource& resource) const;
-
-  bool GetSavings(const Resource& resource, int* savings) const;
-
-  scoped_ptr<SavingsComputer> computer_;
-
   DISALLOW_COPY_AND_ASSIGN(EnableGzipCompression);
 };
 

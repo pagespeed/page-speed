@@ -16,9 +16,6 @@
 
 #include <string>
 
-#include "base/logging.h"
-#include "pagespeed/core/formatter.h"
-#include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
@@ -27,139 +24,98 @@
 
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
-#include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
 
 namespace rules {
 
-OptimizeImages::OptimizeImages(bool save_optimized_content)
-    : save_optimized_content_(save_optimized_content) {
-}
+namespace {
 
-const char* OptimizeImages::name() const {
+class ImageMinifier : public Minifier {
+ public:
+  explicit ImageMinifier(bool save_optimized_content)
+      : save_optimized_content_(save_optimized_content) {}
+
+  // Minifier interface:
+  virtual const char* name() const;
+  virtual const char* header_format() const;
+  virtual const char* documentation_url() const;
+  virtual const char* body_format() const;
+  virtual const char* child_format() const;
+  virtual const MinifierOutput* Minify(const Resource& resource) const;
+
+ private:
+  bool save_optimized_content_;
+
+  DISALLOW_COPY_AND_ASSIGN(ImageMinifier);
+};
+
+const char* ImageMinifier::name() const {
   return "OptimizeImages";
 }
 
-const char* OptimizeImages::header() const {
+const char* ImageMinifier::header_format() const {
   return "Optimize images";
 }
 
-const char* OptimizeImages::documentation_url() const {
+const char* ImageMinifier::documentation_url() const {
   return "payload.html#CompressImages";
 }
 
-bool OptimizeImages::AppendResults(const PagespeedInput& input,
-                                   Results* results) {
-  bool error = false;
-  for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
-    const Resource& resource = input.GetResource(idx);
-    if (resource.GetResourceType() != IMAGE) {
-      continue;
+const char* ImageMinifier::body_format() const {
+  return ("Optimizing the following image resources could reduce their size "
+          "by $1 ($2% reduction).");
+}
+
+const char* ImageMinifier::child_format() const {
+  return "Compressing $1 could save $2 ($3% reduction).";
+}
+
+const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
+  if (resource.GetResourceType() != IMAGE) {
+    return new MinifierOutput();
+  }
+
+  const ImageType type = resource.GetImageType();
+  const std::string& original = resource.GetResponseBody();
+
+  std::string compressed;
+  if (type == JPEG) {
+    if (!image_compression::OptimizeJpeg(original, &compressed)) {
+      return NULL; // error
     }
-
-    const ImageType type = resource.GetImageType();
-    const std::string& original = resource.GetResponseBody();
-    const int original_size = original.size();
-
-    std::string compressed;
-    if (type == JPEG) {
-      if (!image_compression::OptimizeJpeg(original, &compressed)) {
-        error = true;
-        continue;
-      }
-    } else if (type == PNG) {
-      image_compression::PngReader reader;
-      if (!image_compression::PngOptimizer::OptimizePng(reader,
-                                                        original,
-                                                        &compressed)) {
-        error = true;
-        continue;
-      }
+  } else if (type == PNG) {
+    image_compression::PngReader reader;
+    if (!image_compression::PngOptimizer::OptimizePng(reader,
+                                                      original,
+                                                      &compressed)) {
+      return NULL; // error
+    }
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
-    } else if (type == GIF) {
-      image_compression::GifReader reader;
-      if (!image_compression::PngOptimizer::OptimizePng(reader,
-                                                        original,
-                                                        &compressed)) {
-        error = true;
-        continue;
-      }
+  } else if (type == GIF) {
+    image_compression::GifReader reader;
+    if (!image_compression::PngOptimizer::OptimizePng(reader,
+                                                      original,
+                                                      &compressed)) {
+      return NULL; // error
+    }
 #endif
-    } else {
-      continue;
-    }
-
-    const int bytes_saved = original_size - compressed.size();
-    if (bytes_saved <= 0) {
-      continue;
-    }
-
-    Result* result = results->add_results();
-    result->set_rule_name(name());
-
-    Savings* savings = result->mutable_savings();
-    savings->set_response_bytes_saved(bytes_saved);
-
-    result->add_resource_urls(resource.GetRequestUrl());
-
-    if (save_optimized_content_) {
-      result->set_optimized_content(compressed);
-    }
+  } else {
+    return new MinifierOutput();
   }
 
-  return !error;
-}
-
-void OptimizeImages::FormatResults(const ResultVector& results,
-                                   Formatter* formatter) {
-  int total_bytes_saved = 0;
-
-  for (ResultVector::const_iterator iter = results.begin(),
-           end = results.end();
-       iter != end;
-       ++iter) {
-    const Result& result = **iter;
-    const Savings& savings = result.savings();
-    total_bytes_saved += savings.response_bytes_saved();
-  }
-
-  if (total_bytes_saved == 0) {
-    return;
-  }
-
-  Argument arg(Argument::BYTES, total_bytes_saved);
-  Formatter* body = formatter->AddChild("Optimizing the following image "
-                                        "resources could reduce "
-                                        "their size by $1.", arg);
-
-  for (ResultVector::const_iterator iter = results.begin(),
-           end = results.end();
-       iter != end;
-       ++iter) {
-    const Result& result = **iter;
-    if (result.resource_urls_size() != 1) {
-      LOG(DFATAL) << "Unexpected number of resource URLs.  Expected 1, Got "
-                  << result.resource_urls_size() << ".";
-      continue;
-    }
-    Argument url(Argument::URL, result.resource_urls(0));
-    Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
-
-    std::string format_str = "Compressing $1 could save $2.";
-    std::vector<const Argument*> args;
-    args.push_back(&url);
-    args.push_back(&savings);
-
-    FormatterParameters formatter_args(&format_str, &args);
-
-    if (result.has_optimized_content()) {
-      formatter_args.set_optimized_content(&result.optimized_content());
-    }
-
-    body->AddChild(formatter_args);
+  const int bytes_saved = original.size() - compressed.size();
+  if (save_optimized_content_) {
+    return new MinifierOutput(bytes_saved, compressed);
+  } else {
+    return new MinifierOutput(bytes_saved);
   }
 }
+
+}  // namespace
+
+OptimizeImages::OptimizeImages(bool save_optimized_content)
+    : MinifyRule(new ImageMinifier(save_optimized_content)) {}
 
 }  // namespace rules
 

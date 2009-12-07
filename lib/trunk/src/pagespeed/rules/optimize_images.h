@@ -16,33 +16,20 @@
 #define PAGESPEED_RULES_OPTIMIZE_IMAGES_H_
 
 #include "base/basictypes.h"
-#include "pagespeed/core/rule.h"
+#include "pagespeed/rules/minify_rule.h"
 
 namespace pagespeed {
-
-class PagespeedInput;
-class Resource;
-class Results;
 
 namespace rules {
 
 /**
  * Lint rule that checks that images are as compressed as possible.
  */
-class OptimizeImages : public Rule {
+class OptimizeImages : public MinifyRule {
  public:
-  OptimizeImages(bool save_optimized_content);
-
-  // Rule interface.
-  virtual const char* name() const;
-  virtual const char* header() const;
-  virtual const char* documentation_url() const;
-  virtual bool AppendResults(const PagespeedInput& input, Results* results);
-  virtual void FormatResults(const ResultVector& results, Formatter* formatter);
+  explicit OptimizeImages(bool save_optimized_content);
 
  private:
-  bool save_optimized_content_;
-
   DISALLOW_COPY_AND_ASSIGN(OptimizeImages);
 };
 

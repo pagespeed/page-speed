@@ -16,33 +16,20 @@
 #define PAGESPEED_RULES_MINIFY_JAVASCRIPT_H_
 
 #include "base/basictypes.h"
-#include "pagespeed/core/rule.h"
+#include "pagespeed/rules/minify_rule.h"
 
 namespace pagespeed {
-
-class PagespeedInput;
-class Resource;
-class Results;
 
 namespace rules {
 
 /**
  * Lint rule that checks that JS resources are minified.
  */
-class MinifyJavaScript : public Rule {
+class MinifyJavaScript : public MinifyRule {
  public:
   MinifyJavaScript(bool save_optimized_content);
 
-  // Rule interface.
-  virtual const char* name() const;
-  virtual const char* header() const;
-  virtual const char* documentation_url() const;
-  virtual bool AppendResults(const PagespeedInput& input, Results* results);
-  virtual void FormatResults(const ResultVector& results, Formatter* formatter);
-
  private:
-  const bool save_optimized_content_;
-
   DISALLOW_COPY_AND_ASSIGN(MinifyJavaScript);
 };
 
