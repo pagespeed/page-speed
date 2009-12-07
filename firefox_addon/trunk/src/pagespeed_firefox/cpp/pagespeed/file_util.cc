@@ -18,6 +18,32 @@
 
 #include "file_util.h"
 
+namespace {
+
+// replace anything that isn't an alphanumeric, . or - with _.
+// limit filenames to 50 characters.
+std::string SanitizeFilename(const std::string& str) {
+  std::string sanitized;
+  for (std::string::const_iterator iter = str.begin(), end = str.end();
+       iter != end;
+       ++iter) {
+    char c = *iter;
+    if (isalnum(c) || c == '-' || c == '.') {
+      sanitized += c;
+    } else {
+      sanitized += '_';
+    }
+  }
+
+  if (sanitized.length() < 50) {
+    return sanitized;
+  } else {
+    return sanitized.substr(0, 50);
+  }
+}
+
+}
+
 namespace pagespeed {
 
 std::string ChooseOutputFilename(const GURL& url, const std::string& hash) {
@@ -26,11 +52,11 @@ std::string ChooseOutputFilename(const GURL& url, const std::string& hash) {
   const size_t last_dot = url_path.find_last_of('.');
   const size_t start = (last_slash == std::string::npos ? 0 : last_slash + 1);
   if (last_dot == std::string::npos || last_dot < start) {
-    return url_path.substr(start) + "_" + hash;
+    return SanitizeFilename(url_path.substr(start)) + "_" + hash;
   } else {
     const std::string base = url_path.substr(start, last_dot - start);
     const std::string extension = url_path.substr(last_dot);
-    return base + "_" + hash + extension;
+    return SanitizeFilename(base) + "_" + hash + SanitizeFilename(extension);
   }
 }
 
