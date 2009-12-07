@@ -18,8 +18,6 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "pagespeed/core/formatter.h"
-#include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "third_party/zlib/zlib.h"
@@ -28,91 +26,66 @@ namespace pagespeed {
 
 namespace rules {
 
-EnableGzipCompression::EnableGzipCompression(SavingsComputer* computer)
-    : computer_(computer) {
-  CHECK(NULL != computer) << "SavingsComputer must be non-null.";
-}
+namespace {
 
-const char* EnableGzipCompression::name() const {
+class GzipMinifier : public Minifier {
+ public:
+  explicit GzipMinifier(SavingsComputer* computer) : computer_(computer) {
+    CHECK(NULL != computer) << "SavingsComputer must be non-null.";
+  }
+
+  // Minifier interface:
+  virtual const char* name() const;
+  virtual const char* header_format() const;
+  virtual const char* documentation_url() const;
+  virtual const char* body_format() const;
+  virtual const char* child_format() const;
+  virtual const MinifierOutput* Minify(const Resource& resource) const;
+
+ private:
+  bool IsCompressed(const Resource& resource) const;
+  bool IsText(const Resource& resource) const;
+  bool IsViolation(const Resource& resource) const;
+
+  scoped_ptr<SavingsComputer> computer_;
+
+  DISALLOW_COPY_AND_ASSIGN(GzipMinifier);
+};
+
+const char* GzipMinifier::name() const {
   return "EnableGzipCompression";
 }
 
-const char* EnableGzipCompression::header() const {
+const char* GzipMinifier::header_format() const {
   return "Enable gzip compression";
 }
 
-const char* EnableGzipCompression::documentation_url() const {
+const char* GzipMinifier::documentation_url() const {
   return "payload.html#GzipCompression";
 }
 
-bool EnableGzipCompression::AppendResults(const PagespeedInput& input,
-                                          Results* results) {
-  bool success = true;
-  for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
-    const Resource& resource = input.GetResource(idx);
-    int bytes_saved = 0;
-    bool resource_success = GetSavings(resource, &bytes_saved);
-    if (!resource_success) {
-      success = false;
-      continue;
-    }
-
-    if (bytes_saved <= 0) {
-      continue;
-    }
-
-    Result* result = results->add_results();
-    result->set_rule_name(name());
-
-    Savings* savings = result->mutable_savings();
-    savings->set_response_bytes_saved(bytes_saved);
-
-    result->add_resource_urls(resource.GetRequestUrl());
-  }
-
-  return success;
+const char* GzipMinifier::body_format() const {
+  return ("Compressing the following resources with gzip could reduce their "
+          "transfer size by $1 ($2% reduction).");
 }
 
-void EnableGzipCompression::FormatResults(
-    const ResultVector& results, Formatter* formatter) {
-  int total_bytes_saved = 0;
+const char* GzipMinifier::child_format() const {
+  return "Compressing $1 could save $2 ($3% reduction).";
+}
 
-  for (ResultVector::const_iterator iter = results.begin(),
-           end = results.end();
-       iter != end;
-       ++iter) {
-    const Result& result = **iter;
-    const Savings& savings = result.savings();
-    total_bytes_saved += savings.response_bytes_saved();
+const MinifierOutput* GzipMinifier::Minify(const Resource& resource) const {
+  if (!IsViolation(resource)) {
+    return new MinifierOutput();
   }
-
-  if (total_bytes_saved == 0) {
-    return;
-  }
-
-  Argument arg(Argument::BYTES, total_bytes_saved);
-  Formatter* body = formatter->AddChild("Compressing the following "
-                                        "resources with gzip could reduce "
-                                        "their transfer size by $1.",
-                                        arg);
-
-  for (ResultVector::const_iterator iter = results.begin(),
-           end = results.end();
-       iter != end;
-       ++iter) {
-    const Result& result = **iter;
-    if (result.resource_urls_size() != 1) {
-      LOG(DFATAL) << "Unexpected number of resource URLs.  Expected 1, Got "
-                  << result.resource_urls_size() << ".";
-      continue;
-    }
-    Argument url(Argument::URL, result.resource_urls(0));
-    Argument savings(Argument::BYTES, result.savings().response_bytes_saved());
-    body->AddChild("Compressing $1 could save $2.", url, savings);
+  Savings savings;
+  if (computer_->ComputeSavings(resource, &savings)) {
+    return new MinifierOutput(savings.response_bytes_saved());
+  } else {
+    return NULL; // error
   }
 }
 
-bool EnableGzipCompression::IsCompressed(const Resource& resource) const {
+bool GzipMinifier::IsCompressed(const Resource& resource) const {
   const std::string& encoding = resource.GetResponseHeader("Content-Encoding");
 
   // HTTP allows Content-Encodings to be "stacked" in which case they
@@ -124,7 +97,7 @@ bool EnableGzipCompression::IsCompressed(const Resource& resource) const {
       encoding.find("deflate") != std::string::npos;
 }
 
-bool EnableGzipCompression::IsText(const Resource& resource) const {
+bool GzipMinifier::IsText(const Resource& resource) const {
   ResourceType type = resource.GetResourceType();
   ResourceType text_types[] = { HTML, TEXT, JS, CSS };
   for (int idx = 0; idx < arraysize(text_types); ++idx) {
@@ -136,24 +109,16 @@ bool EnableGzipCompression::IsText(const Resource& resource) const {
   return false;
 }
 
-bool EnableGzipCompression::IsViolation(const Resource& resource) const {
-  return !IsCompressed(resource) &&
-      IsText(resource) &&
-      resource.GetResponseBody().size() >= 150;
+bool GzipMinifier::IsViolation(const Resource& resource) const {
+  return (!IsCompressed(resource) &&
+          IsText(resource) &&
+          resource.GetResponseBody().size() >= 150);
 }
 
-bool EnableGzipCompression::GetSavings(const Resource& resource,
-                                       int* out_savings) const {
-  *out_savings = 0;
-  if (!IsViolation(resource)) {
-    return true;
-  }
+}  // namespace
 
-  Savings savings;
-  bool result = computer_->ComputeSavings(resource, &savings);
-  *out_savings = savings.response_bytes_saved();
-  return result;
-}
+EnableGzipCompression::EnableGzipCompression(SavingsComputer* computer)
+    : MinifyRule(new GzipMinifier(computer)) {}
 
 namespace compression_computer {
 

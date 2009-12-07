@@ -171,6 +171,7 @@
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources.cc',
         '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression.cc',
         '<(pagespeed_root)/pagespeed/rules/minify_javascript.cc',
+        '<(pagespeed_root)/pagespeed/rules/minify_rule.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_redirects.cc',
         '<(pagespeed_root)/pagespeed/rules/optimize_images.cc',
