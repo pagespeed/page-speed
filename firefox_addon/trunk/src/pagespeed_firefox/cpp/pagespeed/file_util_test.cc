@@ -58,6 +58,18 @@ TEST(FileUtilTest, ChooseOutputFilenameDotBeforeSlash) {
   ASSERT_EQ("baz_a1b2c3d4", filename);
 }
 
+TEST(FileUtilTest, ChooseOutputFilenameIgnoreQuery) {
+  const GURL url("http://www.example.com/foo/bar?t=12");
+  const std::string filename = ChooseOutputFilename(url, "a1b2c3d4");
+  ASSERT_EQ("bar_a1b2c3d4", filename);
+}
+
+TEST(FileUtilTest, ChooseOutputFilenameReplaceNonPrintableChars) {
+  const GURL url("http://www.example.com/foo/b%E4r");
+  const std::string filename = ChooseOutputFilename(url, "a1b2c3d4");
+  ASSERT_EQ("b_E4r_a1b2c3d4", filename);
+}
+
 TEST(FileUtilTest, ChooseOutputFilenameNothing) {
   const GURL url("http://www.example.com/");
   const std::string filename = ChooseOutputFilename(url, "a1b2c3d4");
