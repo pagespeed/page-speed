@@ -55,6 +55,7 @@ activity.FirebugProtector.prototype.functionWhitelist_ = {
   hasErrorBreakpoint: true,
   lastErrorWindow: true,
   lockDebugger: true,
+  pause: true,
   registerClient: true,
   registerDebugger: true,
   shutdown: true,

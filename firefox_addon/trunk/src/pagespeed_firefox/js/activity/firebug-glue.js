@@ -228,8 +228,31 @@ Firebug.ActivityModule = extend(Firebug.Module, {
   }
 });  // ActivityModule
 
+/**
+ * Create a Firebug ActivableModule so that we can listen to Firebug UI events.
+ * @extends {Firebug.ActivableModule}
+ */
+Firebug.ActivityActivationListener = extend(Firebug.ActivableModule, {
+  onSuspendFirebug: function(context) {
+    activity.ui.performCommand('stopProfiler');
+  },
+});
+
+/**
+ * Create a Firebug DebuggerListener so that we can listen to Firebug
+ * debugger UI events.
+ * @extends {Firebug.DebuggerListener}
+ */
+Firebug.ActivityDebuggerListener = extend(Firebug.DebuggerListener, {
+  onPauseJSDRequested: function(context) {
+    activity.ui.performCommand('stopProfiler');
+  },
+});
+
 Firebug.registerPanel(ActivityPanel);
 Firebug.registerModule(Firebug.ActivityModule);
 TabWatcher.addListener(Firebug.ActivityModule);
+Firebug.registerActivableModule(Firebug.ActivityActivationListener);
+Firebug.Debugger.addListener(Firebug.ActivityDebuggerListener);
 
 }});  // FBL.ns
