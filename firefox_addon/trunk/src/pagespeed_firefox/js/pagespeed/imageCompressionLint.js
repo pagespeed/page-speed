@@ -44,43 +44,22 @@ var COMPRESSED_IMAGE_DIR_NAME = 'page-speed-images';
 var COMPRESSED_IMAGE_DIR_PERMISSIONS = 0755;
 
 /**
- * Data structure to hold the result of an image compression attempt.
+ * Data structure to hold image natural size and scaling information.
  * @constructor
  */
-function ImageCompressionData(url, origSize) {
-  /** @type {string} */
-  this.url = url;
+function ImageScaleData() {
+  /** @type {number} */
+  this.naturalWidth = -1;
 
   /** @type {number} */
-  this.origSize = origSize;
+  this.naturalHeight = -1;
 
   /** @type {number} */
-  this.compressedSize = origSize;
+  this.clientWidth = -1;
+
+  /** @type {number} */
+  this.clientHeight = -1;
 }
-
-/** @type {string?} */
-ImageCompressionData.prototype.compressedUrl = null;
-
-/** @type {number} */
-ImageCompressionData.prototype.naturalWidth = -1;
-
-/** @type {number} */
-ImageCompressionData.prototype.naturalHeight = -1;
-
-/** @type {number} */
-ImageCompressionData.prototype.clientWidth = -1;
-
-/** @type {number} */
-ImageCompressionData.prototype.clientHeight = -1;
-
-/**
- * @param {string} url The url of the compressed version of the image.
- * @param {number} size the size, in bytes, of the compressed image.
- */
-ImageCompressionData.prototype.setCompressible = function(url, size) {
-  this.compressedUrl = url;
-  this.compressedSize = size;
-};
 
 /**
  * @param {number} naturalWidth The actual width of the image.
@@ -88,9 +67,9 @@ ImageCompressionData.prototype.setCompressible = function(url, size) {
  * @param {number} clientWidth The width of the image in the HTML.
  * @param {number} clientHeight The height of the image in the HTML.
  */
-ImageCompressionData.prototype.setResizable = function(
+ImageScaleData.prototype.setResizable = function(
     naturalWidth, naturalHeight, clientWidth, clientHeight) {
-  if (this.isResizable()) {
+  if (this.naturalHeight != -1 || this.naturalWidth != -1) {
     // The image is already known to be resizable. We want to keep
     // track of the largest instance of this image on the page, so
     // check and see if the new client size is larger than the
@@ -100,44 +79,119 @@ ImageCompressionData.prototype.setResizable = function(
       // Sanity check that the size is the same.
       throw new Error('Mismatched width/height parameters!');
     }
-    var currentClientSizePx = this.clientWidth * this.clientHeight;
-    var newClientSizePx = clientWidth * clientHeight;
-    if (currentClientSizePx > newClientSizePx) {
-      // Old size is larger, so don't update.
-      return;
-    }
   }
+
   this.naturalWidth = naturalWidth;
   this.naturalHeight = naturalHeight;
-  this.clientWidth = clientWidth;
-  this.clientHeight = clientHeight;
-};
-
-/**
- * @return {boolean} whether or not the image is losslessly compressible.
- */
-ImageCompressionData.prototype.isCompressible = function() {
-  return this.compressedSize > 0 &&
-      this.origSize > 0 &&
-      this.compressedSize < this.origSize;
+  this.clientWidth = Math.min(Math.max(this.clientWidth, clientWidth),
+                              naturalWidth);
+  this.clientHeight = Math.min(Math.max(this.clientHeight, clientHeight),
+                               naturalHeight);
 };
 
 /**
  * @return {boolean} whether or not the image is resizable.
  */
-ImageCompressionData.prototype.isResizable = function() {
-  var naturalSizePx = this.naturalWidth * this.naturalHeight;
-  var clientSizePx = this.clientWidth * this.clientHeight;
-  return clientSizePx >= 0 &&
-      naturalSizePx >= 0 &&
-      clientSizePx < naturalSizePx;
+ImageScaleData.prototype.isResizable = function() {
+  return (this.clientWidth >= 0 && this.clientHeight >= 0 && 
+          (this.clientWidth < this.naturalWidth || 
+           this.clientHeight < this.naturalHeight));
 };
+
+/**
+ * Find all downsampled images.
+ * @param {Array.<string>} imgs Array of image URLs referenced on
+ *     this page.
+ * @param {ImageDataContainer} results A map from url to ImageData objects.
+ */
+function findResizableImages(imgs, results) {
+  if (!imgs) {
+    return;
+  }
+
+  // Keep track of the least-scaled version of each image on the
+  // page. For instance, if an image appears twice, once unscaled and
+  // another time scaled down, we should not penalize the page, since
+  // they are using the unscaled version somewhere. However, if an
+  // image is used more than once, and is scaled each time, we should
+  // penalize them based on the largest scaled size.
+  for (var img in imgs) {
+    for (var i = 0, len = imgs[img].elements.length; i < len; ++i) {
+      var elem = imgs[img].elements[i];
+      if (elem.tagName != 'IMG') continue;
+
+      if (elem.clientWidth && elem.clientHeight &&
+          elem.naturalWidth && elem.naturalHeight) {
+        var data = results.getData(img);
+        data.setResizable(elem.naturalWidth,
+                          elem.naturalHeight,
+                          elem.clientWidth,
+                          elem.clientHeight);
+      }
+    }
+  }
+}
+
+/**
+ * Data structure to hold the result of an image compression attempt.
+ * @param {string} url The url of the compressed version of the image.
+ * @param {number} size the size, in bytes, of the compressed image.
+ * @constructor
+ */
+function ImageCompressionData(url, size) {
+  /** @type {number} */
+  this.compressedSize = size;
+
+  /** @type {string} */
+  this.compressedUrl = url;
+}
+
+/**
+ * Data structure to hold information about an optimized image.
+ * @constructor
+ */
+function ImageData(url) {
+  /** @type {string} */
+  this.url = url;
+
+  /** @type {number} */
+  this.origSize = PAGESPEED.Utils.getResourceSize(url);
+
+  /** @type {ImageCompressionData?} */
+  this.compressionData = null;
+
+  /** @type {ImageScaleData?} */
+  this.scaleData = null;
+}
+
+/**
+ * @param {ImageCompressionData} compressionData Object that holds
+ * compression data info.
+ */
+ImageData.prototype.setCompressible = function(compressionData) {
+  this.compressionData = compressionData;
+};
+
+/**
+ * @param {number} naturalWidth The actual width of the image.
+ * @param {number} naturalHeight The actual height of the image.
+ * @param {number} clientWidth The width of the image in the HTML.
+ * @param {number} clientHeight The height of the image in the HTML.
+ */
+ImageData.prototype.setResizable = function(
+  naturalWidth, naturalHeight, clientWidth, clientHeight) {
+  if (!this.scaleData) {
+    this.scaleData = new ImageScaleData;
+  }
+  this.scaleData.setResizable(naturalWidth, naturalHeight,
+			      clientWidth, clientHeight);
+}
 
 /**
  * @return {number} the number of bytes saved by compression and
  *     resizing.
  */
-ImageCompressionData.prototype.getBytesSaved = function() {
+ImageData.prototype.getBytesSaved = function() {
   return this.origSize * this.getCompressionAmount();
 };
 
@@ -146,17 +200,22 @@ ImageCompressionData.prototype.getBytesSaved = function() {
  *     (0..1, where 0 indicates not at all, and 1 indicates full
  *     compression down to zero bytes).
  */
-ImageCompressionData.prototype.getCompressionAmount = function() {
+ImageData.prototype.getCompressionAmount = function() {
   var resizingMultiplier = 1;
-  if (this.isResizable()) {
-    var naturalSizePx = this.naturalWidth * this.naturalHeight;
-    var clientSizePx = this.clientWidth * this.clientHeight;
-    resizingMultiplier = clientSizePx / naturalSizePx;
+  var scaleData = this.scaleData;
+  if (scaleData && scaleData.isResizable()) {
+    if (scaleData.clientWidth < scaleData.naturalWidth) {
+      resizingMultiplier *= scaleData.clientWidth / scaleData.naturalWidth;
+    }
+
+    if (scaleData.clientHeight < scaleData.naturalHeight) {
+      resizingMultiplier *= scaleData.clientHeight / scaleData.naturalHeight;
+    }
   }
 
   var compressionMultiplier = 1;
-  if (this.isCompressible()) {
-    compressionMultiplier = this.compressedSize / this.origSize;
+  if (this.compressionData) {
+    compressionMultiplier = this.compressionData.compressedSize / this.origSize;
   }
 
   var savingsMultiplier = resizingMultiplier * compressionMultiplier;
@@ -166,9 +225,9 @@ ImageCompressionData.prototype.getCompressionAmount = function() {
 /**
  * @return {string} A human-readable results string.
  */
-ImageCompressionData.prototype.buildResultString = function() {
-  var resizable = this.isResizable();
-  var compressible = this.isCompressible();
+ImageData.prototype.buildResultString = function() {
+  var resizable = !!this.scaleData && this.scaleData.isResizable();
+  var compressible = !!this.compressionData;
   if (!resizable && !compressible) {
     return '';
   }
@@ -183,15 +242,18 @@ ImageCompressionData.prototype.buildResultString = function() {
     introString = 'Compressing ';
   }
   if (resizable) {
-    var naturalDimensions = [this.naturalWidth, this.naturalHeight].join('x');
-    var clientDimensions = [this.clientWidth, this.clientHeight].join('x');
+    var scaleData = this.scaleData;
+    var naturalDimensions = [scaleData.naturalWidth,
+                             scaleData.naturalHeight].join('x');
+    var clientDimensions = [scaleData.clientWidth,
+                            scaleData.clientHeight].join('x');
     resizeString = ['. The image is scaled in HTML from ',
                     naturalDimensions,
                     ' to ',
                     clientDimensions].join('');
   }
   if (compressible) {
-    compressString = ['. See ', this.compressedUrl].join('');
+    compressString = ['. See ', this.compressionData.compressedUrl].join('');
   }
   return [introString,
           this.url,
@@ -208,31 +270,30 @@ ImageCompressionData.prototype.buildResultString = function() {
 };
 
 /**
- * Object that holds a collection of ImageCompressionData objects.
+ * Object that holds a collection of ImageData objects.
  * @constructor
  */
-function ImageCompressionDataContainer() {
+function ImageDataContainer() {
   this.data_ = {};
 }
 
 /**
  * @param {string} url The url of the image.
  * @param {number} size The size of the image, in bytes.
- * @return {ImageCompressionData} the ImageCompressionData for the
- *     given URL.
+ * @return {ImageData} the ImageData for the given URL.
  */
-ImageCompressionDataContainer.prototype.getData = function(url, size) {
+ImageDataContainer.prototype.getData = function(url) {
   if (!this.data_[url]) {
-    this.data_[url] = new ImageCompressionData(url, size);
+    this.data_[url] = new ImageData(url);
   }
   return this.data_[url];
 };
 
 /**
- * @return {Array.<ImageCompressionData>} Array of all image
+ * @return {Array.<ImageData>} Array of all image
  *     compression results, sorted by bytes saved.
  */
-ImageCompressionDataContainer.prototype.getDataArray = function() {
+ImageDataContainer.prototype.getDataArray = function() {
   var aData = [];
   for (var url in this.data_) {
     aData.push(this.data_[url]);
@@ -347,8 +408,7 @@ function prepareFileForCompression(url, extension) {
 
 /**
  * @param {string} url The URL of the image we're trying to compress.
- * @param {ImageCompressionData} data the result of the compression
- *     attempt.
+ * @param {ImageData} data the result of the compression attempt.
  */
 function tryToCompressImage(url, data) {
   // Get the file extension for the file type we are going to compress
@@ -383,46 +443,11 @@ function tryToCompressImage(url, data) {
   }
 
   data.setCompressible(
-      PAGESPEED.Utils.getUrlForFile(compressedFile), compressedFile.fileSize);
+    new ImageCompressionData(PAGESPEED.Utils.getUrlForFile(compressedFile),
+			     compressedFile.fileSize));
 
   // Make sure the temp file gets deleted when Firefox exits.
   PAGESPEED.Utils.deleteTemporaryFileOnExit(compressedFile);
-}
-
-/**
- * Find all downsampled images.
- * @param {Array.<string>} imgs Array of image URLs referenced on
- *     this page.
- * @param {ImageCompressionDataContainer} results A map from url to
- *     ImageCompressionData objects.
- */
-function findResizableImages(imgs, results) {
-  if (!imgs) {
-    return;
-  }
-
-  // Keep track of the least-scaled version of each image on the
-  // page. For instance, if an image appears twice, once unscaled and
-  // another time scaled down, we should not penalize the page, since
-  // they are using the unscaled version somewhere. However, if an
-  // image is used more than once, and is scaled each time, we should
-  // penalize them based on the largest scaled size.
-  var candidateMap = {};
-  for (var img in imgs) {
-    for (var i = 0, len = imgs[img].elements.length; i < len; ++i) {
-      var elem = imgs[img].elements[i];
-      if (elem.tagName != 'IMG') continue;
-
-      if (elem.clientWidth && elem.clientHeight &&
-          elem.naturalWidth && elem.naturalHeight) {
-        var data = results.getData(img, PAGESPEED.Utils.getResourceSize(img));
-        data.setResizable(elem.naturalWidth,
-                          elem.naturalHeight,
-                          elem.clientWidth,
-                          elem.clientHeight);
-      }
-    }
-  }
 }
 
 /**
@@ -435,8 +460,7 @@ function findResizableImages(imgs, results) {
 function buildImageCompressionCallback(url) {
   return function() {
     try {
-      var data = this.results.getData(
-          url, PAGESPEED.Utils.getResourceSize(url));
+      var data = this.results.getData(url);
       tryToCompressImage(url, data);
     } catch (e) {
       // Unable to compress this image. Could be an animated gif,
@@ -481,7 +505,7 @@ var imageCompressionLint = function() {
     return;
   }
 
-  this.results = new ImageCompressionDataContainer();
+  this.results = new ImageDataContainer();
 
   // For each compressable image, add a function to do the compression.
   for (var i = 0, len = urls.length; i < len; i++) {
