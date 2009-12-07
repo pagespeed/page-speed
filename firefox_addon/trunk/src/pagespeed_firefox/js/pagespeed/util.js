@@ -805,7 +805,14 @@ PAGESPEED.Utils = {  // Begin namespace
    * @return {string} Filename from the original URL without extension.
    */
   getHumanFileName: function(url, opt_blockNum) {
-    var originalFileName = url.substring(url.lastIndexOf('/')+1);
+    var sanitizePath = function(str) {
+      return str.replace(/[^a-zA-Z0-9\.-]/g, '_');
+    };
+
+    var queryStart = url.indexOf('?');
+    var path = (queryStart != -1) ? url.substring(0, queryStart) : url;
+    var originalFileName =
+      sanitizePath(path.substring(path.lastIndexOf('/') + 1));
 
     // Check if originalFileName has extension
     var lastDotIdx = originalFileName.lastIndexOf('.');
@@ -814,7 +821,7 @@ PAGESPEED.Utils = {  // Begin namespace
     }
     if(opt_blockNum){
       originalFileName = [originalFileName,
-                          ' (inline block #', opt_blockNum, ')'
+                          '(inline_block#', opt_blockNum, ')'
                           ].join('');
     }
     return originalFileName;
