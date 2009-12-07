@@ -45,7 +45,8 @@ function buildHtml(formatArray) {
   for (var i = 0, length = formatArray.length; i < length; ++i) {
     var item = formatArray[i];
     if (item.type === "url") {
-      stringParts.push('<a href="', item.value, '">',
+      stringParts.push('<a href="', item.value,
+                       '" onclick="document.openLink(this);return false;">',
                        PAGESPEED.Utils.htmlEscape(item.alt || item.value),
                        '</a>');
     } else if (item.type === "str") {
