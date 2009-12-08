@@ -75,6 +75,27 @@ PAGESPEED.ResultsWriter.openJsonExportDialog = function(resultsContainer) {
 };
 
 /**
+ * Update an export menu item to have the proper text showing where
+ * the scores/results will be sent and enable if appropriate.
+ *
+ * @param {Object} beacon
+ * @param {String} id of the menu item to update
+ * @param {String} message to use for the menu item
+ */
+
+var updateExportMenuItem = function(beacon, menuItemId, message) {
+
+  var menuItem = document.getElementById(menuItemId);
+  if (menuItem) {
+    var domain = beacon.getBeaconDomain();
+    menuItem.setAttribute('collapsed', domain == null);
+    if (domain != null) {
+      menuItem.setAttribute('label', [message, domain].join(''));
+    }
+  }
+};
+
+/**
  * This function enables or disables the "Export Results" menu
  * based on the presence of a resuls object on a tab.
  * @param {Object} data The properties of data we look at are:
@@ -96,15 +117,13 @@ PAGESPEED.ResultsWriter.updateExportMenu = function(data) {
 
   exportMenu.removeAttribute('disabled');
 
-  PAGESPEED.Utils.setItemVisibilityByPref(
-      'extensions.PageSpeed.beacon.minimal.enabled',
-      'psMinimalBeacon'
-      );
+  updateExportMenuItem(PAGESPEED.minimalBeacon,
+		       'psMinimalBeacon',
+		       'Send scores to ');
 
-  PAGESPEED.Utils.setItemVisibilityByPref(
-      'extensions.PageSpeed.beacon.full_results.enabled',
-      'psFullResultsBeacon'
-      );
+  updateExportMenuItem(PAGESPEED.fullResultsBeacon,
+		       'psFullResultsBeacon',
+		       'Send all results to ');
 };
 
 // Do not install callbacks in unit tests because the callback holder will
