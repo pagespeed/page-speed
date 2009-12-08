@@ -27,7 +27,13 @@ namespace rule_provider {
  * Append the core Page Speed rules to the given vector of Rule
  * instances.
  */
-void AppendCoreRules(bool save_optimized_content, std::vector<Rule*> *rules);
+void AppendCoreRules(std::vector<Rule*> *rules);
+
+/**
+ * Append all Page Speed rules to the given vector of Rule
+ * instances.
+ */
+void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules);
 
 }  // namespace rule_provider
 

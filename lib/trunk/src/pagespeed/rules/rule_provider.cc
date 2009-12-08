@@ -27,18 +27,21 @@ namespace pagespeed {
 
 namespace rule_provider {
 
-void AppendCoreRules(bool save_optimized_content,
-                     std::vector<Rule*> *rules) {
+void AppendCoreRules(std::vector<Rule*> *rules) {
   rules->push_back(new rules::AvoidBadRequests());
   rules->push_back(new rules::CombineExternalCSS());
   rules->push_back(new rules::CombineExternalJavaScript());
   rules->push_back(new rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
-  rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
   rules->push_back(new rules::MinimizeDnsLookups());
   rules->push_back(new rules::MinimizeRedirects());
-  rules->push_back(new rules::OptimizeImages(save_optimized_content));
   rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
+}
+
+void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules) {
+  AppendCoreRules(rules);
+  rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
+  rules->push_back(new rules::OptimizeImages(save_optimized_content));
 }
 
 }  // namespace rule_provider
