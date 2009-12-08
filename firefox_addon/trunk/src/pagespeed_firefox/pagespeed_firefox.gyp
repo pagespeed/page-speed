@@ -151,23 +151,16 @@
       ]
     },
     {
-      'target_name': 'pagespeed_firefox_activity',
+      'target_name': 'pagespeed_firefox_activity_common',
       'type': '<(library)',
       'variables': {
         'activity_root': 'cpp/activity',
-        'mozilla_idl_root': '<(DEPTH)/third_party/mozilla/idl',
       },
       'dependencies': [
-        'xulrunner_sdk',
         'pagespeed_firefox_profile_pb',
         '<(DEPTH)/base/base.gyp:base',
       ],
       'sources': [
-        'idl/IActivityProfiler.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_0.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_5.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_6.idl',
-        '<(activity_root)/basic_tree_view.cc',
         '<(activity_root)/call_graph.cc',
         '<(activity_root)/call_graph_metadata.cc',
         '<(activity_root)/call_graph_profile.cc',
@@ -177,11 +170,35 @@
         '<(activity_root)/call_graph_util.cc',
         '<(activity_root)/call_graph_visit_filter_interface.cc',
         '<(activity_root)/call_graph_visitor_interface.cc',
-        '<(activity_root)/check_abort.cc',
-        '<(activity_root)/check_gecko.cc',
         '<(activity_root)/clock.cc',
         '<(activity_root)/delayable_function_tree_view_delegate.cc',
         '<(activity_root)/find_first_invocations_visitor.cc',
+        '<(activity_root)/timer.cc',
+        '<(activity_root)/uncalled_function_tree_view_delegate.cc',
+      ],
+      'include_dirs': [
+        '<(activity_root)',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_firefox_activity_gecko',
+      'type': '<(library)',
+      'variables': {
+        'activity_root': 'cpp/activity',
+        'mozilla_idl_root': '<(DEPTH)/third_party/mozilla/idl',
+      },
+      'dependencies': [
+        'xulrunner_sdk',
+        'pagespeed_firefox_activity_common',
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        'idl/IActivityProfiler.idl',
+        '<(mozilla_idl_root)/jsdIDebuggerService_3_0.idl',
+        '<(mozilla_idl_root)/jsdIDebuggerService_3_5.idl',
+        '<(mozilla_idl_root)/jsdIDebuggerService_3_6.idl',
+        '<(activity_root)/basic_tree_view.cc',
+        '<(activity_root)/check_gecko.cc',
         '<(activity_root)/http_activity_distributor.cc',
         '<(activity_root)/jsd_call_hook.cc',
         '<(activity_root)/jsd_function_info.cc',
@@ -193,8 +210,6 @@
         '<(activity_root)/profiler.cc',
         '<(activity_root)/profiler_event.cc',
         '<(activity_root)/profiler_runnables.cc',
-        '<(activity_root)/timer.cc',
-        '<(activity_root)/uncalled_function_tree_view_delegate.cc',
       ],
       'include_dirs': [
         '<(activity_root)',
@@ -300,6 +315,31 @@
       ],
     },
     {
+      'target_name': 'pagespeed_firefox_activity_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_firefox_activity_common',
+        'pagespeed_firefox_profile_pb',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'sources': [
+        'cpp/activity/call_graph_test.cc',
+        'cpp/activity/call_graph_metadata_test.cc',
+        'cpp/activity/call_graph_profile_test.cc',
+        'cpp/activity/check_abort.cc',
+        'cpp/activity/delayable_function_tree_view_delegate_test.cc',
+        'cpp/activity/find_first_invocations_visitor_test.cc',
+        'cpp/activity/timer_test.cc',
+        'cpp/activity/uncalled_function_tree_view_delegate_test.cc',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
+        'cpp/activity',
+      ],
+    },
+    {
       'target_name': 'pagespeed_firefox_library_rules',
       'type': '<(library)',
       'dependencies': [
@@ -332,7 +372,7 @@
       },
       'dependencies': [
         'xulrunner_sdk',
-        'pagespeed_firefox_activity',
+        'pagespeed_firefox_activity_gecko',
         'pagespeed_firefox_image_compressor',
         'pagespeed_firefox_js_min',
         'pagespeed_firefox_library_rules',
