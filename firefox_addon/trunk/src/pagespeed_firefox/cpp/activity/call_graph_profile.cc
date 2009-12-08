@@ -26,10 +26,12 @@
 #include "call_graph.h"
 #include "call_graph_metadata.h"
 #include "call_graph_profile_snapshot.h"
+#include "check.h"
 #include "clock.h"
 #include "function_info_interface.h"
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+#include "output_stream_interface.h"
 #include "profile.pb.h"
-#include "check.h"
 #include "timer.h"
 
 namespace {
@@ -83,6 +85,30 @@ bool FullMatch(const char *candidate) {
   }
 
   return false;
+}
+
+// Adapter class that provides a CopyingOutputStream interface to an
+// OutputStreamInterface instance.
+class OutputStreamInterfaceAdapter
+    : public ::google::protobuf::io::CopyingOutputStream {
+ public:
+  OutputStreamInterfaceAdapter(activity::OutputStreamInterface *out);
+  virtual ~OutputStreamInterfaceAdapter();
+  virtual bool Write(const void *buffer, int size);
+
+ private:
+  activity::OutputStreamInterface *const out_;
+};
+
+OutputStreamInterfaceAdapter::OutputStreamInterfaceAdapter(
+    activity::OutputStreamInterface *out) : out_(out) {
+}
+
+OutputStreamInterfaceAdapter::~OutputStreamInterfaceAdapter() {
+}
+
+bool OutputStreamInterfaceAdapter::Write(const void *buffer, int size) {
+  return out_->Write(buffer, size);
 }
 
 }  // namespace
@@ -165,10 +191,13 @@ void CallGraphProfile::OnFunctionInstantiated(
       function_instantiation_time_usec);
 }
 
-bool CallGraphProfile::SerializeToFileDescriptor(int fd) const {
+bool CallGraphProfile::SerializeToOutputStream(
+    OutputStreamInterface *out) const {
   GCHECK(!profiling());
-  profile_->SerializeToFileDescriptor(fd);
-  return true;
+  OutputStreamInterfaceAdapter out_stream_adapter(out);
+  ::google::protobuf::io::CopyingOutputStreamAdaptor copy_stream_adaptor(
+      &out_stream_adapter);
+  return profile_->SerializeToZeroCopyStream(&copy_stream_adaptor);
 }
 
 bool CallGraphProfile::ShouldIncludeInProfile(const char *file_name) {

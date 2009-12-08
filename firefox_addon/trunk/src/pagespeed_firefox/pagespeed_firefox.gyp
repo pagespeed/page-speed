@@ -338,6 +338,9 @@
         '<(DEPTH)',
         'cpp/activity',
       ],
+      'defines': [
+        'TEST_DIR_PATH="<(DEPTH)/pagespeed_firefox/cpp/activity/testdata/"',
+      ],
     },
     {
       'target_name': 'pagespeed_firefox_library_rules',

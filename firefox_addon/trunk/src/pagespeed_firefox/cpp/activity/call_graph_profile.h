@@ -34,6 +34,7 @@ class CallGraphMetadata;
 class CallGraphProfileSnapshot;
 class ClockInterface;
 class FunctionInfoInterface;
+class OutputStreamInterface;
 class Profile;
 class Timer;
 
@@ -67,8 +68,8 @@ class CallGraphProfile {
   // parsed, eval'd, or constructed).
   void OnFunctionInstantiated(FunctionInfoInterface *function_info);
 
-  // Serialize the profiling state to the specified file descriptor.
-  bool SerializeToFileDescriptor(int fd) const;
+  // Serialize the profiling state to the specified output stream.
+  bool SerializeToOutputStream(OutputStreamInterface *out) const;
 
   // Should a script from the given URL be included in the profile?
   static bool ShouldIncludeInProfile(const char *file_name);
