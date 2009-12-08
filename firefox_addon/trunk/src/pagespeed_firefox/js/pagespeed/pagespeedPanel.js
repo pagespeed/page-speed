@@ -140,14 +140,14 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                     TR({'class': 'netRow netSummaryRow'},
                        TD({'class': 'netCol',
                            'colspan': '3'},
-                          'Overall performance summary: ',
+                          'Performance summary: ',
                           generateIconHtml(
                               '$overallStyle',
                               CSS_STYLE_SCORE_SIZER_OVERALL_,
                               '$overallSummary'),
-                         SPAN({'style': 'text-align:right'},
-                         INPUT({'type': 'button', 'value': 'Analyze Performance',
-                                'onclick': '$analyzePerformance'}))
+                          '&nbsp;($overallScore/100)&nbsp;&nbsp;',
+                          INPUT({'type': 'button', 'value': 'Refresh Analysis',
+                                'onclick': '$analyzePerformance'})
                          )
                       )
                   )
@@ -191,7 +191,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    *     code (one of PAGESPEED.Utils.SCORE_CODE_*).
    * @return {Object} The domplate arguments object.
    */
-  createTableTagDomplateData: function(overallScoreColorCode) {
+  createTableTagDomplateData: function(overallScoreColorCode, overallScore) {
     var overallSummary = '';
     switch (overallScoreColorCode) {
       case PAGESPEED.Utils.SCORE_CODE_RED:
@@ -208,7 +208,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     }
     return {
       'overallStyle': getStyleForColorCode(overallScoreColorCode),
-      'overallSummary': overallSummary
+      'overallSummary': overallSummary,
+      'overallScore': overallScore
     };
   },
 
@@ -232,7 +233,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
     return {'name': oRule.name,
             'score': (isNaN(oRule.score) ?
-                          oRule.score : 'Score: ' + oRule.score + '%'),
+                          oRule.score : 
+		          'Score: ' + Math.round(oRule.score) + '/100'),
             'href': BASE_LATENCY_DOC_HREF_ + oRule.href,
             'hasDetails': !!details,
             'details': details,

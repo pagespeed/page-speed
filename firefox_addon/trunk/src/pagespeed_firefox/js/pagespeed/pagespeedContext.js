@@ -201,7 +201,7 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
   }
 
   panel.table = panel.tableTag.replace(
-      panel.createTableTagDomplateData(overallScoreColorCode),
+      panel.createTableTagDomplateData(overallScoreColorCode, overallScore),
       panel.panelNode, panel);
 
   var tbody = panel.table.firstChild;
@@ -458,7 +458,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
         PAGESPEED.LintRules.exec(browserOfCurrentTab);
       }
     } catch (e) {
-      logException('PageSpeedModule.showPerformance()', e);
+      logException('PageSpeedModule.analyzePerformance()', e);
     }
   },
 
