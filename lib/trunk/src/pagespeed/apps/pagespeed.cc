@@ -70,7 +70,7 @@ void ProcessInput(const pagespeed::ProtoInput& input_proto,
                   pagespeed::RuleFormatter* formatter) {
   std::vector<pagespeed::Rule*> rules;
   bool save_optimized_content = true;
-  pagespeed::rule_provider::AppendCoreRules(save_optimized_content, &rules);
+  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
 
   // Ownership of rules is transferred to the Engine instance.
   pagespeed::Engine engine(rules);
