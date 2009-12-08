@@ -353,7 +353,10 @@ var imageScaleLint = function() {
       var data = aResults[i];
       origBytes += data.origSize;
       totalWastedBytes += data.getBytesSaved();
-      aWarnings.push(data.buildResultString());
+      var result = data.buildResultString();
+      if (result) {
+        aWarnings.push(result);
+      }
     }
 
     // Compute the score by looping through all image warnings and deducting
@@ -362,8 +365,8 @@ var imageScaleLint = function() {
       if (totalWastedBytes && origBytes) {
         this.score -= 1.5 * parseInt(totalWastedBytes / origBytes * 100, 10);
         this.warnings += [
-	  'The following images are scaled in HTML.  ',
-	  'Serving resized images could save ~',
+          'The following images are scaled in HTML.  ',
+          'Serving resized images could save ~',
           PAGESPEED.Utils.formatBytes(totalWastedBytes),
           ' (',
           PAGESPEED.Utils.formatPercent(
