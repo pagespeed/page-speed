@@ -160,6 +160,20 @@ PAGESPEED.MinimalBeacon.prototype.sendBeacon = function(
   return true;
 };
 
+/**
+ * Get the domain where a beacon will be sent
+ * @return {string} domain where beacon will be sent
+ */
+PAGESPEED.MinimalBeacon.prototype.getBeaconDomain = function() {
+
+  var beaconUrl = this.beaconTraits_.getBeaconUrl();
+  if (beaconUrl) {
+    return PAGESPEED.Utils.getDomainFromUrl(beaconUrl);
+  }
+  return null;
+};
+
+
 PAGESPEED.minimalBeacon = new PAGESPEED.MinimalBeacon();
 
 

@@ -73,6 +73,19 @@ PAGESPEED.FullResultsBeacon.prototype.sendBeacon = function(
   return true;
 };
 
+/**
+ * Get the domain where a beacon will be sent
+ * @return {string} domain where beacon will be sent
+ */
+PAGESPEED.FullResultsBeacon.prototype.getBeaconDomain = function() {
+
+  var beaconUrl = this.beaconTraits_.getBeaconUrl();
+  if (beaconUrl) {
+    return PAGESPEED.Utils.getDomainFromUrl(beaconUrl);
+  }
+  return null;
+};
+
 PAGESPEED.fullResultsBeacon = new PAGESPEED.FullResultsBeacon();
 
 // PAGESPEED.PageSpeedContext may not be defined in unit tests.
