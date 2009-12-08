@@ -140,12 +140,13 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                     TR({'class': 'netRow netSummaryRow'},
                        TD({'class': 'netCol',
                            'colspan': '3'},
-                          'Performance summary: ',
+                          'Performance summary: ' +
+                          '&nbsp;($overallScore/100)&nbsp;&nbsp;',
                           generateIconHtml(
                               '$overallStyle',
                               CSS_STYLE_SCORE_SIZER_OVERALL_,
                               '$overallSummary'),
-                          '&nbsp;($overallScore/100)&nbsp;&nbsp;',
+                          '&nbsp;&nbsp;',
                           INPUT({'type': 'button', 'value': 'Refresh Analysis',
                                 'onclick': '$analyzePerformance'})
                          )
@@ -234,7 +235,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     return {'name': oRule.name,
             'score': (isNaN(oRule.score) ?
                           oRule.score : 
-		          'Score: ' + Math.round(oRule.score) + '/100'),
+                          'Score: ' + Math.round(oRule.score) + '/100'),
             'href': BASE_LATENCY_DOC_HREF_ + oRule.href,
             'hasDetails': !!details,
             'details': details,

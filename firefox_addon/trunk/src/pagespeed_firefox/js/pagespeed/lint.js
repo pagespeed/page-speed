@@ -281,9 +281,9 @@ PAGESPEED.LintRule.prototype.runRule_ = function() {
   this.numDeclaredContinuations_ = -1;
 
   /**
-   * Run a single rule function, and schedual the next one
+   * Run a single rule function, and schedule the next one
    * with setTimeout if there is a next function.  If not,
-   * clip the score and call ruleCompleted() to stary the next rule.
+   * clip the score and call ruleCompleted() to start the next rule.
    */
   var runOneFnAndYield = function() {
     try {

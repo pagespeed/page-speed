@@ -107,7 +107,7 @@
         <spacer width="2px"/>
         <toolbarbutton id="psPerfButton" label="Performance"
                        class="toolbar-text-button" group="pagespeedButtons"
-		       type="radio"
+		       type="radio" checked="true"
                        command="cmd_page_speed_performance"/>
 
         <spacer width="5px"/>
