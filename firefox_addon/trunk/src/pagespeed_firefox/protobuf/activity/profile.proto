@@ -21,6 +21,8 @@
 
 syntax = "proto2";
 
+option optimize_for = LITE_RUNTIME;
+
 package activity;
 
 // A data structure that contains information about a given JavaScript
