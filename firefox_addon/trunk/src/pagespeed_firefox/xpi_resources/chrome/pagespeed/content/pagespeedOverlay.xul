@@ -119,12 +119,14 @@
         <spacer width="2px"/>
         <toolbarbutton id="psPerfButton" label="Performance"
                        class="toolbar-text-button" group="pagespeedButtons"
+		       type="radio"
                        command="cmd_page_speed_performance"/>
 
         <spacer width="5px"/>
 
         <toolbarbutton id="psCompButton" label="Resources"
                        class="toolbar-text-button" group="pagespeedButtons"
+		       type="radio"
                        command="cmd_page_speed_components"/>
 
         <spacer width="5px"/>
