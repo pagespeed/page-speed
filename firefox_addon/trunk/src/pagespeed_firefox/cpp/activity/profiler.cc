@@ -18,8 +18,6 @@
 
 #include "profiler.h"
 
-#include <stdio.h>
-
 #include "basic_tree_view.h"
 #include "call_graph.h"
 #include "call_graph_profile.h"
@@ -31,6 +29,7 @@
 #include "jsd_call_hook.h"
 #include "jsd_script_hook.h"
 #include "jsd_wrapper.h"
+#include "output_stream_interface.h"
 #include "profiler_runnables.h"
 #include "uncalled_function_tree_view_delegate.h"
 
@@ -38,13 +37,63 @@
 #include "nsILocalFile.h"
 #include "nsIThread.h"
 #include "nsIThreadManager.h"
+#include "nsNetUtil.h"
 #include "nsServiceManagerUtils.h"
 #include "nsStringAPI.h"
 
 NS_IMPL_ISUPPORTS1(activity::Profiler, IActivityProfiler)
 
 namespace {
+
 const char* kThreadManagerContactStr = "@mozilla.org/thread-manager;1";
+
+// Implementation of OutputStreamInterface that writes to an
+// nsILocalFile instance.
+class FileOutputStream : public activity::OutputStreamInterface {
+ public:
+  virtual ~FileOutputStream() {}
+
+  bool Init(nsILocalFile *target);
+  bool Close();
+
+  // Implement OutputStreamInterface
+  virtual bool Write(const void *buffer, size_t size);
+
+ private:
+  nsCOMPtr<nsIOutputStream> out_;
+};
+
+bool FileOutputStream::Init(nsILocalFile *target) {
+  nsresult rv = NS_NewLocalFileOutputStream(getter_AddRefs(out_), target);
+  if (NS_FAILED(rv)) {
+    out_ = NULL;
+    return false;
+  }
+
+  return true;
+}
+
+bool FileOutputStream::Write(const void *buffer, size_t size) {
+  PRUint32 num_written = 0;
+  nsresult rv = out_->Write(static_cast<const char*>(buffer),
+                            size,
+                            &num_written);
+  if (NS_FAILED(rv) || num_written != size) {
+    return false;
+  }
+
+  return true;
+}
+
+bool FileOutputStream::Close() {
+  nsresult rv = out_->Close();
+  if (NS_FAILED(rv)) {
+    return false;
+  }
+
+  return true;
+}
+
 }  // namespace
 
 namespace activity {
@@ -186,22 +235,18 @@ NS_IMETHODIMP Profiler::Dump(nsILocalFile *target) {
     return NS_ERROR_INVALID_ARG;
   }
 
-  FILE *file = NULL;
-  nsresult rv = target->OpenANSIFileDesc("w", &file);
-  if (NS_FAILED(rv)) {
-    return rv;
-  }
-  int fd = fileno(file);
-  if (fd < 0) {
+  FileOutputStream output_stream;
+  if (!output_stream.Init(target)) {
     return NS_ERROR_FAILURE;
   }
 
-  profile_->SerializeToFileDescriptor(fd);
-  rv = NS_OK;
-  if (ferror(file) != 0) {
-    rv = NS_ERROR_UNEXPECTED;
+  nsresult rv = NS_OK;
+  if (!profile_->SerializeToOutputStream(&output_stream)) {
+    rv = NS_ERROR_FAILURE;
   }
-  fclose(file);
+  if (!output_stream.Close()) {
+    rv = NS_ERROR_FAILURE;
+  }
   return rv;
 }
 

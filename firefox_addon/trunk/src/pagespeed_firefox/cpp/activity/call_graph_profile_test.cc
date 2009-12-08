@@ -18,14 +18,20 @@
 //
 // Verify CallGraphProfile behavior.
 
+#include <fstream>
+#include <string>
+
 #include "base/scoped_ptr.h"
 #include "call_graph.h"
 #include "call_graph_profile.h"
 #include "clock.h"
+#include "output_stream_interface.h"
 #include "profile.pb.h"
 #include "test_stub_function_info.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
+
+namespace {
 
 class CallGraphProfileTest : public testing::Test {
  protected:
@@ -53,7 +59,34 @@ class CallGraphProfileTest : public testing::Test {
   scoped_ptr<activity::CallGraphProfile> profile_;
 };
 
-namespace {
+class StringAccumulator : public activity::OutputStreamInterface {
+ public:
+  StringAccumulator(std::string* buffer)
+      : buffer_(buffer) {
+  }
+
+  virtual ~StringAccumulator() {}
+
+  virtual bool Write(const void *buffer, size_t size) {
+    buffer_->append(static_cast<const char*>(buffer), size);
+    return true;
+  }
+
+ private:
+  std::string* const buffer_;
+};
+
+void ReadFileToString(const char* dir,
+                      const char* file_name,
+                      std::string* dest) {
+  std::string path = dir;
+  path += file_name;
+  std::ifstream file_stream;
+  file_stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
+  dest->assign(std::istreambuf_iterator<char>(file_stream),
+               std::istreambuf_iterator<char>());
+  file_stream.close();
+}
 
 TEST_F(CallGraphProfileTest, OnFunctionEntryExitFailsWhenNotProfiling) {
   ASSERT_DEATH(OnFunctionEntry(), "Check failed: profiling\\(\\)");
@@ -67,8 +100,28 @@ TEST_F(CallGraphProfileTest, OnFunctionExitFailsWithNoWorkingSet) {
 
 TEST_F(CallGraphProfileTest, SerializeFailsWhenProfiling) {
   profile_->Start();
-  ASSERT_DEATH(profile_->SerializeToFileDescriptor(-1),
+  ASSERT_DEATH(profile_->SerializeToOutputStream(NULL),
                "Check failed: !profiling\\(\\)");
+}
+
+TEST_F(CallGraphProfileTest, SerializeToOutputStream) {
+  // Read the expected binary encoded call graph profile into memory.
+  std::string expected;
+  ReadFileToString(TEST_DIR_PATH,
+                   "binary_encoded_call_graph_profile.pb",
+                   &expected);
+  ASSERT_LT(0, expected.size()) << "Failed to read golden file.";
+
+  // Build the equivalent call graph profile structure and serialize it.
+  profile_->Start();
+  OnFunctionEntry();
+  OnFunctionExit(1);
+  profile_->Stop();
+  std::string buffer;
+  StringAccumulator accumulator(&buffer);
+  ASSERT_TRUE(profile_->SerializeToOutputStream(&accumulator));
+
+  ASSERT_EQ(expected, buffer) << "Unexpected SerializeToOutputStream output.";
 }
 
 TEST_F(CallGraphProfileTest, LastParitalCallTreeGetsRemoved) {
