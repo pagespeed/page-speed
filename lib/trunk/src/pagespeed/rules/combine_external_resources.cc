@@ -131,7 +131,7 @@ const char* CombineExternalJavaScript::header() const {
 }
 
 const char* CombineExternalJavaScript::documentation_url() const {
-  return "rtt.html#CombineJSandCSS";
+  return "rtt.html#CombineExternalJS";
 }
 
 CombineExternalCSS::CombineExternalCSS()
@@ -147,7 +147,7 @@ const char* CombineExternalCSS::header() const {
 }
 
 const char* CombineExternalCSS::documentation_url() const {
-  return "rtt.html#CombineJSandCSS";
+  return "rtt.html#CombineExternalCSS";
 }
 
 }  // namespace rules
