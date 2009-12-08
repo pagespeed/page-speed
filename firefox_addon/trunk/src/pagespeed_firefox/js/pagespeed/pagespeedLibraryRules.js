@@ -94,8 +94,7 @@ function buildLintRuleResults(results) {
     for (var i = 0; i < results.length; ++i) {
       var result = results[i];
       lintRules.push({
-        // TODO Remove the "LIBRARY: " prefix eventually.
-        name: "LIBRARY: " + buildHtml(result.format),
+        name: buildHtml(result.format),
         score: result.score,
         weight: 3,
         href: result.url || '',
