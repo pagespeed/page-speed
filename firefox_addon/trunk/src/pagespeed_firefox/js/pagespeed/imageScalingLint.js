@@ -178,7 +178,7 @@ ImageData.prototype.buildResultString = function() {
 
   var scaleData = this.scaleData;
   return [this.url,
-	  'is scaled in HTML from ',
+	  ' is scaled in HTML from ',
 	  scaleData.naturalWidth,
 	  'x',
           scaleData.naturalHeight,
