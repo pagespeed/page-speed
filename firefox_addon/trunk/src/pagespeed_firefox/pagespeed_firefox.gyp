@@ -107,7 +107,7 @@
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
         '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
       ],
       'actions': [
@@ -147,7 +147,7 @@
         ],
       },
       'export_dependent_settings': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
       ]
     },
     {
