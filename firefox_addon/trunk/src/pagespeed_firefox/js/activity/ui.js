@@ -654,9 +654,7 @@ activity.ui.updateUi_ = function() {
   var showAdvancedJsButtons =
       activity.ui.enableJsProfiling_ && activity.ui.collectFullCallTrees_;
 
-  // Disable saving on Windows, until we fix the Windows-only crash
-  // in protobuf SerializeToFileDescriptor().
-  activitySaveButton.collapsed = activity.ui.isOsWindows_() ||
+  activitySaveButton.collapsed =
       !activity.ui.enableJsProfiling_ || !showAdvancedJsButtons;
 
   activityShowUncalledButton.collapsed = !showAdvancedJsButtons;
@@ -753,17 +751,6 @@ activity.ui.getPlatformName_ = function() {
     activity.ui.XUL_RUNTIME_APP_INFO_CONTRACT_ID_,
     activity.ui.XUL_RUNTIME_INTERFACE_NAME_);
   return xulRuntime.OS + '_' + xulRuntime.XPCOMABI;
-};
-
-/**
- * @return {boolean} whether the current OS is windows.
- * @private
- */
-activity.ui.isOsWindows_ = function() {
-  var xulRuntime = activity.xpcom.CCSV(
-    activity.ui.XUL_RUNTIME_APP_INFO_CONTRACT_ID_,
-    activity.ui.XUL_RUNTIME_INTERFACE_NAME_);
-  return (xulRuntime.OS == 'WINNT');
 };
 
 /**
