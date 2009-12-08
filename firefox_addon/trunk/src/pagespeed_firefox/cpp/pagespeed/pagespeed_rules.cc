@@ -43,6 +43,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
 #include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/rule_provider.h"
 
 namespace pagespeed {
@@ -154,7 +155,8 @@ PageSpeedRules::ComputeAndFormatResults(const char *data,
   AppendInputStreamsContents(input_streams, &contents);
 
   std::vector<Rule*> rules;
-  rule_provider::AppendCoreRules(true, &rules);
+  rule_provider::AppendCoreRules(&rules);
+  rules.push_back(new rules::OptimizeImages(true));
 
   Engine engine(rules);  // Ownership of rules is transferred to engine.
   engine.Init();
