@@ -27,7 +27,7 @@ namespace activity {
 
 void CheckImpl(const char *expr, const char *file, int line) {
   fprintf(stderr, "Check failed: %s (%s:%d)\n", expr, file, line);
-  abort();
+  exit(-1);
 }
 
 }  // namespace activity
