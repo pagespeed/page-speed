@@ -104,7 +104,7 @@ PAGESPEED.LintRules.registerLintRule(
   new PAGESPEED.LintRule(
     'Combine external JavaScript',
     PAGESPEED.RTT_GROUP,
-    'rtt.html#CombineJSandCSS',
+    'rtt.html#CombineExternalJS',
     combineScriptsLint,
     3.75,
     'CombineJS'
@@ -115,7 +115,7 @@ PAGESPEED.LintRules.registerLintRule(
   new PAGESPEED.LintRule(
     'Combine external CSS',
     PAGESPEED.RTT_GROUP,
-    'rtt.html#CombineJSandCSS',
+    'rtt.html#CombineExternalCSS',
     combineStylesLint,
     2.25,
     'CombineCSS'
