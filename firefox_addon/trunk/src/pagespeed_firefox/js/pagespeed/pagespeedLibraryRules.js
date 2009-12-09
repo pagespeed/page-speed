@@ -82,6 +82,18 @@ function formatChildren(children, opt_grand) {
   }
 }
 
+// See http://code.google.com/p/page-speed/wiki/BeaconDocs
+var shortNameTranslationTable = {
+  CombineExternalCSS: 'CombineCSS',
+  CombineExternalJavaScript: 'CombineJS',
+  EnableGzipCompression: 'Gzip',
+  MinifyJavaScript: 'MinifyJS',
+  MinimizeDnsLookups: 'MinDns',
+  MinimizeRedirects: 'MinRedirect',
+  OptimizeImages: 'OptImgs',
+  ServeResourcesFromAConsistentUrl: 'DupeRsrc'
+};
+
 /**
  * Given a list of result objects from the PageSpeedRules, create an array of
  * objects that look like LintRules.
@@ -95,11 +107,13 @@ function buildLintRuleResults(results) {
       var result = results[i];
       lintRules.push({
         name: buildHtml(result.format),
+        shortName: shortNameTranslationTable[result.name] || result.name,
         score: result.score,
         weight: 3,
         href: result.url || '',
         warnings: formatChildren(result.children),
-        information: null
+        information: null,
+        getStatistics: function () { return result.stats || {}; }
       });
     }
   }

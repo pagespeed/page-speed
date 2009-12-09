@@ -40,9 +40,6 @@
 PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
   this.browserTab_ = browserTab;
 
-  var win = browserTab.contentWindow;
-  var lintRules = PAGESPEED.LintRules.lintRules;
-
   // results_ holds all information this class will store,
   // in a format that can be JSON.stringify()ed.
   this.results_ = {
@@ -54,7 +51,7 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
     pageSpeed: PAGESPEED.Utils.getPageSpeedVersion(),
     firebug: PAGESPEED.DEPENDENCIES['Firebug']['installedVersion'],
     firefox: PAGESPEED.Utils.getFirefoxVersion(),
-    userAgent: win.navigator.userAgent
+    userAgent: browserTab.contentWindow.navigator.userAgent
   };
 
   // Store statistics about the page:
@@ -72,6 +69,8 @@ PAGESPEED.ResultsContainer = function(browserTab, overallScore) {
 
   // For each lint rule, save an object holding the rule name, score,
   // and any other rule-specific information.
+  var lintRules = PAGESPEED.LintRules.lintRules.concat(
+    PAGESPEED.LintRules.nativeRuleResults);
   var ruleResults = [];
   for (var i = 0, len = lintRules.length; i < len; i++) {
     var lintRule = lintRules[i];

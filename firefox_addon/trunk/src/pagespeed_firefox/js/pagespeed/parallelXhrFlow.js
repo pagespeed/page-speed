@@ -224,6 +224,6 @@ PAGESPEED.XhrRequest.prototype.send = function() {
   if (this.data) {
     oXhr.send(this.data);
   } else {
-    oXhr.send();
+    oXhr.send('');
   }
 };
