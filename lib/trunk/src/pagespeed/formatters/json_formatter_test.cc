@@ -30,7 +30,7 @@ class DummyTestRule : public pagespeed::Rule {
  public:
   explicit DummyTestRule(const char* header) : header_(header) {}
 
-  virtual const char* name() const { return "Dummy Test Rule"; }
+  virtual const char* name() const { return "DummyTestRule"; }
   virtual const char* header() const { return header_; }
   virtual const char* documentation_url() const { return "doc.html"; }
   virtual bool AppendResults(const pagespeed::PagespeedInput& input,
@@ -75,6 +75,7 @@ TEST(JsonFormatterTest, BasicHeaderTest) {
   std::string result = output.str();
   EXPECT_EQ("[\n"
             "{\"format\":[{\"type\":\"str\",\"value\":\"head\"}],"
+            "\"name\":\"DummyTestRule\","
             "\"score\":42,"
             "\"url\":\"doc.html\","
             "\"children\":[\n"
@@ -82,6 +83,7 @@ TEST(JsonFormatterTest, BasicHeaderTest) {
             "{\"format\":[{\"type\":\"str\",\"value\":\"bar\"}]}]"
             "},\n"
             "{\"format\":[{\"type\":\"str\",\"value\":\"head2\"}],"
+            "\"name\":\"DummyTestRule\","
             "\"score\":23,"
             "\"url\":\"doc.html\"}"
             "]\n",
