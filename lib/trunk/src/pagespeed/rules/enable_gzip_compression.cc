@@ -57,7 +57,7 @@ const char* GzipMinifier::name() const {
 }
 
 const char* GzipMinifier::header_format() const {
-  return "Enable gzip compression";
+  return "Enable compression";
 }
 
 const char* GzipMinifier::documentation_url() const {
