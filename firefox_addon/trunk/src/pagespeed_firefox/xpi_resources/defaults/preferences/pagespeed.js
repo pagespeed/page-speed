@@ -8,6 +8,5 @@ pref('extensions.PageSpeed.show_all_user_agents', false);
 pref('extensions.PageSpeed.beacon.minimal.url', 
      'http://www.showslow.com/beacon/pagespeed/');
 pref('extensions.PageSpeed.beacon.minimal.enabled', true);
-pref('extensions.PageSpeed.beacon.full_results.url', 
-     'http://www.showslow.com/beacon/pagespeed/');
+pref('extensions.PageSpeed.beacon.full_results.url', '');
 pref('extensions.PageSpeed.beacon.full_results.enabled', true);
