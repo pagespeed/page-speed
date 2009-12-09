@@ -22,61 +22,6 @@
 (function() {  // Begin closure
 
 /**
- * Data structure to hold image natural size and scaling information.
- * @constructor
- */
-function ImageScaleData() {
-  /** @type {number} */
-  this.naturalWidth = -1;
-
-  /** @type {number} */
-  this.naturalHeight = -1;
-
-  /** @type {number} */
-  this.clientWidth = -1;
-
-  /** @type {number} */
-  this.clientHeight = -1;
-}
-
-/**
- * @param {number} naturalWidth The actual width of the image.
- * @param {number} naturalHeight The actual height of the image.
- * @param {number} clientWidth The width of the image in the HTML.
- * @param {number} clientHeight The height of the image in the HTML.
- */
-ImageScaleData.prototype.setResizable = function(
-    naturalWidth, naturalHeight, clientWidth, clientHeight) {
-  if (this.naturalHeight != -1 || this.naturalWidth != -1) {
-    // The image is already known to be resizable. We want to keep
-    // track of the largest instance of this image on the page, so
-    // check and see if the new client size is larger than the
-    // previously recorded client size.
-    if (naturalHeight != this.naturalHeight ||
-        naturalWidth != this.naturalWidth) {
-      // Sanity check that the size is the same.
-      throw new Error('Mismatched width/height parameters!');
-    }
-  }
-
-  this.naturalWidth = naturalWidth;
-  this.naturalHeight = naturalHeight;
-  this.clientWidth = Math.min(Math.max(this.clientWidth, clientWidth),
-                              naturalWidth);
-  this.clientHeight = Math.min(Math.max(this.clientHeight, clientHeight),
-                               naturalHeight);
-};
-
-/**
- * @return {boolean} whether or not the image is resizable.
- */
-ImageScaleData.prototype.isResizable = function() {
-  return (this.clientWidth >= 0 && this.clientHeight >= 0 && 
-          (this.clientWidth < this.naturalWidth || 
-           this.clientHeight < this.naturalHeight));
-};
-
-/**
  * Find all downsampled images.
  * @param {Array.<string>} imgs Array of image URLs referenced on
  *     this page.
@@ -111,7 +56,7 @@ function findResizableImages(imgs, results) {
 }
 
 /**
- * Data structure to hold information about an optimized image.
+ * Data structure to hold image natural size and scaling information.
  * @constructor
  */
 function ImageData(url) {
@@ -121,9 +66,31 @@ function ImageData(url) {
   /** @type {number} */
   this.origSize = PAGESPEED.Utils.getResourceSize(url);
 
-  /** @type {ImageScaleData?} */
-  this.scaleData = null;
+  /** @type {number} */
+  this.naturalWidth = -1;
+
+  /** @type {number} */
+  this.naturalHeight = -1;
+
+  /** @type {number} */
+  this.clientWidth = -1;
+
+  /** @type {number} */
+  this.clientHeight = -1;
+
+  /** @type {boolean} */
+  this.sizeMismatchFound = false;
 }
+
+/**
+ * @return {boolean} whether or not the image is resizable.
+ */
+ImageData.prototype.isResizable = function() {
+  return (!this.sizeMismatchFound && 
+	  this.clientWidth >= 0 && this.clientHeight >= 0 && 
+          (this.clientWidth < this.naturalWidth || 
+           this.clientHeight < this.naturalHeight));
+};
 
 /**
  * @param {number} naturalWidth The actual width of the image.
@@ -132,13 +99,30 @@ function ImageData(url) {
  * @param {number} clientHeight The height of the image in the HTML.
  */
 ImageData.prototype.setResizable = function(
-  naturalWidth, naturalHeight, clientWidth, clientHeight) {
-  if (!this.scaleData) {
-    this.scaleData = new ImageScaleData;
+    naturalWidth, naturalHeight, clientWidth, clientHeight) {
+  if (this.naturalHeight != -1 || this.naturalWidth != -1) {
+    // The image is already known to be resizable.  Make sure that the
+    // natural dimensions match what we recorded last time.  If they
+    // do not, flag the mismatch as an error condition to mark the
+    // image as not-resizable.
+    if (naturalHeight != this.naturalHeight ||
+        naturalWidth != this.naturalWidth) {
+      // Log size mismatches.
+      PS_LOG('Mismatched width/height parameters while processing ',
+	     this.url, '. Got ', naturalWidth, 'x', naturalHeight,
+	     ' Expected ', this.naturalWidth, 'x', this.naturalHeight);
+      this.sizeMismatchFound = true;
+      return;
+    }
   }
-  this.scaleData.setResizable(naturalWidth, naturalHeight,
-			      clientWidth, clientHeight);
-}
+
+  this.naturalWidth = naturalWidth;
+  this.naturalHeight = naturalHeight;
+  this.clientWidth = Math.min(Math.max(this.clientWidth, clientWidth),
+                              naturalWidth);
+  this.clientHeight = Math.min(Math.max(this.clientHeight, clientHeight),
+                               naturalHeight);
+};
 
 /**
  * @return {number} the number of bytes saved by compression and
@@ -155,13 +139,12 @@ ImageData.prototype.getBytesSaved = function() {
  */
 ImageData.prototype.getCompressionAmount = function() {
   var resizingMultiplier = 1;
-  var scaleData = this.scaleData;
-  if (scaleData && scaleData.isResizable()) {
-    if (scaleData.clientWidth < scaleData.naturalWidth) {
-      resizingMultiplier *= scaleData.clientWidth / scaleData.naturalWidth;
+  if (this && this.isResizable()) {
+    if (this.clientWidth < this.naturalWidth) {
+      resizingMultiplier *= this.clientWidth / this.naturalWidth;
     }
-    if (scaleData.clientHeight < scaleData.naturalHeight) {
-      resizingMultiplier *= scaleData.clientHeight / scaleData.naturalHeight;
+    if (this.clientHeight < this.naturalHeight) {
+      resizingMultiplier *= this.clientHeight / this.naturalHeight;
     }
   }
   return 1 - resizingMultiplier;
@@ -171,21 +154,20 @@ ImageData.prototype.getCompressionAmount = function() {
  * @return {string} A human-readable results string.
  */
 ImageData.prototype.buildResultString = function() {
-  var resizable = !!this.scaleData && this.scaleData.isResizable();
+  var resizable = this.isResizable();
   if (!resizable) {
     return '';
   }
 
-  var scaleData = this.scaleData;
   return [this.url,
 	  ' is scaled in HTML from ',
-	  scaleData.naturalWidth,
+	  this.naturalWidth,
 	  'x',
-          scaleData.naturalHeight,
+          this.naturalHeight,
           ' to ',
-	  scaleData.clientWidth,
+	  this.clientWidth,
 	  'x',
-          scaleData.clientHeight,
+          this.clientHeight,
           '.  Serving a resized image could save ~',
           PAGESPEED.Utils.formatBytes(this.getBytesSaved()),
           ' (',
