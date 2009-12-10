@@ -126,7 +126,7 @@
                        disabled="true">
           <menupopup>
             <menuitem id="psJsonExport"
-                      label="Write Results in JSON format"
+                      label="Write Results in JSON Format"
                       command="cmd_page_speed_json_export"/>
             <menuitem id="psMinimalBeacon"
                       label="Send scores to service"

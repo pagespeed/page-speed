@@ -119,11 +119,11 @@ PAGESPEED.ResultsWriter.updateExportMenu = function(data) {
 
   updateExportMenuItem(PAGESPEED.minimalBeacon,
 		       'psMinimalBeacon',
-		       'Send scores to ');
+		       'Send Scores to ');
 
   updateExportMenuItem(PAGESPEED.fullResultsBeacon,
 		       'psFullResultsBeacon',
-		       'Send all results to ');
+		       'Send Full Results to ');
 };
 
 // Do not install callbacks in unit tests because the callback holder will
