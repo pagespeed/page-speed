@@ -1,4 +1,4 @@
-Explains how to build the Page Speed native shared libraries, which use a gyp-based build system similar to the one used to build Chromium.
+#summary Explains how to build the Page Speed native shared libraries, which use a gyp-based build system similar to the one used to build Chromium.
 
 = Prerequisites =
 
