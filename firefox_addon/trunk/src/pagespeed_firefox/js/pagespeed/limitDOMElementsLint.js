@@ -96,7 +96,7 @@ var limitDOMElementsRule = function() {
 
 PAGESPEED.LintRules.registerLintRule(
   new PAGESPEED.LintRule(
-    'Limit number of DOM elements',
+    'Limit the number of DOM elements',
     PAGESPEED.RENDERING_GROUP,
     'rendering.html#LimitDOMElements',
     limitDOMElementsRule,
