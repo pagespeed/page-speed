@@ -103,7 +103,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
   // Initial domplate that is displayed when the panel is opened.
   welcomePageTag:
-      DIV({'class': 'moduleManagerBox'},
+      DIV({'class': 'moduleManagerBox',
+           'style': 'padding: 0 10px;'},
           H1({'class': 'moduleManagerHead'},
              'Page Speed'
             ),
@@ -139,9 +140,10 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                   TBODY(
                     TR({'class': 'netRow netSummaryRow'},
                        TD({'class': 'netCol',
-                           'colspan': '3'},
-                          'Performance summary: ' +
-                          '&nbsp;($overallScore/100)&nbsp;&nbsp;',
+                           'colspan': '3',
+                           'style': 'padding: 0 10px;'},
+                          'Performance summary:' +
+                          '&nbsp;$overallScore/100&nbsp;&nbsp;',
                           generateIconHtml(
                               '$overallStyle',
                               CSS_STYLE_SCORE_SIZER_OVERALL_,
