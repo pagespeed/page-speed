@@ -160,7 +160,7 @@ ImageData.prototype.buildResultString = function() {
   }
 
   return [this.url,
-	  ' is scaled in HTML from ',
+	  ' is scaled in HTML or CSS from ',
 	  this.naturalWidth,
 	  'x',
           this.naturalHeight,
@@ -347,7 +347,7 @@ var imageScaleLint = function() {
       if (totalWastedBytes && origBytes) {
         this.score -= 1.5 * parseInt(totalWastedBytes / origBytes * 100, 10);
         this.warnings += [
-          'The following images are scaled in HTML.  ',
+          'The following images are scaled in HTML or CSS.  ',
           'Serving resized images could save ~',
           PAGESPEED.Utils.formatBytes(totalWastedBytes),
           ' (',
