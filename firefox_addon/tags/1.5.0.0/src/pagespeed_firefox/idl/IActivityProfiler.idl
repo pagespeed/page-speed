@@ -1,0 +1,100 @@
+/**
+ * Copyright 2008-2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// XPCom interface implemented by activity panel.  It provides
+// facilities to start/stop data collection and serialization.
+
+#include "nsISupports.idl"
+
+interface IActivityProfilerEvent;
+interface IActivityProfilerTimelineEventCallback;
+interface nsIArray;
+interface nsILocalFile;
+interface nsITreeView;
+
+[scriptable, uuid(d294531d-45d4-43cb-ad14-9d891623f86b)]
+interface IActivityProfiler : nsISupports
+{
+  // start data collection
+  void register(
+      in long long start_time_usec,
+      in boolean collect_full_call_trees);
+
+  // stop data collection
+  void unregister();
+
+  const short NOT_STARTED = 0;
+  const short PROFILING = 1;
+  const short FINISHED = 2;
+
+  // get the current state of this profiler.
+  short getState();
+
+  // has the profiler encountered an error?
+  boolean hasError();
+
+  // serialize list of CallTree protocol buffers and associated
+  // metadata to a file
+  void dump(in nsILocalFile file);
+
+  // get the javascript timeline events for the given time period,
+  // with the given time resolution.
+  void getTimelineEvents(
+      in long long start_time_usec,
+      in long long end_time_usec,
+      in long long resolution_usec,
+      in IActivityProfilerTimelineEventCallback callback);
+
+  // get the tree view that lists uncalled functions.
+  nsITreeView getUncalledFunctionsTreeView();
+
+  // get the tree view that lists delayable functions.
+  nsITreeView getDelayableFunctionsTreeView();
+
+  // get the current time (since epoch), in microseconds.
+  long long getCurrentTimeUsec();
+};
+
+[scriptable, uuid(fe883040-b8c3-46e3-b20b-03b8b246f714)]
+interface IActivityProfilerEvent : nsISupports
+{
+  const short UNKNOWN = 0;
+  const short JS_PARSE = 1;
+  const short JS_EXECUTE = 2;
+
+  // get the identifier for this event (e.g. the URL of the file
+  // associated with this event).
+  string getIdentifier();
+
+  // get the start time of the event, in microseconds.
+  long long getStartTimeUsec();
+
+  // get the duration of this event, in microseconds.
+  long long getDurationUsec();
+
+  // get the intensity of this event. the maximum value of the
+  // intensity is dependent on the event type.
+  long long getIntensity();
+
+  // get the type of the event.
+  short getType();
+};
+
+[scriptable, uuid(de2bac86-47c6-4d90-8202-09233be6a678)]
+interface IActivityProfilerTimelineEventCallback : nsISupports
+{
+  void processTimelineEvents(in nsIArray events);
+};
