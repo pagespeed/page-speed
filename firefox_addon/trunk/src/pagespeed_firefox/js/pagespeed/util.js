@@ -329,39 +329,15 @@ PAGESPEED.Utils = {  // Begin namespace
 
   /**
    * Get a version of the URL that is suitable for display in the UI
-   * (50 characters or less).
+   * (~100 characters or less).
    * @param {string} fullUrl The URL to get a display URL for.
    * @return {string} The display URL for this URL.
    */
   getDisplayUrl: function(fullUrl) {
-    var MAX_LINK_TEXT_LEN = 50;
-    if (!fullUrl || fullUrl.length == 0) {
-      return fullUrl;
-    }
-
-    var fullUrlLength = fullUrl.length;
-    var linkText = fullUrl;
-    if (linkText.indexOf('http') == 0 &&
-        fullUrlLength > MAX_LINK_TEXT_LEN) {
-      // First see if the entire path fits within the allocated space.
-      var startPoint = linkText.indexOf('://');
-      startPoint = linkText.indexOf('/', startPoint + 3);
-      if (fullUrlLength - startPoint > MAX_LINK_TEXT_LEN) {
-        var startSearchIndex = linkText.indexOf('?');
-        if (startSearchIndex == -1) startSearchIndex = linkText.length;
-        // If the entire path doesn't fit, try to fit just the filename.
-        var lastSlashIndex = linkText.lastIndexOf('/', startSearchIndex);
-        if (lastSlashIndex > startPoint) {
-          startPoint = lastSlashIndex + 1;
-        }
-      }
-      linkText = linkText.substring(startPoint);
-      if (linkText.length > MAX_LINK_TEXT_LEN) {
-        // If the URL is still too long, ellipsize it.
-        linkText = linkText.substring(0, MAX_LINK_TEXT_LEN) + '...';
-      }
-    }
-    return linkText;
+    var MAX_LINK_TEXT_LEN = 100;
+    return (fullUrl.length > MAX_LINK_TEXT_LEN ?
+            fullUrl.substring(0, MAX_LINK_TEXT_LEN) + '...' :
+            fullUrl);
   },
 
   /**
