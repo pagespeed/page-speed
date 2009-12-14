@@ -27,17 +27,17 @@
  *     this page.
  * @param {ImageDataContainer} results A map from url to ImageData objects.
  */
-function findResizableImages(imgs, results) {
+function findResizedImages(imgs, results) {
   if (!imgs) {
     return;
   }
 
-  // Keep track of the least-scaled version of each image on the
-  // page. For instance, if an image appears twice, once unscaled and
-  // another time scaled down, we should not penalize the page, since
-  // they are using the unscaled version somewhere. However, if an
-  // image is used more than once, and is scaled each time, we should
-  // penalize them based on the largest scaled size.
+  // Keep track of the least-resized version of each image on the
+  // page. For instance, if an image appears twice, once not resized and
+  // another time resized down, we should not penalize the page, since
+  // they are using the non-resized version somewhere. However, if an
+  // image is used more than once, and is resized each time, we should
+  // penalize them based on the largest resized size.
   for (var img in imgs) {
     for (var i = 0, len = imgs[img].elements.length; i < len; ++i) {
       var elem = imgs[img].elements[i];
@@ -46,10 +46,10 @@ function findResizableImages(imgs, results) {
       if (elem.clientWidth && elem.clientHeight &&
           elem.naturalWidth && elem.naturalHeight) {
         var data = results.getData(img);
-        data.setResizable(elem.naturalWidth,
-                          elem.naturalHeight,
-                          elem.clientWidth,
-                          elem.clientHeight);
+        data.setResized(elem.naturalWidth,
+                        elem.naturalHeight,
+                        elem.clientWidth,
+                        elem.clientHeight);
       }
     }
   }
@@ -83,9 +83,9 @@ function ImageData(url) {
 }
 
 /**
- * @return {boolean} whether or not the image is resizable.
+ * @return {boolean} whether or not the image is resized in HTML.
  */
-ImageData.prototype.isResizable = function() {
+ImageData.prototype.isResized = function() {
   return (!this.sizeMismatchFound && 
 	  this.clientWidth >= 0 && this.clientHeight >= 0 && 
           (this.clientWidth < this.naturalWidth || 
@@ -98,13 +98,13 @@ ImageData.prototype.isResizable = function() {
  * @param {number} clientWidth The width of the image in the HTML.
  * @param {number} clientHeight The height of the image in the HTML.
  */
-ImageData.prototype.setResizable = function(
+ImageData.prototype.setResized = function(
     naturalWidth, naturalHeight, clientWidth, clientHeight) {
   if (this.naturalHeight != -1 || this.naturalWidth != -1) {
-    // The image is already known to be resizable.  Make sure that the
+    // The image is already known to be resized.  Make sure that the
     // natural dimensions match what we recorded last time.  If they
     // do not, flag the mismatch as an error condition to mark the
-    // image as not-resizable.
+    // image as not-scalable.
     if (naturalHeight != this.naturalHeight ||
         naturalWidth != this.naturalWidth) {
       // Log size mismatches.
@@ -125,8 +125,8 @@ ImageData.prototype.setResizable = function(
 };
 
 /**
- * @return {number} the number of bytes saved by compression and
- *     resizing.
+ * @return {number} estimated number of bytes that could be saved serving a
+ *                  scaled image.
  */
 ImageData.prototype.getBytesSaved = function() {
   return this.origSize * this.getCompressionAmount();
@@ -138,29 +138,29 @@ ImageData.prototype.getBytesSaved = function() {
  *     compression down to zero bytes).
  */
 ImageData.prototype.getCompressionAmount = function() {
-  var resizingMultiplier = 1;
-  if (this && this.isResizable()) {
+  var resizeMultiplier = 1;
+  if (this && this.isResized()) {
     if (this.clientWidth < this.naturalWidth) {
-      resizingMultiplier *= this.clientWidth / this.naturalWidth;
+      resizeMultiplier *= this.clientWidth / this.naturalWidth;
     }
     if (this.clientHeight < this.naturalHeight) {
-      resizingMultiplier *= this.clientHeight / this.naturalHeight;
+      resizeMultiplier *= this.clientHeight / this.naturalHeight;
     }
   }
-  return 1 - resizingMultiplier;
+  return 1 - resizeMultiplier;
 };
 
 /**
  * @return {string} A human-readable results string.
  */
 ImageData.prototype.buildResultString = function() {
-  var resizable = this.isResizable();
-  if (!resizable) {
+  var resized = this.isResized();
+  if (!resized) {
     return '';
   }
 
   return [this.url,
-	  ' is scaled in HTML or CSS from ',
+	  ' is resized in HTML or CSS from ',
 	  this.naturalWidth,
 	  'x',
           this.naturalHeight,
@@ -168,7 +168,7 @@ ImageData.prototype.buildResultString = function() {
 	  this.clientWidth,
 	  'x',
           this.clientHeight,
-          '.  Serving a resized image could save ~',
+          '.  Serving a scaled image could save ~',
           PAGESPEED.Utils.formatBytes(this.getBytesSaved()),
           ' (',
           PAGESPEED.Utils.formatPercent(this.getCompressionAmount()),
@@ -324,7 +324,7 @@ var imageScaleLint = function() {
   this.results = new ImageDataContainer();
 
   this.addContinuation(function() {
-    findResizableImages(PAGESPEED.Utils.getComponents().image, this.results);
+    findResizedImages(PAGESPEED.Utils.getComponents().image, this.results);
 
     var aResults = this.results.getDataArray();
 
@@ -347,8 +347,8 @@ var imageScaleLint = function() {
       if (totalWastedBytes && origBytes) {
         this.score -= 1.5 * parseInt(totalWastedBytes / origBytes * 100, 10);
         this.warnings += [
-          'The following images are scaled in HTML or CSS.  ',
-          'Serving resized images could save ~',
+          'The following images are resized in HTML or CSS.  ',
+          'Serving scaled images could save ~',
           PAGESPEED.Utils.formatBytes(totalWastedBytes),
           ' (',
           PAGESPEED.Utils.formatPercent(
