@@ -169,7 +169,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                          CSS_STYLE_SCORE_SIZER_,
                          '$rule.score')
                     ),
-                  TD({'class': 'netHrefCol netCol', 'width': '16'},
+                  TD({'class': 'netCol', 'width': '16'},
                      DIV({'class': 'netHrefLabel netLabel',
                           'style': 'display:block;height:14px'}
                         )
@@ -643,8 +643,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    * the given toggleMethod with a reference to the clicked row.
    */
   onClick: function(event, toggleRowMethod) {
-    var cell = FBL.getAncestorByClass(event.target, 'netHrefCol');
-    if (FBL.isLeftClick(event) && cell) {
+    if (FBL.isLeftClick(event)) {
       var row = FBL.getAncestorByClass(event.target, 'netRow');
       if (row) {
         if (FBL.hasClass(row, 'hasHeaders')) {
