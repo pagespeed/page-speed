@@ -933,34 +933,92 @@ ComponentCollectorService.prototype.observeRequest = function(httpChannel) {
  */
 ComponentCollectorService.prototype.observeRedirect = function(
     httpChannel, win, fromURI, toURI) {
+  // NOTE: fromURI always points to the first URL in a chain of
+  // redirects. If A redirects to B and B redirects to C, the
+  // nsIHttpChannel with URI == C will have an originalURI == A. Thus,
+  // we have to seek forward in our redirect tracking objects to find
+  // the last known entry in the chain starting at fromURI.
+  var finalURI = this.getFinalRedirectTarget_(win, fromURI);
+  if (finalURI == null || finalURI == toURI) {
+    PS_LOG('getFinalRedirectTarget_ returned bad URI: ' +
+           fromURI + ' > ' + toURI);
+    return;
+  }
+
   if (this.pendingDocs_.hasEntry(fromURI)) {
     // The main document is being HTTP redirected. Update the
     // pending documents map to indicate this.
-
-    // NOTE: nsIHttpChannel.originalURI always points to the first
-    // URL in a chain of redirects. If a redirects to B and B
-    // redirects to C, the nsIHttpChannel with URI == C will have an
-    // originalURI == A. Thus, we have to seek forward in the
-    // pendingDocs_ map to find the last known entry in the chain
-    // starting at fromURI.
-    var tail = this.pendingDocs_.getTail(fromURI);
-    if (tail == null || tail == toURI) {
-      PS_LOG('getTail returned bad URI: ' + tail);
-      return;
-    }
-
     this.createDocumentEntry(toURI);
-    this.pendingDocs_.linkPrev(toURI, tail);
+    this.pendingDocs_.linkPrev(toURI, finalURI);
   } else {
-    // TODO: fromURI points to the original URI. Need to seek forward
-    // in the redirects map.
     this.addWindowComponent(
         win,
         ComponentCollectorService.TYPE_REDIRECT,
-        fromURI,
+        finalURI,
         toURI,
         true);
   }
+};
+
+/**
+ * Get the last redirect in a chain of redirects. For instance, if
+ * fromURI is known to redirect to A, and A is known to redirect to B,
+ * then this method would return B. If fromURI does not redirect, this
+ * method returns fromURI.
+ *
+ * @param {nsIDOMWindow} win The window containing the redirected
+ *     resource.
+ * @param {string} fromURI The URI being redirected from.
+ * @return {string?} The last redirect in the chain of redirects, or
+ * null if there was an error.
+ * @private
+ */
+ComponentCollectorService.prototype.getFinalRedirectTarget_ = function(
+    win, fromURI) {
+  // First consult the pendingDocs_ map.
+  if (this.pendingDocs_.hasEntry(fromURI)) {
+    var tail = this.pendingDocs_.getTail(fromURI);
+    if (tail == null) {
+      // Not a redirect.
+      return fromURI;
+    }
+    return tail;
+  }
+
+  // If the pendingDocs_ map didn't have a match, iterate through the
+  // components object to follow the redirect chain.
+
+  // Loop through the components map until we reach the end of a
+  // redirect chain, or we encounter a redirect loop.
+  var urisEncountered = {};
+  while (true) {
+    if (urisEncountered[fromURI]) {
+      PS_LOG('Infinite redirect loop for ' + fromURI);
+      return null;
+    }
+    urisEncountered[fromURI] = true;
+
+    var component = this.getWindowComponentOfType(
+      win,
+      ComponentCollectorService.TYPE_REDIRECT,
+      fromURI);
+    if (component == null ||
+        component.elements == null ||
+        component.elements.length <= 0) {
+      // There isn't a valid redirect entry for this URL, so stop
+      // iterating.
+      break;
+    }
+    if (component.elements.length > 1) {
+      PS_LOG(fromURI +
+             ' has multiple redirect destinations. Using ' +
+             component.elements[0]);
+    }
+
+    fromURI = component.elements[0];
+  }
+
+  return fromURI;
 };
 
 /**
@@ -1368,6 +1426,28 @@ ComponentCollectorService.prototype.addWindowComponent = function(
     }
     this.updateRedirectedResource(components, key, String(value));
   }
+  return components[typeStr][key];
+};
+
+/**
+ * Gets the component of the given type and key.
+ *
+ * @param {Object} win The window.
+ * @param {number} type The type as one of ComponentCollectorService.types.
+ * @param {string} key The key to use for this component, typically the URL of
+ *     the component.
+ * @return {Object} The object holding information about the type of resource
+ *     and key if the value was added.  Null otherwise.
+ */
+ComponentCollectorService.prototype.getWindowComponentOfType = function(
+    win, type, key) {
+  var components = this.getWindowComponents(win);
+  var typeStr = ComponentCollectorService.type[type];
+
+  if (!components[typeStr]) {
+    return null;
+  }
+
   return components[typeStr][key];
 };
 
