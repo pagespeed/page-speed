@@ -3,6 +3,31 @@
 
 =Page Speed Version History=
 
+== 1.5  12/14/2009 ==
+The largest change in this release is a change to use the PageSpeed C++ Native Library.  This should speed up scoring, as well as allow rules to be run in programs other than just the Page Speed Firefox extension.  There will be some subtle differences in the scoring of rules between the old JavaScript rules and the new library rules.  We are still working on evaluating the scoring mechanism as we port rules to C++ with the goal of making the scores more accurately reflect the value of fixing the issues that have been found.  Not all rules have been ported to C++ in this release.  In general, you will not be able to tell if a rule is run in JS or in C++.
+
+Lots of thanks to Oksana Tkanko who has contributed code to this release.  We look forward to more code from Oksana and others in the open source community.
+
+With this release we are dropping support for PPC-based Mac OS computers.
+
+The following changes and bug fixes were made for the 1.5 release of Page Speed:
+ * Switching between tabs should not re-run the analysis http://code.google.com/p/page-speed/issues/detail?id=22
+ * Added avoid_bad_requests rule. (404s)  http://code.google.com/p/page-speed/issues/detail?id=164
+ * Added limit number of DOM elements rule. http://code.google.com/p/page-speed/issues/detail?id=165.
+ * Make the full results beacon automatically run when the proper prefs are set.  http://code.google.com/p/page-speed/issues/detail?id=122
+ * Made temporary file names easier to read by removing the query string and non alpha-numeric characters.  http://code.google.com/p/page-speed/issues/detail?id=11
+ * Fixed an alert that triggered when Firebug was closed while the activity panel was still recording.  http://code.google.com/p/page-speed/issues/detail?id=130
+
+Changes that do not have issue numbers:
+ * Ordered the array of lint rules in the JSON output by the short rule name so different runs can be compared using diff. 
+ * Split image compression image scaling into 2 rules.
+ * Updated the analysis results to show the overall score as xx/100.
+ * Ported rules to C++ to increase the consistency between the Site Performance and Page Speed.
+ * Enable compression rule now runs gzip on resource bodies to produce a more accurate savings estimate.
+ * Dropped support for Mac PPC because the build system no longer supports it and fewer than 1% of Page Speed users are on this platform.
+ * Updated latest supported version of Firebug to be 1.4.5
+ * Enabled the export menu so that results can be published to http://www.showslow.com/ by default.  Added preferences so you can easily tweak them via the "about:config" URL.
+
 == 1.3: 10/8/2009 ==
 
   * Added "Minify CSS" rule.
