@@ -4,7 +4,7 @@
 =Page Speed Version History=
 
 == 1.5  12/14/2009 ==
-The largest change in this release is a change to use the PageSpeed C++ Native Library.  This should speed up scoring, as well as allow rules to be run in programs other than just the Page Speed Firefox extension.  There will be some subtle differences in the scoring of rules between the old JavaScript rules and the new library rules.  We are still working on evaluating the scoring mechanism as we port rules to C++ with the goal of making the scores more accurately reflect the value of fixing the issues that have been found.  Not all rules have been ported to C++ in this release.  In general, you will not be able to tell if a rule is run in JS or in C++.
+The largest change in this release is a change to use the Page Speed C++ Native Library.  This should speed up scoring, as well as allow rules to be run in programs other than just the Page Speed Firefox extension.  There will be some subtle differences in the scoring of rules between the old !JavaScript rules and the new library rules.  We are still working on evaluating the scoring mechanism as we port rules to C++ with the goal of making the scores more accurately reflect the value of fixing the issues that have been found.  Not all rules have been ported to C++ in this release.  In general, you will not be able to tell if a rule is run in JS or in C++.
 
 Lots of thanks to Oksana Tkanko who has contributed code to this release.  We look forward to more code from Oksana and others in the open source community.
 
