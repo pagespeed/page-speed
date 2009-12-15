@@ -409,15 +409,27 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
   showInfoTip: function(infoTip, target, x, y) {
     var imageUrl = target.href;
 
-    // Only work on links that point to a resource w/ an image extension.
-    if (!target.tagName.toUpperCase() == 'A' ||
-        !imageUrl ||
-        !imageUrl.match(/\.gif$|\.png$|\.jpg$|\.ico$/i)) return false;
+    // Only work on links.
+    if (target.tagName.toUpperCase() !== 'A' || !imageUrl) {
+      return false;
+    }
 
     // Make sure this is only called once per hover.
-    if (imageUrl == this.infoTipURL) return true;
-    this.infoTipURL = imageUrl;
-    return Firebug.InfoTip.populateImageInfoTip(infoTip, imageUrl);
+    if (imageUrl === this.infoTipURL) {
+      return true;
+    }
+
+    // Only work on links to images.
+    var types = PAGESPEED.Utils.getResourceTypes(imageUrl);
+    for (var i = 0, length = types.length; i < length; ++i) {
+      var type = types[i];
+      if (type === 'image' || type === 'cssimage' || type === 'favicon') {
+        this.infoTipURL = imageUrl;
+        return Firebug.InfoTip.populateImageInfoTip(infoTip, imageUrl);
+      }
+    }
+
+    return false;
   },
 
   /**
