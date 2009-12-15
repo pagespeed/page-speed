@@ -35,6 +35,14 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 
+#ifdef _WINDOWS
+
+// Provide LONG_LONG_MAX, which is available under a different name on
+// windows.
+#define LONG_LONG_MAX _I64_MAX
+
+#endif
+
 namespace {
 
 TEST(CallGraphUtilRoundTest, RoundDownMultiple1) {
@@ -421,7 +429,7 @@ class CallGraphUtilInitCountTest
     : public CallGraphUtilEventSetTestBase {
  protected:
   void DoPopulateFunctionInitCounts(
-      int64 start_time_usec, int64_t end_time_usec) {
+      int64 start_time_usec, int64 end_time_usec) {
     scoped_ptr<activity::CallGraphProfileSnapshot> snapshot(
         profile_->CreateSnapshot());
     snapshot->Init(start_time_usec, end_time_usec);
