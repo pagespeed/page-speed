@@ -27,9 +27,17 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 
+#ifdef _WINDOWS
+
+// Provide LONG_LONG_MAX, which is available under a different name on
+// windows.
+#define LONG_LONG_MAX _I64_MAX
+
+#endif
+
 namespace {
 
-int64_t GetStopTimeUsec(const activity::CallGraphProfile &profile) {
+int64 GetStopTimeUsec(const activity::CallGraphProfile &profile) {
   return profile.profile()->start_time_usec() +
       profile.profile()->duration_usec();
 }
@@ -37,7 +45,7 @@ int64_t GetStopTimeUsec(const activity::CallGraphProfile &profile) {
 class CallGraphTimelineVisitorTest
     : public activity_testing::CallGraphTimelineTestBase {
  protected:
-  void DoTraverse(int64_t start_time_usec, int64_t end_time_usec) {
+  void DoTraverse(int64 start_time_usec, int64 end_time_usec) {
     scoped_ptr<activity::CallGraphProfileSnapshot> snapshot(
         profile_->CreateSnapshot());
     snapshot->Init(start_time_usec, end_time_usec);
@@ -52,9 +60,9 @@ class CallGraphTimelineVisitorTest
 };
 
 TEST_F(CallGraphTimelineVisitorTest, BasicVisit) {
-  const int64_t start_time_usec = 0LL;
-  const int64_t end_time_usec = LONG_LONG_MAX;
-  const int64_t resolution_usec = 1LL;
+  const int64 start_time_usec = 0LL;
+  const int64 end_time_usec = LONG_LONG_MAX;
+  const int64 resolution_usec = 1LL;
 
   InitializeEventSet(resolution_usec);
 
@@ -67,13 +75,13 @@ TEST_F(CallGraphTimelineVisitorTest, BasicVisit) {
 }
 
 TEST_F(CallGraphTimelineVisitorTest, NoVisit) {
-  for (int64_t start_time_usec = 0LL;
+  for (int64 start_time_usec = 0LL;
        start_time_usec <= GetStopTimeUsec(*profile_.get());
        ++start_time_usec) {
     // Specify a time window of zero. We expect the resulting event
     // vector to be empty.
-    const int64_t end_time_usec = start_time_usec;
-    const int64_t resolution_usec = 1LL;
+    const int64 end_time_usec = start_time_usec;
+    const int64 resolution_usec = 1LL;
 
     InitializeEventSet(resolution_usec);
 
@@ -91,9 +99,9 @@ TEST_F(CallGraphTimelineVisitorTest, NonOverlappingTimeWindowVisit) {
 
   // Specify a time window beyond the end of the profile. We expect
   // the resulting event vector to be empty.
-  const int64_t start_time_usec = GetStopTimeUsec(*profile_.get());
-  const int64_t end_time_usec = LONG_LONG_MAX;
-  const int64_t resolution_usec = 1LL;
+  const int64 start_time_usec = GetStopTimeUsec(*profile_.get());
+  const int64 end_time_usec = LONG_LONG_MAX;
+  const int64 resolution_usec = 1LL;
 
   InitializeEventSet(resolution_usec);
 
@@ -108,13 +116,13 @@ TEST_F(CallGraphTimelineVisitorTest, NonOverlappingTimeWindowVisit) {
 TEST_F(CallGraphTimelineVisitorTest, BrokenUpVisit) {
   StopProfiling();
 
-  const int64_t start_time_usec = 0LL;
-  const int64_t end_time_usec = GetStopTimeUsec(*profile_.get());
-  const int64_t resolution_usec = 1LL;
+  const int64 start_time_usec = 0LL;
+  const int64 end_time_usec = GetStopTimeUsec(*profile_.get());
+  const int64 resolution_usec = 1LL;
 
   InitializeEventSet(resolution_usec);
 
-  for (int64_t bucket_start_usec = start_time_usec;
+  for (int64 bucket_start_usec = start_time_usec;
        bucket_start_usec < end_time_usec;
        bucket_start_usec += resolution_usec) {
     // Traverse the call graph one resolution at a time, which will
@@ -132,16 +140,16 @@ TEST_F(CallGraphTimelineVisitorTest, BrokenUpVisit) {
 TEST_F(CallGraphTimelineVisitorTest, BrokenUpVisitStepByTwo) {
   StopProfiling();
 
-  const int64_t start_time_usec = 0LL;
-  const int64_t resolution_usec = 1LL;
-  const int64_t step_size = resolution_usec * 2LL;
-  const int64_t end_time_usec =
+  const int64 start_time_usec = 0LL;
+  const int64 resolution_usec = 1LL;
+  const int64 step_size = resolution_usec * 2LL;
+  const int64 end_time_usec =
       activity::util::RoundUpToNearestWholeMultiple(
           GetStopTimeUsec(*profile_.get()), step_size);
 
   InitializeEventSet(resolution_usec);
 
-  for (int64_t bucket_start_usec = start_time_usec;
+  for (int64 bucket_start_usec = start_time_usec;
        bucket_start_usec < end_time_usec;
        bucket_start_usec += step_size) {
     // Traverse the call graph two resolutions at a time, which will
@@ -158,10 +166,10 @@ TEST_F(CallGraphTimelineVisitorTest, BrokenUpVisitStepByTwo) {
 
 TEST_F(CallGraphTimelineVisitorTest, PartialVisit) {
   ASSERT_GT(profile_->profile()->call_tree_size(), 0LL);
-  const int64_t start_time_usec =
+  const int64 start_time_usec =
       profile_->profile()->call_tree(0LL).entry_time_usec() + 2LL;
-  const int64_t end_time_usec = LONG_LONG_MAX;
-  const int64_t resolution_usec = 1LL;
+  const int64 end_time_usec = LONG_LONG_MAX;
+  const int64 resolution_usec = 1LL;
 
   InitializeEventSet(resolution_usec);
 
@@ -174,9 +182,9 @@ TEST_F(CallGraphTimelineVisitorTest, PartialVisit) {
 }
 
 TEST_F(CallGraphTimelineVisitorTest, LowResolutionVisit) {
-  const int64_t start_time_usec = 0LL;
-  const int64_t end_time_usec = LONG_LONG_MAX;
-  const int64_t resolution_usec = 3LL;
+  const int64 start_time_usec = 0LL;
+  const int64 end_time_usec = LONG_LONG_MAX;
+  const int64 resolution_usec = 3LL;
 
   InitializeEventSet(resolution_usec);
 
@@ -191,15 +199,15 @@ TEST_F(CallGraphTimelineVisitorTest, LowResolutionVisit) {
 TEST_F(CallGraphTimelineVisitorTest, LowResolutionBrokenUpVisit) {
   StopProfiling();
 
-  const int64_t start_time_usec = 0LL;
-  const int64_t resolution_usec = 3LL;
-  const int64_t end_time_usec =
+  const int64 start_time_usec = 0LL;
+  const int64 resolution_usec = 3LL;
+  const int64 end_time_usec =
       activity::util::RoundUpToNearestWholeMultiple(
           GetStopTimeUsec(*profile_.get()), resolution_usec);
 
   InitializeEventSet(resolution_usec);
 
-  for (int64_t bucket_start_usec = start_time_usec;
+  for (int64 bucket_start_usec = start_time_usec;
        bucket_start_usec < end_time_usec;
        bucket_start_usec += resolution_usec) {
     // Traverse the call graph, which will populate the event set.
