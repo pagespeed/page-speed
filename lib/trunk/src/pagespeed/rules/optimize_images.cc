@@ -68,7 +68,7 @@ const char* ImageMinifier::body_format() const {
 }
 
 const char* ImageMinifier::child_format() const {
-  return "Compressing $1 could save $2 ($3% reduction).";
+  return "Optimizing $1 could save $2 ($3% reduction).";
 }
 
 const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
