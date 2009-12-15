@@ -325,9 +325,12 @@
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
       'sources': [
-        'cpp/activity/call_graph_test.cc',
         'cpp/activity/call_graph_metadata_test.cc',
         'cpp/activity/call_graph_profile_test.cc',
+        'cpp/activity/call_graph_test.cc',
+        'cpp/activity/call_graph_timeline_event_set_test.cc',
+        'cpp/activity/call_graph_timeline_visitor_test.cc',
+        'cpp/activity/call_graph_util_test.cc',
         'cpp/activity/check_abort.cc',
         'cpp/activity/delayable_function_tree_view_delegate_test.cc',
         'cpp/activity/find_first_invocations_visitor_test.cc',
