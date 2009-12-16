@@ -2382,6 +2382,19 @@ PAGESPEED.Utils = {  // Begin namespace
     // Collapsed menu items are not shown.
     var menuItem = document.getElementById(menuItemId);
     menuItem.setAttribute('collapsed', !menuItemEnabled);
+  },
+
+  /**
+   * Display a confirmation dialog (OK/Cancel) to the user.
+   * @param {string} title The title of the dialog.
+   * @param {string} message The message body of the dialog.
+   * @return {boolean} True if the user clicked OK, false otherwise.
+   */
+  promptConfirm: function(title, message) {
+    var promptService = PAGESPEED.Utils.CCSV(
+        '@mozilla.org/embedcomp/prompt-service;1',
+        'nsIPromptService');
+    return promptService.confirm(null, title, message);
   }
 };  // End namespace
 
