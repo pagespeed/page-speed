@@ -413,7 +413,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
     // recently computed rules will we redisplay the panel.  Otherwise
     // put up the default panel with a button to analyze results
     var currentURI = browserTab.currentURI;
-        
+
     if (currentURI &&
         currentURI.spec &&
         (currentURI.spec == PAGESPEED.LintRules.url)) {
@@ -424,7 +424,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
       panel.initializeNode(panel);
     }
   },
-  
+
   analyzePerformance: function() {
     try {
       PAGESPEED.LintRules.stop();
@@ -488,7 +488,25 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
           break;
 
         case 'psMinimalBeacon':
-          PAGESPEED.minimalBeacon.sendBeacon(resultsContainer);
+          var beaconDomain = PAGESPEED.minimalBeacon.getBeaconDomain();
+          var title = ['Send score to ', beaconDomain, '?'].join('');
+          var message = [
+            'Sending scores to ', beaconDomain, ' allows that website, ',
+            'which is not affiliated with Google, to collect and analyze ',
+            'Page Speed scores for many websites. If you choose to send ',
+            'scores to ', beaconDomain, ', your IP address, the URL you run ',
+            'Page Speed on, and the scores Page Speed returns will be sent ',
+            'to ', beaconDomain, ' for public display.'].join('');
+          if (PAGESPEED.Utils.promptConfirm(title, message)) {
+            var resultMessage;
+            if (PAGESPEED.minimalBeacon.sendBeacon(resultsContainer)) {
+              resultMessage = ['Scores sent to ', beaconDomain, '.'].join('');
+            } else {
+              resultMessage = [
+                  'Failed to send scores to ', beaconDomain, '.'].join('');
+            }
+            alert(resultMessage);
+          }
           break;
 
         case 'psFullResultsBeacon':
