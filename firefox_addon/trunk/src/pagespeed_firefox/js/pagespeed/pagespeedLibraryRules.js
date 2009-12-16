@@ -47,7 +47,9 @@ function buildHtml(formatArray) {
     if (item.type === "url") {
       stringParts.push('<a href="', item.value,
                        '" onclick="document.openLink(this);return false;">',
-                       PAGESPEED.Utils.htmlEscape(item.alt || item.value),
+                       PAGESPEED.Utils.htmlEscape(
+                         item.alt ||
+                         PAGESPEED.Utils.getDisplayUrl(item.value)),
                        '</a>');
     } else if (item.type === "str") {
       stringParts.push(PAGESPEED.Utils.htmlEscape(item.value));
