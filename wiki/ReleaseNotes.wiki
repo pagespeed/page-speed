@@ -13,7 +13,6 @@ With this release we are dropping support for PPC-based Mac OS computers.
 The following changes and bug fixes were made for the 1.5 release of Page Speed:
  * Switching between tabs should not re-run the analysis http://code.google.com/p/page-speed/issues/detail?id=22
  * Added avoid_bad_requests rule. (404s)  http://code.google.com/p/page-speed/issues/detail?id=164
- * Added limit number of DOM elements rule. http://code.google.com/p/page-speed/issues/detail?id=165.
  * Make the full results beacon automatically run when the proper prefs are set.  http://code.google.com/p/page-speed/issues/detail?id=122
  * Made temporary file names easier to read by removing the query string and non alpha-numeric characters.  http://code.google.com/p/page-speed/issues/detail?id=11
  * Fixed an alert that triggered when Firebug was closed while the activity panel was still recording.  http://code.google.com/p/page-speed/issues/detail?id=130
