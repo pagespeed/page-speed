@@ -108,7 +108,7 @@ var imageDimensionsLint = function() {
     return;
   }
 
-  var oWarnings = {};
+  var oWarningImages = {};
   for (var i = 0, len = images.length; i < len; ++i) {
     // Do not report images that have no source.
     if (!images[i].src) continue;
@@ -118,21 +118,25 @@ var imageDimensionsLint = function() {
         !hasStyleAttributeDimensions(images[i]) &&
         !hasCssDimensions(images[i])) {
       // Keep a count of the number of uses without dimensions for each URL.
-      if (oWarnings.hasOwnProperty(images[i].src)) {
-        ++oWarnings[images[i].src];
+      if (!oWarningImages.hasOwnProperty(images[i].src)) {
+        oWarningImages[images[i].src] = {uses: 1, image: images[i]};
       } else {
-        oWarnings[images[i].src] = 1;
+        oWarningImages[images[i].src].uses++;
       }
-
       // 5 points per violation.
       this.score -= 5;
     }
   }
-
+  
   var aWarnings = [];
-  for (var url in oWarnings) {
-    aWarnings.push(url + (oWarnings[url] > 1 ?
-                          (' (' + oWarnings[url] + ' uses)') : ''));
+  for (var url in oWarningImages) {
+    aWarnings.push([url, ' (Dimensions: ',
+                    oWarningImages[url].image.naturalWidth, 'x', 
+                    oWarningImages[url].image.naturalHeight, '',
+                    (oWarningImages[url].uses > 1 ?
+                     (', ' + oWarningImages[url].uses + ' uses)') : ')')
+                   ].join('')
+                  );
   }
 
   if (aWarnings && aWarnings.length) {
