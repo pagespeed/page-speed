@@ -67,7 +67,6 @@ The following table lists the parameters sent in the minimal beacon:
 || pUnusedCSS || Score for the rule 'Remove unused CSS'. || 100 ||
 || pMinDns || Score for the rule 'Minimize DNS lookups'. || 100 ||
 || pDupeRsrc || Score for the rule 'Serve resources from a consistent URL'. || 100 ||
-|| pDOMElems || Score for the rule 'Limit the number of DOM elements'. || 100 ||
 || pMinifyCSS || Score for the rule 'Minify CSS'. || 100 ||
 || pScaleImgs || Score for the rule 'Scale Images'. || 100 ||
 
