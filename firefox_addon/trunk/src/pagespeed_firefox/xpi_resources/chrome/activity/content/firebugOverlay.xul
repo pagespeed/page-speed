@@ -70,6 +70,11 @@
             type="checkbox"
             oncommand="activity.ui.performCommand('toggleProfiler')"/>
         <spacer width="5px"/>
+        <toolbarbutton id="button-activityReloadProfiler"
+            label="Reload"
+            tooltiptext="Reload the current page and begin recording."
+            oncommand="activity.ui.performCommand('reloadProfiler')"/>
+        <spacer width="5px"/>
         <toolbarbutton id="button-activityStopProfiler"
             label="Stop"
             oncommand="activity.ui.performCommand('stopProfiler')"/>
