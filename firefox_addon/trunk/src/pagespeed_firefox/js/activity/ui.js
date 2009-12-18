@@ -503,6 +503,21 @@ activity.ui.startProfiler_ = function() {
 };
 
 /**
+ * Reload the Activity profiler
+ */
+activity.ui.reloadProfiler = function() {
+  if (activity.ui.isProfiling_) {
+    activity.ui.stopProfiler();
+  }
+  
+  var win = FirebugContext.window;
+  win = win.wrappedJSObject || win;
+  win.location.reload();
+  activity.ui.startProfiler_();
+};
+
+
+/**
  * Stop the Activity profiler.
  */
 activity.ui.stopProfiler = function() {
@@ -625,6 +640,7 @@ activity.ui.updateUi_ = function() {
 
   var activityContentPanel = gebi('activityContent');
   var activityProfileRecordButton = gebi('button-activityToggleProfiler');
+  var activityProfileReloadButton = gebi('button-activityReloadProfiler');
   var activityProfileStopButton = gebi('button-activityStopProfiler');
   var activitySaveButton = gebi('button-activitySave');
   var activityShowUncalledButton = gebi('button-activityShowUncalled');
@@ -633,6 +649,7 @@ activity.ui.updateUi_ = function() {
   var paintPaneSplitter = gebi('canvasSplitter');
 
   activityProfileRecordButton.checked = activity.ui.isProfiling_;
+  activityProfileReloadButton.disabled = !activity.ui.isProfiling_;
   activityProfileStopButton.disabled = !activity.ui.isProfiling_;
   if (!activity.ui.enableScreenSnapshots_) {
     if (paintPaneElement) {
