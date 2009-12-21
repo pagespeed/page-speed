@@ -140,7 +140,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/third_party/libjpeg/libjpeg.gyp:libjpeg_trans',
+        '<(pagespeed_root)/third_party/libjpeg/libjpeg_trans.gyp:libjpeg_trans',
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/image_compression/jpeg_optimizer.cc',
