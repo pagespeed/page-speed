@@ -24,12 +24,9 @@
   <property name="third_party" location="third_party"/>
   <property name="third_party_js" location="${third_party}/javascript"/>
   <property name="xpi_res" location="pagespeed_firefox/xpi_resources"/>
-  <property name="moz_res" location="pagespeed_firefox/moz_resources"/>
   <property name="dist" location="dist"/>
   <property name="dist_classes" location="${dist}/classes" />
   <property name="dist_jars" location="${dist}/jars" />
-  <property name="dist_moz" location="${dist}/mozilla"/>
-  <property name="dist_moz_ext" location="${dist_moz}/extensions/pagespeed"/>
 
   <target name="init">
     <tstamp/>
@@ -65,69 +62,9 @@
     </zip>
   </target>
 
-  <target name="stage-moz" depends="init">
-    <delete dir="${dist_moz}"/>
-    <copy todir="${dist_moz}">
-      <fileset dir="${moz_res}/mozilla"/>
-    </copy>
-    <copy todir="${dist_moz_ext}/public">
-      <fileset dir="${src}/idl"/>
-    </copy>
-    <copy todir="${dist_moz_ext}/src">
-      <fileset dir="${src}/cpp" includes="**/*.cc,**/*.h" excludes="**/*_test.cc"/>
-      <fileset dir="${src}/generated" includes="**/*.cc,**/*.h"/>
-      <mapper>
-        <globmapper from="*.cc" to="*.cpp"/>
-        <globmapper from="*.h" to="*.h"/>
-      </mapper>
-    </copy>
-    <copy todir="${dist_moz_ext}/dep/mozilla_idl">
-      <fileset dir="${third_party}/mozilla/idl" includes="*.idl"/>
-    </copy>
-    <copy file="${third_party}/jpeg/src/jconfig.h" todir="${dist_moz_ext}/dep/jpeg/src"/>
-    <copy file="${third_party}/protobuf/src/config.h" todir="${dist_moz_ext}/dep/protobuf/src"/>
-
-    <!-- extract the source archives of our build dependencies -->
-    <copy todir="${dist_moz_ext}/dep/jpeg">
-      <tarfileset includes="**/*.c,**/*.h">
-        <gzipresource>
-          <file file="${third_party}/jpeg/jpegsrc.v6b.tar.gz"/>
-        </gzipresource>
-      </tarfileset>
-      <globmapper from="jpeg-6b/*" to="src/*"/>
-    </copy>
-    <copy todir="${dist_moz_ext}/dep/optipng">
-      <fileset dir="${third_party}/optipng-all" includes="**/*.c,**/*.h"/>
-      <filtermapper>
-        <replacestring from="strutil.c" to="strutil_optipng.c"/>
-      </filtermapper>
-    </copy>
-    <copy todir="${dist_moz_ext}/dep/protobuf">
-      <tarfileset includes="protobuf-2.1.0/src/**/*.cc,protobuf-2.1.0/src/**/*.h" excludes="**/*test*/**">
-        <gzipresource>
-          <file file="${third_party}/protobuf/protobuf-2.1.0.tar.gz"/>
-        </gzipresource>
-      </tarfileset>
-      <chainedmapper>
-        <globmapper from="protobuf-2.1.0/*" to="*"/>
-        <mapper>
-          <globmapper from="*.cc" to="*.cpp"/>
-          <globmapper from="*.h" to="*.h"/>
-        </mapper>
-      </chainedmapper>
-    </copy>
-  </target>
-
   <target name="stage-xpi" depends="pkg-xpi">
     <unzip src="${dist}/${ant.project.name}.xpi" dest="${dist}/xpi"/>
   </target>
-
-  <target name="pkg-moz" depends="stage-moz">
-    <zip destfile="${dist}/${ant.project.name}-moz.zip" filesonly="true" level="9">
-      <zipfileset dir="${dist_moz}" prefix="mozilla"/>
-    </zip>
-  </target>
-
 
   <!--
   TODO: This target builds a jsunit test page.  It is ugly.  A foreach loop
