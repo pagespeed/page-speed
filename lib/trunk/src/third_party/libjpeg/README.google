@@ -4,9 +4,9 @@ License: custom
 License File: LICENSE
 
 Description:
-This is the ubiquituous libjpeg made by the Independent JPEG
-Group. http://www.ijg.org/ contains more information and the most
-recent distribution of libjpeg.
+Transcoding compression and decompression methods from the ubiquituous
+libjpeg made by the Independent JPEG Group. http://www.ijg.org/
+contains more information and the most recent distribution of libjpeg.
 
 Local Modifications:
 none

@@ -61,7 +61,12 @@ deps = {
     Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
 
   "src/third_party/libpng":
-    Var("chromium_trunk") + "/src/third_party/libpng" + Var("chromium_revision"),
+    (Var("chromium_trunk") + "/src/third_party/libpng" +
+     Var("chromium_revision")),
+
+  "src/third_party/chromium/src/third_party/libjpeg":
+    (Var("chromium_trunk") + "/src/third_party/libjpeg" +
+     Var("chromium_revision")),
 }
 
 
