@@ -30,6 +30,12 @@ namespace rule_provider {
 void AppendCoreRules(std::vector<Rule*> *rules);
 
 /**
+ * Append the Page Speed rules that use DOM information to the given
+ * vector of Rule instances.
+ */
+void AppendDomRules(std::vector<Rule*> *rules);
+
+/**
  * Append all Page Speed rules to the given vector of Rule
  * instances.
  */
