@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include "nsStringAPI.h"
+
 #include "third_party/jsmin/cpp/jsmin.h"
 
 /* Implementation file */
@@ -37,10 +39,8 @@ NS_IMETHODIMP JsMinifier::MinifyJs(const char *input, char **_retval) {
     return NS_ERROR_FAILURE;
   }
 
-  int output_size = minified_js.size();
-  *_retval = new char[output_size + 1];
-  memcpy(*_retval, minified_js.data(), output_size);
-  (*_retval)[output_size] = '\0';
+  nsCString retval(minified_js.c_str(), minified_js.length());
+  *_retval = NS_CStringCloneData(retval);
   return NS_OK;
 }
 
