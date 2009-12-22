@@ -25,6 +25,7 @@
 
 namespace pagespeed {
 
+class DomDocument;
 class InputInformation;
 class Resource;
 
@@ -53,11 +54,18 @@ class PagespeedInput {
   // constructing an input set that is meant for serialization.
   void set_allow_duplicate_resources() { allow_duplicate_resources_ = true; }
 
+  // Set the DOM Document information.
+  //
+  // Ownership of the DomDocument is transfered over to the
+  // PagespeedInput object.
+  void AcquireDomDocument(DomDocument* document);
+
   // Resource access.
   int num_resources() const;
   const Resource& GetResource(int idx) const;
   const HostResourceMap* GetHostResourceMap() const;
   const InputInformation* input_information() const;
+  const DomDocument* dom_document() const;
 
  private:
   std::vector<const Resource*> resources_;
@@ -65,6 +73,7 @@ class PagespeedInput {
   HostResourceMap host_resource_map_;
   bool allow_duplicate_resources_;
   scoped_ptr<InputInformation> input_info_;
+  scoped_ptr<DomDocument> document_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };
