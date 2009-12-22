@@ -85,11 +85,11 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
 }
 
 #define JS_MINIFIER_CID                               \
-{ /* 9e97eb52-2bea-4f77-9aa4-6eb2664db987 */          \
+{ /* 9e97eb52-2bea-4f77-9aa4-6e26640db987 */          \
   0x9e97eb52,                                         \
   0x2bea,                                             \
   0x4f77,                                             \
-  { 0x9a, 0xa4, 0x6e, 0xb26, 0x64, 0xd, 0xb9, 0x87 }  \
+  { 0x9a, 0xa4, 0x6e, 0x26, 0x64, 0x0d, 0xb9, 0x87 }  \
 }
 
 #define PROFILER_CID                                     \
