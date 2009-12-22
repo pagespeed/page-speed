@@ -359,6 +359,7 @@
       ],
       'sources': [
         'idl/IPageSpeedRules.idl',
+        'cpp/pagespeed/firefox_dom.cc',
         'cpp/pagespeed/pagespeed_rules.cc',
       ],
       'include_dirs': [

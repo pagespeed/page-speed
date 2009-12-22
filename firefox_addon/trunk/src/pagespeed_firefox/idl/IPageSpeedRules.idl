@@ -19,15 +19,18 @@
  */
 
 #include "nsIArray.idl"
+#include "nsIDOMDocument.idl"
 #include "nsILocalFile.idl"
 #include "nsISupports.idl"
 
 /**
  * IPageSpeedRules is the entry point into the Page Speed rules library.
  */
-[scriptable, uuid(80de7ee1-673d-4718-a91b-2f3111bd675a)]
+[scriptable, uuid(21ec69bd-f361-4447-b444-1b01b9a17ae3)]
 interface IPageSpeedRules : nsISupports {
   // Run all the rules and return the formatted results as a string.
-  string computeAndFormatResults(in string data, in nsIArray inputStreams,
+  string computeAndFormatResults(in string data,
+                                 in nsIArray inputStreams,
+                                 in nsIDOMDocument rootDocument,
                                  in nsILocalFile outputDir);
 };
