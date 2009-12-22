@@ -9,9 +9,10 @@
 *Mac OS X*
   * An Intel Mac running Mac OS X 10.5 (“Leopard”) or 10.6 (“Snow Leopard”).  PowerPC builds are currently not supported.
   * [http://developer.apple.com/tools/xcode/ XCode] 3.1.2 or 3.1.3 (Leopard) or 3.2 (Snow Leopard). Thankfully, Apple’s build tools are free.  All you need is a free [http://connect.apple.com/ Apple Developer Connection] account.
-  * Install [http://dev.chromium.org/developers/how-tos/install-gclient  gclient], part of the [http://dev.chromium.org/developers/how-tos/depottools depot_tools] package ([http://dev.chromium.org/developers/how-tos/install-gclient download]). gclient is a wrapper around svn that we use to manage our working copies. Note: If you use python25 from !MacPorts, you also need to install py25-socket-ssl, otherwise "gcl upload" will fail with the error message "!AttributeError: 'module' object has no attribute 'HTTPSHandler'". Use the command "sudo port install py25-socket-ssl" to install it.
-  * Install [http://www.macports.org/install.php MacPorts] (required for libIDL):
+  * Install [http://www.macports.org/install.php MacPorts]
     * After installing !MacPorts, run `sudo port install libidl`
+    * If you use python25 from !MacPorts, run `sudo port install py25-socket-ssl`
+  * Install [http://dev.chromium.org/developers/how-tos/install-gclient  gclient], part of the [http://dev.chromium.org/developers/how-tos/depottools depot_tools] package ([http://dev.chromium.org/developers/how-tos/install-gclient download]). gclient is a wrapper around svn that we use to manage our working copies.
 
 *Windows*
   * Install MS Visual Studio 2005 or 2008.
