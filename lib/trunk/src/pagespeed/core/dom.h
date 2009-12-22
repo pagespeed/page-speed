@@ -64,9 +64,6 @@ class DomElement {
   // always UPPERCASE.
   virtual std::string GetTagName() const = 0;
 
-  // Get src url tag contents.
-  virtual std::string GetSource() const = 0;
-
   // @param name attribute name
   // @param attr_value output parameter to hold attribute value
   // @return true if the node has an attribute with that name.
