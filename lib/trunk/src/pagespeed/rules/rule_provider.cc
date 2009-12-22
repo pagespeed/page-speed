@@ -22,6 +22,7 @@
 #include "pagespeed/rules/minimize_redirects.h"
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
+#include "pagespeed/rules/specify_image_dimensions.h"
 
 namespace pagespeed {
 
@@ -38,8 +39,13 @@ void AppendCoreRules(std::vector<Rule*> *rules) {
   rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
 }
 
+void AppendDomRules(std::vector<Rule*> *rules) {
+  rules->push_back(new rules::SpecifyImageDimensions);
+}
+
 void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules) {
   AppendCoreRules(rules);
+  AppendDomRules(rules);
   rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
   rules->push_back(new rules::OptimizeImages(save_optimized_content));
 }

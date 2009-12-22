@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
+#include "pagespeed/core/dom.h"
 #include "pagespeed/core/resource.h"
 
 namespace {
@@ -78,6 +79,10 @@ bool PagespeedInput::AddResource(const Resource* resource) {
   return true;
 }
 
+void PagespeedInput::AcquireDomDocument(DomDocument* document) {
+  document_.reset(document);
+}
+
 int PagespeedInput::num_resources() const {
   return resources_.size();
 }
@@ -93,6 +98,10 @@ const HostResourceMap* PagespeedInput::GetHostResourceMap() const {
 
 const InputInformation* PagespeedInput::input_information() const {
   return input_info_.get();
+}
+
+const DomDocument* PagespeedInput::dom_document() const {
+  return document_.get();
 }
 
 }  // namespace pagespeed

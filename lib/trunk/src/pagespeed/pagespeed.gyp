@@ -116,6 +116,7 @@
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
       ],
       'sources': [
+        '<(pagespeed_root)/pagespeed/core/dom.cc',
         '<(pagespeed_root)/pagespeed/core/engine.cc',
         '<(pagespeed_root)/pagespeed/core/formatter.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input.cc',
@@ -178,6 +179,7 @@
         '<(pagespeed_root)/pagespeed/rules/rule_provider.cc',
         '<(pagespeed_root)/pagespeed/rules/savings_computer.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url.cc',
+        '<(pagespeed_root)/pagespeed/rules/specify_image_dimensions.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -331,6 +333,7 @@
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups_test.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_redirects_test.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/specify_image_dimensions_test.cc',
       ],
     },
     {
