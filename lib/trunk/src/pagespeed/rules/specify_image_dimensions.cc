@@ -38,9 +38,11 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
       bool width_specified = node.GetAttributeByName("width", &width);
 
       if (!height_specified || !width_specified) {
+        std::string src;
+        node.GetAttributeByName("src", &src);
         pagespeed::Result* result = results_->add_results();
         result->set_rule_name(kRuleName);
-        result->add_resource_urls(node.GetSource());
+        result->add_resource_urls(src);
       }
     } else if (node.GetTagName() == "IFRAME") {
       // Do a recursive document traversal.
