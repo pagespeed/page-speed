@@ -37,6 +37,7 @@
 #include "base/logging.h"
 #include "base/md5.h"
 #include "file_util.h"
+#include "firefox_dom.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed_json_input.h"
 #include "pagespeed/core/engine.h"
@@ -46,11 +47,9 @@
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/rule_provider.h"
 
-namespace pagespeed {
-
 namespace {
 
-class PluginSerializer : public Serializer {
+class PluginSerializer : public pagespeed::Serializer {
  public:
   explicit PluginSerializer(nsILocalFile* base_dir)
       : base_dir_(base_dir) {}
@@ -81,7 +80,8 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
     LOG(ERROR) << "Invalid url: " << content_url;
     return "";
   }
-  const std::string filename = ChooseOutputFilename(url, MD5String(body));
+  const std::string filename = pagespeed::ChooseOutputFilename(url,
+                                                               MD5String(body));
   file->Append(NS_ConvertASCIItoUTF16(filename.c_str()));
 
   // Get the absolute path of the nsIFile as a C++ string.
@@ -140,6 +140,8 @@ void AppendInputStreamsContents(nsIArray *input_streams,
 
 }  // namespace
 
+namespace pagespeed {
+
 NS_IMPL_ISUPPORTS1(PageSpeedRules, IPageSpeedRules)
 
 PageSpeedRules::PageSpeedRules() {}
@@ -147,10 +149,11 @@ PageSpeedRules::PageSpeedRules() {}
 PageSpeedRules::~PageSpeedRules() {}
 
 NS_IMETHODIMP
-PageSpeedRules::ComputeAndFormatResults(const char *data,
-                                        nsIArray *input_streams,
-                                        nsILocalFile *output_dir,
-                                        char **_retval) {
+PageSpeedRules::ComputeAndFormatResults(const char* data,
+                                        nsIArray* input_streams,
+                                        nsIDOMDocument* root_document,
+                                        nsILocalFile* output_dir,
+                                        char** _retval) {
   std::vector<std::string> contents;
   AppendInputStreamsContents(input_streams, &contents);
 
@@ -162,13 +165,15 @@ PageSpeedRules::ComputeAndFormatResults(const char *data,
   engine.Init();
 
   PagespeedInput input;
+  input.AcquireDomDocument(new FirefoxDocument(root_document));
   if (PopulateInputFromJSON(&input, data, contents)) {
     std::stringstream stream;
     PluginSerializer serializer(output_dir);
     formatters::JsonFormatter formatter(&stream, &serializer);
     engine.ComputeAndFormatResults(input, &formatter);
 
-    nsCString retval(stream.str().c_str());
+    const std::string& output_string = stream.str();
+    nsCString retval(output_string.c_str(), output_string.length());
     *_retval = NS_CStringCloneData(retval);
     return NS_OK;
   } else {
