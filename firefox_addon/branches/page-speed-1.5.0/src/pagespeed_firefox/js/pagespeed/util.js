@@ -48,6 +48,8 @@ var PAGESPEED = {};
 // then this constant must be updated to match.
 var PAGESPEED_GUID_ = '{e3f6c2cc-d8db-498c-af6c-499fb211db97}';
 
+var MAX_FILEPATH_LENGTH = 255;
+
 PAGESPEED.isHealthy = true;
 
 /**
@@ -794,6 +796,10 @@ PAGESPEED.Utils = {  // Begin namespace
     var lastDotIdx = originalFileName.lastIndexOf('.');
     if (lastDotIdx != -1) {
       originalFileName = originalFileName.substring(0, lastDotIdx);
+    }
+    if (originalFileName.length > 50) {
+      // truncate long path names.
+      originalFileName = originalFileName.substring(0, 50);
     }
     if(opt_blockNum){
       originalFileName = [originalFileName,
@@ -2021,6 +2027,12 @@ PAGESPEED.Utils = {  // Begin namespace
    * @return {nsIFile} The file.  null on error.
    */
   openFile: function(fileName) {
+    if (fileName.length > MAX_FILEPATH_LENGTH) {
+      PS_LOG("Error: filename too long in openFile.  " +
+             fileName);
+      return null;
+    }
+
     var localFile = PAGESPEED.Utils.CCIN(
         '@mozilla.org/file/local;1', 'nsILocalFile');
     localFile.initWithPath(fileName);
@@ -2149,6 +2161,12 @@ PAGESPEED.Utils = {  // Begin namespace
    */
   openFileForWriting: function(fileName) {
     try {
+      if (fileName.length > MAX_FILEPATH_LENGTH) {
+        PS_LOG("Error: filename too long in openFileForWriting.  " +
+               fileName);
+        return null;
+      }
+
       var localFile = PAGESPEED.Utils.openFile(fileName);
 
       var writeFlag = 0x02; // write only
@@ -2162,6 +2180,8 @@ PAGESPEED.Utils = {  // Begin namespace
                             writeFlag | createFlag | truncateFlag,
                             0664, null);
     } catch (e) {
+      PS_LOG("Exception in openFileForWriting: " +
+             PAGESPEED.Utils.formatException(e));
       return null;
     }
     return fileOutputStream;
