@@ -70,6 +70,11 @@ class DomElement {
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const = 0;
 
+  // @param name css property name
+  // @param property_value output parameter to hold the css property value
+  // @return true if the node has an attribute with that name.
+  virtual bool GetCSSPropertyByName(const std::string& name,
+                                    std::string* property_value) const = 0;
  private:
   DISALLOW_COPY_AND_ASSIGN(DomElement);
 };

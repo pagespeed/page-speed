@@ -34,8 +34,10 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
   virtual void Visit(const pagespeed::DomElement& node) {
     if (node.GetTagName() == "IMG") {
       std::string height, width;
-      bool height_specified = node.GetAttributeByName("height", &height);
-      bool width_specified = node.GetAttributeByName("width", &width);
+      bool height_specified = (node.GetAttributeByName("height", &height) ||
+                               node.GetCSSPropertyByName("height", &height));
+      bool width_specified = (node.GetAttributeByName("width", &width) ||
+                              node.GetCSSPropertyByName("width", &width));
 
       if (!height_specified || !width_specified) {
         std::string src;
