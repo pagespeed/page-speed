@@ -56,7 +56,12 @@ PAGESPEED.LintRulesImpl.prototype.exec = function(browserTab) {
   //      run; usually, this takes a fraction of a second, and is thus
   //      acceptable, but in the future we should be running pieces of the
   //      native rule set asynchronously, as we do with the JavaScript rules.
-  this.nativeRuleResults = PAGESPEED.NativeLibrary.invokeNativeLibraryRules();
+  try {
+    this.nativeRuleResults = PAGESPEED.NativeLibrary.invokeNativeLibraryRules();
+  } catch (e) {
+    PS_LOG("Exception while running pagespeed library rules: " +
+           PAGESPEED.Utils.formatException(e));
+  }
   this.ruleCompleted();
 };
 
