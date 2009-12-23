@@ -16,4 +16,18 @@
   'includes': [
     '../third_party/chromium/src/build/common.gypi',
   ],
+  'target_defaults': {
+    'conditions': [
+      ['OS == "linux"', {
+        'scons_variable_settings': {
+          # Hack to disable flock, which is not available on older
+          # versions of Ubuntu.
+          'FLOCK_LINK!': ['flock', '$TOP_BUILDDIR/linker.lock'],
+          'FLOCK_SHLINK!': ['flock', '$TOP_BUILDDIR/linker.lock'],
+          'FLOCK_LDMODULE!': ['flock', '$TOP_BUILDDIR/linker.lock'],
+        },
+       }
+      ],
+    ],
+  },
 }
