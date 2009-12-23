@@ -1,0 +1,12 @@
+URL: http://www.ijg.org
+Version: 6b
+License: custom
+License File: LICENSE
+
+Description:
+This is the ubiquituous libjpeg made by the Independent JPEG
+Group. http://www.ijg.org/ contains more information and the most
+recent distribution of libjpeg.
+
+Local Modifications:
+none
