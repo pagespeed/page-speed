@@ -82,6 +82,7 @@ bool SpecifyImageDimensions::AppendResults(const PagespeedInput& input,
     ImageDimensionsChecker visitor(results);
     input.dom_document()->Traverse(&visitor);
   }
+  return true;
 }
 
 void SpecifyImageDimensions::FormatResults(const ResultVector& results,
