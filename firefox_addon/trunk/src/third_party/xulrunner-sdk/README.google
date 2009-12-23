@@ -11,3 +11,13 @@ Local Modifications:
 Merged distributions for multiple platforms in a single tree and excluded
 many files that are currently not needed in order to build the page-speed
 extension.
+
+The version of the SDK for Linux x64 was built by hand on Ubuntu 6.10
+using the xulrunner 1.9.1.4 source, using the following mozconfig
+file:
+
+mk_add_options MOZ_CO_PROJECT=xulrunner
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-xulrunner
+ac_add_options --enable-application=xulrunner
+ac_add_options --disable-javaxpcom
+ac_add_options --disable-dbus
