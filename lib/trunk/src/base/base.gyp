@@ -62,6 +62,12 @@
         [ 'OS == "linux"', {
             'sources/': [ ['exclude', '_(mac|win|chromeos)\\.cc$'],
                           ['exclude', '\\.mm?$' ] ],
+            'cflags': [
+              # Don't fail the build when a warning is encountered. 
+              # This is required because some code in third_party/dmg_fp
+              # generates warnings on old compilers (gcc4.1).
+              '-Wno-error',
+            ],
             'link_settings': {
               'libraries': [
                 # We need rt for clock_gettime().
