@@ -41,6 +41,7 @@
           '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
           '<(xulrunner_sdk_root)/arch/<(OS)/all/include/nspr',
           '<(xulrunner_sdk_root)/include/dom',
+          '<(xulrunner_sdk_root)/include/inspector',
           '<(xulrunner_sdk_root)/include/layout',
           '<(xulrunner_sdk_root)/include/necko',
           '<(xulrunner_sdk_root)/include/string',
