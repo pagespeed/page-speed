@@ -19,8 +19,9 @@
 #include "pagespeed/core/dom.h"
 
 #include "nsCOMPtr.h"
-#include "nsIDOMDocument.h"
-#include "nsIDOMElement.h"
+
+class nsIDOMDocument;
+class nsIDOMElement;
 
 namespace pagespeed {
 

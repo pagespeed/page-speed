@@ -16,30 +16,114 @@
 
 #include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
 
+#include "inIDOMUtils.h"
 #include "nsIDOMAttr.h"
 #include "nsIDOMCSSStyleDeclaration.h"
+#include "nsIDOMCSSStyleRule.h"
+#include "nsIDOMDocument.h"
 #include "nsIDOMDocumentTraversal.h"
+#include "nsIDOMElement.h"
 #include "nsIDOMElementCSSInlineStyle.h"
 #include "nsIDOMHTMLIFrameElement.h"
 #include "nsIDOMHTMLImageElement.h"
 #include "nsIDOMNamedNodeMap.h"
 #include "nsIDOMNodeFilter.h"
 #include "nsIDOMTreeWalker.h"
+#include "nsISupportsArray.h"
+#include "nsServiceManagerUtils.h"  // for do_GetService
 #include "nsStringAPI.h"
 
 #include "base/logging.h"
 
 namespace {
 
-class NodeFilter : public nsIDOMNodeFilter
-{
-public:
+const char* kDomUtilsContractId = "@mozilla.org/inspector/dom-utils;1";
+
+bool GetStylePropertyByName(nsIDOMCSSStyleDeclaration* style,
+                            const std::string& name,
+                            std::string* property_value) {
+  NS_ConvertASCIItoUTF16 ns_name(name.c_str());
+
+  nsString value;
+  nsresult rv = style->GetPropertyValue(ns_name, value);
+  if (NS_FAILED(rv) || value.Length() == 0) {
+    return false;
+  }
+
+  NS_ConvertUTF16toUTF8 converter(value);
+  *property_value = converter.get();
+  return true;
+}
+
+bool GetInlineStylePropertyByName(nsIDOMElement* element,
+                                  const std::string& name,
+                                  std::string* property_value) {
+  nsresult rv;
+  nsCOMPtr<nsIDOMElementCSSInlineStyle> inline_style(
+      do_QueryInterface(element, &rv));
+  if (NS_FAILED(rv) || !inline_style) {
+    return false;
+  }
+
+  nsCOMPtr<nsIDOMCSSStyleDeclaration> style;
+  rv = inline_style->GetStyle(getter_AddRefs(style));
+  if (NS_FAILED(rv) || !style) {
+    return false;
+  }
+
+  return GetStylePropertyByName(style, name, property_value);
+}
+
+bool GetCascadedStylePropertyByName(nsIDOMElement* element,
+                                    const std::string& name,
+                                    std::string* property_value) {
+  nsresult rv;
+  nsCOMPtr<inIDOMUtils> dom_utils(do_GetService(kDomUtilsContractId, &rv));
+  if (NS_FAILED(rv) || !dom_utils) {
+    return false;
+  }
+
+  nsCOMPtr<nsISupportsArray> style_rules;
+  rv = dom_utils->GetCSSStyleRules(element, getter_AddRefs(style_rules));
+  if (NS_FAILED(rv) || !style_rules) {
+    return false;
+  }
+
+  PRUint32 num_style_rules;
+  rv = style_rules->Count(&num_style_rules);
+  if (NS_FAILED(rv) || num_style_rules == 0) {
+    return false;
+  }
+
+  for (int i = 0; i < num_style_rules; i++) {
+    nsCOMPtr<nsISupports> rule_supports = style_rules->ElementAt(i);
+    nsCOMPtr<nsIDOMCSSStyleRule> rule(do_QueryInterface(rule_supports, &rv));
+    if (NS_FAILED(rv) || !rule) {
+      continue;
+    }
+
+    nsCOMPtr<nsIDOMCSSStyleDeclaration> style;
+    rv = rule->GetStyle(getter_AddRefs(style));
+    if (NS_FAILED(rv) || !style) {
+      continue;
+    }
+
+    if (GetStylePropertyByName(style, name, property_value)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+class NodeFilter : public nsIDOMNodeFilter {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDOMNODEFILTER
 
   NodeFilter() {}
 
-private:
+ private:
   ~NodeFilter() {}
 };
 
@@ -188,34 +272,14 @@ bool FirefoxElement::GetAttributeByName(const std::string& name,
 
 bool FirefoxElement::GetCSSPropertyByName(const std::string& name,
                                           std::string* property_value) const {
-  nsresult rv;
-  nsCOMPtr<nsIDOMElementCSSInlineStyle> inline_style(
-      do_QueryInterface(element_, &rv));
-  if (NS_FAILED(rv) || !inline_style) {
-    return false;
+  // First check inline styles, since they take precedence.
+  if (GetInlineStylePropertyByName(element_, name, property_value)) {
+    return true;
   }
 
-  nsCOMPtr<nsIDOMCSSStyleDeclaration> style;
-  rv = inline_style->GetStyle(getter_AddRefs(style));
-  if (NS_FAILED(rv) || !style) {
-    return false;
-  }
-
-  NS_ConvertASCIItoUTF16 ns_name(name.c_str());
-
-  nsString value;
-  rv = style->GetPropertyValue(ns_name, value);
-  if (NS_FAILED(rv)) {
-    return false;
-  }
-
-  if (value.Length() == 0) {
-    return false;
-  }
-
-  NS_ConvertUTF16toUTF8 converter(value);
-  *property_value = converter.get();
-  return true;
+  // Next check cascaded properties (e.g. those in a style block or
+  // external stylesheet.
+  return GetCascadedStylePropertyByName(element_, name, property_value);
 }
 
 }  // namespace pagespeed
