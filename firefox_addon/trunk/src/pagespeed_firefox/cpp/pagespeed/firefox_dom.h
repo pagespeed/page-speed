@@ -44,6 +44,8 @@ class FirefoxElement : public DomElement {
   virtual std::string GetSource() const;
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
+  virtual bool GetCSSPropertyByName(const std::string& name,
+                                    std::string* property_value) const;
 
  private:
   nsCOMPtr<nsIDOMElement> element_;

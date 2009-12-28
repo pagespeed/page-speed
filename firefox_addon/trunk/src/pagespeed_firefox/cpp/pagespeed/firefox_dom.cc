@@ -17,7 +17,9 @@
 #include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
 
 #include "nsIDOMAttr.h"
+#include "nsIDOMCSSStyleDeclaration.h"
 #include "nsIDOMDocumentTraversal.h"
+#include "nsIDOMElementCSSInlineStyle.h"
 #include "nsIDOMHTMLIFrameElement.h"
 #include "nsIDOMHTMLImageElement.h"
 #include "nsIDOMNamedNodeMap.h"
@@ -181,6 +183,38 @@ bool FirefoxElement::GetAttributeByName(const std::string& name,
 
   NS_ConvertUTF16toUTF8 converter(value);
   *attr_value = converter.get();
+  return true;
+}
+
+bool FirefoxElement::GetCSSPropertyByName(const std::string& name,
+                                          std::string* property_value) const {
+  nsresult rv;
+  nsCOMPtr<nsIDOMElementCSSInlineStyle> inline_style(
+      do_QueryInterface(element_, &rv));
+  if (NS_FAILED(rv) || !inline_style) {
+    return false;
+  }
+
+  nsCOMPtr<nsIDOMCSSStyleDeclaration> style;
+  rv = inline_style->GetStyle(getter_AddRefs(style));
+  if (NS_FAILED(rv) || !style) {
+    return false;
+  }
+
+  NS_ConvertASCIItoUTF16 ns_name(name.c_str());
+
+  nsString value;
+  rv = style->GetPropertyValue(ns_name, value);
+  if (NS_FAILED(rv)) {
+    return false;
+  }
+
+  if (value.Length() == 0) {
+    return false;
+  }
+
+  NS_ConvertUTF16toUTF8 converter(value);
+  *property_value = converter.get();
   return true;
 }
 
