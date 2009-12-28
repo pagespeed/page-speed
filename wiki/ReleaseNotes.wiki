@@ -27,6 +27,10 @@ Changes that do not have issue numbers:
  * Updated latest supported version of Firebug to be 1.4.5
  * Enabled the export menu so that results can be published to http://www.showslow.com/ by default.  Added preferences so you can easily tweak them via the "about:config" URL.
 
+== 1.4: 11/5/2009 ==
+
+  * Use Closure Compiler in the "Minify JS" rule if the Closure Compiler Page Speed extension is installed.  This feature is currently only available under Windows and requires Sun Java VM 1.6 or later; support for other platforms is in the works.
+
 == 1.3: 10/8/2009 ==
 
   * Added "Minify CSS" rule.
