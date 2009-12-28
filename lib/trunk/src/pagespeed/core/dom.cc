@@ -16,6 +16,12 @@
 
 #include "dom.h"
 
+#include "base/logging.h"
+
+#define NOT_IMPLEMENTED() do {                          \
+    LOG(WARNING) << __FUNCTION__ << " not implemented"; \
+  } while (false)
+
 namespace pagespeed {
 
 DomDocument::DomDocument() {}
@@ -25,6 +31,23 @@ DomDocument::~DomDocument() {}
 DomElement::DomElement() {}
 
 DomElement::~DomElement() {}
+
+bool DomElement::GetResourceUrl(std::string* src) const {
+  NOT_IMPLEMENTED();
+  return false;
+};
+
+bool DomElement::GetAttributeByName(const std::string& name,
+                                    std::string* attr_value) const {
+  NOT_IMPLEMENTED();
+  return false;
+};
+
+bool DomElement::GetCSSPropertyByName(const std::string& name,
+                                      std::string* property_value) const {
+  NOT_IMPLEMENTED();
+  return false;
+};
 
 DomElementVisitor::DomElementVisitor() {}
 

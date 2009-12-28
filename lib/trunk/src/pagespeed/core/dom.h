@@ -73,19 +73,20 @@ class DomElement {
   //
   // @param src output parameter to hold the URL of the resource.
   // @return true if the node has an associated resource URL.
-  virtual bool GetResourceUrl(std::string* src) const = 0;
+  virtual bool GetResourceUrl(std::string* src) const;
 
   // @param name attribute name
   // @param attr_value output parameter to hold attribute value
   // @return true if the node has an attribute with that name.
   virtual bool GetAttributeByName(const std::string& name,
-                                  std::string* attr_value) const = 0;
+                                  std::string* attr_value) const;
 
   // @param name css property name
   // @param property_value output parameter to hold the css property value
   // @return true if the node has an attribute with that name.
   virtual bool GetCSSPropertyByName(const std::string& name,
-                                    std::string* property_value) const = 0;
+                                    std::string* property_value) const;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(DomElement);
 };
