@@ -41,7 +41,9 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
 
       if (!height_specified || !width_specified) {
         std::string src;
-        node.GetAttributeByName("src", &src);
+        if (!node.GetResourceUrl(&src)) {
+          return;
+        }
         pagespeed::Result* result = results_->add_results();
         result->set_rule_name(kRuleName);
         result->add_resource_urls(src);
