@@ -30,12 +30,12 @@
     <em:updateURL><![CDATA[https://tools.google.com/service/update2/ff?guid=%ITEM_ID%&version=%ITEM_VERSION%&application=%APP_ID%&appversion=%APP_VERSION%]]></em:updateURL>
     <em:type>2</em:type> <!-- type=extension -->
 
-    <!-- Firefox -->
+    <!-- Any suitably modern toolkit application -->
     <em:targetApplication>
       <Description>
-        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>3.0</em:minVersion>
-        <em:maxVersion>3.5.*</em:maxVersion>
+        <em:id>toolkit@mozilla.org</em:id>
+        <em:minVersion>1.9.0.11</em:minVersion>
+        <em:maxVersion>1.9.3.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
