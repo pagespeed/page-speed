@@ -64,6 +64,17 @@ class DomElement {
   // always UPPERCASE.
   virtual std::string GetTagName() const = 0;
 
+  // Gets the absolute URL of the resource associated with this
+  // node. For instance, the URL referenced in the 'src' attribute of
+  // an img or script tag, or the 'href' attibute of a link tag. Does
+  // not return resources referenced in the 'href' attribute of an 'a'
+  // tag, since those resources are not part of the page that this
+  // DomElement belongs to.
+  //
+  // @param src output parameter to hold the URL of the resource.
+  // @return true if the node has an associated resource URL.
+  virtual bool GetResourceUrl(std::string* src) const = 0;
+
   // @param name attribute name
   // @param attr_value output parameter to hold attribute value
   // @return true if the node has an attribute with that name.
