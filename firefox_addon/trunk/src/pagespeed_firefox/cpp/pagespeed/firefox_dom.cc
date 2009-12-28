@@ -17,6 +17,7 @@
 #include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
 
 #include "inIDOMUtils.h"
+#include "nsIDOM3Node.h"
 #include "nsIDOMAttr.h"
 #include "nsIDOMCSSStyleDeclaration.h"
 #include "nsIDOMCSSStyleRule.h"
@@ -25,11 +26,13 @@
 #include "nsIDOMElement.h"
 #include "nsIDOMElementCSSInlineStyle.h"
 #include "nsIDOMHTMLIFrameElement.h"
-#include "nsIDOMHTMLImageElement.h"
 #include "nsIDOMNamedNodeMap.h"
 #include "nsIDOMNodeFilter.h"
 #include "nsIDOMTreeWalker.h"
 #include "nsISupportsArray.h"
+#include "nsIURI.h"
+#include "nsNetCID.h"
+#include "nsNetUtil.h"
 #include "nsServiceManagerUtils.h"  // for do_GetService
 #include "nsStringAPI.h"
 
@@ -216,22 +219,49 @@ std::string FirefoxElement::GetTagName() const {
   return converter.get();
 }
 
-std::string FirefoxElement::GetSource() const {
-  {
-    nsresult rv;
-    nsCOMPtr<nsIDOMHTMLImageElement> as_image_element(
-        do_QueryInterface(element_, &rv));
-    if (!NS_FAILED(rv)) {
-      nsString src;
-      rv = as_image_element->GetSrc(src);
-      if (!NS_FAILED(rv)) {
-        NS_ConvertUTF16toUTF8 converter(src);
-        return converter.get();
-      }
-    }
+bool FirefoxElement::GetResourceUrl(std::string* url) const {
+  std::string src;
+  if (!GetAttributeByName("src", &src)) {
+    return false;
   }
 
-  return "";
+  nsCOMPtr<nsIDOM3Node> node = do_QueryInterface(element_);
+  if (!node) {
+    return false;
+  }
+
+  nsString base_uri_str;
+  nsresult rv = node->GetBaseURI(base_uri_str);
+  if (NS_FAILED(rv) || base_uri_str.Length() == 0) {
+    return false;
+  }
+
+  // Convert from an nsString to an nsIURI.
+  nsCOMPtr<nsIURI> base_uri;
+  rv = NS_NewURI(getter_AddRefs(base_uri),
+                 base_uri_str,
+                 nsnull,
+                 nsnull);
+  if (NS_FAILED(rv) || !base_uri) {
+    return false;
+  }
+
+  // Convert the (possibly) relative src to an absolute URL, by
+  // resolving it relative to base_uri.
+  nsCString spec(src.c_str(), src.size());
+  nsCOMPtr<nsIURI> uri;
+  rv = NS_NewURI(getter_AddRefs(uri),
+                 spec,
+                 nsnull,
+                 base_uri);
+  if (NS_FAILED(rv) || !uri) {
+    return false;
+  }
+
+  nsCString uri_spec;
+  uri->GetSpec(uri_spec);
+  *url = uri_spec.get();
+  return true;
 }
 
 bool FirefoxElement::GetAttributeByName(const std::string& name,
