@@ -42,7 +42,7 @@ class FirefoxElement : public DomElement {
   FirefoxElement(nsIDOMElement* element);
   virtual DomDocument* GetContentDocument() const;
   virtual std::string GetTagName() const;
-  virtual std::string GetSource() const;
+  virtual bool GetResourceUrl(std::string* src) const;
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
   virtual bool GetCSSPropertyByName(const std::string& name,
