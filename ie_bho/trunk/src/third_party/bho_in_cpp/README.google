@@ -1,0 +1,10 @@
+URL: http://www.codeproject.com/KB/shell/BHOinCPP/BHOinCPP_src.zip
+Version: Unversioned (downloaded 12/29/2009)
+License: CPOL 1.02
+License File: LICENSE
+
+Description:
+Reference BHO implemented in C++ without ATL or MFC.
+
+Local Modifications:
+None
