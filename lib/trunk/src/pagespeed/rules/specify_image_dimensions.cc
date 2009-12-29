@@ -130,9 +130,9 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
           ImageDimensionDetails::message_set_extension);
 
       Argument url(Argument::URL, result.resource_urls(0));
-      Argument height(Argument::INTEGER, image_details.expected_height());
       Argument width(Argument::INTEGER, image_details.expected_width());
-      body->AddChild("$1 (Dimensions: $2 x $3)", url, height, width);
+      Argument height(Argument::INTEGER, image_details.expected_height());
+      body->AddChild("$1 (Dimensions: $2 x $3)", url, width, height);
     } else {
       Argument url(Argument::URL, result.resource_urls(0));
       body->AddChild("$1", url);

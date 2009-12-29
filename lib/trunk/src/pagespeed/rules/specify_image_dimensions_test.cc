@@ -358,7 +358,7 @@ TEST_F(SpecifyImageDimensionsTest, MultipleViolations) {
 TEST_F(SpecifyImageDimensionsTest, FormatTest) {
   std::string expected =
       "The following image(s) are missing width and/or height attributes.\n"
-      "  http://test.com/image.png (Dimensions: 23 x 42)\n";
+      "  http://test.com/image.png (Dimensions: 42 x 23)\n";
 
   MockDocument* doc = new MockDocument;
   std::map<std::string, std::string> attributes, css_properties;
