@@ -13,12 +13,13 @@
 # limitations under the License.
 
 {
-  'includes': [
-    '../third_party/chromium/src/build/common.gypi',
-  ],
   'target_defaults': {
-    'defines!': [
-      'WIN32_LEAN_AND_MEAN',
+    'defines': [
+      'WIN32',
+      'NDEBUG',
+      '_WINDOWS',
+      '_USRDLL',
+      'BHOINCPP_EXPORTS',
     ],
   },
 }
