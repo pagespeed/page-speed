@@ -295,20 +295,20 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
     if (details.HasExtension(ImageDimensionDetails::message_set_extension)) {
       const ImageDimensionDetails& image_details = details.GetExtension(
           ImageDimensionDetails::message_set_extension);
-      Argument expected_h(Argument::INTEGER, image_details.expected_height());
       Argument expected_w(Argument::INTEGER, image_details.expected_width());
-      Argument actual_h(Argument::INTEGER, image_details.actual_height());
+      Argument expected_h(Argument::INTEGER, image_details.expected_height());
       Argument actual_w(Argument::INTEGER, image_details.actual_width());
+      Argument actual_h(Argument::INTEGER, image_details.actual_height());
 
       std::string format_str =
           "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
           "Serving a scaled image could save $6 ($7% reduction).";
       std::vector<const Argument*> args;
       args.push_back(&url_arg);
-      args.push_back(&expected_h);
       args.push_back(&expected_w);
-      args.push_back(&actual_h);
+      args.push_back(&expected_h);
       args.push_back(&actual_w);
+      args.push_back(&actual_h);
       args.push_back(&size_arg);
       args.push_back(&percent_arg);
 

@@ -311,7 +311,7 @@ TEST_F(ServeScaledImagesTest, FormatTest) {
   std::string expected =
       "The following images are resized in HTML or CSS.  "
       "Serving scaled images could save 47B (94% reduction).\n"
-      "  http://test.com/a.png is resized in HTML or CSS from 42x23 to 15x5.  "
+      "  http://test.com/a.png is resized in HTML or CSS from 23x42 to 5x15.  "
       "Serving a scaled image could save 47B (94% reduction).\n";
 
   MockDocument* doc = new MockDocument;
