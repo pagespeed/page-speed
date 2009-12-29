@@ -15,10 +15,19 @@
 {
   'targets': [
     {
-      'target_name': 'All',
-      'type': 'none',
-      'dependencies': [
-        '../third_party/bho_in_cpp/bho_in_cpp.gyp:*',
+      'target_name': 'bho_in_cpp',
+      'type': 'loadable_module',
+      'variables': {
+        'src_root': 'BHOinCPP',
+      },
+      'sources': [
+        '<(src_root)/ClassFactory.cpp',
+        '<(src_root)/EventSink.cpp',
+        '<(src_root)/ObjectWithSite.cpp',
+        '<(src_root)/main.cpp',
+      ],
+      'include_dirs': [
+        '<(src_root)',
       ],
     },
   ],
