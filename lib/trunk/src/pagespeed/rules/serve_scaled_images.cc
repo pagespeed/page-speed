@@ -51,6 +51,11 @@ class ImageData {
   void Update(int natural_width, int natural_height,
               int client_width, int client_height);
 
+  int natural_width() const { return natural_width_; }
+  int natural_height() const { return natural_height_; }
+  int client_width() const { return client_width_; }
+  int client_height() const { return client_height_; }
+
  private:
   std::string url_;
   bool size_mismatch_;
@@ -222,6 +227,15 @@ bool ServeScaledImages::AppendResults(const PagespeedInput& input,
 
     Savings* savings = result->mutable_savings();
     savings->set_response_bytes_saved(bytes_saved);
+
+    pagespeed::ResultDetails* details = result->mutable_details();
+    pagespeed::ImageDimensionDetails* image_details =
+        details->MutableExtension(
+            pagespeed::ImageDimensionDetails::message_set_extension);
+    image_details->set_expected_height(image_data->natural_height());
+    image_details->set_expected_width(image_data->natural_width());
+    image_details->set_actual_height(image_data->client_height());
+    image_details->set_actual_width(image_data->client_width());
   }
 
   STLDeleteContainerPairSecondPointers(image_data_map.begin(),
@@ -277,11 +291,34 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
                          (original_size == 0 ? 0 :
                           (100 * bytes_saved) / original_size));
 
-    // TODO Include the original/resized dimensions in the output (need to add
-    //      them to the Result object in AppendResults somehow).
-    body->AddChild("$1 is resized in HTML or CSS.  Serving a "
-                   "scaled image could save $2 ($3% reduction).",
-                   url_arg, size_arg, percent_arg);
+    const ResultDetails& details = result.details();
+    if (details.HasExtension(ImageDimensionDetails::message_set_extension)) {
+      const ImageDimensionDetails& image_details = details.GetExtension(
+          ImageDimensionDetails::message_set_extension);
+      Argument expected_h(Argument::INTEGER, image_details.expected_height());
+      Argument expected_w(Argument::INTEGER, image_details.expected_width());
+      Argument actual_h(Argument::INTEGER, image_details.actual_height());
+      Argument actual_w(Argument::INTEGER, image_details.actual_width());
+
+      std::string format_str =
+          "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
+          "Serving a scaled image could save $6 ($7% reduction).";
+      std::vector<const Argument*> args;
+      args.push_back(&url_arg);
+      args.push_back(&expected_h);
+      args.push_back(&expected_w);
+      args.push_back(&actual_h);
+      args.push_back(&actual_w);
+      args.push_back(&size_arg);
+      args.push_back(&percent_arg);
+
+      FormatterParameters formatter_args(&format_str, &args);
+      body->AddChild(formatter_args);
+    } else {
+      body->AddChild("$1 is resized in HTML or CSS.  Serving a "
+                     "scaled image could save $2 ($3% reduction).",
+                     url_arg, size_arg, percent_arg);
+    }
   }
 }
 

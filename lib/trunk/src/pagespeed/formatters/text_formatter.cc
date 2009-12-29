@@ -16,6 +16,7 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "pagespeed/formatters/formatter_util.h"
 
 namespace pagespeed {
 
@@ -85,7 +86,7 @@ std::string TextFormatter::Format(
         subst.push_back(IntToString(arg.int_value()));
         break;
       case Argument::BYTES:
-        subst.push_back(StringPrintf("%.1fKiB", arg.int_value() / 1024.0f));
+        subst.push_back(FormatBytes(arg.int_value()));
         break;
       default:
         LOG(DFATAL) << "Unknown argument type "

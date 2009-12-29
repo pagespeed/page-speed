@@ -13,12 +13,14 @@
 // limitations under the License.
 
 #include <string>
+#include <sstream>
 
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/serve_scaled_images.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -160,6 +162,32 @@ class ServeScaledImagesTest : public ::testing::Test {
     CheckExpectedViolations(document, expected);
   }
 
+  void CheckFormattedOutput(MockDocument* document,
+                            const std::string& expected_output) {
+    input_->AcquireDomDocument(document);
+
+    pagespeed::Results results;
+    {
+      // compute results
+      pagespeed::rules::ServeScaledImages scaling_rule;
+      ASSERT_TRUE(scaling_rule.AppendResults(*input_, &results));
+    }
+
+    {
+      // format results
+      pagespeed::ResultVector result_vector;
+      for (int ii = 0; ii < results.results_size(); ++ii) {
+        result_vector.push_back(&results.results(ii));
+      }
+
+      std::stringstream output;
+      pagespeed::formatters::TextFormatter formatter(&output);
+      pagespeed::rules::ServeScaledImages scaling_rule;
+      scaling_rule.FormatResults(result_vector, &formatter);
+      EXPECT_EQ(expected_output, output.str());
+    }
+  }
+
  private:
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<std::string>& expected) {
@@ -277,6 +305,24 @@ TEST_F(ServeScaledImagesTest, ShrunkAndIncreased) {
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        5, 15, 23, 42));
   CheckNoViolations(doc);
+}
+
+TEST_F(ServeScaledImagesTest, FormatTest) {
+  std::string expected =
+      "The following images are resized in HTML or CSS.  "
+      "Serving scaled images could save 47B (94% reduction).\n"
+      "  http://test.com/a.png is resized in HTML or CSS from 42x23 to 15x5.  "
+      "Serving a scaled image could save 47B (94% reduction).\n";
+
+  MockDocument* doc = new MockDocument;
+  AddPngResource("http://test.com/a.png", 50);
+  doc->AddElement(new MockImageElement("http://test.com/a.png", 5, 15, 23, 42));
+  CheckFormattedOutput(doc, expected);
+}
+
+TEST_F(ServeScaledImagesTest, FormatNoOutputTest) {
+  MockDocument* doc = new MockDocument;
+  CheckFormattedOutput(doc, "");
 }
 
 }  // namespace

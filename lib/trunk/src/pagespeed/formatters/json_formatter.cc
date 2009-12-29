@@ -16,21 +16,9 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "pagespeed/formatters/formatter_util.h"
 
 namespace {
-
-const int kBytesPerKiB = 1 << 10;
-const int kBytesPerMiB = 1 << 20;
-
-std::string FormatBytes(const int bytes) {
-  if (bytes < kBytesPerKiB) {
-    return StringPrintf("%dB", bytes);
-  } else if (bytes < kBytesPerMiB) {
-    return StringPrintf("%.1fKiB", bytes / static_cast<double>(kBytesPerKiB));
-  } else {
-    return StringPrintf("%.1fMiB", bytes / static_cast<double>(kBytesPerMiB));
-  }
-}
 
 std::string QuotedJsonString(const std::string& str) {
   std::string quoted("\"");

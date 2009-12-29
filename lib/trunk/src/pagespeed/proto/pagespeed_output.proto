@@ -50,6 +50,22 @@ message ResultDetails {
   extensions 1000 to max;
 }
 
+// Result detail to store image dimension information.
+message ImageDimensionDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional ImageDimensionDetails message_set_extension = 4812135;  // 'Img'
+  }
+
+  // Natural dimensions of the image element.
+  optional int32 expected_height = 1;
+  optional int32 expected_width = 2;
+
+  // Actual dimensions of the displayed image element.
+  optional int32 actual_height = 3;
+  optional int32 actual_width = 4;
+}
+
 message Result {
   // Identifier of rule that produced this result.
   required string rule_name = 1;
