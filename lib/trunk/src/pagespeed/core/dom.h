@@ -81,9 +81,25 @@ class DomElement {
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
 
+  // Gets properties of the node object whose values are strings.
+  //
+  // @param name property name
+  // @param property_value output parameter to hold property value
+  // @return true if the node has a property with that name.
+  virtual bool GetStringPropertyByName(const std::string& name,
+                                       std::string* property_value) const;
+
+  // Like GetStringPropertyByName, but returns integer values.
+  //
+  // @param name property name
+  // @param property_value output parameter to hold property value
+  // @return true if the node has a property with that name.
+  virtual bool GetIntPropertyByName(const std::string& name,
+                                    int* property_value) const;
+
   // @param name css property name
   // @param property_value output parameter to hold the css property value
-  // @return true if the node has an attribute with that name.
+  // @return true if the node has a css property with that name.
   virtual bool GetCSSPropertyByName(const std::string& name,
                                     std::string* property_value) const;
 
