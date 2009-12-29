@@ -21,6 +21,7 @@
         'src_root': 'BHOinCPP',
       },
       'sources': [
+        '<(src_root)/dll.def',
         '<(src_root)/ClassFactory.cpp',
         '<(src_root)/EventSink.cpp',
         '<(src_root)/ObjectWithSite.cpp',
