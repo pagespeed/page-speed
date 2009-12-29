@@ -13,42 +13,42 @@
 # limitations under the License.
 
 vars = {
-  "chromium_trunk": "http://src.chromium.org/svn/trunk/",
+  "chromium_trunk": "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@31426",
-  "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk/",
+  "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
 }
 
 deps = {
 
   "src/base":
-    Var("libpagespeed_trunk") + "src/base" + Var("libpagespeed_revision"),
+    Var("libpagespeed_trunk") + "/src/base" + Var("libpagespeed_revision"),
 
   "src/googleurl":
     "http://google-url.googlecode.com/svn/trunk@120",
 
   "src/googleurl_noicu":
-    (Var("libpagespeed_trunk") + "src/googleurl_noicu" +
+    (Var("libpagespeed_trunk") + "/src/googleurl_noicu" +
      Var("libpagespeed_revision")),
 
   "src/site_scons/site_tools":
-    (Var("chromium_trunk") + "src/site_scons/site_tools" +
+    (Var("chromium_trunk") + "/src/site_scons/site_tools" +
      Var("chromium_revision")),
 
   "src/testing":
-    Var("chromium_trunk") + "src/testing" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
 
   "src/testing/gtest":
     "http://googletest.googlecode.com/svn/trunk@336",
 
   "src/third_party/chromium/src/base":
-    Var("chromium_trunk") + "src/base" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
 
   "src/third_party/chromium/src/build":
-    Var("chromium_trunk") + "src/build" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
 
   "src/third_party/libpng":
-    (Var("chromium_trunk") + "src/third_party/libpng" +
+    (Var("chromium_trunk") + "/src/third_party/libpng" +
      Var("chromium_revision")),
 
   "src/third_party/chromium/src/third_party/libjpeg":
@@ -56,32 +56,32 @@ deps = {
      Var("chromium_revision")),
 
   "src/third_party/libpagespeed/src/pagespeed":
-    (Var("libpagespeed_trunk") + "src/pagespeed" +
+    (Var("libpagespeed_trunk") + "/src/pagespeed" +
      Var("libpagespeed_revision")),
 
   "src/third_party/libpagespeed/src/third_party":
-    (Var("libpagespeed_trunk") + "src/third_party" +
+    (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
   "src/third_party/protobuf2":
-    (Var("chromium_trunk") + "src/third_party/protobuf2" +
+    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
      Var("chromium_revision")),
 
   "src/third_party/protobuf2/src":
     "http://protobuf.googlecode.com/svn/trunk@219",
 
   "src/third_party/scons":
-    (Var("chromium_trunk") + "src/third_party/scons" +
+    (Var("chromium_trunk") + "/src/third_party/scons" +
      Var("chromium_revision")),
 
   "src/third_party/zlib":
-    Var("chromium_trunk") + "src/third_party/zlib" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
 
   "src/tools/data_pack":
-    Var("chromium_trunk") + "src/tools/data_pack" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
 
   "src/tools/grit":
-    Var("chromium_trunk") + "src/tools/grit" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
 
   "src/tools/gyp":
     "http://gyp.googlecode.com/svn/trunk@741",
