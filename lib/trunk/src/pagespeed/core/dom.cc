@@ -43,6 +43,18 @@ bool DomElement::GetAttributeByName(const std::string& name,
   return false;
 };
 
+bool DomElement::GetStringPropertyByName(const std::string& name,
+                                         std::string* property_value) const {
+  NOT_IMPLEMENTED();
+  return false;
+}
+
+bool DomElement::GetIntPropertyByName(const std::string& name,
+                                      int* property_value) const {
+  NOT_IMPLEMENTED();
+  return false;
+}
+
 bool DomElement::GetCSSPropertyByName(const std::string& name,
                                       std::string* property_value) const {
   NOT_IMPLEMENTED();
