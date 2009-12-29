@@ -26,8 +26,10 @@
 #include "nsIDOMElement.h"
 #include "nsIDOMElementCSSInlineStyle.h"
 #include "nsIDOMHTMLIFrameElement.h"
+#include "nsIDOMHTMLImageElement.h"
 #include "nsIDOMNamedNodeMap.h"
 #include "nsIDOMNodeFilter.h"
+#include "nsIDOMNSHTMLImageElement.h"
 #include "nsIDOMTreeWalker.h"
 #include "nsISupportsArray.h"
 #include "nsIURI.h"
@@ -298,6 +300,35 @@ bool FirefoxElement::GetAttributeByName(const std::string& name,
   NS_ConvertUTF16toUTF8 converter(value);
   *attr_value = converter.get();
   return true;
+}
+
+bool FirefoxElement::GetIntPropertyByName(const std::string& name,
+                                          int* property_value) const {
+  if (name == "clientWidth" || name == "clientHeight") {
+    nsresult rv;
+    nsCOMPtr<nsIDOMHTMLImageElement> image(do_QueryInterface(element_, &rv));
+    if (!NS_FAILED(rv)) {
+      if (name == "clientWidth") {
+        image->GetWidth(property_value);
+      } else {
+        image->GetHeight(property_value);
+      }
+      return true;
+    }
+  } else if (name == "naturalWidth" || name == "naturalHeight") {
+    nsresult rv;
+    nsCOMPtr<nsIDOMNSHTMLImageElement> image(do_QueryInterface(element_, &rv));
+    if (!NS_FAILED(rv)) {
+      if (name == "naturalWidth") {
+        image->GetNaturalWidth(property_value);
+      } else {
+        image->GetNaturalHeight(property_value);
+      }
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool FirefoxElement::GetCSSPropertyByName(const std::string& name,
