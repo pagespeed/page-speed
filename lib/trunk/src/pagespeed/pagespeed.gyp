@@ -238,6 +238,7 @@
         'pagespeed_output_pb',
       ],
       'sources': [
+        '<(pagespeed_root)/pagespeed/formatters/formatter_util.cc',
         '<(pagespeed_root)/pagespeed/formatters/json_formatter.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter.cc',
@@ -343,7 +344,6 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
-        'pagespeed_formatters',
         'pagespeed_input_pb',
         'pagespeed_output_pb',
         'pagespeed_proto',

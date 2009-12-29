@@ -16,6 +16,7 @@
 
 #include <set>
 
+#include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/formatter.h"
@@ -47,6 +48,17 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
         pagespeed::Result* result = results_->add_results();
         result->set_rule_name(kRuleName);
         result->add_resource_urls(src);
+
+        int natural_height = 0, natural_width = 0;
+        if (node.GetIntPropertyByName("naturalHeight", &natural_height) &&
+            node.GetIntPropertyByName("naturalWidth", &natural_width)) {
+          pagespeed::ResultDetails* details = result->mutable_details();
+          pagespeed::ImageDimensionDetails* image_details =
+              details->MutableExtension(
+                  pagespeed::ImageDimensionDetails::message_set_extension);
+          image_details->set_expected_height(natural_height);
+          image_details->set_expected_width(natural_width);
+        }
       }
     } else if (node.GetTagName() == "IFRAME") {
       // Do a recursive document traversal.
@@ -91,31 +103,37 @@ bool SpecifyImageDimensions::AppendResults(const PagespeedInput& input,
 
 void SpecifyImageDimensions::FormatResults(const ResultVector& results,
                                            Formatter* formatter) {
-  std::set<std::string> violation_urls;
-  for (ResultVector::const_iterator iter = results.begin(),
-           end = results.end();
-       iter != end;
-       ++iter) {
-    const Result& result = **iter;
-
-    for (int idx = 0; idx < result.resource_urls_size(); idx++) {
-      violation_urls.insert(result.resource_urls(idx));
-    }
-  }
-
-  if (violation_urls.empty()) {
+  if (results.empty()) {
     return;
   }
 
   Formatter* body = formatter->AddChild(
       "The following image(s) are missing width and/or height attributes.");
 
-  for (std::set<std::string>::const_iterator iter = violation_urls.begin(),
-           end = violation_urls.end();
+  for (ResultVector::const_iterator iter = results.begin(),
+           end = results.end();
        iter != end;
        ++iter) {
-    Argument url(Argument::URL, *iter);
-    body->AddChild("$1", url);
+    const Result& result = **iter;
+    if (result.resource_urls_size() != 1) {
+      LOG(DFATAL) << "Unexpected number of resource URLs.  Expected 1, Got "
+                  << result.resource_urls_size() << ".";
+      continue;
+    }
+
+    const ResultDetails& details = result.details();
+    if (details.HasExtension(ImageDimensionDetails::message_set_extension)) {
+      const ImageDimensionDetails& image_details = details.GetExtension(
+          ImageDimensionDetails::message_set_extension);
+
+      Argument url(Argument::URL, result.resource_urls(0));
+      Argument height(Argument::INTEGER, image_details.expected_height());
+      Argument width(Argument::INTEGER, image_details.expected_width());
+      body->AddChild("$1 (Dimensions: $2 x $3)", url, height, width);
+    } else {
+      Argument url(Argument::URL, result.resource_urls(0));
+      body->AddChild("$1", url);
+    }
   }
 }
 
