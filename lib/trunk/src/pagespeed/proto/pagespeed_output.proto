@@ -30,6 +30,10 @@ message Savings {
 
   // Download bytes that could be saved if page was optimized.
   optional int32 response_bytes_saved = 3;
+
+  // Number of page reflows that could have been saved by specifying
+  // resource dimensions.
+  optional int32 page_reflows_saved = 4;
 }
 
 message InputInformation {
