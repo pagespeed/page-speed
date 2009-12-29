@@ -45,6 +45,8 @@ class FirefoxElement : public DomElement {
   virtual bool GetResourceUrl(std::string* src) const;
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
+  virtual bool GetIntPropertyByName(const std::string& name,
+                                    int* property_value) const;
   virtual bool GetCSSPropertyByName(const std::string& name,
                                     std::string* property_value) const;
 
