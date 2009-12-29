@@ -49,6 +49,9 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
         result->set_rule_name(kRuleName);
         result->add_resource_urls(src);
 
+        pagespeed::Savings* savings = result->mutable_savings();
+        savings->set_page_reflows_saved(1);
+
         int natural_height = 0, natural_width = 0;
         if (node.GetIntPropertyByName("naturalHeight", &natural_height) &&
             node.GetIntPropertyByName("naturalWidth", &natural_width)) {

@@ -34,6 +34,15 @@ const double kRequestBytesImpact = 3.0;
 const double kRequestImpact = 5.0;
 const double kDnsLookupImpact = 1.5 * kRequestImpact;
 
+// Page reflow penalty derived from the constant used by the JS
+// implementation "Specify Image Dimensions" rule in the Page Speed
+// Firefox extension.
+// TODO Improve reflow scoring algorithm.  Reflow cost depends on the
+// size of the page structure that participates in the reflow
+// operation.  Scoring should probably depend on the total size of the
+// page.
+const double kReflowPenalty = 0.05;
+
 }
 
 namespace pagespeed {
@@ -44,7 +53,7 @@ Rule::~Rule() {}
 
 int Rule::ComputeScore(const InputInformation& input_info,
                        const ResultVector& results) {
-  int bytes_saved = 0, dns_saved = 0, requests_saved = 0;
+  int bytes_saved = 0, dns_saved = 0, requests_saved = 0, reflows_saved = 0;
   for (std::vector<const Result*>::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
@@ -55,6 +64,7 @@ int Rule::ComputeScore(const InputInformation& input_info,
       bytes_saved += savings.response_bytes_saved();
       dns_saved += savings.dns_requests_saved();
       requests_saved += savings.requests_saved();
+      reflows_saved += savings.page_reflows_saved();
     }
   }
 
@@ -82,6 +92,10 @@ int Rule::ComputeScore(const InputInformation& input_info,
     }
     normalized_savings +=
         kRequestImpact * requests_saved / input_info.number_resources();
+  }
+
+  if (reflows_saved > 0) {
+    normalized_savings += (kReflowPenalty * reflows_saved);
   }
 
   return std::max(0, (int)(100 * (1.0 - normalized_savings)));
