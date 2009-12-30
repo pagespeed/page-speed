@@ -159,6 +159,7 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
 
   std::vector<Rule*> rules;
   rule_provider::AppendCoreRules(&rules);
+  rule_provider::AppendDomRules(&rules);
   rules.push_back(new rules::OptimizeImages(true));
 
   Engine engine(rules);  // Ownership of rules is transferred to engine.
