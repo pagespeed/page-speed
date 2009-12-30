@@ -257,11 +257,7 @@ var doMinify = function(storage, script) {
   }
   if (runJsMin) {
     try {
-      if (NATIVE_JSMIN) {
-	compiledSource = NATIVE_JSMIN.minifyJs(uncompiledSource);
-      } else {
-	compiledSource = JSMIN.compile(uncompiledSource);
-      }
+      compiledSource = NATIVE_JSMIN.minifyJs(uncompiledSource);
       minifier = 'JSMin';
     } catch (e) {
       storage.aErrors.push([
