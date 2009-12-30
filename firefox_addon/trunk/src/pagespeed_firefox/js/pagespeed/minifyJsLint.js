@@ -257,9 +257,7 @@ var doMinify = function(storage, script) {
   }
   if (runJsMin) {
     try {
-      // NATIVE_JSMIN disabled for now since it causes a crash in XUL
-      // code under windows.
-      if (false && NATIVE_JSMIN) {
+      if (NATIVE_JSMIN) {
 	compiledSource = NATIVE_JSMIN.minifyJs(uncompiledSource);
       } else {
 	compiledSource = JSMIN.compile(uncompiledSource);

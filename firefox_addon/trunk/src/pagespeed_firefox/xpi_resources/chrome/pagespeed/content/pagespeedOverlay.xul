@@ -40,10 +40,6 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/minifyJsLint.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/imageDimensionsLint.js"/>
-  <script type="application/x-javascript"
-          src="chrome://pagespeed/content/imageScalingLint.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/styleBlocksInBodyLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/cacheControlLint.js"/>
