@@ -22,7 +22,7 @@ Create a directory to hold your source code.  It is important that the full dire
 For the Page Speed library:
   * `mkdir page-speed-library`
   * `cd page-speed-library`
-  * `gclient config http://page-speed.googlecode.com/src/lib/trunk/src`
+  * `gclient config http://page-speed.googlecode.com/svn/lib/trunk/src`
   * `gclient update --force`
 
 For the Page Speed Firefox Add-on shared library:
