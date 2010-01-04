@@ -108,6 +108,19 @@
       ]
     },
     {
+      'target_name': 'pagespeed_cssmin',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/cssmin/cssmin.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+    },
+    {
       'target_name': 'pagespeed_core',
       'type': '<(library)',
       'dependencies': [
@@ -163,6 +176,7 @@
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
         '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
         'pagespeed_core',
+        'pagespeed_cssmin',
         'pagespeed_jpeg_optimizer',
         'pagespeed_output_pb',
         'pagespeed_png_optimizer',
@@ -171,6 +185,7 @@
         '<(pagespeed_root)/pagespeed/rules/avoid_bad_requests.cc',
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources.cc',
         '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression.cc',
+        '<(pagespeed_root)/pagespeed/rules/minify_css.cc',
         '<(pagespeed_root)/pagespeed/rules/minify_javascript.cc',
         '<(pagespeed_root)/pagespeed/rules/minify_rule.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups.cc',
@@ -310,6 +325,7 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
+        'pagespeed_cssmin',
         'pagespeed_formatters',
         'pagespeed_input_pb',
         'pagespeed_output_pb',
@@ -325,12 +341,14 @@
         '<(pagespeed_root)/pagespeed/core/engine_test.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input_test.cc',
         '<(pagespeed_root)/pagespeed/core/resource_test.cc',
+        '<(pagespeed_root)/pagespeed/cssmin/cssmin_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/rules/avoid_bad_requests_test.cc',
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources_test.cc',
         '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minify_css_test.cc',
         '<(pagespeed_root)/pagespeed/rules/minify_javascript_test.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups_test.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_redirects_test.cc',
