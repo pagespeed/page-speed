@@ -217,29 +217,6 @@
       ],
     },
     {
-      'target_name': 'pagespeed_firefox_image_compressor',
-      'type': '<(library)',
-      'variables': {
-        'image_compressor_root': 'cpp/image_compressor',
-      },
-      'dependencies': [
-        'xulrunner_sdk',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_jpeg_optimizer',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_png_optimizer',
-      ],
-      'sources': [
-        'idl/IImageCompressor.idl',
-        '<(image_compressor_root)/image_compressor.cc',
-      ],
-      'include_dirs': [
-        '<(libpagespeed_root)',
-      ],
-      'export_dependent_settings': [
-        '<(DEPTH)/base/base.gyp:base',
-      ],
-    },
-    {
       'target_name': 'pagespeed_firefox_js_min',
       'type': '<(library)',
       'variables': {
@@ -381,7 +358,6 @@
       'dependencies': [
         'xulrunner_sdk',
         'pagespeed_firefox_activity_gecko',
-        'pagespeed_firefox_image_compressor',
         'pagespeed_firefox_js_min',
         'pagespeed_firefox_library_rules',
       ],
