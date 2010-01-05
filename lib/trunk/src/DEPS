@@ -15,21 +15,21 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@31426",
+  "chromium_revision": "@35449",
 }
 
 deps = {
   "src/googleurl":
-    "http://google-url.googlecode.com/svn/trunk@120",
+    "http://google-url.googlecode.com/svn/trunk@121",
 
   "src/testing/gtest":
-    "http://googletest.googlecode.com/svn/trunk@336",
+    "http://googletest.googlecode.com/svn/trunk@359",
 
   "src/third_party/protobuf2/src":
     "http://protobuf.googlecode.com/svn/trunk@219",
 
   "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@741",
+    "http://gyp.googlecode.com/svn/trunk@770",
 
   "src/third_party/chromium/src/build":
     Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
