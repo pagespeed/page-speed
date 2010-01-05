@@ -19,6 +19,14 @@
 # since gyp_chromium is automatically forcing its inclusion.
 {
   'variables': {
+    # Chromium uses system shared libraries on Linux by default
+    # (Chromium already has transitive dependencies on these libraries
+    # via gtk). We want to link these libraries into our binaries so
+    # we change the default behavior.
+    'use_system_libjpeg': 0,
+    'use_system_libpng': 0,
+    'use_system_zlib': 0,
+
     # .gyp files should set chromium_code to 1 if they build Chromium-specific
     # code, as opposed to external code.  This variable is used to control
     # such things as the set of warnings to enable, and whether warnings are
@@ -37,12 +45,12 @@
       # Compute the architecture that we're building for. Default to the
       # architecture that we're building on.
       'conditions': [
-        [ 'OS=="linux"', {
+        [ 'OS=="linux" or OS=="freebsd"', {
           # This handles the Linux platforms we generally deal with. Anything
           # else gets passed through, which probably won't work very well; such
           # hosts should pass an explicit target_arch to gyp.
           'target_arch%':
-            '<!(uname -m | sed -e "s/i.86/ia32/;s/x86_64/x64/;s/arm.*/arm/")',
+            '<!(uname -m | sed -e "s/i.86/ia32/;s/x86_64/x64/;s/amd64/x64/;s/arm.*/arm/")',
         }, {  # OS!="linux"
           'target_arch%': 'ia32',
         }],
@@ -90,8 +98,11 @@
     # but that doesn't work as we'd like.
     'msvs_debug_link_incremental%': '2',
 
+    # The system root for cross-compiles. Default: none.
+    'sysroot%': '',
+
     'conditions': [
-      ['OS=="linux"', {
+      ['OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
         # This will set gcc_version to XY if you are running gcc X.Y.*.
         # This is used to tweak build flags for gcc 4.4.
         'gcc_version%': '<!(python <(DEPTH)/build/compiler_version.py)',
@@ -100,30 +111,63 @@
   },
   'target_defaults': {
     'variables': {
+      # See http://gcc.gnu.org/onlinedocs/gcc-4.4.2/gcc/Optimize-Options.html
       'mac_release_optimization%': '3', # Use -O3 unless overridden
       'mac_debug_optimization%': '0',   # Use -O0 unless overridden
+      # See http://msdn.microsoft.com/en-us/library/aa652360(VS.71).aspx
+      'win_release_Optimization%': '3', # 3 = /Os
+      'win_debug_Optimization%': '0',   # 0 = /Od
+      # See http://msdn.microsoft.com/en-us/library/aa652367(VS.71).aspx
+      'win_release_RuntimeLibrary%': '0', # 0 = /MT (nondebug static)
+      'win_debug_RuntimeLibrary%': '1',   # 1 = /MTd (debug static)
+
       'release_extra_cflags%': '',
       'debug_extra_cflags%': '',
-      'release_valgrind_build%': 0,
     },
     'default_configuration': 'Debug',
     'configurations': {
-       # VCLinkerTool LinkIncremental values below:
-       #   0 == default
-       #   1 == /INCREMENTAL:NO
-       #   2 == /INCREMENTAL
-       # Debug links incremental, Release does not.
-      'Common': {
+      # VCLinkerTool LinkIncremental values below:
+      #   0 == default
+      #   1 == /INCREMENTAL:NO
+      #   2 == /INCREMENTAL
+      # Debug links incremental, Release does not.
+      #
+      # Abstract base configurations to cover common
+      # attributes.
+      #
+      'Common_Base': {
         'abstract': 1,
         'msvs_configuration_attributes': {
           'OutputDirectory': '$(SolutionDir)$(ConfigurationName)',
           'IntermediateDirectory': '$(OutDir)\\obj\\$(ProjectName)',
           'CharacterSet': '1',
         },
+      },
+      'x86_Base': {
+        'abstract': 1,
+        'msvs_settings': {
+          'VCLinkerTool': {
+            'TargetMachine': '1',
+          },
+        },
         'msvs_configuration_platform': 'Win32',
       },
-      'Debug': {
-        'inherit_from': ['Common'],
+      'x64_Base': {
+        'abstract': 1,
+        'msvs_configuration_platform': 'x64',
+        'msvs_settings': {
+          'VCLinkerTool': {
+            'TargetMachine': '17', # x86 - 64
+          },
+        },
+        'msvs_settings': {
+          'VCLinkerTool': {
+            'TargetMachine': '17',
+          },
+        },
+      },
+      'Debug_Base': {
+        'abstract': 1,
         'xcode_settings': {
           'COPY_PHASE_STRIP': 'NO',
           'GCC_OPTIMIZATION_LEVEL': '<(mac_debug_optimization)',
@@ -131,10 +175,10 @@
         },
         'msvs_settings': {
           'VCCLCompilerTool': {
-            'Optimization': '0',
+            'Optimization': '<(win_debug_Optimization)',
             'PreprocessorDefinitions': ['_DEBUG'],
             'BasicRuntimeChecks': '3',
-            'RuntimeLibrary': '1',
+            'RuntimeLibrary': '<(win_debug_RuntimeLibrary)',
           },
           'VCLinkerTool': {
             'LinkIncremental': '<(msvs_debug_link_incremental)',
@@ -151,8 +195,8 @@
           }],
         ],
       },
-      'Release': {
-        'inherit_from': ['Common'],
+      'Release_Base': {
+        'abstract': 1,
         'defines': [
           'NDEBUG',
         ],
@@ -163,8 +207,10 @@
         },
         'msvs_settings': {
           'VCCLCompilerTool': {
+            'Optimization': '<(win_release_Optimization)',
+            'RuntimeLibrary': '<(win_release_RuntimeLibrary)',
+
             # from release_impl_official.vsprops
-            'Optimization': '3',
             'InlineFunctionExpansion': '2',
             'EnableIntrinsicFunctions': 'true',
             'FavorSizeOrSpeed': '2',
@@ -178,7 +224,7 @@
           },
           'VCLibrarianTool': {
             # from release_impl_official.vsprops
-            'AdditionalOptions': '/ltcg',
+            'AdditionalOptions': ['/ltcg'],
           },
           'VCLinkerTool': {
             # from release_impl_official.vsprops
@@ -196,9 +242,6 @@
           },
         },
         'conditions': [
-          ['release_valgrind_build==0', {
-            'defines': ['NVALGRIND'],
-          }],
           ['OS=="linux"', {
             'cflags': [
              '<@(release_extra_cflags)',
@@ -206,28 +249,42 @@
           }],
         ],
       },
+      #
+      # Concrete configurations
+      #
+      'Debug': {
+        'inherit_from': ['Common_Base', 'x86_Base', 'Debug_Base'],
+      },
+      'Release': {
+        'inherit_from': ['Common_Base', 'x86_Base', 'Release_Base'],
+      },
     },
   },
   'conditions': [
-    ['OS=="linux"', {
+    ['OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
       'target_defaults': {
         # Enable -Werror by default, but put it in a variable so it can
         # be disabled in ~/.gyp/include.gypi on the valgrind builders.
         'variables': {
-          'werror%': '-Werror',
           'no_strict_aliasing%': 0,
+          'conditions': [['OS=="linux"', {'werror%': '-Werror',}],
+                         ['OS=="freebsd"', {'werror%': '',}],
+                         ['OS=="openbsd"', {'werror%': '',}],
+          ],
         },
         'cflags': [
           '<(werror)',  # See note above about the werror variable.
           '-pthread',
           '-fno-exceptions',
-          '-fvisibility=hidden',
           '-Wall',
           '-D_FILE_OFFSET_BITS=64',
         ],
         'cflags_cc': [
           '-fno-rtti',
           '-fno-threadsafe-statics',
+          # Make inline functions have hidden visiblity by default.
+          # Surprisingly, not covered by -fvisibility=hidden.
+          '-fvisibility-inlines-hidden',
         ],
         'ldflags': [
           '-pthread',
@@ -292,7 +349,7 @@
           'LINK',
         ],
         'configurations': {
-          'Debug': {
+          'Debug_Base': {
             'variables': {
               'debug_optimize%': '0',
             },
@@ -309,7 +366,7 @@
               '-rdynamic',  # Allows backtrace to resolve symbols.
             ],
           },
-          'Release': {
+          'Release_Base': {
             'variables': {
               'release_optimize%': '2',
             },
@@ -322,6 +379,18 @@
               # can be removed at link time with --gc-sections.
               '-fdata-sections',
               '-ffunction-sections',
+              # Don't export any symbols (for example, to plugins we dlopen()).
+              # This must be in Release builds only because otherwise we don't
+              # get backtraces.
+              '-fvisibility=hidden',
+              # We don't use exceptions.  The eh_frame section is used for those
+              # and for symbolizing backtraces.  By passing this flag we drop
+              # the eh_frame section completely, we shaving off 2.5mb from
+              # our resulting binary.
+              '-fno-asynchronous-unwind-tables',
+            ],
+            'ldflags': [
+              '-Wl,--gc-sections',
             ],
           },
         },
@@ -368,6 +437,17 @@
               '-m32',
             ],
           }],
+          ['sysroot!=""', {
+            'target_conditions': [
+              ['_toolset=="target"', {
+                'cflags': [
+                  '--sysroot=<(sysroot)',
+                ],
+                'ldflags': [
+                  '--sysroot=<(sysroot)',
+                ],
+              }]]
+          }],
           ['no_strict_aliasing==1', {
             'cflags': [
               '-fno-strict-aliasing',
@@ -378,8 +458,8 @@
             # flag.
             'cflags!': [ '-fvisibility=hidden' ],
             'conditions': [
-              ['target_arch=="x64"', {
-                # Shared libraries need -fPIC on x86-64
+              ['target_arch=="x64" or target_arch=="arm"', {
+                # Shared libraries need -fPIC on x86-64 and arm
                 'cflags': ['-fPIC']
               }]
             ],
@@ -434,7 +514,7 @@
                 # strip_from_xcode will not be used, set Xcode to do the
                 # stripping as well.
                 'configurations': {
-                  'Release': {
+                  'Release_Base': {
                     'xcode_settings': {
                       'DEBUG_INFORMATION_FORMAT': 'dwarf-with-dsym',
                       'DEPLOYMENT_POSTPROCESSING': 'YES',
@@ -507,7 +587,7 @@
             'DebugInformationFormat': '3',
           },
           'VCLibrarianTool': {
-            'AdditionalOptions': '/ignore:4221',
+            'AdditionalOptions': ['/ignore:4221'],
           },
           'VCLinkerTool': {
             'AdditionalDependencies': [
@@ -517,7 +597,6 @@
             'GenerateDebugInformation': 'true',
             'MapFileName': '$(OutDir)\\$(TargetName).map',
             'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',
-            'TargetMachine': '1',
             'FixedBaseAddress': '1',
             # SubSystem values:
             #   0 == not set
@@ -544,7 +623,7 @@
       },
     }],
     ['chromium_code==0', {
-      # This section must follow the other conditon sections above because
+      # This section must follow the other condition sections above because
       # external_code.gypi expects to be merged into those settings.
       'includes': [
         '../third_party/chromium/src/build/external_code.gypi',
@@ -556,14 +635,58 @@
         'defines': [
           '__STDC_FORMAT_MACROS',
         ],
+        'conditions': [
+          ['OS!="win"', {
+            'sources/': [ ['exclude', '_win\\.cc$'],
+                          ['exclude', '/win/'],
+                          ['exclude', '/win_[^/]*\\.cc$'] ],
+          }],
+          ['OS!="mac"', {
+            'sources/': [ ['exclude', '_(cocoa|mac)(_unittest)?\\.cc$'],
+                          ['exclude', '/(cocoa|mac)/'],
+                          ['exclude', '\.mm$' ] ],
+          }],
+          ['OS!="linux" and OS!="freebsd" and OS!="openbsd"', {
+            'sources/': [
+              ['exclude', '_(chromeos|gtk|linux|x|x11)(_unittest)?\\.cc$'],
+              ['exclude', '/gtk/'],
+              ['exclude', '/(gtk|x11)_[^/]*\\.cc$'] ],
+          }],
+          # We use "POSIX" to refer to all non-Windows operating systems.
+          ['OS=="win"', {
+            'sources/': [ ['exclude', '_posix\\.cc$'] ],
+          }],
+        ],
       },
     }],
-    ['msvs_use_common_linker_extras', {
+    ['OS=="win" and msvs_use_common_linker_extras', {
       'target_defaults': {
-        'msvs_settings': {
-          'VCLinkerTool': {
-            'AdditionalOptions':
-              '/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat',
+        'configurations': {
+          'x86_Base': {
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'AdditionalOptions': [
+                  '/safeseh',
+                  '/dynamicbase',
+                  '/ignore:4199',
+                  '/ignore:4221',
+                  '/nxcompat',
+                ],
+              },
+            },
+          },
+          'x64_Base': {
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'AdditionalOptions': [
+                  # safeseh is not compatible with x64
+                  '/dynamicbase',
+                  '/ignore:4199',
+                  '/ignore:4221',
+                  '/nxcompat',
+                ],
+              },
+            },
           },
         },
       },

@@ -5,20 +5,26 @@
 #include "base/logging.h"
 
 #if defined(OS_WIN)
+#include <io.h>
 #include <windows.h>
 typedef HANDLE FileHandle;
 typedef HANDLE MutexHandle;
+// Windows warns on using write().  It prefers _write().
+#define write(fd, buf, count) _write(fd, buf, static_cast<unsigned int>(count))
+// Windows doesn't define STDERR_FILENO.  Define it here.
+#define STDERR_FILENO 2
 #elif defined(OS_MACOSX)
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <mach-o/dyld.h>
-#elif defined(OS_LINUX)
+#elif defined(OS_POSIX)
 #include <sys/syscall.h>
 #include <time.h>
 #endif
 
 #if defined(OS_POSIX)
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,10 +42,14 @@ typedef pthread_mutex_t* MutexHandle;
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug_util.h"
+#include "base/eintr_wrapper.h"
 #include "base/lock_impl.h"
+#if defined(OS_POSIX)
+#include "base/safe_strerror_posix.h"
+#endif
 #include "base/string_piece.h"
 #include "base/string_util.h"
-#include "base/sys_string_conversions.h"
+#include "base/utf_string_conversions.h"
 
 namespace logging {
 
@@ -94,6 +104,8 @@ LogAssertHandlerFunction log_assert_handler = NULL;
 // An report handler override specified by the client to be called instead of
 // the debug message dialog.
 LogReportHandlerFunction log_report_handler = NULL;
+// A log message handler that gets notified of every log message we process.
+LogMessageHandlerFunction log_message_handler = NULL;
 
 // The lock is used if log file locking is false. It helps us avoid problems
 // with multiple threads writing to the log file at the same time.  Use
@@ -125,6 +137,9 @@ int32 CurrentThreadId() {
   return mach_thread_self();
 #elif defined(OS_LINUX)
   return syscall(__NR_gettid);
+#elif defined(OS_FREEBSD)
+  // TODO(BSD): find a better thread ID
+  return reinterpret_cast<int64>(pthread_self());
 #endif
 }
 
@@ -133,7 +148,7 @@ uint64 TickCount() {
   return GetTickCount();
 #elif defined(OS_MACOSX)
   return mach_absolute_time();
-#elif defined(OS_LINUX)
+#elif defined(OS_POSIX)
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
 
@@ -214,7 +229,7 @@ bool InitializeLogFileHandle() {
   return true;
 }
 
-#if defined(OS_LINUX)
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
 int GetLoggingFileDescriptor() {
   // No locking needed, since this is only called by the zygote server,
   // which is single-threaded.
@@ -310,6 +325,11 @@ void SetLogReportHandler(LogReportHandlerFunction handler) {
   log_report_handler = handler;
 }
 
+void SetLogMessageHandler(LogMessageHandlerFunction handler) {
+  log_message_handler = handler;
+}
+
+
 // Displays a message box to the user with the error message in it. For
 // Windows programs, it's possible that the message loop is messed up on
 // a fatal error, and creating a MessageBox will cause that message loop
@@ -331,7 +351,7 @@ void DisplayDebugMessage(const std::string& str) {
     backslash[1] = 0;
   wcscat_s(prog_name, MAX_PATH, L"debug_message.exe");
 
-  std::wstring cmdline = base::SysUTF8ToWide(str);
+  std::wstring cmdline = UTF8ToWide(str);
   if (cmdline.empty())
     return;
 
@@ -353,6 +373,7 @@ void DisplayDebugMessage(const std::string& str) {
 #endif
 #else
   fprintf(stderr, "%s\n", str.c_str());
+  fflush(stderr);
 #endif
 }
 
@@ -446,6 +467,9 @@ LogMessage::~LogMessage() {
 #else
   str_newline.append("\n");
 #endif
+  // Give any log message handler first dibs on the message.
+  if (log_message_handler && log_message_handler(severity_, str_newline))
+    return;
 
   if (log_filter_prefix && severity_ <= kMaxFilteredLogLevel &&
       str_newline.compare(message_start_, log_filter_prefix->size(),
@@ -457,23 +481,28 @@ LogMessage::~LogMessage() {
       logging_destination == LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG) {
 #if defined(OS_WIN)
     OutputDebugStringA(str_newline.c_str());
-    if (severity_ >= kAlwaysPrintErrorLevel)
+    if (severity_ >= kAlwaysPrintErrorLevel) {
+#else
+    {
 #endif
-    // TODO(erikkay): this interferes with the layout tests since it grabs
-    // stderr and stdout and diffs them against known data. Our info and warn
-    // logs add noise to that.  Ideally, the layout tests would set the log
-    // level to ignore anything below error.  When that happens, we should
-    // take this fprintf out of the #else so that Windows users can benefit
-    // from the output when running tests from the command-line.  In the
-    // meantime, we leave this in for Mac and Linux, but until this is fixed
-    // they won't be able to pass any layout tests that have info or warn logs.
-    // See http://b/1343647
-    fprintf(stderr, "%s", str_newline.c_str());
+      // TODO(erikkay): this interferes with the layout tests since it grabs
+      // stderr and stdout and diffs them against known data. Our info and warn
+      // logs add noise to that.  Ideally, the layout tests would set the log
+      // level to ignore anything below error.  When that happens, we should
+      // take this fprintf out of the #else so that Windows users can benefit
+      // from the output when running tests from the command-line.  In the
+      // meantime, we leave this in for Mac and Linux, but until this is fixed
+      // they won't be able to pass any layout tests that have info or warn
+      // logs.  See http://b/1343647
+      fprintf(stderr, "%s", str_newline.c_str());
+      fflush(stderr);
+    }
   } else if (severity_ >= kAlwaysPrintErrorLevel) {
     // When we're only outputting to a log file, above a certain log level, we
     // should still output to stderr so that we can better detect and diagnose
     // problems with unit tests, especially on the buildbots.
     fprintf(stderr, "%s", str_newline.c_str());
+    fflush(stderr);
   }
 
   // write to log file
@@ -520,6 +549,7 @@ LogMessage::~LogMessage() {
               NULL);
 #else
     fprintf(log_file, "%s", str_newline.c_str());
+    fflush(log_file);
 #endif
 
     if (lock_log_file == LOCK_LOG_FILE) {
@@ -571,12 +601,131 @@ LogMessage::~LogMessage() {
   }
 }
 
+#if defined(OS_WIN)
+// This has already been defined in the header, but defining it again as DWORD
+// ensures that the type used in the header is equivalent to DWORD. If not,
+// the redefinition is a compile error.
+typedef DWORD SystemErrorCode;
+#endif
+
+SystemErrorCode GetLastSystemErrorCode() {
+#if defined(OS_WIN)
+  return ::GetLastError();
+#elif defined(OS_POSIX)
+  return errno;
+#else
+#error Not implemented
+#endif
+}
+
+#if defined(OS_WIN)
+Win32ErrorLogMessage::Win32ErrorLogMessage(const char* file,
+                                           int line,
+                                           LogSeverity severity,
+                                           SystemErrorCode err,
+                                           const char* module)
+    : err_(err),
+      module_(module),
+      log_message_(file, line, severity) {
+}
+
+Win32ErrorLogMessage::Win32ErrorLogMessage(const char* file,
+                                           int line,
+                                           LogSeverity severity,
+                                           SystemErrorCode err)
+    : err_(err),
+      module_(NULL),
+      log_message_(file, line, severity) {
+}
+
+Win32ErrorLogMessage::~Win32ErrorLogMessage() {
+  const int error_message_buffer_size = 256;
+  char msgbuf[error_message_buffer_size];
+  DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM;
+  HMODULE hmod;
+  if (module_) {
+    hmod = GetModuleHandleA(module_);
+    if (hmod) {
+      flags |= FORMAT_MESSAGE_FROM_HMODULE;
+    } else {
+      // This makes a nested Win32ErrorLogMessage. It will have module_ of NULL
+      // so it will not call GetModuleHandle, so recursive errors are
+      // impossible.
+      DPLOG(WARNING) << "Couldn't open module " << module_
+          << " for error message query";
+    }
+  } else {
+    hmod = NULL;
+  }
+  DWORD len = FormatMessageA(flags,
+                             hmod,
+                             err_,
+                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                             msgbuf,
+                             sizeof(msgbuf) / sizeof(msgbuf[0]),
+                             NULL);
+  if (len) {
+    while ((len > 0) &&
+           isspace(static_cast<unsigned char>(msgbuf[len - 1]))) {
+      msgbuf[--len] = 0;
+    }
+    stream() << ": " << msgbuf;
+  } else {
+    stream() << ": Error " << GetLastError() << " while retrieving error "
+        << err_;
+  }
+}
+#elif defined(OS_POSIX)
+ErrnoLogMessage::ErrnoLogMessage(const char* file,
+                                 int line,
+                                 LogSeverity severity,
+                                 SystemErrorCode err)
+    : err_(err),
+      log_message_(file, line, severity) {
+}
+
+ErrnoLogMessage::~ErrnoLogMessage() {
+  stream() << ": " << safe_strerror(err_);
+}
+#endif  // OS_WIN
+
 void CloseLogFile() {
   if (!log_file)
     return;
 
   CloseFile(log_file);
   log_file = NULL;
+}
+
+void RawLog(int level, const char* message) {
+  if (level >= min_log_level) {
+    size_t bytes_written = 0;
+    const size_t message_len = strlen(message);
+    int rv;
+    while (bytes_written < message_len) {
+      rv = HANDLE_EINTR(
+          write(STDERR_FILENO, message + bytes_written,
+                message_len - bytes_written));
+      if (rv < 0) {
+        // Give up, nothing we can do now.
+        break;
+      }
+      bytes_written += rv;
+    }
+
+    if (message_len > 0 && message[message_len - 1] != '\n') {
+      do {
+        rv = HANDLE_EINTR(write(STDERR_FILENO, "\n", 1));
+        if (rv < 0) {
+          // Give up, nothing we can do now.
+          break;
+        }
+      } while (rv != 1);
+    }
+  }
+
+  if (level == LOG_FATAL)
+    DebugUtil::BreakDebugger();
 }
 
 }  // namespace logging
@@ -586,7 +735,7 @@ void CloseLogFile() {
 // to branch) that refers to this operator.
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
 #ifdef ICU_DEPENDENCY
-  return out << base::SysWideToUTF8(std::wstring(wstr));
+  return out << WideToUTF8(std::wstring(wstr));
 #else
   CHECK(false) << "ostream << wchar_t not supported (non-icu build)";
   return out;

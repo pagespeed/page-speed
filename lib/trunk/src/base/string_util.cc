@@ -44,12 +44,12 @@ struct EmptyStrings {
 // Used by ReplaceStringPlaceholders to track the position in the string of
 // replaced parameters.
 struct ReplacementOffset {
-  ReplacementOffset(int parameter, size_t offset)
+  ReplacementOffset(uintptr_t parameter, size_t offset)
       : parameter(parameter),
         offset(offset) {}
 
   // Index of the parameter.
-  int parameter;
+  uintptr_t parameter;
 
   // Starting position in the string.
   size_t offset;
@@ -358,35 +358,41 @@ const string16& EmptyString16() {
 }
 #endif  // ICU_DEPENDENCY
 
-const wchar_t kWhitespaceWide[] = {
-  0x0009,  // <control-0009> to <control-000D>
-  0x000A,
-  0x000B,
-  0x000C,
-  0x000D,
-  0x0020,  // Space
-  0x0085,  // <control-0085>
-  0x00A0,  // No-Break Space
-  0x1680,  // Ogham Space Mark
-  0x180E,  // Mongolian Vowel Separator
-  0x2000,  // En Quad to Hair Space
-  0x2001,
-  0x2002,
-  0x2003,
-  0x2004,
-  0x2005,
-  0x2006,
-  0x2007,
-  0x2008,
-  0x2009,
-  0x200A,
-  0x200C,  // Zero Width Non-Joiner
-  0x2028,  // Line Separator
-  0x2029,  // Paragraph Separator
-  0x202F,  // Narrow No-Break Space
-  0x205F,  // Medium Mathematical Space
-  0x3000,  // Ideographic Space
+#define WHITESPACE_UNICODE \
+  0x0009, /* <control-0009> to <control-000D> */ \
+  0x000A,                                        \
+  0x000B,                                        \
+  0x000C,                                        \
+  0x000D,                                        \
+  0x0020, /* Space */                            \
+  0x0085, /* <control-0085> */                   \
+  0x00A0, /* No-Break Space */                   \
+  0x1680, /* Ogham Space Mark */                 \
+  0x180E, /* Mongolian Vowel Separator */        \
+  0x2000, /* En Quad to Hair Space */            \
+  0x2001,                                        \
+  0x2002,                                        \
+  0x2003,                                        \
+  0x2004,                                        \
+  0x2005,                                        \
+  0x2006,                                        \
+  0x2007,                                        \
+  0x2008,                                        \
+  0x2009,                                        \
+  0x200A,                                        \
+  0x200C, /* Zero Width Non-Joiner */            \
+  0x2028, /* Line Separator */                   \
+  0x2029, /* Paragraph Separator */              \
+  0x202F, /* Narrow No-Break Space */            \
+  0x205F, /* Medium Mathematical Space */        \
+  0x3000, /* Ideographic Space */                \
   0
+
+const wchar_t kWhitespaceWide[] = {
+  WHITESPACE_UNICODE
+};
+const char16 kWhitespaceUTF16[] = {
+  WHITESPACE_UNICODE
 };
 const char kWhitespaceASCII[] = {
   0x09,    // <control-0009> to <control-000D>
@@ -397,7 +403,8 @@ const char kWhitespaceASCII[] = {
   0x20,    // Space
   0
 };
-const char* const kCodepageUTF8 = "UTF-8";
+
+const char kUtf8ByteOrderMark[] = "\xEF\xBB\xBF";
 
 template<typename STR>
 TrimPositions TrimStringT(const STR& input,
@@ -437,6 +444,14 @@ bool TrimString(const std::wstring& input,
   return TrimStringT(input, trim_chars, TRIM_ALL, output) != TRIM_NONE;
 }
 
+#if !defined(WCHAR_T_IS_UTF16)
+bool TrimString(const string16& input,
+                const char16 trim_chars[],
+                string16* output) {
+  return TrimStringT(input, trim_chars, TRIM_ALL, output) != TRIM_NONE;
+}
+#endif
+
 bool TrimString(const std::string& input,
                 const char trim_chars[],
                 std::string* output) {
@@ -448,6 +463,14 @@ TrimPositions TrimWhitespace(const std::wstring& input,
                              std::wstring* output) {
   return TrimStringT(input, kWhitespaceWide, positions, output);
 }
+
+#if !defined(WCHAR_T_IS_UTF16)
+TrimPositions TrimWhitespace(const string16& input,
+                             TrimPositions positions,
+                             string16* output) {
+  return TrimStringT(input, kWhitespaceUTF16, positions, output);
+}
+#endif
 
 TrimPositions TrimWhitespaceASCII(const std::string& input,
                                   TrimPositions positions,
@@ -509,6 +532,13 @@ std::wstring CollapseWhitespace(const std::wstring& text,
                                 bool trim_sequences_with_line_breaks) {
   return CollapseWhitespaceT(text, trim_sequences_with_line_breaks);
 }
+
+#if !defined(WCHAR_T_IS_UTF16)
+string16 CollapseWhitespace(const string16& text,
+                            bool trim_sequences_with_line_breaks) {
+  return CollapseWhitespaceT(text, trim_sequences_with_line_breaks);
+}
+#endif
 
 std::string CollapseWhitespaceASCII(const std::string& text,
                                     bool trim_sequences_with_line_breaks) {
@@ -630,7 +660,7 @@ static inline bool IsInUTF8Sequence(int c) {
 // originally been UTF-8, but has been converted to wide characters because
 // that's what we (and Windows) use internally.
 template<typename CHAR>
-static bool IsStringUTF8T(const CHAR* str, int length) {
+static bool IsStringUTF8T(const CHAR* str, size_t length) {
   bool overlong = false;
   bool surrogate = false;
   bool nonchar = false;
@@ -645,7 +675,7 @@ static bool IsStringUTF8T(const CHAR* str, int length) {
   // are left in the sequence
   int positions_left = 0;
 
-  for (int i = 0; i < length; i++) {
+  for (uintptr_t i = 0; i < length; i++) {
     // This whole function assume an unsigned value so force its conversion to
     // an unsigned value.
     typename ToUnsigned<CHAR>::Unsigned c = str[i];
@@ -741,6 +771,12 @@ bool LowerCaseEqualsASCII(const std::wstring& a, const char* b) {
   return DoLowerCaseEqualsASCII(a.begin(), a.end(), b);
 }
 
+#if !defined(WCHAR_T_IS_UTF16)
+bool LowerCaseEqualsASCII(const string16& a, const char* b) {
+  return DoLowerCaseEqualsASCII(a.begin(), a.end(), b);
+}
+#endif
+
 bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
                           std::string::const_iterator a_end,
                           const char* b) {
@@ -752,11 +788,21 @@ bool LowerCaseEqualsASCII(std::wstring::const_iterator a_begin,
                           const char* b) {
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
+
+#if !defined(WCHAR_T_IS_UTF16)
+bool LowerCaseEqualsASCII(string16::const_iterator a_begin,
+                          string16::const_iterator a_end,
+                          const char* b) {
+  return DoLowerCaseEqualsASCII(a_begin, a_end, b);
+}
+#endif
+
 bool LowerCaseEqualsASCII(const char* a_begin,
                           const char* a_end,
                           const char* b) {
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
+
 bool LowerCaseEqualsASCII(const wchar_t* a_begin,
                           const wchar_t* a_end,
                           const char* b) {
@@ -764,6 +810,14 @@ bool LowerCaseEqualsASCII(const wchar_t* a_begin,
 }
 
 #ifdef ICU_DEPENDENCY
+#if !defined(WCHAR_T_IS_UTF16)
+bool LowerCaseEqualsASCII(const char16* a_begin,
+                          const char16* a_end,
+                          const char* b) {
+  return DoLowerCaseEqualsASCII(a_begin, a_end, b);
+}
+#endif
+
 bool EqualsASCII(const string16& a, const base::StringPiece& b) {
   if (a.length() != b.length())
     return false;
@@ -780,24 +834,34 @@ bool StartsWithASCII(const std::string& str,
     return base::strncasecmp(str.c_str(), search.c_str(), search.length()) == 0;
 }
 
-bool StartsWith(const std::wstring& str,
-                const std::wstring& search,
-                bool case_sensitive) {
+template <typename STR>
+bool StartsWithT(const STR& str, const STR& search, bool case_sensitive) {
   if (case_sensitive)
     return str.compare(0, search.length(), search) == 0;
   else {
     if (search.size() > str.size())
       return false;
     return std::equal(search.begin(), search.end(), str.begin(),
-                      CaseInsensitiveCompare<wchar_t>());
+                      CaseInsensitiveCompare<typename STR::value_type>());
   }
 }
 
-bool EndsWith(const std::wstring& str,
-              const std::wstring& search,
-              bool case_sensitive) {
-  std::wstring::size_type str_length = str.length();
-  std::wstring::size_type search_length = search.length();
+bool StartsWith(const std::wstring& str, const std::wstring& search,
+                bool case_sensitive) {
+  return StartsWithT(str, search, case_sensitive);
+}
+
+#if !defined(WCHAR_T_IS_UTF16)
+bool StartsWith(const string16& str, const string16& search,
+                bool case_sensitive) {
+  return StartsWithT(str, search, case_sensitive);
+}
+#endif
+
+template <typename STR>
+bool EndsWithT(const STR& str, const STR& search, bool case_sensitive) {
+  typename STR::size_type str_length = str.length();
+  typename STR::size_type search_length = search.length();
   if (search_length > str_length)
     return false;
   if (case_sensitive) {
@@ -805,9 +869,26 @@ bool EndsWith(const std::wstring& str,
   } else {
     return std::equal(search.begin(), search.end(),
                       str.begin() + (str_length - search_length),
-                      CaseInsensitiveCompare<wchar_t>());
+                      CaseInsensitiveCompare<typename STR::value_type>());
   }
 }
+
+bool EndsWith(const std::string& str, const std::string& search,
+              bool case_sensitive) {
+  return EndsWithT(str, search, case_sensitive);
+}
+
+bool EndsWith(const std::wstring& str, const std::wstring& search,
+              bool case_sensitive) {
+  return EndsWithT(str, search, case_sensitive);
+}
+
+#if !defined(WCHAR_T_IS_UTF16)
+bool EndsWith(const string16& str, const string16& search,
+              bool case_sensitive) {
+  return EndsWithT(str, search, case_sensitive);
+}
+#endif
 
 DataUnits GetByteDisplayUnits(int64 bytes) {
   // The byte thresholds at which we display amounts.  A byte count is displayed
@@ -1192,6 +1273,12 @@ std::wstring StringPrintf(const wchar_t* format, ...) {
   return result;
 }
 
+std::string StringPrintV(const char* format, va_list ap) {
+  std::string result;
+  StringAppendV(&result, format, ap);
+  return result;
+}
+
 const std::string& SStringPrintf(std::string* dst, const char* format, ...) {
   va_list ap;
   va_start(ap, format);
@@ -1255,6 +1342,14 @@ void SplitString(const std::wstring& str,
   SplitStringT(str, s, true, r);
 }
 
+#if !defined(WCHAR_T_IS_UTF16)
+void SplitString(const string16& str,
+                 char16 s,
+                 std::vector<string16>* r) {
+  SplitStringT(str, s, true, r);
+}
+#endif
+
 void SplitString(const std::string& str,
                  char s,
                  std::vector<std::string>* r) {
@@ -1266,6 +1361,14 @@ void SplitStringDontTrim(const std::wstring& str,
                          std::vector<std::wstring>* r) {
   SplitStringT(str, s, false, r);
 }
+
+#if !defined(WCHAR_T_IS_UTF16)
+void SplitStringDontTrim(const string16& str,
+                         char16 s,
+                         std::vector<string16>* r) {
+  SplitStringT(str, s, false, r);
+}
+#endif
 
 void SplitStringDontTrim(const std::string& str,
                          char s,
@@ -1294,12 +1397,18 @@ std::string JoinString(const std::vector<std::string>& parts, char sep) {
   return JoinStringT(parts, sep);
 }
 
+#if !defined(WCHAR_T_IS_UTF16)
+string16 JoinString(const std::vector<string16>& parts, char sep) {
+  return JoinStringT(parts, sep);
+}
+#endif
+
 std::wstring JoinString(const std::vector<std::wstring>& parts, wchar_t sep) {
   return JoinStringT(parts, sep);
 }
 
-void SplitStringAlongWhitespace(const std::wstring& str,
-                                std::vector<std::wstring>* result) {
+template<typename STR>
+void SplitStringAlongWhitespaceT(const STR& str, std::vector<STR>* result) {
   const size_t length = str.length();
   if (!length)
     return;
@@ -1336,6 +1445,23 @@ void SplitStringAlongWhitespace(const std::wstring& str,
     result->push_back(
         str.substr(last_non_ws_start, length - last_non_ws_start));
   }
+}
+
+void SplitStringAlongWhitespace(const std::wstring& str,
+                                std::vector<std::wstring>* result) {
+  SplitStringAlongWhitespaceT(str, result);
+}
+
+#if !defined(WCHAR_T_IS_UTF16)
+void SplitStringAlongWhitespace(const string16& str,
+                                std::vector<string16>* result) {
+  SplitStringAlongWhitespaceT(str, result);
+}
+#endif
+
+void SplitStringAlongWhitespace(const std::string& str,
+                                std::vector<std::string>* result) {
+  SplitStringAlongWhitespaceT(str, result);
 }
 
 template<class FormatStringType, class OutStringType>
@@ -1473,7 +1599,11 @@ static void EatWildcard(const CHAR** pattern) {
 }
 
 template <class CHAR>
-static bool MatchPatternT(const CHAR* eval, const CHAR* pattern) {
+static bool MatchPatternT(const CHAR* eval, const CHAR* pattern, int depth) {
+  const int kMaxDepth = 16;
+  if (depth > kMaxDepth)
+    return false;
+
   // Eat all the matching chars.
   EatSameChars(&pattern, &eval);
 
@@ -1493,8 +1623,8 @@ static bool MatchPatternT(const CHAR* eval, const CHAR* pattern) {
   // If this is a question mark, then we need to compare the rest with
   // the current string or the string with one character eaten.
   if (pattern[0] == '?') {
-    if (MatchPatternT(eval, pattern + 1) ||
-        MatchPatternT(eval + 1, pattern + 1))
+    if (MatchPatternT(eval, pattern + 1, depth + 1) ||
+        MatchPatternT(eval + 1, pattern + 1, depth + 1))
       return true;
   }
 
@@ -1502,7 +1632,7 @@ static bool MatchPatternT(const CHAR* eval, const CHAR* pattern) {
   // of the pattern.
   if (pattern[0] == '*') {
     while (*eval) {
-      if (MatchPatternT(eval, pattern + 1))
+      if (MatchPatternT(eval, pattern + 1, depth + 1))
         return true;
       eval++;
     }
@@ -1520,12 +1650,13 @@ static bool MatchPatternT(const CHAR* eval, const CHAR* pattern) {
   return false;
 }
 
-bool MatchPattern(const std::wstring& eval, const std::wstring& pattern) {
-  return MatchPatternT(eval.c_str(), pattern.c_str());
+bool MatchPatternWide(const std::wstring& eval, const std::wstring& pattern) {
+  return MatchPatternT(eval.c_str(), pattern.c_str(), 0);
 }
 
-bool MatchPattern(const std::string& eval, const std::string& pattern) {
-  return MatchPatternT(eval.c_str(), pattern.c_str());
+bool MatchPatternASCII(const std::string& eval, const std::string& pattern) {
+  DCHECK(IsStringASCII(eval) && IsStringASCII(pattern));
+  return MatchPatternT(eval.c_str(), pattern.c_str(), 0);
 }
 
 bool StringToInt(const std::string& input, int* output) {
@@ -1576,10 +1707,10 @@ bool HexDigitToIntT(const CHAR digit, uint8* val) {
 template<typename STR>
 bool HexStringToBytesT(const STR& input, std::vector<uint8>* output) {
   DCHECK(output->size() == 0);
-  int count = input.size();
+  size_t count = input.size();
   if (count == 0 || (count % 2) != 0)
     return false;
-  for (int i = 0; i < count / 2; ++i) {
+  for (uintptr_t i = 0; i < count / 2; ++i) {
     uint8 msb = 0;  // most significant 4 bits
     uint8 lsb = 0;  // least significant 4 bits
     if (!HexDigitToIntT(input[i * 2], &msb) ||
