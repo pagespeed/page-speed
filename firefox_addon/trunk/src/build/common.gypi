@@ -14,16 +14,11 @@
 
 {
   'variables': {
-    # Chromium uses system shared libraries on Linux by default
-    # (Chromium already has transitive dependencies on these libraries
-    # via gtk). We want to link these libraries into our binaries so
-    # we change the default behavior.
-    'use_system_libjpeg': 0,
-    'use_system_libpng': 0,
-    'use_system_zlib': 0,
+    # We must build for 10.4 for compatibility with Firefox.
+    'mac_deployment_target': '10.4',
   },
   'includes': [
-    '../third_party/chromium/src/build/common.gypi',
+    '../third_party/libpagespeed/src/build/common.gypi',
   ],
   'target_defaults': {
     'conditions': [
@@ -41,22 +36,10 @@
         'cflags!': [
           '-fvisibility=hidden',
         ],
-        'scons_variable_settings': {
-          # Hack to disable flock, which is not available on older
-          # versions of Ubuntu.
-          'FLOCK_LINK!': ['flock', '$TOP_BUILDDIR/linker.lock'],
-          'FLOCK_SHLINK!': ['flock', '$TOP_BUILDDIR/linker.lock'],
-          'FLOCK_LDMODULE!': ['flock', '$TOP_BUILDDIR/linker.lock'],
-        },
       }],
       ['OS == "mac"', {
         'xcode_settings': {
-          'OTHER_CFLAGS': [
-            '-fPIC',  # See note for -fPIC above.
-          ],
-          # We must build for 10.4 for compatibility with Firefox.
-          'MACOSX_DEPLOYMENT_TARGET': '10.4',
-          # This is equivalent to turning off -fvisibility-hidden, as above.
+          # This is equivalent to turning off -fvisibility=hidden, as above.
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
         },
       }],
