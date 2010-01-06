@@ -543,7 +543,7 @@
                       # so that gyp understands it's a path and performs proper
                       # relativization during dict merging.
                       'strip_from_xcode_path':
-                      '../third_party/chromium/src/build/mac/strip_from_xcode',
+                      '<(DEPTH)/third_party/chromium/src/build/mac/strip_from_xcode',
                     },
                     'postbuild_name': 'Strip If Needed',
                     'action': ['<(strip_from_xcode_path)'],
@@ -626,7 +626,7 @@
       # This section must follow the other condition sections above because
       # external_code.gypi expects to be merged into those settings.
       'includes': [
-        '../third_party/chromium/src/build/external_code.gypi',
+        'external_code.gypi',
       ],
     }, {
       'target_defaults': {
