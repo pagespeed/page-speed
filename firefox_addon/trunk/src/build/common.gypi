@@ -28,20 +28,6 @@
           # with Position-Independent Code.
           '-fPIC',
         ],
-        # As of r30253, Chromium's src/build/common.gypi turns on
-        # -fvisibility=hidden under certain conditions.  However, that breaks
-        # our build for some reason, so the setting below turns it back off.  A
-        # better fix for the future might be to add visibility pragmas to our
-        # code, or something.  (mdsteele)
-        'cflags!': [
-          '-fvisibility=hidden',
-        ],
-      }],
-      ['OS == "mac"', {
-        'xcode_settings': {
-          # This is equivalent to turning off -fvisibility=hidden, as above.
-          'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
-        },
       }],
     ],
   },
