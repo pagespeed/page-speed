@@ -78,13 +78,11 @@ PAGESPEED.ResultsWriter.openJsonExportDialog = function(resultsContainer) {
  * Update an export menu item to have the proper text showing where
  * the scores/results will be sent and enable if appropriate.
  *
- * @param {Object} beacon
- * @param {String} id of the menu item to update
- * @param {String} message to use for the menu item
+ * @param {Object} beacon The beacon to send.
+ * @param {String} menuItemId Id of the menu item to update.
+ * @param {String} message Message to use for the menu item.
  */
-
 var updateExportMenuItem = function(beacon, menuItemId, message) {
-
   var menuItem = document.getElementById(menuItemId);
   if (menuItem) {
     var domain = beacon.getBeaconDomain();
