@@ -192,7 +192,7 @@ PAGESPEED.Utils = {  // Begin namespace
 
   /**
    * Create an nsIArray from a Javascript array.
-   * @param {array} jsArray The Javascript array object.
+   * @param {Array} jsArray The Javascript array object.
    * @return {nsIArray} A new nsIArray object with the contents of jsArray.
    */
   newNsIArray: function (jsArray) {
