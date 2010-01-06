@@ -27,6 +27,11 @@
 
 (function() {  // Begin closure
 
+// If a page is loaded at startup, it is posible that we will not install the
+// page load timer before the page fires the start event.  In this case, use
+// the time the browser loaded this file.
+var timePageSpeedLoaded = (new Date()).getTime();
+
 var nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
 
 // Start timing on a start event that applies to a document.
@@ -42,9 +47,11 @@ var STOP_FILTER = (nsIWebProgressListener.STATE_STOP |
  * pageLoadTimer is passed to window.addProgressListener().  It implements the
  * nsIWebProgressListener interface.  See
  * http://developer.mozilla.org/en/docs/nsIWebProgressListener .
+ * @param {boolean} couldHaveMissedStart If true, the start of the page load
+ *     may have already happened.
  * @constructor
  */
-PAGESPEED.PageLoadTimer = function() {
+PAGESPEED.PageLoadTimer = function(couldHaveMissedStart) {
   /**
    * The window whose timing we are measuring.  null when no measurement
    * is in progress.
@@ -52,6 +59,7 @@ PAGESPEED.PageLoadTimer = function() {
    * @private
    */
   this.window_ = null;
+  this.couldHaveMissedStart_ = couldHaveMissedStart;
 };
 
 PAGESPEED.PageLoadTimer.prototype.QueryInterface = function(aIID) {
@@ -95,28 +103,50 @@ PAGESPEED.PageLoadTimer.prototype.onStateChange = function(
     // the top level window will have the first start event, and the last
     // stop event.
     this.window_ = aProgress.DOMWindow;
-    this.startTime_ = new Date().getTime();
+    this.startTime_ = (new Date()).getTime();
     delete this.loadTime_;
   }
 
   if ((aFlag & STOP_FILTER) == STOP_FILTER) {
+    var startTime;
+
     if (this.window_ == aProgress.DOMWindow) {
+      // We have a stop event for the extected window.
+      startTime = this.startTime_;
+
+    } else if (!this.window_ && this.couldHaveMissedStart_) {
+      // PageLoadTimer objects are installed on tabs as they are opened.
+      // Tabs that the browser opens at startup may start loading before
+      // the code in this file can add an evenrt listner, so we may miss
+      // a start event.  In this case, this.couldHaveMissedStart_ was set.
+      // Since this can only happen when the page started loading as the
+      // browser started up, use the time page speed was loaded as the
+      // start time.
+      startTime = timePageSpeedLoaded;
+    }
+
+    // If we saw a start time, compute the page load time.
+    if (startTime) {
       this.window_ = null;
-      this.loadTime_ = new Date().getTime() - this.startTime_;
+      this.loadTime_ = (new Date()).getTime() - startTime;
+
+      // We got a valid stop event, so there is no way we will not be listening
+      // for the next start event.
+      this.couldHaveMissedStart_ = false;
     }
   }
 
-  return 0;
+  return;
 };
 
 // The next five functions are required by the nsIWebProgressListener
 // interface, but do not do anything for Page Speed.
 PAGESPEED.PageLoadTimer.prototype.onLocationChange = function(
-    aProgress, aRequest, aURI) {return 0;};
-PAGESPEED.PageLoadTimer.prototype.onProgressChange = function() {return 0;};
-PAGESPEED.PageLoadTimer.prototype.onStatusChange = function() {return 0;};
-PAGESPEED.PageLoadTimer.prototype.onSecurityChange = function() {return 0;};
-PAGESPEED.PageLoadTimer.prototype.onLinkIconAvailable = function() {return 0;};
+    aProgress, aRequest, aURI) {return;};
+PAGESPEED.PageLoadTimer.prototype.onProgressChange = function() {return;};
+PAGESPEED.PageLoadTimer.prototype.onStatusChange = function() {return;};
+PAGESPEED.PageLoadTimer.prototype.onSecurityChange = function() {return;};
+PAGESPEED.PageLoadTimer.prototype.onLinkIconAvailable = function() {return;};
 
 
 /**
@@ -135,8 +165,12 @@ PAGESPEED.PageLoadTimer.getPageLoadTimeByTab = function(browserTab) {
 /**
  * Called when a tab is created.  Adds a page load listner.
  * @param {Object} event Record used to find the browser object of the new tab.
+ * @param {boolean} opt_couldHaveMissedStart If true, this function
+ *     is being called after the event that created the tab, meaning the
+ *     page load listener might be installed after the page in the tab
+ *     starts loading.
  */
-function installPageLoadTimerOnTab(event) {
+function installPageLoadTimerOnTab(event, opt_couldHaveMissedStart) {
   // browser is the XUL element of the browser that's been added.
   var browserTab = event.target.linkedBrowser;
 
@@ -147,7 +181,7 @@ function installPageLoadTimerOnTab(event) {
     return;
   }
 
-  var plt = new PAGESPEED.PageLoadTimer();
+  var plt = new PAGESPEED.PageLoadTimer(!!opt_couldHaveMissedStart);
 
   var NSD = Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT;
   browserTab.addProgressListener(plt, NSD);
@@ -190,7 +224,7 @@ function installTabListeners() {
   var numTabs = gBrowser.browsers.length;
   for (var i = 0; i < numTabs; ++i) {
     var browserTab = gBrowser.getBrowserAtIndex(i);
-    installPageLoadTimerOnTab({target: {linkedBrowser: browserTab}});
+    installPageLoadTimerOnTab({target: {linkedBrowser: browserTab}}, true);
   }
 }
 
