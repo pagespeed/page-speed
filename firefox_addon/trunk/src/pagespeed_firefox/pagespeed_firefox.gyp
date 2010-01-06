@@ -363,6 +363,13 @@
       ],
       'defines': [
         'PAGESPEED_INCLUDE_LIBRARY_RULES',
+
+        # HAVE_VISIBILITY_ATTRIBUTE instructs the Firefox module headers
+        # to mark NS_GetModule with gcc attribute visibility("default").
+        # Without this, Firefox would not be able to find its entry point
+        # into our shared library. See http://gcc.gnu.org/wiki/Visibility
+        # for additional information on the gcc visibility attribute.
+        'HAVE_VISIBILITY_ATTRIBUTE=1',
       ],
       'sources': [
         '<(src_root)/pagespeed/pagespeed_module.cc',
