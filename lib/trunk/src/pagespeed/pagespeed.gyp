@@ -121,6 +121,19 @@
       ],
     },
     {
+      'target_name': 'pagespeed_html',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/html/html_tag.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+    },
+    {
       'target_name': 'pagespeed_core',
       'type': '<(library)',
       'dependencies': [
@@ -327,6 +340,7 @@
         'pagespeed',
         'pagespeed_cssmin',
         'pagespeed_formatters',
+        'pagespeed_html',
         'pagespeed_input_pb',
         'pagespeed_output_pb',
         'pagespeed_proto',
@@ -345,6 +359,7 @@
         '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/html/html_tag_test.cc',
         '<(pagespeed_root)/pagespeed/rules/avoid_bad_requests_test.cc',
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources_test.cc',
         '<(pagespeed_root)/pagespeed/rules/enable_gzip_compression_test.cc',
