@@ -24,6 +24,7 @@
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
 #include "pagespeed/rules/serve_scaled_images.h"
+#include "pagespeed/rules/specify_charset_early.h"
 #include "pagespeed/rules/specify_image_dimensions.h"
 
 namespace pagespeed {
@@ -39,6 +40,7 @@ void AppendCoreRules(std::vector<Rule*> *rules) {
   rules->push_back(new rules::MinimizeDnsLookups());
   rules->push_back(new rules::MinimizeRedirects());
   rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
+  rules->push_back(new rules::SpecifyCharsetEarly());
 }
 
 void AppendDomRules(std::vector<Rule*> *rules) {
