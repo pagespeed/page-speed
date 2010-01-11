@@ -34,8 +34,17 @@ class HtmlTag {
   // starts with the < of an HTML Tag, and I read up to and including
   // the > that ends the tag.  RETURN a pointer past the > if I
   // successfully read a tag, or NULL if not.
+  //
   // This always destroys current contents of "this", if any.
+  //
+  // For ease of use, this method will lowercase the tag name and attribute
+  // names as it reads them (RFC 1866 section 3.2.3 specifies that tag and
+  // attribute names are not case sensitive).
   const char* ReadTag(const char* begin, const char* end);
+
+  // Search forward and read the next valid tag; return a pointer past the > of
+  // the tag that was read, or NULL if there are no more tags.
+  const char* ReadNextTag(const char* begin, const char* end);
 
   // Serialize the tag.
   std::string ToString() const;

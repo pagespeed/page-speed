@@ -22,7 +22,7 @@ using pagespeed::html::HtmlTag;
 namespace {
 
 TEST(HtmlTagTest, Basic) {
-  const std::string input("<foo bar baz=quux>");
+  const std::string input("<foo bar baz=quux blah=''>");
   const char* begin = input.data();
   const char* end = begin + input.size();
   HtmlTag tag;
@@ -39,7 +39,10 @@ TEST(HtmlTagTest, Basic) {
   ASSERT_TRUE(tag.HasAttrValue("baz"));
   ASSERT_EQ("quux", tag.GetAttrValue("baz"));
   ASSERT_FALSE(tag.HasAttr("quux"));
-  ASSERT_EQ(input, tag.ToString());
+  ASSERT_TRUE(tag.HasAttr("blah"));
+  ASSERT_TRUE(tag.HasAttrValue("blah"));
+  ASSERT_EQ("", tag.GetAttrValue("blah"));
+  ASSERT_EQ("<foo bar baz=quux blah=\"\">", tag.ToString());
 }
 
 TEST(HtmlTagTest, EndTag) {
@@ -72,6 +75,37 @@ TEST(HtmlTagTest, SelfClosingTag) {
   ASSERT_TRUE(tag.HasAttrValue("foo"));
   ASSERT_EQ("bar", tag.GetAttrValue("foo"));
   ASSERT_EQ("<foobar foo=bar />", tag.ToString());
+}
+
+TEST(HtmlTagTest, RepeatedAttrWithoutValue) {
+  const std::string input("<foo bar bar>");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+  ASSERT_EQ(end, tag.ReadTag(begin, end));
+
+  ASSERT_EQ("foo", tag.tagname());
+  ASSERT_TRUE(tag.HasAttr("bar"));
+  ASSERT_FALSE(tag.HasAttrValue("bar"));
+  ASSERT_EQ("<foo bar>", tag.ToString());
+}
+
+TEST(HtmlTagTest, RepeatedAttrWithValue) {
+  // Unfortunately, I couldn't find anything specified in an RFC about how to
+  // handle repeated attributes like this, but Firefox and Chrome both seem to
+  // ignore all but the first value given for the attribute, so that's what
+  // HtmlTag does too.  (mdsteele)
+  const std::string input("<foo bar=baz bar=quux>");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+  ASSERT_EQ(end, tag.ReadTag(begin, end));
+
+  ASSERT_EQ("foo", tag.tagname());
+  ASSERT_TRUE(tag.HasAttr("bar"));
+  ASSERT_TRUE(tag.HasAttrValue("bar"));
+  ASSERT_EQ("baz", tag.GetAttrValue("bar"));
+  ASSERT_EQ("<foo bar=baz>", tag.ToString());
 }
 
 TEST(HtmlTagTest, Comment) {
@@ -216,6 +250,39 @@ TEST(HtmlTagTest, TwoTags) {
   ASSERT_TRUE(tag.HasAttrValue("bar"));
   ASSERT_EQ("baz", tag.GetAttrValue("bar"));
   ASSERT_FALSE(tag.HasAttr("quux"));
+  ASSERT_EQ("<foo bar=baz>", tag.ToString());
+}
+
+TEST(HtmlTagTest, ReadNextTag) {
+  const std::string input("blah blah <foo bar=baz><quux>");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+  ASSERT_EQ(end - strlen("<quux>"), tag.ReadNextTag(begin, end));
+
+  ASSERT_EQ("foo", tag.tagname());
+  ASSERT_FALSE(tag.IsEmptyElement());
+  ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_TRUE(tag.HasAttr("bar"));
+  ASSERT_TRUE(tag.HasAttrValue("bar"));
+  ASSERT_EQ("baz", tag.GetAttrValue("bar"));
+  ASSERT_EQ("<foo bar=baz>", tag.ToString());
+}
+
+TEST(HtmlTagTest, ReadNextTagAfterInvalidTag) {
+  const std::string input("blah < quux blah <foo bar=baz>");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+  ASSERT_EQ(end, tag.ReadNextTag(begin, end));
+
+  ASSERT_EQ("foo", tag.tagname());
+  ASSERT_FALSE(tag.IsEmptyElement());
+  ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_FALSE(tag.HasAttr("blah"));
+  ASSERT_TRUE(tag.HasAttr("bar"));
+  ASSERT_TRUE(tag.HasAttrValue("bar"));
+  ASSERT_EQ("baz", tag.GetAttrValue("bar"));
   ASSERT_EQ("<foo bar=baz>", tag.ToString());
 }
 

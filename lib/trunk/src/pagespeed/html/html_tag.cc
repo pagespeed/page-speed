@@ -111,7 +111,7 @@ bool HtmlTag::HasAttr(const std::string& attr) const {
 }
 
 void HtmlTag::AddAttr(const std::string& attr) {
-  DCHECK(!HasAttr(attr));
+  DCHECK(!HasAttr(attr)) << "attr already exists: " << attr;
   attr_names_.push_back(attr);
 }
 
@@ -126,7 +126,7 @@ void HtmlTag::ClearAttr(const std::string& attr) {
       return;
     }
   }
-  DCHECK(false);
+  DCHECK(false) << "no such attr: " << attr;;
 }
 
 bool HtmlTag::HasAttrValue(const std::string& attr) const {
@@ -135,18 +135,18 @@ bool HtmlTag::HasAttrValue(const std::string& attr) const {
 
 const std::string& HtmlTag::GetAttrValue(const std::string& attr) const {
   AttrMap::const_iterator i = attr_map_.find(attr);
-  CHECK(i != attr_map_.end());
+  CHECK(i != attr_map_.end()) << "no such attr: " << attr;
   return i->second;
 }
 
 void HtmlTag::SetAttrValue(const std::string& attr, const std::string& value) {
-  DCHECK(HasAttr(attr));
+  DCHECK(HasAttr(attr)) << "no such attr: " << attr;
   attr_map_[attr] = value;
 }
 
 void HtmlTag::ClearAttrValue(const std::string& attr) {
   AttrMap::iterator i = attr_map_.find(attr);
-  CHECK(i != attr_map_.end());
+  CHECK(i != attr_map_.end()) << "no such attr: " << attr;
   attr_map_.erase(i);
 }
 
@@ -154,6 +154,7 @@ void HtmlTag::SortAttributes() {
   std::sort(attr_names_.begin(), attr_names_.end());
 }
 
+// This macro is used only in ReadTag, and we #undef if afterwards.
 #define READTAG_SKIP(pred) do {                     \
     while (true) {                                  \
       if (p >= end) {                               \
@@ -215,7 +216,12 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
     // Read the = that separates attribute name from attribute value.
     READTAG_SKIP(isspace);
     if (*p != '=') {  // we don't have a value
-      AddAttr(attr_name);
+      if (HasAttr(attr_name)) {
+        LOG(WARNING) << "duplicated " << attr_name << " attribute in "
+                     << tag_name_ << " tag";
+      } else {
+        AddAttr(attr_name);
+      }
       continue;  // done with this attr/value pair
     }
     ++p;
@@ -236,12 +242,40 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
       READTAG_SKIP(!NeedsQuote);
       attr_value_end = p;
     }
-    if (!HasAttr(attr_name)) {
+    // Ignore this attribute if we already have an attribute of the same name.
+    // E.g. <foo bar=baz bar=quux> turns into <foo bar=baz>.
+    // Unfortunately, I couldn't find anything specified in an RFC about how to
+    // handle repeated attributes like this, but Firefox and Chrome both seem to
+    // ignore all but the first value given for the attribute, so that's what
+    // HtmlTag does too.  (mdsteele)
+    if (HasAttr(attr_name)) {
+      LOG(WARNING) << "duplicated " << attr_name << " attribute in "
+                   << tag_name_ << " tag";
+    } else {
       const std::string attr_value(attr_value_start, attr_value_end);
       AddAttr(attr_name);
       SetAttrValue(attr_name, attr_value);
     }
   }
+}
+
+#undef READTAG_SKIP
+
+const char* HtmlTag::ReadNextTag(const char* begin, const char* end) {
+  while (begin < end) {
+    while (begin < end && *begin != '<') {
+      ++begin;
+    }
+
+    const char* result = ReadTag(begin, end);
+    if (result == NULL) {
+      ++begin;
+    } else {
+      return result;
+    }
+  }
+
+  return NULL;
 }
 
 std::string HtmlTag::ToString() const {
