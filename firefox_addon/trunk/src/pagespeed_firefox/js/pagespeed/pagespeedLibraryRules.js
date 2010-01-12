@@ -80,7 +80,7 @@ function formatChildren(children, opt_grand) {
   if (opt_grand) {
     return PAGESPEED.Utils.formatWarnings(warnings, /*allow-raw-html*/true);
   } else {
-    return warnings.join('\n');
+    return warnings.join('\n<p>\n');
   }
 }
 

@@ -180,6 +180,26 @@ std::string FirefoxDocument::GetDocumentUrl() const {
   }
 }
 
+std::string FirefoxDocument::GetBaseUrl() const {
+  nsresult rv;
+  nsCOMPtr<nsIDOM3Node> dom3_node(
+      do_QueryInterface(document_, &rv));
+  if (!NS_FAILED(rv)) {
+    nsString url;
+    rv = dom3_node->GetBaseURI(url);
+    if (!NS_FAILED(rv)) {
+      NS_ConvertUTF16toUTF8 converter(url);
+      return converter.get();
+    } else {
+      LOG(ERROR) << "GetBaseURI failed.";
+      return "";
+    }
+  } else {
+    LOG(ERROR) << "nsIDOM3Node query-interface failed.";
+    return "";
+  }
+}
+
 void FirefoxDocument::Traverse(DomElementVisitor* visitor) const {
   nsresult rv;
   nsCOMPtr<nsIDOMDocumentTraversal> traversal(
@@ -240,51 +260,6 @@ std::string FirefoxElement::GetTagName() const {
 
   NS_ConvertUTF16toUTF8 converter(tagName);
   return converter.get();
-}
-
-bool FirefoxElement::GetResourceUrl(std::string* url) const {
-  std::string src;
-  if (!GetAttributeByName("src", &src)) {
-    return false;
-  }
-
-  nsCOMPtr<nsIDOM3Node> node = do_QueryInterface(element_);
-  if (!node) {
-    return false;
-  }
-
-  nsString base_uri_str;
-  nsresult rv = node->GetBaseURI(base_uri_str);
-  if (NS_FAILED(rv) || base_uri_str.Length() == 0) {
-    return false;
-  }
-
-  // Convert from an nsString to an nsIURI.
-  nsCOMPtr<nsIURI> base_uri;
-  rv = NS_NewURI(getter_AddRefs(base_uri),
-                 base_uri_str,
-                 nsnull,
-                 nsnull);
-  if (NS_FAILED(rv) || !base_uri) {
-    return false;
-  }
-
-  // Convert the (possibly) relative src to an absolute URL, by
-  // resolving it relative to base_uri.
-  nsCString spec(src.c_str(), src.size());
-  nsCOMPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri),
-                 spec,
-                 nsnull,
-                 base_uri);
-  if (NS_FAILED(rv) || !uri) {
-    return false;
-  }
-
-  nsCString uri_spec;
-  uri->GetSpec(uri_spec);
-  *url = uri_spec.get();
-  return true;
 }
 
 bool FirefoxElement::GetAttributeByName(const std::string& name,
