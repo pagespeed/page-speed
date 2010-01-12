@@ -37,11 +37,20 @@ class DomDocument {
   DomDocument();
   virtual ~DomDocument();
 
+  // Return the URL that points to this document.
   virtual std::string GetDocumentUrl() const = 0;
+
+  // Return the URL that is used as the base for relative URLs appearing in
+  // this document.  Usually this is the same as the document URL, but it can
+  // be changed with a <base> tag.
+  virtual std::string GetBaseUrl() const;
 
   // Visit the elements within this document in pre-order (that is, always
   // visit a parent before visiting its children).
   virtual void Traverse(DomElementVisitor* visitor) const = 0;
+
+  // Resolve a possibly-relative URI using this document's base URL.
+  std::string ResolveUri(const std::string& uri) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DomDocument);
@@ -66,17 +75,6 @@ class DomElement {
   // Implementations must ensure that the contents of this string is
   // always UPPERCASE.
   virtual std::string GetTagName() const = 0;
-
-  // Gets the absolute URL of the resource associated with this
-  // node. For instance, the URL referenced in the 'src' attribute of
-  // an img or script tag, or the 'href' attibute of a link tag. Does
-  // not return resources referenced in the 'href' attribute of an 'a'
-  // tag, since those resources are not part of the page that this
-  // DomElement belongs to.
-  //
-  // @param src output parameter to hold the URL of the resource.
-  // @return true if the node has an associated resource URL.
-  virtual bool GetResourceUrl(std::string* src) const;
 
   // @param name attribute name
   // @param attr_value output parameter to hold attribute value

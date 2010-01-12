@@ -35,7 +35,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
  public:
   static void CheckDocument(const DomDocument* document, Results* results) {
     if (document) {
-      StyleVisitor visitor(document->GetDocumentUrl(), results);
+      StyleVisitor visitor(document, results);
       document->Traverse(&visitor);
       visitor.Finish();
     }
@@ -52,7 +52,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
         std::string rel, href;
         if (node.GetAttributeByName("rel", &rel) && rel == "stylesheet" &&
             node.GetAttributeByName("href", &href)) {
-          external_styles_.push_back(href);
+          external_styles_.push_back(document_->ResolveUri(href));
         }
       } else if (tag_name == "STYLE") {
         ++num_inline_style_blocks_;
@@ -61,9 +61,9 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   }
 
  private:
-  StyleVisitor(const std::string& document_url, Results* results)
+  StyleVisitor(const DomDocument* document, Results* results)
       : is_in_body_yet_(false), num_inline_style_blocks_(0),
-        document_url_(document_url), results_(results) {}
+        document_(document), results_(results) {}
 
   void Finish() {
     DCHECK(num_inline_style_blocks_ >= 0);
@@ -73,7 +73,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
 
     Result* result = results_->add_results();
     result->set_rule_name(kRuleName);
-    result->add_resource_urls(document_url_);
+    result->add_resource_urls(document_->GetDocumentUrl());
 
     Savings* savings = result->mutable_savings();
     savings->set_page_reflows_saved(num_inline_style_blocks_ +
@@ -93,7 +93,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   int num_inline_style_blocks_;
   std::vector<std::string> external_styles_;
 
-  const std::string document_url_;
+  const DomDocument* document_;
   Results* results_;
 
   DISALLOW_COPY_AND_ASSIGN(StyleVisitor);

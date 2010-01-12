@@ -16,6 +16,7 @@
 
 #include <set>
 
+#include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/dom.h"
@@ -29,8 +30,9 @@ const char* kRuleName = "SpecifyImageDimensions";
 
 class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
  public:
-  explicit ImageDimensionsChecker(pagespeed::Results* results)
-      : results_(results) {}
+  ImageDimensionsChecker(const pagespeed::DomDocument* document,
+                         pagespeed::Results* results)
+      : document_(document), results_(results) {}
 
   virtual void Visit(const pagespeed::DomElement& node) {
     if (node.GetTagName() == "IMG") {
@@ -42,12 +44,13 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
 
       if (!height_specified || !width_specified) {
         std::string src;
-        if (!node.GetResourceUrl(&src)) {
+        if (!node.GetAttributeByName("src", &src)) {
           return;
         }
+
         pagespeed::Result* result = results_->add_results();
         result->set_rule_name(kRuleName);
-        result->add_resource_urls(src);
+        result->add_resource_urls(document_->ResolveUri(src));
 
         pagespeed::Savings* savings = result->mutable_savings();
         savings->set_page_reflows_saved(1);
@@ -67,12 +70,16 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
       // Do a recursive document traversal.
       scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
       if (child_doc.get()) {
-        child_doc->Traverse(this);
+        ImageDimensionsChecker checker(child_doc.get(), results_);
+        child_doc->Traverse(&checker);
       }
     }
   }
  private:
+  const pagespeed::DomDocument* document_;
   pagespeed::Results* results_;
+
+  DISALLOW_COPY_AND_ASSIGN(ImageDimensionsChecker);
 };
 
 }  // namespace
@@ -97,9 +104,10 @@ const char* SpecifyImageDimensions::documentation_url() const {
 
 bool SpecifyImageDimensions::AppendResults(const PagespeedInput& input,
                                            Results* results) {
-  if (input.dom_document()) {
-    ImageDimensionsChecker visitor(results);
-    input.dom_document()->Traverse(&visitor);
+  const DomDocument* document = input.dom_document();
+  if (document) {
+    ImageDimensionsChecker visitor(document, results);
+    document->Traverse(&visitor);
   }
   return true;
 }
