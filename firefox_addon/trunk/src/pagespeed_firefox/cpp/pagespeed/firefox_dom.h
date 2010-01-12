@@ -31,6 +31,8 @@ class FirefoxDocument : public DomDocument {
 
   virtual std::string GetDocumentUrl() const;
 
+  virtual std::string GetBaseUrl() const;
+
   virtual void Traverse(DomElementVisitor* visitor) const;
 
  private:
@@ -44,7 +46,6 @@ class FirefoxElement : public DomElement {
   FirefoxElement(nsIDOMElement* element);
   virtual DomDocument* GetContentDocument() const;
   virtual std::string GetTagName() const;
-  virtual bool GetResourceUrl(std::string* src) const;
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
   virtual bool GetIntPropertyByName(const std::string& name,
