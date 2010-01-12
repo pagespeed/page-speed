@@ -37,7 +37,10 @@ class DomDocument {
   DomDocument();
   virtual ~DomDocument();
 
-  // Visit the elements within this document.
+  virtual std::string GetDocumentUrl() const = 0;
+
+  // Visit the elements within this document in pre-order (that is, always
+  // visit a parent before visiting its children).
   virtual void Traverse(DomElementVisitor* visitor) const = 0;
 
  private:
