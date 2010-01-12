@@ -25,6 +25,7 @@
 #include "nsIDOMDocumentTraversal.h"
 #include "nsIDOMElement.h"
 #include "nsIDOMElementCSSInlineStyle.h"
+#include "nsIDOMHTMLDocument.h"
 #include "nsIDOMHTMLIFrameElement.h"
 #include "nsIDOMHTMLImageElement.h"
 #include "nsIDOMNamedNodeMap.h"
@@ -157,6 +158,26 @@ namespace pagespeed {
 
 FirefoxDocument::FirefoxDocument(nsIDOMDocument* document)
     : document_(document) {
+}
+
+std::string FirefoxDocument::GetDocumentUrl() const {
+  nsresult rv;
+  nsCOMPtr<nsIDOMHTMLDocument> html_document(
+      do_QueryInterface(document_, &rv));
+  if (!NS_FAILED(rv)) {
+    nsString url;
+    rv = html_document->GetURL(url);
+    if (!NS_FAILED(rv)) {
+      NS_ConvertUTF16toUTF8 converter(url);
+      return converter.get();
+    } else {
+      LOG(ERROR) << "GetURL failed.";
+      return "";
+    }
+  } else {
+    LOG(ERROR) << "nsIDOMHTMLDocument query-interface failed.";
+    return "";
+  }
 }
 
 void FirefoxDocument::Traverse(DomElementVisitor* visitor) const {
