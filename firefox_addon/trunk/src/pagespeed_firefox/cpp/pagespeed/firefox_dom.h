@@ -29,6 +29,8 @@ class FirefoxDocument : public DomDocument {
  public:
   FirefoxDocument(nsIDOMDocument* document);
 
+  virtual std::string GetDocumentUrl() const;
+
   virtual void Traverse(DomElementVisitor* visitor) const;
 
  private:
