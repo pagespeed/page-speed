@@ -276,13 +276,11 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                        TD({'class': 'netCol',
                            'style': 'text-align:center',
                            'colspan': 2}, 'Status'),
-                       TD({'class': 'netCol'}, 'Domain'),
                        TD({'class': 'netCol'}, 'Type'),
                        TD({'class': 'netCol'}, 'File Size'),
                        TD({'class': 'netCol'}, 'Transfer Size')
                       ),
                     TR({'class': 'netRow netSummaryRow'},
-                       TD({'class': 'netCol'}, ''),
                        TD({'class': 'netCol'}, ''),
                        TD({'class': 'netCol'}, ''),
                        TD({'class': 'netCol'}, ''),
@@ -298,7 +296,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                TR({'class': 'netRow netRow.loaded',
                    '$hasHeaders': 'true',
                    '$loaded': true},
-                  TD({'class': 'netHrefCol netCol', 'width': '45%'},
+                  TD({'class': 'netHrefCol netCol', 'width': '50%'},
                      DIV({'class': 'netHrefLabel netLabel',
                           'style': 'max-width:45%'}, '$component.path'),
                      DIV({'class': 'netFullHrefLabel netHrefLabel netLabel'},
@@ -315,21 +313,16 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                      DIV({'class': 'netSizeLabel netLabel'},
                          '$component.fromCache')
                     ),
-                  TD({'class': 'netSizeCol netCol', 'width': '15%',
-                      'style': 'text-align:left'},
-                     DIV({'class': 'netSizeLabel netLabel'},
-                         '$component.domain')
-                    ),
-                  TD({'class': 'netSizeCol netCol', 'width': '12%',
+                  TD({'class': 'netSizeCol netCol', 'width': '16%',
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'}, '$component.type')
                     ),
-                  TD({'class': 'netSizeCol netCol', 'width': '9%',
+                  TD({'class': 'netSizeCol netCol', 'width': '12%',
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'},
                          '$component.filesize')
                     ),
-                  TD({'class': 'netSizeCol netCol', 'width': '9%',
+                  TD({'class': 'netSizeCol netCol', 'width': '12%',
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'},
                          '$component.xfersize')
