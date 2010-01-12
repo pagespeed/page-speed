@@ -22,6 +22,7 @@
 #include "pagespeed/rules/minimize_dns_lookups.h"
 #include "pagespeed/rules/minimize_redirects.h"
 #include "pagespeed/rules/optimize_images.h"
+#include "pagespeed/rules/put_css_in_the_document_head.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
 #include "pagespeed/rules/serve_scaled_images.h"
 #include "pagespeed/rules/specify_charset_early.h"
@@ -44,6 +45,7 @@ void AppendCoreRules(std::vector<Rule*> *rules) {
 }
 
 void AppendDomRules(std::vector<Rule*> *rules) {
+  rules->push_back(new rules::PutCssInTheDocumentHead);
   rules->push_back(new rules::ServeScaledImages);
   rules->push_back(new rules::SpecifyImageDimensions);
 }

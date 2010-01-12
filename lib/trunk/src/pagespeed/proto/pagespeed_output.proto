@@ -70,6 +70,20 @@ message ImageDimensionDetails {
   optional int32 actual_width = 4;
 }
 
+// Result detail to store image dimension information.
+message StylesInBodyDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional StylesInBodyDetails message_set_extension = 5469305;  // 'Sty'
+  }
+
+  // The number of inline styles blocks that appear in the body.
+  optional int32 num_inline_style_blocks = 1;
+
+  // The URLs of external style sheets that are linked in the body.
+  repeated string external_styles = 2;
+}
+
 message Result {
   // Identifier of rule that produced this result.
   required string rule_name = 1;

@@ -37,6 +37,10 @@ class MockDocument : public pagespeed::DomDocument {
     STLDeleteContainerPointers(elements_.begin(), elements_.end());
   }
 
+  virtual std::string GetDocumentUrl() const {
+    return "http://test.com/";
+  }
+
   virtual void Traverse(pagespeed::DomElementVisitor* visitor) const {
     for (std::vector<pagespeed::DomElement*>::const_iterator
              iter = elements_.begin(),
