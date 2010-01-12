@@ -207,6 +207,7 @@
         '<(pagespeed_root)/pagespeed/rules/optimize_images.cc',
         '<(pagespeed_root)/pagespeed/rules/put_css_in_the_document_head.cc',
         '<(pagespeed_root)/pagespeed/rules/rule_provider.cc',
+        '<(pagespeed_root)/pagespeed/rules/rule_util.cc',
         '<(pagespeed_root)/pagespeed/rules/savings_computer.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_scaled_images.cc',

@@ -26,31 +26,11 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/rules/rule_util.h"
 
 namespace {
 
 const char* kRuleName = "MinimizeRedirects";
-
-std::string ResolveUri(const std::string& uri, const std::string& base_url) {
-  GURL url(base_url);
-  if (!url.is_valid()) {
-    return "";
-  }
-
-  // Construct a fully qualified URL.  The HTTP RFC says that Location should
-  // be absolute but some servers out there send relative location urls
-  // anyway.
-  GURL derived = url.Resolve(uri);
-  if (!derived.is_valid()) {
-    return "";
-  }
-
-  // Remove everything after the #, which is not sent to the server,
-  // and return the resulting url.
-  url_canon::Replacements<char> clear_fragment;
-  clear_fragment.ClearRef();
-  return derived.ReplaceComponents(clear_fragment).spec();
-}
 
 class RedirectGraph {
  public:
@@ -85,8 +65,11 @@ void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
     LOG(DFATAL) << "Empty request url.";
     return;
   }
+  // Construct a fully qualified URL.  The HTTP RFC says that Location should
+  // be absolute but some servers out there send relative location urls anyway.
   const std::string& destination =
-      ResolveUri(resource.GetResponseHeader("Location"), source);
+      pagespeed::rules::ResolveUri(resource.GetResponseHeader("Location"),
+                                   source);
   if (!destination.empty()) {
     redirect_map_[source].push_back(destination);
     destinations_.insert(destination);
