@@ -42,7 +42,7 @@ std::string GetNormalizedIdentifier(const std::string& name) {
 
 namespace pagespeed {
 
-Resource::Resource() {
+Resource::Resource() : lazy_loaded_(false) {
 }
 
 Resource::~Resource() {
@@ -108,6 +108,11 @@ void Resource::SetResponseBody(const std::string& value) {
   response_body_ = value;
 }
 
+
+void Resource::SetLazyLoaded() {
+  lazy_loaded_ = true;
+}
+
 const std::string& Resource::GetRequestUrl() const {
   return request_url_;
 }
@@ -149,6 +154,10 @@ const std::map<std::string, std::string>* Resource::GetResponseHeaders() const {
 
 const std::string& Resource::GetResponseBody() const {
   return response_body_;
+}
+
+bool Resource::IsLazyLoaded() const {
+  return lazy_loaded_;
 }
 
 const std::map<std::string, std::string>* Resource::GetRequestHeaders() const {

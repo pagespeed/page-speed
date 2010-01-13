@@ -38,6 +38,10 @@ TEST(ResourceTest, SetFields) {
   EXPECT_EQ(resource.GetResponseStatusCode(), 200);
   EXPECT_EQ(resource.GetResponseProtocol(), "HTTP/1.1");
   EXPECT_EQ(resource.GetResponseBody(), "response body");
+
+  EXPECT_EQ(resource.IsLazyLoaded(), false);
+  resource.SetLazyLoaded();
+  EXPECT_EQ(resource.IsLazyLoaded(), true);
 }
 
 // Verify that http header matching is case-insensitive.

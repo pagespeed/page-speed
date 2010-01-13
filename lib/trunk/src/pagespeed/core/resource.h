@@ -58,6 +58,11 @@ class Resource {
   void AddResponseHeader(const std::string& name, const std::string& value);
   void SetResponseBody(const std::string& value);
 
+  // The resource is lazy-loaded if the request time is after
+  // the window's onLoad time. Many of the page-speed rules
+  // do not apply to lazy-loaded resources.
+  void SetLazyLoaded();
+
   // Accessor methods
   const std::string& GetRequestUrl() const;
   const std::string& GetRequestMethod() const;
@@ -68,6 +73,7 @@ class Resource {
   const std::string& GetResponseProtocol() const;
   const std::string& GetResponseHeader(const std::string& name) const;
   const std::string& GetResponseBody() const;
+  bool IsLazyLoaded() const;
 
   // For serialization purposes only.
   // Use GetRequestHeader/GetResponseHeader methods above for key lookup.
@@ -96,6 +102,7 @@ class Resource {
   std::string response_protocol_;
   std::map<std::string, std::string> response_headers_;
   std::string response_body_;
+  bool lazy_loaded_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
 };
