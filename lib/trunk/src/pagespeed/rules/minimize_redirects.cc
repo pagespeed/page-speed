@@ -55,9 +55,8 @@ class RedirectGraph {
 };
 
 void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
-  int code = resource.GetResponseStatusCode();
-  if (code < 300 || code >= 400 || code == 304) {
-    return;  // not a redirect
+  if (resource.GetResourceType() != pagespeed::REDIRECT) {
+    return;
   }
 
   const std::string& source = resource.GetRequestUrl();

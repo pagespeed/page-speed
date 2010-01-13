@@ -189,6 +189,18 @@ std::string Resource::GetProtocol() const {
 }
 
 ResourceType Resource::GetResourceType() const {
+  const int status_code = GetResponseStatusCode();
+  if (status_code != 200 && status_code != 304) {
+    if (status_code == 301 ||
+        status_code == 302 ||
+        status_code == 303 ||
+        status_code == 307) {
+      return REDIRECT;
+    }
+
+    return OTHER;
+  }
+
   std::string type = GetResponseHeader("Content-Type");
 
   int separator_idx = type.find(";");
@@ -216,6 +228,10 @@ ResourceType Resource::GetResourceType() const {
 }
 
 ImageType Resource::GetImageType() const {
+  if (GetResourceType() != IMAGE) {
+    DCHECK(false) << "Non-image type: " << GetResourceType();
+    return UNKNOWN_IMAGE_TYPE;
+  }
   std::string type = GetResponseHeader("Content-Type");
 
   int separator_idx = type.find(";");

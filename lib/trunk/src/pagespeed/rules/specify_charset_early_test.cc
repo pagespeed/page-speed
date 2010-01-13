@@ -48,6 +48,7 @@ class SpecifyCharsetEarlyTest : public ::testing::Test {
                        const std::string &header_value,
                        const std::string &body) {
     Resource* resource = new Resource;
+    resource->SetResponseStatusCode(200);
     resource->SetRequestUrl(url);
     if (!header_name.empty()) {
       resource->AddResponseHeader(header_name, header_value);
@@ -80,7 +81,7 @@ class SpecifyCharsetEarlyTest : public ::testing::Test {
 
 TEST_F(SpecifyCharsetEarlyTest, CharsetInHeader) {
   AddTestResource("http://www.example.com/hello.html",
-                  "Content-Type", 
+                  "Content-Type",
                   "text/html; charset=utf-8",
                   "Hello world");
   CheckNoViolations();
@@ -92,7 +93,7 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetEarlyInHtml) {
                      "Hello world"
                      "</body></html>";
   AddTestResource("http://www.example.com/hello.html",
-                  "", 
+                  "",
                   "",
                   html);
   CheckNoViolations();
@@ -108,7 +109,7 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetLateInHtml) {
               "content=\"text/html; charset=utf-8\">");
   html.append("</body></html>");
   AddTestResource("http://www.example.com/hello.html",
-                  "", 
+                  "",
                   "",
                   html);
   CheckOneViolation("http://www.example.com/hello.html");
@@ -117,7 +118,7 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetLateInHtml) {
 
 TEST_F(SpecifyCharsetEarlyTest, NotHtmlContent) {
   AddTestResource("http://www.example.com/hello.html",
-                  "Content-Type", 
+                  "Content-Type",
                   "text/javascript",
                   "Hello, world!");
   CheckNoViolations();
@@ -125,7 +126,7 @@ TEST_F(SpecifyCharsetEarlyTest, NotHtmlContent) {
 
 TEST_F(SpecifyCharsetEarlyTest, MissingCharset) {
   AddTestResource("http://www.example.com/hello.html",
-                  "Content-Type", 
+                  "Content-Type",
                   "text/html",
                   "Hello, world!");
   CheckOneViolation("http://www.example.com/hello.html");
@@ -133,7 +134,7 @@ TEST_F(SpecifyCharsetEarlyTest, MissingCharset) {
 
 TEST_F(SpecifyCharsetEarlyTest, MissingContentType) {
   AddTestResource("http://www.example.com/hello.html",
-                  "", 
+                  "",
                   "",
                   "Hello, world!");
   CheckOneViolation("http://www.example.com/hello.html");
@@ -141,7 +142,7 @@ TEST_F(SpecifyCharsetEarlyTest, MissingContentType) {
 
 TEST_F(SpecifyCharsetEarlyTest, EmptyContentType) {
   AddTestResource("http://www.example.com/hello.html",
-                  "Content-Type", 
+                  "Content-Type",
                   "",
                   "Hello, world!");
   CheckOneViolation("http://www.example.com/hello.html");
