@@ -27,8 +27,11 @@ var kInformational = 0;
 var kWarning = 1;
 var kSevere = 2;
 var kFailRule = 3;
-var msInAMonth = 1000 * 60 * 60 * 24 * 30;
-var msInElevenMonths = msInAMonth * 11;
+
+var msInADay = 1000 * 60 * 60 * 24;
+// Make these be lower-bounds, given that months have between 28 and 31 days:
+var msInAMonth = msInADay * 28;
+var msInElevenMonths = msInADay * (365 - 31);
 
 /**
  * Constructor for a CacheRule.
@@ -402,7 +405,8 @@ var browserCachingRule = function() {
                     // future.
                     return isCacheableResourceType(type) &&
                         !hasHeader(headers, 'Set-Cookie') &&
-                        !freshnessLifetimeGreaterThan(headers, msInAMonth) &&
+                        !freshnessLifetimeGreaterThan(headers,
+                                                      msInAMonth - 1) &&
                         freshnessLifetimeGreaterThan(headers, 0);
                   }),
     new CacheRule('Favicons should have an expiration at least one month' +
@@ -415,7 +419,7 @@ var browserCachingRule = function() {
                     // month.
                     return type == 'favicon' &&
                         !hasHeader(headers, 'Set-Cookie') &&
-                        !freshnessLifetimeGreaterThan(headers, msInAMonth);
+                        !freshnessLifetimeGreaterThan(headers, msInAMonth - 1);
                   }),
     new CacheRule('To further improve cache hit rate, specify an expiration' +
                   ' one year in the future for the following cacheable' +
@@ -427,8 +431,8 @@ var browserCachingRule = function() {
                     return isCacheableResourceType(type) &&
                         !hasHeader(headers, 'Set-Cookie') &&
                         !freshnessLifetimeGreaterThan(
-                            headers, msInElevenMonths) &&
-                        freshnessLifetimeGreaterThan(headers, msInAMonth);
+                            headers, msInElevenMonths - 1) &&
+                        freshnessLifetimeGreaterThan(headers, msInAMonth - 1);
                   })
   ];
 
