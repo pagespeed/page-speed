@@ -28,6 +28,7 @@ enum ResourceType {
   CSS,
   IMAGE,
   JS,
+  REDIRECT,
   OTHER
 };
 

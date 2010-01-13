@@ -78,38 +78,54 @@ TEST(ResourceTest, HeaderFields) {
   EXPECT_EQ(resource.GetResponseHeader("duplicate response"), "3,4");
 }
 
-void ExpectResourceType(
-    const char *content_type, pagespeed::ResourceType type) {
+void ExpectResourceType(const char *content_type,
+                        int status_code,
+                        pagespeed::ResourceType type) {
   Resource r;
   r.AddResponseHeader("Content-Type", content_type);
+  r.SetResponseStatusCode(status_code);
   EXPECT_EQ(type, r.GetResourceType());
 }
 
 TEST(ResourceTest, ResourceTypes) {
-  ExpectResourceType("text/html", pagespeed::HTML);
-  ExpectResourceType("text/html; charset=UTF-8", pagespeed::HTML);
-  ExpectResourceType("text/css", pagespeed::CSS);
-  ExpectResourceType("text/javascript", pagespeed::JS);
-  ExpectResourceType("application/x-javascript", pagespeed::JS);
-  ExpectResourceType("text/plain", pagespeed::TEXT);
-  ExpectResourceType("image/png", pagespeed::IMAGE);
-  ExpectResourceType("image/jpeg", pagespeed::IMAGE);
-  ExpectResourceType("application/x-binary", pagespeed::OTHER);
+  ExpectResourceType("text/html", 200, pagespeed::HTML);
+  ExpectResourceType("text/html; charset=UTF-8", 200, pagespeed::HTML);
+  ExpectResourceType("text/css", 200, pagespeed::CSS);
+  ExpectResourceType("text/javascript", 200, pagespeed::JS);
+  ExpectResourceType("application/x-javascript", 200, pagespeed::JS);
+  ExpectResourceType("text/plain", 200, pagespeed::TEXT);
+  ExpectResourceType("image/png", 200, pagespeed::IMAGE);
+  ExpectResourceType("image/jpeg", 200, pagespeed::IMAGE);
+  ExpectResourceType("application/x-binary", 200, pagespeed::OTHER);
+  ExpectResourceType("text/html", 302, pagespeed::REDIRECT);
+  ExpectResourceType("text/html", 100, pagespeed::OTHER);
+  ExpectResourceType("text/html", 304, pagespeed::HTML);
+  ExpectResourceType("text/html", 401, pagespeed::OTHER);
 }
 
-void ExpectImageType(
-    const char *content_type, pagespeed::ImageType type) {
+void ExpectImageType(const char *content_type,
+                     int status_code,
+                     pagespeed::ImageType type) {
   Resource r;
+  r.SetResponseStatusCode(status_code);
   r.AddResponseHeader("Content-Type", content_type);
   EXPECT_EQ(type, r.GetImageType());
 }
 
 TEST(ResourceTest, ImageTypes) {
-  ExpectImageType("image/gif", pagespeed::GIF);
-  ExpectImageType("image/png", pagespeed::PNG);
-  ExpectImageType("image/jpg", pagespeed::JPEG);
-  ExpectImageType("image/jpeg", pagespeed::JPEG);
-  ExpectImageType("image/xyz", pagespeed::UNKNOWN_IMAGE_TYPE);
+  ExpectImageType("image/gif", 200, pagespeed::GIF);
+  ExpectImageType("image/png", 200, pagespeed::PNG);
+  ExpectImageType("image/jpg", 200, pagespeed::JPEG);
+  ExpectImageType("image/jpeg", 200, pagespeed::JPEG);
+  ExpectImageType("image/xyz", 200, pagespeed::UNKNOWN_IMAGE_TYPE);
+#ifdef _DEBUG
+  EXPECT_DEATH(
+      ExpectImageType("image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE),
+      "Non-image type: 5");
+#else
+  ExpectImageType("image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE);
+#endif
+  ExpectImageType("image/png", 304, pagespeed::PNG);
 }
 
 }  // namespace
