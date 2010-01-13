@@ -34,6 +34,9 @@ message Savings {
   // Number of page reflows that could have been saved by specifying
   // resource dimensions.
   optional int32 page_reflows_saved = 4;
+
+  // Upload bytes that could be saved if page was optimized.
+  optional int32 request_bytes_saved = 5;
 }
 
 message InputInformation {
@@ -45,6 +48,9 @@ message InputInformation {
 
   // Total server response bytes.
   optional int64 total_response_bytes = 3;
+
+  // Total client request bytes.
+  optional int64 total_request_bytes = 4;
 }
 
 // Base class for result details
@@ -68,6 +74,23 @@ message ImageDimensionDetails {
   // Actual dimensions of the displayed image element.
   optional int32 actual_height = 3;
   optional int32 actual_width = 4;
+}
+
+// Result detail to store request size breakdown.
+message RequestDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional RequestDetails message_set_extension = 5399921;  // 'Req'
+  }
+
+  // Length of the requested URL
+  optional int32 url_length = 1;
+
+  // Length of Cookie headers
+  optional int32 cookie_length = 2;
+
+  // Length of Referer header
+  optional int32 referer_length = 3;
 }
 
 // Result detail to store image dimension information.
@@ -102,6 +125,9 @@ message Result {
 
   // Total response size before savings.
   optional int32 original_response_bytes = 6;
+
+  // Total request size before savings.
+  optional int32 original_request_bytes = 7;
 }
 
 message Results {
