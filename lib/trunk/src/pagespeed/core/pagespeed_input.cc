@@ -20,14 +20,7 @@
 #include "base/stl_util-inl.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/resource.h"
-
-namespace {
-
-// each message header has a 3 byte overhead; colon between the key
-// value pair and the end-of-line CRLF.
-const int kHeaderOverhead = 3;
-
-}  // namespace
+#include "pagespeed/core/resource_util.h"
 
 namespace pagespeed {
 
@@ -55,22 +48,10 @@ bool PagespeedInput::AddResource(const Resource* resource) {
   host_resource_map_[resource->GetHost()].push_back(resource);
 
   // Update input information
-  int response_bytes = 0;
-  // TODO get compressed size or replace with section with actual
-  // download size.
-  // TODO improve the header size calculation below.
-  response_bytes += resource->GetResponseBody().size();
-  response_bytes += resource->GetResponseProtocol().size();
-  for (std::map<std::string, std::string>::const_iterator
-           iter = resource->GetResponseHeaders()->begin(),
-           end = resource->GetResponseHeaders()->end();
-       iter != end;
-       ++iter) {
-    response_bytes += kHeaderOverhead +
-        iter->first.size() +
-        iter->second.size();
-  }
-
+  int request_bytes = resource_util::EstimateRequestBytes(*resource);
+  input_info_->set_total_request_bytes(
+      input_info_->total_request_bytes() + request_bytes);
+  int response_bytes = resource_util::EstimateResponseBytes(*resource);
   input_info_->set_total_response_bytes(
       input_info_->total_response_bytes() + response_bytes);
   input_info_->set_number_resources(num_resources());

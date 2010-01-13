@@ -147,6 +147,7 @@
         '<(pagespeed_root)/pagespeed/core/formatter.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input.cc',
         '<(pagespeed_root)/pagespeed/core/resource.cc',
+        '<(pagespeed_root)/pagespeed/core/resource_util.cc',
         '<(pagespeed_root)/pagespeed/core/rule.cc',
       ],
       'include_dirs': [
@@ -204,6 +205,7 @@
         '<(pagespeed_root)/pagespeed/rules/minify_rule.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_redirects.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_request_size.cc',
         '<(pagespeed_root)/pagespeed/rules/optimize_images.cc',
         '<(pagespeed_root)/pagespeed/rules/put_css_in_the_document_head.cc',
         '<(pagespeed_root)/pagespeed/rules/rule_provider.cc',
@@ -370,6 +372,7 @@
         '<(pagespeed_root)/pagespeed/rules/minify_javascript_test.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_dns_lookups_test.cc',
         '<(pagespeed_root)/pagespeed/rules/minimize_redirects_test.cc',
+        '<(pagespeed_root)/pagespeed/rules/minimize_request_size_test.cc',
         '<(pagespeed_root)/pagespeed/rules/put_css_in_the_document_head_test.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_resources_from_a_consistent_url_test.cc',
         '<(pagespeed_root)/pagespeed/rules/serve_scaled_images_test.cc',
