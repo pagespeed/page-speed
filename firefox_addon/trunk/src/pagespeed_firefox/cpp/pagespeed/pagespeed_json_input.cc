@@ -184,6 +184,16 @@ void InputPopulator::PopulateAttribute(Resource *resource,
     PopulateHeaders(add_header, attribute_json);
   } else if (key == "res_body") {
     resource->SetResponseBody(RetrieveBody(attribute_json));
+  } else if (key == "req_lazy_loaded") {
+    if (attribute_json->type == cJSON_True) {
+      resource->SetLazyLoaded();
+    } else if (attribute_json->type == cJSON_False) {
+      // do nothing, resource defaults to not lazy-loaded.
+    } else {
+      INPUT_POPULATOR_ERROR() << "lazy_loaded should be true(1) or false(0). "
+                              << key << ": " << attribute_json->type;
+    }
+
   } else {
     INPUT_POPULATOR_ERROR() << "Unknown attribute key: " << key;
   }

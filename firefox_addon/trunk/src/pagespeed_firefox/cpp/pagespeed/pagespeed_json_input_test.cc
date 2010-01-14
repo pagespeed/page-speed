@@ -42,7 +42,8 @@ TEST(PagespeedJsonInputTest, OneResource) {
                       "\"req_headers\":[],"
                       "\"res_status\":200,"
                       "\"res_protocol\":\"http\","
-                      "\"res_headers\":[]"
+                      "\"res_headers\":[],"
+                      "\"req_lazy_loaded\":true"
                       "}]");
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_TRUE(ok);
@@ -55,6 +56,31 @@ TEST(PagespeedJsonInputTest, OneResource) {
   ASSERT_EQ(200, resource.GetResponseStatusCode());
   ASSERT_EQ("http", resource.GetResponseProtocol());
   ASSERT_EQ(0, resource.GetResponseHeaders()->size());
+  ASSERT_EQ(true, resource.IsLazyLoaded());
+}
+
+TEST(PagespeedJsonInputTest, ResourceLazyLoaded) {
+  std::vector<std::string> contents;
+  PagespeedInput input;
+  const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
+                       "\"req_lazy_loaded\":false"
+                       "},"
+                       "{\"req_url\":\"http://www.example.com/goo\"},"
+                       "{\"req_url\":\"http://www.example.com/bar\","
+                       "\"req_lazy_loaded\":true"
+                       "}]");
+  const bool ok = PopulateInputFromJSON(&input, data, contents);
+  ASSERT_TRUE(ok);
+  ASSERT_EQ(3, input.num_resources());
+  const Resource &resource1 = input.GetResource(0);
+  ASSERT_EQ("http://www.example.com/foo", resource1.GetRequestUrl());
+  ASSERT_EQ(false, resource1.IsLazyLoaded());
+  const Resource &resource2 = input.GetResource(1);
+  ASSERT_EQ("http://www.example.com/goo", resource2.GetRequestUrl());
+  ASSERT_EQ(false, resource2.IsLazyLoaded());
+  const Resource &resource3 = input.GetResource(2);
+  ASSERT_EQ("http://www.example.com/bar", resource3.GetRequestUrl());
+  ASSERT_EQ(true, resource3.IsLazyLoaded());
 }
 
 TEST(PagespeedJsonInputTest, TwoResources) {
@@ -107,6 +133,12 @@ TEST(PagespeedJsonErrorHandlingTest, InvalidKey) {
                         "\"the_answer\":42}]");
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
+
+  const char *data2 = ("[{\"req_url\":\"http://www.example.com/foo\","
+                         "\"req_lazy_loaded\":1}]");
+  const bool ok2 = PopulateInputFromJSON(&input, data2, contents);
+  ASSERT_FALSE(ok2);
+
 }
 
 TEST(PagespeedJsonErrorHandlingTest, InvalidType) {
