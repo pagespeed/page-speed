@@ -137,6 +137,7 @@ PAGESPEED.NativeLibrary = {
       return [];
     }
 
+    var onloadTime = FirebugContext.window.onloadTime;
     var resources = [];
     var bodyInputStreams = [];
     var resourceURLs = PAGESPEED.Utils.getResources();
@@ -144,13 +145,15 @@ PAGESPEED.NativeLibrary = {
       var url = resourceURLs[i];
       var res_body_index = bodyInputStreams.length;
       bodyInputStreams.push(PAGESPEED.Utils.getResourceInputStream(url));
+      var requestTime = PAGESPEED.Utils.getResourceProperty(url, 'requestTime');
       resources.push({
         // TODO Add req_method, req_protocol, req_body, and res_protocol.
         req_headers: translateHeaders(PAGESPEED.Utils.getRequestHeaders(url)),
         res_status: PAGESPEED.Utils.getResponseCode(url),
         res_headers: translateHeaders(PAGESPEED.Utils.getResponseHeaders(url)),
         res_body: res_body_index,
-        req_url: url
+        req_url: url,
+        req_lazy_loaded: (requestTime > onloadTime)
       });
     }
 
