@@ -37,6 +37,9 @@ message Savings {
 
   // Upload bytes that could be saved if page was optimized.
   optional int32 request_bytes_saved = 5;
+
+  // Number of times resource loading was blocked that could have been saved.
+  optional int32 critical_path_length_saved = 6;
 }
 
 message InputInformation {
@@ -107,6 +110,20 @@ message StylesInBodyDetails {
   repeated string external_styles = 2;
 }
 
+// Result detail to store information about reordering resources in the head.
+message ResourceOrderingDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional ResourceOrderingDetails message_set_extension = 5206628;  // 'Ord'
+  }
+
+  // Urls of external CSS links that should be moved.
+  repeated string out_of_order_external_css = 1;
+
+  // Indices of inline script blocks that should be moved.
+  repeated int32 out_of_order_inline_scripts = 2;
+}
+
 message Result {
   // Identifier of rule that produced this result.
   required string rule_name = 1;
@@ -128,6 +145,9 @@ message Result {
 
   // Total request size before savings.
   optional int32 original_request_bytes = 7;
+
+  // Number of times resource loading was blocked before savings.
+  optional int32 original_critical_path_length = 8;
 }
 
 message Results {

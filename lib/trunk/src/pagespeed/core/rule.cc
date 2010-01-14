@@ -44,6 +44,10 @@ const double kDnsLookupImpact = 1.5 * kRequestImpact;
 // page.
 const double kReflowPenalty = 0.05;
 
+// Penalty for the critical path length being longer then necessary.
+// TODO Improve critical-path-length scoring algorithm.
+const double kCriticalPathPenalty = 0.15;
+
 }
 
 namespace pagespeed {
@@ -55,7 +59,7 @@ Rule::~Rule() {}
 int Rule::ComputeScore(const InputInformation& input_info,
                        const ResultVector& results) {
   int request_bytes_saved = 0, response_bytes_saved = 0, dns_saved = 0,
-      requests_saved = 0, reflows_saved = 0;
+      requests_saved = 0, reflows_saved = 0, critical_path_saved = 0;
   for (std::vector<const Result*>::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
@@ -68,6 +72,7 @@ int Rule::ComputeScore(const InputInformation& input_info,
       dns_saved += savings.dns_requests_saved();
       requests_saved += savings.requests_saved();
       reflows_saved += savings.page_reflows_saved();
+      critical_path_saved += savings.critical_path_length_saved();
     }
   }
 
@@ -109,6 +114,10 @@ int Rule::ComputeScore(const InputInformation& input_info,
 
   if (reflows_saved > 0) {
     normalized_savings += (kReflowPenalty * reflows_saved);
+  }
+
+  if (critical_path_saved > 0) {
+    normalized_savings += (kCriticalPathPenalty * critical_path_saved);
   }
 
   return std::max(0, (int)(100 * (1.0 - normalized_savings)));

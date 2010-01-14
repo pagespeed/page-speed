@@ -278,6 +278,29 @@ const char* HtmlTag::ReadNextTag(const char* begin, const char* end) {
   return NULL;
 }
 
+const char* HtmlTag::ReadClosingForeignTag(const char* begin,
+                                           const char* end) {
+  DCHECK(tag_type_ == START_TAG);
+  const std::string base_tag_name(tag_name_);
+
+  while (begin < end) {
+    while (begin < end && *begin != '<') {
+      ++begin;
+    }
+
+    if (begin + 1 < end && *(begin + 1) == '/') {
+      const char* tag_end = ReadTag(begin, end);
+      if (tag_end != NULL && IsEndTag() && GetBaseTagName() == base_tag_name) {
+        return tag_end;
+      }
+    }
+
+    ++begin;
+  }
+
+  return NULL;
+}
+
 std::string HtmlTag::ToString() const {
   std::string output;
   AppendTagToString(&output);
