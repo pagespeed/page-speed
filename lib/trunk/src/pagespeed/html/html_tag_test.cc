@@ -286,6 +286,26 @@ TEST(HtmlTagTest, ReadNextTagAfterInvalidTag) {
   ASSERT_EQ("<foo bar=baz>", tag.ToString());
 }
 
+TEST(HtmlTagTest, ReadClosingForeignTag) {
+  const std::string input("<script>document.write('</foo>')</script>");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+
+  const char* mid = tag.ReadTag(begin, end);
+  ASSERT_EQ(begin + strlen("<script>"), mid);
+  ASSERT_EQ("script", tag.tagname());
+  ASSERT_FALSE(tag.IsEmptyElement());
+  ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_EQ("<script>", tag.ToString());
+
+  ASSERT_EQ(end, tag.ReadClosingForeignTag(mid, end));
+  ASSERT_EQ("/script", tag.tagname());
+  ASSERT_FALSE(tag.IsEmptyElement());
+  ASSERT_TRUE(tag.IsEndTag());
+  ASSERT_EQ("</script>", tag.ToString());
+}
+
 TEST(HtmlTagTest, TagNotAtStart) {
   const std::string input(" <foo bar=baz>");
   const char* begin = input.data();

@@ -46,6 +46,12 @@ class HtmlTag {
   // the tag that was read, or NULL if there are no more tags.
   const char* ReadNextTag(const char* begin, const char* end);
 
+  // Assuming this last tag read was an opening "foreign" tag (for example, a
+  // style tag), search forward and read the matching closing tag; return a
+  // pointer past the > of the tag that was read, or NULL if there is no such
+  // closing tag.  This will ignore intervening tags, as a browser will.
+  const char* ReadClosingForeignTag(const char* begin, const char* end);
+
   // Serialize the tag.
   std::string ToString() const;
 
