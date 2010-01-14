@@ -38,8 +38,6 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/minifyJsLint.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/styleBlocksInBodyLint.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/cacheControlLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/staticNoCookieLint.js"/>
@@ -49,8 +47,6 @@
           src="chrome://pagespeed/content/parallelizeDownloadLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/cssEfficiencyChecker.js"/>
-  <script type="application/x-javascript"
-          src="chrome://pagespeed/content/stylesBeforeScriptsLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/jsCoverageLint.js"/>
   <script type="application/x-javascript"
