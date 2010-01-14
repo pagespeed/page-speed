@@ -72,10 +72,11 @@ function formatChildren(children, opt_grand) {
   var warnings = [];
   for (var i = 0; i < children.length; ++i) {
     var child = children[i];
-    warnings.push(buildHtml(child.format));
+    var warning = buildHtml(child.format);
     if (child.children) {
-      warnings.push(formatChildren(child.children, true));
+      warning += ' ' + formatChildren(child.children, true);
     }
+    warnings.push(warning);
   }
   if (opt_grand) {
     return PAGESPEED.Utils.formatWarnings(warnings, /*allow-raw-html*/true);
