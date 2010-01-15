@@ -60,12 +60,12 @@ PAGESPEED.ResultsWriter.openJsonExportDialog = function(resultsContainer) {
   var fp = PAGESPEED.Utils.CCIN(
       '@mozilla.org/filepicker;1', 'nsIFilePicker');
   fp.init(window, 'Select location of JSON encoded output:',
-          Ci.nsIFilePicker.modeSave);
+          Components.interfaces.nsIFilePicker.modeSave);
 
   var result = fp.show();
 
-  if (result != Ci.nsIFilePicker.returnOK &&
-      result != Ci.nsIFilePicker.returnReplace) {
+  if (result != Components.interfaces.nsIFilePicker.returnOK &&
+      result != Components.interfaces.nsIFilePicker.returnReplace) {
     // User canceled.  Nothing to do.
     return;
   }
