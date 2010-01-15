@@ -18,6 +18,7 @@
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/minify_css.h"
+#include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/minify_javascript.h"
 #include "pagespeed/rules/minimize_dns_lookups.h"
 #include "pagespeed/rules/minimize_redirects.h"
@@ -58,6 +59,7 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules) {
   AppendCoreRules(rules);
   AppendDomRules(rules);
   rules->push_back(new rules::MinifyCSS(save_optimized_content));
+  rules->push_back(new rules::MinifyHTML(save_optimized_content));
   rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
   rules->push_back(new rules::OptimizeImages(save_optimized_content));
 }
