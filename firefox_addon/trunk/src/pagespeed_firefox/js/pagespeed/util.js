@@ -808,6 +808,20 @@ PAGESPEED.Utils = {  // Begin namespace
     }
     return originalFileName;
   },
+  
+  /**
+   * Returns a file's extensions for the given resource.
+   * @param {string} fileName Full file name.
+   * @return {string} Extension from the original URL.
+   */
+  getFileExtension: function(fileName) {
+    // Check if fileName has extension
+    var lastDotIdx = fileName.lastIndexOf('.');
+    if (lastDotIdx != -1) {
+      return fileName.substring(lastDotIdx + 1);
+    }
+    return '';
+  },
 
   /**
    * Returns the contents of all scripts or styles including both inline and
@@ -2340,7 +2354,58 @@ PAGESPEED.Utils = {  // Begin namespace
       FirebugChrome.window.open(url, '_blank');
     }
   },
+  
+  /**
+   * Save a given image
+   * @param {string} url The url of image to save.
+   */
+  saveLink: function(url) {
+  	var fileToSave = PAGESPEED.Utils.openSaveAsDialogBox('Save as:', url);
+    
+    if (!fileToSave) {
+      //User canceled.  Nothing to do.
+      return;
+    }
 
+    inputStream = PAGESPEED.Utils.getResourceInputStream(url);
+    PAGESPEED.Utils.copyCompleteInputToOutput(
+      inputStream,
+      PAGESPEED.Utils.openFileForWriting(fileToSave.path));
+  },
+  
+  /**
+   * Open 'Save as' dialog to save any sort of files
+   * @param {string} message The message is the text to show the user.
+   */
+  openSaveAsDialogBox: function(message, url) {
+    // Open a save as dialog box:
+    var fp = PAGESPEED.Utils.CCIN(
+      '@mozilla.org/filepicker;1', 'nsIFilePicker');
+    const nsIFilePicker = Components.interfaces.nsIFilePicker;
+    
+    fp.init(window, message,
+            Components.interfaces.nsIFilePicker.modeSave);
+    // Set default values
+    var fileName = PAGESPEED.Utils.getHumanFileName(url);
+    var fileExtension = PAGESPEED.Utils.getFileExtension(url);
+    fp.defaultExtension = fileExtension;
+    if (fileExtension) {
+      fp.defaultString = [fileName, fileExtension].join('.');
+    } else {
+      fp.defaultString = fileName;
+    }
+    fp.appendFilters(nsIFilePicker.filterAll|nsIFilePicker.filterImages);
+    
+    var result = fp.show();
+
+    if (result != Components.interfaces.nsIFilePicker.returnOK &&
+        result != Components.interfaces.nsIFilePicker.returnReplace) {
+      // User canceled.  Nothing to do.
+      return;
+    } 
+    return fp.file;
+  },
+  
   /**
    * Format an exception into a string.  Display just enough information
    * to debug the problem without making the error too verbose.

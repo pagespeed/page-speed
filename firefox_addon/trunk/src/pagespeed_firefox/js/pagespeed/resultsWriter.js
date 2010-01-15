@@ -56,22 +56,15 @@ PAGESPEED.ResultsWriter.writeToFile = function(filePath, resultsContainer) {
  * @param {Object} resultsContainer The results to be exported.
  */
 PAGESPEED.ResultsWriter.openJsonExportDialog = function(resultsContainer) {
-  // Open a save as dialog box:
-  var fp = PAGESPEED.Utils.CCIN(
-      '@mozilla.org/filepicker;1', 'nsIFilePicker');
-  fp.init(window, 'Select location of JSON encoded output:',
-          Components.interfaces.nsIFilePicker.modeSave);
-
-  var result = fp.show();
-
-  if (result != Components.interfaces.nsIFilePicker.returnOK &&
-      result != Components.interfaces.nsIFilePicker.returnReplace) {
+  var fileToSave = PAGESPEED.Utils.openSaveAsDialogBox(
+      'Select location of JSON encoded output:', 'pagespeed_results.json');
+  if (!fileToSave) {
     // User canceled.  Nothing to do.
     return;
   }
 
   // Save the selected file.
-  PAGESPEED.ResultsWriter.writeToFile(fp.file.path, resultsContainer);
+  PAGESPEED.ResultsWriter.writeToFile(fileToSave.path, resultsContainer);
 };
 
 /**
