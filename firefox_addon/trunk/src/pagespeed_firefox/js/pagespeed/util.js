@@ -1684,7 +1684,7 @@ PAGESPEED.Utils = {  // Begin namespace
   setFilePref: function(prefName, file) {
     var pageSpeedPrefs = PAGESPEED.Utils.getPrefs();
     pageSpeedPrefs.setComplexValue(prefName,
-                                   Ci.nsILocalFile,
+                                   Components.interfaces.nsILocalFile,
                                    file);
   },
 
@@ -1697,7 +1697,8 @@ PAGESPEED.Utils = {  // Begin namespace
   getFilePref: function(prefName) {
     var pageSpeedPrefs = PAGESPEED.Utils.getPrefs();
     try {
-      return pageSpeedPrefs.getComplexValue(prefName, Ci.nsILocalFile);
+      return pageSpeedPrefs.getComplexValue(prefName,
+					    Components.interfaces.nsILocalFile);
     } catch (e) {
       // If the pref is unset, an exception will be thrown.
       return null;
@@ -2052,7 +2053,7 @@ PAGESPEED.Utils = {  // Begin namespace
     // Get the system temp directory.
     var tmpDir = PAGESPEED.Utils.CCSV(
         '@mozilla.org/file/directory_service;1', 'nsIProperties')
-        .get('TmpD', Ci.nsIFile);
+        .get('TmpD', Components.interfaces.nsIFile);
 
     PAGESPEED.Utils.setFilePref(OPTIMIZED_FILE_BASE_DIR, tmpDir);
   },

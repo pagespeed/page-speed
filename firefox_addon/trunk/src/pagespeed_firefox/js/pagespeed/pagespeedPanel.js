@@ -529,7 +529,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
       var outDirFile = PAGESPEED.Utils.CCSV(
         '@mozilla.org/file/directory_service;1', 'nsIProperties')
-        .get(outDir.mozKey, Ci.nsIFile);
+        .get(outDir.mozKey, Components.interfaces.nsIFile);
 
       // If the dir can not be accessed, than do not list it in the menu.
       if (!outDirFile) continue;
@@ -566,7 +566,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
           var fp = PAGESPEED.Utils.CCIN(
               '@mozilla.org/filepicker;1', 'nsIFilePicker');
           fp.init(window, 'Select a directory to store optomized results',
-                  Ci.nsIFilePicker.modeGetFolder);
+                  Components.interfaces.nsIFilePicker.modeGetFolder);
 
           // Set the start directory to the user's desktop dir, if it was
           // found above.
@@ -575,7 +575,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             fp.displayDirectory = desktopDir;
           }
 
-          if (fp.show() != Ci.nsIFilePicker.returnOK) {
+          if (fp.show() != Components.interfaces.nsIFilePicker.returnOK) {
             // User canceled.  Don't change the pref.
             return;
           }
