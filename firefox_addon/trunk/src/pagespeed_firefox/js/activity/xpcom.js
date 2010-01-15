@@ -39,24 +39,32 @@ activity.xpcom.CI = function(ifaceName) {
 };
 
 /**
- * @param {string} cName the component name.
- * @param {string} ifaceName the interface name.
+ * @param {string} className The class name.
+ * @param {string} interfaceName The interface name.
  * @return {nsISupports?} the service singleton for the specified
  * component name.
  */
-activity.xpcom.CCSV = function(cName, ifaceName) {
-    return Components.classes[cName].getService(
-        Components.interfaces[ifaceName]);
+activity.xpcom.CCSV = function(className, interfaceName) {
+    var classObj = Components.classes[className];
+    var ifaceObj = Components.interfaces[interfaceName];
+    if (!classObj || !ifaceObj) {
+      return null;
+    }
+    return classObj.getService(ifaceObj);
 };
 
 /**
- * @param {string} cName the component name.
- * @param {string} ifaceName the interface name.
+ * @param {string} className The class name.
+ * @param {string} interfaceName The interface name.
  * @return {nsISupports?} an instance of the specified component.
  */
-activity.xpcom.CCIN = function(cName, ifaceName) {
-    return Components.classes[cName].createInstance(
-        Components.interfaces[ifaceName]);
+activity.xpcom.CCIN = function(className, interfaceName) {
+    var classObj = Components.classes[className];
+    var ifaceObj = Components.interfaces[interfaceName];
+    if (!classObj || !ifaceObj) {
+      return null;
+    }
+    return classObj.createInstance(ifaceObj);
 };
 
 /**

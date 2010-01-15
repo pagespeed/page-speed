@@ -128,6 +128,22 @@ activity.ui.OBSERVER_SERVICE_CONTRACTID_ =
 activity.ui.OBSERVER_SERVICE_INTERFACE_NAME_ = 'nsIObserverService';
 
 /**
+ * Xpcom contract id for the http activity distributor.
+ * @type {string}
+ * @private
+ */
+activity.ui.HTTP_ACTIVITY_DISTRIBUTOR_ =
+    '@mozilla.org/network/http-activity-distributor;1';
+
+/**
+ * Xpcom interface name for the http activity distributor.
+ * @type {string}
+ * @private
+ */
+activity.ui.HTTP_ACTIVITY_DISTRIBUTOR_INTERFACE_NAME_ =
+    'nsIHttpActivityDistributor';
+
+/**
  * Heading displayed when there are incompatible add-ons installed.
  * @type {string}
  * @private
@@ -486,6 +502,16 @@ activity.ui.startProfiler_ = function() {
       activity.ui.OBSERVER_SERVICE_CONTRACTID_,
       activity.ui.OBSERVER_SERVICE_INTERFACE_NAME_);
 
+  var httpActivityDistributor = activity.xpcom.CCSV(
+    activity.ui.HTTP_ACTIVITY_DISTRIBUTOR_,
+    activity.ui.HTTP_ACTIVITY_DISTRIBUTOR_INTERFACE_NAME_);
+
+  if (!httpActivityDistributor) {
+    // In firefox 3.5 and earlier, the functionality of
+    // httpActivityDistributor is part of observerService
+    httpActivityDistributor = observerService;
+  }
+
   var xulRowsElement = activity.ui.instantiateUi_();
 
   var paintPaneElement = activity.ui.getElementById_('canvasPane');
@@ -494,6 +520,7 @@ activity.ui.startProfiler_ = function() {
   activity.ui.timelineManager_.start(
       activity.ui.activityProfiler_,
       observerService,
+      httpActivityDistributor,
       activity.ui.startTimeUsec_,
       activity.ui.timelineWindow_.document,
       xulRowsElement,

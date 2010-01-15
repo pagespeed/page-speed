@@ -204,6 +204,7 @@ activity.TimelineManager.prototype.state_ =
 activity.TimelineManager.prototype.start = function(
     activityProfiler,
     observerService,
+    httpActivityDistributor,
     startTimeUsec,
     xulElementFactory,
     xulRowsElement,
@@ -254,7 +255,7 @@ activity.TimelineManager.prototype.start = function(
 
   this.networkObserver_ = new activity.NetworkObserver(
     activityProfiler,
-    observerService,
+    httpActivityDistributor,
     this.model_,
     startTimeUsec,
     this.timelineView_.getResolutionUsec(),
