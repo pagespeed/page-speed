@@ -373,6 +373,12 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     this.document.openLink = function(anchorElem) {
       PAGESPEED.Utils.openLink(anchorElem.href);
     };
+    
+    // Install a function on the document that calles 'saves as' dialog
+    // for optimized image. 
+    this.document.saveLink = function(anchorElem) {
+      PAGESPEED.Utils.saveLink(anchorElem.href);
+    };
 
     // Display the welcome page.
     this.welcomePageTag.replace(

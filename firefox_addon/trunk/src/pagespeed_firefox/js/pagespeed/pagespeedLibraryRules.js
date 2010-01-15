@@ -51,6 +51,13 @@ function buildHtml(formatArray) {
                          item.alt ||
                          PAGESPEED.Utils.getDisplayUrl(item.value)),
                        '</a>');
+      if (item.alt) {
+        stringParts.push(' or ',
+                         '<a href="', item.value,
+                         '" onclick="document.saveLink(this);return false;"',
+                         '" type="application/octet-stream"',
+                         '> Save as</a>');
+      }
     } else if (item.type === "str") {
       stringParts.push(PAGESPEED.Utils.htmlEscape(item.value));
     }
