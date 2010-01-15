@@ -125,8 +125,11 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
+        'pagespeed_cssmin',
+        '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
       ],
       'sources': [
+        '<(pagespeed_root)/pagespeed/html/html_compactor.cc',
         '<(pagespeed_root)/pagespeed/html/html_tag.cc',
       ],
       'include_dirs': [
@@ -365,6 +368,7 @@
         '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
+        '<(pagespeed_root)/pagespeed/html/html_compactor_test.cc',
         '<(pagespeed_root)/pagespeed/html/html_tag_test.cc',
         '<(pagespeed_root)/pagespeed/rules/avoid_bad_requests_test.cc',
         '<(pagespeed_root)/pagespeed/rules/combine_external_resources_test.cc',
