@@ -44,6 +44,8 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
 #include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/rules/minify_css.h"
+#include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/rule_provider.h"
 
@@ -160,6 +162,8 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
   std::vector<Rule*> rules;
   rule_provider::AppendCoreRules(&rules);
   rule_provider::AppendDomRules(&rules);
+  rules.push_back(new rules::MinifyCSS(true));
+  rules.push_back(new rules::MinifyHTML(true));
   rules.push_back(new rules::OptimizeImages(true));
 
   Engine engine(rules);  // Ownership of rules is transferred to engine.

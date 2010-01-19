@@ -227,6 +227,11 @@ var doMinify = function(storage, script) {
   storage.totalUncompiledBytes += uncompiledSourceLength;
 
   var isInline = !!script.blockNum;
+  // Disable minification of inline scripts for now, because those are covered
+  // by the new "Minify HTML" library rule.
+  if (isInline) {
+    return;
+  }
 
   var minifier;
   var compiledSource;
