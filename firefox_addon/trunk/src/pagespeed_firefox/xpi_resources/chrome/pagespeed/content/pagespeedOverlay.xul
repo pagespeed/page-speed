@@ -34,8 +34,6 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/lint.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/minifyCssLint.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/minifyJsLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/cacheControlLint.js"/>
