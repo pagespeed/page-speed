@@ -189,6 +189,11 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
   tag_name_.assign(tag_name_start, p - tag_name_start);
   StringToLowerASCII(&tag_name_);
 
+  const bool is_doctype = (tag_name_ == "!doctype");
+  if (is_doctype) {
+    tag_type_ = DOCTYPE_TAG;
+  }
+
   // Read the attributes.
   attr_names_.clear();
   attr_map_.clear();
@@ -197,15 +202,35 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
 
     // Are we at the end of the tag?
     if (*p == '>') {
-      tag_type_ = (*tag_name_start == '/' ? END_TAG : START_TAG);
+      if (!is_doctype) {
+        tag_type_ = (*tag_name_start == '/' ? END_TAG : START_TAG);
+      }
       return p + 1;
     } else if (p + 1 < end && p[0] == '/' && p[1] == '>') {
-      tag_type_ = BOTH_TAG;
+      if (!is_doctype) {
+        tag_type_ = SELF_CLOSING_TAG;
+      }
       return p + 2;
     }
 
     // Read the attribute name.
     const char* attr_name_start = p;
+    if (is_doctype) {
+      const char first_char = *attr_name_start;
+      if (first_char == '"' || first_char == '\'') {
+        ++p;
+        READTAG_SKIP(first_char !=);
+        ++p;
+        const std::string str(attr_name_start, p - attr_name_start);
+        if (HasAttr(str)) {
+          LOG(WARNING) << "duplicated " << str << " attribute in "
+                       << tag_name_ << " tag";
+        } else {
+          AddAttr(str);
+        }
+        continue;
+      }
+    }
     READTAG_SKIP(IsAttrRest);
     if (p == attr_name_start) {
       return NULL;
