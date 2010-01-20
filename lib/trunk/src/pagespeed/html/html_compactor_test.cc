@@ -106,4 +106,24 @@ TEST(HtmlCompactorTest, RunawayComment) {
   ASSERT_EQ(kRunawayCommentMinified, output);
 }
 
+const char* kWithDoctype =
+    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
+    "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+    "<HTML>\n"
+    " <HEAD><TITLE>Foo</TITLE></HEAD>\n"
+    " <BODY>Bar.</BODY>\n"
+    "</HTML>\n";
+
+const char* kWithDoctypeMinified =
+    "<!doctype html public \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
+    "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+    "<title>Foo</title>\n"
+    "<body>Bar.\n";
+
+TEST(HtmlCompactorTest, PreserveDoctype) {
+  std::string output;
+  ASSERT_TRUE(HtmlCompactor::CompactHtml(kWithDoctype, &output));
+  ASSERT_EQ(kWithDoctypeMinified, output);
+}
+
 }  // namespace

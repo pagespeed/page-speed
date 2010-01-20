@@ -32,6 +32,7 @@ TEST(HtmlTagTest, Basic) {
   ASSERT_EQ("foo", tag.GetBaseTagName());
   ASSERT_FALSE(tag.IsEmptyElement());
   ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_FALSE(tag.IsDoctypeTag());
   ASSERT_FALSE(tag.HasAttr("foo"));
   ASSERT_TRUE(tag.HasAttr("bar"));
   ASSERT_FALSE(tag.HasAttrValue("bar"));
@@ -56,6 +57,7 @@ TEST(HtmlTagTest, EndTag) {
   ASSERT_EQ("foo", tag.GetBaseTagName());
   ASSERT_FALSE(tag.IsEmptyElement());
   ASSERT_TRUE(tag.IsEndTag());
+  ASSERT_FALSE(tag.IsDoctypeTag());
   ASSERT_FALSE(tag.HasAttr("foo"));
   ASSERT_FALSE(tag.HasAttr("bar"));
   ASSERT_EQ(input, tag.ToString());
@@ -70,7 +72,8 @@ TEST(HtmlTagTest, SelfClosingTag) {
 
   ASSERT_EQ("foobar", tag.tagname());
   ASSERT_TRUE(tag.IsEmptyElement());
-  ASSERT_TRUE(tag.IsEndTag());
+  ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_FALSE(tag.IsDoctypeTag());
   ASSERT_TRUE(tag.HasAttr("foo"));
   ASSERT_TRUE(tag.HasAttrValue("foo"));
   ASSERT_EQ("bar", tag.GetAttrValue("foo"));
@@ -118,8 +121,26 @@ TEST(HtmlTagTest, Comment) {
   ASSERT_EQ("!--", tag.tagname());
   ASSERT_FALSE(tag.IsEmptyElement());
   ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_FALSE(tag.IsDoctypeTag());
   ASSERT_FALSE(tag.HasAttr("foo"));
   ASSERT_EQ("<!-->", tag.ToString());
+}
+
+TEST(HtmlTagTest, Doctype) {
+  const std::string input(
+      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
+      "\"http://www.w3.org/TR/html4/loose.dtd\">");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+  ASSERT_EQ(end, tag.ReadTag(begin, end));
+
+  ASSERT_EQ("!doctype", tag.tagname());
+  ASSERT_FALSE(tag.IsEmptyElement());
+  ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_TRUE(tag.IsDoctypeTag());
+  ASSERT_EQ("<!doctype html public \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
+            "\"http://www.w3.org/TR/html4/loose.dtd\">", tag.ToString());
 }
 
 TEST(HtmlTagTest, Lowercasify) {

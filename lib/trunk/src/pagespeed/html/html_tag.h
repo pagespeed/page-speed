@@ -65,12 +65,13 @@ class HtmlTag {
   const std::string GetBaseTagName() const;
 
   // true iff the tag ends with a slash: "<IMG />" (except </> is not empty)
-  bool IsEmptyElement() const { return tag_type_ == BOTH_TAG; }
+  bool IsEmptyElement() const { return tag_type_ == SELF_CLOSING_TAG; }
 
-  bool IsEndTag() const {
-    // END_TAG is actually a bitmask: & END_TAG catches END_TAG and BOTH
-    return (tag_type_ & END_TAG);
-  }
+  // true iff the tag begins with a slash: "</BODY>"
+  bool IsEndTag() const { return tag_type_ == END_TAG; }
+
+  // Return true iff this is a !DOCTYPE tag.
+  bool IsDoctypeTag() const { return tag_type_ == DOCTYPE_TAG; }
 
   // Determine if an attribute is present.
   bool HasAttr(const std::string& attr) const;
@@ -97,11 +98,8 @@ class HtmlTag {
   void SortAttributes();
 
  private:
-  // For correctness below, it's important BOTH_TAG = START_TAG | END_TAG
-  // Also, COMMENT_TAG & START_TAG should be non-zero; we consider comments
-  // to be start-tags.
-  enum TagType { NEITHER_TAG, START_TAG=1, END_TAG=2, BOTH_TAG=3,
-                 COMMENT_TAG = 5 };
+  enum TagType { NEITHER_TAG, START_TAG, END_TAG, SELF_CLOSING_TAG,
+                 COMMENT_TAG, DOCTYPE_TAG };
 
   typedef std::vector<std::string> AttrNames;
   typedef std::map<std::string, std::string> AttrMap;

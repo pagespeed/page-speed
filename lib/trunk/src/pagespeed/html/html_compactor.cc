@@ -300,11 +300,10 @@ static void CompactTag(HtmlTag *tag, const TagEntry *entry) {
     }
   }
 
-  const std::string& tag_name = tag->tagname();
-
   // Sort attributes.
-  if (tag_name != "!doctype")  // The "!doctype" tag cannot be reordered.
+  if (!tag->IsDoctypeTag()) {  // The "!doctype" tag cannot be reordered.
     tag->SortAttributes();
+  }
 }
 
 // Processes the current tag.
@@ -323,6 +322,12 @@ const char* HtmlCompactor::ProcessTag(const char* tag_begin,
                                       const char* all_end) {
   const std::string& tag_name = cur_tag_.tagname();
 
+  // Respect !DOCTYPE tags.
+  if (cur_tag_.IsDoctypeTag()) {
+    cur_tag_.AppendTagToString(output_);
+    return tag_end;
+  }
+
   // Keep XML processing instruction tags intact, including quotes.
   DCHECK(tag_name.size() > 0);
   if (tag_name[0] == '?') {
@@ -330,7 +335,7 @@ const char* HtmlCompactor::ProcessTag(const char* tag_begin,
     return tag_end;
   }
 
-  SpecialTagMap::iterator p = special_tags.find(tag_name);
+  SpecialTagMap::const_iterator p = special_tags.find(tag_name);
   const TagEntry* t = (p == special_tags.end()) ? NULL : p->second;
   // Skip if this is a comment or an "optional" tag.
   if (t && (t->type & TagEntry::OPTIONAL)) {
