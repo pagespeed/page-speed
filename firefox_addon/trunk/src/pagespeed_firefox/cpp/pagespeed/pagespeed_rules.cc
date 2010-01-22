@@ -58,6 +58,7 @@ class PluginSerializer : public pagespeed::Serializer {
   virtual ~PluginSerializer() {}
 
   virtual std::string SerializeToFile(const std::string& content_url,
+                                      const std::string& mime_type,
                                       const std::string& body);
 
  private:
@@ -67,6 +68,7 @@ class PluginSerializer : public pagespeed::Serializer {
 };
 
 std::string PluginSerializer::SerializeToFile(const std::string& content_url,
+                                              const std::string& mime_type,
                                               const std::string& body) {
   // Make a copy of the base_dir_ nsIFile object.
   nsCOMPtr<nsIFile> file;
@@ -82,8 +84,8 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
     LOG(ERROR) << "Invalid url: " << content_url;
     return "";
   }
-  const std::string filename = pagespeed::ChooseOutputFilename(url,
-                                                               MD5String(body));
+  const std::string filename =
+      pagespeed::ChooseOutputFilename(url, mime_type, MD5String(body));
   file->Append(NS_ConvertASCIItoUTF16(filename.c_str()));
 
   // Get the absolute path of the nsIFile as a C++ string.

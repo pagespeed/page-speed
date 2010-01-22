@@ -23,7 +23,9 @@
 namespace pagespeed {
 
 // Choose a filename at which to save data, given the URL associated with the
-// data, and a string hash of the data.
-std::string ChooseOutputFilename(const GURL& url, const std::string& hash);
+// data, the MIME type of the data to be saved, and a string hash of the data.
+std::string ChooseOutputFilename(const GURL& url,
+                                 const std::string& mime_type,
+                                 const std::string& hash);
 
 }  // namespace pagespeed
