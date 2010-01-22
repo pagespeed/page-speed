@@ -225,7 +225,8 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
     }
 
     std::string optimized_uri = content_serializer_->SerializeToFile(
-        orig_url, params.optimized_content());
+        orig_url, params.optimized_content_mime_type(),
+        params.optimized_content());
     if (!optimized_uri.empty()) {
       if (needs_comma) {
         *output_ << ",";

@@ -73,6 +73,8 @@ bool MinifyRule::AppendResults(const PagespeedInput& input,
     const std::string* optimized_content = output->optimized_content();
     if (optimized_content != NULL) {
       result->set_optimized_content(*optimized_content);
+      result->set_optimized_content_mime_type(
+          output->optimized_content_mime_type());
     }
   }
 
@@ -133,7 +135,9 @@ void MinifyRule::FormatResults(const ResultVector& results,
     FormatterParameters formatter_args(&format_str, &args);
 
     if (result.has_optimized_content()) {
-      formatter_args.set_optimized_content(&result.optimized_content());
+      formatter_args.set_optimized_content(
+          &result.optimized_content(),
+          result.optimized_content_mime_type());
     }
 
     body->AddChild(formatter_args);

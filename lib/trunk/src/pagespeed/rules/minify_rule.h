@@ -31,18 +31,24 @@ struct MinifierOutput {
 
   explicit MinifierOutput(int bytes_saved) : bytes_saved_(bytes_saved) {}
 
-  MinifierOutput(int bytes_saved, const std::string& optimized_content)
+  MinifierOutput(int bytes_saved, const std::string& optimized_content,
+                 const std::string& optimized_content_mime_type)
       : bytes_saved_(bytes_saved),
-        optimized_content_(new std::string(optimized_content)) {}
+        optimized_content_(new std::string(optimized_content)),
+        optimized_content_mime_type_(optimized_content_mime_type) {}
 
   int bytes_saved() const { return bytes_saved_; }
   const std::string* optimized_content() const {
     return optimized_content_.get();
   }
+  const std::string& optimized_content_mime_type() const {
+    return optimized_content_mime_type_;
+  }
 
  private:
   int bytes_saved_;
   scoped_ptr<std::string> optimized_content_;
+  std::string optimized_content_mime_type_;
 
   DISALLOW_COPY_AND_ASSIGN(MinifierOutput);
 };

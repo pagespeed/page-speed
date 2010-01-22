@@ -148,6 +148,10 @@ message Result {
 
   // Number of times resource loading was blocked before savings.
   optional int32 original_critical_path_length = 8;
+
+  // MIME type for the optimized version of the current resource, if
+  // applicable.
+  optional string optimized_content_mime_type = 9;
 }
 
 message Results {
