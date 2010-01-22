@@ -40,40 +40,38 @@ class MinimizeDnsTest : public ::testing::Test {
     input_.reset();
   }
 
-  void AddTestResource(const std::string& url) {
+  Resource* AddTestResource(const std::string& url) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(200);
     resource->SetResponseProtocol("HTTP/1.1");
-
     input_->AddResource(resource);
+    return resource;
   }
 
-  void CheckViolations(int expected_num_hosts,
-                       int expected_dns_savings,
-                       const std::vector<std::string>& expected_violations) {
+  void CheckViolations(const std::vector<std::string>& expected_violations) {
     MinimizeDnsLookups dns_rule;
 
     Results results;
     dns_rule.AppendResults(*input_, &results);
-    ASSERT_EQ(results.results_size(), expected_dns_savings);
+    ASSERT_EQ(expected_violations.size(), results.results_size());
 
     std::vector<std::string> urls;
     for (int idx = 0; idx < results.results_size(); idx++) {
       const Result& result = results.results(idx);
-      ASSERT_EQ(result.rule_name(), "MinimizeDnsLookups") << idx;
-      ASSERT_EQ(result.savings().dns_requests_saved(), 1);
+      ASSERT_EQ("MinimizeDnsLookups", result.rule_name()) << idx;
+      ASSERT_EQ(1, result.savings().dns_requests_saved());
 
-      ASSERT_EQ(result.resource_urls_size(), 1);
+      ASSERT_EQ(1, result.resource_urls_size());
       urls.push_back(result.resource_urls(0));
     }
 
-    ASSERT_EQ(urls.size(), expected_violations.size());
+    ASSERT_EQ(expected_violations.size(), urls.size());
 
     for (int idx = 0; idx < urls.size(); ++idx) {
-      EXPECT_EQ(urls[idx], expected_violations[idx]);
+      EXPECT_EQ(expected_violations[idx], urls[idx]);
     }
   }
 
@@ -82,45 +80,73 @@ class MinimizeDnsTest : public ::testing::Test {
 };
 
 TEST_F(MinimizeDnsTest, OneUrlNoViolation) {
-  std::string url = "http://foo.com";
+  const std::string url = "http://foo.com";
 
   AddTestResource(url);
 
   std::vector<std::string> expected_violations;
 
-  CheckViolations(1, 0, expected_violations);
+  CheckViolations(expected_violations);
 }
 
-TEST_F(MinimizeDnsTest, TwoUrlOneHostNoViolations) {
-  std::string url1 = "http://foo.com";
-  std::string url2 = url1 + "/favicon.ico";
+TEST_F(MinimizeDnsTest, OneLazyOneNotNoViolation) {
+  const std::string url1 = "http://foo.com";
+  const std::string url2 = "http://bar.com/baz.js";
 
   AddTestResource(url1);
-  AddTestResource(url2);
+  AddTestResource(url2)->SetLazyLoaded();
 
   std::vector<std::string> expected_violations;
 
-  CheckViolations(1, 0, expected_violations);
+  CheckViolations(expected_violations);
 }
 
-TEST_F(MinimizeDnsTest, TwoUrlTwoViolations) {
-  std::string url1 = "http://bar.com/favicon.ico";
-  std::string url2 = "http://foo.com";
+TEST_F(MinimizeDnsTest, OneLazyTwoNotTwoViolations) {
+  const std::string url1 = "http://foo.com";
+  const std::string url2 = "http://bar.com/baz.js";
+  const std::string url3 = "http://bar.com/quux.js";
 
   AddTestResource(url1);
   AddTestResource(url2);
+  AddTestResource(url3)->SetLazyLoaded();
 
   std::vector<std::string> expected_violations;
-  expected_violations.push_back(url1);
   expected_violations.push_back(url2);
+  expected_violations.push_back(url1);
 
-  CheckViolations(2, 2, expected_violations);
+  CheckViolations(expected_violations);
 }
 
-TEST_F(MinimizeDnsTest, TwoUrlOneViolation) {
-  std::string url1 = "http://foo.com";
-  std::string url2 = url1 + "/favicon.ico";
-  std::string url3 = "http://bar.com/favicon.ico";
+TEST_F(MinimizeDnsTest, TwoUrlsOneHostNoViolations) {
+  const std::string url1 = "http://foo.com";
+  const std::string url2 = "http://foo.com/favicon.ico";
+
+  AddTestResource(url1);
+  AddTestResource(url2);
+
+  std::vector<std::string> expected_violations;
+
+  CheckViolations(expected_violations);
+}
+
+TEST_F(MinimizeDnsTest, TwoUrlsTwoViolations) {
+  const std::string url1 = "http://foo.com";
+  const std::string url2 = "http://bar.com/image.png";
+
+  AddTestResource(url1);
+  AddTestResource(url2);
+
+  std::vector<std::string> expected_violations;
+  expected_violations.push_back(url2);
+  expected_violations.push_back(url1);
+
+  CheckViolations(expected_violations);
+}
+
+TEST_F(MinimizeDnsTest, ThreeUrlsOneViolation) {
+  const std::string url1 = "http://foo.com";
+  const std::string url2 = "http://foo.com/favicon.ico";
+  const std::string url3 = "http://bar.com/image.png";
 
   AddTestResource(url1);
   AddTestResource(url2);
@@ -129,20 +155,40 @@ TEST_F(MinimizeDnsTest, TwoUrlOneViolation) {
   std::vector<std::string> expected_violations;
   expected_violations.push_back(url3);
 
-  CheckViolations(2, 1, expected_violations);
+  CheckViolations(expected_violations);
 }
 
-TEST_F(MinimizeDnsTest, ExcludeNumericIps) {
-  std::string url1 = "http://bar.com/favicon.ico";
-  std::string url2 = "http://127.0.0.1/";
+TEST_F(MinimizeDnsTest, ThreeUrlsThreeViolations) {
+  const std::string url1 = "http://foo.com";
+  const std::string url2 = "http://bar.com/image.png";
+  const std::string url3 = "http://baz.com/quux.js";
 
   AddTestResource(url1);
   AddTestResource(url2);
+  AddTestResource(url3);
 
   std::vector<std::string> expected_violations;
+  expected_violations.push_back(url2);
+  expected_violations.push_back(url3);
   expected_violations.push_back(url1);
 
-  CheckViolations(2, 1, expected_violations);
+  CheckViolations(expected_violations);
+}
+
+TEST_F(MinimizeDnsTest, ExcludeNumericIps) {
+  const std::string url1 = "http://foo.com";
+  const std::string url2 = "http://bar.com/image.png";
+  const std::string url3 = "http://127.0.0.1/";
+
+  AddTestResource(url1);
+  AddTestResource(url2);
+  AddTestResource(url3);
+
+  std::vector<std::string> expected_violations;
+  expected_violations.push_back(url2);
+  expected_violations.push_back(url1);
+
+  CheckViolations(expected_violations);
 }
 
 }  // namespace

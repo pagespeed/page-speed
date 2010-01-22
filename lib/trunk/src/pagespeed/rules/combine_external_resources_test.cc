@@ -59,8 +59,8 @@ class CombineExternalResourcesTest : public ::testing::Test {
     input_.reset();
   }
 
-  void AddTestResource(const std::string& url,
-                       const std::string& content_type) {
+  Resource* AddTestResource(const std::string& url,
+                            const std::string& content_type) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->AddResponseHeader("Content-Type", content_type);
@@ -69,6 +69,7 @@ class CombineExternalResourcesTest : public ::testing::Test {
     resource->SetResponseStatusCode(200);
     resource->SetResponseProtocol("HTTP/1.1");
     input_->AddResource(resource);
+    return resource;
   }
 
   void CheckViolations(ResourceType type,
@@ -116,6 +117,19 @@ TEST_F(CombineExternalResourcesTest, OneUrlNoViolation) {
   std::string url = "http://foo.com";
 
   AddTestResource(url, "text/css");
+
+  std::vector<Violation> no_violations;
+
+  CheckViolations(pagespeed::JS, no_violations);
+  CheckViolations(pagespeed::CSS, no_violations);
+}
+
+TEST_F(CombineExternalResourcesTest, OneLazyOneNotNoViolation) {
+  std::string url1 = "http://foo.com";
+  std::string url2 = "http://foo.com/bar";
+
+  AddTestResource(url1, "text/css");
+  AddTestResource(url2, "text/css")->SetLazyLoaded();
 
   std::vector<Violation> no_violations;
 

@@ -76,58 +76,76 @@ const char* MinimizeDnsLookups::documentation_url() const {
 
 bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
                                        Results* results) {
+  // TODO This logic is wrong.  Right now, if you have two resources in
+  //      different domains, this rule will complain about both resources, and
+  //      claim a savings of one DNS request for each resource.  However, you
+  //      can't actually save two DNS requests by combining the resources --
+  //      you can only save one.
+
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
 
-  // Only check if resources are sharded among 2 or more hosts.  We
-  // should not warn about simple pages that consist of a single
-  // resource since in order to access a page, we must always perform
-  // at least 1 dns lookup.
-  if (host_resource_map.size() > 1) {
-    for (HostResourceMap::const_iterator iter = host_resource_map.begin(),
-             end = host_resource_map.end();
-         iter != end;
-         ++iter) {
-      const std::string& host = iter->first;
+  // Find resources that are the only (http, non-lazy-loaded) resource from
+  // their domain.
+  ResourceVector lone_dns_resources;
+  int num_relevant_hosts = 0;
+  for (HostResourceMap::const_iterator iter = host_resource_map.begin(),
+           end = host_resource_map.end();
+       iter != end;
+       ++iter) {
+    const std::string& host = iter->first;
 
-      ResourceVector filtered;
-      for (ResourceVector::const_iterator resource_iter = iter->second.begin(),
-               resource_end = iter->second.end();
-           resource_iter != resource_end;
-           ++resource_iter) {
-        const pagespeed::Resource* resource = *resource_iter;
+    // If the ip address is appears explicitly, no DNS lookup is required.
+    if (IsAnIPAddress(host.c_str())) {
+      continue;
+    }
 
-        // exclude non-http resources
-        std::string protocol = resource->GetProtocol();
-        if (protocol != "http" && protocol != "https") {
-          continue;
-        }
+    const ResourceVector& resources = iter->second;
 
-        if (host.empty()) {
-          LOG(DFATAL) << "Empty host while processing "
-                      << resource->GetRequestUrl();
-        }
-        filtered.push_back(resource);
+    ResourceVector filtered;
+    for (ResourceVector::const_iterator resource_iter = resources.begin(),
+             resource_end = resources.end();
+         resource_iter != resource_end; ++resource_iter) {
+      const Resource* resource = *resource_iter;
+
+      // exclude non-http resources
+      const std::string& protocol = resource->GetProtocol();
+      if (protocol != "http" && protocol != "https") {
+        continue;
       }
 
+      // exclude lazy-loaded resources
+      if (resource->IsLazyLoaded()) {
+        continue;
+      }
+
+      if (host.empty()) {
+        LOG(DFATAL) << "Empty host while processing "
+                    << resource->GetRequestUrl();
+      }
+      filtered.push_back(resource);
+    }
+
+    if (!filtered.empty()) {
+      ++num_relevant_hosts;
       if (filtered.size() == 1) {
-        // If the ip address is appears explicitly, no DNS lookup is required.
-        bool need_dns = !IsAnIPAddress(host.c_str());
-        if (!need_dns) {
-          continue;
-        }
-
-        for (ResourceVector::const_iterator resource_iter = filtered.begin(),
-                 url_end = filtered.end();
-             resource_iter != url_end;
-             ++resource_iter) {
-
-          Result* result = results->add_results();
-          result->set_rule_name(name());
-          result->add_resource_urls((*resource_iter)->GetRequestUrl());
-          Savings* savings = result->mutable_savings();
-          savings->set_dns_requests_saved(1);
-        }
+        lone_dns_resources.push_back(*filtered.begin());
       }
+    }
+  }
+
+  // Report a result for each lone resource (unless there is only one domain).
+  if (num_relevant_hosts > 1) {
+    for (ResourceVector::const_iterator iter = lone_dns_resources.begin(),
+             end = lone_dns_resources.end();
+         iter != end; ++iter) {
+      const Resource* resource = *iter;
+
+      Result* result = results->add_results();
+      result->set_rule_name(name());
+      result->add_resource_urls(resource->GetRequestUrl());
+
+      Savings* savings = result->mutable_savings();
+      savings->set_dns_requests_saved(1);
     }
   }
 
