@@ -61,7 +61,7 @@ char PickQuote(const std::string& str) {
     if (NeedsQuote(c)) {
       needs_quotes = true;
       if (c == '\'') {
-        saw_dquote = true;
+        saw_squote = true;
       } else if (c == '"') {
         saw_dquote = true;
       }
@@ -172,6 +172,9 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
     return NULL; // not a tag
   }
 
+  attr_names_.clear();
+  attr_map_.clear();
+
   if (end - begin >= 4 && !strncmp(begin + 1, "!--", 3)) {
     tag_name_ = "!--";
     tag_type_ = COMMENT_TAG;
@@ -195,8 +198,6 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
   }
 
   // Read the attributes.
-  attr_names_.clear();
-  attr_map_.clear();
   while (true) {
     READTAG_SKIP(isspace);
 

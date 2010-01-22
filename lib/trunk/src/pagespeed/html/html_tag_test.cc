@@ -33,6 +33,7 @@ TEST(HtmlTagTest, Basic) {
   ASSERT_FALSE(tag.IsEmptyElement());
   ASSERT_FALSE(tag.IsEndTag());
   ASSERT_FALSE(tag.IsDoctypeTag());
+  ASSERT_TRUE(tag.HasAnyAttrs());
   ASSERT_FALSE(tag.HasAttr("foo"));
   ASSERT_TRUE(tag.HasAttr("bar"));
   ASSERT_FALSE(tag.HasAttrValue("bar"));
@@ -60,6 +61,7 @@ TEST(HtmlTagTest, EndTag) {
   ASSERT_FALSE(tag.IsDoctypeTag());
   ASSERT_FALSE(tag.HasAttr("foo"));
   ASSERT_FALSE(tag.HasAttr("bar"));
+  ASSERT_FALSE(tag.HasAnyAttrs());
   ASSERT_EQ(input, tag.ToString());
 }
 
@@ -123,6 +125,7 @@ TEST(HtmlTagTest, Comment) {
   ASSERT_FALSE(tag.IsEndTag());
   ASSERT_FALSE(tag.IsDoctypeTag());
   ASSERT_FALSE(tag.HasAttr("foo"));
+  ASSERT_FALSE(tag.HasAnyAttrs());
   ASSERT_EQ("<!-->", tag.ToString());
 }
 
@@ -162,6 +165,23 @@ TEST(HtmlTagTest, Lowercasify) {
   ASSERT_EQ("<foo bar baz=quUx>", tag.ToString());
 }
 
+TEST(HtmlTagTest, PickQuote) {
+  const std::string input("<foo bar=\"hello('w')\" baz='hi(\"world\")'>");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+  ASSERT_EQ(end, tag.ReadTag(begin, end));
+
+  ASSERT_EQ("foo", tag.tagname());
+  ASSERT_TRUE(tag.HasAttr("bar"));
+  ASSERT_TRUE(tag.HasAttrValue("bar"));
+  ASSERT_EQ("hello('w')", tag.GetAttrValue("bar"));
+  ASSERT_TRUE(tag.HasAttr("baz"));
+  ASSERT_TRUE(tag.HasAttrValue("baz"));
+  ASSERT_EQ("hi(\"world\")", tag.GetAttrValue("baz"));
+  ASSERT_EQ(input, tag.ToString());
+}
+
 TEST(HtmlTagTest, ReuseTagObject) {
   HtmlTag tag;
 
@@ -198,6 +218,14 @@ TEST(HtmlTagTest, ReuseTagObject) {
   ASSERT_TRUE(tag.HasAttrValue("eggs"));
   ASSERT_EQ("bacon", tag.GetAttrValue("eggs"));
   ASSERT_EQ(input2, tag.ToString());
+
+  const std::string input3("<!-- comment -->");
+  const char* begin3 = input3.data();
+  const char* end3 = begin3 + input3.size();
+  ASSERT_EQ(end3, tag.ReadTag(begin3, end3));
+
+  ASSERT_EQ("!--", tag.tagname());
+  ASSERT_FALSE(tag.HasAnyAttrs());
 }
 
 TEST(HtmlTagTest, MinimalTags) {
@@ -210,6 +238,7 @@ TEST(HtmlTagTest, MinimalTags) {
   ASSERT_EQ("x", tag.tagname());
   ASSERT_EQ("x", tag.GetBaseTagName());
   ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_FALSE(tag.HasAnyAttrs());
   ASSERT_EQ(input1, tag.ToString());
 
   const std::string input2("</>");
@@ -219,6 +248,7 @@ TEST(HtmlTagTest, MinimalTags) {
   ASSERT_EQ("/", tag.tagname());
   ASSERT_EQ("", tag.GetBaseTagName());
   ASSERT_TRUE(tag.IsEndTag());
+  ASSERT_FALSE(tag.HasAnyAttrs());
   ASSERT_EQ(input2, tag.ToString());
 
   const std::string input3("<>");
@@ -236,11 +266,13 @@ TEST(HtmlTagTest, ModifyTag) {
 
   ASSERT_FALSE(tag.HasAttr("bar"));
   ASSERT_FALSE(tag.HasAttrValue("bar"));
+  ASSERT_FALSE(tag.HasAnyAttrs());
   ASSERT_EQ("<foo>", tag.ToString());
 
   tag.AddAttr("bar");
   ASSERT_TRUE(tag.HasAttr("bar"));
   ASSERT_FALSE(tag.HasAttrValue("bar"));
+  ASSERT_TRUE(tag.HasAnyAttrs());
   ASSERT_EQ("<foo bar>", tag.ToString());
 
   tag.SetAttrValue("bar", "quux");
@@ -252,11 +284,13 @@ TEST(HtmlTagTest, ModifyTag) {
   tag.ClearAttrValue("bar");
   ASSERT_TRUE(tag.HasAttr("bar"));
   ASSERT_FALSE(tag.HasAttrValue("bar"));
+  ASSERT_TRUE(tag.HasAnyAttrs());
   ASSERT_EQ("<foo bar>", tag.ToString());
 
   tag.ClearAttr("bar");
   ASSERT_FALSE(tag.HasAttr("bar"));
   ASSERT_FALSE(tag.HasAttrValue("bar"));
+  ASSERT_FALSE(tag.HasAnyAttrs());
   ASSERT_EQ("<foo>", tag.ToString());
 }
 

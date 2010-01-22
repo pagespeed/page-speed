@@ -337,8 +337,9 @@ const char* HtmlCompactor::ProcessTag(const char* tag_begin,
 
   SpecialTagMap::const_iterator p = special_tags.find(tag_name);
   const TagEntry* t = (p == special_tags.end()) ? NULL : p->second;
-  // Skip if this is a comment or an "optional" tag.
-  if (t && (t->type & TagEntry::OPTIONAL)) {
+  // Skip if this is a comment or an "optional" tag, as long as it has no
+  // attributes.
+  if (t && (t->type & TagEntry::OPTIONAL) && !cur_tag_.HasAnyAttrs()) {
     // But keep it if this is a special IE tag.
     if (tag_name[0] == '!') {
       const char* marker = "<!--[";
