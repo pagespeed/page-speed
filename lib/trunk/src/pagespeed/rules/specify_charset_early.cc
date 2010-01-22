@@ -40,7 +40,7 @@ const char* SpecifyCharsetEarly::name() const {
 }
 
 const char* SpecifyCharsetEarly::header() const {
-  return "Specify CharSet early";
+  return "Specify a character set early";
 }
 
 const char* SpecifyCharsetEarly::documentation_url() const {
@@ -53,7 +53,7 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
     const Resource& resource = input.GetResource(idx);
     const ResourceType resource_type = resource.GetResourceType();
 
-    const std::string& content_type = 
+    const std::string& content_type =
       resource.GetResponseHeader("Content-Type");
 
     // Checks only HTML document for now, and assume HTML if
@@ -72,7 +72,7 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
       }
 
       if (!charset_exists) {
-        // check for charset in response body 
+        // check for charset in response body
         const std::string& body = resource.GetResponseBody();
 
         // TODO(lsong): use more efficent method to get the META tag.
@@ -80,7 +80,7 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
         // find the meta tag in lowercase.
         const std::string lower_case_body = StringToLowerASCII(body);
 
-        const char* htmlEnd = lower_case_body.c_str() + 
+        const char* htmlEnd = lower_case_body.c_str() +
                               lower_case_body.size();
 
         int start_offset = 0;
@@ -105,7 +105,7 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
               htmlTag.GetAttrValue("http-equiv") == "content-type" &&
               htmlTag.HasAttrValue("content") ) {
             const std::string& content = htmlTag.GetAttrValue("content");
-            const std::string collapsed_content = 
+            const std::string collapsed_content =
                 CollapseWhitespaceASCII(content, true);
             if (collapsed_content.find("text/html; charset=") == 0 &&
                 collapsed_content.size() > strlen("text/html; charset=")) {
@@ -114,7 +114,7 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
             }
           }
         }
-      } 
+      }
 
       if (!charset_exists) {
         Result* result = results->add_results();
@@ -142,7 +142,7 @@ void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
       "or have a non-default character set specified late in the "
       "document. Specifying a character set early in these "
       "documents can speed up browser rendering.");
-      
+
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
