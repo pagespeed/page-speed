@@ -73,6 +73,9 @@ class HtmlTag {
   // Return true iff this is a !DOCTYPE tag.
   bool IsDoctypeTag() const { return tag_type_ == DOCTYPE_TAG; }
 
+  // Determine if any attributes are present.
+  bool HasAnyAttrs() const { return !attr_names_.empty(); }
+
   // Determine if an attribute is present.
   bool HasAttr(const std::string& attr) const;
 

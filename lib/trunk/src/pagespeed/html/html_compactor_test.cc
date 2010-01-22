@@ -126,4 +126,21 @@ TEST(HtmlCompactorTest, PreserveDoctype) {
   ASSERT_EQ(kWithDoctypeMinified, output);
 }
 
+const char* kWithAttribute =
+    "<HTML onMouseMove=\"alert('hello');\">\n"
+    " <HEAD><TITLE>Foo</TITLE></HEAD>\n"
+    " <BODY>Bar.</BODY>\n"
+    "</HTML>\n";
+
+const char* kWithAttributeMinified =
+    "<html onmousemove=\"alert('hello');\">\n"
+    "<title>Foo</title>\n"
+    "<body>Bar.\n";
+
+TEST(HtmlCompactorTest, PreserveOptionalTagWithAttributes) {
+  std::string output;
+  ASSERT_TRUE(HtmlCompactor::CompactHtml(kWithAttribute, &output));
+  ASSERT_EQ(kWithAttributeMinified, output);
+}
+
 }  // namespace
