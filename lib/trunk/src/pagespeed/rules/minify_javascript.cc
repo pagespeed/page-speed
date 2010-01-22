@@ -77,7 +77,8 @@ const MinifierOutput* JsMinifier::Minify(const Resource& resource) const {
     if (!jsmin::MinifyJs(input, &minified_js)) {
       return NULL; // error
     }
-    return new MinifierOutput(input.size() - minified_js.size(), minified_js);
+    return new MinifierOutput(input.size() - minified_js.size(),
+                              minified_js, "text/javascript");
   } else {
     int minified_js_size = 0;
     if (!jsmin::GetMinifiedJsSize(input, &minified_js_size)) {

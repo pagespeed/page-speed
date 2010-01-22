@@ -32,9 +32,11 @@ class Serializer {
   // Write content to a file
   //
   // @param content_url url from which content was originally served.
+  // @param mime_type The MIME type of the body.
   // @param body Content body.
   // @return full file uri or an empty string if no file was written.
   virtual std::string SerializeToFile(const std::string& content_url,
+                                      const std::string& mime_type,
                                       const std::string& body) = 0;
 
  private:

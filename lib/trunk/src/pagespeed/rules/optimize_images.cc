@@ -80,10 +80,12 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
   const std::string& original = resource.GetResponseBody();
 
   std::string compressed;
+  std::string output_mime_type;
   if (type == JPEG) {
     if (!image_compression::OptimizeJpeg(original, &compressed)) {
       return NULL; // error
     }
+    output_mime_type = "image/jpeg";
   } else if (type == PNG) {
     image_compression::PngReader reader;
     if (!image_compression::PngOptimizer::OptimizePng(reader,
@@ -91,6 +93,7 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
                                                       &compressed)) {
       return NULL; // error
     }
+    output_mime_type = "image/png";
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
   } else if (type == GIF) {
     image_compression::GifReader reader;
@@ -99,6 +102,7 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
                                                       &compressed)) {
       return NULL; // error
     }
+    output_mime_type = "image/png";
 #endif
   } else {
     return new MinifierOutput();
@@ -106,7 +110,7 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
 
   const int bytes_saved = original.size() - compressed.size();
   if (save_optimized_content_) {
-    return new MinifierOutput(bytes_saved, compressed);
+    return new MinifierOutput(bytes_saved, compressed, output_mime_type);
   } else {
     return new MinifierOutput(bytes_saved);
   }

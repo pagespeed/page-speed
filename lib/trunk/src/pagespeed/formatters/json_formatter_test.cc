@@ -45,8 +45,10 @@ class DummyTestSerializer : public pagespeed::Serializer {
  public:
   // Serializer interface
   virtual std::string SerializeToFile(const std::string& content_url,
+                                      const std::string& mime_type,
                                       const std::string& body) {
-    return "serialize url: " + content_url + " body: " + body;
+    return ("serialize url: " + content_url + " mime: " + mime_type +
+            " body: " + body);
   }
 };
 
@@ -173,7 +175,7 @@ TEST(JsonFormatterTest, OptimizedTest) {
   arguments.push_back(&url_arg);
   FormatterParameters args(&format_str, &arguments);
   std::string optimized = "<optimized result>";
-  args.set_optimized_content(&optimized);
+  args.set_optimized_content(&optimized, "text/css");
 
   std::stringstream output;
   DummyTestSerializer serializer;
@@ -189,7 +191,8 @@ TEST(JsonFormatterTest, OptimizedTest) {
       "{\"type\":\"str\",\"value\":\"  See \"},"
       "{\"type\":\"url\","
       "\"value\":"
-      "\"serialize url: http://test.com/ body: \\x3coptimized result\\x3e\","
+      "\"serialize url: http://test.com/ mime: text/css "
+      "body: \\x3coptimized result\\x3e\","
       "\"alt\":\"optimized version\"},"
       "{\"type\":\"str\",\"value\":\".\"}"
       "]}]\n",
@@ -200,7 +203,7 @@ TEST(JsonFormatterTest, OptimizedTestNoUrl) {
   std::string format_str = "FooBar";
   FormatterParameters args(&format_str);
   std::string optimized = "<optimized result>";
-  args.set_optimized_content(&optimized);
+  args.set_optimized_content(&optimized, "text/css");
 
   std::stringstream output;
   DummyTestSerializer serializer;
@@ -213,7 +216,8 @@ TEST(JsonFormatterTest, OptimizedTestNoUrl) {
             "\"value\":\"FooBar\"},"
             "{\"type\":\"str\",\"value\":\"  See \"},"
             "{\"type\":\"url\","
-            "\"value\":\"serialize url:  body: \\x3coptimized result\\x3e\","
+            "\"value\":\"serialize url:  mime: text/css "
+            "body: \\x3coptimized result\\x3e\","
             "\"alt\":\"optimized version\"},"
             "{\"type\":\"str\",\"value\":\".\"}"
             "]}]\n",

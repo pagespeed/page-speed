@@ -69,8 +69,10 @@ FormatterParameters::FormatterParameters(
             static_cast<std::vector<const pagespeed::Argument*>*>(NULL));
 }
 
-void FormatterParameters::set_optimized_content(const std::string* content) {
+void FormatterParameters::set_optimized_content(const std::string* content,
+                                                const std::string& mime_type) {
   optimized_content_ = content;
+  optimized_content_mime_type_.assign(mime_type);
 }
 
 const std::string& FormatterParameters::format_str() const {
@@ -100,6 +102,10 @@ const std::string& FormatterParameters::optimized_content() const {
   } else {
     return kEmptyString;
   }
+}
+
+const std::string& FormatterParameters::optimized_content_mime_type() const {
+  return optimized_content_mime_type_;
 }
 
 Formatter::Formatter() {

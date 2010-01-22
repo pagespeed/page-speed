@@ -79,7 +79,7 @@ const MinifierOutput* HtmlMinifier::Minify(const Resource& resource) const {
 
   if (save_optimized_content_) {
     return new MinifierOutput(input.size() - minified_html.size(),
-                              minified_html);
+                              minified_html, "text/html");
   } else {
     return new MinifierOutput(input.size() - minified_html.size());
   }

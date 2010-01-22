@@ -77,7 +77,8 @@ const MinifierOutput* CssMinifier::Minify(const Resource& resource) const {
     if (!cssmin::MinifyCss(input, &minified_css)) {
       return NULL; // error
     }
-    return new MinifierOutput(input.size() - minified_css.size(), minified_css);
+    return new MinifierOutput(input.size() - minified_css.size(),
+                              minified_css, "text/css");
   } else {
     int minified_css_size = 0;
     if (!cssmin::GetMinifiedCssSize(input, &minified_css_size)) {

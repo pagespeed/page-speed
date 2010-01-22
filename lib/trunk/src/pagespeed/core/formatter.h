@@ -62,17 +62,20 @@ class FormatterParameters {
   explicit FormatterParameters(const std::string* format_str);
   FormatterParameters(const std::string* format_str,
                       const std::vector<const Argument*>* arguments);
-  void set_optimized_content(const std::string* content);
+  void set_optimized_content(const std::string* content,
+                             const std::string& mime_type);
 
   const std::string& format_str() const;
   const std::vector<const Argument*>& arguments() const;
   bool has_optimized_content() const;
   const std::string& optimized_content() const;
+  const std::string& optimized_content_mime_type() const;
 
  private:
   const std::string* format_str_;
   const std::vector<const Argument*>* arguments_;
   const std::string* optimized_content_;
+  std::string optimized_content_mime_type_;
 
   DISALLOW_COPY_AND_ASSIGN(FormatterParameters);
 };

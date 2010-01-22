@@ -66,7 +66,7 @@ TEST(ProtoFormatterTest, OptimizedTest) {
   std::string format_str = "FooBar";
   FormatterParameters args(&format_str);
   std::string optimized = "<optimized result>";
-  args.set_optimized_content(&optimized);
+  args.set_optimized_content(&optimized, "text/css");
 
   std::vector<ResultText*> results;
   ProtoFormatter formatter(&results);
