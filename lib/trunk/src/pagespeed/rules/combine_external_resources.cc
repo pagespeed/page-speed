@@ -56,6 +56,11 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
         continue;
       }
 
+      // exclude lazy-loaded resources
+      if (resource->IsLazyLoaded()) {
+        continue;
+      }
+
       const std::string& host = iter->first;
       if (host.empty()) {
         LOG(DFATAL) << "Empty host while processing "
