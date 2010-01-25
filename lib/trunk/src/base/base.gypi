@@ -96,6 +96,7 @@
           ],
           'cflags': [
             '-Wno-write-strings',
+            '-Wno-error',  # dmg_fp generates warnings in older gcc compilers.
           ],
         },],
         [ 'OS == "mac"', {
