@@ -99,6 +99,18 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetEarlyInHtml) {
   CheckNoViolations();
 }
 
+TEST_F(SpecifyCharsetEarlyTest, NoSpaceCharsetEarlyInHtml) {
+  std::string html = "<html><head><meta http-equiv=\"Content-Type\" "
+                     "content=\"text/html;charset= utf-8\"></head><body>"
+                     "Hello world"
+                     "</body></html>";
+  AddTestResource("http://www.example.com/hello.html",
+                  "",
+                  "",
+                  html);
+  CheckNoViolations();
+}
+
 TEST_F(SpecifyCharsetEarlyTest, CharsetLateInHtml) {
   std::string html = "<html><body>"
                      "Hello world";

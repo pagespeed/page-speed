@@ -107,8 +107,9 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
             const std::string& content = htmlTag.GetAttrValue("content");
             const std::string collapsed_content =
                 CollapseWhitespaceASCII(content, true);
-            if (collapsed_content.find("text/html; charset=") == 0 &&
-                collapsed_content.size() > strlen("text/html; charset=")) {
+            if ((collapsed_content.find("text/html; charset=") == 0 ||
+                 collapsed_content.find("text/html;charset=") == 0) &&
+                collapsed_content.size() > strlen("text/html;charset=")) {
               charset_exists = true;
               break;
             }
