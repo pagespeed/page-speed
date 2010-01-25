@@ -63,12 +63,16 @@ TEST(PagespeedJsonInputTest, ResourceLazyLoaded) {
   std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
-                       "\"req_lazy_loaded\":false"
-                       "},"
-                       "{\"req_url\":\"http://www.example.com/goo\"},"
-                       "{\"req_url\":\"http://www.example.com/bar\","
-                       "\"req_lazy_loaded\":true"
-                       "}]");
+                      "\"res_status\":200,"
+                      "\"req_lazy_loaded\":false"
+                      "},"
+                      "{\"req_url\":\"http://www.example.com/goo\","
+                      "\"res_status\":200"
+                      "},"
+                      "{\"req_url\":\"http://www.example.com/bar\","
+                      "\"res_status\":200,"
+                      "\"req_lazy_loaded\":true"
+                      "}]");
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_TRUE(ok);
   ASSERT_EQ(3, input.num_resources());
@@ -86,8 +90,12 @@ TEST(PagespeedJsonInputTest, ResourceLazyLoaded) {
 TEST(PagespeedJsonInputTest, TwoResources) {
   std::vector<std::string> contents;
   PagespeedInput input;
-  const char *data = ("[{\"req_url\":\"http://www.example.com/foo\"},"
-                       "{\"req_url\":\"http://www.example.com/bar\"}]");
+  const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
+                      "\"res_status\":200"
+                      "},"
+                      "{\"req_url\":\"http://www.example.com/bar\","
+                      "\"res_status\":200"
+                      "}]");
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_TRUE(ok);
   ASSERT_EQ(2, input.num_resources());
@@ -103,9 +111,11 @@ TEST(PagespeedJsonInputTest, BodyIndices) {
   contents.push_back("\xDE\xAD\xBE\xEF");
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
-                        "\"res_body\":1},"
-                       "{\"req_url\":\"http://www.example.com/bar\","
-                        "\"res_body\":0}]");
+                      "\"res_status\":200,"
+                      "\"res_body\":1},"
+                      "{\"req_url\":\"http://www.example.com/bar\","
+                      "\"res_status\":200,"
+                      "\"res_body\":0}]");
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_TRUE(ok);
   ASSERT_EQ(2, input.num_resources());
