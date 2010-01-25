@@ -226,7 +226,7 @@ var unusedCssLint = function() {
   var totalCssSize = 0;
   var totalUnusedCssSize = 0;
   var usedWindowRuleIds = PAGESPEED.UnusedCss.getUsedCssRuleIds(
-      PAGESPEED.Utils.getUnwrappedWindow());
+      FirebugContext.window);
 
   // Iterate through all stylesheets on this page.
   var inlineBlockNum = 1;

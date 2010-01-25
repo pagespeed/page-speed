@@ -519,19 +519,6 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
-   * Get an unwrapped version of the window object.  See
-   * http://developer.mozilla.org/en/docs/wrappedJSObject .
-   * @param {Object} opt_win If set, unwrap this window object.  If unset,
-   *     use FirebugContext.window.
-   * @return {Object?} A version of the browser window object that can be read
-   *     and altered.
-   */
-  getUnwrappedWindow: function(opt_win) {
-    var win = opt_win || FirebugContext.window;
-    return win.wrappedJSObject || win;
-  },
-
-  /**
    * Returns an array of the types of the given resource URL.
    * @param {string} url The URL of the resource.
    * @return {Array.<string>} An array of the types of this resource.
@@ -808,7 +795,7 @@ PAGESPEED.Utils = {  // Begin namespace
     }
     return originalFileName;
   },
-  
+
   /**
    * Returns a file's extensions for the given resource.
    * @param {string} fileName Full file name.
@@ -2354,14 +2341,14 @@ PAGESPEED.Utils = {  // Begin namespace
       FirebugChrome.window.open(url, '_blank');
     }
   },
-  
+
   /**
    * Save a given image
    * @param {string} url The url of image to save.
    */
   saveLink: function(url) {
   	var fileToSave = PAGESPEED.Utils.openSaveAsDialogBox('Save as:', url);
-    
+
     if (!fileToSave) {
       //User canceled.  Nothing to do.
       return;
@@ -2372,7 +2359,7 @@ PAGESPEED.Utils = {  // Begin namespace
       inputStream,
       PAGESPEED.Utils.openFileForWriting(fileToSave.path));
   },
-  
+
   /**
    * Open 'Save as' dialog to save any sort of files
    * @param {string} message The message is the text to show the user.
@@ -2382,7 +2369,7 @@ PAGESPEED.Utils = {  // Begin namespace
     var fp = PAGESPEED.Utils.CCIN(
       '@mozilla.org/filepicker;1', 'nsIFilePicker');
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
-    
+
     fp.init(window, message,
             Components.interfaces.nsIFilePicker.modeSave);
     // Set default values
@@ -2395,17 +2382,17 @@ PAGESPEED.Utils = {  // Begin namespace
       fp.defaultString = fileName;
     }
     fp.appendFilters(nsIFilePicker.filterAll|nsIFilePicker.filterImages);
-    
+
     var result = fp.show();
 
     if (result != Components.interfaces.nsIFilePicker.returnOK &&
         result != Components.interfaces.nsIFilePicker.returnReplace) {
       // User canceled.  Nothing to do.
       return;
-    } 
+    }
     return fp.file;
   },
-  
+
   /**
    * Format an exception into a string.  Display just enough information
    * to debug the problem without making the error too verbose.
