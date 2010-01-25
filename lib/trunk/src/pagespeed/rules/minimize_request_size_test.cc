@@ -53,6 +53,7 @@ class MinimizeRequestSizeTest : public ::testing::Test {
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetRequestProtocol("HTTP");
+    resource->SetResponseStatusCode(200);
 
     for (std::map<std::string, std::string>::const_iterator
              it = request_headers.begin(),
