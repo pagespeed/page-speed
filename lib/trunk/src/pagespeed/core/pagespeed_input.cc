@@ -33,15 +33,36 @@ PagespeedInput::~PagespeedInput() {
   STLDeleteContainerPointers(resources_.begin(), resources_.end());
 }
 
-bool PagespeedInput::AddResource(const Resource* resource) {
+bool PagespeedInput::IsValidResource(const Resource* resource) const {
   const std::string& url = resource->GetRequestUrl();
+  if (url.empty()) {
+    LOG(WARNING) << "Refusing Resource with empty URL.";
+    return false;
+  }
   if (!allow_duplicate_resources_ &&
       resource_urls_.find(url) != resource_urls_.end()) {
     LOG(WARNING) << "Ignoring duplicate AddResource for resource at \""
                  << url << "\".";
+    return false;
+  }
+  if (resource->GetResponseStatusCode() <= 0) {
+    LOG(WARNING) << "Refusing Resource with invalid status code \""
+                 << resource->GetResponseStatusCode() << "\".";
+    return false;
+  }
+
+  // TODO: consider adding some basic validation for request/response
+  // headers.
+
+  return true;
+}
+
+bool PagespeedInput::AddResource(const Resource* resource) {
+  if (!IsValidResource(resource)) {
     delete resource;  // Resource is owned by PagespeedInput.
     return false;
   }
+  const std::string& url = resource->GetRequestUrl();
 
   resources_.push_back(resource);
   resource_urls_.insert(url);
