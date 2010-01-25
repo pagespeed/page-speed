@@ -40,8 +40,6 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/staticNoCookieLint.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/cookieSizeLint.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/parallelizeDownloadLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/cssEfficiencyChecker.js"/>
