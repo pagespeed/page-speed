@@ -20,6 +20,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_piece.h"
+#include "pagespeed/core/dom.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -193,6 +194,8 @@ bool OptimizeTheOrderOfStylesAndScripts::AppendResults(
     const PagespeedInput& input,
     Results* results) {
 
+  const pagespeed::DomDocument* document = input.dom_document();
+
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     if (resource.GetResourceType() != HTML) {
@@ -211,7 +214,12 @@ bool OptimizeTheOrderOfStylesAndScripts::AppendResults(
       } else if (tag.tagname() == "script") {
         if (tag.HasAttrValue("src")) {
           // External script.
-          visitor.VisitExternalScript(tag.GetAttrValue("src"));
+          std::string url = tag.GetAttrValue("src");
+          if (document != NULL) {
+            // Resolve the URL if we have a document instance.
+            url = document->ResolveUri(url);
+          }
+          visitor.VisitExternalScript(url);
         } else {
           // Inline script.
           visitor.VisitInlineScript();
@@ -227,7 +235,12 @@ bool OptimizeTheOrderOfStylesAndScripts::AppendResults(
         if (tag.HasAttrValue("href") && tag.HasAttrValue("rel") &&
             tag.GetAttrValue("rel") == "stylesheet") {
           // External CSS.
-          visitor.VisitExternalStyle(tag.GetAttrValue("href"));
+          std::string url = tag.GetAttrValue("href");
+          if (document != NULL) {
+            // Resolve the URL if we have a document instance.
+            url = document->ResolveUri(url);
+          }
+          visitor.VisitExternalStyle(url);
         }
       } else if (tag.tagname() == "style") {
         // Inline CSS.
