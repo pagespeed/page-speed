@@ -42,7 +42,7 @@ std::string GetNormalizedIdentifier(const std::string& name) {
 
 namespace pagespeed {
 
-Resource::Resource() : lazy_loaded_(false) {
+Resource::Resource() : status_code_(-1), lazy_loaded_(false) {
 }
 
 Resource::~Resource() {

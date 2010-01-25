@@ -68,6 +68,8 @@ class PagespeedInput {
   const DomDocument* dom_document() const;
 
  private:
+  bool IsValidResource(const Resource* resource) const;
+
   std::vector<const Resource*> resources_;
   std::set<std::string> resource_urls_;
   HostResourceMap host_resource_map_;

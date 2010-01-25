@@ -25,19 +25,20 @@ namespace {
 static const char* kURL1 = "http://www.foo.com/";
 static const char* kURL2 = "http://www.bar.com/";
 
-pagespeed::Resource* NewResource(const std::string& url) {
+pagespeed::Resource* NewResource(const std::string& url, int status_code) {
   pagespeed::Resource* resource = new pagespeed::Resource;
   resource->SetRequestUrl(url);
+  resource->SetResponseStatusCode(status_code);
   return resource;
 }
 
 TEST(PagespeedInputTest, DisallowDuplicates) {
   pagespeed::PagespeedInput input;
 
-  EXPECT_TRUE(input.AddResource(NewResource(kURL1)));
-  EXPECT_TRUE(input.AddResource(NewResource(kURL2)));
+  EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
+  EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
   ASSERT_EQ(input.num_resources(), 2);
-  EXPECT_FALSE(input.AddResource(NewResource(kURL2)));
+  EXPECT_FALSE(input.AddResource(NewResource(kURL2, 200)));
   ASSERT_EQ(input.num_resources(), 2);
   EXPECT_EQ(input.GetResource(0).GetRequestUrl(), kURL1);
   EXPECT_EQ(input.GetResource(1).GetRequestUrl(), kURL2);
@@ -47,13 +48,21 @@ TEST(PagespeedInputTest, AllowDuplicates) {
   pagespeed::PagespeedInput input;
   input.set_allow_duplicate_resources();
 
-  EXPECT_TRUE(input.AddResource(NewResource(kURL1)));
-  EXPECT_TRUE(input.AddResource(NewResource(kURL2)));
-  EXPECT_TRUE(input.AddResource(NewResource(kURL2)));
+  EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
+  EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
+  EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
   ASSERT_EQ(input.num_resources(), 3);
   EXPECT_EQ(input.GetResource(0).GetRequestUrl(), kURL1);
   EXPECT_EQ(input.GetResource(1).GetRequestUrl(), kURL2);
   EXPECT_EQ(input.GetResource(2).GetRequestUrl(), kURL2);
+}
+
+TEST(PagespeedInputTest, FilterBadResources) {
+  pagespeed::PagespeedInput input;
+  EXPECT_FALSE(input.AddResource(NewResource("", 0)));
+  EXPECT_FALSE(input.AddResource(NewResource("", 200)));
+  EXPECT_FALSE(input.AddResource(NewResource(kURL1, 0)));
+  EXPECT_FALSE(input.AddResource(NewResource(kURL1, -1)));
 }
 
 }  // namespace
