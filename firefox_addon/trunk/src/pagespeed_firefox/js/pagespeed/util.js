@@ -59,7 +59,7 @@ PAGESPEED.DEPENDENCIES = {
   'Firebug': { installedName: 'firebug@software.joehewitt.com',
                namespace: 'FBL',
                minimumVersion: '1.3.2',
-               maximumVersion: '1.4.5'
+               maximumVersion: '1.5.0'
   }
 };
 
