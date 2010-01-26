@@ -3,6 +3,33 @@
 
 =Page Speed Version History=
 
+== 1.6  1/27/2009 ==
+New features:
+  * New rules:
+    * Specify a character set early
+    * Minify HTML
+    * Minimize request size
+  * Rules ported to native library
+    * Serve scaled images
+    * Optimize images
+    * Minify JavaScript (uses native minifier)
+    * Minify CSS
+    * Put CSS in the document head
+    * Optimize the order of styles and scripts
+  * Added support for Firefox 3.6 and SeaMonkey
+  * Support for identifying lazy-loaded resources, and excluding them from some evaluations.
+  * Ability to save optimized resources to disk via "Save As" link
+
+Bug fixes:
+  * Record onload time for tabs that load at startup
+  * Fixed crash on Slackware 12.2
+  * Improve resource type detection using HTTP status codes
+  * Use correct file extension when converting optimized GIFs to PNGs
+
+Known issues:
+  * Activity Panel does not show JavaScript events in Firefox 3.6
+
+
 == 1.5  12/14/2009 ==
 The largest change in this release is a change to use the Page Speed C++ Native Library.  This should speed up scoring, as well as allow rules to be run in programs other than just the Page Speed Firefox extension.  There will be some subtle differences in the scoring of rules between the old !JavaScript rules and the new library rules.  We are still working on evaluating the scoring mechanism as we port rules to C++ with the goal of making the scores more accurately reflect the value of fixing the issues that have been found.  Not all rules have been ported to C++ in this release.  In general, you will not be able to tell if a rule is run in JS or in C++.
 
