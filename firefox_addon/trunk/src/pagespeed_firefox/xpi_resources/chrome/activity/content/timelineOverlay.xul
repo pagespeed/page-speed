@@ -39,7 +39,7 @@
         <vbox id="activityInfo"/>
         <spacer flex="1"/>
         <spacer height="25"/>
-        <label>Page Speed Activity Copyright 2009 Google Inc.</label>
+        <label>Page Speed Activity Copyright 2010 Google Inc.</label>
         <spacer height="25"/>
       </vbox>
       <hbox flex="1">
