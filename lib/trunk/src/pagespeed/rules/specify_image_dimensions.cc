@@ -14,7 +14,7 @@
 
 #include "pagespeed/rules/specify_image_dimensions.h"
 
-#include <set>
+#include <map>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
@@ -82,6 +82,14 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
   DISALLOW_COPY_AND_ASSIGN(ImageDimensionsChecker);
 };
 
+// sorts results by their URLs.
+struct ResultUrlLessThan {
+  bool operator() (const pagespeed::Result& lhs,
+                   const pagespeed::Result& rhs) const {
+    return lhs.resource_urls(0) < rhs.resource_urls(0);
+  }
+};
+
 }  // namespace
 
 namespace pagespeed {
@@ -121,6 +129,7 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
   Formatter* body = formatter->AddChild(
       "The following image(s) are missing width and/or height attributes.");
 
+  std::map<Result, int, ResultUrlLessThan> result_count_map;
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
@@ -132,6 +141,17 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
       continue;
     }
 
+    result_count_map[result]++;
+  }
+
+  for (std::map<Result, int, ResultUrlLessThan>::const_iterator iter =
+          result_count_map.begin();
+       iter != result_count_map.end();
+       ++iter) {
+
+    const Result& result = iter->first;
+    int count = iter->second;
+
     const ResultDetails& details = result.details();
     if (details.HasExtension(ImageDimensionDetails::message_set_extension)) {
       const ImageDimensionDetails& image_details = details.GetExtension(
@@ -140,7 +160,14 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
       Argument url(Argument::URL, result.resource_urls(0));
       Argument width(Argument::INTEGER, image_details.expected_width());
       Argument height(Argument::INTEGER, image_details.expected_height());
-      body->AddChild("$1 (Dimensions: $2 x $3)", url, width, height);
+      if ( count > 1 ) {
+        Argument instances(Argument::INTEGER, count);
+        body->AddChild("$1 (Dimensions: $2 x $3) ($4 uses)",
+                        url, width, height, instances);
+      } else {
+        body->AddChild("$1 (Dimensions: $2 x $3)",
+                        url, width, height);
+      }
     } else {
       Argument url(Argument::URL, result.resource_urls(0));
       body->AddChild("$1", url);
