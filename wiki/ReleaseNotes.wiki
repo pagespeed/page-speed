@@ -12,11 +12,11 @@ New features:
   * Rules ported to native library
     * Serve scaled images
     * Optimize images
-    * Minify JavaScript (uses native minifier)
+    * Minify !JavaScript (uses native minifier)
     * Minify CSS
     * Put CSS in the document head
     * Optimize the order of styles and scripts
-  * Added support for Firefox 3.6 and SeaMonkey
+  * Added support for Firefox 3.6 and !SeaMonkey
   * Support for identifying lazy-loaded resources, and excluding them from some evaluations.
   * Ability to save optimized resources to disk via "Save As" link
 
@@ -27,7 +27,7 @@ Bug fixes:
   * Use correct file extension when converting optimized GIFs to PNGs
 
 Known issues:
-  * Activity Panel does not show JavaScript events in Firefox 3.6
+  * Activity Panel does not show !JavaScript events in Firefox 3.6
 
 
 == 1.5  12/14/2009 ==
