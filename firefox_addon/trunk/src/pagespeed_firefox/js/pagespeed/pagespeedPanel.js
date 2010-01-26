@@ -120,7 +120,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             ' for detailed information on the rules used to evaluate web pages.'
             ),
           P({'class': 'moduleManagerDecription'},
-            'Page Speed Copyright &copy; 2009 Google Inc.'
+            'Page Speed Copyright &copy; 2010 Google Inc.'
            ),
           DIV({'style': 'padding-top:5px'},
               FOR('dep', '$dependencies',
@@ -373,9 +373,9 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     this.document.openLink = function(anchorElem) {
       PAGESPEED.Utils.openLink(anchorElem.href);
     };
-    
+
     // Install a function on the document that calles 'saves as' dialog
-    // for optimized image. 
+    // for optimized image.
     this.document.saveLink = function(anchorElem) {
       PAGESPEED.Utils.saveLink(anchorElem.href);
     };
