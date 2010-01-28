@@ -24,7 +24,7 @@
 
 namespace {
 
-const int kLateThresholdBytes = 2048;
+const int kLateThresholdBytes = 1024;
 
 }
 
@@ -74,6 +74,11 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
       if (!charset_exists) {
         // check for charset in response body
         const std::string& body = resource.GetResponseBody();
+
+        // if the document is small, don't bother to check charset.
+        if (body.size() < kLateThresholdBytes) {
+          return true;
+        }
 
         // TODO(lsong): use more efficent method to get the META tag.
         // The html is first coverted to lowercase, so that we can
