@@ -29,7 +29,7 @@ using pagespeed::Results;
 
 namespace {
 
-const int kLateThresholdBytes = 2048;
+const int kLateThresholdBytes = 1024;
 
 
 class SpecifyCharsetEarlyTest : public ::testing::Test {
@@ -92,6 +92,10 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetEarlyInHtml) {
                      "content=\"text/html;   charset= utf-8\"></head><body>"
                      "Hello world"
                      "</body></html>";
+
+  // pad spaces to make the html big
+  html.append(kLateThresholdBytes, ' ');
+
   AddTestResource("http://www.example.com/hello.html",
                   "",
                   "",
@@ -136,29 +140,68 @@ TEST_F(SpecifyCharsetEarlyTest, NotHtmlContent) {
   CheckNoViolations();
 }
 
+
 TEST_F(SpecifyCharsetEarlyTest, MissingCharset) {
+  std::string html = "<html><body>"
+                     "Hello world";
+
+  // pad spaces to push the meta tag late
+  html.append(kLateThresholdBytes, ' ');
+  html.append("</body></html>");
+
   AddTestResource("http://www.example.com/hello.html",
                   "Content-Type",
                   "text/html",
-                  "Hello, world!");
+                  html);
   CheckOneViolation("http://www.example.com/hello.html");
 }
 
 TEST_F(SpecifyCharsetEarlyTest, MissingContentType) {
+  std::string html = "<html><body>"
+                     "Hello world";
+
+  // pad spaces to push the meta tag late
+  html.append(kLateThresholdBytes, ' ');
+  html.append("</body></html>");
+
   AddTestResource("http://www.example.com/hello.html",
                   "",
                   "",
-                  "Hello, world!");
+                  html);
   CheckOneViolation("http://www.example.com/hello.html");
 }
 
 TEST_F(SpecifyCharsetEarlyTest, EmptyContentType) {
+  std::string html = "<html><body>"
+                     "Hello world";
+
+  // pad spaces to push the meta tag late
+  html.append(kLateThresholdBytes, ' ');
+  html.append("</body></html>");
+
+
   AddTestResource("http://www.example.com/hello.html",
                   "Content-Type",
                   "",
-                  "Hello, world!");
+                  html);
   CheckOneViolation("http://www.example.com/hello.html");
 }
+
+TEST_F(SpecifyCharsetEarlyTest, SmallHtmlMissingCharset) {
+  std::string html = "<html><body>"
+                     "Hello world";
+
+  // pad spaces to push the meta tag late
+  html.append(900, ' ');
+  html.append("</body></html>");
+
+  AddTestResource("http://www.example.com/hello.html",
+                  "Content-Type",
+                  "text/html",
+                  html);
+  CheckNoViolations();
+}
+
 
 
 }  // namespace
