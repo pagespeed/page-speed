@@ -203,5 +203,34 @@ TEST_F(SpecifyCharsetEarlyTest, SmallHtmlMissingCharset) {
 }
 
 
+TEST_F(SpecifyCharsetEarlyTest, TwoResourcesMissingCharset) {
+  std::string html1 = "<html><body>"
+                     "Hello world";
+
+  // pad spaces to push the meta tag late
+  html1.append(900, ' ');
+  html1.append("</body></html>");
+
+  AddTestResource("http://www.example.com/hello.html",
+                  "Content-Type",
+                  "text/html",
+                  html1);
+
+  std::string html = "<html><body>"
+                     "Hello world";
+
+  // pad spaces to push the meta tag late
+  html.append(kLateThresholdBytes, ' ');
+  html.append("</body></html>");
+
+
+  AddTestResource("http://www.example.com/hello2.html",
+                  "Content-Type",
+                  "",
+                  html);
+
+  CheckOneViolation("http://www.example.com/hello2.html");
+}
+
 
 }  // namespace

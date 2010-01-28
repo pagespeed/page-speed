@@ -77,7 +77,7 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
 
         // if the document is small, don't bother to check charset.
         if (body.size() < kLateThresholdBytes) {
-          return true;
+          continue;
         }
 
         // TODO(lsong): use more efficent method to get the META tag.
