@@ -150,6 +150,7 @@
         '<(pagespeed_root)/pagespeed/core/formatter.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input.cc',
         '<(pagespeed_root)/pagespeed/core/resource.cc',
+        '<(pagespeed_root)/pagespeed/core/resource_filter.cc',
         '<(pagespeed_root)/pagespeed/core/resource_util.cc',
         '<(pagespeed_root)/pagespeed/core/rule.cc',
       ],
@@ -164,6 +165,30 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+      ]
+    },
+    {
+      'target_name': 'pagespeed_filters',
+      'type': '<(library)',
+      'dependencies': [
+        'pagespeed_core',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/third_party/adblockrules/adblockrules.gyp:adblockrules',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/filters/ad_filter.cc',
+        '<(pagespeed_root)/pagespeed/filters/protocol_filter.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ]
     },
     {
@@ -349,6 +374,7 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed',
+        'pagespeed_filters',
         'pagespeed_cssmin',
         'pagespeed_formatters',
         'pagespeed_input_pb',
@@ -365,7 +391,10 @@
         '<(pagespeed_root)/pagespeed/core/engine_test.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input_test.cc',
         '<(pagespeed_root)/pagespeed/core/resource_test.cc',
+        '<(pagespeed_root)/pagespeed/core/resource_filter_test.cc',
         '<(pagespeed_root)/pagespeed/cssmin/cssmin_test.cc',
+        '<(pagespeed_root)/pagespeed/filters/ad_filter_test.cc',
+        '<(pagespeed_root)/pagespeed/filters/protocol_filter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/text_formatter_test.cc',
