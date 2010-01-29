@@ -173,7 +173,7 @@
       'dependencies': [
         'pagespeed_core',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/third_party/adblockrules/adblockrules.gyp:adblockrules',
+        '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/filters/ad_filter.cc',
@@ -188,7 +188,7 @@
         ],
       },
       'export_dependent_settings': [
-        '<(DEPTH)/third_party/adblockrules/adblockrules.gyp:adblockrules',
+        '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ]
     },
     {
