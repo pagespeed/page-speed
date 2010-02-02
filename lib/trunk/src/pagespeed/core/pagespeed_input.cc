@@ -26,7 +26,15 @@ namespace pagespeed {
 
 PagespeedInput::PagespeedInput()
     : allow_duplicate_resources_(false),
-      input_info_(new InputInformation) {
+      input_info_(new InputInformation),
+      resource_filter_(new AllowAllResourceFilter) {
+}
+
+PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
+    : allow_duplicate_resources_(false),
+      input_info_(new InputInformation),
+      resource_filter_(resource_filter) {
+  DCHECK_NE(resource_filter, static_cast<ResourceFilter*>(NULL));
 }
 
 PagespeedInput::~PagespeedInput() {
@@ -48,6 +56,10 @@ bool PagespeedInput::IsValidResource(const Resource* resource) const {
   if (resource->GetResponseStatusCode() <= 0) {
     LOG(WARNING) << "Refusing Resource with invalid status code \""
                  << resource->GetResponseStatusCode() << "\".";
+    return false;
+  }
+
+  if (resource_filter_.get() && !resource_filter_->IsAccepted(*resource)) {
     return false;
   }
 
