@@ -65,4 +65,10 @@ TEST(PagespeedInputTest, FilterBadResources) {
   EXPECT_FALSE(input.AddResource(NewResource(kURL1, -1)));
 }
 
+TEST(PagespeedInputTest, FilterResources) {
+  pagespeed::PagespeedInput input(
+      new pagespeed::NotResourceFilter(new pagespeed::AllowAllResourceFilter));
+  EXPECT_FALSE(input.AddResource(NewResource(kURL1, 200)));
+}
+
 }  // namespace

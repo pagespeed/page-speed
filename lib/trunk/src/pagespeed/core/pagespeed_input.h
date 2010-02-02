@@ -22,6 +22,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "resource_filter.h"
 
 namespace pagespeed {
 
@@ -38,6 +39,8 @@ typedef std::map<std::string, ResourceVector> HostResourceMap;
 class PagespeedInput {
  public:
   PagespeedInput();
+  // PagespeedInput takes ownership of the passed resource_filter.
+  PagespeedInput(ResourceFilter* resource_filter);
   virtual ~PagespeedInput();
 
   // Setters
@@ -76,6 +79,7 @@ class PagespeedInput {
   bool allow_duplicate_resources_;
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
+  scoped_ptr<ResourceFilter> resource_filter_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };
