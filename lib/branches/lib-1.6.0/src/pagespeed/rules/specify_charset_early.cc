@@ -44,7 +44,7 @@ const char* SpecifyCharsetEarly::header() const {
 }
 
 const char* SpecifyCharsetEarly::documentation_url() const {
-  return "rtt.html#SpecifyCharsetEarly";
+  return "rendering.html#SpecifyCharsetEarly";
 }
 
 bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
