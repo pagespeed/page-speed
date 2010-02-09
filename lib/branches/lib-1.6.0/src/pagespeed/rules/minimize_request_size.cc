@@ -50,7 +50,7 @@ const char* MinimizeRequestSize::header() const {
 }
 
 const char* MinimizeRequestSize::documentation_url() const {
-  return "rtt.html#MinimizeRequestSize";
+  return "request.html#MinimizeRequestSize";
 }
 
 bool MinimizeRequestSize::AppendResults(const PagespeedInput& input,
