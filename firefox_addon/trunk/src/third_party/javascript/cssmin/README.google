@@ -1,7 +1,0 @@
-URL: http://www.phpied.com/cssmin-js/
-     http://github.com/stoyan/yuicompressor/blob/master/ports/js/cssmin.js
-License: BSD (revised)
-License File: LICENSE
-
-Description:
-cssmin.js is a JavaScript port of YUICompressor's CSS minifier.
