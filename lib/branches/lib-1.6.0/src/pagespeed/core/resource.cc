@@ -222,14 +222,15 @@ ResourceType Resource::GetResourceType() const {
       return HTML;
     } else if (type == "text/css") {
       return CSS;
-    } else if (type == "text/javascript") {
+    } else if (type == "text/javascript" || type == "text/x-javascript") {
       return JS;
     } else {
       return TEXT;
     }
   } else if (type.find("image/") == 0) {
     return IMAGE;
-  } else if (type == "application/x-javascript") {
+  } else if (type == "application/x-javascript" ||
+             type == "application/javascript") {
     return JS;
   } else {
     return OTHER;
