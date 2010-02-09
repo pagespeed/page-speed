@@ -7,7 +7,7 @@
 New features:
   * New rules:
     * Specify a character set early
-    * Minify HTML
+    * [MinifyHtml Minify HTML]
     * Minimize request size
   * Rules ported to native library
     * Serve scaled images
