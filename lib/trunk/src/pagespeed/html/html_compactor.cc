@@ -322,9 +322,11 @@ const char* HtmlCompactor::ProcessTag(const char* tag_begin,
                                       const char* all_end) {
   const std::string& tag_name = cur_tag_.tagname();
 
-  // Respect !DOCTYPE tags.
+  // Remove !DOCTYPE tags -- we mangle the HTML such that it will most likely
+  // no longer validate under the original doctype.  In the future, maybe we
+  // should keep the doctype tag, and then alter the behavior of the compactor
+  // such that the resulting HTML will still validate (assuming it did before).
   if (cur_tag_.IsDoctypeTag()) {
-    cur_tag_.AppendTagToString(output_);
     return tag_end;
   }
 
