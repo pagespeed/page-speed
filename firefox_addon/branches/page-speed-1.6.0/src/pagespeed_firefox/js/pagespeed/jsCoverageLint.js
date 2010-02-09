@@ -541,7 +541,12 @@ var getScriptFiles = function(context) {
   // Get the list of resources referenced by this page that might
   // contain javascript. This includes js files and HTML pages (main
   // page and iframes).
-  FBL.updateScriptFiles(context);
+  var scriptPanel = context.getPanel('script');
+  if (scriptPanel.updateScriptFiles) {
+    scriptPanel.updateScriptFiles(context);
+  } else {
+    FBL.updateScriptFiles(context);
+  }
 
   // Sanity check the component map and remove any non-HTTP
   // URLs. Skype seems to inject a chrome URL into each page, for
@@ -620,8 +625,25 @@ var clearCachedResult = function(context) {
 };
 
 var isFirebugApiAvailable = function() {
+  // In FB 1.5, updateScriptFiles is a method on the ScriptPanel.
+  var updateScriptFilesAvailable = false;
+  if (Firebug &&
+      Firebug.ScriptPanel &&
+      Firebug.ScriptPanel.prototype &&
+      Firebug.ScriptPanel.prototype.updateScriptFiles) {
+    updateScriptFilesAvailable = true;
+  }
+  // Prior to FB 1.5, updateScriptFiles was a method on FBL.
+  if (!updateScriptFilesAvailable &&
+      FBL &&
+      FBL.updateScriptFiles) {
+    updateScriptFilesAvailable = true;
+  }
+  if (!updateScriptFilesAvailable) {
+    return false;
+  }
+
   return FBL &&
-      FBL.updateScriptFiles &&
       FBL.jsd &&
       FBL.fbs &&
       FBL.fbs.registerDebugger &&
