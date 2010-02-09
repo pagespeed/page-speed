@@ -1,0 +1,22 @@
+#summary Describes the Minify HTML rule
+
+==Minify HTML==
+
+Note: This rule is still experimental, and has some known issues. Feel free to ignore it if it causes you problems.
+
+===Overview===
+
+Compacting HTML code, including any inline JavaScript and CSS contained therein, can save bytes of data and speed up downloading, parsing, and execution time.
+
+===Details===
+
+Minifying HTML has the same benefits as those for minifying CSS and JS: reducing network latency, enhancing compression, and faster browser loading and execution. Moreover, HTML frequently contains inline JS code (in `<script>` tags) and inline CSS (in `<style>` tags), so it is useful to minify these as well.
+
+This rule is currently still experimental, as there are a number of difficulties with minifying HTML:
+
+  * Comments can generally be removed from HTML, but some tools may rely on certain special comments being present in the HTML. Page Speed's HTML compactor recognizes and preserves certain classes of important comments, but may unwittingly remove others that should not be removed. If you encounter such a case, please [http://code.google.com/p/page-speed/issues/entry file a bug].
+  * Whitespace between tags can generally be collapsed, except within whitespace-significant blocks. Page Speed's HTML compactor will avoid collapsing whitespace within, for example, `<pre>` tags, but currently it may still incorrectly remove whitespace from other blocks that use CSS rules to make whitespace significant.
+  * Certain HTML tags are optional and can generally be omitted; for example, an HTML page without an enclosing `<html>` tag will still render correctly in browsers, so Page Speed's HTML compactor will remove such tags. However, some webmasters may want their HTML to conform to a strict doctype, such as XHTML, and removing “optional” tags may break validation of these doctypes.
+  * Many HTML pages are generated dynamically, in which case the minified HTML file produced by Page Speed cannot simply be used as a drop-in replacement. However, you may, for example, want to use fragments of the minified HTML within a template used to generate the page.
+
+*Tip:* When you run Page Speed against a page referencing HTML files, it automatically runs the Page Speed HTML compactor (which will in turn apply JSMin and the CSS minifier to any inline JavaScript and CSS) on the files and saves the minified output to a configurable directory.
