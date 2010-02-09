@@ -115,12 +115,11 @@ const char* kWithDoctype =
     "</HTML>\n";
 
 const char* kWithDoctypeMinified =
-    "<!doctype html public \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
-    "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+    "\n"
     "<title>Foo</title>\n"
     "<body>Bar.\n";
 
-TEST(HtmlCompactorTest, PreserveDoctype) {
+TEST(HtmlCompactorTest, RemoveDoctype) {
   std::string output;
   ASSERT_TRUE(HtmlCompactor::CompactHtml(kWithDoctype, &output));
   ASSERT_EQ(kWithDoctypeMinified, output);
