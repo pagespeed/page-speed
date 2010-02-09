@@ -28,6 +28,7 @@ Bug fixes:
 
 Known issues:
   * Activity Panel does not show !JavaScript events in Firefox 3.6
+  * Links to documentation in the results panel don't work in some browsers
 
 
 == 1.5  12/14/2009 ==
