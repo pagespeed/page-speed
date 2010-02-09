@@ -1,0 +1,20 @@
+#summary Describes the Specify a Character Set Early rule.
+
+==Specify a Character Set Early==
+
+HTML5 requires browsers to buffer a response when a character set is not specified in the Content-Type header or an HTML `<meta>` tag. Thus, we recommend always specifying a character set for HTMl documents.
+
+===Details===
+
+We tested character set buffering behavior with the following popular browsers:
+
+  * Internet Explorer: All versions of IE tested did not buffer responses. In contrast, all the other browsers tested do buffer when a character set is not specified. Note that when a character set is specified late in the document, Internet Explorer will redraw the page using the specified character set if it is not the same as the default character set.
+  * Firefox: Through version 3.5, specifying the Content-Type header as text/html, without specifying a character set, disables buffering in Firefox. Without a Content-Type header, Firefox buffers up to 1024 bytes. Firefox 3.6 buffers 512 bytes.
+  * Chrome: Chrome buffers up to 1024 bytes when a character set is not specified. Chrome will parse a character set from either the Content-Type HTTP header or the HTML META tag.
+  * Safari: Safari always buffers 1024 bytes, regardless of the contents of the Content-Type header or html META tag.
+
+===See also===
+
+  * Zoompf also reports on this issue: [http://zoompf.com/blog/2009/12/browser-performance-issues-with-charsets/ Browser Performance Issues with Charsets].
+  * http://tools.ietf.org/html/draft-abarth-mime-sniff-01
+  * http://dev.w3.org/html5/spec/Overview.html#content-type-sniffing
