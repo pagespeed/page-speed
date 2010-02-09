@@ -6,7 +6,7 @@
 == 1.6  2/1/2009 ==
 New features:
   * New rules:
-    * Specify a character set early
+    * [SpecifyCharsetEarly Specify a character set early]
     * [MinifyHtml Minify HTML]
     * Minimize request size
   * Rules ported to native library
