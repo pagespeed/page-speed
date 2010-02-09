@@ -172,6 +172,9 @@
       'type': '<(library)',
       'dependencies': [
         'pagespeed_core',
+        # We currently depend on gtest in order to use their simple
+        # regex impl. We should port their regex impl to a standalone
+        # library in third_party and depend on that instead.
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ],
@@ -188,6 +191,7 @@
         ],
       },
       'export_dependent_settings': [
+        '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ]
     },
