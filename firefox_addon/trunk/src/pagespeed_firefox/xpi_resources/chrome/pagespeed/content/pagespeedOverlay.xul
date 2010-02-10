@@ -121,6 +121,31 @@
           </menupopup>
         </toolbarbutton>
 
+        <toolbarbutton id="psContentFilterButton"
+                       label="Filter Results"
+                       group="pagespeedButtons"
+                       type="menu"
+                       collapsed="true">
+          <menupopup id="psContentFilterMenu">
+            <menuitem id="psAnalyzeAll"
+                      label="Analyze Ads and Non-Ads"
+                      type="radio"
+                      name="filterAds"
+                      checked="true"
+                      value="noFilter"/>
+            <menuitem id="psAnalyzeAds"
+                      label="Analyze Ads"
+                      type="radio"
+                      name="filterAds"
+                      value="onlyAds"/>
+            <menuitem id="psAnalyzeNonAds"
+                      label="Analyze Non-Ads"
+                      name="filterAds"
+                      type="radio"
+                      value="onlyNonAds"/>
+          </menupopup>
+        </toolbarbutton>
+
         <spacer width="5px"/>
         <toolbarbutton id="psHelpButton" label="Help"
                        class="toolbar-text-button" group="pagespeedButtons"

@@ -43,6 +43,7 @@
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
+#include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
@@ -142,6 +143,23 @@ void AppendInputStreamsContents(nsIArray *input_streams,
   }
 }
 
+// Convert the filter choice passed to ComputeAndFormatResults to a
+// ResourceFilter.  This routine must be kept in sync with
+// js/pagespeed/pagespeedLibraryRules.js::filterChoice().
+pagespeed::ResourceFilter* ChoiceToFilter(int filter_choice) {
+  switch (filter_choice) {
+    case IPageSpeedRules::RESOURCE_FILTER_ONLY_ADS:
+      return new pagespeed::NotResourceFilter(new pagespeed::AdFilter());
+    case IPageSpeedRules::RESOURCE_FILTER_EXCLUDE_ADS:
+      return new pagespeed::AdFilter();
+    default:
+      LOG(ERROR) << "Unknown filter chioce " << filter_choice;
+      // Intentional fall-through to allow all filter
+    case IPageSpeedRules::RESOURCE_FILTER_ALL:
+      return new pagespeed::AllowAllResourceFilter();
+  }
+}
+
 }  // namespace
 
 namespace pagespeed {
@@ -156,6 +174,7 @@ NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const char* data,
                                         nsIArray* input_streams,
                                         nsIDOMDocument* root_document,
+                                        PRInt16 filter_choice,
                                         nsILocalFile* output_dir,
                                         char** _retval) {
   std::vector<std::string> contents;
@@ -171,7 +190,7 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
   Engine engine(rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
-  PagespeedInput input;
+  PagespeedInput input(ChoiceToFilter(filter_choice));
   input.AcquireDomDocument(new FirefoxDocument(root_document));
   if (PopulateInputFromJSON(&input, data, contents)) {
     std::stringstream stream;

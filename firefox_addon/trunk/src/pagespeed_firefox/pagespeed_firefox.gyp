@@ -333,6 +333,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_filters',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
       ],
       'sources': [
@@ -346,6 +347,7 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_filters',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
       ],
     },
