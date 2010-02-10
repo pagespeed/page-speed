@@ -130,6 +130,29 @@ function buildLintRuleResults(results) {
   return lintRules;
 }
 
+/*
+ * Returns an integer representing the filter the user has chosen from
+ * the Filter Results menu.
+ * @return {number} 0 for filter nothing, 1 for filter non-ads, etc.
+ */
+function filterChoice() {
+  var IPageSpeedRules = Components.interfaces['IPageSpeedRules'];
+  // This data structure must be kept in sync with
+  // cpp/pagespeed/pagespeed_rules.cc::ChoiceToFilter()
+  var menuIdToFilterChoice = {
+    'psAnalyzeAll': IPageSpeedRules.RESOURCE_FILTER_ALL,
+    'psAnalyzeAds': IPageSpeedRules.RESOURCE_FILTER_ONLY_ADS,
+    'psAnalyzeNonAds': IPageSpeedRules.RESOURCE_FILTER_EXCLUDE_ADS
+  };
+  for (menuId in menuIdToFilterChoice) {
+    if (document.getElementById(menuId).hasAttribute('checked')) {
+      return menuIdToFilterChoice[menuId];
+    }
+  }
+  PS_LOG("No checked items in Filter Results menu");
+  return 0;
+}
+
 PAGESPEED.NativeLibrary = {
 
 /**
@@ -169,6 +192,7 @@ PAGESPEED.NativeLibrary = {
       inputJSON,
       PAGESPEED.Utils.newNsIArray(bodyInputStreams),
       PAGESPEED.Utils.getElementsByType('doc')[0],
+      filterChoice(),
       PAGESPEED.Utils.getOutputDir('library-output'));
     var results = JSON.parse(resultJSON);
     return buildLintRuleResults(results);

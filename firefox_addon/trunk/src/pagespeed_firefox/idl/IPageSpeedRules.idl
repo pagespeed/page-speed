@@ -28,9 +28,14 @@
  */
 [scriptable, uuid(21ec69bd-f361-4447-b444-1b01b9a17ae3)]
 interface IPageSpeedRules : nsISupports {
+  const short RESOURCE_FILTER_ALL = 0;
+  const short RESOURCE_FILTER_ONLY_ADS = 1;
+  const short RESOURCE_FILTER_EXCLUDE_ADS = 2;
+
   // Run all the rules and return the formatted results as a string.
   string computeAndFormatResults(in string data,
                                  in nsIArray inputStreams,
                                  in nsIDOMDocument rootDocument,
+                                 in short filterChoice,
                                  in nsILocalFile outputDir);
 };
