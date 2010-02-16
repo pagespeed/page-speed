@@ -1,0 +1,10 @@
+URL: http://simile.mit.edu/repository/java-firefox-extension/
+Version: r9508
+License: BSD
+License File: LICENSE
+
+Description:
+Sets permissions needed to load Java code from within a Firefox extension.
+
+Local Modifications:
+None.
