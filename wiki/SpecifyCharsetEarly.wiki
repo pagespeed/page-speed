@@ -18,3 +18,6 @@ We tested character set buffering behavior with the following popular browsers:
   * Zoompf also reports on this issue: [http://zoompf.com/blog/2009/12/browser-performance-issues-with-charsets/ Browser Performance Issues with Charsets].
   * http://tools.ietf.org/html/draft-abarth-mime-sniff-01
   * http://dev.w3.org/html5/spec/Overview.html#content-type-sniffing
+
+
+*No Tech Support Here:* Please use comments to give suggestions for improving this wiki page.  If you have a question, please send email to page-speed-discuss@googlegroups.com .  Questions asked here will not be seen by people who can answer them.
