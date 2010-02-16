@@ -24,8 +24,9 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "jsd.h"
-#include "jsd_wrapper.h"
+
+#include "jsdIDebuggerService.h"
+#include "nsCOMPtr.h"
 
 namespace activity {
 
@@ -63,7 +64,7 @@ class JsdCallHook : public jsdICallHook {
 
   bool IsCallFilterActive() const;
 
-  scoped_ptr<JsdWrapper> jsd_;
+  nsCOMPtr<jsdIDebuggerService> jsd_;
 
   CallGraphProfile *const profile_;
 

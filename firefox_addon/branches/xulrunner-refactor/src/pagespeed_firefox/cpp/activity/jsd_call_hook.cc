@@ -23,13 +23,20 @@
 #include "jsd_function_info.h"
 
 #include "nsCOMPtr.h"
+#include "nsServiceManagerUtils.h"
+
+#include "base/logging.h"
 
 NS_IMPL_ISUPPORTS1(activity::JsdCallHook, jsdICallHook)
+
+namespace {
+const char* kJsdContractStr = "@mozilla.org/js/jsd/debugger-service;1";
+}
 
 namespace activity {
 
 JsdCallHook::JsdCallHook(CallGraphProfile *profile)
-    : jsd_(JsdWrapper::Create()),
+    : jsd_(do_GetService(kJsdContractStr)),
       profile_(profile),
       filter_depth_(-1),
       pending_depth_(-1),
@@ -100,12 +107,6 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame, bool is_top_level) {
     return;
   }
 
-  if (IsCallFilterActive()) {
-    // If already active, we don't need to collect any additional
-    // information, so bail.
-    return;
-  }
-
   nsCOMPtr<jsdIScript> script;
   nsresult rv = frame->GetScript(getter_AddRefs(script));
   if (NS_FAILED(rv)) {
@@ -114,6 +115,14 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame, bool is_top_level) {
   }
 
   JsdFunctionInfo function_info(script);
+  //  LOG(ERROR) << "> " << function_info.GetFileName();
+
+  if (IsCallFilterActive()) {
+    // If already active, we don't need to collect any additional
+    // information, so bail.
+    return;
+  }
+
   if (apply_filter_delayed_ &&
       profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
     // There is a pending request to apply the filter that prevents us
@@ -167,6 +176,7 @@ void JsdCallHook::OnExit(jsdIStackFrame *frame) {
   }
 
   JsdFunctionInfo function_info(script);
+  //  LOG(ERROR) << "< " << function_info.GetFileName();
   if (collect_full_call_trees_) {
     // If we're collecting full call trees, just record this as a
     // normal function exit point.
