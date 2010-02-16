@@ -17,7 +17,6 @@
 // Author: Bryan McQuade
 // Author: Tony Gentilcore
 
-#include "activity/http_activity_distributor.h"
 #include "activity/profiler.h"
 #include "js_min/js_minifier.h"
 #ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
@@ -35,7 +34,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(JsMinifier)
 
 namespace activity {
 NS_GENERIC_FACTORY_CONSTRUCTOR(Profiler)
-NS_GENERIC_FACTORY_CONSTRUCTOR(HttpActivityDistributor)
 }  // namespace pagespeed
 
 namespace {
@@ -53,7 +51,6 @@ const char *JS_MINIFIER_CLASSNAME = "JsMinifier";
 const char* PROFILER_CONTRACTID =
     "@code.google.com/p/page-speed/ActivityProfiler;1";
 const char* PROFILER_CLASSNAME = "JavaScript Execution Tracer";
-const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
 
 // CIDs, or "class identifiers", are used by xpcom to uniquely
 // identify a class or component. See
@@ -86,14 +83,6 @@ const char* HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME = "HTTP Activity Distributor";
      { 0xae, 0x85, 0x7f, 0xb1, 0x52, 0x45, 0x88, 0x85 }  \
 }
 
-#define HTTP_ACTIVITY_DISTRIBUTOR_CID                    \
-{ /* 7ac44f14-2869-4a8f-b4e4-d88a51c10fc8 */             \
-     0x7ac44f14,                                         \
-     0x2869,                                             \
-     0x4a8f,                                             \
-     { 0xb4, 0xe4, 0xd8, 0x8a, 0x51, 0xc1, 0x0f, 0xc8 }  \
-}
-
 static nsModuleComponentInfo components[] = {
 #ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
   {
@@ -114,12 +103,6 @@ static nsModuleComponentInfo components[] = {
     PROFILER_CID,
     PROFILER_CONTRACTID,
     activity::ProfilerConstructor,
-  },
-  {
-    HTTP_ACTIVITY_DISTRIBUTOR_CLASSNAME,
-    HTTP_ACTIVITY_DISTRIBUTOR_CID,
-    NS_HTTPACTIVITYDISTRIBUTOR_CONTRACTID,
-    activity::HttpActivityDistributorConstructor,
   },
 };
 

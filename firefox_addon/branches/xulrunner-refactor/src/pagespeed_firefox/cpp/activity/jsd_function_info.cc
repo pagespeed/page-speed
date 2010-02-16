@@ -21,8 +21,6 @@
 
 #include "jsd_function_info.h"
 
-#include "jsd_wrapper.h"
-
 #include "nsDebug.h"
 #include "nsStringAPI.h"
 #include "nsXPCOM.h"
@@ -66,22 +64,26 @@ int32 JsdFunctionInfo::GetFunctionTag() {
 
 const char *JsdFunctionInfo::GetFileName() {
   if (file_name_ == NULL) {
-    nsresult rv = script_->GetFileName(&file_name_);
+    nsCString str;
+    nsresult rv = script_->GetFileName(str);
     if (NS_FAILED(rv)) {
       NS_WARNING("Unable to get file name");
       return NULL;
     }
+    file_name_ = NS_CStringCloneData(str);
   }
   return file_name_;
 }
 
 const char *JsdFunctionInfo::GetFunctionName() {
   if (function_name_ == NULL) {
-    nsresult rv = script_->GetFunctionName(&function_name_);
+    nsCString str;
+    nsresult rv = script_->GetFunctionName(str);
     if (NS_FAILED(rv)) {
       NS_WARNING("Unable to get function name");
       return NULL;
     }
+    function_name_ = NS_CStringCloneData(str);
   }
   return function_name_;
 }

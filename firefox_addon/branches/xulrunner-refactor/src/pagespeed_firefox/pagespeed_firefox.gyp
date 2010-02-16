@@ -39,19 +39,13 @@
         ],
         'include_dirs': [
           '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
-          '<(xulrunner_sdk_root)/arch/<(OS)/all/include/nspr',
-          '<(xulrunner_sdk_root)/include/dom',
-          '<(xulrunner_sdk_root)/include/inspector',
-          '<(xulrunner_sdk_root)/include/layout',
-          '<(xulrunner_sdk_root)/include/necko',
-          '<(xulrunner_sdk_root)/include/string',
-          '<(xulrunner_sdk_root)/include/xpcom',
+          '<(xulrunner_sdk_root)/include',
         ],
         'conditions': [  # See https://developer.mozilla.org/en/XPCOM_Glue
           ['OS == "linux"', {
             'cflags': [
               '-fshort-wchar',
-              '-include', '<(xulrunner_sdk_root)/include/xpcom/xpcom-config.h',
+              '-include', '<(xulrunner_sdk_root)/include/xpcom-config.h',
             ],
             'ldflags': [
               '-L<(xulrunner_sdk_arch_root)/lib',
@@ -80,7 +74,7 @@
               ],
               'OTHER_CFLAGS': [
                 '-fshort-wchar',
-                '-include <(xulrunner_sdk_root)/include/xpcom/xpcom-config.h',
+                '-include <(xulrunner_sdk_root)/include/xpcom-config.h',
               ],
             },
           }],
@@ -186,7 +180,6 @@
       'type': '<(library)',
       'variables': {
         'activity_root': 'cpp/activity',
-        'mozilla_idl_root': '<(DEPTH)/third_party/mozilla/idl',
       },
       'dependencies': [
         'xulrunner_sdk',
@@ -195,19 +188,11 @@
       ],
       'sources': [
         'idl/IActivityProfiler.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_0.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_5.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_6.idl',
         '<(activity_root)/basic_tree_view.cc',
         '<(activity_root)/check_gecko.cc',
-        '<(activity_root)/http_activity_distributor.cc',
         '<(activity_root)/jsd_call_hook.cc',
         '<(activity_root)/jsd_function_info.cc',
         '<(activity_root)/jsd_script_hook.cc',
-        '<(activity_root)/jsd_wrapper.cc',
-        '<(activity_root)/jsd_wrapper_3_0.cc',
-        '<(activity_root)/jsd_wrapper_3_5.cc',
-        '<(activity_root)/jsd_wrapper_3_6.cc',
         '<(activity_root)/profiler.cc',
         '<(activity_root)/profiler_event.cc',
         '<(activity_root)/profiler_runnables.cc',

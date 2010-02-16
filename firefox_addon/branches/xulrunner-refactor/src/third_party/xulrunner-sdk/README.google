@@ -1,5 +1,5 @@
 URL: https://developer.mozilla.org/En/Gecko_SDK/
-Version: 1.9.1
+Version: 1.9.2
 License: MPL 1.1/GPL 2.0/LGPL 2.1
 License File: LICENSE
 
@@ -13,7 +13,7 @@ many files that are currently not needed in order to build the page-speed
 extension.
 
 The version of the SDK for Linux x64 was built by hand on Ubuntu 6.10
-using the xulrunner 1.9.1.4 source, using the following mozconfig
+from the Firefox 3.6 source, using the following mozconfig
 file:
 
 mk_add_options MOZ_CO_PROJECT=xulrunner
@@ -21,3 +21,5 @@ mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-xulrunner
 ac_add_options --enable-application=xulrunner
 ac_add_options --disable-javaxpcom
 ac_add_options --disable-dbus
+ac_add_options --disable-libnotify
+ac_add_options --disable-necko-wifi
