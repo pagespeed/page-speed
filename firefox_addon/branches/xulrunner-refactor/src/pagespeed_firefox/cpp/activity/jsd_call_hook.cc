@@ -25,8 +25,6 @@
 #include "nsCOMPtr.h"
 #include "nsServiceManagerUtils.h"
 
-#include "base/logging.h"
-
 NS_IMPL_ISUPPORTS1(activity::JsdCallHook, jsdICallHook)
 
 namespace {
@@ -39,8 +37,6 @@ JsdCallHook::JsdCallHook(CallGraphProfile *profile)
     : jsd_(do_GetService(kJsdContractStr)),
       profile_(profile),
       filter_depth_(-1),
-      pending_depth_(-1),
-      apply_filter_delayed_(false),
       collect_full_call_trees_(false),
       started_profiling_(false) {
 }
@@ -54,33 +50,21 @@ NS_IMETHODIMP JsdCallHook::OnCall(jsdIStackFrame *frame, PRUint32 type) {
   }
 
   if (!started_profiling_) {
-    // We have to catch the case where we start profiling in the
-    // middle of a call stack. We don't want to start recording
-    // function calls until we begin our first complete call graph.
-    if (type != jsdICallHook::TYPE_FUNCTION_CALL &&
-        type != jsdICallHook::TYPE_TOPLEVEL_START) {
-      // Only start profiling on a function call/toplevel start (never
-      // start on a function return).
-      return NS_OK;
-    }
-
-    if (GetStackDepth(frame) != 1) {
-      // Only start profiling if we're at the bottom of the call stack.
+    if (!CanStartProfiling(frame, type)) {
+      // The call stack is not in a state that allows us to start
+      // profiling, so don't record this call.
       return NS_OK;
     }
 
     // We're starting to profile, so reset our state.
     filter_depth_ = -1;
-    pending_depth_ = 0;
-    apply_filter_delayed_ = false;
     started_profiling_ = true;
   }
 
   switch (type) {
     case jsdICallHook::TYPE_FUNCTION_CALL:
     case jsdICallHook::TYPE_TOPLEVEL_START: {
-      const bool is_top_level = (type == jsdICallHook::TYPE_TOPLEVEL_START);
-      OnEntry(frame, is_top_level);
+      OnEntry(frame);
       break;
     }
 
@@ -99,11 +83,21 @@ NS_IMETHODIMP JsdCallHook::OnCall(jsdIStackFrame *frame, PRUint32 type) {
   return NS_OK;
 }
 
-void JsdCallHook::OnEntry(jsdIStackFrame *frame, bool is_top_level) {
+void JsdCallHook::OnEntry(jsdIStackFrame *frame) {
   if (collect_full_call_trees_) {
     // If we're collecting full call trees, just record this as a
     // normal function entry point.
+    //
+    // TODO: note that when we pause the JSD in profiler.js the number
+    // of OnEntry/OnExit calls will get out of sync. See
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=546637
     profile_->OnFunctionEntry();
+    return;
+  }
+
+  if (IsCallFilterActive()) {
+    // If already active, we don't need to collect any additional
+    // information, so bail.
     return;
   }
 
@@ -115,56 +109,15 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame, bool is_top_level) {
   }
 
   JsdFunctionInfo function_info(script);
-  //  LOG(ERROR) << "> " << function_info.GetFileName();
-
-  if (IsCallFilterActive()) {
-    // If already active, we don't need to collect any additional
-    // information, so bail.
-    return;
-  }
-
-  if (apply_filter_delayed_ &&
-      profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
-    // There is a pending request to apply the filter that prevents us
-    // from being called at every js call point. Now that we've
-    // re-entered the OnEntry() callback, we need to apply the
-    // filter. See the comments below for details on why this pending
-    // operation is necessary.
-    UpdateCallFilter(frame, true);
-    apply_filter_delayed_ = false;
+  if (!profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
     return;
   }
 
   profile_->OnFunctionEntry();
-  if (!apply_filter_delayed_ &&
-      pending_depth_ == 0 &&
-      !is_top_level &&
-      !IsFunctionNamePopulated(frame)) {
-    // The Firefox JSD has a funny characteristic: when OnCall() is
-    // invoked with TYPE_FUNCTION_CALL, the jsdIScript at the top of
-    // the call stack might be for the previous stack frame (not for
-    // the function actually being called). In cases where the stack
-    // is just being constructed, this means that the top-level frame
-    // will be for a dummy function with no function name. We can't
-    // filter on such a function, because that function will never
-    // appear in the TYPE_FUNCTION_RETURN call path. Instead, we set a
-    // flag that indicates the next time OnCall() gets invoked with
-    // TYPE_FUNCTION_CALL, we should apply the filter on that
-    // function.
-    apply_filter_delayed_ = true;
-    return;
-  }
 
-  if (profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
-    // We found a function that should be included in the profile, so
-    // apply the call filter.
-    UpdateCallFilter(frame, true);
-  } else {
-    // This function shouldn't be included in the profile. We need to
-    // continue to build up the stack in case we find a function that
-    // should be included in a profile.
-    ++pending_depth_;
-  }
+  // We found a function that should be included in the profile, so
+  // apply the call filter.
+  UpdateCallFilter(frame, true);
 }
 
 void JsdCallHook::OnExit(jsdIStackFrame *frame) {
@@ -176,7 +129,6 @@ void JsdCallHook::OnExit(jsdIStackFrame *frame) {
   }
 
   JsdFunctionInfo function_info(script);
-  //  LOG(ERROR) << "< " << function_info.GetFileName();
   if (collect_full_call_trees_) {
     // If we're collecting full call trees, just record this as a
     // normal function exit point.
@@ -184,37 +136,40 @@ void JsdCallHook::OnExit(jsdIStackFrame *frame) {
     return;
   }
 
+  if (!profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
+    return;
+  }
+
+  GCHECK(IsCallFilterActive());
   if (filter_depth_ == GetStackDepth(frame)) {
     // We're at the function return point that matches the point where we
     // applied the filter, so we should un-apply the filter here.
     profile_->OnFunctionExit(&function_info);
     UpdateCallFilter(frame, false);
-  } else if (!IsCallFilterActive()) {
-    if (pending_depth_ > 0) {
-      --pending_depth_;
-      profile_->OnFunctionExit(&function_info);
-    } else if (apply_filter_delayed_) {
-      profile_->OnFunctionExit(&function_info);
-      apply_filter_delayed_ = false;
-    }
   }
+}
+
+bool JsdCallHook::CanStartProfiling(jsdIStackFrame *frame, PRUint32 type) const {
+  // We have to catch the case where we start profiling in the
+  // middle of a call stack. We don't want to start recording
+  // function calls until we begin our first complete call graph.
+  if (type != jsdICallHook::TYPE_FUNCTION_CALL &&
+      type != jsdICallHook::TYPE_TOPLEVEL_START) {
+    // Only start profiling on a function call/toplevel start (never
+    // start on a function return).
+    return false;
+  }
+
+  if (GetStackDepth(frame) != 1) {
+    // Only start profiling if we're at the bottom of the call stack.
+    return false;
+  }
+
+  return true;
 }
 
 bool JsdCallHook::IsCallFilterActive() const {
   return filter_depth_ >= 0;
-}
-
-bool JsdCallHook::IsFunctionNamePopulated(jsdIStackFrame *frame) {
-  nsCOMPtr<jsdIScript> script;
-  nsresult rv = frame->GetScript(getter_AddRefs(script));
-  if (NS_FAILED(rv)) {
-    GCHECK(false);
-    return false;
-  }
-
-  JsdFunctionInfo function_info(script);
-  return function_info.GetFunctionName() == NULL ||
-      function_info.GetFunctionName()[0] != '\0';
 }
 
 void JsdCallHook::UpdateCallFilter(jsdIStackFrame *frame, bool filter) {
@@ -279,7 +234,7 @@ void JsdCallHook::UpdateCallFilter(jsdIStackFrame *frame, bool filter) {
   }
 }
 
-int JsdCallHook::GetStackDepth(jsdIStackFrame *frame) {
+int JsdCallHook::GetStackDepth(jsdIStackFrame *frame) const {
   nsresult rv = NS_OK;
   int depth = 0;
   for (nsCOMPtr<jsdIStackFrame> current = frame, last = NULL;

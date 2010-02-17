@@ -136,7 +136,14 @@ NS_IMETHODIMP Profiler::Register(
     return NS_ERROR_INVALID_ARG;
   }
 
-  nsresult rv;
+  nsresult rv = NS_OK;
+  nsCOMPtr<jsdIDebuggerService> jsd(do_GetService(kJsdContractStr, &rv));
+  if (NS_FAILED(rv)) {
+    LOG(ERROR) << "Failed to get jsdIDebuggerService";
+    error_ = true;
+    return rv;
+  }
+
   nsCOMPtr<nsIThreadManager> thread_manager =
       do_GetService(kThreadManagerContactStr, &rv);
   if (NS_FAILED(rv)) {
@@ -162,11 +169,6 @@ NS_IMETHODIMP Profiler::Register(
   profile_->Start(start_time_usec);
   state_ = IActivityProfiler::PROFILING;
 
-  nsCOMPtr<jsdIDebuggerService> jsd(do_GetService(kJsdContractStr, &rv));
-  if (NS_FAILED(rv)) {
-    LOG(ERROR) << "Failed to get jsdIDebuggerService";
-    return rv;
-  }
   call_hook_->set_collect_full_call_trees(collect_full_call_trees == PR_TRUE);
   rv = jsd->SetFunctionHook(call_hook_);
   if (NS_FAILED(rv)) {
@@ -184,6 +186,7 @@ NS_IMETHODIMP Profiler::Register(
     return rv;
   }
 
+  script_hook_->set_collect_full_call_trees(collect_full_call_trees == PR_TRUE);
   rv = jsd->SetScriptHook(script_hook_);
   if (NS_FAILED(rv)) {
     LOG(ERROR) << "Error setting script hook";
@@ -200,7 +203,7 @@ NS_IMETHODIMP Profiler::Unregister() {
     return NS_ERROR_FAILURE;
   }
 
-  nsresult rv;
+  nsresult rv = NS_OK;
   nsCOMPtr<jsdIDebuggerService> jsd(do_GetService(kJsdContractStr, &rv));
   if (NS_FAILED(rv)) {
     LOG(ERROR) << "Failed to get jsdIDebuggerService";
