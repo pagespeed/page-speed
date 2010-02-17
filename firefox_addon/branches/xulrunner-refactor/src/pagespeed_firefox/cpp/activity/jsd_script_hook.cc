@@ -28,7 +28,8 @@ NS_IMPL_ISUPPORTS1(activity::JsdScriptHook, jsdIScriptHook)
 namespace activity {
 
 JsdScriptHook::JsdScriptHook(CallGraphProfile *profile)
-    : profile_(profile) {
+    : profile_(profile),
+      collect_full_call_trees_(false) {
 }
 
 JsdScriptHook::~JsdScriptHook() {}
@@ -36,7 +37,10 @@ JsdScriptHook::~JsdScriptHook() {}
 NS_IMETHODIMP JsdScriptHook::OnScriptCreated(jsdIScript *script) {
   JsdFunctionInfo function_info(script);
 
-  profile_->OnFunctionInstantiated(&function_info);
+  if (collect_full_call_trees_ ||
+      profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
+    profile_->OnFunctionInstantiated(&function_info);
+  }
   return NS_OK;
 }
 

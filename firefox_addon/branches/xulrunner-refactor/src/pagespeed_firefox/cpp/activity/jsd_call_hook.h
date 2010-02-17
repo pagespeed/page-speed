@@ -51,7 +51,7 @@ class JsdCallHook : public jsdICallHook {
 
   ~JsdCallHook();
 
-  void OnEntry(jsdIStackFrame *frame, bool is_top_level);
+  void OnEntry(jsdIStackFrame *frame);
   void OnExit(jsdIStackFrame *frame);
 
   // Apply or clear the filter that prevents us from being invoked at
@@ -59,10 +59,11 @@ class JsdCallHook : public jsdICallHook {
   // parameter.
   void UpdateCallFilter(jsdIStackFrame *frame, bool filter);
 
-  int GetStackDepth(jsdIStackFrame *frame);
-  bool IsFunctionNamePopulated(jsdIStackFrame *frame);
+  int GetStackDepth(jsdIStackFrame *frame) const;
 
   bool IsCallFilterActive() const;
+
+  bool CanStartProfiling(jsdIStackFrame *frame, PRUint32 type) const;
 
   nsCOMPtr<jsdIDebuggerService> jsd_;
 
@@ -72,14 +73,6 @@ class JsdCallHook : public jsdICallHook {
   // so we can find the matching stack depth at which to remove the
   // filter.
   int filter_depth_;
-
-  // The number of elements in the stack that were traversed in order
-  // to reach a function that should be included in the profile.
-  int pending_depth_;
-
-  // Whether or not we should apply the filter on the next call to
-  // OnEntry().
-  bool apply_filter_delayed_;
 
   // Whether or not we should collect a complete profile.
   bool collect_full_call_trees_;
