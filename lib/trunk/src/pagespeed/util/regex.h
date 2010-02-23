@@ -16,6 +16,11 @@
 #define PAGESPEED_UTIL_REGEX_H_
 
 #ifdef _WIN32
+// On Windows, we use tr1 regex, which is available in Visual Studio
+// 2008 and later. This includes Visual Studio 2008 express. In the
+// non-express version, you need to install a feature pack in order to
+// get tr1:
+// http://www.microsoft.com/downloads/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7
 #include <regex>
 #else
 #include <regex.h>
