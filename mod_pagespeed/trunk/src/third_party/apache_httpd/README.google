@@ -1,0 +1,12 @@
+URL: http://apache.multihomed.net/httpd/httpd-2.2.14.tar.gz,
+     http://apache.multihomed.net/httpd/httpd-2.2.14-win32-src.zip
+Version: 2.2.14
+License: Apache License 2.0
+License File: LICENSE.txt
+
+Description:
+Apache httpd source (headers and libraries) for Windows and Linux.
+
+Local Modifications:
+Merged distributions for multiple platforms in a single tree and excluded
+files that are currently not needed in order to build.
