@@ -14,8 +14,6 @@
 
 #include "pagespeed/filters/protocol_filter.h"
 
-#include "base/logging.h"
-
 namespace pagespeed {
 
 ProtocolFilter::ProtocolFilter(std::vector<std::string> *allowed_protocols) {
@@ -28,14 +26,17 @@ ProtocolFilter::ProtocolFilter(std::vector<std::string> *allowed_protocols) {
   }
   regex_string += "):";
 
-  protocol_regex_.reset(new testing::internal::RE(regex_string));
+  protocol_regex_.Init(regex_string.c_str());
 }
 
 ProtocolFilter::~ProtocolFilter() {}
 
 bool ProtocolFilter::IsAccepted(const Resource& resource) const {
+  if (!protocol_regex_.is_valid()) {
+    return false;
+  }
   std::string url = resource.GetRequestUrl();
-  return testing::internal::RE::PartialMatch(url, *protocol_regex_);
+  return protocol_regex_.PartialMatch(url.c_str());
 }
 
 }  // namespace pagespeed

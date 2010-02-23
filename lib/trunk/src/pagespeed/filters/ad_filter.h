@@ -18,9 +18,7 @@
 #include <vector>
 #include "base/basictypes.h"
 #include "pagespeed/core/resource_filter.h"
-// We don't necessarily have <regex> on Windows, so we use gtest's internal
-// regular expression implementation.
-#include "testing/gtest/include/gtest/internal/gtest-port.h"
+#include "pagespeed/util/regex.h"
 
 namespace pagespeed {
 
@@ -35,7 +33,7 @@ class AdFilter : public ResourceFilter {
   virtual bool IsAccepted(const Resource& resource) const;
 
  private:
-  testing::internal::RE url_regex_;
+  RE url_regex_;
 };
 
 }  // namespace pagespeed
