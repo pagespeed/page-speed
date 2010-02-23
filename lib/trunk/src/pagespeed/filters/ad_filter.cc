@@ -14,18 +14,22 @@
 
 #include "pagespeed/filters/ad_filter.h"
 
-#include "base/logging.h"
 #include "third_party/adblockrules/adblockrules.h"
 
 namespace pagespeed {
 
-AdFilter::AdFilter() : url_regex_(adblockrules::kAdRegExpString) {}
+AdFilter::AdFilter() {
+  url_regex_.Init(adblockrules::kAdRegExpString);
+}
 
 AdFilter::~AdFilter() {}
 
 bool AdFilter::IsAccepted(const Resource& resource) const {
+  if (!url_regex_.is_valid()) {
+    return false;
+  }
   std::string url = resource.GetRequestUrl();
-  return !testing::internal::RE::PartialMatch(url, url_regex_);
+  return !url_regex_.PartialMatch(url.c_str());
 }
 
 }  // namespace pagespeed

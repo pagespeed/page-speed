@@ -168,14 +168,29 @@
       ]
     },
     {
+      'target_name': 'pagespeed_util',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/util/regex.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
+    {
       'target_name': 'pagespeed_filters',
       'type': '<(library)',
       'dependencies': [
         'pagespeed_core',
-        # We currently depend on gtest in order to use their simple
-        # regex impl. We should port their regex impl to a standalone
-        # library in third_party and depend on that instead.
-        '<(DEPTH)/testing/gtest.gyp:gtest',
+        'pagespeed_util',
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ],
       'sources': [
@@ -191,7 +206,6 @@
         ],
       },
       'export_dependent_settings': [
-        '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ]
     },
@@ -419,6 +433,7 @@
         '<(pagespeed_root)/pagespeed/rules/serve_scaled_images_test.cc',
         '<(pagespeed_root)/pagespeed/rules/specify_charset_early_test.cc',
         '<(pagespeed_root)/pagespeed/rules/specify_image_dimensions_test.cc',
+        '<(pagespeed_root)/pagespeed/util/regex_test.cc',
       ],
     },
     {
