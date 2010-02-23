@@ -234,7 +234,6 @@
             'LinkIncremental': '1',
             'OptimizeReferences': '2',
             'EnableCOMDATFolding': '2',
-            'OptimizeForWindows98': '1',
           },
           'VCResourceCompilerTool': {
             # from release_defaults.vsprops
@@ -562,13 +561,11 @@
           'WINVER=0x0600',
           'WIN32',
           '_WINDOWS',
-          '_HAS_EXCEPTIONS=0',
           'NOMINMAX',
           '_CRT_RAND_S',
           'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
           'WIN32_LEAN_AND_MEAN',
           '_SECURE_ATL',
-          '_HAS_TR1=0',
         ],
         'msvs_system_include_dirs': [
           '$(VSInstallDir)/VC/atlmfc/include',
@@ -578,7 +575,6 @@
         'msvs_settings': {
           'VCCLCompilerTool': {
             'MinimalRebuild': 'false',
-            'ExceptionHandling': '0',
             'BufferSecurityCheck': 'true',
             'EnableFunctionLevelLinking': 'true',
             'RuntimeTypeInfo': 'false',
