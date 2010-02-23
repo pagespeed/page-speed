@@ -16,4 +16,15 @@
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
+  'target_defaults': {
+    'conditions': [
+      ['OS == "linux"', {
+        'cflags': [
+          # We're building a shared library, so everything needs to be built
+          # with Position-Independent Code.
+          '-fPIC',
+        ],
+      }],
+    ],
+  },
 }
