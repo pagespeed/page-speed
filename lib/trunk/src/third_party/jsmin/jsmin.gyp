@@ -47,6 +47,9 @@
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
       ],
+      'include_dirs': [
+        '<(DEPTH)',
+      ],
       'sources': [
         'cpp/jsmin_test.cc',
       ],
