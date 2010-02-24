@@ -43,15 +43,13 @@ class CallGraph {
   CallGraph(Profile *profile, Timer *timer);
 
   // These methods are used by FunctionTraceHook to populate the data
-  // structure.  OnFunctionEntry adds a new, partially populated node
-  // to the working set.
-  // OnFunctionExit populates the remaining fields, adds toplevel
-  // nodes to the root list and removes the last node from the working
-  // set, which was created when we entered the corresponding
-  // iteration of function.
+  // structure.  OnFunctionEntry adds a new node to the working set.
+  // OnFunctionExit adds toplevel nodes to the root list and removes
+  // the last node from the working set, which was created when we
+  // entered the corresponding iteration of function.
   //
   // @INVARIANT(# calls to OnFunctionEntry >= # calls to OnFunctionExit)
-  void OnFunctionEntry();
+  void OnFunctionEntry(int32 tag);
   void OnFunctionExit(int32 tag);
 
   // Do dfs(execution order) traversal of the data structure.

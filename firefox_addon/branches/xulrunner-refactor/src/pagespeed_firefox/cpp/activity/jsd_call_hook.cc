@@ -84,14 +84,19 @@ NS_IMETHODIMP JsdCallHook::OnCall(jsdIStackFrame *frame, PRUint32 type) {
 }
 
 void JsdCallHook::OnEntry(jsdIStackFrame *frame) {
+  nsCOMPtr<jsdIScript> script;
+  nsresult rv = frame->GetScript(getter_AddRefs(script));
+  if (NS_FAILED(rv)) {
+    GCHECK(false);
+    return;
+  }
+
+  JsdFunctionInfo function_info(script);
+
   if (collect_full_call_trees_) {
     // If we're collecting full call trees, just record this as a
     // normal function entry point.
-    //
-    // TODO: note that when we pause the JSD in profiler.js the number
-    // of OnEntry/OnExit calls will get out of sync. See
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=546637
-    profile_->OnFunctionEntry();
+    profile_->OnFunctionEntry(&function_info);
     return;
   }
 
@@ -101,19 +106,11 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame) {
     return;
   }
 
-  nsCOMPtr<jsdIScript> script;
-  nsresult rv = frame->GetScript(getter_AddRefs(script));
-  if (NS_FAILED(rv)) {
-    GCHECK(false);
-    return;
-  }
-
-  JsdFunctionInfo function_info(script);
   if (!profile_->ShouldIncludeInProfile(function_info.GetFileName())) {
     return;
   }
 
-  profile_->OnFunctionEntry();
+  profile_->OnFunctionEntry(&function_info);
 
   // We found a function that should be included in the profile, so
   // apply the call filter.

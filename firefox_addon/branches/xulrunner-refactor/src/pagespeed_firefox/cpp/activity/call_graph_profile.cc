@@ -149,9 +149,24 @@ void CallGraphProfile::Stop() {
   }
 }
 
-void CallGraphProfile::OnFunctionEntry() {
+void CallGraphProfile::OnFunctionEntry(
+    FunctionInfoInterface *function_info) {
   GCHECK(profiling());
-  call_graph_->OnFunctionEntry();
+
+  const int32 tag = function_info->GetFunctionTag();
+
+  // If we haven't recorded the metadata for this function already, do
+  // so now.
+  if (!metadata_->HasEntry(tag)) {
+    metadata_->AddEntry(
+        tag,
+        function_info->GetFileName(),
+        function_info->GetFunctionName(),
+        function_info->GetFunctionSourceUtf8(),
+        -1);
+  }
+
+  call_graph_->OnFunctionEntry(tag);
 }
 
 void CallGraphProfile::OnFunctionExit(

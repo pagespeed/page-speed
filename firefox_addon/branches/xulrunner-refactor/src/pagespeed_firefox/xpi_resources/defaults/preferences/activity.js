@@ -8,3 +8,4 @@ pref('extensions.Activity.ui_data_available_instantaneous', true);
 pref('extensions.Activity.profile_js', true);
 pref('extensions.Activity.canvas_width_px', 250);
 pref('extensions.Activity.enable_screen_snapshots', false);
+pref('extensions.Activity.aggregate_browser_javascript', true);

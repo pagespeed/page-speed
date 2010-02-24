@@ -185,8 +185,6 @@ activity.TimelineView.prototype.getResolutionUsec = function() {
  * @param {number} endTimeUsec the new end time, in microseconds.
  */
 activity.TimelineView.prototype.onEndTimeChanged = function(endTimeUsec) {
-  this.throwIfDisposed_();
-
   // Convert from usec to number of resolutions.
   var endTimeInResolutions = Math.ceil(endTimeUsec / this.resolutionUsec_);
   var startTimeInResolutions =
@@ -218,8 +216,6 @@ activity.TimelineView.prototype.onEndTimeChanged = function(endTimeUsec) {
  * @param {goog.Timeline} timeline The newly created timeline.
  */
 activity.TimelineView.prototype.onTimelineCreated = function(timeline) {
-  this.throwIfDisposed_();
-
   var rowElement = this.xulElementFactory_.createElement('row');
   var row = new activity.TimelineView.Row_(timeline,
                                          this.xulElementFactory_,
@@ -324,16 +320,6 @@ activity.TimelineView.prototype.updateTimeIndicators_ = function(
       'value', activity.TimelineView.formatTime_(endTimeUsec));
 };
 
-
-/**
- * Throws an Error if this TimelineView is disposed.
- * @private
- */
-activity.TimelineView.prototype.throwIfDisposed_ = function() {
-  if (this.isDisposed()) {
-    throw new Error('TimelineView already disposed.');
-  }
-};
 
 /**
  * Format the given time as a human-readable string.
@@ -528,8 +514,6 @@ activity.TimelineView.Row_.prototype.createBarChartStack_ = function() {
  * @param {activity.TimelineModel.Event} event the event.
  */
 activity.TimelineView.Row_.prototype.onEvent = function(event) {
-  this.throwIfDisposed_();
-
   // Ordinals are one-indexed, but our array is zero-indexed, so we
   // need to subtract one from the ordinal value.
   var index =
@@ -689,7 +673,6 @@ function isBarChartEmpty(barChart) {
  * @return {boolean} Whether or not this row is empty.
  */
 activity.TimelineView.Row_.prototype.isEmpty = function() {
-  this.throwIfDisposed_();
   // The Row is empty if all of its BarCharts are empty.
   return this.barCharts_.every(isBarChartEmpty);
 };
@@ -698,8 +681,6 @@ activity.TimelineView.Row_.prototype.isEmpty = function() {
  * @return {boolean} Whether or not this row is visible.
  */
 activity.TimelineView.Row_.prototype.isVisible = function() {
-  this.throwIfDisposed_();
-
   return this.row_.getAttribute('collapsed') != 'true';
 };
 
@@ -707,8 +688,6 @@ activity.TimelineView.Row_.prototype.isVisible = function() {
  * Update the visibility of this row based on the state of its bar charts.
  */
 activity.TimelineView.Row_.prototype.updateVisibility = function() {
-  this.throwIfDisposed_();
-
   this.row_.setAttribute('collapsed', this.isEmpty());
   for (var i = 0, len = this.barCharts_.length; i < len; i++) {
     this.barCharts_[i].updateVisibility();
@@ -724,8 +703,6 @@ activity.TimelineView.Row_.prototype.updateVisibility = function() {
  *     secondary CSS class.
  */
 activity.TimelineView.Row_.prototype.updateRowCss = function(primary) {
-  this.throwIfDisposed_();
-
   if (primary) {
     this.row_.setAttribute('class', 'primaryTimelineRow');
   } else {
@@ -738,8 +715,6 @@ activity.TimelineView.Row_.prototype.updateRowCss = function(primary) {
  * @param {number} endTime The time the row should be padded to.
  */
 activity.TimelineView.Row_.prototype.padToEndTime = function(endTime) {
-  this.throwIfDisposed_();
-
   for (var i = 0, len = this.barCharts_.length; i < len; i++) {
     this.barCharts_[i].padToEndTime(endTime);
   }
@@ -750,8 +725,6 @@ activity.TimelineView.Row_.prototype.padToEndTime = function(endTime) {
  * @param {number} startTime The time the row's start time should be clamped to.
  */
 activity.TimelineView.Row_.prototype.clampToStartTime = function(startTime) {
-  this.throwIfDisposed_();
-
   for (var i = 0, len = this.barCharts_.length; i < len; i++) {
     this.barCharts_[i].clampToStartTime(startTime);
   }
@@ -790,16 +763,6 @@ activity.TimelineView.Row_.prototype.getCssClassNameForEvent_ =
       return 'socketDataColor';
   }
   throw new Error('Unrecognized event type ' + event);
-};
-
-/**
- * Throws an Error if this Row_ is disposed.
- * @private
- */
-activity.TimelineView.Row_.prototype.throwIfDisposed_ = function() {
-  if (this.isDisposed()) {
-    throw new Error('Row already disposed.');
-  }
 };
 
 /**
@@ -1008,8 +971,6 @@ activity.TimelineView.BarChart_.prototype.getEndTime = function() {
  * @param {number} endTime The end time to unwind to, in resolutions.
  */
 activity.TimelineView.BarChart_.prototype.unwindToEndTime = function(endTime) {
-  this.throwIfDisposed_();
-
   var amountToUnwind = this.endTime_ - endTime;
   if (amountToUnwind < 0) {
     throw new Error(['Current BarChart end time',
@@ -1047,8 +1008,6 @@ activity.TimelineView.BarChart_.prototype.unwindToEndTime = function(endTime) {
  * @param {number} endTime The end time to pad to, in resolutions.
  */
 activity.TimelineView.BarChart_.prototype.padToEndTime = function(endTime) {
-  this.throwIfDisposed_();
-
   var duration = endTime - this.endTime_;
   if (duration < 0) {
     throw new Error(['Current BarChart end time',
@@ -1071,8 +1030,6 @@ activity.TimelineView.BarChart_.prototype.padToEndTime = function(endTime) {
  */
 activity.TimelineView.BarChart_.prototype.clampToStartTime =
     function(startTime) {
-  this.throwIfDisposed_();
-
   if (this.isEmpty() || startTime >= this.endTime_) {
     // If there are no visible events, update the start and end times
     // and remove any existing children.
@@ -1123,8 +1080,6 @@ activity.TimelineView.BarChart_.prototype.clampToStartTime =
  */
 activity.TimelineView.BarChart_.prototype.addEntry =
     function(opacity, duration) {
-  this.throwIfDisposed_();
-
   if (opacity == 0.0) {
     this.padToEndTime(this.endTime_ + duration);
     return;
@@ -1147,8 +1102,6 @@ activity.TimelineView.BarChart_.prototype.addEntry =
  * @return {boolean} Whether or not this bar chart is empty.
  */
 activity.TimelineView.BarChart_.prototype.isEmpty = function() {
-  this.throwIfDisposed_();
-
   return this.lastEventEndTime_ <= this.startTime_;
 };
 
@@ -1217,15 +1170,5 @@ activity.TimelineView.BarChart_.prototype.appendSpacer_ = function(
 activity.TimelineView.BarChart_.prototype.removeAllChildren_ = function() {
   while (this.bar_.lastChild != null) {
     this.bar_.removeChild(this.bar_.lastChild);
-  }
-};
-
-/**
- * Throws an Error if this BarChart_ is disposed.
- * @private
- */
-activity.TimelineView.BarChart_.prototype.throwIfDisposed_ = function() {
-  if (this.isDisposed()) {
-    throw new Error('BarChart already disposed.');
   }
 };
