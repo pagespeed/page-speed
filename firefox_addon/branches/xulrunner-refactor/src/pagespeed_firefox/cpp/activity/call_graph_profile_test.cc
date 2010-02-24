@@ -44,8 +44,9 @@ class CallGraphProfileTest : public testing::Test {
     profile_.reset();
   }
 
-  void OnFunctionEntry() {
-    profile_->OnFunctionEntry();
+  void OnFunctionEntry(int32 tag) {
+    activity_testing::TestStubFunctionInfo function_info(tag);
+    profile_->OnFunctionEntry(&function_info);
   }
 
   void OnFunctionExit(int32 tag) {
@@ -89,7 +90,7 @@ void ReadFileToString(const char* dir,
 }
 
 TEST_F(CallGraphProfileTest, OnFunctionEntryExitFailsWhenNotProfiling) {
-  ASSERT_DEATH(OnFunctionEntry(), "Check failed: profiling\\(\\)");
+  ASSERT_DEATH(OnFunctionEntry(-1), "Check failed: profiling\\(\\)");
   ASSERT_DEATH(OnFunctionExit(-1), "Check failed: profiling\\(\\)");
 }
 
@@ -114,7 +115,7 @@ TEST_F(CallGraphProfileTest, SerializeToOutputStream) {
 
   // Build the equivalent call graph profile structure and serialize it.
   profile_->Start();
-  OnFunctionEntry();
+  OnFunctionEntry(1);
   OnFunctionExit(1);
   profile_->Stop();
   std::string buffer;
@@ -127,8 +128,8 @@ TEST_F(CallGraphProfileTest, SerializeToOutputStream) {
 TEST_F(CallGraphProfileTest, LastParitalCallTreeGetsRemoved) {
   profile_->Start();
 
-  OnFunctionEntry();
-  OnFunctionEntry();
+  OnFunctionEntry(1);
+  OnFunctionEntry(2);
   OnFunctionExit(2);
   OnFunctionExit(1);
 
@@ -136,7 +137,7 @@ TEST_F(CallGraphProfileTest, LastParitalCallTreeGetsRemoved) {
   ASSERT_EQ(1, GetProfile()->call_tree_size());
 
   // Add a partially constructed CallTree
-  OnFunctionEntry();
+  OnFunctionEntry(1);
 
   // Verify that the partially constructed CallTree extended the
   // CallTree vector.

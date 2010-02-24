@@ -348,19 +348,19 @@ class CallGraphUtilEventSetTestBase : public testing::Test {
     profile_->OnFunctionInstantiated(function_info_1_.get());
 
     clock_->current_time_usec_ = kFunctionInit1 + 2LL;
-    profile_->OnFunctionEntry();  // 1
+    profile_->OnFunctionEntry(function_info_1_.get());
 
     clock_->current_time_usec_ = kFunctionInit2;
     profile_->OnFunctionInstantiated(function_info_2_.get());
 
     clock_->current_time_usec_ = kFunctionInit2 + 2LL;
-    profile_->OnFunctionEntry();  // 2
+    profile_->OnFunctionEntry(function_info_2_.get());
 
     clock_->current_time_usec_ = kFunctionInit3;
     profile_->OnFunctionInstantiated(function_info_3_.get());
 
     clock_->current_time_usec_ = kFunctionInit3 + 2LL;
-    profile_->OnFunctionEntry();  // 3
+    profile_->OnFunctionEntry(function_info_3_.get());
 
     clock_->current_time_usec_ = kFunctionInit3 + 4LL;
     profile_->OnFunctionExit(function_info_3_.get());
@@ -373,7 +373,7 @@ class CallGraphUtilEventSetTestBase : public testing::Test {
     profile_->OnFunctionInstantiated(function_info_5_.get());
 
     clock_->current_time_usec_ = kFunctionInit4 + 2LL;
-    profile_->OnFunctionEntry();  // 4
+    profile_->OnFunctionEntry(function_info_4_.get());
 
     profile_->OnFunctionExit(function_info_4_.get());
 
@@ -381,7 +381,7 @@ class CallGraphUtilEventSetTestBase : public testing::Test {
     profile_->OnFunctionExit(function_info_2_.get());
 
     clock_->current_time_usec_ = kFunctionInit5 + 5LL;
-    profile_->OnFunctionEntry();  // 5
+    profile_->OnFunctionEntry(function_info_5_.get());
 
     clock_->current_time_usec_ = kFunctionInit5 + 8LL;
     profile_->OnFunctionExit(function_info_5_.get());
@@ -741,9 +741,9 @@ TEST_F(CallGraphUtilMaxCallGraphTimeTest, EmptyGraph) {
 }
 
 TEST_F(CallGraphUtilMaxCallGraphTimeTest, FullGraph) {
-  graph_->OnFunctionEntry();
+  graph_->OnFunctionEntry(0);
   graph_->OnFunctionExit(0);
-  graph_->OnFunctionEntry();
+  graph_->OnFunctionEntry(0);
   graph_->OnFunctionExit(0);
   const int32 time_after_last_tree =
       graph_->call_forest()->back()->exit_time_usec();
@@ -753,11 +753,11 @@ TEST_F(CallGraphUtilMaxCallGraphTimeTest, FullGraph) {
 }
 
 TEST_F(CallGraphUtilMaxCallGraphTimeTest, PartialGraph) {
-  graph_->OnFunctionEntry();
+  graph_->OnFunctionEntry(0);
   graph_->OnFunctionExit(0);
   const int32 time_after_first_tree =
       graph_->call_forest()->back()->exit_time_usec();
-  graph_->OnFunctionEntry();
+  graph_->OnFunctionEntry(0);
   ASSERT_EQ(
       time_after_first_tree,
       activity::util::GetMaxFullyConstructedCallGraphTimeUsec(*graph_.get()));
