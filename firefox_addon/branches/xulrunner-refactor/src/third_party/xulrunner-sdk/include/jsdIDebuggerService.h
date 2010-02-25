@@ -15,7 +15,18 @@
 #define NS_NO_VTABLE
 #endif
 
-#include "jsdebug.h"
+/* To minimize dependencies on the rest of the xulrunner sdk, we
+   forward-declare classes instead of including their declarations. */
+class JSContext;
+class JSDContext;
+class JSDObject;
+class JSDProperty;
+class JSDScript;
+class JSDStackFrameInfo;
+class JSDThreadState;
+class JSDValue;
+class JSRuntime;
+typedef intptr_t jsval;
 class nsAString;
 
 class jsdIDebuggerService; /* forward declaration */
