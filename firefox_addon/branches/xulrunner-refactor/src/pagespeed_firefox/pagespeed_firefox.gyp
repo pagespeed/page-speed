@@ -16,7 +16,8 @@
   'variables': {
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
     'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk',
-    'xulrunner_sdk_arch_root': '<(xulrunner_sdk_root)/arch/<(OS)/<(target_arch)'
+    'xulrunner_sdk_os_root': '<(xulrunner_sdk_root)/arch/<(OS)',
+    'xulrunner_sdk_arch_root': '<(xulrunner_sdk_os_root)/<(target_arch)',
   },
   'targets': [
     {
@@ -40,12 +41,13 @@
         'include_dirs': [
           '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
           '<(xulrunner_sdk_root)/include',
+          '<(xulrunner_sdk_os_root)/all/include',
         ],
         'conditions': [  # See https://developer.mozilla.org/en/XPCOM_Glue
           ['OS == "linux"', {
             'cflags': [
               '-fshort-wchar',
-              '-include', '<(xulrunner_sdk_root)/include/xpcom-config.h',
+              '-include', '<(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
             ],
             'ldflags': [
               '-L<(xulrunner_sdk_arch_root)/lib',
@@ -74,7 +76,7 @@
               ],
               'OTHER_CFLAGS': [
                 '-fshort-wchar',
-                '-include <(xulrunner_sdk_root)/include/xpcom-config.h',
+                '-include <(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
               ],
             },
           }],
