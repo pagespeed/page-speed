@@ -21,6 +21,10 @@
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
   'target_defaults': {
+    'defines': [
+      # break dependency on obsolete nspr headers
+      'NO_NSPR_10_SUPPORT',
+    ],
     'conditions': [
       ['OS == "linux"', {
         'cflags': [
