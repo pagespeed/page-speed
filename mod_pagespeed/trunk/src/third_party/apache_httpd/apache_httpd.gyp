@@ -15,7 +15,8 @@
 {
   'variables': {
     'apache_sdk_root': '<(DEPTH)/third_party/apache_httpd',
-    'apache_sdk_arch_root': '<(apache_sdk_root)/arch/<(OS)/<(target_arch)'
+    'apache_sdk_os_root': '<(apache_sdk_root)/arch/<(OS)',
+    'apache_sdk_arch_root': '<(apache_sdk_os_root)/<(target_arch)',
   },
   'targets': [
     {
@@ -24,7 +25,8 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '<(apache_sdk_root)/include',
-          '<(apache_sdk_root)/arch/<(OS)/include',
+          '<(apache_sdk_os_root)/all/include',
+          '<(apache_sdk_arch_root)/include',
         ],
         'conditions': [
           ['OS == "win"', {
