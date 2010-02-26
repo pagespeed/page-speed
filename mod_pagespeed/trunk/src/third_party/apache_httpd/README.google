@@ -1,6 +1,7 @@
 URL: http://apache.multihomed.net/httpd/httpd-2.2.14.tar.gz,
      http://apache.multihomed.net/httpd/httpd-2.2.14-win32-src.zip
-Version: 2.2.14
+     http://apache.multihomed.net/apr/apr-1.3.9.tar.gz
+Version: httpd 2.2.14, apr 1.3.9
 License: Apache License 2.0
 License File: LICENSE.txt
 
