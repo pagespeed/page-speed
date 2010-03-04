@@ -14,5 +14,22 @@
 
 {
   'targets': [
+    {
+      'target_name': 'mod_pagespeed',
+      'type': 'loadable_module',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:*',
+        '<(DEPTH)/third_party/libpagespeed/src/third_party/jsmin/jsmin.gyp:*',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
+      ],
+      'sources': [
+        'mod_pagespeed.cc',
+        'apache/log_message_handler.cc',
+      ],
+    },
   ],
 }
