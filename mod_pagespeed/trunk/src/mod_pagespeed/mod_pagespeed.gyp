@@ -13,6 +13,10 @@
 # limitations under the License.
 
 {
+ 'variables': {
+    'mod_spdy_root': '<(DEPTH)/third_party/mod_spdy/src',
+  },
+
   'targets': [
     {
       'target_name': 'mod_pagespeed',
@@ -25,10 +29,11 @@
       ],
       'include_dirs': [
         '<(DEPTH)',
+        '<(mod_spdy_root)',
       ],
       'sources': [
         'mod_pagespeed.cc',
-        'apache/log_message_handler.cc',
+        '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
     },
   ],

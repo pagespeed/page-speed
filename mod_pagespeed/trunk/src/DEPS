@@ -17,6 +17,8 @@ vars = {
   "chromium_revision": "@35449",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
+  "mod_spdy_trunk": "http://mod-spdy.googlecode.com/svn/trunk",
+  "mod_spdy_revision": "@head",
 }
 
 deps = {
@@ -40,6 +42,9 @@ deps = {
 
   "src/testing/gtest":
     "http://googletest.googlecode.com/svn/trunk@359",
+
+  "src/third_party/mod_spdy/src/mod_spdy/apache":
+    Var("mod_spdy_trunk") + "/src/mod_spdy/apache" + Var("mod_spdy_revision"),
 
   "src/third_party/chromium/src/base":
     Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),

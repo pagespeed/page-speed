@@ -20,8 +20,8 @@
 #include "third_party/apache_httpd/include/http_protocol.h"
 
 #include "base/string_util.h"
-#include "mod_pagespeed/apache/log_message_handler.h"
-#include "mod_pagespeed/apache/pool_util.h"
+#include "mod_spdy/apache/log_message_handler.h"
+#include "mod_spdy/apache/pool_util.h"
 #include "pagespeed/cssmin/cssmin.h"
 #include "pagespeed/html/html_compactor.h"
 #include "pagespeed/image_compression/gif_reader.h"
@@ -39,9 +39,9 @@ using jsmin::MinifyJs;
 
 namespace {
 
-static const char pagespeed_filter_name[] = "PAGESPEED";
+const char* pagespeed_filter_name = "PAGESPEED";
 
-enum ResourceType {HTML, JAVASCRIPT, CSS, GIF, PNG, JPEG};
+enum ResourceType {UNKNOWN, HTML, JAVASCRIPT, CSS, GIF, PNG, JPEG};
 
 // We use the following structure to keep the pagespeed module context. We
 // accumulate buckets into the input string. When we receive the EOS bucket, we
@@ -51,6 +51,32 @@ class PagespeedContext {
   std::string input;   // original content
   std::string output;  // content after pagespeed optimization
 };
+
+// Determine the resource type from a Content-Type string
+ResourceType get_resource_type(const char* content_type) {
+  ResourceType type = UNKNOWN;
+  if (StartsWithASCII(content_type, "text/html", false)) {
+    type = HTML;
+  } else if (StartsWithASCII(content_type, "text/javascript", false) ||
+             StartsWithASCII(content_type, "application/x-javascript",
+                             false) ||
+             StartsWithASCII(content_type, "application/javascript",
+                             false)) {
+    type = JAVASCRIPT;
+  } else if (StartsWithASCII(content_type, "text/css", false)) {
+    type = CSS;
+  } else if (StartsWithASCII(content_type, "image/gif", false)) {
+    type = GIF;
+  } else if (StartsWithASCII(content_type, "image/png", false)) {
+    type = PNG;
+  } else if (StartsWithASCII(content_type, "image/jpg", false) ||
+             StartsWithASCII(content_type, "image/jpeg", false)) {
+    type = JPEG;
+  } else {
+    type = UNKNOWN;
+  }
+  return type;
+}
 
 // Check if pagespeed optimization rules applicable.
 bool check_pagespeed_applicable(ap_filter_t* filter,
@@ -65,24 +91,8 @@ bool check_pagespeed_applicable(ap_filter_t* filter,
   }
 
   // Only support text/html, javascript, css, gif, png and jpeg.
-  if (StartsWithASCII(request->content_type, "text/html", false)) {
-    *type = HTML;
-  } else if (StartsWithASCII(request->content_type, "text/javascript", false) ||
-             StartsWithASCII(request->content_type, "application/x-javascript",
-                             false) ||
-             StartsWithASCII(request->content_type, "application/javascript",
-                             false)) {
-    *type = JAVASCRIPT;
-  } else if (StartsWithASCII(request->content_type, "text/css", false)) {
-    *type = CSS;
-  } else if (StartsWithASCII(request->content_type, "image/gif", false)) {
-    *type = GIF;
-  } else if (StartsWithASCII(request->content_type, "image/png", false)) {
-    *type = PNG;
-  } else if (StartsWithASCII(request->content_type, "image/jpg", false) ||
-             StartsWithASCII(request->content_type, "image/jpeg", false)) {
-    *type = JPEG;
-  } else {
+  *type = get_resource_type(request->content_type);
+  if (*type == UNKNOWN) {
     ap_log_rerror(APLOG_MARK, APLOG_INFO, APR_SUCCESS, request,
                   "Content-Type=%s URI=%s%s",
                   request->content_type, request->hostname,
@@ -94,7 +104,7 @@ bool check_pagespeed_applicable(ap_filter_t* filter,
 }
 
 // Optimize the resource.
-bool do_pagespeed(const ResourceType resource_type,
+bool perform_resource_optimization(const ResourceType resource_type,
                   const std::string& input, std::string* output) {
   bool success = false;
   switch (resource_type) {
@@ -149,20 +159,20 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
   // Initialize pagespeed context structure.
   if (context == NULL) {
     filter->ctx = context = new PagespeedContext;
-    mod_pagespeed::PoolRegisterDelete(request->pool, context);
+    mod_spdy::PoolRegisterDelete(request->pool, context);
     apr_table_unset(request->headers_out, "Content-Length");
     apr_table_unset(request->headers_out, "Content-MD5");
   }
 
   for (apr_bucket* bucket = APR_BRIGADE_FIRST(bb);
        bucket != APR_BRIGADE_SENTINEL(bb);
-       bucket = APR_BUCKET_NEXT(bucket) ) {
+       bucket = APR_BUCKET_NEXT(bucket)) {
     if (!APR_BUCKET_IS_METADATA(bucket)) {
       const char* buf = NULL;
       size_t bytes = 0;
       apr_status_t ret_code =
           apr_bucket_read(bucket, &buf, &bytes, APR_BLOCK_READ);
-      if( ret_code == APR_SUCCESS ) {
+      if(ret_code == APR_SUCCESS) {
         // save the content of the bucket
         context->input.append(buf, bytes);
       } else {
@@ -179,8 +189,9 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
       }
 
       // Do pagespeed optimization.
-      bool success = do_pagespeed(resource_type, context->input,
-                                  &context->output);
+      bool success = perform_resource_optimization(resource_type,
+                                                   context->input,
+                                                   &context->output);
 
       // Re-create the bucket.
       apr_bucket* new_bucket = NULL;
@@ -241,10 +252,9 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
 // processing and configuration requests. This
 // callback function declares the Handlers for
 // other events.
-
 void mod_pagespeed_register_hooks(apr_pool_t *p) {
   // Enable logging using pagespeed style
-  mod_pagespeed::InstallLogMessageHandler();
+  mod_spdy::InstallLogMessageHandler();
 
   ap_register_output_filter(pagespeed_filter_name,
                             pagespeed_out_filter,
@@ -265,7 +275,6 @@ extern "C" {
 // name of this structure ('pagespeed_module') is important - it
 // must match the name of the module.  This structure is the
 // only "glue" between the httpd core and the module.
-
 module AP_MODULE_DECLARE_DATA pagespeed_module = {
   // Only one callback function is provided.  Real
   // modules will need to declare callback functions for
