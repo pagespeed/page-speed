@@ -24,7 +24,8 @@
 #define JSD_SCRIPT_HOOK_H_
 
 #include "base/basictypes.h"
-#include "jsd.h"
+
+#include "jsdIDebuggerService.h"
 
 namespace activity {
 

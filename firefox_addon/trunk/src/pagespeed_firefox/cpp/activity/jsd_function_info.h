@@ -24,7 +24,8 @@
 
 #include "base/basictypes.h"
 #include "function_info_interface.h"
-#include "jsd.h"
+
+#include "jsdIDebuggerService.h"
 
 namespace activity {
 

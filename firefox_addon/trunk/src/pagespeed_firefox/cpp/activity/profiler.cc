@@ -28,11 +28,11 @@
 #include "find_first_invocations_visitor.h"
 #include "jsd_call_hook.h"
 #include "jsd_script_hook.h"
-#include "jsd_wrapper.h"
 #include "output_stream_interface.h"
 #include "profiler_runnables.h"
 #include "uncalled_function_tree_view_delegate.h"
 
+#include "jsdIDebuggerService.h"
 #include "nsIEventTarget.h"
 #include "nsILocalFile.h"
 #include "nsIThread.h"
@@ -47,6 +47,7 @@ NS_IMPL_ISUPPORTS1(activity::Profiler, IActivityProfiler)
 
 namespace {
 
+const char* kJsdContractStr = "@mozilla.org/js/jsd/debugger-service;1";
 const char* kThreadManagerContactStr = "@mozilla.org/thread-manager;1";
 
 // Implementation of OutputStreamInterface that writes to an
@@ -135,7 +136,7 @@ NS_IMETHODIMP Profiler::Register(
     return NS_ERROR_INVALID_ARG;
   }
 
-  nsresult rv;
+  nsresult rv = NS_OK;
   nsCOMPtr<nsIThreadManager> thread_manager =
       do_GetService(kThreadManagerContactStr, &rv);
   if (NS_FAILED(rv)) {
@@ -161,8 +162,8 @@ NS_IMETHODIMP Profiler::Register(
   profile_->Start(start_time_usec);
   state_ = IActivityProfiler::PROFILING;
 
-  scoped_ptr<JsdWrapper> jsd(JsdWrapper::Create());
-  if (jsd != NULL) {
+  nsCOMPtr<jsdIDebuggerService> jsd(do_GetService(kJsdContractStr, &rv));
+  if (NS_SUCCEEDED(rv)) {
     call_hook_->set_collect_full_call_trees(collect_full_call_trees == PR_TRUE);
     rv = jsd->SetFunctionHook(call_hook_);
     if (NS_FAILED(rv)) {
@@ -188,7 +189,7 @@ NS_IMETHODIMP Profiler::Register(
       return rv;
     }
   } else {
-    LOG(WARNING) << "Error creating jsd wrapper";
+    LOG(WARNING) << "Error getting jsdIDebuggerService";
   }
 
   return NS_OK;
@@ -202,13 +203,14 @@ NS_IMETHODIMP Profiler::Unregister() {
   nsresult function_hook_rv = NS_OK;
   nsresult top_level_hook_rv = NS_OK;
   nsresult script_hook_rv = NS_OK;
-  scoped_ptr<JsdWrapper> jsd(JsdWrapper::Create());
-  if (jsd != NULL) {
+  nsresult rv = NS_OK;
+  nsCOMPtr<jsdIDebuggerService> jsd(do_GetService(kJsdContractStr, &rv));
+  if (NS_SUCCEEDED(rv)) {
     function_hook_rv = jsd->SetFunctionHook(NULL);
     top_level_hook_rv = jsd->SetTopLevelHook(NULL);
     script_hook_rv = jsd->SetScriptHook(NULL);
   } else {
-    LOG(WARNING) << "Error creating jsd wrapper";
+    LOG(WARNING) << "Error getting jsdIDebuggerService";
   }
 
   profile_->Stop();

@@ -12,6 +12,9 @@ Merged distributions for multiple platforms in a single tree and excluded
 many files that are currently not needed in order to build the page-speed
 extension.
 
+Modified jsdIDebuggerService.idl to forward-declare classes instead of
+including headers.
+
 The version of the SDK for Linux x64 was built by hand on Ubuntu 6.10
 using the xulrunner 1.9.1.4 source, using the following mozconfig
 file:

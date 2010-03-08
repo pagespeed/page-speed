@@ -23,13 +23,18 @@
 #include "jsd_function_info.h"
 
 #include "nsCOMPtr.h"
+#include "nsServiceManagerUtils.h"
 
 NS_IMPL_ISUPPORTS1(activity::JsdCallHook, jsdICallHook)
+
+namespace {
+const char* kJsdContractStr = "@mozilla.org/js/jsd/debugger-service;1";
+}
 
 namespace activity {
 
 JsdCallHook::JsdCallHook(CallGraphProfile *profile)
-    : jsd_(JsdWrapper::Create()),
+    : jsd_(do_GetService(kJsdContractStr)),
       profile_(profile),
       filter_depth_(-1),
       pending_depth_(-1),
