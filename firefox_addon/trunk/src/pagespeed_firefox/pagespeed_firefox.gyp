@@ -186,7 +186,6 @@
       'type': '<(library)',
       'variables': {
         'activity_root': 'cpp/activity',
-        'mozilla_idl_root': '<(DEPTH)/third_party/mozilla/idl',
       },
       'dependencies': [
         'xulrunner_sdk',
@@ -195,19 +194,13 @@
       ],
       'sources': [
         'idl/IActivityProfiler.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_0.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_5.idl',
-        '<(mozilla_idl_root)/jsdIDebuggerService_3_6.idl',
+        '<(xulrunner_sdk_root)/idl/jsdIDebuggerService.idl',
         '<(activity_root)/basic_tree_view.cc',
         '<(activity_root)/check_gecko.cc',
         '<(activity_root)/http_activity_distributor.cc',
         '<(activity_root)/jsd_call_hook.cc',
         '<(activity_root)/jsd_function_info.cc',
         '<(activity_root)/jsd_script_hook.cc',
-        '<(activity_root)/jsd_wrapper.cc',
-        '<(activity_root)/jsd_wrapper_3_0.cc',
-        '<(activity_root)/jsd_wrapper_3_5.cc',
-        '<(activity_root)/jsd_wrapper_3_6.cc',
         '<(activity_root)/profiler.cc',
         '<(activity_root)/profiler_event.cc',
         '<(activity_root)/profiler_runnables.cc',

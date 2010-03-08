@@ -36,14 +36,24 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-    
+
 #include "nsISupports.idl"
 
 %{ C++
-#include "jsdebug.h"
-#include "nsAString.h"
+//#include "jsdebug.h"
+//#include "nsAString.h"
+class nsAString;
+class JSContext;
+class JSDContext;
+class JSRuntime;
+class JSDStackFrameInfo;
+class JSDThreadState;
+class JSDProperty;
+class JSDScript;
+class JSDValue;
+class JSDObject;
 %}
-    
+
 [ptr] native JSDContext(JSDContext);
 [ptr] native JSDObject(JSDObject);
 [ptr] native JSDProperty(JSDProperty);
@@ -190,12 +200,12 @@ interface jsdIDebuggerService : nsISupports
      * reduce the performance price you pay by enabling the debugger.
      */
     const unsigned long DISABLE_OBJECT_TRACE = 0x40;
-    
+
     /**
      * Debugger service flags.
      */
     attribute unsigned long flags;
-    
+
     /**
      * Major version number of implementation.
      */
@@ -208,7 +218,7 @@ interface jsdIDebuggerService : nsISupports
      * Free form string identifier for implementation.
      */
     readonly attribute string implementationString;
-    
+
     /**
      * |true| if the debugger should register an app-start observer in order
      * to begin collecting debug information when mozilla is launched.
@@ -217,7 +227,7 @@ interface jsdIDebuggerService : nsISupports
 
     /**
      * |true| if the debugger service has been turned on.  This does not
-     * necessarily mean another app is actively using the service, as the 
+     * necessarily mean another app is actively using the service, as the
      * autostart pref may have turned the service on.
      */
     readonly attribute boolean isOn;
@@ -265,17 +275,17 @@ interface jsdIDebuggerService : nsISupports
      * @return depth The number of remaining pending pause calls.
      */
     unsigned long unPause();
-    
+
     /**
      * Force the engine to perform garbage collection.
      */
     void GC();
-    
+
     /**
      * Clear profile data for all scripts.
      */
     void clearProfileData();
-    
+
     /**
      * Adds an execution hook filter.  These filters are consulted each time one
      * of the jsdIExecutionHooks is about to be called.  Filters are matched in
@@ -306,7 +316,7 @@ interface jsdIDebuggerService : nsISupports
     void removeFilter (in jsdIFilter filter);
     /**
      * Swap position of two filters.
-     * 
+     *
      * If |filter_a| is not present, this method throws NS_ERROR_INVALID_ARG.
      * If |filter_b| is not present, filter_a is replaced by filter_b.
      * If |filter_a| == |filter_b|, then filter is refreshed.
@@ -337,7 +347,7 @@ interface jsdIDebuggerService : nsISupports
      * Enumerate all known contexts.
      */
     void enumerateContexts (in jsdIContextEnumerator enumerator);
-    
+
     /**
      * Enumerate all scripts the debugger knows about.  Any scripts created
      * before you turned the debugger on, or after turning the debugger off
@@ -359,7 +369,7 @@ interface jsdIDebuggerService : nsISupports
      * defined error code.
      */
     jsdIValue wrapValue (/*in jsvalue value*/);
-    
+
     /* XXX these two routines are candidates for refactoring.  The only problem
      * is that it is not clear where and how they should land.
      */
@@ -420,7 +430,7 @@ interface jsdIFilter : nsISupports
      * FLAG_* values from above, OR'd together.
      */
     attribute unsigned long flags;
-    
+
     /**
      * An nsISupports version of the global object to be filtered.  A null glob
      * matches all hooks.  This attribute must be QI'able to the
@@ -430,7 +440,7 @@ interface jsdIFilter : nsISupports
      * swap the filter with itself using jsdIService::swapFilters.
      */
     attribute nsISupports globalObject;
-    
+
     /**
      * String representing the url pattern to be filtered.  Supports limited
      * glob matching, at the beginning and end of the pattern only.  For example,
@@ -556,7 +566,7 @@ interface jsdICallHook : nsISupports
      * Function is returning.
      */
     const unsigned long TYPE_FUNCTION_RETURN = 3;
-    
+
     /**
      * Called before the JavaScript engine executes a top level script or calls
      * a function.
@@ -571,7 +581,7 @@ interface jsdIErrorHook : nsISupports
      * REPORT_* values must be kept in sync with JSREPORT_* #defines in
      * jsapi.h
      */
-    
+
     /**
      * Report is an error.
      */
@@ -698,8 +708,8 @@ interface jsdIEphemeral : nsISupports
     /**
      * Mark this instance as invalid.
      */
-    [noscript] void invalidate(); 
-};    
+    [noscript] void invalidate();
+};
 
 /* handle objects */
 
@@ -756,7 +766,7 @@ interface jsdIContext : jsdIEphemeral
      * Private data for this context, if it is an nsISupports, |null| otherwise.
      */
     readonly attribute nsISupports   privateData;
-    
+
     /**
      * Retrieve the underlying context wrapped by this jsdIContext.
      */
@@ -792,7 +802,7 @@ interface jsdIStackFrame : jsdIEphemeral
     [noscript] readonly attribute JSDThreadState    JSDThreadState;
     /** Internal use only. */
     [noscript] readonly attribute JSDStackFrameInfo JSDStackFrameInfo;
-   
+
     /**
      * True if stack frame represents a native frame.
      */
@@ -853,7 +863,7 @@ interface jsdIStackFrame : jsdIEphemeral
      */
     boolean eval (in AString bytes, in string fileName,
                   in unsigned long line, out jsdIValue result);
-    
+
 };
 
 /**
@@ -867,7 +877,7 @@ interface jsdIScript : jsdIEphemeral
     [noscript] readonly attribute JSDContext JSDContext;
     /** Internal use only. */
     [noscript] readonly attribute JSDScript  JSDScript;
-    
+
     /**
      * Last version set on this context.
      * Scripts typically select this with the "language" attribute.
@@ -896,7 +906,7 @@ interface jsdIScript : jsdIEphemeral
      * The context flag JSD_DEBUG_WHEN_SET decides the logic.
      */
     const unsigned long FLAG_DEBUG   = 0x02;
-    
+
     /**
      * FLAG_* attributes from above, OR'd together.
      */
@@ -975,12 +985,12 @@ interface jsdIScript : jsdIEphemeral
      * in other called code.
      */
     readonly attribute double totalOwnExecutionTime;
-    
+
     /**
      * Clear profile data for this script.
      */
     void clearProfileData();
-    
+
     const unsigned long PCMAP_SOURCETEXT  = 1; /* map to actual source text    */
     const unsigned long PCMAP_PRETTYPRINT = 2; /* map to pretty printed source */
 
@@ -1042,7 +1052,7 @@ interface jsdIValue : jsdIEphemeral
      * |true| if the value represents a JavaScript primitive number or string
      */
     readonly attribute boolean isPrimitive;
-    
+
     /** Value is either |true| or |false|. */
     const unsigned long TYPE_BOOLEAN  = 0;
     /** Value is a primitive number that is too large to fit in an integer. */
@@ -1059,7 +1069,7 @@ interface jsdIValue : jsdIEphemeral
     const unsigned long TYPE_STRING   = 6;
     /** Value is void. */
     const unsigned long TYPE_VOID     = 7;
-    
+
     /**
      * One of the TYPE_* values above.
      */
@@ -1072,7 +1082,7 @@ interface jsdIValue : jsdIEphemeral
     /**
      * Parent value if this value represents an object, null if the value is not
      * an object or the object has no parent.
-     */    
+     */
     readonly attribute jsdIValue     jsParent;
     /**
      * Class name if this value represents an object.  Empty string if the value
@@ -1089,7 +1099,7 @@ interface jsdIValue : jsdIEphemeral
      * value is not a function.
      */
     readonly attribute string        jsFunctionName;
-    
+
     /**
      * Value if interpreted as a boolean.  Converts if necessary.
      */
@@ -1116,7 +1126,7 @@ interface jsdIValue : jsdIEphemeral
      * an object but has no properties.
      */
     readonly attribute long propertyCount;
-    
+
     /**
      * Retrieves all properties if this value represents an object.  If this
      * value is not an object a 0 element array is returned.
@@ -1210,7 +1220,7 @@ interface jsdIProperty : jsdIEphemeral
 
     /** visible to for/in loop */
     const unsigned long FLAG_ENUMERATE = 0x01;
-    /** assignment is error */    
+    /** assignment is error */
     const unsigned long FLAG_READONLY  = 0x02;
     /** property cannot be deleted */
     const unsigned long FLAG_PERMANENT = 0x04;
@@ -1250,10 +1260,10 @@ interface jsdIThreadState : nsISupports
 {
     [noscript] readonly attribute JSDContext     JSDContext;
     [noscript] readonly attribute JSDThreadState JSDThreadState;
-    
+
     readonly attribute unsigned long  frameCount;
     readonly attribute jsdIStackFrame topFrame;
-    
+
     attribute jsdIValue pendingException;
 };
 

@@ -21,8 +21,7 @@
 
 #include "jsd_function_info.h"
 
-#include "jsd_wrapper.h"
-
+#include "jsdIDebuggerService.h"
 #include "nsDebug.h"
 #include "nsStringAPI.h"
 #include "nsXPCOM.h"
