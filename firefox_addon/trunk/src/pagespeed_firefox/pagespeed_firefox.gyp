@@ -16,7 +16,8 @@
   'variables': {
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
     'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk',
-    'xulrunner_sdk_arch_root': '<(xulrunner_sdk_root)/arch/<(OS)/<(target_arch)'
+    'xulrunner_sdk_os_root': '<(xulrunner_sdk_root)/arch/<(OS)',
+    'xulrunner_sdk_arch_root': '<(xulrunner_sdk_os_root)/<(target_arch)',
   },
   'targets': [
     {
@@ -39,19 +40,17 @@
         ],
         'include_dirs': [
           '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
-          '<(xulrunner_sdk_root)/arch/<(OS)/all/include/nspr',
-          '<(xulrunner_sdk_root)/include/dom',
-          '<(xulrunner_sdk_root)/include/inspector',
-          '<(xulrunner_sdk_root)/include/layout',
-          '<(xulrunner_sdk_root)/include/necko',
-          '<(xulrunner_sdk_root)/include/string',
-          '<(xulrunner_sdk_root)/include/xpcom',
+          '<(xulrunner_sdk_root)/include',
+          '<(xulrunner_sdk_os_root)/all/include',
+        ],
+        'defines': [
+          'NO_NSPR_10_SUPPORT',
         ],
         'conditions': [  # See https://developer.mozilla.org/en/XPCOM_Glue
           ['OS == "linux"', {
             'cflags': [
               '-fshort-wchar',
-              '-include', '<(xulrunner_sdk_root)/include/xpcom/xpcom-config.h',
+              '-include', '<(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
             ],
             'ldflags': [
               '-L<(xulrunner_sdk_arch_root)/lib',
@@ -80,7 +79,7 @@
               ],
               'OTHER_CFLAGS': [
                 '-fshort-wchar',
-                '-include <(xulrunner_sdk_root)/include/xpcom/xpcom-config.h',
+                '-include <(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
               ],
             },
           }],
@@ -197,7 +196,6 @@
         '<(xulrunner_sdk_root)/idl/jsdIDebuggerService.idl',
         '<(activity_root)/basic_tree_view.cc',
         '<(activity_root)/check_gecko.cc',
-        '<(activity_root)/http_activity_distributor.cc',
         '<(activity_root)/jsd_call_hook.cc',
         '<(activity_root)/jsd_function_info.cc',
         '<(activity_root)/jsd_script_hook.cc',
