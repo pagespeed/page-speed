@@ -11,6 +11,7 @@ Page Speed native libraries build using the gyp build system. There are currentl
 To build Page Speed you will need to install the prerequisite software for your platform. You only need to get the prerequisites for your platform. Don't sync the Chromium source tree or anything like that.
 
   * [http://dev.chromium.org/developers/how-tos/build-instructions-windows#TOC-Prerequisite-software Windows]
+    * Note that we require Visual Studio 2008 (express edition is fine)
   * [http://code.google.com/p/chromium/wiki/LinuxBuildInstructionsPrerequisites Linux]
   * [http://code.google.com/p/chromium/wiki/MacBuildInstructions Mac OS X]. Additionally, install [http://www.macports.org/install.php MacPorts]. After installing !MacPorts, run `sudo port install libidl`.
 
