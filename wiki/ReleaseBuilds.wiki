@@ -3,7 +3,7 @@
 We build releases using the following environments:
 
   * Linux builds are performed on Ubuntu 6.10 using hammer.
-  * Windows builds are performed on Windows XP or Vista using Visual Studio 2005.
+  * Windows builds are performed on Windows XP or Vista using Visual Studio 2008 Express Edition.
   * Mac builds are performed on OSX 10.5 using xcodebuild.
 
 More details to come...
