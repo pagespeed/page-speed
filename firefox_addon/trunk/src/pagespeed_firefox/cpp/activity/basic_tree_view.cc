@@ -138,13 +138,16 @@ NS_IMETHODIMP BasicTreeView::IsContainerEmpty(
 }
 
 NS_IMETHODIMP BasicTreeView::CanDrop(
-    PRInt32 index, PRInt32 orientation, PRBool *retval) {
+    PRInt32 index,
+    PRInt32 orientation,
+    nsIDOMDataTransfer *dataTransfer,
+    PRBool *retval) {
   *retval = PR_FALSE;
   return NS_OK;
 }
 
 NS_IMETHODIMP BasicTreeView::Drop(
-    PRInt32 row, PRInt32 orientation) {
+    PRInt32 row, PRInt32 orientation, nsIDOMDataTransfer *dataTransfer) {
   return NS_OK;
 }
 
