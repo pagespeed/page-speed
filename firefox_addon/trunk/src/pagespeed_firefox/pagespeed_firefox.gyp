@@ -193,7 +193,6 @@
       ],
       'sources': [
         'idl/IActivityProfiler.idl',
-        '<(xulrunner_sdk_root)/idl/jsdIDebuggerService.idl',
         '<(activity_root)/basic_tree_view.cc',
         '<(activity_root)/check_gecko.cc',
         '<(activity_root)/jsd_call_hook.cc',
