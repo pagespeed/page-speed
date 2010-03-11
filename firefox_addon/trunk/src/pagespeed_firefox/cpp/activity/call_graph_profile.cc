@@ -149,12 +149,7 @@ void CallGraphProfile::Stop() {
   }
 }
 
-void CallGraphProfile::OnFunctionEntry() {
-  GCHECK(profiling());
-  call_graph_->OnFunctionEntry();
-}
-
-void CallGraphProfile::OnFunctionExit(
+void CallGraphProfile::OnFunctionEntry(
     FunctionInfoInterface *function_info) {
   GCHECK(profiling());
 
@@ -170,6 +165,16 @@ void CallGraphProfile::OnFunctionExit(
         function_info->GetFunctionSourceUtf8(),
         -1);
   }
+
+  call_graph_->OnFunctionEntry(tag);
+}
+
+void CallGraphProfile::OnFunctionExit(
+    FunctionInfoInterface *function_info) {
+  GCHECK(profiling());
+
+  const int32 tag = function_info->GetFunctionTag();
+  GCHECK(metadata_->HasEntry(tag));
 
   call_graph_->OnFunctionExit(tag);
 }

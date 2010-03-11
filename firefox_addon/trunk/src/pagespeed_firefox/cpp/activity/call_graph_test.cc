@@ -135,12 +135,12 @@ class CallGraphTest : public testing::Test {
       3
     */
 
-    graph_->OnFunctionEntry();  // 1
-    graph_->OnFunctionEntry();  // 2
-    graph_->OnFunctionEntry();  // 3
-    graph_->OnFunctionExit(3);  // 3
-    graph_->OnFunctionExit(2);  // 2
-    graph_->OnFunctionExit(1);  // 1
+    graph_->OnFunctionEntry(1);
+    graph_->OnFunctionEntry(2);
+    graph_->OnFunctionEntry(3);
+    graph_->OnFunctionExit(3);
+    graph_->OnFunctionExit(2);
+    graph_->OnFunctionExit(1);
   }
 
   void AppendTrace2() {
@@ -154,22 +154,22 @@ class CallGraphTest : public testing::Test {
        3    5
     */
 
-    graph_->OnFunctionEntry();  // 1
-    graph_->OnFunctionEntry();  // 2
-    graph_->OnFunctionEntry();  // 2
-    graph_->OnFunctionEntry();  // 3
-    graph_->OnFunctionExit(3);  // 3
-    graph_->OnFunctionEntry();  // 5
-    graph_->OnFunctionExit(5);  // 5
-    graph_->OnFunctionExit(2);  // 2
-    graph_->OnFunctionExit(2);  // 2
-    graph_->OnFunctionEntry();  // 4
-    graph_->OnFunctionExit(4);  // 4
-    graph_->OnFunctionEntry();  // 6
-    graph_->OnFunctionEntry();  // 5
-    graph_->OnFunctionExit(5);  // 5
-    graph_->OnFunctionExit(6);  // 6
-    graph_->OnFunctionExit(1);  // 1
+    graph_->OnFunctionEntry(1);
+    graph_->OnFunctionEntry(2);
+    graph_->OnFunctionEntry(2);
+    graph_->OnFunctionEntry(3);
+    graph_->OnFunctionExit(3);
+    graph_->OnFunctionEntry(5);
+    graph_->OnFunctionExit(5);
+    graph_->OnFunctionExit(2);
+    graph_->OnFunctionExit(2);
+    graph_->OnFunctionEntry(4);
+    graph_->OnFunctionExit(4);
+    graph_->OnFunctionEntry(6);
+    graph_->OnFunctionEntry(5);
+    graph_->OnFunctionExit(5);
+    graph_->OnFunctionExit(6);
+    graph_->OnFunctionExit(1);
   }
 
   void AssertTrace1(ToStringVisitor *visitor) {
@@ -327,10 +327,10 @@ TEST_F(CallGraphTest, IncompleteTraversalTest) {
 
   AppendTrace1();
 
-  graph_->OnFunctionEntry();  // 1
-  graph_->OnFunctionEntry();  // 2
-  graph_->OnFunctionExit(2);  // 2
-  graph_->OnFunctionEntry();  // 3
+  graph_->OnFunctionEntry(1);
+  graph_->OnFunctionEntry(2);
+  graph_->OnFunctionExit(2);
+  graph_->OnFunctionEntry(3);
 
   // tags and end times for nodes 1 and 3 are not known.
   ToStringVisitor visitor1;
@@ -359,10 +359,10 @@ TEST_F(CallGraphTest, DeleteIncompleteTest) {
 
   AppendTrace1();
 
-  graph_->OnFunctionEntry();  // 1
-  graph_->OnFunctionEntry();  // 2
-  graph_->OnFunctionExit(2);  // 2
-  graph_->OnFunctionEntry();  // 3
+  graph_->OnFunctionEntry(1);
+  graph_->OnFunctionEntry(2);
+  graph_->OnFunctionExit(2);
+  graph_->OnFunctionEntry(3);
 
   graph_.reset();
   profile_.reset();

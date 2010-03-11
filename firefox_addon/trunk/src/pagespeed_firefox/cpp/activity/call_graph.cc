@@ -37,7 +37,7 @@ CallGraph *CallGraph::CreateSnapshot() const {
   return graph;
 }
 
-void CallGraph::OnFunctionEntry() {
+void CallGraph::OnFunctionEntry(int32 tag) {
   CallTree* node = NULL;
   if (working_set_.empty()) {
     node = profile_->add_call_tree();
@@ -45,6 +45,7 @@ void CallGraph::OnFunctionEntry() {
     node = working_set_.back()->add_children();
   }
 
+  node->set_function_tag(tag);
   node->set_entry_time_usec(timer_->GetElapsedTimeUsec());
   working_set_.push_back(node);
 }
@@ -53,7 +54,20 @@ void CallGraph::OnFunctionExit(int32 tag) {
   GCHECK(!working_set_.empty());
 
   CallTree* node = working_set_.back();
-  node->set_function_tag(tag);
+  if (node->function_tag() != tag) {
+    // Special case: due to
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=546637, the entry
+    // and exit callbacks are mismatched by one when we're coming out
+    // of a paused profiler. Thus we need to pop one node in the event
+    // that we find a mismatch. This is hacky and should be removed
+    // once the mozilla bug is fixed.
+    node->set_exit_time_usec(timer_->GetElapsedTimeUsec());
+    working_set_.pop_back();
+    GCHECK(!working_set_.empty());
+    node = working_set_.back();
+  }
+
+  GCHECK(node->function_tag() == tag);
   node->set_exit_time_usec(timer_->GetElapsedTimeUsec());
   working_set_.pop_back();
 

@@ -104,9 +104,9 @@ class CallGraphTimelineTestBase : public testing::Test {
       Node 3 own time:    1usec (3-4)
     */
 
-    profile_->OnFunctionEntry();  // 1
-    profile_->OnFunctionEntry();  // 2
-    profile_->OnFunctionEntry();  // 3
+    profile_->OnFunctionEntry(function_info_1_.get());
+    profile_->OnFunctionEntry(function_info_2_.get());
+    profile_->OnFunctionEntry(function_info_3_.get());
     profile_->OnFunctionExit(function_info_3_.get());
     profile_->OnFunctionExit(function_info_2_.get());
     profile_->OnFunctionExit(function_info_1_.get());

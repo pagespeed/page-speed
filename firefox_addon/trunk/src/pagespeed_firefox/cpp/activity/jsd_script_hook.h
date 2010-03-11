@@ -39,10 +39,16 @@ class JsdScriptHook : public jsdIScriptHook {
 
   explicit JsdScriptHook(CallGraphProfile *profile);
 
+  // Whether or not to collect full call trees.
+  void set_collect_full_call_trees(bool full) {
+    collect_full_call_trees_ = full;
+  }
+
  private:
   ~JsdScriptHook();
 
   CallGraphProfile *const profile_;
+  bool collect_full_call_trees_;
 
   DISALLOW_COPY_AND_ASSIGN(JsdScriptHook);
 };

@@ -58,9 +58,7 @@ void CallGraphTimelineVisitor::OnEntry(
   const FunctionMetadata &data = *it->second;
   const char *identifier = data.file_name().c_str();
 
-  if (CallGraphProfile::ShouldIncludeInProfile(identifier)) {
-    RecordTimelineEvents(tree, identifier);
-  }
+  RecordTimelineEvents(tree, identifier);
 }
 
 void CallGraphTimelineVisitor::RecordTimelineEvents(
