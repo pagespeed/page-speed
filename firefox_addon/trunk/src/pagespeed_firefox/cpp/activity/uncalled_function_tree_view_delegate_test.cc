@@ -86,15 +86,15 @@ class UncalledFunctionTreeViewDelegateTest : public testing::Test {
     profile_->OnFunctionInstantiated(function_info_3_.get());
     clock_->current_time_usec_ += 1000;
 
-    profile_->OnFunctionEntry();  // 1
-    profile_->OnFunctionEntry();  // 1
-    profile_->OnFunctionEntry();  // 1
+    profile_->OnFunctionEntry(function_info_1_.get());
+    profile_->OnFunctionEntry(function_info_1_.get());
+    profile_->OnFunctionEntry(function_info_1_.get());
     profile_->OnFunctionExit(function_info_1_.get());
     profile_->OnFunctionExit(function_info_1_.get());
-    profile_->OnFunctionEntry();  // 2
-    profile_->OnFunctionEntry();  // 2
+    profile_->OnFunctionEntry(function_info_2_.get());
+    profile_->OnFunctionEntry(function_info_2_.get());
     profile_->OnFunctionExit(function_info_2_.get());
-    profile_->OnFunctionEntry();  // 1
+    profile_->OnFunctionEntry(function_info_1_.get());
     profile_->OnFunctionExit(function_info_1_.get());
     profile_->OnFunctionExit(function_info_2_.get());
     profile_->OnFunctionExit(function_info_1_.get());

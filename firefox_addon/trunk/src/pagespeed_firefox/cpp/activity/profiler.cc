@@ -181,6 +181,8 @@ NS_IMETHODIMP Profiler::Register(
       return rv;
     }
 
+    script_hook_->set_collect_full_call_trees(
+        collect_full_call_trees == PR_TRUE);
     rv = jsd->SetScriptHook(script_hook_);
     if (NS_FAILED(rv)) {
       LOG(ERROR) << "Error setting script hook";

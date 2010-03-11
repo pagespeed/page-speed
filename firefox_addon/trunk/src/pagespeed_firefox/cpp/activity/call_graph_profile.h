@@ -59,7 +59,7 @@ class CallGraphProfile {
   bool profiling() const { return profiling_; }
 
   // Called when a function has just been invoked.
-  void OnFunctionEntry();
+  void OnFunctionEntry(FunctionInfoInterface *function_info);
 
   // Called when a function has just returned.
   void OnFunctionExit(FunctionInfoInterface *function_info);
