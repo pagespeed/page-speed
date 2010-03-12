@@ -410,6 +410,7 @@
         '<(pagespeed_root)/pagespeed/core/pagespeed_input_test.cc',
         '<(pagespeed_root)/pagespeed/core/resource_test.cc',
         '<(pagespeed_root)/pagespeed/core/resource_filter_test.cc',
+        '<(pagespeed_root)/pagespeed/core/resource_util_test.cc',
         '<(pagespeed_root)/pagespeed/cssmin/cssmin_test.cc',
         '<(pagespeed_root)/pagespeed/filters/ad_filter_test.cc',
         '<(pagespeed_root)/pagespeed/filters/protocol_filter_test.cc',
