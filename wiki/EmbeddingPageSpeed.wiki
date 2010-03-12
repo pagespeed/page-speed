@@ -15,8 +15,8 @@ The human-readable summary output can be plain text, HTML, JSON, a protocol buff
 = Example Use =
 
 <code>
-/`*` First instantiate a !PagespeedInput instance. !PagespeedInput owns all of the
-   resources as well as a pointer to the DOM API if available. `*`/
+// First instantiate a !PagespeedInput instance. !PagespeedInput owns all of the
+// resources as well as a pointer to the DOM API if available.
 pagespeed::!PagespeedInput input;
 pagespeed::Resource `*`r = new pagespeed::Resource();
 r->!SetRequestUrl("http://www.example.com/");
@@ -30,7 +30,7 @@ r->!AddRequestHeader("Content-Encoding", "gzip");
 r->!SetResponseBody(...);
 input.!AddResource(r);
 
-/`*` Add another resource. `*`/
+// Add another resource.
 r = new pagespeed::Resource();
 r->!SetRequestUrl("http://static.example.com/main.js");
 r->!SetRequestMethod("GET");
@@ -42,32 +42,32 @@ r->!AddRequestHeader("Content-Encoding", "gzip");
 r->!SetResponseBody(...);
 input.!AddResource(r);
 
-/`*` Optionally, add other resources for the page being evaluated. `*`/
+// Optionally, add other resources for the page being evaluated.
 
-/`*` Create an STL vector to hold the rule instances. Each rule instance
-   implements one of the Page Speed best practices, 
-   e.g. "Enable compression" or "Minify !JavaScript". `*`/
+// Create an STL vector to hold the rule instances. Each rule instance
+// implements one of the Page Speed best practices, 
+// e.g. "Enable compression" or "Minify !JavaScript".
 std::vector<pagespeed::Rule*> rules;
 
-/`*` Don't save the optimized versions of !JavaScript, CSS, images. We can disable
-   this feature to limit memory consumption. `*`/
+// Don't save the optimized versions of !JavaScript, CSS, images. We can disable
+// this feature to limit memory consumption.
 bool save_optimized_content = false;
 
-/`*` We want to run all of the Page Speed rules. If DOM API is not available
-   we should call AppendNonDomRules instead. `*`/
+// We want to run all of the Page Speed rules. If DOM API is not available
+// we should call AppendNonDomRules instead.
 pagespeed::rule_provider::!AppendAllRules(save_optimized_content, &rules);
 
-/`*` Ownership of rules is transferred to the Engine instance. `*`/
+// Ownership of rules is transferred to the Engine instance.
 pagespeed::Engine engine(rules);
 engine.Init();
 
-/`*` Instantiate a formatter. This !TextFormatter will emit a plain-text
-   result summary to stdout. Other formatters are available and custom
-   formatters can be used as well. `*`/
+// Instantiate a formatter. This !TextFormatter will emit a plain-text
+// result summary to stdout. Other formatters are available and custom
+// formatters can be used as well.
 pagespeed::formatters::!TextFormatter formatter(&std::cout);
 
-/`*` Invoke the Engine. This will run each of the Rules on the !PagespeedInput
-   and emit the results as plain text to stdout. `*`/
+// Invoke the Engine. This will run each of the Rules on the !PagespeedInput
+// and emit the results as plain text to stdout.
 engine.!ComputeAndFormatResults(input, &formatter);
 </code>
 
