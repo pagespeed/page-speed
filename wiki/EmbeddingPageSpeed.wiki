@@ -47,7 +47,7 @@ input.!AddResource(r);
 // Create an STL vector to hold the rule instances. Each rule instance
 // implements one of the Page Speed best practices, 
 // e.g. "Enable compression" or "Minify !JavaScript".
-std::vector<pagespeed::Rule*> rules;
+std::vector<pagespeed::Rule`*`> rules;
 
 // Don't save the optimized versions of !JavaScript, CSS, images. We can disable
 // this feature to limit memory consumption.
