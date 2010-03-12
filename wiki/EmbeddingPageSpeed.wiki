@@ -15,7 +15,7 @@ The human-readable summary output can be plain text, HTML, JSON, a protocol buff
 = Example Use =
 
 <code>
-// First instantiate a PagespeedInput instance. PagespeedInput owns all of the resources
+// First instantiate a `PagespeedInput` instance. `PagespeedInput` owns all of the resources
 // as well as a pointer to the DOM API if available.
 pagespeed::PagespeedInput input;
 pagespeed::Resource *r = new pagespeed::Resource();
@@ -42,7 +42,7 @@ r->AddRequestHeader("Content-Encoding", "gzip");
 r->SetResponseBody(...);
 input.AddResource(r);
 
-// Add other resources.
+// Optionally, add other resources for the page being evaluated.
 
 // Create an STL vector to hold the rule instances. Each rule instance
 // implements one of the Page Speed best practices, 
