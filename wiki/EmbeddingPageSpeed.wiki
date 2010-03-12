@@ -66,8 +66,8 @@ engine.Init();
 // formatters can be used as well.
 pagespeed::formatters::!TextFormatter formatter(&std::cout);
 
-// Invoke the Engine. This will run each of the Rules on the !PagespeedInput
-// and emit the results as plain text to stdout.
+// Invoke the Engine. This will run each of the Rules on the
+// !PagespeedInput and emit the results as plain text to stdout.
 engine.!ComputeAndFormatResults(input, &formatter);
 </code>
 
