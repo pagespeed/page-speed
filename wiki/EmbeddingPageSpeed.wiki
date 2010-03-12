@@ -1,0 +1,71 @@
+#summary Explains how to embed Page Speed in other applications.
+
+= Introduction =
+
+Page Speed is a cross-platform embeddable web performance diagnostics library written in C++. The Page Speed library encapsulates the Page Speed [http://code.google.com/speed/page-speed/docs/rules_intro.html Web Performance Best Practices]. ...
+
+= Overview =
+
+Page Speed takes a set of HTTP resources as inputs, and produces either a set of structured result objects, or a human-readable summary, as outputs.
+
+The inputs include a set of Resource objects, each of which provides access to the attributes of an HTTP resource, such as request and response headers, request and response body, status code, etc. In addition, some Page Speed rules require access to a subset of the DOM API. The DOM API is optional; if an implementation of the DOM API is not provided then the rules that depend on DOM will not run.
+
+The human-readable summary output can be plain text, HTML, JSON, a protocol buffer, or any other format using the pluggable Page Speed formatter API.
+
+= Example Use =
+
+<code>
+// First instantiate a PagespeedInput instance. PagespeedInput owns all of the resources
+// as well as a pointer to the DOM API if available.
+pagespeed::PagespeedInput input;
+pagespeed::Resource *r = new pagespeed::Resource();
+r->SetRequestUrl("http://www.example.com/");
+r->SetRequestMethod("GET");
+r->AddRequestHeader("Cookie", "foo");
+r->AddRequestHeader("Accept-Encoding", "gzip, deflate");
+r->SetResponseStatusCode(200);
+r->AddRequestHeader("Content-Type", "text/html; charset=UTF8");
+r->AddRequestHeader("Content-Encoding", "gzip");
+// add other headers as appropriate
+r->SetResponseBody(...);
+input.AddResource(r);
+
+// Add another resource.
+r = new pagespeed::Resource();
+r->SetRequestUrl("http://static.example.com/main.js");
+r->SetRequestMethod("GET");
+r->AddRequestHeader("Accept-Encoding", "gzip, deflate");
+r->SetResponseStatusCode(200);
+r->AddRequestHeader("Content-Type", "application/x-javascript");
+r->AddRequestHeader("Content-Encoding", "gzip");
+// add other headers as appropriate
+r->SetResponseBody(...);
+input.AddResource(r);
+
+// Add other resources.
+
+// Create an STL vector to hold the rule instances. Each rule instance
+// implements one of the Page Speed best practices, 
+// e.g. "Enable compression" or "Minify JavaScript".
+std::vector<pagespeed::Rule*> rules;
+
+// Don't save the optimized versions of JavaScript, CSS, images. We can disable
+// this feature to limit memory consumption.
+bool save_optimized_content = false;
+
+// We want to run all of the Page Speed rules. If DOM API is not available
+// we should call AppendNonDomRules instead.
+pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+
+// Ownership of rules is transferred to the Engine instance.
+pagespeed::Engine engine(rules);
+engine.Init();
+
+// Instantiate a formatter. This TextFormatter will emit a plain-text result summary
+// to stdout. Other formatters are available and custom formatters can be used as well.
+pagespeed::formatters::TextFormatter formatter(&std::cout);
+
+// Invoke the Engine. This will run each of the Rules on the PagespeedInput
+// and emit the results as plain text to stdout.
+engine.ComputeAndFormatResults(input, &formatter);
+</code>
