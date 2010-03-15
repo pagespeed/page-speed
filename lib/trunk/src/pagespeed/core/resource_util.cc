@@ -38,43 +38,12 @@ int EstimateHeadersBytes(const std::map<std::string, std::string>& headers) {
   return total_size;
 }
 
-}  // namespace
-
-namespace pagespeed {
-
-namespace resource_util {
-
-int EstimateRequestBytes(const Resource& resource) {
-  int request_bytes = 0;
-
-  // Request line
-  request_bytes += resource.GetRequestMethod().size() + 1 /* space */ +
-      resource.GetRequestUrl().size()  + 1 /* space */ +
-      resource.GetRequestProtocol().size() + 2 /* \r\n */;
-
-  request_bytes += EstimateHeadersBytes(*resource.GetRequestHeaders());
-  request_bytes += resource.GetRequestBody().size();
-
-  return request_bytes;
-}
-
-int EstimateResponseBytes(const Resource& resource) {
-  int response_bytes = 0;
-  // TODO get compressed size or replace with section with actual
-  // download size.
-  // TODO improve the header size calculation below.
-  response_bytes += resource.GetResponseBody().size();
-  response_bytes += resource.GetResponseProtocol().size();
-  response_bytes += EstimateHeadersBytes(*resource.GetResponseHeaders());
-  return response_bytes;
-}
-
 // Enumerates HTTP header directives.
 class DirectiveEnumerator {
  public:
-  explicit DirectiveEnumerator(const std::string &header);
+  explicit DirectiveEnumerator(const std::string& header);
 
-  bool GetNext(std::string *key, std::string *value);
+  bool GetNext(std::string* key, std::string* value);
 
   bool done() const { return state_ == STATE_DONE; }
   bool error() const { return state_ == STATE_ERROR; }
@@ -92,18 +61,18 @@ class DirectiveEnumerator {
   bool CanTransition(State src, State dest) const;
   bool Transition(State dest);
 
-  bool GetNextInternal(std::string *key, std::string *value);
+  bool GetNextInternal(std::string* key, std::string* value);
   bool OnDelimiter(char c);
-  bool OnToken(std::string *key, std::string *value);
+  bool OnToken(std::string* key, std::string* value);
 
   std::string header_;
   StringTokenizer tok_;
   State state_;
 };
 
-DirectiveEnumerator::DirectiveEnumerator(const std::string &header)
+DirectiveEnumerator::DirectiveEnumerator(const std::string& header)
     : header_(header),
-      tok_(header_, ", ="),
+      tok_(header_, ",; ="),
       state_(STATE_START) {
   tok_.set_quote_chars("\"");
   tok_.set_options(StringTokenizer::RETURN_DELIMS);
@@ -149,7 +118,7 @@ bool DirectiveEnumerator::Transition(State dest) {
   return true;
 }
 
-bool DirectiveEnumerator::GetNext(std::string *key, std::string *value) {
+bool DirectiveEnumerator::GetNext(std::string* key, std::string* value) {
   if (error() || done()) {
     return false;
   }
@@ -179,8 +148,8 @@ bool DirectiveEnumerator::GetNext(std::string *key, std::string *value) {
   return done() || Transition(STATE_START);
 }
 
-bool DirectiveEnumerator::GetNextInternal(std::string *key,
-                                          std::string *value) {
+bool DirectiveEnumerator::GetNextInternal(std::string* key,
+                                          std::string* value) {
   if (error() || done()) {
     LOG(DFATAL) << "Terminal state " << state_;
     return false;
@@ -216,13 +185,14 @@ bool DirectiveEnumerator::OnDelimiter(char c) {
     case '=':
       return Transition(CONSUMED_EQ);
     case ',':
+    case ';':
       return Transition(STATE_START);
     default:
       return false;
   }
 }
 
-bool DirectiveEnumerator::OnToken(std::string *key, std::string *value) {
+bool DirectiveEnumerator::OnToken(std::string* key, std::string* value) {
   switch (state_) {
     case STATE_START:
       *key = tok_.token();
@@ -239,7 +209,38 @@ bool DirectiveEnumerator::OnToken(std::string *key, std::string *value) {
   }
 }
 
-bool GetCacheControlDirectives(const std::string &header, DirectiveMap *out) {
+}  // namespace
+
+namespace pagespeed {
+
+namespace resource_util {
+
+int EstimateRequestBytes(const Resource& resource) {
+  int request_bytes = 0;
+
+  // Request line
+  request_bytes += resource.GetRequestMethod().size() + 1 /* space */ +
+      resource.GetRequestUrl().size()  + 1 /* space */ +
+      resource.GetRequestProtocol().size() + 2 /* \r\n */;
+
+  request_bytes += EstimateHeadersBytes(*resource.GetRequestHeaders());
+  request_bytes += resource.GetRequestBody().size();
+
+  return request_bytes;
+}
+
+int EstimateResponseBytes(const Resource& resource) {
+  int response_bytes = 0;
+  // TODO get compressed size or replace with section with actual
+  // download size.
+  // TODO improve the header size calculation below.
+  response_bytes += resource.GetResponseBody().size();
+  response_bytes += resource.GetResponseProtocol().size();
+  response_bytes += EstimateHeadersBytes(*resource.GetResponseHeaders());
+  return response_bytes;
+}
+
+bool GetHeaderDirectives(const std::string& header, DirectiveMap* out) {
   DirectiveEnumerator e(header);
   std::string key;
   std::string value;

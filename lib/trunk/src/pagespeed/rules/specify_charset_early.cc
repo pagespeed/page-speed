@@ -14,11 +14,14 @@
 
 #include "pagespeed/rules/specify_charset_early.h"
 
+#include <algorithm>  // for search
+
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/html/html_tag.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -26,7 +29,72 @@ namespace {
 
 const int kLateThresholdBytes = 1024;
 
+bool HasCharsetInContentTypeHeader(const std::string& header) {
+  pagespeed::resource_util::DirectiveMap directives;
+  if (!pagespeed::resource_util::GetHeaderDirectives(header, &directives)) {
+    return false;
+  }
+
+  if (directives.find("charset") == directives.end()) {
+    return false;
+  }
+
+  return !directives["charset"].empty();
 }
+
+// Used to do a case-insensitive search.
+bool CaseInsensitiveBinaryPredicate(char x, char y) {
+  return ToLowerASCII(x) == ToLowerASCII(y);
+}
+
+bool HasCharsetInMetaTag(const std::string& body, size_t max_bytes_to_scan) {
+  const std::string meta_tag = "<meta";
+  std::string::const_iterator last_byte_to_scan =
+      body.begin() + max_bytes_to_scan;
+  std::string::const_iterator start_offset = body.begin();
+  while (start_offset < last_byte_to_scan) {
+    std::string::const_iterator meta_tag_it = std::search(
+        start_offset, last_byte_to_scan,
+        meta_tag.begin(), meta_tag.end(),
+        CaseInsensitiveBinaryPredicate);
+    if (meta_tag_it == last_byte_to_scan) {
+      // We've scanned the first max_bytes_to_scan bytes, so we're done.
+      return false;
+    }
+    start_offset = meta_tag_it + meta_tag.size();
+
+    // Check to see if there is a charset in the meta tag.
+    pagespeed::html::HtmlTag html_tag;
+    const char* meta_tag = html_tag.ReadTag(
+        // TODO: is this &* really necessary to switch from
+        // std::string::const_iterator to const char*?
+        &*meta_tag_it,
+        body.data() + body.size());
+    if (meta_tag == NULL) {
+      // Not a valid meta tag, so skip it.
+      continue;
+    }
+
+    if (!html_tag.HasAttrValue("http-equiv")) {
+      continue;
+    }
+
+    if (!LowerCaseEqualsASCII(
+            html_tag.GetAttrValue("http-equiv"), "content-type")) {
+      continue;
+    }
+
+    if (!html_tag.HasAttrValue("content")) {
+      continue;
+    }
+
+    if (HasCharsetInContentTypeHeader(html_tag.GetAttrValue("content"))) {
+      return true;
+    }
+  }
+}
+
+}  // namespace
 
 namespace pagespeed {
 
@@ -52,93 +120,59 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     const ResourceType resource_type = resource.GetResourceType();
-
     const std::string& content_type =
-      resource.GetResponseHeader("Content-Type");
+        resource.GetResponseHeader("Content-Type");
 
-    // Checks only HTML document for now, and assume HTML if
-    // the Content-Type is missing.
-    if (content_type.empty() || resource_type == HTML) {
-
-      // Check if CharSet exists
-      bool charset_exists = false;
-
-      int separator_idx = content_type.find(";");
-      if (separator_idx != std::string::npos) {
-        int charset_idx = content_type.find("charset=", separator_idx);
-        if (charset_idx != std::string::npos) {
-          charset_exists = true;
-        }
-      }
-
-      if (!charset_exists) {
-        // check for charset in response body
-        const std::string& body = resource.GetResponseBody();
-
-        // if the document is small, don't bother to check charset.
-        if (body.size() < kLateThresholdBytes) {
-          continue;
-        }
-
-        // TODO(lsong): use more efficent method to get the META tag.
-        // The html is first coverted to lowercase, so that we can
-        // find the meta tag in lowercase.
-        const std::string lower_case_body = StringToLowerASCII(body);
-
-        const char* htmlEnd = lower_case_body.c_str() +
-                              lower_case_body.size();
-
-        int start_offset = 0;
-        while (start_offset < lower_case_body.size()) {
-          int meta_charset_idx = lower_case_body.find("<meta", start_offset);
-          if (meta_charset_idx ==  std::string::npos ||
-              meta_charset_idx > kLateThresholdBytes) {
-            break;
-          }
-          start_offset = meta_charset_idx + strlen("<meta");
-
-          // check there is charset in the meta tag
-          html::HtmlTag htmlTag;
-          const char* metaTag = htmlTag.ReadTag(
-              lower_case_body.c_str() + meta_charset_idx,
-              htmlEnd);
-          if ( metaTag == NULL ) {
-            break;
-          }
-
-          if (htmlTag.HasAttrValue("http-equiv") &&
-              htmlTag.GetAttrValue("http-equiv") == "content-type" &&
-              htmlTag.HasAttrValue("content") ) {
-            const std::string& content = htmlTag.GetAttrValue("content");
-            const std::string collapsed_content =
-                CollapseWhitespaceASCII(content, true);
-            if ((collapsed_content.find("text/html; charset=") == 0 ||
-                 collapsed_content.find("text/html;charset=") == 0) &&
-                collapsed_content.size() > strlen("text/html;charset=")) {
-              charset_exists = true;
-              break;
-            }
-          }
-        }
-      }
-
-      if (!charset_exists) {
-        Result* result = results->add_results();
-        result->set_rule_name(name());
-
-        Savings* savings = result->mutable_savings();
-        savings->set_page_reflows_saved(1);
-
-        result->add_resource_urls(resource.GetRequestUrl());
+    if (resource_type != HTML) {
+      const bool might_be_html = resource_type == OTHER && content_type.empty();
+      if (!might_be_html) {
+        // This rule only applies to HTML resources. However, if the
+        // Content-Type header is not specified, it might be an HTML
+        // resource that's missing a Content-Type, so include it in
+        // the evaluation.
+        continue;
       }
     }
+
+    if (HasCharsetInContentTypeHeader(content_type)) {
+      // There is a valid charset in the Content-Type header, so don't
+      // flag this resource.
+      continue;
+    }
+
+    const std::string& body = resource.GetResponseBody();
+    if (body.size() < kLateThresholdBytes) {
+      // The response body is small, so this rule doesn't apply.
+      continue;
+    }
+
+    size_t max_bytes_to_scan = body.size();
+    if (body.size() > kLateThresholdBytes) {
+      max_bytes_to_scan = kLateThresholdBytes;
+    }
+    if (HasCharsetInMetaTag(body, max_bytes_to_scan)) {
+      // There is a valid charset in a <meta> tag, so don't flag this
+      // resource.
+      continue;
+    }
+
+    // There was no charset found in the Content-Type header or in the
+    // body, so we should flag a violation.
+
+    Result* result = results->add_results();
+    result->set_rule_name(name());
+
+    Savings* savings = result->mutable_savings();
+    savings->set_page_reflows_saved(1);
+
+    result->add_resource_urls(resource.GetRequestUrl());
   }
 
   return true;
 }
 
 void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
-                                     Formatter* formatter) {
+                                        Formatter* formatter) {
   if (results.empty()) {
     return;
   }
@@ -148,7 +182,6 @@ void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
       "or have a non-default character set specified late in the "
       "document. Specifying a character set early in these "
       "documents can speed up browser rendering.");
-
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
