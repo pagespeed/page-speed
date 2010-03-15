@@ -28,11 +28,13 @@ typedef std::map<std::string, std::string> DirectiveMap;
 int EstimateRequestBytes(const Resource& resource);
 int EstimateResponseBytes(const Resource& resource);
 
-// Parse cache control directives from the given Cache-Control header.
+// Parse directives from the given HTTP header.
 // For instance, if Cache-Control contains "private, max-age=0" we
 // expect the map to contain two pairs, one with key private and no
-// value, and the other with key max-age and value 0.
-bool GetCacheControlDirectives(const std::string &header, DirectiveMap *out);
+// value, and the other with key max-age and value 0. This method can
+// parse headers which uses either comma (, e.g. Cache-Control) or
+// semicolon (; e.g. Content-Type) as the directive separator.
+bool GetHeaderDirectives(const std::string& header, DirectiveMap* out);
 
 }  // namespace resource_util
 

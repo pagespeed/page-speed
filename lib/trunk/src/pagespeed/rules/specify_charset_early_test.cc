@@ -80,10 +80,12 @@ class SpecifyCharsetEarlyTest : public ::testing::Test {
 };
 
 TEST_F(SpecifyCharsetEarlyTest, CharsetInHeader) {
+  std::string html = "Hello world";
+  html.append(kLateThresholdBytes, ' ');
   AddTestResource("http://www.example.com/hello.html",
                   "Content-Type",
                   "text/html; charset=utf-8",
-                  "Hello world");
+                  html);
   CheckNoViolations();
 }
 
@@ -103,11 +105,30 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetEarlyInHtml) {
   CheckNoViolations();
 }
 
+TEST_F(SpecifyCharsetEarlyTest, CharsetSecondInHtml) {
+  std::string html = "<html><head><meta foo=\"bar\">"
+                     "<meta http-equiv=\"Content-Type\" "
+                     "content=\"text/html;   charset= utf-8\"></head><body>"
+                     "Hello world"
+                     "</body></html>";
+
+  // pad spaces to make the html big
+  html.append(kLateThresholdBytes, ' ');
+
+  AddTestResource("http://www.example.com/hello.html",
+                  "",
+                  "",
+                  html);
+  CheckNoViolations();
+}
+
 TEST_F(SpecifyCharsetEarlyTest, NoSpaceCharsetEarlyInHtml) {
   std::string html = "<html><head><meta http-equiv=\"Content-Type\" "
                      "content=\"text/html;charset= utf-8\"></head><body>"
                      "Hello world"
                      "</body></html>";
+  // pad spaces to make the html big
+  html.append(kLateThresholdBytes, ' ');
   AddTestResource("http://www.example.com/hello.html",
                   "",
                   "",
@@ -131,15 +152,15 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetLateInHtml) {
   CheckOneViolation("http://www.example.com/hello.html");
 }
 
-
 TEST_F(SpecifyCharsetEarlyTest, NotHtmlContent) {
+  std::string html = "Hello world";
+  html.append(kLateThresholdBytes, ' ');
   AddTestResource("http://www.example.com/hello.html",
                   "Content-Type",
                   "text/javascript",
-                  "Hello, world!");
+                  html);
   CheckNoViolations();
 }
-
 
 TEST_F(SpecifyCharsetEarlyTest, MissingCharset) {
   std::string html = "<html><body>"
@@ -231,6 +252,5 @@ TEST_F(SpecifyCharsetEarlyTest, TwoResourcesMissingCharset) {
 
   CheckOneViolation("http://www.example.com/hello2.html");
 }
-
 
 }  // namespace
