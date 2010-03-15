@@ -209,6 +209,23 @@ bool DirectiveEnumerator::OnToken(std::string* key, std::string* value) {
   }
 }
 
+// Should we use a heurisitc based on the resource type to determine
+// if a resource is a static resource?
+bool ShouldApplyResourceTypeHeuristic(const pagespeed::Resource& resource) {
+  switch (resource.GetResponseStatusCode()) {
+    case 300:
+    case 301:
+    case 410:
+      // These status codes aren't directly associated with responses
+      // that contain a specific type of content. Thus, we should not
+      // apply a resource type heuristic to these responses.
+      return false;
+
+    default:
+      return true;
+  }
+}
+
 }  // namespace
 
 namespace pagespeed {
@@ -261,6 +278,120 @@ bool GetHeaderDirectives(const std::string& header, DirectiveMap* out) {
     out->clear();
     return false;
   }
+  return true;
+}
+
+bool HasExplicitNoCacheDirective(const Resource& resource) {
+  DirectiveMap cache_directives;
+  if (!GetHeaderDirectives(resource.GetResponseHeader("Cache-Control"),
+                           &cache_directives)) {
+    LOG(ERROR) << "Failed to parse cache control directives for "
+               << resource.GetRequestUrl();
+    return true;
+  }
+
+  if (cache_directives.find("no-cache") != cache_directives.end()) {
+    return true;
+  }
+  if (cache_directives.find("no-store") != cache_directives.end()) {
+    return true;
+  }
+  if (cache_directives.find("must-revalidate") != cache_directives.end()) {
+    return true;
+  }
+  // TODO: other cache-control directives we should include here?
+
+  const std::string& pragma = resource.GetResponseHeader("Pragma");
+  if (pragma.find("no-cache") != pragma.npos) {
+    return true;
+  }
+
+  return false;
+}
+
+bool IsCacheableResponseStatusCode(int code) {
+  switch (code) {
+    // HTTP/1.1 RFC lists these response codes as cacheable in the
+    // absence of explicit caching headers.
+    case 300:
+    case 301:
+    case 410:
+    case 200:
+    case 203:
+    case 206:
+      return true;
+
+    // In addition, 304s are sent for cacheable resources. Though
+    // the 304 response itself is not cacheable, the underlying
+    // resource is, and that's what we care about.
+    case 304:
+      return true;
+
+    default:
+      return false;
+  }
+}
+
+bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
+  switch (type) {
+    case IMAGE:
+    case CSS:
+    case JS:
+      // These resources are almost always cacheable.
+      return true;
+
+    case REDIRECT:
+      // Redirects can be cacheable.
+      return true;
+
+    case OTHER:
+      // If other, some content types (e.g. flash, video) are static
+      // while others are not. Be conservative for now and assume
+      // non-cacheable.
+      //
+      // TODO: perhaps if there's a common mime prefix for the
+      // cacheable types (e.g. application/), check to see that the
+      // prefix is present.
+      return false;
+
+    default:
+      return false;
+  }
+}
+
+bool IsLikelyStaticResource(const Resource& resource) {
+  if (HasExplicitNoCacheDirective(resource)) {
+    // If the resource has an explicit non-cacheable directive in its
+    // headers, then we don't consider it to be a static resource.
+    return false;
+  }
+
+  if (!IsCacheableResponseStatusCode(resource.GetResponseStatusCode())) {
+    // If the response's status code is typically non-cacheable, it
+    // can't be a static resource.
+    return false;
+  }
+
+  // TODO: parse Expires and Cache-Control max-age. If in the past,
+  // the resource is not cacheable.
+
+  if (ShouldApplyResourceTypeHeuristic(resource) &&
+      !IsLikelyStaticResourceType(resource.GetResourceType())) {
+    return false;
+  }
+
+  const std::string& url = resource.GetRequestUrl();
+  if (url.find_first_of('?') != url.npos) {
+    // This is a debatable policy. The HTTP RFC does indicate that the
+    // presence of a query string indicates non-cacheability, but in
+    // practice, many cacheable resources do contain a query
+    // string. For now we assume that the presence of the query string
+    // indicates non-cacheability.
+    return false;
+  }
+
+  // The resource passed all of the checks, so it appears to be
+  // static.
   return true;
 }
 
