@@ -17,6 +17,8 @@
 
 #include <map>
 
+#include "pagespeed/core/resource.h"
+
 namespace pagespeed {
 
 class Resource;
@@ -35,6 +37,11 @@ int EstimateResponseBytes(const Resource& resource);
 // parse headers which uses either comma (, e.g. Cache-Control) or
 // semicolon (; e.g. Content-Type) as the directive separator.
 bool GetHeaderDirectives(const std::string& header, DirectiveMap* out);
+
+bool HasExplicitNoCacheDirective(const Resource& resource);
+bool IsCacheableResponseStatusCode(int code);
+bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
+bool IsLikelyStaticResource(const Resource& resource);
 
 }  // namespace resource_util
 

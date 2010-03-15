@@ -199,14 +199,17 @@ std::string Resource::GetProtocol() const {
 
 ResourceType Resource::GetResourceType() const {
   const int status_code = GetResponseStatusCode();
-  if (status_code != 200 && status_code != 304) {
-    if (status_code == 301 ||
-        status_code == 302 ||
-        status_code == 303 ||
-        status_code == 307) {
-      return REDIRECT;
-    }
+  if (status_code == 301 ||
+      status_code == 302 ||
+      status_code == 303 ||
+      status_code == 307) {
+    return REDIRECT;
+  }
 
+  if (status_code != 200 &&
+      status_code != 203 &&
+      status_code != 206 &&
+      status_code != 304) {
     return OTHER;
   }
 
