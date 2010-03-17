@@ -165,18 +165,6 @@ TEST_F(ResourceUtilTest, StaticResourceCacheControlNoStore) {
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceCacheControlMustRevalidate) {
-  // Base test: First specify a content type that's generally
-  // cacheable.
-  r_.AddResponseHeader("Content-Type", "image/png");
-  EXPECT_FALSE(resource_util::HasExplicitNoCacheDirective(r_));
-  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
-
-  r_.AddResponseHeader("Cache-Control", "must-revalidate");
-  EXPECT_TRUE(resource_util::HasExplicitNoCacheDirective(r_));
-  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
-}
-
 TEST_F(ResourceUtilTest, StaticResourcePagmaNoCache) {
   // Base test: First specify a content type that's generally
   // cacheable.
@@ -187,6 +175,30 @@ TEST_F(ResourceUtilTest, StaticResourcePagmaNoCache) {
   r_.AddResponseHeader("Pragma", "no-cache");
   EXPECT_TRUE(resource_util::HasExplicitNoCacheDirective(r_));
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
+}
+
+TEST_F(ResourceUtilTest, StaticResourceVaryAll) {
+  // Base test: First specify a content type that's generally
+  // cacheable.
+  r_.AddResponseHeader("Content-Type", "image/png");
+  EXPECT_FALSE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+
+  r_.AddResponseHeader("Vary", "*");
+  EXPECT_TRUE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
+}
+
+TEST_F(ResourceUtilTest, StaticResourceVaryContentEncoding) {
+  // Base test: First specify a content type that's generally
+  // cacheable.
+  r_.AddResponseHeader("Content-Type", "image/png");
+  EXPECT_FALSE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+
+  r_.AddResponseHeader("Vary", "Content-Encoding");
+  EXPECT_FALSE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
 TEST_F(ResourceUtilTest, QueryStringNotCacheable) {
@@ -310,6 +322,21 @@ TEST_F(ResourceUtilTest, StaticResourceStatusCodesContentType) {
   EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
       r_.GetResponseStatusCode()));
   EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+}
+
+TEST_F(ResourceUtilTest, ParseTimeValuedHeader) {
+  int64_t time = 0;
+  EXPECT_TRUE(resource_util::ParseTimeValuedHeader(
+      "Mon Mar 15 16:04:23 EDT 2010", &time));
+  EXPECT_EQ(1268683463000LL, time);
+
+  EXPECT_TRUE(resource_util::ParseTimeValuedHeader(
+      "22-AUG-1993 10:59:12", &time));
+  EXPECT_EQ(746031552000LL, time);
+
+  // Not valid date strings.
+  EXPECT_FALSE(resource_util::ParseTimeValuedHeader("0", &time));
+  EXPECT_FALSE(resource_util::ParseTimeValuedHeader("", &time));
 }
 
 }  // namespace

@@ -16,6 +16,7 @@
 
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
+#include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/resource.h"
 
 namespace {
@@ -296,13 +297,14 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
   if (cache_directives.find("no-store") != cache_directives.end()) {
     return true;
   }
-  if (cache_directives.find("must-revalidate") != cache_directives.end()) {
-    return true;
-  }
-  // TODO: other cache-control directives we should include here?
 
   const std::string& pragma = resource.GetResponseHeader("Pragma");
   if (pragma.find("no-cache") != pragma.npos) {
+    return true;
+  }
+
+  const std::string& vary = resource.GetResponseHeader("Vary");
+  if (vary.find("*") != vary.npos) {
     return true;
   }
 
@@ -357,6 +359,21 @@ bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
     default:
       return false;
   }
+}
+
+bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis) {
+  if (time_str == NULL || *time_str == '\0') {
+    *out_epoch_millis = 0;
+    return false;
+  }
+  PRTime result_time = 0;
+  PRStatus result = PR_ParseTimeString(time_str, PR_FALSE, &result_time);
+  if (PR_SUCCESS != result) {
+    return false;
+  }
+
+  *out_epoch_millis = result_time / 1000;
+  return true;
 }
 
 bool IsLikelyStaticResource(const Resource& resource) {

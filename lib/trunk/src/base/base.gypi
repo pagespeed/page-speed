@@ -18,6 +18,8 @@
         '<(chromium_root)/base/third_party/dmg_fp/dmg_fp.h',
         '<(chromium_root)/base/third_party/dmg_fp/dtoa.cc',
         '<(chromium_root)/base/third_party/dmg_fp/g_fmt.cc',
+        '<(chromium_root)/base/third_party/nspr/prtime.cc',
+        '<(chromium_root)/base/third_party/nspr/prtime.h',
         '<(chromium_root)/base/at_exit.cc',
         '<(chromium_root)/base/debug_util.cc',
         '<(chromium_root)/base/debug_util_mac.cc',
