@@ -41,6 +41,8 @@ bool GetHeaderDirectives(const std::string& header, DirectiveMap* out);
 bool HasExplicitNoCacheDirective(const Resource& resource);
 bool IsCacheableResponseStatusCode(int code);
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
+bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis);
+
 bool IsLikelyStaticResource(const Resource& resource);
 
 }  // namespace resource_util
