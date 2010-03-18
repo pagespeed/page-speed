@@ -13,7 +13,7 @@ To build Page Speed you will need to install the prerequisite software for your 
   * [http://dev.chromium.org/developers/how-tos/build-instructions-windows#TOC-Prerequisite-software Windows]
     * Note that we require Visual Studio 2008 (express edition is fine)
   * [http://code.google.com/p/chromium/wiki/LinuxBuildInstructionsPrerequisites Linux]
-  * [http://code.google.com/p/chromium/wiki/MacBuildInstructions Mac OS X]. Additionally, install [http://www.macports.org/install.php MacPorts]. After installing !MacPorts, run `sudo port install libidl`.
+  * [http://code.google.com/p/chromium/wiki/MacBuildInstructions Mac OS X]. Additionally, if you are building the Page Speed Firefox Add-On, install [http://www.macports.org/install.php MacPorts]. After installing !MacPorts, run `sudo port install libidl`.
 
 Regardless of platform, you will need to install the Chromium [http://dev.chromium.org/developers/how-tos/install-gclient depot tools].
 
