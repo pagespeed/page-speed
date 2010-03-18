@@ -350,6 +350,26 @@ bool IsCacheableResponseStatusCode(int code) {
   }
 }
 
+bool ShouldHaveADateHeader(const Resource& resource) {
+  // Based on
+  // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.18
+  const int code = resource.GetResponseStatusCode();
+  if (500 <= code && code < 600) {
+    // 5xx server error responses are not required to include a Date
+    // header.
+    return false;
+  }
+
+  switch (resource.GetResponseStatusCode()) {
+    case 100:
+    case 101:
+      return false;
+    default:
+      // All other responses should include a Date header.
+      return true;
+  }
+}
+
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
   switch (type) {
     case IMAGE:

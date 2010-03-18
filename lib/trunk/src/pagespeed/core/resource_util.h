@@ -48,6 +48,13 @@ bool HasExplicitNoCacheDirective(const Resource& resource);
 // generally cacheable but 204 is not.
 bool IsCacheableResponseStatusCode(int code);
 
+// Should the given resource include a Date header? Most responses
+// require a date header, but a few categories of responses may omit the
+// Date header. See
+// http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.18 for
+// additional information.
+bool ShouldHaveADateHeader(const Resource& resource);
+
 // Is the given resource type usually associated wiht static resources?
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
 
