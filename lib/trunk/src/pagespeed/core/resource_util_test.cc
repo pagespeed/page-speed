@@ -141,7 +141,9 @@ TEST_F(HeaderDirectiveTest, BadHeaderDirectives) {
   AssertBadHeaderDirectives("foo=bar, \"foo bar\"");
 }
 
-TEST_F(ResourceUtilTest, StaticResourceCacheControlNoCache) {
+class StaticResourceTest : public ResourceUtilTest {};
+
+TEST_F(StaticResourceTest, CacheControlNoCache) {
   // Base test: First specify a content type that's generally
   // cacheable.
   r_.AddResponseHeader("Content-Type", "image/png");
@@ -153,7 +155,7 @@ TEST_F(ResourceUtilTest, StaticResourceCacheControlNoCache) {
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceCacheControlNoStore) {
+TEST_F(StaticResourceTest, CacheControlNoStore) {
   // Base test: First specify a content type that's generally
   // cacheable.
   r_.AddResponseHeader("Content-Type", "image/png");
@@ -165,7 +167,7 @@ TEST_F(ResourceUtilTest, StaticResourceCacheControlNoStore) {
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourcePagmaNoCache) {
+TEST_F(StaticResourceTest, PagmaNoCache) {
   // Base test: First specify a content type that's generally
   // cacheable.
   r_.AddResponseHeader("Content-Type", "image/png");
@@ -177,7 +179,7 @@ TEST_F(ResourceUtilTest, StaticResourcePagmaNoCache) {
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceVaryAll) {
+TEST_F(StaticResourceTest, VaryAll) {
   // Base test: First specify a content type that's generally
   // cacheable.
   r_.AddResponseHeader("Content-Type", "image/png");
@@ -189,7 +191,7 @@ TEST_F(ResourceUtilTest, StaticResourceVaryAll) {
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceVaryContentEncoding) {
+TEST_F(StaticResourceTest, VaryContentEncoding) {
   // Base test: First specify a content type that's generally
   // cacheable.
   r_.AddResponseHeader("Content-Type", "image/png");
@@ -201,7 +203,7 @@ TEST_F(ResourceUtilTest, StaticResourceVaryContentEncoding) {
   EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, QueryStringNotCacheable) {
+TEST_F(StaticResourceTest, QueryStringNotCacheable) {
   // First specify a content type that's known to be generally cacheable.
   r_.AddResponseHeader("Content-Type", "image/png");
 
@@ -213,59 +215,54 @@ TEST_F(ResourceUtilTest, QueryStringNotCacheable) {
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceNoContentType) {
+TEST_F(StaticResourceTest, NoContentType) {
   ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
   ASSERT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceHtml) {
+TEST_F(StaticResourceTest, Html) {
   r_.AddResponseHeader("Content-Type", "text/html");
   ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
   ASSERT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceText) {
+TEST_F(StaticResourceTest, Text) {
   r_.AddResponseHeader("Content-Type", "text/plain");
   ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
   ASSERT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceCss) {
+TEST_F(StaticResourceTest, Css) {
   r_.AddResponseHeader("Content-Type", "text/css");
   ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
   ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceImage) {
+TEST_F(StaticResourceTest, Image) {
   r_.AddResponseHeader("Content-Type", "image/png");
   ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
   ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceJavascript) {
+TEST_F(StaticResourceTest, Javascript) {
   r_.AddResponseHeader("Content-Type", "application/x-javascript");
   ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
   ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
-TEST_F(ResourceUtilTest, StaticResourceUnknownContentType) {
+TEST_F(StaticResourceTest, UnknownContentType) {
   r_.AddResponseHeader("Content-Type", "foo");
   ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
   ASSERT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
-// Tests for status codes that are cacheable for all content types.
-TEST_F(ResourceUtilTest, StaticResourceStatusCodes1) {
+TEST_F(StaticResourceTest, AlwaysCacheableStatusCodes) {
   // Base test: First specify a content type that's generally
   // non-cacheable.
   r_.AddResponseHeader("Content-Type", "text/html");
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 
   // A few codes are cacheable regardless of content type.
-  //
-  // TODO: do browsers automatically mark these a cacheable forever?
-  // If so there's not much we can suggest to make them more
-  // cacheable.
   r_.SetResponseStatusCode(300);
   EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
       r_.GetResponseStatusCode()));
@@ -284,7 +281,7 @@ TEST_F(ResourceUtilTest, StaticResourceStatusCodes1) {
 
 // Tests for status codes that are cacheable for generally cacheable
 // content types.
-TEST_F(ResourceUtilTest, StaticResourceStatusCodesContentType) {
+TEST_F(StaticResourceTest, StatusCodesContentType) {
   // Base test: First specify a content type that's generally
   // cacheable.
   r_.AddResponseHeader("Content-Type", "image/png");
@@ -324,6 +321,18 @@ TEST_F(ResourceUtilTest, StaticResourceStatusCodesContentType) {
   EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
+TEST_F(StaticResourceTest, Expired) {
+  // Base test: First specify a content type that's generally
+  // cacheable.
+  r_.AddResponseHeader("Content-Type", "image/png");
+  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+
+  // Add a header indicating that the resource is not fresh and verify
+  // that it's no longer considered a static resource.
+  r_.AddResponseHeader("Cache-Control", "max-age=0");
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
+}
+
 TEST_F(ResourceUtilTest, ParseTimeValuedHeader) {
   int64_t time = 0;
   EXPECT_TRUE(resource_util::ParseTimeValuedHeader(
@@ -337,6 +346,109 @@ TEST_F(ResourceUtilTest, ParseTimeValuedHeader) {
   // Not valid date strings.
   EXPECT_FALSE(resource_util::ParseTimeValuedHeader("0", &time));
   EXPECT_FALSE(resource_util::ParseTimeValuedHeader("", &time));
+}
+
+class GetFreshnessLifetimeTest : public ResourceUtilTest {
+ protected:
+  virtual void SetUp() {
+    ResourceUtilTest::SetUp();
+    freshness_lifetime_ = 0LL;
+  }
+  int64_t freshness_lifetime_;
+};
+
+TEST_F(GetFreshnessLifetimeTest, NoHeaders) {
+  EXPECT_FALSE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                         &freshness_lifetime_));
+}
+
+TEST_F(GetFreshnessLifetimeTest, CacheControlNoMaxAge) {
+  r_.AddResponseHeader("Cache-Control", "foo=bar");
+  EXPECT_FALSE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                         &freshness_lifetime_));
+}
+
+TEST_F(GetFreshnessLifetimeTest, EmptyMaxAge) {
+  r_.AddResponseHeader("Cache-Control", "max-age=");
+  EXPECT_FALSE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                         &freshness_lifetime_));
+}
+
+TEST_F(GetFreshnessLifetimeTest, MaxAge1) {
+  r_.AddResponseHeader("Cache-Control", "max-age=0");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(0LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, MaxAge2) {
+  r_.AddResponseHeader("Cache-Control", "max-age=10");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(10LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, BadMaxAge) {
+  r_.AddResponseHeader("Cache-Control", "max-age=foo");
+  EXPECT_FALSE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                         &freshness_lifetime_));
+}
+
+TEST_F(GetFreshnessLifetimeTest, BadExpires) {
+  r_.AddResponseHeader("Expires", "0");
+  r_.AddResponseHeader("Date", "Tue, 16 Mar 2010 16:08:25 EDT");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(0LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, FutureExpiresWithDate) {
+  r_.AddResponseHeader("Expires", "Wed, 17 Mar 2010 16:08:25 EDT");
+  r_.AddResponseHeader("Date", "Tue, 16 Mar 2010 16:08:25 EDT");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(86400000LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, PastExpiresWithDate) {
+  r_.AddResponseHeader("Expires", "Tue, 16 Mar 2010 16:08:25 EDT");
+  r_.AddResponseHeader("Date", "Wed, 17 Mar 2010 16:08:25 EDT");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(0LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, ExpiresNoDateUsesResponseTime) {
+  int64_t response_time_millis = 0;
+  ASSERT_TRUE(resource_util::ParseTimeValuedHeader(
+      "Tue, 16 Mar 2010 16:08:25 EDT", &response_time_millis));
+  r_.SetResponseTimeMillis(response_time_millis);
+  r_.AddResponseHeader("Expires", "Wed, 17 Mar 2010 16:08:25 EDT");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(86400000LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, ExpiresNoDateNoResponseTime) {
+  r_.AddResponseHeader("Expires", "Wed, 17 Mar 2010 16:08:25 EDT");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(0LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {
+  r_.AddResponseHeader("Expires", "Wed, 17 Mar 2010 16:08:25 EDT");
+  r_.AddResponseHeader("Date", "Tue, 16 Mar 2010 16:08:25 EDT");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(86400000LL, freshness_lifetime_);
+
+  // Now add a max-age header, and verify that it's preferred to the
+  // Expires value.
+  r_.AddResponseHeader("Cache-Control", "max-age=100");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(100LL, freshness_lifetime_);
 }
 
 }  // namespace

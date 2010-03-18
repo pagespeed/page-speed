@@ -42,7 +42,10 @@ std::string GetNormalizedIdentifier(const std::string& name) {
 
 namespace pagespeed {
 
-Resource::Resource() : status_code_(-1), lazy_loaded_(false) {
+Resource::Resource()
+    : status_code_(-1),
+      response_time_millis_(-1),
+      lazy_loaded_(false) {
 }
 
 Resource::~Resource() {
@@ -108,6 +111,10 @@ void Resource::SetResponseBody(const std::string& value) {
   response_body_ = value;
 }
 
+void Resource::SetResponseTimeMillis(int64_t response_time_millis) {
+  response_time_millis_ = response_time_millis;
+}
+
 
 void Resource::SetLazyLoaded() {
   lazy_loaded_ = true;
@@ -154,6 +161,10 @@ const std::map<std::string, std::string>* Resource::GetResponseHeaders() const {
 
 const std::string& Resource::GetResponseBody() const {
   return response_body_;
+}
+
+int64_t Resource::GetResponseTimeMillis() const {
+  return response_time_millis_;
 }
 
 bool Resource::IsLazyLoaded() const {

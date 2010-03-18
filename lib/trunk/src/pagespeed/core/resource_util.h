@@ -38,11 +38,36 @@ int EstimateResponseBytes(const Resource& resource);
 // semicolon (; e.g. Content-Type) as the directive separator.
 bool GetHeaderDirectives(const std::string& header, DirectiveMap* out);
 
+// Does the resource have an explicit HTTP header directive that
+// indicates it's not cacheable? For instance, Cache-Control: no-cache or
+// Pragma: no-cache.
 bool HasExplicitNoCacheDirective(const Resource& resource);
+
+// Is the given response code known to be generally cacheable in the
+// absence of other HTTP caching headers? For instance, 200 is
+// generally cacheable but 204 is not.
 bool IsCacheableResponseStatusCode(int code);
+
+// Is the given resource type usually associated wiht static resources?
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
+
+// Take a time-valued header like Date, and convert it to number of
+// milliseconds since epoch. Returns true if the conversion succeeded,
+// false otherwise, The out parameter is only valid when this function
+// returns true.
 bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis);
 
+// Get the freshness lifetime of hte given resource, using the
+// algorithm described in the HTTP/1.1 RFC. Returns true if the
+// resource has an explicit freshness lifetime, false otherwise.
+// The out parameter is only valid when this function returns true.
+bool GetFreshnessLifetimeMillis(const Resource& resource,
+                                int64_t *out_freshness_lifetime_millis);
+
+// Is the given resource likely to be a static resource. We use
+// various heuristics based on caching headers, resource type, freshness
+// lifetime, etc. to determine if the resource is likely to be a static
+// resource.
 bool IsLikelyStaticResource(const Resource& resource);
 
 }  // namespace resource_util

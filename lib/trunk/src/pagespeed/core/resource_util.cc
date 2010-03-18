@@ -16,6 +16,7 @@
 
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
+#include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/resource.h"
 
@@ -227,6 +228,21 @@ bool ShouldApplyResourceTypeHeuristic(const pagespeed::Resource& resource) {
   }
 }
 
+// Is the resource expired?
+bool IsExpired(const pagespeed::Resource& resource) {
+  int64_t freshness_lifetime_millis = 0;
+  if (pagespeed::resource_util::GetFreshnessLifetimeMillis(
+          resource,
+          &freshness_lifetime_millis) &&
+      freshness_lifetime_millis <= 0) {
+    // The resource is explicitly not cacheable, so it can't be a
+    // static resource.
+    return true;
+  }
+
+  return false;
+}
+
 }  // namespace
 
 namespace pagespeed {
@@ -376,6 +392,82 @@ bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis) {
   return true;
 }
 
+bool GetFreshnessLifetimeMillis(const Resource& resource,
+                                int64_t *out_freshness_lifetime_millis) {
+  // Initialize the output param to the default value. We do this in
+  // case clients use the out value without checking the return value
+  // of the function.
+  *out_freshness_lifetime_millis = 0;
+
+  const int64_t resource_response_time_millis =
+      resource.GetResponseTimeMillis();
+
+  // First, look for Cache-Control: max-age. The HTTP/1.1 RFC
+  // indicates that CC: max-age takes precedence to Expires.
+  const std::string& cache_control =
+      resource.GetResponseHeader("Cache-Control");
+  DirectiveMap cache_directives;
+  if (!GetHeaderDirectives(cache_control, &cache_directives)) {
+    LOG(ERROR) << "Failed to parse cache control directives for "
+               << resource.GetRequestUrl();
+  } else {
+    DirectiveMap::const_iterator it = cache_directives.find("max-age");
+    if (it != cache_directives.end()) {
+      int64_t max_age_value = 0;
+      if (StringToInt64(it->second, &max_age_value)) {
+        *out_freshness_lifetime_millis = max_age_value;
+        return true;
+      }
+    }
+  }
+
+  // Next look for Expires.
+  const std::string& expires = resource.GetResponseHeader("Expires");
+  if (expires.empty()) {
+    // If there's no expires header and we previously determined there
+    // was no Cache-Control: max-age, then the resource doesn't have
+    // an explicit freshness lifetime.
+    return false;
+  }
+
+  // We've determined that there is an Expires header. Thus, the
+  // resource has a freshness lifetime. Even if the Expires header
+  // doesn't contain a valid date, it should be considered stale. From
+  // HTTP/1.1 RFC 14.21: "HTTP/1.1 clients and caches MUST treat other
+  // invalid date formats, especially including the value "0", as in
+  // the past (i.e., "already expired")."
+
+  const std::string& date = resource.GetResponseHeader("Date");
+  int64_t date_value = 0;
+  if (date.empty() || !ParseTimeValuedHeader(date.c_str(), &date_value)) {
+    if (resource_response_time_millis <= 0) {
+      LOG(ERROR) << "Invalid resource response time. Assuming resource "
+                 << resource.GetRequestUrl() << " is not cacheable.";
+      // We have an Expires header, but no Date header to reference
+      // from. Thus we assume that the resource is not cacheable.
+      return true;
+    }
+    // If there's no valid date header, use the resource response
+    // time. This is the behavior of Chrome, IE8, Firefox 3.6, and
+    // Safari.
+    date_value = resource_response_time_millis;
+  }
+
+  int64_t expires_value = 0;
+  if (!ParseTimeValuedHeader(expires.c_str(), &expires_value)) {
+    // If we can't parse the Expires header, then treat the resource as
+    // stale.
+    return true;
+  }
+
+  int64_t freshness_lifetime_millis = expires_value - date_value;
+  if (freshness_lifetime_millis < 0) {
+    freshness_lifetime_millis = 0;
+  }
+  *out_freshness_lifetime_millis = freshness_lifetime_millis;
+  return true;
+}
+
 bool IsLikelyStaticResource(const Resource& resource) {
   if (HasExplicitNoCacheDirective(resource)) {
     // If the resource has an explicit non-cacheable directive in its
@@ -389,11 +481,17 @@ bool IsLikelyStaticResource(const Resource& resource) {
     return false;
   }
 
-  // TODO: parse Expires and Cache-Control max-age. If in the past,
-  // the resource is not cacheable.
+  if (IsExpired(resource)) {
+    // The resource is already expired, so it can't be a static
+    // resource.
+    return false;
+  }
 
   if (ShouldApplyResourceTypeHeuristic(resource) &&
       !IsLikelyStaticResourceType(resource.GetResourceType())) {
+    // Certain types of resources (e.g. JS, CSS, images) are typically
+    // static. If the resource isn't one of these types, assume it's
+    // not static.
     return false;
   }
 
