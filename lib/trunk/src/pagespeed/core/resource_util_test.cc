@@ -451,4 +451,19 @@ TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {
   EXPECT_EQ(100LL, freshness_lifetime_);
 }
 
+TEST_F(ResourceUtilTest, ShouldHaveADateHeader) {
+  ASSERT_TRUE(resource_util::ShouldHaveADateHeader(r_));
+
+  r_.SetResponseStatusCode(100);
+  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
+  r_.SetResponseStatusCode(101);
+  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
+  r_.SetResponseStatusCode(500);
+  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
+  r_.SetResponseStatusCode(501);
+  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
+  r_.SetResponseStatusCode(503);
+  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
+}
+
 }  // namespace
