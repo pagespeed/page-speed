@@ -58,9 +58,6 @@ class Resource {
   void AddResponseHeader(const std::string& name, const std::string& value);
   void SetResponseBody(const std::string& value);
 
-  // Response time, in number of milliseconds since epoch.
-  void SetResponseTimeMillis(int64_t response_time_millis);
-
   // The resource is lazy-loaded if the request time is after
   // the window's onLoad time. Many of the page-speed rules
   // do not apply to lazy-loaded resources.
@@ -76,7 +73,6 @@ class Resource {
   const std::string& GetResponseProtocol() const;
   const std::string& GetResponseHeader(const std::string& name) const;
   const std::string& GetResponseBody() const;
-  int64_t GetResponseTimeMillis() const;
   bool IsLazyLoaded() const;
 
   // For serialization purposes only.
@@ -106,7 +102,6 @@ class Resource {
   std::string response_protocol_;
   std::map<std::string, std::string> response_headers_;
   std::string response_body_;
-  int64_t response_time_millis_;
   bool lazy_loaded_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);

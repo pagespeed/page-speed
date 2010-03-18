@@ -419,9 +419,6 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
   // of the function.
   *out_freshness_lifetime_millis = 0;
 
-  const int64_t resource_response_time_millis =
-      resource.GetResponseTimeMillis();
-
   // First, look for Cache-Control: max-age. The HTTP/1.1 RFC
   // indicates that CC: max-age takes precedence to Expires.
   const std::string& cache_control =
@@ -460,17 +457,12 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
   const std::string& date = resource.GetResponseHeader("Date");
   int64_t date_value = 0;
   if (date.empty() || !ParseTimeValuedHeader(date.c_str(), &date_value)) {
-    if (resource_response_time_millis <= 0) {
-      LOG(ERROR) << "Invalid resource response time. Assuming resource "
-                 << resource.GetRequestUrl() << " is not cacheable.";
-      // We have an Expires header, but no Date header to reference
-      // from. Thus we assume that the resource is not cacheable.
-      return true;
-    }
-    // If there's no valid date header, use the resource response
-    // time. This is the behavior of Chrome, IE8, Firefox 3.6, and
-    // Safari.
-    date_value = resource_response_time_millis;
+    LOG(ERROR) << "Missing or invalid date header: '" << date << "'. "
+               << "Assuming resource " << resource.GetRequestUrl()
+               << " is not cacheable.";
+    // We have an Expires header, but no Date header to reference
+    // from. Thus we assume that the resource is not cacheable.
+    return true;
   }
 
   int64_t expires_value = 0;

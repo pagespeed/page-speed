@@ -418,17 +418,6 @@ TEST_F(GetFreshnessLifetimeTest, PastExpiresWithDate) {
   EXPECT_EQ(0LL, freshness_lifetime_);
 }
 
-TEST_F(GetFreshnessLifetimeTest, ExpiresNoDateUsesResponseTime) {
-  int64_t response_time_millis = 0;
-  ASSERT_TRUE(resource_util::ParseTimeValuedHeader(
-      "Tue, 16 Mar 2010 16:08:25 EDT", &response_time_millis));
-  r_.SetResponseTimeMillis(response_time_millis);
-  r_.AddResponseHeader("Expires", "Wed, 17 Mar 2010 16:08:25 EDT");
-  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
-                                                        &freshness_lifetime_));
-  EXPECT_EQ(86400000LL, freshness_lifetime_);
-}
-
 TEST_F(GetFreshnessLifetimeTest, ExpiresNoDateNoResponseTime) {
   r_.AddResponseHeader("Expires", "Wed, 17 Mar 2010 16:08:25 EDT");
   EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
