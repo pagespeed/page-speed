@@ -419,6 +419,12 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
   // of the function.
   *out_freshness_lifetime_millis = 0;
 
+  if (HasExplicitNoCacheDirective(resource)) {
+    // If there's an explicit no cache directive then the resource is
+    // never fresh.
+    return true;
+  }
+
   // First, look for Cache-Control: max-age. The HTTP/1.1 RFC
   // indicates that CC: max-age takes precedence to Expires.
   const std::string& cache_control =
@@ -432,7 +438,7 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
     if (it != cache_directives.end()) {
       int64_t max_age_value = 0;
       if (StringToInt64(it->second, &max_age_value)) {
-        *out_freshness_lifetime_millis = max_age_value;
+        *out_freshness_lifetime_millis = max_age_value * 1000;
         return true;
       }
     }

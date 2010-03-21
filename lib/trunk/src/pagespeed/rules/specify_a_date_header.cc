@@ -48,6 +48,14 @@ bool SpecifyADateHeader::AppendResults(const PagespeedInput& input,
       continue;
     }
 
+    if (resource_util::HasExplicitNoCacheDirective(resource)) {
+      // The Date header is used to validate the freshness lifetime of
+      // a resource. But if the resource is already marked as
+      // explicitly non-cacheable, the Date header is unimportant, so
+      // skip it.
+      continue;
+    }
+
     const std::string& date = resource.GetResponseHeader("Date");
     int64_t date_value_millis = 0;
     if (resource_util::ParseTimeValuedHeader(
