@@ -385,7 +385,14 @@ TEST_F(GetFreshnessLifetimeTest, MaxAge2) {
   r_.AddResponseHeader("Cache-Control", "max-age=10");
   EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
                                                         &freshness_lifetime_));
-  EXPECT_EQ(10LL, freshness_lifetime_);
+  EXPECT_EQ(10000LL, freshness_lifetime_);
+}
+
+TEST_F(GetFreshnessLifetimeTest, MaxAgeIgnoredIfExplicitNoCacheDirective) {
+  r_.AddResponseHeader("Cache-Control", "max-age=10, no-cache");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(0LL, freshness_lifetime_);
 }
 
 TEST_F(GetFreshnessLifetimeTest, BadMaxAge) {
@@ -437,7 +444,7 @@ TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {
   r_.AddResponseHeader("Cache-Control", "max-age=100");
   EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
                                                         &freshness_lifetime_));
-  EXPECT_EQ(100LL, freshness_lifetime_);
+  EXPECT_EQ(100000LL, freshness_lifetime_);
 }
 
 TEST_F(ResourceUtilTest, ShouldHaveADateHeader) {

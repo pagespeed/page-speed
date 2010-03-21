@@ -51,6 +51,10 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
       continue;
     }
 
+    // TODO: if the resource has a 301 status code, we might consider
+    // excluding it from the result set. Chrome and Firefox will cache
+    // 301s forever by default. What about IE?
+
     const std::string& date = resource.GetResponseHeader("Date");
     int64_t date_value_millis = 0;
     if (!resource_util::ParseTimeValuedHeader(
@@ -87,7 +91,7 @@ void SpecifyACacheExpiration::FormatResults(const ResultVector& results,
 
   Formatter* body = formatter->AddChild(
       "The following resources are missing a cache expiration. Resources "
-      "that do not specify an expiration may not be cached by browsers."
+      "that do not specify an expiration may not be cached by browsers. "
       "Specify an expiration at least one month in the future for resources "
       "that should be cached, and an expiration in the past for resources "
       "that should not be cached:");

@@ -112,4 +112,20 @@ TEST_F(SpecifyADateHeaderTest, SomeRequired) {
   CheckOneViolation("http://www.example.com/3");
 }
 
+TEST_F(SpecifyADateHeaderTest, ExplicitNoCacheDirective) {
+  Resource* resource = new Resource;
+  resource->SetRequestUrl("http://www.example.com/");
+  resource->SetRequestMethod("GET");
+
+  resource->SetResponseStatusCode(200);
+  input_->AddResource(resource);
+
+  CheckOneViolation("http://www.example.com/");
+
+  // Now add a no-cache directive. We expect the resource to no longer
+  // cause a violation.
+  resource->AddResponseHeader("Pragma", "no-cache");
+  CheckNoViolations();
+}
+
 }  // namespace
