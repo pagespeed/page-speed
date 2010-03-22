@@ -1,0 +1,328 @@
+# This file is generated; do not edit.
+
+__doc__ = '''
+Wrapper configuration for building this entire "solution,"
+including all the specific targets in various *.scons files.
+'''
+
+import os
+import sys
+
+import SCons.Environment
+import SCons.Util
+
+def GetProcessorCount():
+  '''
+  Detects the number of CPUs on the system. Adapted form:
+  http://codeliberates.blogspot.com/2008/05/detecting-cpuscores-in-python.html
+  '''
+  # Linux, Unix and Mac OS X:
+  if hasattr(os, 'sysconf'):
+    if os.sysconf_names.has_key('SC_NPROCESSORS_ONLN'):
+      # Linux and Unix or Mac OS X with python >= 2.5:
+      return os.sysconf('SC_NPROCESSORS_ONLN')
+    else:  # Mac OS X with Python < 2.5:
+      return int(os.popen2("sysctl -n hw.ncpu")[1].read())
+  # Windows:
+  if os.environ.has_key('NUMBER_OF_PROCESSORS'):
+    return max(int(os.environ.get('NUMBER_OF_PROCESSORS', '1')), 1)
+  return 1  # Default
+
+# Support PROGRESS= to show progress in different ways.
+p = ARGUMENTS.get('PROGRESS')
+if p == 'spinner':
+  Progress(['/\r', '|\r', '\\\r', '-\r'],
+           interval=5,
+           file=open('/dev/tty', 'w'))
+elif p == 'name':
+  Progress('$TARGET\r', overwrite=True, file=open('/dev/tty', 'w'))
+
+# Set the default -j value based on the number of processors.
+SetOption('num_jobs', GetProcessorCount() + 1)
+
+# Have SCons use its cached dependency information.
+SetOption('implicit_cache', 1)
+
+# Only re-calculate MD5 checksums if a timestamp has changed.
+Decider('MD5-timestamp')
+
+# Since we set the -j value by default, suppress SCons warnings about being
+# unable to support parallel build on versions of Python with no threading.
+default_warnings = ['no-no-parallel-support']
+SetOption('warn', default_warnings + GetOption('warn'))
+
+AddOption('--mode', nargs=1, dest='conf_list', default=[],
+          action='append', help='Configuration to build.')
+
+AddOption('--verbose', dest='verbose', default=False,
+          action='store_true', help='Verbose command-line output.')
+
+
+#
+sconscript_file_map = dict(
+    cJSON = 'cJSON.scons',
+    cJSON_test = 'cJSON_test.scons',
+)
+
+class LoadTarget:
+  '''
+  Class for deciding if a given target sconscript is to be included
+  based on a list of included target names, optionally prefixed with '-'
+  to exclude a target name.
+  '''
+  def __init__(self, load):
+    '''
+    Initialize a class with a list of names for possible loading.
+
+    Arguments:
+      load:  list of elements in the LOAD= specification
+    '''
+    self.included = set([c for c in load if not c.startswith('-')])
+    self.excluded = set([c[1:] for c in load if c.startswith('-')])
+
+    if not self.included:
+      self.included = set(['all'])
+
+  def __call__(self, target):
+    '''
+    Returns True if the specified target's sconscript file should be
+    loaded, based on the initialized included and excluded lists.
+    '''
+    return (target in self.included or
+            ('all' in self.included and not target in self.excluded))
+
+if 'LOAD' in ARGUMENTS:
+  load = ARGUMENTS['LOAD'].split(',')
+else:
+  load = []
+load_target = LoadTarget(load)
+
+sconscript_files = []
+for target, sconscript in sconscript_file_map.iteritems():
+  if load_target(target):
+    sconscript_files.append(sconscript)
+
+
+target_alias_list= []
+
+conf_list = GetOption('conf_list')
+if conf_list:
+    # In case the same --mode= value was specified multiple times.
+    conf_list = list(set(conf_list))
+else:
+    conf_list = ['Debug']
+
+sconsbuild_dir = Dir('../../sconsbuild')
+
+
+def FilterOut(self, **kw):
+  kw = SCons.Environment.copy_non_reserved_keywords(kw)
+  for key, val in kw.items():
+    envval = self.get(key, None)
+    if envval is None:
+      # No existing variable in the environment, so nothing to delete.
+      continue
+
+    for vremove in val:
+      # Use while not if, so we can handle duplicates.
+      while vremove in envval:
+        envval.remove(vremove)
+
+    self[key] = envval
+
+    # TODO(sgk): SCons.Environment.Append() has much more logic to deal
+    # with various types of values.  We should handle all those cases in here
+    # too.  (If variable is a dict, etc.)
+
+
+non_compilable_suffixes = {
+    'LINUX' : set([
+        '.bdic',
+        '.css',
+        '.dat',
+        '.fragment',
+        '.gperf',
+        '.h',
+        '.hh',
+        '.hpp',
+        '.html',
+        '.hxx',
+        '.idl',
+        '.in',
+        '.in0',
+        '.in1',
+        '.js',
+        '.mk',
+        '.rc',
+        '.sigs',
+        '',
+    ]),
+    'WINDOWS' : set([
+        '.h',
+        '.hh',
+        '.hpp',
+        '.dat',
+        '.idl',
+        '.in',
+        '.in0',
+        '.in1',
+    ]),
+}
+
+def compilable(env, file):
+  base, ext = os.path.splitext(str(file))
+  if ext in non_compilable_suffixes[env['TARGET_PLATFORM']]:
+    return False
+  return True
+
+def compilable_files(env, sources):
+  return [x for x in sources if compilable(env, x)]
+
+def GypProgram(env, target, source, *args, **kw):
+  source = compilable_files(env, source)
+  result = env.Program('$TOP_BUILDDIR/' + str(target), source, *args, **kw)
+  if env.get('INCREMENTAL'):
+    env.Precious(result)
+  return result
+
+def GypTestProgram(env, target, source, *args, **kw):
+  source = compilable_files(env, source)
+  result = env.Program('$TOP_BUILDDIR/' + str(target), source, *args, **kw)
+  if env.get('INCREMENTAL'):
+    env.Precious(*result)
+  return result
+
+def GypLibrary(env, target, source, *args, **kw):
+  source = compilable_files(env, source)
+  result = env.Library('$LIB_DIR/' + str(target), source, *args, **kw)
+  return result
+
+def GypLoadableModule(env, target, source, *args, **kw):
+  source = compilable_files(env, source)
+  result = env.LoadableModule('$TOP_BUILDDIR/' + str(target), source, *args,
+                              **kw)
+  return result
+
+def GypStaticLibrary(env, target, source, *args, **kw):
+  source = compilable_files(env, source)
+  result = env.StaticLibrary('$LIB_DIR/' + str(target), source, *args, **kw)
+  return result
+
+def GypSharedLibrary(env, target, source, *args, **kw):
+  source = compilable_files(env, source)
+  result = env.SharedLibrary('$LIB_DIR/' + str(target), source, *args, **kw)
+  if env.get('INCREMENTAL'):
+    env.Precious(result)
+  return result
+
+def add_gyp_methods(env):
+  env.AddMethod(GypProgram)
+  env.AddMethod(GypTestProgram)
+  env.AddMethod(GypLibrary)
+  env.AddMethod(GypLoadableModule)
+  env.AddMethod(GypStaticLibrary)
+  env.AddMethod(GypSharedLibrary)
+
+  env.AddMethod(FilterOut)
+
+  env.AddMethod(compilable)
+
+
+base_env = Environment(
+    tools = ['ar', 'as', 'gcc', 'g++', 'gnulink', 'chromium_builders'],
+    INTERMEDIATE_DIR='$OBJ_DIR/${COMPONENT_NAME}/_${TARGET_NAME}_intermediate',
+    LIB_DIR='$TOP_BUILDDIR/lib',
+    OBJ_DIR='$TOP_BUILDDIR/obj',
+    SCONSBUILD_DIR=sconsbuild_dir.abspath,
+    SHARED_INTERMEDIATE_DIR='$OBJ_DIR/_global_intermediate',
+    SRC_DIR=Dir('../..'),
+    TARGET_PLATFORM='LINUX',
+    TOP_BUILDDIR='$SCONSBUILD_DIR/$CONFIG_NAME',
+    LIBPATH=['$LIB_DIR'],
+)
+
+if not GetOption('verbose'):
+  base_env.SetDefault(
+      ARCOMSTR='Creating library $TARGET',
+      ASCOMSTR='Assembling $TARGET',
+      CCCOMSTR='Compiling $TARGET',
+      CONCATSOURCECOMSTR='ConcatSource $TARGET',
+      CXXCOMSTR='Compiling $TARGET',
+      LDMODULECOMSTR='Building loadable module $TARGET',
+      LINKCOMSTR='Linking $TARGET',
+      MANIFESTCOMSTR='Updating manifest for $TARGET',
+      MIDLCOMSTR='Compiling IDL $TARGET',
+      PCHCOMSTR='Precompiling $TARGET',
+      RANLIBCOMSTR='Indexing $TARGET',
+      RCCOMSTR='Compiling resource $TARGET',
+      SHCCCOMSTR='Compiling $TARGET',
+      SHCXXCOMSTR='Compiling $TARGET',
+      SHLINKCOMSTR='Linking $TARGET',
+      SHMANIFESTCOMSTR='Updating manifest for $TARGET',
+  )
+
+add_gyp_methods(base_env)
+
+for conf in conf_list:
+  env = base_env.Clone(CONFIG_NAME=conf)
+  SConsignFile(env.File('$TOP_BUILDDIR/.sconsign').abspath)
+  for sconscript in sconscript_files:
+    target_alias = env.SConscript(sconscript, exports=['env'])
+    if target_alias:
+      target_alias_list.extend(target_alias)
+
+Default(Alias('all', target_alias_list))
+
+help_fmt = '''
+Usage: hammer [SCONS_OPTIONS] [VARIABLES] [TARGET] ...
+
+Local command-line build options:
+  --mode=CONFIG             Configuration to build:
+                              --mode=Debug [default]
+                              --mode=Release
+  --verbose                 Print actual executed command lines.
+
+Supported command-line build variables:
+  LOAD=[module,...]         Comma-separated list of components to load in the
+                              dependency graph ('-' prefix excludes)
+  PROGRESS=type             Display a progress indicator:
+                              name:  print each evaluated target name
+                              spinner:  print a spinner every 5 targets
+
+The following TARGET names can also be used as LOAD= module names:
+
+%s
+'''
+
+if GetOption('help'):
+  def columnar_text(items, width=78, indent=2, sep=2):
+    result = []
+    colwidth = max(map(len, items)) + sep
+    cols = (width - indent) / colwidth
+    if cols < 1:
+      cols = 1
+    rows = (len(items) + cols - 1) / cols
+    indent = '%*s' % (indent, '')
+    sep = indent
+    for row in xrange(0, rows):
+      result.append(sep)
+      for i in xrange(row, len(items), rows):
+        result.append('%-*s' % (colwidth, items[i]))
+      sep = '\n' + indent
+    result.append('\n')
+    return ''.join(result)
+
+  load_list = set(sconscript_file_map.keys())
+  target_aliases = set(map(str, target_alias_list))
+
+  common = load_list and target_aliases
+  load_only = load_list - common
+  target_only = target_aliases - common
+  help_text = [help_fmt % columnar_text(sorted(list(common)))]
+  if target_only:
+    fmt = "The following are additional TARGET names:\n\n%s\n"
+    help_text.append(fmt % columnar_text(sorted(list(target_only))))
+  if load_only:
+    fmt = "The following are additional LOAD= module names:\n\n%s\n"
+    help_text.append(fmt % columnar_text(sorted(list(load_only))))
+  Help(''.join(help_text))

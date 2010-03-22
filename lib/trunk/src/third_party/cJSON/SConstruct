@@ -1,0 +1,2 @@
+# This file is generated; do not edit.
+SConscript('cJSON_main.scons')
