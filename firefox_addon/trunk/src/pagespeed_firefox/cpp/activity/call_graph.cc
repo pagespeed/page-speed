@@ -18,9 +18,9 @@
 
 #include "call_graph.h"
 
+#include "base/logging.h"
 #include "call_graph_visitor_interface.h"
 #include "profile.pb.h"
-#include "check.h"
 #include "timer.h"
 
 namespace activity {
@@ -37,7 +37,7 @@ CallGraph *CallGraph::CreateSnapshot() const {
   return graph;
 }
 
-void CallGraph::OnFunctionEntry(int32 tag) {
+bool CallGraph::OnFunctionEntry(int32 tag) {
   CallTree* node = NULL;
   if (working_set_.empty()) {
     node = profile_->add_call_tree();
@@ -48,10 +48,14 @@ void CallGraph::OnFunctionEntry(int32 tag) {
   node->set_function_tag(tag);
   node->set_entry_time_usec(timer_->GetElapsedTimeUsec());
   working_set_.push_back(node);
+  return true;
 }
 
-void CallGraph::OnFunctionExit(int32 tag) {
-  GCHECK(!working_set_.empty());
+bool CallGraph::OnFunctionExit(int32 tag) {
+  if (working_set_.empty()) {
+    LOG(DFATAL) << "Working set is empty.";
+    return false;
+  }
 
   CallTree* node = working_set_.back();
   if (node->function_tag() != tag) {
@@ -63,17 +67,29 @@ void CallGraph::OnFunctionExit(int32 tag) {
     // once the mozilla bug is fixed.
     node->set_exit_time_usec(timer_->GetElapsedTimeUsec());
     working_set_.pop_back();
-    GCHECK(!working_set_.empty());
+    if (working_set_.empty()) {
+      LOG(DFATAL) << "Working set is empty.";
+      return false;
+    }
     node = working_set_.back();
   }
 
-  GCHECK(node->function_tag() == tag);
+  if (node->function_tag() != tag) {
+    LOG(DFATAL) << "Unable to match tags.";
+    // At this point the call stack is in an inconsistent state, so we
+    // clear it and signal to the caller that we failed to update our
+    // internal state appropriately.
+    working_set_.clear();
+    return false;
+  }
   node->set_exit_time_usec(timer_->GetElapsedTimeUsec());
   working_set_.pop_back();
 
   if (working_set_.empty()) {
     call_trees_.push_back(node);
   }
+
+  return true;
 }
 
 bool CallGraph::IsPartiallyConstructed() const {
@@ -87,7 +103,10 @@ void CallGraph::Traverse(CallGraphVisitorInterface* visitor) const {
        ++it) {
     std::vector<const CallTree*> stack;
     const CallTree* call_tree = *it;
-    GCHECK(call_tree != NULL);
+    if (call_tree == NULL) {
+      LOG(DFATAL) << "Unable to visit null call tree.";
+      return;
+    }
     CallGraphVisitorInterface::Traverse(visitor, *call_tree, &stack);
   }
 }

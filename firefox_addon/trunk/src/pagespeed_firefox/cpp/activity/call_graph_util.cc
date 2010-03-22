@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <limits>
 
+#include "base/logging.h"
 #include "call_graph.h"
 #include "call_graph_metadata.h"
 #include "call_graph_profile_snapshot.h"
@@ -30,7 +31,6 @@
 #include "call_graph_visitor_interface.h"
 #include "call_graph_visit_filter_interface.h"
 #include "profile.pb.h"
-#include "check.h"
 
 #ifdef _WINDOWS
 
@@ -63,15 +63,21 @@ namespace util {
 
 int64 RoundDownToNearestWholeMultiple(
     int64 value, int64 multiple) {
-  GCHECK_GE(value, 0LL);
-  GCHECK_GT(multiple, 0LL);
+  if (value < 0LL || multiple <= 0LL) {
+    LOG(DFATAL) << "Bad inputs to RoundDownToNearestWholeMultiple: "
+                << value << ", " << multiple;
+    return 0LL;
+  }
   return value - (value % multiple);
 }
 
 int64 RoundUpToNearestWholeMultiple(
     int64 value, int64 multiple) {
-  GCHECK_GE(value, 0LL);
-  GCHECK_GT(multiple, 0LL);
+  if (value < 0LL || multiple <= 0LL) {
+    LOG(DFATAL) << "Bad inputs to RoundUpToNearestWholeMultiple: "
+                << value << ", " << multiple;
+    return 0LL;
+  }
 
   const int64 mod = value % multiple;
   if (mod == 0) {
@@ -87,7 +93,10 @@ int64 RoundUpToNearestWholeMultiple(
   }
 
   const int64 result = value + mod_complement;
-  GCHECK_GE(result, 0LL);
+  if (result < 0LL) {
+    LOG(DFATAL) << "Bad result: " << result;
+    return 0LL;
+  }
   return result;
 }
 
@@ -95,8 +104,15 @@ int64 GetTotalExecutionTimeUsec(
     const CallTree &tree,
     int64 start_time_usec,
     int64 end_time_usec) {
-  GCHECK_GE(start_time_usec, 0LL);
-  GCHECK_GE(end_time_usec, start_time_usec);
+  if (start_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad start_time_usec: " << start_time_usec;
+    return 0LL;
+  }
+  if (end_time_usec < start_time_usec) {
+    LOG(DFATAL) << "end_time_usec lt start_time_usec: "
+                << end_time_usec << " < " << start_time_usec;
+    return 0LL;
+  }
 
   if (tree.entry_time_usec() >= end_time_usec) {
     return 0LL;
@@ -114,8 +130,16 @@ int64 GetTotalExecutionTimeUsec(
       clamped_end_time_usec - clamped_start_time_usec;
 
   // Make sure the execution time falls between 0 and the duration.
-  GCHECK_GE(execution_time_usec, 0LL);
-  GCHECK_GE(end_time_usec - start_time_usec, execution_time_usec);
+  if (execution_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad execution_time_usec: " << execution_time_usec;
+    return 0LL;
+  }
+  if (end_time_usec - start_time_usec < execution_time_usec) {
+    LOG(DFATAL) << "execution_time_usec lt window: "
+                << execution_time_usec << " > "
+                << start_time_usec << "-" << end_time_usec;
+    return 0LL;
+  }
 
   return execution_time_usec;
 }
@@ -124,8 +148,15 @@ int64 GetOwnExecutionTimeUsec(
     const CallTree &tree,
     int64 start_time_usec,
     int64 end_time_usec) {
-  GCHECK_GE(start_time_usec, 0LL);
-  GCHECK_GE(end_time_usec, start_time_usec);
+  if (start_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad start_time_usec: " << start_time_usec;
+    return 0LL;
+  }
+  if (end_time_usec < start_time_usec) {
+    LOG(DFATAL) << "end_time_usec lt start_time_usec: "
+                << end_time_usec << " < " << start_time_usec;
+    return 0LL;
+  }
 
   // First compute the total execution time for this node.
   int64 execution_time_usec =
@@ -144,8 +175,16 @@ int64 GetOwnExecutionTimeUsec(
   }
 
   // Make sure the execution time falls between 0 and the duration.
-  GCHECK_GE(execution_time_usec, 0LL);
-  GCHECK_GE(end_time_usec - start_time_usec, execution_time_usec);
+  if (execution_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad execution_time_usec: " << execution_time_usec;
+    return 0LL;
+  }
+  if (end_time_usec - start_time_usec < execution_time_usec) {
+    LOG(DFATAL) << "execution_time_usec lt window: "
+                << execution_time_usec << " > "
+                << start_time_usec << "-" << end_time_usec;
+    return 0LL;
+  }
 
   return execution_time_usec;
 }
@@ -155,9 +194,19 @@ void PopulateFunctionInitCounts(
     CallGraphTimelineEventSet *events,
     int64 start_time_usec,
     int64 end_time_usec) {
-  GCHECK_GE(start_time_usec, 0LL);
-  GCHECK_GE(end_time_usec, 0LL);
-  GCHECK_GE(end_time_usec, start_time_usec);
+  if (start_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad start_time_usec: " << start_time_usec;
+    return;
+  }
+  if (end_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad end_time_usec: " << end_time_usec;
+    return;
+  }
+  if (end_time_usec < start_time_usec) {
+    LOG(DFATAL) << "end_time_usec lt start_time_usec: "
+                << end_time_usec << " < " << start_time_usec;
+    return;
+  }
 
   const CallGraphProfileSnapshot::InitTimeMap *init_time_map =
       snapshot.init_time_map();
@@ -185,15 +234,35 @@ void PopulateExecutionTimes(
     CallGraphTimelineEventSet *events,
     int64 start_time_usec,
     int64 end_time_usec) {
-  GCHECK_GE(start_time_usec, 0LL);
-  GCHECK_GE(end_time_usec, 0LL);
-  GCHECK_EQ(0LL, start_time_usec % events->event_duration_usec());
-  if (end_time_usec != LONG_LONG_MAX) {
-    GCHECK_EQ(0LL, end_time_usec % events->event_duration_usec());
+  if (start_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad start_time_usec: " << start_time_usec;
+    return;
   }
-  GCHECK_GE(start_time_usec, 0LL);
-  GCHECK_GE(end_time_usec, start_time_usec);
-  GCHECK(events != NULL);
+  if (end_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad end_time_usec: " << end_time_usec;
+    return;
+  }
+  if (end_time_usec < start_time_usec) {
+    LOG(DFATAL) << "end_time_usec lt start_time_usec: "
+                << end_time_usec << " < " << start_time_usec;
+    return;
+  }
+  if (start_time_usec % events->event_duration_usec() != 0) {
+    LOG(DFATAL) << "start_time_usec: " << start_time_usec
+                << " not a multiple of " << events->event_duration_usec();
+    return;
+  }
+  if (end_time_usec != LONG_LONG_MAX) {
+    if (end_time_usec % events->event_duration_usec() != 0) {
+      LOG(DFATAL) << "end_time_usec: " << end_time_usec
+                  << " not a multiple of " << events->event_duration_usec();
+      return;
+    }
+  }
+  if (events == NULL) {
+    LOG(DFATAL) << "events is null.";
+    return;
+  }
 
   CallGraphTimelineVisitor visitor(
       new TimeRangeVisitFilter(start_time_usec, end_time_usec),

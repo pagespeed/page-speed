@@ -52,7 +52,7 @@ class CallGraphMetadata {
   // function_instantiation_time_usec is optional; if the
   // instantiation time of the function is unknown, you should pass -1
   // for this value.
-  void AddEntry(int32 tag,
+  bool AddEntry(int32 tag,
                 const char *file_name,
                 const char *function_name,
                 const char *function_source_utf8,

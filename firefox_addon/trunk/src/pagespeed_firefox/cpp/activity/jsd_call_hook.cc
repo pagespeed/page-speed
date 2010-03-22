@@ -18,8 +18,8 @@
 
 #include "jsd_call_hook.h"
 
+#include "base/logging.h"
 #include "call_graph_profile.h"
-#include "check.h"
 #include "jsd_function_info.h"
 
 #include "nsCOMPtr.h"
@@ -87,7 +87,7 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame) {
   nsCOMPtr<jsdIScript> script;
   nsresult rv = frame->GetScript(getter_AddRefs(script));
   if (NS_FAILED(rv)) {
-    GCHECK(false);
+    LOG(DFATAL) << "Unable to get script.";
     return;
   }
 
@@ -96,7 +96,11 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame) {
   if (collect_full_call_trees_) {
     // If we're collecting full call trees, just record this as a
     // normal function entry point.
-    profile_->OnFunctionEntry(&function_info);
+    if (!profile_->OnFunctionEntry(&function_info)) {
+      // The profile's internal state is inconsistent, so it cleared
+      // state and started over. We should do the same.
+      started_profiling_ = false;
+    }
     return;
   }
 
@@ -110,7 +114,12 @@ void JsdCallHook::OnEntry(jsdIStackFrame *frame) {
     return;
   }
 
-  profile_->OnFunctionEntry(&function_info);
+  if (!profile_->OnFunctionEntry(&function_info)) {
+    // The profile's internal state is inconsistent, so it cleared
+    // state and started over. We should do the same.
+    started_profiling_ = false;
+    return;
+  }
 
   // We found a function that should be included in the profile, so
   // apply the call filter.
@@ -121,7 +130,7 @@ void JsdCallHook::OnExit(jsdIStackFrame *frame) {
   nsCOMPtr<jsdIScript> script;
   nsresult rv = frame->GetScript(getter_AddRefs(script));
   if (NS_FAILED(rv)) {
-    GCHECK(false);
+    LOG(DFATAL) << "Unable to get script.";
     return;
   }
 
@@ -129,7 +138,11 @@ void JsdCallHook::OnExit(jsdIStackFrame *frame) {
   if (collect_full_call_trees_) {
     // If we're collecting full call trees, just record this as a
     // normal function exit point.
-    profile_->OnFunctionExit(&function_info);
+    if (!profile_->OnFunctionExit(&function_info)) {
+      // The profile's internal state is inconsistent, so it cleared
+      // state and started over. We should do the same.
+      started_profiling_ = false;
+    }
     return;
   }
 
@@ -137,11 +150,19 @@ void JsdCallHook::OnExit(jsdIStackFrame *frame) {
     return;
   }
 
-  GCHECK(IsCallFilterActive());
+  if (!IsCallFilterActive()) {
+    LOG(DFATAL) << "Call filter not active.";
+    return;
+  }
   if (filter_depth_ == GetStackDepth(frame)) {
     // We're at the function return point that matches the point where we
     // applied the filter, so we should un-apply the filter here.
-    profile_->OnFunctionExit(&function_info);
+    if (!profile_->OnFunctionExit(&function_info)) {
+      // The profile's internal state is inconsistent, so it cleared
+      // state and started over. We should do the same.
+      started_profiling_ = false;
+      // Fall through, making sure we do update the call filter.
+    }
     UpdateCallFilter(frame, false);
   }
 }
@@ -174,20 +195,20 @@ void JsdCallHook::UpdateCallFilter(jsdIStackFrame *frame, bool filter) {
   nsCOMPtr<jsdIScript> script;
   rv = frame->GetScript(getter_AddRefs(script));
   if (NS_FAILED(rv)) {
-    GCHECK(false);
+    LOG(DFATAL) << "Unable to get script.";
     return;
   }
 
   PRUint32 jsd_flags = 0;
   rv = jsd_->GetFlags(&jsd_flags);
   if (NS_FAILED(rv)) {
-    GCHECK(false);
+    LOG(DFATAL) << "Unable to get flags for jsd.";
     return;
   }
   PRUint32 script_flags = 0;
   rv = script->GetFlags(&script_flags);
   if (NS_FAILED(rv)) {
-    GCHECK(false);
+    LOG(DFATAL) << "Unable to get flags for script.";
     return;
   }
   // Ideally, we would have the Firefox JSD call us at every call site
@@ -222,11 +243,11 @@ void JsdCallHook::UpdateCallFilter(jsdIStackFrame *frame, bool filter) {
   nsresult jsd_rv = jsd_->SetFlags(jsd_flags);
   nsresult script_rv = script->SetFlags(script_flags);
   if (NS_FAILED(jsd_rv)) {
-    GCHECK(false);
+    LOG(DFATAL) << "Unable to set flags for jsd.";
     return;
   }
   if (NS_FAILED(script_rv)) {
-    GCHECK(false);
+    LOG(DFATAL) << "Unable to set flags for script.";
     return;
   }
 }
@@ -238,7 +259,7 @@ int JsdCallHook::GetStackDepth(jsdIStackFrame *frame) const {
        current != NULL;
        last = current, rv = last->GetCallingFrame(getter_AddRefs(current))) {
     if (NS_FAILED(rv)) {
-      GCHECK(false);
+      LOG(DFATAL) << "Unable to get calling frame.";
       return -1;
     }
     ++depth;

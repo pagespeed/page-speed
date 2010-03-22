@@ -20,12 +20,12 @@
 
 #include <algorithm>
 
+#include "base/logging.h"
 #include "call_graph_metadata.h"
 #include "call_graph_profile.h"
 #include "call_graph_util.h"
 #include "find_first_invocations_visitor.h"
 #include "profile.pb.h"
-#include "check.h"
 
 namespace activity {
 
@@ -61,12 +61,18 @@ bool UncalledFunctionTreeViewDelegate::GetCellText(
   const int32 function_tag = uncalled_function_tags_[row_index];
   CallGraphMetadata::MetadataMap::const_iterator it =
       profile_.metadata()->map()->find(function_tag);
-  GCHECK(it != profile_.metadata()->map()->end());
+  if (it == profile_.metadata()->map()->end()) {
+    LOG(DFATAL) << "function_tag " << function_tag << "not in metadata map.";
+    return false;
+  }
   const FunctionMetadata &function_metadata = *it->second;
 
   switch (column_id) {
     case INSTANTIATION_TIME:
-      GCHECK(function_metadata.has_function_instantiation_time_usec());
+      if (!function_metadata.has_function_instantiation_time_usec()) {
+        LOG(DFATAL) << "No function instantiation time.";
+        return false;
+      }
       util::FormatTime(
           function_metadata.function_instantiation_time_usec(), retval);
       return true;

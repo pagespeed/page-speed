@@ -20,11 +20,11 @@
 
 #include <stdio.h>
 
+#include "base/logging.h"
 #include "call_graph_profile_snapshot.h"
 #include "call_graph_timeline_event.h"
 #include "call_graph_timeline_event_set.h"
 #include "call_graph_util.h"
-#include "check.h"
 #include "profiler_event.h"
 
 #include "nsComponentManagerUtils.h"
@@ -130,7 +130,7 @@ nsresult GetTimelineEventsRunnable::PopulateEventArray(EventVector *events) {
         event_type = IActivityProfilerEvent::JS_EXECUTE;
         break;
       default:
-        GCHECK_NE(event->type, event->type);
+        LOG(DFATAL) << "Unknown event type: " << event->type;
         event_type = -1;
         break;
     }

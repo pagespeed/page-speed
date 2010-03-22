@@ -18,16 +18,18 @@
 
 #include "call_graph_visitor_interface.h"
 
+#include "base/logging.h"
 #include "call_graph_visit_filter_interface.h"
 #include "profile.pb.h"
-#include "check.h"
 
 namespace activity {
 
 CallGraphVisitorInterface::CallGraphVisitorInterface(
     CallGraphVisitFilterInterface *filter)
     : visit_filter_((filter != NULL) ? filter : new AlwaysVisitFilter()) {
-  GCHECK(visit_filter_ != NULL);
+  if (visit_filter_ == NULL) {
+    LOG(DFATAL) << "Null visit_filter_";
+  }
 }
 
 CallGraphVisitorInterface::~CallGraphVisitorInterface() {}
@@ -36,8 +38,10 @@ void CallGraphVisitorInterface::Traverse(
     CallGraphVisitorInterface* visitor,
     const CallTree& tree,
     std::vector<const CallTree*>* parent_stack) {
-  GCHECK(visitor != NULL);
-  GCHECK(parent_stack != NULL);
+  if (visitor == NULL || parent_stack == NULL) {
+    LOG(DFATAL) << "Bad params to Traverse: " << visitor << "," << parent_stack;
+    return;
+  }
 
   if (!visitor->visit_filter_->ShouldTraverse(tree, *parent_stack)) {
     return;

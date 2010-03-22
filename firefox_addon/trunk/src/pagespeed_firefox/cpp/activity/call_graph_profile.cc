@@ -23,10 +23,10 @@
 
 #include <string.h>
 
+#include "base/logging.h"
 #include "call_graph.h"
 #include "call_graph_metadata.h"
 #include "call_graph_profile_snapshot.h"
-#include "check.h"
 #include "clock.h"
 #include "function_info_interface.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
@@ -128,7 +128,10 @@ void CallGraphProfile::Start() {
 }
 
 void CallGraphProfile::Start(int64 start_time_usec) {
-  GCHECK(!profiling());
+  if (profiling()) {
+    LOG(DFATAL) << "Already profiling.";
+    return;
+  }
   timer_.reset(new Timer(clock_, start_time_usec));
   profile_.reset(new Profile);
   call_graph_.reset(new CallGraph(profile_.get(), timer_.get()));
@@ -138,7 +141,10 @@ void CallGraphProfile::Start(int64 start_time_usec) {
 }
 
 void CallGraphProfile::Stop() {
-  GCHECK(profiling());
+  if (!profiling()) {
+    LOG(DFATAL) << "Not profiling.";
+    return;
+  }
   profiling_ = false;
   profile_->set_duration_usec(timer_->GetElapsedTimeUsec());
 
@@ -149,9 +155,12 @@ void CallGraphProfile::Stop() {
   }
 }
 
-void CallGraphProfile::OnFunctionEntry(
+bool CallGraphProfile::OnFunctionEntry(
     FunctionInfoInterface *function_info) {
-  GCHECK(profiling());
+  if (!profiling()) {
+    LOG(DFATAL) << "Not profiling.";
+    return false;
+  }
 
   const int32 tag = function_info->GetFunctionTag();
 
@@ -166,29 +175,41 @@ void CallGraphProfile::OnFunctionEntry(
         -1);
   }
 
-  call_graph_->OnFunctionEntry(tag);
+  return call_graph_->OnFunctionEntry(tag);
 }
 
-void CallGraphProfile::OnFunctionExit(
+bool CallGraphProfile::OnFunctionExit(
     FunctionInfoInterface *function_info) {
-  GCHECK(profiling());
+  if (!profiling()) {
+    LOG(DFATAL) << "Not profiling.";
+    return false;
+  }
 
   const int32 tag = function_info->GetFunctionTag();
-  GCHECK(metadata_->HasEntry(tag));
+  if (!metadata_->HasEntry(tag)) {
+    LOG(DFATAL) << "No metadata entry for " << tag;
+    return false;
+  }
 
-  call_graph_->OnFunctionExit(tag);
+  return call_graph_->OnFunctionExit(tag);
 }
 
-void CallGraphProfile::OnFunctionInstantiated(
+bool CallGraphProfile::OnFunctionInstantiated(
     FunctionInfoInterface *function_info) {
-  GCHECK(profiling());
+  if (!profiling()) {
+    LOG(DFATAL) << "Not profiling.";
+    return false;
+  }
 
   const int32 tag = function_info->GetFunctionTag();
-  GCHECK(!metadata_->HasEntry(tag));
+  if (metadata_->HasEntry(tag)) {
+    LOG(DFATAL) << "Metadata entry for " << tag << " already exists.";
+    return false;
+  }
 
   const int64 function_instantiation_time_usec = timer_->GetElapsedTimeUsec();
 
-  metadata_->AddEntry(
+  return metadata_->AddEntry(
       tag,
       function_info->GetFileName(),
       function_info->GetFunctionName(),
@@ -198,7 +219,10 @@ void CallGraphProfile::OnFunctionInstantiated(
 
 bool CallGraphProfile::SerializeToOutputStream(
     OutputStreamInterface *out) const {
-  GCHECK(!profiling());
+  if (profiling()) {
+    LOG(DFATAL) << "Already profiling.";
+    return false;
+  }
   OutputStreamInterfaceAdapter out_stream_adapter(out);
   ::google::protobuf::io::CopyingOutputStreamAdaptor copy_stream_adaptor(
       &out_stream_adapter);
