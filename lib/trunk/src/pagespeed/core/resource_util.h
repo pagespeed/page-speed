@@ -43,21 +43,6 @@ bool GetHeaderDirectives(const std::string& header, DirectiveMap* out);
 // Pragma: no-cache.
 bool HasExplicitNoCacheDirective(const Resource& resource);
 
-// Is the given response code known to be generally cacheable in the
-// absence of other HTTP caching headers? For instance, 200 is
-// generally cacheable but 204 is not.
-bool IsCacheableResponseStatusCode(int code);
-
-// Should the given resource include a Date header? Most responses
-// require a date header, but a few categories of responses may omit the
-// Date header. See
-// http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.18 for
-// additional information.
-bool ShouldHaveADateHeader(const Resource& resource);
-
-// Is the given resource type usually associated wiht static resources?
-bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
-
 // Take a time-valued header like Date, and convert it to number of
 // milliseconds since epoch. Returns true if the conversion succeeded,
 // false otherwise, The out parameter is only valid when this function
@@ -70,6 +55,20 @@ bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis);
 // The out parameter is only valid when this function returns true.
 bool GetFreshnessLifetimeMillis(const Resource& resource,
                                 int64_t *out_freshness_lifetime_millis);
+
+// Does the resource have an explicit freshness lifetime? This is just
+// a wrapper around GetFreshnessLifetimeMillis().
+bool HasExplicitFreshnessLifetime(const Resource& resource);
+
+// Is the resource cachable, either by explicit caching headers or
+// using common caching heuristics? If you want to know if the
+// resource is explicitly marked as cacheable, use
+// GetFreshnessLifetimeMillis() and test to see that the output
+// parameter it positive.
+bool IsCacheableResource(const Resource& resource);
+
+// Is the given resource type usually associated wiht static resources?
+bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
 
 // Is the given resource likely to be a static resource. We use
 // various heuristics based on caching headers, resource type, freshness

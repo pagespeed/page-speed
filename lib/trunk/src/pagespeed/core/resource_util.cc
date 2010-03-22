@@ -228,19 +228,72 @@ bool ShouldApplyResourceTypeHeuristic(const pagespeed::Resource& resource) {
   }
 }
 
-// Is the resource expired?
-bool IsExpired(const pagespeed::Resource& resource) {
-  int64_t freshness_lifetime_millis = 0;
-  if (pagespeed::resource_util::GetFreshnessLifetimeMillis(
-          resource,
-          &freshness_lifetime_millis) &&
-      freshness_lifetime_millis <= 0) {
-    // The resource is explicitly not cacheable, so it can't be a
-    // static resource.
-    return true;
+bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
+  if (pagespeed::resource_util::HasExplicitFreshnessLifetime(resource)) {
+    // If the response has an explicit freshness lifetime then it's
+    // not heuristically cacheable. This method only expects to be
+    // called if the resource does *not* have an explicit freshness
+    // lifetime.
+    LOG(DFATAL) << "IsHeuristicallyCacheable received a resource with "
+                << "explicit freshness lifetime.";
+    return false;
   }
 
-  return false;
+  pagespeed::resource_util::DirectiveMap cache_directives;
+  if (!pagespeed::resource_util::GetHeaderDirectives(
+          resource.GetResponseHeader("Cache-Control"),
+          &cache_directives)) {
+    LOG(ERROR) << "Failed to parse cache control directives for "
+               << resource.GetRequestUrl();
+    return false;
+  }
+
+  if (cache_directives.find("must-revalidate") != cache_directives.end()) {
+    // must-revalidate indicates that a non-fresh response should not
+    // be used in response to requests without validating at the
+    // origin. Such a resource is not heuristically cacheable.
+    return false;
+  }
+
+  const std::string& url = resource.GetRequestUrl();
+  if (url.find_first_of('?') != url.npos) {
+    // The HTTP RFC says:
+    //
+    // ...since some applications have traditionally used GETs and
+    // HEADs with query URLs (those containing a "?" in the rel_path
+    // part) to perform operations with significant side effects,
+    // caches MUST NOT treat responses to such URIs as fresh unless
+    // the server provides an explicit expiration time.
+    //
+    // So if we find a '?' in the URL, the resource is not
+    // heuristically cacheable.
+    //
+    // In practice most browsers do not implement this policy. For
+    // instance, Chrome and IE8 do not look for the query string,
+    // while Firefox (as of version 3.6) does. For the time being we
+    // implement the RFC but it might make sense to revisit this
+    // decision in the future, given that major browser
+    // implementations do not match.
+    return false;
+  }
+
+  switch (resource.GetResponseStatusCode()) {
+    // HTTP/1.1 RFC lists these response codes as heuristically
+    // cacheable in the absence of explicit caching headers.
+    case 200:
+    case 203:
+    case 206:
+      return true;
+
+    // In addition, 304s are sent for cacheable resources. Though the
+    // 304 response itself is not cacheable, the underlying resource
+    // is, and that's what we care about.
+    case 304:
+      return true;
+
+    default:
+      return false;
+  }
 }
 
 }  // namespace
@@ -327,47 +380,9 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
   return false;
 }
 
-bool IsCacheableResponseStatusCode(int code) {
-  switch (code) {
-    // HTTP/1.1 RFC lists these response codes as cacheable in the
-    // absence of explicit caching headers.
-    case 300:
-    case 301:
-    case 410:
-    case 200:
-    case 203:
-    case 206:
-      return true;
-
-    // In addition, 304s are sent for cacheable resources. Though
-    // the 304 response itself is not cacheable, the underlying
-    // resource is, and that's what we care about.
-    case 304:
-      return true;
-
-    default:
-      return false;
-  }
-}
-
-bool ShouldHaveADateHeader(const Resource& resource) {
-  // Based on
-  // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.18
-  const int code = resource.GetResponseStatusCode();
-  if (500 <= code && code < 600) {
-    // 5xx server error responses are not required to include a Date
-    // header.
-    return false;
-  }
-
-  switch (resource.GetResponseStatusCode()) {
-    case 100:
-    case 101:
-      return false;
-    default:
-      // All other responses should include a Date header.
-      return true;
-  }
+bool HasExplicitFreshnessLifetime(const Resource& resource) {
+  int64_t freshness_lifetime = 0;
+  return GetFreshnessLifetimeMillis(resource, &freshness_lifetime);
 }
 
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
@@ -486,22 +501,30 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
   return true;
 }
 
+bool IsCacheableResource(const Resource& resource) {
+  int64_t freshness_lifetime = 0;
+  if (GetFreshnessLifetimeMillis(resource, &freshness_lifetime)) {
+    if (freshness_lifetime <= 0) {
+      // The resource is explicitly not fresh, so we don't consider it
+      // to be a static resource.
+      return false;
+    }
+
+    // If there's an explicit freshness lifetime and it's greater than
+    // zero, then the resource is cacheable.
+    return true;
+  }
+
+  // If we've made it this far, we've got a resource that doesn't have
+  // explicit caching headers. At this point we use heuristics
+  // specified in the HTTP RFC and implemented in many
+  // browsers/proxies to determine if this resource is typically
+  // cached.
+  return IsHeuristicallyCacheable(resource);
+}
+
 bool IsLikelyStaticResource(const Resource& resource) {
-  if (HasExplicitNoCacheDirective(resource)) {
-    // If the resource has an explicit non-cacheable directive in its
-    // headers, then we don't consider it to be a static resource.
-    return false;
-  }
-
-  if (!IsCacheableResponseStatusCode(resource.GetResponseStatusCode())) {
-    // If the response's status code is typically non-cacheable, it
-    // can't be a static resource.
-    return false;
-  }
-
-  if (IsExpired(resource)) {
-    // The resource is already expired, so it can't be a static
-    // resource.
+  if (!IsCacheableResource(resource)) {
     return false;
   }
 
@@ -510,16 +533,6 @@ bool IsLikelyStaticResource(const Resource& resource) {
     // Certain types of resources (e.g. JS, CSS, images) are typically
     // static. If the resource isn't one of these types, assume it's
     // not static.
-    return false;
-  }
-
-  const std::string& url = resource.GetRequestUrl();
-  if (url.find_first_of('?') != url.npos) {
-    // This is a debatable policy. The HTTP RFC does indicate that the
-    // presence of a query string indicates non-cacheability, but in
-    // practice, many cacheable resources do contain a query
-    // string. For now we assume that the presence of the query string
-    // indicates non-cacheability.
     return false;
   }
 

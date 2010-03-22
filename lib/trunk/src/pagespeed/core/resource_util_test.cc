@@ -264,19 +264,16 @@ TEST_F(StaticResourceTest, AlwaysCacheableStatusCodes) {
 
   // A few codes are cacheable regardless of content type.
   r_.SetResponseStatusCode(300);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
-  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  EXPECT_FALSE(resource_util::IsCacheableResource(r_));
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 
   r_.SetResponseStatusCode(301);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
-  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  EXPECT_FALSE(resource_util::IsCacheableResource(r_));
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 
   r_.SetResponseStatusCode(410);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
-  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  EXPECT_FALSE(resource_util::IsCacheableResource(r_));
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
 // Tests for status codes that are cacheable for generally cacheable
@@ -290,34 +287,28 @@ TEST_F(StaticResourceTest, StatusCodesContentType) {
   // Switching to a non-cacheable response code should cause the
   // result to change.
   r_.SetResponseStatusCode(100);
-  EXPECT_FALSE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
+  EXPECT_FALSE(resource_util::IsCacheableResource(r_));
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 
   // The following codes should be cacheable.
   r_.SetResponseStatusCode(200);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
+  EXPECT_TRUE(resource_util::IsCacheableResource(r_));
   EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
 
   r_.SetResponseStatusCode(203);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
+  EXPECT_TRUE(resource_util::IsCacheableResource(r_));
   EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
 
   r_.SetResponseStatusCode(206);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
+  EXPECT_TRUE(resource_util::IsCacheableResource(r_));
   EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
 
   r_.SetResponseStatusCode(300);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
-  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  EXPECT_FALSE(resource_util::IsCacheableResource(r_));
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 
   r_.SetResponseStatusCode(304);
-  EXPECT_TRUE(resource_util::IsCacheableResponseStatusCode(
-      r_.GetResponseStatusCode()));
+  EXPECT_TRUE(resource_util::IsCacheableResource(r_));
   EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
@@ -445,21 +436,6 @@ TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {
   EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
                                                         &freshness_lifetime_));
   EXPECT_EQ(100000LL, freshness_lifetime_);
-}
-
-TEST_F(ResourceUtilTest, ShouldHaveADateHeader) {
-  ASSERT_TRUE(resource_util::ShouldHaveADateHeader(r_));
-
-  r_.SetResponseStatusCode(100);
-  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
-  r_.SetResponseStatusCode(101);
-  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
-  r_.SetResponseStatusCode(500);
-  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
-  r_.SetResponseStatusCode(501);
-  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
-  r_.SetResponseStatusCode(503);
-  ASSERT_FALSE(resource_util::ShouldHaveADateHeader(r_));
 }
 
 }  // namespace

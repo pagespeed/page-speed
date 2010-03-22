@@ -44,16 +44,16 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
                                             Results* results) {
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
-    if (!resource_util::IsCacheableResponseStatusCode(
-            resource.GetResponseStatusCode())) {
-      // The resource doesn't have a status code that's cacheable by
-      // default, so don't include it in the analysis.
+    if (resource_util::HasExplicitFreshnessLifetime(resource)) {
+      // The resource has a cache expiration, so exclude it from the result set.
       continue;
     }
 
-    // TODO: if the resource has a 301 status code, we might consider
-    // excluding it from the result set. Chrome and Firefox will cache
-    // 301s forever by default. What about IE?
+    if (!resource_util::IsCacheableResource(resource)) {
+      // The resource isn't cacheable, so don't include it in the
+      // analysis.
+      continue;
+    }
 
     const std::string& date = resource.GetResponseHeader("Date");
     int64_t date_value_millis = 0;
@@ -63,13 +63,6 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
       // not be possible to compute its freshness lifetime. Thus, we
       // should not warn about it here. The SpecifyADateHeader rule
       // will warn about this resource.
-      continue;
-    }
-
-    int64_t freshness_lifetime_millis = 0;
-    if (resource_util::GetFreshnessLifetimeMillis(resource,
-                                                  &freshness_lifetime_millis)) {
-      // The resource has a cache expiration, so exclude it from the result set.
       continue;
     }
 
