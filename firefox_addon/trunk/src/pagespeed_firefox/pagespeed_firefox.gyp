@@ -194,7 +194,6 @@
       'sources': [
         'idl/IActivityProfiler.idl',
         '<(activity_root)/basic_tree_view.cc',
-        '<(activity_root)/check_gecko.cc',
         '<(activity_root)/jsd_call_hook.cc',
         '<(activity_root)/jsd_function_info.cc',
         '<(activity_root)/jsd_script_hook.cc',
@@ -299,7 +298,6 @@
         'cpp/activity/call_graph_timeline_event_set_test.cc',
         'cpp/activity/call_graph_timeline_visitor_test.cc',
         'cpp/activity/call_graph_util_test.cc',
-        'cpp/activity/check_abort.cc',
         'cpp/activity/delayable_function_tree_view_delegate_test.cc',
         'cpp/activity/find_first_invocations_visitor_test.cc',
         'cpp/activity/timer_test.cc',

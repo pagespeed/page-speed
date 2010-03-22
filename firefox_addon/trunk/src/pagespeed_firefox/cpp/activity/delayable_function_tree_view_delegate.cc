@@ -20,12 +20,12 @@
 
 #include <algorithm>
 
+#include "base/logging.h"
 #include "call_graph_metadata.h"
 #include "call_graph_profile.h"
 #include "call_graph_util.h"
 #include "find_first_invocations_visitor.h"
 #include "profile.pb.h"
-#include "check.h"
 
 namespace activity {
 
@@ -66,7 +66,10 @@ bool DelayableFunctionTreeViewDelegate::GetCellText(
   const int64 delay_time_usec = tags_in_delay_order_[row_index].first;
   CallGraphMetadata::MetadataMap::const_iterator it =
       profile_.metadata()->map()->find(function_tag);
-  GCHECK(it != profile_.metadata()->map()->end());
+  if (it == profile_.metadata()->map()->end()) {
+    LOG(DFATAL) << "function_tag " << function_tag << " not found.";
+    return false;
+  }
   const FunctionMetadata &function_metadata = *it->second;
 
   switch (column_id) {
@@ -75,13 +78,19 @@ bool DelayableFunctionTreeViewDelegate::GetCellText(
       return true;
 
     case INSTANTIATION_TIME:
-      GCHECK(function_metadata.has_function_instantiation_time_usec());
+      if (!function_metadata.has_function_instantiation_time_usec()) {
+        LOG(DFATAL) << "No function instantiation time.";
+        return false;
+      }
       util::FormatTime(
           function_metadata.function_instantiation_time_usec(), retval);
       return true;
 
     case FIRST_CALL:
-      GCHECK(function_metadata.has_function_instantiation_time_usec());
+      if (!function_metadata.has_function_instantiation_time_usec()) {
+        LOG(DFATAL) << "No function instantiation time.";
+        return false;
+      }
       util::FormatTime(
           function_metadata.function_instantiation_time_usec() +
           delay_time_usec,
@@ -150,7 +159,11 @@ void DelayableFunctionTreeViewDelegate::PopulateInstantiationDelayVector(
     const int64 possible_instantiation_delay_usec =
         call_tree.entry_time_usec() -
         function_metadata->function_instantiation_time_usec();
-    GCHECK_GE(possible_instantiation_delay_usec, 0);
+    if (possible_instantiation_delay_usec < 0) {
+      LOG(DFATAL) << "Bad possible_instantiation_delay_usec: "
+                  << possible_instantiation_delay_usec;
+      return;
+    }
 
     tags_in_delay_order_.push_back(
         std::make_pair(possible_instantiation_delay_usec, function_tag));

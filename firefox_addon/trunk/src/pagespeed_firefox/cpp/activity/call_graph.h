@@ -49,8 +49,8 @@ class CallGraph {
   // entered the corresponding iteration of function.
   //
   // @INVARIANT(# calls to OnFunctionEntry >= # calls to OnFunctionExit)
-  void OnFunctionEntry(int32 tag);
-  void OnFunctionExit(int32 tag);
+  bool OnFunctionEntry(int32 tag);
+  bool OnFunctionExit(int32 tag);
 
   // Do dfs(execution order) traversal of the data structure.
   // Traversal is limited to nodes rooted in a member of roots_,

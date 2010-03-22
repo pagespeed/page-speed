@@ -44,14 +44,14 @@ class CallGraphProfileTest : public testing::Test {
     profile_.reset();
   }
 
-  void OnFunctionEntry(int32 tag) {
+  bool OnFunctionEntry(int32 tag) {
     activity_testing::TestStubFunctionInfo function_info(tag);
-    profile_->OnFunctionEntry(&function_info);
+    return profile_->OnFunctionEntry(&function_info);
   }
 
-  void OnFunctionExit(int32 tag) {
+  bool OnFunctionExit(int32 tag) {
     activity_testing::TestStubFunctionInfo function_info(tag);
-    profile_->OnFunctionExit(&function_info);
+    return profile_->OnFunctionExit(&function_info);
   }
 
   const activity::Profile *GetProfile() { return profile_->profile(); }
@@ -90,19 +90,31 @@ void ReadFileToString(const char* dir,
 }
 
 TEST_F(CallGraphProfileTest, OnFunctionEntryExitFailsWhenNotProfiling) {
-  ASSERT_DEATH(OnFunctionEntry(-1), "Check failed: profiling\\(\\)");
-  ASSERT_DEATH(OnFunctionExit(-1), "Check failed: profiling\\(\\)");
+#ifdef NDEBUG
+  ASSERT_FALSE(OnFunctionEntry(-1));
+  ASSERT_FALSE(OnFunctionExit(-1));
+#else
+  ASSERT_DEATH(OnFunctionEntry(-1), "Not profiling.");
+  ASSERT_DEATH(OnFunctionExit(-1), "Not profiling.");
+#endif
 }
 
 TEST_F(CallGraphProfileTest, OnFunctionExitFailsWithNoWorkingSet) {
   profile_->Start();
-  ASSERT_DEATH(OnFunctionExit(-1), "Check failed: !working_set_.empty\\(\\)");
+#ifdef NDEBUG
+  ASSERT_FALSE(OnFunctionExit(-1));
+#else
+  ASSERT_DEATH(OnFunctionExit(-1), "No metadata entry for -1");
+#endif
 }
 
 TEST_F(CallGraphProfileTest, SerializeFailsWhenProfiling) {
   profile_->Start();
-  ASSERT_DEATH(profile_->SerializeToOutputStream(NULL),
-               "Check failed: !profiling\\(\\)");
+#ifdef NDEBUG
+  ASSERT_FALSE(profile_->SerializeToOutputStream(NULL));
+#else
+  ASSERT_DEATH(profile_->SerializeToOutputStream(NULL), "Already profiling.");
+#endif
 }
 
 TEST_F(CallGraphProfileTest, SerializeToOutputStream) {

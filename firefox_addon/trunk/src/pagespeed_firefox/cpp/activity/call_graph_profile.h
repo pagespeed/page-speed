@@ -59,14 +59,14 @@ class CallGraphProfile {
   bool profiling() const { return profiling_; }
 
   // Called when a function has just been invoked.
-  void OnFunctionEntry(FunctionInfoInterface *function_info);
+  bool OnFunctionEntry(FunctionInfoInterface *function_info);
 
   // Called when a function has just returned.
-  void OnFunctionExit(FunctionInfoInterface *function_info);
+  bool OnFunctionExit(FunctionInfoInterface *function_info);
 
   // Called when a function is first instantiated (e.g. when it is
   // parsed, eval'd, or constructed).
-  void OnFunctionInstantiated(FunctionInfoInterface *function_info);
+  bool OnFunctionInstantiated(FunctionInfoInterface *function_info);
 
   // Serialize the profiling state to the specified output stream.
   bool SerializeToOutputStream(OutputStreamInterface *out) const;

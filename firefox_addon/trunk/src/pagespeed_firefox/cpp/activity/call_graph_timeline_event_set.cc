@@ -20,15 +20,17 @@
 
 #include <string.h>        // for strcmp
 
+#include "base/logging.h"
 #include "call_graph_timeline_event.h"
-#include "check.h"
 
 namespace activity {
 
 CallGraphTimelineEventSet::CallGraphTimelineEventSet(
     int64 event_duration_usec)
     : event_duration_usec_(event_duration_usec) {
-  GCHECK_GT(event_duration_usec, 0LL);
+  if (event_duration_usec <= 0LL) {
+    LOG(DFATAL) << "Bad event_duration_usec: " << event_duration_usec;
+  }
 }
 
 CallGraphTimelineEventSet::~CallGraphTimelineEventSet() {
@@ -44,8 +46,15 @@ CallGraphTimelineEvent *CallGraphTimelineEventSet::GetOrCreateEvent(
     const char *identifier,
     CallGraphTimelineEvent::Type type,
     int64 start_time_usec) {
-  GCHECK(identifier != NULL);
-  GCHECK_GE(start_time_usec, 0LL);
+  if (identifier == NULL) {
+    LOG(DFATAL) << "Identifier is null.";
+    return NULL;
+  }
+
+  if (start_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad start_time_usec: " << start_time_usec;
+    return NULL;
+  }
 
   Key key(start_time_usec, std::make_pair(type, identifier));
   CallGraphTimelineEvent *event;

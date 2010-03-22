@@ -18,13 +18,13 @@
 
 #include "call_graph_timeline_visitor.h"
 
+#include "base/logging.h"
 #include "call_graph_metadata.h"
 #include "call_graph_profile.h"
 #include "call_graph_timeline_event.h"
 #include "call_graph_timeline_event_set.h"
 #include "call_graph_util.h"
 #include "profile.pb.h"
-#include "check.h"
 
 namespace activity {
 
@@ -39,9 +39,18 @@ CallGraphTimelineVisitor::CallGraphTimelineVisitor(
       event_set_(event_set),
       start_time_usec_(start_time_usec),
       end_time_usec_(end_time_usec) {
-  GCHECK_GE(start_time_usec_, 0LL);
-  GCHECK_GE(end_time_usec_, 0LL);
-  GCHECK_GE(end_time_usec_, start_time_usec_);
+  if (start_time_usec_ < 0LL) {
+    LOG(DFATAL) << "Bad start_time_usec_: " << start_time_usec_;
+  }
+
+  if (end_time_usec_ < 0LL) {
+    LOG(DFATAL) << "Bad end_time_usec_: " << end_time_usec_;
+  }
+
+  if (end_time_usec_ < start_time_usec_) {
+    LOG(DFATAL) << "end_time_usec_ lt start_time_usec_: "
+                << end_time_usec_ << " < " << start_time_usec_;
+  }
 }
 
 CallGraphTimelineVisitor::~CallGraphTimelineVisitor() {}
@@ -54,7 +63,11 @@ void CallGraphTimelineVisitor::OnEntry(
   const int32 function_tag = tree.function_tag();
   const CallGraphMetadata::MetadataMap::const_iterator it =
       metadata_.map()->find(function_tag);
-  GCHECK(it != metadata_.map()->end());
+
+  if (it == metadata_.map()->end()) {
+    LOG(DFATAL) << "function_tag not found in metadata map: " << function_tag;
+    return;
+  }
   const FunctionMetadata &data = *it->second;
   const char *identifier = data.file_name().c_str();
 
@@ -100,8 +113,11 @@ void CallGraphTimelineVisitor::GetRoundedStartTimeAndEndTime(
     const CallTree &tree,
     int64 *out_rounded_start_time_usec,
     int64 *out_rounded_end_time_usec) const {
-  GCHECK(out_rounded_start_time_usec != NULL);
-  GCHECK(out_rounded_end_time_usec != NULL);
+  if (out_rounded_start_time_usec == NULL ||
+      out_rounded_end_time_usec == NULL) {
+    LOG(DFATAL) << "Bad inputs to GetRoundedStartTimeAndEndTime.";
+    return;
+  }
 
   const int64 function_entry_time_usec = tree.entry_time_usec();
   int64 function_exit_time_usec = tree.exit_time_usec();
@@ -136,11 +152,31 @@ void CallGraphTimelineVisitor::GetRoundedStartTimeAndEndTime(
     rounded_end_time_usec = rounded_start_time_usec;
   }
 
-  GCHECK_GE(rounded_start_time_usec, 0LL);
-  GCHECK_GE(rounded_end_time_usec, 0LL);
-  GCHECK_GE(rounded_end_time_usec, rounded_start_time_usec);
-  GCHECK_EQ(0LL, rounded_start_time_usec % event_set_->event_duration_usec());
-  GCHECK_EQ(0LL, rounded_end_time_usec % event_set_->event_duration_usec());
+  if (rounded_start_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad rounded_start_time_usec: " << rounded_start_time_usec;
+    return;
+  }
+  if (rounded_end_time_usec < 0LL) {
+    LOG(DFATAL) << "Bad rounded_end_time_usec: " << rounded_end_time_usec;
+    return;
+  }
+  if (rounded_end_time_usec < rounded_start_time_usec) {
+    LOG(DFATAL) << "rounded_end_time_usec lt rounded_start_time_usec: "
+                << rounded_end_time_usec << " < " << rounded_start_time_usec;
+    return;
+  }
+  if (rounded_start_time_usec % event_set_->event_duration_usec() != 0LL) {
+    LOG(DFATAL) << "rounded_start_time_usec " << rounded_start_time_usec
+                << " not multiple of event_duration_usec "
+                << event_set_->event_duration_usec();
+    return;
+  }
+  if (rounded_end_time_usec % event_set_->event_duration_usec() != 0LL) {
+    LOG(DFATAL) << "rounded_end_time_usec " << rounded_end_time_usec
+                << " not multiple of event_duration_usec "
+                << event_set_->event_duration_usec();
+    return;
+  }
 
   *out_rounded_start_time_usec = rounded_start_time_usec;
   *out_rounded_end_time_usec = rounded_end_time_usec;

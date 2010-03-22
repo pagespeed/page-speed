@@ -22,8 +22,8 @@
 
 #include <string>
 
+#include "base/logging.h"
 #include "profile.pb.h"
-#include "check.h"
 
 namespace activity {
 
@@ -41,12 +41,15 @@ bool CallGraphMetadata::HasEntry(int32 tag) const {
   return metadata_map_.count(tag) != 0;
 }
 
-void CallGraphMetadata::AddEntry(int32 tag,
+bool CallGraphMetadata::AddEntry(int32 tag,
                                  const char *file_name,
                                  const char *function_name,
                                  const char *function_source_utf8,
                                  int64 function_instantiation_time_usec) {
-  GCHECK(!HasEntry(tag));
+  if (HasEntry(tag)) {
+    LOG(DFATAL) << "Entry for " << tag << "already exists.";
+    return false;
+  }
   FunctionMetadata *entry = profile_->add_function_metadata();
 
   // Clean up inputs.
@@ -76,6 +79,7 @@ void CallGraphMetadata::AddEntry(int32 tag,
   }
 
   metadata_map_[tag] = entry;
+  return true;
 }
 
 }  // namespace activity

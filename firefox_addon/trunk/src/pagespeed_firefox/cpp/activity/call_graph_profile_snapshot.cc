@@ -20,11 +20,11 @@
 
 #include <utility>  // for make_pair
 
+#include "base/logging.h"
 #include "call_graph.h"
 #include "call_graph_metadata.h"
 #include "call_graph_profile.h"
 #include "profile.pb.h"
-#include "check.h"
 
 namespace activity {
 
@@ -46,10 +46,13 @@ void CallGraphProfileSnapshot::Init(
 
 void CallGraphProfileSnapshot::PopulateInitTimeMap(
     int64 start_time_usec, int64 end_time_usec) {
-  GCHECK_EQ(0, init_time_map_.size());
-  GCHECK_GE(start_time_usec, 0);
-  GCHECK_GE(end_time_usec, 0);
-  GCHECK_GE(end_time_usec, start_time_usec);
+  if (init_time_map_.size() > 0 ||
+      start_time_usec < 0 ||
+      end_time_usec < 0 ||
+      end_time_usec < start_time_usec) {
+    LOG(DFATAL) << "Bad inputs to PopulateInitTimeMap.";
+    return;
+  }
 
   for (CallGraphMetadata::MetadataMap::const_iterator
            it = metadata_->map()->begin(),

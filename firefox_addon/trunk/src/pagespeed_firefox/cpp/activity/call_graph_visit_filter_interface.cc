@@ -20,8 +20,8 @@
 
 #include "call_graph_visit_filter_interface.h"
 
+#include "base/logging.h"
 #include "profile.pb.h"
-#include "check.h"
 
 namespace activity {
 
@@ -43,8 +43,9 @@ CompositeVisitFilter::CompositeVisitFilter(
     CallGraphVisitFilterInterface *second)
     : first_(first),
       second_(second) {
-  GCHECK(first);
-  GCHECK(second);
+  if (first == NULL || second == NULL) {
+    LOG(DFATAL) << "Bad inputs: " << first << "," << second;
+  }
 }
 
 CompositeVisitFilter::~CompositeVisitFilter() {
@@ -61,7 +62,10 @@ TimeRangeVisitFilter::TimeRangeVisitFilter(
     int64 end_time_usec)
     : start_time_usec_(start_time_usec),
       end_time_usec_(end_time_usec) {
-  GCHECK(start_time_usec_ <= end_time_usec_);
+  if (end_time_usec < start_time_usec) {
+    LOG(DFATAL) << "end_time_usec lt start_time_usec: "
+                << end_time_usec_ << " < " << start_time_usec_;
+  }
 }
 
 TimeRangeVisitFilter::~TimeRangeVisitFilter() {}
