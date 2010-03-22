@@ -21,6 +21,30 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
+namespace {
+
+bool ShouldHaveADateHeader(const pagespeed::Resource& resource) {
+  // Based on
+  // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.18
+  const int code = resource.GetResponseStatusCode();
+  if (500 <= code && code < 600) {
+    // 5xx server error responses are not required to include a Date
+    // header.
+    return false;
+  }
+
+  switch (resource.GetResponseStatusCode()) {
+    case 100:
+    case 101:
+      return false;
+    default:
+      // All other responses should include a Date header.
+      return true;
+  }
+}
+
+}  // namespace
+
 namespace pagespeed {
 
 namespace rules {
@@ -44,7 +68,7 @@ bool SpecifyADateHeader::AppendResults(const PagespeedInput& input,
                                        Results* results) {
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
-    if (!resource_util::ShouldHaveADateHeader(resource)) {
+    if (!ShouldHaveADateHeader(resource)) {
       continue;
     }
 
@@ -83,8 +107,8 @@ void SpecifyADateHeader::FormatResults(const ResultVector& results,
 
   Formatter* body = formatter->AddChild(
       "The following resources are missing a valid date header. Resources "
-      "that do not specify a valid date header may not be cached by browsers "
-      "or proxies:");
+      "that do not specify a valid date header may not be cached by some "
+      "browsers or proxies:");
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
