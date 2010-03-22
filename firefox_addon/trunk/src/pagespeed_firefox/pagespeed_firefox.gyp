@@ -250,7 +250,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/cJSON/cJSON.gyp:cJSON',
+        '<(libpagespeed_root)/third_party/cJSON/cJSON.gyp:cJSON',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
       ],
       'sources': [
