@@ -189,8 +189,10 @@ activity.IncompatibleAddOnDescriptor_ = function(name, id) {
  * @private
  */
 activity.ui.INCOMPATIBLE_ADDONS_ = [
-    new activity.IncompatibleAddOnDescriptor_(
-        'HttpWatch', '{1E2593B2-E106-4697-BCE7-A9D30DE05D73}')
+    // There aren't currently any add-ons that are known to be
+    // incompatible with the activity panel. If we encounter
+    // incompatible add-ons in the future, they should be added to
+    // this list.
     ];
 
 /**
@@ -536,7 +538,7 @@ activity.ui.reloadProfiler = function() {
   if (activity.ui.isProfiling_) {
     activity.ui.stopProfiler();
   }
-  
+
   var win = FirebugContext.window;
   win = win.wrappedJSObject || win;
   win.location.reload();
