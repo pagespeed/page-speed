@@ -165,6 +165,7 @@ message FormatArgument {
     STRING_LITERAL = 2;
     INT_LITERAL = 3;
     BYTES = 4;
+    DURATION = 5;
   }
 
   required ArgumentType type = 1;
