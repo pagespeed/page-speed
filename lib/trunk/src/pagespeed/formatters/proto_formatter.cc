@@ -83,6 +83,10 @@ void ProtoFormatter::Format(ResultText* result_text,
         format_arg->set_type(FormatArgument::BYTES);
         format_arg->set_int_value(arg->int_value());
         break;
+      case Argument::DURATION:
+        format_arg->set_type(FormatArgument::DURATION);
+        format_arg->set_int_value(arg->int_value());
+        break;
       case Argument::STRING:
         format_arg->set_type(FormatArgument::STRING_LITERAL);
         format_arg->set_string_value(arg->string_value());

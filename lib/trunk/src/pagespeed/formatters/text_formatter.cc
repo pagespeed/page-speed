@@ -88,6 +88,9 @@ std::string TextFormatter::Format(
       case Argument::BYTES:
         subst.push_back(FormatBytes(arg.int_value()));
         break;
+      case Argument::DURATION:
+        subst.push_back(FormatTimeDuration(arg.int_value()));
+        break;
       default:
         LOG(DFATAL) << "Unknown argument type "
                     << arg.type();

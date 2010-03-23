@@ -190,6 +190,9 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
             case Argument::BYTES:
               str.append(FormatBytes(arg.int_value()));
               break;
+            case Argument::DURATION:
+              str.append(FormatTimeDuration(arg.int_value()));
+              break;
             default:
               LOG(DFATAL) << "Unknown argument type "
                           << arg.type();

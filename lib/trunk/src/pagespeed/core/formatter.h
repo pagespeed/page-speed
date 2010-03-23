@@ -34,18 +34,19 @@ class Argument {
     INTEGER,
     STRING,
     URL,
+    DURATION,
   };
 
-  Argument(ArgumentType type, int value);
+  Argument(ArgumentType type, int64_t value);
   Argument(ArgumentType type, const std::string& value);
 
-  int int_value() const;
+  int64_t int_value() const;
   const std::string& string_value() const;
   ArgumentType type() const;
 
  private:
   ArgumentType type_;
-  int int_value_;
+  int64_t int_value_;
   std::string string_value_;
 
   DISALLOW_COPY_AND_ASSIGN(Argument);
