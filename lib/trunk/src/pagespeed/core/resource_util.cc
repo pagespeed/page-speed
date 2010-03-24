@@ -211,20 +211,25 @@ bool DirectiveEnumerator::OnToken(std::string* key, std::string* value) {
   }
 }
 
-// Should we use a heurisitc based on the resource type to determine
-// if a resource is a static resource?
-bool ShouldApplyResourceTypeHeuristic(const pagespeed::Resource& resource) {
-  switch (resource.GetResponseStatusCode()) {
-    case 300:
-    case 301:
-    case 410:
-      // These status codes aren't directly associated with responses
-      // that contain a specific type of content. Thus, we should not
-      // apply a resource type heuristic to these responses.
-      return false;
+bool IsStaticResourceStatusCode(int status_code) {
+  switch (status_code) {
+    // HTTP/1.1 RFC lists these response codes as heuristically
+    // cacheable in the absence of explicit caching headers. The
+    // primary cacheable status code is 200, but 203 and 206 are also
+    // listed in the RFC.
+    case 200:
+    case 203:
+    case 206:
+      return true;
+
+    // In addition, 304s are sent for cacheable resources. Though the
+    // 304 response itself is not cacheable, the underlying resource
+    // is, and that's what we care about.
+    case 304:
+      return true;
 
     default:
-      return true;
+      return false;
   }
 }
 
@@ -277,23 +282,11 @@ bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
     return false;
   }
 
-  switch (resource.GetResponseStatusCode()) {
-    // HTTP/1.1 RFC lists these response codes as heuristically
-    // cacheable in the absence of explicit caching headers.
-    case 200:
-    case 203:
-    case 206:
-      return true;
-
-    // In addition, 304s are sent for cacheable resources. Though the
-    // 304 response itself is not cacheable, the underlying resource
-    // is, and that's what we care about.
-    case 304:
-      return true;
-
-    default:
-      return false;
+  if (!IsStaticResourceStatusCode(resource.GetResponseStatusCode())) {
+    return false;
   }
+
+  return true;
 }
 
 }  // namespace
@@ -524,12 +517,15 @@ bool IsCacheableResource(const Resource& resource) {
 }
 
 bool IsLikelyStaticResource(const Resource& resource) {
+  if (!IsStaticResourceStatusCode(resource.GetResponseStatusCode())) {
+    return false;
+  }
+
   if (!IsCacheableResource(resource)) {
     return false;
   }
 
-  if (ShouldApplyResourceTypeHeuristic(resource) &&
-      !IsLikelyStaticResourceType(resource.GetResourceType())) {
+  if (!IsLikelyStaticResourceType(resource.GetResourceType())) {
     // Certain types of resources (e.g. JS, CSS, images) are typically
     // static. If the resource isn't one of these types, assume it's
     // not static.

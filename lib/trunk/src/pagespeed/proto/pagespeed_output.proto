@@ -124,6 +124,15 @@ message ResourceOrderingDetails {
   repeated int32 out_of_order_inline_scripts = 2;
 }
 
+// Result detail to store information about caching attributes of resources.
+message CachingDetails {
+  extend ResultDetails {
+    optional CachingDetails message_set_extension = 4415843;  // 'Cac'
+  }
+
+  optional int64 freshness_lifetime_millis = 1;
+}
+
 message Result {
   // Identifier of rule that produced this result.
   required string rule_name = 1;
