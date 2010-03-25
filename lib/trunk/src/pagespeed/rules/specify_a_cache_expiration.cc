@@ -45,7 +45,8 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (resource_util::HasExplicitFreshnessLifetime(resource)) {
-      // The resource has a cache expiration, so exclude it from the result set.
+      // The resource has a cache expiration, so exclude it from the
+      // result set.
       continue;
     }
 

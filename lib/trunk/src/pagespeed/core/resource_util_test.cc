@@ -167,6 +167,30 @@ TEST_F(StaticResourceTest, CacheControlNoStore) {
   EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
 }
 
+TEST_F(StaticResourceTest, MaxAgeZero) {
+  // Base test: First specify a content type that's generally
+  // cacheable.
+  r_.AddResponseHeader("Content-Type", "image/png");
+  EXPECT_FALSE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+
+  r_.AddResponseHeader("Cache-Control", "max-age=0");
+  EXPECT_TRUE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
+}
+
+TEST_F(StaticResourceTest, ExpiresZero) {
+  // Base test: First specify a content type that's generally
+  // cacheable.
+  r_.AddResponseHeader("Content-Type", "image/png");
+  EXPECT_FALSE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_TRUE(resource_util::IsLikelyStaticResource(r_));
+
+  r_.AddResponseHeader("Expires", "0");
+  EXPECT_TRUE(resource_util::HasExplicitNoCacheDirective(r_));
+  EXPECT_FALSE(resource_util::IsLikelyStaticResource(r_));
+}
+
 TEST_F(StaticResourceTest, PagmaNoCache) {
   // Base test: First specify a content type that's generally
   // cacheable.

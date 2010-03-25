@@ -166,4 +166,34 @@ TEST_F(SpecifyACacheExpirationTest, SomeRequired) {
   CheckOneViolation("http://www.example.com/3");
 }
 
+TEST_F(SpecifyACacheExpirationTest, NoDateHeader) {
+  AddTestResource("http://www.example.com/",
+                  200,
+                  NULL,
+                  NULL);
+  ASSERT_EQ(1, input_->num_resources());
+
+  // If the resource is generally cacheable but is missing a Date
+  // header, it should not be included in the results.
+  CheckNoViolations();
+}
+
+TEST_F(SpecifyACacheExpirationTest, MustRevalidate) {
+  Resource* resource = new Resource;
+  resource->SetRequestUrl("http://www.example.com/");
+  resource->SetRequestMethod("GET");
+  resource->SetResponseStatusCode(200);
+  resource->AddResponseHeader("Date", "Thu, 18 Mar 2010 10:36:52 EDT");
+  input_->AddResource(resource);
+  ASSERT_EQ(1, input_->num_resources());
+
+  CheckOneViolation("http://www.example.com/");
+
+  // Now add a must-revalidate header. must-revalidate disables
+  // heuristic caching, making a resource without a cache expiration
+  // non-cacheable.
+  resource->AddResponseHeader("Cache-Control", "must-revalidate");
+  CheckNoViolations();
+}
+
 }  // namespace
