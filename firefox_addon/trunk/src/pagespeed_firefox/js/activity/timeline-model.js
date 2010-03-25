@@ -52,7 +52,6 @@ goog.inherits(activity.Listenable, goog.Disposable);
  * @param {Object} listener the listener.
  */
 activity.Listenable.prototype.addListener = function(listener) {
-  this.throwIfDisposed();
   this.listeners_.push(listener);
 };
 
@@ -61,7 +60,6 @@ activity.Listenable.prototype.addListener = function(listener) {
  * @param {Object} listener the listener.
  */
 activity.Listenable.prototype.removeListener = function(listener) {
-  this.throwIfDisposed();
   var listeners = this.listeners_;
   for (var i = 0, len = listeners.length; i < len; i++) {
     if (listeners[i] == listener) {
@@ -77,7 +75,6 @@ activity.Listenable.prototype.removeListener = function(listener) {
  * @protected
  */
 activity.Listenable.prototype.getListeners = function() {
-  this.throwIfDisposed();
   return this.listeners_;
 };
 
@@ -88,16 +85,6 @@ activity.Listenable.prototype.disposeInternal = function() {
   activity.Listenable.superClass_.disposeInternal.call(this);
 
   this.listeners_ = null;
-};
-
-/**
- * Throws an Error if this Listenable is disposed.
- * @protected
- */
-activity.Listenable.prototype.throwIfDisposed = function() {
-  if (this.isDisposed()) {
-    throw new Error('Already disposed.');
-  }
 };
 
 
@@ -243,8 +230,6 @@ activity.TimelineModel.prototype.addingEventDepth_ = 0;
  * Call before starting to add a set of events to the model.
  */
 activity.TimelineModel.prototype.startAddingEvents = function() {
-  this.throwIfDisposed();
-
   this.addingEventDepth_++;
   if (this.addingEventDepth_ == 1) {
     this.pendingEndTimeUsec_ = 0;
@@ -256,8 +241,6 @@ activity.TimelineModel.prototype.startAddingEvents = function() {
  * @param {activity.TimelineModel.Event} event the event to add.
  */
 activity.TimelineModel.prototype.addEvent = function(event) {
-  this.throwIfDisposed();
-
   if (this.addingEventDepth_ == 0) {
     throw new Error('Not currently adding events.');
   }
@@ -276,8 +259,6 @@ activity.TimelineModel.prototype.addEvent = function(event) {
  * @param {number} endTimeUsec end time of the set of events, in microseconds.
  */
 activity.TimelineModel.prototype.doneAddingEvents = function(endTimeUsec) {
-  this.throwIfDisposed();
-
   this.addingEventDepth_--;
 
   if (this.addingEventDepth_ < 0) {
@@ -377,8 +358,6 @@ goog.inherits(activity.TimelineModel.Timeline, activity.Listenable);
  * @param {activity.TimelineModel.Event} event the event to add.
  */
 activity.TimelineModel.Timeline.prototype.addEvent = function(event) {
-  this.throwIfDisposed();
-
   var listeners = this.getListeners();
   for (var i = 0, len = listeners.length; i < len; i++) {
     listeners[i].onEvent(event);
