@@ -32,6 +32,7 @@ goog.require('goog.Disposable');
  *
  * @param {!activity.TimelineModel} timelineModel the timeline model.
  * @param {number} resolutionUsec the resolution, in microseconds.
+ * @param {bool} aggregateBrowserJS Whether to aggregate browser JS events.
  * @param {!IActivityProfiler} activityProfiler the IActivityProfiler instance.
  * @param {Function} callbackWrapper wrapper function that handles
  *     exceptions thrown by a callback function.
@@ -39,13 +40,15 @@ goog.require('goog.Disposable');
  * @extends {goog.Disposable}
  */
 activity.JsEventFetcher = function(timelineModel,
-                                 resolutionUsec,
-                                 activityProfiler,
-                                 callbackWrapper) {
+                                   resolutionUsec,
+                                   aggregateBrowserJS,
+                                   activityProfiler,
+                                   callbackWrapper) {
   goog.Disposable.call(this);
 
   this.timelineModel_ = timelineModel;
   this.resolutionUsec_ = resolutionUsec;
+  this.aggregateBrowserJS_ = aggregateBrowserJS;
   this.activityProfiler_ = activityProfiler;
 
   /**
@@ -115,8 +118,6 @@ activity.JsEventFetcher.prototype.isCallbackPending_ = false;
  * Start fetching timeline events.
  */
 activity.JsEventFetcher.prototype.start = function() {
-  this.throwIfDisposed_();
-
   this.startTimeUsec_ = 0;
   this.isRunning_ = true;
   this.isFinished_ = false;
@@ -127,8 +128,6 @@ activity.JsEventFetcher.prototype.start = function() {
  * Stop fetching timeline events.
  */
 activity.JsEventFetcher.prototype.stop = function() {
-  this.throwIfDisposed_();
-
   this.isRunning_ = false;
 };
 
@@ -147,16 +146,6 @@ activity.JsEventFetcher.prototype.disposeInternal = function() {
   this.isRunning_ = false;
   this.isFinished_ = true;
   this.isCallbackPending_ = false;
-};
-
-/**
- * Throws an Error if this JsEventFetcher is disposed.
- * @private
- */
-activity.JsEventFetcher.prototype.throwIfDisposed_ = function() {
-  if (this.isDisposed()) {
-    throw new Error('JsEventFetcher already disposed.');
-  }
 };
 
 /**
@@ -198,7 +187,8 @@ activity.JsEventFetcher.prototype.updateTimelineModel_ = function(events) {
     }
 
     var dispatcher =
-        new activity.JsEventFetcher.EventDispatcher_(this.timelineModel_);
+        new activity.JsEventFetcher.EventDispatcher_(
+            this.timelineModel_, this.aggregateBrowserJS_);
     dispatcher.populate(events);
     if (dispatcher.hasEvents()) {
       dispatcher.dispatchEvents();
@@ -221,15 +211,22 @@ activity.JsEventFetcher.prototype.updateTimelineModel_ = function(events) {
  * activity.TimelineModel.Events and dispatching those events to the
  * model.
  * @param {activity.TimelineModel} model the timeline model.
+ * @param {bool} aggregateBrowserJS Whether to aggregate browser JS events.
  * @constructor
  * @private
  */
-activity.JsEventFetcher.EventDispatcher_ = function(model) {
+activity.JsEventFetcher.EventDispatcher_ = function(model, aggregateBrowserJS) {
   /**
    * @type {activity.TimelineModel}
    * @private
    */
   this.model_ = model;
+
+  /**
+   * @type {bool}
+   * @private
+   */
+  this.aggregateBrowserJS_ = aggregateBrowserJS;
 
   /**
    * @type {Object}
@@ -333,7 +330,7 @@ activity.JsEventFetcher.EventDispatcher_.prototype.getMaxEventEndTimeUsec =
  */
 activity.JsEventFetcher.EventDispatcher_.prototype.getOrCreateEvent_ = function(
     event, eventType) {
-  var identifier = activity.JsEventFetcher.getEventIdentifier_(event);
+  var identifier = this.getEventIdentifier_(event);
 
   // An event is uniquely defined by its type,startTime,identifier
   // tuple. We build a string that uniquely represents this key and
@@ -358,14 +355,16 @@ activity.JsEventFetcher.EventDispatcher_.prototype.getOrCreateEvent_ = function(
  * @return {string} the identifier for the event.
  * @private
  */
-activity.JsEventFetcher.getEventIdentifier_ = function(event) {
+activity.JsEventFetcher.EventDispatcher_.prototype.getEventIdentifier_ =
+    function(event) {
   var identifier = event.getIdentifier();
 
   // We special case a few types of URLs:
   // 1. All browser URLs are lumped into a single category.
   // 2. All javascript: URLs are lumped into a single category.
-  if (activity.JsEventFetcher.isBrowserUrl_(identifier)) {
-    identifier = 'Firefox Javascript';
+  if (this.aggregateBrowserJS_ &&
+      activity.JsEventFetcher.isBrowserUrl_(identifier)) {
+    identifier = 'Browser JavaScript';
   }
   if (identifier.lastIndexOf('javascript:', 0) == 0) {
     identifier = 'javascript: URL';
@@ -405,13 +404,12 @@ activity.JsEventFetcher.isBrowserUrl_ = function(url) {
     return true;
   }
   if (activity.JsEventFetcher.startsWith_(url, 'file:')) {
-    if (activity.JsEventFetcher.endsWith_(url, '.jsm') &&
-        url.indexOf('/modules/' != -1)) {
-      return true;
-    }
-    if (activity.JsEventFetcher.endsWith_(url, '.js') &&
-        url.indexOf('/components/') != -1) {
-      return true;
+    if (activity.JsEventFetcher.endsWith_(url, '.jsm') ||
+        activity.JsEventFetcher.endsWith_(url, '.js')) {
+      if (url.indexOf('/modules/' != -1) ||
+          url.indexOf('/components/') != -1) {
+        return true;
+      }
     }
   }
   if (activity.JsEventFetcher.endsWith_(url, '.cpp')) {

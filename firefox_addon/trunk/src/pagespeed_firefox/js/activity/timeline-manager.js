@@ -116,6 +116,22 @@ activity.TimelineManager.PREF_CANVAS_WIDTH_PX_ = 'canvas_width_px';
 activity.TimelineManager.DEFAULT_CANVAS_WIDTH_PX_ = 250;
 
 /**
+ * Name of the preference that indicates whether we should aggregate
+ * browser JavaScript events.
+ * @type {string}
+ * @private
+ */
+activity.TimelineManager.PREF_AGGREGATE_BROWSER_JS_ =
+    'aggregate_browser_javascript';
+
+/**
+ * The default for aggregating JavaScript events.
+ * @type {bool}
+ * @private
+ */
+activity.TimelineManager.DEFAULT_AGGREGATE_BROWSER_JS_ = true;
+
+/**
  * The js event fetcher, which queries the IActivityProfiler instance for
  * js timeline events, and pushes those events into the TimelineModel.
  * @type {activity.JsEventFetcher?}
@@ -247,9 +263,14 @@ activity.TimelineManager.prototype.start = function(
   this.model_ = new activity.TimelineModel();
   this.model_.addListener(this.timelineView_);
 
+  var aggregateBrowserJS = activity.preference.getBool(
+      activity.TimelineManager.PREF_AGGREGATE_BROWSER_JS_,
+      activity.TimelineManager.DEFAULT_AGGREGATE_BROWSER_JS_);
+
   this.fetcher_ = new activity.JsEventFetcher(
     this.model_,
     this.timelineView_.getResolutionUsec(),
+    aggregateBrowserJS,
     activityProfiler,
     this.callbackWrapper_);
 
