@@ -359,6 +359,23 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
   if (cache_directives.find("no-store") != cache_directives.end()) {
     return true;
   }
+  DirectiveMap::const_iterator it = cache_directives.find("max-age");
+  if (it != cache_directives.end()) {
+    int64_t max_age_value = 0;
+    if (StringToInt64(it->second, &max_age_value) &&
+        max_age_value == 0) {
+      // Cache-Control: max-age=0 means do not cache.
+      return true;
+    }
+  }
+
+  const std::string& expires = resource.GetResponseHeader("Expires");
+  int64_t expires_value = 0;
+  if (!expires.empty() &&
+      !ParseTimeValuedHeader(expires.c_str(), &expires_value)) {
+    // An invalid Expires header (e.g. Expires: 0) means do not cache.
+    return true;
+  }
 
   const std::string& pragma = resource.GetResponseHeader("Pragma");
   if (pragma.find("no-cache") != pragma.npos) {
