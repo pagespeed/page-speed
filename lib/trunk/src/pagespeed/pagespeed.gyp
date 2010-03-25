@@ -229,6 +229,20 @@
       },
     },
     {
+      'target_name': 'pagespeed_har',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/third_party/cJSON/cJSON.gyp:cJSON',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/har/http_archive.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+    },
+    {
       'target_name': 'pagespeed',
       'type': '<(library)',
       'dependencies': [
@@ -373,6 +387,7 @@
         '<(DEPTH)/base/base.gyp:base',
         'pagespeed',
         'pagespeed_formatters',
+        'pagespeed_har',
         'pagespeed_input_pb',
         'pagespeed_proto',
       ],

@@ -30,6 +30,7 @@
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/formatters/text_formatter.h"
+#include "pagespeed/har/http_archive.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
@@ -66,36 +67,32 @@ class PrintProtoFormatter : public pagespeed::formatters::ProtoFormatter {
   std::vector<pagespeed::ResultText*> results_;
 };
 
-void ProcessInput(const pagespeed::ProtoInput& input_proto,
-                  pagespeed::RuleFormatter* formatter) {
-  std::vector<pagespeed::Rule*> rules;
-  bool save_optimized_content = true;
-  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
+  pagespeed::ProtoInput input_proto;
+  bool success = ::google::protobuf::TextFormat::ParseFromString(
+      file_contents, &input_proto);
+  CHECK(success);
 
-  // Ownership of rules is transferred to the Engine instance.
-  pagespeed::Engine engine(rules);
-  engine.Init();
-
-  pagespeed::PagespeedInput input;
-  pagespeed::proto::PopulatePagespeedInput(input_proto, &input);
-
-  engine.ComputeAndFormatResults(input, formatter);
+  pagespeed::PagespeedInput *input = new pagespeed::PagespeedInput;
+  pagespeed::proto::PopulatePagespeedInput(input_proto, input);
+  return input;
 }
 
 void PrintUsage() {
-  fprintf(stderr, "Usage: pagespeed <format> <input>\n");
+  fprintf(stderr, "Usage: pagespeed <output_format> <input_format> <input>\n");
 }
 
 }  // namespace
 
 int main(int argc, char** argv) {
-  if (argc != 3) {
+  if (argc != 4) {
     PrintUsage();
     return 1;
   }
 
-  std::string format = argv[1];
-  std::string filename = argv[2];
+  const std::string out_format = argv[1];
+  const std::string in_format = argv[2];
+  const std::string filename = argv[3];
   std::ifstream in(filename.c_str());
   if (!in) {
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
@@ -110,26 +107,42 @@ int main(int argc, char** argv) {
     file_contents += '\n';
   }
 
-  pagespeed::ProtoInput input;
-  bool success = ::google::protobuf::TextFormat::ParseFromString(
-      file_contents, &input);
-  CHECK(success);
-
   scoped_ptr<pagespeed::RuleFormatter> formatter;
-  if (format == "json") {
+  if (out_format == "json") {
     formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout,
                                                              NULL));
-  } else if (format == "proto") {
+  } else if (out_format == "proto") {
     formatter.reset(new PrintProtoFormatter);
-  } else if (format == "text") {
+  } else if (out_format == "text") {
     formatter.reset(new pagespeed::formatters::TextFormatter(&std::cout));
   } else {
-    fprintf(stderr, "Invalid output format %s\n", format.c_str());
+    fprintf(stderr, "Invalid output format %s\n", out_format.c_str());
     PrintUsage();
     return 1;
   }
+  CHECK(formatter.get() != NULL);
 
-  ProcessInput(input, formatter.get());
+  scoped_ptr<pagespeed::PagespeedInput> input;
+  if (in_format == "har") {
+    input.reset(pagespeed::ParseHttpArchive(file_contents));
+  } else if (in_format == "proto") {
+    input.reset(ParseProtoInput(file_contents));
+  } else {
+    fprintf(stderr, "Invalid input format %s\n", in_format.c_str());
+    PrintUsage();
+    return 1;
+  }
+  CHECK(input.get() != NULL);
+
+  std::vector<pagespeed::Rule*> rules;
+  bool save_optimized_content = true;
+  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+
+  // Ownership of rules is transferred to the Engine instance.
+  pagespeed::Engine engine(rules);
+  engine.Init();
+
+  engine.ComputeAndFormatResults(*input.get(), formatter.get());
 
   return 0;
 }
