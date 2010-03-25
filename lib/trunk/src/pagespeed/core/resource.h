@@ -29,6 +29,7 @@ enum ResourceType {
   IMAGE,
   JS,
   REDIRECT,
+  FLASH,
   OTHER
 };
 

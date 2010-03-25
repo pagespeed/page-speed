@@ -93,13 +93,44 @@ void ExpectResourceType(const char *content_type,
 
 TEST(ResourceTest, ResourceTypes) {
   ExpectResourceType("text/html", 200, pagespeed::HTML);
+  ExpectResourceType("text/html-sandboxed", 200, pagespeed::HTML);
   ExpectResourceType("text/html; charset=UTF-8", 200, pagespeed::HTML);
+  ExpectResourceType("application/xhtml+xml", 200, pagespeed::HTML);
   ExpectResourceType("text/css", 200, pagespeed::CSS);
-  ExpectResourceType("text/javascript", 200, pagespeed::JS);
+
+  // Types from
+  // http://dev.w3.org/html5/spec/Overview.html#scriptingLanguages
+  ExpectResourceType("application/ecmascript", 200, pagespeed::JS);
+  ExpectResourceType("application/javascript", 200, pagespeed::JS);
+  ExpectResourceType("application/x-ecmascript", 200, pagespeed::JS);
   ExpectResourceType("application/x-javascript", 200, pagespeed::JS);
+  ExpectResourceType("text/ecmascript", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript1.0", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript1.1", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript1.2", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript1.3", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript1.4", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript1.5", 200, pagespeed::JS);
+  ExpectResourceType("text/jscript", 200, pagespeed::JS);
+  ExpectResourceType("text/livescript", 200, pagespeed::JS);
+  ExpectResourceType("text/x-ecmascript", 200, pagespeed::JS);
+  ExpectResourceType("text/x-javascript", 200, pagespeed::JS);
+  ExpectResourceType("text/javascript;e4x=1", 200, pagespeed::JS);
+
+  // Other common JS types
+  ExpectResourceType("text/json", 200, pagespeed::JS);
+  ExpectResourceType("text/x-js", 200, pagespeed::JS);
+  ExpectResourceType("text/x-json", 200, pagespeed::JS);
+  ExpectResourceType("application/json", 200, pagespeed::JS);
+  ExpectResourceType("application/x-js", 200, pagespeed::JS);
+  ExpectResourceType("application/x-json", 200, pagespeed::JS);
+
   ExpectResourceType("text/plain", 200, pagespeed::TEXT);
+  ExpectResourceType("application/xml", 200, pagespeed::TEXT);
   ExpectResourceType("image/png", 200, pagespeed::IMAGE);
   ExpectResourceType("image/jpeg", 200, pagespeed::IMAGE);
+  ExpectResourceType("application/x-shockwave-flash", 200, pagespeed::FLASH);
   ExpectResourceType("application/x-binary", 200, pagespeed::OTHER);
   ExpectResourceType("text/html", 302, pagespeed::REDIRECT);
   ExpectResourceType("text/html", 100, pagespeed::OTHER);

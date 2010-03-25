@@ -399,6 +399,7 @@ bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
   switch (type) {
     case IMAGE:
     case CSS:
+    case FLASH:
     case JS:
       // These resources are almost always cacheable.
       return true;

@@ -223,23 +223,43 @@ ResourceType Resource::GetResourceType() const {
   }
 
   if (type.find("text/") == 0) {
-    if (type == "text/html") {
+    if (type == "text/html" ||
+        type == "text/html-sandboxed") {
       return HTML;
     } else if (type == "text/css") {
       return CSS;
-    } else if (type == "text/javascript" || type == "text/x-javascript") {
+    } else if (type.find("javascript") != type.npos ||
+               type.find("json") != type.npos ||
+               type.find("ecmascript") != type.npos ||
+               type == "text/livescript" ||
+               type == "text/js" ||
+               type == "text/jscript" ||
+               type == "text/x-js") {
       return JS;
     } else {
       return TEXT;
     }
   } else if (type.find("image/") == 0) {
     return IMAGE;
-  } else if (type == "application/x-javascript" ||
-             type == "application/javascript") {
-    return JS;
-  } else {
-    return OTHER;
+  } else if (type.find("application/") == 0) {
+    if (type.find("javascript") != type.npos ||
+        type.find("json") != type.npos ||
+        type.find("ecmascript") != type.npos ||
+        type == "application/livescript" ||
+        type == "application/js" ||
+        type == "application/jscript" ||
+        type == "application/x-js") {
+      return JS;
+    } else if (type == "application/xhtml+xml") {
+      return HTML;
+    } else if (type == "application/xml") {
+      return TEXT;
+    } else if (type == "application/x-shockwave-flash") {
+      return FLASH;
+    }
   }
+
+  return OTHER;
 }
 
 ImageType Resource::GetImageType() const {
