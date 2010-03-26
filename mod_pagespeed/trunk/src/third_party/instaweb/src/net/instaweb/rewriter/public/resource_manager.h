@@ -1,5 +1,6 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
+//     and sligocki@google.com (Shawn Ligocki)
 
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_RESOURCE_MANAGER_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_RESOURCE_MANAGER_H_
@@ -7,22 +8,20 @@
 #include <string>
 
 namespace net_instaweb {
-class OutlineResource;
-class MessageHandler;
-class Resource;
-class SpriteResource;
+class InputResource;
+class OutputResource;
 
 class ResourceManager {
  public:
   virtual ~ResourceManager();
 
-  virtual SpriteResource* CreateSprite(const char* file_extension) = 0;
-  virtual OutlineResource* CreateOutlineResource(
-      const std::string& contents, const char* file_extension) = 0;
-  virtual Resource* CreateResource(const std::string& name) = 0;
-  virtual bool WriteResource(Resource* resource, const char* filename,
-                             MessageHandler* message_handler) = 0;
-  virtual bool Load(Resource* resource, MessageHandler* message_handler) = 0;
+  // Created resources are managed by ResourceManager and eventually deleted
+  // by ResourceManager's destructor.
+  virtual OutputResource* CreateOutputResource(const std::string& suffix) = 0;
+  virtual InputResource* CreateInputResource(const std::string& url) = 0;
+
+  // Set base directory of filesystem where resources will be found.
+  virtual void set_base_dir(const std::string& dir) = 0;
 };
 }
 

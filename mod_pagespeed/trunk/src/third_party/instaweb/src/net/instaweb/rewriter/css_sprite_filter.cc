@@ -5,12 +5,12 @@
 
 #include <assert.h>
 #include <string>
-#include "net/instaweb/rewriter/public/add_head_filter.h"
-#include "net/instaweb/rewriter/public/resource.h"
+#include "net/instaweb/rewriter/public/input_resource.h"
+#include "net/instaweb/rewriter/public/output_resource.h"
 #include "net/instaweb/rewriter/public/resource_manager.h"
-#include "net/instaweb/rewriter/public/sprite_resource.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
+#include "net/instaweb/htmlparse/public/message_handler.h"
 
 namespace net_instaweb {
 // TODO(jmarantz): This spriting code assumes we are synchronously loading
@@ -131,7 +131,7 @@ void CssSpriteFilter::EmitSprites() {
   // do a sprite if we have more than one css element that successfully
   // loaded.
   std::vector<HtmlElement*> sprite_elements;
-  std::vector<Resource*> sprite_resources;
+  std::vector<InputResource*> sprite_resources;
   for (int i = 0, n = css_elements_.size(); i < n; ++i) {
     HtmlElement* element = css_elements_[i];
     std::string media;
@@ -140,8 +140,9 @@ void CssSpriteFilter::EmitSprites() {
       // TODO(jmarantz): consider async loads; exclude css file
       // from the sprite that are not yet loaded.  For now, our
       // loads are blocking.  Need to understand Apache module
-      Resource* css_resource = resource_manager_->CreateResource(href);
-      if (resource_manager_->Load(css_resource, message_handler)) {
+      InputResource* css_resource =
+          resource_manager_->CreateInputResource(href);
+      if (css_resource->Read(message_handler)) {
         if (!media.empty()) {
           // TODO(jmarantz): Annotate sprite sections with 'media' as needed
           // css_resource->AddAttribute("media", media.c_str());
@@ -161,7 +162,7 @@ void CssSpriteFilter::EmitSprites() {
     // Ideally like to have a data-driven service tell us which elements should
     // be sprited together.  Note that both the resources and the elements
     // are managed, so we don't delete them even if the spriting fails.
-    SpriteResource* sprite = resource_manager_->CreateSprite(".css");
+    OutputResource* sprite = resource_manager_->CreateOutputResource(".css");
     HtmlElement* sprite_element = html_parse_->NewElement(s_link_);
     sprite_element->AddAttribute(s_rel_, s_stylesheet_, "\"");
     sprite_element->AddAttribute(s_type_, s_text_css_, "\"");
@@ -177,15 +178,18 @@ void CssSpriteFilter::EmitSprites() {
     // whether the desired sprite is already known.  For now we'll
     // assume we can commit to serving the sprite during the HTML
     // rewriter.
+    //
+    // TODO(sligocki): It may not be scalable to store the entire contents in
+    // memory. This needs to be dealt with in the Resource interfaces.
+    std::string sprite_content;
     for (int i = 0, n = sprite_resources.size(); i < n; ++i) {
-      sprite->AddResource(sprite_resources[i]);
+      sprite_content += sprite_resources[i]->contents();
     }
 
     // We've collected at least two CSS files to sprite, and whose
     // HTML elements are in the current flush window.  Last step
     // is to write the sprite.
-    if (resource_manager_->WriteResource(sprite, sprite->filename().c_str(),
-                                         message_handler)) {
+    if (sprite->Write(sprite_content, message_handler)) {
       // commit by removing the elements from the DOM.
       for (size_t i = 0; i < sprite_elements.size(); ++i) {
         html_parse_->DeleteElement(sprite_elements[i]);

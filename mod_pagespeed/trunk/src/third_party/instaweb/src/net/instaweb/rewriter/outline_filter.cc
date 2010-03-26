@@ -5,13 +5,12 @@
 
 #include <assert.h>
 #include <string>
-#include "net/instaweb/rewriter/public/outline_resource.h"
+#include "net/instaweb/rewriter/public/output_resource.h"
 #include "net/instaweb/rewriter/public/resource_manager.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
 
 namespace net_instaweb {
-
 
 OutlineFilter::OutlineFilter(HtmlParse* html_parse,
                              ResourceManager* resource_manager)
@@ -37,7 +36,8 @@ void OutlineFilter::StartElement(HtmlElement* element) {
   // No tags allowed inside style or script element.
   // TODO(sligocki): This should eventually not be a fatal error.
   if (inline_element_ != NULL) {
-    html_parse_->FatalError("", -1, "Tag found inside style/script.");
+    html_parse_->FatalError(html_parse_->filename(), html_parse_->line_number(),
+                            "Tag found inside style/script.");
     inline_element_ = NULL;  // Don't outline what we don't understand.
   }
   element_stack_.push_back(element);
@@ -99,7 +99,8 @@ void OutlineFilter::IgnorableWhitespace(const std::string& whitespace) {
 void OutlineFilter::Comment(const std::string& comment) {
   // TODO(sligocki): This should eventually not be a fatal error.
   if (inline_element_ != NULL) {
-    html_parse_->FatalError("", -1, "Tag found inside style/script.");
+    html_parse_->FatalError(html_parse_->filename(), html_parse_->line_number(),
+                            "Tag found inside style/script.");
     inline_element_ = NULL;  // Don't outline what we don't understand.
   }
 }
@@ -107,7 +108,8 @@ void OutlineFilter::Comment(const std::string& comment) {
 void OutlineFilter::Cdata(const std::string& cdata) {
   // TODO(sligocki): This should eventually not be a fatal error.
   if (inline_element_ != NULL) {
-    html_parse_->FatalError("", -1, "Tag found inside style/script.");
+    html_parse_->FatalError(html_parse_->filename(), html_parse_->line_number(),
+                            "Tag found inside style/script.");
     inline_element_ = NULL;  // Don't outline what we don't understand.
   }
 }
@@ -115,7 +117,8 @@ void OutlineFilter::Cdata(const std::string& cdata) {
 void OutlineFilter::IEDirective(const std::string& directive) {
   // TODO(sligocki): This should eventually not be a fatal error.
   if (inline_element_ != NULL) {
-    html_parse_->FatalError("", -1, "Tag found inside style/script.");
+    html_parse_->FatalError(html_parse_->filename(), html_parse_->line_number(),
+                            "Tag found inside style/script.");
     inline_element_ = NULL;  // Don't outline what we don't understand.
   }
 }
@@ -126,11 +129,10 @@ void OutlineFilter::OutlineStyle(HtmlElement* style_element,
   if (html_parse_->IsRewritable(style_element)) {
     // create style file from content
     // TODO(sligocki): What do we want to do if it's not CSS?
-    OutlineResource* resource =
-        resource_manager_->CreateOutlineResource(content, ".css");
+    OutputResource* resource =
+        resource_manager_->CreateOutputResource(".css");
     MessageHandler* message_handler = html_parse_->message_handler();
-    if (resource_manager_->WriteResource(
-            resource, resource->filename().c_str(), message_handler)) {
+    if (resource->Write(content, message_handler)) {
       HtmlElement* link_element = html_parse_->NewElement(s_link_);
       link_element->AddAttribute(s_rel_, s_stylesheet_, "'");
       // TODO(sligocki): sanitize url so it doesn't have stray 's
@@ -142,7 +144,9 @@ void OutlineFilter::OutlineStyle(HtmlElement* style_element,
       // remove style element from DOM
       if (!html_parse_->DeleteElement(style_element)) {
         // TODO(sligocki): what do I do for first few args.
-        html_parse_->FatalError("", -1, "Failed to delete element");
+        html_parse_->FatalError(
+            html_parse_->filename(), html_parse_->line_number(),
+            "Failed to delete element");
       }
       // add link
       // NOTE: this only works if current pointer was on element
@@ -152,16 +156,16 @@ void OutlineFilter::OutlineStyle(HtmlElement* style_element,
   }
 }
 
+// TODO(sligocki): combine similar code from OutlineStyle
 void OutlineFilter::OutlineScript(HtmlElement* element,
                                   const std::string& content) {
   if (html_parse_->IsRewritable(element)) {
     // create style file from content
     // TODO(sligocki): What do we want to do if it's not javascript?
-    OutlineResource* resource =
-        resource_manager_->CreateOutlineResource(content, ".js");
+    OutputResource* resource =
+        resource_manager_->CreateOutputResource(".js");
     MessageHandler* message_handler = html_parse_->message_handler();
-    if (resource_manager_->WriteResource(
-            resource, resource->filename().c_str(), message_handler)) {
+    if (resource->Write(content, message_handler)) {
       HtmlElement* src_element = html_parse_->NewElement(s_script_);
       // TODO(sligocki): sanitize url so it doesn't have stray 's
       src_element->AddAttribute(s_src_, resource->url().c_str(), "'");
@@ -172,7 +176,9 @@ void OutlineFilter::OutlineScript(HtmlElement* element,
       // remove original script element from DOM
       if (!html_parse_->DeleteElement(element)) {
         // TODO(sligocki): what do I do for first few args.
-        html_parse_->FatalError("", -1, "Failed to delete element");
+        html_parse_->FatalError(
+            html_parse_->filename(), html_parse_->line_number(),
+            "Failed to delete element");
       }
       // add <script src=...> element
       // NOTE: this only works if current pointer was on element

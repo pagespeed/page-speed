@@ -43,7 +43,7 @@ class FileSystem {
     virtual int Write(
         const char* buf, int bytes, MessageHandler* message_handler) = 0;
     virtual bool Flush(MessageHandler* message_handler) = 0;
-    virtual void SetWorldReadable() = 0;
+    virtual bool SetWorldReadable(MessageHandler* message_handler) = 0;
    protected:
     friend class FileSystem;
     virtual ~OutputFile();

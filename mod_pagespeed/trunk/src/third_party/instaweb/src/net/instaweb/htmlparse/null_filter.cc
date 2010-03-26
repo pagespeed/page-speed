@@ -23,12 +23,12 @@ int null_filter(int argc, char** argv) {
       outfile = argv[2];
     } else  if (file_driver.GenerateOutputFilename(infile, &outfile_buffer)) {
       outfile = outfile_buffer.c_str();
+      fprintf(stdout, "Null rewriting %s into %s\n", infile, outfile);
     } else {
       fprintf(stderr, "Cannot generate output filename from %s\n", infile);
     }
 
     if (outfile != NULL) {
-      fprintf(stdout, "Null rewriting %s into %s\n", infile, outfile);
       if (file_driver.ParseFile(infile, outfile)) {
         ret = 0;
       }

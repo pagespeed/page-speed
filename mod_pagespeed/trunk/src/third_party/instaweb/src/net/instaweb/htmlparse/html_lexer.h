@@ -59,7 +59,7 @@ class HtmlLexer {
   void EvalAttrVal(char c);
   void EvalAttrValSq(char c);
   void EvalAttrValDq(char c);
-  void EvalScript(char c);
+  void EvalLiteralTag(char c);
   void EvalDirective(char c);
 
   void MakeElement();
@@ -97,7 +97,7 @@ class HtmlLexer {
     TAG_ATTR_VAL,          // "<x y=x" value terminated by whitespace or >
     TAG_ATTR_VALDQ,        // '<x y="' value terminated by double-quote
     TAG_ATTR_VALSQ,        // "<x y='" value terminated by single-quote
-    SCRIPT,                // "<script "
+    LITERAL_TAG,           // "<script " or "<iframe "
     DIRECTIVE              // "<!x"
   };
 
@@ -112,6 +112,7 @@ class HtmlLexer {
   HtmlElement* element_;    // current element; used to collect attributes
   int line_;
   std::string filename_;
+  std::string literal_close_;  // specific tag go close, e.g </script>
 
   std::set<const char*> implicitly_closed_;
   std::set<const char*> non_brief_terminated_tags_;
