@@ -64,7 +64,7 @@ class CacheStaticResourcesAggressivelyTest : public ::testing::Test {
     ASSERT_EQ(0, results.results_size());
   }
 
-  void CheckOneViolation(const char *url, int64_t freshness_lifetime_millis) {
+  void CheckOneViolation(const char *url, int64 freshness_lifetime_millis) {
     CacheStaticResourcesAggressively rule;
 
     Results results;

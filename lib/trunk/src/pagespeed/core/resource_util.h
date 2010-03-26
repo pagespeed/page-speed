@@ -47,14 +47,14 @@ bool HasExplicitNoCacheDirective(const Resource& resource);
 // milliseconds since epoch. Returns true if the conversion succeeded,
 // false otherwise, The out parameter is only valid when this function
 // returns true.
-bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis);
+bool ParseTimeValuedHeader(const char* time_str, int64 *out_epoch_millis);
 
 // Get the freshness lifetime of hte given resource, using the
 // algorithm described in the HTTP/1.1 RFC. Returns true if the
 // resource has an explicit freshness lifetime, false otherwise.
 // The out parameter is only valid when this function returns true.
 bool GetFreshnessLifetimeMillis(const Resource& resource,
-                                int64_t *out_freshness_lifetime_millis);
+                                int64 *out_freshness_lifetime_millis);
 
 // Does the resource have an explicit freshness lifetime? This is just
 // a wrapper around GetFreshnessLifetimeMillis().

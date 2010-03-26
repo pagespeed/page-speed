@@ -29,7 +29,7 @@ bool HasValidLastModifiedHeader(const pagespeed::Resource& resource) {
   if (last_modified.empty()) {
     return false;
   }
-  int64_t last_modified_value = 0;
+  int64 last_modified_value = 0;
   if (!pagespeed::resource_util::ParseTimeValuedHeader(
           last_modified.c_str(), &last_modified_value)) {
     return false;
