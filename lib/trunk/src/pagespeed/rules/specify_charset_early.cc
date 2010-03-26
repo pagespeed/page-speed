@@ -88,8 +88,12 @@ bool HasCharsetInMetaTag(const std::string& body, size_t max_bytes_to_scan) {
       continue;
     }
 
-    return HasCharsetInContentTypeHeader(html_tag.GetAttrValue("content"));
+    if (HasCharsetInContentTypeHeader(html_tag.GetAttrValue("content"))) {
+      return true;
+    }
   }
+
+  return false;
 }
 
 }  // namespace
