@@ -4,6 +4,7 @@
 #ifndef NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_ELEMENT_H_
 #define NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_ELEMENT_H_
 
+#include <string>
 #include <vector>
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
 
@@ -51,9 +52,18 @@ class HtmlElement {
   Attribute& attribute(int i) { return attributes_[i]; }
 
   friend class HtmlParse;
+  friend class HtmlLexer;
 
   CloseStyle close_style() const { return close_style_; }
   void set_close_style(CloseStyle style) { close_style_ = style; }
+
+  // Render an element as a string for debugging.  This is not
+  // intended as a fully legal serialization.
+  void ToString(std::string* buf) const;
+  void DebugPrint() const;
+
+  int begin_line_number() const { return begin_line_number_; }
+  int set_end_line_number() const { return end_line_number_; }
 
  private:
   // Begin/end event iterators are used by HtmlParse to keep track
@@ -63,6 +73,9 @@ class HtmlElement {
   void set_end(const HtmlEventListIterator& end) { end_ = end; }
   HtmlEventListIterator begin() const { return begin_; }
   HtmlEventListIterator end() const { return end_; }
+
+  void set_begin_line_number(int line) { begin_line_number_ = line; }
+  void set_end_line_number(int line) { end_line_number_ = line; }
 
   // construct via HtmlParse::NewElement
   HtmlElement(const char* tag, const HtmlEventListIterator& begin,
@@ -74,6 +87,8 @@ class HtmlElement {
   HtmlEventListIterator begin_;
   HtmlEventListIterator end_;
   CloseStyle close_style_;
+  int begin_line_number_;
+  int end_line_number_;
 };
 }
 

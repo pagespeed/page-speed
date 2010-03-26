@@ -13,30 +13,38 @@ namespace net_instaweb {
 
 class HtmlEvent {
  public:
+  HtmlEvent(int line_number) : line_number_(line_number) {
+  }
   virtual ~HtmlEvent();
   virtual void Run(HtmlFilter* filter) = 0;
   virtual void ToString(std::string* buffer) = 0;
   virtual HtmlElement* GetStartElement() { return NULL; }
   virtual HtmlElement* GetEndElement() { return NULL; }
+
+  int line_number() const { return line_number_; }
+ private:
+  int line_number_;
 };
 
 class HtmlStartDocumentEvent: public HtmlEvent {
  public:
+  HtmlStartDocumentEvent(int line_number) : HtmlEvent(line_number) {}
   void Run(HtmlFilter* filter) { filter->StartDocument(); }
   void ToString(std::string* str) { *str += "StartDocument"; }
 };
 
 class HtmlEndDocumentEvent: public HtmlEvent {
  public:
+  explicit HtmlEndDocumentEvent(int line_number) : HtmlEvent(line_number) {}
   void Run(HtmlFilter* filter) { filter->EndDocument(); }
   void ToString(std::string* str) { *str += "EndDocument"; }
 };
 
-class HtmlEndElementEvent;
-
 class HtmlStartElementEvent: public HtmlEvent {
  public:
-  explicit HtmlStartElementEvent(HtmlElement* element) : element_(element) {
+  HtmlStartElementEvent(HtmlElement* element, int line_number)
+      : HtmlEvent(line_number),
+        element_(element) {
   }
   void Run(HtmlFilter* filter) { filter->StartElement(element_); }
   void ToString(std::string* str) {
@@ -50,7 +58,9 @@ class HtmlStartElementEvent: public HtmlEvent {
 
 class HtmlEndElementEvent: public HtmlEvent {
  public:
-  explicit HtmlEndElementEvent(HtmlElement* element): element_(element) {
+  HtmlEndElementEvent(HtmlElement* element, int line_number)
+      : HtmlEvent(line_number),
+        element_(element) {
   }
   void Run(HtmlFilter* filter) { filter->EndElement(element_); }
   void ToString(std::string* str) {
@@ -64,7 +74,9 @@ class HtmlEndElementEvent: public HtmlEvent {
 
 class HtmlCdataEvent: public HtmlEvent {
  public:
-  explicit HtmlCdataEvent(const std::string& cdata) : cdata_(cdata) {
+  HtmlCdataEvent(const std::string& cdata, int line_number)
+      : HtmlEvent(line_number),
+        cdata_(cdata) {
   }
   void Run(HtmlFilter* filter) { filter->Cdata(cdata_); }
   void ToString(std::string* str) {
@@ -77,8 +89,9 @@ class HtmlCdataEvent: public HtmlEvent {
 
 class HtmlIEDirectiveEvent: public HtmlEvent {
  public:
-  explicit HtmlIEDirectiveEvent(const std::string& directive)
-      : directive_(directive) {
+  HtmlIEDirectiveEvent(const std::string& directive, int line_number)
+      : HtmlEvent(line_number),
+        directive_(directive) {
   }
   void Run(HtmlFilter* filter) { filter->IEDirective(directive_); }
   void ToString(std::string* str) {
@@ -91,8 +104,9 @@ class HtmlIEDirectiveEvent: public HtmlEvent {
 
 class HtmlCommentEvent: public HtmlEvent {
  public:
-  explicit HtmlCommentEvent(const std::string& comment)
-      : comment_(comment) {
+  HtmlCommentEvent(const std::string& comment, int line_number)
+      : HtmlEvent(line_number),
+        comment_(comment) {
   }
   void Run(HtmlFilter* filter) { filter->Comment(comment_); }
   void ToString(std::string* str) {
@@ -105,8 +119,9 @@ class HtmlCommentEvent: public HtmlEvent {
 
 class HtmlCharactersEvent: public HtmlEvent {
  public:
-  explicit HtmlCharactersEvent(const std::string& characters)
-      : characters_(characters) {
+  HtmlCharactersEvent(const std::string& characters, int line_number)
+      : HtmlEvent(line_number),
+        characters_(characters) {
   }
   void Run(HtmlFilter* filter) { filter->Characters(characters_); }
   void ToString(std::string* str) {
@@ -119,8 +134,9 @@ class HtmlCharactersEvent: public HtmlEvent {
 
 class HtmlWhitespaceEvent: public HtmlEvent {
  public:
-  explicit HtmlWhitespaceEvent(const std::string& whitespace)
-      : whitespace_(whitespace) {
+  HtmlWhitespaceEvent(const std::string& whitespace, int line_number)
+      : HtmlEvent(line_number),
+        whitespace_(whitespace) {
   }
   void Run(HtmlFilter* filter) { filter->IgnorableWhitespace(whitespace_); }
   void ToString(std::string* str) { *str += "Whitespace"; }
@@ -130,9 +146,9 @@ class HtmlWhitespaceEvent: public HtmlEvent {
 
 class HtmlDocTypeEvent: public HtmlEvent {
  public:
-  HtmlDocTypeEvent(const std::string& name,
-      const std::string& ext_id, const std::string& sys_id)
-    : name_(name), ext_id_(ext_id), sys_id_(sys_id) {
+  HtmlDocTypeEvent(const std::string& name, const std::string& ext_id,
+                   const std::string& sys_id, int line_number)
+      : HtmlEvent(line_number), name_(name), ext_id_(ext_id), sys_id_(sys_id) {
   }
   void Run(HtmlFilter* filter) { filter->DocType(name_, ext_id_, sys_id_); }
   void ToString(std::string* str) { *str += "DocType"; }
@@ -144,8 +160,9 @@ class HtmlDocTypeEvent: public HtmlEvent {
 
 class HtmlDirectiveEvent: public HtmlEvent {
  public:
-  explicit HtmlDirectiveEvent(const std::string& value)
-      : value_(value) {
+  HtmlDirectiveEvent(const std::string& value, int line_number)
+      : HtmlEvent(line_number),
+        value_(value) {
   }
   void Run(HtmlFilter* filter) { filter->Directive(value_.c_str()); }
   void ToString(std::string* str) {
@@ -154,16 +171,6 @@ class HtmlDirectiveEvent: public HtmlEvent {
   }
  private:
   std::string value_;
-};
-
-class HtmlFlushEvent: public HtmlEvent {
- public:
-  void Run(HtmlFilter* filter) { filter->Flush(); }
-  void ToString(std::string* str) { *str += "Flush"; }
- private:
-  std::string name_;
-  std::string ext_id_;
-  std::string sys_id_;
 };
 }
 

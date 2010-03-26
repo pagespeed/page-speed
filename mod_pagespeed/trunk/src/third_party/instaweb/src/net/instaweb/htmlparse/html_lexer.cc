@@ -16,8 +16,10 @@ namespace {
 // TODO(jmarantz): Check out
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/
 // syntax.html#optional-tags
+//
+// TODO(jmarantz): examine doctype for xhtml for implicitly closed tags
 const char* kImplicitlyClosedHtmlTags[] = {
-  "meta", "input", "link", "br", "img",
+  "meta", "input", "link", "br", "img", "area", "hr", "wbr",
   NULL
 };
 
@@ -66,9 +68,10 @@ void HtmlLexer::EvalStart(char c) {
   }
 }
 
-#define LEGAL_TAG_CHAR(c) (isalnum(c) || ((c) == '-') || ((c) == '#'))
+#define LEGAL_TAG_CHAR(c) (isalnum(c) || ((c) == '-') || ((c) == '#') || \
+                           ((c) == '_'))
 #define LEGAL_ATTR_NAME_CHAR(c) (((c) != '=') && ((c) != '>') && ((c) != '/') \
-                                 && !isspace(c))
+                                 && ((c) != '<') && !isspace(c))
 
 // Handle the case where "<" was recently parsed.
 void HtmlLexer::EvalTag(char c) {
@@ -132,6 +135,11 @@ void HtmlLexer::EvalTagBriefCloseAttr(char c) {
     // more important questions, but if we ever need to answer that
     // one, this is the place.
     if (!attr_name_.empty()) {
+      if (has_attr_value_) {
+        // The "/" should be interpreted as the last character in
+        // the attribute, so we must tack it on before making it.
+        attr_value_ += '/';
+      }
       MakeAttribute(has_attr_value_);
     }
   } else {
@@ -270,21 +278,24 @@ void HtmlLexer::EvalCommentEnd2(char c) {
   }
 }
 
-// Handle the case where a script tag was started.  This is of lexical
-// significance because we ignore all the special characters until we
-// see "</script>".
-void HtmlLexer::EvalScript(char c) {
+// Handle the case where a literal tag (script, iframe) was started.
+// This is of lexical significance because we ignore all the special
+// characters until we see "</script>" or "</iframe>".
+void HtmlLexer::EvalLiteralTag(char c) {
   // Look explicitly for </script> in the literal buffer.
   // TODO(jmarantz): check for whitespace in unexpected places.
   if (c == '>') {
-    int size_minus_9 = literal_.size() - 9;
-    if ((size_minus_9 >= 0) &&
-        (strcasecmp(literal_.c_str() + size_minus_9, "</script>") == 0)) {
+    int literal_minus_close_size = literal_.size() - literal_close_.size();
+    if ((literal_minus_close_size >= 0) &&
+        (strcasecmp(literal_.c_str() + literal_minus_close_size,
+                    literal_close_.c_str()) == 0)) {
       // The literal actually starts after the "<script>", and we will
       // also let it finish before, so chop it off.
-      literal_.resize(size_minus_9);
+      literal_.resize(literal_minus_close_size);
       EmitLiteral();
-      token_ = "script";
+      token_.clear();
+      // Transform "</script>" into "script" to form close tag.
+      token_.append(literal_close_.c_str() + 2, literal_close_.size() - 3);
       EmitTagClose(HtmlElement::EXPLICIT_CLOSE);
     }
   }
@@ -293,7 +304,7 @@ void HtmlLexer::EvalScript(char c) {
 // Emits raw uninterpreted characters.
 void HtmlLexer::EmitLiteral() {
   if (!literal_.empty()) {
-    html_parse_->AddEvent(new HtmlCharactersEvent(literal_));
+    html_parse_->AddEvent(new HtmlCharactersEvent(literal_, line_));
     literal_.clear();
   }
   state_ = START;
@@ -303,9 +314,9 @@ void HtmlLexer::EmitComment() {
   literal_.clear();
   if ((token_.find("[if IE") != std::string::npos) &&
       (token_.find("<![endif]") != std::string::npos)) {
-    html_parse_->AddEvent(new HtmlIEDirectiveEvent(token_));
+    html_parse_->AddEvent(new HtmlIEDirectiveEvent(token_, line_));
   } else {
-    html_parse_->AddEvent(new HtmlCommentEvent(token_));
+    html_parse_->AddEvent(new HtmlCommentEvent(token_, line_));
   }
   token_.clear();
   state_ = START;
@@ -318,9 +329,13 @@ void HtmlLexer::EmitTagOpen(bool allow_implicit_close) {
   literal_.clear();
   MakeElement();
   // ...
-  html_parse_->AddElement(element_);
+  html_parse_->AddElement(element_, line_);
   if (strcmp(element_->tag(), "script") == 0) {
-    state_ = SCRIPT;
+    state_ = LITERAL_TAG;
+    literal_close_ = "</script>";
+  } else if (strcmp(element_->tag(), "iframe") == 0) {
+    state_ = LITERAL_TAG;
+    literal_close_ = "</iframe>";
   } else {
     state_ = START;
   }
@@ -336,7 +351,7 @@ void HtmlLexer::EmitTagOpen(bool allow_implicit_close) {
 
 void HtmlLexer::EmitTagBriefClose() {
   HtmlElement* element = html_parse_->PopElement();
-  html_parse_->CloseElement(element, HtmlElement::BRIEF_CLOSE);
+  html_parse_->CloseElement(element, HtmlElement::BRIEF_CLOSE, line_);
   state_ = START;
 }
 
@@ -355,6 +370,7 @@ void HtmlLexer::MakeElement() {
     }
     toLower(&token_);
     element_ = html_parse_->NewElement(html_parse_->Intern(token_));
+    element_->set_begin_line_number(line_);
     token_.clear();
   }
 }
@@ -375,14 +391,14 @@ void HtmlLexer::FinishParse() {
   }
   if (!attr_name_.empty()) {
     html_parse_->Error(
-        filename_.c_str(), line_, "End-of-file in mid-attribute-name: ",
+        filename_.c_str(), line_, "End-of-file in mid-attribute-name: %s",
         attr_name_.c_str());
     attr_name_.clear();
   }
   if (!attr_value_.empty()) {
     html_parse_->Error(
         filename_.c_str(), line_,
-        "End-of-file in mid-attribute-value: ", attr_value_.c_str());
+        "End-of-file in mid-attribute-value: %s", attr_value_.c_str());
     attr_value_.clear();
   }
 
@@ -416,6 +432,8 @@ void HtmlLexer::EvalAttribute(char c) {
   attr_value_.clear();
   if (c == '>') {
     EmitTagOpen(true);
+  } else if (c == '<') {
+    FinishAttribute(c, false, false);
   } else if (c == '/') {
     state_ = TAG_BRIEF_CLOSE_ATTR;
   } else if (LEGAL_ATTR_NAME_CHAR(c)) {
@@ -431,8 +449,6 @@ void HtmlLexer::EvalAttrName(char c) {
   if (c == '=') {
     state_ = TAG_ATTR_EQ;
     has_attr_value_ = true;
-  } else if (isspace(c)) {
-    FinishAttribute(c, false, false);
   } else if (LEGAL_ATTR_NAME_CHAR(c)) {
     attr_name_ += c;
   } else {
@@ -451,7 +467,7 @@ void HtmlLexer::FinishAttribute(char c, bool has_value, bool brief_close) {
     // hold off completing the attribute till we see the
     // next character.
     state_ = TAG_BRIEF_CLOSE_ATTR;
-  } else if (c == '>') {
+  } else if ((c == '<') || (c == '>')) {
     if (!attr_name_.empty()) {
       if (!brief_close &&
           (strcmp(attr_name_.c_str(), "/") == 0) && !has_value) {
@@ -466,6 +482,15 @@ void HtmlLexer::FinishAttribute(char c, bool has_value, bool brief_close) {
     EmitTagOpen(!brief_close);
     if (brief_close) {
       EmitTagBriefClose();
+    }
+
+    if (c == '<') {
+      // Chrome transforms "<tag a<tag>" into "<tag a><tag>"; we should too.
+      html_parse_->Error(
+          filename_.c_str(), line_,
+          "Invalid tag syntax: expected close tag before opener");
+      literal_ += '<';
+      EvalStart(c);
     }
   } else {
     // Some other funny character within a tag.  Probably can't
@@ -497,7 +522,7 @@ void HtmlLexer::EvalAttrEq(char c) {
 }
 
 void HtmlLexer::EvalAttrVal(char c) {
-  if (isspace(c) || (c == '>') || (c == '/')) {
+  if (isspace(c) || (c == '>') || (c == '/') || (c == '<')) {
     FinishAttribute(c, true, false);
   } else {
     attr_value_ += c;
@@ -521,21 +546,12 @@ void HtmlLexer::EvalAttrValSq(char c) {
 }
 
 void HtmlLexer::EmitTagClose(HtmlElement::CloseStyle close_style) {
-  HtmlElement* element = html_parse_->PopElement();
-
-  // If there were unclosed tags on the stack, implicitly
-  // close them until we get a match.
   toLower(&token_);
-
+  const char* tag = html_parse_->Intern(token_);
+  HtmlElement* element = html_parse_->PopElementMatchingTag(tag);
   if (element != NULL) {
-    if (token_ != element->tag()) {
-      html_parse_->Error(filename_.c_str(), line_,
-          "Mismatching close-tag `%s', expecting `%s'",
-          token_.c_str(), element->tag());
-      EmitLiteral();
-    } else {
-      html_parse_->CloseElement(element, close_style);
-    }
+    element->set_end_line_number(line_);
+    html_parse_->CloseElement(element, close_style, line_);
   } else {
     html_parse_->Error(filename_.c_str(), line_,
         "Unexpected close-tag `%s', no tags are open",
@@ -550,7 +566,7 @@ void HtmlLexer::EmitTagClose(HtmlElement::CloseStyle close_style) {
 
 void HtmlLexer::EmitDirective() {
   literal_.clear();
-  html_parse_->AddEvent(new HtmlDirectiveEvent(token_));
+  html_parse_->AddEvent(new HtmlDirectiveEvent(token_, line_));
   token_.clear();
   state_ = START;
 }
@@ -587,7 +603,7 @@ void HtmlLexer::Parse(const char* text, int size) {
       case TAG_ATTR_VAL:          EvalAttrVal(c);             break;
       case TAG_ATTR_VALDQ:        EvalAttrValDq(c);           break;
       case TAG_ATTR_VALSQ:        EvalAttrValSq(c);           break;
-      case SCRIPT:                EvalScript(c);              break;
+      case LITERAL_TAG:           EvalLiteralTag(c);          break;
       case DIRECTIVE:             EvalDirective(c);           break;
     }
   }

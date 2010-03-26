@@ -103,8 +103,15 @@ class StdioOutputFile : public FileSystem::OutputFile {
     return file_helper_.Close(message_handler);
   }
 
-  virtual void SetWorldReadable() {
-    fchmod(fileno(file_helper_.file_), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  virtual bool SetWorldReadable(MessageHandler* message_handler) {
+    bool ret = true;
+    int fd = fileno(file_helper_.file_);
+    int status = fchmod(fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (status != 0) {
+      ret = false;
+      file_helper_.ReportError(message_handler, "setting world-readble: %s");
+    }
+    return ret;
   }
 
  private:

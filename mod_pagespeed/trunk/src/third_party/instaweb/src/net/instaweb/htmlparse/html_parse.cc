@@ -22,7 +22,8 @@ HtmlParse::HtmlParse(MessageHandler* message_handler)
       sequence_(0),
       current_(queue_.end()),
       rewind_(false),
-      message_handler_(message_handler) {
+      message_handler_(message_handler),
+      line_number_(1) {
 }
 
 HtmlParse::~HtmlParse() {
@@ -61,27 +62,13 @@ HtmlElement* HtmlParse::NewElement(const char* tag) {
   return element;
 }
 
-void HtmlParse::StartElement(const std::string& name,
-    const std::vector<const char*>& atts) {
-  HtmlElement* element = NewElement(Intern(name));
-  // expect name/value pairs.
-  assert(atts.size() % 2 == 0);
-  for (size_t i = 0; i < atts.size(); i += 2) {
-    const char* attname = Intern(atts[i]);
-    const char* attvalue = atts[i + 1];
-    if (attvalue != NULL) {
-      attvalue = Intern(attvalue);
-    }
-    element->AddAttribute(attname, attvalue, "\"");
-  }
-  AddElement(element);
-}
-
-void HtmlParse::AddElement(HtmlElement* element) {
-  HtmlStartElementEvent* event = new HtmlStartElementEvent(element);
+void HtmlParse::AddElement(HtmlElement* element, int line_number) {
+  HtmlStartElementEvent* event =
+      new HtmlStartElementEvent(element, line_number);
   element_stack_.push_back(element);
   AddEvent(event);
   element->set_begin(Last());
+  element->set_begin_line_number(line_number);
 }
 
 HtmlElement* HtmlParse::PopElement() {
@@ -93,12 +80,37 @@ HtmlElement* HtmlParse::PopElement() {
   return element;
 }
 
+HtmlElement* HtmlParse::PopElementMatchingTag(const char* tag) {
+  HtmlElement* element = NULL;
+
+  // Search the stack from top to bottom.
+  for (int i = element_stack_.size() - 1; i >= 0; --i) {
+    element = element_stack_[i];
+    if (element->tag() == tag) {
+      // Emit warnings for the tags we are skipping, in forward order.
+      for (size_t j = i + 1; j < element_stack_.size(); ++j) {
+        HtmlElement* skipped = element_stack_[j];
+        Error(filename_.c_str(), skipped->begin_line_number(),
+              "Unclosed element `%s'",
+              skipped->tag());
+      }
+      element_stack_.resize(i);
+      break;
+    }
+    element = NULL;
+  }
+  return element;
+}
+
 void HtmlParse::CloseElement(
-    HtmlElement* element, HtmlElement::CloseStyle close_style) {
-  HtmlEndElementEvent* end_event = new HtmlEndElementEvent(element);
+    HtmlElement* element, HtmlElement::CloseStyle close_style,
+    int line_number) {
+  HtmlEndElementEvent* end_event =
+      new HtmlEndElementEvent(element, line_number);
   element->set_close_style(close_style);
   AddEvent(end_event);
   element->set_end(Last());
+  element->set_end_line_number(line_number);
 }
 
 void HtmlParse::WarningV(
@@ -138,12 +150,21 @@ void HtmlParse::FatalError(const char* file, int line, const char* msg, ...) {
 }
 
 void HtmlParse::StartParse(const char* url) {
+  line_number_ = 1;
+  filename_ = url;
   lexer_->StartParse(url);
 }
 
 void HtmlParse::FinishParse() {
   lexer_->FinishParse();
   Flush();
+
+  // Any unclosed tags?  These should be noted.
+  for (size_t i = 0; i < element_stack_.size(); ++i) {
+    HtmlElement* element = element_stack_[i];
+    Error(filename_.c_str(), element->begin_line_number(),
+          "End-of-file with open tag: %s", element->tag());
+  }
   ClearElements();
 }
 
@@ -156,6 +177,7 @@ void HtmlParse::Flush() {
     HtmlFilter* filter = filters_[i];
     for (current_ = queue_.begin(); current_ != queue_.end(); ) {
       HtmlEvent* event = *current_;
+      line_number_ = event->line_number();
       event->Run(filter);
       if (rewind_) {
         // Special-case iteration after deleting first element.
@@ -173,6 +195,7 @@ void HtmlParse::Flush() {
   // the events, but not the elements.
   for (current_ = queue_.begin(); current_ != queue_.end(); ++current_) {
     HtmlEvent* event = *current_;
+    line_number_ = event->line_number();
     HtmlElement* element = event->GetStartElement();
     if (element != NULL) {
       element->set_begin(queue_.end());
@@ -188,10 +211,12 @@ void HtmlParse::Flush() {
 }
 
 void HtmlParse::InsertElementBeforeCurrent(HtmlElement* element) {
-  HtmlEvent* start_element = new HtmlStartElementEvent(element);
+  HtmlEvent* start_element = new HtmlStartElementEvent(element, line_number_);
   element->set_begin(queue_.insert(current_, start_element));
-  HtmlEvent* end_element = new HtmlEndElementEvent(element);
+  element->set_begin_line_number(line_number_);
+  HtmlEvent* end_element = new HtmlEndElementEvent(element, line_number_);
   element->set_end(queue_.insert(current_, end_element));
+  element->set_end_line_number(line_number_);
   // Note that current_ is unmodified.  The current iteration will
   // continue.
 }
@@ -207,6 +232,16 @@ void HtmlParse::DebugPrintQueue() {
       fprintf(stdout, "  %s\n", buf.c_str());
     }
   }
+  fflush(stdout);
+}
+
+void HtmlParse::DebugPrintStack() {
+  for (size_t i = 0; i < element_stack_.size(); ++i) {
+    std::string buf;
+    element_stack_[i]->ToString(&buf);
+    fprintf(stdout, "%s\n", buf.c_str());
+  }
+  fflush(stdout);
 }
 
 void HtmlParse::InsertElementAfterCurrent(HtmlElement* element) {
@@ -219,18 +254,22 @@ void HtmlParse::InsertElementAfterCurrent(HtmlElement* element) {
   InsertElementBeforeCurrent(element);
   --current_;  // past end
   --current_;  // past begin
+  line_number_ = (*current_)->line_number();
 }
 
-bool HtmlParse::InsertElementAfterElement(HtmlElement* existing_element,
-    HtmlElement* new_element) {
+bool HtmlParse::InsertElementAfterElement(
+    HtmlElement* existing_element, HtmlElement* new_element, int line_number) {
   bool ret = false;
   if (existing_element->end() != queue_.end()) {
-    HtmlEvent* start_element = new HtmlStartElementEvent(new_element);
+    HtmlEvent* start_element = new HtmlStartElementEvent(
+        new_element, line_number);
     HtmlEventListIterator p =
         queue_.insert(existing_element->end(), start_element);
     new_element->set_begin(p);
-    HtmlEvent* end_element = new HtmlEndElementEvent(new_element);
+    new_element->set_begin_line_number(line_number);
+    HtmlEvent* end_element = new HtmlEndElementEvent(new_element, line_number);
     new_element->set_end(queue_.insert(p, end_element));
+    new_element->set_end_line_number(line_number);
     ret = true;
   }
   return ret;
@@ -259,6 +298,7 @@ bool HtmlParse::DeleteElement(HtmlElement* element) {
       p = queue_.erase(p);
       if (move_current) {
         current_ = p;
+        line_number_ = (*current_)->line_number();
       }
       delete event;
     }
@@ -285,6 +325,7 @@ void HtmlParse::ClearElements() {
     delete element;
   }
   elements_.clear();
+  element_stack_.clear();
 }
 
 bool HtmlParse::IsImplicitlyClosedTag(const char* tag) const {

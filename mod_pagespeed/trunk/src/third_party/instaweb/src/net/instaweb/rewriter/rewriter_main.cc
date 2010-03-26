@@ -7,17 +7,19 @@
 #include "net/instaweb/htmlparse/public/file_message_handler.h"
 #include "net/instaweb/htmlparse/public/file_driver.h"
 #include "net/instaweb/htmlparse/public/stdio_file_system.h"
-#include "net/instaweb/rewriter/public/file_resource_manager.h"
+#include "net/instaweb/rewriter/public/dummy_url_fetcher.h"
+#include "net/instaweb/rewriter/public/resource_manager.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
 
 int main(int argc, char** argv) {
-  int ret = 0;
   int start = 1;
   net_instaweb::StdioFileSystem file_system;
+  net_instaweb::DummyUrlFetcher url_fetcher;  // TODO(sligocki): make not dummy
   net_instaweb::FileMessageHandler message_handler(stderr);
   net_instaweb::FileDriver file_driver(&message_handler, &file_system);
   net_instaweb::HtmlParse* html_parse = file_driver.html_parse();
-  net_instaweb::RewriteDriver rewrite_driver(html_parse, &file_system);
+  net_instaweb::RewriteDriver rewrite_driver(html_parse, &file_system,
+                                             &url_fetcher);
 
   if ((argc > (start + 1)) && (strcmp(argv[start], "-base") == 0)) {
     rewrite_driver.SetBase(argv[start + 1]);
@@ -36,7 +38,8 @@ int main(int argc, char** argv) {
               num_shards);
       return 1;
     }
-    rewrite_driver.SetResources(file_prefix, serving_prefix, num_shards);
+    rewrite_driver.SetFilenameResources(file_prefix, serving_prefix,
+                                        num_shards);
     rewrite_driver.SpriteCssFiles();
     start += 4;
   }
@@ -50,27 +53,28 @@ int main(int argc, char** argv) {
     outfile = argv[start + 1];
   } else  if (file_driver.GenerateOutputFilename(infile, &outfile_buffer)) {
     outfile = outfile_buffer.c_str();
+    fprintf(stdout, "Rewriting %s into %s\n", infile, outfile);
   } else {
     fprintf(stderr, "Cannot generate output filename from %s\n", infile);
   }
 
+  int ret = 0;
   if (outfile != NULL) {
-    if (rewrite_driver.file_resource_manager() != NULL) {
+    if (rewrite_driver.resource_manager() != NULL) {
       const char* last_slash = strrchr(infile, '/');
       if (last_slash != NULL) {
         // set the input search directory for the file resource manager.
         // note that this is distinct from any 'base' that is supplied
         // for the serving side.
-        std::string search_dir;
+        std::string base_dir;
         int num_chars_before_slash = last_slash - infile;
-        search_dir.append(infile, num_chars_before_slash);
-        rewrite_driver.file_resource_manager()->set_search_path(search_dir);
+        base_dir.append(infile, num_chars_before_slash);
+        rewrite_driver.resource_manager()->set_base_dir(base_dir);
       }
     }
 
-    fprintf(stdout, "Rewriting %s into %s\n", infile, outfile);
     if (file_driver.ParseFile(infile, outfile)) {
-      ret = 0;
+      ret = 0;  // TODO(sligocki): this is not doing anything right now.
     }
   }
   return ret;

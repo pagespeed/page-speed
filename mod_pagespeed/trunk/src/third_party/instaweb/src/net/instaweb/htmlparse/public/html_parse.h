@@ -8,6 +8,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "net/instaweb/htmlparse/public/printf_format.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
 
@@ -59,7 +60,8 @@ class HtmlParse {
   void InsertElementBeforeCurrent(HtmlElement* element);
   void InsertElementAfterCurrent(HtmlElement* element);
   bool InsertElementAfterElement(HtmlElement* existing_element,
-                                 HtmlElement* new_element);
+                                 HtmlElement* new_element,
+                                 int line_number);
 
   HtmlElement* NewElement(const char* tag);
   bool DeleteElement(HtmlElement* element);
@@ -69,6 +71,7 @@ class HtmlParse {
   void ClearElements();
 
   void DebugPrintQueue();  // Print queue (for debugging)
+  void DebugPrintStack();  // Print element queue (for debugging)
 
   const char* Intern(const std::string& name);
   const char* Intern(const char* name);
@@ -79,9 +82,12 @@ class HtmlParse {
   friend class HtmlLexer;
 
   // Interface for any caller to report an error message via the message handler
-  void Error(const char* filename, int line, const char* msg, ...);
-  void FatalError(const char* filename, int line, const char* msg, ...);
-  void Warning(const char* filename, int line, const char* msg, ...);
+  void Error(const char* filename, int line, const char* msg, ...)
+      INSTAWEB_PRINTF_FORMAT(4,5);
+  void FatalError(const char* filename, int line, const char* msg, ...)
+      INSTAWEB_PRINTF_FORMAT(4,5);
+  void Warning(const char* filename, int line, const char* msg, ...)
+      INSTAWEB_PRINTF_FORMAT(4,5);
 
   void WarningV(const char* file, int line, const char *msg, va_list args);
   void ErrorV(const char* file, int line, const char *msg, va_list args);
@@ -95,12 +101,27 @@ class HtmlParse {
   // Determines whether a tag allows brief termination in HTML, e.g. <tag/>
   bool TagAllowsBriefTermination(const char* tag) const;
 
+  // Gets the current location information; typically to help with error messages.
+  const char* filename() const { return filename_.c_str(); }
+  int line_number() const { return line_number_; }
+
  private:
+  // Takes an interned tag, and tries to find a matching HTML element on
+  // the stack.  If it finds it, it pops all the intervening elements off
+  // the stack, issuing warnings for each discarded tag, the matching element
+  // is also popped off the stack, and returned.
+  //
+  // If the tag is not matched, then no mutations are done to the stack,
+  // and NULL is returned.
+  //
+  // The tag name should be interned.
+  // TODO(jmarantz): use type system
+  HtmlElement* PopElementMatchingTag(const char* tag);
+
   HtmlElement* PopElement();
-  void CloseElement(HtmlElement* element, HtmlElement::CloseStyle close_style);
-  void AddElement(HtmlElement* element);
-  void StartElement(const std::string& name,
-      const std::vector<const char*>& atts);
+  void CloseElement(HtmlElement* element, HtmlElement::CloseStyle close_style,
+                    int line_nubmer);
+  void AddElement(HtmlElement* element, int line_number);
   void AddEvent(HtmlEvent* event) { queue_.push_back(event); }
   HtmlEventListIterator Last();  // Last element in queue
   bool IsInEventWindow(const HtmlEventListIterator& iter) const;
@@ -118,6 +139,8 @@ class HtmlParse {
   HtmlEventListIterator current_;
   bool rewind_;
   MessageHandler* message_handler_;
+  std::string filename_;
+  int line_number_;
 };
 }
 

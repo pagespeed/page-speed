@@ -8,19 +8,24 @@
 #include "net/instaweb/rewriter/public/add_head_filter.h"
 #include "net/instaweb/rewriter/public/base_tag_filter.h"
 #include "net/instaweb/rewriter/public/css_sprite_filter.h"
+#include "net/instaweb/rewriter/public/filename_resource_manager.h"
+#include "net/instaweb/rewriter/public/hash_resource_manager.h"
 #include "net/instaweb/rewriter/public/outline_filter.h"
-#include "net/instaweb/rewriter/public/file_resource_manager.h"
+#include "net/instaweb/rewriter/public/url_fetcher.h"
 
 namespace net_instaweb {
 
-RewriteDriver::RewriteDriver(HtmlParse* html_parse, FileSystem* file_system)
+RewriteDriver::RewriteDriver(HtmlParse* html_parse, FileSystem* file_system,
+                             UrlFetcher* url_fetcher)
     : html_parse_(html_parse),
       add_head_filter_(NULL),
       base_tag_filter_(NULL),
-      file_resource_manager_(NULL),
+      resource_manager_(NULL),
       css_sprite_filter_(NULL),
       outline_filter_(NULL),
-      file_system_(file_system) {
+      file_system_(file_system),
+      url_fetcher_(url_fetcher),
+      hasher_(NULL) {
 }
 
 RewriteDriver::~RewriteDriver() {
@@ -30,8 +35,8 @@ RewriteDriver::~RewriteDriver() {
   if (base_tag_filter_ != NULL) {
     delete base_tag_filter_;
   }
-  if (file_resource_manager_ != NULL) {
-    delete file_resource_manager_;
+  if (resource_manager_ != NULL) {
+    delete resource_manager_;
   }
   if (css_sprite_filter_ != NULL) {
     delete css_sprite_filter_;
@@ -39,6 +44,7 @@ RewriteDriver::~RewriteDriver() {
   if (outline_filter_ != NULL) {
     delete outline_filter_;
   }
+  // Don't delete hasher_ because it is passed in.
 }
 
 void RewriteDriver::AddHead() {
@@ -57,27 +63,40 @@ void RewriteDriver::SetBase(const char* base) {
   base_tag_filter_->set_base(base);
 }
 
-void RewriteDriver::SetResources(
-    const char* file_prefix, const char* serving_prefix, int num_shards) {
-  if (file_resource_manager_ != NULL) {
-    delete file_resource_manager_;
+void RewriteDriver::SetFilenameResources(const std::string& file_prefix,
+                                         const std::string& url_prefix,
+                                         int num_shards) {
+  if (resource_manager_ != NULL) {
+    delete resource_manager_;
   }
-  file_resource_manager_ = new FileResourceManager(
-      file_prefix, serving_prefix, num_shards, file_system_);
+  resource_manager_ = new FilenameResourceManager(
+      file_prefix, url_prefix, num_shards, file_system_, url_fetcher_);
+}
+
+void RewriteDriver::SetHashResources(const std::string& file_prefix,
+                                     const std::string& url_prefix,
+                                     int num_shards,
+                                     Hasher* hasher) {
+  hasher_ = hasher;
+  if (resource_manager_ != NULL) {
+    delete resource_manager_;
+  }
+  resource_manager_ = new HashResourceManager(
+      file_prefix, url_prefix, num_shards, file_system_, url_fetcher_, hasher_);
 }
 
 void RewriteDriver::SpriteCssFiles() {
-  assert(file_resource_manager_);
+  assert(resource_manager_);
   assert(css_sprite_filter_ == NULL);
-  css_sprite_filter_ = new CssSpriteFilter(html_parse_, file_resource_manager_);
+  css_sprite_filter_ = new CssSpriteFilter(html_parse_, resource_manager_);
   html_parse_->AddFilter(css_sprite_filter_);
 }
 
 void RewriteDriver::OutlineResources() {
   // TODO(sligocki): Use FatalError rather than assert.
-  assert(file_resource_manager_);
+  assert(resource_manager_);
   assert(outline_filter_ == NULL);
-  outline_filter_ = new OutlineFilter(html_parse_, file_resource_manager_);
+  outline_filter_ = new OutlineFilter(html_parse_, resource_manager_);
   html_parse_->AddFilter(outline_filter_);
 }
 }
