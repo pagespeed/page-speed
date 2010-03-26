@@ -45,11 +45,11 @@ const char *kTimeDurationFormatStr = "%d %s%s";
 const char *kZeroSecondsStr = "0 seconds";
 const size_t kNumComponentsToDisplay = 2;
 
-void DoFormatTimeDuration(int64_t duration,
+void DoFormatTimeDuration(int64 duration,
                           std::vector<std::string> *components) {
   for (int i = 0; i < kQuantitiesSize && duration > 0; ++i) {
     const DurationDescriptor *desc = kQuantities + i;
-    int64_t value = duration;
+    int64 value = duration;
     duration /= desc->quantity;
     if (desc->quantity > 0) {
       // If we're not at the largest Duration type (years) then
@@ -75,7 +75,7 @@ namespace pagespeed {
 
 namespace formatters {
 
-std::string FormatBytes(int64_t bytes) {
+std::string FormatBytes(int64 bytes) {
   if (bytes < kBytesPerKiB) {
     return StringPrintf("%dB", bytes);
   } else if (bytes < kBytesPerMiB) {
@@ -85,7 +85,7 @@ std::string FormatBytes(int64_t bytes) {
   }
 }
 
-std::string FormatTimeDuration(int64_t milliseconds) {
+std::string FormatTimeDuration(int64 milliseconds) {
   if (milliseconds == 0LL) {
     // Special case when input is 0 millis.
     return kZeroSecondsStr;

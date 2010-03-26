@@ -361,7 +361,7 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
   }
   DirectiveMap::const_iterator it = cache_directives.find("max-age");
   if (it != cache_directives.end()) {
-    int64_t max_age_value = 0;
+    int64 max_age_value = 0;
     if (StringToInt64(it->second, &max_age_value) &&
         max_age_value == 0) {
       // Cache-Control: max-age=0 means do not cache.
@@ -370,7 +370,7 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
   }
 
   const std::string& expires = resource.GetResponseHeader("Expires");
-  int64_t expires_value = 0;
+  int64 expires_value = 0;
   if (!expires.empty() &&
       !ParseTimeValuedHeader(expires.c_str(), &expires_value)) {
     // An invalid Expires header (e.g. Expires: 0) means do not cache.
@@ -391,7 +391,7 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
 }
 
 bool HasExplicitFreshnessLifetime(const Resource& resource) {
-  int64_t freshness_lifetime = 0;
+  int64 freshness_lifetime = 0;
   return GetFreshnessLifetimeMillis(resource, &freshness_lifetime);
 }
 
@@ -423,7 +423,7 @@ bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
   }
 }
 
-bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis) {
+bool ParseTimeValuedHeader(const char* time_str, int64 *out_epoch_millis) {
   if (time_str == NULL || *time_str == '\0') {
     *out_epoch_millis = 0;
     return false;
@@ -439,7 +439,7 @@ bool ParseTimeValuedHeader(const char* time_str, int64_t *out_epoch_millis) {
 }
 
 bool GetFreshnessLifetimeMillis(const Resource& resource,
-                                int64_t *out_freshness_lifetime_millis) {
+                                int64 *out_freshness_lifetime_millis) {
   // Initialize the output param to the default value. We do this in
   // case clients use the out value without checking the return value
   // of the function.
@@ -462,7 +462,7 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
   } else {
     DirectiveMap::const_iterator it = cache_directives.find("max-age");
     if (it != cache_directives.end()) {
-      int64_t max_age_value = 0;
+      int64 max_age_value = 0;
       if (StringToInt64(it->second, &max_age_value)) {
         *out_freshness_lifetime_millis = max_age_value * 1000;
         return true;
@@ -487,7 +487,7 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
   // the past (i.e., "already expired")."
 
   const std::string& date = resource.GetResponseHeader("Date");
-  int64_t date_value = 0;
+  int64 date_value = 0;
   if (date.empty() || !ParseTimeValuedHeader(date.c_str(), &date_value)) {
     LOG(ERROR) << "Missing or invalid date header: '" << date << "'. "
                << "Assuming resource " << resource.GetRequestUrl()
@@ -497,14 +497,14 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
     return true;
   }
 
-  int64_t expires_value = 0;
+  int64 expires_value = 0;
   if (!ParseTimeValuedHeader(expires.c_str(), &expires_value)) {
     // If we can't parse the Expires header, then treat the resource as
     // stale.
     return true;
   }
 
-  int64_t freshness_lifetime_millis = expires_value - date_value;
+  int64 freshness_lifetime_millis = expires_value - date_value;
   if (freshness_lifetime_millis < 0) {
     freshness_lifetime_millis = 0;
   }
@@ -513,7 +513,7 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
 }
 
 bool IsCacheableResource(const Resource& resource) {
-  int64_t freshness_lifetime = 0;
+  int64 freshness_lifetime = 0;
   if (GetFreshnessLifetimeMillis(resource, &freshness_lifetime)) {
     if (freshness_lifetime <= 0) {
       // The resource is explicitly not fresh, so we don't consider it

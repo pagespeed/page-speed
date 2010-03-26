@@ -25,11 +25,11 @@
 
 namespace {
 
-const int64_t kMillisInADay = 1000 * 60 * 60 * 24;
-const int64_t kMillisInAWeek = kMillisInADay * 7;
+const int64 kMillisInADay = 1000 * 60 * 60 * 24;
+const int64 kMillisInAWeek = kMillisInADay * 7;
 
 // Extract the freshness lifetime from the result object.
-int64_t GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
+int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
   const pagespeed::ResultDetails& details = result.details();
   if (!details.HasExtension(pagespeed::CachingDetails::message_set_extension)) {
     LOG(DFATAL) << "Missing required extension.";
@@ -78,7 +78,7 @@ bool CacheStaticResourcesAggressively::AppendResults(
       continue;
     }
 
-    int64_t freshness_lifetime_millis = 0;
+    int64 freshness_lifetime_millis = 0;
     if (!resource_util::GetFreshnessLifetimeMillis(
             resource, &freshness_lifetime_millis)) {
       continue;

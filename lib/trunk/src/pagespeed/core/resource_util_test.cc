@@ -349,7 +349,7 @@ TEST_F(StaticResourceTest, Expired) {
 }
 
 TEST_F(ResourceUtilTest, ParseTimeValuedHeader) {
-  int64_t time = 0;
+  int64 time = 0;
   EXPECT_TRUE(resource_util::ParseTimeValuedHeader(
       "Mon Mar 15 16:04:23 EDT 2010", &time));
   EXPECT_EQ(1268683463000LL, time);
@@ -369,7 +369,7 @@ class GetFreshnessLifetimeTest : public ResourceUtilTest {
     ResourceUtilTest::SetUp();
     freshness_lifetime_ = 0LL;
   }
-  int64_t freshness_lifetime_;
+  int64 freshness_lifetime_;
 };
 
 TEST_F(GetFreshnessLifetimeTest, NoHeaders) {

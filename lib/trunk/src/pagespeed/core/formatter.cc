@@ -25,7 +25,7 @@ const std::vector<const pagespeed::Argument*> kEmptyParameterList;
 
 namespace pagespeed {
 
-Argument::Argument(Argument::ArgumentType type, int64_t value)
+Argument::Argument(Argument::ArgumentType type, int64 value)
     : type_(type),
       int_value_(value) {
   DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION);
@@ -37,7 +37,7 @@ Argument::Argument(Argument::ArgumentType type, const std::string& value)
   DCHECK(type_ == STRING || type_ == URL);
 }
 
-int64_t Argument::int_value() const {
+int64 Argument::int_value() const {
   DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION);
   return int_value_;
 }

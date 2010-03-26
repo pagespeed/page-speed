@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "base/basictypes.h"
+
 namespace pagespeed {
 
 namespace formatters {
@@ -24,11 +26,11 @@ namespace formatters {
 // Format a bytes quantity as a human-readable string by converting
 // the value to Kilo-Bytes or Mega-Bytes when appropriate and
 // appending the appropriate units identifier.
-std::string FormatBytes(int64_t bytes);
+std::string FormatBytes(int64 bytes);
 
 // Format a time duration quantity as a human-readable string,
 // e.g. "10 minutes" or "1 year" or "5 days 12 hours".
-std::string FormatTimeDuration(int64_t milliseconds);
+std::string FormatTimeDuration(int64 milliseconds);
 
 }  // namespace formatters
 

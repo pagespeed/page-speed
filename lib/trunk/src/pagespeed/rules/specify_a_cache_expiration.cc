@@ -57,7 +57,7 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
     }
 
     const std::string& date = resource.GetResponseHeader("Date");
-    int64_t date_value_millis = 0;
+    int64 date_value_millis = 0;
     if (!resource_util::ParseTimeValuedHeader(
             date.c_str(), &date_value_millis)) {
       // The resource does not have a valid date header, so it might
