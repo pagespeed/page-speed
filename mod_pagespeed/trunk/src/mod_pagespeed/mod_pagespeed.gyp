@@ -33,6 +33,7 @@
         '<(mod_spdy_root)',
       ],
       'sources': [
+        '<(DEPTH)/html_rewriter/apr_file_system.cc',
         '<(DEPTH)/html_rewriter/html_parser_message_handler.cc',
         '<(DEPTH)/html_rewriter/html_rewriter.cc',
         '<(DEPTH)/mod_pagespeed/mod_pagespeed.cc',
