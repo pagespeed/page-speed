@@ -17,6 +17,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minify_css.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -26,6 +27,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -86,7 +88,8 @@ class MinifyCssTest : public ::testing::Test {
     MinifyCSS minify(save_optimized_content);
 
     Results results;
-    ASSERT_TRUE(minify.AppendResults(*input_, &results));
+    ResultProvider provider(minify, &results);
+    ASSERT_TRUE(minify.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -94,7 +97,8 @@ class MinifyCssTest : public ::testing::Test {
     MinifyCSS minify(save_optimized_content);
 
     Results results;
-    ASSERT_TRUE(minify.AppendResults(*input_, &results));
+    ResultProvider provider(minify, &results);
+    ASSERT_TRUE(minify.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -116,7 +120,8 @@ class MinifyCssTest : public ::testing::Test {
     MinifyCSS minify(save_optimized_content);
 
     Results results;
-    ASSERT_FALSE(minify.AppendResults(*input_, &results));
+    ResultProvider provider(minify, &results);
+    ASSERT_FALSE(minify.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 

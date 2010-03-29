@@ -26,6 +26,7 @@ class PagespeedInput;
 class Resource;
 class Result;
 class Results;
+class ResultProvider;
 class ResultText;
 
 typedef std::vector<const Result*> ResultVector;
@@ -51,9 +52,10 @@ class Rule {
   // Compute results and append it to the results set.
   //
   // @param input Input to process.
-  // @param results
+  // @param result_provider
   // @return true iff the computation was completed without errors.
-  virtual bool AppendResults(const PagespeedInput& input, Results* results) = 0;
+  virtual bool AppendResults(const PagespeedInput& input,
+                             ResultProvider* result_provider) = 0;
 
   // Interpret the results structure and produce a formatted representation.
   //

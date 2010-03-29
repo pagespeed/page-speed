@@ -32,7 +32,8 @@ class CombineExternalResources : public Rule {
 
  public:
   // Rule interface.
-  virtual bool AppendResults(const PagespeedInput& input, Results* results);
+  virtual bool AppendResults(const PagespeedInput& input,
+                             ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 
  private:

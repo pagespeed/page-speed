@@ -19,6 +19,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_request_size.h"
@@ -29,6 +30,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -92,7 +94,8 @@ class MinimizeRequestSizeTest : public ::testing::Test {
     {
       // compute results
       MinimizeRequestSize min_request_rule;
-      ASSERT_TRUE(min_request_rule.AppendResults(*input_, &results));
+      ResultProvider provider(min_request_rule, &results);
+      ASSERT_TRUE(min_request_rule.AppendResults(*input_, &provider));
     }
 
     {

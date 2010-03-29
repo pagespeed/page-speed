@@ -18,6 +18,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -40,7 +41,7 @@ const char* AvoidBadRequests::documentation_url() const {
 }
 
 bool AvoidBadRequests::AppendResults(const PagespeedInput& input,
-                                     Results* results) {
+                                     ResultProvider* provider) {
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     const int status_code = resource.GetResponseStatusCode();
@@ -48,9 +49,7 @@ bool AvoidBadRequests::AppendResults(const PagespeedInput& input,
       // TODO(mdsteele) It would be better if we could store the actual status
       // code in the Result object, so that the formatter could report it to
       // the user.
-      Result* result = results->add_results();
-      result->set_rule_name(name());
-
+      Result* result = provider->NewResult();
       Savings* savings = result->mutable_savings();
       savings->set_requests_saved(1);
 

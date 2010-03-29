@@ -23,6 +23,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -33,9 +34,10 @@ const char* kRuleName = "PutCssInTheDocumentHead";
 
 class StyleVisitor : public pagespeed::DomElementVisitor {
  public:
-  static void CheckDocument(const DomDocument* document, Results* results) {
+  static void CheckDocument(const DomDocument* document,
+                            ResultProvider* provider) {
     if (document) {
-      StyleVisitor visitor(document, results);
+      StyleVisitor visitor(document, provider);
       document->Traverse(&visitor);
       visitor.Finish();
     }
@@ -44,7 +46,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   virtual void Visit(const DomElement& node) {
     const std::string tag_name(node.GetTagName());
     if (tag_name == "IFRAME") {
-      CheckDocument(node.GetContentDocument(), results_);
+      CheckDocument(node.GetContentDocument(), provider_);
     } else if (tag_name == "BODY") {
       is_in_body_yet_ = true;
     } else if (is_in_body_yet_) {
@@ -61,9 +63,9 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   }
 
  private:
-  StyleVisitor(const DomDocument* document, Results* results)
+  StyleVisitor(const DomDocument* document, ResultProvider* provider)
       : is_in_body_yet_(false), num_inline_style_blocks_(0),
-        document_(document), results_(results) {}
+        document_(document), provider_(provider) {}
 
   void Finish() {
     DCHECK(num_inline_style_blocks_ >= 0);
@@ -71,8 +73,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
       return;
     }
 
-    Result* result = results_->add_results();
-    result->set_rule_name(kRuleName);
+    Result* result = provider_->NewResult();
     result->add_resource_urls(document_->GetDocumentUrl());
 
     Savings* savings = result->mutable_savings();
@@ -94,7 +95,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   std::vector<std::string> external_styles_;
 
   const DomDocument* document_;
-  Results* results_;
+  ResultProvider* provider_;
 
   DISALLOW_COPY_AND_ASSIGN(StyleVisitor);
 };
@@ -118,18 +119,8 @@ const char* PutCssInTheDocumentHead::documentation_url() const {
 }
 
 bool PutCssInTheDocumentHead::AppendResults(const PagespeedInput& input,
-                                            Results* results) {
-  StyleVisitor::CheckDocument(input.dom_document(), results);
-
-  // CheckDocument adds the results in post-order.  Reverse the order of
-  // results here, so that main document comes first instead of last.
-  // TODO What order do we _really_ want?  Pre-order?  Alphabetical?
-  google::protobuf::RepeatedPtrField<Result>* repeated =
-      results->mutable_results();
-  for (int a = 0, b = repeated->size() - 1; a < b; ++a, --b) {
-    repeated->SwapElements(a, b);
-  }
-
+                                            ResultProvider* provider) {
+  StyleVisitor::CheckDocument(input.dom_document(), provider);
   return true;
 }
 
@@ -141,6 +132,9 @@ void PutCssInTheDocumentHead::FormatResults(const ResultVector& results,
 
   formatter->AddChild("CSS in the document body adversely impacts rendering "
                       "performance.");
+
+  // CheckDocument adds the results in post-order.
+  // TODO: What order do we _really_ want?  Pre-order?  Alphabetical?
 
   for (ResultVector::const_iterator i = results.begin(), end = results.end();
        i != end; ++i) {

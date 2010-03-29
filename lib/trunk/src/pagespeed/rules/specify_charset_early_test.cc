@@ -17,6 +17,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/specify_charset_early.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -26,6 +27,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -60,14 +62,16 @@ class SpecifyCharsetEarlyTest : public ::testing::Test {
   void CheckNoViolations() {
     SpecifyCharsetEarly charset_rule;
     Results results;
-    ASSERT_TRUE(charset_rule.AppendResults(*input_, &results));
+    ResultProvider provider(charset_rule, &results);
+    ASSERT_TRUE(charset_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
   void CheckOneViolation(const std::string &url) {
     SpecifyCharsetEarly charset_rule;
     Results results;
-    ASSERT_TRUE(charset_rule.AppendResults(*input_, &results));
+    ResultProvider provider(charset_rule, &results);
+    ASSERT_TRUE(charset_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 1);
     const Result& result = results.results(0);
     ASSERT_EQ(result.savings().page_reflows_saved(), 1);

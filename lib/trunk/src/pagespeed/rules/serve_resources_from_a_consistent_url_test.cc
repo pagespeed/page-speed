@@ -19,6 +19,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -28,6 +29,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -82,7 +84,8 @@ class ServeResourcesFromAConsistentUrlTest : public ::testing::Test {
     ServeResourcesFromAConsistentUrl rule;
 
     Results results;
-    rule.AppendResults(*input_, &results);
+    ResultProvider provider(rule, &results);
+    rule.AppendResults(*input_, &provider);
     ASSERT_EQ(0, results.results_size());
   }
 
@@ -94,7 +97,8 @@ class ServeResourcesFromAConsistentUrlTest : public ::testing::Test {
     ServeResourcesFromAConsistentUrl rule;
 
     Results results;
-    rule.AppendResults(*input_, &results);
+    ResultProvider provider(rule, &results);
+    rule.AppendResults(*input_, &provider);
     ASSERT_EQ(num_collisions, results.results_size());
     for (int result_idx = 0;
          result_idx < results.results_size();

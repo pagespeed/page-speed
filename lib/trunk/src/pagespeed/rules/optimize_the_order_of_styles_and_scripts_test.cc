@@ -18,6 +18,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/optimize_the_order_of_styles_and_scripts.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -52,7 +53,8 @@ class OptimizeOrderTest : public ::testing::Test {
   void CheckNoViolations() {
     OptimizeTheOrderOfStylesAndScripts rule;
     Results results;
-    rule.AppendResults(*input_, &results);
+    ResultProvider provider(rule, &results);
+    rule.AppendResults(*input_, &provider);
     ASSERT_EQ(0, results.results_size());
   }
 
@@ -63,7 +65,8 @@ class OptimizeOrderTest : public ::testing::Test {
                          std::vector<int>& ooo_inline_scripts) {
     OptimizeTheOrderOfStylesAndScripts rule;
     Results results;
-    rule.AppendResults(*input_, &results);
+    ResultProvider provider(rule, &results);
+    rule.AppendResults(*input_, &provider);
 
     ASSERT_EQ(1, results.results_size());
     const Result& result = results.results(0);

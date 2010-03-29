@@ -47,7 +47,8 @@ class SpecifyADateHeader : public Rule {
   virtual const char* name() const;
   virtual const char* header() const;
   virtual const char* documentation_url() const;
-  virtual bool AppendResults(const PagespeedInput& input, Results* results);
+  virtual bool AppendResults(const PagespeedInput& input,
+                             ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results, Formatter* formatter);
 
   DISALLOW_COPY_AND_ASSIGN(SpecifyADateHeader);

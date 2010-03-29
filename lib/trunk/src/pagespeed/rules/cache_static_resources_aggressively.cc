@@ -21,6 +21,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -71,7 +72,7 @@ const char* CacheStaticResourcesAggressively::documentation_url() const {
 }
 
 bool CacheStaticResourcesAggressively::AppendResults(
-    const PagespeedInput& input, Results* results) {
+    const PagespeedInput& input, ResultProvider* provider) {
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (!resource_util::IsLikelyStaticResource(resource)) {
@@ -88,9 +89,7 @@ bool CacheStaticResourcesAggressively::AppendResults(
       continue;
     }
 
-    Result* result = results->add_results();
-    result->set_rule_name(name());
-
+    Result* result = provider->NewResult();
     ResultDetails* details = result->mutable_details();
     CachingDetails* caching_details = details->MutableExtension(
         CachingDetails::message_set_extension);

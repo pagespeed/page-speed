@@ -25,6 +25,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/rule_util.h"
 
@@ -36,7 +37,7 @@ class RedirectGraph {
  public:
   RedirectGraph() {}
   void AddResource(const pagespeed::Resource& resource);
-  void AppendRedirectChainResults(pagespeed::Results* results);
+  void AppendRedirectChainResults(pagespeed::ResultProvider* provider);
 
  private:
   // Build a prioritized vector of possible roots.
@@ -75,7 +76,8 @@ void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
   }
 }
 
-void RedirectGraph::AppendRedirectChainResults(pagespeed::Results* results) {
+void RedirectGraph::AppendRedirectChainResults(
+    pagespeed::ResultProvider* provider) {
   std::vector<std::string> roots;
   GetPriorizedRoots(&roots);
 
@@ -88,7 +90,7 @@ void RedirectGraph::AppendRedirectChainResults(pagespeed::Results* results) {
       continue;
     }
 
-    PopulateRedirectChainResult(*it, results->add_results());
+    PopulateRedirectChainResult(*it, provider->NewResult());
   }
 }
 
@@ -111,8 +113,6 @@ void RedirectGraph::GetPriorizedRoots(std::vector<std::string>* roots) {
 
 void RedirectGraph::PopulateRedirectChainResult(const std::string& root,
                                                 pagespeed::Result* result) {
-  result->set_rule_name(kRuleName);
-
   // Perform a DFS on the redirect graph.
   std::vector<std::string> work_stack;
   work_stack.push_back(root);
@@ -179,13 +179,13 @@ const char* MinimizeRedirects::documentation_url() const {
  *     output: a, b, d, c, d
  */
 bool MinimizeRedirects::AppendResults(const PagespeedInput& input,
-                                      Results* results) {
+                                      ResultProvider* provider) {
   RedirectGraph redirect_graph;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     redirect_graph.AddResource(input.GetResource(idx));
   }
 
-  redirect_graph.AppendRedirectChainResults(results);
+  redirect_graph.AppendRedirectChainResults(provider);
   return true;
 }
 

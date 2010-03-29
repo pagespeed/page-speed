@@ -19,6 +19,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "third_party/zlib/zlib.h"
 

@@ -21,6 +21,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -32,7 +33,7 @@ CombineExternalResources::CombineExternalResources(ResourceType resource_type)
 }
 
 bool CombineExternalResources::AppendResults(const PagespeedInput& input,
-                                             Results* results) {
+                                             ResultProvider* provider) {
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
 
   for (HostResourceMap::const_iterator iter = host_resource_map.begin(),
@@ -71,9 +72,7 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
     }
 
     if (violations.size() > 1) {
-      Result* result = results->add_results();
-      result->set_rule_name(name());
-
+      Result* result = provider->NewResult();
       int requests_saved = 0;
       requests_saved += (violations.size() - 1);
       for (ResourceVector::const_iterator violation_iter = violations.begin(),

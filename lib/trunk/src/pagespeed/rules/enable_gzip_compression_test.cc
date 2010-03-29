@@ -17,6 +17,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/savings_computer.h"
@@ -29,6 +30,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 using pagespeed::Savings;
 
 namespace {
@@ -128,7 +130,8 @@ class EnableGzipCompressionTest : public ::testing::Test {
     EnableGzipCompression gzip_rule(new ZlibComputer());
 
     Results results;
-    ASSERT_TRUE(gzip_rule.AppendResults(*input_, &results));
+    ResultProvider provider(gzip_rule, &results);
+    ASSERT_TRUE(gzip_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 2);
 
     const Result& result0 = results.results(0);
@@ -148,7 +151,8 @@ class EnableGzipCompressionTest : public ::testing::Test {
     EnableGzipCompression gzip_rule(new ZlibComputer());
 
     Results results;
-    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &results));
+    ResultProvider provider(gzip_rule, &results);
+    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -158,7 +162,8 @@ class EnableGzipCompressionTest : public ::testing::Test {
     EnableGzipCompression gzip_rule(computer);
 
     Results results;
-    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &results));
+    ResultProvider provider(gzip_rule, &results);
+    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);

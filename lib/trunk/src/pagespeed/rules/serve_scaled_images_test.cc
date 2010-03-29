@@ -20,6 +20,7 @@
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/serve_scaled_images.h"
@@ -181,7 +182,8 @@ class ServeScaledImagesTest : public ::testing::Test {
     {
       // compute results
       pagespeed::rules::ServeScaledImages scaling_rule;
-      ASSERT_TRUE(scaling_rule.AppendResults(*input_, &results));
+      pagespeed::ResultProvider provider(scaling_rule, &results);
+      ASSERT_TRUE(scaling_rule.AppendResults(*input_, &provider));
     }
 
     {
@@ -207,7 +209,8 @@ class ServeScaledImagesTest : public ::testing::Test {
     pagespeed::rules::ServeScaledImages scaling_rule;
 
     pagespeed::Results results;
-    ASSERT_TRUE(scaling_rule.AppendResults(*input_, &results));
+    pagespeed::ResultProvider provider(scaling_rule, &results);
+    ASSERT_TRUE(scaling_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(expected.size(), results.results_size());
 
     for (int idx = 0; idx < expected.size(); ++idx) {

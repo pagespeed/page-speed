@@ -24,6 +24,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -183,7 +184,7 @@ const char* ServeScaledImages::documentation_url() const {
 }
 
 bool ServeScaledImages::AppendResults(const PagespeedInput& input,
-                                      Results* results) {
+                                      ResultProvider* provider) {
   // TODO Consider adding the ability to perform the resizing and provide
   //      the resized image file to the user.
   // TODO Add info about natural/client sizes for use in FormatResults.
@@ -226,8 +227,7 @@ bool ServeScaledImages::AppendResults(const PagespeedInput& input,
         static_cast<int>(image_data->GetCompressionFactor() *
                          static_cast<double>(original_size));
 
-    Result* result = results->add_results();
-    result->set_rule_name(name());
+    Result* result = provider->NewResult();
     result->set_original_response_bytes(original_size);
     result->add_resource_urls(url);
 

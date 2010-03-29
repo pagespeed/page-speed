@@ -22,6 +22,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -65,7 +66,7 @@ const char* ServeResourcesFromAConsistentUrl::documentation_url() const {
 }
 
 bool ServeResourcesFromAConsistentUrl::AppendResults(
-    const PagespeedInput& input, Results* results) {
+    const PagespeedInput& input, ResultProvider* provider) {
   ResourcesWithSameBodyMap map;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
@@ -88,9 +89,7 @@ bool ServeResourcesFromAConsistentUrl::AppendResults(
        ++map_iter) {
     const ResourceVector &resources = map_iter->second;
     if (resources.size() > 1) {
-      Result* result = results->add_results();
-      result->set_rule_name(name());
-
+      Result* result = provider->NewResult();
       const Resource &first_resource = **resources.begin();
       const int requests_saved = resources.size() - 1;
       const int response_bytes_saved =

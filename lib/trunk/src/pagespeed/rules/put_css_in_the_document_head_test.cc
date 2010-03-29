@@ -18,6 +18,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/put_css_in_the_document_head.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -177,7 +178,8 @@ class PutCssInTheDocumentHeadTest : public ::testing::Test {
     pagespeed::rules::PutCssInTheDocumentHead put_css_in_head_rule;
 
     pagespeed::Results results;
-    ASSERT_TRUE(put_css_in_head_rule.AppendResults(input, &results));
+    pagespeed::ResultProvider provider(put_css_in_head_rule, &results);
+    ASSERT_TRUE(put_css_in_head_rule.AppendResults(input, &provider));
     ASSERT_EQ(results.results_size(), expected.size());
 
     for (int i = 0; i < expected.size(); ++i) {
@@ -295,8 +297,8 @@ TEST_F(PutCssInTheDocumentHeadTest, Iframe) {
   std::vector<std::string> external_styles1;
   external_styles1.push_back("http://example.com/bar.css");
 
-  CheckTwoViolations(doc1, "http://example.com/", 2, external_styles1,
-                     "http://example.com/if.html", 1, external_styles2);
+  CheckTwoViolations(doc1, "http://example.com/if.html", 1, external_styles2,
+                     "http://example.com/", 2, external_styles1);
 }
 
 }  // namespace
