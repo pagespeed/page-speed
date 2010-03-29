@@ -22,6 +22,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -54,14 +55,13 @@ const char* MinimizeRequestSize::documentation_url() const {
 }
 
 bool MinimizeRequestSize::AppendResults(const PagespeedInput& input,
-                                       Results* results) {
+                                        ResultProvider* provider) {
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
 
     int request_bytes = resource_util::EstimateRequestBytes(resource);
     if (request_bytes > kMaximumRequestSize) {
-      Result* result = results->add_results();
-      result->set_rule_name(name());
+      Result* result = provider->NewResult();
       result->set_original_request_bytes(request_bytes);
       result->add_resource_urls(resource.GetRequestUrl());
 

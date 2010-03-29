@@ -24,6 +24,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/html/html_tag.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -192,7 +193,7 @@ const char* OptimizeTheOrderOfStylesAndScripts::documentation_url() const {
 
 bool OptimizeTheOrderOfStylesAndScripts::AppendResults(
     const PagespeedInput& input,
-    Results* results) {
+    ResultProvider* provider) {
 
   const pagespeed::DomDocument* document = input.dom_document();
 
@@ -254,8 +255,7 @@ bool OptimizeTheOrderOfStylesAndScripts::AppendResults(
     }
 
     if (visitor.HasComplaints()) {
-      Result* result = results->add_results();
-      result->set_rule_name(name());
+      Result* result = provider->NewResult();
       result->add_resource_urls(resource.GetRequestUrl());
       visitor.PopulateResult(result);
     }

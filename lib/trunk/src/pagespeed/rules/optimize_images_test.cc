@@ -18,6 +18,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/optimize_images.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -27,6 +28,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -105,7 +107,8 @@ class OptimizeImagesTest : public ::testing::Test {
     OptimizeImages optimize(save_optimized_content);
 
     Results results;
-    ASSERT_TRUE(optimize.AppendResults(*input_, &results));
+    ResultProvider provider(optimize, &results);
+    ASSERT_TRUE(optimize.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -114,7 +117,8 @@ class OptimizeImagesTest : public ::testing::Test {
     OptimizeImages optimize(save_optimized_content);
 
     Results results;
-    ASSERT_TRUE(optimize.AppendResults(*input_, &results));
+    ResultProvider provider(optimize, &results);
+    ASSERT_TRUE(optimize.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -129,7 +133,8 @@ class OptimizeImagesTest : public ::testing::Test {
     OptimizeImages optimize(save_optimized_content);
 
     Results results;
-    ASSERT_FALSE(optimize.AppendResults(*input_, &results));
+    ResultProvider provider(optimize, &results);
+    ASSERT_FALSE(optimize.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 

@@ -152,6 +152,7 @@
         '<(pagespeed_root)/pagespeed/core/resource.cc',
         '<(pagespeed_root)/pagespeed/core/resource_filter.cc',
         '<(pagespeed_root)/pagespeed/core/resource_util.cc',
+        '<(pagespeed_root)/pagespeed/core/result_provider.cc',
         '<(pagespeed_root)/pagespeed/core/rule.cc',
       ],
       'include_dirs': [

@@ -17,6 +17,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/cache_static_resources_aggressively.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -28,6 +29,7 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::ResultDetails;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 using pagespeed::Savings;
 
 namespace {
@@ -60,7 +62,8 @@ class CacheStaticResourcesAggressivelyTest : public ::testing::Test {
     CacheStaticResourcesAggressively rule;
 
     Results results;
-    ASSERT_TRUE(rule.AppendResults(*input_, &results));
+    ResultProvider provider(rule, &results);
+    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
     ASSERT_EQ(0, results.results_size());
   }
 
@@ -68,7 +71,8 @@ class CacheStaticResourcesAggressivelyTest : public ::testing::Test {
     CacheStaticResourcesAggressively rule;
 
     Results results;
-    ASSERT_TRUE(rule.AppendResults(*input_, &results));
+    ResultProvider provider(rule, &results);
+    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
     ASSERT_EQ(1, results.results_size());
 
     const Result& result0 = results.results(0);

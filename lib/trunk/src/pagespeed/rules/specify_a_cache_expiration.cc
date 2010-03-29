@@ -19,6 +19,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -41,7 +42,7 @@ const char* SpecifyACacheExpiration::documentation_url() const {
 }
 
 bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
-                                            Results* results) {
+                                            ResultProvider* provider) {
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (resource_util::HasExplicitFreshnessLifetime(resource)) {
@@ -67,8 +68,7 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    Result* result = results->add_results();
-    result->set_rule_name(name());
+    Result* result = provider->NewResult();
 
     // TODO: populate savings.
 

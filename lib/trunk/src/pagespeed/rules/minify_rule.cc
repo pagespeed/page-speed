@@ -21,6 +21,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -48,7 +49,7 @@ const char* MinifyRule::documentation_url() const {
 }
 
 bool MinifyRule::AppendResults(const PagespeedInput& input,
-                               Results* results) {
+                               ResultProvider* provider) {
   bool error = false;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
@@ -62,8 +63,7 @@ bool MinifyRule::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    Result* result = results->add_results();
-    result->set_rule_name(name());
+    Result* result = provider->NewResult();
     result->set_original_response_bytes(resource.GetResponseBody().size());
     result->add_resource_urls(resource.GetRequestUrl());
 

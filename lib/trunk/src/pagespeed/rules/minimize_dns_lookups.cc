@@ -21,6 +21,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 // Unfortunately, including Winsock2.h before the other dependencies
@@ -75,7 +76,7 @@ const char* MinimizeDnsLookups::documentation_url() const {
 }
 
 bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
-                                       Results* results) {
+                                       ResultProvider* provider) {
   // TODO This logic is wrong.  Right now, if you have two resources in
   //      different domains, this rule will complain about both resources, and
   //      claim a savings of one DNS request for each resource.  However, you
@@ -140,8 +141,7 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
          iter != end; ++iter) {
       const Resource* resource = *iter;
 
-      Result* result = results->add_results();
-      result->set_rule_name(name());
+      Result* result = provider->NewResult();
       result->add_resource_urls(resource->GetRequestUrl());
 
       Savings* savings = result->mutable_savings();

@@ -17,6 +17,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -26,6 +27,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -56,14 +58,16 @@ class AvoidBadRequestsTest : public ::testing::Test {
   void CheckNoViolations() {
     AvoidBadRequests no404s;
     Results results;
-    ASSERT_TRUE(no404s.AppendResults(*input_, &results));
+    ResultProvider provider(no404s, &results);
+    ASSERT_TRUE(no404s.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
   void CheckOneViolation(const std::string &url) {
     AvoidBadRequests no404s;
     Results results;
-    ASSERT_TRUE(no404s.AppendResults(*input_, &results));
+    ResultProvider provider(no404s, &results);
+    ASSERT_TRUE(no404s.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 1);
     const Result& result = results.results(0);
     ASSERT_EQ(result.savings().requests_saved(), 1);

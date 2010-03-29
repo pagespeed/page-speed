@@ -19,6 +19,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_redirects.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -29,6 +30,7 @@ using pagespeed::Resource;
 using pagespeed::ResourceType;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 using pagespeed::Rule;
 
 namespace {
@@ -83,7 +85,8 @@ class MinimizeRedirectsTest : public ::testing::Test {
     MinimizeRedirects rule;
 
     Results results;
-    rule.AppendResults(*input_, &results);
+    ResultProvider provider(rule, &results);
+    rule.AppendResults(*input_, &provider);
     ASSERT_EQ(results.results_size(), expected_violations.size());
     for (int idx = 0; idx < results.results_size(); idx++) {
       const Result* result = &results.results(idx);

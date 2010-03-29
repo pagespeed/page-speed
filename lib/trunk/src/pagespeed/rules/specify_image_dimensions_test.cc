@@ -18,6 +18,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/specify_image_dimensions.h"
@@ -27,6 +28,7 @@ using pagespeed::rules::SpecifyImageDimensions;
 using pagespeed::PagespeedInput;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -182,7 +184,8 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
     {
       // compute results
       SpecifyImageDimensions dimensions_rule;
-      ASSERT_TRUE(dimensions_rule.AppendResults(input, &results));
+      ResultProvider provider(dimensions_rule, &results);
+      ASSERT_TRUE(dimensions_rule.AppendResults(input, &provider));
     }
 
     {
@@ -209,7 +212,8 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
     SpecifyImageDimensions dimensions_rule;
 
     Results results;
-    ASSERT_TRUE(dimensions_rule.AppendResults(input, &results));
+    ResultProvider provider(dimensions_rule, &results);
+    ASSERT_TRUE(dimensions_rule.AppendResults(input, &provider));
     ASSERT_EQ(results.results_size(), expected.size());
 
     for (int idx = 0; idx < expected.size(); ++idx) {

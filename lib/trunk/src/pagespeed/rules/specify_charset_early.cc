@@ -22,6 +22,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/html/html_tag.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -118,7 +119,7 @@ const char* SpecifyCharsetEarly::documentation_url() const {
 }
 
 bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
-                                     Results* results) {
+                                        ResultProvider* provider) {
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     const ResourceType resource_type = resource.GetResourceType();
@@ -161,8 +162,7 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
     // There was no charset found in the Content-Type header or in the
     // body, so we should flag a violation.
 
-    Result* result = results->add_results();
-    result->set_rule_name(name());
+    Result* result = provider->NewResult();
 
     Savings* savings = result->mutable_savings();
     savings->set_page_reflows_saved(1);

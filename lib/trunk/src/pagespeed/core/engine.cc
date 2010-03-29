@@ -22,6 +22,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -85,7 +86,8 @@ bool Engine::ComputeResults(const PagespeedInput& input,
        iter != end;
        ++iter) {
     Rule* rule = *iter;
-    success = rule->AppendResults(input, results) && success;
+    ResultProvider provider(*rule, results);
+    success = rule->AppendResults(input, &provider) && success;
   }
 
   return success;

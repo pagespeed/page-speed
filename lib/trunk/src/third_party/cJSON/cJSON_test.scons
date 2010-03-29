@@ -10,10 +10,17 @@ env = env.Clone(COMPONENT_NAME='cJSON',
 configurations = {
     'Release' : {
         'Append' : dict(
+            ASFLAGS = [
+                '-32'
+            ],
             CCFLAGS = [
                 '-pthread',
                 '-fno-exceptions',
                 '-D_FILE_OFFSET_BITS=64',
+                '-march=pentium4',
+                '-msse2',
+                '-mfpmath=sse',
+                '-m32',
                 '-O2',
                 '-fno-ident',
                 '-fdata-sections',
@@ -31,6 +38,7 @@ configurations = {
             ],
             LINKFLAGS = [
                 '-pthread',
+                '-m32',
                 '-Wl,--gc-sections'
             ],
             LIBS = [
@@ -92,10 +100,17 @@ configurations = {
     },
     'Debug' : {
         'Append' : dict(
+            ASFLAGS = [
+                '-32'
+            ],
             CCFLAGS = [
                 '-pthread',
                 '-fno-exceptions',
                 '-D_FILE_OFFSET_BITS=64',
+                '-march=pentium4',
+                '-msse2',
+                '-mfpmath=sse',
+                '-m32',
                 '-O0',
                 '-g'
             ],
@@ -109,6 +124,7 @@ configurations = {
             ],
             LINKFLAGS = [
                 '-pthread',
+                '-m32',
                 '-rdynamic'
             ],
             LIBS = [

@@ -19,6 +19,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -30,6 +31,7 @@ using pagespeed::Resource;
 using pagespeed::ResourceType;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 using pagespeed::Rule;
 
 namespace {
@@ -87,7 +89,8 @@ class CombineExternalResourcesTest : public ::testing::Test {
     }
 
     Results results;
-    resource_rule->AppendResults(*input_, &results);
+    ResultProvider provider(*resource_rule.get(), &results);
+    resource_rule->AppendResults(*input_, &provider);
     ASSERT_EQ(results.results_size(), expected_violations.size());
     for (int idx = 0; idx < results.results_size(); idx++) {
       const Result* result = &results.results(idx);

@@ -18,6 +18,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_dns_lookups.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -27,6 +28,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::ResultProvider;
 
 namespace {
 
@@ -55,7 +57,8 @@ class MinimizeDnsTest : public ::testing::Test {
     MinimizeDnsLookups dns_rule;
 
     Results results;
-    dns_rule.AppendResults(*input_, &results);
+    ResultProvider provider(dns_rule, &results);
+    dns_rule.AppendResults(*input_, &provider);
     ASSERT_EQ(expected_violations.size(), results.results_size());
 
     std::vector<std::string> urls;
