@@ -97,11 +97,11 @@ int Rule::ComputeScore(const InputInformation& input_info,
   }
 
   if (dns_saved > 0) {
-    if (input_info.number_resources() == 0) {
+    if (input_info.number_hosts() == 0) {
       return -1;  // information is not available
     }
     normalized_savings +=
-        kDnsLookupImpact * dns_saved / input_info.number_resources();
+        kDnsLookupImpact * dns_saved / input_info.number_hosts();
   }
 
   if (requests_saved > 0) {

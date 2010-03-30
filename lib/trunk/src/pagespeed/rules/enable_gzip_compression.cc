@@ -19,9 +19,20 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "third_party/zlib/zlib.h"
+
+namespace {
+
+// Minimum number of bytes before it's typically a win to apply gzip
+// to a resource. Below this size, the cost of gzip overhead typically
+// outweighs the benefits of gzip compression (i.e. the compressed
+// resource is larger than the uncompressed resource).
+const int kMinGzipSize = 150;
+
+}  // namespace
 
 namespace pagespeed {
 
@@ -45,7 +56,6 @@ class GzipMinifier : public Minifier {
 
  private:
   bool IsCompressed(const Resource& resource) const;
-  bool IsText(const Resource& resource) const;
   bool IsViolation(const Resource& resource) const;
 
   scoped_ptr<SavingsComputer> computer_;
@@ -98,22 +108,10 @@ bool GzipMinifier::IsCompressed(const Resource& resource) const {
       encoding.find("deflate") != std::string::npos;
 }
 
-bool GzipMinifier::IsText(const Resource& resource) const {
-  ResourceType type = resource.GetResourceType();
-  ResourceType text_types[] = { HTML, TEXT, JS, CSS };
-  for (int idx = 0; idx < arraysize(text_types); ++idx) {
-    if (type == text_types[idx]) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 bool GzipMinifier::IsViolation(const Resource& resource) const {
   return (!IsCompressed(resource) &&
-          IsText(resource) &&
-          resource.GetResponseBody().size() >= 150);
+          resource_util::IsCompressibleResource(resource) &&
+          resource.GetResponseBody().size() >= kMinGzipSize);
 }
 
 }  // namespace
