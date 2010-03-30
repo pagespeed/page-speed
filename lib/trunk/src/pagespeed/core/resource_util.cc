@@ -311,13 +311,30 @@ int EstimateRequestBytes(const Resource& resource) {
 
 int EstimateResponseBytes(const Resource& resource) {
   int response_bytes = 0;
-  // TODO get compressed size or replace with section with actual
-  // download size.
-  // TODO improve the header size calculation below.
+  // TODO: this computation is a bit strange. It mixes the size of
+  // uncompressed response headers with uncompressed response
+  // body. The computed number doesn't reflect an actual attribute of
+  // the resource. If we want to compute the wire transfer size we
+  // should be using the post-gzip compression size for this resource,
+  // but it's not clear that it's necessarily the right thing to use
+  // the gzip-compressed size.
   response_bytes += resource.GetResponseBody().size();
   response_bytes += resource.GetResponseProtocol().size();
   response_bytes += EstimateHeadersBytes(*resource.GetResponseHeaders());
   return response_bytes;
+}
+
+bool IsCompressibleResource(const Resource& resource) {
+  switch (resource.GetResourceType()) {
+    case HTML:
+    case TEXT:
+    case CSS:
+    case JS:
+      return true;
+
+    default:
+      return false;
+  }
 }
 
 bool GetHeaderDirectives(const std::string& header, DirectiveMap* out) {

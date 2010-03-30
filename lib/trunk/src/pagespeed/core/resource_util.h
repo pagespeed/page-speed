@@ -30,6 +30,9 @@ typedef std::map<std::string, std::string> DirectiveMap;
 int EstimateRequestBytes(const Resource& resource);
 int EstimateResponseBytes(const Resource& resource);
 
+// Is the resource compressible using gzip?
+bool IsCompressibleResource(const Resource& resource);
+
 // Parse directives from the given HTTP header.
 // For instance, if Cache-Control contains "private, max-age=0" we
 // expect the map to contain two pairs, one with key private and no

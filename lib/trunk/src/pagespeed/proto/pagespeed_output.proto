@@ -33,6 +33,8 @@ message Savings {
 
   // Number of page reflows that could have been saved by specifying
   // resource dimensions.
+  // NOTE: this metric will be removed in an upcoming Page Speed
+  // release.
   optional int32 page_reflows_saved = 4;
 
   // Upload bytes that could be saved if page was optimized.
