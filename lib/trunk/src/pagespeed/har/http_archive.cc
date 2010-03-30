@@ -1,4 +1,4 @@
-// Copyright 2009 Google Inc. All Rights Reserved.
+// Copyright 2010 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,6 +91,8 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
     INPUT_POPULATOR_ERROR() << "Entry item must be an object.";
     return;
   }
+
+  // TODO: Use timings fields to determine if the resource was lazy-loaded.
 
   {
     cJSON* request_json = cJSON_GetObjectItem(entry_json, "request");
