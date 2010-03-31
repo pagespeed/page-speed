@@ -28,6 +28,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::ResultDetails;
+using pagespeed::ResultVector;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::Savings;
@@ -67,13 +68,20 @@ class CacheStaticResourcesAggressivelyTest : public ::testing::Test {
     ASSERT_EQ(0, results.results_size());
   }
 
-  void CheckOneViolation(const char *url, int64 freshness_lifetime_millis) {
+  void CheckOneViolation(const char *url,
+                         int64 freshness_lifetime_millis,
+                         int score) {
     CacheStaticResourcesAggressively rule;
 
     Results results;
     ResultProvider provider(rule, &results);
     ASSERT_TRUE(rule.AppendResults(*input_, &provider));
     ASSERT_EQ(1, results.results_size());
+
+    ResultVector result_vector;
+    result_vector.push_back(&results.results(0));
+    ASSERT_EQ(score, rule.ComputeScore(*input_->input_information(),
+                                       result_vector));
 
     const Result& result0 = results.results(0);
     ASSERT_EQ(result0.resource_urls_size(), 1);
@@ -95,7 +103,7 @@ class CacheStaticResourcesAggressivelyTest : public ::testing::Test {
 TEST_F(CacheStaticResourcesAggressivelyTest, ShortFreshnessLifetime) {
   AddTestResource("http://www.example.com/", "max-age=500");
   ASSERT_EQ(1, input_->num_resources());
-  CheckOneViolation("http://www.example.com/", 500000);
+  CheckOneViolation("http://www.example.com/", 500000, 0);
 }
 
 TEST_F(CacheStaticResourcesAggressivelyTest, LongFreshnessLifetime) {
@@ -114,6 +122,20 @@ TEST_F(CacheStaticResourcesAggressivelyTest, BadFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", "max-age=foo");
   ASSERT_EQ(1, input_->num_resources());
   CheckNoViolations();
+}
+
+TEST_F(CacheStaticResourcesAggressivelyTest, OneShortOneLongLifetime) {
+  AddTestResource("http://www.example.com/a", "max-age=302400");
+  AddTestResource("http://www.example.com/1", "max-age=31536000");
+  ASSERT_EQ(2, input_->num_resources());
+  CheckOneViolation("http://www.example.com/a", 302400000, 75);
+}
+
+TEST_F(CacheStaticResourcesAggressivelyTest, OneShortOneNoLifetime) {
+  AddTestResource("http://www.example.com/a", "max-age=1");
+  AddTestResource("http://www.example.com/1", NULL);
+  ASSERT_EQ(2, input_->num_resources());
+  CheckOneViolation("http://www.example.com/a", 1000, 0);
 }
 
 }  // namespace
