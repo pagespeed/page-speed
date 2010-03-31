@@ -14,7 +14,7 @@
 
 #include "pagespeed/rules/cache_static_resources_aggressively.h"
 
-#include <algorithm>  // for sort()
+#include <algorithm>  // for stable_sort()
 
 #include "base/logging.h"
 #include "pagespeed/core/formatter.h"
@@ -45,21 +45,19 @@ int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
 int64 ComputeAverageFreshnessLifetimeMillis(
     const pagespeed::InputInformation& input_info,
     const pagespeed::ResultVector& results) {
-  const int number_static_resources = input_info.number_static_resources();
-  if (number_static_resources <= 0 ||
-      results.size() <= 0) {
-    LOG(DFATAL) << "Unexpected inputs: " << number_static_resources
+  const int number_cacheable_static_resources =
+      input_info.number_explicitly_cacheable_static_resources();
+  if (number_cacheable_static_resources <= 0 || results.size() <= 0) {
+    LOG(DFATAL) << "Unexpected inputs: " << number_cacheable_static_resources
                 << ", " << results.size();
-    return kMillisInAWeek;
+    return -1;
   }
 
   const int num_properly_cached_resources =
-      number_static_resources - results.size();
+      number_cacheable_static_resources - results.size();
   if (num_properly_cached_resources < 0) {
     LOG(DFATAL) << "Number of results exceeds number of static resources.";
-    // Unable to compute avg freshness lifetime, so just return the
-    // maximum possible value, which will translate to a score of 100.
-    return kMillisInAWeek;
+    return -1;
   }
 
   // Sum all of the freshness lifetimes of the results, so we can
@@ -74,7 +72,7 @@ int64 ComputeAverageFreshnessLifetimeMillis(
   // such resource.
   freshness_lifetime_sum += (num_properly_cached_resources * kMillisInAWeek);
 
-  return freshness_lifetime_sum / input_info.number_static_resources();
+  return freshness_lifetime_sum / number_cacheable_static_resources;
 }
 
 // StrictWeakOrdering that sorts by freshness lifetime
@@ -120,6 +118,13 @@ bool CacheStaticResourcesAggressively::AppendResults(
       continue;
     }
 
+    if (freshness_lifetime_millis <= 0) {
+      // This should never happen.
+      LOG(ERROR) << "Explicitly non-cacheable resources should "
+                 << "not pass IsLikelyStaticResource test.";
+      continue;
+    }
+
     if (freshness_lifetime_millis >= kMillisInAWeek) {
       continue;
     }
@@ -147,9 +152,9 @@ void CacheStaticResourcesAggressively::FormatResults(
 
   // Show the resources with the shortest freshness lifetime first.
   ResultVector sorted_results = results;
-  std::sort(sorted_results.begin(),
-            sorted_results.end(),
-            SortByFreshnessLifetime());
+  std::stable_sort(sorted_results.begin(),
+                   sorted_results.end(),
+                   SortByFreshnessLifetime());
 
   for (ResultVector::const_iterator iter = sorted_results.begin(),
            end = sorted_results.end();

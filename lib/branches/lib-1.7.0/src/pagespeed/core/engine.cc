@@ -41,9 +41,19 @@ bool CompareResults(const Result* result1, const Result* result2) {
     return savings1.dns_requests_saved() > savings2.dns_requests_saved();
   } else if (savings1.requests_saved() != savings2.requests_saved()) {
     return savings1.requests_saved() > savings2.requests_saved();
-  } else {
+  } else if (savings1.response_bytes_saved() !=
+             savings2.response_bytes_saved()) {
     return savings1.response_bytes_saved() > savings2.response_bytes_saved();
+  } else if (result1->resource_urls_size() != result2->resource_urls_size()) {
+    return result1->resource_urls_size() > result2->resource_urls_size();
+  } else if (result1->resource_urls_size() > 0) {
+    // If the savings are equal, sort in descending alphabetical
+    // order.
+    return result1->resource_urls(0) < result2->resource_urls(0);
   }
+
+  // The results appear to be equal.
+  return false;
 }
 
 }  // namespace
@@ -130,19 +140,21 @@ bool Engine::FormatResults(const Results& results,
 
     ResultVector& rule_results = rule_to_result_map[iter->first];
     int score = 100;
-    if (rule_results.size() > 0) {
+    if (!rule_results.empty()) {
       std::stable_sort(rule_results.begin(),
                        rule_results.end(),
                        CompareResults);
       score = rule->ComputeScore(input_info, rule_results);
-      if (score > 100 || score < 0) {
+      if (score > 100 || score < -1) {
+        // Note that the value -1 indicates a valid score could not be
+        // computed, so we need to allow it.
         LOG(ERROR) << "Score for " << rule->name()
                    << " out of bounds: " << score;
-        score = std::max(0, std::min(100, score));
+        score = std::max(-1, std::min(100, score));
       }
     }
     Formatter* rule_formatter = formatter->AddHeader(*rule, score);
-    if (rule_results.size() > 0) {
+    if (!rule_results.empty()) {
       rule->FormatResults(rule_results, rule_formatter);
     }
   }
