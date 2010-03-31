@@ -51,11 +51,9 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    if (!resource_util::IsCacheableResourceStatusCode(
-            resource.GetResponseStatusCode())) {
-      // The resource has a status code that isn't generally known to
-      // be associated with cacheable resources, so exclude
-      // it from the result set.
+    if (!resource_util::IsCacheableResource(resource)) {
+      // The resource is not cacheable, so don't include it in the
+      // result set.
       continue;
     }
 
