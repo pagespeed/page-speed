@@ -42,6 +42,41 @@ int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
   return caching_details.freshness_lifetime_millis();
 }
 
+int64 ComputeAverageFreshnessLifetimeMillis(
+    const pagespeed::InputInformation& input_info,
+    const pagespeed::ResultVector& results) {
+  const int number_static_resources = input_info.number_static_resources();
+  if (number_static_resources <= 0 ||
+      results.size() <= 0) {
+    LOG(DFATAL) << "Unexpected inputs: " << number_static_resources
+                << ", " << results.size();
+    return kMillisInAWeek;
+  }
+
+  const int num_properly_cached_resources =
+      number_static_resources - results.size();
+  if (num_properly_cached_resources < 0) {
+    LOG(DFATAL) << "Number of results exceeds number of static resources.";
+    // Unable to compute avg freshness lifetime, so just return the
+    // maximum possible value, which will translate to a score of 100.
+    return kMillisInAWeek;
+  }
+
+  // Sum all of the freshness lifetimes of the results, so we can
+  // compute an average.
+  int64 freshness_lifetime_sum = 0;
+  for (int i = 0, num = results.size(); i < num; ++i) {
+    freshness_lifetime_sum += GetFreshnessLifetimeMillis(*results[i]);
+  }
+
+  // In computing the score, we also need to account for the resources
+  // that are properly cached, adding a full caching lifetime for each
+  // such resource.
+  freshness_lifetime_sum += (num_properly_cached_resources * kMillisInAWeek);
+
+  return freshness_lifetime_sum / input_info.number_static_resources();
+}
+
 // StrictWeakOrdering that sorts by freshness lifetime
 struct SortByFreshnessLifetime {
   bool operator()(const pagespeed::Result *a, const pagespeed::Result *b) {
@@ -94,9 +129,6 @@ bool CacheStaticResourcesAggressively::AppendResults(
     CachingDetails* caching_details = details->MutableExtension(
         CachingDetails::message_set_extension);
     caching_details->set_freshness_lifetime_millis(freshness_lifetime_millis);
-
-    // TODO: populate savings.
-
     result->add_resource_urls(resource.GetRequestUrl());
   }
   return true;
@@ -144,6 +176,19 @@ void CacheStaticResourcesAggressively::FormatResults(
         caching_details.freshness_lifetime_millis());
     body->AddChild("$1 ($2)", url, freshness_lifetime);
   }
+}
+
+int CacheStaticResourcesAggressively::ComputeScore(
+    const InputInformation& input_info, const ResultVector& results) {
+  int64 avg_freshness_lifetime =
+      ComputeAverageFreshnessLifetimeMillis(input_info, results);
+  if (avg_freshness_lifetime > kMillisInAWeek) {
+    LOG(DFATAL) << "Average freshness lifetime " << avg_freshness_lifetime
+                << " exceeds max suggested freshness lifetime "
+                << kMillisInAWeek;
+    avg_freshness_lifetime = kMillisInAWeek;
+  }
+  return 100 * avg_freshness_lifetime / kMillisInAWeek;
 }
 
 }  // namespace rules

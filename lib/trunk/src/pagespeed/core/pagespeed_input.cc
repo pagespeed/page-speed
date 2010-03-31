@@ -89,6 +89,10 @@ bool PagespeedInput::AddResource(const Resource* resource) {
       input_info_->total_response_bytes() + response_bytes);
   input_info_->set_number_resources(num_resources());
   input_info_->set_number_hosts(GetHostResourceMap()->size());
+  if (resource_util::IsLikelyStaticResource(*resource)) {
+    input_info_->set_number_static_resources(
+        input_info_->number_static_resources() + 1);
+  }
 
   return true;
 }

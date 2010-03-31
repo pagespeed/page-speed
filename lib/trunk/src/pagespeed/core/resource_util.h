@@ -70,6 +70,11 @@ bool HasExplicitFreshnessLifetime(const Resource& resource);
 // parameter it positive.
 bool IsCacheableResource(const Resource& resource);
 
+// Is the given status code known to be associated with
+// static/cacheable resources? For instance, a 200 is generally
+// cacheable but a 204 is not.
+bool IsCacheableResourceStatusCode(int status_code);
+
 // Is the given resource type usually associated wiht static resources?
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
 

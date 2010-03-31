@@ -211,28 +211,6 @@ bool DirectiveEnumerator::OnToken(std::string* key, std::string* value) {
   }
 }
 
-bool IsStaticResourceStatusCode(int status_code) {
-  switch (status_code) {
-    // HTTP/1.1 RFC lists these response codes as heuristically
-    // cacheable in the absence of explicit caching headers. The
-    // primary cacheable status code is 200, but 203 and 206 are also
-    // listed in the RFC.
-    case 200:
-    case 203:
-    case 206:
-      return true;
-
-    // In addition, 304s are sent for cacheable resources. Though the
-    // 304 response itself is not cacheable, the underlying resource
-    // is, and that's what we care about.
-    case 304:
-      return true;
-
-    default:
-      return false;
-  }
-}
-
 bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
   if (pagespeed::resource_util::HasExplicitFreshnessLifetime(resource)) {
     // If the response has an explicit freshness lifetime then it's
@@ -282,7 +260,8 @@ bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
     return false;
   }
 
-  if (!IsStaticResourceStatusCode(resource.GetResponseStatusCode())) {
+  if (!pagespeed::resource_util::IsCacheableResourceStatusCode(
+          resource.GetResponseStatusCode())) {
     return false;
   }
 
@@ -410,6 +389,28 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
 bool HasExplicitFreshnessLifetime(const Resource& resource) {
   int64 freshness_lifetime = 0;
   return GetFreshnessLifetimeMillis(resource, &freshness_lifetime);
+}
+
+bool IsCacheableResourceStatusCode(int status_code) {
+  switch (status_code) {
+    // HTTP/1.1 RFC lists these response codes as heuristically
+    // cacheable in the absence of explicit caching headers. The
+    // primary cacheable status code is 200, but 203 and 206 are also
+    // listed in the RFC.
+    case 200:
+    case 203:
+    case 206:
+      return true;
+
+    // In addition, 304s are sent for cacheable resources. Though the
+    // 304 response itself is not cacheable, the underlying resource
+    // is, and that's what we care about.
+    case 304:
+      return true;
+
+    default:
+      return false;
+  }
 }
 
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
@@ -552,7 +553,7 @@ bool IsCacheableResource(const Resource& resource) {
 }
 
 bool IsLikelyStaticResource(const Resource& resource) {
-  if (!IsStaticResourceStatusCode(resource.GetResponseStatusCode())) {
+  if (!IsCacheableResourceStatusCode(resource.GetResponseStatusCode())) {
     return false;
   }
 

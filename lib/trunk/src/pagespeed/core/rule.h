@@ -69,8 +69,8 @@ class Rule {
   // @param input_info Information about resources that are part of the page.
   // @param results Result vector that contains savings information.
   // @returns 0-100 score.
-  int ComputeScore(const InputInformation& input_info,
-                   const ResultVector& results);
+  virtual int ComputeScore(const InputInformation& input_info,
+                           const ResultVector& results);
 };
 
 }  // namespace pagespeed
