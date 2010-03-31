@@ -129,11 +129,22 @@ bool Engine::FormatResults(const Results& results,
     Rule* rule = iter->second;
 
     ResultVector& rule_results = rule_to_result_map[iter->first];
-    std::stable_sort(rule_results.begin(), rule_results.end(), CompareResults);
-
-    int score = rule->ComputeScore(input_info, rule_results);
+    int score = 100;
+    if (rule_results.size() > 0) {
+      std::stable_sort(rule_results.begin(),
+                       rule_results.end(),
+                       CompareResults);
+      score = rule->ComputeScore(input_info, rule_results);
+      if (score > 100 || score < 0) {
+        LOG(ERROR) << "Score for " << rule->name()
+                   << " out of bounds: " << score;
+        score = std::max(0, std::min(100, score));
+      }
+    }
     Formatter* rule_formatter = formatter->AddHeader(*rule, score);
-    rule->FormatResults(rule_results, rule_formatter);
+    if (rule_results.size() > 0) {
+      rule->FormatResults(rule_results, rule_formatter);
+    }
   }
   formatter->Done();
 

@@ -56,6 +56,9 @@ message InputInformation {
 
   // Total client request bytes.
   optional int64 total_request_bytes = 4;
+
+  // Number of static resources accessed while rendering the page.
+  optional int32 number_static_resources = 5;
 }
 
 // Base class for result details
@@ -133,6 +136,7 @@ message CachingDetails {
   }
 
   optional int64 freshness_lifetime_millis = 1;
+  optional bool is_likely_cacheable = 2;
 }
 
 message Result {

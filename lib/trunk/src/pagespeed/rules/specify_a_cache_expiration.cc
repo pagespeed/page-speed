@@ -51,9 +51,11 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
       continue;
     }
 
-    if (!resource_util::IsCacheableResource(resource)) {
-      // The resource isn't cacheable, so don't include it in the
-      // analysis.
+    if (!resource_util::IsCacheableResourceStatusCode(
+            resource.GetResponseStatusCode())) {
+      // The resource has a status code that isn't generally known to
+      // be associated with cacheable resources, so exclude
+      // it from the result set.
       continue;
     }
 
@@ -69,9 +71,11 @@ bool SpecifyACacheExpiration::AppendResults(const PagespeedInput& input,
     }
 
     Result* result = provider->NewResult();
-
-    // TODO: populate savings.
-
+    ResultDetails* details = result->mutable_details();
+    CachingDetails* caching_details = details->MutableExtension(
+        CachingDetails::message_set_extension);
+    caching_details->set_is_likely_cacheable(
+        resource_util::IsLikelyStaticResource(resource));
     result->add_resource_urls(resource.GetRequestUrl());
   }
   return true;
@@ -86,7 +90,7 @@ void SpecifyACacheExpiration::FormatResults(const ResultVector& results,
   Formatter* body = formatter->AddChild(
       "The following resources are missing a cache expiration. Resources "
       "that do not specify an expiration may not be cached by browsers. "
-      "Specify an expiration at least one month in the future for resources "
+      "Specify an expiration at least one week in the future for resources "
       "that should be cached, and an expiration in the past for resources "
       "that should not be cached:");
 
@@ -103,6 +107,20 @@ void SpecifyACacheExpiration::FormatResults(const ResultVector& results,
     Argument url(Argument::URL, result.resource_urls(0));
     body->AddChild("$1", url);
   }
+}
+
+int SpecifyACacheExpiration::ComputeScore(const InputInformation& input_info,
+                                          const ResultVector& results) {
+  // Almost every resource should have an expiration. A handful of
+  // resources, such as 204 responses, are not cacheable by default,
+  // and thus don't need a cache expiration. So technically the number
+  // of candidate resources might be slightly less than the total
+  // number of resources. However, for most sites the number of
+  // 204-like responses is small, so including them in the candidate
+  // set doesn't have much impact.
+  const int num_candidate_resources = input_info.number_resources();
+  const int num_non_violations = num_candidate_resources - results.size();
+  return 100 * num_non_violations / num_candidate_resources;
 }
 
 }  // namespace rules

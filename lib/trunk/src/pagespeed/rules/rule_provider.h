@@ -24,22 +24,23 @@ class Rule;
 namespace rule_provider {
 
 /**
+ * Append all Page Speed rules to the given vector of Rule
+ * instances. This includes the core rules and the DOM rules.
+ */
+void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules);
+
+/**
  * Append the core Page Speed rules to the given vector of Rule
  * instances.
  */
-void AppendCoreRules(std::vector<Rule*> *rules);
+void AppendCoreRules(bool save_optimized_content, std::vector<Rule*> *rules);
 
 /**
  * Append the Page Speed rules that use DOM information to the given
- * vector of Rule instances.
+ * vector of Rule instances. These can be excluded in environments
+ * where the DOM is not available.
  */
 void AppendDomRules(std::vector<Rule*> *rules);
-
-/**
- * Append all Page Speed rules to the given vector of Rule
- * instances.
- */
-void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules);
 
 }  // namespace rule_provider
 

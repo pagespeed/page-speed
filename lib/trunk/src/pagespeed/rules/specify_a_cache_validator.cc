@@ -80,10 +80,9 @@ bool SpecifyACacheValidator::AppendResults(const PagespeedInput& input,
       continue;
     }
 
+    // No savings data is needed for this resource. All cache
+    // validators have the same cost/benefit.
     Result* result = provider->NewResult();
-
-    // TODO: populate savings.
-
     result->add_resource_urls(resource.GetRequestUrl());
   }
   return true;
@@ -114,6 +113,16 @@ void SpecifyACacheValidator::FormatResults(const ResultVector& results,
     Argument url(Argument::URL, result.resource_urls(0));
     body->AddChild("$1", url);
   }
+}
+
+int SpecifyACacheValidator::ComputeScore(const InputInformation& input_info,
+                                         const ResultVector& results) {
+  // Every static/cacheable resource should have a cache validator. So
+  // we compute the score as the number of static resources without a
+  // validator over the total number of static resources.
+  const int num_static_resources = input_info.number_static_resources();
+  const int num_non_violations = num_static_resources - results.size();
+  return 100 * num_non_violations / num_static_resources;
 }
 
 }  // namespace rules
