@@ -595,7 +595,7 @@ PAGESPEED.LintRules.registerLintRule(
     PAGESPEED.CACHE_GROUP,
     'caching.html#LeverageBrowserCaching',
     browserCachingRule,
-    4.0,
+    0.0,
     'BrowserCache'
   )
 );
