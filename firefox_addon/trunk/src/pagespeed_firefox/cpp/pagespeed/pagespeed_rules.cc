@@ -180,12 +180,9 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
   std::vector<std::string> contents;
   AppendInputStreamsContents(input_streams, &contents);
 
+  const bool save_optimized_content = true;
   std::vector<Rule*> rules;
-  rule_provider::AppendCoreRules(&rules);
-  rule_provider::AppendDomRules(&rules);
-  rules.push_back(new rules::MinifyCSS(true));
-  rules.push_back(new rules::MinifyHTML(true));
-  rules.push_back(new rules::OptimizeImages(true));
+  rule_provider::AppendAllRules(save_optimized_content, &rules);
 
   Engine engine(rules);  // Ownership of rules is transferred to engine.
   engine.Init();
