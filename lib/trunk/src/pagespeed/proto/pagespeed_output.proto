@@ -40,7 +40,8 @@ message Savings {
   // Upload bytes that could be saved if page was optimized.
   optional int32 request_bytes_saved = 5;
 
-  // Number of times resource loading was blocked that could have been saved.
+  // Number of times resource loading was blocked that could have been
+  // saved.
   optional int32 critical_path_length_saved = 6;
 }
 
@@ -59,6 +60,10 @@ message InputInformation {
 
   // Number of static resources accessed while rendering the page.
   optional int32 number_static_resources = 5;
+
+  // Number of static resources that have a positive explicit
+  // freshness lifetime.
+  optional int32 number_explicitly_cacheable_static_resources = 6;
 }
 
 // Base class for result details
@@ -135,7 +140,11 @@ message CachingDetails {
     optional CachingDetails message_set_extension = 4415843;  // 'Cac'
   }
 
+  // The freshness lifetime of the resource, in milliseconds.
   optional int64 freshness_lifetime_millis = 1;
+
+  // Whether or not a resource is likely a cacheable resource, based
+  // on heuristics.
   optional bool is_likely_cacheable = 2;
 }
 
