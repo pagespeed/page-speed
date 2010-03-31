@@ -58,8 +58,8 @@ PAGESPEED.isHealthy = true;
 PAGESPEED.DEPENDENCIES = {
   'Firebug': { installedName: 'firebug@software.joehewitt.com',
                namespace: 'FBL',
-               minimumVersion: '1.3.2',
-               maximumVersion: '1.5.0'
+               minimumVersion: '1.5.0',
+               maximumVersion: '1.5.3'
   }
 };
 
