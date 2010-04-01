@@ -714,6 +714,12 @@ PAGESPEED.Utils = {  // Begin namespace
    *     of the resource.
    */
   getResourceInputStream: function(url) {
+    var types = PAGESPEED.Utils.getResourceTypes(url);
+    for (var i = 0, len = types.length; i < len; i++) {
+      if (types[i] == 'redirect') {
+        return null;
+      }
+    }
     var storageStream = PAGESPEED.Utils.getResourceProperty(
         url, PAGESPEED.Utils.RESPONSE_STORAGE_STREAM);
     if (storageStream !== undefined) {
