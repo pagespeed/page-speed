@@ -442,9 +442,8 @@ TEST_F(GetFreshnessLifetimeTest, PastExpiresWithDate) {
 
 TEST_F(GetFreshnessLifetimeTest, ExpiresNoDateNoResponseTime) {
   r_.AddResponseHeader("Expires", "Wed, 17 Mar 2010 16:08:25 EDT");
-  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
-                                                        &freshness_lifetime_));
-  EXPECT_EQ(0LL, freshness_lifetime_);
+  EXPECT_FALSE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                         &freshness_lifetime_));
 }
 
 TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {

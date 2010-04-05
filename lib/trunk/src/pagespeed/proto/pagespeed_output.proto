@@ -60,10 +60,6 @@ message InputInformation {
 
   // Number of static resources accessed while rendering the page.
   optional int32 number_static_resources = 5;
-
-  // Number of static resources that have a positive explicit
-  // freshness lifetime.
-  optional int32 number_explicitly_cacheable_static_resources = 6;
 }
 
 // Base class for result details
@@ -145,7 +141,7 @@ message CachingDetails {
 
   // Whether or not a resource is likely a cacheable resource, based
   // on heuristics.
-  optional bool is_likely_cacheable = 2;
+  optional bool is_heuristically_cacheable = 2;
 }
 
 message Result {
