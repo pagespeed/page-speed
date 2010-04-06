@@ -56,7 +56,6 @@ class Engine {
   // human-readable markup that will be displayed to a user.
   // @return true iff the formatting was completed without errors.
   bool FormatResults(const Results& results,
-                     const InputInformation& input_info,
                      RuleFormatter* formatter) const;
 
   // Compute the results and generate their formatted
@@ -70,6 +69,11 @@ class Engine {
 
  private:
   void PopulateNameToRuleMap();
+
+  // Populate the Results structure with additional information
+  // (i.e. the Page Speed library version, the set of rules being run,
+  // etc).
+  void PrepareResults(const PagespeedInput& input, Results *results) const;
 
   typedef std::map<std::string, Rule*> NameToRuleMap;
 

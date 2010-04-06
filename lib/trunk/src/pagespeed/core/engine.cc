@@ -30,6 +30,9 @@ namespace pagespeed {
 
 namespace {
 
+const int kPagespeedMajorVersion = 1;
+const int kPagespeedMinorVersion = 7;
+
 /* Return true if result1 is judged to have (strictly) greater impact than
  * result2, false otherwise.  Note that this function imposes a total order on
  * what is essentially partially-ordered data, and thus gives somewhat
@@ -90,6 +93,8 @@ bool Engine::ComputeResults(const PagespeedInput& input,
                             Results* results) const {
   CHECK(init_);
 
+  PrepareResults(input, results);
+
   bool success = true;
   for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
            end = rules_.end();
@@ -104,7 +109,6 @@ bool Engine::ComputeResults(const PagespeedInput& input,
 }
 
 bool Engine::FormatResults(const Results& results,
-                           const InputInformation& input_info,
                            RuleFormatter* formatter) const {
   CHECK(init_);
 
@@ -144,7 +148,7 @@ bool Engine::FormatResults(const Results& results,
       std::stable_sort(rule_results.begin(),
                        rule_results.end(),
                        CompareResults);
-      score = rule->ComputeScore(input_info, rule_results);
+      score = rule->ComputeScore(results.input_info(), rule_results);
       if (score > 100 || score < -1) {
         // Note that the value -1 indicates a valid score could not be
         // computed, so we need to allow it.
@@ -170,9 +174,20 @@ bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
   Results results;
   bool success = ComputeResults(input, &results);
 
-  const InputInformation* input_info = input.input_information();
-  success = FormatResults(results, *input_info, formatter) && success;
+  success = FormatResults(results, formatter) && success;
   return success;
+}
+
+void Engine::PrepareResults(const PagespeedInput& input,
+                            Results* results) const {
+  for (std::vector<Rule*>::const_iterator it = rules_.begin(),
+           end = rules_.end(); it != end; ++it) {
+    const Rule& rule = **it;
+    results->add_rules(rule.name());
+  }
+  results->mutable_input_info()->CopyFrom(*input.input_information());
+  results->mutable_version()->set_major(kPagespeedMajorVersion);
+  results->mutable_version()->set_minor(kPagespeedMinorVersion);
 }
 
 }  // namespace pagespeed

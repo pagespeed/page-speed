@@ -174,8 +174,24 @@ message Result {
   optional string optimized_content_mime_type = 9;
 }
 
+message Version {
+  required int32 major = 1;
+  required int32 minor = 2;
+}
+
 message Results {
+  // Set of results.
   repeated Result results = 1;
+
+  // Summary of information about the inputs.
+  required InputInformation input_info = 2;
+
+  // Names of all rules that were run.
+  repeated string rules = 3;
+
+  // Version of the Page Speed library used to generate this Results
+  // structure.
+  optional Version version = 4;
 }
 
 // Typed format string arguments.
