@@ -171,13 +171,14 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                     ),
                   TD({'class': 'netCol', 'width': '16'},
                      DIV({'class': 'netHrefLabel netLabel',
-                          'style': 'display:block;height:14px'}
+                          'style': 'display:block;margin-top:2px;'}
                         )
                     ),
                   TD({'class': 'netSizeCol netCol', 'width': '*',
                       'style': 'text-align:left'},
                      DIV({'class': 'netSizeLabel netLabel'},
                          A({'href': '$rule.href',
+                            'style': 'z-index:100;position:relative;',
                             'title': 'Learn More',
                             'onclick': '$openLink'
                            }, '$rule.name')
@@ -683,7 +684,14 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    * @param {Event} event The event to handle.
    */
   openLink: function(event) {
+    // Don't do the normal action for this click event (i.e. following the link
+    // in the usual manner).
     event.preventDefault();
+    // Don't propagate this event to other elements (in the case of rule
+    // documentation links, doing so would trigger toggleDetailsRow, which we
+    // don't want in this case).
+    event.stopPropagation();
+    // Open the link in a new tab/window.
     PAGESPEED.Utils.openLink(event.target);
   },
 
