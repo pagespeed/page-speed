@@ -89,7 +89,11 @@ TEST(EngineTest, ComputeResults) {
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(results.results_size(), 1);
+  ASSERT_EQ(1, results.results_size());
+  ASSERT_EQ(1, results.rules_size());
+  ASSERT_EQ("TestRule", results.rules(0));
+  ASSERT_NE(0, results.version().major());
+  ASSERT_NE(0, results.version().minor());
 
   const Result& result = results.results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -107,9 +111,8 @@ TEST(EngineTest, FormatResults) {
   engine.Init();
 
   std::vector<ResultText*> result_text;
-  InputInformation input_info;
   ProtoFormatter formatter(&result_text);
-  ASSERT_TRUE(engine.FormatResults(results, input_info, &formatter));
+  ASSERT_TRUE(engine.FormatResults(results, &formatter));
   ASSERT_EQ(1, result_text.size());
   const ResultText& root = *result_text[0];
   ASSERT_EQ(kHeader, root.format());
@@ -131,9 +134,8 @@ TEST(EngineTest, FormatResultsNoInitFails) {
   Engine engine(rules);
 
   std::vector<ResultText*> result_text;
-  InputInformation input_info;
   ProtoFormatter formatter(&result_text);
-  ASSERT_DEATH(engine.FormatResults(results, input_info, &formatter),
+  ASSERT_DEATH(engine.FormatResults(results, &formatter),
                "Check failed: init_.");
 }
 
@@ -148,9 +150,8 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   engine.Init();
 
   std::vector<ResultText*> result_text;
-  InputInformation input_info;
   ProtoFormatter formatter(&result_text);
-  ASSERT_FALSE(engine.FormatResults(results, input_info, &formatter));
+  ASSERT_FALSE(engine.FormatResults(results, &formatter));
   ASSERT_EQ(0, result_text.size());
 }
 
