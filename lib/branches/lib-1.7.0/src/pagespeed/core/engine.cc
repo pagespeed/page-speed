@@ -21,6 +21,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"
@@ -54,6 +55,42 @@ bool CompareResults(const Result* result1, const Result* result2) {
 
   // The results appear to be equal.
   return false;
+}
+
+typedef std::map<std::string, ResultVector> RuleToResultMap;
+
+void PopulateRuleToResultMap(const Results& results,
+                             RuleToResultMap *rule_to_result_map) {
+  for (int idx = 0, end = results.rules_size(); idx < end; ++idx) {
+    // Create an entry for each rule that was run, even if there are
+    // no results for that rule.
+    const ResultVector& v = (*rule_to_result_map)[results.rules(idx)];
+  }
+
+  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
+    const Result& result = results.results(idx);
+    (*rule_to_result_map)[result.rule_name()].push_back(&result);
+  }
+}
+
+void FormatRuleResults(const ResultVector& rule_results,
+                       const InputInformation& input_info,
+                       Rule* rule,
+                       RuleFormatter* formatter) {
+  int score = 100;
+  if (!rule_results.empty()) {
+    score = rule->ComputeScore(input_info, rule_results);
+    if (score > 100 || score < -1) {
+      // Note that the value -1 indicates a valid score could not be
+      // computed, so we need to allow it.
+      LOG(ERROR) << "Score for " << rule->name() << " out of bounds: " << score;
+      score = std::max(-1, std::min(100, score));
+    }
+  }
+  Formatter* rule_formatter = formatter->AddHeader(*rule, score);
+  if (!rule_results.empty()) {
+    rule->FormatResults(rule_results, rule_formatter);
+  }
 }
 
 }  // namespace
@@ -90,6 +127,8 @@ bool Engine::ComputeResults(const PagespeedInput& input,
                             Results* results) const {
   CHECK(init_);
 
+  PrepareResults(input, results);
+
   bool success = true;
   for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
            end = rules_.end();
@@ -97,69 +136,60 @@ bool Engine::ComputeResults(const PagespeedInput& input,
        ++iter) {
     Rule* rule = *iter;
     ResultProvider provider(*rule, results);
-    success = rule->AppendResults(input, &provider) && success;
+    bool rule_success = rule->AppendResults(input, &provider);
+    if (!rule_success) {
+      // Record that the rule encountered an error.
+      results->add_error_rules(rule->name());
+      success = false;
+    }
+  }
+
+  if (!results->IsInitialized()) {
+    LOG(DFATAL) << "Failed to fully initialize results object.";
+    return false;
   }
 
   return success;
 }
 
 bool Engine::FormatResults(const Results& results,
-                           const InputInformation& input_info,
                            RuleFormatter* formatter) const {
   CHECK(init_);
 
-  typedef std::map<std::string, ResultVector> RuleToResultMap;
-  RuleToResultMap rule_to_result_map;
-
-  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
-    const Result& result = results.results(idx);
-    rule_to_result_map[result.rule_name()].push_back(&result);
+  if (!results.IsInitialized()) {
+    LOG(ERROR) << "Results instance not fully initialized.";
+    return false;
   }
 
+  RuleToResultMap rule_to_result_map;
+  PopulateRuleToResultMap(results, &rule_to_result_map);
+
   bool success = true;
-  for (RuleToResultMap::const_iterator iter = rule_to_result_map.begin(),
-           end = rule_to_result_map.end();
-       iter != end;
-       ++iter) {
-    if (name_to_rule_map_.find(iter->first) == name_to_rule_map_.end()) {
+  for (int idx = 0, end = results.rules_size(); idx < end; ++idx) {
+    const std::string& rule_name = results.rules(idx);
+    NameToRuleMap::const_iterator rule_iter = name_to_rule_map_.find(rule_name);
+    if (rule_iter == name_to_rule_map_.end()) {
       // No rule registered to handle the given rule name. This could
       // happen if the Results object was generated with a different
       // version of the Page Speed library, so we do not want to CHECK
       // that the Rule is non-null here.
-      LOG(WARNING) << "Unable to find rule instance with name " << iter->first;
+      LOG(WARNING) << "Unable to find rule instance with name " << rule_name;
       success = false;
       continue;
     }
-  }
+    ResultVector& rule_results = rule_to_result_map[rule_name];
 
-  for (NameToRuleMap::const_iterator iter = name_to_rule_map_.begin(),
-           end = name_to_rule_map_.end();
-       iter != end;
-       ++iter) {
-    Rule* rule = iter->second;
-
-    ResultVector& rule_results = rule_to_result_map[iter->first];
-    int score = 100;
-    if (!rule_results.empty()) {
-      std::stable_sort(rule_results.begin(),
-                       rule_results.end(),
-                       CompareResults);
-      score = rule->ComputeScore(input_info, rule_results);
-      if (score > 100 || score < -1) {
-        // Note that the value -1 indicates a valid score could not be
-        // computed, so we need to allow it.
-        LOG(ERROR) << "Score for " << rule->name()
-                   << " out of bounds: " << score;
-        score = std::max(-1, std::min(100, score));
-      }
-    }
-    Formatter* rule_formatter = formatter->AddHeader(*rule, score);
-    if (!rule_results.empty()) {
-      rule->FormatResults(rule_results, rule_formatter);
-    }
+    // Sort the results in a consistent order so they're always
+    // presented to the user in the same order.
+    std::stable_sort(rule_results.begin(),
+                     rule_results.end(),
+                     CompareResults);
+    FormatRuleResults(rule_results,
+                      results.input_info(),
+                      rule_iter->second,
+                      formatter);
   }
   formatter->Done();
-
   return success;
 }
 
@@ -169,10 +199,19 @@ bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
 
   Results results;
   bool success = ComputeResults(input, &results);
-
-  const InputInformation* input_info = input.input_information();
-  success = FormatResults(results, *input_info, formatter) && success;
+  success = FormatResults(results, formatter) && success;
   return success;
+}
+
+void Engine::PrepareResults(const PagespeedInput& input,
+                            Results* results) const {
+  for (std::vector<Rule*>::const_iterator it = rules_.begin(),
+           end = rules_.end(); it != end; ++it) {
+    const Rule& rule = **it;
+    results->add_rules(rule.name());
+  }
+  results->mutable_input_info()->CopyFrom(*input.input_information());
+  GetPageSpeedVersion(results->mutable_version());
 }
 
 }  // namespace pagespeed
