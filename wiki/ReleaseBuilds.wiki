@@ -6,4 +6,61 @@ We build releases using the following environments:
   * Windows builds are performed on Windows XP or Vista using Visual Studio 2008 Express Edition.
   * Mac builds are performed on OSX 10.5 using xcodebuild.
 
-More details to come...
+==Creating a Release==
+
+===1. Create a Candidate Release Branch===
+
+  # Create a release branch for the Page Speed library:
+{{{
+svn copy https://page-speed.googlecode.com/svn/lib/trunk https://page-speed.googlecode.com/svn/lib/branches/lib-x.y.0
+}}}
+    * where x is the major version and y is the minor version (e.g. 1.7.0)
+  # Create a release branch for the Page Speed Firefox Add-on
+{{{
+svn copy https://page-speed.googlecode.com/svn/firefox_addon/trunk https://page-speed.googlecode.com/svn/firefox_addon/branches/page-speed-x.y.0
+}}}
+  # Update DEPS in the Firefox Add-on release branch to point at the library release branch:
+{{{
+  "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/branches/lib-x.y.0",
+  "libpagespeed_revision": "@head",
+}}}
+  # Update the Page Speed version in `install.rdf` to `x.y-branch+svn`
+{{{
+    <em:version>x.ybranch+svn</em:version>
+}}}
+  # Update the Page Speed version in `pagespeed_version.cc`:
+{{{
+const int kPagespeedMajorVersion = x;
+const int kPagespeedMinorVersion = y;
+const bool kRelease = false;
+}}}
+  # Build shared objects for target platforms and check them into the Firefox Add-on branch.
+  # Build a candidate release xpi using ant and qualify the release candidate.
+  # Submit any bug fixes to the release branch and integrate them back to trunk.
+
+===2. Create a Release Tag===
+
+  # Create a release tag for the Page Speed library:
+{{{
+svn copy https://page-speed.googlecode.com/svn/lib/branches/lib-x.y.0 https://page-speed.googlecode.com/svn/lib/tags/lib-x.y.0.0
+}}}
+  # Create a release tag for the Page Speed Firefox Add-on
+{{{
+svn copy https://page-speed.googlecode.com/svn/firefox_addon/branches/page-speed-x.y.0 https://page-speed.googlecode.com/svn/firefox_addon/tags/page-speed-x.y.0.0
+}}}
+  # Update DEPS in the Firefox Add-on release branch to point at the library release tag:
+{{{
+  "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/tags/lib-x.y.0.0",
+  "libpagespeed_revision": "@head",
+}}}
+  # Update the Page Speed version in `install.rdf` to `x.y`
+{{{
+    <em:version>x.y</em:version>
+}}}
+  # Update the Page Speed version in `pagespeed_version.cc`:
+{{{
+const int kPagespeedMajorVersion = x;
+const int kPagespeedMinorVersion = y;
+const bool kRelease = true;
+}}}
+  # Build shared objects for target platforms and check them into the Firefox Add-on release tag.
