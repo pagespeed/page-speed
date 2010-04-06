@@ -589,16 +589,21 @@ var proxyCachingRule = function() {
   formatViolations(this, rules, numCacheableResources);
 };
 
+/*
+ * Disable the JS version of this rule as we transition to a
+ * native implementation
+
 PAGESPEED.LintRules.registerLintRule(
   new PAGESPEED.LintRule(
     'Leverage browser caching',
     PAGESPEED.CACHE_GROUP,
     'caching.html#LeverageBrowserCaching',
     browserCachingRule,
-    0.0,
+    4.0,
     'BrowserCache'
   )
 );
+*/
 
 PAGESPEED.LintRules.registerLintRule(
   new PAGESPEED.LintRule(
