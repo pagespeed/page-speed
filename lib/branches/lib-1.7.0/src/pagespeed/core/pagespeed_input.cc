@@ -92,13 +92,6 @@ bool PagespeedInput::AddResource(const Resource* resource) {
   if (resource_util::IsLikelyStaticResource(*resource)) {
     input_info_->set_number_static_resources(
         input_info_->number_static_resources() + 1);
-    int64 freshness_lifetime_millis = 0;
-    if (resource_util::GetFreshnessLifetimeMillis(
-            *resource, &freshness_lifetime_millis) &&
-        freshness_lifetime_millis > 0) {
-    input_info_->set_number_explicitly_cacheable_static_resources(
-        input_info_->number_explicitly_cacheable_static_resources() + 1);
-    }
   }
 
   return true;

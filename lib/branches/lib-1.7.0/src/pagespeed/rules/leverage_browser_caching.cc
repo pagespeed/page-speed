@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/rules/cache_static_resources_aggressively.h"
+#include "pagespeed/rules/leverage_browser_caching.h"
 
 #include <algorithm>  // for stable_sort()
 
@@ -34,28 +34,40 @@ int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
   const pagespeed::ResultDetails& details = result.details();
   if (!details.HasExtension(pagespeed::CachingDetails::message_set_extension)) {
     LOG(DFATAL) << "Missing required extension.";
-    return 0;
+    return -1;
   }
 
   const pagespeed::CachingDetails& caching_details = details.GetExtension(
       pagespeed::CachingDetails::message_set_extension);
+  if (caching_details.is_heuristically_cacheable()) {
+    if (caching_details.has_freshness_lifetime_millis()) {
+      LOG(DFATAL) << "Details has a freshness_lifetime_millis "
+                  << "and is_heuristically_cacheable.";
+      return -1;
+    }
+
+    return 0;
+  }
+
   return caching_details.freshness_lifetime_millis();
 }
 
 int64 ComputeAverageFreshnessLifetimeMillis(
     const pagespeed::InputInformation& input_info,
     const pagespeed::ResultVector& results) {
-  const int number_cacheable_static_resources =
-      input_info.number_explicitly_cacheable_static_resources();
-  if (number_cacheable_static_resources <= 0 || results.size() <= 0) {
-    LOG(DFATAL) << "Unexpected inputs: " << number_cacheable_static_resources
-                << ", " << results.size();
+  if (results.size() <= 0) {
+    LOG(DFATAL) << "Unexpected inputs: " << results.size();
     return -1;
   }
+  const int number_static_resources = input_info.number_static_resources();
 
-  const int num_properly_cached_resources =
-      number_cacheable_static_resources - results.size();
-  if (num_properly_cached_resources < 0) {
+  // Any results that weren't flagged by this rule are properly
+  // cached. This computation makes assumptions about the
+  // implementation of AppendResults(). See the NOTE comment at the
+  // top of that function for more details.
+  const int number_properly_cached_resources =
+      number_static_resources - results.size();
+  if (number_properly_cached_resources < 0) {
     LOG(DFATAL) << "Number of results exceeds number of static resources.";
     return -1;
   }
@@ -64,15 +76,20 @@ int64 ComputeAverageFreshnessLifetimeMillis(
   // compute an average.
   int64 freshness_lifetime_sum = 0;
   for (int i = 0, num = results.size(); i < num; ++i) {
-    freshness_lifetime_sum += GetFreshnessLifetimeMillis(*results[i]);
+    int64 resource_freshness_lifetime = GetFreshnessLifetimeMillis(*results[i]);
+    if (resource_freshness_lifetime < 0) {
+      // An error occurred.
+      return -1;
+    }
+    freshness_lifetime_sum += resource_freshness_lifetime;
   }
 
   // In computing the score, we also need to account for the resources
-  // that are properly cached, adding a full caching lifetime for each
-  // such resource.
-  freshness_lifetime_sum += (num_properly_cached_resources * kMillisInAWeek);
+  // that are properly cached, adding the target caching lifetime for
+  // each such resource.
+  freshness_lifetime_sum += (number_properly_cached_resources * kMillisInAWeek);
 
-  return freshness_lifetime_sum / number_cacheable_static_resources;
+  return freshness_lifetime_sum / number_static_resources;
 }
 
 // StrictWeakOrdering that sorts by freshness lifetime
@@ -89,23 +106,33 @@ namespace pagespeed {
 
 namespace rules {
 
-CacheStaticResourcesAggressively::CacheStaticResourcesAggressively() {
+LeverageBrowserCaching::LeverageBrowserCaching() {
 }
 
-const char* CacheStaticResourcesAggressively::name() const {
-  return "CacheStaticResourcesAggressively";
+const char* LeverageBrowserCaching::name() const {
+  return "LeverageBrowserCaching";
 }
 
-const char* CacheStaticResourcesAggressively::header() const {
-  return "Cache static resources aggressively";
+const char* LeverageBrowserCaching::header() const {
+  return "Leverage browser caching";
 }
 
-const char* CacheStaticResourcesAggressively::documentation_url() const {
+const char* LeverageBrowserCaching::documentation_url() const {
   return "caching.html#LeverageBrowserCaching";
 }
 
-bool CacheStaticResourcesAggressively::AppendResults(
-    const PagespeedInput& input, ResultProvider* provider) {
+bool LeverageBrowserCaching::AppendResults(const PagespeedInput& input,
+                                           ResultProvider* provider) {
+  // NOTE: It's important that this rule only include results returned
+  // from IsLikelyStaticResource. The logic in
+  // ComputeAverageFreshnessLifetimeMillis assumes that the Results
+  // emitted by this rule is the intersection of those that return
+  // true for IsLikelyStaticResource and those that have an explicit
+  // freshness lifetime less than kMillisInAWeek (the computation of
+  // number_properly_cached_resources makes this assumption). If
+  // AppendResults changes such that this is no longer true, the
+  // computation of number_properly_cached_resources will need to
+  // change to match.
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (!resource_util::IsLikelyStaticResource(resource)) {
@@ -113,34 +140,41 @@ bool CacheStaticResourcesAggressively::AppendResults(
     }
 
     int64 freshness_lifetime_millis = 0;
-    if (!resource_util::GetFreshnessLifetimeMillis(
-            resource, &freshness_lifetime_millis)) {
-      continue;
-    }
+    bool has_freshness_lifetime = resource_util::GetFreshnessLifetimeMillis(
+        resource, &freshness_lifetime_millis);
 
-    if (freshness_lifetime_millis <= 0) {
-      // This should never happen.
-      LOG(ERROR) << "Explicitly non-cacheable resources should "
-                 << "not pass IsLikelyStaticResource test.";
-      continue;
-    }
+    if (has_freshness_lifetime) {
+      if (freshness_lifetime_millis <= 0) {
+        // This should never happen.
+        LOG(ERROR) << "Explicitly non-cacheable resources should "
+                   << "not pass IsLikelyStaticResource test.";
+        continue;
+      }
 
-    if (freshness_lifetime_millis >= kMillisInAWeek) {
-      continue;
+      if (freshness_lifetime_millis >= kMillisInAWeek) {
+        continue;
+      }
     }
 
     Result* result = provider->NewResult();
     ResultDetails* details = result->mutable_details();
     CachingDetails* caching_details = details->MutableExtension(
         CachingDetails::message_set_extension);
-    caching_details->set_freshness_lifetime_millis(freshness_lifetime_millis);
+    // At this point, the resource either has an explicit freshness
+    // lifetime, or it's heuristically cacheable. So we need to fill
+    // out the appropriate field in the details structure.
+    if (has_freshness_lifetime) {
+      caching_details->set_freshness_lifetime_millis(freshness_lifetime_millis);
+    } else {
+      caching_details->set_is_heuristically_cacheable(true);
+    }
     result->add_resource_urls(resource.GetRequestUrl());
   }
   return true;
 }
 
-void CacheStaticResourcesAggressively::FormatResults(
-    const ResultVector& results, Formatter* formatter) {
+void LeverageBrowserCaching::FormatResults(const ResultVector& results,
+                                           Formatter* formatter) {
   if (results.empty()) {
     return;
   }
@@ -174,19 +208,36 @@ void CacheStaticResourcesAggressively::FormatResults(
 
     const CachingDetails& caching_details = details.GetExtension(
         CachingDetails::message_set_extension);
+    if (!caching_details.has_freshness_lifetime_millis() &&
+        !caching_details.is_heuristically_cacheable()) {
+      // We expect the resource to either hae an explicit
+      // freshness_lifetime_millis or that it's heuristically
+      // cacheable.
+      LOG(DFATAL) << "Details structure is missing fields.";
+    }
 
     Argument url(Argument::URL, result.resource_urls(0));
-    Argument freshness_lifetime(
-        Argument::DURATION,
-        caching_details.freshness_lifetime_millis());
-    body->AddChild("$1 ($2)", url, freshness_lifetime);
+    if (caching_details.has_freshness_lifetime_millis()) {
+      Argument freshness_lifetime(
+          Argument::DURATION,
+          caching_details.freshness_lifetime_millis());
+      body->AddChild("$1 ($2)", url, freshness_lifetime);
+    } else {
+      Argument no_caching(Argument::STRING, "no caching");
+      body->AddChild("$1 ($2)", url, no_caching);
+    }
   }
 }
 
-int CacheStaticResourcesAggressively::ComputeScore(
-    const InputInformation& input_info, const ResultVector& results) {
+int LeverageBrowserCaching::ComputeScore(const InputInformation& input_info,
+                                         const ResultVector& results) {
   int64 avg_freshness_lifetime =
       ComputeAverageFreshnessLifetimeMillis(input_info, results);
+  if (avg_freshness_lifetime < 0) {
+    // An error occurred, so we cannot generate a score for this rule.
+    return -1;
+  }
+
   if (avg_freshness_lifetime > kMillisInAWeek) {
     LOG(DFATAL) << "Average freshness lifetime " << avg_freshness_lifetime
                 << " exceeds max suggested freshness lifetime "

@@ -15,9 +15,9 @@
 #include "pagespeed/rules/rule_provider.h"
 
 #include "pagespeed/rules/avoid_bad_requests.h"
-#include "pagespeed/rules/cache_static_resources_aggressively.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
+#include "pagespeed/rules/leverage_browser_caching.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/minify_javascript.h"
@@ -29,7 +29,6 @@
 #include "pagespeed/rules/put_css_in_the_document_head.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
 #include "pagespeed/rules/serve_scaled_images.h"
-#include "pagespeed/rules/specify_a_cache_expiration.h"
 #include "pagespeed/rules/specify_a_cache_validator.h"
 #include "pagespeed/rules/specify_charset_early.h"
 #include "pagespeed/rules/specify_image_dimensions.h"
@@ -41,11 +40,11 @@ namespace rule_provider {
 void AppendCoreRules(bool save_optimized_content,
                      std::vector<Rule*> *rules) {
   rules->push_back(new rules::AvoidBadRequests());
-  rules->push_back(new rules::CacheStaticResourcesAggressively());
   rules->push_back(new rules::CombineExternalCSS());
   rules->push_back(new rules::CombineExternalJavaScript());
   rules->push_back(new rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
+  rules->push_back(new rules::LeverageBrowserCaching());
   rules->push_back(new rules::MinifyCSS(save_optimized_content));
   rules->push_back(new rules::MinifyHTML(save_optimized_content));
   rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
@@ -55,7 +54,6 @@ void AppendCoreRules(bool save_optimized_content,
   rules->push_back(new rules::OptimizeImages(save_optimized_content));
   rules->push_back(new rules::OptimizeTheOrderOfStylesAndScripts());
   rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
-  rules->push_back(new rules::SpecifyACacheExpiration());
   rules->push_back(new rules::SpecifyACacheValidator());
   rules->push_back(new rules::SpecifyCharsetEarly());
 }

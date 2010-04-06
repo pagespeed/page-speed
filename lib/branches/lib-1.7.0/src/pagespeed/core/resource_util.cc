@@ -511,8 +511,9 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
                << "Assuming resource " << resource.GetRequestUrl()
                << " is not cacheable.";
     // We have an Expires header, but no Date header to reference
-    // from. Thus we assume that the resource is not cacheable.
-    return true;
+    // from. Thus we assume that the resource is heuristically
+    // cacheable, but not explicitly cacheable.
+    return false;
   }
 
   int64 expires_value = 0;
