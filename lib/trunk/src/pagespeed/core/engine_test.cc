@@ -47,7 +47,7 @@ const char* kBody2 = "Another format string";
 
 class TestRule : public Rule {
  public:
-  TestRule() {}
+  TestRule() : append_results_return_value_(true) {}
   virtual ~TestRule() {}
 
   virtual const char* name() const {
@@ -63,10 +63,14 @@ class TestRule : public Rule {
     return kDocumentationUrl;
   }
 
+  void set_append_results_return_value(bool retval) {
+    append_results_return_value_ = retval;
+  }
+
   virtual bool AppendResults(const PagespeedInput& input,
                              ResultProvider* provider) {
     Result* result = provider->NewResult();
-    return true;
+    return append_results_return_value_;
   }
 
   virtual void FormatResults(const pagespeed::ResultVector& results,
@@ -76,6 +80,8 @@ class TestRule : public Rule {
   }
 
  private:
+  bool append_results_return_value_;
+
   DISALLOW_COPY_AND_ASSIGN(TestRule);
 };
 
@@ -91,7 +97,8 @@ TEST(EngineTest, ComputeResults) {
   ASSERT_TRUE(engine.ComputeResults(input, &results));
   ASSERT_EQ(1, results.results_size());
   ASSERT_EQ(1, results.rules_size());
-  ASSERT_EQ("TestRule", results.rules(0));
+  ASSERT_EQ(kRuleName, results.rules(0));
+  ASSERT_EQ(0, results.error_rules_size());
   ASSERT_NE(0, results.version().major());
   ASSERT_NE(0, results.version().minor());
 
@@ -99,16 +106,38 @@ TEST(EngineTest, ComputeResults) {
   EXPECT_EQ(result.rule_name(), kRuleName);
 }
 
-TEST(EngineTest, FormatResults) {
-  TestRule rule;
+TEST(EngineTest, ComputeResultsError) {
+  PagespeedInput input;
+
+  std::vector<Rule*> rules;
+  TestRule* rule = new TestRule();
+  rule->set_append_results_return_value(false);
+  rules.push_back(rule);
+
+  Engine engine(rules);
+  engine.Init();
   Results results;
-  Result* result = results.add_results();
-  result->set_rule_name(rule.name());
+  ASSERT_FALSE(engine.ComputeResults(input, &results));
+  ASSERT_EQ(1, results.results_size());
+  ASSERT_EQ(1, results.rules_size());
+  ASSERT_EQ(1, results.error_rules_size());
+  ASSERT_EQ(kRuleName, results.rules(0));
+  ASSERT_EQ(kRuleName, results.error_rules(0));
+
+  const Result& result = results.results(0);
+  EXPECT_EQ(result.rule_name(), kRuleName);
+}
+
+TEST(EngineTest, FormatResults) {
+  PagespeedInput input;
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
+
   Engine engine(rules);
   engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
 
   std::vector<ResultText*> result_text;
   ProtoFormatter formatter(&result_text);
@@ -123,7 +152,37 @@ TEST(EngineTest, FormatResults) {
   delete result_text[0];
 }
 
-TEST(EngineTest, FormatResultsNoInitFails) {
+TEST(EngineTest, FormatResultsNoResults) {
+  PagespeedInput input;
+
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
+
+  Engine engine(rules);
+  engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
+  ASSERT_EQ(1, results.rules_size());
+  ASSERT_EQ(1, results.results_size());
+  results.clear_results();
+  ASSERT_EQ(0, results.results_size());
+
+  ASSERT_EQ(1, results.rules_size());
+
+  // Verify that when there are no results, but there is an entry in
+  // the rules vector, we do emit a header for that rule.
+  std::vector<ResultText*> result_text;
+  ProtoFormatter formatter(&result_text);
+  ASSERT_TRUE(engine.FormatResults(results, &formatter));
+  ASSERT_EQ(1, result_text.size());
+  const ResultText& root = *result_text[0];
+  ASSERT_EQ(kHeader, root.format());
+  ASSERT_EQ(0, root.args_size());
+  ASSERT_EQ(0, root.children_size());
+  delete result_text[0];
+}
+
+TEST(EngineTest, FormatResultsEngineNotInitialized) {
   TestRule rule;
   Results results;
   Result* result = results.add_results();
@@ -139,19 +198,40 @@ TEST(EngineTest, FormatResultsNoInitFails) {
                "Check failed: init_.");
 }
 
-TEST(EngineTest, FormatResultsNoRuleInstance) {
-  TestRule rule;
+TEST(EngineTest, FormatResultsNotInitialized) {
   Results results;
-  Result* result = results.add_results();
-  result->set_rule_name("NoSuchRule");
-
   std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
   Engine engine(rules);
   engine.Init();
 
   std::vector<ResultText*> result_text;
   ProtoFormatter formatter(&result_text);
   ASSERT_FALSE(engine.FormatResults(results, &formatter));
+}
+
+TEST(EngineTest, FormatResultsNoRuleInstance) {
+  PagespeedInput input;
+
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
+
+  Engine engine(rules);
+  engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
+  ASSERT_EQ(1, results.results_size());
+
+  // Now instantiate an Engine with no Rules and attempt to format the
+  // results. We expect this to fail since the Engine doesn't know
+  // about the Rule in the Results structure.
+  rules.clear();
+  Engine engine2(rules);
+  engine2.Init();
+
+  std::vector<ResultText*> result_text;
+  ProtoFormatter formatter(&result_text);
+  ASSERT_FALSE(engine2.FormatResults(results, &formatter));
   ASSERT_EQ(0, result_text.size());
 }
 

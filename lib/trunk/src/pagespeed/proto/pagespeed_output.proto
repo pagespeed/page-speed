@@ -177,6 +177,9 @@ message Result {
 message Version {
   required int32 major = 1;
   required int32 minor = 2;
+
+  // Set to true in official release builds, false for debug/trunk builds.
+  required bool official_release = 3;
 }
 
 message Results {
@@ -189,9 +192,12 @@ message Results {
   // Names of all rules that were run.
   repeated string rules = 3;
 
+  // Names of rules that encountered errors during processing.
+  repeated string error_rules = 4;
+
   // Version of the Page Speed library used to generate this Results
   // structure.
-  optional Version version = 4;
+  required Version version = 5;
 }
 
 // Typed format string arguments.
