@@ -223,7 +223,7 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
           caching_details.freshness_lifetime_millis());
       body->AddChild("$1 ($2)", url, freshness_lifetime);
     } else {
-      Argument no_caching(Argument::STRING, "no caching");
+      Argument no_caching(Argument::STRING, "expiration not specified");
       body->AddChild("$1 ($2)", url, no_caching);
     }
   }
