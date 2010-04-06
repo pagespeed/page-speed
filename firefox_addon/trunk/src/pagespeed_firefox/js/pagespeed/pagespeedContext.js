@@ -259,7 +259,13 @@ PAGESPEED.PageSpeedContext.prototype.processResults = function(
   // so that only those users who know what they are doing will set it.
   if (PAGESPEED.Utils.getBoolPref(
           'extensions.PageSpeed.quit_after_scoring', false)) {
-    PAGESPEED.Utils.quitFirefox();
+    var quitFirefoxDelay = PAGESPEED.Utils.getIntPref(
+        'extensions.PageSpeed.quit_after_scoring_delay', 0);
+    if (!quitFirefoxDelay) {
+      PAGESPEED.Utils.quitFirefox();
+    } else {
+      setTimeout(PAGESPEED.Utils.quitFirefox, quitFirefoxDelay);
+    }
   }
 };
 
