@@ -149,6 +149,7 @@
         '<(pagespeed_root)/pagespeed/core/engine.cc',
         '<(pagespeed_root)/pagespeed/core/formatter.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input.cc',
+        '<(pagespeed_root)/pagespeed/core/pagespeed_version.cc',
         '<(pagespeed_root)/pagespeed/core/resource.cc',
         '<(pagespeed_root)/pagespeed/core/resource_filter.cc',
         '<(pagespeed_root)/pagespeed/core/resource_util.cc',
