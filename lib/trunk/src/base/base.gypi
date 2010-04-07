@@ -58,13 +58,6 @@
           '$(SDKROOT)/System/Library/Frameworks/ApplicationServices.framework/Frameworks',
         ],
         'conditions': [
-          [ 'OS != "linux"', {
-              'sources!': [
-                # Not automatically excluded by the *linux.cc rules.
-                '<(chromium_root)/base/setproctitle_linux.c',
-              ],
-            },
-          ],
           [ 'OS == "win"', {
               'sources!': [
                 'string16.cc',
@@ -128,7 +121,6 @@
         ],
       ],
       'sources': [
-        '<(chromium_root)/base/setproctitle_linux.c',
         'string16.cc',
       ],
     },
