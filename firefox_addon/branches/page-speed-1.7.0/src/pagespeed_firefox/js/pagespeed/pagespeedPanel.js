@@ -171,7 +171,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                     ),
                   TD({'class': 'netCol', 'width': '16'},
                      DIV({'class': 'netHrefLabel netLabel',
-                          'style': 'display:block;margin-top:2px;'}
+                          'style': 'display:block;margin-top:2px;height:16px;'}
                         )
                     ),
                   TD({'class': 'netSizeCol netCol', 'width': '*',
