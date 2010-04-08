@@ -1,0 +1,29 @@
+URL: https://developer.mozilla.org/En/Gecko_SDK/
+Version: 1.9.2
+License: MPL 1.1/GPL 2.0/LGPL 2.1
+License File: LICENSE
+
+Description:
+xulrunner sdk components that are needed in order to build the page-speed
+extension using gyp.
+
+Local Modifications:
+Merged distributions for multiple platforms in a single tree and excluded
+many files that are currently not needed in order to build the page-speed
+extension.
+
+Forward-declared several classes and one typedef in
+jsdIDebuggerService.h in order to minimize dependencies on the rest of
+the xulrunner sdk.
+
+The version of the SDK for Linux x64 was built by hand on Ubuntu 6.10
+from the Firefox 3.6 source, using the following mozconfig
+file:
+
+mk_add_options MOZ_CO_PROJECT=xulrunner
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-xulrunner
+ac_add_options --enable-application=xulrunner
+ac_add_options --disable-javaxpcom
+ac_add_options --disable-dbus
+ac_add_options --disable-libnotify
+ac_add_options --disable-necko-wifi
