@@ -24,8 +24,13 @@
 #include "base/basictypes.h"
 
 extern "C" {
+#ifdef USE_SYSTEM_LIBJPEG
 #include "jpeglib.h"
 #include "jerror.h"
+#else
+#include "third_party/chromium/src/third_party/libjpeg/jpeglib.h"
+#include "third_party/chromium/src/third_party/libjpeg/jerror.h"
+#endif
 }
 
 namespace {

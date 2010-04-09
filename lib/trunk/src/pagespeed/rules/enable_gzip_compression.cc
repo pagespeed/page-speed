@@ -22,7 +22,11 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#ifdef USE_SYSTEM_ZLIB
+#include "zlib.h"
+#else
 #include "third_party/zlib/zlib.h"
+#endif
 
 namespace {
 

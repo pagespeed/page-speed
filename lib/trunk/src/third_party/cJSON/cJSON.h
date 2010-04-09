@@ -36,6 +36,8 @@ extern "C"
 #define cJSON_String 4
 #define cJSON_Array 5
 #define cJSON_Object 6
+	
+#define cJSON_IsReference 256
 
 // The cJSON structure:
 typedef struct cJSON {
@@ -53,7 +55,6 @@ typedef struct cJSON {
 
 typedef struct cJSON_Hooks {
       void *(*malloc_fn)(size_t sz);
-      void *(*realloc_fn)(void *ptr, size_t sz);
       void (*free_fn)(void *ptr);
 } cJSON_Hooks;
 
@@ -65,6 +66,8 @@ extern void cJSON_InitHooks(cJSON_Hooks* hooks);
 extern cJSON *cJSON_Parse(const char *value);
 // Render a cJSON entity to text for transfer/storage. Free the char* when finished.
 extern char  *cJSON_Print(cJSON *item);
+// Render a cJSON entity to text for transfer/storage without any formatting. Free the char* when finished.
+extern char  *cJSON_PrintUnformatted(cJSON *item);
 // Delete a cJSON entity and all subentities.
 extern void   cJSON_Delete(cJSON *c);
 
@@ -74,7 +77,7 @@ extern int	  cJSON_GetArraySize(cJSON *array);
 extern cJSON *cJSON_GetArrayItem(cJSON *array,int item);
 // Get item "string" from object. Case insensitive.
 extern cJSON *cJSON_GetObjectItem(cJSON *object,const char *string);
-
+	
 // These calls create a cJSON item of the appropriate type.
 extern cJSON *cJSON_CreateNull();
 extern cJSON *cJSON_CreateTrue();
@@ -91,8 +94,21 @@ extern cJSON *cJSON_CreateDoubleArray(double *numbers,int count);
 extern cJSON *cJSON_CreateStringArray(const char **strings,int count);
 
 // Append item to the specified array/object.
-extern void   cJSON_AddItemToArray(cJSON *array, cJSON *item);
-extern void	  cJSON_AddItemToObject(cJSON *object,const char *string,cJSON *item);
+extern void cJSON_AddItemToArray(cJSON *array, cJSON *item);
+extern void	cJSON_AddItemToObject(cJSON *object,const char *string,cJSON *item);
+// Append reference to item to the specified array/object. Use this when you want to add an existing cJSON to a new cJSON, but don't want to corrupt your existing cJSON.
+extern void cJSON_AddItemReferenceToArray(cJSON *array, cJSON *item);
+extern void	cJSON_AddItemReferenceToObject(cJSON *object,const char *string,cJSON *item);
+
+// Remove/Detatch items from Arrays/Objects.
+extern cJSON *cJSON_DetachItemFromArray(cJSON *array,int which);
+extern void   cJSON_DeleteItemFromArray(cJSON *array,int which);
+extern cJSON *cJSON_DetachItemFromObject(cJSON *object,const char *string);
+extern void   cJSON_DeleteItemFromObject(cJSON *object,const char *string);
+	
+// Update array items.
+extern void cJSON_ReplaceItemInArray(cJSON *array,int which,cJSON *newitem);
+extern void cJSON_ReplaceItemInObject(cJSON *object,const char *string,cJSON *newitem);
 
 #define cJSON_AddNullToObject(object,name)	cJSON_AddItemToObject(object, name, cJSON_CreateNull())
 #define cJSON_AddTrueToObject(object,name)	cJSON_AddItemToObject(object, name, cJSON_CreateTrue())
