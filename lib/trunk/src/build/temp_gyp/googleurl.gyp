@@ -16,7 +16,7 @@
         '<(DEPTH)/base/base.gyp:base',
       ],
       'sources': [
-        '<(DEPTH)/googleurl/src/gurl.cc',
+        '<(DEPTH)/googleurl_noicu/gurl.cc',
         '<(DEPTH)/googleurl/src/gurl.h',
         '<(DEPTH)/googleurl/src/url_canon.h',
         '<(DEPTH)/googleurl/src/url_canon_etc.cc',

@@ -21,7 +21,11 @@
 #include <string>
 
 extern "C" {
+#ifdef USE_SYSTEM_LIBPNG
+#include "png.h"
+#else
 #include "third_party/libpng/png.h"
+#endif
 #include "third_party/optipng/src/opngreduc.h"
 }
 

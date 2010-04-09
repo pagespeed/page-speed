@@ -481,12 +481,14 @@ bool TrimString(const std::wstring& input,
   return TrimStringT(input, trim_chars, TRIM_ALL, output) != TRIM_NONE;
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 bool TrimString(const string16& input,
                 const char16 trim_chars[],
                 string16* output) {
   return TrimStringT(input, trim_chars, TRIM_ALL, output) != TRIM_NONE;
 }
+#endif
 #endif
 
 bool TrimString(const std::string& input,
@@ -501,12 +503,14 @@ TrimPositions TrimWhitespace(const std::wstring& input,
   return TrimStringT(input, kWhitespaceWide, positions, output);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 TrimPositions TrimWhitespace(const string16& input,
                              TrimPositions positions,
                              string16* output) {
   return TrimStringT(input, kWhitespaceUTF16, positions, output);
 }
+#endif
 #endif
 
 TrimPositions TrimWhitespaceASCII(const std::string& input,
@@ -570,11 +574,13 @@ std::wstring CollapseWhitespace(const std::wstring& text,
   return CollapseWhitespaceT(text, trim_sequences_with_line_breaks);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 string16 CollapseWhitespace(const string16& text,
                             bool trim_sequences_with_line_breaks) {
   return CollapseWhitespaceT(text, trim_sequences_with_line_breaks);
 }
+#endif
 #endif
 
 std::string CollapseWhitespaceASCII(const std::string& text,
@@ -824,10 +830,12 @@ bool LowerCaseEqualsASCII(const std::wstring& a, const char* b) {
   return DoLowerCaseEqualsASCII(a.begin(), a.end(), b);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 bool LowerCaseEqualsASCII(const string16& a, const char* b) {
   return DoLowerCaseEqualsASCII(a.begin(), a.end(), b);
 }
+#endif
 #endif
 
 bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
@@ -842,12 +850,14 @@ bool LowerCaseEqualsASCII(std::wstring::const_iterator a_begin,
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 bool LowerCaseEqualsASCII(string16::const_iterator a_begin,
                           string16::const_iterator a_end,
                           const char* b) {
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
+#endif
 #endif
 
 bool LowerCaseEqualsASCII(const char* a_begin,
@@ -904,11 +914,13 @@ bool StartsWith(const std::wstring& str, const std::wstring& search,
   return StartsWithT(str, search, case_sensitive);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 bool StartsWith(const string16& str, const string16& search,
                 bool case_sensitive) {
   return StartsWithT(str, search, case_sensitive);
 }
+#endif
 #endif
 
 template <typename STR>
@@ -936,11 +948,13 @@ bool EndsWith(const std::wstring& str, const std::wstring& search,
   return EndsWithT(str, search, case_sensitive);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 bool EndsWith(const string16& str, const string16& search,
               bool case_sensitive) {
   return EndsWithT(str, search, case_sensitive);
 }
+#endif
 #endif
 
 DataUnits GetByteDisplayUnits(int64 bytes) {
@@ -1412,12 +1426,14 @@ void SplitString(const std::wstring& str,
   SplitStringT(str, s, true, r);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 void SplitString(const string16& str,
                  char16 s,
                  std::vector<string16>* r) {
   SplitStringT(str, s, true, r);
 }
+#endif
 #endif
 
 void SplitString(const std::string& str,
@@ -1432,12 +1448,14 @@ void SplitStringDontTrim(const std::wstring& str,
   SplitStringT(str, s, false, r);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 void SplitStringDontTrim(const string16& str,
                          char16 s,
                          std::vector<string16>* r) {
   SplitStringT(str, s, false, r);
 }
+#endif
 #endif
 
 void SplitStringDontTrim(const std::string& str,
@@ -1508,10 +1526,12 @@ std::string JoinString(const std::vector<std::string>& parts, char sep) {
   return JoinStringT(parts, sep);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 string16 JoinString(const std::vector<string16>& parts, char16 sep) {
   return JoinStringT(parts, sep);
 }
+#endif
 #endif
 
 std::wstring JoinString(const std::vector<std::wstring>& parts, wchar_t sep) {
@@ -1563,11 +1583,13 @@ void SplitStringAlongWhitespace(const std::wstring& str,
   SplitStringAlongWhitespaceT(str, result);
 }
 
+#ifdef ICU_DEPENDENCY
 #if !defined(WCHAR_T_IS_UTF16)
 void SplitStringAlongWhitespace(const string16& str,
                                 std::vector<string16>* result) {
   SplitStringAlongWhitespaceT(str, result);
 }
+#endif
 #endif
 
 void SplitStringAlongWhitespace(const std::string& str,

@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "build/build_config.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -30,7 +31,7 @@
 // include list. See
 // http://code.google.com/p/protobuf/issues/detail?id=44 for more
 // information.
-#if defined(_WINDOWS)
+#if defined(OS_WIN)
 #include <Winsock2.h>
 #else
 #include <arpa/inet.h>
