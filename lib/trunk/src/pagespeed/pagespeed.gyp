@@ -223,6 +223,7 @@
       ],
       'include_dirs': [
         '<(pagespeed_root)',
+        '<(DEPTH)',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
