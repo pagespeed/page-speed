@@ -3,7 +3,8 @@
 
 #include "net/instaweb/rewriter/public/file_input_resource.h"
 
-#include "net/instaweb/htmlparse/public/file_system.h"
+#include "net/instaweb/util/public/file_system.h"
+#include "net/instaweb/util/public/simple_meta_data.h"
 
 namespace net_instaweb {
 
@@ -15,12 +16,18 @@ FileInputResource::FileInputResource(const std::string& url,
       file_system_(file_system) {
 }
 
+FileInputResource::~FileInputResource() {
+}
+
 bool FileInputResource::Read(MessageHandler* message_handler) {
-  if (!loaded_) {  // We do not need to reload.
-    loaded_ = file_system_->ReadFile(filename_.c_str(),
-                                     &contents_,
-                                     message_handler);
+  if (!loaded() &&
+      file_system_->ReadFile(filename_.c_str(), &contents_, message_handler)) {
+    meta_data_.reset(new SimpleMetaData());
   }
-  return loaded_;
+  return meta_data_ != NULL;
+}
+
+const MetaData* FileInputResource::metadata() const {
+  return meta_data_.get();
 }
 }

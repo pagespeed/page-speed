@@ -1,11 +1,11 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
 
-#include "public/file_writer.h"
+#include "net/instaweb/util/public/file_writer.h"
 
 namespace net_instaweb {
 
-FileWriter::FileWriter(FileSystem::OutputFile* f) : file_(f) {
+FileWriter::~FileWriter() {
 }
 
 bool FileWriter::Write(

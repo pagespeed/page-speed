@@ -7,7 +7,6 @@
 #define NET_INSTAWEB_REWRITER_PUBLIC_OUTLINE_FILTER_H_
 
 #include <string>
-#include <vector>
 
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 
@@ -16,7 +15,8 @@ class ResourceManager;
 
 class OutlineFilter : public HtmlFilter {
  public:
-  OutlineFilter(HtmlParse* html_parse, ResourceManager* resource_manager);
+  OutlineFilter(HtmlParse* html_parse, ResourceManager* resource_manager,
+                bool outline_styles, bool outline_scripts);
 
   virtual void StartDocument();
 
@@ -55,8 +55,9 @@ class OutlineFilter : public HtmlFilter {
   HtmlElement* inline_element_;
   std::string buffer_;  // Content since the open of a style/script element
   HtmlParse* html_parse_;
-  std::vector<HtmlElement*> element_stack_;
   ResourceManager* resource_manager_;
+  bool outline_styles_;   // Should we outline styles?
+  bool outline_scripts_;  // Should we outline scripts?
 };
 }
 

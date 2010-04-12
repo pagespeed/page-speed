@@ -15,10 +15,13 @@ class BaseTagFilter;
 class ResourceManager;
 class CssSpriteFilter;
 class OutlineFilter;
+class ImgRewriteFilter;
 
 class FileSystem;
 class Hasher;
 class UrlFetcher;
+class Writer;
+class HtmlWriterFilter;
 
 class RewriteDriver {
  public:
@@ -32,7 +35,7 @@ class RewriteDriver {
   // Adds a filter that establishes a base tag for the document.
   // If not already present.  Base tags require a head section, and
   // so one will be added automatically if required.
-  void SetBase(const char* base);
+  void SetBaseUrl(const char* base);
 
   // Adds an id based resource manager, enabling the rewriting of resources.
   // This will override any previous resource managers.
@@ -53,7 +56,11 @@ class RewriteDriver {
 
   // Cut out inlined styles and scripts and make them into external resources.
   // This can only be called once and requires SetResouces to have been called.
-  void OutlineResources();
+  void OutlineResources(bool outline_styles, bool outline_scripts);
+
+  // Log encountered image urls.  Eventually rewrite them to reduce
+  // file size, and possibly insert missing image sizes into img refs.
+  void RewriteImages();
 
   // TODO(jmarantz): The purpose of exposing this member variable is to
   // allow the caller to establish the search path for resources relative
@@ -61,16 +68,25 @@ class RewriteDriver {
   // have to know about the resource management details.
   ResourceManager* resource_manager() const { return resource_manager_; }
 
+  // Controls how HTML output is written.  Be sure to call this last, after
+  // all other filters have been established.
+  //
+  // TODO(jmarantz): fix this in the implementation so that the caller can
+  // install filters in any order and the writer will always be last.
+  void SetWriter(Writer* writer);
+
  private:
   HtmlParse* html_parse_;
   AddHeadFilter* add_head_filter_;
   BaseTagFilter* base_tag_filter_;
   ResourceManager* resource_manager_;
   CssSpriteFilter* css_sprite_filter_;
+  ImgRewriteFilter* img_rewrite_filter_;
   OutlineFilter* outline_filter_;
   FileSystem* file_system_;
   UrlFetcher* url_fetcher_;
   Hasher* hasher_;
+  HtmlWriterFilter* html_writer_filter_;
 };
 }
 

@@ -28,16 +28,15 @@ class BaseTagFilter : public EmptyHtmlFilter {
   virtual void StartElement(HtmlElement* element);
   virtual void EndElement(HtmlElement* element);
 
-  void set_base(const std::string& url) { url_ = url; }
+  void set_base_url(const std::string& url) { base_url_ = url; }
 
  private:
-  bool found_head_;
   const char* s_head_;
   const char* s_base_;
   const char* s_href_;
   HtmlElement* s_head_element_;
   bool found_base_tag_;
-  std::string url_;
+  std::string base_url_;
   HtmlParse* html_parse_;
 };
 }

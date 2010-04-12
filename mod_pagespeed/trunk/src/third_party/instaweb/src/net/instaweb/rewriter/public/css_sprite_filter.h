@@ -35,11 +35,9 @@ class CssSpriteFilter : public EmptyHtmlFilter {
   const char* s_rel_;
   const char* s_media_;
   const char* s_stylesheet_;
-  bool found_css_sprite_;
   std::vector<HtmlElement*> css_elements_;
   HtmlParse* html_parse_;
   HtmlElement* head_element_;  // Pointer to head element for future use
-  std::vector<HtmlElement*> element_stack_;
   ResourceManager* resource_manager_;
 };
 }

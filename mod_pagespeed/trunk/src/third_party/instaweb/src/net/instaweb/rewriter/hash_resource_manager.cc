@@ -4,7 +4,7 @@
 #include "net/instaweb/rewriter/public/hash_resource_manager.h"
 
 #include <string>
-#include "net/instaweb/rewriter/public/hasher.h"
+#include "net/instaweb/util/public/hasher.h"
 #include "net/instaweb/rewriter/public/hash_output_resource.h"
 
 namespace net_instaweb {

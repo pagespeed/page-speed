@@ -3,36 +3,51 @@
 
 #include <stdio.h>
 #include "net/instaweb/htmlparse/public/file_driver.h"
-#include "net/instaweb/htmlparse/public/file_message_handler.h"
-#include "net/instaweb/htmlparse/public/stdio_file_system.h"
+#include "net/instaweb/util/public/file_message_handler.h"
+#include "net/instaweb/htmlparse/public/file_statistics_log.h"
+#include "net/instaweb/util/public/stdio_file_system.h"
 
 int null_filter(int argc, char** argv) {
   int ret = 1;
 
-  if ((argc != 2) && (argc != 3)) {
-    fprintf(stdout, "Usage: %s input_file [- | output_file]\n", argv[0]);
+  if ((argc < 2) || (argc > 4)) {
+    fprintf(stdout, "Usage: %s input_file [- | output_file] [log_file]\n",
+            argv[0]);
+    return ret;
+  }
+
+  const char* infile = argv[1];
+  net_instaweb::FileMessageHandler message_handler(stderr);
+  net_instaweb::StdioFileSystem file_system;
+  net_instaweb::FileDriver file_driver(&message_handler, &file_system);
+  const char* outfile = NULL;
+  std::string outfile_buffer;
+  const char* statsfile = NULL;
+  std::string statsfile_buffer;
+
+  if (argc >= 3) {
+    outfile = argv[2];
+  } else if (net_instaweb::FileDriver::GenerateOutputFilename(
+                  infile, &outfile_buffer)) {
+    outfile = outfile_buffer.c_str();
+    fprintf(stdout, "Null rewriting %s into %s\n", infile, outfile);
   } else {
-    net_instaweb::StdioFileSystem file_system;
-    net_instaweb::FileMessageHandler message_handler(stderr);
-    net_instaweb::FileDriver file_driver(&message_handler, &file_system);
-    const char* infile = argv[1];
-    const char* outfile = NULL;
-    std::string outfile_buffer;
+    message_handler.FatalError(infile, 0, "Cannot generate output filename");
+  }
 
-    if (argc == 3) {
-      outfile = argv[2];
-    } else  if (file_driver.GenerateOutputFilename(infile, &outfile_buffer)) {
-      outfile = outfile_buffer.c_str();
-      fprintf(stdout, "Null rewriting %s into %s\n", infile, outfile);
-    } else {
-      fprintf(stderr, "Cannot generate output filename from %s\n", infile);
-    }
+  if (argc >= 4) {
+    statsfile = argv[3];
+  } else if (net_instaweb::FileDriver::GenerateStatsFilename(
+                 infile, &statsfile_buffer)) {
+    statsfile = statsfile_buffer.c_str();
+    fprintf(stdout, "Logging statistics for %s into %s\n",
+            infile, statsfile);
+  } else {
+    message_handler.FatalError(infile, 0, "Cannot generate stats file name");
+  }
 
-    if (outfile != NULL) {
-      if (file_driver.ParseFile(infile, outfile)) {
-        ret = 0;
-      }
-    }
+  if (file_driver.ParseFile(infile, outfile, statsfile)) {
+    ret = 0;
   }
 
   return ret;

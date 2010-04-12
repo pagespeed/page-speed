@@ -12,6 +12,7 @@
 namespace net_instaweb {
 
 class MessageHandler;
+class MetaData;
 
 class InputResource {
  public:
@@ -25,6 +26,7 @@ class InputResource {
   virtual bool loaded() const = 0;  // Has file been read/loaded.
   // contents are only available when loaded()
   virtual const std::string& contents() const = 0;
+  virtual const MetaData* metadata() const = 0;
 };
 }
 

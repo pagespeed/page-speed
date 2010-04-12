@@ -3,6 +3,7 @@
 
 #include "public/html_element.h"
 #include <stdio.h>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
@@ -40,22 +41,20 @@ void HtmlElement::ToString(std::string* buf) const {
     }
   }
   switch (close_style_) {
-    case AUTO_CLOSE:       *buf += "?>"; break;
+    case AUTO_CLOSE:       *buf += "> (not yet closed)"; break;
     case IMPLICIT_CLOSE:   *buf += ">";  break;
     case EXPLICIT_CLOSE:   *buf += "></"; *buf += tag_; *buf += ">"; break;
     case BRIEF_CLOSE:      *buf += "/>"; break;
+    case UNCLOSED:         *buf += "> (unclosed)"; break;
   }
   if ((begin_line_number_ != -1) || (end_line_number_ != -1)) {
     *buf += " ";
-    char ibuf[100];
     if (begin_line_number_ != -1) {
-      snprintf(ibuf, sizeof(ibuf), "%d", begin_line_number_);
-      *buf += ibuf;
+      *buf += IntegerToString(begin_line_number_);
     }
     *buf += "...";
     if (end_line_number_ != -1) {
-      snprintf(ibuf, sizeof(ibuf), "%d", end_line_number_);
-      *buf += ibuf;
+      *buf += IntegerToString(end_line_number_);
     }
   }
 }

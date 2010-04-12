@@ -4,6 +4,7 @@
 #include "net/instaweb/htmlparse/html_lexer.h"
 #include <assert.h>
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 #include "net/instaweb/htmlparse/html_event.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
@@ -19,7 +20,7 @@ namespace {
 //
 // TODO(jmarantz): examine doctype for xhtml for implicitly closed tags
 const char* kImplicitlyClosedHtmlTags[] = {
-  "meta", "input", "link", "br", "img", "area", "hr", "wbr",
+  "meta", "input", "link", "br", "img", "area", "hr", "wbr", "param",
   NULL
 };
 
@@ -27,6 +28,13 @@ const char* kImplicitlyClosedHtmlTags[] = {
 // be closed by using an explicit </TAG>.
 static const char* kNonBriefTerminatedTags[] = {
   "script", "a", "div", "span", "iframe", "style", "textarea",
+  NULL
+};
+
+// These tags cause the text inside them to retained literally
+// and not interpreted.
+static const char* kLiteralTags[] = {
+  "script", "iframe", "textarea", "style",
   NULL
 };
 }
@@ -45,12 +53,16 @@ HtmlLexer::HtmlLexer(HtmlParse* html_parse)
       attr_quote_(""),
       has_attr_value_(false),
       element_(NULL),
-      line_(1) {
+      line_(1),
+      tag_start_line_(-1) {
   for (const char** p = kImplicitlyClosedHtmlTags; *p != NULL; ++p) {
     implicitly_closed_.insert(html_parse->Intern(*p));
   }
   for (const char** p = kNonBriefTerminatedTags; *p != NULL; ++p) {
     non_brief_terminated_tags_.insert(html_parse->Intern(*p));
+  }
+  for (const char** p = kLiteralTags; *p != NULL; ++p) {
+    literal_tags_.insert(html_parse->Intern(*p));
   }
 }
 
@@ -63,29 +75,35 @@ void HtmlLexer::EvalStart(char c) {
     EmitLiteral();
     literal_ += c;
     state_ = TAG;
+    tag_start_line_ = line_;
   } else {
     state_ = START;
   }
 }
 
-#define LEGAL_TAG_CHAR(c) (isalnum(c) || ((c) == '-') || ((c) == '#') || \
-                           ((c) == '_'))
-#define LEGAL_ATTR_NAME_CHAR(c) (((c) != '=') && ((c) != '>') && ((c) != '/') \
-                                 && ((c) != '<') && !isspace(c))
+bool HtmlLexer::IsLegalTagChar(char c) {
+  return (IsI18nChar(c) ||
+          (isalnum(c) || (c == '-') || (c == '#') || (c == '_')));
+}
+
+bool HtmlLexer::IsLegalAttrNameChar(char c) {
+  return (IsI18nChar(c) ||
+          ((c != '=') && (c != '>') && (c != '/') && (c != '<') &&
+           !isspace(c)));
+}
 
 // Handle the case where "<" was recently parsed.
 void HtmlLexer::EvalTag(char c) {
   if (c == '/') {
     state_ = TAG_CLOSE;
-  } else if (LEGAL_TAG_CHAR(c)) {   // "<x"
+  } else if (IsLegalTagChar(c)) {   // "<x"
     state_ = TAG_OPEN;
     token_ += c;
   } else if (c == '!') {
     state_ = COMMENT_START1;
   } else {
     //  Illegal tag syntax; just pass it through as raw characters
-    html_parse_->Error(filename_.c_str(), line_,
-        "Invalid tag syntax: unexpected sequence `<%c'", c);
+    Error("Invalid tag syntax: unexpected sequence `<%c'", c);
     EvalStart(c);
   }
 }
@@ -94,15 +112,15 @@ void HtmlLexer::EvalTag(char c) {
 // state as long as we keep seeing legal tag characters, appending to
 // token_ for each character.
 void HtmlLexer::EvalTagOpen(char c) {
-  if (LEGAL_TAG_CHAR(c)) {
+  if (IsLegalTagChar(c)) {
     token_ += c;
   } else if (c == '>') {
     EmitTagOpen(true);
   } else if (c == '<') {
     // Chrome transforms "<tag<tag>" into "<tag><tag>";
-    html_parse_->Error(filename_.c_str(), line_,
-        "Invalid tag syntax: expected close tag before opener");
+    Error("Invalid tag syntax: expected close tag before opener");
     EmitTagOpen(true);
+    literal_ = "<";  // will be removed by EvalStart.
     EvalStart(c);
   } else if (c == '/') {
     state_ = TAG_BRIEF_CLOSE;
@@ -111,8 +129,9 @@ void HtmlLexer::EvalTagOpen(char c) {
   } else {
     // Some other punctuation.  Not sure what to do.  Let's run this
     // on the web and see what breaks & decide what to do.  E.g. "<x&"
-    html_parse_->Error(filename_.c_str(), line_,
-        "Invalid tag syntax: expected close tag before opener");
+    Error("Invalid character `%c` while parsing tag `%s'", c, token_.c_str());
+    token_.clear();
+    state_ = START;
   }
 }
 
@@ -174,28 +193,43 @@ void HtmlLexer::EvalTagBriefClose(char c) {
     EmitTagOpen(false);
     EmitTagBriefClose();
   } else {
-    html_parse_->Error(filename_.c_str(), line_,
-        "Invalid tag syntax: expected > after <xxx/ got `%c'", c);
+    std::string expected(literal_.data(), literal_.size() - 1);
+    Error("Invalid close tag syntax: expected %s>, got %s",
+          expected.c_str(), literal_.c_str());
     // Recover by returning to the mode from whence we came.
-    assert(element_ != NULL);
-    token_ += '/';
-    state_ = TAG_OPEN;
-    EvalTagOpen(c);
+    if (element_ != NULL) {
+      token_ += '/';
+      state_ = TAG_OPEN;
+      EvalTagOpen(c);
+    } else {
+      // E.g. "<R/A", see testdata/invalid_brief.html.
+      state_ = START;
+      token_.clear();
+    }
   }
 }
 
-// Handle the case where "</" was recently parsed.
+// Handle the case where "</" was recently parsed.  This function
+// is also called for "</a ", in which case state will be TAG_CLOSE_TERMINATE.
+// We distinguish that case to report an error on "</a b>".
 void HtmlLexer::EvalTagClose(char c) {
-  if (LEGAL_TAG_CHAR(c)) {  // "</x"
+  if ((state_ != TAG_CLOSE_TERMINATE) && IsLegalTagChar(c)) {  // "</x"
     token_ += c;
+  } else if (isspace(c)) {
+    if (token_.empty()) {  // e.g. "</ a>"
+      // just ignore the whitespace.  Wait for
+      // the tag-name to begin.
+    } else {
+      // "</a ".  Now we are in a state where we can only
+      // accept more whitesapce or a close.
+      state_ = TAG_CLOSE_TERMINATE;
+    }
   } else if (c == '>') {
     EmitTagClose(HtmlElement::EXPLICIT_CLOSE);
   } else {
-    html_parse_->Error(
-        filename_.c_str(), line_,
-        "Invalid tag syntax: expected `>' after `</%s' got `%c'",
-        token_.c_str(), c);
-    EmitTagClose(HtmlElement::EXPLICIT_CLOSE);
+    Error("Invalid tag syntax: expected `>' after `</%s' got `%c'",
+          token_.c_str(), c);
+    token_.clear();
     EvalStart(c);
   }
 }
@@ -215,11 +249,11 @@ void HtmlLexer::EvalDirective(char c) {
 void HtmlLexer::EvalCommentStart1(char c) {
   if (c == '-') {
     state_ = COMMENT_START2;
-  } else if (LEGAL_TAG_CHAR(c)) {  // "<!DOCTYPE ... >"
+  } else if (IsLegalTagChar(c)) {  // "<!DOCTYPE ... >"
     state_ = DIRECTIVE;
     EvalDirective(c);
   } else {
-    html_parse_->Error(filename_.c_str(), line_, "Invalid comment syntax");
+    Error("Invalid comment syntax");
     EmitLiteral();
     EvalStart(c);
   }
@@ -230,7 +264,7 @@ void HtmlLexer::EvalCommentStart2(char c) {
   if (c == '-') {
     state_ = COMMENT_BODY;
   } else {
-    html_parse_->Error(filename_.c_str(), line_, "Invalid comment syntax");
+    Error("Invalid comment syntax");
     EmitLiteral();
     EvalStart(c);
   }
@@ -285,6 +319,7 @@ void HtmlLexer::EvalLiteralTag(char c) {
   // Look explicitly for </script> in the literal buffer.
   // TODO(jmarantz): check for whitespace in unexpected places.
   if (c == '>') {
+    assert(literal_close_.size() > 3);  // expecting "</x>" for tag x.
     int literal_minus_close_size = literal_.size() - literal_close_.size();
     if ((literal_minus_close_size >= 0) &&
         (strcasecmp(literal_.c_str() + literal_minus_close_size,
@@ -304,7 +339,7 @@ void HtmlLexer::EvalLiteralTag(char c) {
 // Emits raw uninterpreted characters.
 void HtmlLexer::EmitLiteral() {
   if (!literal_.empty()) {
-    html_parse_->AddEvent(new HtmlCharactersEvent(literal_, line_));
+    html_parse_->AddEvent(new HtmlCharactersEvent(literal_, tag_start_line_));
     literal_.clear();
   }
   state_ = START;
@@ -314,9 +349,9 @@ void HtmlLexer::EmitComment() {
   literal_.clear();
   if ((token_.find("[if IE") != std::string::npos) &&
       (token_.find("<![endif]") != std::string::npos)) {
-    html_parse_->AddEvent(new HtmlIEDirectiveEvent(token_, line_));
+    html_parse_->AddEvent(new HtmlIEDirectiveEvent(token_, tag_start_line_));
   } else {
-    html_parse_->AddEvent(new HtmlCommentEvent(token_, line_));
+    html_parse_->AddEvent(new HtmlCommentEvent(token_, tag_start_line_));
   }
   token_.clear();
   state_ = START;
@@ -328,14 +363,13 @@ void HtmlLexer::EmitComment() {
 void HtmlLexer::EmitTagOpen(bool allow_implicit_close) {
   literal_.clear();
   MakeElement();
-  // ...
-  html_parse_->AddElement(element_, line_);
-  if (strcmp(element_->tag(), "script") == 0) {
+  html_parse_->AddElement(element_, tag_start_line_);
+  element_stack_.push_back(element_);
+  if (literal_tags_.find(element_->tag()) != literal_tags_.end()) {
     state_ = LITERAL_TAG;
-    literal_close_ = "</script>";
-  } else if (strcmp(element_->tag(), "iframe") == 0) {
-    state_ = LITERAL_TAG;
-    literal_close_ = "</iframe>";
+    literal_close_ = "</";
+    literal_close_ += element_->tag();
+    literal_close_ += ">";
   } else {
     state_ = START;
   }
@@ -350,8 +384,8 @@ void HtmlLexer::EmitTagOpen(bool allow_implicit_close) {
 }
 
 void HtmlLexer::EmitTagBriefClose() {
-  HtmlElement* element = html_parse_->PopElement();
-  html_parse_->CloseElement(element, HtmlElement::BRIEF_CLOSE, line_);
+  HtmlElement* element = PopElement();
+  CloseElement(element, HtmlElement::BRIEF_CLOSE, line_);
   state_ = START;
 }
 
@@ -365,46 +399,51 @@ static void toLower(std::string* str) {
 void HtmlLexer::MakeElement() {
   if (element_ == NULL) {
     if (token_.empty()) {
-      html_parse_->Error(
-          filename_.c_str(), line_, "Making element with empty tag name");
+      Error("Making element with empty tag name");
     }
     toLower(&token_);
     element_ = html_parse_->NewElement(html_parse_->Intern(token_));
-    element_->set_begin_line_number(line_);
+    element_->set_begin_line_number(tag_start_line_);
     token_.clear();
   }
 }
 
 void HtmlLexer::StartParse(const char* url) {
   line_ = 1;
+  tag_start_line_ = -1;
   filename_ = url;
   has_attr_value_ = false;
   attr_quote_ = "";
+  state_ = START;
+  element_stack_.clear();
   // clear buffers
 }
 
 void HtmlLexer::FinishParse() {
   if (!token_.empty()) {
-    html_parse_->Error(filename_.c_str(), line_,
-                       "End-of-file in mid-token: %s", token_.c_str());
+    Error("End-of-file in mid-token: %s", token_.c_str());
     token_.clear();
   }
   if (!attr_name_.empty()) {
-    html_parse_->Error(
-        filename_.c_str(), line_, "End-of-file in mid-attribute-name: %s",
-        attr_name_.c_str());
+    Error("End-of-file in mid-attribute-name: %s", attr_name_.c_str());
     attr_name_.clear();
   }
   if (!attr_value_.empty()) {
-    html_parse_->Error(
-        filename_.c_str(), line_,
-        "End-of-file in mid-attribute-value: %s", attr_value_.c_str());
+    Error("End-of-file in mid-attribute-value: %s", attr_value_.c_str());
     attr_value_.clear();
   }
 
   if (!literal_.empty()) {
     EmitLiteral();
   }
+
+  // Any unclosed tags?  These should be noted.
+  for (size_t i = 0; i < element_stack_.size(); ++i) {
+    HtmlElement* element = element_stack_[i];
+    html_parse_->Warning(filename_.c_str(), element->begin_line_number(),
+                         "End-of-file with open tag: %s", element->tag());
+  }
+  element_stack_.clear();
 }
 
 void HtmlLexer::MakeAttribute(bool has_value) {
@@ -436,23 +475,34 @@ void HtmlLexer::EvalAttribute(char c) {
     FinishAttribute(c, false, false);
   } else if (c == '/') {
     state_ = TAG_BRIEF_CLOSE_ATTR;
-  } else if (LEGAL_ATTR_NAME_CHAR(c)) {
+  } else if (IsLegalAttrNameChar(c)) {
     attr_name_ += c;
     state_ = TAG_ATTR_NAME;
   } else if (!isspace(c)) {
-    html_parse_->Error(
-        filename_.c_str(), line_, "Unexpected char `%c' in attribute list", c);
+    Error("Unexpected char `%c' in attribute list", c);
   }
 }
 
+// "<x y" or  "<x y ".
 void HtmlLexer::EvalAttrName(char c) {
   if (c == '=') {
     state_ = TAG_ATTR_EQ;
     has_attr_value_ = true;
-  } else if (LEGAL_ATTR_NAME_CHAR(c)) {
+  } else if (IsLegalAttrNameChar(c) && (state_ != TAG_ATTR_NAME_SPACE)) {
     attr_name_ += c;
+  } else if (isspace(c)) {
+    state_ = TAG_ATTR_NAME_SPACE;
   } else {
-    FinishAttribute(c, false, false);
+    if (state_ == TAG_ATTR_NAME_SPACE) {
+      // "<x y z".  Now that we see the 'z', we need
+      // to finish 'y' as an attribute, then queue up
+      // 'z' (c) as the start of a new attribute.
+      MakeAttribute(false);
+      state_ = TAG_ATTR_NAME;
+      attr_name_ += c;
+    } else {
+      FinishAttribute(c, false, false);
+    }
   }
 }
 
@@ -474,7 +524,6 @@ void HtmlLexer::FinishAttribute(char c, bool has_value, bool brief_close) {
         brief_close = true;
         attr_name_.clear();
         attr_value_.clear();
-        has_attr_value_ = false;
       } else {
         MakeAttribute(has_value);
       }
@@ -486,25 +535,24 @@ void HtmlLexer::FinishAttribute(char c, bool has_value, bool brief_close) {
 
     if (c == '<') {
       // Chrome transforms "<tag a<tag>" into "<tag a><tag>"; we should too.
-      html_parse_->Error(
-          filename_.c_str(), line_,
-          "Invalid tag syntax: expected close tag before opener");
+      Error("Invalid tag syntax: expected close tag before opener");
       literal_ += '<';
       EvalStart(c);
     }
+    has_attr_value_ = false;
   } else {
     // Some other funny character within a tag.  Probably can't
     // trust the tag at all.  Check the web and see when this
     // happens.
-    html_parse_->Error(
-        filename_.c_str(), line_, "Unexpected character in attribute: %c", c);
+    Error("Unexpected character in attribute: %c", c);
     EmitLiteral();
     state_ = START;
+    has_attr_value_ = false;
   }
 }
 
 void HtmlLexer::EvalAttrEq(char c) {
-  if (LEGAL_TAG_CHAR(c)) {
+  if (IsLegalTagChar(c)) {
     state_ = TAG_ATTR_VAL;
     attr_quote_ = "";
     EvalAttrVal(c);
@@ -522,7 +570,7 @@ void HtmlLexer::EvalAttrEq(char c) {
 }
 
 void HtmlLexer::EvalAttrVal(char c) {
-  if (isspace(c) || (c == '>') || (c == '/') || (c == '<')) {
+  if (isspace(c) || (c == '>') || (c == '<')) {
     FinishAttribute(c, true, false);
   } else {
     attr_value_ += c;
@@ -548,14 +596,12 @@ void HtmlLexer::EvalAttrValSq(char c) {
 void HtmlLexer::EmitTagClose(HtmlElement::CloseStyle close_style) {
   toLower(&token_);
   const char* tag = html_parse_->Intern(token_);
-  HtmlElement* element = html_parse_->PopElementMatchingTag(tag);
+  HtmlElement* element = PopElementMatchingTag(tag);
   if (element != NULL) {
     element->set_end_line_number(line_);
-    html_parse_->CloseElement(element, close_style, line_);
+    CloseElement(element, close_style, line_);
   } else {
-    html_parse_->Error(filename_.c_str(), line_,
-        "Unexpected close-tag `%s', no tags are open",
-        token_.c_str());
+    Error("Unexpected close-tag `%s', no tags are open", token_.c_str());
     EmitLiteral();
   }
 
@@ -590,6 +636,7 @@ void HtmlLexer::Parse(const char* text, int size) {
       case TAG:                   EvalTag(c);                 break;
       case TAG_OPEN:              EvalTagOpen(c);             break;
       case TAG_CLOSE:             EvalTagClose(c);            break;
+      case TAG_CLOSE_TERMINATE:   EvalTagClose(c);            break;
       case TAG_BRIEF_CLOSE:       EvalTagBriefClose(c);       break;
       case TAG_BRIEF_CLOSE_ATTR:  EvalTagBriefCloseAttr(c);   break;
       case COMMENT_START1:        EvalCommentStart1(c);       break;
@@ -599,6 +646,7 @@ void HtmlLexer::Parse(const char* text, int size) {
       case COMMENT_END2:          EvalCommentEnd2(c);         break;
       case TAG_ATTRIBUTE:         EvalAttribute(c);           break;
       case TAG_ATTR_NAME:         EvalAttrName(c);            break;
+      case TAG_ATTR_NAME_SPACE:   EvalAttrName(c);            break;
       case TAG_ATTR_EQ:           EvalAttrEq(c);              break;
       case TAG_ATTR_VAL:          EvalAttrVal(c);             break;
       case TAG_ATTR_VALDQ:        EvalAttrValDq(c);           break;
@@ -616,5 +664,66 @@ bool HtmlLexer::IsImplicitlyClosedTag(const char* tag) const {
 bool HtmlLexer::TagAllowsBriefTermination(const char* tag) const {
   return (non_brief_terminated_tags_.find(tag) ==
           non_brief_terminated_tags_.end());
+}
+
+void HtmlLexer::DebugPrintStack() {
+  for (size_t i = 0; i < element_stack_.size(); ++i) {
+    std::string buf;
+    element_stack_[i]->ToString(&buf);
+    fprintf(stdout, "%s\n", buf.c_str());
+  }
+  fflush(stdout);
+}
+
+HtmlElement* HtmlLexer::PopElement() {
+  HtmlElement* element = NULL;
+  if (!element_stack_.empty()) {
+    element = element_stack_.back();
+    element_stack_.pop_back();
+  }
+  return element;
+}
+
+HtmlElement* HtmlLexer::PopElementMatchingTag(const char* tag) {
+  HtmlElement* element = NULL;
+
+  // Search the stack from top to bottom.
+  for (int i = element_stack_.size() - 1; i >= 0; --i) {
+    element = element_stack_[i];
+    if (element->tag() == tag) {
+      // Emit warnings for the tags we are skipping, in forward order.
+      for (size_t j = i + 1; j < element_stack_.size(); ++j) {
+        HtmlElement* skipped = element_stack_[j];
+        // TODO(jmarantz): Should this be a Warning rather than an Error?
+        // In fact, should we actually perform this optimization ourselves
+        // in a filter to omit closing tags that can be inferred?
+        html_parse_->Error(filename_.c_str(), skipped->begin_line_number(),
+                           "Unclosed element `%s'", skipped->tag());
+        CloseElement(skipped, HtmlElement::UNCLOSED, line_);
+      }
+      element_stack_.resize(i);
+      break;
+    }
+    element = NULL;
+  }
+  return element;
+}
+
+void HtmlLexer::CloseElement(
+    HtmlElement* element, HtmlElement::CloseStyle close_style,
+    int line_number) {
+  HtmlEndElementEvent* end_event =
+      new HtmlEndElementEvent(element, line_number);
+  element->set_close_style(close_style);
+  html_parse_->AddEvent(end_event);
+  element->set_end(html_parse_->Last());
+  element->set_end_line_number(line_number);
+}
+
+void HtmlLexer::Error(const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  html_parse_->ErrorV(filename_.c_str(), line_, msg, args);
+  va_end(args);
 }
 }

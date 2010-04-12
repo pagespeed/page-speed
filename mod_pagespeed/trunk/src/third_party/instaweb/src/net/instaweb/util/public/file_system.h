@@ -1,8 +1,8 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
 
-#ifndef NET_INSTAWEB_HTMLPARSE_PUBLIC_FILE_SYSTEM_H_
-#define NET_INSTAWEB_HTMLPARSE_PUBLIC_FILE_SYSTEM_H_
+#ifndef NET_INSTAWEB_UTIL_PUBLIC_FILE_SYSTEM_H_
+#define NET_INSTAWEB_UTIL_PUBLIC_FILE_SYSTEM_H_
 
 #include <string>
 
@@ -24,6 +24,10 @@ class FileSystem {
   class File {
    public:
     virtual ~File();
+
+    // Gets the name of the file.
+    virtual const char* filename() = 0;
+
    protected:
     // Use public interface provided by FileSystem::Close.
     friend class FileSystem;
@@ -33,6 +37,7 @@ class FileSystem {
   class InputFile : public File {
    public:
     virtual int Read(char* buf, int size, MessageHandler* message_handler) = 0;
+
    protected:
     friend class FileSystem;
     virtual ~InputFile();
@@ -44,6 +49,7 @@ class FileSystem {
         const char* buf, int bytes, MessageHandler* message_handler) = 0;
     virtual bool Flush(MessageHandler* message_handler) = 0;
     virtual bool SetWorldReadable(MessageHandler* message_handler) = 0;
+
    protected:
     friend class FileSystem;
     virtual ~OutputFile();
@@ -62,7 +68,18 @@ class FileSystem {
 
   // Closes the File and deletes it.
   virtual bool Close(File* file, MessageHandler* message_handler);
+
+  // Opens a temporary file to write, with the specified prefix.
+  // If successful, the filename can be obtained from File::filename().
+  //
+  // NULL is returned on failure.
+  virtual OutputFile* OpenTempFile(const char* prefix_name,
+                                   MessageHandler* message_handle) = 0;
+
+  // Renames a file
+  virtual bool RenameFile(const char* old_filename, const char* new_filename,
+                          MessageHandler* handler) = 0;
 };
 }
 
-#endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_FILE_SYSTEM_H_
+#endif  // NET_INSTAWEB_UTIL_PUBLIC_FILE_SYSTEM_H_

@@ -1,12 +1,10 @@
 // Copyright 2010 Google Inc. All Rights Reserved.
 // Author: bmcquade@google.com (Bryan McQuade)
 
-#ifndef NET_INSTAWEB_HTMLPARSE_PUBLIC_PRINTF_FORMAT_H_
-#define NET_INSTAWEB_HTMLPARSE_PUBLIC_PRINTF_FORMAT_H_
+#ifndef NET_INSTAWEB_UTIL_PUBLIC_PRINTF_FORMAT_H_
+#define NET_INSTAWEB_UTIL_PUBLIC_PRINTF_FORMAT_H_
 
-// From Chromium svn (base/compiler_specific.h)
-
-#if defined(COMPILER_GCC)
+#ifdef __GNUC__
 
 // Tell the compiler a function is using a printf-style format string.
 // |format_param| is the one-based index of the format string parameter;
@@ -22,4 +20,4 @@
 
 #endif
 
-#endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_PRINTF_FORMAT_H_
+#endif  // NET_INSTAWEB_UTIL_PUBLIC_PRINTF_FORMAT_H_
