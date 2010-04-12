@@ -8,12 +8,12 @@
 #include <stdio.h>  // for snprintf
 #include <string.h>
 #include <string>
-#include "net/instaweb/htmlparse/public/file_system.h"
+#include "net/instaweb/util/public/file_system.h"
 #include "net/instaweb/rewriter/public/filename_output_resource.h"
 #include "net/instaweb/rewriter/public/file_input_resource.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include "net/instaweb/rewriter/public/output_resource.h"
-#include "net/instaweb/rewriter/public/url_fetcher.h"
+#include "net/instaweb/util/public/url_fetcher.h"
 #include "net/instaweb/rewriter/public/url_input_resource.h"
 
 namespace {

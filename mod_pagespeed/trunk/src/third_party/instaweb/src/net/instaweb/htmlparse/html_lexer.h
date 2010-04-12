@@ -7,7 +7,9 @@
 #include <stdarg.h>
 #include <set>
 #include <string>
+#include <vector>
 #include "net/instaweb/htmlparse/public/html_element.h"
+#include "net/instaweb/util/public/printf_format.h"
 
 namespace net_instaweb {
 
@@ -41,11 +43,15 @@ class HtmlLexer {
   // Determines whether a tag can be terminated briefly (e.g. <tag/>)
   bool TagAllowsBriefTermination(const char* tag) const;
 
+  // Print element stack to stdout (for debugging).
+  void DebugPrintStack();
+
  private:
   void EvalStart(char c);
   void EvalTag(char c);
   void EvalTagOpen(char c);
   void EvalTagClose(char c);
+  void EvalTagCloseTerminate(char c);
   void EvalTagBriefClose(char c);
   void EvalTagBriefCloseAttr(char c);
   void EvalCommentStart1(char c);
@@ -73,6 +79,36 @@ class HtmlLexer {
   void EmitTagBriefClose();
   void EmitDirective();
 
+  // Emits an error message.
+  void Error(const char* format, ...) INSTAWEB_PRINTF_FORMAT(2, 3);
+
+  // Takes an interned tag, and tries to find a matching HTML element on
+  // the stack.  If it finds it, it pops all the intervening elements off
+  // the stack, issuing warnings for each discarded tag, the matching element
+  // is also popped off the stack, and returned.
+  //
+  // If the tag is not matched, then no mutations are done to the stack,
+  // and NULL is returned.
+  //
+  // The tag name should be interned.
+  // TODO(jmarantz): use type system
+  HtmlElement* PopElementMatchingTag(const char* tag);
+
+  HtmlElement* PopElement();
+  void CloseElement(HtmlElement* element, HtmlElement::CloseStyle close_style,
+                    int line_nubmer);
+
+  // Minimal i18n analysis.  With utf-8 and gb2312 we can do this
+  // context-free, and thus the method can be static.  If we add
+  // more encodings we may need to turn this into a non-static method.
+  static inline bool IsI18nChar(char c) {return (((c) & 0x80) != 0); }
+
+  // Determines whether a character can be used in a tag name.
+  static inline bool IsLegalTagChar(char c);
+
+  // Determines whether a character can be used in an attribute name.
+  static inline bool IsLegalAttrNameChar(char c);
+
   // The lexer is implemented as a pure state machine.  There is
   // no lookahead.  The state is understood primarily in this
   // enum, although there are a few state flavors that are managed
@@ -83,6 +119,7 @@ class HtmlLexer {
     START,
     TAG,                   // "<"
     TAG_CLOSE,             // "</"
+    TAG_CLOSE_TERMINATE,   // "</x "
     TAG_OPEN,              // "<x"
     TAG_BRIEF_CLOSE,       // "<x/"
     TAG_BRIEF_CLOSE_ATTR,  // "<x /" or "<x y/" or "x y=/z" etc
@@ -93,6 +130,7 @@ class HtmlLexer {
     COMMENT_END2,          // "--"
     TAG_ATTRIBUTE,         // "<x "
     TAG_ATTR_NAME,         // "<x y"
+    TAG_ATTR_NAME_SPACE,   // "<x y "
     TAG_ATTR_EQ,           // "<x y="
     TAG_ATTR_VAL,          // "<x y=x" value terminated by whitespace or >
     TAG_ATTR_VALDQ,        // '<x y="' value terminated by double-quote
@@ -111,11 +149,14 @@ class HtmlLexer {
   bool has_attr_value_;     // distinguishes <a n=> from <a n>
   HtmlElement* element_;    // current element; used to collect attributes
   int line_;
+  int tag_start_line_;      // line at which we last transitioned to TAG state
   std::string filename_;
   std::string literal_close_;  // specific tag go close, e.g </script>
 
   std::set<const char*> implicitly_closed_;
   std::set<const char*> non_brief_terminated_tags_;
+  std::set<const char*> literal_tags_;
+  std::vector<HtmlElement*> element_stack_;
 };
 }
 

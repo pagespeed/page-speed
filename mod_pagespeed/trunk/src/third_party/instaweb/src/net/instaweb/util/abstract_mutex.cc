@@ -1,10 +1,10 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
 
-#include "net/instaweb/htmlparse/public/writer.h"
+#include "net/instaweb/util/public/abstract_mutex.h"
 
 namespace net_instaweb {
 
-Writer::~Writer() {
+AbstractMutex::~AbstractMutex() {
 }
 }

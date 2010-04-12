@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "net/instaweb/htmlparse/public/message_handler.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 using net_instaweb::MessageHandler;
 
@@ -27,6 +27,8 @@ namespace html_rewriter {
 // Apache log.
 class HtmlParserMessageHandler : public MessageHandler {
  public:
+  virtual void InfoV(
+      const char* filename, int line, const char *msg, va_list args);
   virtual void WarningV(
       const char* filename, int line, const char *msg, va_list args);
   virtual void ErrorV(

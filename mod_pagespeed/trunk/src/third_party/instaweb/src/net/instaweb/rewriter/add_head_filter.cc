@@ -32,6 +32,12 @@ void AddHeadFilter::StartElement(HtmlElement* element) {
 }
 
 void AddHeadFilter::EndDocument() {
-  assert(found_head_);
+  if (!found_head_) {
+    // In order to insert a <head> in a docucument that lacks one, we
+    // must first find the body.  If we get through the whole doc without
+    // finding a <head> or a <body> then this filter will have failed to
+    // add a head.
+    html_parse_->ErrorHere("Reached end of document without finding <body>");
+  }
 }
 }

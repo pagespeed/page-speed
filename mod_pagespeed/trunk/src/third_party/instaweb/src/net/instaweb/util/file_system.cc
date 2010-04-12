@@ -1,7 +1,7 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
 
-#include "net/instaweb/htmlparse/public/file_system.h"
+#include "net/instaweb/util/public/file_system.h"
 
 namespace {
 // Size of stack buffer for read-blocks.  This can't be too big or it will blow
@@ -44,7 +44,9 @@ bool FileSystem::WriteFile(const char* filename, const std::string& buffer,
   OutputFile* output_file = OpenOutputFile(filename, message_handler);
   bool ret = false;
   if (output_file != NULL) {
-    ret = output_file->Write(buffer.data(), buffer.size(), message_handler);
+    ret = (output_file->Write(buffer.data(), buffer.size(), message_handler) ==
+           static_cast<int>(buffer.size()));
+    ret &= output_file->SetWorldReadable(message_handler);
     ret &= Close(output_file, message_handler);
   }
   return ret;

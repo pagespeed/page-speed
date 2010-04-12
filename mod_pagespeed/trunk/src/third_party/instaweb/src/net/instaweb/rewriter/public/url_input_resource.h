@@ -12,25 +12,28 @@
 namespace net_instaweb {
 
 class MessageHandler;
+class MetaData;
 class UrlFetcher;
 
 class UrlInputResource : public InputResource {
  public:
   explicit UrlInputResource(const std::string& url,
                             UrlFetcher* url_fetcher);
+  virtual ~UrlInputResource();
 
   // Read complete resource, content is stored in contents_.
   virtual bool Read(MessageHandler* message_handler);
 
   virtual const std::string& url() const { return url_; }
-  virtual bool loaded() const { return loaded_; }
+  virtual bool loaded() const { return meta_data_ != NULL; }
   // contents are only available when loaded()
   virtual const std::string& contents() const { return contents_; }
+  virtual const MetaData* metadata() const;
 
  private:
   std::string url_;
   std::string contents_;
-  bool loaded_;
+  MetaData* meta_data_;
   UrlFetcher* url_fetcher_;
 };
 }

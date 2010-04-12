@@ -15,8 +15,8 @@
 #ifndef HTML_REWRITER_APR_FILE_SYSTEM_H_
 #define HTML_REWRITER_APR_FILE_SYSTEM_H_
 
-#include "net/instaweb/htmlparse/public/file_system.h"
-#include "net/instaweb/htmlparse/public/message_handler.h"
+#include "net/instaweb/util/public/file_system.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 struct apr_pool_t;
 using net_instaweb::FileSystem;

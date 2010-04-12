@@ -28,7 +28,7 @@ class EmptyHtmlFilter : public HtmlFilter {
   virtual void IgnorableWhitespace(const std::string& whitespace);
   virtual void DocType(const std::string& name, const std::string& ext_id,
                        const std::string& sys_id);
-  void Directive(const std::string& directive);
+  virtual void Directive(const std::string& directive);
   virtual void Flush();
 };
 }

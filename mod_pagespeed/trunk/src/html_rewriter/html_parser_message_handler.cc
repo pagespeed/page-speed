@@ -19,6 +19,12 @@
 #include "mod_spdy/apache/log_message_handler.h"
 
 namespace html_rewriter {
+
+void HtmlParserMessageHandler::InfoV(
+    const char* file, int line, const char *msg, va_list args) {
+  LOG(INFO) << file << ":" << line << ": " << Format(msg, args);
+}
+
 void HtmlParserMessageHandler::WarningV(
     const char* file, int line, const char *msg, va_list args) {
   LOG(WARNING) << file << ":" << line << ": " << Format(msg, args);

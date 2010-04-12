@@ -20,7 +20,7 @@
 #include "html_rewriter/html_parser_message_handler.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
-#include "net/instaweb/htmlparse/public/writer.h"
+#include "net/instaweb/util/public/writer.h"
 
 namespace html_rewriter {
 

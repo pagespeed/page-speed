@@ -6,4 +6,12 @@
 namespace net_instaweb {
 OutputResource::~OutputResource() {
 }
+
+bool OutputResource::Write(const std::string& content,
+                           MessageHandler* handler) {
+  bool ret = StartWrite(handler);
+  ret &= WriteChunk(content.data(), content.size(), handler);
+  ret &= EndWrite(handler);
+  return ret;
+}
 }

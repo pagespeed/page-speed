@@ -1,14 +1,15 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
 
-#include "net/instaweb/htmlparse/public/stdio_file_system.h"
+#include "net/instaweb/util/public/stdio_file_system.h"
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/errno.h>
 #include <sys/stat.h>
 #include <string>
-#include "net/instaweb/htmlparse/public/message_handler.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 namespace net_instaweb {
 
@@ -71,6 +72,8 @@ class StdioInputFile : public FileSystem::InputFile {
     return file_helper_.Close(message_handler);
   }
 
+  virtual const char* filename() { return file_helper_.filename_.c_str(); }
+
  private:
   FileHelper file_helper_;
 };
@@ -103,6 +106,8 @@ class StdioOutputFile : public FileSystem::OutputFile {
     return file_helper_.Close(message_handler);
   }
 
+  virtual const char* filename() { return file_helper_.filename_.c_str(); }
+
   virtual bool SetWorldReadable(MessageHandler* message_handler) {
     bool ret = true;
     int fd = fileno(file_helper_.file_);
@@ -126,7 +131,8 @@ FileSystem::InputFile* StdioFileSystem::OpenInputFile(
   FileSystem::InputFile* input_file = NULL;
   FILE* f = fopen(filename, "r");
   if (f == NULL) {
-    message_handler->Error(filename, 0, "opening file: %s", strerror(errno));
+    message_handler->Error(filename, 0, "opening input file: %s",
+                           strerror(errno));
   } else {
     input_file = new StdioInputFile(f, filename);
   }
@@ -142,11 +148,56 @@ FileSystem::OutputFile* StdioFileSystem::OpenOutputFile(
   } else {
     FILE* f = fopen(filename, "w");
     if (f == NULL) {
-      message_handler->Error(filename, 0, "opening file: %s", strerror(errno));
+      message_handler->Error(filename, 0,
+                             "opening output file: %s", strerror(errno));
     } else {
       output_file = new StdioOutputFile(f, filename);
     }
   }
   return output_file;
+}
+
+FileSystem::OutputFile* StdioFileSystem::OpenTempFile(
+    const char* prefix, MessageHandler* message_handler) {
+  // TODO(jmarantz): As jmaessen points out, mkstemp warns "Don't use
+  // this function, use tmpfile(3) instead.  It is better defined and
+  // more portable."  However, tmpfile does not allow a location to be
+  // specified.  I'm not 100% sure if that's going to be work well for
+  // us.  More importantly, our usage scenario is that we will be
+  // closing the file and renaming it to a permanent name.  tmpfiles
+  // automatically are deleted when they are closed.
+  int prefix_len = strlen(prefix);
+  static char mkstemp_hook[] = "XXXXXX";
+  char* template_name = new char[prefix_len + sizeof(mkstemp_hook)];
+  memcpy(template_name, prefix, prefix_len);
+  memcpy(template_name + prefix_len, mkstemp_hook, sizeof(mkstemp_hook));
+  int fd = mkstemp(template_name);
+  OutputFile* output_file = NULL;
+  if (fd < 0) {
+    message_handler->Error(template_name, 0,
+                           "opening temp file: %s", strerror(errno));
+  } else {
+    FILE* f = fdopen(fd, "w");
+    if (f == NULL) {
+      close(fd);
+      message_handler->Error(template_name, 0,
+                             "re-opening temp file: %s", strerror(errno));
+    } else {
+      output_file = new StdioOutputFile(f, template_name);
+    }
+  }
+  delete [] template_name;
+  return output_file;
+}
+
+bool StdioFileSystem::RenameFile(const char* old_file, const char* new_file,
+                                 MessageHandler* message_handler) {
+  bool ret = true;
+  if (rename(old_file, new_file) < 0) {
+    message_handler->Error(old_file, 0, "renaming file to %s: %s",
+                           new_file, strerror(errno));
+    ret = false;
+  }
+  return ret;
 }
 }

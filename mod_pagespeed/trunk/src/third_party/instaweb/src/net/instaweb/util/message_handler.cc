@@ -1,10 +1,17 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
 
-#include "net/instaweb/htmlparse/public/message_handler.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 namespace net_instaweb {
 MessageHandler::~MessageHandler() {
+}
+
+void MessageHandler::Info(const char* file, int line, const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  InfoV(file, line, msg, args);
+  va_end(args);
 }
 
 void MessageHandler::Error(const char* file, int line, const char* msg, ...) {

@@ -6,28 +6,38 @@
 
 #include <string>
 #include "net/instaweb/rewriter/public/output_resource.h"
+#include "net/instaweb/util/public/file_system.h"
 
 namespace net_instaweb {
 
-class FileSystem;
 class MessageHandler;
 
 class FilenameOutputResource : public OutputResource {
  public:
-  explicit FilenameOutputResource(const std::string& url,
-                                  const std::string& filename,
-                                  FileSystem* file_system);
+  FilenameOutputResource(const std::string& url,
+                         const std::string& filename,
+                         FileSystem* file_system);
+  virtual ~FilenameOutputResource();
 
-  // Write complete resource. Multiple calls will overwrite.
-  virtual bool Write(const std::string& content,
-                     MessageHandler* message_handler);
+  // Start a writing an output resource.
+  virtual bool StartWrite(MessageHandler* message_handler);
+  virtual bool WriteChunk(const char* buf, size_t size,
+                          MessageHandler* message_handler);
+  virtual bool EndWrite(MessageHandler* message_handler);
 
-  virtual const std::string& url() const { return url_; }
+  virtual const std::string& url() const;
+  virtual bool IsReadable() const;
+  virtual const MetaData* metadata() const;
 
- private:
+ protected:
+  virtual std::string TempPrefix() const;
+
   std::string url_;
   std::string filename_;
   FileSystem* file_system_;
+  FileSystem::OutputFile* output_file_;
+  MetaData* metadata_;
+  bool writing_complete_;
 };
 }
 

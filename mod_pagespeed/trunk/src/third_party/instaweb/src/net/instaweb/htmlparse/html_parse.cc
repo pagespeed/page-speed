@@ -13,7 +13,7 @@
 #include "net/instaweb/htmlparse/html_lexer.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_filter.h"
-#include "net/instaweb/htmlparse/public/message_handler.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 namespace net_instaweb {
 
@@ -65,52 +65,15 @@ HtmlElement* HtmlParse::NewElement(const char* tag) {
 void HtmlParse::AddElement(HtmlElement* element, int line_number) {
   HtmlStartElementEvent* event =
       new HtmlStartElementEvent(element, line_number);
-  element_stack_.push_back(element);
   AddEvent(event);
   element->set_begin(Last());
   element->set_begin_line_number(line_number);
 }
 
-HtmlElement* HtmlParse::PopElement() {
-  HtmlElement* element = NULL;
-  if (!element_stack_.empty()) {
-    element = element_stack_.back();
-    element_stack_.pop_back();
-  }
-  return element;
-}
 
-HtmlElement* HtmlParse::PopElementMatchingTag(const char* tag) {
-  HtmlElement* element = NULL;
-
-  // Search the stack from top to bottom.
-  for (int i = element_stack_.size() - 1; i >= 0; --i) {
-    element = element_stack_[i];
-    if (element->tag() == tag) {
-      // Emit warnings for the tags we are skipping, in forward order.
-      for (size_t j = i + 1; j < element_stack_.size(); ++j) {
-        HtmlElement* skipped = element_stack_[j];
-        Error(filename_.c_str(), skipped->begin_line_number(),
-              "Unclosed element `%s'",
-              skipped->tag());
-      }
-      element_stack_.resize(i);
-      break;
-    }
-    element = NULL;
-  }
-  return element;
-}
-
-void HtmlParse::CloseElement(
-    HtmlElement* element, HtmlElement::CloseStyle close_style,
-    int line_number) {
-  HtmlEndElementEvent* end_event =
-      new HtmlEndElementEvent(element, line_number);
-  element->set_close_style(close_style);
-  AddEvent(end_event);
-  element->set_end(Last());
-  element->set_end_line_number(line_number);
+void HtmlParse::InfoV(
+    const char* file, int line, const char *msg, va_list args) {
+  message_handler_->InfoV(file, line, msg, args);
 }
 
 void HtmlParse::WarningV(
@@ -128,10 +91,10 @@ void HtmlParse::FatalErrorV(
   message_handler_->FatalErrorV(file, line, msg, args);
 }
 
-void HtmlParse::Error(const char* file, int line, const char* msg, ...) {
+void HtmlParse::Info(const char* file, int line, const char* msg, ...) {
   va_list args;
   va_start(args, msg);
-  ErrorV(file, line, msg, args);
+  InfoV(file, line, msg, args);
   va_end(args);
 }
 
@@ -142,6 +105,13 @@ void HtmlParse::Warning(const char* file, int line, const char* msg, ...) {
   va_end(args);
 }
 
+void HtmlParse::Error(const char* file, int line, const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  ErrorV(file, line, msg, args);
+  va_end(args);
+}
+
 void HtmlParse::FatalError(const char* file, int line, const char* msg, ...) {
   va_list args;
   va_start(args, msg);
@@ -149,22 +119,46 @@ void HtmlParse::FatalError(const char* file, int line, const char* msg, ...) {
   va_end(args);
 }
 
+void HtmlParse::InfoHere(const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  InfoHereV(msg, args);
+  va_end(args);
+}
+
+void HtmlParse::WarningHere(const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  WarningHereV(msg, args);
+  va_end(args);
+}
+
+void HtmlParse::ErrorHere(const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  ErrorHereV(msg, args);
+  va_end(args);
+}
+
+void HtmlParse::FatalErrorHere(const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  FatalErrorHereV(msg, args);
+  va_end(args);
+}
+
+
 void HtmlParse::StartParse(const char* url) {
   line_number_ = 1;
   filename_ = url;
+  AddEvent(new HtmlStartDocumentEvent(line_number_));
   lexer_->StartParse(url);
 }
 
 void HtmlParse::FinishParse() {
   lexer_->FinishParse();
+  AddEvent(new HtmlEndDocumentEvent(line_number_));
   Flush();
-
-  // Any unclosed tags?  These should be noted.
-  for (size_t i = 0; i < element_stack_.size(); ++i) {
-    HtmlElement* element = element_stack_[i];
-    Error(filename_.c_str(), element->begin_line_number(),
-          "End-of-file with open tag: %s", element->tag());
-  }
   ClearElements();
 }
 
@@ -231,15 +225,6 @@ void HtmlParse::DebugPrintQueue() {
     } else {
       fprintf(stdout, "  %s\n", buf.c_str());
     }
-  }
-  fflush(stdout);
-}
-
-void HtmlParse::DebugPrintStack() {
-  for (size_t i = 0; i < element_stack_.size(); ++i) {
-    std::string buf;
-    element_stack_[i]->ToString(&buf);
-    fprintf(stdout, "%s\n", buf.c_str());
   }
   fflush(stdout);
 }
@@ -325,7 +310,6 @@ void HtmlParse::ClearElements() {
     delete element;
   }
   elements_.clear();
-  element_stack_.clear();
 }
 
 bool HtmlParse::IsImplicitlyClosedTag(const char* tag) const {

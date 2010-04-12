@@ -17,7 +17,7 @@
 #include <string>
 
 #include "base/logging.h"
-#include "net/instaweb/htmlparse/public/message_handler.h"
+#include "net/instaweb/util/public/message_handler.h"
 #include "third_party/apache_httpd/include/apr_file_io.h"
 #include "third_party/apache_httpd/include/apr_pools.h"
 
@@ -76,6 +76,7 @@ class HtmlWriterInputFile : public FileSystem::InputFile {
   virtual bool Close(MessageHandler* message_handler) {
     helper_.Close(message_handler);
   }
+  virtual const char* filename() { return helper_.filename().c_str(); }
  private:
   FileHelper helper_;
 };
@@ -90,6 +91,7 @@ class HtmlWriterOutputFile : public FileSystem::OutputFile {
     helper_.Close(message_handler);
   }
   virtual bool SetWorldReadable(MessageHandler* message_handler);
+  virtual const char* filename() { return helper_.filename().c_str(); }
  private:
   FileHelper helper_;
 };

@@ -7,7 +7,7 @@
 #include <string>
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
-#include "net/instaweb/htmlparse/public/writer.h"
+#include "net/instaweb/util/public/writer.h"
 
 namespace net_instaweb {
 
@@ -61,6 +61,7 @@ void HtmlWriterFilter::EmitBytes(const char* str, int size) {
 void HtmlWriterFilter::StartElement(HtmlElement* element) {
   EmitBytes("<");
   EmitBytes(element->tag());
+  bool last_is_unquoted = false;
   for (int i = 0; i < element->attribute_size(); ++i) {
     const HtmlElement::Attribute& attribute = element->attribute(i);
     // If the column has grown too large, insert a newline.  It's always safe
@@ -76,6 +77,7 @@ void HtmlWriterFilter::StartElement(HtmlElement* element) {
     }
     EmitBytes(" ");
     EmitBytes(attribute.name_);
+    last_is_unquoted = false;
     if (attribute.value_ != NULL) {
       // TODO(sligocki): Sanitize by removing all quotes from value and
       // quoting values that need to be.
@@ -83,7 +85,13 @@ void HtmlWriterFilter::StartElement(HtmlElement* element) {
       EmitBytes(attribute.quote_);
       EmitBytes(attribute.value_);
       EmitBytes(attribute.quote_);
+      last_is_unquoted = (strcmp(attribute.quote_, "") == 0);
     }
+  }
+
+  // If the last element was not quoted, then delimit with a space.
+  if (last_is_unquoted) {
+    EmitBytes(" ");
   }
 
   // Attempt to briefly terminate any legal tag that was explicitly terminated
@@ -131,7 +139,7 @@ void HtmlWriterFilter::EndElement(HtmlElement* element) {
       assert(0);
       break;
     case HtmlElement::IMPLICIT_CLOSE:
-      // the ">" was written in StartElement
+      // Nothing new to write; the ">" was written in StartElement
       break;
     case HtmlElement::BRIEF_CLOSE:
       // even if the element is briefly closeable, if more text
@@ -147,6 +155,9 @@ void HtmlWriterFilter::EndElement(HtmlElement* element) {
       EmitBytes("</", 2);
       EmitBytes(element->tag());
       EmitBytes(">", 1);
+      break;
+    case HtmlElement::UNCLOSED:
+      // Nothing new to write; the ">" was written in StartElement
       break;
   }
 }

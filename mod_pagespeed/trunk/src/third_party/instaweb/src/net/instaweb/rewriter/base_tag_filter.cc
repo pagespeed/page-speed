@@ -23,10 +23,16 @@ void BaseTagFilter::StartDocument() {
   found_base_tag_ = false;
 }
 
+// In a proxy server, we will want to set a base tag according to the current
+// URL being processed.  But we need to add the BaseTagFilter upstream of
+// the HtmlWriterFilter, so we'll need to establish it at init time before
+// we know a URL.  So in that mode, where we've installed the filter but
+// have no specific URL to set the base tag to, then we should avoid
+// adding an empty base tag.
 void BaseTagFilter::StartElement(HtmlElement* element) {
   if (element->tag() == s_head_) {
     s_head_element_ = element;
-  } else if (s_head_element_ != NULL) {
+  } else if ((s_head_element_ != NULL) && !base_url_.empty()) {
     if (element->tag() == s_base_) {
       // There is already a base tag.  See if it's specified an href.
       for (int i = 0; i < element->attribute_size(); ++i) {
@@ -34,7 +40,6 @@ void BaseTagFilter::StartElement(HtmlElement* element) {
         if (attribute.name_ == s_href_) {
           // For now let's assume that the explicit base-tag in
           // the source should left alone if it has an href.
-          // attribute.second = url_.c_str();
           found_base_tag_ = true;
           break;
         }
@@ -44,13 +49,13 @@ void BaseTagFilter::StartElement(HtmlElement* element) {
 }
 
 void BaseTagFilter::EndElement(HtmlElement* element) {
-  if (element == s_head_element_) {
+  if ((element == s_head_element_) && !base_url_.empty()) {
     s_head_element_ = NULL;
     if (!found_base_tag_) {
       found_base_tag_ = true;
       std::vector<std::string> head_atts;
       HtmlElement* element = html_parse_->NewElement(s_base_);
-      element->AddAttribute(s_href_, url_.c_str(), "\"");
+      element->AddAttribute(s_href_, base_url_.c_str(), "\"");
       html_parse_->InsertElementBeforeCurrent(element);
       found_base_tag_ = true;
     }

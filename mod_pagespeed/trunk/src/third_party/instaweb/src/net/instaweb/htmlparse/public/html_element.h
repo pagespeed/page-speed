@@ -19,10 +19,11 @@ class HtmlElement {
   // no longer qualify for the closing style with which they were
   // parsed.
   enum CloseStyle {
-    AUTO_CLOSE,      // synthesized tag -- writer must choose
+    AUTO_CLOSE,      // synthesized tag, or not yet closed in source
     IMPLICIT_CLOSE,  // E.g. <img...> <meta...> <link...> <br...> <input...>
     EXPLICIT_CLOSE,  // E.g. <a href=...>anchor</a>
-    BRIEF_CLOSE      // E.g. <head/>
+    BRIEF_CLOSE,     // E.g. <head/>
+    UNCLOSED         // Was never closed in source
   };
 
   struct Attribute {

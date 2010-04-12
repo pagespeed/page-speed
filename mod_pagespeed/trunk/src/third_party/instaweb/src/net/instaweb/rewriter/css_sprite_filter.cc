@@ -10,7 +10,7 @@
 #include "net/instaweb/rewriter/public/resource_manager.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
-#include "net/instaweb/htmlparse/public/message_handler.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 namespace net_instaweb {
 // TODO(jmarantz): This spriting code assumes we are synchronously loading
@@ -78,7 +78,6 @@ void CssSpriteFilter::StartDocument() {
 }
 
 void CssSpriteFilter::StartElement(HtmlElement* element) {
-  element_stack_.push_back(element);
   if (element->tag() == s_head_) {
     head_element_ = element;
   }
@@ -93,8 +92,6 @@ void CssSpriteFilter::EndElement(HtmlElement* element) {
   } else if (element->tag() == s_head_) {
     EmitSprites();
   }
-  assert(element == element_stack_.back());
-  element_stack_.pop_back();
 }
 
 // An IE directive that includes any stylesheet info should be a barrier
@@ -170,26 +167,21 @@ void CssSpriteFilter::EmitSprites() {
     // Start building up the sprite.  At this point we are still
     // not committed to the sprite, because the 'write' can fail.
     //
-    // TODO(jmarantz): In a scalable installation where the sprites
-    // must be kept in a database, we cannot serve HTML that references
-    // sprite resources that have not been committed yet, and
-    // committing to a database may take too long to block on the HTML
-    // rewrite.  So we will want to refactor this to check to see
-    // whether the desired sprite is already known.  For now we'll
-    // assume we can commit to serving the sprite during the HTML
-    // rewriter.
-    //
-    // TODO(sligocki): It may not be scalable to store the entire contents in
-    // memory. This needs to be dealt with in the Resource interfaces.
-    std::string sprite_content;
-    for (int i = 0, n = sprite_resources.size(); i < n; ++i) {
-      sprite_content += sprite_resources[i]->contents();
+    // TODO(jmarantz): determinee if sprite is already written.
+    bool written = sprite->StartWrite(message_handler);
+    for (int i = 0, n = sprite_resources.size(); written && (i < n); ++i) {
+      const std::string& contents = sprite_resources[i]->contents();
+      written = sprite->WriteChunk(contents.data(), contents.size(),
+                                   message_handler);
+    }
+    if (written) {
+      written = sprite->EndWrite(message_handler);
     }
 
     // We've collected at least two CSS files to sprite, and whose
     // HTML elements are in the current flush window.  Last step
     // is to write the sprite.
-    if (sprite->Write(sprite_content, message_handler)) {
+    if (written && sprite->IsReadable()) {
       // commit by removing the elements from the DOM.
       for (size_t i = 0; i < sprite_elements.size(); ++i) {
         html_parse_->DeleteElement(sprite_elements[i]);

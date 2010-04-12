@@ -17,6 +17,7 @@ class HtmlFilter {
   // Starts a new document.  Filters should clear their state in this function,
   // as the same Filter instance may be used for multiple HTML documents.
   virtual void StartDocument() = 0;
+  // Note: EndDocument will be called imediately before the last Flush call.
   virtual void EndDocument() = 0;
 
 
@@ -52,6 +53,8 @@ class HtmlFilter {
   // most recent flush; once an element is flushed it is already on
   // the wire to its destination and it's too late to mutate.  Flush
   // is initiated by an application calling HttpParse::Flush().
+  //
+  // Flush() is called after all other handlers during a HttpParse::Flush().
   virtual void Flush() = 0;
 };
 }
