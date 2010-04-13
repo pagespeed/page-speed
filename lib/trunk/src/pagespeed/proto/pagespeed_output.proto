@@ -144,6 +144,16 @@ message CachingDetails {
   optional bool is_heuristically_cacheable = 2;
 }
 
+// Result detail to store information about a host that should be parallelized.
+message ParallelizableHostDetails {
+  extend ResultDetails {
+    optional ParallelizableHostDetails message_set_extension = 4747123; //'Hos'
+  }
+
+  // The host with the most static resources.
+  optional string host = 1;
+}
+
 message Result {
   // Identifier of rule that produced this result.
   required string rule_name = 1;
