@@ -40,7 +40,14 @@ int EstimateHeadersBytes(const std::map<std::string, std::string>& headers) {
   return total_size;
 }
 
-// Enumerates HTTP header directives.
+// Enumerates HTTP header directives.  For instance, given
+// Cache-Control: private, no-store, max-age=100, the
+// DirectiveEnumerator will return each Cache-Control directive as a
+// k,v pair:
+//
+// private,NULL
+// no-store,NULL
+// max-age,100
 class DirectiveEnumerator {
  public:
   explicit DirectiveEnumerator(const std::string& header);
