@@ -26,20 +26,6 @@ namespace {
 // value pair and the end-of-line CRLF.
 const int kHeaderOverhead = 3;
 
-int EstimateHeadersBytes(const std::map<std::string, std::string>& headers) {
-  int total_size = 0;
-
-  // TODO improve the header size calculation below.
-  for (std::map<std::string, std::string>::const_iterator
-           iter = headers.begin(), end = headers.end();
-       iter != end;
-       ++iter) {
-    total_size += kHeaderOverhead + iter->first.size() + iter->second.size();
-  }
-
-  return total_size;
-}
-
 // Enumerates HTTP header directives.  For instance, given
 // Cache-Control: private, no-store, max-age=100, the
 // DirectiveEnumerator will return each Cache-Control directive as a
@@ -280,6 +266,24 @@ bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
 namespace pagespeed {
 
 namespace resource_util {
+
+int EstimateHeaderBytes(const std::string& key, const std::string& value) {
+  return kHeaderOverhead + key.size() + value.size();
+}
+
+int EstimateHeadersBytes(const std::map<std::string, std::string>& headers) {
+  int total_size = 0;
+
+  // TODO improve the header size calculation below.
+  for (std::map<std::string, std::string>::const_iterator
+           iter = headers.begin(), end = headers.end();
+       iter != end;
+       ++iter) {
+    total_size += EstimateHeaderBytes(iter->first, iter->second);
+  }
+
+  return total_size;
+}
 
 int EstimateRequestBytes(const Resource& resource) {
   int request_bytes = 0;
