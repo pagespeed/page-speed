@@ -16,6 +16,7 @@
 #define PAGESPEED_CORE_RESOURCE_UTIL_H_
 
 #include <map>
+#include <string>
 
 #include "pagespeed/core/resource.h"
 
@@ -26,6 +27,9 @@ class Resource;
 namespace resource_util {
 
 typedef std::map<std::string, std::string> DirectiveMap;
+
+int EstimateHeaderBytes(const std::string& key, const std::string& value);
+int EstimateHeadersBytes(const std::map<std::string, std::string>& headers);
 
 int EstimateRequestBytes(const Resource& resource);
 int EstimateResponseBytes(const Resource& resource);
