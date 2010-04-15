@@ -143,6 +143,7 @@
         'pagespeed_output_pb',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+        'pagespeed_util',
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/core/dom.cc',
@@ -177,6 +178,7 @@
       ],
       'sources': [
         '<(pagespeed_root)/pagespeed/util/regex.cc',
+        '<(pagespeed_root)/pagespeed/util/directive_enumerator.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -192,7 +194,6 @@
       'type': '<(library)',
       'dependencies': [
         'pagespeed_core',
-        'pagespeed_util',
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ],
       'sources': [
