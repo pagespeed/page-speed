@@ -170,7 +170,7 @@ TEST(ResourceTest, ImageTypes) {
   ExpectImageType("image/jpg", 200, pagespeed::JPEG);
   ExpectImageType("image/jpeg", 200, pagespeed::JPEG);
   ExpectImageType("image/xyz", 200, pagespeed::UNKNOWN_IMAGE_TYPE);
-#ifdef _DEBUG
+#ifndef NDEBUG
   EXPECT_DEATH(
       ExpectImageType("image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE),
       "Non-image type: 5");

@@ -216,7 +216,6 @@ int ReadPNG::readpng_get_bgcolor(unsigned char *red,
 unsigned char *ReadPNG::readpng_get_image(int *pChannels,
                                           unsigned long *pRowbytes)
 {
-    double  gamma;
     png_uint_32  i, rowbytes;
     png_bytepp  row_pointers = NULL;
 
