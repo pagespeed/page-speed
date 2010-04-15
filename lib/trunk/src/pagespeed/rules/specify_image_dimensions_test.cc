@@ -199,7 +199,7 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
       pagespeed::formatters::TextFormatter formatter(&output);
       SpecifyImageDimensions dimensions_rule;
       dimensions_rule.FormatResults(result_vector, &formatter);
-      EXPECT_EQ(expected_output, output.str());
+      EXPECT_STREQ(expected_output.c_str(), output.str().c_str());
     }
   }
 

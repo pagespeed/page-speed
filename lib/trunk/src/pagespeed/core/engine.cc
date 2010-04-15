@@ -64,7 +64,7 @@ void PopulateRuleToResultMap(const Results& results,
   for (int idx = 0, end = results.rules_size(); idx < end; ++idx) {
     // Create an entry for each rule that was run, even if there are
     // no results for that rule.
-    const ResultVector& v = (*rule_to_result_map)[results.rules(idx)];
+    (*rule_to_result_map)[results.rules(idx)];
   }
 
   for (int idx = 0, end = results.results_size(); idx < end; ++idx) {

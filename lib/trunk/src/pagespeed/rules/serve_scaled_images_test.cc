@@ -197,7 +197,7 @@ class ServeScaledImagesTest : public ::testing::Test {
       pagespeed::formatters::TextFormatter formatter(&output);
       pagespeed::rules::ServeScaledImages scaling_rule;
       scaling_rule.FormatResults(result_vector, &formatter);
-      EXPECT_EQ(expected_output, output.str());
+      EXPECT_STREQ(expected_output.c_str(), output.str().c_str());
     }
   }
 

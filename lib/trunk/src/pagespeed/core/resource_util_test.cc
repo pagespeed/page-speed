@@ -355,7 +355,7 @@ TEST_F(ResourceUtilTest, ParseTimeValuedHeader) {
   EXPECT_EQ(1268683463000LL, time);
 
   EXPECT_TRUE(resource_util::ParseTimeValuedHeader(
-      "22-AUG-1993 10:59:12", &time));
+      "22-AUG-1993 10:59:12 EDT", &time));
   EXPECT_EQ(746031552000LL, time);
 
   // Not valid date strings.

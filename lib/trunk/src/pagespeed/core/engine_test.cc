@@ -69,7 +69,7 @@ class TestRule : public Rule {
 
   virtual bool AppendResults(const PagespeedInput& input,
                              ResultProvider* provider) {
-    Result* result = provider->NewResult();
+    provider->NewResult();
     return append_results_return_value_;
   }
 

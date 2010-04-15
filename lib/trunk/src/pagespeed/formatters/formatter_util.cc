@@ -77,7 +77,7 @@ namespace formatters {
 
 std::string FormatBytes(int64 bytes) {
   if (bytes < kBytesPerKiB) {
-    return StringPrintf("%dB", bytes);
+    return StringPrintf("%lldB", bytes);
   } else if (bytes < kBytesPerMiB) {
     return StringPrintf("%.1fKiB", bytes / static_cast<double>(kBytesPerKiB));
   } else {
