@@ -100,15 +100,13 @@ TEST_F(ParallelizeDownloadsAcrossHostnamesTest, BalancedResources) {
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, JustOneHost) {
   AddStaticResources(80, "static.example.com");
-  CheckOneViolation("static.example.com", 60);
+  CheckOneViolation("static.example.com", 40);
 }
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, UnbalancedResources) {
   AddStaticResources(10, "static1.example.com");
-  AddStaticResources(10, "static2.example.com");
-  AddStaticResources(30, "static3.example.com");
-  AddStaticResources(10, "static4.example.com");
-  CheckOneViolation("static3.example.com", 15);
+  AddStaticResources(30, "static2.example.com");
+  CheckOneViolation("static2.example.com", 10);
 }
 
 }  // namespace
