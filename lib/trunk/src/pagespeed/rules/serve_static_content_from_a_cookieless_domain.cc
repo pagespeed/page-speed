@@ -51,10 +51,7 @@ AppendResults(const PagespeedInput& input, ResultProvider* provider) {
       continue;
     }
 
-    const std::string& cookie = resource.GetRequestHeader("Cookie");
-    // TODO: Sometimes, at least in Firefox, there can be a cookie even though
-    //       the cookie header isn't set.  The JS implementation of this rule
-    //       had a way around that; we may need to do a similar thing here.
+    const std::string& cookie = resource.GetCookies();
     if (cookie.empty()) {
       continue;
     }

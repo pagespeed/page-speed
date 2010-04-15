@@ -110,6 +110,9 @@ void Resource::SetResponseBody(const std::string& value) {
   response_body_ = value;
 }
 
+void Resource::SetCookies(const std::string& cookies) {
+  cookies_ = cookies;
+}
 
 void Resource::SetLazyLoaded() {
   lazy_loaded_ = true;
@@ -156,6 +159,27 @@ const std::map<std::string, std::string>* Resource::GetResponseHeaders() const {
 
 const std::string& Resource::GetResponseBody() const {
   return response_body_;
+}
+
+const std::string& Resource::GetCookies() const {
+  if (!cookies_.empty()) {
+    // Use the user-specified cookies if available.
+    return cookies_;
+  }
+
+  // NOTE: we could try to merge the Cookie and Set-Cookie headers like
+  // a browser, but this is a non-trivial operation.
+  const std::string& cookie_header = GetRequestHeader("Cookie");
+  if (!cookie_header.empty()) {
+    return cookie_header;
+  }
+
+  const std::string& set_cookie_header = GetResponseHeader("Set-Cookie");
+  if (!set_cookie_header.empty()) {
+    return set_cookie_header;
+  }
+
+  return GetEmptyString();
 }
 
 bool Resource::IsLazyLoaded() const {

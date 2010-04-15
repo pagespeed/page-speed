@@ -59,6 +59,17 @@ class Resource {
   void AddResponseHeader(const std::string& name, const std::string& value);
   void SetResponseBody(const std::string& value);
 
+  // In some cases, the Cookie header can differ from the cookie(s)
+  // that would be associated with a resource. For instance, if a resource
+  // is fetched before a Set-Cookie is applied, the cookies in that
+  // Set-Cookie will not be included in the request for the resource. Some
+  // rules want to know about the cookies that would be applied to a
+  // resource. You can use the SetCookies method to specify the set of
+  // cookies that are associated with a given resource. This is optional;
+  // if unspecified, GetCookies will return the contents of the Cookie
+  // header.
+  void SetCookies(const std::string& cookies);
+
   // The resource is lazy-loaded if the request time is after
   // the window's onLoad time. Many of the page-speed rules
   // do not apply to lazy-loaded resources.
@@ -74,6 +85,13 @@ class Resource {
   const std::string& GetResponseProtocol() const;
   const std::string& GetResponseHeader(const std::string& name) const;
   const std::string& GetResponseBody() const;
+
+  // Get the cookies specified via SetCookies. If SetCookies was
+  // unspecified, this will fall back to the Cookie request header. If that
+  // header is empty, this method falls back to the Set-Cookie response
+  // header.
+  const std::string& GetCookies() const;
+
   bool IsLazyLoaded() const;
 
   // For serialization purposes only.
@@ -103,6 +121,7 @@ class Resource {
   std::string response_protocol_;
   std::map<std::string, std::string> response_headers_;
   std::string response_body_;
+  std::string cookies_;
   bool lazy_loaded_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
