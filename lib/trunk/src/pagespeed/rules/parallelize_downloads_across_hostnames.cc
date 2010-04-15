@@ -32,8 +32,10 @@ namespace rules {
 
 namespace {
 
+// TODO: We need to investigate what are good values for the below constants.
+
 // Examine only the top N hostnames serving static resources:
-const int kOptimalNumberOfHostnames = 4;
+const int kOptimalNumberOfHostnames = 2;
 // If no one host serves more than N resources, report nothing:
 const int kMinResourceThreshold = 10;
 // Don't penalize the site until their busiest host is 50% busier than the
