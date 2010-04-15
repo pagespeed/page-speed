@@ -82,6 +82,23 @@ TEST(ResourceTest, HeaderFields) {
   EXPECT_EQ(resource.GetResponseHeader("duplicate response"), "3,4");
 }
 
+TEST(ResourceTest, Cookies) {
+  Resource resource;
+  EXPECT_EQ("", resource.GetCookies());
+
+  resource.AddResponseHeader("Set-Cookie", "chocolate");
+  EXPECT_EQ("chocolate", resource.GetCookies());
+
+  // The Cookie header should take precedence over the Set-Cookie
+  // header.
+  resource.AddRequestHeader("Cookie", "oatmeal");
+  EXPECT_EQ("oatmeal", resource.GetCookies());
+
+  // SetCookies should take precedence over the Cookie header.
+  resource.SetCookies("foo");
+  EXPECT_EQ("foo", resource.GetCookies());
+}
+
 void ExpectResourceType(const char *content_type,
                         int status_code,
                         pagespeed::ResourceType type) {

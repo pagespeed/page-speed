@@ -73,7 +73,7 @@ bool MinimizeRequestSize::AppendResults(const PagespeedInput& input,
           details_container->MutableExtension(
               pagespeed::RequestDetails::message_set_extension);
       details->set_url_length(resource.GetRequestUrl().size());
-      details->set_cookie_length(resource.GetRequestHeader("cookie").size());
+      details->set_cookie_length(resource.GetCookies().size());
       details->set_referer_length(resource.GetRequestHeader("referer").size());
     }
   }
