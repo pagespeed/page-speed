@@ -1,7 +1,7 @@
 /*
  * pngx.h - libpng extensions.
  *
- * Copyright (C) 2001-2008 Cosmin Truta.
+ * Copyright (C) 2001-2010 Cosmin Truta.
  * This software is distributed under the same licensing and warranty terms
  * as libpng.
  *
@@ -33,12 +33,12 @@ extern "C" {
 
 
 /* Store data into the info structure. */
-extern PNG_EXPORT(void, pngx_set_compression_method)
-   PNGARG((png_structp png_ptr, png_infop info_ptr, int compression_method));
-extern PNG_EXPORT(void, pngx_set_filter_method)
-   PNGARG((png_structp png_ptr, png_infop info_ptr, int filter_method));
-extern PNG_EXPORT(void, pngx_set_interlace_method)
-   PNGARG((png_structp png_ptr, png_infop info_ptr, int interlace_method));
+extern PNG_EXPORT(void, pngx_set_compression_type)
+   PNGARG((png_structp png_ptr, png_infop info_ptr, int compression_type));
+extern PNG_EXPORT(void, pngx_set_filter_type)
+   PNGARG((png_structp png_ptr, png_infop info_ptr, int filter_type));
+extern PNG_EXPORT(void, pngx_set_interlace_type)
+   PNGARG((png_structp png_ptr, png_infop info_ptr, int interlace_type));
 
 
 #if PNG_LIBPNG_VER >= 10400

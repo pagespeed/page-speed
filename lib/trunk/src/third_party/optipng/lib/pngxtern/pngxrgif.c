@@ -1,6 +1,6 @@
 /*
  * pngxrgif.c - libpng external I/O: GIF reader.
- * Copyright (C) 2001-2009 Cosmin Truta.
+ * Copyright (C) 2001-2010 Cosmin Truta.
  */
 
 #define PNGX_INTERNAL
@@ -28,12 +28,11 @@ pngx_gif_warning(const char *msg)
 
 
 int /* PRIVATE */
-pngx_sig_is_gif(const png_bytep sig, png_size_t sig_size,
-                png_charp fmt_name_buf, png_size_t fmt_name_buf_size,
-                png_charp fmt_desc_buf, png_size_t fmt_desc_buf_size)
+pngx_sig_is_gif(png_bytep sig, size_t sig_size,
+                png_const_charpp fmt_name, png_const_charpp fmt_description)
 {
    static const char gif_fmt_name[] = "GIF";
-   static const char gif_fmt_desc[] = "Graphics Interchange Format";
+   static const char gif_fmt_description[] = "Graphics Interchange Format";
 
    static const png_byte sig_gif87a[6] =
       { 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 };  /* "GIF87a" */
@@ -47,16 +46,10 @@ pngx_sig_is_gif(const png_bytep sig, png_size_t sig_size,
       return 0;  /* not GIF */
 
    /* Store the format name. */
-   if (fmt_name_buf != NULL)
-   {
-      PNGX_ASSERT(fmt_name_buf_size >= sizeof(gif_fmt_name));
-      strcpy(fmt_name_buf, gif_fmt_name);
-   }
-   if (fmt_desc_buf != NULL)
-   {
-      PNGX_ASSERT(fmt_desc_buf_size >= sizeof(gif_fmt_desc));
-      strcpy(fmt_desc_buf, gif_fmt_desc);
-   }
+   if (fmt_name != NULL)
+      *fmt_name = gif_fmt_name;
+   if (fmt_description != NULL)
+      *fmt_description = gif_fmt_description;
    return 1;  /* GIF */
 }
 
@@ -163,7 +156,7 @@ pngx_read_gif(png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream)
          {
             /* Complete the PNG info. */
             if (image.InterlaceFlag)
-               pngx_set_interlace_method(png_ptr, info_ptr,
+               pngx_set_interlace_type(png_ptr, info_ptr,
                   PNG_INTERLACE_ADAM7);
             colorTable = GIFGetColorTable(&image, &numColors);
             pngx_set_GIF_palette(png_ptr, info_ptr, colorTable, numColors);
