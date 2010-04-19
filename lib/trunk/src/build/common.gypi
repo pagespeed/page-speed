@@ -426,10 +426,11 @@
               # used during computation does not change depending on how the
               # compiler optimized the code, since the value is always kept
               # in its specified precision.
-              '-march=pentium4',
-              '-msse2',
-              '-mfpmath=sse',
-
+              #
+              # Use i686 to make it work for old computers. And do not use
+              # -msse2 and -mfpmath=sse, since those flags require pentium4
+              # or newer CPUs
+              '-march=i686',
               '-m32',
             ],
             'ldflags': [
