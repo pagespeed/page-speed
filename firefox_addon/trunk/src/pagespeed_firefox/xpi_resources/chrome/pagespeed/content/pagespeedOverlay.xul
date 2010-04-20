@@ -34,10 +34,6 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/cacheControlLint.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/staticNoCookieLint.js"/>
-  <script type="application/x-javascript"
-          src="chrome://pagespeed/content/parallelizeDownloadLint.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/cssEfficiencyChecker.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/jsCoverageLint.js"/>
