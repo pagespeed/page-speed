@@ -6,8 +6,8 @@ http://code.google.com/speed/page-speed/download.html
 
 Currently Windows-only
 
-  * `har_to_pagespeed`: Run Page Speed on a HAR file. [http://page-speed.googlecode.com/files/har_to_pagespeed.exe Windows]
-  * `pagespeed_optimize_image`: Page Speed image optimizer for PNG, GIF, and JPG (converts GIF to PNG). [http://page-speed.googlecode.com/files/pagespeed_optimize_image.exe Windows]
+  * `har_to_pagespeed`: Run Page Speed on a HAR file. Download for [http://page-speed.googlecode.com/files/har_to_pagespeed.exe Windows]
+  * `pagespeed_optimize_image`: Page Speed image optimizer for PNG, GIF, and JPG (converts GIF to PNG). Download for [http://page-speed.googlecode.com/files/pagespeed_optimize_image.exe Windows]
 
 ===Page Speed SDK===
 
