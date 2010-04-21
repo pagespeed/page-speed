@@ -2,6 +2,12 @@ To download and install Page Speed, please visit our download page:
 
 http://code.google.com/speed/page-speed/download.html
 
+===Page Speed Command-Line Utilities===
+
+*Windows*
+
+  * Run Page Speed on a HAR file: [[http://page-speed.googlecode.com/files/har_to_pagespeed.exe har_to_pagespeed]]
+
 ===Page Speed SDK===
 
 _NEW!_ Download the Page Speed SDK for Windows and Linux: [http://page-speed.googlecode.com/files/page-speed-1.7.zip page-speed-1.7.zip]
