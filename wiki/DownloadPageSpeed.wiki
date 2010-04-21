@@ -1,4 +1,6 @@
-To download and install Page Speed, please visit http://code.google.com/speed/page-speed/download.html
+To download and install Page Speed, please visit our download page:
+
+http://code.google.com/speed/page-speed/download.html
 
 ===Page Speed SDK===
 
