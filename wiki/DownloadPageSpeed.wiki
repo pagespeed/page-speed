@@ -4,8 +4,8 @@ http://code.google.com/speed/page-speed/download.html
 
 ===Page Speed Command-Line Utilities===
 
-  * Run Page Speed on a HAR file: [http://page-speed.googlecode.com/files/har_to_pagespeed.exe Windows] Linux
-  * Page Speed image optimizer for PNG, GIF, and JPG (converts GIF to PNG): [http://page-speed.googlecode.com/files/pagespeed_optimize_image.exe Windows] Linux
+  * Run Page Speed on a HAR file: [http://page-speed.googlecode.com/files/har_to_pagespeed.exe Windows]
+  * Page Speed image optimizer for PNG, GIF, and JPG (converts GIF to PNG): [http://page-speed.googlecode.com/files/pagespeed_optimize_image.exe Windows]
 
 ===Page Speed SDK===
 
