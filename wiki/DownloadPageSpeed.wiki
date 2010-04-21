@@ -6,7 +6,7 @@ http://code.google.com/speed/page-speed/download.html
 
 *Windows*
 
-  * Run Page Speed on a HAR file: [[http://page-speed.googlecode.com/files/har_to_pagespeed.exe har_to_pagespeed]]
+  * Run Page Speed on a HAR file: [http://page-speed.googlecode.com/files/har_to_pagespeed.exe har_to_pagespeed]
 
 ===Page Speed SDK===
 
