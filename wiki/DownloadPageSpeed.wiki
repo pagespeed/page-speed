@@ -17,6 +17,8 @@ Also see EmbeddingPageSpeed.
 
 *Linux*
 
+You will need the `libjpeg`, `libpng`, and `zlib` dev packages installed on your system.
+
 {{{
 unzip page-speed-1.7.zip
 cd page-speed-1.7
