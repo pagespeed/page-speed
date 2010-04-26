@@ -17,7 +17,11 @@ Also see EmbeddingPageSpeed.
 
 *Linux*
 
-You will need the `g++` package, and the `libjpeg`, `libpng`, and `zlib` dev packages installed on your system.
+You will need the `g++` package, and the `libjpeg`, `libpng`, and `zlib` dev packages installed on your system. For instance, on Ubuntu, you can run:
+
+{{{
+sudo apt-get install g++ zlib1g-dev libpng12-dev libjpeg62-dev
+}}}
 
 {{{
 unzip page-speed-1.7.zip
