@@ -6,22 +6,23 @@
 #include <assert.h>
 #include "net/instaweb/util/public/file_system.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
+#include "net/instaweb/util/public/string_writer.h"
 
 namespace net_instaweb {
 
 FilenameOutputResource::FilenameOutputResource(const std::string& url,
                                                const std::string& filename,
+                                               const bool write_http_headers,
                                                FileSystem* file_system)
   : url_(url),
     filename_(filename),
+    write_http_headers_(write_http_headers),
     file_system_(file_system),
     output_file_(NULL),
-    metadata_(new SimpleMetaData),
     writing_complete_(false) {
 }
 
 FilenameOutputResource::~FilenameOutputResource() {
-  delete metadata_;
 }
 
 bool FilenameOutputResource::StartWrite(MessageHandler* handler) {
@@ -32,7 +33,14 @@ bool FilenameOutputResource::StartWrite(MessageHandler* handler) {
   // we won't leave a half-baked file in the serving path.
   std::string temp_prefix = TempPrefix();
   output_file_ = file_system_->OpenTempFile(temp_prefix.c_str(), handler);
-  return (output_file_ != NULL);
+  bool success = (output_file_ != NULL);
+  if (write_http_headers_ && success) {
+    std::string header;
+    StringWriter writer(&header);
+    metadata_.Write(&writer, handler);  // Serialize header.
+    success &= WriteChunk(header.data(), header.size(), handler);
+  }
+  return success;
 }
 
 std::string FilenameOutputResource::TempPrefix() const {
@@ -68,11 +76,4 @@ bool FilenameOutputResource::IsReadable() const {
   return writing_complete_;
 }
 
-const std::string& FilenameOutputResource::url() const {
-  return url_;
-}
-
-const MetaData* FilenameOutputResource::metadata() const {
-  return metadata_;
-}
-}
+}  // namespace net_instaweb

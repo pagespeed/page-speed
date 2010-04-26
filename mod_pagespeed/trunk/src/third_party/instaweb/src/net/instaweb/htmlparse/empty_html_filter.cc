@@ -48,4 +48,5 @@ void EmptyHtmlFilter::Directive(const std::string& directive) {
 
 void EmptyHtmlFilter::Flush() {
 }
-}
+
+}  // namespace net_instaweb

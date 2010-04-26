@@ -16,6 +16,13 @@ class MetaData;
 
 class InputResource {
  public:
+  enum ImageType {
+    IMAGE_UNKNOWN = 0,
+    IMAGE_JPEG,
+    IMAGE_PNG,
+    IMAGE_GIF,
+  };
+
   virtual ~InputResource();
 
   // Read complete resource, contents are stored in contents_.
@@ -25,9 +32,16 @@ class InputResource {
   virtual const std::string& url() const = 0;
   virtual bool loaded() const = 0;  // Has file been read/loaded.
   // contents are only available when loaded()
+  // ContentsValid(): Based on what was read/loaded, do the contents contain
+  // the data for the requested resource?  Implies loaded().
+  virtual bool ContentsValid() const = 0;
   virtual const std::string& contents() const = 0;
   virtual const MetaData* metadata() const = 0;
+  // Determine if contents() represent an image, and if so what type of image.
+  // By default inspects contents() itself.
+  virtual const ImageType image_type() const;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_INPUT_RESOURCE_H_

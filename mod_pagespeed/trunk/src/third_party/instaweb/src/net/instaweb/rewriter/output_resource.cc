@@ -4,6 +4,7 @@
 #include "net/instaweb/rewriter/public/output_resource.h"
 
 namespace net_instaweb {
+
 OutputResource::~OutputResource() {
 }
 
@@ -14,4 +15,5 @@ bool OutputResource::Write(const std::string& content,
   ret &= EndWrite(handler);
   return ret;
 }
-}
+
+}  // namespace net_instaweb

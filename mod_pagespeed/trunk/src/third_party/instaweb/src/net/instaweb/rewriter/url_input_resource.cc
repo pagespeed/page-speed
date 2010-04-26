@@ -16,25 +16,25 @@ UrlInputResource::UrlInputResource(const std::string& url,
 }
 
 UrlInputResource::~UrlInputResource() {
-  if (meta_data_ != NULL) {
-    delete meta_data_;
-  }
 }
 
 bool UrlInputResource::Read(MessageHandler* message_handler) {
-  if (meta_data_ != NULL) {
+  bool ret = true;
+  if (!loaded()) {
     StringWriter writer(&contents_);
 
     // TODO(jmarantz): consider request_headers.  E.g. will we ever
     // get different resources depending on user-agent?
-    const MetaData* request_headers = NULL;
-    meta_data_ = url_fetcher_->StreamingFetchUrl(url_, request_headers, &writer,
-                                                 message_handler);
+    SimpleMetaData request_headers;
+    meta_data_.reset(new SimpleMetaData);
+    ret = url_fetcher_->StreamingFetchUrl(
+        url_, request_headers, meta_data_.get(), &writer, message_handler);
   }
-  return (meta_data_ != NULL);
+  return ret;
 }
 
-const MetaData* UrlInputResource::metadata() const {
-  return meta_data_;
+bool UrlInputResource::ContentsValid() const {
+  return (loaded() && meta_data_->status_code() == HttpStatus::OK);
 }
-}
+
+}  // namespace net_instaweb

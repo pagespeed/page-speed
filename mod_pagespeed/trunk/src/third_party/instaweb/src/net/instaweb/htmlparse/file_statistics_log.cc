@@ -4,9 +4,9 @@
 #include "net/instaweb/htmlparse/public/file_statistics_log.h"
 
 #include <stdio.h>
-#include <string>
 #include "net/instaweb/util/public/file_system.h"
 #include "net/instaweb/util/public/message_handler.h"
+#include <string>
 
 namespace {
 void AppendInt(int i, std::string *buf) {
@@ -14,7 +14,7 @@ void AppendInt(int i, std::string *buf) {
   snprintf(nbuf, sizeof(nbuf), "%d", i);
   *buf += nbuf;
 }
-}
+}  // namespace
 
 namespace net_instaweb {
 
@@ -51,4 +51,5 @@ void FileStatisticsLog::LogDifference(const char *stat_name,
   buf += "\n";
   file_->Write(buf.data(), buf.length(), message_handler_);
 }
-}
+
+}  // namespace net_instaweb

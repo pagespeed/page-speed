@@ -31,6 +31,7 @@ class EmptyHtmlFilter : public HtmlFilter {
   virtual void Directive(const std::string& directive);
   virtual void Flush();
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_EMPTY_HTML_FILTER_H_

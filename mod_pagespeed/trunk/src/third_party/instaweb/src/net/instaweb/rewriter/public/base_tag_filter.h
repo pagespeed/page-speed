@@ -4,10 +4,12 @@
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_BASE_TAG_FILTER_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_BASE_TAG_FILTER_H_
 
-#include <string>
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
+#include "net/instaweb/util/public/atom.h"
+#include <string>
 
 namespace net_instaweb {
+
 // Add this filter into the HtmlParse chain to add a base
 // tag into the head section of an HTML document.
 //
@@ -31,14 +33,15 @@ class BaseTagFilter : public EmptyHtmlFilter {
   void set_base_url(const std::string& url) { base_url_ = url; }
 
  private:
-  const char* s_head_;
-  const char* s_base_;
-  const char* s_href_;
+  Atom s_head_;
+  Atom s_base_;
+  Atom s_href_;
   HtmlElement* s_head_element_;
   bool found_base_tag_;
   std::string base_url_;
   HtmlParse* html_parse_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_BASE_TAG_FILTER_H_

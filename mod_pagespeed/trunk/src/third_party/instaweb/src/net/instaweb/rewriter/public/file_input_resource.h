@@ -6,9 +6,9 @@
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_FILE_INPUT_RESOURCE_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_FILE_INPUT_RESOURCE_H_
 
-#include <string>
 #include "base/scoped_ptr.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -28,6 +28,7 @@ class FileInputResource : public InputResource {
   virtual const std::string& url() const { return url_; }
   virtual bool loaded() const { return meta_data_ != NULL; }
   // contents are only available when loaded()
+  virtual bool ContentsValid() const { return loaded(); }
   virtual const std::string& contents() const { return contents_; }
   virtual const MetaData* metadata() const;
 
@@ -38,6 +39,7 @@ class FileInputResource : public InputResource {
   FileSystem* file_system_;
   scoped_ptr<MetaData> meta_data_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_FILE_INPUT_RESOURCE_H_

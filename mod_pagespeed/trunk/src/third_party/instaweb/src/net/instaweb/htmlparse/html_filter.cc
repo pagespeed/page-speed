@@ -10,4 +10,5 @@ HtmlFilter::HtmlFilter() {
 
 HtmlFilter::~HtmlFilter() {
 }
-}
+
+}  // namespace net_instaweb

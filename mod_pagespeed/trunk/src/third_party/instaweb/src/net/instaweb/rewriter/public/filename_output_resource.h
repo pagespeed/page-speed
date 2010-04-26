@@ -4,9 +4,10 @@
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_FILENAME_OUTPUT_RESOURCE_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_FILENAME_OUTPUT_RESOURCE_H_
 
-#include <string>
 #include "net/instaweb/rewriter/public/output_resource.h"
 #include "net/instaweb/util/public/file_system.h"
+#include "net/instaweb/util/public/simple_meta_data.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -16,6 +17,7 @@ class FilenameOutputResource : public OutputResource {
  public:
   FilenameOutputResource(const std::string& url,
                          const std::string& filename,
+                         const bool write_http_headers,
                          FileSystem* file_system);
   virtual ~FilenameOutputResource();
 
@@ -25,20 +27,24 @@ class FilenameOutputResource : public OutputResource {
                           MessageHandler* message_handler);
   virtual bool EndWrite(MessageHandler* message_handler);
 
-  virtual const std::string& url() const;
   virtual bool IsReadable() const;
-  virtual const MetaData* metadata() const;
+
+  virtual const std::string& url() const { return url_; }
+  virtual const MetaData* metadata() const { return &metadata_; }
+  virtual MetaData* metadata() { return &metadata_; }
 
  protected:
   virtual std::string TempPrefix() const;
 
   std::string url_;
   std::string filename_;
+  bool write_http_headers_;
   FileSystem* file_system_;
   FileSystem::OutputFile* output_file_;
-  MetaData* metadata_;
+  SimpleMetaData metadata_;
   bool writing_complete_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_FILENAME_OUTPUT_RESOURCE_H_

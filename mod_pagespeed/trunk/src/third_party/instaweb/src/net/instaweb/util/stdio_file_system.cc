@@ -8,12 +8,13 @@
 #include <string.h>
 #include <sys/errno.h>
 #include <sys/stat.h>
-#include <string>
 #include "net/instaweb/util/public/message_handler.h"
+#include <string>
 
 namespace net_instaweb {
 
 namespace {
+
 // Helper class to factor out common implementation details between Input and
 // Output files, in lieu of multiple inheritance.
 class FileHelper {
@@ -52,7 +53,8 @@ class FileHelper {
   std::string filename_;
   int line_;
 };
-}
+
+}  // namespace
 
 class StdioInputFile : public FileSystem::InputFile {
  public:
@@ -200,4 +202,5 @@ bool StdioFileSystem::RenameFile(const char* old_file, const char* new_file,
   }
   return ret;
 }
-}
+
+}  // namespace net_instaweb

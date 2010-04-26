@@ -2,14 +2,16 @@
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #include "net/instaweb/util/public/file_system.h"
-
-namespace {
-// Size of stack buffer for read-blocks.  This can't be too big or it will blow
-// the stack, which may be set small in multi-threaded environments.
-const int kBufferSize = 10000;
-}
+#include "net/instaweb/util/stack_buffer.h"
 
 namespace net_instaweb {
+
+void StandardizePath(std::string* dir) {
+  if (dir->length() == 0 || dir->at(dir->length() - 1) != '/') {
+    dir->append("/");
+  }
+}
+
 
 FileSystem::~FileSystem() {
 }
@@ -28,7 +30,7 @@ bool FileSystem::ReadFile(const char* filename, std::string* buffer,
   InputFile* input_file = OpenInputFile(filename, message_handler);
   bool ret = false;
   if (input_file != NULL) {
-    char buf[kBufferSize];
+    char buf[kStackBufferSize];
     int nread;
     while ((nread = input_file->Read(buf, sizeof(buf), message_handler)) > 0) {
       buffer->append(buf, nread);
@@ -57,4 +59,5 @@ bool FileSystem::Close(File* file, MessageHandler* message_handler) {
   delete file;
   return ret;
 }
-}
+
+}  // namespace net_instaweb

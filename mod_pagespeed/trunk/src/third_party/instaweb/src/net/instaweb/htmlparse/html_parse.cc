@@ -7,13 +7,13 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <string>
 #include <utility>  // for std::pair
 #include "net/instaweb/htmlparse/html_event.h"
 #include "net/instaweb/htmlparse/html_lexer.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_filter.h"
 #include "net/instaweb/util/public/message_handler.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -35,27 +35,13 @@ void HtmlParse::AddFilter(HtmlFilter* html_filter) {
   filters_.push_back(html_filter);
 }
 
-const char* HtmlParse::Intern(const std::string& new_string) {
-  std::pair<StringSet::iterator, bool> p = string_table_.insert(new_string);
-  return p.first->c_str();
-}
-
-const char* HtmlParse::Intern(const char* new_string) {
-  std::pair<StringSet::iterator, bool> p = string_table_.insert(new_string);
-  return p.first->c_str();
-}
-
-bool HtmlParse::IsInterned(const char* symbol) const {
-  return (string_table_.find(symbol) != string_table_.end());
-}
-
 HtmlEventListIterator HtmlParse::Last() {
   HtmlEventListIterator p = queue_.end();
   --p;
   return p;
 }
 
-HtmlElement* HtmlParse::NewElement(const char* tag) {
+HtmlElement* HtmlParse::NewElement(Atom tag) {
   HtmlElement* element = new HtmlElement(tag, queue_.end(), queue_.end());
   elements_.insert(element);
   element->set_sequence(sequence_++);
@@ -312,11 +298,12 @@ void HtmlParse::ClearElements() {
   elements_.clear();
 }
 
-bool HtmlParse::IsImplicitlyClosedTag(const char* tag) const {
+bool HtmlParse::IsImplicitlyClosedTag(Atom tag) const {
   return lexer_->IsImplicitlyClosedTag(tag);
 }
 
-bool HtmlParse::TagAllowsBriefTermination(const char* tag) const {
+bool HtmlParse::TagAllowsBriefTermination(Atom tag) const {
   return lexer_->TagAllowsBriefTermination(tag);
 }
-}
+
+}  // namespace net_instaweb

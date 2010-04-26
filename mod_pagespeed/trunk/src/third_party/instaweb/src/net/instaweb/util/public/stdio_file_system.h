@@ -21,6 +21,7 @@ class StdioFileSystem : public FileSystem {
   virtual bool RenameFile(const char* old_file, const char* new_file,
                           MessageHandler* message_handler);
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_STDIO_FILE_SYSTEM_H_

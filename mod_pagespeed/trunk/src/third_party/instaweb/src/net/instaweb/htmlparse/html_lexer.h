@@ -6,10 +6,10 @@
 
 #include <stdarg.h>
 #include <set>
-#include <string>
 #include <vector>
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/util/public/printf_format.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -38,10 +38,10 @@ class HtmlLexer {
   void FinishParse();
 
   // Determines whether a tag should be terminated in HTML.
-  bool IsImplicitlyClosedTag(const char* tag) const;
+  bool IsImplicitlyClosedTag(Atom tag) const;
 
   // Determines whether a tag can be terminated briefly (e.g. <tag/>)
-  bool TagAllowsBriefTermination(const char* tag) const;
+  bool TagAllowsBriefTermination(Atom tag) const;
 
   // Print element stack to stdout (for debugging).
   void DebugPrintStack();
@@ -92,7 +92,7 @@ class HtmlLexer {
   //
   // The tag name should be interned.
   // TODO(jmarantz): use type system
-  HtmlElement* PopElementMatchingTag(const char* tag);
+  HtmlElement* PopElementMatchingTag(Atom tag);
 
   HtmlElement* PopElement();
   void CloseElement(HtmlElement* element, HtmlElement::CloseStyle close_style,
@@ -153,11 +153,12 @@ class HtmlLexer {
   std::string filename_;
   std::string literal_close_;  // specific tag go close, e.g </script>
 
-  std::set<const char*> implicitly_closed_;
-  std::set<const char*> non_brief_terminated_tags_;
-  std::set<const char*> literal_tags_;
+  AtomSet implicitly_closed_;
+  AtomSet non_brief_terminated_tags_;
+  AtomSet literal_tags_;
   std::vector<HtmlElement*> element_stack_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_HTML_LEXER_H_

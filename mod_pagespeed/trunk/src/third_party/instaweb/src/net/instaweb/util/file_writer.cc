@@ -16,4 +16,5 @@ bool FileWriter::Write(
 bool FileWriter::Flush(MessageHandler* message_handler) {
   return file_->Flush(message_handler);
 }
-}
+
+}  // namespace net_instaweb

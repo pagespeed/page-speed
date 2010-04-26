@@ -25,21 +25,27 @@ class OutputResource {
                           MessageHandler* message_handler) = 0;
   virtual bool EndWrite(MessageHandler* message_handler) = 0;
 
+  bool WriteChunk(const std::string& buf, MessageHandler* message_handler) {
+    return WriteChunk(buf.data(), buf.size(), message_handler);
+  }
+
   // Interface for writing the output file from a single string.
   bool Write(const std::string& content, MessageHandler* handler);
 
   virtual const std::string& url() const = 0;
   virtual const MetaData* metadata() const = 0;
+  virtual MetaData* metadata() = 0;
 
   // In a scalable installation where the sprites must be kept in a
-  // database, we cannot serve HTML that references sprite resources
+  // database, we cannot serve HTML that references new resources
   // that have not been committed yet, and committing to a database
   // may take too long to block on the HTML rewrite.  So we will want
-  // to refactor this to check to see whether the desired sprite is
+  // to refactor this to check to see whether the desired resource is
   // already known.  For now we'll assume we can commit to serving the
-  // sprite during the HTML rewriter.
+  // resource during the HTML rewriter.
   virtual bool IsReadable() const = 0;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_OUTPUT_RESOURCE_H_

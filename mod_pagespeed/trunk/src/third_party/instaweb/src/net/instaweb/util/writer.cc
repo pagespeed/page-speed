@@ -7,4 +7,5 @@ namespace net_instaweb {
 
 Writer::~Writer() {
 }
-}
+
+}  // namespace net_instaweb

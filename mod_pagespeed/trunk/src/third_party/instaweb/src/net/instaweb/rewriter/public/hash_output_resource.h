@@ -7,8 +7,8 @@
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_HASH_OUTPUT_RESOURCE_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_HASH_OUTPUT_RESOURCE_H_
 
-#include <string>
 #include "net/instaweb/rewriter/public/filename_output_resource.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -21,6 +21,8 @@ class HashOutputResource : public FilenameOutputResource {
   HashOutputResource(const std::string& url_prefix,
                      const std::string& filename_prefix,
                      const std::string& suffix,
+                     const bool write_http_headers,
+                     const bool garble_filename,
                      FileSystem* file_system,
                      Hasher* hasher);
 
@@ -36,9 +38,12 @@ class HashOutputResource : public FilenameOutputResource {
   std::string url_prefix_;
   std::string filename_prefix_;
   std::string suffix_;
+  // Encode resource filenames like latencylab does (Ex: . -> x2E).
+  bool garble_filename_;
   std::string hash_;
   Hasher* hasher_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_HASH_OUTPUT_RESOURCE_H_

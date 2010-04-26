@@ -98,4 +98,5 @@ bool FileDriver::ParseFile(const char* infilename,
 
   return ret;
 }
-}
+
+}  // namespace net_instaweb

@@ -22,6 +22,7 @@ class Hasher {
   virtual void Add(const char* data, int size) = 0;
   virtual void ComputeHash(std::string* hash) = 0;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_HASHER_H_

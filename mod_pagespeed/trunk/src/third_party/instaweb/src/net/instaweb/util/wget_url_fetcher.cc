@@ -9,63 +9,52 @@
 #include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/writer.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
+#include "net/instaweb/util/stack_buffer.h"
 
 namespace net_instaweb {
+
 WgetUrlFetcher::~WgetUrlFetcher() {
 }
 
-MetaData* WgetUrlFetcher::StreamingFetchUrl(const std::string& url,
-                                            const MetaData* request_headers,
-                                            Writer* writer,
-                                            MessageHandler* message_handler) {
-  MetaData* meta_data = NULL;
-  std::string cmd("/usr/bin/wget --save-headers -O - ");
+bool WgetUrlFetcher::StreamingFetchUrl(const std::string& url,
+                                       const MetaData& request_headers,
+                                       MetaData* response_headers,
+                                       Writer* writer,
+                                       MessageHandler* message_handler) {
+  bool ret = false;
+  Fetch fetch(response_headers, writer, message_handler);
+  std::string cmd("/usr/bin/wget --save-headers -q -O - '");
   cmd += url;
-  FILE* f = popen(cmd.c_str(), "r");
-  if (f == NULL) {
+  cmd += "'";
+  FILE* wget_stdout = popen(cmd.c_str(), "r");
+  if (wget_stdout == NULL) {
     message_handler->Error(url.c_str(), 0, strerror(errno));
   } else {
-    meta_data = ParseWgetStream(f, writer, message_handler);
-    fclose(f);
-  }
-  return meta_data;
-}
-
-MetaData* WgetUrlFetcher::ParseWgetStream(FILE* f, Writer* writer,
-                                          MessageHandler* message_handler) {
-  SimpleMetaData* meta_data = new SimpleMetaData();
-  char buf[10000];
-  int nread;
-  bool ok = true;
-  bool reading_headers = true;
-
-  // Read the headers a line at a time out of the input stream.  In this
-  // section we will be filling header_buf from the pipe, requesting another
-  // chunk whenever we have not seen a line.
-  std::string line_buf;
-  do {
-    nread = fread(buf, 1, sizeof(buf), f);
-    if (nread > 0) {
-      int num_consumed = meta_data->ParseChunk(buf, nread, message_handler);
-      if (meta_data->headers_complete()) {
-        // In this chunk we may have picked up some of the body.
-        // Before we move to the next buffer, send it to the output
-        // stream.
-        ok = writer->Write(buf + num_consumed, nread - num_consumed,
-                           message_handler);
-        reading_headers = false;
-      }
+    ret = true;
+    char buf[kStackBufferSize];
+    int nread;
+    while (((nread = fread(buf, 1, sizeof(buf), wget_stdout)) > 0) && ret) {
+      ret = fetch.ParseChunk(buf, nread);
     }
-  } while (reading_headers && (nread > 0));
+    fclose(wget_stdout);
+  }
+  return ret;
+}
 
-  while (ok && ((nread = fread(buf, 1, sizeof(buf), f)) > 0)) {
-    ok = writer->Write(buf, nread, message_handler);
+bool WgetUrlFetcher::Fetch::ParseChunk(const char* data, int size) {
+  if (reading_headers_) {
+    int consumed = response_headers_->ParseChunk(data, size, message_handler_);
+    if (response_headers_->headers_complete()) {
+      // In this chunk we may have picked up some of the body.
+      // Before we move to the next buffer, send it to the output
+      // stream.
+      ok_ = writer_->Write(data + consumed, size - consumed, message_handler_);
+      reading_headers_ = false;
+    }
+  } else {
+    ok_ = writer_->Write(data, size, message_handler_);
   }
-  fclose(f);
-  if (!ok) {
-    delete meta_data;
-    meta_data = NULL;
-  }
-  return meta_data;
+  return ok_;
 }
-}
+
+}  // namespace net_instaweb

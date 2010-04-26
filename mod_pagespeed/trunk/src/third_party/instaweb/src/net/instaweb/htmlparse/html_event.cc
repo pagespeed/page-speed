@@ -7,4 +7,5 @@ namespace net_instaweb {
 
 HtmlEvent::~HtmlEvent() {
 }
-}
+
+}  // namespace net_instaweb

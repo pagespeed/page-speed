@@ -1,0 +1,24 @@
+// Copyright 2010 Google Inc. All Rights Reserved.
+// Author: jmarantz@google.com (Joshua Marantz)
+
+// Protobufs to help with http caching
+
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+package net_instaweb;
+
+message CacheHeader {
+  required string name = 1;
+  required string value = 2;
+};
+
+message CachedResponse {
+  optional int32 status_code = 1;
+  optional string reason_phrase = 2;
+  optional int32 minor_version = 3;
+  optional int32 major_version = 4;
+  repeated CacheHeader header = 5;
+  optional string content = 6 [default = ""];
+};

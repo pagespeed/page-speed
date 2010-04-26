@@ -8,6 +8,7 @@
 #include "net/instaweb/htmlparse/public/html_element.h"
 
 namespace net_instaweb {
+
 AddHeadFilter::AddHeadFilter(HtmlParse* html_parse)
     : html_parse_(html_parse) {
   found_head_ = false;
@@ -40,4 +41,5 @@ void AddHeadFilter::EndDocument() {
     html_parse_->ErrorHere("Reached end of document without finding <body>");
   }
 }
-}
+
+}  // namespace net_instaweb

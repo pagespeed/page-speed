@@ -5,32 +5,25 @@
 #define NET_INSTAWEB_UTIL_PUBLIC_FILE_MESSAGE_HANDLER_H_
 
 #include <stdio.h>
-#include <string>
 #include "net/instaweb/util/public/message_handler.h"
 
 namespace net_instaweb {
 
-// Message handler implementation for directing all parser error and
+// Message handler implementation for directing all error and
 // warning messages to a file.
 class FileMessageHandler : public MessageHandler {
  public:
   explicit FileMessageHandler(FILE* file);
-  virtual void InfoV(
-      const char* filename, int line, const char *msg, va_list args);
-  virtual void WarningV(
-      const char* filename, int line, const char *msg, va_list args);
-  virtual void ErrorV(
-      const char* filename, int line, const char *msg, va_list args);
-  virtual void FatalErrorV(
-      const char* filename, int line, const char* msg, va_list args);
+
+  virtual void MessageV(MessageType type, const char* msg, va_list args);
+
+  virtual void FileMessageV(MessageType type, const char* filename, int line,
+                    const char* msg, va_list args);
 
  private:
-  void FileMessageV(
-      const char* kind,
-      const char* filename, int line, const char *msg, va_list args);
-
   FILE* file_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_FILE_MESSAGE_HANDLER_H_

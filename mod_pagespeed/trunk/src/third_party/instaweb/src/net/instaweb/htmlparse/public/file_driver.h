@@ -4,12 +4,12 @@
 #ifndef NET_INSTAWEB_HTMLPARSE_PUBLIC_FILE_DRIVER_H_
 #define NET_INSTAWEB_HTMLPARSE_PUBLIC_FILE_DRIVER_H_
 
-#include <string>
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/logging_html_filter.h"
 #include "net/instaweb/htmlparse/public/statistics_log.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -50,6 +50,7 @@ class FileDriver {
   bool filters_added_;
   FileSystem* file_system_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_FILE_DRIVER_H_

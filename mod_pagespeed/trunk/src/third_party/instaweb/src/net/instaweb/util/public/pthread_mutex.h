@@ -19,6 +19,7 @@ class PthreadMutex : public AbstractMutex {
  private:
   pthread_mutex_t mutex_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_PTHREAD_MUTEX_H_

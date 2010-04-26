@@ -20,6 +20,7 @@
 #include "net/instaweb/util/public/message_handler.h"
 
 using net_instaweb::MessageHandler;
+using net_instaweb::MessageType;
 
 namespace html_rewriter {
 
@@ -27,6 +28,9 @@ namespace html_rewriter {
 // Apache log.
 class HtmlParserMessageHandler : public MessageHandler {
  public:
+  virtual void MessageV(MessageType type, const char* msg, va_list args);
+  virtual void FileMessageV(MessageType type, const char* filename, int line,
+                            const char* msg, va_list args);
   virtual void InfoV(
       const char* filename, int line, const char *msg, va_list args);
   virtual void WarningV(

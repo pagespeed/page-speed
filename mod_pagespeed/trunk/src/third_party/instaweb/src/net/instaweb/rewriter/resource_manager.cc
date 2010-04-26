@@ -4,6 +4,8 @@
 #include "net/instaweb/rewriter/public/resource_manager.h"
 
 namespace net_instaweb {
+
 ResourceManager::~ResourceManager() {
 }
-}
+
+}  // namespace net_instaweb

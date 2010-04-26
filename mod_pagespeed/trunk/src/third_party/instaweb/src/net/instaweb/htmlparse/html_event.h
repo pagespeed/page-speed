@@ -5,15 +5,15 @@
 #define NET_INSTAWEB_HTMLPARSE_HTML_EVENT_H_
 
 #include <list>
-#include <string>
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_filter.h"
+#include <string>
 
 namespace net_instaweb {
 
 class HtmlEvent {
  public:
-  HtmlEvent(int line_number) : line_number_(line_number) {
+  explicit HtmlEvent(int line_number) : line_number_(line_number) {
   }
   virtual ~HtmlEvent();
   virtual void Run(HtmlFilter* filter) = 0;
@@ -28,7 +28,7 @@ class HtmlEvent {
 
 class HtmlStartDocumentEvent: public HtmlEvent {
  public:
-  HtmlStartDocumentEvent(int line_number) : HtmlEvent(line_number) {}
+  explicit HtmlStartDocumentEvent(int line_number) : HtmlEvent(line_number) {}
   void Run(HtmlFilter* filter) { filter->StartDocument(); }
   void ToString(std::string* str) { *str += "StartDocument"; }
 };
@@ -49,7 +49,7 @@ class HtmlStartElementEvent: public HtmlEvent {
   void Run(HtmlFilter* filter) { filter->StartElement(element_); }
   void ToString(std::string* str) {
     *str += "StartElement ";
-    *str += element_->tag();
+    *str += element_->tag().c_str();
   }
   virtual HtmlElement* GetStartElement() { return element_; }
  private:
@@ -65,7 +65,7 @@ class HtmlEndElementEvent: public HtmlEvent {
   void Run(HtmlFilter* filter) { filter->EndElement(element_); }
   void ToString(std::string* str) {
     *str += "EndElement ";
-    *str += element_->tag();
+    *str += element_->tag().c_str();
   }
   virtual HtmlElement* GetEndElement() { return element_; }
  private:
@@ -172,6 +172,7 @@ class HtmlDirectiveEvent: public HtmlEvent {
  private:
   std::string value_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_HTML_EVENT_H_

@@ -19,6 +19,7 @@ class FileWriter : public Writer {
  private:
   FileSystem::OutputFile* file_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_FILE_WRITER_H_

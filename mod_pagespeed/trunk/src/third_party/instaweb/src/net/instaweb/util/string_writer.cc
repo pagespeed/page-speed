@@ -17,4 +17,5 @@ bool StringWriter::Write(
 bool StringWriter::Flush(MessageHandler* message_handler) {
   return true;
 }
-}
+
+}  // namespace net_instaweb

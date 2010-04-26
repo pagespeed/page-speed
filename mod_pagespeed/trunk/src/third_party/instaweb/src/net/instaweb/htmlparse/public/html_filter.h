@@ -57,6 +57,7 @@ class HtmlFilter {
   // Flush() is called after all other handlers during a HttpParse::Flush().
   virtual void Flush() = 0;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_FILTER_H_

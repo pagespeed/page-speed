@@ -138,4 +138,5 @@ void LoggingFilter::Reset() {
     stats_[statistic] = 0;
   }
 }
-}
+
+}  // namespace net_instaweb
