@@ -4,11 +4,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "base/scoped_ptr.h"
 #include "net/instaweb/htmlparse/public/file_driver.h"
 #include "net/instaweb/rewriter/public/resource_manager.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
+#include "net/instaweb/util/public/cache_url_fetcher.h"
+#include "net/instaweb/util/public/fake_url_async_fetcher.h"
 #include "net/instaweb/util/public/file_message_handler.h"
+#include "net/instaweb/util/public/http_cache.h"
+#include "net/instaweb/util/public/lru_cache.h"
 #include "net/instaweb/util/public/stdio_file_system.h"
+#include "net/instaweb/util/public/timer.h"
 #include "net/instaweb/util/public/wget_url_fetcher.h"
 
 int main(int argc, char** argv) {
@@ -18,13 +24,14 @@ int main(int argc, char** argv) {
   net_instaweb::FileMessageHandler message_handler(stderr);
   net_instaweb::FileDriver file_driver(&message_handler, &file_system);
   net_instaweb::HtmlParse* html_parse = file_driver.html_parse();
+  net_instaweb::LRUCache lru_cache(100 * 1000 * 1000);
+  scoped_ptr<net_instaweb::Timer> timer(net_instaweb::Timer::NewSystemTimer());
+  net_instaweb::HTTPCache http_cache(&lru_cache, timer.get());
+  net_instaweb::CacheUrlFetcher cache_url_fetcher(&http_cache, &url_fetcher);
+  net_instaweb::FakeUrlAsyncFetcher url_async_fetcher(&cache_url_fetcher);
   net_instaweb::RewriteDriver rewrite_driver(html_parse, &file_system,
-                                             &url_fetcher);
-
-  if ((argc > (start + 1)) && (strcmp(argv[start], "-base") == 0)) {
-    rewrite_driver.SetBaseUrl(argv[start + 1]);
-    start += 2;
-  }
+                                             &cache_url_fetcher,
+                                             &url_async_fetcher);
 
   if ((argc > (start + 4)) &&
       (strcmp(argv[start], "-resource_patterns") == 0)) {
@@ -38,13 +45,15 @@ int main(int argc, char** argv) {
               num_shards);
       return 1;
     }
-    rewrite_driver.SetFilenameResources(file_prefix, serving_prefix,
-                                        num_shards);
+    bool write_headers = false;
+    bool garble_filenames = false;
+    rewrite_driver.SetFilenameResources(file_prefix, serving_prefix, num_shards,
+                                        write_headers, garble_filenames);
     start += 4;
   }
 
-  if ((argc > (start + 1)) && (strcmp(argv[start], "-sprite_css") == 0)) {
-    rewrite_driver.SpriteCssFiles();
+  if ((argc > (start + 1)) && (strcmp(argv[start], "-combine_css") == 0)) {
+    rewrite_driver.CombineCssFiles();
     start += 1;
   }
 
@@ -91,7 +100,17 @@ int main(int argc, char** argv) {
         std::string base_dir;
         int num_chars_before_slash = last_slash - infile;
         base_dir.append(infile, num_chars_before_slash);
-        rewrite_driver.resource_manager()->set_base_dir(base_dir);
+        std::string file_url("file:/");
+        if (infile[0] != '/') {
+          file_url += getenv("PWD");
+          file_url += '/';
+        }
+        char* last_slash = strrchr(infile, '/');
+        if (last_slash != NULL) {
+          int base_len = last_slash - infile + 1;
+          file_url.append(infile, base_len);
+        }
+        rewrite_driver.SetBaseUrl(file_url.c_str());
       }
     }
 

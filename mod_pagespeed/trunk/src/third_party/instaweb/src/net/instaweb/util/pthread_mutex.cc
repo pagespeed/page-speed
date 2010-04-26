@@ -20,4 +20,5 @@ void PthreadMutex::Lock() {
 void PthreadMutex::Unlock() {
   pthread_mutex_unlock(&mutex_);
 }
-}
+
+}  // namespace net_instaweb

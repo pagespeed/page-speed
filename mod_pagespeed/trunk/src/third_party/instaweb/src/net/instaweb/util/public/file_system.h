@@ -80,6 +80,10 @@ class FileSystem {
   virtual bool RenameFile(const char* old_filename, const char* new_filename,
                           MessageHandler* handler) = 0;
 };
-}
+
+// Make sure directory's path ends in '/'
+void StandardizePath(std::string* directory);
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_FILE_SYSTEM_H_

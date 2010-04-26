@@ -4,6 +4,7 @@
 #include "net/instaweb/util/public/hasher.h"
 
 namespace net_instaweb {
+
 Hasher::~Hasher() {
 }
 
@@ -14,4 +15,5 @@ std::string Hasher::Hash(const std::string& content) {
   ComputeHash(&hash);
   return hash;
 }
-}
+
+}  // namespace net_instaweb

@@ -1,23 +1,21 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
-//
-// Meta-data associated with a rewriting resource.  This is
-// primarily a key-value store, but additionally we want to
 
 #ifndef NET_INSTAWEB_UTIL_PUBLIC_SIMPLE_META_DATA_H_
 #define NET_INSTAWEB_UTIL_PUBLIC_SIMPLE_META_DATA_H_
 
+#include <stdlib.h>
 #include <map>
-#include <string>
 #include <vector>
 #include "net/instaweb/util/public/meta_data.h"
+#include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
 // Very basic implementation of HTTP headers.
 //
 // TODO(jmarantz): implement caching rules properly.
-// TODO(jmarantz): implement case insensitivity.
 class SimpleMetaData : public MetaData {
  public:
   SimpleMetaData();
@@ -27,20 +25,16 @@ class SimpleMetaData : public MetaData {
   virtual int NumAttributes() const;
   virtual const char* Name(int index) const;
   virtual const char* Value(int index) const;
-
-  // Get the attribute values associated with this name.  Returns
-  // false if the attribute is not found.  If it was found, then
-  // the values vector is filled in.
   virtual bool Lookup(const char* name, StringVector* values) const;
 
-  // Specific information about cache.  This is all embodied in the
-  // headers but is centrally parsed so we can try to get it right.
+  // Compute caching information.  The current time is used to compute
+  // the absolute time when a cache resource will expire.  The timestamp
+  // is in milliseconds since 1970.  It is an error to call any of the
+  // accessors before ComputeCaching is called.
+  virtual void ComputeCaching();
   virtual bool IsCacheable() const;
   virtual bool IsProxyCacheable() const;
-
-  // Returns the seconds-since-1970 absolute time when this resource
-  // should be expired out of caches.
-  virtual int64 CacheExpirationTime() const;
+  virtual int64 CacheExpirationTimeMs() const;
 
   // Serialize meta-data to a stream.
   virtual bool Write(Writer* writer, MessageHandler* message_handler) const;
@@ -53,14 +47,34 @@ class SimpleMetaData : public MetaData {
                          MessageHandler* handler);
 
   virtual bool headers_complete() const { return headers_complete_; }
+
+  virtual int major_version() const { return major_version_; }
+  virtual int minor_version() const { return minor_version_; }
   virtual int status_code() const { return status_code_; }
   virtual const char* reason_phrase() const {
     return reason_phrase_.c_str();
   }
-  virtual int major_version() const { return major_version_; }
-  virtual int minor_version() const { return minor_version_; }
+  virtual int64 timestamp_ms() const { return timestamp_ms_; }
+  virtual bool has_timestamp_ms() const;
+
+  virtual void set_major_version(const int major_version) {
+    major_version_ = major_version;
+  }
+  virtual void set_minor_version(const int minor_version) {
+    minor_version_ = minor_version;
+  }
+  virtual void set_status_code(const int code) { status_code_ = code; }
+  virtual void set_reason_phrase(const std::string& reason_phrase) {
+    reason_phrase_ = reason_phrase;
+  }
 
  private:
+  struct CompareInsensitive {
+    bool operator()(const std::string& s1, const std::string& s2) const {
+      return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+    }
+  };
+
   bool GrabLastToken(const std::string& input, std::string* output);
 
   // We are keeping two structures, conseptually map<String,vector<String>> and
@@ -72,19 +86,29 @@ class SimpleMetaData : public MetaData {
   // value as an explicitly newed char*.  The risk of using a std::string
   // to hold the value is that the pointers will not survive a resize.
   typedef std::pair<const char*, char*> StringPair;  // owns the value
-  typedef std::map<std::string, StringVector> AttributeMap;  // owns the key
+  typedef std::map<std::string, StringVector,
+                   StringCompareInsensitive> AttributeMap;
+
   AttributeMap attribute_map_;
   std::vector<StringPair> attribute_vector_;
+
   bool parsing_http_;
   bool parsing_value_;
   bool headers_complete_;
+  bool cache_fields_dirty_;
+  bool is_cacheable_;         // accurate only if !cache_fields_dirty_
+  bool is_proxy_cacheable_;   // accurate only if !cache_fields_dirty_
+  int64 expiration_time_ms_;  // accurate only if !cache_fields_dirty_
+  int64 timestamp_ms_;        // accurate only if !cache_fields_dirty_
   std::string parse_name_;
   std::string parse_value_;
+
   int major_version_;
   int minor_version_;
   int status_code_;
   std::string reason_phrase_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_SIMPLE_META_DATA_H_

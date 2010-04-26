@@ -7,4 +7,5 @@ namespace net_instaweb {
 
 AbstractMutex::~AbstractMutex() {
 }
-}
+
+}  // namespace net_instaweb

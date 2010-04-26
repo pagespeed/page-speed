@@ -6,8 +6,9 @@
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_URL_INPUT_RESOURCE_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_URL_INPUT_RESOURCE_H_
 
-#include <string>
+#include "base/scoped_ptr.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -25,17 +26,19 @@ class UrlInputResource : public InputResource {
   virtual bool Read(MessageHandler* message_handler);
 
   virtual const std::string& url() const { return url_; }
-  virtual bool loaded() const { return meta_data_ != NULL; }
+  virtual bool loaded() const { return meta_data_.get() != NULL; }
   // contents are only available when loaded()
+  virtual bool ContentsValid() const;
   virtual const std::string& contents() const { return contents_; }
-  virtual const MetaData* metadata() const;
+  virtual const MetaData* metadata() const { return meta_data_.get(); }
 
  private:
   std::string url_;
   std::string contents_;
-  MetaData* meta_data_;
+  scoped_ptr<MetaData> meta_data_;
   UrlFetcher* url_fetcher_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_URL_INPUT_RESOURCE_H_

@@ -4,11 +4,17 @@
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_IMG_REWRITE_FILTER_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_IMG_REWRITE_FILTER_H_
 
+#include "net/instaweb/rewriter/public/rewrite_filter.h"
+#include "net/instaweb/rewriter/public/input_resource.h"
+#include "net/instaweb/util/public/atom.h"
 #include <string>
-#include "net/instaweb/htmlparse/public/empty_html_filter.h"
+#include "pagespeed/image_compression/png_optimizer.h"
 
 namespace net_instaweb {
+
+class ContentType;
 class HtmlParse;
+class ImgFilter;
 class ResourceManager;
 
 // Identify img tags in html.  For the moment, just log them.
@@ -18,17 +24,39 @@ class ResourceManager;
 // TODO(jmaessen): Run image optimization on alternate resources where useful.
 // TODO(jmaessen): Big open question: how best to link pulled-in resources to
 //     rewritten urls, when in general those urls will be in a different domain.
-class ImgRewriteFilter : public EmptyHtmlFilter {
+class ImgRewriteFilter : public RewriteFilter {
  public:
-  ImgRewriteFilter(HtmlParse* html_parse, ResourceManager* resource_manager);
+  ImgRewriteFilter(StringPiece path_prefix,
+                   HtmlParse* html_parse,
+                   ResourceManager* resource_manager,
+                   bool unquote_sizes);
   virtual void EndElement(HtmlElement* element);
   virtual void Flush();
+  virtual bool Fetch(StringPiece resource, Writer* writer,
+                     const MetaData& request_header,
+                     MetaData* response_headers,
+                     UrlAsyncFetcher* fetcher,
+                     MessageHandler* message_handler,
+                     UrlAsyncFetcher::Callback* callback);
 
  private:
-  const char* s_img_;
+  // These are just helper methods.
+  void WriteBytesWithExtension(const ContentType& content_type,
+                               const std::string& contents,
+                               HtmlElement* element);
+  void OptimizePng(pagespeed::image_compression::PngReaderInterface* reader,
+                   HtmlElement* element, InputResource* img_resource);
+  void OptimizeJpeg(HtmlElement* element, InputResource* img_resource);
+  void OptimizeImgResource(HtmlElement* element, InputResource* img_resource);
+
   HtmlParse* html_parse_;
+  ImgFilter* img_filter_;
   ResourceManager* resource_manager_;
+  bool unquote_sizes_;
+  const Atom s_width_;
+  const Atom s_height_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_REWRITER_PUBLIC_IMG_REWRITE_FILTER_H_

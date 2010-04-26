@@ -4,6 +4,8 @@
 #include "net/instaweb/htmlparse/public/statistics_log.h"
 
 namespace net_instaweb {
+
 StatisticsLog::~StatisticsLog() {
 }
-}
+
+}  // namespace net_instaweb

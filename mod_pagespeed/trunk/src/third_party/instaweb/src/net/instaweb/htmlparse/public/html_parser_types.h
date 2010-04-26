@@ -22,6 +22,7 @@ class Writer;
 
 typedef std::list<HtmlEvent*> HtmlEventList;
 typedef HtmlEventList::iterator HtmlEventListIterator;
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_PARSER_TYPES_H_

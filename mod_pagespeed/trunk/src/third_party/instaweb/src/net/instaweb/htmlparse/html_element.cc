@@ -3,11 +3,11 @@
 
 #include "public/html_element.h"
 #include <stdio.h>
-#include "net/instaweb/util/public/string_util.h"
+#include <string>
 
 namespace net_instaweb {
 
-HtmlElement::HtmlElement(const char* tag,
+HtmlElement::HtmlElement(Atom tag,
     const HtmlEventListIterator& begin, const HtmlEventListIterator& end)
     : sequence_(-1),
       tag_(tag),
@@ -19,31 +19,44 @@ HtmlElement::HtmlElement(const char* tag,
 }
 
 HtmlElement::~HtmlElement() {
+  for (int i = 0, n = attribute_size(); i < n; ++i) {
+    delete attributes_[i];
+  }
 }
 
-void HtmlElement::AddAttribute(const Attribute& attribute) {
-  attributes_.push_back(attribute);
+const HtmlElement::Attribute* HtmlElement::FirstAttributeWithName(
+    const Atom name) const {
+  for (int i = 0; i < attribute_size(); ++i) {
+    const Attribute* attribute = attributes_[i];
+    if (attribute->name() == name) {
+      return attribute;
+    }
+  }
+  return NULL;
 }
 
 void HtmlElement::ToString(std::string* buf) const {
   *buf += "<";
-  *buf += tag_;
-  for (size_t i = 0; i < attributes_.size(); ++i) {
-    const Attribute& attribute = attributes_[i];
+  *buf += tag_.c_str();
+  for (int i = 0; i < attribute_size(); ++i) {
+    const Attribute& attribute = *attributes_[i];
     *buf += ' ';
-    *buf += attribute.name_;
-    if (attribute.value_ != NULL) {
+    *buf += attribute.name().c_str();
+    if (attribute.value() != NULL) {
       *buf += "=";
-      const char* quote = (attribute.quote_ != NULL) ? attribute.quote_ : "?";
+      const char* quote = (attribute.quote() != NULL) ? attribute.quote() : "?";
       *buf += quote;
-      *buf += attribute.value_;
+      *buf += attribute.value();
       *buf += quote;
     }
   }
   switch (close_style_) {
     case AUTO_CLOSE:       *buf += "> (not yet closed)"; break;
     case IMPLICIT_CLOSE:   *buf += ">";  break;
-    case EXPLICIT_CLOSE:   *buf += "></"; *buf += tag_; *buf += ">"; break;
+    case EXPLICIT_CLOSE:   *buf += "></";
+                           *buf += tag_.c_str();
+                           *buf += ">";
+                           break;
     case BRIEF_CLOSE:      *buf += "/>"; break;
     case UNCLOSED:         *buf += "> (unclosed)"; break;
   }
@@ -64,4 +77,16 @@ void HtmlElement::DebugPrint() const {
   ToString(&buf);
   fprintf(stdout, "%s\n", buf.c_str());
 }
+
+
+bool HtmlElement::ReplaceAttribute(Atom name, const char* value) {
+  bool ret = false;
+  Attribute* attribute = FirstAttributeWithName(name);
+  if (attribute != NULL) {
+    attribute->set_value(value);
+    ret = true;
+  }
+  return ret;
 }
+
+}  // namespace net_instaweb

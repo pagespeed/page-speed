@@ -7,6 +7,7 @@
 #include "net/instaweb/util/public/writer.h"
 
 namespace net_instaweb {
+
 LRUCache::~LRUCache() {
   for (ListNode p = lru_ordered_list_.begin(), e = lru_ordered_list_.end();
        p != e; ++p) {
@@ -39,7 +40,8 @@ bool LRUCache::Get(const std::string& key, Writer* writer,
   return ret;
 }
 
-void LRUCache::Put(const std::string& key, const std::string& new_value) {
+void LRUCache::Put(const std::string& key, const std::string& new_value,
+                   MessageHandler* message_handler) {
   // Just do one map operation, calling the awkward 'insert' which returns
   // a pair.  The bool indicates whether a new value was inserted, and the
   // iterator provides access to the element, whether it's new or old.
@@ -108,7 +110,8 @@ bool LRUCache::EvictIfNecessary(size_t bytes_needed) {
   return ret;
 }
 
-void LRUCache::Delete(const std::string& key) {
+void LRUCache::Delete(const std::string& key,
+                      MessageHandler* message_handler) {
   Map::iterator p = map_.find(key);
   if (p != map_.end()) {
     ListNode cell = p->second;
@@ -147,4 +150,15 @@ void LRUCache::SanityCheck() {
   }
   assert(count == map_.size());
 }
+
+CacheInterface::KeyState LRUCache::Query(const std::string& key,
+                                         MessageHandler* message_handler) {
+  Map::iterator p = map_.find(key);
+  KeyState state = kNotFound;
+  if (p != map_.end()) {
+    state = kAvailable;
+  }
+  return state;
 }
+
+}  // namespace net_instaweb

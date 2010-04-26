@@ -5,6 +5,7 @@
 #define NET_INSTAWEB_HTMLPARSE_PUBLIC_STATISTICS_LOG_H_
 
 namespace net_instaweb {
+
 class StatisticsLog {
  public:
   virtual ~StatisticsLog();
@@ -12,6 +13,7 @@ class StatisticsLog {
   virtual void LogDifference(const char *statName,
                              int value1, int value2) = 0;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_STATISTICS_LOG_H_

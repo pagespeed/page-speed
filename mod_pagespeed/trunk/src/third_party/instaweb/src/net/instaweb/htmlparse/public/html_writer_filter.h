@@ -5,9 +5,9 @@
 #define NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_WRITER_FILTER_H_
 
 #include <string.h>
-#include <string>
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_filter.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -54,17 +54,18 @@ class HtmlWriterFilter : public HtmlFilter {
   // first emit the delayed ">" before continuing.
   HtmlElement* lazy_close_element_;
 
-  const char* symbol_a_;
-  const char* symbol_link_;
-  const char* symbol_href_;
-  const char* symbol_img_;
-  const char* symbol_script_;
-  const char* symbol_src_;
-  const char* symbol_alt_;
+  Atom symbol_a_;
+  Atom symbol_link_;
+  Atom symbol_href_;
+  Atom symbol_img_;
+  Atom symbol_script_;
+  Atom symbol_src_;
+  Atom symbol_alt_;
   int column_;
   int max_column_;
   int write_errors_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_WRITER_FILTER_H_

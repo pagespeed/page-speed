@@ -4,9 +4,9 @@
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
 
 #include <assert.h>
-#include <string>
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
+#include <string>
 #include "net/instaweb/util/public/writer.h"
 
 namespace net_instaweb {
@@ -60,32 +60,32 @@ void HtmlWriterFilter::EmitBytes(const char* str, int size) {
 
 void HtmlWriterFilter::StartElement(HtmlElement* element) {
   EmitBytes("<");
-  EmitBytes(element->tag());
+  EmitBytes(element->tag().c_str());
   bool last_is_unquoted = false;
   for (int i = 0; i < element->attribute_size(); ++i) {
     const HtmlElement::Attribute& attribute = element->attribute(i);
     // If the column has grown too large, insert a newline.  It's always safe
     // to insert whitespace in the middle of tag parameters.
-    int attr_length = 1 + strlen(attribute.name_);
+    int attr_length = 1 + attribute.name().size();
     if (max_column_ > 0) {
-      if (attribute.value_ != NULL) {
-        attr_length += 1 + strlen(attribute.value_);
+      if (attribute.value() != NULL) {
+        attr_length += 1 + strlen(attribute.value());
       }
       if ((column_ + attr_length) > max_column_) {
         EmitBytes("\n", 1);
       }
     }
     EmitBytes(" ");
-    EmitBytes(attribute.name_);
+    EmitBytes(attribute.name().c_str());
     last_is_unquoted = false;
-    if (attribute.value_ != NULL) {
+    if (attribute.value() != NULL) {
       // TODO(sligocki): Sanitize by removing all quotes from value and
       // quoting values that need to be.
       EmitBytes("=", 1);
-      EmitBytes(attribute.quote_);
-      EmitBytes(attribute.value_);
-      EmitBytes(attribute.quote_);
-      last_is_unquoted = (strcmp(attribute.quote_, "") == 0);
+      EmitBytes(attribute.quote());
+      EmitBytes(attribute.value());
+      EmitBytes(attribute.quote());
+      last_is_unquoted = (strcmp(attribute.quote(), "") == 0);
     }
   }
 
@@ -118,7 +118,7 @@ void HtmlWriterFilter::StartElement(HtmlElement* element) {
 HtmlElement::CloseStyle HtmlWriterFilter::GetCloseStyle(HtmlElement* element) {
   HtmlElement::CloseStyle style = element->close_style();
   if (style == HtmlElement::AUTO_CLOSE) {
-    const char* tag = element->tag();
+    Atom tag = element->tag();
     if (html_parse_->IsImplicitlyClosedTag(tag)) {
       style = HtmlElement::IMPLICIT_CLOSE;
     } else if (html_parse_->TagAllowsBriefTermination(tag)) {
@@ -153,7 +153,7 @@ void HtmlWriterFilter::EndElement(HtmlElement* element) {
       // fall through
     case HtmlElement::EXPLICIT_CLOSE:
       EmitBytes("</", 2);
-      EmitBytes(element->tag());
+      EmitBytes(element->tag().c_str());
       EmitBytes(">", 1);
       break;
     case HtmlElement::UNCLOSED:
@@ -223,4 +223,5 @@ void HtmlWriterFilter::Flush() {
     ++write_errors_;
   }
 }
-}
+
+}  // namespace net_instaweb

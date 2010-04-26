@@ -3,13 +3,20 @@
 
 #include "net/instaweb/rewriter/public/outline_filter.h"
 
-#include <string>
 #include "net/instaweb/rewriter/public/output_resource.h"
 #include "net/instaweb/rewriter/public/resource_manager.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
+#include "net/instaweb/util/public/content_type.h"
+#include "net/instaweb/util/public/simple_meta_data.h"
+#include <string>
+#include "net/instaweb/util/public/string_writer.h"
 
 namespace net_instaweb {
+
+const char kTextCss[] = "text/css";
+const char kTextJavascript[] = "text/javascript";
+const char kStylesheet[] = "stylesheet";
 
 OutlineFilter::OutlineFilter(HtmlParse* html_parse,
                              ResourceManager* resource_manager,
@@ -24,9 +31,9 @@ OutlineFilter::OutlineFilter(HtmlParse* html_parse,
   s_script_ = html_parse_->Intern("script");
   s_style_ = html_parse_->Intern("style");
   s_rel_ = html_parse_->Intern("rel");
-  s_stylesheet_ = html_parse_->Intern("stylesheet");
   s_href_ = html_parse_->Intern("href");
   s_src_ = html_parse_->Intern("src");
+  s_type_ = html_parse_->Intern("type");
 }
 
 void OutlineFilter::StartDocument() {
@@ -38,8 +45,10 @@ void OutlineFilter::StartElement(HtmlElement* element) {
   // No tags allowed inside style or script element.
   if (inline_element_ != NULL) {
     // TODO(sligocki): Add negative unit tests to hit these errors.
-    html_parse_->ErrorHere("Tag found inside style/script.");
+    html_parse_->ErrorHere("Tag '%s' found inside style/script.",
+                           element->tag().c_str());
     inline_element_ = NULL;  // Don't outline what we don't understand.
+    buffer_.clear();
   }
   if (outline_styles_ && element->tag() == s_style_) {
     inline_element_ = element;
@@ -50,7 +59,7 @@ void OutlineFilter::StartElement(HtmlElement* element) {
     buffer_.clear();
     // script elements which already have a src should not be outlined.
     for (int i = 0; i < element->attribute_size(); ++i) {
-      if (element->attribute(i).name_ == s_src_) {
+      if (element->attribute(i).name() == s_src_) {
         inline_element_ = NULL;
       }
     }
@@ -61,13 +70,19 @@ void OutlineFilter::EndElement(HtmlElement* element) {
   if (inline_element_ != NULL) {
     if (element != inline_element_) {
       // No other tags allowed inside style or script element.
-      html_parse_->ErrorHere("Tag found inside style/script.");
+      html_parse_->ErrorHere("Tag '%s' found inside style/script.",
+                             element->tag().c_str());
+
     } else if (inline_element_->tag() == s_style_) {
       OutlineStyle(inline_element_, buffer_);
+
     } else if (inline_element_->tag() == s_script_) {
       OutlineScript(inline_element_, buffer_);
+
     } else {
-      html_parse_->ErrorHere("OutlineFilter::inline_element_ not style/script");
+      html_parse_->ErrorHere("OutlineFilter::inline_element_ "
+                             "Expected: 'style' or 'script', Actual: '%s'",
+                             inline_element_->tag().c_str());
     }
     inline_element_ = NULL;
     buffer_.clear();
@@ -118,60 +133,97 @@ void OutlineFilter::IEDirective(const std::string& directive) {
   }
 }
 
+// Try to write content and possibly header to resource.
+bool OutlineFilter::WriteResource(const std::string& content,
+                                  OutputResource* resource,
+                                  MessageHandler* handler) {
+  bool write_worked = resource->StartWrite(handler);
+  write_worked &= resource->WriteChunk(content, handler);
+  write_worked &= resource->EndWrite(handler);
+  return write_worked;
+}
 
+// Create file with style content and remove that element from DOM.
 void OutlineFilter::OutlineStyle(HtmlElement* style_element,
                                  const std::string& content) {
   if (html_parse_->IsRewritable(style_element)) {
-    // Create style file from content
-    // TODO(sligocki): What do we want to do if it's not CSS?
-    OutputResource* resource =
-        resource_manager_->CreateOutputResource(".css");
-    MessageHandler* message_handler = html_parse_->message_handler();
-    if (resource->Write(content, message_handler)) {
-      HtmlElement* link_element = html_parse_->NewElement(s_link_);
-      link_element->AddAttribute(s_rel_, s_stylesheet_, "'");
-      link_element->AddAttribute(s_href_, resource->url().c_str(), "'");
-      // Add all style atrributes to link.
-      for (int i = 0; i < style_element->attribute_size(); ++i) {
-        link_element->AddAttribute(style_element->attribute(i));
+    // Create style file from content.
+    HtmlElement::Attribute* type =
+        style_element->FirstAttributeWithName(s_type_);
+    // We only deal with CSS styles.  If no type specified, CSS is assumed.
+    // TODO(sligocki): Is this assumption appropriate?
+    if (type == NULL || strcmp(type->value(), kTextCss) == 0) {
+      OutputResource* resource =
+          resource_manager_->CreateOutputResource(kContentTypeCss);
+      MessageHandler* handler = html_parse_->message_handler();
+      if (WriteResource(content, resource, handler)) {
+        HtmlElement* link_element = html_parse_->NewElement(s_link_);
+        link_element->AddAttribute(s_rel_, kStylesheet, "'");
+        link_element->AddAttribute(s_href_, resource->url().c_str(), "'");
+        // Add all style atrributes to link.
+        for (int i = 0; i < style_element->attribute_size(); ++i) {
+          const HtmlElement::Attribute& attr = style_element->attribute(i);
+          link_element->AddAttribute(attr.name(), attr.value(), attr.quote());
+        }
+        // Remove style element from DOM.
+        if (!html_parse_->DeleteElement(style_element)) {
+          html_parse_->FatalErrorHere("Failed to delete element");
+        }
+        // Add link.
+        // NOTE: this only works if current pointer was on element.
+        // TODO(sligocki): Do an InsertElementBeforeElement instead?
+        html_parse_->InsertElementBeforeCurrent(link_element);
+      } else {
+        html_parse_->ErrorHere("Failed to write style resource.");
       }
-      // remove style element from DOM
-      if (!html_parse_->DeleteElement(style_element)) {
-        html_parse_->FatalErrorHere("Failed to delete element");
-      }
-      // Add link
-      // NOTE: this only works if current pointer was on element
-      // TODO(sligocki): Do an InsertElementBeforeElement instead?
-      html_parse_->InsertElementBeforeCurrent(link_element);
+    } else {
+      std::string element_string;
+      style_element->ToString(&element_string);
+      html_parse_->InfoHere("Cannot outline non-css stylesheet %s",
+                           element_string.c_str());
     }
   }
 }
 
-// TODO(sligocki): combine similar code from OutlineStyle
+// Create file with script content and remove that element from DOM.
+// TODO(sligocki): Combine similar code from OutlineStyle.
 void OutlineFilter::OutlineScript(HtmlElement* element,
                                   const std::string& content) {
   if (html_parse_->IsRewritable(element)) {
-    // Create script file from content
-    // TODO(sligocki): What do we want to do if it's not javascript?
-    OutputResource* resource =
-        resource_manager_->CreateOutputResource(".js");
-    MessageHandler* message_handler = html_parse_->message_handler();
-    if (resource->Write(content, message_handler)) {
-      HtmlElement* src_element = html_parse_->NewElement(s_script_);
-      src_element->AddAttribute(s_src_, resource->url().c_str(), "'");
-      // Add all style atrributes to link.
-      for (int i = 0; i < element->attribute_size(); ++i) {
-        src_element->AddAttribute(element->attribute(i));
+    // Create script file from content.
+    HtmlElement::Attribute* type = element->FirstAttributeWithName(s_type_);
+    // We only deal with javascript styles. If no type specified, JS is assumed.
+    // TODO(sligocki): Is this assumption appropriate?
+    if (type == NULL || strcmp(type->value(), kTextJavascript) == 0) {
+      OutputResource* resource =
+          resource_manager_->CreateOutputResource(kContentTypeJavascript);
+      MessageHandler* handler = html_parse_->message_handler();
+      if (WriteResource(content, resource, handler)) {
+        HtmlElement* src_element = html_parse_->NewElement(s_script_);
+        src_element->AddAttribute(s_src_, resource->url().c_str(), "'");
+        // Add all atrributes from old script element to new script src element.
+        for (int i = 0; i < element->attribute_size(); ++i) {
+          const HtmlElement::Attribute& attr = element->attribute(i);
+          src_element->AddAttribute(attr.name(), attr.value(), attr.quote());
+        }
+        // Remove original script element from DOM.
+        if (!html_parse_->DeleteElement(element)) {
+          html_parse_->FatalErrorHere("Failed to delete element");
+        }
+        // Add <script src=...> element.
+        // NOTE: this only works if current pointer was on element.
+        // TODO(sligocki): Do an InsertElementBeforeElement instead?
+        html_parse_->InsertElementBeforeCurrent(src_element);
+      } else {
+        html_parse_->ErrorHere("Failed to write script resource.");
       }
-      // remove original script element from DOM
-      if (!html_parse_->DeleteElement(element)) {
-        html_parse_->FatalErrorHere("Failed to delete element");
-      }
-      // Add <script src=...> element
-      // NOTE: this only works if current pointer was on element
-      // TODO(sligocki): Do an InsertElementBeforeElement instead?
-      html_parse_->InsertElementBeforeCurrent(src_element);
+    } else {
+      std::string element_string;
+      element->ToString(&element_string);
+      html_parse_->InfoHere("Cannot outline non-javascript script %s",
+                           element_string.c_str());
     }
   }
 }
-}
+
+}  // namespace net_instaweb

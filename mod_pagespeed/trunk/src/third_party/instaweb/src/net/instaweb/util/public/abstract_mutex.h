@@ -27,6 +27,7 @@ class ScopedMutex {
  private:
   AbstractMutex* mutex_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_ABSTRACT_MUTEX_H_

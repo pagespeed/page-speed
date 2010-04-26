@@ -1,0 +1,15 @@
+// Copyright 2010 Google Inc. All Rights Reserved.
+// Author: jmarantz@google.com (Joshua Marantz)
+
+// Protobufs to help encode rewritten resources as URLs.
+
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+package net_instaweb;
+
+message ResourceUrl {
+  optional string origin_url = 1 [default = "" ];
+  optional string content_hash = 2 [default = "" ];
+};

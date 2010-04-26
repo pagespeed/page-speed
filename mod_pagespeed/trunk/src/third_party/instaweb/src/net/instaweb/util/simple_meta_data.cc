@@ -1,8 +1,5 @@
 // Copyright 2010 and onwards Google Inc.
 // Author: jmarantz@google.com (Joshua Marantz)
-//
-// Meta-data associated with a rewriting resource.  This is
-// primarily a key-value store, but additionally we want to
 
 #include "net/instaweb/util/public/simple_meta_data.h"
 #include <assert.h>
@@ -10,6 +7,11 @@
 #include <string.h>
 #include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/writer.h"
+#include "pagespeed/core/resource_util.h"
+
+namespace {
+const int64 TIME_UNINITIALIZED = -1;
+}
 
 namespace net_instaweb {
 
@@ -17,6 +19,9 @@ SimpleMetaData::SimpleMetaData()
     : parsing_http_(false),
       parsing_value_(false),
       headers_complete_(false),
+      cache_fields_dirty_(true),
+      expiration_time_ms_(TIME_UNINITIALIZED),
+      timestamp_ms_(TIME_UNINITIALIZED),
       major_version_(0),
       minor_version_(0),
       status_code_(0) {
@@ -54,38 +59,23 @@ bool SimpleMetaData::Lookup(const char* name, StringVector* values) const {
 // Specific information about cache.  This is all embodied in the
 // headers but is centrally parsed so we can try to get it right.
 bool SimpleMetaData::IsCacheable() const {
-  MetaData::StringVector values;
-  return Lookup("cache-control", &values);
+  // We do not compute caching from accessors so that the
+  // accessors can be easier to call from multiple threads
+  // without mutexing.
+  assert(!cache_fields_dirty_);
+  return is_cacheable_;
 }
 
 bool SimpleMetaData::IsProxyCacheable() const {
-  // TODO(jmarantz): Re-implement correctly.
-
-  MetaData::StringVector values;
-  bool ret = Lookup("cache-control", &values);
-  if (ret) {
-    const char* cache_control = values[values.size() - 1];
-    ret = (strstr(cache_control, "private") == NULL);
-  }
-  return ret;
+  assert(!cache_fields_dirty_);
+  return is_proxy_cacheable_;
 }
 
-// Returns the seconds-since-1970 absolute time when this resource
+// Returns the ms-since-1970 absolute time when this resource
 // should be expired out of caches.
-int64 SimpleMetaData::CacheExpirationTime() const {
-  // TODO(jmarantz): Re-implement correctly.  In particular, bmcquade sez:
-  // the computation would be DateHeader+max_age (so you need to use Date header
-  // as the base for the computation.  If no Date header is specified you can
-  // use the response time (but not the current time)....you also need to look
-  // at the expiration header if max-age isnt present.
-  int64 ret = 0;
-  StringVector values;
-  if (Lookup("cache-control", &values)) {
-    // const char* cache_control = LookupValue("cache-control", count - 1);
-    // TODO(jmarantz): parse the cache-control string.
-    ret = 5;
-  }
-  return ret;
+int64 SimpleMetaData::CacheExpirationTimeMs() const {
+  assert(!cache_fields_dirty_);
+  return expiration_time_ms_;
 }
 
 // Serialize meta-data to a stream.
@@ -110,7 +100,6 @@ bool SimpleMetaData::Write(Writer* writer, MessageHandler* handler) const {
 }
 
 void SimpleMetaData::Add(const char* name, const char* value) {
-
   // TODO(jmarantz): Parse comma-separated values.  bmcquade sez:
   // you probably want to normalize these by splitting on commas and
   // adding a separate k,v pair for each comma-separated value. then
@@ -132,6 +121,78 @@ void SimpleMetaData::Add(const char* name, const char* value) {
   memcpy(value_copy, value, value_buf_size);
   values.push_back(value_copy);
   attribute_vector_.push_back(StringPair(iter->first.c_str(), value_copy));
+  cache_fields_dirty_ = true;
+}
+
+bool SimpleMetaData::has_timestamp_ms() const {
+  return timestamp_ms_ != TIME_UNINITIALIZED;
+}
+
+void SimpleMetaData::ComputeCaching() {
+  pagespeed::Resource resource;
+  for (int i = 0, n = NumAttributes(); i < n; ++i) {
+    resource.AddResponseHeader(Name(i), Value(i));
+  }
+
+  StringVector values;
+  int64 date;
+  // Compute the timestamp if we can find it
+  if (Lookup("Date", &values) && (values.size() == 1) &&
+      pagespeed::resource_util::ParseTimeValuedHeader(values[0], &date)) {
+    timestamp_ms_ = date;
+  }
+
+  // TODO(jmarantz): Should we consider as cacheable a resource
+  // that simply has no cacheable hints at all?  For now, let's
+  // make that assumption.  We should review this policy with bmcquade,
+  // souders, etc, but first let's try to measure some value with this
+  // optimistic intrepretation.
+  //
+  // TODO(jmarantz): get from bmcquade a comprehensive ways in which these
+  // policies will differ for Instaweb vs Pagespeed.
+  bool explicit_no_cache =
+      pagespeed::resource_util::HasExplicitNoCacheDirective(resource);
+  bool explicit_cacheable =
+      pagespeed::resource_util::IsCacheableResource(resource);
+  bool status_cacheable =
+      pagespeed::resource_util::IsCacheableResourceStatusCode(status_code_);
+  is_cacheable_ = ((!explicit_no_cache || explicit_cacheable) &&
+                   status_cacheable);
+  if (is_cacheable_) {
+    int64 freshness_lifetime_ms;
+    if (pagespeed::resource_util::GetFreshnessLifetimeMillis(
+            resource, &freshness_lifetime_ms) &&
+        has_timestamp_ms()) {
+      expiration_time_ms_ = timestamp_ms_ + freshness_lifetime_ms;
+    } else {
+      expiration_time_ms_ = 0;  // no date: was cacheable, but expired in 1970.
+    }
+
+    // Assume it's proxy cacheable.  Then iterate over all the headers
+    // with key "Cache-Control", and all the comma-separated values within
+    // those values, and look for 'private'.
+    is_proxy_cacheable_ = true;
+    values.clear();
+    if (Lookup("Cache-Control", &values)) {
+      for (int i = 0, n = values.size(); i < n; ++i) {
+        const char* cache_control = values[i];
+        pagespeed::resource_util::DirectiveMap directive_map;
+        if (pagespeed::resource_util::GetHeaderDirectives(
+                cache_control, &directive_map)) {
+          pagespeed::resource_util::DirectiveMap::iterator p =
+              directive_map.find("private");
+          if (p != directive_map.end()) {
+            is_proxy_cacheable_ = false;
+            break;
+          }
+        }
+      }
+    }
+  } else {
+    expiration_time_ms_ = 0;
+    is_proxy_cacheable_ = false;
+  }
+  cache_fields_dirty_ = false;
 }
 
 int SimpleMetaData::ParseChunk(const char* text, int num_bytes,
@@ -159,6 +220,7 @@ int SimpleMetaData::ParseChunk(const char* text, int num_bytes,
         // blank line.  This marks the end of the headers.
         ++num_consumed;
         headers_complete_ = true;
+        ComputeCaching();
         break;
       }
       if (parsing_http_) {
@@ -213,4 +275,5 @@ bool SimpleMetaData::GrabLastToken(const std::string& input,
   }
   return ret;
 }
-}
+
+}  // namespace net_instaweb

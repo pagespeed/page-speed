@@ -9,4 +9,5 @@ namespace net_instaweb {
 
 CacheInterface::~CacheInterface() {
 }
-}
+
+}  // namespace net_instaweb

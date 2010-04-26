@@ -19,6 +19,7 @@ class StringWriter : public Writer {
  private:
   std::string* string_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_STRING_WRITER_H_

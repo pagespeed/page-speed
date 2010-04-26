@@ -13,6 +13,7 @@ class Reader {
   virtual ~Reader();
   virtual bool Read(char* str, int len, MessageHandler* handler) = 0;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_READER_H_

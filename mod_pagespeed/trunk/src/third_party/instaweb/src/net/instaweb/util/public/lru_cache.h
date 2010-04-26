@@ -6,9 +6,8 @@
 
 #include <list>
 #include <map>
-#include <string>
-
 #include "net/instaweb/util/public/cache_interface.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -32,14 +31,22 @@ class LRUCache : public CacheInterface {
   virtual ~LRUCache();
   virtual bool Get(const std::string& key, Writer* writer,
                    MessageHandler* message_handler);
-  virtual void Put(const std::string& key, const std::string& value);
-  virtual void Delete(const std::string& key);
+  virtual void Put(const std::string& key, const std::string& value,
+                   MessageHandler* message_handler);
+  virtual void Delete(const std::string& key,
+                      MessageHandler* message_handler);
+
+  // Determines the current state of a key.  In the case of an LRU
+  // cache, objects are never kInTransit -- they are either kAvailable
+  // or kNotFound.
+  virtual KeyState Query(const std::string& key,
+                         MessageHandler* message_handler);
 
   // Total size in bytes of keys and values stored.
   size_t size_bytes() const { return current_bytes_in_cache_; }
 
   // Number of elements stored
-  virtual size_t num_elements() const { return map_.size(); }
+  size_t num_elements() const { return map_.size(); }
 
   // Sanity check the cache data structures.
   void SanityCheck();
@@ -65,6 +72,7 @@ class LRUCache : public CacheInterface {
   EntryList lru_ordered_list_;
   Map map_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_LRU_CACHE_H_

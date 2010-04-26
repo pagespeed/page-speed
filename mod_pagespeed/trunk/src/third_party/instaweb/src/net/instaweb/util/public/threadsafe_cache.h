@@ -4,8 +4,8 @@
 #ifndef NET_INSTAWEB_UTIL_PUBLIC_THREADSAFE_CACHE_H_
 #define NET_INSTAWEB_UTIL_PUBLIC_THREADSAFE_CACHE_H_
 
-#include <string>
 #include "net/instaweb/util/public/cache_interface.h"
+#include <string>
 
 namespace net_instaweb {
 
@@ -23,12 +23,17 @@ class ThreadsafeCache : public CacheInterface {
   virtual ~ThreadsafeCache();
   virtual bool Get(const std::string& key, Writer* writer,
                    MessageHandler* message_handler);
-  virtual void Put(const std::string& key, const std::string& value);
-  virtual void Delete(const std::string& key);
+  virtual void Put(const std::string& key, const std::string& value,
+                   MessageHandler* message_handler);
+  virtual void Delete(const std::string& key,
+                      MessageHandler* message_handler);
+  virtual KeyState Query(const std::string& key,
+                         MessageHandler* message_handler);
  private:
   CacheInterface* cache_;
   AbstractMutex* mutex_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_UTIL_PUBLIC_THREADSAFE_CACHE_H_

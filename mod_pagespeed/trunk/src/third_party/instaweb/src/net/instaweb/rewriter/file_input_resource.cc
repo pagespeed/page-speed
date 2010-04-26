@@ -24,10 +24,11 @@ bool FileInputResource::Read(MessageHandler* message_handler) {
       file_system_->ReadFile(filename_.c_str(), &contents_, message_handler)) {
     meta_data_.reset(new SimpleMetaData());
   }
-  return meta_data_ != NULL;
+  return meta_data_.get() != NULL;
 }
 
 const MetaData* FileInputResource::metadata() const {
   return meta_data_.get();
 }
-}
+
+}  // namespace net_instaweb

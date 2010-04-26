@@ -25,6 +25,7 @@ class FileStatisticsLog : public StatisticsLog {
   FileSystem::OutputFile* file_;
   MessageHandler* message_handler_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_FILE_STATISTICS_LOG_H_

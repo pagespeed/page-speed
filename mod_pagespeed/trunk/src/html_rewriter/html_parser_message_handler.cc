@@ -20,6 +20,50 @@
 
 namespace html_rewriter {
 
+void HtmlParserMessageHandler::MessageV(
+    MessageType type, const char* msg, va_list args) {
+  switch(type) {
+    case net_instaweb::kInfo:
+      LOG(INFO) << Format(msg, args);
+      return;
+    case net_instaweb::kWarning:
+      LOG(WARNING) << Format(msg, args);
+      return;
+    case net_instaweb::kError:
+      LOG(ERROR) << Format(msg, args);
+      return;
+    case net_instaweb::kFatal:
+      LOG(FATAL) << Format(msg, args);
+      return;
+    default:
+      assert(false);
+  }
+  return;
+}
+
+void HtmlParserMessageHandler::FileMessageV(
+    MessageType type, const char* filename, int line, const char* msg,
+    va_list args) {
+  switch(type) {
+    case net_instaweb::kInfo:
+      InfoV(filename, line, msg, args);
+      return;
+    case net_instaweb::kWarning:
+      WarningV(filename, line, msg, args);
+      return;
+    case net_instaweb::kError:
+      ErrorV(filename, line, msg, args);
+      return;
+    case net_instaweb::kFatal:
+      FatalErrorV(filename, line, msg, args);
+      return;
+    default:
+      assert(false);
+  }
+  return;
+
+}
+
 void HtmlParserMessageHandler::InfoV(
     const char* file, int line, const char *msg, va_list args) {
   LOG(INFO) << file << ":" << line << ": " << Format(msg, args);

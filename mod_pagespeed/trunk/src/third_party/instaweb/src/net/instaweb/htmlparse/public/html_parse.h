@@ -6,11 +6,12 @@
 
 #include <stdarg.h>
 #include <set>
-#include <string>
 #include <vector>
-#include "net/instaweb/util/public/printf_format.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
+#include "net/instaweb/util/public/printf_format.h"
+#include <string>
+#include "net/instaweb/util/public/symbol_table.h"
 
 namespace net_instaweb {
 
@@ -63,7 +64,7 @@ class HtmlParse {
                                  HtmlElement* new_element,
                                  int line_number);
 
-  HtmlElement* NewElement(const char* tag);
+  HtmlElement* NewElement(Atom tag);
   bool DeleteElement(HtmlElement* element);
 
   bool IsRewritable(const HtmlElement* element) const;
@@ -72,10 +73,12 @@ class HtmlParse {
 
   void DebugPrintQueue();  // Print queue (for debugging)
 
-  const char* Intern(const std::string& name);
-  const char* Intern(const char* name);
-  const char* Intern(const unsigned char* s) {return Intern((const char*) s);}
-  bool IsInterned(const char* name) const;
+  Atom Intern(const std::string& name) {
+    return string_table_.Intern(name);
+  }
+  Atom Intern(const char* name) {
+    return string_table_.Intern(name);
+  }
 
   // Implementation helper with detailed knowledge of html parsing libraries
   friend class HtmlLexer;
@@ -117,10 +120,10 @@ class HtmlParse {
   MessageHandler* message_handler() const { return message_handler_; }
 
   // Determines whether a tag should be terminated in HTML.
-  bool IsImplicitlyClosedTag(const char* tag) const;
+  bool IsImplicitlyClosedTag(Atom tag) const;
 
   // Determines whether a tag allows brief termination in HTML, e.g. <tag/>
-  bool TagAllowsBriefTermination(const char* tag) const;
+  bool TagAllowsBriefTermination(Atom tag) const;
 
   // Gets the current location information; typically to help with error
   // messages.
@@ -133,10 +136,7 @@ class HtmlParse {
   HtmlEventListIterator Last();  // Last element in queue
   bool IsInEventWindow(const HtmlEventListIterator& iter) const;
 
-
-  typedef std::set<std::string> StringSet;
-
-  StringSet string_table_;
+  SymbolTableInsensitive string_table_;
   std::vector<HtmlFilter*> filters_;
   HtmlLexer* lexer_;
   int sequence_;
@@ -148,6 +148,7 @@ class HtmlParse {
   std::string filename_;
   int line_number_;
 };
-}
+
+}  // namespace net_instaweb
 
 #endif  // NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_PARSE_H_

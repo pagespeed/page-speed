@@ -37,7 +37,8 @@ static const char* kLiteralTags[] = {
   "script", "iframe", "textarea", "style",
   NULL
 };
-}
+
+}  // namespace
 
 // TODO(jmarantz): support multi-byte encodings
 // TODO(jmarantz): emit close-tags immediately for selected html tags,
@@ -368,15 +369,15 @@ void HtmlLexer::EmitTagOpen(bool allow_implicit_close) {
   if (literal_tags_.find(element_->tag()) != literal_tags_.end()) {
     state_ = LITERAL_TAG;
     literal_close_ = "</";
-    literal_close_ += element_->tag();
+    literal_close_ += element_->tag().c_str();
     literal_close_ += ">";
   } else {
     state_ = START;
   }
 
-  const char* tag = element_->tag();
+  Atom tag = element_->tag();
   if (allow_implicit_close && IsImplicitlyClosedTag(tag)) {
-    token_ = tag;
+    token_ = tag.c_str();
     EmitTagClose(HtmlElement::IMPLICIT_CLOSE);
   }
 
@@ -441,7 +442,8 @@ void HtmlLexer::FinishParse() {
   for (size_t i = 0; i < element_stack_.size(); ++i) {
     HtmlElement* element = element_stack_[i];
     html_parse_->Warning(filename_.c_str(), element->begin_line_number(),
-                         "End-of-file with open tag: %s", element->tag());
+                         "End-of-file with open tag: %s",
+                         element->tag().c_str());
   }
   element_stack_.clear();
 }
@@ -449,18 +451,18 @@ void HtmlLexer::FinishParse() {
 void HtmlLexer::MakeAttribute(bool has_value) {
   assert(element_ != NULL);
   toLower(&attr_name_);
-  const char* name = html_parse_->Intern(attr_name_);
+  Atom name = html_parse_->Intern(attr_name_);
   attr_name_.clear();
   const char* value = NULL;
   assert(has_value == has_attr_value_);
   if (has_value) {
-    value = html_parse_->Intern(attr_value_);
-    attr_value_.clear();
+    value = attr_value_.c_str();
     has_attr_value_ = false;
   } else {
     assert(attr_value_.empty());
   }
   element_->AddAttribute(name, value, attr_quote_);
+  attr_value_.clear();
   attr_quote_ = "";
   state_ = TAG_ATTRIBUTE;
 }
@@ -595,7 +597,7 @@ void HtmlLexer::EvalAttrValSq(char c) {
 
 void HtmlLexer::EmitTagClose(HtmlElement::CloseStyle close_style) {
   toLower(&token_);
-  const char* tag = html_parse_->Intern(token_);
+  Atom tag = html_parse_->Intern(token_);
   HtmlElement* element = PopElementMatchingTag(tag);
   if (element != NULL) {
     element->set_end_line_number(line_);
@@ -657,11 +659,11 @@ void HtmlLexer::Parse(const char* text, int size) {
   }
 }
 
-bool HtmlLexer::IsImplicitlyClosedTag(const char* tag) const {
+bool HtmlLexer::IsImplicitlyClosedTag(Atom tag) const {
   return (implicitly_closed_.find(tag) != implicitly_closed_.end());
 }
 
-bool HtmlLexer::TagAllowsBriefTermination(const char* tag) const {
+bool HtmlLexer::TagAllowsBriefTermination(Atom tag) const {
   return (non_brief_terminated_tags_.find(tag) ==
           non_brief_terminated_tags_.end());
 }
@@ -684,7 +686,7 @@ HtmlElement* HtmlLexer::PopElement() {
   return element;
 }
 
-HtmlElement* HtmlLexer::PopElementMatchingTag(const char* tag) {
+HtmlElement* HtmlLexer::PopElementMatchingTag(Atom tag) {
   HtmlElement* element = NULL;
 
   // Search the stack from top to bottom.
@@ -698,7 +700,7 @@ HtmlElement* HtmlLexer::PopElementMatchingTag(const char* tag) {
         // In fact, should we actually perform this optimization ourselves
         // in a filter to omit closing tags that can be inferred?
         html_parse_->Error(filename_.c_str(), skipped->begin_line_number(),
-                           "Unclosed element `%s'", skipped->tag());
+                           "Unclosed element `%s'", skipped->tag().c_str());
         CloseElement(skipped, HtmlElement::UNCLOSED, line_);
       }
       element_stack_.resize(i);
@@ -726,4 +728,5 @@ void HtmlLexer::Error(const char* msg, ...) {
   html_parse_->ErrorV(filename_.c_str(), line_, msg, args);
   va_end(args);
 }
-}
+
+}  // namespace net_instaweb
