@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<!--
+ * Copyright 2008-2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    id="activity-uncalled-functions"
+    title="Page Speed Activity - Uncalled Functions"
+    orient="vertical"
+    width="800" height="600"
+    persist="screenX screenY width height">
+  <tree id="tree-view" flex="1">
+    <treecols>
+      <treecol id="instantiation_time"
+          label="Init Time"
+          flex="1"
+          tooltiptext="Time that this function was instantiated (i.e. the time that it was parsed by the JavaScript engine)."/>
+      <splitter class="tree-splitter"/>
+      <treecol id="function_name"
+          label="Name"
+          flex="2"/>
+      <splitter class="tree-splitter"/>
+      <treecol id="function_source"
+          label="Source"
+          flex="20"/>
+      <splitter class="tree-splitter"/>
+      <treecol id="file_name"
+          label="File"
+          flex="2"/>
+    </treecols>
+    <treechildren/>
+  </tree>
+
+  <!-- Wire the XUL tree element to the tree view -->
+  <script type="application/x-javascript">
+    var treeView = window.arguments[0];
+    window.arguments = null;
+    var xulTreeElement = document.getElementById('tree-view');
+    xulTreeElement.view = treeView;
+  </script>
+
+</window>
