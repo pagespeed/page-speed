@@ -3,7 +3,24 @@
 
 =Page Speed Version History=
 
-== 1.6  2/1/2009 ==
+== 1.7 4/27/2010 ==
+New features:
+  * New rules:
+    * Specify a cache validator
+  * Rules ported to native library
+    * Leverage browser caching
+  * Added HAR (HTTP Archive) support
+  * Released [http://code.google.com/p/page-speed/wiki/DownloadPageSpeed?tm=2 Page Speed SDK]
+  * Activity Panel
+    * Full support for Firefox 3.6
+    * Firefox 3.5 and earlier are no longer supported
+    * This will likely be the last major updates for the Activity Panel
+
+Bug fixes:
+  * Fixed [http://code.google.com/p/page-speed/issues/detail?id=258 issue 258] Linux crash on old CPUs (fixed in 1.7.1 release)
+  * Fixed [http://code.google.com/p/page-speed/issues/detail?id=251 issue 251] with documentation links
+
+== 1.6  2/1/2010 ==
 New features:
   * New rules:
     * [SpecifyCharsetEarly Specify a character set early]
