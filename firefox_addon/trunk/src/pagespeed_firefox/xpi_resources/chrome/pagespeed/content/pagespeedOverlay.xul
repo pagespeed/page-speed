@@ -38,8 +38,6 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/jsCoverageLint.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/cssExpressionLint.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/unusedCssLint.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/resultsWriter.js"/>
