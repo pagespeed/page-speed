@@ -85,8 +85,42 @@ bool PagespeedInput::AddResource(const Resource* resource) {
   input_info_->set_total_request_bytes(
       input_info_->total_request_bytes() + request_bytes);
   int response_bytes = resource_util::EstimateResponseBytes(*resource);
-  input_info_->set_total_response_bytes(
-      input_info_->total_response_bytes() + response_bytes);
+  switch (resource->GetResourceType()) {
+    case HTML:
+      input_info_->set_html_response_bytes(
+          input_info_->html_response_bytes() + response_bytes);
+      break;
+    case TEXT:
+      input_info_->set_text_response_bytes(
+          input_info_->text_response_bytes() + response_bytes);
+      break;
+    case CSS:
+      input_info_->set_css_response_bytes(
+          input_info_->css_response_bytes() + response_bytes);
+      break;
+    case IMAGE:
+      input_info_->set_image_response_bytes(
+          input_info_->image_response_bytes() + response_bytes);
+      break;
+    case JS:
+      input_info_->set_javascript_response_bytes(
+          input_info_->javascript_response_bytes() + response_bytes);
+      break;
+    case FLASH:
+      input_info_->set_flash_response_bytes(
+          input_info_->flash_response_bytes() + response_bytes);
+      break;
+    case REDIRECT:
+    case OTHER:
+      input_info_->set_other_response_bytes(
+          input_info_->other_response_bytes() + response_bytes);
+      break;
+    default:
+      LOG(DFATAL) << "Unknown resource type " << resource->GetResourceType();
+      input_info_->set_other_response_bytes(
+          input_info_->other_response_bytes() + response_bytes);
+      break;
+  }
   input_info_->set_number_resources(num_resources());
   input_info_->set_number_hosts(GetHostResourceMap()->size());
   if (resource_util::IsLikelyStaticResource(*resource)) {

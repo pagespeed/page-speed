@@ -18,11 +18,12 @@
 #include <map>
 #include <string>
 
+#include "base/basictypes.h"
 #include "pagespeed/core/resource.h"
 
 namespace pagespeed {
 
-class Resource;
+class InputInformation;
 
 namespace resource_util {
 
@@ -87,6 +88,13 @@ bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
 // lifetime, etc. to determine if the resource is likely to be a static
 // resource.
 bool IsLikelyStaticResource(const Resource& resource);
+
+// Compute the total number of response bytes for all resource types.
+int64 ComputeTotalResponseBytes(const InputInformation& input_into);
+
+// Compute the number of response bytes that are compressible using
+// gzip/deflate.
+int64 ComputeCompressibleResponseBytes(const InputInformation& input_into);
 
 }  // namespace resource_util
 

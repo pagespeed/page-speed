@@ -15,6 +15,8 @@
 #include "pagespeed/core/rule.h"
 
 #include <algorithm>
+#include "base/basictypes.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -88,12 +90,14 @@ int Rule::ComputeScore(const InputInformation& input_info,
   }
 
   if (response_bytes_saved > 0) {
-    if (input_info.total_response_bytes() == 0) {
+    int64 total_response_bytes =
+        resource_util::ComputeTotalResponseBytes(input_info);
+    if (total_response_bytes == 0) {
       return -1;  // information is not available
     }
     normalized_savings +=
         kResponseBytesImpact *
-        response_bytes_saved / input_info.total_response_bytes();
+        response_bytes_saved / total_response_bytes;
   }
 
   if (dns_saved > 0) {
