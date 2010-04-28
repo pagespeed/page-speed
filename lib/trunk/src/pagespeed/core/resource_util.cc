@@ -19,6 +19,7 @@
 #include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/util/directive_enumerator.h"
 
 namespace {
@@ -406,6 +407,23 @@ bool IsLikelyStaticResource(const Resource& resource) {
   // The resource passed all of the checks, so it appears to be
   // static.
   return true;
+}
+
+int64 ComputeTotalResponseBytes(const InputInformation& input_info) {
+  return input_info.html_response_bytes() +
+      input_info.text_response_bytes() +
+      input_info.css_response_bytes() +
+      input_info.image_response_bytes() +
+      input_info.javascript_response_bytes() +
+      input_info.flash_response_bytes() +
+      input_info.other_response_bytes();
+}
+
+int64 ComputeCompressibleResponseBytes(const InputInformation& input_info) {
+  return input_info.html_response_bytes() +
+      input_info.text_response_bytes() +
+      input_info.css_response_bytes() +
+      input_info.javascript_response_bytes();
 }
 
 }  // namespace resource_util

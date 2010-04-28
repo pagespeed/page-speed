@@ -52,14 +52,26 @@ message InputInformation {
   // Number of hosts among which the page was sharded.
   optional int32 number_hosts = 2;
 
-  // Total server response bytes.
-  optional int64 total_response_bytes = 3;
+  // Total server response bytes. Deprecated. Use the type-specific
+  // response bytes fields below.
+  // optional int64 total_response_bytes = 3;
 
   // Total client request bytes.
   optional int64 total_request_bytes = 4;
 
   // Number of static resources accessed while rendering the page.
   optional int32 number_static_resources = 5;
+
+  // Total server response bytes for each resource type. Sum these
+  // fields to get the total number of response bytes for all
+  // resources.
+  optional int64 html_response_bytes = 6;
+  optional int64 text_response_bytes = 7;
+  optional int64 css_response_bytes = 8;
+  optional int64 image_response_bytes = 9;
+  optional int64 javascript_response_bytes = 10;
+  optional int64 flash_response_bytes = 11;
+  optional int64 other_response_bytes = 12;
 }
 
 // Base class for result details
