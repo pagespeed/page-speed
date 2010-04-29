@@ -587,6 +587,17 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
     }
   },
 
+  showContext: function (browser, context) {
+    // Firebug calls this when we change browser tabs (and at some other times
+    // too).  We use the opportunity to make sure we're correctly displaying
+    // the Performance or Resource pane, depending on what has been selected.
+    if (document.getElementById('psCompButton').getAttribute('checked')) {
+      Firebug.PageSpeedModule.showComponents();
+    } else {
+      Firebug.PageSpeedModule.showPerformance();
+    }
+  },
+
   /**
    * When a window is loaded, track redirects and add an event listener for
    * page loads.
