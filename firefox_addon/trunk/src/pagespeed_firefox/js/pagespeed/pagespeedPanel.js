@@ -469,7 +469,6 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
     var jsProfileEnabledPref = 'extensions.PageSpeed.js_coverage.enable';
     var autoRunEnabledPref = 'extensions.PageSpeed.autorun';
-    var showAllUserAgentsPref = 'extensions.PageSpeed.show_all_user_agents';
 
     /**
      * @param {string} prefName The name of a boolean preference.
@@ -490,10 +489,6 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     addMenuOption('Automatically Run at Onload',
                   buildToggleBoolPrefFn(autoRunEnabledPref),
                   PAGESPEED.Utils.getBoolPref(autoRunEnabledPref));
-
-    addMenuOption('Show All User Agents',
-                  buildToggleBoolPrefFn(showAllUserAgentsPref),
-                  PAGESPEED.Utils.getBoolPref(showAllUserAgentsPref));
 
     menuOptions.push('-');
 
@@ -591,45 +586,6 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
         },
         false
         );
-
-    menuOptions.push('-');
-
-    var uac = PAGESPEED.UserAgentController;
-
-    /**
-     * Build a zero argument function which switches the user agent settings
-     * to mimic a specific browser.
-     * @param {string} userAgentName Name of the browser to set user agent
-     *    data to.
-     * @return {Function} A zero-argument function which sets the user agent to
-     *    a specific browser.
-     */
-    var buildOnSelectUserAgentFn = function(userAgentName) {
-      return function() {
-        uac.setUserAgentByName(userAgentName);
-      };
-    };
-
-    // Add an unselectable menu item that serves as the heading for
-    // user agent options.
-    addMenuOption('Set User Agent to:', function() {}, false, true);
-
-    // Add an option to select the default user agent.
-    addMenuOption('  Default Value',
-                  function() {uac.resetUserAgent();},
-                  uac.isDefaultUserAgent());
-
-    // To cut down on menu clutter, only show user agents of recent,
-    // popular browsers unless the user checks this option.
-    var showAllUseragents = PAGESPEED.Utils.getBoolPref(showAllUserAgentsPref);
-
-    // Add an option for each registered user agent.
-    var userAgentNames = uac.getUserAgentNames(showAllUseragents);
-    for (var i = 0, len = userAgentNames.length; i < len; ++i) {
-      addMenuOption('  ' + userAgentNames[i],
-                    buildOnSelectUserAgentFn(userAgentNames[i]),
-                    uac.isCurrentUserAgent(userAgentNames[i]));
-    }
 
     return menuOptions;
   },

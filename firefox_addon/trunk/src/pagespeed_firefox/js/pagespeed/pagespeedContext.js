@@ -539,9 +539,16 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
     try {
       PAGESPEED.Utils.openLink(
         'http://code.google.com/speed/page-speed/docs/using.html');
-
     } catch (e) {
       logException('PageSpeedModule.showHelp()', e);
+    }
+  },
+
+  reportIssues: function() {
+    try {
+      PAGESPEED.Utils.openLink('http://code.google.com/p/page-speed/issues/');
+    } catch (e) {
+      logException('PageSpeedModule.reportIssues()', e);
     }
   },
 
@@ -634,16 +641,5 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
 Firebug.registerModule(Firebug.PageSpeedModule);
 
 }});  // FBL.ns
-
-// Features under development that change the GUI need to be able to
-// hide changes for non-developers.  We do this by setting a pref
-// to un-hide the feature, and removing the pref when the feature is
-// done.
-PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.addCallback(
-    function() {
-      PAGESPEED.Utils.setItemVisibilityByPref(
-          'extensions.PageSpeed.content_filter.enabled',
-          'psContentFilterButton');
-    });
 
 })();  // End closure
