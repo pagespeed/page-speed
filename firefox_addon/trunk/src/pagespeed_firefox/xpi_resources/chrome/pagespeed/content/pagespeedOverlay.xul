@@ -22,8 +22,6 @@
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/callbackHolder.js"/>
   <script type="application/x-javascript"
-          src="chrome://pagespeed/content/userAgentController.js"/>
-  <script type="application/x-javascript"
           src="chrome://pagespeed/content/pagespeedContext.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/pageLoadTimer.js"/>
@@ -71,12 +69,15 @@
              oncommand="Firebug.PageSpeedModule.exportMenuItemChosen('psFullResultsBeacon')"/>
     <command id="cmd_page_speed_help"
              oncommand="Firebug.PageSpeedModule.showHelp()"/>
+    <command id="cmd_page_speed_report_issues"
+             oncommand="Firebug.PageSpeedModule.reportIssues()"/>
   </commandset>
 
   <toolbar id="fbToolbar" align="center">
     <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1"
           align="center">
-      <hbox id="fbPageSpeedButtons" insertafter="fbNetButtons" collapsed="true">
+      <hbox id="fbPageSpeedButtons" insertafter="fbNetButtons" flex="100"
+            collapsed="true">
         <toolbarseparator/>
         <spacer width="2px"/>
         <toolbarbutton id="psPerfButton" label="Performance"
@@ -113,36 +114,43 @@
           </menupopup>
         </toolbarbutton>
 
+        <spacer width="5px"/>
+
         <toolbarbutton id="psContentFilterButton"
-                       label="Filter Results"
+                       label="Filter"
                        group="pagespeedButtons"
-                       type="menu"
-                       collapsed="true">
+                       type="menu">
           <menupopup id="psContentFilterMenu">
-            <menuitem id="psAnalyzeAll"
-                      label="Analyze Ads and Non-Ads"
-                      type="radio"
-                      name="filterAds"
-                      checked="true"
-                      value="noFilter"/>
             <menuitem id="psAnalyzeAds"
-                      label="Analyze Ads"
+                      label="Analyze Ads only"
                       type="radio"
                       name="filterAds"
                       value="onlyAds"/>
             <menuitem id="psAnalyzeNonAds"
-                      label="Analyze Non-Ads"
+                      label="Analyze non-Ads only"
                       name="filterAds"
                       type="radio"
                       value="onlyNonAds"/>
+            <menuitem id="psAnalyzeAll"
+                      label="Analyze complete page"
+                      type="radio"
+                      name="filterAds"
+                      checked="true"
+                      value="noFilter"/>
           </menupopup>
         </toolbarbutton>
 
         <spacer width="5px"/>
+
         <toolbarbutton id="psHelpButton" label="Help"
                        class="toolbar-text-button" group="pagespeedButtons"
                        command="cmd_page_speed_help"/>
-        <spacer width="2px"/>
+
+        <spacer flex="1"/>
+
+        <toolbarbutton id="psReportButton" label="Report an Issue"
+                       class="toolbar-text-button" group="pagespeedButtons"
+                       command="cmd_page_speed_report_issues"/>
       </hbox>
     </hbox>
   </toolbar>
