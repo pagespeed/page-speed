@@ -24,7 +24,7 @@ namespace net_instaweb {
 // TODO(jmarantz): We do not recognize IE directives as spriting boundaries.
 // We should supply a meaningful IEDirective method as a boundary.
 //
-// TODO(jmarantz): allow spriting of CSS elements found in the body, whether
+// TODO(jmarantz): allow combining of CSS elements found in the body, whether
 // or not the head has already been flushed.
 
 CssCombineFilter::CssCombineFilter(const char* path_prefix,
@@ -53,7 +53,7 @@ void CssCombineFilter::StartElement(HtmlElement* element) {
 }
 
 void CssCombineFilter::EndElement(HtmlElement* element) {
-  const char* href;
+  HtmlElement::Attribute* href;
   const char* media;
   if (css_filter_.ParseCssElement(element, &href, &media)) {
     css_elements_.push_back(element);
@@ -100,14 +100,14 @@ void CssCombineFilter::EmitCombinations() {
   for (int i = 0, n = css_elements_.size(); i < n; ++i) {
     HtmlElement* element = css_elements_[i];
     const char* media;
-    const char* href;
+    HtmlElement::Attribute* href;
     if (css_filter_.ParseCssElement(element, &href, &media) &&
         html_parse_->IsRewritable(element)) {
       // TODO(jmarantz): consider async loads; exclude css file
       // from the combination that are not yet loaded.  For now, our
       // loads are blocking.  Need to understand Apache module
       InputResource* css_resource =
-          resource_manager_->CreateInputResource(href);
+          resource_manager_->CreateInputResource(href->value());
       if ((css_resource != NULL) && css_resource->Read(message_handler)) {
         if (*media != '\0') {
           // TODO(jmarantz): Annotate combined sections with 'media' as needed
@@ -129,7 +129,7 @@ void CssCombineFilter::EmitCombinations() {
     // be combined together.  Note that both the resources and the elements
     // are managed, so we don't delete them even if the spriting fails.
     OutputResource* combination =
-        resource_manager_->CreateOutputResource(kContentTypeCss);
+        resource_manager_->GenerateOutputResource(kContentTypeCss);
     HtmlElement* combine_element = html_parse_->NewElement(s_link_);
     combine_element->AddAttribute(s_rel_, "stylesheet", "\"");
     combine_element->AddAttribute(s_type_, "text/css", "\"");

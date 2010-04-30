@@ -17,12 +17,12 @@ class CacheExtender;
 class CssCombineFilter;
 class FileSystem;
 class Hasher;
+class HtmlAttributeQuoteRemoval;
 class HtmlParse;
 class HtmlWriterFilter;
 class ImgRewriteFilter;
 class OutlineFilter;
 class ResourceManager;
-class ResourceServer;
 class RewriteFilter;
 class UrlAsyncFetcher;
 class UrlFetcher;
@@ -30,10 +30,20 @@ class Writer;
 
 class RewriteDriver {
  public:
-  explicit RewriteDriver(HtmlParse* html_parse, FileSystem* file_system,
-                         UrlFetcher* url_fetcher,
+  explicit RewriteDriver(HtmlParse* html_parse,
                          UrlAsyncFetcher* url_async_fetcher);
   ~RewriteDriver();
+
+  // Adds a resource manager and/or resource_server, enabling the rewriting of
+  // resources. This will replace any previous resource managers.
+  void SetResourceManager(ResourceManager* resource_manager);
+
+  // Sets the base url for resolving relative URLs in a document.  This
+  // will *not* necessarily add a base-tag filter, but will change
+  // it if AddBaseTagFilter has been called to use this base.
+  //
+  // Neither AddBaseTagFilter or SetResourceManager should be called after this.
+  void SetBaseUrl(const char* base);
 
   // Adds a filter that adds a 'head' section to html documents if
   // none found prior to the body.
@@ -46,51 +56,26 @@ class RewriteDriver {
   // if needed.
   void AddBaseTagFilter();
 
-  // Sets the base url for resolving relative URLs in a document.  This
-  // will *not* necessarily add a base-tag filter, but will change
-  // it if AddBaseTagFilter has been called to use this base.
-  void SetBaseUrl(const char* base);
-
-  // Adds an id based resource manager, enabling the rewriting of resources.
-  // This will override any previous resource managers.
-  void SetFilenameResources(const std::string& file_prefix,
-                            const std::string& url_prefix,
-                            const int num_shards,
-                            const bool write_headers,
-                            const bool garble_filenames);
-
-  // Add a hash based resource manager, enabling the rewriting of resources.
-  // This will override any previous resource managers.
-  void SetHashResources(const std::string& file_prefix,
-                        const std::string& url_prefix,
-                        const int num_shards,
-                        const bool write_headers,
-                        const bool garble_filenames,
-                        Hasher* hasher);
-
   // Extend the cache lifetime of resources.  This can only be called once and
-  // requires SetResources to have been called.
-  void ExtendCacheLifetime();
+  // requires a resource_manager to be set.
+  void ExtendCacheLifetime(Hasher* hasher);
 
   // Combine CSS files in html document.  This can only be called once and
-  // requires SetResources to have been called.
+  // requires a resource_manager to be set.
   void CombineCssFiles();
 
   // Cut out inlined styles and scripts and make them into external resources.
-  // This can only be called once and requires SetResouces to have been called.
+  // This can only be called once and requires a resource_manager to be set.
   void OutlineResources(bool outline_styles, bool outline_scripts);
 
   // Log encountered image urls.  Eventually rewrite them to reduce
   // file size, and possibly insert missing image sizes into img refs.
   void RewriteImages();
 
-  // TODO(jmarantz): The purpose of exposing this member variable is to
-  // allow the caller to establish the search path for resources relative
-  // to requests.  This should be abstracted so that the caller doesn't
-  // have to know about the resource management details.
-  ResourceManager* resource_manager() const {
-    return resource_manager_.get();
-  }
+  // Remove extraneous quotes from html attributes.  Does this save enough bytes
+  // to be worth it after compression?  In small examples it actually costs us
+  // post-compression bytes.
+  void RemoveQuotes();
 
   // Controls how HTML output is written.  Be sure to call this last, after
   // all other filters have been established.
@@ -99,17 +84,14 @@ class RewriteDriver {
   // install filters in any order and the writer will always be last.
   void SetWriter(Writer* writer);
 
-  HtmlParse* html_parse() const { return html_parse_; }
-  ResourceServer* resource_server() const { return resource_server_.get(); }
-
-  bool FetchResource(const char* resource,
+  void FetchResource(const char* resource,
                      const MetaData& request_headers,
                      MetaData* response_headers,
                      Writer* writer,
                      MessageHandler* message_handler,
                      UrlAsyncFetcher::Callback* callback);
 
-  friend class RewriterTest;
+  HtmlParse* html_parse() { return html_parse_; }
 
  private:
   typedef std::map<std::string, RewriteFilter*> ResourceFilterMap;
@@ -118,22 +100,17 @@ class RewriteDriver {
   // These objects are provided on construction or later, and are
   // owned by the caller.
   HtmlParse* html_parse_;
-  FileSystem* file_system_;
-  UrlFetcher* url_fetcher_;
   UrlAsyncFetcher* url_async_fetcher_;
-  Hasher* hasher_;
-  bool write_headers_;
-  bool garble_filenames_;
+  ResourceManager* resource_manager_;
 
   scoped_ptr<AddHeadFilter> add_head_filter_;
   scoped_ptr<BaseTagFilter> base_tag_filter_;
-  scoped_ptr<ResourceManager> resource_manager_;
   scoped_ptr<CacheExtender> cache_extender_;
   scoped_ptr<CssCombineFilter> css_combine_filter_;
+  scoped_ptr<HtmlAttributeQuoteRemoval> attribute_quote_removal_;
   scoped_ptr<ImgRewriteFilter> img_rewrite_filter_;
   scoped_ptr<OutlineFilter> outline_filter_;
   scoped_ptr<HtmlWriterFilter> html_writer_filter_;
-  scoped_ptr<ResourceServer> resource_server_;
 };
 
 }  // namespace net_instaweb

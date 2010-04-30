@@ -24,15 +24,17 @@ HtmlElement::~HtmlElement() {
   }
 }
 
-const HtmlElement::Attribute* HtmlElement::FirstAttributeWithName(
+const HtmlElement::Attribute* HtmlElement::FindAttribute(
     const Atom name) const {
+  const Attribute* ret = NULL;
   for (int i = 0; i < attribute_size(); ++i) {
     const Attribute* attribute = attributes_[i];
     if (attribute->name() == name) {
-      return attribute;
+      ret = attribute;
+      break;
     }
   }
-  return NULL;
+  return ret;
 }
 
 void HtmlElement::ToString(std::string* buf) const {
@@ -76,17 +78,6 @@ void HtmlElement::DebugPrint() const {
   std::string buf;
   ToString(&buf);
   fprintf(stdout, "%s\n", buf.c_str());
-}
-
-
-bool HtmlElement::ReplaceAttribute(Atom name, const char* value) {
-  bool ret = false;
-  Attribute* attribute = FirstAttributeWithName(name);
-  if (attribute != NULL) {
-    attribute->set_value(value);
-    ret = true;
-  }
-  return ret;
 }
 
 }  // namespace net_instaweb

@@ -13,6 +13,7 @@
 namespace net_instaweb {
 
 class FileSystem;
+class FilenameEncoder;
 class Hasher;
 class MessageHandler;
 
@@ -22,8 +23,8 @@ class HashOutputResource : public FilenameOutputResource {
                      const std::string& filename_prefix,
                      const std::string& suffix,
                      const bool write_http_headers,
-                     const bool garble_filename,
                      FileSystem* file_system,
+                     FilenameEncoder* filename_encoder,
                      Hasher* hasher);
 
   virtual bool StartWrite(MessageHandler* message_handler);
@@ -38,9 +39,8 @@ class HashOutputResource : public FilenameOutputResource {
   std::string url_prefix_;
   std::string filename_prefix_;
   std::string suffix_;
-  // Encode resource filenames like latencylab does (Ex: . -> x2E).
-  bool garble_filename_;
   std::string hash_;
+  FilenameEncoder* filename_encoder_;
   Hasher* hasher_;
 };
 

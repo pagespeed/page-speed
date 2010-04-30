@@ -12,6 +12,7 @@ namespace net_instaweb {
 
 class ContentType;
 class FileSystem;
+class FilenameEncoder;
 class Hasher;
 class InputResource;
 class OutputResource;
@@ -21,23 +22,25 @@ class UrlFetcher;
 // Note: the inheritance is mostly to consolidate code.
 class HashResourceManager : public FilenameResourceManager {
  public:
-  explicit HashResourceManager(const std::string& file_prefix,
-                               const std::string& url_prefix,
+  explicit HashResourceManager(const StringPiece& file_prefix,
+                               const StringPiece& url_prefix,
                                const int num_shards,
                                const bool write_http_headers,
-                               const bool garble_filenames,
                                FileSystem* file_system,
+                               FilenameEncoder* filename_encoder,
                                UrlFetcher* url_fetcher,
                                Hasher* hasher);
 
-  virtual OutputResource* CreateOutputResource(const ContentType& content_type);
+  virtual OutputResource* GenerateOutputResource(const ContentType& type);
+  virtual OutputResource* NamedOutputResource(const StringPiece& name,
+                                              const ContentType& type);
 
   virtual void SetDefaultHeaders(const ContentType& content_type,
                                  MetaData* header);
 
  private:
   bool write_http_headers_;
-  bool garble_filenames_;
+  FilenameEncoder* filename_encoder_;
   Hasher* hasher_;
 };
 

@@ -36,6 +36,9 @@ class FileSystem {
 
   class InputFile : public File {
    public:
+    // TODO(sligocki): Perhaps this should be renamed to avoid confusing
+    // that it returns a bool to indicate success like all other Read methods
+    // in our codebase.
     virtual int Read(char* buf, int size, MessageHandler* message_handler) = 0;
 
    protected:
@@ -45,8 +48,12 @@ class FileSystem {
 
   class OutputFile : public File {
    public:
-    virtual int Write(
-        const char* buf, int bytes, MessageHandler* message_handler) = 0;
+    // Note: Write is not atomic. If Write fails, there is no indication of how
+    // much data has already been written to the file.
+    //
+    // TODO(sligocki): Would we like a version that returns the amound written?
+    // If so, it should be named so that it is clear it is returning int.
+    virtual bool Write(const char* buf, int bytes, MessageHandler* handler) = 0;
     virtual bool Flush(MessageHandler* message_handler) = 0;
     virtual bool SetWorldReadable(MessageHandler* message_handler) = 0;
 
@@ -79,6 +86,10 @@ class FileSystem {
   // Renames a file
   virtual bool RenameFile(const char* old_filename, const char* new_filename,
                           MessageHandler* handler) = 0;
+  // Delete a file
+  virtual bool RemoveFile(const char* filename,
+                          MessageHandler* handler) = 0;
+
 };
 
 // Make sure directory's path ends in '/'

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
+#include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
 
@@ -19,7 +20,7 @@ class CssFilter {
   // Examines an HTML element to determine if it's a CSS link,
   // extracting out the HREF and the media-type.
   bool ParseCssElement(
-      HtmlElement* element, const char** href, const char** media);
+      HtmlElement* element, HtmlElement::Attribute** href, const char** media);
 
  private:
   Atom s_link_;

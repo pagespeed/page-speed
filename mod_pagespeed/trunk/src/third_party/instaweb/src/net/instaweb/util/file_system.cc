@@ -46,8 +46,7 @@ bool FileSystem::WriteFile(const char* filename, const std::string& buffer,
   OutputFile* output_file = OpenOutputFile(filename, message_handler);
   bool ret = false;
   if (output_file != NULL) {
-    ret = (output_file->Write(buffer.data(), buffer.size(), message_handler) ==
-           static_cast<int>(buffer.size()));
+    ret = output_file->Write(buffer.data(), buffer.size(), message_handler);
     ret &= output_file->SetWorldReadable(message_handler);
     ret &= Close(output_file, message_handler);
   }

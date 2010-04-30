@@ -55,6 +55,7 @@ void BaseTagFilter::EndElement(HtmlElement* element) {
       found_base_tag_ = true;
       std::vector<std::string> head_atts;
       HtmlElement* element = html_parse_->NewElement(s_base_);
+      element->set_close_style(HtmlElement::IMPLICIT_CLOSE);
       element->AddAttribute(s_href_, base_url_.c_str(), "\"");
       html_parse_->InsertElementBeforeCurrent(element);
       found_base_tag_ = true;

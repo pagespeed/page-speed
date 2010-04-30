@@ -148,13 +148,12 @@ void OutlineFilter::OutlineStyle(HtmlElement* style_element,
                                  const std::string& content) {
   if (html_parse_->IsRewritable(style_element)) {
     // Create style file from content.
-    HtmlElement::Attribute* type =
-        style_element->FirstAttributeWithName(s_type_);
+    const char* type = style_element->AttributeValue(s_type_);
     // We only deal with CSS styles.  If no type specified, CSS is assumed.
     // TODO(sligocki): Is this assumption appropriate?
-    if (type == NULL || strcmp(type->value(), kTextCss) == 0) {
+    if (type == NULL || strcmp(type, kTextCss) == 0) {
       OutputResource* resource =
-          resource_manager_->CreateOutputResource(kContentTypeCss);
+          resource_manager_->GenerateOutputResource(kContentTypeCss);
       MessageHandler* handler = html_parse_->message_handler();
       if (WriteResource(content, resource, handler)) {
         HtmlElement* link_element = html_parse_->NewElement(s_link_);
@@ -191,12 +190,12 @@ void OutlineFilter::OutlineScript(HtmlElement* element,
                                   const std::string& content) {
   if (html_parse_->IsRewritable(element)) {
     // Create script file from content.
-    HtmlElement::Attribute* type = element->FirstAttributeWithName(s_type_);
+    const char* type = element->AttributeValue(s_type_);
     // We only deal with javascript styles. If no type specified, JS is assumed.
     // TODO(sligocki): Is this assumption appropriate?
-    if (type == NULL || strcmp(type->value(), kTextJavascript) == 0) {
+    if (type == NULL || strcmp(type, kTextJavascript) == 0) {
       OutputResource* resource =
-          resource_manager_->CreateOutputResource(kContentTypeJavascript);
+          resource_manager_->GenerateOutputResource(kContentTypeJavascript);
       MessageHandler* handler = html_parse_->message_handler();
       if (WriteResource(content, resource, handler)) {
         HtmlElement* src_element = html_parse_->NewElement(s_script_);

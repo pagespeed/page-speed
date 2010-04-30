@@ -11,52 +11,67 @@ namespace net_instaweb {
 
 namespace {
 
-// Helper class to hold state for a single asynchronous fetch.  When
-// the fetch is complete, we'll put the resource in the cache.
-class AsyncFetch : public UrlAsyncFetcher::Callback {
+// The synchronous version of the caching fetch must supply a
+// response_headers buffer that will still be valid at when the fetch
+// completes and the callback executes.
+class AsyncFetchWithHeaders : public CacheUrlFetcher::AsyncFetch {
  public:
-  AsyncFetch(const std::string& url, HTTPCache* cache, MessageHandler* handler)
-      : url_(url),
-        writer_(&content_),
-        http_cache_(cache),
-        message_handler_(handler) {
+  AsyncFetchWithHeaders(const StringPiece& url, HTTPCache* cache,
+                        MessageHandler* handler)
+      : CacheUrlFetcher::AsyncFetch(url, cache, handler) {
   }
 
-  virtual void Done(bool success) {
-    if (success) {
-      // TODO(jmarantz): allow configuration of whether we ignore
-      // IsProxyCacheable, e.g. for content served from the same host
-      if (response_headers_.IsCacheable() &&
-          (http_cache_->Query(url_.c_str(), message_handler_) !=
-           CacheInterface::kInTransit)) {
-        http_cache_->Put(url_.c_str(), response_headers_, content_,
-                         message_handler_);
-      } else {
-        // TODO(jmarantz): cache that this request is not cacheable
-      }
-    } else {
-      // TODO(jmarantz): cache that this request is not fetchable
-    }
-    delete this;
+  virtual MetaData* ResponseHeaders() {
+    return &response_headers_;
   }
-
-  void Start(UrlAsyncFetcher* fetcher, const MetaData& request_headers) {
-    fetcher->StreamingFetch(url_, request_headers, &response_headers_,
-                            &writer_, message_handler_, this);
-  }
-
-  std::string url_;
-  std::string content_;
-  StringWriter writer_;
-  HTTPCache* http_cache_;
+ private:
   SimpleMetaData response_headers_;
-  MessageHandler* message_handler_;
 };
 
 }  // namespace
 
+CacheUrlFetcher::AsyncFetch::AsyncFetch(const StringPiece& url,
+                                        HTTPCache* cache,
+                                        MessageHandler* handler)
+    : message_handler_(handler),
+      url_(url.data(), url.size()),
+      writer_(&content_),
+      http_cache_(cache) {
+}
+
+CacheUrlFetcher::AsyncFetch::~AsyncFetch() {
+}
+
+void CacheUrlFetcher::AsyncFetch::UpdateCache() {
+  // TODO(jmarantz): allow configuration of whether we ignore
+  // IsProxyCacheable, e.g. for content served from the same host
+  MetaData* response_headers = ResponseHeaders();
+  if (response_headers->IsCacheable() &&
+      (http_cache_->Query(url_.c_str(), message_handler_) ==
+       CacheInterface::kNotFound)) {
+    http_cache_->Put(url_.c_str(), *response_headers, content_,
+                     message_handler_);
+  }
+}
+
+void CacheUrlFetcher::AsyncFetch::Done(bool success) {
+  if (success) {
+    UpdateCache();
+  } else {
+    // TODO(jmarantz): cache that this request is not fetchable
+  }
+  delete this;
+}
+
+void CacheUrlFetcher::AsyncFetch::Start(
+    UrlAsyncFetcher* fetcher, const MetaData& request_headers) {
+  fetcher->StreamingFetch(url_, request_headers, ResponseHeaders(),
+                          &writer_, message_handler_, this);
+}
+
 CacheUrlFetcher::~CacheUrlFetcher() {
 }
+
 
 bool CacheUrlFetcher::StreamingFetchUrl(
     const std::string& url, const MetaData& request_headers,
@@ -69,21 +84,19 @@ bool CacheUrlFetcher::StreamingFetchUrl(
       // into the cache, which currently lacks a streaming Put.
       std::string content;
       StringWriter string_writer(&content);
-      if (sync_fetcher_->StreamingFetchUrl(
-              url, request_headers, response_headers,
-              &string_writer, handler)) {
-        writer->Write(content.data(), content.size(), handler);
+      ret = sync_fetcher_->StreamingFetchUrl(
+          url, request_headers, response_headers, &string_writer, handler);
+      writer->Write(content.data(), content.size(), handler);
+      if (ret) {
         if (response_headers->IsCacheable()) {
           http_cache_->Put(url.c_str(), *response_headers, content, handler);
-        } else {
-          // TODO(jmarantz): cache that this request is not cacheable
         }
         ret = true;
       } else {
-        // TODO(jmarantz): cache that this request is not fetchable
+        // TODO(jmarantz): Consider caching that this request is not fetchable
       }
     } else {
-      AsyncFetch* fetch = new AsyncFetch(url, http_cache_, handler);
+      AsyncFetch* fetch = new AsyncFetchWithHeaders(url, http_cache_, handler);
       fetch->Start(async_fetcher_, request_headers);
     }
   }

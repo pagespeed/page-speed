@@ -79,13 +79,11 @@ void HtmlWriterFilter::StartElement(HtmlElement* element) {
     EmitBytes(attribute.name().c_str());
     last_is_unquoted = false;
     if (attribute.value() != NULL) {
-      // TODO(sligocki): Sanitize by removing all quotes from value and
-      // quoting values that need to be.
       EmitBytes("=", 1);
       EmitBytes(attribute.quote());
       EmitBytes(attribute.value());
       EmitBytes(attribute.quote());
-      last_is_unquoted = (strcmp(attribute.quote(), "") == 0);
+      last_is_unquoted = (attribute.quote()[0] == '\0');
     }
   }
 

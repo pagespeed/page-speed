@@ -85,12 +85,12 @@ class StdioOutputFile : public FileSystem::OutputFile {
   StdioOutputFile(FILE* f, const char* filename) : file_helper_(f, filename) {
   }
 
-  virtual int Write(
-      const char* buf, int size, MessageHandler* message_handler) {
-    int ret = fwrite(buf, 1, size, file_helper_.file_);
-    file_helper_.CountNewlines(buf, ret);
-    if (ret != size) {
-      file_helper_.ReportError(message_handler, "writing file: %s");
+  virtual bool Write(const char* buf, int size, MessageHandler* handler) {
+    int bytes_written = fwrite(buf, 1, size, file_helper_.file_);
+    file_helper_.CountNewlines(buf, bytes_written);
+    bool ret = (bytes_written == size);
+    if (!ret) {
+      file_helper_.ReportError(handler, "writing file: %s");
     }
     return ret;
   }
@@ -202,5 +202,17 @@ bool StdioFileSystem::RenameFile(const char* old_file, const char* new_file,
   }
   return ret;
 }
+
+bool StdioFileSystem::RemoveFile(const char* filename,
+                                 MessageHandler* message_handler) {
+  bool ret = true;
+  if (remove(filename) < 0) {
+    message_handler->Error(filename, 0, "removing file: %s", strerror(errno));
+    ret = false;
+  }
+  return ret;
+}
+
+
 
 }  // namespace net_instaweb
