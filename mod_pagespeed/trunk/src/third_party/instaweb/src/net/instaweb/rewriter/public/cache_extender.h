@@ -15,7 +15,6 @@ namespace net_instaweb {
 
 class Hasher;
 class ResourceManager;
-class ResourceServer;
 
 // Rewrites resources to extend their cache lifetime, encoding the
 // content hash into the new URL to ensure we do not serve stale
@@ -24,7 +23,7 @@ class CacheExtender : public RewriteFilter {
  public:
   CacheExtender(const char* path_prefix, HtmlParse* html_parse,
                 ResourceManager* resource_manager,
-                Hasher* hasher, ResourceServer* resource_server);
+                Hasher* hasher);
 
   virtual void StartElement(HtmlElement* element);
   virtual bool Fetch(StringPiece resource, Writer* writer,
@@ -40,7 +39,6 @@ class CacheExtender : public RewriteFilter {
   ResourceManager* resource_manager_;
   Hasher* hasher_;
   CssFilter css_filter_;
-  ResourceServer* resource_server_;
 };
 
 }  // namespace net_instaweb

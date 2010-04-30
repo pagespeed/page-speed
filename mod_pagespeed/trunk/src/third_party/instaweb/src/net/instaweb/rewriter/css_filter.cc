@@ -25,11 +25,11 @@ CssFilter::CssFilter(HtmlParse* html_parse) {
   s_media_  =     html_parse->Intern("media");
 }
 
-bool CssFilter::ParseCssElement(HtmlElement* element,
-                                const char** href, const char** media) {
+bool CssFilter::ParseCssElement(
+    HtmlElement* element, HtmlElement::Attribute** href, const char** media) {
   bool ret = false;
   *media = "";
-  *href = "";
+  *href = NULL;
   if (element->tag() == s_link_) {
     // We must have all attributes rel='stylesheet' href='name.css', and
     // type='text/css', although they can be in any order.  If there are,
@@ -44,9 +44,9 @@ bool CssFilter::ParseCssElement(HtmlElement* element,
     // including inline css so that the outline_filter can use it.
     if ((num_attrs == 3) || (num_attrs == 4)) {
       for (int i = 0; i < num_attrs; ++i) {
-        const HtmlElement::Attribute& attr = element->attribute(i);
+        HtmlElement::Attribute& attr = element->attribute(i);
         if (attr.name() == s_href_) {
-          *href = attr.value();
+          *href = &attr;
           ret = true;
         } else if (attr.name() == s_media_) {
           *media = attr.value();

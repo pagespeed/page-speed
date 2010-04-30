@@ -8,9 +8,8 @@ namespace net_instaweb {
 FileWriter::~FileWriter() {
 }
 
-bool FileWriter::Write(
-    const char* str, int len, MessageHandler* message_handler) {
-  return file_->Write(str, len, message_handler) == len;
+bool FileWriter::Write(const char* str, int len, MessageHandler* handler) {
+  return file_->Write(str, len, handler);
 }
 
 bool FileWriter::Flush(MessageHandler* message_handler) {

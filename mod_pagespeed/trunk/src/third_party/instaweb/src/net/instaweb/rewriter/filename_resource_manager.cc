@@ -14,8 +14,8 @@
 #include "net/instaweb/rewriter/public/output_resource.h"
 #include "net/instaweb/util/public/content_type.h"
 #include "net/instaweb/util/public/file_system.h"
+#include "net/instaweb/util/public/filename_encoder.h"
 #include "net/instaweb/util/public/google_url.h"
-#include "net/instaweb/util/public/http_dump_util.h"
 #include <string>
 #include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/util/public/url_fetcher.h"
@@ -30,17 +30,17 @@ const int kFileUrlPrefixSize = sizeof(kFileUrlPrefix);
 namespace net_instaweb {
 
 FilenameResourceManager::FilenameResourceManager(
-    const std::string& file_prefix, const std::string& url_prefix,
-    const int num_shards, const bool write_headers, const bool garble_filenames,
-    FileSystem* file_system, UrlFetcher* url_fetcher)
-    : file_prefix_(file_prefix),
-      url_prefix_(url_prefix),
-      num_shards_(num_shards),
+    const StringPiece& file_prefix, const StringPiece& url_prefix,
+    const int num_shards, const bool write_headers, FileSystem* file_system,
+    FilenameEncoder* filename_encoder, UrlFetcher* url_fetcher)
+    : num_shards_(num_shards),
       resource_id_(0),
       write_http_headers_(write_headers),
-      garble_filenames_(garble_filenames),
       file_system_(file_system),
+      filename_encoder_(filename_encoder),
       url_fetcher_(url_fetcher) {
+  file_prefix.CopyToString(&file_prefix_);
+  url_prefix.CopyToString(&url_prefix_);
 }
 
 FilenameResourceManager::~FilenameResourceManager() {
@@ -56,28 +56,21 @@ void FilenameResourceManager::SetDefaultHeaders(const ContentType& content_type,
                                                 MetaData* header) {
   header->set_major_version(1);
   header->set_minor_version(1);
-  header->set_status_code(200);
+  header->set_status_code(HttpStatus::OK);
   header->set_reason_phrase("OK");
   header->Add("Content-Type", content_type.mime_type());
 }
 
-OutputResource* FilenameResourceManager::CreateOutputResource(
+OutputResource* FilenameResourceManager::NamedOutputResource(
+    const StringPiece& name,
     const ContentType& content_type) {
-  int id = resource_id_++;
-  char id_string[100];
-  snprintf(id_string, sizeof(id_string), "%d", id);
   const char* extension = content_type.file_extension();
 
-  std::string url = StrCat(url_prefix_, id_string, extension);
-  std::string filename = file_prefix_;
-  if (garble_filenames_) {
-    std::string ungarbled_end = StrCat(id_string, extension);
-    // Appends garbled end.
-    latencylab::EscapeNonAlphanum(ungarbled_end, &filename);
-  } else {
-    filename += id_string;
-    filename += extension;
-  }
+  std::string url = StrCat(url_prefix_, name, extension);
+
+  std::string raw_ending = StrCat(name, extension);
+  std::string filename;
+  filename_encoder_->Encode(file_prefix_, raw_ending, &filename);
 
   OutputResource* resource =
       new FilenameOutputResource(url, filename, write_http_headers_,
@@ -88,16 +81,24 @@ OutputResource* FilenameResourceManager::CreateOutputResource(
   return resource;
 }
 
+OutputResource* FilenameResourceManager::GenerateOutputResource(
+    const ContentType& content_type) {
+  int id = resource_id_++;
+  std::string id_string = IntegerToString(id);
+  return NamedOutputResource(id_string, content_type);
+}
+
 InputResource* FilenameResourceManager::CreateInputResource(
-    const std::string& input_url) {
+    const StringPiece& input_url) {
   InputResource* resource = NULL;
 
-  scoped_ptr<GURL> gurl(new GURL(input_url));
-  std::string url = input_url;
+  scoped_ptr<GURL> gurl(new GURL(input_url.as_string()));
+  std::string url;
+  input_url.CopyToString(&url);
 
   if (gurl->scheme().empty()) {
     // TODO(jmarantz): check behavior if input_url does not begin with a slash.
-    url = base_url_ + input_url;
+    url = StrCat(base_url_, input_url);
     gurl.reset(new GURL(url));
   }
 

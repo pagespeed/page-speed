@@ -14,18 +14,14 @@ class ImgFilter {
  public:
   explicit ImgFilter(HtmlParse* html_parse);
 
-  // Examine HTML element and determine if it is an img with a src.
-  // If so extract the value of the src attribute and return it,
-  // otherwise return NULL.
-  // NOTE: the returned value continues to be owned by element.
-  // This means it goes away if we modify the element value in future.
-  // TODO(jmaessen): Replace char * with StringPiece or equivalent to make
-  // ownership issues clear.
-  const char* ParseImgElement(const HtmlElement* element);
-
-  // Examine HTML element, and if it is an img replace its src with
-  // new_src (taking ownership of the char *).
-  bool ReplaceSrc(const char *new_src, HtmlElement* element);
+  // Examine HTML element and determine if it is an img with a src.  If so
+  // extract the src attribute and return it, otherwise return NULL.
+  HtmlElement::Attribute* ParseImgElement(HtmlElement* element) {
+    if (element->tag() == s_img_) {
+      return element->FindAttribute(s_src_);
+    }
+    return NULL;
+  }
 
  private:
   const Atom s_img_;

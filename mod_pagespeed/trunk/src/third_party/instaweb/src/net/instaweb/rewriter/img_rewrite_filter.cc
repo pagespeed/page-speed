@@ -24,13 +24,11 @@ namespace net_instaweb {
 
 ImgRewriteFilter::ImgRewriteFilter(StringPiece path_prefix,
                                    HtmlParse* html_parse,
-                                   ResourceManager* resource_manager,
-                                   bool unquote_sizes)
+                                   ResourceManager* resource_manager)
     : RewriteFilter(path_prefix),
       html_parse_(html_parse),
       img_filter_(new ImgFilter(html_parse)),
       resource_manager_(resource_manager),
-      unquote_sizes_(unquote_sizes),
       s_width_(html_parse->Intern("width")),
       s_height_(html_parse->Intern("height")) {
 }
@@ -40,10 +38,10 @@ ImgRewriteFilter::ImgRewriteFilter(StringPiece path_prefix,
 // out and update the HtmlElement src attribute if it succeeds.
 void ImgRewriteFilter::WriteBytesWithExtension(
     const ContentType& content_type, const std::string& contents,
-    HtmlElement* element) {
+    HtmlElement::Attribute* src) {
   MessageHandler* message_handler = html_parse_->message_handler();
   OutputResource* output_image =
-      resource_manager_->CreateOutputResource(content_type);
+      resource_manager_->GenerateOutputResource(content_type);
   bool written = output_image->StartWrite(message_handler);
   if (written) {
     written = output_image->WriteChunk(contents.data(), contents.size(),
@@ -56,51 +54,46 @@ void ImgRewriteFilter::WriteBytesWithExtension(
     // Success!  Rewrite img src attribute.  Log *first* to avoid
     // memory management trouble with old url string.
     const char* url = output_image->url().c_str();
-    html_parse_->Info(
-        img_filter_->ParseImgElement(element), 0, "Remapped to %s", url);
-    if (!img_filter_->ReplaceSrc(url, element)) {
-      html_parse_->Error(
-          url, 0,
-          " not inserted into img src; harmless, but should not happen");
-    }
+    html_parse_->Info(src->value(), 0, "Remapped to %s", url);
+    src->set_value(url);
   }
 }
 
 void ImgRewriteFilter::OptimizePng(
     pagespeed::image_compression::PngReaderInterface* reader,
-    HtmlElement* element, InputResource* img_resource) {
+    HtmlElement::Attribute* src, InputResource* img_resource) {
   std::string optimized_contents;
   if (pagespeed::image_compression::PngOptimizer::OptimizePng(
           *reader, img_resource->contents(), &optimized_contents)) {
-    WriteBytesWithExtension(kContentTypePng, optimized_contents, element);
+    WriteBytesWithExtension(kContentTypePng, optimized_contents, src);
   }
 }
 
-void ImgRewriteFilter::OptimizeJpeg(HtmlElement* element,
+void ImgRewriteFilter::OptimizeJpeg(HtmlElement::Attribute* src,
                                     InputResource* img_resource) {
   std::string optimized_contents;
   if (pagespeed::image_compression::OptimizeJpeg(
           img_resource->contents(), &optimized_contents)) {
-    WriteBytesWithExtension(kContentTypeJpeg, optimized_contents, element);
+    WriteBytesWithExtension(kContentTypeJpeg, optimized_contents, src);
   }
 }
 
-void ImgRewriteFilter::OptimizeImgResource(HtmlElement* element,
+void ImgRewriteFilter::OptimizeImgResource(HtmlElement::Attribute* src,
                                            InputResource* img_resource) {
   switch (img_resource->image_type()) {
     case InputResource::IMAGE_JPEG: {
-      OptimizeJpeg(element, img_resource);
+      OptimizeJpeg(src, img_resource);
       break;
     }
     case InputResource::IMAGE_PNG: {
       pagespeed::image_compression::PngReader png_reader;
-      OptimizePng(&png_reader, element, img_resource);
+      OptimizePng(&png_reader, src, img_resource);
       break;
     }
     case InputResource::IMAGE_GIF: {
 #if PAGESPEED_PNG_OPTIMIZER_GIF_READER
       pagespeed::image_compression::GifReader gif_reader;
-      OptimizePng(&gif_reader, element, img_resource);
+      OptimizePng(&gif_reader, src, img_resource);
 #endif
       break;
     }
@@ -114,7 +107,7 @@ void ImgRewriteFilter::OptimizeImgResource(HtmlElement* element,
 }
 
 void ImgRewriteFilter::EndElement(HtmlElement* element) {
-  const char *src = img_filter_->ParseImgElement(element);
+  HtmlElement::Attribute *src = img_filter_->ParseImgElement(element);
   if (src != NULL) {
     // We now know that element is an img tag.
     // Log the element in its original form.
@@ -132,33 +125,17 @@ void ImgRewriteFilter::EndElement(HtmlElement* element) {
     // initiates async fetch, fails, but populates resources
     // as they arrive so future requests succeed.
     InputResource* img_resource =
-        resource_manager_->CreateInputResource(src);
+        resource_manager_->CreateInputResource(src->value());
     MessageHandler* message_handler = html_parse_->message_handler();
     if ((img_resource != NULL) && img_resource->Read(message_handler)) {
       if (img_resource->ContentsValid()) {
-        OptimizeImgResource(element, img_resource);
+        OptimizeImgResource(src, img_resource);
       } else {
         html_parse_->Warning(img_resource->url().c_str(), 0,
                              "Img contents are invalid.");
       }
     } else {
-      html_parse_->Warning(src, 0, "Img contents weren't loaded");
-    }
-
-    if (unquote_sizes_) {
-      // Drop quotes from img dimensions; they're numbers or percentages
-      // and should not contain any spaces.
-      // TODO(jmaessen): remove and replace with a quote removal pass later.
-      HtmlElement::Attribute *width =
-          element->FirstAttributeWithName(s_width_);
-      if (width != NULL) {
-        width->set_quote("");
-      }
-      HtmlElement::Attribute *height =
-          element->FirstAttributeWithName(s_height_);
-      if (height != NULL) {
-        height->set_quote("");
-      }
+      html_parse_->Warning(src->value(), 0, "Img contents weren't loaded");
     }
   }
 }

@@ -44,11 +44,8 @@ class HtmlElement {
 
     Atom name() const { return name_; }
 
-    // Warning: the result of value() is still owned by
-    // this, and will be invalidated by a subsequent call to set_value().
-    // TODO(jmaessen): Fix ownership here, it's a mess.
-    //   This creates knock-on problems with ImgFilter::ParseImgElement
-    //   and with CssFilter::ParseCssElement.
+    // The result of value() is still owned by this, and will be invalidated by
+    // a subsequent call to set_value().
     const char* value() const { return value_.get(); }
     const char* quote() const { return quote_; }
 
@@ -72,21 +69,34 @@ class HtmlElement {
 
   ~HtmlElement();
 
+  // Unconditionally add attribute, copying value.
+  // Quote is assumed to be a static const char *.
+  // Doesn't check for attribute duplication (which is illegal in html).
   void AddAttribute(Atom name, const char* value, const char* quote) {
     attributes_.push_back(new Attribute(name, value, quote));
   }
 
-  // Look for attribute by interned name.  NULL if no attribute exists.
-  const Attribute* FirstAttributeWithName(Atom name) const;
-  Attribute* FirstAttributeWithName(Atom name) {
+  // Look up attribute by name.  NULL if no attribute exists.
+  // Use this for attributes whose value you might want to change
+  // after lookup.
+  const Attribute* FindAttribute(Atom name) const;
+  Attribute* FindAttribute(Atom name) {
     const HtmlElement* const_this = this;
-    const Attribute* result = const_this->FirstAttributeWithName(name);
+    const Attribute* result = const_this->FindAttribute(name);
     return const_cast<Attribute*>(result);
   }
 
-  // Replaces an existing attribute with a new value, returning false if
-  // the attribute was not found.
-  bool ReplaceAttribute(Atom name, const char* value);
+  // Look up attribute value by name.  NULL if no attribute exists.
+  // Use this only if you don't intend to change the attribute value;
+  // if you might change the attribute value, use FindAttribute instead
+  // (this avoids a double lookup).
+  const char *AttributeValue(Atom name) const {
+    const Attribute* attribute = FindAttribute(name);
+    if (attribute != NULL) {
+      return attribute->value();
+    }
+    return NULL;
+  }
 
   // Small integer uniquely identifying the HTML element, primarily
   // for debugging.

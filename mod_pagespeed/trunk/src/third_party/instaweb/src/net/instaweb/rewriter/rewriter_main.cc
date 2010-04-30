@@ -6,11 +6,12 @@
 #include <stdlib.h>
 #include "base/scoped_ptr.h"
 #include "net/instaweb/htmlparse/public/file_driver.h"
-#include "net/instaweb/rewriter/public/resource_manager.h"
+#include "net/instaweb/rewriter/public/filename_resource_manager.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
 #include "net/instaweb/util/public/cache_url_fetcher.h"
 #include "net/instaweb/util/public/fake_url_async_fetcher.h"
 #include "net/instaweb/util/public/file_message_handler.h"
+#include "net/instaweb/util/public/filename_encoder.h"
 #include "net/instaweb/util/public/http_cache.h"
 #include "net/instaweb/util/public/lru_cache.h"
 #include "net/instaweb/util/public/stdio_file_system.h"
@@ -29,10 +30,9 @@ int main(int argc, char** argv) {
   net_instaweb::HTTPCache http_cache(&lru_cache, timer.get());
   net_instaweb::CacheUrlFetcher cache_url_fetcher(&http_cache, &url_fetcher);
   net_instaweb::FakeUrlAsyncFetcher url_async_fetcher(&cache_url_fetcher);
-  net_instaweb::RewriteDriver rewrite_driver(html_parse, &file_system,
-                                             &cache_url_fetcher,
-                                             &url_async_fetcher);
+  net_instaweb::RewriteDriver rewrite_driver(html_parse, &url_async_fetcher);
 
+  scoped_ptr<net_instaweb::ResourceManager> manager;
   if ((argc > (start + 4)) &&
       (strcmp(argv[start], "-resource_patterns") == 0)) {
     const char* file_prefix = argv[start + 1];
@@ -45,10 +45,12 @@ int main(int argc, char** argv) {
               num_shards);
       return 1;
     }
+    net_instaweb::FilenameEncoder filename_encoder;
     bool write_headers = false;
-    bool garble_filenames = false;
-    rewrite_driver.SetFilenameResources(file_prefix, serving_prefix, num_shards,
-                                        write_headers, garble_filenames);
+    manager.reset(new net_instaweb::FilenameResourceManager(
+        file_prefix, serving_prefix, num_shards, write_headers, &file_system,
+        &filename_encoder, &url_fetcher));
+    rewrite_driver.SetResourceManager(manager.get());
     start += 4;
   }
 
@@ -76,6 +78,11 @@ int main(int argc, char** argv) {
     start += 1;
   }
 
+  if ((argc > (start + 1)) && (strcmp(argv[start], "-remove_quotes") == 0)) {
+    rewrite_driver.RemoveQuotes();
+    start += 1;
+  }
+
   const char* infile = argv[start];
   const char* outfile = NULL;
   std::string outfile_buffer;
@@ -91,7 +98,7 @@ int main(int argc, char** argv) {
 
   int ret = 0;
   if (outfile != NULL) {
-    if (rewrite_driver.resource_manager() != NULL) {
+    if (manager != NULL) {
       const char* last_slash = strrchr(infile, '/');
       if (last_slash != NULL) {
         // set the input search directory for the file resource manager.

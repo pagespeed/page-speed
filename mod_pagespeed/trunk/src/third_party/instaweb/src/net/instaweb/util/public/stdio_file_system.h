@@ -20,6 +20,8 @@ class StdioFileSystem : public FileSystem {
                                    MessageHandler* message_handle);
   virtual bool RenameFile(const char* old_file, const char* new_file,
                           MessageHandler* message_handler);
+  virtual bool RemoveFile(const char* filename,
+                          MessageHandler* handler);
 };
 
 }  // namespace net_instaweb

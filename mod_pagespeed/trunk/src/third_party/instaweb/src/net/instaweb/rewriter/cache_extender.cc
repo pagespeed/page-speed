@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include "net/instaweb/rewriter/public/resource_manager.h"
-#include "net/instaweb/rewriter/public/resource_server.h"
+#include "net/instaweb/rewriter/rewrite.pb.h"  // for ResourceUrl
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/util/public/hasher.h"
@@ -18,52 +18,53 @@ namespace net_instaweb {
 
 CacheExtender::CacheExtender(const char* path_prefix, HtmlParse* html_parse,
                              ResourceManager* resource_manager,
-                             Hasher* hasher, ResourceServer* resource_server)
+                             Hasher* hasher)
     : RewriteFilter(path_prefix),
       html_parse_(html_parse),
       resource_manager_(resource_manager),
       hasher_(hasher),
-      css_filter_(html_parse),
-      resource_server_(resource_server) {
+      css_filter_(html_parse) {
   s_href_ = html_parse->Intern("href");
 }
 
 void CacheExtender::StartElement(HtmlElement* element) {
-  const char* href;
+  HtmlElement::Attribute* href;
   const char* media;
   if (css_filter_.ParseCssElement(element, &href, &media) &&
       html_parse_->IsRewritable(element)) {
     InputResource* css_resource =
-        resource_manager_->CreateInputResource(href);
+        resource_manager_->CreateInputResource(href->value());
     MessageHandler* message_handler = html_parse_->message_handler();
     if (css_resource->Read(message_handler)) {
+      ResourceUrl resource_url;
+      resource_url.set_origin_url(href->value());
+      resource_url.set_content_hash(hasher_->Hash(css_resource->contents()));
       std::string url_safe_id;
-      resource_server_->EncodeResource(css_resource->url().c_str(),
-                                       css_resource->contents(),
-                                       &url_safe_id);
-      std::string new_url = resource_manager_->url_prefix() + path_prefix_ +
-          "/" + url_safe_id;
-      bool replaced = element->ReplaceAttribute(s_href_, new_url.c_str());
-      assert(replaced);
+      Encode(resource_url, &url_safe_id);
+      std::string new_url = StrCat(
+          resource_manager_->url_prefix(), path_prefix_, "/", url_safe_id);
+      href->set_value(new_url.c_str());
     }
   }
 }
 
-bool CacheExtender::Fetch(StringPiece resource_url,
+bool CacheExtender::Fetch(StringPiece url_safe_id,
                           Writer* writer,
                           const MetaData& request_headers,
                           MetaData* response_headers,
                           UrlAsyncFetcher* fetcher,
                           MessageHandler* message_handler,
                           UrlAsyncFetcher::Callback* callback) {
-  std::string url;
+  std::string url, decoded_resource;
   bool ret = false;
-  if (resource_server_->DecodeResource(resource_url, &url)) {
+  ResourceUrl resource_url;
+  if (Decode(url_safe_id, &resource_url)) {
+    const std::string& url = resource_url.origin_url();
     fetcher->StreamingFetch(url, request_headers, response_headers,
                             writer, message_handler, callback);
     ret = true;
   } else {
-    resource_url.CopyToString(&url);
+    url_safe_id.CopyToString(&url);
     message_handler->Error(url.c_str(), 0, "Unable to decode resource string");
   }
   return ret;

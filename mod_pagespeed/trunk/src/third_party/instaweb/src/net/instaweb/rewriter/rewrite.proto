@@ -13,3 +13,13 @@ message ResourceUrl {
   optional string origin_url = 1 [default = "" ];
   optional string content_hash = 2 [default = "" ];
 };
+
+message CssUrl {
+  optional string origin_url = 1 [default = "" ];
+  optional string media = 2 [default = "" ];
+};
+
+message CssCombineUrl {
+  repeated CssUrl elements = 1;
+  optional string content_hash = 2 [default = "" ];
+};

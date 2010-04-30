@@ -5,6 +5,8 @@
 #define NET_INSTAWEB_REWRITER_PUBLIC_IMG_REWRITE_FILTER_H_
 
 #include "net/instaweb/rewriter/public/rewrite_filter.h"
+
+#include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
@@ -28,8 +30,7 @@ class ImgRewriteFilter : public RewriteFilter {
  public:
   ImgRewriteFilter(StringPiece path_prefix,
                    HtmlParse* html_parse,
-                   ResourceManager* resource_manager,
-                   bool unquote_sizes);
+                   ResourceManager* resource_manager);
   virtual void EndElement(HtmlElement* element);
   virtual void Flush();
   virtual bool Fetch(StringPiece resource, Writer* writer,
@@ -43,16 +44,16 @@ class ImgRewriteFilter : public RewriteFilter {
   // These are just helper methods.
   void WriteBytesWithExtension(const ContentType& content_type,
                                const std::string& contents,
-                               HtmlElement* element);
+                               HtmlElement::Attribute* src);
   void OptimizePng(pagespeed::image_compression::PngReaderInterface* reader,
-                   HtmlElement* element, InputResource* img_resource);
-  void OptimizeJpeg(HtmlElement* element, InputResource* img_resource);
-  void OptimizeImgResource(HtmlElement* element, InputResource* img_resource);
+                   HtmlElement::Attribute* src, InputResource* img_resource);
+  void OptimizeJpeg(HtmlElement::Attribute* src, InputResource* img_resource);
+  void OptimizeImgResource(HtmlElement::Attribute* src,
+                           InputResource* img_resource);
 
   HtmlParse* html_parse_;
   ImgFilter* img_filter_;
   ResourceManager* resource_manager_;
-  bool unquote_sizes_;
   const Atom s_width_;
   const Atom s_height_;
 };

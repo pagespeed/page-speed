@@ -6,6 +6,9 @@
 
 #include "base/scoped_ptr.h"
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
+#include "net/instaweb/util/public/string_writer.h"
+#include "net/instaweb/util/public/url_async_fetcher.h"
 #include "net/instaweb/util/public/url_fetcher.h"
 
 namespace net_instaweb {
@@ -43,6 +46,38 @@ class CacheUrlFetcher : public UrlFetcher {
       MetaData* response_headers,
       Writer* fetched_content_writer,
       MessageHandler* message_handler);
+
+  // Helper class to hold state for a single asynchronous fetch.  When
+  // the fetch is complete, we'll put the resource in the cache.
+  //
+  // This class is declared here to facilitate code-sharing with
+  // CacheAsyncUrlFetcher.
+  class AsyncFetch : public UrlAsyncFetcher::Callback {
+   public:
+    AsyncFetch(const StringPiece& url, HTTPCache* cache,
+               MessageHandler* handler);
+    virtual ~AsyncFetch();
+
+    virtual void Done(bool success);
+    void Start(UrlAsyncFetcher* fetcher, const MetaData& request_headers);
+
+    // This hook allows the CacheUrlAsyncFetcher to capture the headers for
+    // its client, while still enabling this class to cache them.
+    virtual MetaData* ResponseHeaders() = 0;
+
+    void UpdateCache();
+
+   protected:
+    std::string content_;
+    MessageHandler* message_handler_;
+
+   private:
+    std::string url_;
+    StringWriter writer_;
+    HTTPCache* http_cache_;
+    Callback* callback_;
+  };
+
 
  private:
   HTTPCache* http_cache_;
