@@ -91,7 +91,7 @@ TEST(EngineTest, ComputeResults) {
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
 
-  Engine engine(rules);
+  Engine engine(&rules);
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
@@ -114,7 +114,7 @@ TEST(EngineTest, ComputeResultsError) {
   rule->set_append_results_return_value(false);
   rules.push_back(rule);
 
-  Engine engine(rules);
+  Engine engine(&rules);
   engine.Init();
   Results results;
   ASSERT_FALSE(engine.ComputeResults(input, &results));
@@ -134,7 +134,7 @@ TEST(EngineTest, FormatResults) {
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
 
-  Engine engine(rules);
+  Engine engine(&rules);
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
@@ -158,7 +158,7 @@ TEST(EngineTest, FormatResultsNoResults) {
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
 
-  Engine engine(rules);
+  Engine engine(&rules);
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
@@ -190,7 +190,7 @@ TEST(EngineTest, FormatResultsEngineNotInitialized) {
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
-  Engine engine(rules);
+  Engine engine(&rules);
 
   std::vector<ResultText*> result_text;
   ProtoFormatter formatter(&result_text);
@@ -202,7 +202,7 @@ TEST(EngineTest, FormatResultsNotInitialized) {
   Results results;
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
-  Engine engine(rules);
+  Engine engine(&rules);
   engine.Init();
 
   std::vector<ResultText*> result_text;
@@ -216,7 +216,7 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
 
-  Engine engine(rules);
+  Engine engine(&rules);
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
@@ -226,7 +226,7 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   // results. We expect this to fail since the Engine doesn't know
   // about the Rule in the Results structure.
   rules.clear();
-  Engine engine2(rules);
+  Engine engine2(&rules);
   engine2.Init();
 
   std::vector<ResultText*> result_text;

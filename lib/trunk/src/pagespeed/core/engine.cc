@@ -95,7 +95,10 @@ void FormatRuleResults(const ResultVector& rule_results,
 
 }  // namespace
 
-Engine::Engine(const std::vector<Rule*>& rules) : rules_(rules), init_(false) {
+Engine::Engine(std::vector<Rule*>* rules) : rules_(*rules), init_(false) {
+  // Now that we've transferred the rule ownership to our local
+  // vector, clear the passed in vector.
+  rules->clear();
 }
 
 Engine::~Engine() {

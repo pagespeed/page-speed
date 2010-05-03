@@ -39,8 +39,9 @@ class Engine {
  public:
   // Instantiate an Engine that uses the given Rule
   // instances. Ownership of the Rule instances is transferred to
-  // the Engine object.
-  explicit Engine(const std::vector<Rule*>& rules);
+  // the Engine object. The passed-in rules vector will be cleared
+  // after the rule ownership is transferred to this Engine object.
+  explicit Engine(std::vector<Rule*>* rules);
   virtual ~Engine();
 
   // Initialize the engine. Must be called once, immediately after
