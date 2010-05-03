@@ -358,6 +358,15 @@ PAGESPEED.CacheControlLint.findCacheCollisions = function(
  * @this PAGESPEED.LintRule
  */
 var browserCachingRule = function() {
+  if (PAGESPEED.Utils.isUsingFilter()) {
+    this.score = 'disabled';
+    this.warnings = '';
+    this.information =
+      ['This rule does not currently differentiate between ads and non-ads ',
+       'and is not included in the analysis.'].join('');
+    return;
+  }
+
   var rules = [
     new CacheRule('The following resources are missing a cache expiration.' +
                   ' Resources that do not specify an expiration may not be' +
@@ -503,6 +512,15 @@ var browserCachingRule = function() {
  * @this PAGESPEED.LintRule
  */
 var proxyCachingRule = function() {
+  if (PAGESPEED.Utils.isUsingFilter()) {
+    this.score = 'disabled';
+    this.warnings = '';
+    this.information =
+      ['This rule does not currently differentiate between ads and non-ads ',
+       'and is not included in the analysis.'].join('');
+    return;
+  }
+
   var rules = [
     new CacheRule('Due to a bug in some proxy caching servers,' +
                   ' the following publicly' +

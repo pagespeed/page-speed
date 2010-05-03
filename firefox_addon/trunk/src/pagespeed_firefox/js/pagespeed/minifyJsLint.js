@@ -131,6 +131,15 @@ function buildResultString(data) {
  * @this PAGESPEED.LintRule
  */
 var minifyJsLint = function() {
+  if (PAGESPEED.Utils.isUsingFilter()) {
+    this.score = 'disabled';
+    this.warnings = '';
+    this.information =
+      ['This rule does not currently differentiate between ads and non-ads ',
+       'and is not included in the analysis.'].join('');
+    return;
+  }
+
   var allScripts = PAGESPEED.Utils.getContentsOfAllScriptsOrStyles('script');
   if (allScripts.length == 0) {
     this.score = 'n/a';
