@@ -19,8 +19,8 @@
 #include <fstream>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "base/scoped_ptr.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "google/protobuf/text_format.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
@@ -135,11 +135,17 @@ int main(int argc, char** argv) {
   CHECK(input.get() != NULL);
 
   std::vector<pagespeed::Rule*> rules;
+
+  // In environments where exceptions can be thrown, use
+  // STLElementDeleter to make sure we free the rules in the event
+  // that they are not transferred to the Engine.
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+
   bool save_optimized_content = true;
   pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
 
   // Ownership of rules is transferred to the Engine instance.
-  pagespeed::Engine engine(rules);
+  pagespeed::Engine engine(&rules);
   engine.Init();
 
   engine.ComputeAndFormatResults(*input.get(), formatter.get());
