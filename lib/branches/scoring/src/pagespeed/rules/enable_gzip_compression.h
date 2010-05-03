@@ -39,6 +39,8 @@ class EnableGzipCompression : public MinifyRule {
   // @param computer Object responsible for computing the compressed
   // size of the resource.
   explicit EnableGzipCompression(SavingsComputer* computer);
+  virtual int ComputeScore(const InputInformation& input_info,
+                           const ResultVector& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(EnableGzipCompression);
