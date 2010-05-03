@@ -43,6 +43,15 @@ var TRACK_FUNCTION_SIZES_DEFAULT = false;
  * @this PAGESPEED.LintRule
  */
 var jsCoverageRule = function() {
+  if (PAGESPEED.Utils.isUsingFilter()) {
+    this.score = 'disabled';
+    this.warnings = '';
+    this.information =
+      ['This rule does not currently differentiate between ads and non-ads ',
+       'and is not included in the analysis.'].join('');
+    return;
+  }
+
   if (!PAGESPEED.Utils.getBoolPref(JS_PROFILER_ENABLE_PREF)) {
     this.score = 'disabled';
     this.warnings = '';

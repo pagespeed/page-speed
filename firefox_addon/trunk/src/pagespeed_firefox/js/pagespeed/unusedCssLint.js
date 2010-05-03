@@ -215,6 +215,15 @@ PAGESPEED.UnusedCss = {  // Begin namespace
  * @this PAGESPEED.LintRule
  */
 var unusedCssLint = function() {
+  if (PAGESPEED.Utils.isUsingFilter()) {
+    this.score = 'disabled';
+    this.warnings = '';
+    this.information =
+      ['This rule does not currently differentiate between ads and non-ads ',
+       'and is not included in the analysis.'].join('');
+    return;
+  }
+
   if (!domUtils) {
     this.information = ('This rule requires the DOM Inspector extension to ' +
                         'be installed and enabled.');

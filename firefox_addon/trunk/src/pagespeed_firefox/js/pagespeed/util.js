@@ -2400,6 +2400,15 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * Return false if we are to analyze the whole page, or true if we're
+   * filtering.
+   * @return {boolean} Are we using a filter?
+   */
+  isUsingFilter: function () {
+    return !document.getElementById('psAnalyzeAll').getAttribute('checked');
+  },
+
+  /**
    * Format an exception into a string.  Display just enough information
    * to debug the problem without making the error too verbose.
    * @param {Error} ex The exception object.
