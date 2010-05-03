@@ -184,7 +184,7 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
   std::vector<Rule*> rules;
   rule_provider::AppendAllRules(save_optimized_content, &rules);
 
-  Engine engine(rules);  // Ownership of rules is transferred to engine.
+  Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
   PagespeedInput input(ChoiceToFilter(filter_choice));
