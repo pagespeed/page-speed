@@ -19,12 +19,17 @@
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/html/html_compactor.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
 
 namespace rules {
 
 namespace {
+
+// This cost weight yields an avg score of 83 and a median score of 84
+// for the top 100 websites.
+const double kCostWeight = 1.5;
 
 class HtmlMinifier : public Minifier {
  public:
@@ -89,6 +94,13 @@ const MinifierOutput* HtmlMinifier::Minify(const Resource& resource) const {
 
 MinifyHTML::MinifyHTML(bool save_optimized_content)
     : MinifyRule(new HtmlMinifier(save_optimized_content)) {}
+
+int MinifyHTML::ComputeScore(const InputInformation& input_info,
+                             const ResultVector& results) {
+  WeightedCostBasedScoreComputer score_computer(
+      &results, input_info.html_response_bytes(), kCostWeight);
+  return score_computer.ComputeScore();
+}
 
 }  // namespace rules
 

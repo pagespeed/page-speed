@@ -28,6 +28,8 @@ namespace rules {
 class MinifyCSS : public MinifyRule {
  public:
   MinifyCSS(bool save_optimized_content);
+  virtual int ComputeScore(const InputInformation& input_info,
+                           const ResultVector& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MinifyCSS);

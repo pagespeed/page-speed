@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "third_party/jsmin/cpp/jsmin.h"
 
 namespace pagespeed {
@@ -25,6 +26,10 @@ namespace pagespeed {
 namespace rules {
 
 namespace {
+
+// This cost weight yields an avg score of 84 and a median score of 97
+// for the top 100 websites.
+const double kCostWeight = 3.5;
 
 class JsMinifier : public Minifier {
  public:
@@ -92,6 +97,13 @@ const MinifierOutput* JsMinifier::Minify(const Resource& resource) const {
 
 MinifyJavaScript::MinifyJavaScript(bool save_optimized_content)
     : MinifyRule(new JsMinifier(save_optimized_content)) {}
+
+int MinifyJavaScript::ComputeScore(const InputInformation& input_info,
+                                   const ResultVector& results) {
+  WeightedCostBasedScoreComputer score_computer(
+      &results, input_info.javascript_response_bytes(), kCostWeight);
+  return score_computer.ComputeScore();
+}
 
 }  // namespace rules
 
