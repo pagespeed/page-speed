@@ -12,47 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-
 #include "html_rewriter/html_rewriter.h"
+
+#include "html_rewriter/html_rewriter_imp.h"
 
 namespace html_rewriter {
 
-StringWriter::StringWriter(std::string* str) : str_(str) {
+HtmlRewriter::HtmlRewriter(request_rec* request,
+                           const std::string& url, std::string* output)
+    :html_rewriter_imp_(new HtmlRewriterImp(request, url, output)) {
 }
 
-bool StringWriter::Write(const char* str, int len,
-                   MessageHandler* /*message_handler*/) {
-  str_->append(str, len);
-  return true;  // No error will happen here.
-}
-
-bool StringWriter::Flush(MessageHandler* /*message_handler*/) {
-  // No errors can happen
-  return true;
-}
-
-HtmlRewriter::HtmlRewriter(const std::string& url, std::string* output)
-    : url_(url),
-      message_handler_(),
-      html_parse_(&message_handler_),
-      html_write_filter_(&html_parse_),
-      string_writer_(output) {
-  html_parse_.AddFilter(&html_write_filter_);
-  html_parse_.StartParse(url_.c_str());
-  html_write_filter_.set_writer(&string_writer_);
+HtmlRewriter::~HtmlRewriter() {
+  delete html_rewriter_imp_;
 }
 
 void HtmlRewriter::Finish() {
-  html_parse_.FinishParse();
+  html_rewriter_imp_->Finish();
 }
 
 void HtmlRewriter::Flush() {
-  html_parse_.Flush();
+  html_rewriter_imp_->Flush();
 }
 
 void HtmlRewriter::Rewrite(const char* input, int size) {
-  html_parse_.ParseText(input, size);
+  html_rewriter_imp_->Rewrite(input, size);
+}
+
+void HtmlRewriter::WaitForInProgressDownloads(request_rec* request) {
+  HtmlRewriterImp::WaitForInProgressDownloads(request);
 }
 
 }  // namespace html_rewriter

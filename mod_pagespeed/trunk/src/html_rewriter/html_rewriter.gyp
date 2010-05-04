@@ -19,21 +19,28 @@
 
   'targets': [
     {
-      'target_name': 'mod_pagespeed',
-      'type': 'loadable_module',
+      'target_name': 'html_rewriter',
+      'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/html_rewriter/html_rewriter.gyp:*',
         '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:*',
-        '<(DEPTH)/third_party/libpagespeed/src/third_party/jsmin/jsmin.gyp:*',
+        '<(DEPTH)/third_party/instaweb/instaweb.gyp:*',
+        '<(DEPTH)/third_party/serf/serf.gyp:*',
       ],
       'include_dirs': [
         '<(DEPTH)',
         '<(mod_spdy_root)',
       ],
       'sources': [
-        '<(DEPTH)/mod_pagespeed/mod_pagespeed.cc',
+        '<(DEPTH)/html_rewriter/apr_file_system.cc',
+        '<(DEPTH)/html_rewriter/apr_timer.cc',
+        '<(DEPTH)/html_rewriter/html_parser_message_handler.cc',
+        '<(DEPTH)/html_rewriter/html_rewriter.cc',
+        '<(DEPTH)/html_rewriter/html_rewriter_config.cc',
+        '<(DEPTH)/html_rewriter/html_rewriter_imp.cc',
+        '<(DEPTH)/html_rewriter/md5_hasher.cc',
+        '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
+        '<(DEPTH)/html_rewriter/serf_url_fetcher.cc',
         '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
     },

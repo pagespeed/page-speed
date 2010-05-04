@@ -19,6 +19,8 @@ vars = {
   "libpagespeed_revision": "@head",
   "mod_spdy_trunk": "http://mod-spdy.googlecode.com/svn/trunk",
   "mod_spdy_revision": "@head",
+  "serf_src": "http://serf.googlecode.com/svn/tags/0.3.1",
+  "serf_revision": "@head",
 }
 
 deps = {
@@ -90,6 +92,9 @@ deps = {
   "src/third_party/scons":
     (Var("chromium_trunk") + "/src/third_party/scons" +
      Var("chromium_revision")),
+
+  "src/third_party/serf/src":
+    Var("serf_src") + Var("serf_revision"),
 
   "src/third_party/zlib":
     Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),

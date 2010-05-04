@@ -17,6 +17,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "net/instaweb/util/public/message_handler.h"
 #include "third_party/apache_httpd/include/apr_file_io.h"
 #include "third_party/apache_httpd/include/apr_pools.h"
@@ -25,7 +26,17 @@ using net_instaweb::MessageHandler;
 
 namespace {
 const int kErrorMessageBufferSize = 1024;
-} // namespace
+
+void AprReportError(MessageHandler* message_handler, const char* filename,
+                    const char* message, int error_code) {
+  char buf[kErrorMessageBufferSize];
+  apr_strerror(error_code, buf, sizeof(buf));
+  std::string error_format(message);
+  error_format.append(" (code=%d %s)");
+  message_handler->Error(filename, 0, error_format.c_str(), error_code, buf);
+}
+
+}  // namespace
 
 namespace html_rewriter {
 
@@ -38,16 +49,9 @@ class FileHelper {
         filename_(filename) {
   }
 
-  // Note: format must have "%d" and "%s" to correctly report the error code and
-  // error message.
   void ReportError(MessageHandler* message_handler, const char* format,
                    int error_code) {
-    char buf[kErrorMessageBufferSize];
-    apr_strerror(error_code, buf, sizeof(buf));
-    std::string error_format(format);
-    error_format.append(" (code=%d %s)");
-    message_handler->Error(filename_.c_str(), 0, error_format.c_str(),
-                           error_code, buf);
+    AprReportError(message_handler, filename_.c_str(), format, error_code);
   }
 
   bool Close(MessageHandler* message_handler);
@@ -84,7 +88,7 @@ class HtmlWriterInputFile : public FileSystem::InputFile {
 class HtmlWriterOutputFile : public FileSystem::OutputFile {
  public:
   HtmlWriterOutputFile(apr_file_t* file, const char* filename);
-  virtual int Write(const char* buf, int size,
+  virtual bool Write(const char* buf, int size,
                     MessageHandler* message_handler);
   virtual bool Flush(MessageHandler* message_handler);
   virtual bool Close(MessageHandler* message_handler) {
@@ -105,8 +109,11 @@ int HtmlWriterInputFile::Read(char* buf,
                               MessageHandler* message_handler) {
   apr_size_t bytes = size;
   apr_status_t ret = apr_file_read(helper_.file(), buf, &bytes);
+  if (ret == APR_EOF) {
+    return 0;
+  }
   if (ret != APR_SUCCESS) {
-    bytes = -1;
+    bytes = 0;
     helper_.ReportError(message_handler, "read file", ret);
   }
   return bytes;
@@ -117,16 +124,20 @@ HtmlWriterOutputFile::HtmlWriterOutputFile(apr_file_t* file,
     : helper_(file, filename) {
 }
 
-int HtmlWriterOutputFile::Write(const char* buf,
+bool HtmlWriterOutputFile::Write(const char* buf,
                                 int size,
                                 MessageHandler* message_handler) {
+  bool success = false;
   apr_size_t bytes = size;
   apr_status_t ret = apr_file_write(helper_.file(), buf, &bytes);
   if (ret != APR_SUCCESS) {
-    bytes = -1;
     helper_.ReportError(message_handler, "write file", ret);
+  } else if (bytes != size) {
+    helper_.ReportError(message_handler, "write file partial", ret);
+  } else {
+    success = true;
   }
-  return bytes;
+  return success;
 }
 
 bool HtmlWriterOutputFile::Flush(MessageHandler* message_handler) {
@@ -162,7 +173,8 @@ FileSystem::InputFile* AprFileSystem::OpenInputFile(
   apr_status_t ret = apr_file_open(&file, filename, APR_FOPEN_READ,
                                    APR_OS_DEFAULT, pool_);
   if (ret != APR_SUCCESS) {
-    message_handler->Error(filename, 0, "open file", ret);
+    AprReportError(message_handler, filename, "open inupt file",
+                   ret);
     return NULL;
   }
   return new HtmlWriterInputFile(file, filename);
@@ -177,10 +189,58 @@ FileSystem::OutputFile* AprFileSystem::OpenOutputFile(
                                    APR_WRITE | APR_CREATE | APR_TRUNCATE,
                                    APR_OS_DEFAULT, pool_);
   if (ret != APR_SUCCESS) {
-    message_handler->Error(filename, 0, "open file", ret);
+    AprReportError(message_handler, filename, "open output file",
+                   ret);
     return NULL;
   }
   return new HtmlWriterOutputFile(file, filename);
+}
+
+FileSystem::OutputFile* AprFileSystem::OpenTempFile(
+    const char* prefix_name,
+    MessageHandler* message_handler) {
+  int prefix_len = strlen(prefix_name);
+  static const char mkstemp_hook[] = "XXXXXX";
+  scoped_array<char> template_name(new char[prefix_len + sizeof(mkstemp_hook)]);
+  memcpy(template_name.get(), prefix_name, prefix_len);
+  memcpy(template_name.get() + prefix_len, mkstemp_hook, sizeof(mkstemp_hook));
+
+  apr_file_t* file;
+  // A temp file will be generated with the XXXXXX part of template_name being
+  // replaced.
+  // Do not use flag APR_DELONCLOSE to delete the temp file on close, it will
+  // be renamed for later use.
+  apr_status_t ret = apr_file_mktemp(
+      &file, template_name.get(),
+      APR_CREATE | APR_READ | APR_WRITE | APR_EXCL, pool_);
+  if (ret != APR_SUCCESS) {
+    AprReportError(message_handler, template_name.get(),
+                   "open temp file", ret);
+    return NULL;
+  }
+  return new HtmlWriterOutputFile(file, template_name.get());
+}
+
+bool AprFileSystem::RenameFile(
+    const char* old_filename, const char* new_filename,
+    MessageHandler* message_handler) {
+  apr_status_t ret = apr_file_rename(old_filename, new_filename, pool_);
+  if (ret != APR_SUCCESS) {
+    AprReportError(message_handler, new_filename,
+                   "renaming temp file", ret);
+    return false;
+  }
+  return true;
+}
+bool AprFileSystem::RemoveFile(const char* filename,
+                               MessageHandler* message_handler) {
+  apr_status_t ret = apr_file_remove(filename, pool_);
+  if (ret != APR_SUCCESS) {
+    AprReportError(message_handler, filename,
+                   "removing file", ret);
+    return false;
+  }
+  return true;
 }
 
 }  // namespace html_rewriter

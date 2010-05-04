@@ -259,7 +259,8 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
         request->pool,
         request->connection->bucket_alloc);
     if (resource_type == HTML) {
-      context->rewriter = new HtmlRewriter(request->unparsed_uri,
+      context->rewriter = new HtmlRewriter(request,
+                                           request->unparsed_uri,
                                            &context->output);
       mod_spdy::PoolRegisterDelete(request->pool, context->rewriter);
     }
@@ -341,6 +342,16 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
   return APR_SUCCESS;
 }
 
+// Here log transaction will wait for all the asynchronous resource fetchers to
+// finish.
+// TODO(lsong): remove the log message before release.
+apr_status_t pagespeed_log_transaction(request_rec *request) {
+  HtmlRewriter::WaitForInProgressDownloads(request);
+  ap_log_rerror(APLOG_MARK, APLOG_INFO, APR_SUCCESS, request,
+                "log_transaction() request=%s", request->unparsed_uri);
+  return DECLINED;
+}
+
 
 // This function is a callback and it declares what
 // other functions should be called for request
@@ -355,6 +366,8 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
                             pagespeed_out_filter,
                             NULL,
                             AP_FTYPE_RESOURCE);
+  ap_hook_log_transaction(pagespeed_log_transaction,
+                          NULL, NULL, APR_HOOK_MIDDLE);
 }
 
 }  // namespace
