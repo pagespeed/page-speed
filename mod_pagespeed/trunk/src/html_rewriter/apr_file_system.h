@@ -34,7 +34,13 @@ class AprFileSystem : public FileSystem {
       const char* file, MessageHandler* message_handler);
   virtual OutputFile* OpenOutputFile(
       const char* file, MessageHandler* message_handler);
-
+  // See FileSystem interface for specifics of OpenTempFile.
+  virtual OutputFile* OpenTempFile(const char* prefix_name,
+                                   MessageHandler* message_handler);
+  virtual bool RenameFile(const char* old_filename, const char* new_filename,
+                          MessageHandler* message_handler);
+  virtual bool RemoveFile(const char* filename,
+                          MessageHandler* message_handler);
  private:
   apr_pool_t* pool_;
 };
