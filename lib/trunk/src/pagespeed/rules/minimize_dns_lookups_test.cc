@@ -53,6 +53,10 @@ class MinimizeDnsTest : public ::testing::Test {
     return resource;
   }
 
+  void SetPrimaryResourceUrl(const std::string& url) {
+    input_->SetPrimaryResourceUrl(url);
+  }
+
   void CheckViolations(const std::vector<std::string>& expected_violations) {
     MinimizeDnsLookups dns_rule;
 
@@ -86,6 +90,7 @@ TEST_F(MinimizeDnsTest, OneUrlNoViolation) {
   const std::string url = "http://foo.com";
 
   AddTestResource(url);
+  SetPrimaryResourceUrl(url);
 
   std::vector<std::string> expected_violations;
 
@@ -98,6 +103,7 @@ TEST_F(MinimizeDnsTest, OneLazyOneNotNoViolation) {
 
   AddTestResource(url1);
   AddTestResource(url2)->SetLazyLoaded();
+  SetPrimaryResourceUrl(url1);
 
   std::vector<std::string> expected_violations;
 
@@ -174,6 +180,20 @@ TEST_F(MinimizeDnsTest, ThreeUrlsThreeViolations) {
   expected_violations.push_back(url2);
   expected_violations.push_back(url3);
   expected_violations.push_back(url1);
+
+  CheckViolations(expected_violations);
+}
+
+TEST_F(MinimizeDnsTest, MainResourceNoViolation) {
+  const std::string url1 = "http://foo.com/";
+  const std::string url2 = "http://bar.com/image.png";
+
+  AddTestResource(url1);
+  AddTestResource(url2);
+  SetPrimaryResourceUrl(url1);
+
+  std::vector<std::string> expected_violations;
+  expected_violations.push_back(url2);
 
   CheckViolations(expected_violations);
 }

@@ -52,6 +52,15 @@ class PagespeedInput {
   // PagespeedInput object.
   bool AddResource(const Resource* resource);
 
+  // Specify the URL of the "primary" resource. Some rules want to
+  // exclude the primary resource from their analysis. This is optional but
+  // should be specified when there is a root resource, such as the main
+  // HTML resource. This method should be called after the primary
+  // resource has already been added via AddResource(). It is an error to
+  // call this method with a URL that is not in the set of currently added
+  // resources.
+  void SetPrimaryResourceUrl(const std::string& url);
+
   // Normally we only allow one resource per URL.  Setting this flag
   // allows duplicate resource addition, which is useful when
   // constructing an input set that is meant for serialization.
@@ -69,6 +78,7 @@ class PagespeedInput {
   const HostResourceMap* GetHostResourceMap() const;
   const InputInformation* input_information() const;
   const DomDocument* dom_document() const;
+  const std::string& primary_resource_url() const;
 
  private:
   bool IsValidResource(const Resource* resource) const;
@@ -80,6 +90,7 @@ class PagespeedInput {
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
   scoped_ptr<ResourceFilter> resource_filter_;
+  std::string primary_resource_url_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };
