@@ -80,6 +80,9 @@ bool IsCacheableResource(const Resource& resource);
 // cacheable but a 204 is not.
 bool IsCacheableResourceStatusCode(int status_code);
 
+// Is the resource likely to be cached by proxies?
+bool IsProxyCacheableResource(const Resource& resource);
+
 // Is the given resource type usually associated wiht static resources?
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type);
 
