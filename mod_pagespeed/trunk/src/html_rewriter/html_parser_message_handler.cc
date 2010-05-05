@@ -38,7 +38,6 @@ void HtmlParserMessageHandler::MessageV(
     default:
       assert(false);
   }
-  return;
 }
 
 void HtmlParserMessageHandler::FileMessageV(
@@ -60,7 +59,6 @@ void HtmlParserMessageHandler::FileMessageV(
     default:
       assert(false);
   }
-  return;
 }
 
 void HtmlParserMessageHandler::InfoV(

@@ -232,6 +232,7 @@ bool AprFileSystem::RenameFile(
   }
   return true;
 }
+
 bool AprFileSystem::RemoveFile(const char* filename,
                                MessageHandler* message_handler) {
   apr_status_t ret = apr_file_remove(filename, pool_);
