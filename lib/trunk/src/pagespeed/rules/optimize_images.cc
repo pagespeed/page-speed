@@ -63,12 +63,12 @@ const char* ImageMinifier::documentation_url() const {
 }
 
 const char* ImageMinifier::body_format() const {
-  return ("Optimizing the following image resources could reduce their size "
+  return ("Optimizing the following images could reduce their size "
           "by $1 ($2% reduction).");
 }
 
 const char* ImageMinifier::child_format() const {
-  return "Optimizing $1 could save $2 ($3% reduction).";
+  return "Losslessly compressing $1 could save $2 ($3% reduction).";
 }
 
 const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
