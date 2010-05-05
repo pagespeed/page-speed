@@ -367,7 +367,7 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
                             NULL,
                             AP_FTYPE_RESOURCE);
   ap_hook_log_transaction(pagespeed_log_transaction,
-                          NULL, NULL, APR_HOOK_MIDDLE);
+                          NULL, NULL, APR_HOOK_LAST);
 }
 
 }  // namespace

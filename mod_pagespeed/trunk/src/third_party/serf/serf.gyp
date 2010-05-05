@@ -43,7 +43,6 @@
         '<(serf_root)/buckets/response_buckets.c',
         '<(serf_root)/buckets/simple_buckets.c',
         '<(serf_root)/buckets/socket_buckets.c',
-        '<(serf_root)/buckets/ssl_buckets.c',
       ],
      'include_dirs': [
         '<(serf_root)',
