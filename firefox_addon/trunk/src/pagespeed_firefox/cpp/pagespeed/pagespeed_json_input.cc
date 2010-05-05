@@ -175,6 +175,8 @@ void InputPopulator::PopulateAttribute(Resource *resource,
     PopulateHeaders(add_header, attribute_json);
   } else if (key == "req_body") {
     resource->SetRequestBody(RetrieveBody(attribute_json));
+  } else if (key == "req_cookies") {
+    resource->SetCookies(ToString(attribute_json));
   } else if (key == "res_status") {
     resource->SetResponseStatusCode(ToInt(attribute_json));
   } else if (key == "res_protocol") {
