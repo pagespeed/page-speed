@@ -388,6 +388,24 @@ bool IsCacheableResource(const Resource& resource) {
   return IsHeuristicallyCacheable(resource);
 }
 
+bool IsProxyCacheableResource(const Resource& resource) {
+  if (!IsCacheableResource(resource)) {
+    return false;
+  }
+
+  DirectiveMap directive_map;
+  if (!GetHeaderDirectives(resource.GetResponseHeader("Cache-Control"),
+                           &directive_map)) {
+    return false;
+  }
+
+  if (directive_map.count("private")) {
+    return false;
+  }
+
+  return true;
+}
+
 bool IsLikelyStaticResource(const Resource& resource) {
   if (!IsCacheableResourceStatusCode(resource.GetResponseStatusCode())) {
     return false;
