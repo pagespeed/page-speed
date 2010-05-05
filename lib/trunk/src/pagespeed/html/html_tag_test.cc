@@ -82,6 +82,22 @@ TEST(HtmlTagTest, SelfClosingTag) {
   ASSERT_EQ("<foobar foo=bar />", tag.ToString());
 }
 
+TEST(HtmlTagTest, AttrWithTrailingSlash) {
+  const std::string input("<a href=\"http://www.example.com/\">");
+  const char* begin = input.data();
+  const char* end = begin + input.size();
+  HtmlTag tag;
+  ASSERT_EQ(end, tag.ReadTag(begin, end));
+
+  ASSERT_EQ("a", tag.tagname());
+  ASSERT_FALSE(tag.IsEmptyElement());
+  ASSERT_FALSE(tag.IsEndTag());
+  ASSERT_FALSE(tag.IsDoctypeTag());
+  ASSERT_TRUE(tag.HasAttr("href"));
+  ASSERT_TRUE(tag.HasAnyAttrs());
+  ASSERT_EQ("<a href=http://www.example.com/ >", tag.ToString());
+}
+
 TEST(HtmlTagTest, RepeatedAttrWithoutValue) {
   const std::string input("<foo bar bar>");
   const char* begin = input.data();
