@@ -338,6 +338,7 @@ void HtmlTag::AppendTagToString(std::string* out) const {
   out->push_back('<');
   out->append(tag_name_);
 
+  bool trailing_slash = false;
   for (AttrNames::const_iterator i = attr_names_.begin(),
            end = attr_names_.end(); i != end; ++i) {
     const std::string& attr = *i;
@@ -354,11 +355,14 @@ void HtmlTag::AppendTagToString(std::string* out) const {
       if (quote) {
         out->push_back(quote);
       }
+      trailing_slash = !quote && !value.empty() && *value.rbegin() == '/';
     }
   }
 
   if (IsEmptyElement()) {
     out->append(" />");  // Always add a space
+  } else if (trailing_slash) {
+    out->append(" >");
   } else {
     out->push_back('>');
   }
