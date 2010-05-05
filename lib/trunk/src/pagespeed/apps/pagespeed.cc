@@ -75,6 +75,9 @@ pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
 
   pagespeed::PagespeedInput *input = new pagespeed::PagespeedInput;
   pagespeed::proto::PopulatePagespeedInput(input_proto, input);
+  if (!input_proto.identifier().empty()) {
+    input->SetPrimaryResourceUrl(input_proto.identifier());
+  }
   return input;
 }
 
@@ -133,6 +136,11 @@ int main(int argc, char** argv) {
     return 1;
   }
   CHECK(input.get() != NULL);
+  if (input->primary_resource_url().empty() && input->num_resources() > 0) {
+    // If no primary resource URL was specified, assume the first
+    // resource is the primary resource.
+    input->SetPrimaryResourceUrl(input->GetResource(0).GetRequestUrl());
+  }
 
   std::vector<pagespeed::Rule*> rules;
 

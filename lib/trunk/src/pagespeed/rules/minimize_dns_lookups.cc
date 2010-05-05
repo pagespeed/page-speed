@@ -89,14 +89,13 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
   // Find resources that are the only (http, non-lazy-loaded) resource from
   // their domain.
   ResourceVector lone_dns_resources;
-  int num_relevant_hosts = 0;
   for (HostResourceMap::const_iterator iter = host_resource_map.begin(),
            end = host_resource_map.end();
        iter != end;
        ++iter) {
     const std::string& host = iter->first;
 
-    // If the ip address is appears explicitly, no DNS lookup is required.
+    // If an ip address appears explicitly, no DNS lookup is required.
     if (IsAnIPAddress(host.c_str())) {
       continue;
     }
@@ -123,31 +122,35 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
       if (host.empty()) {
         LOG(DFATAL) << "Empty host while processing "
                     << resource->GetRequestUrl();
+        continue;
       }
       filtered.push_back(resource);
     }
 
-    if (!filtered.empty()) {
-      ++num_relevant_hosts;
-      if (filtered.size() == 1) {
-        lone_dns_resources.push_back(*filtered.begin());
-      }
+    if (filtered.size() != 1) {
+      continue;
     }
+
+    if (filtered[0]->GetRequestUrl() == input.primary_resource_url()) {
+      // Special case: if the hostname serves only the main resource,
+      // we should not flag that hostname.
+      continue;
+    }
+
+    lone_dns_resources.push_back(*filtered.begin());
   }
 
-  // Report a result for each lone resource (unless there is only one domain).
-  if (num_relevant_hosts > 1) {
-    for (ResourceVector::const_iterator iter = lone_dns_resources.begin(),
-             end = lone_dns_resources.end();
-         iter != end; ++iter) {
-      const Resource* resource = *iter;
+  // Report a result for each lone resource.
+  for (ResourceVector::const_iterator iter = lone_dns_resources.begin(),
+           end = lone_dns_resources.end();
+       iter != end; ++iter) {
+    const Resource* resource = *iter;
 
-      Result* result = provider->NewResult();
-      result->add_resource_urls(resource->GetRequestUrl());
+    Result* result = provider->NewResult();
+    result->add_resource_urls(resource->GetRequestUrl());
 
-      Savings* savings = result->mutable_savings();
-      savings->set_dns_requests_saved(1);
-    }
+    Savings* savings = result->mutable_savings();
+    savings->set_dns_requests_saved(1);
   }
 
   return true;
