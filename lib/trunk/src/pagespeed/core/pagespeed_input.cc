@@ -131,12 +131,13 @@ bool PagespeedInput::AddResource(const Resource* resource) {
   return true;
 }
 
-void PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
+bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
   if (resource_urls_.find(url) == resource_urls_.end()) {
-    LOG(DFATAL) << "No such resource " << url;
-    return;
+    LOG(INFO) << "No such primary resource " << url;
+    return false;
   }
   primary_resource_url_ = url;
+  return true;
 }
 
 void PagespeedInput::AcquireDomDocument(DomDocument* document) {
