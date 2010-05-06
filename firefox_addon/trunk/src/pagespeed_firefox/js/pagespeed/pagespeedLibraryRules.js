@@ -183,7 +183,7 @@ PAGESPEED.NativeLibrary = {
         res_headers: translateHeaders(PAGESPEED.Utils.getResponseHeaders(url)),
         res_body: res_body_index,
         req_url: url,
-        req_cookies: PAGESPEED.Utils.getCookieString(url),
+        req_cookies: PAGESPEED.Utils.getCookieString(url) || '',
         req_lazy_loaded: (requestTime > onloadTime)
       });
     }

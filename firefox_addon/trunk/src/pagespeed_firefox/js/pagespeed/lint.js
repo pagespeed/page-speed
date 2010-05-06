@@ -52,6 +52,7 @@ PAGESPEED.LintRulesImpl.prototype.exec = function(browserTab) {
   this.completed = false;  // Set in ruleCompleted() when all rules are done.
   this.url = null; // Set in ruleCompleted() when all rules are done.
   this.rulesRemaining = this.lintRules.length;
+  this.nativeRuleResults = [];
   // TODO Note that this next line will freeze the UI while the native rules
   //      run; usually, this takes a fraction of a second, and is thus
   //      acceptable, but in the future we should be running pieces of the
