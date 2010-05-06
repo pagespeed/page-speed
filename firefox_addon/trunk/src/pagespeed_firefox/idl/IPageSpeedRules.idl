@@ -35,6 +35,7 @@ interface IPageSpeedRules : nsISupports {
   // Run all the rules and return the formatted results as a string.
   string computeAndFormatResults(in string data,
                                  in nsIArray inputStreams,
+                                 in string rootUrl,
                                  in nsIDOMDocument rootDocument,
                                  in short filterChoice,
                                  in nsILocalFile outputDir);
