@@ -1432,16 +1432,28 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
-   * Fetch the current document or return an empty string.
-   * @return {string} The source of the given doc component.
+   * Fetch the current document URL or return an empty string.
+   * @return {string} The URL of the primary doc component.
    */
-  getDocumentContent: function() {
+  getDocumentUrl: function () {
     var aDocUrls = PAGESPEED.Utils.getResources('doc');
     if (aDocUrls && aDocUrls[0]) {
-      return PAGESPEED.Utils.getResourceContent(aDocUrls[0]);
+      if (aDocUrls.length > 1) {
+        PS_LOG('ERROR: Found ' + aDocUrls.length + ' documents');
+      }
+      return aDocUrls[0];
     }
     PS_LOG('ERROR finding document');
     return '';
+  },
+
+  /**
+   * Fetch the current document or return an empty string.
+   * @return {string} The source of the primary doc component.
+   */
+  getDocumentContent: function() {
+    var url = PAGESPEED.Utils.getDocumentUrl();
+    return url ? PAGESPEED.Utils.getResourceContent(url) : '';
   },
 
   /** Returns true iff the given depency is statisfied. */

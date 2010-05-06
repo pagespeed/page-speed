@@ -173,6 +173,7 @@ PageSpeedRules::~PageSpeedRules() {}
 NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const char* data,
                                         nsIArray* input_streams,
+                                        const char* root_url,
                                         nsIDOMDocument* root_document,
                                         PRInt16 filter_choice,
                                         nsILocalFile* output_dir,
@@ -190,6 +191,11 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
   PagespeedInput input(ChoiceToFilter(filter_choice));
   input.AcquireDomDocument(new FirefoxDocument(root_document));
   if (PopulateInputFromJSON(&input, data, contents)) {
+    const std::string root_url_str(root_url);
+    if (!root_url_str.empty()) {
+      input.SetPrimaryResourceUrl(root_url_str);
+    }
+
     std::stringstream stream;
     PluginSerializer serializer(output_dir);
     formatters::JsonFormatter formatter(&stream, &serializer);

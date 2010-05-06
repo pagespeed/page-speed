@@ -192,6 +192,7 @@ PAGESPEED.NativeLibrary = {
     var resultJSON = pagespeedRules.computeAndFormatResults(
       inputJSON,
       PAGESPEED.Utils.newNsIArray(bodyInputStreams),
+      PAGESPEED.Utils.getDocumentUrl(),
       PAGESPEED.Utils.getElementsByType('doc')[0],
       filterChoice(),
       PAGESPEED.Utils.getOutputDir('library-output'));
