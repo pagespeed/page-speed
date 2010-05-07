@@ -28,11 +28,12 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed::ResultVector;
 
 namespace {
 
 // Unminified CSS.
-const char* kUnminified = "body { color: red /*the color of red things*/; }";
+const char* kUnminified = "body { color: red /*red*/; }";
 
 // The same CSS, minified.
 const char* kMinified = "body{color:red;}\n";
@@ -73,9 +74,9 @@ class MinifyCssTest : public ::testing::Test {
     CheckNoViolationsInternal(true);
   }
 
-  void CheckOneViolation() {
-    CheckOneViolationInternal(false);
-    CheckOneViolationInternal(true);
+  void CheckOneViolation(int score) {
+    CheckOneViolationInternal(score, false);
+    CheckOneViolationInternal(score, true);
   }
 
   void CheckError() {
@@ -93,7 +94,7 @@ class MinifyCssTest : public ::testing::Test {
     ASSERT_EQ(results.results_size(), 0);
   }
 
-  void CheckOneViolationInternal(bool save_optimized_content) {
+  void CheckOneViolationInternal(int score, bool save_optimized_content) {
     MinifyCSS minify(save_optimized_content);
 
     Results results;
@@ -114,6 +115,11 @@ class MinifyCssTest : public ::testing::Test {
               strlen(kUnminified) - strlen(kMinified));
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), "http://www.example.com/foo.css");
+
+    ResultVector result_vector;
+    result_vector.push_back(&result);
+    ASSERT_EQ(score, minify.ComputeScore(*input_->input_information(),
+                                         result_vector));
   }
 
   void CheckErrorInternal(bool save_optimized_content) {
@@ -133,7 +139,7 @@ TEST_F(MinifyCssTest, Basic) {
                   "text/css",
                   kUnminified);
 
-  CheckOneViolation();
+  CheckOneViolation(35);
 }
 
 TEST_F(MinifyCssTest, WrongContentTypeDoesNotGetMinified) {

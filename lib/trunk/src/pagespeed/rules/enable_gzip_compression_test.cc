@@ -31,6 +31,7 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed::ResultVector;
 using pagespeed::Savings;
 
 namespace {
@@ -116,17 +117,21 @@ class EnableGzipCompressionTest : public ::testing::Test {
     CheckNoViolationsInternal(false);
   }
 
-  void CheckOneViolation(int expected_savings) {
-    CheckOneViolationInternal(new ZlibComputer(), expected_savings, true);
+  void CheckOneViolation(int expected_savings, int score) {
+    CheckOneViolationInternal(new ZlibComputer(),
+                              expected_savings,
+                              score,
+                              true);
   }
 
   void CheckErrorAndOneViolation(SavingsComputer* computer,
                                  int expected_savings) {
-    CheckOneViolationInternal(computer, expected_savings, false);
+    CheckOneViolationInternal(computer, expected_savings, -1, false);
   }
 
   void CheckTwoViolations(int first_expected_savings,
-                          int second_expected_savings) {
+                          int second_expected_savings,
+                          int score) {
     EnableGzipCompression gzip_rule(new ZlibComputer());
 
     Results results;
@@ -144,6 +149,12 @@ class EnableGzipCompressionTest : public ::testing::Test {
               second_expected_savings);
     ASSERT_EQ(result1.resource_urls_size(), 1);
     ASSERT_EQ(result1.resource_urls(0), "http://www.test.com/foo");
+
+    ResultVector result_vector;
+    result_vector.push_back(&result0);
+    result_vector.push_back(&result1);
+    ASSERT_EQ(score, gzip_rule.ComputeScore(*input_->input_information(),
+                                            result_vector));
   }
 
  private:
@@ -158,6 +169,7 @@ class EnableGzipCompressionTest : public ::testing::Test {
 
   void CheckOneViolationInternal(SavingsComputer* computer,
                                  int expected_savings,
+                                 int score,
                                  bool expect_success) {
     EnableGzipCompression gzip_rule(computer);
 
@@ -170,6 +182,13 @@ class EnableGzipCompressionTest : public ::testing::Test {
     ASSERT_EQ(result.savings().response_bytes_saved(), expected_savings);
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), "http://www.test.com/");
+
+    if (expect_success) {
+      ResultVector result_vector;
+      result_vector.push_back(&result);
+      ASSERT_EQ(score, gzip_rule.ComputeScore(*input_->input_information(),
+                                              result_vector));
+    }
   }
 
   scoped_ptr<PagespeedInput> input_;
@@ -178,13 +197,13 @@ class EnableGzipCompressionTest : public ::testing::Test {
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
 
-  CheckOneViolation(8956);
+  CheckOneViolation(8956, 0);
 }
 
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlUtf8NoGzip) {
   AddFirstLargeHtmlResource("utf-8", false);
 
-  CheckOneViolation(8956);
+  CheckOneViolation(8956, 0);
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzip) {
@@ -228,14 +247,14 @@ TEST_F(EnableGzipCompressionTest, OneViolationTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(true);
 
-  CheckOneViolation(8956);
+  CheckOneViolation(8956, 33);
 }
 
 TEST_F(EnableGzipCompressionTest, TwoViolationsTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(false);
 
-  CheckTwoViolations(8956, 4460);
+  CheckTwoViolations(8956, 4460, 0);
 }
 
 TEST_F(EnableGzipCompressionTest, NullComputer) {
@@ -248,7 +267,7 @@ TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
   body.append(9000, ' ');
   body[0] = '\0';
   AddTestResource("http://www.test.com/", "text/html", NULL, body);
-  CheckOneViolation(8955);
+  CheckOneViolation(8955, 0);
 }
 
 class FailAtSpecifiedIndexComputer : public SavingsComputer {
