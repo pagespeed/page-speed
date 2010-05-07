@@ -110,11 +110,34 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             ),
           INPUT({'type': 'button', 'value': 'Analyze Performance',
                  'onclick': '$analyzePerformance'}),
+          H3("What's new in Page Speed 1.8?"),
+          UL(LI(B('Filter menu.'),
+                ' Using the &quot;Filter&quot; menu above, you can ' +
+                'now optionally have Page Speed analyze just the ads ' +
+                'or just the non-ad portions of your page, ' +
+                'allowing you to easily determine how the ads are affecting ' +
+                'the latency of your page.'),
+             LI(B('Updated rules.'),
+                " We are constantly revisiting the " +
+                "performance suggestions that Page Speed makes as the web " +
+                "evolves, by adding new rules, removing old rules that no " +
+                "longer apply to today's web, and adjusting the scoring to " +
+                "better reflect the potential impact of each suggestion."),
+             LI(B('&quot;Report an Issue&quot; button.'),
+                ' Click the button in the upper-right corner of the Firebug ' +
+                'panel to be taken to our issue tracker.'),
+             LI(B('And more...'), ' See our ',
+                A({'href': 'http://code.google.com/' +
+                           'p/page-speed/wiki/ReleaseNotes',
+                   'onclick': '$openLink'},
+                  'release notes'
+                 ), ' for a complete list.')
+            ),
           P({'style': 'padding-top:5px'},
             'See the ',
             A({'href': 'http://code.google.com/' +
                        'speed/page-speed/docs/rules_intro.html',
-              'onclick': '$openLink'},
+               'onclick': '$openLink'},
               'Page Speed documentation'
               ),
             ' for detailed information on the rules used to evaluate web pages.'
