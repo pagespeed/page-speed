@@ -29,6 +29,7 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed::ResultVector;
 
 namespace {
 
@@ -92,9 +93,9 @@ class OptimizeImagesTest : public ::testing::Test {
     CheckNoViolationsInternal(true);
   }
 
-  void CheckOneViolation(const std::string &url) {
-    CheckOneViolationInternal(url, false);
-    CheckOneViolationInternal(url, true);
+  void CheckOneViolation(const std::string &url, int score) {
+    CheckOneViolationInternal(url, false, score);
+    CheckOneViolationInternal(url, true, score);
   }
 
   void CheckError() {
@@ -113,7 +114,8 @@ class OptimizeImagesTest : public ::testing::Test {
   }
 
   void CheckOneViolationInternal(const std::string &url,
-                             bool save_optimized_content) {
+                                 bool save_optimized_content,
+                                 int score) {
     OptimizeImages optimize(save_optimized_content);
 
     Results results;
@@ -127,6 +129,11 @@ class OptimizeImagesTest : public ::testing::Test {
     ASSERT_EQ(result.resource_urls(0), url);
 
     ASSERT_EQ(save_optimized_content, result.has_optimized_content());
+
+    ResultVector result_vector;
+    result_vector.push_back(&result);
+    ASSERT_EQ(score, optimize.ComputeScore(*input_->input_information(),
+                                           result_vector));
   }
 
   void CheckErrorInternal(bool save_optimized_content) {
@@ -144,22 +151,22 @@ class OptimizeImagesTest : public ::testing::Test {
 TEST_F(OptimizeImagesTest, BasicJpg) {
   AddJpegResource("http://www.example.com/foo.jpg",
                   "image/jpg",
-                  "testgray.jpg");
-  CheckOneViolation("http://www.example.com/foo.jpg");
+                  "test420.jpg");
+  CheckOneViolation("http://www.example.com/foo.jpg", 13);
 }
 
 TEST_F(OptimizeImagesTest, BasicJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "image/jpeg",
-                  "testgray.jpg");
-  CheckOneViolation("http://www.example.com/foo.jpeg");
+                  "test411.jpg");
+  CheckOneViolation("http://www.example.com/foo.jpeg", 10);
 }
 
 TEST_F(OptimizeImagesTest, BasicPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
                  "basi3p02.png");
-  CheckOneViolation("http://www.example.com/foo.png");
+  CheckOneViolation("http://www.example.com/foo.png", 80);
 }
 
 TEST_F(OptimizeImagesTest, UnknownImageTypeDoesNotGetOptimized) {

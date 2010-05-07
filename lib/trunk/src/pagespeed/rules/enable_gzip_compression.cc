@@ -118,10 +118,51 @@ bool GzipMinifier::IsViolation(const Resource& resource) const {
           resource.GetResponseBody().size() >= kMinGzipSize);
 }
 
+class EnableCompressionScoreComputer : public CostBasedScoreComputer {
+ public:
+  EnableCompressionScoreComputer(const ResultVector* results,
+                                 int64 max_possible_cost);
+  virtual ~EnableCompressionScoreComputer();
+
+ protected:
+  virtual int64 ComputeCost();
+
+ private:
+  const ResultVector* const results_;
+};
+
+EnableCompressionScoreComputer::EnableCompressionScoreComputer(
+    const ResultVector* results, int64 max_possible_cost)
+    : CostBasedScoreComputer(max_possible_cost),
+      results_(results) {
+}
+
+EnableCompressionScoreComputer::~EnableCompressionScoreComputer() {}
+
+int64 EnableCompressionScoreComputer::ComputeCost() {
+  int64 total_cost = 0;
+  for (std::vector<const Result*>::const_iterator iter = results_->begin(),
+           end = results_->end();
+       iter != end;
+       ++iter) {
+    const Result* result = *iter;
+    total_cost += result->original_response_bytes();
+  }
+
+  return total_cost;
+}
+
 }  // namespace
 
 EnableGzipCompression::EnableGzipCompression(SavingsComputer* computer)
     : MinifyRule(new GzipMinifier(computer)) {}
+
+int EnableGzipCompression::ComputeScore(const InputInformation& input_info,
+                                        const ResultVector& results) {
+  EnableCompressionScoreComputer score_computer(
+      &results, resource_util::ComputeCompressibleResponseBytes(input_info));
+  return score_computer.ComputeScore();
+}
 
 namespace compression_computer {
 
@@ -162,7 +203,6 @@ bool ZlibComputer::ComputeSavings(const pagespeed::Resource& resource,
       resource.GetResponseBody().size() - compressed_size);
   return result;
 }
-
 
 bool ZlibComputer::GetCompressedSize(z_stream* c_stream, int* compressed_size) {
   scoped_array<char> buffer(new char[kBufferSize]);
