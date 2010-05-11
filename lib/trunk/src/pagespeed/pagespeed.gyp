@@ -199,6 +199,7 @@
       'sources': [
         '<(pagespeed_root)/pagespeed/filters/ad_filter.cc',
         '<(pagespeed_root)/pagespeed/filters/protocol_filter.cc',
+        '<(pagespeed_root)/pagespeed/filters/tracker_filter.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -441,6 +442,7 @@
         '<(pagespeed_root)/pagespeed/cssmin/cssmin_test.cc',
         '<(pagespeed_root)/pagespeed/filters/ad_filter_test.cc',
         '<(pagespeed_root)/pagespeed/filters/protocol_filter_test.cc',
+        '<(pagespeed_root)/pagespeed/filters/tracker_filter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/formatter_util_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/json_formatter_test.cc',
         '<(pagespeed_root)/pagespeed/formatters/proto_formatter_test.cc',
