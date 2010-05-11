@@ -18,6 +18,7 @@
 
 #include <fstream>
 
+#include "base/at_exit.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
@@ -88,6 +89,10 @@ void PrintUsage() {
 }  // namespace
 
 int main(int argc, char** argv) {
+  // Some of our code uses Singleton<>s, which require an
+  // AtExitManager to schedule their destruction.
+  base::AtExitManager at_exit_manager;
+
   if (argc != 4) {
     PrintUsage();
     return 1;

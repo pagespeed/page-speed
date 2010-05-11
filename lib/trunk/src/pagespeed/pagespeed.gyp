@@ -251,6 +251,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/net/net.gyp:net_base',
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
         '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
         'pagespeed_core',
