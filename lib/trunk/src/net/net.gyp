@@ -25,7 +25,7 @@
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
       ],
       'sources': [
-        '<(DEPTH)/net/base/registry_controlled_domain.cc',
+        'base/registry_controlled_domain.cc',
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
