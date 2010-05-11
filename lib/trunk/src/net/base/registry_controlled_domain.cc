@@ -69,6 +69,7 @@ std::string RegistryControlledDomainService::GetDomainAndRegistry(
       gurl.possibly_invalid_spec().data() + host.begin, host.len));
 }
 
+#ifdef CANONICALIZE_HOST_DEPENDENCY
 // static
 std::string RegistryControlledDomainService::GetDomainAndRegistry(
     const std::string& host) {
@@ -88,6 +89,7 @@ std::string RegistryControlledDomainService::GetDomainAndRegistry(
     return std::string();
   return GetDomainAndRegistryImpl(canon_host);
 }
+#endif  // CANONICALIZE_HOST_DEPENDENCY
 
 // static
 bool RegistryControlledDomainService::SameDomainOrHost(const GURL& gurl1,
@@ -126,6 +128,7 @@ size_t RegistryControlledDomainService::GetRegistryLength(
       allow_unknown_registries);
 }
 
+#ifdef CANONICALIZE_HOST_DEPENDENCY
 // static
 size_t RegistryControlledDomainService::GetRegistryLength(
     const std::string& host,
@@ -153,6 +156,7 @@ size_t RegistryControlledDomainService::GetRegistryLength(
   return GetInstance()->GetRegistryLengthImpl(canon_host,
                                               allow_unknown_registries);
 }
+#endif  // CANONICALIZE_HOST_DEPENDENCY
 
 // static
 std::string RegistryControlledDomainService::GetDomainAndRegistryImpl(
