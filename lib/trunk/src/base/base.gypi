@@ -14,12 +14,10 @@
       # All the rest should be added to the 'base' target below.
       ['base_target==1', {
         'sources': [
-        '<(chromium_root)/build/build_config.h',
-        '<(chromium_root)/base/third_party/dmg_fp/dmg_fp.h',
         '<(chromium_root)/base/third_party/dmg_fp/dtoa.cc',
         '<(chromium_root)/base/third_party/dmg_fp/g_fmt.cc',
         '<(chromium_root)/base/third_party/nspr/prtime.cc',
-        '<(chromium_root)/base/third_party/nspr/prtime.h',
+        '<(chromium_root)/base/atomicops_internals_x86_gcc.cc',
         '<(chromium_root)/base/at_exit.cc',
         '<(chromium_root)/base/debug_util.cc',
         '<(chromium_root)/base/debug_util_mac.cc',
@@ -38,8 +36,6 @@
         'stats_table.cc',
         '<(chromium_root)/base/string_piece.cc',
         'string_util.cc',
-        '<(chromium_root)/base/string_util.h',
-        '<(chromium_root)/base/string_util_win.h',
         '<(chromium_root)/base/win_util.cc',
         ],
         'include_dirs': [
@@ -58,6 +54,11 @@
           '$(SDKROOT)/System/Library/Frameworks/ApplicationServices.framework/Frameworks',
         ],
         'conditions': [
+          [ 'OS != "linux" and OS != "freebsd" and OS != "openbsd"', {
+              'sources!': [
+                'atomicops_internals_x86_gcc.cc',
+              ],
+          },],
           [ 'OS == "win"', {
               'sources!': [
                 'string16.cc',
@@ -121,6 +122,7 @@
         ],
       ],
       'sources': [
+        '<(chromium_root)/base/dynamic_annotations.cc',
         'string16.cc',
       ],
     },
