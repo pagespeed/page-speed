@@ -21,14 +21,14 @@
       'target_name': 'net_base',
       'type': '<(library)',
       'dependencies': [
-        '../base/base.gyp:base',
-        '../build/temp_gyp/googleurl.gyp:googleurl',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
       ],
       'sources': [
-        'base/registry_controlled_domain.cc',
+        '<(DEPTH)/net/base/registry_controlled_domain.cc',
       ],
       'export_dependent_settings': [
-        '../base/base.gyp:base',
+        '<(DEPTH)/base/base.gyp:base',
       ],
       'include_dirs': [
         '<(DEPTH)/third_party/chromium/src/net/base',
