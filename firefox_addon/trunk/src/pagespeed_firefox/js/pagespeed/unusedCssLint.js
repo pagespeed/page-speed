@@ -219,7 +219,7 @@ var unusedCssLint = function() {
     this.score = 'disabled';
     this.warnings = '';
     this.information =
-      ['This rule does not currently differentiate between ads and non-ads ',
+      ['This rule is not currently able to filter results ',
        'and is not included in the analysis.'].join('');
     return;
   }
