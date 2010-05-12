@@ -30,7 +30,8 @@
 interface IPageSpeedRules : nsISupports {
   const short RESOURCE_FILTER_ALL = 0;
   const short RESOURCE_FILTER_ONLY_ADS = 1;
-  const short RESOURCE_FILTER_EXCLUDE_ADS = 2;
+  const short RESOURCE_FILTER_ONLY_TRACKERS = 2;
+  const short RESOURCE_FILTER_ONLY_CONTENT = 3;
 
   // Run all the rules and return the formatted results as a string.
   string computeAndFormatResults(in string data,
