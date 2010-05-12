@@ -63,4 +63,10 @@ const int kPagespeedMajorVersion = x;
 const int kPagespeedMinorVersion = y;
 const bool kRelease = true;
 }}}
-  # Build shared objects for target platforms and check them into the Firefox Add-on release tag.
+  # Build shared objects for target platforms, strip them (see below), and check them into the Firefox Add-on release tag.
+
+===Stripping binaries===
+
+  * On Linux: `strip libpagespeed.so`
+  * On OSX: `strip -x -S libpagespeed.dylib`
+  * There is no strip on Windows.
