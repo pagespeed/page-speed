@@ -45,6 +45,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
 #include "pagespeed/filters/ad_filter.h"
+#include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
@@ -151,8 +152,11 @@ pagespeed::ResourceFilter* ChoiceToFilter(int filter_choice) {
   switch (filter_choice) {
     case IPageSpeedRules::RESOURCE_FILTER_ONLY_ADS:
       return new pagespeed::NotResourceFilter(new pagespeed::AdFilter());
-    case IPageSpeedRules::RESOURCE_FILTER_EXCLUDE_ADS:
-      return new pagespeed::AdFilter();
+    case IPageSpeedRules::RESOURCE_FILTER_ONLY_TRACKERS:
+      return new pagespeed::NotResourceFilter(new pagespeed::TrackerFilter());
+    case IPageSpeedRules::RESOURCE_FILTER_ONLY_CONTENT:
+      return new pagespeed::AndResourceFilter(new pagespeed::AdFilter(),
+                                              new pagespeed::TrackerFilter());
     default:
       LOG(ERROR) << "Unknown filter chioce " << filter_choice;
       // Intentional fall-through to allow all filter

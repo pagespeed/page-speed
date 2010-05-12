@@ -142,7 +142,8 @@ function filterChoice() {
   var menuIdToFilterChoice = {
     'psAnalyzeAll': IPageSpeedRules.RESOURCE_FILTER_ALL,
     'psAnalyzeAds': IPageSpeedRules.RESOURCE_FILTER_ONLY_ADS,
-    'psAnalyzeNonAds': IPageSpeedRules.RESOURCE_FILTER_EXCLUDE_ADS
+    'psAnalyzeTrackers': IPageSpeedRules.RESOURCE_FILTER_ONLY_TRACKERS,
+    'psAnalyzeContent': IPageSpeedRules.RESOURCE_FILTER_ONLY_CONTENT
   };
   for (menuId in menuIdToFilterChoice) {
     if (document.getElementById(menuId).hasAttribute('checked')) {
