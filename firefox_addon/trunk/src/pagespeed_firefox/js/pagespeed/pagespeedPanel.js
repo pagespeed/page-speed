@@ -113,10 +113,10 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
           H3("What's new in Page Speed 1.8?"),
           UL(LI(B('Filter menu.'),
                 ' Using the &quot;Filter&quot; menu above, you can ' +
-                'now optionally have Page Speed analyze just the ads ' +
-                'or just the non-ad portions of your page, ' +
-                'allowing you to easily determine how the ads are affecting ' +
-                'the latency of your page.'),
+                'now optionally have Page Speed analyze just the ads, ' +
+                'just the trackers, or just the content of your page, ' +
+                'allowing you to easily determine how each category of ' +
+                'resources is affecting the latency of your page.'),
              LI(B('Updated rules.'),
                 " We are constantly revisiting the " +
                 "performance suggestions that Page Speed makes as the web " +
