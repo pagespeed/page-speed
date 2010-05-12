@@ -23,8 +23,7 @@
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
-#include "google/protobuf/text_format.h"
-#include "google/protobuf/io/zero_copy_stream_impl.h"
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -38,6 +37,19 @@
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
+
+bool ReadFileToString(const std::string &file_name, std::string *dest) {
+  std::ifstream file_stream;
+  file_stream.open(
+      file_name.c_str(), std::ifstream::in | std::ifstream::binary);
+  if (file_stream.fail()) {
+    return false;
+  }
+  dest->assign(std::istreambuf_iterator<char>(file_stream),
+               std::istreambuf_iterator<char>());
+  file_stream.close();
+  return true;
+}
 
 /**
  * Formatter that prints the binary ResultText protobuf output.
@@ -54,13 +66,15 @@ class PrintProtoFormatter : public pagespeed::formatters::ProtoFormatter {
   virtual void DoneAddingChildren() {
     ProtoFormatter::DoneAddingChildren();
 
-    ::google::protobuf::io::OstreamOutputStream out_stream(&std::cout);
     for (std::vector<pagespeed::ResultText*>::const_iterator
              it = results_.begin(),
              end = results_.end();
          it != end;
          ++it) {
+      std::string out;
+      ::google::protobuf::io::StringOutputStream out_stream(&out);
       (*it)->SerializeToZeroCopyStream(&out_stream);
+      std::cout << out;
     }
   }
 
@@ -70,8 +84,9 @@ class PrintProtoFormatter : public pagespeed::formatters::ProtoFormatter {
 
 pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
   pagespeed::ProtoInput input_proto;
-  bool success = ::google::protobuf::TextFormat::ParseFromString(
-      file_contents, &input_proto);
+  ::google::protobuf::io::ArrayInputStream input_stream(
+      file_contents.data(), file_contents.size());
+  bool success = input_proto.ParseFromZeroCopyStream(&input_stream);
   CHECK(success);
 
   pagespeed::PagespeedInput *input = new pagespeed::PagespeedInput;
@@ -101,18 +116,11 @@ int main(int argc, char** argv) {
   const std::string out_format = argv[1];
   const std::string in_format = argv[2];
   const std::string filename = argv[3];
-  std::ifstream in(filename.c_str());
-  if (!in) {
+  std::string file_contents;
+  if (!ReadFileToString(filename, &file_contents)) {
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
     PrintUsage();
     return 1;
-  }
-
-  std::string file_contents;
-  std::string line;
-  while (std::getline(in, line)) {
-    file_contents += line;
-    file_contents += '\n';
   }
 
   scoped_ptr<pagespeed::RuleFormatter> formatter;

@@ -14,52 +14,70 @@
 
 {
   'variables': {
-    'pagespeed_root': '..'
+    'pagespeed_root': '..',
+    'protoc_out_dir': '<(SHARED_INTERMEDIATE_DIR)/protoc_out',
   },
   'targets': [
+    {
+      'target_name': 'pagespeed_genproto',
+      'type': 'none',
+      'sources': [
+        'proto/pagespeed_input.proto',
+        'proto/pagespeed_output.proto',
+      ],
+      'rules': [
+        {
+          'rule_name': 'genproto',
+          'extension': 'proto',
+          'inputs': [
+            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
+          ],
+          'variables': {
+            # The protoc compiler requires a proto_path argument with the
+            # directory containing the .proto file.
+            # There's no generator variable that corresponds to this, so fake it.
+            'rule_input_relpath': 'proto',
+          },
+          'outputs': [
+            '<(protoc_out_dir)/pagespeed/<(rule_input_relpath)/<(RULE_INPUT_ROOT).pb.h',
+            '<(protoc_out_dir)/pagespeed/<(rule_input_relpath)/<(RULE_INPUT_ROOT).pb.cc',
+          ],
+          'action': [
+            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
+            '--proto_path=./<(rule_input_relpath)',
+            './<(rule_input_relpath)/<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
+            '--cpp_out=<(protoc_out_dir)/pagespeed/<(rule_input_relpath)',
+          ],
+          'message': 'Generating C++ code from <(RULE_INPUT_PATH)',
+        },
+      ],
+      'dependencies': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(protoc_out_dir)',
+        ]
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+      ],
+    },
     {
       'target_name': 'pagespeed_input_pb',
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
-          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
-          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
+          'pagespeed_genproto',
+          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
        ],
-      'actions': [
-        {
-          'action_name': 'my_proto',
-          'inputs': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '<(pagespeed_root)/pagespeed/proto/pagespeed_input.proto',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.cc',
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.h',
-          ],
-          'dependencies': [
-            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
-          ],
-          'action': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '<(pagespeed_root)/pagespeed/proto/pagespeed_input.proto',
-            '--proto_path=<(pagespeed_root)',
-            '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
-          ],
-        },
-      ],
       'sources': [
-        '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_input.pb.cc',
+        '<(protoc_out_dir)/pagespeed/proto/pagespeed_input.pb.cc',
       ],
-      'include_dirs': [
-        '<(SHARED_INTERMEDIATE_DIR)',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(SHARED_INTERMEDIATE_DIR)',
-        ],
-      },
       'export_dependent_settings': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+        'pagespeed_genproto',
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
       ]
     },
     {
@@ -67,43 +85,14 @@
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
+          'pagespeed_genproto',
           '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
-          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
        ],
-      'actions': [
-        {
-          'action_name': 'my_proto',
-          'inputs': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '<(pagespeed_root)/pagespeed/proto/pagespeed_output.proto',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.cc',
-            '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.h',
-          ],
-          'dependencies': [
-            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
-          ],
-          'action': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '<(pagespeed_root)/pagespeed/proto/pagespeed_output.proto',
-            '--proto_path=<(pagespeed_root)',
-            '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
-          ],
-        },
-      ],
       'sources': [
-        '<(SHARED_INTERMEDIATE_DIR)/pagespeed/proto/pagespeed_output.pb.cc',
+        '<(protoc_out_dir)/pagespeed/proto/pagespeed_output.pb.cc',
       ],
-      'include_dirs': [
-        '<(SHARED_INTERMEDIATE_DIR)',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(SHARED_INTERMEDIATE_DIR)',
-        ],
-      },
       'export_dependent_settings': [
+        'pagespeed_genproto',
         '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
       ]
     },
