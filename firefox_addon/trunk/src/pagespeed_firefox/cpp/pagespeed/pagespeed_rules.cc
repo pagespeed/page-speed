@@ -33,6 +33,7 @@
 #include "nsServiceManagerUtils.h" // for do_GetService
 #include "nsStringAPI.h"
 
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/md5.h"
@@ -178,6 +179,10 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
                                         PRInt16 filter_choice,
                                         nsILocalFile* output_dir,
                                         char** _retval) {
+  // Instantiate an AtExitManager so our Singleton<>s are able to
+  // schedule themselves for destruction.
+  base::AtExitManager at_exit_manager;
+
   std::vector<std::string> contents;
   AppendInputStreamsContents(input_streams, &contents);
 
