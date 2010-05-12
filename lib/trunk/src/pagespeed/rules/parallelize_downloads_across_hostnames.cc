@@ -37,7 +37,7 @@ namespace {
 // Examine only the top N hostnames serving static resources:
 const int kOptimalNumberOfHostnames = 2;
 // If no one host serves more than N resources, report nothing:
-const int kMinResourceThreshold = 10;
+const int kMinResourceThreshold = 25;
 // Don't penalize the site until their busiest host is 50% busier than the
 // average of the top kOptimalNumberOfHostnames hosts.
 const double kMinBalanceThreshold = 0.5;
@@ -87,7 +87,8 @@ AppendResults(const PagespeedInput& input, ResultProvider* provider) {
     for (ResourceVector::const_iterator iter2 = resources.begin(),
              end2 = resources.end(); iter2 != end2; ++iter2) {
       const Resource* resource = *iter2;
-      if (resource_util::IsLikelyStaticResource(*resource)) {
+      if (!resource->IsLazyLoaded() &&
+          resource_util::IsLikelyStaticResource(*resource)) {
         static_resource_hosts[host].push_back(resource);
       }
     }
