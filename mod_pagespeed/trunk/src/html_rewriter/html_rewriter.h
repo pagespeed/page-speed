@@ -42,13 +42,6 @@ class HtmlRewriter {
 
   const std::string& get_url() const;
   const std::string& set_url(const std::string& url);
-  // Wait for all the asynchronous fetch to finish. 
-  // HtmlRewriter may start many asynchronous fetches for resources during
-  // rewrite. The context of those fetches are stored in the configuration
-  // vector associated with the request. WaitForInProgressDownloads should be
-  // called after the HTML request has been handled, so that it is not blocking
-  // the HTML request.
-  static void WaitForInProgressDownloads(request_rec* request);
  private:
   HtmlRewriterImp* html_rewriter_imp_;
 };

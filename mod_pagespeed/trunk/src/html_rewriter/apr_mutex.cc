@@ -1,4 +1,4 @@
-// Copyright 2010 Google Inc.
+// Copyright 2010 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,31 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "html_rewriter/html_rewriter.h"
+#include "html_rewriter/apr_mutex.h"
 
-#include "html_rewriter/html_rewriter_imp.h"
+#include "third_party/apache_httpd/include/apr_pools.h"
+#include "third_party/apache_httpd/include/apr_thread_mutex.h"
 
 namespace html_rewriter {
 
-HtmlRewriter::HtmlRewriter(request_rec* request,
-                           const std::string& url, std::string* output)
-    :html_rewriter_imp_(new HtmlRewriterImp(request, url, output)) {
+AprMutex::AprMutex(apr_pool_t* pool) {
+  apr_thread_mutex_create(&thread_mutex_, APR_THREAD_MUTEX_DEFAULT, pool);
 }
 
-HtmlRewriter::~HtmlRewriter() {
-  delete html_rewriter_imp_;
+AprMutex::~AprMutex() {
+  apr_thread_mutex_destroy(thread_mutex_);
 }
 
-void HtmlRewriter::Finish() {
-  html_rewriter_imp_->Finish();
+void AprMutex::Lock() {
+    apr_thread_mutex_lock(thread_mutex_);
 }
 
-void HtmlRewriter::Flush() {
-  html_rewriter_imp_->Flush();
-}
-
-void HtmlRewriter::Rewrite(const char* input, int size) {
-  html_rewriter_imp_->Rewrite(input, size);
+void AprMutex::Unlock() {
+    apr_thread_mutex_unlock(thread_mutex_);
 }
 
 }  // namespace html_rewriter

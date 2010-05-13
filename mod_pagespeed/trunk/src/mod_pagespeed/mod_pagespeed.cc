@@ -21,6 +21,7 @@
 
 #include "base/string_util.h"
 #include "html_rewriter/html_rewriter.h"
+#include "mod_pagespeed/pagespeed_process_context.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "mod_spdy/apache/pool_util.h"
 #include "pagespeed/cssmin/cssmin.h"
@@ -342,16 +343,21 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
   return APR_SUCCESS;
 }
 
-// Here log transaction will wait for all the asynchronous resource fetchers to
-// finish.
-// TODO(lsong): remove the log message before release.
-apr_status_t pagespeed_log_transaction(request_rec *request) {
-  HtmlRewriter::WaitForInProgressDownloads(request);
-  ap_log_rerror(APLOG_MARK, APLOG_INFO, APR_SUCCESS, request,
-                "log_transaction() request=%s", request->unparsed_uri);
-  return DECLINED;
+apr_status_t pagespeed_child_exit(void* data) {
+  server_rec* server = static_cast<server_rec*>(data);
+  html_rewriter::PageSpeedProcessContext* context =
+      html_rewriter::GetPageSpeedProcessContext(server);
+  delete context;
+  return APR_SUCCESS;
 }
 
+
+void pagespeed_child_init(apr_pool_t* pool, server_rec* server) {
+  // Create fetcher.
+  html_rewriter::CreateSerfAsyncFetcher(server);
+  apr_pool_cleanup_register(pool, server, pagespeed_child_exit,
+                            pagespeed_child_exit);
+}
 
 // This function is a callback and it declares what
 // other functions should be called for request
@@ -366,8 +372,8 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
                             pagespeed_out_filter,
                             NULL,
                             AP_FTYPE_RESOURCE);
-  ap_hook_log_transaction(pagespeed_log_transaction,
-                          NULL, NULL, APR_HOOK_LAST);
+
+  ap_hook_child_init(pagespeed_child_init, NULL, NULL, APR_HOOK_LAST);
 }
 
 }  // namespace

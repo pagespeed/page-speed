@@ -33,6 +33,7 @@
       ],
       'sources': [
         '<(DEPTH)/html_rewriter/apr_file_system.cc',
+        '<(DEPTH)/html_rewriter/apr_mutex.cc',
         '<(DEPTH)/html_rewriter/apr_timer.cc',
         '<(DEPTH)/html_rewriter/html_parser_message_handler.cc',
         '<(DEPTH)/html_rewriter/html_rewriter.cc',
@@ -40,7 +41,6 @@
         '<(DEPTH)/html_rewriter/html_rewriter_imp.cc',
         '<(DEPTH)/html_rewriter/md5_hasher.cc',
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
-        '<(DEPTH)/html_rewriter/serf_url_fetcher.cc',
         '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
     },
