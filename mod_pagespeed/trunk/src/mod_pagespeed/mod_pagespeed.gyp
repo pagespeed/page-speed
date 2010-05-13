@@ -25,8 +25,10 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/html_rewriter/html_rewriter.gyp:*',
         '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
+        '<(DEPTH)/third_party/instaweb/instaweb.gyp:*',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:*',
         '<(DEPTH)/third_party/libpagespeed/src/third_party/jsmin/jsmin.gyp:*',
+        '<(DEPTH)/third_party/serf/serf.gyp:*',
       ],
       'include_dirs': [
         '<(DEPTH)',
@@ -34,6 +36,7 @@
       ],
       'sources': [
         '<(DEPTH)/mod_pagespeed/mod_pagespeed.cc',
+        '<(DEPTH)/mod_pagespeed/pagespeed_process_context.cc',
         '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
     },

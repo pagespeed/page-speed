@@ -21,7 +21,6 @@
 #include "html_rewriter/apr_timer.h"
 #include "html_rewriter/html_parser_message_handler.h"
 #include "html_rewriter/md5_hasher.h"
-#include "html_rewriter/serf_url_fetcher.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
@@ -76,8 +75,7 @@ class HtmlRewriterImp {
   net_instaweb::FileCache file_cache_;
   AprTimer apr_timer_;
   net_instaweb::HTTPCache http_cache_;
-  SerfUrlAsyncFetcher serf_url_async_fetcher_;
-  SerfUrlFetcher url_sync_fetcher_;
+  SerfUrlAsyncFetcher* serf_url_async_fetcher_;
   net_instaweb::CacheUrlFetcher cache_url_fetcher_;
   net_instaweb::CacheUrlAsyncFetcher cache_url_async_fetcher_;
   net_instaweb::StringWriter string_writer_;

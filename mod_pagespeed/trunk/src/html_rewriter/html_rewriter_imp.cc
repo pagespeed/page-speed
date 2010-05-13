@@ -22,7 +22,10 @@
 #include "mod_spdy/apache/log_message_handler.h"
 #include "third_party/apache_httpd/include/httpd.h"
 
+
 namespace html_rewriter {
+
+SerfUrlAsyncFetcher* GetSerfAsyncFetcher(server_rec* server);
 
 HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
                                  const std::string& url, std::string* output)
@@ -33,9 +36,9 @@ HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
       file_cache_(GetFileCachePath(request), &apr_file_system_,
                   &message_handler_),
       http_cache_(&file_cache_, &apr_timer_),
-      serf_url_async_fetcher_(request),
-      cache_url_fetcher_(&http_cache_, &serf_url_async_fetcher_),
-      cache_url_async_fetcher_(&http_cache_, &serf_url_async_fetcher_),
+      serf_url_async_fetcher_(GetSerfAsyncFetcher(request->server)),
+      cache_url_fetcher_(&http_cache_, serf_url_async_fetcher_),
+      cache_url_async_fetcher_(&http_cache_, serf_url_async_fetcher_),
       rewrite_driver_(&html_parse_, &cache_url_async_fetcher_),
       hash_resource_manager_(GetCachePrefix(request),
                              GetUrlPrefix(request),
@@ -62,10 +65,6 @@ void HtmlRewriterImp::Flush() {
 
 void HtmlRewriterImp::Rewrite(const char* input, int size) {
   html_parse_.ParseText(input, size);
-}
-
-void HtmlRewriterImp::WaitForInProgressDownloads(request_rec* request) {
-  SerfUrlAsyncFetcher::WaitForInProgressDownloads(request);
 }
 
 }  // namespace html_rewriter
