@@ -18,26 +18,14 @@
     'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk',
     'xulrunner_sdk_os_root': '<(xulrunner_sdk_root)/arch/<(OS)',
     'xulrunner_sdk_arch_root': '<(xulrunner_sdk_os_root)/<(target_arch)',
+    'protoc_out_dir': '<(SHARED_INTERMEDIATE_DIR)/protoc_out',
+    'xpidl_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xpidl_out',
   },
   'targets': [
     {
       'target_name': 'xulrunner_sdk',
       'type': 'none',
       'direct_dependent_settings': {
-        'rules': [
-          {
-            'rule_name': 'xpidl',
-            'extension': 'idl',
-            'outputs': ['<(SHARED_INTERMEDIATE_DIR)/<(RULE_INPUT_ROOT).h'],
-            'action': [
-              '<(xulrunner_sdk_arch_root)/bin/xpidl',
-              '-m', 'header',
-              '-I', '<(xulrunner_sdk_root)/idl',
-              '-e', '<(SHARED_INTERMEDIATE_DIR)/<(RULE_INPUT_ROOT).h',
-              '<(RULE_INPUT_PATH)',
-            ],
-          },
-        ],
         'include_dirs': [
           '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
           '<(xulrunner_sdk_root)/include',
@@ -103,50 +91,103 @@
       },
     },
     {
+      'target_name': 'pagespeed_firefox_genproto',
+      'type': 'none',
+      'sources': [
+        'protobuf/activity/profile.proto',
+      ],
+      'rules': [
+        {
+          'rule_name': 'genproto',
+          'extension': 'proto',
+          'inputs': [
+            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
+          ],
+          'variables': {
+            # The protoc compiler requires a proto_path argument with the
+            # directory containing the .proto file.
+            # There's no generator variable that corresponds to this, so fake it.
+            'rule_input_relpath': 'protobuf/activity',
+          },
+          'outputs': [
+            '<(protoc_out_dir)/pagespeed_firefox/<(rule_input_relpath)/<(RULE_INPUT_ROOT).pb.h',
+            '<(protoc_out_dir)/pagespeed_firefox/<(rule_input_relpath)/<(RULE_INPUT_ROOT).pb.cc',
+          ],
+          'action': [
+            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
+            '--proto_path=./<(rule_input_relpath)',
+            './<(rule_input_relpath)/<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
+            '--cpp_out=<(protoc_out_dir)/pagespeed_firefox/<(rule_input_relpath)',
+          ],
+          'message': 'Generating C++ code from <(RULE_INPUT_PATH)',
+        },
+      ],
+      'dependencies': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
+      ],
+      'direct_dependent_settings': {
+      'include_dirs': [
+          '<(protoc_out_dir)/pagespeed_firefox/protobuf/activity',
+        ]
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_firefox_genidl',
+      'type': 'none',
+      'sources': [
+        'idl/IActivityProfiler.idl',
+        'idl/IJsMin.idl',
+        'idl/IPageSpeedRules.idl',
+      ],
+      'rules': [
+        {
+          'rule_name': 'genidl',
+          'extension': 'idl',
+          'variables': {
+            'rule_input_relpath': 'idl',
+          },
+          'outputs': [
+            '<(xpidl_out_dir)/pagespeed_firefox/<(rule_input_relpath)/<(RULE_INPUT_ROOT).h',
+          ],
+          'action': [
+            '<(xulrunner_sdk_arch_root)/bin/xpidl',
+            '-m', 'header',
+            '-I', '<(xulrunner_sdk_root)/idl',
+            '-e', '<(xpidl_out_dir)/pagespeed_firefox/<(rule_input_relpath)/<(RULE_INPUT_ROOT).h',
+            './<(rule_input_relpath)/<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
+          ],
+          'message': 'Generating C++ header from <(RULE_INPUT_PATH)',
+        },
+      ],
+      'dependencies': [
+        'xulrunner_sdk',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(xpidl_out_dir)/pagespeed_firefox/idl',
+        ]
+      },
+      'export_dependent_settings': [
+        'xulrunner_sdk',
+      ],
+    },
+    {
       'target_name': 'pagespeed_firefox_profile_pb',
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
+        'pagespeed_firefox_genproto',
         '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
-      ],
-      'actions': [
-        {
-          'action_name': 'generate_pagespeed_firefox_profile_pb',
-          'variables': {
-            'proto_path': 'protobuf',
-          },
-          'inputs': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '<(proto_path)/activity/profile.proto',
-          ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/activity/profile.pb.cc',
-            '<(SHARED_INTERMEDIATE_DIR)/activity/profile.pb.h',
-          ],
-          'dependencies': [
-            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
-          ],
-          'action': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '<(proto_path)/activity/profile.proto',
-            '--proto_path=<(proto_path)',
-            '--cpp_out=<(SHARED_INTERMEDIATE_DIR)',
-          ],
-        },
       ],
       'sources': [
-        '<(SHARED_INTERMEDIATE_DIR)/activity/profile.pb.cc',
+        '<(protoc_out_dir)/pagespeed_firefox/protobuf/activity/profile.pb.cc',
       ],
-      'include_dirs': [
-        '<(SHARED_INTERMEDIATE_DIR)',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(SHARED_INTERMEDIATE_DIR)/activity',
-        ],
-      },
       'export_dependent_settings': [
+        'pagespeed_firefox_genproto',
         '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
       ]
     },
@@ -189,10 +230,10 @@
       'dependencies': [
         'xulrunner_sdk',
         'pagespeed_firefox_activity_common',
+        'pagespeed_firefox_genidl',
         '<(DEPTH)/base/base.gyp:base',
       ],
       'sources': [
-        'idl/IActivityProfiler.idl',
         '<(activity_root)/basic_tree_view.cc',
         '<(activity_root)/jsd_call_hook.cc',
         '<(activity_root)/jsd_function_info.cc',
@@ -213,17 +254,18 @@
       },
       'dependencies': [
         'xulrunner_sdk',
+        'pagespeed_firefox_genidl',
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
       ],
       'sources': [
-        'idl/IJsMin.idl',
         '<(js_min_root)/js_minifier.cc',
       ],
       'include_dirs': [
         '<(libpagespeed_root)',
       ],
       'export_dependent_settings': [
+        'pagespeed_firefox_genidl',
         '<(DEPTH)/base/base.gyp:base',
       ],
     },
@@ -317,6 +359,7 @@
       'dependencies': [
         'xulrunner_sdk',
         'pagespeed_firefox_file_util',
+        'pagespeed_firefox_genidl',
         'pagespeed_firefox_json_input',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
@@ -325,7 +368,6 @@
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
       ],
       'sources': [
-        'idl/IPageSpeedRules.idl',
         'cpp/pagespeed/firefox_dom.cc',
         'cpp/pagespeed/pagespeed_rules.cc',
       ],
