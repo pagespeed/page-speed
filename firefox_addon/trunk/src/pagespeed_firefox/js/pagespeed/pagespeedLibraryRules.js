@@ -130,7 +130,7 @@ function buildLintRuleResults(results) {
   return lintRules;
 }
 
-/*
+/**
  * Returns an integer representing the filter the user has chosen from
  * the Filter Results menu.
  * @return {number} 0 for filter nothing, 1 for filter non-ads, etc.
@@ -151,7 +151,17 @@ function filterChoice() {
     }
   }
   PS_LOG("No checked items in Filter Results menu");
-  return 0;
+  return IPageSpeedRules.RESOURCE_FILTER_ALL;
+}
+
+/**
+ * Return true if the filter excludes content, false otherwise.
+ */
+function isFilteringOutContent() {
+  var filter = filterChoice();
+  var IPageSpeedRules = Components.interfaces['IPageSpeedRules'];
+  return (filter !== IPageSpeedRules.RESOURCE_FILTER_ALL &&
+          filter !== IPageSpeedRules.RESOURCE_FILTER_ONLY_CONTENT);
 }
 
 PAGESPEED.NativeLibrary = {
@@ -194,7 +204,11 @@ PAGESPEED.NativeLibrary = {
       inputJSON,
       PAGESPEED.Utils.newNsIArray(bodyInputStreams),
       PAGESPEED.Utils.getDocumentUrl(),
-      PAGESPEED.Utils.getElementsByType('doc')[0],
+      // Temporary measure: don't supply the DOM if the filter is excluding
+      // content.  We'll undo this once the library DOM rules have a better way
+      // of handling filters.
+      (isFilteringOutContent() ? null :
+       PAGESPEED.Utils.getElementsByType('doc')[0]),
       filterChoice(),
       PAGESPEED.Utils.getOutputDir('library-output'));
     var results = JSON.parse(resultJSON);
