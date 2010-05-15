@@ -11,7 +11,7 @@ New features:
   * Rules ported to native library
     * Parallelize downloads across hostnames
     * Serve static content from a cookieless domain
-    * Leverage proxy caching ported to Specify a Vary: Accept-Encoding header and Remove query strings from static resources
+    * Parts of "Leverage proxy caching" ported to new "Specify a Vary: Accept-Encoding header" and "Remove query strings from static resources" rules
   * Removed "Avoid CSS Expressions" rule since [http://msdn.microsoft.com/en-us/library/ms537634%28VS.85%29.aspx CSS expressions are no longer supported in any modern browsers]
   * New "Filter" support: Page Speed can analyze just the ads, just the trackers, or just the content of your page.
   * Improved quality of Minimize DNS Lookups suggestions
