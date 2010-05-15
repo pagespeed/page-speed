@@ -3,6 +3,25 @@
 
 =Page Speed Version History=
 
+== 1.8 5/?/2010 ==
+New features:
+  * New rules
+    * Specify a Vary: Accept-Encoding header
+    * Remove query strings from static resources
+  * Rules ported to native library
+    * Parallelize downloads across hostnames
+    * Serve static content from a cookieless domain
+    * Leverage proxy caching ported to Specify a Vary: Accept-Encoding header and Remove query strings from static resources
+  * Removed "Avoid CSS Expressions" rule since [http://msdn.microsoft.com/en-us/library/ms537634%28VS.85%29.aspx CSS expressions are no longer supported in any modern browsers]
+  * New "Filter" support: Page Speed can analyze just the ads, just the trackers, or just the content of your page.
+  * Improved quality of Minimize DNS Lookups suggestions
+  * Improved scoring for Optimize Images, and of Minify HTML, JavaScript, CSS
+
+Bug fixes:
+  * Fixed issue with Page Speed tab highlighter getting out of sync when switching between browser tabs 
+  * Fixed issue 248: correctly parse <a href=http://foo.com/>.
+  * 
+
 == 1.7 4/27/2010 ==
 New features:
   * New rules:
