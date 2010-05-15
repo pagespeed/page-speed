@@ -19,7 +19,7 @@ New features:
 
 Bug fixes:
   * Fixed issue with Page Speed tab highlighter getting out of sync when switching between browser tabs 
-  * Fixed issue 248: correctly parse <a href=http://foo.com/>.
+  * Fixed issue 248: correctly parse &lt;a href=http://foo.com/&gt;.
 
 == 1.7 4/27/2010 ==
 New features:
