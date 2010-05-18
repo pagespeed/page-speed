@@ -30,10 +30,12 @@ PageSpeedProcessContext::PageSpeedProcessContext()
 }
 
 PageSpeedProcessContext::~PageSpeedProcessContext() {
-  if (fetcher_ != NULL) {
-    delete fetcher_;
-  }
 }
+
+void PageSpeedProcessContext::set_fetcher(SerfUrlAsyncFetcher* fetcher) {
+  fetcher_.reset(fetcher);
+}
+
 PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server) {
   PageSpeedProcessContext* context =
       static_cast<PageSpeedProcessContext*>(
@@ -59,9 +61,7 @@ void CreateSerfAsyncFetcher(server_rec* server) {
     ap_set_module_config(server->module_config, &pagespeed_module, context);
   }
   if (context->fetcher() == NULL) {
-    SerfUrlAsyncFetcher* fetcher =
-        new SerfUrlAsyncFetcher(GetFetcherProxy().c_str());
-    context->set_fetcher(fetcher);
+    context->set_fetcher(new SerfUrlAsyncFetcher(GetFetcherProxy().c_str()));
   }
 }
 

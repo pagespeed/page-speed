@@ -15,6 +15,8 @@
 #ifndef MOD_PAGESPEED_PAGESPEED_PROCESS_CONTEXT_H_
 #define MOD_PAGESPEED_PAGESPEED_PROCESS_CONTEXT_H_
 
+#include "base/scoped_ptr.h"
+
 // Forward declaration.
 struct server_rec;
 
@@ -27,10 +29,10 @@ class PageSpeedProcessContext {
  public:
   PageSpeedProcessContext();
   ~PageSpeedProcessContext();
-  SerfUrlAsyncFetcher* fetcher() const { return fetcher_; }
-  void set_fetcher(SerfUrlAsyncFetcher* fetcher) { fetcher_ = fetcher; }
+  SerfUrlAsyncFetcher* fetcher() const { return fetcher_.get(); }
+  void set_fetcher(SerfUrlAsyncFetcher* fetcher);
  private:
-  SerfUrlAsyncFetcher* fetcher_;
+  scoped_ptr<SerfUrlAsyncFetcher> fetcher_;
 };
 
 PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server);
