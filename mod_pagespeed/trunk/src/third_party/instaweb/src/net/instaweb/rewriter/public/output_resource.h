@@ -8,6 +8,7 @@
 #define NET_INSTAWEB_REWRITER_PUBLIC_OUTPUT_RESOURCE_H_
 
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
@@ -17,22 +18,20 @@ class Writer;
 
 class OutputResource {
  public:
+  OutputResource() : writer_(NULL) { }
   virtual ~OutputResource();
 
-  // Interface for writing the output file in chunks
-  virtual bool StartWrite(MessageHandler* message_handler) = 0;
-  virtual bool WriteChunk(const char* buf, size_t size,
-                          MessageHandler* message_handler) = 0;
-  virtual bool EndWrite(MessageHandler* message_handler) = 0;
+  // Deprecated interface for writing the output file in chunks.  To
+  // be removed soon.
+  bool StartWrite(MessageHandler* message_handler);
+  bool WriteChunk(const StringPiece& buf, MessageHandler* handler);
+  bool EndWrite(MessageHandler* message_handler);
 
-  bool WriteChunk(const std::string& buf, MessageHandler* message_handler) {
-    return WriteChunk(buf.data(), buf.size(), message_handler);
-  }
+  // Writer-based interface for writing the output file.
+  virtual Writer* BeginWrite(MessageHandler* message_handler) = 0;
+  virtual bool EndWrite(Writer* writer, MessageHandler* message_handler) = 0;
 
-  // Interface for writing the output file from a single string.
-  bool Write(const std::string& content, MessageHandler* handler);
-
-  virtual const std::string& url() const = 0;
+  virtual StringPiece url() const = 0;
   virtual const MetaData* metadata() const = 0;
   virtual MetaData* metadata() = 0;
 
@@ -44,6 +43,14 @@ class OutputResource {
   // already known.  For now we'll assume we can commit to serving the
   // resource during the HTML rewriter.
   virtual bool IsReadable() const = 0;
+  virtual bool IsWritten() const = 0;
+
+  // Read the output resource back in and send it to a writer.
+  virtual bool Read(Writer* writer, MetaData*,
+                    MessageHandler* message_handller) const = 0;
+
+ private:
+  Writer* writer_;
 };
 
 }  // namespace net_instaweb

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "base/scoped_ptr.h"
 #include "net/instaweb/htmlparse/public/file_driver.h"
-#include "net/instaweb/rewriter/public/filename_resource_manager.h"
+#include "net/instaweb/rewriter/public/hash_resource_manager.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
 #include "net/instaweb/util/public/cache_url_fetcher.h"
 #include "net/instaweb/util/public/fake_url_async_fetcher.h"
@@ -14,6 +14,7 @@
 #include "net/instaweb/util/public/filename_encoder.h"
 #include "net/instaweb/util/public/http_cache.h"
 #include "net/instaweb/util/public/lru_cache.h"
+#include "net/instaweb/util/public/mock_hasher.h"
 #include "net/instaweb/util/public/stdio_file_system.h"
 #include "net/instaweb/util/public/timer.h"
 #include "net/instaweb/util/public/wget_url_fetcher.h"
@@ -30,7 +31,9 @@ int main(int argc, char** argv) {
   net_instaweb::HTTPCache http_cache(&lru_cache, timer.get());
   net_instaweb::CacheUrlFetcher cache_url_fetcher(&http_cache, &url_fetcher);
   net_instaweb::FakeUrlAsyncFetcher url_async_fetcher(&cache_url_fetcher);
-  net_instaweb::RewriteDriver rewrite_driver(html_parse, &url_async_fetcher);
+  net_instaweb::RewriteDriver rewrite_driver(html_parse, &file_system,
+                                             &url_async_fetcher);
+  net_instaweb::MockHasher mock_hasher;
 
   scoped_ptr<net_instaweb::ResourceManager> manager;
   if ((argc > (start + 4)) &&
@@ -47,9 +50,9 @@ int main(int argc, char** argv) {
     }
     net_instaweb::FilenameEncoder filename_encoder;
     bool write_headers = false;
-    manager.reset(new net_instaweb::FilenameResourceManager(
+    manager.reset(new net_instaweb::HashResourceManager(
         file_prefix, serving_prefix, num_shards, write_headers, &file_system,
-        &filename_encoder, &url_fetcher));
+        &filename_encoder, &url_fetcher, &mock_hasher));
     rewrite_driver.SetResourceManager(manager.get());
     start += 4;
   }
@@ -96,34 +99,23 @@ int main(int argc, char** argv) {
     fprintf(stderr, "Cannot generate output filename from %s\n", infile);
   }
 
-  int ret = 0;
+  int ret = 1;
   if (outfile != NULL) {
+    // Set the base url so that input resource may be read.
+    // NOTE: this will only work for relative urls that do not begin in '/'.
     if (manager != NULL) {
-      const char* last_slash = strrchr(infile, '/');
-      if (last_slash != NULL) {
-        // set the input search directory for the file resource manager.
-        // note that this is distinct from any 'base' that is supplied
-        // for the serving side.
-        std::string base_dir;
-        int num_chars_before_slash = last_slash - infile;
-        base_dir.append(infile, num_chars_before_slash);
-        std::string file_url("file:/");
-        if (infile[0] != '/') {
-          file_url += getenv("PWD");
-          file_url += '/';
-        }
-        char* last_slash = strrchr(infile, '/');
-        if (last_slash != NULL) {
-          int base_len = last_slash - infile + 1;
-          file_url.append(infile, base_len);
-        }
-        rewrite_driver.SetBaseUrl(file_url.c_str());
+      std::string infile_url("file:/");
+      if (infile[0] != '/') {  // Make an absolute path from a relative one.
+        infile_url += getenv("PWD");
+        infile_url += '/';
       }
+      infile_url.append(infile);
+      rewrite_driver.SetBaseUrl(infile_url.c_str());
     }
 
     // TODO(jmaessen): generate stats from rewriting?
-    if (file_driver.ParseFile(infile, outfile, NULL)) {
-      ret = 0;  // TODO(sligocki): this is not doing anything right now.
+    if (file_driver.ParseFile(infile, outfile, NULL, &message_handler)) {
+      ret = 0;
     }
   }
   return ret;

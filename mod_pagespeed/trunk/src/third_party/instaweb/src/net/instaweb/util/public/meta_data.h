@@ -11,6 +11,7 @@
 #include <vector>
 #include "base/basictypes.h"
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
@@ -77,6 +78,7 @@ class MetaData {
  public:
   typedef std::vector<const char*> StringVector;
 
+  MetaData() { }
   virtual ~MetaData();
 
   // Raw access for random access to attribute name/value pairs
@@ -105,8 +107,7 @@ class MetaData {
   virtual void Add(const char* name, const char* value) = 0;
 
   // Parse a chunk of header text.  Returns number of bytes consumed.
-  virtual int ParseChunk(const char* text, int num_bytes,
-                         MessageHandler* handler) = 0;
+  virtual int ParseChunk(const StringPiece& text,  MessageHandler* handler) = 0;
 
   virtual bool headers_complete() const = 0;
 
@@ -121,6 +122,11 @@ class MetaData {
   virtual void set_minor_version(const int minor_version) = 0;
   virtual void set_status_code(const int status_code) = 0;
   virtual void set_reason_phrase(const std::string& reason_phrase) = 0;
+
+  virtual std::string ToString() const = 0;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MetaData);
 };
 
 }  // namespace net_instaweb

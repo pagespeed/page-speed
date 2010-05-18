@@ -417,6 +417,11 @@ void HtmlLexer::StartParse(const char* url) {
   attr_quote_ = "";
   state_ = START;
   element_stack_.clear();
+  element_ = NULL;
+  token_.clear();
+  attr_name_.clear();
+  attr_value_.clear();
+  literal_.clear();
   // clear buffers
 }
 
@@ -446,6 +451,7 @@ void HtmlLexer::FinishParse() {
                          element->tag().c_str());
   }
   element_stack_.clear();
+  element_ = NULL;
 }
 
 void HtmlLexer::MakeAttribute(bool has_value) {

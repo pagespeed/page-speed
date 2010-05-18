@@ -9,6 +9,7 @@
 #include "base/scoped_ptr.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
@@ -18,7 +19,8 @@ class UrlFetcher;
 
 class UrlInputResource : public InputResource {
  public:
-  explicit UrlInputResource(const std::string& url,
+  explicit UrlInputResource(const StringPiece& url,
+                            const StringPiece& absolute_url,
                             UrlFetcher* url_fetcher);
   virtual ~UrlInputResource();
 
@@ -34,6 +36,7 @@ class UrlInputResource : public InputResource {
 
  private:
   std::string url_;
+  std::string absolute_url_;
   std::string contents_;
   scoped_ptr<MetaData> meta_data_;
   UrlFetcher* url_fetcher_;

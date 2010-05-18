@@ -10,27 +10,30 @@
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
-#include "pagespeed/image_compression/png_optimizer.h"
 
 namespace net_instaweb {
 
 class ContentType;
+class FileSystem;
 class HtmlParse;
+class Image;
 class ImgFilter;
+class ImgRewriteUrl;
+class OutputResource;
 class ResourceManager;
 
-// Identify img tags in html.  For the moment, just log them.
+// Identify img tags in html and optimize them.
 // TODO(jmaessen): See which ones have immediately-obvious size info.
-// TODO(jmaessen): Rewrite resource urls
-// TODO(jmaessen): Provide alternate resources at rewritten urls somehow.
-// TODO(jmaessen): Run image optimization on alternate resources where useful.
+// TODO(jmaessen): Provide alternate resources at rewritten urls
+//     asynchronously somehow.
 // TODO(jmaessen): Big open question: how best to link pulled-in resources to
 //     rewritten urls, when in general those urls will be in a different domain.
 class ImgRewriteFilter : public RewriteFilter {
  public:
   ImgRewriteFilter(StringPiece path_prefix,
                    HtmlParse* html_parse,
-                   ResourceManager* resource_manager);
+                   ResourceManager* resource_manager,
+                   FileSystem* file_system);
   virtual void EndElement(HtmlElement* element);
   virtual void Flush();
   virtual bool Fetch(StringPiece resource, Writer* writer,
@@ -41,16 +44,14 @@ class ImgRewriteFilter : public RewriteFilter {
                      UrlAsyncFetcher::Callback* callback);
 
  private:
-  // These are just helper methods.
-  void WriteBytesWithExtension(const ContentType& content_type,
-                               const std::string& contents,
-                               HtmlElement::Attribute* src);
-  void OptimizePng(pagespeed::image_compression::PngReaderInterface* reader,
-                   HtmlElement::Attribute* src, InputResource* img_resource);
-  void OptimizeJpeg(HtmlElement::Attribute* src, InputResource* img_resource);
-  void OptimizeImgResource(HtmlElement::Attribute* src,
-                           InputResource* img_resource);
+  // Helper methods.
+  void OptimizeImage(
+      const ImgRewriteUrl& url_proto, Image* image, OutputResource* result);
+  OutputResource* OptimizedImageFor(
+      const ImgRewriteUrl& url_proto, const std::string& url_string);
+  void RewriteImageUrl(const HtmlElement& element, HtmlElement::Attribute* src);
 
+  FileSystem* file_system_;
   HtmlParse* html_parse_;
   ImgFilter* img_filter_;
   ResourceManager* resource_manager_;

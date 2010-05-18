@@ -5,8 +5,11 @@
 #define NET_INSTAWEB_REWRITER_PUBLIC_FILENAME_RESOURCE_MANAGER_H_
 
 #include <vector>
+#include "base/scoped_ptr.h"
 #include "net/instaweb/rewriter/public/resource_manager.h"
-#include <string>
+#include "net/instaweb/util/public/string_util.h"
+
+class GURL;
 
 namespace net_instaweb {
 
@@ -19,50 +22,29 @@ class MessageHandler;
 class MetaData;
 class UrlFetcher;
 
+// Note: direct usage of this class is deprecated.  Use HashResourceManager,
+// with a mock_hasher if you don't want any hashing to occur.
 class FilenameResourceManager : public ResourceManager {
  public:
-  FilenameResourceManager(const StringPiece& file_prefix,
-                          const StringPiece& url_prefix,
-                          const int num_shards,
-                          const bool write_http_headers,
-                          FileSystem* file_system,
-                          FilenameEncoder* filename_encoder,
-                          UrlFetcher* url_fetcher);
+  FilenameResourceManager(FileSystem* file_system, UrlFetcher* url_fetcher);
 
   virtual ~FilenameResourceManager();
 
-  virtual OutputResource* GenerateOutputResource(const ContentType& type);
-  virtual OutputResource* NamedOutputResource(const StringPiece& name,
-                                              const ContentType& type);
-  virtual InputResource* CreateInputResource(const StringPiece& url);
+  virtual InputResource* CreateInputResource(const StringPiece& url,
+                                             MessageHandler* handler);
 
   virtual void SetDefaultHeaders(const ContentType& content_type,
                                  MetaData* header);
 
-  virtual void set_base_dir(const StringPiece& dir) {
-    dir.CopyToString(&base_dir_);
-  }
-  virtual void set_base_url(const StringPiece& url) {
-    url.CopyToString(&base_url_);
-  }
-
-  virtual StringPiece url_prefix() const { return url_prefix_; }
-  virtual StringPiece file_prefix() const { return file_prefix_; }
+  virtual void set_base_url(const StringPiece& url);
 
  protected:
-
-  std::string file_prefix_;
-  std::string url_prefix_;
-  std::string base_dir_;  // Directory where resources will be found.
-  std::string base_url_;  // URL for the incoming request
-  int num_shards_;   // NYI: For server sharding of OutputResources.
-  int resource_id_;  // Output resources are named with sequential id nums.
-  bool write_http_headers_;
-  std::vector<InputResource*> input_resources_;
   std::vector<OutputResource*> output_resources_;
+ private:
   FileSystem* file_system_;
-  FilenameEncoder* filename_encoder_;
   UrlFetcher* url_fetcher_;
+  scoped_ptr<GURL> base_url_;  // Base url to resolve relative urls against.
+  std::vector<InputResource*> input_resources_;
 };
 
 }  // namespace net_instaweb

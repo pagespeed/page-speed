@@ -35,7 +35,10 @@ bool LRUCache::Get(const std::string& key, Writer* writer,
     lru_ordered_list_.erase(cell);
     p->second = Freshen(key_value);
     const std::string& value = key_value->second;
-    ret = writer->Write(value.data(), value.size(), message_handler);
+    ret = writer->Write(value, message_handler);
+    ++num_hits_;
+  } else {
+    ++num_misses_;
   }
   return ret;
 }
@@ -65,7 +68,9 @@ void LRUCache::Put(const std::string& key, const std::string& new_value,
     if (new_value == key_value->second) {
       map_iter->second = Freshen(key_value);
       need_to_insert = false;
+      // TODO(jmarantz): count number of re-inserts of existing value?
     } else {
+      ++num_deletes_;
       current_bytes_in_cache_ -= entry_size(key_value);
       delete key_value;
     }
@@ -80,6 +85,7 @@ void LRUCache::Put(const std::string& key, const std::string& new_value,
     if (EvictIfNecessary(key.size() + new_value.size())) {
       // The new value fits.  Put it in the LRU-list.
       map_iter->second = Freshen(new KeyValuePair(&map_iter->first, new_value));
+      ++num_inserts_;
     } else {
       // The new value was too big to fit.  Remove it from the map.
       // it's already removed from the list.  We have failed.  We
@@ -103,6 +109,7 @@ bool LRUCache::EvictIfNecessary(size_t bytes_needed) {
       map_.erase(*key_value->first);
       assert(current_bytes_in_cache_ >= 0);
       delete key_value;
+      ++num_evictions_;
     }
     current_bytes_in_cache_ += bytes_needed;
     ret = true;
@@ -120,6 +127,9 @@ void LRUCache::Delete(const std::string& key,
     current_bytes_in_cache_ -= entry_size(key_value);
     map_.erase(p);
     delete key_value;
+    ++num_deletes_;
+  } else {
+    // TODO(jmarantz): count number of misses on a 'delete' request?
   }
 }
 

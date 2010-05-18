@@ -5,22 +5,25 @@
 #define NET_INSTAWEB_UTIL_PUBLIC_WRITER_H_
 
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
-// Interface for writing bytes to an output stream.
 class MessageHandler;
+
+// Interface for writing bytes to an output stream.
 class Writer {
  public:
   virtual ~Writer();
 
-  virtual bool Write(const char* str, int len, MessageHandler* handler) = 0;
-
-  bool Write(const std::string& str, MessageHandler* handler) {
-    return Write(str.data(), str.length(), handler);
-  }
+  virtual bool Write(const StringPiece& str, MessageHandler* handler) = 0;
 
   virtual bool Flush(MessageHandler* message_handler) = 0;
+
+  // Deprecated old interface. Do not use for new code.
+  bool Write(const char* str, int len, MessageHandler* handler) {
+    return Write(StringPiece(str, len), handler);
+  }
 };
 
 }  // namespace net_instaweb

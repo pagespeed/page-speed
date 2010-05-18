@@ -8,12 +8,12 @@
 
 namespace net_instaweb {
 
-FileInputResource::FileInputResource(const std::string& url,
-                                     const std::string& filename,
+FileInputResource::FileInputResource(const StringPiece& url,
+                                     const StringPiece& filename,
                                      FileSystem* file_system)
-    : url_(url),
-      filename_(filename),
-      file_system_(file_system) {
+    : file_system_(file_system) {
+  url.CopyToString(&url_);
+  filename.CopyToString(&filename_);
 }
 
 FileInputResource::~FileInputResource() {

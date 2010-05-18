@@ -50,7 +50,7 @@ bool FileCache::Get(const std::string& key, Writer* writer,
   int bytes = 0;
   while ((bytes = in_file->Read(buffer, kStackBufferSize, message_handler))
           > 0 ) {
-    if (!writer->Write(buffer, bytes, message_handler)) {
+    if (!writer->Write(StringPiece(buffer, bytes), message_handler)) {
       file_system_->Close(in_file, message_handler_);
       return false;
     }
@@ -72,7 +72,7 @@ void FileCache::Put(const std::string& key, const std::string& new_value,
     return;  // Failed to open the output file.
   }
 
-  if (!out_file->Write(new_value.data(), new_value.size(), message_handler_)) {
+  if (!out_file->Write(new_value, message_handler_)) {
     file_system_->Close(out_file, message_handler_);
     return;  // Failed to write the file.
   }

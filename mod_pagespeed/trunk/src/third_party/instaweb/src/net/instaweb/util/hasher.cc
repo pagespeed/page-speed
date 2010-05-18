@@ -8,9 +8,9 @@ namespace net_instaweb {
 Hasher::~Hasher() {
 }
 
-std::string Hasher::Hash(const std::string& content) {
+std::string Hasher::Hash(const StringPiece& content) {
   Reset();
-  Add(content.c_str(), content.size());
+  Add(content);
   std::string hash;
   ComputeHash(&hash);
   return hash;

@@ -1,5 +1,5 @@
 // Copyright 2010 Google Inc.
-// Author: sligocki@google.com (Shawn Ligocki)
+// Author: jmarantz@google.com (Joshua Marantz)
 //
 // UrlFetcher is an interface for asynchronously fetching urls.  The
 // caller must supply a callback to be called when the fetch is complete.

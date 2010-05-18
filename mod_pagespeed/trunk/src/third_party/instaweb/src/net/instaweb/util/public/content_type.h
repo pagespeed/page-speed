@@ -10,25 +10,21 @@
 
 namespace net_instaweb {
 
-class ContentType {
+struct ContentType {
  public:
-  ContentType(const char* mime_type, const char* file_extension)
-      : mime_type_(mime_type), file_extension_(file_extension) {}
-
   const char* mime_type() const { return mime_type_; }
   const char* file_extension() const { return file_extension_; }
 
- private:
   const char* mime_type_;
   const char* file_extension_;
 };
 
-const ContentType kContentTypeJavascript("text/javascript", ".js");
-const ContentType kContentTypeCss("text/css", ".css");
+extern const ContentType kContentTypeJavascript;
+extern const ContentType kContentTypeCss;
 
-const ContentType kContentTypePng("image/png", ".png");
-const ContentType kContentTypeGif("image/gif", ".gif");
-const ContentType kContentTypeJpeg("image/jpeg", ".jpg");
+extern const ContentType kContentTypePng;
+extern const ContentType kContentTypeGif;
+extern const ContentType kContentTypeJpeg;
 
 }  // namespace net_instaweb
 

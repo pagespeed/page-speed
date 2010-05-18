@@ -20,6 +20,11 @@ message CssUrl {
 };
 
 message CssCombineUrl {
-  repeated CssUrl elements = 1;
-  optional string content_hash = 2 [default = "" ];
+  repeated CssUrl element = 1;
+};
+
+message ImgRewriteUrl {
+  required string origin_url = 1;
+  optional int32 width = 2 [default = -1];
+  optional int32 height = 3 [default = -1];
 };

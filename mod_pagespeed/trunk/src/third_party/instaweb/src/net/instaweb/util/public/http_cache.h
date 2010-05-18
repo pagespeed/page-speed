@@ -21,7 +21,8 @@ class HTTPCache {
  public:
   explicit HTTPCache(CacheInterface* cache, Timer* timer)
       : cache_(cache),
-        timer_(timer) {
+        timer_(timer),
+        force_caching_(false) {
   }
 
   bool Get(const char* key, MetaData* headers, Writer* writer,
@@ -32,10 +33,12 @@ class HTTPCache {
            MessageHandler* handler);
 
   CacheInterface::KeyState Query(const char* key, MessageHandler* handler);
+  void set_force_caching(bool force) { force_caching_ = true; }
 
  private:
   CacheInterface* cache_;
   Timer* timer_;
+  bool force_caching_;
 };
 
 }  // namespace net_instaweb

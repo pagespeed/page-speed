@@ -27,7 +27,13 @@ class LRUCache : public CacheInterface {
  public:
   explicit LRUCache(size_t max_size)
       : max_bytes_in_cache_(max_size),
-        current_bytes_in_cache_(0) { }
+        current_bytes_in_cache_(0),
+        num_evictions_(0),
+        num_hits_(0),
+        num_misses_(0),
+        num_inserts_(0),
+        num_deletes_(0) {
+  }
   virtual ~LRUCache();
   virtual bool Get(const std::string& key, Writer* writer,
                    MessageHandler* message_handler);
@@ -47,6 +53,12 @@ class LRUCache : public CacheInterface {
 
   // Number of elements stored
   size_t num_elements() const { return map_.size(); }
+
+  size_t num_evictions() const { return num_evictions_; }
+  size_t num_hits() const { return num_hits_; }
+  size_t num_misses() const { return num_misses_; }
+  size_t num_inserts() const { return num_inserts_; }
+  size_t num_deletes() const { return num_deletes_; }
 
   // Sanity check the cache data structures.
   void SanityCheck();
@@ -69,6 +81,11 @@ class LRUCache : public CacheInterface {
 
   size_t max_bytes_in_cache_;
   size_t current_bytes_in_cache_;
+  size_t num_evictions_;
+  size_t num_hits_;
+  size_t num_misses_;
+  size_t num_inserts_;
+  size_t num_deletes_;
   EntryList lru_ordered_list_;
   Map map_;
 };

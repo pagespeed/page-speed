@@ -9,6 +9,7 @@
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/util/public/symbol_table.h"
 
 namespace net_instaweb {
@@ -37,7 +38,7 @@ class HtmlElement {
     // if quoting is not yet known (e.g. this is a synthesized attribute.
     // This is hard-to-describe and we should probably use an Atom for
     // the quote, and decide how to handle NULL.
-    Attribute(Atom name, const char* value, const char* quote)
+    Attribute(Atom name, const StringPiece& value, const char* quote)
         : name_(name), quote_(quote) {
       set_value(value);
     }
@@ -52,8 +53,15 @@ class HtmlElement {
     // Modify value of attribute (eg to rewrite dest of src or href).
     // As with the constructor, copies the string in, so caller retains
     // ownership of value.
-    void set_value(const char *value) {
-      value_.reset((value == NULL) ? NULL : strdup(value));
+    void set_value(const StringPiece& value) {
+      if (value.data() == NULL) {
+        value_.reset(NULL);
+      } else {
+        char* buf = new char[value.size() + 1];
+        memcpy(buf, value.data(), value.size());
+        buf[value.size()] = '\0';
+        value_.reset(buf);
+      }
     }
 
     // See comment about quote on constructor for Attribute.
@@ -63,7 +71,7 @@ class HtmlElement {
 
    private:
     Atom name_;
-    scoped_ptr_malloc<char> value_;
+    scoped_array<char> value_;
     const char* quote_;
   };
 
@@ -72,7 +80,7 @@ class HtmlElement {
   // Unconditionally add attribute, copying value.
   // Quote is assumed to be a static const char *.
   // Doesn't check for attribute duplication (which is illegal in html).
-  void AddAttribute(Atom name, const char* value, const char* quote) {
+  void AddAttribute(Atom name, const StringPiece& value, const char* quote) {
     attributes_.push_back(new Attribute(name, value, quote));
   }
 
@@ -90,12 +98,23 @@ class HtmlElement {
   // Use this only if you don't intend to change the attribute value;
   // if you might change the attribute value, use FindAttribute instead
   // (this avoids a double lookup).
-  const char *AttributeValue(Atom name) const {
+  const char* AttributeValue(Atom name) const {
     const Attribute* attribute = FindAttribute(name);
     if (attribute != NULL) {
       return attribute->value();
     }
     return NULL;
+  }
+
+  // Look up attribute value by name.  false if no attribute exists,
+  // or attribute value cannot be converted to int.  Otherwise
+  // sets *value.
+  bool IntAttributeValue(Atom name, int* value) const {
+    const Attribute* attribute = FindAttribute(name);
+    if (attribute != NULL) {
+      return StringToInt(attribute->value(), value);
+    }
+    return false;
   }
 
   // Small integer uniquely identifying the HTML element, primarily
@@ -119,7 +138,7 @@ class HtmlElement {
   void DebugPrint() const;
 
   int begin_line_number() const { return begin_line_number_; }
-  int set_end_line_number() const { return end_line_number_; }
+  int end_line_number() const { return end_line_number_; }
 
  private:
   // Begin/end event iterators are used by HtmlParse to keep track

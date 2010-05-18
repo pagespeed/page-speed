@@ -4,17 +4,18 @@
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
 
 #include <assert.h>
+#include <vector>
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
 #include "net/instaweb/rewriter/public/add_head_filter.h"
 #include "net/instaweb/rewriter/public/base_tag_filter.h"
 #include "net/instaweb/rewriter/public/cache_extender.h"
 #include "net/instaweb/rewriter/public/css_combine_filter.h"
-#include "net/instaweb/rewriter/public/filename_resource_manager.h"
-#include "net/instaweb/rewriter/public/hash_resource_manager.h"
 #include "net/instaweb/rewriter/public/html_attribute_quote_removal.h"
 #include "net/instaweb/rewriter/public/img_rewrite_filter.h"
 #include "net/instaweb/rewriter/public/outline_filter.h"
+#include "net/instaweb/rewriter/public/output_resource.h"
+#include "net/instaweb/rewriter/public/resource_manager.h"
 #include "net/instaweb/util/public/url_async_fetcher.h"
 
 namespace {
@@ -32,9 +33,10 @@ namespace net_instaweb {
 // asynchronous fetchers, employing FakeUrlAsyncFetcher as needed
 // for running functional regression-tests where we don't mind blocking
 // behavior.
-RewriteDriver::RewriteDriver(HtmlParse* html_parse,
+RewriteDriver::RewriteDriver(HtmlParse* html_parse, FileSystem* file_system,
                              UrlAsyncFetcher* url_async_fetcher)
     : html_parse_(html_parse),
+      file_system_(file_system),
       url_async_fetcher_(url_async_fetcher),
       resource_manager_(NULL) {
 }
@@ -46,7 +48,7 @@ void RewriteDriver::SetResourceManager(ResourceManager* resource_manager) {
   resource_manager_ = resource_manager;
 }
 
-void RewriteDriver::SetBaseUrl(const char* base) {
+void RewriteDriver::SetBaseUrl(const StringPiece& base) {
   if (base_tag_filter_ != NULL) {
     base_tag_filter_->set_base_url(base);
   }
@@ -109,7 +111,7 @@ void RewriteDriver::RewriteImages() {
   assert(img_rewrite_filter_ == NULL);
   img_rewrite_filter_.reset(
       new ImgRewriteFilter(kImageCompression, html_parse_,
-                           resource_manager_));
+                           resource_manager_, file_system_));
   resource_filter_map_[kImageCompression] = img_rewrite_filter_.get();
   html_parse_->AddFilter(img_rewrite_filter_.get());
 }
@@ -125,29 +127,43 @@ void RewriteDriver::RemoveQuotes() {
 void RewriteDriver::SetWriter(Writer* writer) {
   if (html_writer_filter_ == NULL) {
     html_writer_filter_.reset(new HtmlWriterFilter(html_parse_));
+    html_parse_->AddFilter(html_writer_filter_.get());
   }
-  html_parse_->AddFilter(html_writer_filter_.get());
   html_writer_filter_->set_writer(writer);
 }
 
 void RewriteDriver::FetchResource(
-    const char* resource,
+    const StringPiece& resource,
     const MetaData& request_headers,
     MetaData* response_headers,
     Writer* writer,
     MessageHandler* message_handler,
     UrlAsyncFetcher::Callback* callback) {
   bool queued = false;
-  const char* next_slash = strchr(resource, '/');
-  if (next_slash != NULL) {
-    StringPiece filter_id(resource, next_slash - resource);
-    ResourceFilterMap::iterator p = resource_filter_map_.find(
-        filter_id.as_string());
-    if (p != resource_filter_map_.end()) {
-      RewriteFilter* filter = p->second;
-      queued = filter->Fetch(next_slash + 1, writer,
-                             request_headers, response_headers,
-                             url_async_fetcher_, message_handler, callback);
+  const char* separator = RewriteFilter::prefix_separator().c_str();
+  std::vector<StringPiece> components;
+  SplitStringPieceToVector(resource, separator, &components, false);
+  if (components.size() == 4) {
+    // For now, ignore the hash, which is in components[1]
+    const StringPiece& id = components[0];
+    const StringPiece& name = components[2];
+    const StringPiece& ext = components[3];
+
+    OutputResource* resource =
+        resource_manager_->FindNamedOutputResource(id, name, ext);
+    if ((resource != NULL) &&
+        resource->Read(writer, response_headers, message_handler)) {
+      callback->Done(true);
+      queued = true;
+    } else {
+      ResourceFilterMap::iterator p = resource_filter_map_.find(id);
+      if (p != resource_filter_map_.end()) {
+        RewriteFilter* filter = p->second;
+        std::string resource_ext = StrCat(name, ".", ext);
+        queued = filter->Fetch(resource_ext, writer,
+                               request_headers, response_headers,
+                               url_async_fetcher_, message_handler, callback);
+      }
     }
   }
   if (!queued) {

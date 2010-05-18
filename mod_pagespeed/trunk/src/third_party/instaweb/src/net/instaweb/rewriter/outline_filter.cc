@@ -95,7 +95,6 @@ void OutlineFilter::Flush() {
   buffer_.clear();
 }
 
-
 void OutlineFilter::Characters(const std::string& characters) {
   if (inline_element_ != NULL) {
     buffer_ += characters;
@@ -107,7 +106,6 @@ void OutlineFilter::IgnorableWhitespace(const std::string& whitespace) {
     buffer_ += whitespace;
   }
 }
-
 
 void OutlineFilter::Comment(const std::string& comment) {
   if (inline_element_ != NULL) {
@@ -153,27 +151,25 @@ void OutlineFilter::OutlineStyle(HtmlElement* style_element,
     // TODO(sligocki): Is this assumption appropriate?
     if (type == NULL || strcmp(type, kTextCss) == 0) {
       OutputResource* resource =
-          resource_manager_->GenerateOutputResource(kContentTypeCss);
+          resource_manager_->GenerateOutputResource("of", kContentTypeCss);
       MessageHandler* handler = html_parse_->message_handler();
       if (WriteResource(content, resource, handler)) {
         HtmlElement* link_element = html_parse_->NewElement(s_link_);
         link_element->AddAttribute(s_rel_, kStylesheet, "'");
-        link_element->AddAttribute(s_href_, resource->url().c_str(), "'");
+        link_element->AddAttribute(s_href_, resource->url(), "'");
         // Add all style atrributes to link.
         for (int i = 0; i < style_element->attribute_size(); ++i) {
           const HtmlElement::Attribute& attr = style_element->attribute(i);
           link_element->AddAttribute(attr.name(), attr.value(), attr.quote());
         }
+        // Add link to DOM.
+        html_parse_->InsertElementAfterElement(style_element, link_element);
         // Remove style element from DOM.
         if (!html_parse_->DeleteElement(style_element)) {
-          html_parse_->FatalErrorHere("Failed to delete element");
+          html_parse_->FatalErrorHere("Failed to delete inline sytle element");
         }
-        // Add link.
-        // NOTE: this only works if current pointer was on element.
-        // TODO(sligocki): Do an InsertElementBeforeElement instead?
-        html_parse_->InsertElementBeforeCurrent(link_element);
       } else {
-        html_parse_->ErrorHere("Failed to write style resource.");
+        html_parse_->ErrorHere("Failed to write outlined style resource.");
       }
     } else {
       std::string element_string;
@@ -186,39 +182,39 @@ void OutlineFilter::OutlineStyle(HtmlElement* style_element,
 
 // Create file with script content and remove that element from DOM.
 // TODO(sligocki): Combine similar code from OutlineStyle.
-void OutlineFilter::OutlineScript(HtmlElement* element,
+void OutlineFilter::OutlineScript(HtmlElement* inline_element,
                                   const std::string& content) {
-  if (html_parse_->IsRewritable(element)) {
+  if (html_parse_->IsRewritable(inline_element)) {
     // Create script file from content.
-    const char* type = element->AttributeValue(s_type_);
+    const char* type = inline_element->AttributeValue(s_type_);
     // We only deal with javascript styles. If no type specified, JS is assumed.
     // TODO(sligocki): Is this assumption appropriate?
     if (type == NULL || strcmp(type, kTextJavascript) == 0) {
-      OutputResource* resource =
-          resource_manager_->GenerateOutputResource(kContentTypeJavascript);
+      OutputResource* resource = resource_manager_->GenerateOutputResource(
+          "of", kContentTypeJavascript);
       MessageHandler* handler = html_parse_->message_handler();
       if (WriteResource(content, resource, handler)) {
-        HtmlElement* src_element = html_parse_->NewElement(s_script_);
-        src_element->AddAttribute(s_src_, resource->url().c_str(), "'");
+        HtmlElement* outline_element = html_parse_->NewElement(s_script_);
+        outline_element->AddAttribute(s_src_, resource->url(), "'");
         // Add all atrributes from old script element to new script src element.
-        for (int i = 0; i < element->attribute_size(); ++i) {
-          const HtmlElement::Attribute& attr = element->attribute(i);
-          src_element->AddAttribute(attr.name(), attr.value(), attr.quote());
+        for (int i = 0; i < inline_element->attribute_size(); ++i) {
+          const HtmlElement::Attribute& attr = inline_element->attribute(i);
+          outline_element->AddAttribute(attr.name(), attr.value(),
+                                        attr.quote());
         }
+        // Add <script src=...> element to DOM.
+        html_parse_->InsertElementBeforeElement(inline_element,
+                                                outline_element);
         // Remove original script element from DOM.
-        if (!html_parse_->DeleteElement(element)) {
-          html_parse_->FatalErrorHere("Failed to delete element");
+        if (!html_parse_->DeleteElement(inline_element)) {
+          html_parse_->FatalErrorHere("Failed to delete inline script element");
         }
-        // Add <script src=...> element.
-        // NOTE: this only works if current pointer was on element.
-        // TODO(sligocki): Do an InsertElementBeforeElement instead?
-        html_parse_->InsertElementBeforeCurrent(src_element);
       } else {
-        html_parse_->ErrorHere("Failed to write script resource.");
+        html_parse_->ErrorHere("Failed to write outlined script resource.");
       }
     } else {
       std::string element_string;
-      element->ToString(&element_string);
+      inline_element->ToString(&element_string);
       html_parse_->InfoHere("Cannot outline non-javascript script %s",
                            element_string.c_str());
     }

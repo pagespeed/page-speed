@@ -16,10 +16,10 @@
 namespace net_instaweb {
 // TODO(jmarantz): consider factoring out the code that finds external resources
 
-CacheExtender::CacheExtender(const char* path_prefix, HtmlParse* html_parse,
+CacheExtender::CacheExtender(const char* filter_prefix, HtmlParse* html_parse,
                              ResourceManager* resource_manager,
                              Hasher* hasher)
-    : RewriteFilter(path_prefix),
+    : RewriteFilter(filter_prefix),
       html_parse_(html_parse),
       resource_manager_(resource_manager),
       hasher_(hasher),
@@ -28,13 +28,16 @@ CacheExtender::CacheExtender(const char* path_prefix, HtmlParse* html_parse,
 }
 
 void CacheExtender::StartElement(HtmlElement* element) {
+  MessageHandler* message_handler = html_parse_->message_handler();
   HtmlElement::Attribute* href;
   const char* media;
   if (css_filter_.ParseCssElement(element, &href, &media) &&
       html_parse_->IsRewritable(element)) {
     InputResource* css_resource =
-        resource_manager_->CreateInputResource(href->value());
-    MessageHandler* message_handler = html_parse_->message_handler();
+        resource_manager_->CreateInputResource(href->value(), message_handler);
+
+    // TODO(jmarantz): create an output resource to generate a new url,
+    // rather than doing the content-hashing here.
     if (css_resource->Read(message_handler)) {
       ResourceUrl resource_url;
       resource_url.set_origin_url(href->value());
@@ -42,7 +45,8 @@ void CacheExtender::StartElement(HtmlElement* element) {
       std::string url_safe_id;
       Encode(resource_url, &url_safe_id);
       std::string new_url = StrCat(
-          resource_manager_->url_prefix(), path_prefix_, "/", url_safe_id);
+          resource_manager_->url_prefix(), filter_prefix_,
+          prefix_separator(), url_safe_id);
       href->set_value(new_url.c_str());
     }
   }

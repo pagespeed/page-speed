@@ -8,11 +8,19 @@
 
 namespace net_instaweb {
 
-UrlInputResource::UrlInputResource(const std::string& url,
+UrlInputResource::UrlInputResource(const StringPiece& url,
+                                   const StringPiece& absolute_url,
                                    UrlFetcher* url_fetcher)
-    : url_(url),
-      meta_data_(NULL),
+    : meta_data_(NULL),
       url_fetcher_(url_fetcher) {
+  // url_ holds the original URL from the href, which might be relative to
+  // the containing page.  This is what is returned from the url() method,
+  // e.g. to encode origin  URLs into url-safe paths for rewriting resources.
+  //
+  // absolute_url_ incorpoates the base path, if necessary, and is used for
+  // initiating HTTP GET requests.
+  url.CopyToString(&url_);
+  absolute_url.CopyToString(&absolute_url_);
 }
 
 UrlInputResource::~UrlInputResource() {
@@ -28,7 +36,8 @@ bool UrlInputResource::Read(MessageHandler* message_handler) {
     SimpleMetaData request_headers;
     meta_data_.reset(new SimpleMetaData);
     ret = url_fetcher_->StreamingFetchUrl(
-        url_, request_headers, meta_data_.get(), &writer, message_handler);
+        absolute_url_, request_headers, meta_data_.get(), &writer,
+        message_handler);
   }
   return ret;
 }

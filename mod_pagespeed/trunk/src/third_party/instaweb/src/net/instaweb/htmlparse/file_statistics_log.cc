@@ -34,7 +34,7 @@ void FileStatisticsLog::LogStat(const char *stat_name, int value) {
   buf += ": ";
   AppendInt(value, &buf);
   buf += "\n";
-  file_->Write(buf.data(), buf.length(), message_handler_);
+  file_->Write(buf, message_handler_);
 }
 
 void FileStatisticsLog::LogDifference(const char *stat_name,
@@ -49,7 +49,7 @@ void FileStatisticsLog::LogDifference(const char *stat_name,
   buf += "\tdiffer by\t";
   AppendInt(value1-value2, &buf);
   buf += "\n";
-  file_->Write(buf.data(), buf.length(), message_handler_);
+  file_->Write(buf, message_handler_);
 }
 
 }  // namespace net_instaweb
