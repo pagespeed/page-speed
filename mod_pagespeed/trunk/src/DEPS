@@ -28,6 +28,9 @@ deps = {
   "src/base":
     Var("libpagespeed_trunk") + "/src/base" + Var("libpagespeed_revision"),
 
+  "src/net":
+    Var("libpagespeed_trunk") + "/src/net" + Var("libpagespeed_revision"),
+
   "src/googleurl":
     "http://google-url.googlecode.com/svn/trunk@121",
 
@@ -81,6 +84,9 @@ deps = {
   "src/third_party/protobuf2":
     (Var("chromium_trunk") + "/src/third_party/protobuf2" +
      Var("chromium_revision")),
+
+  "src/third_party/chromium/src/net/base":
+      Var("chromium_trunk") + "/src/net/base" + Var("chromium_revision"),
 
   "src/third_party/chromium/src/net/tools/flip_server":
     Var("chromium_trunk") + "/src/net/tools/flip_server" +

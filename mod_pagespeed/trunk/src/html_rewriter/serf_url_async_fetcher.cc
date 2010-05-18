@@ -96,6 +96,8 @@ class SerfFetch {
           fetch->str_url_.c_str(), 0, "Connection close (code=%d %s).",
           why, GetAprErrorString(why).c_str());
     }
+    // Connection is closed.
+    fetch->connection_ = NULL;
   }
 
   static serf_bucket_t* AcceptResponse(serf_request_t* request,
@@ -139,12 +141,20 @@ class SerfFetch {
       const char* data = NULL;
       apr_size_t len = 0;
       while ((status = serf_bucket_read(response, kBufferSize, &data, &len))
-             == APR_SUCCESS) {
-        if (!fetched_content_writer_->Write(data, len, message_handler_)) {
+             == APR_SUCCESS || APR_STATUS_IS_EOF(status) ||
+             APR_STATUS_IS_EAGAIN(status)) {
+        if (len > 0 &&
+            !fetched_content_writer_->Write(data, len, message_handler_)) {
           status = APR_EGENERAL;
           break;
         }
+        if (status != APR_SUCCESS) {
+          break;
+        }
       }
+      // We could read the headers earlier, but then we have to check if we
+      // have received the headers.  At EOF of response, we have the headers
+      // already. Read them.
       if (APR_STATUS_IS_EOF(status)) {
         status = ReadHeaders(response);
       }
@@ -163,7 +173,8 @@ class SerfFetch {
     const char* data = NULL;
     apr_size_t num_bytes = 0;
     while ((status = serf_bucket_read(headers, kBufferSize, &data, &num_bytes))
-           == APR_SUCCESS || APR_STATUS_IS_EOF(status)) {
+           == APR_SUCCESS || APR_STATUS_IS_EOF(status) ||
+           APR_STATUS_IS_EAGAIN(status)) {
       if (response_headers_->headers_complete()) {
         status = APR_EGENERAL;
         message_handler_->Error(str_url_.c_str(), 0,
@@ -176,7 +187,7 @@ class SerfFetch {
         message_handler_->Error(str_url_.c_str(), 0,
                                 "unexpected bytes at end of header");
       }
-      if (APR_STATUS_IS_EOF(status)) {
+      if (status != APR_SUCCESS) {
         break;
       }
     }

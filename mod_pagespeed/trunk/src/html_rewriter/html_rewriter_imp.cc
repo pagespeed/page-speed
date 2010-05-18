@@ -51,6 +51,8 @@ HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
       string_writer_(output) {
   rewrite_driver_.SetResourceManager(&hash_resource_manager_);
   rewrite_driver_.CombineCssFiles();
+  rewrite_driver_.RewriteImages();
+  rewrite_driver_.RemoveQuotes();
   rewrite_driver_.SetWriter(&string_writer_);
   html_parse_.StartParse(url_.c_str());
 }
