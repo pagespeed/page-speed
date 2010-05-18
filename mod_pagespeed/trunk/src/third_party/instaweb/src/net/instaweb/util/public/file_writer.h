@@ -14,7 +14,7 @@ class FileWriter : public Writer {
  public:
   explicit FileWriter(FileSystem::OutputFile* f) : file_(f) { }
   virtual ~FileWriter();
-  virtual bool Write(const char* str, int len, MessageHandler* message_handler);
+  virtual bool Write(const StringPiece& str, MessageHandler* message_handler);
   virtual bool Flush(MessageHandler* message_handler);
  private:
   FileSystem::OutputFile* file_;

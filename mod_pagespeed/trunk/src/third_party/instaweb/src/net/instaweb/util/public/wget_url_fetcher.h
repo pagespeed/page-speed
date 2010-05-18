@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/util/public/url_fetcher.h"
 
 namespace net_instaweb {
@@ -41,7 +42,7 @@ class WgetUrlFetcher : public UrlFetcher {
 
     // Read a chunk of wget output, populating response_headers and calling
     // wrier on output, returning true if the status is ok.
-    bool ParseChunk(const char* buf, int size);
+    bool ParseChunk(const StringPiece& data);
 
    private:
     bool reading_headers_;

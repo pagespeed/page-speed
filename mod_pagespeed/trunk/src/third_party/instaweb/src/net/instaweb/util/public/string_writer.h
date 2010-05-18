@@ -14,7 +14,7 @@ class StringWriter : public Writer {
  public:
   explicit StringWriter(std::string* str) : string_(str) { }
   virtual ~StringWriter();
-  virtual bool Write(const char* str, int len, MessageHandler* message_handler);
+  virtual bool Write(const StringPiece& str, MessageHandler* message_handler);
   virtual bool Flush(MessageHandler* message_handler);
  private:
   std::string* string_;

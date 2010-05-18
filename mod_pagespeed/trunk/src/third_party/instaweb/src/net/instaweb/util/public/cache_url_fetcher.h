@@ -5,6 +5,7 @@
 #define NET_INSTAWEB_UTIL_PUBLIC_CACHE_URL_FETCHER_H_
 
 #include "base/scoped_ptr.h"
+#include "net/instaweb/util/public/http_cache.h"
 #include <string>
 #include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/util/public/string_writer.h"
@@ -13,7 +14,6 @@
 
 namespace net_instaweb {
 
-class HTTPCache;
 class MessageHandler;
 class UrlAsyncFetcher;
 
@@ -36,7 +36,8 @@ class CacheUrlFetcher : public UrlFetcher {
   CacheUrlFetcher(HTTPCache* cache, UrlAsyncFetcher* fetcher)
       : http_cache_(cache),
         sync_fetcher_(NULL),
-        async_fetcher_(fetcher) {
+        async_fetcher_(fetcher),
+        force_caching_(false) {
   }
   virtual ~CacheUrlFetcher();
 
@@ -55,7 +56,7 @@ class CacheUrlFetcher : public UrlFetcher {
   class AsyncFetch : public UrlAsyncFetcher::Callback {
    public:
     AsyncFetch(const StringPiece& url, HTTPCache* cache,
-               MessageHandler* handler);
+               MessageHandler* handler, bool force_caching);
     virtual ~AsyncFetch();
 
     virtual void Done(bool success);
@@ -76,13 +77,19 @@ class CacheUrlFetcher : public UrlFetcher {
     StringWriter writer_;
     HTTPCache* http_cache_;
     Callback* callback_;
+    bool force_caching_;
   };
 
+  void set_force_caching(bool force) {
+    force_caching_ = force;
+    http_cache_->set_force_caching(force);
+  }
 
  private:
   HTTPCache* http_cache_;
   UrlFetcher* sync_fetcher_;
   UrlAsyncFetcher* async_fetcher_;
+  bool force_caching_;
 };
 
 }  // namespace net_instaweb

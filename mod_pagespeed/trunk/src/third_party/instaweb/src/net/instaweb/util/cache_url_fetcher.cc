@@ -17,8 +17,8 @@ namespace {
 class AsyncFetchWithHeaders : public CacheUrlFetcher::AsyncFetch {
  public:
   AsyncFetchWithHeaders(const StringPiece& url, HTTPCache* cache,
-                        MessageHandler* handler)
-      : CacheUrlFetcher::AsyncFetch(url, cache, handler) {
+                        MessageHandler* handler, bool force_caching)
+      : CacheUrlFetcher::AsyncFetch(url, cache, handler, force_caching) {
   }
 
   virtual MetaData* ResponseHeaders() {
@@ -32,11 +32,13 @@ class AsyncFetchWithHeaders : public CacheUrlFetcher::AsyncFetch {
 
 CacheUrlFetcher::AsyncFetch::AsyncFetch(const StringPiece& url,
                                         HTTPCache* cache,
-                                        MessageHandler* handler)
+                                        MessageHandler* handler,
+                                        bool force_caching)
     : message_handler_(handler),
       url_(url.data(), url.size()),
       writer_(&content_),
-      http_cache_(cache) {
+      http_cache_(cache),
+      force_caching_(force_caching) {
 }
 
 CacheUrlFetcher::AsyncFetch::~AsyncFetch() {
@@ -46,7 +48,7 @@ void CacheUrlFetcher::AsyncFetch::UpdateCache() {
   // TODO(jmarantz): allow configuration of whether we ignore
   // IsProxyCacheable, e.g. for content served from the same host
   MetaData* response_headers = ResponseHeaders();
-  if (response_headers->IsCacheable() &&
+  if ((force_caching_ || response_headers->IsCacheable()) &&
       (http_cache_->Query(url_.c_str(), message_handler_) ==
        CacheInterface::kNotFound)) {
     http_cache_->Put(url_.c_str(), *response_headers, content_,
@@ -86,9 +88,9 @@ bool CacheUrlFetcher::StreamingFetchUrl(
       StringWriter string_writer(&content);
       ret = sync_fetcher_->StreamingFetchUrl(
           url, request_headers, response_headers, &string_writer, handler);
-      writer->Write(content.data(), content.size(), handler);
+      writer->Write(content, handler);
       if (ret) {
-        if (response_headers->IsCacheable()) {
+        if (force_caching_ || response_headers->IsCacheable()) {
           http_cache_->Put(url.c_str(), *response_headers, content, handler);
         }
         ret = true;
@@ -96,7 +98,8 @@ bool CacheUrlFetcher::StreamingFetchUrl(
         // TODO(jmarantz): Consider caching that this request is not fetchable
       }
     } else {
-      AsyncFetch* fetch = new AsyncFetchWithHeaders(url, http_cache_, handler);
+      AsyncFetch* fetch = new AsyncFetchWithHeaders(url, http_cache_, handler,
+                                                    force_caching_);
       fetch->Start(async_fetcher_, request_headers);
     }
   }

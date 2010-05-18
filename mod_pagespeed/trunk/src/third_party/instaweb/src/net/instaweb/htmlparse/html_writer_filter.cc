@@ -36,24 +36,24 @@ HtmlWriterFilter::HtmlWriterFilter(HtmlParse* html_parse)
 HtmlWriterFilter::~HtmlWriterFilter() {
 }
 
-void HtmlWriterFilter::EmitBytes(const char* str, int size) {
+void HtmlWriterFilter::EmitBytes(const StringPiece& str) {
   if (lazy_close_element_ != NULL) {
     lazy_close_element_ = NULL;
-    if (!writer_->Write(">", 1, html_parse_->message_handler())) {
+    if (!writer_->Write(">", html_parse_->message_handler())) {
       ++write_errors_;
     }
     ++column_;
   }
 
   // Search backward from the end for the last occurrence of a newline.
-  column_ += size;  // if there are no newlines, bump up column counter.
-  for (int i = size - 1; i >= 0; --i) {
+  column_ += str.size();  // if there are no newlines, bump up column counter.
+  for (int i = str.size() - 1; i >= 0; --i) {
     if (str[i] == '\n') {
-      column_ = size - i - 1;  // found a newline; so reset the column.
+      column_ = str.size() - i - 1;  // found a newline; so reset the column.
       break;
     }
   }
-  if (!writer_->Write(str, size, html_parse_->message_handler())) {
+  if (!writer_->Write(str, html_parse_->message_handler())) {
     ++write_errors_;
   }
 }
@@ -72,14 +72,14 @@ void HtmlWriterFilter::StartElement(HtmlElement* element) {
         attr_length += 1 + strlen(attribute.value());
       }
       if ((column_ + attr_length) > max_column_) {
-        EmitBytes("\n", 1);
+        EmitBytes("\n");
       }
     }
     EmitBytes(" ");
     EmitBytes(attribute.name().c_str());
     last_is_unquoted = false;
     if (attribute.value() != NULL) {
-      EmitBytes("=", 1);
+      EmitBytes("=");
       EmitBytes(attribute.quote());
       EmitBytes(attribute.value());
       EmitBytes(attribute.quote());
@@ -105,7 +105,7 @@ void HtmlWriterFilter::StartElement(HtmlElement* element) {
   if (GetCloseStyle(element) == HtmlElement::BRIEF_CLOSE) {
     lazy_close_element_ = element;
   } else {
-    EmitBytes(">", 1);
+    EmitBytes(">");
   }
 }
 
@@ -145,14 +145,14 @@ void HtmlWriterFilter::EndElement(HtmlElement* element) {
       // explicitly close it, so we fall through.
       if (lazy_close_element_ == element) {
         lazy_close_element_ = NULL;
-        EmitBytes("/>", 2);
+        EmitBytes("/>");
         break;
       }
       // fall through
     case HtmlElement::EXPLICIT_CLOSE:
-      EmitBytes("</", 2);
+      EmitBytes("</");
       EmitBytes(element->tag().c_str());
-      EmitBytes(">", 1);
+      EmitBytes(">");
       break;
     case HtmlElement::UNCLOSED:
       // Nothing new to write; the ">" was written in StartElement
@@ -187,25 +187,25 @@ void HtmlWriterFilter::IEDirective(const std::string& value) {
 void HtmlWriterFilter::DocType(
     const std::string& name, const std::string& ext_id,
     const std::string& sys_id) {
-  EmitBytes("<!doctype ", 10);
+  EmitBytes("<!doctype ");
   EmitBytes(name);
   if (!ext_id.empty()) {
-    EmitBytes(" PUBLIC \"", 9);
+    EmitBytes(" PUBLIC \"");
     EmitBytes(ext_id);
-    EmitBytes("\"", 1);
+    EmitBytes("\"");
   }
   if (!sys_id.empty()) {
-    EmitBytes(" \"", 2);
+    EmitBytes(" \"");
     EmitBytes(sys_id);
-    EmitBytes("\"", 1);
+    EmitBytes("\"");
   }
   EmitBytes(">");
 }
 
 void HtmlWriterFilter::Directive(const std::string& directive) {
-  EmitBytes("<!", 2);
+  EmitBytes("<!");
   EmitBytes(directive);
-  EmitBytes(">", 1);
+  EmitBytes(">");
 }
 
 void HtmlWriterFilter::StartDocument() {

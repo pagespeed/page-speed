@@ -9,22 +9,14 @@
 #include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/util/public/url_async_fetcher.h"
 
-#ifdef INSTAWEB_GOOGLE3
-#include "net/proto2/io/public/gzip_stream.h"
-#include "net/proto2/io/public/zero_copy_stream_impl_lite.h"
-#else
-#include "google/protobuf/io/gzip_stream.h"
-#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
-#endif
-
 namespace net_instaweb {
 
 class UrlAsyncFetcher;
 class Writer;
 class RewriteFilter : public EmptyHtmlFilter {
  public:
-  explicit RewriteFilter(StringPiece path_prefix)
-      : path_prefix_(path_prefix.data(), path_prefix.size()) {
+  explicit RewriteFilter(StringPiece filter_prefix)
+      : filter_prefix_(filter_prefix.data(), filter_prefix.size()) {
   }
   virtual ~RewriteFilter();
 
@@ -43,7 +35,8 @@ class RewriteFilter : public EmptyHtmlFilter {
   // the original URL.  For "ir" (ImgRewriterFilter) the protobuf
   // might include the original image URL, plus the pixel-dimensions
   // to which the image was resized.
-  virtual bool Fetch(StringPiece resource_url, Writer* writer,
+  virtual bool Fetch(StringPiece resource_id,
+                     Writer* writer,
                      const MetaData& request_header,
                      MetaData* response_headers,
                      UrlAsyncFetcher* fetcher,
@@ -79,9 +72,11 @@ class RewriteFilter : public EmptyHtmlFilter {
     return ret;
   }
 
+  static std::string prefix_separator() { return "."; }
+
  protected:
-  std::string path_prefix_;  // Prefix that should be used in front of all
-                              // rewritten URLs
+  std::string filter_prefix_;  // Prefix that should be used in front of all
+                                // rewritten URLs
 };
 
 }  // namespace net_instaweb

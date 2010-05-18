@@ -18,8 +18,9 @@ class ForwardingAsyncFetch : public CacheUrlFetcher::AsyncFetch {
  public:
   ForwardingAsyncFetch(const StringPiece& url, HTTPCache* cache,
                        MessageHandler* handler, Callback* callback,
-                       Writer* writer, MetaData* response_headers)
-      : CacheUrlFetcher::AsyncFetch(url, cache, handler),
+                       Writer* writer, MetaData* response_headers,
+                       bool force_caching)
+      : CacheUrlFetcher::AsyncFetch(url, cache, handler, force_caching),
         callback_(callback),
         client_writer_(writer),
         response_headers_(response_headers) {
@@ -28,7 +29,7 @@ class ForwardingAsyncFetch : public CacheUrlFetcher::AsyncFetch {
   virtual void Done(bool success) {
     // Copy the data to the client even with a failure; there may be useful
     // error messages in the content.
-    client_writer_->Write(content_.data(), content_.size(), message_handler_);
+    client_writer_->Write(content_, message_handler_);
 
     // Update the cache before calling the client Done callback, which might
     // delete the headers.
@@ -61,7 +62,8 @@ void CacheUrlAsyncFetcher::StreamingFetch(
     callback->Done(true);
   } else {
     ForwardingAsyncFetch* fetch = new ForwardingAsyncFetch(
-        url, http_cache_, handler, callback, writer, response_headers);
+        url, http_cache_, handler, callback, writer, response_headers,
+        force_caching_);
     fetch->Start(fetcher_, request_headers);
   }
 }

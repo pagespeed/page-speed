@@ -54,15 +54,14 @@ class HtmlParse {
 
   // Utiliity methods for implementing filters
 
-  // Filters can mutate Elements in-place at will.  But to insert elements
-  // before or after the current element, these can be used.
-  // Downstream filters will then see the new elements but the current filter
-  // will not, and neither will upstream filters.
-  void InsertElementBeforeCurrent(HtmlElement* element);
-  void InsertElementAfterCurrent(HtmlElement* element);
-  bool InsertElementAfterElement(HtmlElement* existing_element,
-                                 HtmlElement* new_element,
-                                 int line_number);
+  // This and downstream filters will then see inserted elements but upstream
+  // filters will not.
+  bool InsertElementBeforeElement(const HtmlElement* existing_element,
+                                  HtmlElement* new_element);
+  bool InsertElementAfterElement(const HtmlElement* existing_element,
+                                 HtmlElement* new_element);
+  // Insert element before current event.
+  bool InsertElementBeforeCurrent(HtmlElement* element);
 
   HtmlElement* NewElement(Atom tag);
   bool DeleteElement(HtmlElement* element);
@@ -82,6 +81,18 @@ class HtmlParse {
 
   // Implementation helper with detailed knowledge of html parsing libraries
   friend class HtmlLexer;
+
+  // Determines whether a tag should be terminated in HTML.
+  bool IsImplicitlyClosedTag(Atom tag) const;
+
+  // Determines whether a tag allows brief termination in HTML, e.g. <tag/>
+  bool TagAllowsBriefTermination(Atom tag) const;
+
+  MessageHandler* message_handler() const { return message_handler_; }
+  // Gets the current location information; typically to help with error
+  // messages.
+  const char* filename() const { return filename_.c_str(); }
+  int line_number() const { return line_number_; }
 
   // Interface for any caller to report an error message via the message handler
   void Info(const char* filename, int line, const char* msg, ...)
@@ -117,24 +128,13 @@ class HtmlParse {
     FatalErrorV(filename_.c_str(), line_number_, msg, args);
   }
 
-  MessageHandler* message_handler() const { return message_handler_; }
-
-  // Determines whether a tag should be terminated in HTML.
-  bool IsImplicitlyClosedTag(Atom tag) const;
-
-  // Determines whether a tag allows brief termination in HTML, e.g. <tag/>
-  bool TagAllowsBriefTermination(Atom tag) const;
-
-  // Gets the current location information; typically to help with error
-  // messages.
-  const char* filename() const { return filename_.c_str(); }
-  int line_number() const { return line_number_; }
-
  private:
   void AddElement(HtmlElement* element, int line_number);
   void AddEvent(HtmlEvent* event) { queue_.push_back(event); }
   HtmlEventListIterator Last();  // Last element in queue
   bool IsInEventWindow(const HtmlEventListIterator& iter) const;
+  bool InsertElementBeforeEvent(const HtmlEventListIterator& event,
+                                HtmlElement* new_element);
 
   SymbolTableInsensitive string_table_;
   std::vector<HtmlFilter*> filters_;
@@ -143,6 +143,8 @@ class HtmlParse {
   std::set<HtmlElement*> elements_;
   HtmlEventList queue_;
   HtmlEventListIterator current_;
+  // Have we deleted current? Then we shouldn't do certain manipulations to it.
+  bool deleted_current_;
   bool rewind_;
   MessageHandler* message_handler_;
   std::string filename_;

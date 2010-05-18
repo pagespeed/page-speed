@@ -8,6 +8,7 @@
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_filter.h"
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
@@ -35,9 +36,7 @@ class HtmlWriterFilter : public HtmlFilter {
   void set_max_column(int max_column) { max_column_ = max_column; }
 
  private:
-  void EmitBytes(const std::string& str) {EmitBytes(str.c_str(), str.size());}
-  void EmitBytes(const char* str) {EmitBytes(str, strlen(str));}
-  void EmitBytes(const char* str, int size);
+  void EmitBytes(const StringPiece& str);
   HtmlElement::CloseStyle GetCloseStyle(HtmlElement* element);
 
   // Escapes arbitrary text as HTML, e.g. turning & into &amp;.  If quoteChar

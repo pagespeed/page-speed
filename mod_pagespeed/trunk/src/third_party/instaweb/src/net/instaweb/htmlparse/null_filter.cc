@@ -46,7 +46,7 @@ int null_filter(int argc, char** argv) {
     message_handler.FatalError(infile, 0, "Cannot generate stats file name");
   }
 
-  if (file_driver.ParseFile(infile, outfile, statsfile)) {
+  if (file_driver.ParseFile(infile, outfile, statsfile, &message_handler)) {
     ret = 0;
   }
 

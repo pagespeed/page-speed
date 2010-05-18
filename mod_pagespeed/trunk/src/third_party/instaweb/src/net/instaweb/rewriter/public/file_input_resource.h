@@ -9,6 +9,7 @@
 #include "base/scoped_ptr.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
@@ -17,8 +18,8 @@ class MessageHandler;
 
 class FileInputResource : public InputResource {
  public:
-  FileInputResource(const std::string& url,
-                    const std::string& filename,
+  FileInputResource(const StringPiece& url,
+                    const StringPiece& filename,
                     FileSystem* file_system);
   ~FileInputResource();
 

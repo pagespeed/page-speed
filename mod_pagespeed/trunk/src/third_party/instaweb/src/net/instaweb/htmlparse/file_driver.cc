@@ -31,10 +31,9 @@ bool GenerateFilename(
 
 namespace net_instaweb {
 
-FileDriver::FileDriver(MessageHandler* message_handler,
+FileDriver::FileDriver(MessageHandler* html_parse_message_handler,
                        FileSystem* file_system)
-    : message_handler_(message_handler),
-      html_parse_(message_handler_),
+    : html_parse_(html_parse_message_handler),
       logging_filter_(),
       html_write_filter_(&html_parse_),
       filters_added_(false),
@@ -53,8 +52,8 @@ bool FileDriver::GenerateStatsFilename(
 
 bool FileDriver::ParseFile(const char* infilename,
                            const char* outfilename,
-                           const char* statsfilename) {
-  MessageHandler* message_handler = html_parse_.message_handler();
+                           const char* statsfilename,
+                           MessageHandler* message_handler) {
   FileSystem::OutputFile* outf =
       file_system_->OpenOutputFile(outfilename, message_handler);
   bool ret = false;

@@ -43,8 +43,7 @@ class SimpleMetaData : public MetaData {
   virtual void Add(const char* name, const char* value);
 
   // Parse a chunk of header text.  Returns number of bytes consumed.
-  virtual int ParseChunk(const char* text, int num_bytes,
-                         MessageHandler* handler);
+  virtual int ParseChunk(const StringPiece& text, MessageHandler* handler);
 
   virtual bool headers_complete() const { return headers_complete_; }
 
@@ -67,6 +66,8 @@ class SimpleMetaData : public MetaData {
   virtual void set_reason_phrase(const std::string& reason_phrase) {
     reason_phrase_ = reason_phrase;
   }
+
+  virtual std::string ToString() const;
 
  private:
   struct CompareInsensitive {
@@ -107,6 +108,9 @@ class SimpleMetaData : public MetaData {
   int minor_version_;
   int status_code_;
   std::string reason_phrase_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SimpleMetaData);
 };
 
 }  // namespace net_instaweb

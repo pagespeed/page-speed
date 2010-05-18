@@ -7,7 +7,6 @@
 #include "net/instaweb/rewriter/public/output_resource.h"
 #include "net/instaweb/util/public/file_system.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
-#include <string>
 
 namespace net_instaweb {
 
@@ -15,21 +14,21 @@ class MessageHandler;
 
 class FilenameOutputResource : public OutputResource {
  public:
-  FilenameOutputResource(const std::string& url,
-                         const std::string& filename,
+  FilenameOutputResource(const StringPiece& url,
+                         const StringPiece& filename,
                          const bool write_http_headers,
                          FileSystem* file_system);
   virtual ~FilenameOutputResource();
 
   // Start a writing an output resource.
   virtual bool StartWrite(MessageHandler* message_handler);
-  virtual bool WriteChunk(const char* buf, size_t size,
-                          MessageHandler* message_handler);
+  virtual bool WriteChunk(const StringPiece& buf, MessageHandler* handler);
   virtual bool EndWrite(MessageHandler* message_handler);
 
   virtual bool IsReadable() const;
+  virtual bool IsWritten() const;
 
-  virtual const std::string& url() const { return url_; }
+  virtual StringPiece url() const { return StringPiece(url_); }
   virtual const MetaData* metadata() const { return &metadata_; }
   virtual MetaData* metadata() { return &metadata_; }
 

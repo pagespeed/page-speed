@@ -22,6 +22,14 @@ class CssFilter {
   bool ParseCssElement(
       HtmlElement* element, HtmlElement::Attribute** href, const char** media);
 
+  // Scans the contents of a CSS file, looking for the pattern url(xxx).
+  // If xxx is a relative URL, it absolutifies it based on the passed-in base
+  // path.  If xxx is quoted with single-quotes or double-quotes, those are
+  // retained and the URL inside is absolutified.
+  static bool AbsolutifyUrls(const StringPiece& contents,
+                             const std::string& base_url,
+                             Writer* writer, MessageHandler* handler);
+
  private:
   Atom s_link_;
   Atom s_href_;

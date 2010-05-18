@@ -7,6 +7,7 @@
 #define NET_INSTAWEB_UTIL_PUBLIC_HASHER_H_
 
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
 
@@ -15,11 +16,11 @@ class Hasher {
   virtual ~Hasher();
 
   // Interface to compute a hash of a single string.
-  std::string Hash(const std::string& content);
+  std::string Hash(const StringPiece& content);
 
   // Interface to accummulate a hash of data.
   virtual void Reset() = 0;
-  virtual void Add(const char* data, int size) = 0;
+  virtual void Add(const StringPiece& content) = 0;
   virtual void ComputeHash(std::string* hash) = 0;
 };
 

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "net/instaweb/util/public/message_handler.h"
+#include "net/instaweb/util/public/string_writer.h"
 #include "net/instaweb/util/public/writer.h"
 #include "pagespeed/core/resource_util.h"
 
@@ -46,7 +47,6 @@ const char* SimpleMetaData::Value(int index) const {
 }
 
 bool SimpleMetaData::Lookup(const char* name, StringVector* values) const {
-  // TODO(jmarantz): implement case insensitivity
   AttributeMap::const_iterator p = attribute_map_.find(name);
   bool ret = false;
   if (p != attribute_map_.end()) {
@@ -84,19 +84,25 @@ bool SimpleMetaData::Write(Writer* writer, MessageHandler* handler) const {
   char buf[100];
   snprintf(buf, sizeof(buf), "HTTP/%d.%d %d ",
            major_version_, minor_version_, status_code_);
-  writer->Write(buf, strlen(buf), handler);
-  writer->Write(reason_phrase_.data(), reason_phrase_.size(), handler);
-  writer->Write("\r\n", 2, handler);
+  writer->Write(buf, handler);
+  writer->Write(reason_phrase_, handler);
+  writer->Write("\r\n", handler);
   for (int i = 0, n = attribute_vector_.size(); ret && (i < n); ++i) {
     const StringPair& attribute = attribute_vector_[i];
-    ret &= writer->Write(attribute.first, strlen(attribute.first), handler);
-    ret &= writer->Write(": ", 2, handler);
-    ret &= writer->Write(attribute.second, strlen(attribute.second),
-                         handler);
-    ret &= writer->Write("\r\n", 2, handler);
+    ret &= writer->Write(attribute.first, handler);
+    ret &= writer->Write(": ", handler);
+    ret &= writer->Write(attribute.second, handler);
+    ret &= writer->Write("\r\n", handler);
   }
-  ret &= writer->Write("\r\n", 2, handler);
+  ret &= writer->Write("\r\n", handler);
   return ret;
+}
+
+std::string SimpleMetaData::ToString() const {
+  std::string str;
+  StringWriter writer(&str);
+  Write(&writer, NULL);
+  return str;
 }
 
 void SimpleMetaData::Add(const char* name, const char* value) {
@@ -195,16 +201,17 @@ void SimpleMetaData::ComputeCaching() {
   cache_fields_dirty_ = false;
 }
 
-int SimpleMetaData::ParseChunk(const char* text, int num_bytes,
+int SimpleMetaData::ParseChunk(const StringPiece& text,
                                MessageHandler* handler) {
   assert(!headers_complete_);
   int num_consumed = 0;
+  int num_bytes = text.size();
 
   for (; num_consumed < num_bytes; ++num_consumed) {
     char c = text[num_consumed];
     if ((c == '/') && (parse_name_ == "HTTP")) {
       if (major_version_ != 0) {
-        handler->Error("???", 0, "Multiple HTTP Lines");
+        handler->Message(kError, "Multiple HTTP Lines");
       } else {
         parsing_http_ = true;
         parsing_value_ = true;
@@ -230,8 +237,8 @@ int SimpleMetaData::ParseChunk(const char* text, int num_bytes,
                     &major_version_, &minor_version_, &status_code_) != 3) ||
             !GrabLastToken(parse_value_, &reason_phrase_)) {
           // TODO(jmarantz): capture the filename/url, track the line numbers.
-          handler->Error("???", 0, "Invalid HTML headers: %s",
-                         parse_value_.c_str());
+          handler->Message(kError, "Invalid HTML headers: %s",
+                           parse_value_.c_str());
         }
         parsing_http_ = false;
       } else {

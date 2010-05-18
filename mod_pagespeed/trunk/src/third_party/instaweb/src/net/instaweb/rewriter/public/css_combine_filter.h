@@ -13,6 +13,8 @@
 
 namespace net_instaweb {
 
+class InputResource;
+class OutputResource;
 class ResourceManager;
 
 class CssCombineFilter : public RewriteFilter {
@@ -25,7 +27,8 @@ class CssCombineFilter : public RewriteFilter {
   virtual void EndElement(HtmlElement* element);
   virtual void Flush();
   virtual void IEDirective(const std::string& directive);
-  virtual bool Fetch(StringPiece resource, Writer* writer,
+  virtual bool Fetch(StringPiece url_safe_id,
+                     Writer* writer,
                      const MetaData& request_header,
                      MetaData* response_headers,
                      UrlAsyncFetcher* fetcher,
@@ -33,7 +36,16 @@ class CssCombineFilter : public RewriteFilter {
                      UrlAsyncFetcher::Callback* callback);
 
  private:
+  typedef std::vector<InputResource*> InputResourceVector;
+
   void EmitCombinations();
+  bool WriteWithAbsoluteUrls(const StringPiece& contents,
+                             OutputResource* combination,
+                             const std::string& base_url,
+                             MessageHandler* handler);
+  bool WriteCombination(const InputResourceVector& combine_resources,
+                        OutputResource* combination,
+                        MessageHandler* handler);
 
   Atom s_head_;
   Atom s_type_;

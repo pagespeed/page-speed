@@ -5,12 +5,12 @@
 #define NET_INSTAWEB_UTIL_PUBLIC_CACHE_URL_ASYNC_FETCHER_H_
 
 #include "base/scoped_ptr.h"
+#include "net/instaweb/util/public/http_cache.h"
 #include <string>
 #include "net/instaweb/util/public/url_async_fetcher.h"
 
 namespace net_instaweb {
 
-class HTTPCache;
 class MessageHandler;
 class UrlAsyncFetcher;
 
@@ -28,7 +28,8 @@ class CacheUrlAsyncFetcher : public UrlAsyncFetcher {
  public:
   CacheUrlAsyncFetcher(HTTPCache* cache, UrlAsyncFetcher* fetcher)
       : http_cache_(cache),
-        fetcher_(fetcher) {
+        fetcher_(fetcher),
+        force_caching_(false) {
   }
   virtual ~CacheUrlAsyncFetcher();
 
@@ -40,9 +41,15 @@ class CacheUrlAsyncFetcher : public UrlAsyncFetcher {
       MessageHandler* message_handler,
       Callback* callback);
 
+  void set_force_caching(bool force) {
+    force_caching_ = force;
+    http_cache_->set_force_caching(force);
+  }
+
  private:
   HTTPCache* http_cache_;
   UrlAsyncFetcher* fetcher_;
+  bool force_caching_;
 };
 
 }  // namespace net_instaweb

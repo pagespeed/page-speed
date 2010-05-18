@@ -8,9 +8,8 @@ namespace net_instaweb {
 StringWriter::~StringWriter() {
 }
 
-bool StringWriter::Write(
-    const char* str, int len, MessageHandler* message_handler) {
-  string_->append(str, len);
+bool StringWriter::Write(const StringPiece& str, MessageHandler* handler) {
+  string_->append(str.data(), str.size());
   return true;
 }
 

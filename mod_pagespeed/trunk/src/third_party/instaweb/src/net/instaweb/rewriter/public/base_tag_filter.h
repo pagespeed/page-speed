@@ -30,7 +30,7 @@ class BaseTagFilter : public EmptyHtmlFilter {
   virtual void StartElement(HtmlElement* element);
   virtual void EndElement(HtmlElement* element);
 
-  void set_base_url(const std::string& url) { base_url_ = url; }
+  void set_base_url(const StringPiece& url) { url.CopyToString(&base_url_); }
 
  private:
   Atom s_head_;

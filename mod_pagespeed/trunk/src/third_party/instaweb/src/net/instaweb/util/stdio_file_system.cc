@@ -19,10 +19,10 @@ namespace {
 // Output files, in lieu of multiple inheritance.
 class FileHelper {
  public:
-  FileHelper(FILE* f, const char* filename)
+  FileHelper(FILE* f, const StringPiece& filename)
       : file_(f),
-        filename_(filename),
         line_(1) {
+    filename.CopyToString(&filename_);
   }
 
   ~FileHelper() {
@@ -58,7 +58,8 @@ class FileHelper {
 
 class StdioInputFile : public FileSystem::InputFile {
  public:
-  StdioInputFile(FILE* f, const char* filename) : file_helper_(f, filename) {
+  StdioInputFile(FILE* f, const StringPiece& filename)
+      : file_helper_(f, filename) {
   }
 
   virtual int Read(char* buf, int size, MessageHandler* message_handler) {
@@ -82,13 +83,15 @@ class StdioInputFile : public FileSystem::InputFile {
 
 class StdioOutputFile : public FileSystem::OutputFile {
  public:
-  StdioOutputFile(FILE* f, const char* filename) : file_helper_(f, filename) {
+  StdioOutputFile(FILE* f, const StringPiece& filename)
+      : file_helper_(f, filename) {
   }
 
-  virtual bool Write(const char* buf, int size, MessageHandler* handler) {
-    int bytes_written = fwrite(buf, 1, size, file_helper_.file_);
-    file_helper_.CountNewlines(buf, bytes_written);
-    bool ret = (bytes_written == size);
+  virtual bool Write(const StringPiece& buf, MessageHandler* handler) {
+    size_t bytes_written =
+        fwrite(buf.data(), 1, buf.size(), file_helper_.file_);
+    file_helper_.CountNewlines(buf.data(), bytes_written);
+    bool ret = (bytes_written == buf.size());
     if (!ret) {
       file_helper_.ReportError(handler, "writing file: %s");
     }
@@ -160,7 +163,7 @@ FileSystem::OutputFile* StdioFileSystem::OpenOutputFile(
 }
 
 FileSystem::OutputFile* StdioFileSystem::OpenTempFile(
-    const char* prefix, MessageHandler* message_handler) {
+    const StringPiece& prefix, MessageHandler* message_handler) {
   // TODO(jmarantz): As jmaessen points out, mkstemp warns "Don't use
   // this function, use tmpfile(3) instead.  It is better defined and
   // more portable."  However, tmpfile does not allow a location to be
@@ -168,10 +171,10 @@ FileSystem::OutputFile* StdioFileSystem::OpenTempFile(
   // us.  More importantly, our usage scenario is that we will be
   // closing the file and renaming it to a permanent name.  tmpfiles
   // automatically are deleted when they are closed.
-  int prefix_len = strlen(prefix);
+  int prefix_len = prefix.length();
   static char mkstemp_hook[] = "XXXXXX";
   char* template_name = new char[prefix_len + sizeof(mkstemp_hook)];
-  memcpy(template_name, prefix, prefix_len);
+  memcpy(template_name, prefix.data(), prefix_len);
   memcpy(template_name + prefix_len, mkstemp_hook, sizeof(mkstemp_hook));
   int fd = mkstemp(template_name);
   OutputFile* output_file = NULL;
@@ -192,27 +195,59 @@ FileSystem::OutputFile* StdioFileSystem::OpenTempFile(
   return output_file;
 }
 
-bool StdioFileSystem::RenameFile(const char* old_file, const char* new_file,
-                                 MessageHandler* message_handler) {
-  bool ret = true;
-  if (rename(old_file, new_file) < 0) {
-    message_handler->Error(old_file, 0, "renaming file to %s: %s",
-                           new_file, strerror(errno));
-    ret = false;
-  }
-  return ret;
-}
 
 bool StdioFileSystem::RemoveFile(const char* filename,
-                                 MessageHandler* message_handler) {
-  bool ret = true;
-  if (remove(filename) < 0) {
-    message_handler->Error(filename, 0, "removing file: %s", strerror(errno));
-    ret = false;
+                                 MessageHandler* handler) {
+  bool ret = (remove(filename) == 0);
+  if (!ret) {
+    handler->Message(kError, "Failed to delete file %s: %s",
+                     filename, strerror(errno));
   }
   return ret;
 }
 
+bool StdioFileSystem::RenameFile(const char* old_file, const char* new_file,
+                                 MessageHandler* handler) {
+  bool ret = (rename(old_file, new_file) == 0);
+  if (!ret) {
+    handler->Message(kError, "Failed to rename file %s to %s: %s",
+                     old_file, new_file, strerror(errno));
+  }
+  return ret;
+}
 
+bool StdioFileSystem::MakeDir(const char* path, MessageHandler* handler) {
+  // Mode 0777 makes the file use standard umask permissions.
+  bool ret = (mkdir(path, 0777) == 0);
+  if (!ret) {
+    handler->Message(kError, "Failed to make directory %s: %s",
+                     path, strerror(errno));
+  }
+  return ret;
+}
+
+BoolOrError StdioFileSystem::Exists(const char* path, MessageHandler* handler) {
+  struct stat statbuf;
+  BoolOrError ret(stat(path, &statbuf) == 0);
+  if (ret.is_false() && errno != ENOENT) {  // Not error if file doesn't exist.
+    handler->Message(kError, "Failed to stat %s: %s",
+                     path, strerror(errno));
+    ret.set_error();
+  }
+  return ret;
+}
+
+BoolOrError StdioFileSystem::IsDir(const char* path, MessageHandler* handler) {
+  struct stat statbuf;
+  BoolOrError ret(false);
+  if (stat(path, &statbuf) == 0) {
+    ret.set(S_ISDIR(statbuf.st_mode));
+  } else if (errno != ENOENT) {  // Not an error if file doesn't exist.
+    handler->Message(kError, "Failed to stat %s: %s",
+                     path, strerror(errno));
+    ret.set_error();
+  }
+  return ret;
+}
 
 }  // namespace net_instaweb

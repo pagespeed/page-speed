@@ -34,10 +34,9 @@ bool HTTPCache::Get(const char* key, MetaData* headers, Writer* writer,
       }
       headers->ComputeCaching();
 
-      if (headers->CacheExpirationTimeMs() > timer_->NowMs()) {
-        ret = writer->Write(cached_response.content().data(),
-                            cached_response.content().size(),
-                            handler);
+      if (force_caching_ ||
+          (headers->CacheExpirationTimeMs() > timer_->NowMs())) {
+        ret = writer->Write(cached_response.content(), handler);
       } else {
         // This cache entry has expired; evict it to make room for
         // useful data.
