@@ -27,7 +27,13 @@ class InputInformation;
 
 namespace resource_util {
 
-typedef std::map<std::string, std::string> DirectiveMap;
+class CaseInsensitiveStringComparator {
+ public:
+  bool operator()(const std::string& x, const std::string& y) const;
+};
+
+typedef std::map<std::string, std::string,
+                 CaseInsensitiveStringComparator> DirectiveMap;
 
 int EstimateHeaderBytes(const std::string& key, const std::string& value);
 int EstimateHeadersBytes(const std::map<std::string, std::string>& headers);
