@@ -118,13 +118,16 @@ class ScaledImagesChecker : public pagespeed::DomElementVisitor {
  public:
   // Ownership of document and image_data_map are _not_ transfered to the
   // ScaledImagesChecker.
-  ScaledImagesChecker(const pagespeed::DomDocument* document,
+  ScaledImagesChecker(const pagespeed::PagespeedInput* pagespeed_input,
+                      const pagespeed::DomDocument* document,
                       ImageDataMap* image_data_map)
-      : document_(document), image_data_map_(image_data_map) {}
+      : pagespeed_input_(pagespeed_input), document_(document),
+        image_data_map_(image_data_map) {}
 
   virtual void Visit(const pagespeed::DomElement& node);
 
  private:
+  const pagespeed::PagespeedInput* pagespeed_input_;
   const pagespeed::DomDocument* document_;
   ImageDataMap* image_data_map_;
 
@@ -133,31 +136,34 @@ class ScaledImagesChecker : public pagespeed::DomElementVisitor {
 
 void ScaledImagesChecker::Visit(const pagespeed::DomElement& node) {
   if (node.GetTagName() == "IMG") {
-    std::string src;
-    int natural_width = 0, natural_height = 0,
-        client_width = 0, client_height = 0;
-    if (node.GetAttributeByName("src", &src) &&
-        node.GetIntPropertyByName("naturalWidth", &natural_width) &&
-        node.GetIntPropertyByName("naturalHeight", &natural_height) &&
-        node.GetIntPropertyByName("clientWidth", &client_width) &&
-        node.GetIntPropertyByName("clientHeight", &client_height)) {
-      const std::string url(document_->ResolveUri(src));
-      ImageDataMap::iterator iter = image_data_map_->find(url);
-      if (iter == image_data_map_->end()) {
-        // Ownership of ImageData is transfered to the ImageDataMap.
-        (*image_data_map_)[url] = new ImageData(url,
-                                                natural_width, natural_height,
-                                                client_width, client_height);
-      } else {
-        iter->second->Update(natural_width, natural_height,
-                             client_width, client_height);
+    if (pagespeed_input_->has_resource_with_url(document_->GetDocumentUrl())) {
+      std::string src;
+      int natural_width = 0, natural_height = 0,
+          client_width = 0, client_height = 0;
+      if (node.GetAttributeByName("src", &src) &&
+          node.GetIntPropertyByName("naturalWidth", &natural_width) &&
+          node.GetIntPropertyByName("naturalHeight", &natural_height) &&
+          node.GetIntPropertyByName("clientWidth", &client_width) &&
+          node.GetIntPropertyByName("clientHeight", &client_height)) {
+        const std::string url(document_->ResolveUri(src));
+        ImageDataMap::iterator iter = image_data_map_->find(url);
+        if (iter == image_data_map_->end()) {
+          // Ownership of ImageData is transfered to the ImageDataMap.
+          (*image_data_map_)[url] =
+              new ImageData(url, natural_width, natural_height,
+                            client_width, client_height);
+        } else {
+          iter->second->Update(natural_width, natural_height,
+                               client_width, client_height);
+        }
       }
     }
   } else if (node.GetTagName() == "IFRAME") {
     // Do a recursive document traversal.
     scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
     if (child_doc.get()) {
-      ScaledImagesChecker checker(child_doc.get(), image_data_map_);
+      ScaledImagesChecker checker(pagespeed_input_, child_doc.get(),
+                                  image_data_map_);
       child_doc->Traverse(&checker);
     }
   }
@@ -196,7 +202,7 @@ bool ServeScaledImages::AppendResults(const PagespeedInput& input,
 
   bool ok = true;
   ImageDataMap image_data_map;
-  ScaledImagesChecker visitor(document, &image_data_map);
+  ScaledImagesChecker visitor(&input, document, &image_data_map);
   document->Traverse(&visitor);
 
   typedef std::map<const std::string, int> OriginalSizesMap;

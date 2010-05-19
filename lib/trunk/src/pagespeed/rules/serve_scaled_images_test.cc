@@ -141,6 +141,16 @@ class ServeScaledImagesTest : public ::testing::Test {
     input_.reset();
   }
 
+  MockDocument* NewMockDocument (const std::string& url) {
+    pagespeed::Resource* resource = new pagespeed::Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetResponseStatusCode(200);
+    resource->AddResponseHeader("Content-Type", "text/html");
+    input_->AddResource(resource);
+    return new MockDocument(url);
+  }
+
   void AddPngResource(const std::string &url, const int size) {
     std::string body(size, 'x');
     pagespeed::Resource* resource = new pagespeed::Resource;
@@ -224,12 +234,12 @@ class ServeScaledImagesTest : public ::testing::Test {
 };
 
 TEST_F(ServeScaledImagesTest, EmptyDom) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   CheckNoViolations(doc);
 }
 
 TEST_F(ServeScaledImagesTest, NotResized) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        23, 42, 23, 42));
@@ -237,7 +247,7 @@ TEST_F(ServeScaledImagesTest, NotResized) {
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkHeight) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        23, 21, 23, 42));
@@ -245,7 +255,7 @@ TEST_F(ServeScaledImagesTest, ShrunkHeight) {
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkWidth) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        22, 42, 23, 42));
@@ -253,7 +263,7 @@ TEST_F(ServeScaledImagesTest, ShrunkWidth) {
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkBoth) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        22, 21, 23, 42));
@@ -261,7 +271,7 @@ TEST_F(ServeScaledImagesTest, ShrunkBoth) {
 }
 
 TEST_F(ServeScaledImagesTest, IncreasedBoth) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        46, 84, 23, 42));
@@ -269,17 +279,17 @@ TEST_F(ServeScaledImagesTest, IncreasedBoth) {
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkInIFrame) {
-  MockDocument* iframe_doc = new MockDocument("http://test.com/frame/i.html");
+  MockDocument* iframe_doc = NewMockDocument("http://test.com/frame/i.html");
   AddPngResource("http://test.com/frame/image.png", 50);
   iframe_doc->AddElement(new MockImageElement("image.png",
                                               22, 21, 23, 42));
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   doc->AddElement(new MockIframeElement(iframe_doc));
   CheckOneViolation(doc, "http://test.com/frame/image.png");
 }
 
 TEST_F(ServeScaledImagesTest, MultipleViolations) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/imageA.png", 50);
   AddPngResource("http://test.com/imageB.png", 40);
   doc->AddElement(new MockImageElement("http://test.com/imageA.png",
@@ -292,7 +302,7 @@ TEST_F(ServeScaledImagesTest, MultipleViolations) {
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkTwice) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        22, 21, 23, 42));
@@ -302,7 +312,7 @@ TEST_F(ServeScaledImagesTest, ShrunkTwice) {
 }
 
 TEST_F(ServeScaledImagesTest, NotAlwaysShrunk) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        23, 42, 23, 42));
@@ -312,7 +322,7 @@ TEST_F(ServeScaledImagesTest, NotAlwaysShrunk) {
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkAndIncreased) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/image.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/image.png",
                                        46, 84, 23, 42));
@@ -328,14 +338,14 @@ TEST_F(ServeScaledImagesTest, FormatTest) {
       "  http://test.com/a.png is resized in HTML or CSS from 23x42 to 5x15.  "
       "Serving a scaled image could save 47B (94% reduction).\n";
 
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   AddPngResource("http://test.com/a.png", 50);
   doc->AddElement(new MockImageElement("http://test.com/a.png", 5, 15, 23, 42));
   CheckFormattedOutput(doc, expected);
 }
 
 TEST_F(ServeScaledImagesTest, FormatNoOutputTest) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   CheckFormattedOutput(doc, "");
 }
 
