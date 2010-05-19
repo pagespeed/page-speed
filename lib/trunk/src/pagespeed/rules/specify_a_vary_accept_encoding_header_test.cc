@@ -93,6 +93,14 @@ TEST_F(SpecifyAVaryAcceptEncodingHeaderTest, NoProblems) {
                   "text/css", "max-age=-1", "");
   AddTestResource("http://static.example.com/styles.css",
                   "text/css", "", "accept-encoding");
+  AddTestResource("http://static.example.com/styles2.css",
+                  "text/css", "", "Accept-Encoding,User-Agent");
+  AddTestResource("http://static.example.com/styles3.css",
+                  "text/css", "", "User-Agent,Accept-Encoding");
+  // RFC 2616 section 14.44 specifies that the Vary header is case-insensitive,
+  // so make sure that the rule can handle this:
+  AddTestResource("http://static.example.com/styles4.css",
+                  "text/css", "", "aCcEpT-eNcOdInG");
   CheckNoViolations();
 }
 
