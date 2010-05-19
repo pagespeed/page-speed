@@ -461,4 +461,22 @@ TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {
   EXPECT_EQ(100000LL, freshness_lifetime_);
 }
 
+using resource_util::CaseInsensitiveStringComparator;
+
+TEST(CaseInsensitiveStringComparatorTest, Compare) {
+  EXPECT_TRUE(CaseInsensitiveStringComparator()("bar", "foo"));
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("foo", "bar"));
+  EXPECT_TRUE(CaseInsensitiveStringComparator()("BAR", "FOO"));
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("FOO", "BAR"));
+  EXPECT_TRUE(CaseInsensitiveStringComparator()("bar", "FOO"));
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("FOO", "bar"));
+  EXPECT_TRUE(CaseInsensitiveStringComparator()("BAR", "foo"));
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("foo", "BAR"));
+
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("bar", "BAR"));
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("BAR", "bar"));
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("BaR", "bAr"));
+  EXPECT_FALSE(CaseInsensitiveStringComparator()("bAr", "BaR"));
+}
+
 }  // namespace
