@@ -18,6 +18,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -155,6 +156,24 @@ class MockElement : public pagespeed::DomElement {
 
 class SpecifyImageDimensionsTest : public ::testing::Test {
  protected:
+  virtual void SetUp() {
+    input_.reset(new PagespeedInput);
+  }
+
+  virtual void TearDown() {
+    input_.reset();
+  }
+
+  MockDocument* NewMockDocument (const std::string& url) {
+    pagespeed::Resource* resource = new pagespeed::Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetResponseStatusCode(200);
+    resource->AddResponseHeader("Content-Type", "text/html");
+    input_->AddResource(resource);
+    return new MockDocument(url);
+  }
+
   void CheckNoViolations(MockDocument* document) {
     CheckExpectedViolations(document, std::vector<std::string>());
   }
@@ -177,15 +196,14 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
 
   void CheckFormattedOutput(MockDocument* document,
                             const std::string& expected_output) {
-    PagespeedInput input;
-    input.AcquireDomDocument(document);
+    input_->AcquireDomDocument(document);
 
     pagespeed::Results results;
     {
       // compute results
       SpecifyImageDimensions dimensions_rule;
       ResultProvider provider(dimensions_rule, &results);
-      ASSERT_TRUE(dimensions_rule.AppendResults(input, &provider));
+      ASSERT_TRUE(dimensions_rule.AppendResults(*input_, &provider));
     }
 
     {
@@ -206,14 +224,13 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
  private:
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<std::string>& expected) {
-    PagespeedInput input;
-    input.AcquireDomDocument(document);
+    input_->AcquireDomDocument(document);
 
     SpecifyImageDimensions dimensions_rule;
 
     Results results;
     ResultProvider provider(dimensions_rule, &results);
-    ASSERT_TRUE(dimensions_rule.AppendResults(input, &provider));
+    ASSERT_TRUE(dimensions_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), expected.size());
 
     for (int idx = 0; idx < expected.size(); ++idx) {
@@ -222,15 +239,17 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
       EXPECT_EQ(expected[idx], result.resource_urls(0));
     }
   }
+
+  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(SpecifyImageDimensionsTest, EmptyDom) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   CheckNoViolations(doc);
 }
 
 TEST_F(SpecifyImageDimensionsTest, DimensionsSpecified) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
 
   std::map<std::string, std::string> attributes, css_properties;
   attributes["width"] = "23";
@@ -244,7 +263,7 @@ TEST_F(SpecifyImageDimensionsTest, DimensionsSpecified) {
 }
 
 TEST_F(SpecifyImageDimensionsTest, DimensionsSpecifiedInCss) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
 
   std::map<std::string, std::string> attributes, css_properties;
   css_properties["width"] = "23";
@@ -258,7 +277,7 @@ TEST_F(SpecifyImageDimensionsTest, DimensionsSpecifiedInCss) {
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoHeight) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
 
   std::map<std::string, std::string> attributes, css_properties;
   attributes["width"] = "23";
@@ -271,7 +290,7 @@ TEST_F(SpecifyImageDimensionsTest, NoHeight) {
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoWidth) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
 
   std::map<std::string, std::string> attributes, css_properties;
   attributes["height"] = "42";
@@ -284,7 +303,7 @@ TEST_F(SpecifyImageDimensionsTest, NoWidth) {
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoDimensions) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
 
   std::map<std::string, std::string> attributes, css_properties;
   attributes["src"] = "http://test.com/image.png";
@@ -299,7 +318,7 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensions) {
 // no violation since a resource URL is required in order to trigger a
 // violation.
 TEST_F(SpecifyImageDimensionsTest, NoViolationMissingResourceUrl) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
 
   std::map<std::string, std::string> attributes, css_properties;
   doc->AddElement(MockElement::New(NULL,
@@ -310,7 +329,7 @@ TEST_F(SpecifyImageDimensionsTest, NoViolationMissingResourceUrl) {
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoDimensionsInIFrame) {
-  MockDocument* iframe_doc = new MockDocument("http://test.com/frame/i.html");
+  MockDocument* iframe_doc = NewMockDocument("http://test.com/frame/i.html");
 
   std::map<std::string, std::string> attributes, css_properties;
   attributes["src"] = "image.png";
@@ -320,7 +339,7 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensionsInIFrame) {
                        attributes,
                        css_properties));
 
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   doc->AddElement(
       MockElement::New(iframe_doc,
                        "IFRAME",
@@ -331,7 +350,7 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensionsInIFrame) {
 }
 
 TEST_F(SpecifyImageDimensionsTest, MultipleViolations) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
 
   std::map<std::string, std::string> css_properties;
   std::map<std::string, std::string> attributesA;
@@ -357,7 +376,7 @@ TEST_F(SpecifyImageDimensionsTest, FormatTest) {
       "The following image(s) are missing width and/or height attributes.\n"
       "  http://test.com/image.png (Dimensions: 42 x 23)\n";
 
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   std::map<std::string, std::string> attributes, css_properties;
   attributes["src"] = "http://test.com/image.png";
   std::map<std::string, int> int_properties;
@@ -376,7 +395,7 @@ TEST_F(SpecifyImageDimensionsTest, FormatNoNaturalDimensionsTest) {
       "The following image(s) are missing width and/or height attributes.\n"
       "  http://test.com/image.png\n";
 
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   std::map<std::string, std::string> attributes, css_properties;
   attributes["src"] = "http://test.com/image.png";
   doc->AddElement(MockElement::New(NULL,
@@ -387,7 +406,7 @@ TEST_F(SpecifyImageDimensionsTest, FormatNoNaturalDimensionsTest) {
 }
 
 TEST_F(SpecifyImageDimensionsTest, FormatNoOutputTest) {
-  MockDocument* doc = new MockDocument("http://test.com/");
+  MockDocument* doc = NewMockDocument("http://test.com/");
   CheckFormattedOutput(doc, "");
 }
 
