@@ -18,6 +18,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/put_css_in_the_document_head.h"
@@ -126,6 +127,24 @@ class MockDocument : public pagespeed::DomDocument {
 
 class PutCssInTheDocumentHeadTest : public ::testing::Test {
  protected:
+  virtual void SetUp() {
+    input_.reset(new pagespeed::PagespeedInput);
+  }
+
+  virtual void TearDown() {
+    input_.reset();
+  }
+
+  MockDocument* NewMockDocument (const std::string& url, MockElement* root) {
+    pagespeed::Resource* resource = new pagespeed::Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetResponseStatusCode(200);
+    resource->AddResponseHeader("Content-Type", "text/html");
+    input_->AddResource(resource);
+    return new MockDocument(url, root);
+  }
+
   void CheckNoViolations(MockDocument* document) {
     std::vector<Violation> expected;
     CheckExpectedViolations(document, expected);
@@ -172,14 +191,13 @@ class PutCssInTheDocumentHeadTest : public ::testing::Test {
 
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<Violation>& expected) {
-    pagespeed::PagespeedInput input;
-    input.AcquireDomDocument(document);
+    input_->AcquireDomDocument(document);
 
     pagespeed::rules::PutCssInTheDocumentHead put_css_in_head_rule;
 
     pagespeed::Results results;
     pagespeed::ResultProvider provider(put_css_in_head_rule, &results);
-    ASSERT_TRUE(put_css_in_head_rule.AppendResults(input, &provider));
+    ASSERT_TRUE(put_css_in_head_rule.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), expected.size());
 
     for (int i = 0; i < expected.size(); ++i) {
@@ -202,13 +220,15 @@ class PutCssInTheDocumentHeadTest : public ::testing::Test {
       }
     }
   }
+
+  scoped_ptr<pagespeed::PagespeedInput> input_;
 };
 
 TEST_F(PutCssInTheDocumentHeadTest, Empty) {
   MockElement* html = MockElement::NewTag("HTML");
   html->AddChild(MockElement::NewTag("HEAD"));
   html->AddChild(MockElement::NewTag("BODY"));
-  MockDocument* doc = new MockDocument("http://example.com/", html);
+  MockDocument* doc = NewMockDocument("http://example.com/", html);
   CheckNoViolations(doc);
 }
 
@@ -219,7 +239,7 @@ TEST_F(PutCssInTheDocumentHeadTest, StylesInHead) {
   head->AddChild(MockElement::NewStyleTag());
   html->AddChild(head);
   html->AddChild(MockElement::NewTag("BODY"));
-  MockDocument* doc = new MockDocument("http://example.com/", html);
+  MockDocument* doc = NewMockDocument("http://example.com/", html);
   CheckNoViolations(doc);
 }
 
@@ -232,7 +252,7 @@ TEST_F(PutCssInTheDocumentHeadTest, StyleTagInBody) {
   MockElement* body = MockElement::NewTag("BODY");
   body->AddChild(MockElement::NewStyleTag());
   html->AddChild(body);
-  MockDocument* doc = new MockDocument("http://example.com/", html);
+  MockDocument* doc = NewMockDocument("http://example.com/", html);
   std::vector<std::string> external_styles;
   CheckOneViolation(doc, "http://example.com/", 1, external_styles);
 }
@@ -246,7 +266,7 @@ TEST_F(PutCssInTheDocumentHeadTest, LinkTagInBody) {
   MockElement* body = MockElement::NewTag("BODY");
   body->AddChild(MockElement::NewLinkTag("http://example.com/bar.css"));
   html->AddChild(body);
-  MockDocument* doc = new MockDocument("http://example.com/", html);
+  MockDocument* doc = NewMockDocument("http://example.com/", html);
   std::vector<std::string> external_styles;
   external_styles.push_back("http://example.com/bar.css");
   CheckOneViolation(doc, "http://example.com/", 0, external_styles);
@@ -265,7 +285,7 @@ TEST_F(PutCssInTheDocumentHeadTest, SeveralThingsInBody) {
   body->AddChild(MockElement::NewLinkTag("http://example.com/baz.css"));
   body->AddChild(MockElement::NewStyleTag());
   html->AddChild(body);
-  MockDocument* doc = new MockDocument("http://example.com/", html);
+  MockDocument* doc = NewMockDocument("http://example.com/", html);
   std::vector<std::string> external_styles;
   external_styles.push_back("http://example.com/bar.css");
   external_styles.push_back("http://example.com/baz.css");
@@ -280,7 +300,7 @@ TEST_F(PutCssInTheDocumentHeadTest, Iframe) {
   body2->AddChild(MockElement::NewLinkTag("http://example.com/foo.css"));
   body2->AddChild(MockElement::NewStyleTag());
   html2->AddChild(body2);
-  MockDocument* doc2 = new MockDocument("http://example.com/if.html", html2);
+  MockDocument* doc2 = NewMockDocument("http://example.com/if.html", html2);
   std::vector<std::string> external_styles2;
   external_styles2.push_back("http://example.com/foo.css");
 
@@ -293,7 +313,7 @@ TEST_F(PutCssInTheDocumentHeadTest, Iframe) {
   body1->AddChild(MockElement::NewLinkTag("http://example.com/bar.css"));
   body1->AddChild(MockElement::NewIframe(doc2));
   html1->AddChild(body1);
-  MockDocument* doc1 = new MockDocument("http://example.com/", html1);
+  MockDocument* doc1 = NewMockDocument("http://example.com/", html1);
   std::vector<std::string> external_styles1;
   external_styles1.push_back("http://example.com/bar.css");
 

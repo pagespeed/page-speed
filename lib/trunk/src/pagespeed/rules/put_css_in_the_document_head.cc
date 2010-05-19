@@ -34,10 +34,11 @@ const char* kRuleName = "PutCssInTheDocumentHead";
 
 class StyleVisitor : public pagespeed::DomElementVisitor {
  public:
-  static void CheckDocument(const DomDocument* document,
+  static void CheckDocument(const PagespeedInput* pagespeed_input,
+                            const DomDocument* document,
                             ResultProvider* provider) {
     if (document) {
-      StyleVisitor visitor(document, provider);
+      StyleVisitor visitor(pagespeed_input, document, provider);
       document->Traverse(&visitor);
       visitor.Finish();
     }
@@ -46,26 +47,31 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   virtual void Visit(const DomElement& node) {
     const std::string tag_name(node.GetTagName());
     if (tag_name == "IFRAME") {
-      CheckDocument(node.GetContentDocument(), provider_);
+      CheckDocument(pagespeed_input_, node.GetContentDocument(), provider_);
     } else if (tag_name == "BODY") {
       is_in_body_yet_ = true;
     } else if (is_in_body_yet_) {
-      if (tag_name == "LINK") {
-        std::string rel, href;
-        if (node.GetAttributeByName("rel", &rel) && rel == "stylesheet" &&
-            node.GetAttributeByName("href", &href)) {
-          external_styles_.push_back(document_->ResolveUri(href));
+      if (pagespeed_input_->has_resource_with_url(
+              document_->GetDocumentUrl())) {
+        if (tag_name == "LINK") {
+          std::string rel, href;
+          if (node.GetAttributeByName("rel", &rel) && rel == "stylesheet" &&
+              node.GetAttributeByName("href", &href)) {
+            external_styles_.push_back(document_->ResolveUri(href));
+          }
+        } else if (tag_name == "STYLE") {
+          ++num_inline_style_blocks_;
         }
-      } else if (tag_name == "STYLE") {
-        ++num_inline_style_blocks_;
       }
     }
   }
 
  private:
-  StyleVisitor(const DomDocument* document, ResultProvider* provider)
+  StyleVisitor(const PagespeedInput* pagespeed_input,
+               const DomDocument* document, ResultProvider* provider)
       : is_in_body_yet_(false), num_inline_style_blocks_(0),
-        document_(document), provider_(provider) {}
+        pagespeed_input_(pagespeed_input), document_(document),
+        provider_(provider) {}
 
   void Finish() {
     DCHECK(num_inline_style_blocks_ >= 0);
@@ -94,6 +100,7 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   int num_inline_style_blocks_;
   std::vector<std::string> external_styles_;
 
+  const PagespeedInput* pagespeed_input_;
   const DomDocument* document_;
   ResultProvider* provider_;
 
@@ -120,7 +127,7 @@ const char* PutCssInTheDocumentHead::documentation_url() const {
 
 bool PutCssInTheDocumentHead::AppendResults(const PagespeedInput& input,
                                             ResultProvider* provider) {
-  StyleVisitor::CheckDocument(input.dom_document(), provider);
+  StyleVisitor::CheckDocument(&input, input.dom_document(), provider);
   return true;
 }
 
