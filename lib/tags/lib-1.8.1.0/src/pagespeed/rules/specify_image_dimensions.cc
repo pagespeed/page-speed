@@ -31,12 +31,26 @@ const char* kRuleName = "SpecifyImageDimensions";
 
 class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
  public:
-  ImageDimensionsChecker(const pagespeed::DomDocument* document,
+  ImageDimensionsChecker(const pagespeed::PagespeedInput* pagespeed_input,
+                         const pagespeed::DomDocument* document,
                          pagespeed::ResultProvider* provider)
-      : document_(document), provider_(provider) {}
+      : pagespeed_input_(pagespeed_input), document_(document),
+        provider_(provider) {}
 
-  virtual void Visit(const pagespeed::DomElement& node) {
-    if (node.GetTagName() == "IMG") {
+  virtual void Visit(const pagespeed::DomElement& node);
+
+ private:
+  const pagespeed::PagespeedInput* pagespeed_input_;
+  const pagespeed::DomDocument* document_;
+  pagespeed::ResultProvider* provider_;
+
+  DISALLOW_COPY_AND_ASSIGN(ImageDimensionsChecker);
+};
+
+
+void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
+  if (node.GetTagName() == "IMG") {
+    if (pagespeed_input_->has_resource_with_url(document_->GetDocumentUrl())) {
       std::string height, width;
       bool height_specified = (node.GetAttributeByName("height", &height) ||
                                node.GetCSSPropertyByName("height", &height));
@@ -66,21 +80,17 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
           image_details->set_expected_width(natural_width);
         }
       }
-    } else if (node.GetTagName() == "IFRAME") {
-      // Do a recursive document traversal.
-      scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
-      if (child_doc.get()) {
-        ImageDimensionsChecker checker(child_doc.get(), provider_);
-        child_doc->Traverse(&checker);
-      }
+    }
+  } else if (node.GetTagName() == "IFRAME") {
+    // Do a recursive document traversal.
+    scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
+    if (child_doc.get()) {
+      ImageDimensionsChecker checker(pagespeed_input_, child_doc.get(),
+                                     provider_);
+      child_doc->Traverse(&checker);
     }
   }
- private:
-  const pagespeed::DomDocument* document_;
-  pagespeed::ResultProvider* provider_;
-
-  DISALLOW_COPY_AND_ASSIGN(ImageDimensionsChecker);
-};
+}
 
 // sorts results by their URLs.
 struct ResultUrlLessThan {
@@ -114,7 +124,7 @@ bool SpecifyImageDimensions::AppendResults(const PagespeedInput& input,
                                            ResultProvider* provider) {
   const DomDocument* document = input.dom_document();
   if (document) {
-    ImageDimensionsChecker visitor(document, provider);
+    ImageDimensionsChecker visitor(&input, document, provider);
     document->Traverse(&visitor);
   }
   return true;

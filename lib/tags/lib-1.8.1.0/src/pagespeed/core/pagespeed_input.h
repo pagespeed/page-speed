@@ -73,6 +73,7 @@ class PagespeedInput {
 
   // Resource access.
   int num_resources() const;
+  bool has_resource_with_url(const std::string& url) const;
   const Resource& GetResource(int idx) const;
   const HostResourceMap* GetHostResourceMap() const;
   const InputInformation* input_information() const;

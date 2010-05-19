@@ -47,8 +47,7 @@ bool PagespeedInput::IsValidResource(const Resource* resource) const {
     LOG(WARNING) << "Refusing Resource with empty URL.";
     return false;
   }
-  if (!allow_duplicate_resources_ &&
-      resource_urls_.find(url) != resource_urls_.end()) {
+  if (!allow_duplicate_resources_ && has_resource_with_url(url)) {
     LOG(WARNING) << "Ignoring duplicate AddResource for resource at \""
                  << url << "\".";
     return false;
@@ -132,7 +131,7 @@ bool PagespeedInput::AddResource(const Resource* resource) {
 }
 
 bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
-  if (resource_urls_.find(url) == resource_urls_.end()) {
+  if (!has_resource_with_url(url)) {
     LOG(INFO) << "No such primary resource " << url;
     return false;
   }
@@ -146,6 +145,10 @@ void PagespeedInput::AcquireDomDocument(DomDocument* document) {
 
 int PagespeedInput::num_resources() const {
   return resources_.size();
+}
+
+bool PagespeedInput::has_resource_with_url(const std::string& url) const {
+  return resource_urls_.find(url) != resource_urls_.end();
 }
 
 const Resource& PagespeedInput::GetResource(int idx) const {
