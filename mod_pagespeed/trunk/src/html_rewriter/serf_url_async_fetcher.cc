@@ -180,8 +180,9 @@ class SerfFetch {
         message_handler_->Error(str_url_.c_str(), 0,
                                 "headers complete but more data coming");
       }
+      net_instaweb::StringPiece str_piece(data, num_bytes);
       int parsed_len =
-          response_headers_->ParseChunk(data, num_bytes, message_handler_);
+          response_headers_->ParseChunk(str_piece, message_handler_);
       if (parsed_len != num_bytes) {
         status = APR_EGENERAL;
         message_handler_->Error(str_url_.c_str(), 0,
@@ -361,7 +362,7 @@ void SerfUrlAsyncFetcher::StreamingFetch(const std::string& url,
 }
 
 bool SerfUrlAsyncFetcher::Poll(int microseconds, MessageHandler* handler) {
-  // Run serf polling up to nanoseconds.
+  // Run serf polling up to microseconds.
   apr_status_t status = serf_context_run(serf_context_, microseconds, pool_);
   if (status != APR_SUCCESS && !APR_STATUS_IS_TIMEUP(status)) {
     // TODO(lsong): log error?

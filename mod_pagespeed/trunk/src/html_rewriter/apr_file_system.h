@@ -21,6 +21,7 @@
 struct apr_pool_t;
 using net_instaweb::FileSystem;
 using net_instaweb::MessageHandler;
+using net_instaweb::BoolOrError;
 
 
 namespace html_rewriter {
@@ -35,12 +36,23 @@ class AprFileSystem : public FileSystem {
   virtual OutputFile* OpenOutputFile(
       const char* file, MessageHandler* message_handler);
   // See FileSystem interface for specifics of OpenTempFile.
-  virtual OutputFile* OpenTempFile(const char* prefix_name,
+  virtual OutputFile* OpenTempFile(const net_instaweb::StringPiece& prefix_name,
                                    MessageHandler* message_handler);
   virtual bool RenameFile(const char* old_filename, const char* new_filename,
                           MessageHandler* message_handler);
   virtual bool RemoveFile(const char* filename,
                           MessageHandler* message_handler);
+
+  // Like POSIX 'mkdir', makes a directory only if parent directory exists.
+  // Fails if directory_name already exists or parent directory doesn't exist.
+  virtual bool MakeDir(const char* directory_path, MessageHandler* handler);
+
+  // Like POSIX 'text -e', checks if path exists (is a file, directory, etc.).
+  virtual BoolOrError Exists(const char* path, MessageHandler* handler);
+
+  // Like POSIX 'test -d', checks if path exists and refers to a directory.
+  virtual BoolOrError IsDir(const char* path, MessageHandler* handler);
+
  private:
   apr_pool_t* pool_;
 };

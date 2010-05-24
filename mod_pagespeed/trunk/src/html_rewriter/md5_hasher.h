@@ -30,8 +30,8 @@ class Md5Hasher : public Hasher {
 
   // Interface to accummulate a hash of data.
   virtual void Reset() { MD5Init(&ctx_); }
-  virtual void Add(const char* data, int size) {
-    MD5Update(&ctx_, data, size);
+  virtual void Add(const net_instaweb::StringPiece& content) {
+    MD5Update(&ctx_, content.data(), content.size());
   }
   virtual void ComputeHash(std::string* hash);
  private:
