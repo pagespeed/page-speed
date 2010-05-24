@@ -88,8 +88,8 @@ class HtmlWriterInputFile : public FileSystem::InputFile {
 class HtmlWriterOutputFile : public FileSystem::OutputFile {
  public:
   HtmlWriterOutputFile(apr_file_t* file, const char* filename);
-  virtual bool Write(const char* buf, int size,
-                    MessageHandler* message_handler);
+  virtual bool Write(const net_instaweb::StringPiece& buf,
+                     MessageHandler* message_handler);
   virtual bool Flush(MessageHandler* message_handler);
   virtual bool Close(MessageHandler* message_handler) {
     helper_.Close(message_handler);
@@ -124,15 +124,14 @@ HtmlWriterOutputFile::HtmlWriterOutputFile(apr_file_t* file,
     : helper_(file, filename) {
 }
 
-bool HtmlWriterOutputFile::Write(const char* buf,
-                                int size,
-                                MessageHandler* message_handler) {
+bool HtmlWriterOutputFile::Write(const net_instaweb::StringPiece& buf,
+                                 MessageHandler* message_handler) {
   bool success = false;
-  apr_size_t bytes = size;
-  apr_status_t ret = apr_file_write(helper_.file(), buf, &bytes);
+  apr_size_t bytes = buf.size();
+  apr_status_t ret = apr_file_write(helper_.file(), buf.data(), &bytes);
   if (ret != APR_SUCCESS) {
     helper_.ReportError(message_handler, "write file", ret);
-  } else if (bytes != size) {
+  } else if (bytes != buf.size()) {
     helper_.ReportError(message_handler, "write file partial", ret);
   } else {
     success = true;
@@ -197,13 +196,14 @@ FileSystem::OutputFile* AprFileSystem::OpenOutputFile(
 }
 
 FileSystem::OutputFile* AprFileSystem::OpenTempFile(
-    const char* prefix_name,
+    const net_instaweb::StringPiece& prefix_name,
     MessageHandler* message_handler) {
-  int prefix_len = strlen(prefix_name);
   static const char mkstemp_hook[] = "XXXXXX";
-  scoped_array<char> template_name(new char[prefix_len + sizeof(mkstemp_hook)]);
-  memcpy(template_name.get(), prefix_name, prefix_len);
-  memcpy(template_name.get() + prefix_len, mkstemp_hook, sizeof(mkstemp_hook));
+  scoped_array<char> template_name(
+      new char[prefix_name.size() + sizeof(mkstemp_hook)]);
+  memcpy(template_name.get(), prefix_name.data(), prefix_name.size());
+  memcpy(template_name.get() + prefix_name.size(), mkstemp_hook,
+         sizeof(mkstemp_hook));
 
   apr_file_t* file;
   // A temp file will be generated with the XXXXXX part of template_name being
@@ -232,7 +232,6 @@ bool AprFileSystem::RenameFile(
   }
   return true;
 }
-
 bool AprFileSystem::RemoveFile(const char* filename,
                                MessageHandler* message_handler) {
   apr_status_t ret = apr_file_remove(filename, pool_);
@@ -242,6 +241,44 @@ bool AprFileSystem::RemoveFile(const char* filename,
     return false;
   }
   return true;
+}
+
+bool AprFileSystem::MakeDir(const char* directory_path,
+                            MessageHandler* handler) {
+  apr_status_t ret = apr_dir_make(directory_path, APR_FPROT_OS_DEFAULT, pool_);
+  if (ret != APR_SUCCESS) {
+    AprReportError(handler, directory_path, "creating dir", ret);
+    return false;
+  }
+  return true;
+}
+
+BoolOrError AprFileSystem::Exists(const char* path, MessageHandler* handler) {
+  BoolOrError exists;  // Error is the default state.
+  apr_int32_t wanted = APR_FINFO_TYPE;
+  apr_finfo_t finfo;
+  apr_status_t ret = apr_stat(&finfo, path, wanted, pool_);
+  if (ret != APR_SUCCESS && ret != APR_ENOENT) {
+      AprReportError(handler, path, "failed to stat", ret);
+      exists.set_error();
+  } else {
+    exists.set(ret == APR_SUCCESS);
+  }
+  return exists;
+}
+
+BoolOrError AprFileSystem::IsDir(const char* path, MessageHandler* handler) {
+  BoolOrError is_dir;  // Error is the default state.
+  apr_int32_t wanted = APR_FINFO_TYPE;
+  apr_finfo_t finfo;
+  apr_status_t ret = apr_stat(&finfo, path, wanted, pool_);
+  if (ret != APR_SUCCESS && ret != APR_ENOENT) {
+      AprReportError(handler, path, "failed to stat", ret);
+      is_dir.set_error();
+  } else {
+    is_dir.set(ret == APR_SUCCESS && finfo.filetype == APR_DIR);
+  }
+  return is_dir;
 }
 
 }  // namespace html_rewriter

@@ -26,7 +26,7 @@ namespace {
 const char* kCacheDir = "/cache/";
 const char* kCacheFilePrefix = "cache_pre_";
 const char* kUrlPrefix = "http://localhost:9999/cache/cache_pre_";
-const char* kFileCachePath = "/tmp/html_rewrite_cache/";
+const char* kFileCachePath = "/tmp/html_rewrite_cache";
 const char* kFetcherProxy = "localhost:9999";
 
 }  // namespace

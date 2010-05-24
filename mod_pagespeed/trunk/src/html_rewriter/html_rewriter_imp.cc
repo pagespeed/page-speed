@@ -39,7 +39,8 @@ HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
       serf_url_async_fetcher_(GetSerfAsyncFetcher(request->server)),
       cache_url_fetcher_(&http_cache_, serf_url_async_fetcher_),
       cache_url_async_fetcher_(&http_cache_, serf_url_async_fetcher_),
-      rewrite_driver_(&html_parse_, &cache_url_async_fetcher_),
+      rewrite_driver_(&html_parse_, &apr_file_system_,
+                      &cache_url_async_fetcher_),
       hash_resource_manager_(GetCachePrefix(request),
                              GetUrlPrefix(request),
                              0,
@@ -50,9 +51,30 @@ HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
                              &md5_hasher_),
       string_writer_(output) {
   rewrite_driver_.SetResourceManager(&hash_resource_manager_);
+  std::string base_url;
+  if (request->parsed_uri.scheme != NULL) {
+    base_url.append(request->parsed_uri.scheme);
+  } else {
+    base_url.append("http");
+  }
+  base_url.append("://");
+  if (request->parsed_uri.hostinfo != NULL) {
+    base_url.append(request->parsed_uri.hostinfo);
+  } else {
+    base_url.append(request->hostname);
+    if (request->parsed_uri.port_str != NULL) {
+      base_url.append(":");
+      base_url.append(request->parsed_uri.port_str);
+    }
+  }
+  if (request->parsed_uri.path != NULL) {
+    base_url.append(request->parsed_uri.path);
+  } else {
+    base_url.append(request->uri);
+  }
+  rewrite_driver_.SetBaseUrl(base_url);
   rewrite_driver_.CombineCssFiles();
   rewrite_driver_.RewriteImages();
-  rewrite_driver_.RemoveQuotes();
   rewrite_driver_.SetWriter(&string_writer_);
   html_parse_.StartParse(url_.c_str());
 }
