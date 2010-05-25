@@ -737,7 +737,7 @@ std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
 #ifdef ICU_DEPENDENCY
   return out << WideToUTF8(std::wstring(wstr));
 #else
-  CHECK(false) << "ostream << wchar_t not supported (non-icu build)";
+  LOG(DFATAL) << "ostream << wchar_t not supported (non-icu build)";
   return out;
 #endif  // ICU_DEPENDENCY
 }
