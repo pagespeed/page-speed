@@ -203,9 +203,33 @@
       ]
     },
     {
+      'target_name': 'pagespeed_jpeg_reader',
+      'type': '<(library)',
+      'variables': {
+        'chromium_libjpeg_root': '<(DEPTH)/third_party/chromium/src/third_party/libjpeg'
+      },
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/jpeg_reader.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
+    {
       'target_name': 'pagespeed_jpeg_optimizer',
       'type': '<(library)',
       'dependencies': [
+        'pagespeed_jpeg_reader',
         '<(DEPTH)/base/base.gyp:base',
         '<(pagespeed_root)/third_party/libjpeg/libjpeg_trans.gyp:libjpeg_trans',
       ],

@@ -35,6 +35,28 @@ namespace pagespeed {
 
 namespace image_compression {
 
+// Helper that manages the lifetime of the png_ptr and info_ptr.
+class ScopedPngStruct {
+ public:
+  enum Type {
+    READ,
+    WRITE
+  };
+
+  explicit ScopedPngStruct(Type t);
+  ~ScopedPngStruct();
+
+  bool valid() const { return png_ptr_ != NULL && info_ptr_ != NULL; }
+
+  png_structp png_ptr() { return png_ptr_; }
+  png_infop info_ptr() { return info_ptr_; }
+
+ private:
+  png_structp png_ptr_;
+  png_infop info_ptr_;
+  Type type_;
+};
+
 // Helper class that provides an API to read a PNG image from some
 // source.
 class PngReaderInterface {
@@ -69,10 +91,8 @@ class PngOptimizer {
   bool WritePng(std::string* buffer);
   void CopyReadToWrite();
 
-  png_structp read_ptr_;
-  png_infop read_info_ptr_;
-  png_structp write_ptr_;
-  png_infop write_info_ptr_;
+  ScopedPngStruct read_;
+  ScopedPngStruct write_;
 
   DISALLOW_COPY_AND_ASSIGN(PngOptimizer);
 };
