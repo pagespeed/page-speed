@@ -37,6 +37,7 @@ using pagespeed::image_compression::GifReader;
 #endif
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
+using pagespeed::image_compression::ScopedPngStruct;
 
 // The *_TEST_DIR_PATH macros are set by the gyp target that builds this file.
 const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "gif/";
@@ -424,6 +425,23 @@ TEST(PngOptimizerTest, SuccessAfterFailure) {
       ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
     }
   }
+}
+
+TEST(PngOptimizerTest, ScopedPngStruct) {
+  ScopedPngStruct read(ScopedPngStruct::READ);
+  ASSERT_TRUE(read.valid());
+  ASSERT_NE(static_cast<png_structp>(NULL), read.png_ptr());
+  ASSERT_NE(static_cast<png_infop>(NULL), read.info_ptr());
+
+  ScopedPngStruct write(ScopedPngStruct::WRITE);
+  ASSERT_TRUE(write.valid());
+  ASSERT_NE(static_cast<png_structp>(NULL), write.png_ptr());
+  ASSERT_NE(static_cast<png_infop>(NULL), write.info_ptr());
+
+  ScopedPngStruct invalid(static_cast<ScopedPngStruct::Type>(-1));
+  ASSERT_FALSE(invalid.valid());
+  ASSERT_EQ(static_cast<png_structp>(NULL), invalid.png_ptr());
+  ASSERT_EQ(static_cast<png_infop>(NULL), invalid.info_ptr());
 }
 
 }  // namespace

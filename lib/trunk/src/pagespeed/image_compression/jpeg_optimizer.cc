@@ -33,58 +33,18 @@ extern "C" {
 #endif
 }
 
+#include "pagespeed/image_compression/jpeg_reader.h"
+
 namespace {
 
-// Unfortunately, libjpeg normally only supports reading images from C FILE
-// pointers, wheras we want to read from a C++ string.  Fortunately, libjpeg
+// Unfortunately, libjpeg normally only supports writing images to C FILE
+// pointers, wheras we want to write to a C++ string.  Fortunately, libjpeg
 // also provides an extension mechanism.  Below, we define a new kind of
-// jpeg_source_mgr for reading from strings.
+// jpeg_destination_mgr for writing to strings.
 
 // The below code was adapted from the JPEGMemoryReader class that can be found
 // in src/o3d/core/cross/bitmap_jpg.cc in the Chromium source tree (r29423).
 // That code is Copyright 2009, Google Inc.
-
-METHODDEF(void) InitSource(j_decompress_ptr cinfo) {};
-
-METHODDEF(boolean) FillInputBuffer(j_decompress_ptr cinfo) {
-  // Should not be called because we already have all the data
-  ERREXIT(cinfo, JERR_INPUT_EOF);
-  return TRUE;
-}
-
-METHODDEF(void) SkipInputData(j_decompress_ptr cinfo, long num_bytes) {
-  jpeg_source_mgr &mgr = *(cinfo->src);
-  const int bytes_remaining = mgr.bytes_in_buffer - num_bytes;
-  mgr.bytes_in_buffer = bytes_remaining < 0 ? 0 : bytes_remaining;
-  mgr.next_input_byte += num_bytes;
-}
-
-METHODDEF(void) TermSource(j_decompress_ptr cinfo) {};
-
-// Call this function on a j_decompress_ptr to install a reader that will read
-// from the given string.
-void JpegStringReader(j_decompress_ptr cinfo, const std::string &data_src) {
-  if (cinfo->src == NULL) {
-    cinfo->src = (struct jpeg_source_mgr*)
-      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  sizeof(jpeg_source_mgr));
-  }
-  struct jpeg_source_mgr &src = *(cinfo->src);
-
-  src.init_source = InitSource;
-  src.fill_input_buffer = FillInputBuffer;
-  src.skip_input_data = SkipInputData;
-  src.resync_to_restart = jpeg_resync_to_restart; // default method
-  src.term_source = TermSource;
-
-  src.bytes_in_buffer = data_src.size();
-  src.next_input_byte =
-      reinterpret_cast<JOCTET*>(const_cast<char*>(data_src.data()));
-}
-
-// Similarly to the above, libjpeg normally only supports writing to C FILE
-// pointers, so next, we define a custom jpeg_destination_mgr for writing to a
-// C++ string.
 
 #define DESTINATION_MANAGER_BUFFER_SIZE 4096
 struct DestinationManager : public jpeg_destination_mgr {
@@ -177,11 +137,10 @@ class JpegOptimizer {
 
  private:
   bool DoCreateOptimizedJpeg(const std::string &original,
+                             jpeg_decompress_struct *jpeg_decompress,
                              std::string *compressed);
 
-  // Structures for jpeg decompression
-  jpeg_decompress_struct jpeg_decompress_;
-  jpeg_error_mgr decompress_error_;
+  pagespeed::image_compression::JpegReader reader_;
 
   // Structures for jpeg compression.
   jpeg_compress_struct jpeg_compress_;
@@ -191,15 +150,8 @@ class JpegOptimizer {
 };
 
 JpegOptimizer::JpegOptimizer() {
-  memset(&jpeg_decompress_, 0, sizeof(jpeg_decompress_struct));
   memset(&jpeg_compress_, 0, sizeof(jpeg_compress_struct));
-  memset(&decompress_error_, 0, sizeof(jpeg_error_mgr));
   memset(&compress_error_, 0, sizeof(jpeg_error_mgr));
-
-  jpeg_decompress_.err = jpeg_std_error(&decompress_error_);
-  decompress_error_.error_exit = &ErrorExit;
-  decompress_error_.output_message = &OutputMessage;
-  jpeg_create_decompress(&jpeg_decompress_);
 
   jpeg_compress_.err = jpeg_std_error(&compress_error_);
   compress_error_.error_exit = &ErrorExit;
@@ -211,12 +163,13 @@ JpegOptimizer::JpegOptimizer() {
 
 JpegOptimizer::~JpegOptimizer() {
   jpeg_destroy_compress(&jpeg_compress_);
-  jpeg_destroy_decompress(&jpeg_decompress_);
 }
 
 // Helper for JpegOptimizer::CreateOptimizedJpeg().  This function does the
 // work, and CreateOptimizedJpeg() does some cleanup.
-bool JpegOptimizer::DoCreateOptimizedJpeg(const std::string &original,
+bool JpegOptimizer::DoCreateOptimizedJpeg(
+    const std::string &original,
+    jpeg_decompress_struct *jpeg_decompress,
                                           std::string *compressed) {
   // libjpeg's error handling mechanism requires that longjmp be used
   // to get control after an error.
@@ -230,18 +183,17 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(const std::string &original,
   }
 
   // Need to install env so that it will be longjmp()ed to on error.
-  jpeg_decompress_.client_data = static_cast<void *>(&env);
+  jpeg_decompress->client_data = static_cast<void *>(&env);
   jpeg_compress_.client_data = static_cast<void *>(&env);
 
-  // Prepare to read from a string.
-  JpegStringReader(&jpeg_decompress_, original);
+  reader_.PrepareForRead(original);
 
   // Read jpeg data into the decompression struct.
-  jpeg_read_header(&jpeg_decompress_, TRUE);
-  jvirt_barray_ptr *coefficients = jpeg_read_coefficients(&jpeg_decompress_);
+  jpeg_read_header(jpeg_decompress, TRUE);
+  jvirt_barray_ptr *coefficients = jpeg_read_coefficients(jpeg_decompress);
 
   // Copy data from the source to the dest.
-  jpeg_copy_critical_parameters(&jpeg_decompress_, &jpeg_compress_);
+  jpeg_copy_critical_parameters(jpeg_decompress, &jpeg_compress_);
 
   // Prepare to write to a string.
   JpegStringWriter(&jpeg_compress_, compressed);
@@ -251,23 +203,25 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(const std::string &original,
 
   // Finish the compression process.
   jpeg_finish_compress(&jpeg_compress_);
-  jpeg_finish_decompress(&jpeg_decompress_);
+  jpeg_finish_decompress(jpeg_decompress);
 
   return true;
 }
 
 bool JpegOptimizer::CreateOptimizedJpeg(const std::string &original,
                                         std::string *compressed) {
-  bool result = DoCreateOptimizedJpeg(original, compressed);
+  jpeg_decompress_struct* jpeg_decompress = reader_.decompress_struct();
 
-  jpeg_decompress_.client_data = NULL;
+  bool result = DoCreateOptimizedJpeg(original, jpeg_decompress, compressed);
+
+  jpeg_decompress->client_data = NULL;
   jpeg_compress_.client_data = NULL;
 
   if (!result) {
     // Clean up the state of jpeglib structures.  It is okay to abort even if
     // no (de)compression is in progress.  This is crucial because we enter
     // this block even if no jpeg-related error happened.
-    jpeg_abort_decompress(&jpeg_decompress_);
+    jpeg_abort_decompress(jpeg_decompress);
     jpeg_abort_compress(&jpeg_compress_);
   }
 
