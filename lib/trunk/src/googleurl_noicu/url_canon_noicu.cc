@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include "googleurl/src/url_canon_icu.h"
+#include "googleurl/src/url_canon_internal.h"
 
 #include "base/logging.h"
 
@@ -46,23 +47,25 @@ ICUCharsetConverter::ICUCharsetConverter(UConverter* converter)
 void ICUCharsetConverter::ConvertFromUTF16(const char16* input,
                                            int input_len,
                                            CanonOutput* output) {
-  CHECK(false) << "ConvertFromUTF16 not supported (non-icu build)";
+  LOG(DFATAL) << "ConvertFromUTF16 not supported (non-icu build)";
 }
 
 bool IDNToASCII(const char16* src, int src_len, CanonOutputW* output) {
-  CHECK(false) << "IDNToASCII not supported (non-icu build)";
+  LOG(DFATAL) << "IDNToASCII not supported (non-icu build)";
   return false;
 }
 
 bool ReadUTFChar(const char* str, int* begin, int length,
                  unsigned* code_point_out) {
-  CHECK(false) << "ReadUTFChar not supported (non-icu build)";
+  LOG(DFATAL) << "ReadUTFChar not supported (non-icu build)";
+  *code_point_out = kUnicodeReplacementCharacter;
   return false;
 }
 
 bool ReadUTFChar(const char16* str, int* begin, int length,
                  unsigned* code_point) {
-  CHECK(false) << "ReadUTFChar not supported (non-icu build)";
+  LOG(DFATAL) << "ReadUTFChar not supported (non-icu build)";
+  *code_point = kUnicodeReplacementCharacter;
   return false;
 }
 
