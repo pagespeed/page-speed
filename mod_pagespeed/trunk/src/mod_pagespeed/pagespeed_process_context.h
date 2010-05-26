@@ -20,10 +20,23 @@
 // Forward declaration.
 struct server_rec;
 
+// Forward declaration.
+namespace net_instaweb {
+class FileSystem;
+class MessageHandler;
+class FileCache;
+class HTTPCache;
+class CacheUrlFetcher;
+class CacheUrlAsyncFetcher;
+class Timer;
+}
+
 namespace html_rewriter {
 
 // Forward declaration.
 class SerfUrlAsyncFetcher;
+class AprTimer;
+
 
 class PageSpeedProcessContext {
  public:
@@ -31,13 +44,41 @@ class PageSpeedProcessContext {
   ~PageSpeedProcessContext();
   SerfUrlAsyncFetcher* fetcher() const { return fetcher_.get(); }
   void set_fetcher(SerfUrlAsyncFetcher* fetcher);
+  net_instaweb::FileSystem* file_system() const { return file_system_.get(); }
+  void set_file_system(net_instaweb::FileSystem* file_system);
+  net_instaweb::MessageHandler* message_handler() const {
+    return message_handler_.get();
+  }
+  void set_message_handler(net_instaweb::MessageHandler* handler);
+  net_instaweb::FileCache* file_cache() const { return file_cache_.get(); }
+  void set_file_cache(net_instaweb::FileCache* file_cache);
+  net_instaweb::Timer* timer() const { return timer_.get(); }
+  void set_timer(net_instaweb::Timer* timer);
+  net_instaweb::HTTPCache* http_cache() const { return http_cache_.get(); }
+  void set_http_cache(net_instaweb::HTTPCache* http_cache);
+  net_instaweb::CacheUrlFetcher* cache_url_fetcher() const {
+    return cache_url_fetcher_.get();
+  }
+  void set_cache_url_fetcher(net_instaweb::CacheUrlFetcher* cache_url_fetcher);
+  net_instaweb::CacheUrlAsyncFetcher* cache_url_async_fetcher() const {
+    return cache_url_async_fetcher_.get();
+  }
+  void set_cache_url_async_fetcher(
+      net_instaweb::CacheUrlAsyncFetcher* cache_url_async_fetcher);
+
  private:
   scoped_ptr<SerfUrlAsyncFetcher> fetcher_;
+  scoped_ptr<net_instaweb::FileSystem> file_system_;
+  scoped_ptr<net_instaweb::MessageHandler> message_handler_;
+  scoped_ptr<net_instaweb::FileCache> file_cache_;
+  scoped_ptr<net_instaweb::Timer> timer_;
+  scoped_ptr<net_instaweb::HTTPCache> http_cache_;
+  scoped_ptr<net_instaweb::CacheUrlFetcher> cache_url_fetcher_;
+  scoped_ptr<net_instaweb::CacheUrlAsyncFetcher> cache_url_async_fetcher_;
 };
 
-PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server);
-SerfUrlAsyncFetcher* GetSerfAsyncFetcher(server_rec* server);
-void CreateSerfAsyncFetcher(server_rec* server);
+const PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server);
+void CreatePageSpeedProcessContext(server_rec* server);
 
 }  // namespace html_rewriter
 

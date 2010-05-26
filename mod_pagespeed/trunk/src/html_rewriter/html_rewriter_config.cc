@@ -23,6 +23,7 @@
 
 namespace {
 
+// TODO(lsong): replace the temporary strings with appropriate strings.
 const char* kCacheDir = "/cache/";
 const char* kCacheFilePrefix = "cache_pre_";
 const char* kUrlPrefix = "http://localhost:9999/cache/cache_pre_";
@@ -42,11 +43,11 @@ std::string GetCachePrefix(request_rec* request) {
   return cache_prefix;
 }
 
-std::string GetUrlPrefix(request_rec* request) {
+std::string GetUrlPrefix() {
   return kUrlPrefix;
 }
 
-std::string GetFileCachePath(request_rec* request) {
+std::string GetFileCachePath() {
   return kFileCachePath;
 }
 

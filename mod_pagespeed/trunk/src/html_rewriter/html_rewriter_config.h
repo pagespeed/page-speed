@@ -32,9 +32,9 @@ namespace html_rewriter {
 // Get the cache file prefix.
 std::string GetCachePrefix(request_rec* request);
 // Get the prefix of rewritten URLs.
-std::string GetUrlPrefix(request_rec* request);
+std::string GetUrlPrefix();
 // Get the path name of file cache.
-std::string GetFileCachePath(request_rec* request);
+std::string GetFileCachePath();
 // Get the fetcher proxy
 std::string GetFetcherProxy();
 
