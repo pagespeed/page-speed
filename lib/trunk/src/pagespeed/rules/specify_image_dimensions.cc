@@ -21,7 +21,9 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -62,22 +64,29 @@ void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
         if (!node.GetAttributeByName("src", &src)) {
           return;
         }
+        std::string uri = document_->ResolveUri(src);
 
         pagespeed::Result* result = provider_->NewResult();
-        result->add_resource_urls(document_->ResolveUri(src));
+        result->add_resource_urls(uri);
 
         pagespeed::Savings* savings = result->mutable_savings();
         savings->set_page_reflows_saved(1);
 
-        int natural_height = 0, natural_width = 0;
-        if (node.GetIntPropertyByName("naturalHeight", &natural_height) &&
-            node.GetIntPropertyByName("naturalWidth", &natural_width)) {
-          pagespeed::ResultDetails* details = result->mutable_details();
-          pagespeed::ImageDimensionDetails* image_details =
-              details->MutableExtension(
-                  pagespeed::ImageDimensionDetails::message_set_extension);
-          image_details->set_expected_height(natural_height);
-          image_details->set_expected_width(natural_width);
+        const pagespeed::Resource* resource =
+            pagespeed_input_->GetResourceWithUrl(uri);
+        if (resource != NULL) {
+          scoped_ptr<pagespeed::ImageAttributes> image_attributes(
+              pagespeed_input_->NewImageAttributes(resource));
+          if (image_attributes != NULL) {
+            pagespeed::ResultDetails* details = result->mutable_details();
+            pagespeed::ImageDimensionDetails* image_details =
+                details->MutableExtension(
+                    pagespeed::ImageDimensionDetails::message_set_extension);
+            image_details->set_expected_height(
+                image_attributes->GetImageHeight());
+            image_details->set_expected_width(
+                image_attributes->GetImageWidth());
+          }
         }
       }
     }

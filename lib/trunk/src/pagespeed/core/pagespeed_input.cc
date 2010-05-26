@@ -26,15 +26,15 @@
 namespace pagespeed {
 
 PagespeedInput::PagespeedInput()
-    : allow_duplicate_resources_(false),
-      input_info_(new InputInformation),
-      resource_filter_(new AllowAllResourceFilter) {
+    : input_info_(new InputInformation),
+      resource_filter_(new AllowAllResourceFilter),
+      allow_duplicate_resources_(false) {
 }
 
 PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
-    : allow_duplicate_resources_(false),
-      input_info_(new InputInformation),
-      resource_filter_(resource_filter) {
+    : input_info_(new InputInformation),
+      resource_filter_(resource_filter),
+      allow_duplicate_resources_(false) {
   DCHECK_NE(resource_filter, static_cast<ResourceFilter*>(NULL));
 }
 
@@ -77,7 +77,7 @@ bool PagespeedInput::AddResource(const Resource* resource) {
   const std::string& url = resource->GetRequestUrl();
 
   resources_.push_back(resource);
-  resource_urls_.insert(url);
+  url_resource_map_[url] = resource;
   host_resource_map_[resource->GetHost()].push_back(resource);
 
   // Update input information
@@ -154,7 +154,7 @@ int PagespeedInput::num_resources() const {
 }
 
 bool PagespeedInput::has_resource_with_url(const std::string& url) const {
-  return resource_urls_.find(url) != resource_urls_.end();
+  return url_resource_map_.find(url) != url_resource_map_.end();
 }
 
 const Resource& PagespeedInput::GetResource(int idx) const {
@@ -184,6 +184,16 @@ const DomDocument* PagespeedInput::dom_document() const {
 
 const std::string& PagespeedInput::primary_resource_url() const {
   return primary_resource_url_;
+}
+
+const Resource* PagespeedInput::GetResourceWithUrl(
+    const std::string& url) const {
+  std::map<std::string, const Resource*>::const_iterator it =
+      url_resource_map_.find(url);
+  if (it == url_resource_map_.end()) {
+    return NULL;
+  }
+  return it->second;
 }
 
 }  // namespace pagespeed

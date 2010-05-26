@@ -31,6 +31,7 @@
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/har/http_archive.h"
+#include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
@@ -154,6 +155,9 @@ int main(int argc, char** argv) {
     // resource is the primary resource.
     input->SetPrimaryResourceUrl(input->GetResource(0).GetRequestUrl());
   }
+
+  input->AcquireImageAttributesFactory(
+      new pagespeed::image_compression::ImageAttributesFactory());
 
   std::vector<pagespeed::Rule*> rules;
 
