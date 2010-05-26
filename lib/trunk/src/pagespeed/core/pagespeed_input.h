@@ -27,6 +27,8 @@
 namespace pagespeed {
 
 class DomDocument;
+class ImageAttributes;
+class ImageAttributesFactory;
 class InputInformation;
 class Resource;
 
@@ -71,10 +73,13 @@ class PagespeedInput {
   // PagespeedInput object.
   void AcquireDomDocument(DomDocument* document);
 
+  void AcquireImageAttributesFactory(ImageAttributesFactory* factory);
+
   // Resource access.
   int num_resources() const;
   bool has_resource_with_url(const std::string& url) const;
   const Resource& GetResource(int idx) const;
+  ImageAttributes* NewImageAttributes(const Resource* resource) const;
   const HostResourceMap* GetHostResourceMap() const;
   const InputInformation* input_information() const;
   const DomDocument* dom_document() const;
@@ -90,6 +95,7 @@ class PagespeedInput {
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
   scoped_ptr<ResourceFilter> resource_filter_;
+  scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);

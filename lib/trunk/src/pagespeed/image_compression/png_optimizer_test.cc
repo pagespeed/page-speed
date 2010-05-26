@@ -438,10 +438,15 @@ TEST(PngOptimizerTest, ScopedPngStruct) {
   ASSERT_NE(static_cast<png_structp>(NULL), write.png_ptr());
   ASSERT_NE(static_cast<png_infop>(NULL), write.info_ptr());
 
+#ifdef NDEBUG
   ScopedPngStruct invalid(static_cast<ScopedPngStruct::Type>(-1));
   ASSERT_FALSE(invalid.valid());
   ASSERT_EQ(static_cast<png_structp>(NULL), invalid.png_ptr());
   ASSERT_EQ(static_cast<png_infop>(NULL), invalid.info_ptr());
+#else
+  ASSERT_DEATH(ScopedPngStruct(static_cast<ScopedPngStruct::Type>(-1)),
+               "Invalid Type");
+#endif
 }
 
 }  // namespace

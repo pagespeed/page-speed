@@ -19,6 +19,7 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "pagespeed/core/dom.h"
+#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 
@@ -143,6 +144,11 @@ void PagespeedInput::AcquireDomDocument(DomDocument* document) {
   document_.reset(document);
 }
 
+void PagespeedInput::AcquireImageAttributesFactory(
+    ImageAttributesFactory *factory) {
+  image_attributes_factory_.reset(factory);
+}
+
 int PagespeedInput::num_resources() const {
   return resources_.size();
 }
@@ -154,6 +160,14 @@ bool PagespeedInput::has_resource_with_url(const std::string& url) const {
 const Resource& PagespeedInput::GetResource(int idx) const {
   DCHECK(idx >= 0 && idx < resources_.size());
   return *resources_[idx];
+}
+
+ImageAttributes* PagespeedInput::NewImageAttributes(
+    const Resource* resource) const {
+  if (image_attributes_factory_ == NULL) {
+    return NULL;
+  }
+  image_attributes_factory_->NewImageAttributes(resource);
 }
 
 const HostResourceMap* PagespeedInput::GetHostResourceMap() const {
