@@ -138,6 +138,7 @@
         '<(pagespeed_root)/pagespeed/core/dom.cc',
         '<(pagespeed_root)/pagespeed/core/engine.cc',
         '<(pagespeed_root)/pagespeed/core/formatter.cc',
+        '<(pagespeed_root)/pagespeed/core/image_attributes.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_input.cc',
         '<(pagespeed_root)/pagespeed/core/pagespeed_version.cc',
         '<(pagespeed_root)/pagespeed/core/resource.cc',
@@ -201,6 +202,32 @@
       'export_dependent_settings': [
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ]
+    },
+    {
+      'target_name': 'pagespeed_image_attributes_factory',
+      'type': '<(library)',
+      'variables': {
+        'chromium_libjpeg_root': '<(DEPTH)/third_party/chromium/src/third_party/libjpeg',
+      },
+      'dependencies': [
+        'pagespeed_jpeg_reader',
+        'pagespeed_png_optimizer',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+      ],
+      'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/image_attributes_factory.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
     },
     {
       'target_name': 'pagespeed_jpeg_reader',
@@ -409,6 +436,7 @@
         'pagespeed',
         'pagespeed_formatters',
         'pagespeed_har',
+	'pagespeed_image_attributes_factory',
         'pagespeed_input_pb',
         'pagespeed_proto',
       ],
@@ -490,20 +518,27 @@
     {
       'target_name': 'pagespeed_image_test',
       'type': 'executable',
+      'variables': {
+        'chromium_libjpeg_root': '<(DEPTH)/third_party/chromium/src/third_party/libjpeg',
+      },
       'dependencies': [
         'pagespeed',
+        'pagespeed_image_attributes_factory',
         'pagespeed_input_pb',
         'pagespeed_output_pb',
         'pagespeed_proto',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
         '<(pagespeed_root)/third_party/readpng/readpng.gyp:readpng',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
       ],
       'sources': [
+        '<(pagespeed_root)/pagespeed/image_compression/image_attributes_factory_test.cc',
         '<(pagespeed_root)/pagespeed/image_compression/jpeg_optimizer_test.cc',
         '<(pagespeed_root)/pagespeed/image_compression/png_optimizer_test.cc',
         '<(pagespeed_root)/pagespeed/rules/optimize_images_test.cc',
