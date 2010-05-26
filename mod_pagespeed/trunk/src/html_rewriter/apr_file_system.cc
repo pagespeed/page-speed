@@ -160,10 +160,12 @@ bool HtmlWriterOutputFile::SetWorldReadable(MessageHandler* message_handler) {
 }
 
 AprFileSystem::AprFileSystem(apr_pool_t* pool)
-    : pool_(pool) {
+    : pool_(NULL) {
+  apr_pool_create(&pool_, pool);
 }
 
 AprFileSystem::~AprFileSystem() {
+  apr_pool_destroy(pool_);
 }
 
 FileSystem::InputFile* AprFileSystem::OpenInputFile(

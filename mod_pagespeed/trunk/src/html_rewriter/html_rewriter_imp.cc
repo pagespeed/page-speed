@@ -25,29 +25,28 @@
 
 namespace html_rewriter {
 
-SerfUrlAsyncFetcher* GetSerfAsyncFetcher(server_rec* server);
 
 HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
                                  const std::string& url, std::string* output)
-    : url_(url),
-      message_handler_(),
-      html_parse_(&message_handler_),
-      apr_file_system_(request->pool),
-      file_cache_(GetFileCachePath(request), &apr_file_system_,
-                  &message_handler_),
-      http_cache_(&file_cache_, &apr_timer_),
-      serf_url_async_fetcher_(GetSerfAsyncFetcher(request->server)),
-      cache_url_fetcher_(&http_cache_, serf_url_async_fetcher_),
-      cache_url_async_fetcher_(&http_cache_, serf_url_async_fetcher_),
-      rewrite_driver_(&html_parse_, &apr_file_system_,
-                      &cache_url_async_fetcher_),
+    : context_(GetPageSpeedProcessContext(request->server)),
+      message_handler_(context_->message_handler()),
+      file_system_(context_->file_system()),
+      file_cache_(context_->file_cache()),
+      http_cache_(context_->http_cache()),
+      serf_url_async_fetcher_(context_->fetcher()),
+      cache_url_fetcher_(context_->cache_url_fetcher()),
+      cache_url_async_fetcher_(context_->cache_url_async_fetcher()),
+      url_(url),
+      html_parse_(message_handler_),
+      rewrite_driver_(&html_parse_, file_system_,
+                      cache_url_async_fetcher_),
       hash_resource_manager_(GetCachePrefix(request),
-                             GetUrlPrefix(request),
+                             GetUrlPrefix(),
                              0,
                              true,
-                             &apr_file_system_,
+                             file_system_,
                              &filename_encoder_,
-                             &cache_url_fetcher_,
+                             cache_url_fetcher_,
                              &md5_hasher_),
       string_writer_(output) {
   rewrite_driver_.SetResourceManager(&hash_resource_manager_);

@@ -22,6 +22,7 @@
 #include "html_rewriter/html_parser_message_handler.h"
 #include "html_rewriter/md5_hasher.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
+#include "mod_pagespeed/pagespeed_process_context.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
 #include "net/instaweb/rewriter/public/hash_resource_manager.h"
@@ -66,18 +67,19 @@ class HtmlRewriterImp {
   static void WaitForInProgressDownloads(request_rec* request);
 
  private:
-  std::string url_;
-  HtmlParserMessageHandler message_handler_;
-  net_instaweb::HtmlParse html_parse_;
-  AprFileSystem apr_file_system_;
-  net_instaweb::RewriteDriver rewrite_driver_;
-
-  net_instaweb::FileCache file_cache_;
-  AprTimer apr_timer_;
-  net_instaweb::HTTPCache http_cache_;
+  const PageSpeedProcessContext* context_;
   SerfUrlAsyncFetcher* serf_url_async_fetcher_;
-  net_instaweb::CacheUrlFetcher cache_url_fetcher_;
-  net_instaweb::CacheUrlAsyncFetcher cache_url_async_fetcher_;
+  net_instaweb::MessageHandler* message_handler_;
+  net_instaweb::FileSystem* file_system_;
+  net_instaweb::FileCache* file_cache_;
+  net_instaweb::Timer* timer_;
+  net_instaweb::HTTPCache* http_cache_;
+  net_instaweb::CacheUrlFetcher* cache_url_fetcher_;
+  net_instaweb::CacheUrlAsyncFetcher* cache_url_async_fetcher_;
+
+  std::string url_;
+  net_instaweb::HtmlParse html_parse_;
+  net_instaweb::RewriteDriver rewrite_driver_;
   net_instaweb::StringWriter string_writer_;
   Md5Hasher md5_hasher_;
   net_instaweb::FilenameEncoder filename_encoder_;

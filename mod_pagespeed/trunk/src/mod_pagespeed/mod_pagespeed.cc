@@ -345,7 +345,7 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
 
 apr_status_t pagespeed_child_exit(void* data) {
   server_rec* server = static_cast<server_rec*>(data);
-  html_rewriter::PageSpeedProcessContext* context =
+  const html_rewriter::PageSpeedProcessContext* context =
       html_rewriter::GetPageSpeedProcessContext(server);
   delete context;
   return APR_SUCCESS;
@@ -354,7 +354,7 @@ apr_status_t pagespeed_child_exit(void* data) {
 
 void pagespeed_child_init(apr_pool_t* pool, server_rec* server) {
   // Create fetcher.
-  html_rewriter::CreateSerfAsyncFetcher(server);
+  html_rewriter::CreatePageSpeedProcessContext(server);
   apr_pool_cleanup_register(pool, server, pagespeed_child_exit,
                             pagespeed_child_exit);
 }
