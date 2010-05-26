@@ -22,6 +22,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPairSecondPointers
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
@@ -32,13 +33,13 @@ namespace {
 class ImageData {
  public:
   ImageData(const std::string& url,
-            int natural_width, int natural_height,
+            int actual_width, int actual_height,
             int client_width, int client_height)
       : url_(url), size_mismatch_(false),
-        natural_width_(natural_width), natural_height_(natural_height),
+        actual_width_(actual_width), actual_height_(actual_height),
         client_width_(client_width), client_height_(client_height) {
-    DCHECK(natural_width >= 0);
-    DCHECK(natural_height >= 0);
+    DCHECK(actual_width >= 0);
+    DCHECK(actual_height >= 0);
     DCHECK(client_width >= 0);
     DCHECK(client_height >= 0);
   }
@@ -49,19 +50,19 @@ class ImageData {
 
   bool IsScalable() const;
 
-  void Update(int natural_width, int natural_height,
+  void Update(int actual_width, int actual_height,
               int client_width, int client_height);
 
-  int natural_width() const { return natural_width_; }
-  int natural_height() const { return natural_height_; }
+  int actual_width() const { return actual_width_; }
+  int actual_height() const { return actual_height_; }
   int client_width() const { return client_width_; }
   int client_height() const { return client_height_; }
 
  private:
   std::string url_;
   bool size_mismatch_;
-  int natural_width_;
-  int natural_height_;
+  int actual_width_;
+  int actual_height_;
   int client_width_;
   int client_height_;
 
@@ -71,13 +72,13 @@ class ImageData {
 double ImageData::GetCompressionFactor() const {
   double factor = 1.0;
   if (IsScalable()) {
-    if (client_width_ < natural_width_) {
+    if (client_width_ < actual_width_) {
       factor *= (static_cast<double>(client_width_) /
-                 static_cast<double>(natural_width_));
+                 static_cast<double>(actual_width_));
     }
-    if (client_height_ < natural_height_) {
+    if (client_height_ < actual_height_) {
       factor *= (static_cast<double>(client_height_) /
-                 static_cast<double>(natural_height_));
+                 static_cast<double>(actual_height_));
     }
   }
   return factor;
@@ -85,31 +86,31 @@ double ImageData::GetCompressionFactor() const {
 
 bool ImageData::IsScalable() const {
   return (!size_mismatch_ &&
-          (client_width_ < natural_width_ ||
-           client_height_ < natural_height_));
+          (client_width_ < actual_width_ ||
+           client_height_ < actual_height_));
 }
 
-void ImageData::Update(int natural_width, int natural_height,
+void ImageData::Update(int actual_width, int actual_height,
                        int client_width, int client_height) {
-  DCHECK(natural_width >= 0);
-  DCHECK(natural_height >= 0);
+  DCHECK(actual_width >= 0);
+  DCHECK(actual_height >= 0);
   DCHECK(client_width >= 0);
   DCHECK(client_height >= 0);
 
-  if (natural_width != natural_width_ ||
-      natural_height != natural_height_) {
+  if (actual_width != actual_width_ ||
+      actual_height != actual_height_) {
     LOG(ERROR) << "Mismatched width/height parameters while processing "
                << url_ << ".  Got "
-               << natural_width << "x" << natural_height << ", expected "
-               << natural_width_ << "x" << natural_height_ << ".";
+               << actual_width << "x" << actual_height << ", expected "
+               << actual_width_ << "x" << actual_height_ << ".";
     size_mismatch_ = true;
     return;
   }
 
   client_width_ = std::min(std::max(client_width_, client_width),
-                           natural_width);
+                           actual_width);
   client_height_ = std::min(std::max(client_height_, client_height),
-                            natural_height);
+                            actual_height);
 }
 
 typedef std::map<std::string, ImageData*> ImageDataMap;
@@ -138,23 +139,31 @@ void ScaledImagesChecker::Visit(const pagespeed::DomElement& node) {
   if (node.GetTagName() == "IMG") {
     if (pagespeed_input_->has_resource_with_url(document_->GetDocumentUrl())) {
       std::string src;
-      int natural_width = 0, natural_height = 0,
-          client_width = 0, client_height = 0;
-      if (node.GetAttributeByName("src", &src) &&
-          node.GetIntPropertyByName("naturalWidth", &natural_width) &&
-          node.GetIntPropertyByName("naturalHeight", &natural_height) &&
-          node.GetIntPropertyByName("clientWidth", &client_width) &&
-          node.GetIntPropertyByName("clientHeight", &client_height)) {
+      if (node.GetAttributeByName("src", &src)) {
         const std::string url(document_->ResolveUri(src));
-        ImageDataMap::iterator iter = image_data_map_->find(url);
-        if (iter == image_data_map_->end()) {
-          // Ownership of ImageData is transfered to the ImageDataMap.
-          (*image_data_map_)[url] =
-              new ImageData(url, natural_width, natural_height,
-                            client_width, client_height);
-        } else {
-          iter->second->Update(natural_width, natural_height,
-                               client_width, client_height);
+        const pagespeed::Resource* resource =
+            pagespeed_input_->GetResourceWithUrl(url);
+        if (resource != NULL) {
+          scoped_ptr<pagespeed::ImageAttributes> image_attributes(
+              pagespeed_input_->NewImageAttributes(resource));
+          if (image_attributes != NULL) {
+            const int actual_width = image_attributes->GetImageWidth();
+            const int actual_height = image_attributes->GetImageHeight();
+            int client_width = 0, client_height = 0;
+            if (node.GetIntPropertyByName("clientWidth", &client_width) &&
+                node.GetIntPropertyByName("clientHeight", &client_height)) {
+              ImageDataMap::iterator iter = image_data_map_->find(url);
+              if (iter == image_data_map_->end()) {
+                // Ownership of ImageData is transfered to the ImageDataMap.
+                (*image_data_map_)[url] =
+                    new ImageData(url, actual_width, actual_height,
+                                  client_width, client_height);
+              } else {
+                iter->second->Update(actual_width, actual_height,
+                                     client_width, client_height);
+              }
+            }
+          }
         }
       }
     }
@@ -193,7 +202,6 @@ bool ServeScaledImages::AppendResults(const PagespeedInput& input,
                                       ResultProvider* provider) {
   // TODO Consider adding the ability to perform the resizing and provide
   //      the resized image file to the user.
-  // TODO Add info about natural/client sizes for use in FormatResults.
 
   const DomDocument* document = input.dom_document();
   if (!document) {
@@ -244,8 +252,8 @@ bool ServeScaledImages::AppendResults(const PagespeedInput& input,
     pagespeed::ImageDimensionDetails* image_details =
         details->MutableExtension(
             pagespeed::ImageDimensionDetails::message_set_extension);
-    image_details->set_expected_height(image_data->natural_height());
-    image_details->set_expected_width(image_data->natural_width());
+    image_details->set_expected_height(image_data->actual_height());
+    image_details->set_expected_width(image_data->actual_width());
     image_details->set_actual_height(image_data->client_height());
     image_details->set_actual_width(image_data->client_width());
   }

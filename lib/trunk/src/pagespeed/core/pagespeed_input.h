@@ -16,7 +16,6 @@
 #define PAGESPEED_CORE_PAGESPEED_INPUT_H_
 
 #include <map>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -79,6 +78,7 @@ class PagespeedInput {
   int num_resources() const;
   bool has_resource_with_url(const std::string& url) const;
   const Resource& GetResource(int idx) const;
+  const Resource* GetResourceWithUrl(const std::string& url) const;
   ImageAttributes* NewImageAttributes(const Resource* resource) const;
   const HostResourceMap* GetHostResourceMap() const;
   const InputInformation* input_information() const;
@@ -89,14 +89,21 @@ class PagespeedInput {
   bool IsValidResource(const Resource* resource) const;
 
   std::vector<const Resource*> resources_;
-  std::set<std::string> resource_urls_;
+
+  // Map from URL to Resource. The resources_ vector, above, owns the
+  // Resource instances in this map.
+  std::map<std::string, const Resource*> url_resource_map_;
+
+  // Map from hostname to Resources on that hostname. The resources_
+  // vector, above, owns the Resource instances in this map.
   HostResourceMap host_resource_map_;
-  bool allow_duplicate_resources_;
+
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
   scoped_ptr<ResourceFilter> resource_filter_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
+  bool allow_duplicate_resources_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };
