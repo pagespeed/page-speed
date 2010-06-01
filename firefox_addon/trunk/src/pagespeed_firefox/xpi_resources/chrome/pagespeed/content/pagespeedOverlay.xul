@@ -75,7 +75,7 @@
     <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1"
           align="center">
       <hbox id="fbPageSpeedButtons" insertafter="fbNetButtons" flex="100"
-            collapsed="true">
+            collapsed="true" align="center">
         <toolbarseparator/>
         <spacer width="2px"/>
         <toolbarbutton id="psPerfButton" label="Performance"
@@ -114,46 +114,43 @@
 
         <spacer width="5px"/>
 
-        <toolbarbutton id="psContentFilterButton"
-                       label="Filter"
+        <toolbarbutton id="psHelpMenu"
+                       label="Help"
                        group="pagespeedButtons"
                        type="menu">
-          <menupopup id="psContentFilterMenu">
-            <menuitem id="psAnalyzeAds"
-                      label="Analyze ads only"
-                      type="radio"
-                      name="filterAds"
-                      value="onlyAds"/>
-            <menuitem id="psAnalyzeTrackers"
-                      label="Analyze trackers only"
-                      type="radio"
-                      name="filterAds"
-                      value="onlyTrackers"/>
-            <menuitem id="psAnalyzeContent"
-                      label="Analyze content only"
-                      name="filterAds"
-                      type="radio"
-                      value="onlyContent"/>
-            <menuitem id="psAnalyzeAll"
-                      label="Analyze complete page"
-                      type="radio"
-                      name="filterAds"
-                      checked="true"
-                      value="noFilter"/>
+          <menupopup>
+            <menuitem id="psDocumentationButton" label="Documentation"
+                      command="cmd_page_speed_help"/>
+            <menuitem id="psReportButton" label="Report an issue"
+                      command="cmd_page_speed_report_issues"/>
           </menupopup>
         </toolbarbutton>
 
         <spacer width="5px"/>
 
-        <toolbarbutton id="psHelpButton" label="Help"
-                       class="toolbar-text-button" group="pagespeedButtons"
-                       command="cmd_page_speed_help"/>
-
         <spacer flex="1"/>
 
-        <toolbarbutton id="psReportButton" label="Report an Issue"
-                       class="toolbar-text-button" group="pagespeedButtons"
-                       command="cmd_page_speed_report_issues"/>
+        <hbox id="psContentAnalyzeMenu" align="center">
+          <label value="Analyze:"/>
+          <menulist group="pagespeedButtons"
+                    oncommand="Firebug.PageSpeedModule.analyzePerformance()">
+            <menupopup>
+              <menuitem id="psAnalyzeAll"
+                        label="Entire page"
+                        value="noFilter"/>
+              <menuseparator/>
+              <menuitem id="psAnalyzeAds"
+                        label="Ads only"
+                        value="onlyAds"/>
+              <menuitem id="psAnalyzeTrackers"
+                        label="Trackers only"
+                        value="onlyTrackers"/>
+              <menuitem id="psAnalyzeContent"
+                        label="Content only"
+                        value="onlyContent"/>
+            </menupopup>
+          </menulist>
+        </hbox>
       </hbox>
     </hbox>
   </toolbar>
