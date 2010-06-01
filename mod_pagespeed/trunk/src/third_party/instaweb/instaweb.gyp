@@ -17,6 +17,7 @@
     'instaweb_src': '<(DEPTH)/third_party/instaweb/src',
     'instaweb_root': '<(instaweb_src)/net/instaweb',
     'mod_spdy_src': '<(DEPTH)/third_party/mod_spdy/src',
+    'protobuf_src': '<(DEPTH)/third_party/protobuf2/src/src',
   },
   'targets': [
     {
@@ -135,12 +136,14 @@
         '<(DEPTH)',
         '<(instaweb_src)',
         '<(mod_spdy_src)',
+        '<(protobuf_src)',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
           '<(DEPTH)',
           '<(instaweb_src)',
           '<(mod_spdy_src)',
+          '<(protobuf_src)',
         ],
       },
     },
