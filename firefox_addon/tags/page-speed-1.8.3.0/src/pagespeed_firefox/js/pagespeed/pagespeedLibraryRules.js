@@ -146,11 +146,11 @@ function filterChoice() {
     'psAnalyzeContent': IPageSpeedRules.RESOURCE_FILTER_ONLY_CONTENT
   };
   for (menuId in menuIdToFilterChoice) {
-    if (document.getElementById(menuId).hasAttribute('checked')) {
+    if (document.getElementById(menuId).hasAttribute('selected')) {
       return menuIdToFilterChoice[menuId];
     }
   }
-  PS_LOG("No checked items in Filter Results menu");
+  PS_LOG("No selected items in Filter Results menu");
   return IPageSpeedRules.RESOURCE_FILTER_ALL;
 }
 
