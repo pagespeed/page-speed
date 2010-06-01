@@ -75,7 +75,7 @@ class AprFileSystemTest : public ::testing::Test {
       if (status != APR_SUCCESS) {
         AprReportError(&handler_, __FILE__, __LINE__, "dir remove", status);
         // TODO(lsong): Rename the dir to try.
-        if (status == 39) {
+        if (APR_STATUS_IS_ENOTEMPTY(status)) {
           // Need a tempname to rename to.
           char* template_name;
           std::string tempname = filename + "-apr-XXXXXX";

@@ -72,6 +72,13 @@
             ],	
           },	
         }],	
+        ['OS == "mac"', {	
+          'link_settings': {	
+            'libraries': [	
+              '/usr/lib/libapr-1.dylib',	
+            ],	
+          },	
+        }],	
       ],
     },
     {
@@ -104,6 +111,15 @@
               '/usr/local/apache2/lib/libapr-1.a.a',	
               '/usr/local/apache2/lib/libaprutil-1.a.a',	
               '-lz',
+            ],	
+          },	
+        }],	
+        ['OS == "mac"', {	
+          'link_settings': {	
+            'libraries': [	
+              '/usr/lib/libapr-1.dylib',	
+              '/usr/lib/libaprutil-1.dylib',	
+              '/usr/lib/libz.dylib',	
             ],	
           },	
         }],	

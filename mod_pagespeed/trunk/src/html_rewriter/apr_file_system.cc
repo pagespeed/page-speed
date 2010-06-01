@@ -78,7 +78,7 @@ class HtmlWriterInputFile : public FileSystem::InputFile {
   HtmlWriterInputFile(apr_file_t* file, const char* filename);
   virtual int Read(char* buf, int size, MessageHandler* message_handler);
   virtual bool Close(MessageHandler* message_handler) {
-    helper_.Close(message_handler);
+    return helper_.Close(message_handler);
   }
   virtual const char* filename() { return helper_.filename().c_str(); }
  private:
@@ -92,7 +92,7 @@ class HtmlWriterOutputFile : public FileSystem::OutputFile {
                      MessageHandler* message_handler);
   virtual bool Flush(MessageHandler* message_handler);
   virtual bool Close(MessageHandler* message_handler) {
-    helper_.Close(message_handler);
+    return helper_.Close(message_handler);
   }
   virtual bool SetWorldReadable(MessageHandler* message_handler);
   virtual const char* filename() { return helper_.filename().c_str(); }

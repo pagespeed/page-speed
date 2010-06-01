@@ -105,7 +105,8 @@ class SerfUrlAsyncFetcherTest: public ::testing::Test {
           break;
         }
       }
-      int64 remaining_us = std::max(0L, 1000 * (max_ms - now_ms));
+      int64 remaining_us = std::max(static_cast<int64>(0),
+                                    1000 * (max_ms - now_ms));
       serf_url_async_fetcher_->Poll(remaining_us, &message_handler_);
     }
 
