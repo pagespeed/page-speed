@@ -2417,7 +2417,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * @return {boolean} Are we using a filter?
    */
   isUsingFilter: function () {
-    return !document.getElementById('psAnalyzeAll').getAttribute('checked');
+    return !document.getElementById('psAnalyzeAll').getAttribute('selected');
   },
 
   /**

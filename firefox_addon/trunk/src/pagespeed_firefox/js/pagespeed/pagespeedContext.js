@@ -429,6 +429,8 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
     } else {
       panel.initializeNode(panel);
     }
+    document.getElementById('psContentAnalyzeMenu').setAttribute(
+        'collapsed', false);
   },
 
   analyzePerformance: function() {
@@ -471,6 +473,9 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   showComponents: function() {
     try {
       PAGESPEED.LintRules.stop();
+
+      document.getElementById('psContentAnalyzeMenu').setAttribute(
+          'collapsed', true);
 
       PAGESPEED.PageSpeedContext.displayComponents(
           FirebugContext.getPanel('pagespeed'));
