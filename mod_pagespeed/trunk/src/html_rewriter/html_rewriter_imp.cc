@@ -29,11 +29,11 @@ namespace html_rewriter {
 HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
                                  const std::string& url, std::string* output)
     : context_(GetPageSpeedProcessContext(request->server)),
+      serf_url_async_fetcher_(context_->fetcher()),
       message_handler_(context_->message_handler()),
       file_system_(context_->file_system()),
       file_cache_(context_->file_cache()),
       http_cache_(context_->http_cache()),
-      serf_url_async_fetcher_(context_->fetcher()),
       cache_url_fetcher_(context_->cache_url_fetcher()),
       cache_url_async_fetcher_(context_->cache_url_async_fetcher()),
       url_(url),

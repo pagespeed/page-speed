@@ -87,7 +87,7 @@ class SerfUrlAsyncFetcherTest: public ::testing::Test {
   }
 
   void TestFetch() {
-    for (int idx = 0; idx < urls_.size(); ++idx) {
+    for (size_t idx = 0; idx < urls_.size(); ++idx) {
       serf_url_async_fetcher_->StreamingFetch(
           urls_[idx], *request_headers_[idx], response_headers_[idx],
           writers_[idx], &message_handler_, callbacks_[idx]);
@@ -99,7 +99,7 @@ class SerfUrlAsyncFetcherTest: public ::testing::Test {
          not_done && now_ms - start_ms < max_ms;
          now_ms = timer.NowMs()) {
       not_done = false;
-      for (int idx = 0; idx < callbacks_.size(); ++idx) {
+      for (size_t idx = 0; idx < callbacks_.size(); ++idx) {
         if (!callbacks_[idx]->IsDone()) {
           not_done = true;
           break;
@@ -111,9 +111,9 @@ class SerfUrlAsyncFetcherTest: public ::testing::Test {
     }
 
     // validate
-    for (int idx = 0; idx < urls_.size(); ++idx) {
+    for (size_t idx = 0; idx < urls_.size(); ++idx) {
       ASSERT_TRUE(callbacks_[idx]->IsDone());
-      EXPECT_LT(0, contents_[idx]->size());
+      EXPECT_LT(static_cast<size_t>(0), contents_[idx]->size());
       EXPECT_EQ(200, response_headers_[idx]->status_code());
       EXPECT_EQ(content_starts_[idx],
                 contents_[idx]->substr(0, content_starts_[idx].size()));

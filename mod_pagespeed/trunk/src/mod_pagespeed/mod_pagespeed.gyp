@@ -13,7 +13,11 @@
 # limitations under the License.
 
 {
- 'variables': {
+  'variables': {
+    # chromium_code indicates that the code is not
+    # third-party code and should be subjected to strict compiler
+    # warnings/errors in order to catch programming mistakes.
+    'chromium_code': 1,
     'mod_spdy_root': '<(DEPTH)/third_party/mod_spdy/src',
   },
 

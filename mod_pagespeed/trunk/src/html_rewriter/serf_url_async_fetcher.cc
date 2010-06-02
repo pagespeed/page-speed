@@ -181,7 +181,7 @@ class SerfFetch {
                                 "headers complete but more data coming");
       }
       net_instaweb::StringPiece str_piece(data, num_bytes);
-      int parsed_len =
+      apr_size_t parsed_len =
           response_headers_->ParseChunk(str_piece, message_handler_);
       if (parsed_len != num_bytes) {
         status = APR_EGENERAL;

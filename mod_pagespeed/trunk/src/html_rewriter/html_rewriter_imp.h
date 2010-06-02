@@ -59,7 +59,7 @@ class HtmlRewriterImp {
   const std::string& get_url() const {
     return url_;
   };
-  const std::string& set_url(const std::string& url) {
+  void set_url(const std::string& url) {
     url_ = url;
   };
   // Call this function to wait all the asynchronous fetchers to finish.
@@ -80,10 +80,10 @@ class HtmlRewriterImp {
   std::string url_;
   net_instaweb::HtmlParse html_parse_;
   net_instaweb::RewriteDriver rewrite_driver_;
+  net_instaweb::HashResourceManager hash_resource_manager_;
   net_instaweb::StringWriter string_writer_;
   Md5Hasher md5_hasher_;
   net_instaweb::FilenameEncoder filename_encoder_;
-  net_instaweb::HashResourceManager hash_resource_manager_;
 };
 
 }  // namespace html_rewriter
