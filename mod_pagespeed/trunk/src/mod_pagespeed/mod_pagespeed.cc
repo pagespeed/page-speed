@@ -167,7 +167,7 @@ apr_bucket* rewrite_html(ap_filter_t *filter, bool flush, const char* buf,
     return NULL;
   }
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                "Rewrite %s(%s%s) original=%d, minified=%d",
+                "Rewrite %s(%s%s) original=%d, minified=%zd",
                 request->content_type,
                 request->hostname, request->unparsed_uri,
                 len, context->output.size());
@@ -204,7 +204,7 @@ apr_bucket* create_pagespeed_bucket(ap_filter_t *filter,
                     request->unparsed_uri);
     } else {
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                    "Minify %s(%s%s) original=%d, minified=%d",
+                    "Minify %s(%s%s) original=%zd, minified=%zd",
                     request->content_type,
                     request->hostname, request->unparsed_uri,
                     context->input.size(), context->output.size());
@@ -219,7 +219,7 @@ apr_bucket* create_pagespeed_bucket(ap_filter_t *filter,
     double saved_percent =
         100 - 100.0 * context->output.size() / context->input.size();
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                  "%5.2lf%% saved Minify %s(%s%s) original=%d, minified=%d",
+                  "%5.2lf%% saved Minify %s(%s%s) original=%zd, minified=%zd",
                   saved_percent,  request->content_type,
                   request->hostname, request->unparsed_uri,
                   context->input.size(), context->output.size());
