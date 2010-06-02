@@ -88,10 +88,6 @@ deps = {
   "src/third_party/chromium/src/net/base":
       Var("chromium_trunk") + "/src/net/base" + Var("chromium_revision"),
 
-  "src/third_party/chromium/src/net/tools/flip_server":
-    Var("chromium_trunk") + "/src/net/tools/flip_server" +
-    Var("chromium_revision"),
-
   "src/third_party/protobuf2/src":
     "http://protobuf.googlecode.com/svn/trunk@305",
 
