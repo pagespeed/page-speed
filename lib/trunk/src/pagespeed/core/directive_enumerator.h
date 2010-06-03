@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef PAGESPEED_CORE_DIRECTIVE_ENUMERATOR_H_
+#define PAGESPEED_CORE_DIRECTIVE_ENUMERATOR_H_
+
 #include <string>
 #include "base/string_tokenizer.h"
 
@@ -57,3 +60,5 @@ class DirectiveEnumerator {
 };
 
 }  // namespace pagespeed
+
+#endif  // PAGESPEED_CORE_DIRECTIVE_ENUMERATOR_H_

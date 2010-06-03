@@ -20,7 +20,17 @@
       'xcode_create_dependents_test_runner': 1,
       'dependencies': [
         '../base/base.gyp:*',
+        '../pagespeed/apps/apps.gyp:*',
+        '../pagespeed/core/core.gyp:*',
+        '../pagespeed/cssmin/cssmin.gyp:*',
+        '../pagespeed/filters/filters.gyp:*',
+        '../pagespeed/formatters/formatters.gyp:*',
+        '../pagespeed/har/har.gyp:*',
+        '../pagespeed/html/html.gyp:*',
+        '../pagespeed/image_compression/image_compression.gyp:*',
         '../pagespeed/pagespeed.gyp:*',
+        '../pagespeed/proto/proto.gyp:*',
+        '../pagespeed/util/util.gyp:*',
         '../third_party/jsmin/jsmin.gyp:*',
       ],} ]
 }
