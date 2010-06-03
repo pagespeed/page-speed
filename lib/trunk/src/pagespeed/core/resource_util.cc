@@ -20,9 +20,9 @@
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
+#include "pagespeed/core/directive_enumerator.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/util/directive_enumerator.h"
 
 namespace {
 

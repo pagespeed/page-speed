@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "base/logging.h"
-#include "pagespeed/util/directive_enumerator.h"
+#include "pagespeed/core/directive_enumerator.h"
 
 namespace pagespeed {
 
