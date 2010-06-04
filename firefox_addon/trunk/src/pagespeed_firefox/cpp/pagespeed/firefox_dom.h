@@ -48,12 +48,19 @@ class FirefoxElement : public DomElement {
   virtual std::string GetTagName() const;
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
-  virtual bool GetIntPropertyByName(const std::string& name,
-                                    int* property_value) const;
-  virtual bool GetCSSPropertyByName(const std::string& name,
-                                    std::string* property_value) const;
+
+  Status GetActualWidth(int* out_width) const;
+  Status GetActualHeight(int* out_height) const;
+  Status HasWidthSpecified(bool* out_width_specified) const;
+  Status HasHeightSpecified(bool* out_height_specified) const;
 
  private:
+  bool GetClientWidthOrHeight(const std::string& name,
+                              int* out_property_value) const;
+
+  bool GetCSSPropertyByName(const std::string& name,
+                            std::string* out_property_value) const;
+
   nsCOMPtr<nsIDOMElement> element_;
 
   DISALLOW_COPY_AND_ASSIGN(FirefoxElement);
