@@ -95,16 +95,14 @@ class MockImageElement : public pagespeed::DomElement {
     }
   }
 
-  virtual bool GetIntPropertyByName(const std::string& name,
-                                    int* property_value) const {
-    if (name == "clientWidth") {
-      *property_value = client_width_;
-    } else if (name == "clientHeight") {
-      *property_value = client_height_;
-    } else {
-      return false;
-    }
-    return true;
+  virtual Status GetActualWidth(int* property_value) const {
+    *property_value = client_width_;
+    return SUCCESS;
+  }
+
+  virtual Status GetActualHeight(int* property_value) const {
+    *property_value = client_height_;
+    return SUCCESS;
   }
 
  private:
@@ -125,6 +123,11 @@ class MockIframeElement : public pagespeed::DomElement {
 
   virtual std::string GetTagName() const {
     return "IFRAME";
+  }
+
+  virtual bool GetAttributeByName(const std::string& name,
+                                  std::string* out) const {
+    return false;
   }
 
  private:

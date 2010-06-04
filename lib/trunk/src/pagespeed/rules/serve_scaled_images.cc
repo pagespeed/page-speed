@@ -150,8 +150,10 @@ void ScaledImagesChecker::Visit(const pagespeed::DomElement& node) {
             const int actual_width = image_attributes->GetImageWidth();
             const int actual_height = image_attributes->GetImageHeight();
             int client_width = 0, client_height = 0;
-            if (node.GetIntPropertyByName("clientWidth", &client_width) &&
-                node.GetIntPropertyByName("clientHeight", &client_height)) {
+            if (node.GetActualWidth(&client_width) ==
+                pagespeed::DomElement::SUCCESS &&
+                node.GetActualHeight(&client_height) ==
+                pagespeed::DomElement::SUCCESS) {
               ImageDataMap::iterator iter = image_data_map_->find(url);
               if (iter == image_data_map_->end()) {
                 // Ownership of ImageData is transfered to the ImageDataMap.

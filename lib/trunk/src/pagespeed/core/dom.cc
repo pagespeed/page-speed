@@ -41,29 +41,27 @@ DomElement::DomElement() {}
 
 DomElement::~DomElement() {}
 
-bool DomElement::GetAttributeByName(const std::string& name,
-                                    std::string* attr_value) const {
+DomElement::Status DomElement::GetActualWidth(int* out_width) const {
   NOT_IMPLEMENTED();
-  return false;
-};
-
-bool DomElement::GetStringPropertyByName(const std::string& name,
-                                         std::string* property_value) const {
-  NOT_IMPLEMENTED();
-  return false;
+  return FAILURE;
 }
 
-bool DomElement::GetIntPropertyByName(const std::string& name,
-                                      int* property_value) const {
+DomElement::Status DomElement::GetActualHeight(int* out_height) const {
   NOT_IMPLEMENTED();
-  return false;
+  return FAILURE;
 }
 
-bool DomElement::GetCSSPropertyByName(const std::string& name,
-                                      std::string* property_value) const {
+DomElement::Status DomElement::HasWidthSpecified(
+    bool* out_width_specified) const {
   NOT_IMPLEMENTED();
-  return false;
-};
+  return FAILURE;
+}
+
+DomElement::Status DomElement::HasHeightSpecified(
+    bool* out_height_specified) const {
+  NOT_IMPLEMENTED();
+  return FAILURE;
+}
 
 DomElementVisitor::DomElementVisitor() {}
 

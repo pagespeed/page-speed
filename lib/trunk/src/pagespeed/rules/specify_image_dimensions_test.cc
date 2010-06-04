@@ -81,21 +81,8 @@ class MockElement : public pagespeed::DomElement {
   static MockElement* New(
       pagespeed::DomDocument* content,
       const std::string& tagname,
-      const std::map<std::string, std::string>& attributes,
-      const std::map<std::string, std::string>& css_properties) {
-    return new MockElement(content, tagname,
-                           attributes, css_properties,
-                           std::map<std::string, int>());
-  }
-
-  static MockElement* New(
-      pagespeed::DomDocument* content,
-      const std::string& tagname,
-      const std::map<std::string, std::string>& attributes,
-      const std::map<std::string, std::string>& css_properties,
-      const std::map<std::string, int>& int_properties) {
-    return new MockElement(content, tagname,
-                           attributes, css_properties, int_properties);
+      const std::map<std::string, std::string>& attributes) {
+    return new MockElement(content, tagname, attributes);
   }
 
   virtual pagespeed::DomDocument* GetContentDocument() const {
@@ -118,48 +105,28 @@ class MockElement : public pagespeed::DomElement {
     }
   }
 
-  virtual bool GetCSSPropertyByName(const std::string& name,
-                                    std::string* property_value) const {
-    std::map<std::string, std::string>::const_iterator entry =
-        css_properties_.find(name);
-    if (entry != css_properties_.end()) {
-      *property_value = entry->second;
-      return true;
-    } else {
-      return false;
-    }
+  virtual Status HasHeightSpecified(bool *out) const {
+    *out = attributes_.find("height") != attributes_.end();
+    return SUCCESS;
   }
 
-  virtual bool GetIntPropertyByName(const std::string& name,
-                                    int* property_value) const {
-    std::map<std::string, int>::const_iterator entry =
-        int_properties_.find(name);
-    if (entry != int_properties_.end()) {
-      *property_value = entry->second;
-      return true;
-    } else {
-      return false;
-    }
+  virtual Status HasWidthSpecified(bool *out) const {
+    *out = attributes_.find("width") != attributes_.end();
+    return SUCCESS;
   }
 
  private:
   MockElement(pagespeed::DomDocument* content,
               const std::string& tagname,
-              const std::map<std::string, std::string>& attributes,
-              const std::map<std::string, std::string>& css_properties,
-              const std::map<std::string, int>& int_properties)
+              const std::map<std::string, std::string>& attributes)
       : content_(content),
         tagname_(tagname),
-        attributes_(attributes),
-        css_properties_(css_properties),
-        int_properties_(int_properties) {
+        attributes_(attributes) {
   }
 
   pagespeed::DomDocument* content_;
   std::string tagname_;
   std::map<std::string, std::string> attributes_;
-  std::map<std::string, std::string> css_properties_;
-  std::map<std::string, int> int_properties_;
 
   DISALLOW_COPY_AND_ASSIGN(MockElement);
 };
@@ -269,71 +236,52 @@ TEST_F(SpecifyImageDimensionsTest, EmptyDom) {
 TEST_F(SpecifyImageDimensionsTest, DimensionsSpecified) {
   MockDocument* doc = NewMockDocument("http://test.com/");
 
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   attributes["width"] = "23";
   attributes["height"] = "42";
   attributes["src"] = "http://test.com/image.png";
   AddResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributes,
-                                   css_properties));
-  CheckNoViolations(doc);
-}
-
-TEST_F(SpecifyImageDimensionsTest, DimensionsSpecifiedInCss) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-
-  std::map<std::string, std::string> attributes, css_properties;
-  css_properties["width"] = "23";
-  css_properties["height"] = "42";
-  attributes["src"] = "http://test.com/image.png";
-  AddResource("http://test.com/image.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes,
-                                   css_properties));
+                                   attributes));
   CheckNoViolations(doc);
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoHeight) {
   MockDocument* doc = NewMockDocument("http://test.com/");
 
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   attributes["width"] = "23";
   attributes["src"] = "http://test.com/image.png";
   AddResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributes,
-                                   css_properties));
+                                   attributes));
   CheckOneViolation(doc, "http://test.com/image.png");
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoWidth) {
   MockDocument* doc = NewMockDocument("http://test.com/");
 
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   attributes["height"] = "42";
   attributes["src"] = "http://test.com/image.png";
   AddResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributes,
-                                   css_properties));
+                                   attributes));
   CheckOneViolation(doc, "http://test.com/image.png");
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoDimensions) {
   MockDocument* doc = NewMockDocument("http://test.com/");
 
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   attributes["src"] = "http://test.com/image.png";
   AddResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributes,
-                                   css_properties));
+                                   attributes));
   CheckOneViolation(doc, "http://test.com/image.png");
 }
 
@@ -343,31 +291,28 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensions) {
 TEST_F(SpecifyImageDimensionsTest, NoViolationMissingResourceUrl) {
   MockDocument* doc = NewMockDocument("http://test.com/");
 
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributes,
-                                   css_properties));
+                                   attributes));
   CheckNoViolations(doc);
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoDimensionsInIFrame) {
   MockDocument* iframe_doc = NewMockDocument("http://test.com/frame/i.html");
 
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   attributes["src"] = "image.png";
   AddResource("http://test.com/frame/image.png", "image/png");
   iframe_doc->AddElement(
       MockElement::New(NULL,
                        "IMG",
-                       attributes,
-                       css_properties));
+                       attributes));
 
   MockDocument* doc = NewMockDocument("http://test.com/");
   doc->AddElement(
       MockElement::New(iframe_doc,
                        "IFRAME",
-                       std::map<std::string, std::string>(),
                        std::map<std::string, std::string>()));
 
   CheckOneViolation(doc, "http://test.com/frame/image.png");
@@ -376,22 +321,19 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensionsInIFrame) {
 TEST_F(SpecifyImageDimensionsTest, MultipleViolations) {
   MockDocument* doc = NewMockDocument("http://test.com/");
 
-  std::map<std::string, std::string> css_properties;
   std::map<std::string, std::string> attributesA;
   attributesA["src"] = "http://test.com/imageA.png";
   AddResource("http://test.com/imageA.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributesA,
-                                   css_properties));
+                                   attributesA));
 
   std::map<std::string, std::string> attributesB;
   attributesB["src"] = "imageB.png";
   AddResource("http://test.com/imageB.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributesB,
-                                   css_properties));
+                                   attributesB));
   CheckTwoViolations(doc,
                      "http://test.com/imageA.png",
                      "http://test.com/imageB.png");
@@ -404,15 +346,12 @@ TEST_F(SpecifyImageDimensionsTest, FormatTest) {
 
   AddImageAttributesFactory();
   MockDocument* doc = NewMockDocument("http://test.com/");
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   attributes["src"] = "http://test.com/image.png";
   AddResource("http://test.com/image.png", "image/png");
-  std::map<std::string, int> int_properties;
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributes,
-                                   css_properties,
-                                   int_properties));
+                                   attributes));
   CheckFormattedOutput(doc, expected);
 }
 
@@ -422,13 +361,12 @@ TEST_F(SpecifyImageDimensionsTest, FormatNoImageDimensionsTest) {
       "  http://test.com/image.png\n";
 
   MockDocument* doc = NewMockDocument("http://test.com/");
-  std::map<std::string, std::string> attributes, css_properties;
+  std::map<std::string, std::string> attributes;
   attributes["src"] = "http://test.com/image.png";
   AddResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
-                                   attributes,
-                                   css_properties));
+                                   attributes));
   CheckFormattedOutput(doc, expected);
 }
 

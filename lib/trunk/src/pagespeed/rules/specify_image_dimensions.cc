@@ -49,16 +49,19 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
   DISALLOW_COPY_AND_ASSIGN(ImageDimensionsChecker);
 };
 
-
 void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
   if (node.GetTagName() == "IMG") {
     if (pagespeed_input_->has_resource_with_url(document_->GetDocumentUrl())) {
-      std::string height, width;
-      bool height_specified = (node.GetAttributeByName("height", &height) ||
-                               node.GetCSSPropertyByName("height", &height));
-      bool width_specified = (node.GetAttributeByName("width", &width) ||
-                              node.GetCSSPropertyByName("width", &width));
-
+      bool height_specified = false;
+      bool width_specified = false;
+      if (pagespeed::DomElement::SUCCESS !=
+          node.HasHeightSpecified(&height_specified) ||
+          pagespeed::DomElement::SUCCESS !=
+          node.HasWidthSpecified(&width_specified)) {
+        // The runtime was not able to compute the requested values,
+        // so we must skip this node.
+        return;
+      }
       if (!height_specified || !width_specified) {
         std::string src;
         if (!node.GetAttributeByName("src", &src)) {
