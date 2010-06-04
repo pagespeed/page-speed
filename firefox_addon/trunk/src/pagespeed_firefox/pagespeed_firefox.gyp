@@ -293,7 +293,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/third_party/cJSON/cJSON.gyp:cJSON',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
       'sources': [
         'cpp/pagespeed/pagespeed_json_input.cc',
@@ -303,7 +303,7 @@
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
     },
     {
@@ -364,8 +364,8 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_filters',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
+        '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
+        '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
       ],
       'sources': [
         'cpp/pagespeed/firefox_dom.cc',
@@ -377,8 +377,8 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_filters',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_formatters',
+        '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
+        '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
       ],
     },
     {
