@@ -61,6 +61,21 @@ class DomDocument {
  */
 class DomElement {
  public:
+  // All of DomElement's optional methods return a Status value.
+  // Status indicates whether or not the runtime was able to perform
+  // the requested operation. For instance, if HasWidthSpecified() returns
+  // Status::FAILURE, it indicates that the runtime is not capable of
+  // determining whether or not the width of the DomElement was
+  // specified. Status::FAILURE does not indicate that the DomElement does
+  // not have a width specified. Note that when a method returns
+  // Status::FAILURE, the values of the output parameters are
+  // undefined. Callers must check the return value of methods
+  // that return a Status.
+  enum Status {
+    SUCCESS,
+    FAILURE,
+  };
+
   DomElement();
   virtual ~DomElement();
 
@@ -80,29 +95,46 @@ class DomElement {
   // @param attr_value output parameter to hold attribute value
   // @return true if the node has an attribute with that name.
   virtual bool GetAttributeByName(const std::string& name,
-                                  std::string* attr_value) const;
+                                  std::string* attr_value) const = 0;
 
-  // Gets properties of the node object whose values are strings.
-  //
-  // @param name property name
-  // @param property_value output parameter to hold property value
-  // @return true if the node has a property with that name.
-  virtual bool GetStringPropertyByName(const std::string& name,
-                                       std::string* property_value) const;
+  // The methods below are optional parts of the DomElement API. If
+  // the runtime is unable to compute the result for a given method, that
+  // method should return Status::FAILURE. Otherwise, the method should
+  // return Status::SUCCESS.
 
-  // Like GetStringPropertyByName, but returns integer values.
-  //
-  // @param name property name
-  // @param property_value output parameter to hold property value
-  // @return true if the node has a property with that name.
-  virtual bool GetIntPropertyByName(const std::string& name,
-                                    int* property_value) const;
+  // Get the actual width of the element, in CSS pixels. This should
+  // return the computed width of the element on screen (e.g. the
+  // clientWidth), even if the width is not explicitly specified as an
+  // attribute or via a style.
+  // @param out_width output parameter to hold the width, in CSS pixels.
+  // @return SUCCESS if the runtime is able to compute the width of the node.
+  virtual Status GetActualWidth(int* out_width) const;
 
-  // @param name css property name
-  // @param property_value output parameter to hold the css property value
-  // @return true if the node has a css property with that name.
-  virtual bool GetCSSPropertyByName(const std::string& name,
-                                    std::string* property_value) const;
+  // Get the actual height of the element, in CSS pixels. This should
+  // return the computed height of the element on screen (e.g. the
+  // clientHeight), even if the height is not explicitly specified as an
+  // attribute or via a style.
+  // @param out_height output parameter to hold the height, in CSS pixels.
+  // @return SUCCESS if the runtime is able to compute the height of the node.
+  virtual Status GetActualHeight(int* out_height) const;
+
+  // Get whether or not the width of the element was explicitly
+  // specified, either as an attribute, via an inline style, or via
+  // CSS.
+  // @param out_width_specified whether or not the element has a width
+  // specified.
+  // @return SUCCESS if the runtime is able to determine whether the
+  // element has a specified width.
+  virtual Status HasWidthSpecified(bool* out_width_specified) const;
+
+  // Get whether or not the height of the element was explicitly
+  // specified, either as an attribute, via an inline style, or via
+  // CSS.
+  // @param out_height_specified whether or not the element has a height
+  // specified.
+  // @return SUCCESS if the runtime is able to determine whether the
+  // element has a specified height.
+  virtual Status HasHeightSpecified(bool* out_height_specified) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DomElement);
