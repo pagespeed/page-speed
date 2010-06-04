@@ -298,27 +298,49 @@ bool FirefoxElement::GetAttributeByName(const std::string& name,
   return true;
 }
 
-bool FirefoxElement::GetIntPropertyByName(const std::string& name,
-                                          int* property_value) const {
+DomElement::Status FirefoxElement::GetActualWidth(int* out_width) const {
+  if (!GetClientWidthOrHeight("clientWidth", out_width)) {
+    return FAILURE;
+  }
+  return SUCCESS;
+}
+
+DomElement::Status FirefoxElement::GetActualHeight(int* out_height) const {
+  if (!GetClientWidthOrHeight("clientHeight", out_height)) {
+    return FAILURE;
+  }
+  return SUCCESS;
+}
+
+DomElement::Status FirefoxElement::HasWidthSpecified(
+    bool* out_width_specified) const {
+  std::string dummy;
+  *out_width_specified =
+      GetAttributeByName("width", &dummy) ||
+      GetCSSPropertyByName("width", &dummy);
+  return SUCCESS;
+}
+
+DomElement::Status FirefoxElement::HasHeightSpecified(
+    bool* out_height_specified) const {
+  std::string dummy;
+  *out_height_specified =
+      GetAttributeByName("height", &dummy) ||
+      GetCSSPropertyByName("height", &dummy);
+  return SUCCESS;
+}
+
+bool FirefoxElement::GetClientWidthOrHeight(const std::string& name,
+                                            int* out_property_value) const {
+  // TODO: generalize this to other types of nodes (not just images).
   if (name == "clientWidth" || name == "clientHeight") {
     nsresult rv;
     nsCOMPtr<nsIDOMHTMLImageElement> image(do_QueryInterface(element_, &rv));
     if (!NS_FAILED(rv)) {
       if (name == "clientWidth") {
-        image->GetWidth(property_value);
+        image->GetWidth(out_property_value);
       } else {
-        image->GetHeight(property_value);
-      }
-      return true;
-    }
-  } else if (name == "naturalWidth" || name == "naturalHeight") {
-    nsresult rv;
-    nsCOMPtr<nsIDOMNSHTMLImageElement> image(do_QueryInterface(element_, &rv));
-    if (!NS_FAILED(rv)) {
-      if (name == "naturalWidth") {
-        image->GetNaturalWidth(property_value);
-      } else {
-        image->GetNaturalHeight(property_value);
+        image->GetHeight(out_property_value);
       }
       return true;
     }

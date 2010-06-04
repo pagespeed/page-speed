@@ -47,6 +47,7 @@
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/optimize_images.h"
@@ -199,6 +200,8 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
 
   PagespeedInput input(ChoiceToFilter(filter_choice));
   input.AcquireDomDocument(new FirefoxDocument(root_document));
+  input.AcquireImageAttributesFactory(
+      new pagespeed::image_compression::ImageAttributesFactory());
   if (PopulateInputFromJSON(&input, data, contents)) {
     const std::string root_url_str(root_url);
     if (!root_url_str.empty()) {

@@ -366,6 +366,7 @@
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
         '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
+        '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
       ],
       'sources': [
         'cpp/pagespeed/firefox_dom.cc',
