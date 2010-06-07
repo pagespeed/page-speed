@@ -23,7 +23,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_output_pb',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
       ],
       'sources': [
         'directive_enumerator.cc',

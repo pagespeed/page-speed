@@ -23,7 +23,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
-        '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_output_pb',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
       ],
       'sources': [
         'formatter_util.cc',
