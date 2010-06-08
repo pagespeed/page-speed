@@ -29,8 +29,10 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
-        '<(DEPTH)/third_party/instaweb/instaweb.gyp:*',
-        '<(DEPTH)/third_party/serf/serf.gyp:*',
+        '<(DEPTH)/third_party/instaweb/instaweb.gyp:htmlparse',
+        '<(DEPTH)/third_party/instaweb/instaweb.gyp:rewriter',
+        '<(DEPTH)/third_party/instaweb/instaweb.gyp:util',
+        '<(DEPTH)/third_party/serf/serf.gyp:serf',
       ],
       'include_dirs': [
         '<(DEPTH)',
@@ -59,6 +61,7 @@
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
         '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
+        '<(DEPTH)/third_party/apr/apr.gyp:apr',
         '<(DEPTH)/third_party/instaweb/instaweb.gyp:*',
       ],
       'include_dirs': [
@@ -67,22 +70,6 @@
       ],
       'sources': [
         '<(DEPTH)/html_rewriter/apr_file_system_test.cc',
-      ],
-      'conditions': [	
-        ['OS == "linux"', {	
-          'link_settings': {	
-            'libraries': [	
-              '/usr/local/apache2/lib/libapr-1.a.a',	
-            ],	
-          },	
-        }],	
-        ['OS == "mac"', {	
-          'link_settings': {	
-            'libraries': [	
-              '/usr/lib/libapr-1.dylib',	
-            ],	
-          },	
-        }],	
       ],
     },
     {
@@ -93,6 +80,8 @@
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
         '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
+        '<(DEPTH)/third_party/apr/apr.gyp:apr',
+        '<(DEPTH)/third_party/aprutil/aprutil.gyp:aprutil',
         '<(DEPTH)/third_party/instaweb/instaweb.gyp:*',
         '<(DEPTH)/third_party/serf/serf.gyp:*',
       ],
@@ -107,26 +96,6 @@
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher.h',
         '<(DEPTH)/html_rewriter/html_parser_message_handler.cc',
-      ],
-      'conditions': [	
-        ['OS == "linux"', {	
-          'link_settings': {	
-            'libraries': [	
-              '/usr/local/apache2/lib/libapr-1.a.a',	
-              '/usr/local/apache2/lib/libaprutil-1.a.a',	
-              '-lz',
-            ],	
-          },	
-        }],	
-        ['OS == "mac"', {	
-          'link_settings': {	
-            'libraries': [	
-              '/usr/lib/libapr-1.dylib',	
-              '/usr/lib/libaprutil-1.dylib',	
-              '/usr/lib/libz.dylib',	
-            ],	
-          },	
-        }],	
       ],
     },
   ],
