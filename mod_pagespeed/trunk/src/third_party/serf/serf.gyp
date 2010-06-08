@@ -15,17 +15,15 @@
 {
   'variables': {
     'serf_root': '<(DEPTH)/third_party/serf/src',
-    'apache_sdk_root': '<(DEPTH)/third_party/apache_httpd',
-    'apache_sdk_os_root': '<(apache_sdk_root)/arch/<(OS)',
-    'apache_sdk_arch_root': '<(apache_sdk_os_root)/<(target_arch)',
   },
-  'dependencies': [
-    '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
-  ],
   'targets': [
     {
       'target_name': 'serf',
       'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
+      ],
       'sources': [
         '<(serf_root)/context.c',
         '<(serf_root)/buckets/aggregate_buckets.c',
@@ -46,9 +44,6 @@
       ],
      'include_dirs': [
         '<(serf_root)',
-        '<(apache_sdk_root)/include',
-        '<(apache_sdk_os_root)/all/include',
-        '<(apache_sdk_arch_root)/include',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
