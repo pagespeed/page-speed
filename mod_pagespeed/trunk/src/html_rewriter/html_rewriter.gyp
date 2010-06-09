@@ -48,7 +48,6 @@
         '<(DEPTH)/html_rewriter/html_rewriter_imp.cc',
         '<(DEPTH)/html_rewriter/md5_hasher.cc',
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
-        '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
         '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
       'export_dependent_settings': [
