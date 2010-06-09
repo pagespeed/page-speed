@@ -57,7 +57,8 @@
         'rewrite_pb',
         'util',
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:*',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_jpeg_optimizer',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_png_optimizer',
       ],
       'sources': [
         '<(instaweb_root)/rewriter/add_head_filter.cc',
@@ -98,7 +99,7 @@
         'util_pb',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/base64/base64.gyp:base64',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:*',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/core/core.gyp:pagespeed_core',
       ],
       'sources': [
         '<(instaweb_root)/util/abstract_mutex.cc',
