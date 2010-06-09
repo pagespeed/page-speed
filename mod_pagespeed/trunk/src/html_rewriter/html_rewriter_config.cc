@@ -18,8 +18,8 @@
 
 #include "html_rewriter/html_rewriter_config.h"
 
-#include "third_party/apache_httpd/include/httpd.h"
-#include "third_party/apache_httpd/include/http_core.h"
+#include "third_party/apache/httpd/src/include/httpd.h"
+#include "third_party/apache/httpd/src/include/http_core.h"
 
 namespace {
 

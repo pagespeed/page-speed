@@ -28,7 +28,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/html_rewriter/html_rewriter.gyp:html_rewriter',
-        '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
+        '<(DEPTH)/third_party/apache/httpd/httpd.gyp:include',
         '<(DEPTH)/third_party/instaweb/instaweb.gyp:util',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_jpeg_optimizer',
