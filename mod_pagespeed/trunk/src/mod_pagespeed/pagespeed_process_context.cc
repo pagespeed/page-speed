@@ -23,10 +23,10 @@
 #include "net/instaweb/util/public/cache_url_fetcher.h"
 #include "net/instaweb/util/public/file_cache.h"
 #include "net/instaweb/util/public/http_cache.h"
-#include "third_party/apache_httpd/include/httpd.h"
-#include "third_party/apache_httpd/include/http_config.h"
-#include "third_party/apache_httpd/include/http_log.h"
-#include "third_party/apache_httpd/include/http_protocol.h"
+#include "third_party/apache/httpd/src/include/httpd.h"
+#include "third_party/apache/httpd/src/include/http_config.h"
+#include "third_party/apache/httpd/src/include/http_log.h"
+#include "third_party/apache/httpd/src/include/http_protocol.h"
 
 extern module AP_MODULE_DECLARE_DATA pagespeed_module;
 

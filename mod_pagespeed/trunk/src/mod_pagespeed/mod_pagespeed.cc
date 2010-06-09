@@ -14,10 +14,10 @@
 
 #include <string>
 
-#include "third_party/apache_httpd/include/httpd.h"
-#include "third_party/apache_httpd/include/http_config.h"
-#include "third_party/apache_httpd/include/http_log.h"
-#include "third_party/apache_httpd/include/http_protocol.h"
+#include "third_party/apache/httpd/src/include/httpd.h"
+#include "third_party/apache/httpd/src/include/http_config.h"
+#include "third_party/apache/httpd/src/include/http_log.h"
+#include "third_party/apache/httpd/src/include/http_protocol.h"
 
 #include "base/string_util.h"
 #include "html_rewriter/html_rewriter.h"

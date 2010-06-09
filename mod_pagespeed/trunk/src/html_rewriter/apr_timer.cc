@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "html_rewriter/apr_timer.h"
-#include "third_party/apache_httpd/include/apr_time.h"
+#include "third_party/apache/apr/src/include/apr_time.h"
 
 namespace html_rewriter {
 

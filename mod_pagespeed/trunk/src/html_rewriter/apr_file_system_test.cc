@@ -18,8 +18,8 @@
 #include "html_rewriter/apr_file_system.h"
 #include "html_rewriter/html_parser_message_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "third_party/apache_httpd/include/httpd.h"
-#include "third_party/apache_httpd/include/apr_pools.h"
+#include "third_party/apache/apr/src/include/apr_pools.h"
+#include "third_party/apache/httpd/src/include/httpd.h"
 
 using html_rewriter::AprFileSystem;
 using html_rewriter::HtmlParserMessageHandler;

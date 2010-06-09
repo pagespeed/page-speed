@@ -14,8 +14,8 @@
 
 #include "html_rewriter/apr_mutex.h"
 
-#include "third_party/apache_httpd/include/apr_pools.h"
-#include "third_party/apache_httpd/include/apr_thread_mutex.h"
+#include "third_party/apache/apr/src/include/apr_pools.h"
+#include "third_party/apache/apr/src/include/apr_thread_mutex.h"
 
 namespace html_rewriter {
 

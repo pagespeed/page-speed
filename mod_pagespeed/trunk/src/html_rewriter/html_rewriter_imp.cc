@@ -20,7 +20,7 @@
 #include "base/logging.h"
 #include "html_rewriter/html_rewriter_config.h"
 #include "mod_spdy/apache/log_message_handler.h"
-#include "third_party/apache_httpd/include/httpd.h"
+#include "third_party/apache/httpd/src/include/httpd.h"
 
 
 namespace html_rewriter {

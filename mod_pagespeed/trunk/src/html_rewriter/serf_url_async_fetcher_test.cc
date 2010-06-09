@@ -25,10 +25,10 @@
 #include "net/instaweb/util/public/string_writer.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "third_party/apache_httpd/include/apr_atomic.h"
-#include "third_party/apache_httpd/include/apr_pools.h"
-#include "third_party/apache_httpd/include/apr_strings.h"
-#include "third_party/apache_httpd/include/apr_version.h"
+#include "third_party/apache/apr/src/include/apr_atomic.h"
+#include "third_party/apache/apr/src/include/apr_pools.h"
+#include "third_party/apache/apr/src/include/apr_strings.h"
+#include "third_party/apache/apr/src/include/apr_version.h"
 #include "third_party/serf/src/serf.h"
 
 using html_rewriter::AprFileSystem;

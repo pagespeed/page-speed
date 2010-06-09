@@ -25,6 +25,8 @@ vars = {
   "apr_revision": "@head",
   "aprutil_src": "http://svn.apache.org/repos/asf/apr/apr-util/tags/1.3.9",
   "aprutil_revision": "@head",
+  "apache_httpd_src": "http://svn.apache.org/repos/asf/httpd/httpd/tags/2.2.15",
+  "apache_httpd_revision": "@head",
 }
 
 deps = {
@@ -49,15 +51,21 @@ deps = {
   "src/testing/gtest":
     "http://googletest.googlecode.com/svn/trunk@359",
 
-  "src/third_party/apache_httpd":
-    Var("mod_spdy_trunk") + "/src/third_party/apache_httpd" +
+  "src/third_party/apache":
+    Var("mod_spdy_trunk") + "/src/third_party/apache" +
     Var("mod_spdy_revision"),
 
-  "src/third_party/apr/src":
+  "src/third_party/apache/apr/src":
     Var("apr_src") + Var("apr_revision"),
 
-  "src/third_party/aprutil/src":
+  "src/third_party/apache/aprutil/src":
     Var("aprutil_src") + Var("aprutil_revision"),
+
+  "src/third_party/apache/httpd/src/include":
+    Var("apache_httpd_src") + "/include" + Var("apache_httpd_revision"),
+
+  "src/third_party/apache/httpd/src/os":
+    Var("apache_httpd_src") + "/os" + Var("apache_httpd_revision"),
 
   "src/third_party/chromium/src/base":
     Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
