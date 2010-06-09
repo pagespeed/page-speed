@@ -77,6 +77,7 @@
       'target_name': 'serf_url_async_fetcher_test',
       'type': 'executable',
       'dependencies': [
+        'html_rewriter',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
@@ -90,12 +91,7 @@
         '<(mod_spdy_root)',
       ],
       'sources': [
-        '<(DEPTH)/html_rewriter/apr_mutex.cc',
-        '<(DEPTH)/html_rewriter/apr_timer.cc',
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher_test.cc',
-        '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
-        '<(DEPTH)/html_rewriter/serf_url_async_fetcher.h',
-        '<(DEPTH)/html_rewriter/html_parser_message_handler.cc',
       ],
     },
   ],
