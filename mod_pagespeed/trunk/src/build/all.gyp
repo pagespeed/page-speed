@@ -20,6 +20,7 @@
       'xcode_create_dependents_test_runner': 1,
       'dependencies': [
         '../mod_pagespeed/mod_pagespeed.gyp:*',
+        '../html_rewriter/html_rewriter.gyp:*',
       ],
     }
   ],
