@@ -22,7 +22,6 @@
         '../base/base.gyp:*',
         '../mod_pagespeed/mod_pagespeed.gyp:*',
         '../third_party/instaweb/instaweb.gyp:*',
-        '../third_party/libpagespeed/src/pagespeed/pagespeed.gyp:*',
         '../third_party/libpagespeed/src/third_party/jsmin/jsmin.gyp:*',
       ],
     }

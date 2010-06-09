@@ -26,8 +26,9 @@ class HtmlRewriterImp;
 
 class HtmlRewriter {
  public:
-  explicit HtmlRewriter(request_rec* request,
-                        const std::string& url, std::string* output);
+  HtmlRewriter(request_rec* request,
+               const std::string& url,
+               std::string* output);
   ~HtmlRewriter();
   // Rewrite input using internal StringWriter.
   void Rewrite(const char* input, int size);

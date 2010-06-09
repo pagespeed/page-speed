@@ -51,6 +51,9 @@
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
         '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/instaweb/instaweb.gyp:util',
+      ],
     },
     {
       'target_name': 'apr_file_system_test',
@@ -62,7 +65,6 @@
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
         '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
         '<(DEPTH)/third_party/apr/apr.gyp:apr',
-        '<(DEPTH)/third_party/instaweb/instaweb.gyp:*',
       ],
       'include_dirs': [
         '<(DEPTH)',
@@ -82,8 +84,8 @@
         '<(DEPTH)/third_party/apache_httpd/apache_httpd.gyp:apache_httpd',
         '<(DEPTH)/third_party/apr/apr.gyp:apr',
         '<(DEPTH)/third_party/aprutil/aprutil.gyp:aprutil',
-        '<(DEPTH)/third_party/instaweb/instaweb.gyp:*',
-        '<(DEPTH)/third_party/serf/serf.gyp:*',
+        '<(DEPTH)/third_party/instaweb/instaweb.gyp:util',
+        '<(DEPTH)/third_party/serf/serf.gyp:serf',
       ],
       'include_dirs': [
         '<(DEPTH)',
