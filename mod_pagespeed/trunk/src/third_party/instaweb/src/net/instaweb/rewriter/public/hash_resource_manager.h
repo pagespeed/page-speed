@@ -32,7 +32,6 @@ class HashResourceManager : public ResourceManager {
   explicit HashResourceManager(const StringPiece& file_prefix,
                                const StringPiece& url_prefix,
                                const int num_shards,
-                               const bool write_http_headers,
                                FileSystem* file_system,
                                FilenameEncoder* filename_encoder,
                                UrlFetcher* url_fetcher,
@@ -67,6 +66,8 @@ class HashResourceManager : public ResourceManager {
   virtual void set_file_prefix(const StringPiece& file_prefix);
   virtual void set_url_prefix(const StringPiece& url_prefix);
   virtual void set_base_url(const StringPiece& url);
+  virtual Statistics* statistics() const { return statistics_; }
+  virtual void set_statistics(Statistics* s) { statistics_ = s; }
 
  private:
   inline OutputResource* FindNamedOutputResourceInternal(
@@ -83,11 +84,11 @@ class HashResourceManager : public ResourceManager {
   std::string url_prefix_;
   int num_shards_;   // NYI: For server sharding of OutputResources.
   int resource_id_;  // Sequential ids for temporary OutputResource filenames.
-  bool write_http_headers_;
   FileSystem* file_system_;
   FilenameEncoder* filename_encoder_;
   UrlFetcher* url_fetcher_;
   Hasher* hasher_;
+  Statistics* statistics_;
 
   typedef std::map<std::string, OutputResource*> ResourceMap;
   ResourceMap resource_map_;

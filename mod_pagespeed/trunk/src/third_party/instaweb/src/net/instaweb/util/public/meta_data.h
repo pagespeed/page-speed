@@ -10,7 +10,6 @@
 
 #include <vector>
 #include "base/basictypes.h"
-#include <string>
 #include "net/instaweb/util/public/string_util.h"
 
 namespace net_instaweb {
@@ -74,14 +73,19 @@ enum Code {
 // here as name/value pairs, and caching information can then be derived.
 //
 // TODO(jmarantz): consider rename to HTTPHeader.
+// TODO(sligocki): This represents an HTTP response header. We need a request
+// header class as well.
+// TODO(sligocki): Stop using char* in interface.
 class MetaData {
  public:
   typedef std::vector<const char*> StringVector;
 
-  MetaData() { }
+  MetaData() {}
   virtual ~MetaData();
 
-  // Raw access for random access to attribute name/value pairs
+  void CopyFrom(const MetaData& other);
+
+  // Raw access for random access to attribute name/value pairs.
   virtual int NumAttributes() const = 0;
   virtual const char* Name(int index) const = 0;
   virtual const char* Value(int index) const = 0;
@@ -90,6 +94,20 @@ class MetaData {
   // false if the attribute is not found.  If it was found, then
   // the values vector is filled in.
   virtual bool Lookup(const char* name, StringVector* values) const = 0;
+
+  // Add a new header.
+  virtual void Add(const char* name, const char* value) = 0;
+
+  // Remove all headers by name.
+  virtual void RemoveAll(const char* name) = 0;
+
+  // Serialize HTTP response header to a stream.
+  virtual bool Write(Writer* writer, MessageHandler* handler) const = 0;
+  // Serialize just the headers (not the version and response code line).
+  virtual bool WriteHeaders(Writer* writer, MessageHandler* handler) const = 0;
+
+  // Parse a chunk of HTTP response header.  Returns number of bytes consumed.
+  virtual int ParseChunk(const StringPiece& text,  MessageHandler* handler) = 0;
 
   // Compute caching information.  The current time is used to compute
   // the absolute time when a cache resource will expire.  The timestamp
@@ -100,15 +118,6 @@ class MetaData {
   virtual bool IsProxyCacheable() const = 0;
   virtual int64 CacheExpirationTimeMs() const = 0;
 
-  // Serialize meta-data to a stream.
-  virtual bool Write(Writer* writer, MessageHandler* handler) const = 0;
-
-  // Add a new header
-  virtual void Add(const char* name, const char* value) = 0;
-
-  // Parse a chunk of header text.  Returns number of bytes consumed.
-  virtual int ParseChunk(const StringPiece& text,  MessageHandler* handler) = 0;
-
   virtual bool headers_complete() const = 0;
 
   virtual int major_version() const = 0;
@@ -118,10 +127,20 @@ class MetaData {
   virtual int64 timestamp_ms() const = 0;
   virtual bool has_timestamp_ms() const = 0;
 
-  virtual void set_major_version(const int major_version) = 0;
-  virtual void set_minor_version(const int minor_version) = 0;
-  virtual void set_status_code(const int status_code) = 0;
-  virtual void set_reason_phrase(const std::string& reason_phrase) = 0;
+  virtual void set_major_version(int major_version) = 0;
+  virtual void set_minor_version(int minor_version) = 0;
+  virtual void set_status_code(int status_code) = 0;
+  virtual void set_reason_phrase(const StringPiece& reason_phrase) = 0;
+  // Set whole first line.
+  virtual void set_first_line(int major_version,
+                              int minor_version,
+                              int status_code,
+                              const StringPiece& reason_phrase) {
+    set_major_version(major_version);
+    set_minor_version(minor_version);
+    set_status_code(status_code);
+    set_reason_phrase(reason_phrase);
+  }
 
   virtual std::string ToString() const = 0;
 

@@ -21,11 +21,25 @@ class SimpleMetaData : public MetaData {
   SimpleMetaData();
   virtual ~SimpleMetaData();
 
-  // Raw access for random access to attribute name/value pairs
+  // Raw access for random access to attribute name/value pairs.
   virtual int NumAttributes() const;
   virtual const char* Name(int index) const;
   virtual const char* Value(int index) const;
   virtual bool Lookup(const char* name, StringVector* values) const;
+
+  // Add a new header.
+  virtual void Add(const char* name, const char* value);
+
+  // Remove all headers by name.
+  virtual void RemoveAll(const char* name);
+
+  // Serialize HTTP response header to a stream.
+  virtual bool Write(Writer* writer, MessageHandler* message_handler) const;
+  // Serialize just the headers (not the version and response code line).
+  virtual bool WriteHeaders(Writer* writer, MessageHandler* handler) const;
+
+  // Parse a chunk of HTTP response header.  Returns number of bytes consumed.
+  virtual int ParseChunk(const StringPiece& text, MessageHandler* handler);
 
   // Compute caching information.  The current time is used to compute
   // the absolute time when a cache resource will expire.  The timestamp
@@ -35,15 +49,6 @@ class SimpleMetaData : public MetaData {
   virtual bool IsCacheable() const;
   virtual bool IsProxyCacheable() const;
   virtual int64 CacheExpirationTimeMs() const;
-
-  // Serialize meta-data to a stream.
-  virtual bool Write(Writer* writer, MessageHandler* message_handler) const;
-
-  // Add a new header
-  virtual void Add(const char* name, const char* value);
-
-  // Parse a chunk of header text.  Returns number of bytes consumed.
-  virtual int ParseChunk(const StringPiece& text, MessageHandler* handler);
 
   virtual bool headers_complete() const { return headers_complete_; }
 
@@ -63,20 +68,16 @@ class SimpleMetaData : public MetaData {
     minor_version_ = minor_version;
   }
   virtual void set_status_code(const int code) { status_code_ = code; }
-  virtual void set_reason_phrase(const std::string& reason_phrase) {
-    reason_phrase_ = reason_phrase;
+  virtual void set_reason_phrase(const StringPiece& reason_phrase) {
+    reason_phrase.CopyToString(&reason_phrase_);
   }
 
   virtual std::string ToString() const;
 
  private:
-  struct CompareInsensitive {
-    bool operator()(const std::string& s1, const std::string& s2) const {
-      return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-    }
-  };
-
   bool GrabLastToken(const std::string& input, std::string* output);
+
+  friend class SimpleMetaDataTest;
 
   // We are keeping two structures, conseptually map<String,vector<String>> and
   // vector<pair<String,String>>, so we can do associative lookups and
@@ -89,9 +90,10 @@ class SimpleMetaData : public MetaData {
   typedef std::pair<const char*, char*> StringPair;  // owns the value
   typedef std::map<std::string, StringVector,
                    StringCompareInsensitive> AttributeMap;
+  typedef std::vector<StringPair> AttributeVector;
 
   AttributeMap attribute_map_;
-  std::vector<StringPair> attribute_vector_;
+  AttributeVector attribute_vector_;
 
   bool parsing_http_;
   bool parsing_value_;
@@ -109,7 +111,6 @@ class SimpleMetaData : public MetaData {
   int status_code_;
   std::string reason_phrase_;
 
- private:
   DISALLOW_COPY_AND_ASSIGN(SimpleMetaData);
 };
 

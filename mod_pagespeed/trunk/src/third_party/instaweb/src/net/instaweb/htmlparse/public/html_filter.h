@@ -20,7 +20,6 @@ class HtmlFilter {
   // Note: EndDocument will be called imediately before the last Flush call.
   virtual void EndDocument() = 0;
 
-
   // When an HTML element is encountered during parsing, each filter's
   // StartElement method is called.  The HtmlElement lives for the entire
   // duration of the document.
@@ -30,22 +29,25 @@ class HtmlFilter {
   virtual void StartElement(HtmlElement* element) = 0;
   virtual void EndElement(HtmlElement* element) = 0;
 
-  // TODO(jmarantz): provide a mechanism to mutate cdata and characters.
-  virtual void Cdata(const std::string& cdata) = 0;
+  // Called for CDATA blocks (e.g. <![CDATA[foobar]]>)
+  virtual void Cdata(HtmlCdataNode* cdata) = 0;
 
-  // Called with the comment text.  Does not include the comment
-  // delimeter.
-  virtual void Comment(const std::string& comment) = 0;
+  // Called for HTML comments that aren't IE directives (e.g. <!--foobar-->).
+  virtual void Comment(HtmlCommentNode* comment) = 0;
 
   // Called for an IE directive; typically used for CSS styling.
   // See http://msdn.microsoft.com/en-us/library/ms537512(VS.85).aspx
+  //
+  // TODO(mdsteele): IE directives should probably have their own node class as
+  // well.  Should we try to maintain the nested structure of the conditionals,
+  // in the same way that we maintain nesting of elements?
   virtual void IEDirective(const std::string& directive) = 0;
 
-  virtual void Characters(const std::string& characters) = 0;
-  virtual void IgnorableWhitespace(const std::string& whitespace) = 0;
-  virtual void DocType(const std::string& name, const std::string& ext_id,
-                       const std::string& sys_id) = 0;
-  virtual void Directive(const std::string& text) = 0;
+  // Called for raw characters between tags.
+  virtual void Characters(HtmlCharactersNode* characters) = 0;
+
+  // Called for HTML directives (e.g. <!doctype foobar>).
+  virtual void Directive(HtmlDirectiveNode* directive) = 0;
 
   // Notifies the Filter that a flush is occurring.  A filter that's
   // generating streamed output should flush at this time.  A filter

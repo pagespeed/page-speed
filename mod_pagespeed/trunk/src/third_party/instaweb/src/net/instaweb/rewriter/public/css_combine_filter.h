@@ -16,6 +16,7 @@ namespace net_instaweb {
 class InputResource;
 class OutputResource;
 class ResourceManager;
+class Variable;
 
 class CssCombineFilter : public RewriteFilter {
  public:
@@ -59,6 +60,7 @@ class CssCombineFilter : public RewriteFilter {
   HtmlElement* head_element_;  // Pointer to head element for future use
   ResourceManager* resource_manager_;
   CssFilter css_filter_;
+  Variable* counter_;
 };
 
 }  // namespace net_instaweb

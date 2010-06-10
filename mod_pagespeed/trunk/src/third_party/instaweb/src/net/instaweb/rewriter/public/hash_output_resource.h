@@ -25,7 +25,6 @@ class HashOutputResource : public OutputResource {
                      const StringPiece& filter_prefix,
                      const StringPiece& name,
                      const StringPiece& suffix,
-                     const bool write_http_headers,
                      FileSystem* file_system,
                      FilenameEncoder* filename_encoder,
                      Hasher* hasher);

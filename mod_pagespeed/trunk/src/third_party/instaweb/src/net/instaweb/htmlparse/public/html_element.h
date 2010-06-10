@@ -5,7 +5,10 @@
 #define NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_ELEMENT_H_
 
 #include <vector>
+
+#include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "net/instaweb/htmlparse/public/html_node.h"
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
@@ -14,7 +17,7 @@
 
 namespace net_instaweb {
 
-class HtmlElement {
+class HtmlElement : public HtmlNode {
  public:
   // Tags can be closed in three ways: implicitly (e.g. <img ..>),
   // briefly (e.g. <br/>), or explicitly (<a...>...</a>).  The
@@ -75,7 +78,7 @@ class HtmlElement {
     const char* quote_;
   };
 
-  ~HtmlElement();
+  virtual ~HtmlElement();
 
   // Unconditionally add attribute, copying value.
   // Quote is assumed to be a static const char *.
@@ -83,6 +86,11 @@ class HtmlElement {
   void AddAttribute(Atom name, const StringPiece& value, const char* quote) {
     attributes_.push_back(new Attribute(name, value, quote));
   }
+
+  // Removes the attribute at the given index, shifting higher-indexed
+  // attributes down.  Note that this operation is linear in the number of
+  // attributes.
+  void DeleteAttribute(int i);
 
   // Look up attribute by name.  NULL if no attribute exists.
   // Use this for attributes whose value you might want to change
@@ -140,14 +148,19 @@ class HtmlElement {
   int begin_line_number() const { return begin_line_number_; }
   int end_line_number() const { return end_line_number_; }
 
+ protected:
+  virtual void SynthesizeEvents(const HtmlEventListIterator& iter,
+                                HtmlEventList* queue);
+
+  virtual HtmlEventListIterator begin() const { return begin_; }
+  virtual HtmlEventListIterator end() const { return end_; }
+
  private:
   // Begin/end event iterators are used by HtmlParse to keep track
   // of the span of events underneath an element.  This is primarily to
   // help delete the element.  Events are not public.
   void set_begin(const HtmlEventListIterator& begin) { begin_ = begin; }
   void set_end(const HtmlEventListIterator& end) { end_ = end; }
-  HtmlEventListIterator begin() const { return begin_; }
-  HtmlEventListIterator end() const { return end_; }
 
   void set_begin_line_number(int line) { begin_line_number_ = line; }
   void set_end_line_number(int line) { end_line_number_ = line; }
@@ -164,6 +177,8 @@ class HtmlElement {
   CloseStyle close_style_;
   int begin_line_number_;
   int end_line_number_;
+
+  DISALLOW_COPY_AND_ASSIGN(HtmlElement);
 };
 
 }  // namespace net_instaweb

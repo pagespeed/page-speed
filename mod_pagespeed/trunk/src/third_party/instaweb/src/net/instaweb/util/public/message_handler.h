@@ -21,46 +21,50 @@ class MessageHandler {
  public:
   virtual ~MessageHandler();
 
+  // String representation for MessageType.
+  virtual const char* MessageTypeToString(const MessageType type) const;
+
   // Log an info, warning, error or fatal error message.
-  virtual void Message(MessageType type, const char* msg, ...)
+  void Message(MessageType type, const char* msg, ...)
       INSTAWEB_PRINTF_FORMAT(3, 4);
   virtual void MessageV(MessageType type, const char* msg, va_list args) = 0;
 
   // Log a message with a filename and line number attached.
-  virtual void FileMessage(MessageType type, const char* filename, int line,
-                           const char* msg, ...) INSTAWEB_PRINTF_FORMAT(5, 6);
+  void FileMessage(MessageType type, const char* filename, int line,
+                   const char* msg, ...) INSTAWEB_PRINTF_FORMAT(5, 6);
   virtual void FileMessageV(MessageType type, const char* filename, int line,
                             const char* msg, va_list args) = 0;
 
-  virtual const char* MessageTypeToString(const MessageType type) const;
 
-  // Convenience functions for backwards compatibility.
-  // TODO(sligocki): Make non-virtual or remove these.
-  virtual void InfoV(
-      const char* filename, int line, const char* msg, va_list args) {
+  // Conditional errors.
+  void Check(bool condition, const char* msg, ...) INSTAWEB_PRINTF_FORMAT(3, 4);
+  void CheckV(bool condition, const char* msg, va_list args);
+
+
+  // Convenience functions for FileMessage for backwards compatibility.
+  // TODO(sligocki): Rename these to InfoAt, ... so that Info, ... can be used
+  // for general Messages.
+  void Info(const char* filename, int line, const char* msg, ...)
+      INSTAWEB_PRINTF_FORMAT(4, 5);
+  void Warning(const char* filename, int line, const char* msg, ...)
+      INSTAWEB_PRINTF_FORMAT(4, 5);
+  void Error(const char* filename, int line, const char* msg, ...)
+      INSTAWEB_PRINTF_FORMAT(4, 5);
+  void FatalError(const char* filename, int line, const char* msg, ...)
+      INSTAWEB_PRINTF_FORMAT(4, 5);
+
+  void InfoV(const char* filename, int line, const char* msg, va_list args) {
     FileMessageV(kInfo, filename, line, msg, args);
   }
-  virtual void WarningV(
-      const char* filename, int line, const char* msg, va_list args) {
-    FileMessageV(kWarning, filename, line, msg, args);
+  void WarningV(const char* filename, int line, const char* msg, va_list a) {
+    FileMessageV(kWarning, filename, line, msg, a);
   }
-  virtual void ErrorV(
-      const char* filename, int line, const char* msg, va_list args) {
+  void ErrorV(const char* filename, int line, const char* msg, va_list args) {
     FileMessageV(kError, filename, line, msg, args);
   }
-  virtual void FatalErrorV(
-      const char* filename, int line, const char* msg, va_list args) {
-    FileMessageV(kFatal, filename, line, msg, args);
+  void FatalErrorV(const char* fname, int line, const char* msg, va_list a) {
+    FileMessageV(kFatal, fname, line, msg, a);
   }
-
-  virtual void Info(const char* filename, int line, const char* msg, ...)
-      INSTAWEB_PRINTF_FORMAT(4, 5);
-  virtual void Warning(const char* filename, int line, const char* msg, ...)
-      INSTAWEB_PRINTF_FORMAT(4, 5);
-  virtual void Error(const char* filename, int line, const char* msg, ...)
-      INSTAWEB_PRINTF_FORMAT(4, 5);
-  virtual void FatalError(const char* filename, int line, const char* msg, ...)
-      INSTAWEB_PRINTF_FORMAT(4, 5);
 };
 
 }  // namespace net_instaweb

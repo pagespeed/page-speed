@@ -250,6 +250,8 @@ void HtmlLexer::EvalDirective(char c) {
 void HtmlLexer::EvalCommentStart1(char c) {
   if (c == '-') {
     state_ = COMMENT_START2;
+  } else if (c == '[') {
+    state_ = CDATA_START1;
   } else if (IsLegalTagChar(c)) {  // "<!DOCTYPE ... >"
     state_ = DIRECTIVE;
     EvalDirective(c);
@@ -313,6 +315,114 @@ void HtmlLexer::EvalCommentEnd2(char c) {
   }
 }
 
+// Handle the case where "<![" was recently parsed.
+void HtmlLexer::EvalCdataStart1(char c) {
+  if (c == 'C') {
+    state_ = CDATA_START2;
+  } else {
+    Error("Invalid CDATA syntax");
+    EmitLiteral();
+    EvalStart(c);
+  }
+}
+
+// Handle the case where "<![C" was recently parsed.
+void HtmlLexer::EvalCdataStart2(char c) {
+  if (c == 'D') {
+    state_ = CDATA_START3;
+  } else {
+    Error("Invalid CDATA syntax");
+    EmitLiteral();
+    EvalStart(c);
+  }
+}
+
+// Handle the case where "<![CD" was recently parsed.
+void HtmlLexer::EvalCdataStart3(char c) {
+  if (c == 'A') {
+    state_ = CDATA_START4;
+  } else {
+    Error("Invalid CDATA syntax");
+    EmitLiteral();
+    EvalStart(c);
+  }
+}
+
+// Handle the case where "<![CDA" was recently parsed.
+void HtmlLexer::EvalCdataStart4(char c) {
+  if (c == 'T') {
+    state_ = CDATA_START5;
+  } else {
+    Error("Invalid CDATA syntax");
+    EmitLiteral();
+    EvalStart(c);
+  }
+}
+
+// Handle the case where "<![CDAT" was recently parsed.
+void HtmlLexer::EvalCdataStart5(char c) {
+  if (c == 'A') {
+    state_ = CDATA_START6;
+  } else {
+    Error("Invalid CDATA syntax");
+    EmitLiteral();
+    EvalStart(c);
+  }
+}
+
+// Handle the case where "<![CDATA" was recently parsed.
+void HtmlLexer::EvalCdataStart6(char c) {
+  if (c == '[') {
+    state_ = CDATA_BODY;
+  } else {
+    Error("Invalid CDATA syntax");
+    EmitLiteral();
+    EvalStart(c);
+  }
+}
+
+// Handle the case where "<![CDATA[" was recently parsed.  We will stay in
+// this state until we see "]".  And even after that we may go back to
+// this state if the "]" is not followed by "]>".
+void HtmlLexer::EvalCdataBody(char c) {
+  if (c == ']') {
+    state_ = CDATA_END1;
+  } else {
+    token_ += c;
+  }
+}
+
+// Handle the case where "]" has been parsed from a cdata.  If we
+// see another "]" then we go to CdataEnd2, otherwise we go back
+// to the cdata state.
+void HtmlLexer::EvalCdataEnd1(char c) {
+  if (c == ']') {
+    state_ = CDATA_END2;
+  } else {
+    // thought we were ending a cdata cause we saw ']', but
+    // now we changed our minds.   No worries mate.  That
+    // fake-out bracket was just part of the cdata.
+    token_ += ']';
+    token_ += c;
+    state_ = CDATA_BODY;
+  }
+}
+
+// Handle the case where "]]" has been parsed from a cdata.
+void HtmlLexer::EvalCdataEnd2(char c) {
+  if (c == '>') {
+    EmitCdata();
+    state_ = START;
+  } else {
+    // thought we were ending a cdata cause we saw ']]', but
+    // now we changed our minds.   No worries mate.  Those
+    // fake-out brackets were just part of the cdata.
+    token_ += "]]";
+    token_ += c;
+    state_ = CDATA_BODY;
+  }
+}
+
 // Handle the case where a literal tag (script, iframe) was started.
 // This is of lexical significance because we ignore all the special
 // characters until we see "</script>" or "</iframe>".
@@ -340,7 +450,8 @@ void HtmlLexer::EvalLiteralTag(char c) {
 // Emits raw uninterpreted characters.
 void HtmlLexer::EmitLiteral() {
   if (!literal_.empty()) {
-    html_parse_->AddEvent(new HtmlCharactersEvent(literal_, tag_start_line_));
+    html_parse_->AddEvent(new HtmlCharactersEvent(
+        html_parse_->NewCharactersNode(literal_), tag_start_line_));
     literal_.clear();
   }
   state_ = START;
@@ -352,8 +463,17 @@ void HtmlLexer::EmitComment() {
       (token_.find("<![endif]") != std::string::npos)) {
     html_parse_->AddEvent(new HtmlIEDirectiveEvent(token_, tag_start_line_));
   } else {
-    html_parse_->AddEvent(new HtmlCommentEvent(token_, tag_start_line_));
+    html_parse_->AddEvent(new HtmlCommentEvent(
+        html_parse_->NewCommentNode(token_), tag_start_line_));
   }
+  token_.clear();
+  state_ = START;
+}
+
+void HtmlLexer::EmitCdata() {
+  literal_.clear();
+  html_parse_->AddEvent(new HtmlCdataEvent(html_parse_->NewCdataNode(token_),
+                                           tag_start_line_));
   token_.clear();
   state_ = START;
 }
@@ -620,7 +740,8 @@ void HtmlLexer::EmitTagClose(HtmlElement::CloseStyle close_style) {
 
 void HtmlLexer::EmitDirective() {
   literal_.clear();
-  html_parse_->AddEvent(new HtmlDirectiveEvent(token_, line_));
+  html_parse_->AddEvent(new HtmlDirectiveEvent(
+      html_parse_->NewDirectiveNode(token_), line_));
   token_.clear();
   state_ = START;
 }
@@ -652,6 +773,15 @@ void HtmlLexer::Parse(const char* text, int size) {
       case COMMENT_BODY:          EvalCommentBody(c);         break;
       case COMMENT_END1:          EvalCommentEnd1(c);         break;
       case COMMENT_END2:          EvalCommentEnd2(c);         break;
+      case CDATA_START1:          EvalCdataStart1(c);         break;
+      case CDATA_START2:          EvalCdataStart2(c);         break;
+      case CDATA_START3:          EvalCdataStart3(c);         break;
+      case CDATA_START4:          EvalCdataStart4(c);         break;
+      case CDATA_START5:          EvalCdataStart5(c);         break;
+      case CDATA_START6:          EvalCdataStart6(c);         break;
+      case CDATA_BODY:            EvalCdataBody(c);           break;
+      case CDATA_END1:            EvalCdataEnd1(c);           break;
+      case CDATA_END2:            EvalCdataEnd2(c);           break;
       case TAG_ATTRIBUTE:         EvalAttribute(c);           break;
       case TAG_ATTR_NAME:         EvalAttrName(c);            break;
       case TAG_ATTR_NAME_SPACE:   EvalAttrName(c);            break;

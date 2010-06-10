@@ -28,6 +28,7 @@ class UrlInputResource : public InputResource {
   virtual bool Read(MessageHandler* message_handler);
 
   virtual const std::string& url() const { return url_; }
+  virtual const std::string& absolute_url() const { return absolute_url_; }
   virtual bool loaded() const { return meta_data_.get() != NULL; }
   // contents are only available when loaded()
   virtual bool ContentsValid() const;

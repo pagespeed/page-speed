@@ -2,7 +2,10 @@
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #include "public/html_element.h"
+
 #include <stdio.h>
+
+#include "net/instaweb/htmlparse/html_event.h"
 #include <string>
 
 namespace net_instaweb {
@@ -22,6 +25,21 @@ HtmlElement::~HtmlElement() {
   for (int i = 0, n = attribute_size(); i < n; ++i) {
     delete attributes_[i];
   }
+}
+
+void HtmlElement::SynthesizeEvents(const HtmlEventListIterator& iter,
+                                   HtmlEventList* queue) {
+  // We use -1 as a bogus line number, since these events are synthetic.
+  HtmlEvent* start_tag = new HtmlStartElementEvent(this, -1);
+  set_begin(queue->insert(iter, start_tag));
+  HtmlEvent* end_tag = new HtmlEndElementEvent(this, -1);
+  set_end(queue->insert(iter, end_tag));
+}
+
+void HtmlElement::DeleteAttribute(int i) {
+  std::vector<Attribute*>::iterator iter = attributes_.begin() + i;
+  delete *iter;
+  attributes_.erase(iter);
 }
 
 const HtmlElement::Attribute* HtmlElement::FindAttribute(

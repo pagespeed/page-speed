@@ -95,19 +95,13 @@ void OutlineFilter::Flush() {
   buffer_.clear();
 }
 
-void OutlineFilter::Characters(const std::string& characters) {
+void OutlineFilter::Characters(HtmlCharactersNode* characters) {
   if (inline_element_ != NULL) {
-    buffer_ += characters;
+    buffer_ += characters->contents();
   }
 }
 
-void OutlineFilter::IgnorableWhitespace(const std::string& whitespace) {
-  if (inline_element_ != NULL) {
-    buffer_ += whitespace;
-  }
-}
-
-void OutlineFilter::Comment(const std::string& comment) {
+void OutlineFilter::Comment(HtmlCommentNode* comment) {
   if (inline_element_ != NULL) {
     html_parse_->ErrorHere("Comment found inside style/script.");
     inline_element_ = NULL;  // Don't outline what we don't understand.
@@ -115,7 +109,7 @@ void OutlineFilter::Comment(const std::string& comment) {
   }
 }
 
-void OutlineFilter::Cdata(const std::string& cdata) {
+void OutlineFilter::Cdata(HtmlCdataNode* cdata) {
   if (inline_element_ != NULL) {
     html_parse_->ErrorHere("CDATA found inside style/script.");
     inline_element_ = NULL;  // Don't outline what we don't understand.
@@ -175,7 +169,7 @@ void OutlineFilter::OutlineStyle(HtmlElement* style_element,
       std::string element_string;
       style_element->ToString(&element_string);
       html_parse_->InfoHere("Cannot outline non-css stylesheet %s",
-                           element_string.c_str());
+                            element_string.c_str());
     }
   }
 }
@@ -216,7 +210,7 @@ void OutlineFilter::OutlineScript(HtmlElement* inline_element,
       std::string element_string;
       inline_element->ToString(&element_string);
       html_parse_->InfoHere("Cannot outline non-javascript script %s",
-                           element_string.c_str());
+                            element_string.c_str());
     }
   }
 }

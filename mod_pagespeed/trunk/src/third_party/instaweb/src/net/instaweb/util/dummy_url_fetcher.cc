@@ -14,7 +14,7 @@ bool DummyUrlFetcher::StreamingFetchUrl(const std::string& url,
                                         MetaData* response_headers,
                                         Writer* fetched_content_writer,
                                         MessageHandler* message_handler) {
-  message_handler->FatalError("", -1, "DummyUrlFetcher used");
+  message_handler->Message(kFatal, "DummyUrlFetcher used");
   return false;
 }
 

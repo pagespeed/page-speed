@@ -3,6 +3,7 @@
 
 #include "net/instaweb/util/public/cache_url_fetcher.h"
 #include "net/instaweb/util/public/http_cache.h"
+#include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
 #include "net/instaweb/util/public/string_writer.h"
 #include "net/instaweb/util/public/url_async_fetcher.h"
@@ -60,6 +61,7 @@ void CacheUrlFetcher::AsyncFetch::Done(bool success) {
   if (success) {
     UpdateCache();
   } else {
+    message_handler_->Info(url_.c_str(), 0, "Fetch failed, not caching.");
     // TODO(jmarantz): cache that this request is not fetchable
   }
   delete this;

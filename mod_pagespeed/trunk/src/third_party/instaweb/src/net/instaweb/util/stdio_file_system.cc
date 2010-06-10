@@ -13,19 +13,17 @@
 
 namespace net_instaweb {
 
-namespace {
-
 // Helper class to factor out common implementation details between Input and
 // Output files, in lieu of multiple inheritance.
-class FileHelper {
+class StdioFileHelper {
  public:
-  FileHelper(FILE* f, const StringPiece& filename)
+  StdioFileHelper(FILE* f, const StringPiece& filename)
       : file_(f),
         line_(1) {
     filename.CopyToString(&filename_);
   }
 
-  ~FileHelper() {
+  ~StdioFileHelper() {
     assert(file_ == NULL);
   }
 
@@ -54,8 +52,6 @@ class FileHelper {
   int line_;
 };
 
-}  // namespace
-
 class StdioInputFile : public FileSystem::InputFile {
  public:
   StdioInputFile(FILE* f, const StringPiece& filename)
@@ -78,7 +74,7 @@ class StdioInputFile : public FileSystem::InputFile {
   virtual const char* filename() { return file_helper_.filename_.c_str(); }
 
  private:
-  FileHelper file_helper_;
+  StdioFileHelper file_helper_;
 };
 
 class StdioOutputFile : public FileSystem::OutputFile {
@@ -125,7 +121,7 @@ class StdioOutputFile : public FileSystem::OutputFile {
   }
 
  private:
-  FileHelper file_helper_;
+  StdioFileHelper file_helper_;
 };
 
 StdioFileSystem::~StdioFileSystem() {

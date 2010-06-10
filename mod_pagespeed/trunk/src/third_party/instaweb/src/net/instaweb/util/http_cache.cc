@@ -3,6 +3,7 @@
 
 #include "net/instaweb/util/public/http_cache.h"
 #include "net/instaweb/util/public/cache_interface.h"
+#include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/meta_data.h"
 #include "net/instaweb/util/public/string_writer.h"
 #include "net/instaweb/util/public/timer.h"
@@ -10,6 +11,15 @@
 #include "net/instaweb/util/util.pb.h"
 
 namespace net_instaweb {
+
+// [google}     headers.
+
+bool HTTPCache::IsCurrentlyValid(const MetaData& headers) {
+  if (force_caching_) {
+    return true;
+  }
+  return headers.CacheExpirationTimeMs() > timer_->NowMs();
+}
 
 bool HTTPCache::Get(const char* key, MetaData* headers, Writer* writer,
                     MessageHandler* handler) {
@@ -34,14 +44,16 @@ bool HTTPCache::Get(const char* key, MetaData* headers, Writer* writer,
       }
       headers->ComputeCaching();
 
-      if (force_caching_ ||
-          (headers->CacheExpirationTimeMs() > timer_->NowMs())) {
+      if (IsCurrentlyValid(*headers)) {
         ret = writer->Write(cached_response.content(), handler);
       } else {
+        handler->Info(key, 0, "HTTPCache::Get: expired");
         // This cache entry has expired; evict it to make room for
         // useful data.
         cache_->Delete(key, handler);
       }
+    } else {
+      handler->Error(key, 0, "HTTPCache::Get: response buffer not parsed");
     }
   }
   return ret;
@@ -50,6 +62,9 @@ bool HTTPCache::Get(const char* key, MetaData* headers, Writer* writer,
 void HTTPCache::Put(const char* key, const MetaData& headers,
                     const std::string& content,
                     MessageHandler* handler) {
+  if (!IsCurrentlyValid(headers)) {
+    return;
+  }
   CachedResponse cached_response;
   cached_response.set_status_code(headers.status_code());
   cached_response.set_reason_phrase(headers.reason_phrase());

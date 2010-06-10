@@ -23,6 +23,7 @@ class InputResource {
 
   // Getters
   virtual const std::string& url() const = 0;
+  virtual const std::string& absolute_url() const = 0;
   virtual bool loaded() const = 0;  // Has file been read/loaded.
   // contents are only available when loaded()
   // ContentsValid(): Based on what was read/loaded, do the contents contain

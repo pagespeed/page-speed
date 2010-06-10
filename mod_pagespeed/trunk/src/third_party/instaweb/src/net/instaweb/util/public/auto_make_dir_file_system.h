@@ -18,6 +18,8 @@ class AutoMakeDirFileSystem : public FileSystem {
                                      MessageHandler* handler);
   virtual OutputFile* OpenTempFile(const StringPiece& prefix_name,
                                    MessageHandler* handle);
+  virtual bool RenameFile(const char* old_filename, const char* new_filename,
+                          MessageHandler* handler);
 
   // All of these just pass-through.
   virtual InputFile* OpenInputFile(const char* filename,
@@ -26,10 +28,6 @@ class AutoMakeDirFileSystem : public FileSystem {
   }
   virtual bool RemoveFile(const char* filename, MessageHandler* handler) {
     return base_file_system_->RemoveFile(filename, handler);
-  }
-  virtual bool RenameFile(const char* old_filename, const char* new_filename,
-                          MessageHandler* handler) {
-    return base_file_system_->RenameFile(old_filename, new_filename, handler);
   }
   virtual bool MakeDir(const char* directory_path, MessageHandler* handler) {
     return base_file_system_->MakeDir(directory_path, handler);

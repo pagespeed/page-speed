@@ -5,6 +5,8 @@
 #include "public/html_element.h"
 #include "public/statistics_log.h"
 
+// TODO(jmarantz): convert to Statistics interface
+
 namespace {
 // Printable names of the statistics.
 // Must match up with enum Statistic in logging_html_filter.h;
@@ -24,9 +26,6 @@ LoggingFilter::LoggingFilter() {
 
 void LoggingFilter::StartDocument() {
   ++stats_[NUM_DOCUMENTS];
-}
-
-void LoggingFilter::EndDocument() {
 }
 
 void LoggingFilter::StartElement(HtmlElement* element) {
@@ -67,11 +66,11 @@ void LoggingFilter::EndElement(HtmlElement* element) {
   }
 }
 
-void LoggingFilter::Cdata(const std::string& cdata) {
+void LoggingFilter::Cdata(HtmlCdataNode* cdata) {
   ++stats_[NUM_CDATA];
 }
 
-void LoggingFilter::Comment(const std::string& comment) {
+void LoggingFilter::Comment(HtmlCommentNode* comment) {
   ++stats_[NUM_COMMENTS];
 }
 
@@ -79,17 +78,8 @@ void LoggingFilter::IEDirective(const std::string& directive) {
   ++stats_[NUM_IE_DIRECTIVES];
 }
 
-void LoggingFilter::Characters(const std::string& characters) {
-}
-
-void LoggingFilter::IgnorableWhitespace(const std::string& whitespace) {
-}
-
-void LoggingFilter::Directive(const std::string& directive) {
+void LoggingFilter::Directive(HtmlDirectiveNode* directive) {
   ++stats_[NUM_DIRECTIVES];
-}
-
-void LoggingFilter::Flush() {
 }
 
 // Logging, diffing, and aggregation

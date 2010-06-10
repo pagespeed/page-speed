@@ -59,16 +59,12 @@ class LoggingFilter : public EmptyHtmlFilter {
 
   // HtmlFilter methods.
   virtual void StartDocument();
-  virtual void EndDocument();
   virtual void StartElement(HtmlElement* element);
   virtual void EndElement(HtmlElement* element);
-  virtual void Cdata(const std::string& cdata);
-  virtual void Comment(const std::string& comment);
+  virtual void Cdata(HtmlCdataNode* cdata);
+  virtual void Comment(HtmlCommentNode* comment);
   virtual void IEDirective(const std::string& directive);
-  virtual void Characters(const std::string& characters);
-  virtual void IgnorableWhitespace(const std::string& whitespace);
-  virtual void Directive(const std::string& directive);
-  virtual void Flush();
+  virtual void Directive(HtmlDirectiveNode* directive);
 
   // Getter for individual statistics; NO BOUNDS CHECKS.
   inline int get(const Statistic statistic) const {

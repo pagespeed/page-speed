@@ -56,55 +56,6 @@ bool SimpleMetaData::Lookup(const char* name, StringVector* values) const {
   return ret;
 }
 
-// Specific information about cache.  This is all embodied in the
-// headers but is centrally parsed so we can try to get it right.
-bool SimpleMetaData::IsCacheable() const {
-  // We do not compute caching from accessors so that the
-  // accessors can be easier to call from multiple threads
-  // without mutexing.
-  assert(!cache_fields_dirty_);
-  return is_cacheable_;
-}
-
-bool SimpleMetaData::IsProxyCacheable() const {
-  assert(!cache_fields_dirty_);
-  return is_proxy_cacheable_;
-}
-
-// Returns the ms-since-1970 absolute time when this resource
-// should be expired out of caches.
-int64 SimpleMetaData::CacheExpirationTimeMs() const {
-  assert(!cache_fields_dirty_);
-  return expiration_time_ms_;
-}
-
-// Serialize meta-data to a stream.
-bool SimpleMetaData::Write(Writer* writer, MessageHandler* handler) const {
-  bool ret = true;
-  char buf[100];
-  snprintf(buf, sizeof(buf), "HTTP/%d.%d %d ",
-           major_version_, minor_version_, status_code_);
-  writer->Write(buf, handler);
-  writer->Write(reason_phrase_, handler);
-  writer->Write("\r\n", handler);
-  for (int i = 0, n = attribute_vector_.size(); ret && (i < n); ++i) {
-    const StringPair& attribute = attribute_vector_[i];
-    ret &= writer->Write(attribute.first, handler);
-    ret &= writer->Write(": ", handler);
-    ret &= writer->Write(attribute.second, handler);
-    ret &= writer->Write("\r\n", handler);
-  }
-  ret &= writer->Write("\r\n", handler);
-  return ret;
-}
-
-std::string SimpleMetaData::ToString() const {
-  std::string str;
-  StringWriter writer(&str);
-  Write(&writer, NULL);
-  return str;
-}
-
 void SimpleMetaData::Add(const char* name, const char* value) {
   // TODO(jmarantz): Parse comma-separated values.  bmcquade sez:
   // you probably want to normalize these by splitting on commas and
@@ -130,8 +81,131 @@ void SimpleMetaData::Add(const char* name, const char* value) {
   cache_fields_dirty_ = true;
 }
 
-bool SimpleMetaData::has_timestamp_ms() const {
-  return timestamp_ms_ != TIME_UNINITIALIZED;
+void SimpleMetaData::RemoveAll(const char* name) {
+  AttributeVector temp_vector;  // Temp variable for new vector.
+  temp_vector.reserve(attribute_vector_.size());
+  for (int i = 0; i < NumAttributes(); ++i) {
+    if (strcasecmp(Name(i),  name) != 0) {
+      temp_vector.push_back(attribute_vector_[i]);
+    } else {
+      delete [] attribute_vector_[i].second;
+    }
+  }
+  attribute_vector_.swap(temp_vector);
+
+  // Note: we have to erase from the map second, because map owns the name.
+  attribute_map_.erase(name);
+}
+
+// Serialize meta-data to a stream.
+bool SimpleMetaData::Write(Writer* writer, MessageHandler* handler) const {
+  bool ret = true;
+  char buf[100];
+  snprintf(buf, sizeof(buf), "HTTP/%d.%d %d ",
+           major_version_, minor_version_, status_code_);
+  ret &= writer->Write(buf, handler);
+  ret &= writer->Write(reason_phrase_, handler);
+  ret &= writer->Write("\r\n", handler);
+  ret &= WriteHeaders(writer, handler);
+  return ret;
+}
+
+bool SimpleMetaData::WriteHeaders(Writer* writer,
+                                  MessageHandler* handler) const {
+  bool ret = true;
+  for (int i = 0, n = attribute_vector_.size(); ret && (i < n); ++i) {
+    const StringPair& attribute = attribute_vector_[i];
+    ret &= writer->Write(attribute.first, handler);
+    ret &= writer->Write(": ", handler);
+    ret &= writer->Write(attribute.second, handler);
+    ret &= writer->Write("\r\n", handler);
+  }
+  ret &= writer->Write("\r\n", handler);
+  return ret;
+}
+
+// TODO(jmaessen): http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+// I bet we're doing this wrong:
+//  Header fields can be extended over multiple lines by preceding each extra
+//  line with at least one SP or HT.
+int SimpleMetaData::ParseChunk(const StringPiece& text,
+                               MessageHandler* handler) {
+  assert(!headers_complete_);
+  int num_consumed = 0;
+  int num_bytes = text.size();
+
+  for (; num_consumed < num_bytes; ++num_consumed) {
+    char c = text[num_consumed];
+    if ((c == '/') && (parse_name_ == "HTTP")) {
+      if (major_version_ != 0) {
+        handler->Message(kError, "Multiple HTTP Lines");
+      } else {
+        parsing_http_ = true;
+        parsing_value_ = true;
+      }
+    } else if (!parsing_value_ && (c == ':')) {
+      parsing_value_ = true;
+    } else if (c == '\r') {
+      // Just ignore CRs for now, and break up headers on newlines for
+      // simplicity.  It's not clear to me if it's important that we
+      // reject headers that lack the CR in front of the LF.
+    } else if (c == '\n') {
+      if (parse_name_.empty()) {
+        // blank line.  This marks the end of the headers.
+        ++num_consumed;
+        headers_complete_ = true;
+        ComputeCaching();
+        break;
+      }
+      if (parsing_http_) {
+        // Parsing "1.0 200 OK\r", using sscanf for the integers, and
+        // private method GrabLastToken for the "OK".
+        if ((sscanf(parse_value_.c_str(), "%d.%d %d ",  // NOLINT
+                    &major_version_, &minor_version_, &status_code_) != 3) ||
+            !GrabLastToken(parse_value_, &reason_phrase_)) {
+          // TODO(jmarantz): capture the filename/url, track the line numbers.
+          handler->Message(kError, "Invalid HTML headers: %s",
+                           parse_value_.c_str());
+        }
+        parsing_http_ = false;
+      } else {
+        Add(parse_name_.c_str(), parse_value_.c_str());
+      }
+      parsing_value_ = false;
+      parse_name_.clear();
+      parse_value_.clear();
+    } else if (parsing_value_) {
+      // Skip leading whitespace
+      if (!parse_value_.empty() || !isspace(c)) {
+        parse_value_ += c;
+      }
+    } else {
+      parse_name_ += c;
+    }
+  }
+  return num_consumed;
+}
+
+// Specific information about cache.  This is all embodied in the
+// headers but is centrally parsed so we can try to get it right.
+bool SimpleMetaData::IsCacheable() const {
+  // We do not compute caching from accessors so that the
+  // accessors can be easier to call from multiple threads
+  // without mutexing.
+  assert(!cache_fields_dirty_);
+  return is_cacheable_;
+}
+
+bool SimpleMetaData::IsProxyCacheable() const {
+  assert(!cache_fields_dirty_);
+  return is_proxy_cacheable_;
+}
+
+// Returns the ms-since-1970 absolute time when this resource
+// should be expired out of caches.
+int64 SimpleMetaData::CacheExpirationTimeMs() const {
+  assert(!cache_fields_dirty_);
+  return expiration_time_ms_;
 }
 
 void SimpleMetaData::ComputeCaching() {
@@ -201,62 +275,15 @@ void SimpleMetaData::ComputeCaching() {
   cache_fields_dirty_ = false;
 }
 
-int SimpleMetaData::ParseChunk(const StringPiece& text,
-                               MessageHandler* handler) {
-  assert(!headers_complete_);
-  int num_consumed = 0;
-  int num_bytes = text.size();
+bool SimpleMetaData::has_timestamp_ms() const {
+  return timestamp_ms_ != TIME_UNINITIALIZED;
+}
 
-  for (; num_consumed < num_bytes; ++num_consumed) {
-    char c = text[num_consumed];
-    if ((c == '/') && (parse_name_ == "HTTP")) {
-      if (major_version_ != 0) {
-        handler->Message(kError, "Multiple HTTP Lines");
-      } else {
-        parsing_http_ = true;
-        parsing_value_ = true;
-      }
-    } else if (!parsing_value_ && (c == ':')) {
-      parsing_value_ = true;
-    } else if (c == '\r') {
-      // Just ignore CRs for now, and break up headers on newlines for
-      // simplicity.  It's not clear to me if it's important that we
-      // reject headers that lack the CR in front of the LF.
-    } else if (c == '\n') {
-      if (parse_name_.empty()) {
-        // blank line.  This marks the end of the headers.
-        ++num_consumed;
-        headers_complete_ = true;
-        ComputeCaching();
-        break;
-      }
-      if (parsing_http_) {
-        // Parsing "1.0 200 OK\r", using sscanf for the integers, and
-        // private method GrabLastToken for the "OK".
-        if ((sscanf(parse_value_.c_str(), "%d.%d %d ",  // NOLINT
-                    &major_version_, &minor_version_, &status_code_) != 3) ||
-            !GrabLastToken(parse_value_, &reason_phrase_)) {
-          // TODO(jmarantz): capture the filename/url, track the line numbers.
-          handler->Message(kError, "Invalid HTML headers: %s",
-                           parse_value_.c_str());
-        }
-        parsing_http_ = false;
-      } else {
-        Add(parse_name_.c_str(), parse_value_.c_str());
-      }
-      parsing_value_ = false;
-      parse_name_.clear();
-      parse_value_.clear();
-    } else if (parsing_value_) {
-      // Skip leading whitespace
-      if (!parse_value_.empty() || !isspace(c)) {
-        parse_value_ += c;
-      }
-    } else {
-      parse_name_ += c;
-    }
-  }
-  return num_consumed;
+std::string SimpleMetaData::ToString() const {
+  std::string str;
+  StringWriter writer(&str);
+  Write(&writer, NULL);
+  return str;
 }
 
 // Grabs the last non-whitespace token from 'input' and puts it in 'output'.

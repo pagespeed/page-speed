@@ -7,14 +7,9 @@
 #include "net/instaweb/util/public/file_system.h"
 #include "net/instaweb/util/public/message_handler.h"
 #include <string>
+#include "net/instaweb/util/public/string_util.h"
 
-namespace {
-void AppendInt(int i, std::string *buf) {
-  char nbuf[100];
-  snprintf(nbuf, sizeof(nbuf), "%d", i);
-  *buf += nbuf;
-}
-}  // namespace
+// TODO(jmarantz): convert to statistics interface
 
 namespace net_instaweb {
 
@@ -31,9 +26,7 @@ void FileStatisticsLog::LogStat(const char *stat_name, int value) {
   // Buffer whole log entry before writing, in case there's interleaving going
   // on (ie avoid multiple writes for single log entry)
   std::string buf(stat_name);
-  buf += ": ";
-  AppendInt(value, &buf);
-  buf += "\n";
+  buf += StrCat(": ", IntegerToString(value), "\n");
   file_->Write(buf, message_handler_);
 }
 
@@ -42,13 +35,9 @@ void FileStatisticsLog::LogDifference(const char *stat_name,
   // Buffer whole log entry before writing, in case there's interleaving going
   // on (ie avoid multiple writes for single log entry)
   std::string buf(stat_name);
-  buf += ":\t";
-  AppendInt(value1, &buf);
-  buf += " vs\t";
-  AppendInt(value2, &buf);
-  buf += "\tdiffer by\t";
-  AppendInt(value1-value2, &buf);
-  buf += "\n";
+  buf += StrCat(":\t", IntegerToString(value1), " vs\t",
+                IntegerToString(value2));
+  buf += StrCat("\tdiffer by\t", IntegerToString(value1 - value2), "\n");
   file_->Write(buf, message_handler_);
 }
 
