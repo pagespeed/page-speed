@@ -19,6 +19,7 @@ class MessageHandler;
 class FileInputResource : public InputResource {
  public:
   FileInputResource(const StringPiece& url,
+                    const StringPiece& absolute_url,
                     const StringPiece& filename,
                     FileSystem* file_system);
   ~FileInputResource();
@@ -27,6 +28,7 @@ class FileInputResource : public InputResource {
   virtual bool Read(MessageHandler* message_handler);
 
   virtual const std::string& url() const { return url_; }
+  virtual const std::string& absolute_url() const { return absolute_url_; }
   virtual bool loaded() const { return meta_data_ != NULL; }
   // contents are only available when loaded()
   virtual bool ContentsValid() const { return loaded(); }
@@ -35,6 +37,7 @@ class FileInputResource : public InputResource {
 
  private:
   std::string url_;
+  std::string absolute_url_;
   std::string filename_;
   std::string contents_;
   FileSystem* file_system_;

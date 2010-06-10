@@ -6,7 +6,9 @@
 
 #include "net/instaweb/rewriter/public/rewrite_filter.h"
 
+#include "base/scoped_ptr.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
+#include "net/instaweb/rewriter/public/img_filter.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
@@ -17,10 +19,10 @@ class ContentType;
 class FileSystem;
 class HtmlParse;
 class Image;
-class ImgFilter;
 class ImgRewriteUrl;
 class OutputResource;
 class ResourceManager;
+class Variable;
 
 // Identify img tags in html and optimize them.
 // TODO(jmaessen): See which ones have immediately-obvious size info.
@@ -48,15 +50,18 @@ class ImgRewriteFilter : public RewriteFilter {
   void OptimizeImage(
       const ImgRewriteUrl& url_proto, Image* image, OutputResource* result);
   OutputResource* OptimizedImageFor(
-      const ImgRewriteUrl& url_proto, const std::string& url_string);
+      const ImgRewriteUrl& url_proto, const std::string& url_string,
+      InputResource* input_resource);
   void RewriteImageUrl(const HtmlElement& element, HtmlElement::Attribute* src);
 
   FileSystem* file_system_;
   HtmlParse* html_parse_;
-  ImgFilter* img_filter_;
+  scoped_ptr<ImgFilter> img_filter_;
   ResourceManager* resource_manager_;
   const Atom s_width_;
   const Atom s_height_;
+  Variable* rewrite_count_;
+  Variable* rewrite_saved_bytes_;
 };
 
 }  // namespace net_instaweb

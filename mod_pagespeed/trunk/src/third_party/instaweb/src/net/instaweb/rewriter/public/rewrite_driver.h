@@ -25,6 +25,7 @@ class ImgRewriteFilter;
 class OutlineFilter;
 class ResourceManager;
 class RewriteFilter;
+class Timer;
 class UrlAsyncFetcher;
 class UrlFetcher;
 class Writer;
@@ -63,7 +64,7 @@ class RewriteDriver {
 
   // Extend the cache lifetime of resources.  This can only be called once and
   // requires a resource_manager to be set.
-  void ExtendCacheLifetime(Hasher* hasher);
+  void ExtendCacheLifetime(Hasher* hasher, Timer* timer);
 
   // Remove extraneous quotes from html attributes.  Does this save enough bytes
   // to be worth it after compression?  If we do it everywhere it seems to give

@@ -49,9 +49,8 @@ int main(int argc, char** argv) {
       return 1;
     }
     net_instaweb::FilenameEncoder filename_encoder;
-    bool write_headers = false;
     manager.reset(new net_instaweb::HashResourceManager(
-        file_prefix, serving_prefix, num_shards, write_headers, &file_system,
+        file_prefix, serving_prefix, num_shards, &file_system,
         &filename_encoder, &url_fetcher, &mock_hasher));
     rewrite_driver.SetResourceManager(manager.get());
     start += 4;

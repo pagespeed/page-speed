@@ -9,10 +9,12 @@
 namespace net_instaweb {
 
 FileInputResource::FileInputResource(const StringPiece& url,
+                                     const StringPiece& absolute_url,
                                      const StringPiece& filename,
                                      FileSystem* file_system)
     : file_system_(file_system) {
   url.CopyToString(&url_);
+  absolute_url.CopyToString(&absolute_url_);
   filename.CopyToString(&filename_);
 }
 

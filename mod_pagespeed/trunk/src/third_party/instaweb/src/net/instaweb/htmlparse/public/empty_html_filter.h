@@ -21,14 +21,11 @@ class EmptyHtmlFilter : public HtmlFilter {
   virtual void EndDocument();
   virtual void StartElement(HtmlElement* element);
   virtual void EndElement(HtmlElement* element);
-  virtual void Cdata(const std::string& cdata);
-  virtual void Comment(const std::string& comment);
+  virtual void Cdata(HtmlCdataNode* cdata);
+  virtual void Comment(HtmlCommentNode* comment);
   virtual void IEDirective(const std::string& directive);
-  virtual void Characters(const std::string& characters);
-  virtual void IgnorableWhitespace(const std::string& whitespace);
-  virtual void DocType(const std::string& name, const std::string& ext_id,
-                       const std::string& sys_id);
-  virtual void Directive(const std::string& directive);
+  virtual void Characters(HtmlCharactersNode* characters);
+  virtual void Directive(HtmlDirectiveNode* directive);
   virtual void Flush();
 };
 

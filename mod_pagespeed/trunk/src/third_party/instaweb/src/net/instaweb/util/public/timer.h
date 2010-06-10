@@ -11,6 +11,14 @@ namespace net_instaweb {
 // Timer interface, made virtual so it can be mocked for tests.
 class Timer {
  public:
+  static const int64 kSecondMs;
+  static const int64 kMinuteMs;
+  static const int64 kHourMs;
+  static const int64 kDayMs;
+  static const int64 kWeekMs;
+  static const int64 kMonthMs;
+  static const int64 kYearMs;
+
   virtual ~Timer();
 
   // Returns number of milliseconds since 1970.

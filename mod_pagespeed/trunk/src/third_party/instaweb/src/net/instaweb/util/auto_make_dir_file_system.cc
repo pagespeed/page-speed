@@ -19,6 +19,13 @@ FileSystem::OutputFile* AutoMakeDirFileSystem::OpenTempFile(
   return base_file_system_->OpenTempFile(prefix, handler);
 }
 
+bool AutoMakeDirFileSystem::RenameFile(
+    const char* old_filename, const char* new_filename,
+    MessageHandler* handler) {
+  SetupFileDir(new_filename, handler);
+  return base_file_system_->RenameFile(old_filename, new_filename, handler);
+}
+
 // Try to make directories to store file.
 void AutoMakeDirFileSystem::SetupFileDir(const StringPiece& filename,
                                          MessageHandler* handler) {

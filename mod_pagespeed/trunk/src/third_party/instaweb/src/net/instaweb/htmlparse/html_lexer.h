@@ -59,6 +59,15 @@ class HtmlLexer {
   void EvalCommentBody(char c);
   void EvalCommentEnd1(char c);
   void EvalCommentEnd2(char c);
+  void EvalCdataStart1(char c);
+  void EvalCdataStart2(char c);
+  void EvalCdataStart3(char c);
+  void EvalCdataStart4(char c);
+  void EvalCdataStart5(char c);
+  void EvalCdataStart6(char c);
+  void EvalCdataBody(char c);
+  void EvalCdataEnd1(char c);
+  void EvalCdataEnd2(char c);
   void EvalAttribute(char c);
   void EvalAttrName(char c);
   void EvalAttrEq(char c);
@@ -72,6 +81,7 @@ class HtmlLexer {
   void MakeAttribute(bool has_value);
   void FinishAttribute(char c, bool has_value, bool brief_close);
 
+  void EmitCdata();
   void EmitComment();
   void EmitLiteral();
   void EmitTagOpen(bool allow_implicit_close);
@@ -128,6 +138,15 @@ class HtmlLexer {
     COMMENT_BODY,          // "<!--"
     COMMENT_END1,          // "-"
     COMMENT_END2,          // "--"
+    CDATA_START1,          // "<!["
+    CDATA_START2,          // "<![C"
+    CDATA_START3,          // "<![CD"
+    CDATA_START4,          // "<![CDA"
+    CDATA_START5,          // "<![CDAT"
+    CDATA_START6,          // "<![CDATA"
+    CDATA_BODY,            // "<![CDATA["
+    CDATA_END1,            // "]"
+    CDATA_END2,            // "]]"
     TAG_ATTRIBUTE,         // "<x "
     TAG_ATTR_NAME,         // "<x y"
     TAG_ATTR_NAME_SPACE,   // "<x y "

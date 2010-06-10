@@ -36,6 +36,8 @@ class HTTPCache {
   void set_force_caching(bool force) { force_caching_ = true; }
 
  private:
+  bool IsCurrentlyValid(const MetaData& headers);
+
   CacheInterface* cache_;
   Timer* timer_;
   bool force_caching_;

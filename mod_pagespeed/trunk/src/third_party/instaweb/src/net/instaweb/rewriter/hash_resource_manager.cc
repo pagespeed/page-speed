@@ -19,18 +19,17 @@ namespace net_instaweb {
 HashResourceManager::HashResourceManager(const StringPiece& file_prefix,
                                          const StringPiece& url_prefix,
                                          const int num_shards,
-                                         const bool write_http_headers,
                                          FileSystem* file_system,
                                          FilenameEncoder* filename_encoder,
                                          UrlFetcher* url_fetcher,
                                          Hasher* hasher)
     : num_shards_(num_shards),
       resource_id_(0),
-      write_http_headers_(write_http_headers),
       file_system_(file_system),
       filename_encoder_(filename_encoder),
       url_fetcher_(url_fetcher),
-      hasher_(hasher) {
+      hasher_(hasher),
+      statistics_(NULL) {
   file_prefix.CopyToString(&file_prefix_);
   url_prefix.CopyToString(&url_prefix_);
 }
@@ -110,7 +109,7 @@ OutputResource* HashResourceManager::NamedOutputResource(
     resource = new HashOutputResource(
         url_prefix_, file_prefix_, filter_prefix, name,
         content_type.file_extension(),
-        write_http_headers_, file_system_, filename_encoder_, hasher_);
+        file_system_, filename_encoder_, hasher_);
     SetDefaultHeaders(content_type, resource->metadata());
     // Note: resource will be deleted by ~HashResourceManager destructor.
     output_resources_.push_back(resource);
@@ -139,25 +138,49 @@ std::string HashResourceManager::base_url() const {
 
 InputResource* HashResourceManager::CreateInputResource(
     const StringPiece& input_url, MessageHandler* handler) {
+  // We must deal robustly with calls to CreateInputResource on absolute urls
+  // even when base_url_ has not been set, since in some contexts we can only
+  // set base_url_ in response to an html page request, but we may need to
+  // satisfy requests for rewritten for resources before any html has been
+  // rewritten, or which don't come from the most-recently-rewritten html.
+
+  // TODO(jmaessen): rewrite idiomatically.  We want a
+  // GURL that is constructed in one of two different ways.
+  // Calling new is clearly wrong, so we end up constructing and copying
+  // down each branch which is ugly albeit ever so slightly less wrong.
+  const std::string input_url_string = input_url.as_string();
+  GURL url;
   if (base_url_ == NULL) {
-    handler->Message(kError, "CreateInputResource called before base_url set.");
-    return NULL;
+    GURL input_gurl(input_url_string);
+    url = input_gurl;
+    if (!url.is_valid()) {
+      handler->Message(kError,
+                       "CreateInputResource called before base_url set.");
+      return NULL;
+    }
+  } else {
+    // Get absolute url based on the (possibly relative) input_url.
+    url = base_url_->Resolve(input_url_string);
   }
-  // Get absolute url based on the (possibly relative) input_url.
-  GURL url = base_url_->Resolve(input_url.as_string());
 
   InputResource* resource = NULL;
+  const StringPiece url_string(url.spec().data(), url.spec().size());
   if (url.SchemeIs("http")) {
     // TODO(sligocki): Figure out if these are actually local by
     // seing if the serving path matches url_prefix_, in which case
     // we can do a local file read.
-    const StringPiece url_string(url.spec().data(), url.spec().size());
+    // TODO(jmaessen): In order to permit url loading from a context
+    // where the base url isn't set, we must keep the normalized url
+    // in the UrlInputResource rather than the original input_url.
+    // This is ugly and yields unnecessarily verbose rewritten urls.
     resource = new UrlInputResource(input_url, url_string, url_fetcher_);
   // TODO(sligocki): Probably shouldn't support file:// scheme.
+  // (but it's used extensively in eg rewriter_test.)
   } else if (url.SchemeIsFile()) {
     const std::string& filename = url.path();
     // NOTE: This is raw filesystem access, no filename-encoding, etc.
-    resource = new FileInputResource(input_url, filename, file_system_);
+    resource =
+        new FileInputResource(input_url, url_string, filename, file_system_);
   } else {
     handler->Message(kError, "Unsupported scheme '%s' for url '%s'",
                      url.scheme().c_str(), url.spec().c_str());

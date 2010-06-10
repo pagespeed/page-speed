@@ -9,10 +9,16 @@
 namespace net_instaweb {
 
 class FileSystem;
+class HtmlCdataNode;
+class HtmlCharactersNode;
+class HtmlCommentNode;
+class HtmlDirectiveNode;
 class HtmlElement;
 class HtmlEvent;
 class HtmlFilter;
+class HtmlLeafNode;
 class HtmlLexer;
+class HtmlNode;
 class HtmlParse;
 class HtmlStartElementEvent;
 class HtmlWriterFilter;

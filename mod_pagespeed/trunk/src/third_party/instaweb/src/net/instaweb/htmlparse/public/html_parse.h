@@ -8,6 +8,7 @@
 #include <set>
 #include <vector>
 #include "net/instaweb/htmlparse/public/html_element.h"
+#include "net/instaweb/htmlparse/public/html_node.h"
 #include "net/instaweb/htmlparse/public/html_parser_types.h"
 #include "net/instaweb/util/public/printf_format.h"
 #include <string>
@@ -52,21 +53,34 @@ class HtmlParse {
   void FinishParse();
 
 
-  // Utiliity methods for implementing filters
+  // Utility methods for implementing filters
 
+  HtmlCdataNode* NewCdataNode(const std::string& contents);
+  HtmlCharactersNode* NewCharactersNode(const std::string& literal);
+  HtmlCommentNode* NewCommentNode(const std::string& contents);
+  HtmlDirectiveNode* NewDirectiveNode(const std::string& contents);
+
+  // TODO(mdsteele): Rename these methods to e.g. InsertNodeBeforeNode.
   // This and downstream filters will then see inserted elements but upstream
   // filters will not.
-  bool InsertElementBeforeElement(const HtmlElement* existing_element,
-                                  HtmlElement* new_element);
-  bool InsertElementAfterElement(const HtmlElement* existing_element,
-                                 HtmlElement* new_element);
+  bool InsertElementBeforeElement(const HtmlNode* existing_node,
+                                  HtmlNode* new_node);
+  bool InsertElementAfterElement(const HtmlNode* existing_node,
+                                 HtmlNode* new_node);
   // Insert element before current event.
-  bool InsertElementBeforeCurrent(HtmlElement* element);
+  bool InsertElementBeforeCurrent(HtmlNode* node);
 
   HtmlElement* NewElement(Atom tag);
-  bool DeleteElement(HtmlElement* element);
 
-  bool IsRewritable(const HtmlElement* element) const;
+  // If the given node is rewritable, delete it and all of its children (if
+  // any) and return true; otherwise, do nothing and return false.
+  bool DeleteElement(HtmlNode* node);
+
+  // If possible, replace the existing node with the new node and return true;
+  // otherwise, do nothing and return false.
+  bool ReplaceNode(HtmlNode* existing_node, HtmlNode* new_node);
+
+  bool IsRewritable(const HtmlNode* node) const;
 
   void ClearElements();
 
@@ -130,17 +144,17 @@ class HtmlParse {
 
  private:
   void AddElement(HtmlElement* element, int line_number);
-  void AddEvent(HtmlEvent* event) { queue_.push_back(event); }
+  void AddEvent(HtmlEvent* event);
   HtmlEventListIterator Last();  // Last element in queue
   bool IsInEventWindow(const HtmlEventListIterator& iter) const;
   bool InsertElementBeforeEvent(const HtmlEventListIterator& event,
-                                HtmlElement* new_element);
+                                HtmlNode* new_node);
 
   SymbolTableInsensitive string_table_;
   std::vector<HtmlFilter*> filters_;
   HtmlLexer* lexer_;
   int sequence_;
-  std::set<HtmlElement*> elements_;
+  std::set<HtmlNode*> nodes_;
   HtmlEventList queue_;
   HtmlEventListIterator current_;
   // Have we deleted current? Then we shouldn't do certain manipulations to it.

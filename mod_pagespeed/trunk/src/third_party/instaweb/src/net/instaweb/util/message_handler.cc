@@ -41,6 +41,19 @@ void MessageHandler::FileMessage(MessageType type, const char* file, int line,
   va_end(args);
 }
 
+void MessageHandler::Check(bool condition, const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  CheckV(condition, msg, args);
+  va_end(args);
+}
+
+void MessageHandler::CheckV(bool condition, const char* msg, va_list args) {
+  if (!condition) {
+    MessageV(kFatal, msg, args);
+  }
+}
+
 void MessageHandler::Info(const char* file, int line, const char* msg, ...) {
   va_list args;
   va_start(args, msg);
@@ -48,17 +61,17 @@ void MessageHandler::Info(const char* file, int line, const char* msg, ...) {
   va_end(args);
 }
 
-void MessageHandler::Error(const char* file, int line, const char* msg, ...) {
-  va_list args;
-  va_start(args, msg);
-  ErrorV(file, line, msg, args);
-  va_end(args);
-}
-
 void MessageHandler::Warning(const char* file, int line, const char* msg, ...) {
   va_list args;
   va_start(args, msg);
   WarningV(file, line, msg, args);
+  va_end(args);
+}
+
+void MessageHandler::Error(const char* file, int line, const char* msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  ErrorV(file, line, msg, args);
   va_end(args);
 }
 

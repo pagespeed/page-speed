@@ -14,6 +14,7 @@ class InputResource;
 class MessageHandler;
 class MetaData;
 class OutputResource;
+class Statistics;
 
 class ResourceManager {
  public:
@@ -76,6 +77,8 @@ class ResourceManager {
   virtual void set_file_prefix(const StringPiece& file_prefix) = 0;
   virtual void set_url_prefix(const StringPiece& url_prefix) = 0;
   virtual void set_base_url(const StringPiece& url) = 0;
+  virtual void set_statistics(Statistics* stats) = 0;
+  virtual Statistics* statistics() const = 0;
 };
 
 }  // namespace net_instaweb

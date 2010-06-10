@@ -134,7 +134,7 @@ void HtmlWriterFilter::EndElement(HtmlElement* element) {
     case HtmlElement::AUTO_CLOSE:
       // This cannot happen because GetCloseStyle prevents won't
       // return AUTO_CLOSE.
-      assert(0);
+      assert(false);
       break;
     case HtmlElement::IMPLICIT_CLOSE:
       // Nothing new to write; the ">" was written in StartElement
@@ -160,21 +160,19 @@ void HtmlWriterFilter::EndElement(HtmlElement* element) {
   }
 }
 
-void HtmlWriterFilter::Characters(const std::string& chars) {
-  EmitBytes(chars);
+void HtmlWriterFilter::Characters(HtmlCharactersNode* chars) {
+  EmitBytes(chars->contents());
 }
 
-void HtmlWriterFilter::Cdata(const std::string& cdata) {
-  EmitBytes(cdata);
+void HtmlWriterFilter::Cdata(HtmlCdataNode* cdata) {
+  EmitBytes("<![CDATA[");
+  EmitBytes(cdata->contents());
+  EmitBytes("]]>");
 }
 
-void HtmlWriterFilter::IgnorableWhitespace(const std::string& whitespace) {
-  EmitBytes(whitespace);
-}
-
-void HtmlWriterFilter::Comment(const std::string& value) {
+void HtmlWriterFilter::Comment(HtmlCommentNode* comment) {
   EmitBytes("<!--");
-  EmitBytes(value);
+  EmitBytes(comment->contents());
   EmitBytes("-->");
 }
 
@@ -184,27 +182,9 @@ void HtmlWriterFilter::IEDirective(const std::string& value) {
   EmitBytes("-->");
 }
 
-void HtmlWriterFilter::DocType(
-    const std::string& name, const std::string& ext_id,
-    const std::string& sys_id) {
-  EmitBytes("<!doctype ");
-  EmitBytes(name);
-  if (!ext_id.empty()) {
-    EmitBytes(" PUBLIC \"");
-    EmitBytes(ext_id);
-    EmitBytes("\"");
-  }
-  if (!sys_id.empty()) {
-    EmitBytes(" \"");
-    EmitBytes(sys_id);
-    EmitBytes("\"");
-  }
-  EmitBytes(">");
-}
-
-void HtmlWriterFilter::Directive(const std::string& directive) {
+void HtmlWriterFilter::Directive(HtmlDirectiveNode* directive) {
   EmitBytes("<!");
-  EmitBytes(directive);
+  EmitBytes(directive->contents());
   EmitBytes(">");
 }
 

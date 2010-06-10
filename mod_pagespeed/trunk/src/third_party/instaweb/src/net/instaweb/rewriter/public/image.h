@@ -4,7 +4,6 @@
 #ifndef NET_INSTAWEB_REWRITER_PUBLIC_IMAGE_H_
 #define NET_INSTAWEB_REWRITER_PUBLIC_IMAGE_H_
 
-#include "net/instaweb/rewriter/public/input_resource.h"
 #include <string>
 #include "net/instaweb/util/public/string_util.h"
 struct IplImage;
@@ -14,7 +13,6 @@ namespace net_instaweb {
 struct ContentType;
 class FileSystem;
 class MessageHandler;
-class ResourceManager;
 class Writer;
 
 class Image {
@@ -31,9 +29,14 @@ class Image {
   // metadata is retrieved; the object is to do so locally in this class without
   // disrupting any of its clients.
 
-  Image(const InputResource& original_image,
+  // Image owns none of its inputs.  All of the arguments to Image(...) (the
+  // original_contents in particular) must outlive the Image object itself.  The
+  // intent is that an Image is created in a scoped fashion from an existing
+  // known resource.
+  Image(const std::string& original_contents,
+        const std::string& url,
+        const StringPiece& file_prefix,
         FileSystem* file_system,
-        ResourceManager* manager,
         MessageHandler* handler);
 
   ~Image() {
@@ -55,7 +58,7 @@ class Image {
   bool Dimensions(int* width, int* height);
 
   int input_size() const {
-    return original_contents().size();
+    return original_contents_.size();
   }
 
   int output_size() {
@@ -92,26 +95,45 @@ class Image {
   const ContentType* content_type();
   bool WriteTo(Writer* output_resource);
   std::string AsInlineData();
+
  private:
+  void ComputeImageType();
+  void FindJpegSize();
+  inline void FindPngSize();
+  inline void FindGifSize();
+  bool LoadOpenCV();
+  void CleanOpenCV();
+  bool ComputeOutputContents();
+
+  friend class ImageTest;
+
+  static const char kPngHeader[];
+  static const size_t kPngHeaderLength;
+  static const char kPngIHDR[];
+  static const size_t kPngIHDRLength;
+  static const size_t kIHDRDataStart;
+  static const size_t kPngIntSize;
+
+  static const char kGifHeader[];
+  static const size_t kGifHeaderLength;
+  static const size_t kGifDimStart;
+  static const size_t kGifIntSize;
+
+  static const size_t kJpegIntSize;
+
+  std::string file_prefix_;
   FileSystem* file_system_;
   MessageHandler* handler_;
-  const InputResource& original_image_;
-  ResourceManager* manager_;
   Type image_type_;
+  const std::string& original_contents_;
   std::string output_contents_;
   bool output_valid_;
   std::string opencv_filename_;
   IplImage* opencv_image_;
   bool opencv_load_possible_;
   bool resized_;
-
-  const std::string& original_contents() const {
-    return original_image_.contents();
-  }
-  void ComputeImageType();
-  bool LoadOpenCV();
-  void CleanOpenCV();
-  bool ComputeOutputContents();
+  const std::string& url_;
+  int width_, height_;
 };
 
 // Given a name (file or url), see if it has the canonical extension

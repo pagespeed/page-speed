@@ -23,27 +23,19 @@ void EmptyHtmlFilter::StartElement(HtmlElement* element) {
 void EmptyHtmlFilter::EndElement(HtmlElement* element) {
 }
 
-void EmptyHtmlFilter::Cdata(const std::string& cdata) {
+void EmptyHtmlFilter::Cdata(HtmlCdataNode* cdata) {
 }
 
-void EmptyHtmlFilter::Comment(const std::string& comment) {
+void EmptyHtmlFilter::Comment(HtmlCommentNode* comment) {
 }
 
 void EmptyHtmlFilter::IEDirective(const std::string& directive) {
 }
 
-void EmptyHtmlFilter::Characters(const std::string& characters) {
+void EmptyHtmlFilter::Characters(HtmlCharactersNode* characters) {
 }
 
-void EmptyHtmlFilter::IgnorableWhitespace(const std::string& whitespace) {
-}
-
-void EmptyHtmlFilter::DocType(
-    const std::string& name, const std::string& ext_id,
-    const std::string& sys_id) {
-}
-
-void EmptyHtmlFilter::Directive(const std::string& directive) {
+void EmptyHtmlFilter::Directive(HtmlDirectiveNode* directive) {
 }
 
 void EmptyHtmlFilter::Flush() {

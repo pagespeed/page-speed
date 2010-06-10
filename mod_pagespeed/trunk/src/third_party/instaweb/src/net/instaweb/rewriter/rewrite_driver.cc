@@ -75,12 +75,12 @@ void RewriteDriver::AddBaseTagFilter() {
   }
 }
 
-void RewriteDriver::ExtendCacheLifetime(Hasher* hasher) {
+void RewriteDriver::ExtendCacheLifetime(Hasher* hasher, Timer* timer) {
   assert(html_writer_filter_ == NULL);
   assert(resource_manager_ != NULL);
   assert(cache_extender_ == NULL);
   cache_extender_.reset(new CacheExtender(kCacheExtender, html_parse_,
-                                          resource_manager_, hasher));
+                                          resource_manager_, hasher, timer));
   resource_filter_map_[kCacheExtender] = cache_extender_.get();
   html_parse_->AddFilter(cache_extender_.get());
 }

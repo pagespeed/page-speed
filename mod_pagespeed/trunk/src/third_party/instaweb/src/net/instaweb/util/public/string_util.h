@@ -57,6 +57,15 @@ void BackslashEscape(const StringPiece& src,
                      const StringPiece& to_escape,
                      std::string* dest);
 
+inline bool HasPrefixString(const std::string& str,
+                            const std::string& prefix) {
+  return google::protobuf::HasPrefixString(str, prefix);
+}
+
+inline void LowerString(std::string* str) {
+  google::protobuf::LowerString(str);
+}
+
 struct CharStarCompareInsensitive {
   bool operator()(const char* s1, const char* s2) const {
     return strcasecmp(s1, s2) < 0;

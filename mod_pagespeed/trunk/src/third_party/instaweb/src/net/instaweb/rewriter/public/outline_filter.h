@@ -29,19 +29,16 @@ class OutlineFilter : public HtmlFilter {
   virtual void Flush();
 
   // HTML Events we expect to be in <style> and <script> elements.
-  virtual void Characters(const std::string& characters);
-  virtual void IgnorableWhitespace(const std::string& whitespace);
+  virtual void Characters(HtmlCharactersNode* characters);
 
   // HTML Events we do not expect to be in <style> and <script> elements.
-  virtual void Comment(const std::string& comment);
-  virtual void Cdata(const std::string& cdata);
+  virtual void Comment(HtmlCommentNode* comment);
+  virtual void Cdata(HtmlCdataNode* cdata);
   virtual void IEDirective(const std::string& directive);
 
   // Ignored HTML Events.
   virtual void EndDocument() {}
-  virtual void DocType(const std::string& name, const std::string& ext_id,
-                       const std::string& sys_id) {}
-  virtual void Directive(const std::string& text) {}
+  virtual void Directive(HtmlDirectiveNode* directive) {}
 
  private:
   bool WriteResource(const std::string& content, OutputResource* resource,

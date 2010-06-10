@@ -20,12 +20,10 @@ HashOutputResource::HashOutputResource(const StringPiece& url_prefix,
                                        const StringPiece& filter_prefix,
                                        const StringPiece& name,
                                        const StringPiece& suffix,
-                                       const bool write_http_headers,
                                        FileSystem* file_system,
                                        FilenameEncoder* filename_encoder,
                                        Hasher* hasher)
-    : write_http_headers_(write_http_headers),
-      file_system_(file_system),
+    : file_system_(file_system),
       output_file_(NULL),
       writing_complete_(false),
       filename_encoder_(filename_encoder),
@@ -64,7 +62,7 @@ Writer* HashOutputResource::BeginWrite(MessageHandler* handler) {
   std::string temp_prefix = TempPrefix();
   output_file_ = file_system_->OpenTempFile(temp_prefix.c_str(), handler);
   bool success = (output_file_ != NULL);
-  if (write_http_headers_ && success) {
+  if (success) {
     std::string header;
     StringWriter string_writer(&header);
     metadata_.Write(&string_writer, handler);  // Serialize header.
@@ -134,17 +132,15 @@ bool HashOutputResource::Read(Writer* writer, MetaData* response_headers,
   } else {
     char buf[kStackBufferSize];
     int nread = 0, num_consumed = 0;
-    if (write_http_headers_) {
-      // TODO(jmarantz): this logic is duplicated in util/wget_url_fetcher.cc,
-      // consider a refactor to merge it.
-      while (!response_headers->headers_complete() &&
-             ((nread = file->Read(buf, sizeof(buf), handler)) != 0)) {
-        num_consumed = response_headers->ParseChunk(
-            StringPiece(buf, nread), handler);
-      }
-      ret = writer->Write(StringPiece(buf + num_consumed, nread - num_consumed),
-                          handler);
+    // TODO(jmarantz): this logic is duplicated in util/wget_url_fetcher.cc,
+    // consider a refactor to merge it.
+    while (!response_headers->headers_complete() &&
+           ((nread = file->Read(buf, sizeof(buf), handler)) != 0)) {
+      num_consumed = response_headers->ParseChunk(
+          StringPiece(buf, nread), handler);
     }
+    ret = writer->Write(StringPiece(buf + num_consumed, nread - num_consumed),
+                        handler);
     while (ret && ((nread = file->Read(buf, sizeof(buf), handler)) != 0)) {
       ret = writer->Write(StringPiece(buf, nread), handler);
     }

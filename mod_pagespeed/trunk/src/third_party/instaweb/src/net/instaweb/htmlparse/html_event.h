@@ -7,6 +7,7 @@
 #include <list>
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_filter.h"
+#include "net/instaweb/htmlparse/public/html_node.h"
 #include <string>
 
 namespace net_instaweb {
@@ -20,6 +21,7 @@ class HtmlEvent {
   virtual void ToString(std::string* buffer) = 0;
   virtual HtmlElement* GetStartElement() { return NULL; }
   virtual HtmlElement* GetEndElement() { return NULL; }
+  virtual HtmlLeafNode* GetLeafNode() { return NULL; }
 
   int line_number() const { return line_number_; }
  private:
@@ -74,17 +76,18 @@ class HtmlEndElementEvent: public HtmlEvent {
 
 class HtmlCdataEvent: public HtmlEvent {
  public:
-  HtmlCdataEvent(const std::string& cdata, int line_number)
+  HtmlCdataEvent(HtmlCdataNode* cdata, int line_number)
       : HtmlEvent(line_number),
         cdata_(cdata) {
   }
   void Run(HtmlFilter* filter) { filter->Cdata(cdata_); }
   void ToString(std::string* str) {
     *str += "Cdata ";
-    *str += cdata_;
+    *str += cdata_->contents();
   }
+  virtual HtmlLeafNode* GetLeafNode() { return cdata_; }
  private:
-  std::string cdata_;
+  HtmlCdataNode* cdata_;
 };
 
 class HtmlIEDirectiveEvent: public HtmlEvent {
@@ -104,73 +107,50 @@ class HtmlIEDirectiveEvent: public HtmlEvent {
 
 class HtmlCommentEvent: public HtmlEvent {
  public:
-  HtmlCommentEvent(const std::string& comment, int line_number)
+  HtmlCommentEvent(HtmlCommentNode* comment, int line_number)
       : HtmlEvent(line_number),
         comment_(comment) {
   }
   void Run(HtmlFilter* filter) { filter->Comment(comment_); }
   void ToString(std::string* str) {
     *str += "Comment ";
-    *str += comment_;
+    *str += comment_->contents();
   }
+  virtual HtmlLeafNode* GetLeafNode() { return comment_; }
  private:
-  std::string comment_;
+  HtmlCommentNode* comment_;
 };
 
 class HtmlCharactersEvent: public HtmlEvent {
  public:
-  HtmlCharactersEvent(const std::string& characters, int line_number)
+  HtmlCharactersEvent(HtmlCharactersNode* characters, int line_number)
       : HtmlEvent(line_number),
         characters_(characters) {
   }
   void Run(HtmlFilter* filter) { filter->Characters(characters_); }
   void ToString(std::string* str) {
     *str += "Characters ";
-    *str += characters_;
+    *str += characters_->contents();
   }
+  virtual HtmlLeafNode* GetLeafNode() { return characters_; }
  private:
-  std::string characters_;
-};
-
-class HtmlWhitespaceEvent: public HtmlEvent {
- public:
-  HtmlWhitespaceEvent(const std::string& whitespace, int line_number)
-      : HtmlEvent(line_number),
-        whitespace_(whitespace) {
-  }
-  void Run(HtmlFilter* filter) { filter->IgnorableWhitespace(whitespace_); }
-  void ToString(std::string* str) { *str += "Whitespace"; }
- private:
-  std::string whitespace_;
-};
-
-class HtmlDocTypeEvent: public HtmlEvent {
- public:
-  HtmlDocTypeEvent(const std::string& name, const std::string& ext_id,
-                   const std::string& sys_id, int line_number)
-      : HtmlEvent(line_number), name_(name), ext_id_(ext_id), sys_id_(sys_id) {
-  }
-  void Run(HtmlFilter* filter) { filter->DocType(name_, ext_id_, sys_id_); }
-  void ToString(std::string* str) { *str += "DocType"; }
- private:
-  std::string name_;
-  std::string ext_id_;
-  std::string sys_id_;
+  HtmlCharactersNode* characters_;
 };
 
 class HtmlDirectiveEvent: public HtmlEvent {
  public:
-  HtmlDirectiveEvent(const std::string& value, int line_number)
+  HtmlDirectiveEvent(HtmlDirectiveNode* directive, int line_number)
       : HtmlEvent(line_number),
-        value_(value) {
+        directive_(directive) {
   }
-  void Run(HtmlFilter* filter) { filter->Directive(value_.c_str()); }
+  void Run(HtmlFilter* filter) { filter->Directive(directive_); }
   void ToString(std::string* str) {
     *str += "Directive: ";
-    *str += value_;
+    *str += directive_->contents();
   }
+  virtual HtmlLeafNode* GetLeafNode() { return directive_; }
  private:
-  std::string value_;
+  HtmlDirectiveNode* directive_;
 };
 
 }  // namespace net_instaweb

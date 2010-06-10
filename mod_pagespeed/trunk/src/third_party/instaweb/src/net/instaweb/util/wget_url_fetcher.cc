@@ -4,12 +4,10 @@
 #include "net/instaweb/util/public/wget_url_fetcher.h"
 
 #include <errno.h>
-#include <stdio.h>
-#include <string.h>
+#include "net/instaweb/util/public/http_response_parser.h"
 #include "net/instaweb/util/public/message_handler.h"
-#include "net/instaweb/util/public/writer.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
-#include "net/instaweb/util/stack_buffer.h"
+#include "net/instaweb/util/public/writer.h"
 
 namespace {
 
@@ -36,6 +34,11 @@ const char kEscapeChars[] = "\"$`\\";
 
 namespace net_instaweb {
 
+// Default user agent to a Chrome user agent, so that we get real website.
+const char WgetUrlFetcher::kDefaultUserAgent[] =
+    "Mozilla/5.0 (X11; U; Linux x86_64; en-US) "
+    "AppleWebKit/534.0 (KHTML, like Gecko) Chrome/6.0.408.1 Safari/534.0";
+
 WgetUrlFetcher::~WgetUrlFetcher() {
 }
 
@@ -43,10 +46,15 @@ bool WgetUrlFetcher::StreamingFetchUrl(const std::string& url,
                                        const MetaData& request_headers,
                                        MetaData* response_headers,
                                        Writer* writer,
-                                       MessageHandler* message_handler) {
-  bool ret = false;
-  Fetch fetch(response_headers, writer, message_handler);
+                                       MessageHandler* handler) {
   std::string cmd("/usr/bin/wget --save-headers -q -O -"), escaped_url;
+
+  // Use default user-agent if none is set in headers.
+  MetaData::StringVector values;
+  request_headers.Lookup("user-agent", &values);
+  if (values.empty()) {
+    cmd += StrCat(" --user-agent=\"", kDefaultUserAgent, "\"");
+  }
 
   for (int i = 0, n = request_headers.NumAttributes(); i < n; ++i) {
     std::string escaped_name, escaped_value;
@@ -58,49 +66,32 @@ bool WgetUrlFetcher::StreamingFetchUrl(const std::string& url,
 
   BackslashEscape(url, kEscapeChars, &escaped_url);
   cmd += StrCat(" \"", escaped_url, "\"");
-  fprintf(stderr, "%s\n", cmd.c_str());
+  handler->Message(kInfo, "Executing: %s", cmd.c_str());
   FILE* wget_stdout = popen(cmd.c_str(), "r");
+
+  bool ret = false;
   if (wget_stdout == NULL) {
-    message_handler->Error(url.c_str(), 0, strerror(errno));
+    handler->Message(kError, "Wget popen failed on url %s: %s",
+                     url.c_str(), strerror(errno));
   } else {
-    ret = true;
-    char buf[kStackBufferSize];
-    int nread;
-    while (((nread = fread(buf, 1, sizeof(buf), wget_stdout)) > 0) && ret) {
-      ret = fetch.ParseChunk(StringPiece(buf, nread));
-    }
+    HttpResponseParser parser(response_headers, writer, handler);
+    ret = parser.Parse(wget_stdout);
     int exit_status = pclose(wget_stdout);
     if (exit_status != 0) {
       // The wget failed.  wget does not always (ever?) write appropriate
       // headers when it fails, so invent some.
       if (response_headers->status_code() == 0) {
-        response_headers->set_major_version(1);
-        response_headers->set_minor_version(0);
-        response_headers->set_status_code(HttpStatus::BAD_REQUEST);
-        response_headers->set_reason_phrase("Wget Failed");
+        response_headers->set_first_line(1, 1, HttpStatus::BAD_REQUEST,
+                                         "Wget Failed");
         response_headers->ComputeCaching();
-        writer->Write(std::string("wget failed: "), message_handler);
-        writer->Write(url, message_handler);
+        writer->Write("wget failed: ", handler);
+        writer->Write(url, handler);
+        writer->Write("<br>\nExit Status: ", handler);
+        writer->Write(IntegerToString(exit_status), handler);
       }
     }
   }
   return ret;
-}
-
-bool WgetUrlFetcher::Fetch::ParseChunk(const StringPiece& data) {
-  if (reading_headers_) {
-    int consumed = response_headers_->ParseChunk(data, message_handler_);
-    if (response_headers_->headers_complete()) {
-      // In this chunk we may have picked up some of the body.
-      // Before we move to the next buffer, send it to the output
-      // stream.
-      ok_ = writer_->Write(data.substr(consumed), message_handler_);
-      reading_headers_ = false;
-    }
-  } else {
-    ok_ = writer_->Write(data, message_handler_);
-  }
-  return ok_;
 }
 
 }  // namespace net_instaweb

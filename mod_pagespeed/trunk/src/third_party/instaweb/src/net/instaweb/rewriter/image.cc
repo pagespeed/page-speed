@@ -18,12 +18,21 @@
 
 namespace net_instaweb {
 
-namespace {
-const char kPngHeader[] = "\x89PNG\r\n\x1a\n";
-const int kPngHeaderLength = sizeof(kPngHeader) - 1;
+const char Image::kPngHeader[] = "\x89PNG\r\n\x1a\n";
+const size_t Image::kPngHeaderLength = sizeof(kPngHeader) - 1;
+const char Image::kPngIHDR[] = "\0\0\0\x0dIHDR";
+const size_t Image::kPngIHDRLength = sizeof(kPngIHDR) - 1;
+const size_t Image::kIHDRDataStart = kPngHeaderLength + kPngIHDRLength;
+const size_t Image::kPngIntSize = 4;
 
-const char kGifHeader[] = "GIF8";
-const int kGifHeaderLength = sizeof(kGifHeader) - 1;
+const char Image::kGifHeader[] = "GIF8";
+const size_t Image::kGifHeaderLength = sizeof(kGifHeader) - 1;
+const size_t Image::kGifDimStart = kGifHeaderLength + 2;
+const size_t Image::kGifIntSize = 2;
+
+const size_t Image::kJpegIntSize = 2;
+
+namespace {
 
 bool WriteTempFileWithContentType(
     const StringPiece& prefix_name, const ContentType& content_type,
@@ -39,22 +48,125 @@ bool WriteTempFileWithContentType(
   }
   return ok;
 }
+
+inline int JpegIntAtPosition(const std::string& buf, size_t pos) {
+  return static_cast<int>(
+      (static_cast<unsigned int>(buf[pos]) << 8) +
+      (static_cast<unsigned int>(buf[pos + 1])));
+}
+
+inline int GifIntAtPosition(const std::string& buf, size_t pos) {
+  return static_cast<int>(
+      (static_cast<unsigned int>(buf[pos + 1]) << 8) +
+      (static_cast<unsigned int>(buf[pos])));
+}
+
+inline int PngIntAtPosition(const std::string& buf, size_t pos) {
+  return static_cast<int>(
+      (static_cast<unsigned int>(buf[pos    ]) << 24) +
+      (static_cast<unsigned int>(buf[pos + 1]) << 16) +
+      (static_cast<unsigned int>(buf[pos + 2]) << 8) +
+      (static_cast<unsigned int>(buf[pos + 3])));
+}
+
 }  // namespace
 
-Image::Image(const InputResource& original_image,
+Image::Image(const std::string& original_contents,
+             const std::string& url,
+             const StringPiece& file_prefix,
              FileSystem* file_system,
-             ResourceManager* manager, MessageHandler* handler)
-    : file_system_(file_system),
+             MessageHandler* handler)
+    : file_prefix_(),
+      file_system_(file_system),
       handler_(handler),
-      original_image_(original_image),
-      manager_(manager),
       image_type_(IMAGE_UNKNOWN),
+      original_contents_(original_contents),
       output_contents_(),
       output_valid_(false),
       opencv_filename_(),
       opencv_image_(NULL),
       opencv_load_possible_(false),
-      resized_(false) {
+      resized_(false),
+      url_(url),
+      width_(-1),                   // Lazily initialized.  Catch errors.
+      height_(-1) {
+  file_prefix.CopyToString(&file_prefix_);
+}
+
+// Look through blocks of jpeg stream to find SOFn block
+// indicating encoding and dimensions of image.
+// Loosely based on code and FAQs found here:
+//    http://www.faqs.org/faqs/jpeg-faq/part1/
+void Image::FindJpegSize() {
+  const std::string& buf = original_contents_;
+  size_t pos = 2;  // Position of first data block after header.
+  while (pos < buf.size()) {
+    // Read block identifier
+    unsigned char id = static_cast<unsigned char>(buf[pos++]);
+    if (id == 0xff) {  // Padding byte
+      continue;
+    }
+    // At this point pos points to first data byte in block.  In any block,
+    // first two data bytes are size (including these 2 bytes).  But first,
+    // make sure block wasn't truncated on download.
+    if (pos + kJpegIntSize > buf.size()) {
+      break;
+    }
+    int length = JpegIntAtPosition(buf, pos);
+    // Now check for a SOFn header, which describes image dimensions.
+    if (0xc0 <= id && id <= 0xcf &&  // SOFn header
+        length >= 8 &&               // Valid SOFn block size
+        pos + 1 + 3 * kJpegIntSize <= buf.size() &&
+        // Above avoids case where dimension data was truncated
+        id != 0xc4 && id != 0xc8 && id != 0xcc) {
+      // 0xc4, 0xc8, 0xcc aren't actually valid SOFn headers.
+      // NOTE: we don't care if we have the whole SOFn block,
+      // just that we can fetch both dimensions without trouble.
+      // Our image download could be truncated at this point for
+      // all we care.
+      // We're a bit sloppy about SOFn block size, as it's
+      // actually 8 + 3 * buf[pos+2], but for our purposes this
+      // will suffice as we don't parse subsequent metadata (which
+      // describes the formatting of chunks of image data).
+      height_ = JpegIntAtPosition(buf, pos + 1 + kJpegIntSize);
+      width_ = JpegIntAtPosition(buf, pos + 1 + 2 * kJpegIntSize);
+      break;
+    }
+    pos += length;
+  }
+  if (width_ <= 0 || height_ <= 0) {
+    handler_->Error(url_.c_str(), 0,
+                    "Couldn't find jpeg dimensions (data truncated?).");
+  }
+}
+
+// Look at first (IHDR) block of png stream to find image dimensions.
+// See also: http://www.w3.org/TR/PNG/
+void Image::FindPngSize() {
+  const std::string& buf = original_contents_;
+  if (buf.size() >= kIHDRDataStart + 2 * kPngIntSize &&  // Not truncated
+      buf.compare(kPngHeaderLength, kPngIHDRLength,
+                  kPngIHDR, kPngIHDRLength) == 0) {
+    width_ = PngIntAtPosition(buf, kIHDRDataStart);
+    height_ = PngIntAtPosition(buf, kIHDRDataStart+kPngIntSize);
+  } else {
+    handler_->Error(url_.c_str(), 0,
+                    "Couldn't find png dimensions "
+                    "(data truncated or IHDR missing).");
+  }
+}
+
+// Look at header of GIF file to extract image dimensions
+// See also: http://en.wikipedia.org/wiki/Graphics_Interchange_Format
+void Image::FindGifSize() {
+  const std::string& buf = original_contents_;
+  if (buf.size() >= kGifDimStart + 2 * kGifIntSize) {  // Not truncated
+    width_ = GifIntAtPosition(buf, kGifDimStart);
+    height_ = GifIntAtPosition(buf, kGifDimStart + kGifIntSize);
+  } else {
+    handler_->Error(url_.c_str(), 0,
+                    "Couldn't find gif dimensions (data truncated)");
+  }
 }
 
 void Image::ComputeImageType() {
@@ -62,7 +174,7 @@ void Image::ComputeImageType() {
   // but based on well-documented headers (see Wikipedia etc.).
   // Note that we can be fooled if we're passed random binary data;
   // we make the call based on as few as two bytes (JPEG)
-  const std::string& buf = original_contents();
+  const std::string& buf = original_contents_;
   if (buf.size() >= 8) {
     // Note that gcc rightly complains about constant ranges with the
     // negative char constants unless we cast.
@@ -72,19 +184,24 @@ void Image::ComputeImageType() {
         // (the latter we don't handle yet, and don't bother looking for).
         if (static_cast<unsigned char>(buf[1]) == 0xd8) {
           image_type_ = IMAGE_JPEG;
+          FindJpegSize();
         }
         break;
       case 0x89:
         // possible png
-        if (buf.compare(0, kPngHeaderLength, kPngHeader) == 0) {
+        if (buf.compare(0, kPngHeaderLength,
+                        kPngHeader, kPngHeaderLength) == 0) {
           image_type_ = IMAGE_PNG;
+          FindPngSize();
         }
         break;
       case 'G':
         // possible gif
-        if (buf.compare(0, kGifHeaderLength, kGifHeader) == 0 &&
+        if (buf.compare(0, kGifHeaderLength,
+                        kGifHeader, kGifHeaderLength) == 0 &&
             (buf[4] == '7' || buf[4] == '9') && buf[5] == 'a') {
           image_type_ = IMAGE_GIF;
+          FindGifSize();
         }
         break;
       default:
@@ -125,6 +242,11 @@ void Image::CleanOpenCV() {
 
 bool Image::Dimensions(int* width, int* height) {
   bool ok = false;
+  if (0 <= width_ && 0 <= height_) {
+    *width = width_;
+    *height = height_;
+    ok = true;
+  }
   return ok;
 }
 
@@ -137,7 +259,7 @@ bool Image::ComputeOutputContents() {
   if (!output_valid_) {
     bool ok = true;
     std::string opencv_contents;
-    const std::string* contents = &original_contents();
+    const std::string* contents = &original_contents_;
     // Take image contents and re-compress them.
     if (ok) {
       // If we can't optimize the image, we'll fail.
@@ -177,7 +299,7 @@ bool Image::WriteTo(Writer* writer) {
   bool ok = false;
   const ContentType* content_type = this->content_type();
   if (content_type != NULL) {
-    const std::string* contents = &original_contents();
+    const std::string* contents = &original_contents_;
     if (output_valid_ || ComputeOutputContents()) {
       contents = &output_contents_;
     }

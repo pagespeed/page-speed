@@ -96,46 +96,50 @@ bool CssFilter::AbsolutifyUrls(
 
   // If the CSS url was specified with an absolute path, use that to
   // absolutify any URLs referenced in the CSS text.
+  //
+  // TODO(jmarantz): Consider pasting in any CSS resources found in an import
+  // statement, rather than merely absolutifying in the references.  This would
+  // require a few changes in this class API.
+  //
+  // TODO(jmarantz): Consider calling image optimization, if enabled, on any
+  // images found.
   GURL base_gurl(base_url);
   if (base_gurl.is_valid()) {
-    GURL base_host = base_gurl.GetWithEmptyPath();
-    if (base_host.is_valid()) {
-      while (ok && ((pos = contents.find("url(", pos)) != StringPiece::npos)) {
-        ok = writer->Write(contents.substr(prev_pos, pos - prev_pos), handler);
-        prev_pos = pos;
-        pos += 4;
-        size_t end_of_url = contents.find(')', pos);
-        if ((end_of_url != StringPiece::npos) && (end_of_url != pos)) {
-          StringPiece url = contents.substr(pos, end_of_url - pos);
-          char quote;
-          bool is_quoted = ExtractQuote(&url, &quote);
-          std::string url_string(url.data(), url.size());
-          GURL gurl(url_string);
+    while (ok && ((pos = contents.find("url(", pos)) != StringPiece::npos)) {
+      ok = writer->Write(contents.substr(prev_pos, pos - prev_pos), handler);
+      prev_pos = pos;
+      pos += 4;
+      size_t end_of_url = contents.find(')', pos);
+      if ((end_of_url != StringPiece::npos) && (end_of_url != pos)) {
+        StringPiece url = contents.substr(pos, end_of_url - pos);
+        char quote;
+        bool is_quoted = ExtractQuote(&url, &quote);
+        std::string url_string(url.data(), url.size());
+        GURL gurl(url_string);
 
-          // Relative paths are considered invalid by GURL, and those are the
-          // ones we need to resolve.
-          if (!gurl.is_valid()) {
-            GURL resolved = base_host.Resolve(url_string.c_str());
-            if (resolved.is_valid()) {
-              ok = writer->Write("url(", handler);
-              if (is_quoted) {
-                writer->Write(StringPiece(&quote, 1), handler);
-              }
-              ok = writer->Write(resolved.spec().c_str(), handler);
-              if (is_quoted) {
-                writer->Write(StringPiece(&quote, 1), handler);
-              }
-              ok = writer->Write(")", handler);
-              prev_pos = end_of_url + 1;
-            } else {
-              int line = 1;
-              for (size_t i = 0; i < pos; ++i) {
-                line += (contents[i] == '\n');
-              }
-              handler->Error(
-                  base_url.c_str(), line,
-                  "CSS URL resolution failed: %s", url_string.c_str());
+        // Relative paths are considered invalid by GURL, and those are the
+        // ones we need to resolve.
+        if (!gurl.is_valid()) {
+          GURL resolved = base_gurl.Resolve(url_string.c_str());
+          if (resolved.is_valid()) {
+            ok = writer->Write("url(", handler);
+            if (is_quoted) {
+              writer->Write(StringPiece(&quote, 1), handler);
             }
+            ok = writer->Write(resolved.spec().c_str(), handler);
+            if (is_quoted) {
+              writer->Write(StringPiece(&quote, 1), handler);
+            }
+            ok = writer->Write(")", handler);
+            prev_pos = end_of_url + 1;
+          } else {
+            int line = 1;
+            for (size_t i = 0; i < pos; ++i) {
+              line += (contents[i] == '\n');
+            }
+            handler->Error(
+                base_url.c_str(), line,
+                "CSS URL resolution failed: %s", url_string.c_str());
           }
         }
       }

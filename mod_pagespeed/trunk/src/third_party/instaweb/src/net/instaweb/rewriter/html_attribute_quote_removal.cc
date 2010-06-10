@@ -17,6 +17,9 @@ const unsigned char kNoQuoteChars[] =
 
 }  // namespace
 
+// TODO(jmaessen): Make adjustable.
+const bool kLogQuoteRemoval = false;
+
 namespace net_instaweb {
 // Remove quotes; see description in .h file.
 
@@ -57,9 +60,11 @@ void HtmlAttributeQuoteRemoval::StartElement(HtmlElement* element) {
   }
   if (rewritten > 0) {
     total_quotes_removed_ += rewritten;
-    const char* plural = (rewritten == 1) ? "" : "s";
-    html_parse_->InfoHere("Scrubbed quotes from %d attribute%s",
-                          rewritten, plural);
+    if (kLogQuoteRemoval) {
+      const char* plural = (rewritten == 1) ? "" : "s";
+      html_parse_->InfoHere("Scrubbed quotes from %d attribute%s",
+                            rewritten, plural);
+    }
   }
 }
 

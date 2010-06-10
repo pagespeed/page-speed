@@ -14,6 +14,7 @@
 #include "net/instaweb/util/public/google_url.h"
 #include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
+#include "net/instaweb/util/public/statistics.h"
 #include <string>
 #include "net/instaweb/util/public/string_writer.h"
 
@@ -42,13 +43,18 @@ CssCombineFilter::CssCombineFilter(const char* filter_prefix,
     : RewriteFilter(filter_prefix),
       html_parse_(html_parse),
       resource_manager_(resource_manager),
-      css_filter_(html_parse) {
+      css_filter_(html_parse),
+      counter_(NULL) {
   s_head_ = html_parse->Intern("head");
   s_link_ = html_parse->Intern("link");
   s_href_ = html_parse->Intern("href");
   s_type_ = html_parse->Intern("type");
   s_rel_  = html_parse->Intern("rel");
   head_element_ = NULL;
+  Statistics* stats = resource_manager_->statistics();
+  if (stats != NULL) {
+    counter_ = stats->AddVariable("css_file_count_reduction");
+  }
 }
 
 void CssCombineFilter::StartDocument() {
@@ -146,7 +152,7 @@ void CssCombineFilter::EmitCombinations() {
     for (int i = 0, n = combine_resources.size(); i < n; ++i) {
       InputResource* css_element = combine_resources[i];
       CssUrl* css_url = css_combine_url.add_element();
-      css_url->set_origin_url(css_element->url());
+      css_url->set_origin_url(css_element->absolute_url());
       css_url->set_media(media_attributes[i]);
     }
     Encode(css_combine_url, &url_safe_id);
@@ -174,6 +180,9 @@ void CssCombineFilter::EmitCombinations() {
       html_parse_->InsertElementBeforeCurrent(combine_element);
       html_parse_->InfoHere("Combined %d CSS files into one",
                             static_cast<int>(combine_elements.size()));
+      if (counter_ != NULL) {
+        counter_->Add(combine_elements.size() - 1);
+      }
     }
   }
   css_elements_.clear();
