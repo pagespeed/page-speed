@@ -66,7 +66,7 @@ class MockElement : public pagespeed::DomElement {
   }
 
   virtual DomDocument* GetContentDocument() const {
-    return content_.get();
+    return content_;
   }
 
   virtual std::string GetTagName() const {
@@ -99,7 +99,7 @@ class MockElement : public pagespeed::DomElement {
   }
 
  private:
-  scoped_ptr<DomDocument> content_;
+  DomDocument* content_;
   std::string tagname_;
   std::vector<MockElement*> children_;
   std::map<std::string, std::string> attributes_;
