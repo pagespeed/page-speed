@@ -321,12 +321,10 @@ bool SerfUrlAsyncFetcher::SetupProxy(const char* proxy) {
   return true;
 }
 
-SerfUrlAsyncFetcher::SerfUrlAsyncFetcher(const char* proxy)
-    : pool_(NULL),
+SerfUrlAsyncFetcher::SerfUrlAsyncFetcher(const char* proxy, apr_pool_t* pool)
+    : pool_(pool),
       mutex_(NULL),
       serf_context_(NULL) {
-  // The apr_pool_create is thread-safe.
-  apr_pool_create(&pool_, NULL);
   mutex_ = new AprMutex(pool_);
   net_instaweb::ScopedMutex mutex(mutex_);
   serf_context_ = serf_context_create(pool_);
@@ -338,7 +336,6 @@ SerfUrlAsyncFetcher::SerfUrlAsyncFetcher(const char* proxy)
 SerfUrlAsyncFetcher::~SerfUrlAsyncFetcher() {
   delete mutex_;
   STLDeleteElements(&active_fetches_);
-  apr_pool_destroy(pool_);
 }
 
 void SerfUrlAsyncFetcher::StreamingFetch(const std::string& url,

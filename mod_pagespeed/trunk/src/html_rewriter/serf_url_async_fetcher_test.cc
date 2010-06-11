@@ -63,8 +63,9 @@ class SerfUrlAsyncFetcherTest: public ::testing::Test {
 
  protected:
   virtual void SetUp() {
+    apr_pool_create(&pool_, NULL);
     serf_url_async_fetcher_.reset(
-        new html_rewriter::SerfUrlAsyncFetcher(kProxy));
+        new html_rewriter::SerfUrlAsyncFetcher(kProxy, pool_));
   }
 
   virtual void TearDown() {
@@ -73,6 +74,9 @@ class SerfUrlAsyncFetcherTest: public ::testing::Test {
     STLDeleteElements(&contents_);
     STLDeleteElements(&writers_);
     STLDeleteElements(&callbacks_);
+    // Need to free the fetcher before destroy the pool.
+    serf_url_async_fetcher_.reset(NULL);
+    apr_pool_destroy(pool_);
   }
 
   void AddTestUrl(const std::string& url,
@@ -119,6 +123,7 @@ class SerfUrlAsyncFetcherTest: public ::testing::Test {
                 contents_[idx]->substr(0, content_starts_[idx].size()));
     }
   }
+  apr_pool_t* pool_;
   std::vector<std::string> urls_;
   std::vector<std::string> content_starts_;
   std::vector<net_instaweb::SimpleMetaData*> request_headers_;

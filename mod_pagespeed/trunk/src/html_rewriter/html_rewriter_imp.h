@@ -67,23 +67,10 @@ class HtmlRewriterImp {
   static void WaitForInProgressDownloads(request_rec* request);
 
  private:
-  const PageSpeedProcessContext* context_;
-  SerfUrlAsyncFetcher* serf_url_async_fetcher_;
-  net_instaweb::MessageHandler* message_handler_;
-  net_instaweb::FileSystem* file_system_;
-  net_instaweb::FileCache* file_cache_;
-  net_instaweb::Timer* timer_;
-  net_instaweb::HTTPCache* http_cache_;
-  net_instaweb::CacheUrlFetcher* cache_url_fetcher_;
-  net_instaweb::CacheUrlAsyncFetcher* cache_url_async_fetcher_;
-
+  PageSpeedProcessContext* context_;
   std::string url_;
-  net_instaweb::HtmlParse html_parse_;
-  net_instaweb::RewriteDriver rewrite_driver_;
-  net_instaweb::HashResourceManager hash_resource_manager_;
+  net_instaweb::RewriteDriver* rewrite_driver_;
   net_instaweb::StringWriter string_writer_;
-  Md5Hasher md5_hasher_;
-  net_instaweb::FilenameEncoder filename_encoder_;
 };
 
 }  // namespace html_rewriter
