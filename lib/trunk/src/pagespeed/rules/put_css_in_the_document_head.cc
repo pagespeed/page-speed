@@ -47,7 +47,8 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
   virtual void Visit(const DomElement& node) {
     const std::string tag_name(node.GetTagName());
     if (tag_name == "IFRAME") {
-      CheckDocument(pagespeed_input_, node.GetContentDocument(), provider_);
+      scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
+      CheckDocument(pagespeed_input_, child_doc.get(), provider_);
     } else if (tag_name == "BODY") {
       is_in_body_yet_ = true;
     } else if (is_in_body_yet_) {
