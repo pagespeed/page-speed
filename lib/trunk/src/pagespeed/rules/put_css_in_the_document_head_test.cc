@@ -31,6 +31,7 @@ namespace {
 
 class MockElement : public pagespeed::DomElement {
  public:
+  // MockElement takes ownership of content.
   MockElement(DomDocument* content,
               const std::string& tagname,
               const std::map<std::string, std::string>& attributes)
@@ -47,6 +48,7 @@ class MockElement : public pagespeed::DomElement {
     return new MockElement(NULL, tagname, attributes);
   }
 
+  // Creates and returns a MockElement (which takes ownership of content).
   static MockElement* NewIframe(DomDocument* content) {
     std::map<std::string, std::string> attributes;
     attributes["src"] = content->GetDocumentUrl();
@@ -65,8 +67,9 @@ class MockElement : public pagespeed::DomElement {
     return new MockElement(NULL, "STYLE", attributes);
   }
 
+  // Ownership is transferred to the caller. May be NULL.
   virtual DomDocument* GetContentDocument() const {
-    return content_;
+    return content_.release();
   }
 
   virtual std::string GetTagName() const {
@@ -99,7 +102,7 @@ class MockElement : public pagespeed::DomElement {
   }
 
  private:
-  DomDocument* content_;
+  mutable scoped_ptr<DomDocument> content_;
   std::string tagname_;
   std::vector<MockElement*> children_;
   std::map<std::string, std::string> attributes_;
