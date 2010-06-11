@@ -1,5 +1,4 @@
 content pagespeed chrome/pagespeed/content/
-content activity chrome/activity/content/
 content third_party chrome/third_party/content/
 
 # for Firefox support.
@@ -10,4 +9,3 @@ overlay chrome://browser/content/browser.xul         chrome://pagespeed/content/
 overlay chrome://navigator/content/navigator.xul     chrome://pagespeed/content/pagespeedUtilOverlay.xul
 
 overlay chrome://firebug/content/firebugOverlay.xul         chrome://pagespeed/content/pagespeedOverlay.xul
-overlay chrome://firebug/content/firebugOverlay.xul         chrome://activity/content/firebugOverlay.xul
