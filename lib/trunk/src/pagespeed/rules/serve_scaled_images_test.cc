@@ -114,11 +114,13 @@ class MockImageElement : public pagespeed::DomElement {
 
 class MockIframeElement : public pagespeed::DomElement {
  public:
+  // MockIframeElement takes ownership of content.
   explicit MockIframeElement(pagespeed::DomDocument* content)
       : content_(content) {}
 
+  // Ownership is transferred to the caller. May be NULL.
   virtual pagespeed::DomDocument* GetContentDocument() const {
-    return content_;
+    return content_.release();
   }
 
   virtual std::string GetTagName() const {
@@ -131,7 +133,7 @@ class MockIframeElement : public pagespeed::DomElement {
   }
 
  private:
-  pagespeed::DomDocument* content_;
+  mutable scoped_ptr<pagespeed::DomDocument> content_;
 
   DISALLOW_COPY_AND_ASSIGN(MockIframeElement);
 };

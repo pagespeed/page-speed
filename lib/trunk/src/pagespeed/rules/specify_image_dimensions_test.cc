@@ -78,6 +78,7 @@ class MockDocument : public pagespeed::DomDocument {
 
 class MockElement : public pagespeed::DomElement {
  public:
+  // Creates and returns a MockElement (which takes ownership of content).
   static MockElement* New(
       pagespeed::DomDocument* content,
       const std::string& tagname,
@@ -85,8 +86,9 @@ class MockElement : public pagespeed::DomElement {
     return new MockElement(content, tagname, attributes);
   }
 
+  // Ownership is transferred to the caller. May be NULL.
   virtual pagespeed::DomDocument* GetContentDocument() const {
-    return content_;
+    return content_.release();
   }
 
   virtual std::string GetTagName() const {
@@ -116,6 +118,7 @@ class MockElement : public pagespeed::DomElement {
   }
 
  private:
+  // MockElement takes ownership of content.
   MockElement(pagespeed::DomDocument* content,
               const std::string& tagname,
               const std::map<std::string, std::string>& attributes)
@@ -124,7 +127,7 @@ class MockElement : public pagespeed::DomElement {
         attributes_(attributes) {
   }
 
-  pagespeed::DomDocument* content_;
+  mutable scoped_ptr<pagespeed::DomDocument> content_;
   std::string tagname_;
   std::map<std::string, std::string> attributes_;
 
