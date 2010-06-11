@@ -29,7 +29,7 @@ const char* kCacheFilePrefix = "cache_pre_";
 const char* kUrlPrefix = "http://localhost:9999/cache/cache_pre_";
 const char* kFileCachePath = "/tmp/html_rewrite_cache";
 const char* kFetcherProxy = "localhost:9999";
-
+const int kFetcherTimeOut = 30000;  // 30 seconds.
 }  // namespace
 
 
@@ -53,6 +53,10 @@ std::string GetFileCachePath() {
 
 std::string GetFetcherProxy() {
   return kFetcherProxy;
+}
+
+int64_t GetFetcherTimeOut() {
+  return kFetcherTimeOut;
 }
 
 }  // namespace html_rewriter

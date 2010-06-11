@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include "net/instaweb/util/public/url_async_fetcher.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 struct apr_pool_t;
 struct serf_context_t;
@@ -36,7 +37,7 @@ class AprMutex;
 
 class SerfUrlAsyncFetcher : public UrlAsyncFetcher {
  public:
-  explicit SerfUrlAsyncFetcher(const char* proxy);
+  explicit SerfUrlAsyncFetcher(const char* proxy, apr_pool_t* pool);
   virtual ~SerfUrlAsyncFetcher();
   virtual void StreamingFetch(const std::string& url,
                               const MetaData& request_headers,

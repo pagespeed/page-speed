@@ -14,11 +14,6 @@
 
 #include <string>
 
-#include "third_party/apache/httpd/src/include/httpd.h"
-#include "third_party/apache/httpd/src/include/http_config.h"
-#include "third_party/apache/httpd/src/include/http_log.h"
-#include "third_party/apache/httpd/src/include/http_protocol.h"
-
 #include "base/string_util.h"
 #include "html_rewriter/html_rewriter.h"
 #include "mod_pagespeed/pagespeed_process_context.h"
@@ -28,6 +23,13 @@
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
+// The httpd header must be after the pagepseed_process_context.h. Otherwise,
+// the compiler will complain
+// "strtoul_is_not_a_portable_function_use_strtol_instead".
+#include "third_party/apache/httpd/src/include/httpd.h"
+#include "third_party/apache/httpd/src/include/http_config.h"
+#include "third_party/apache/httpd/src/include/http_log.h"
+#include "third_party/apache/httpd/src/include/http_protocol.h"
 #include "third_party/jsmin/cpp/jsmin.h"
 
 using pagespeed::cssmin::MinifyCss;

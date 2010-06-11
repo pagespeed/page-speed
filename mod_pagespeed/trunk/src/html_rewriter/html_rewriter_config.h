@@ -37,6 +37,8 @@ std::string GetUrlPrefix();
 std::string GetFileCachePath();
 // Get the fetcher proxy
 std::string GetFetcherProxy();
+// Get the fetcher time out value in milliseconds.
+int64_t GetFetcherTimeOut();
 
 }  // namespace html_rewriter
 

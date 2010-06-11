@@ -18,6 +18,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "html_rewriter/apache_rewrite_driver_factory.h"
 #include "html_rewriter/html_rewriter_config.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "third_party/apache/httpd/src/include/httpd.h"
@@ -29,27 +30,9 @@ namespace html_rewriter {
 HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
                                  const std::string& url, std::string* output)
     : context_(GetPageSpeedProcessContext(request->server)),
-      serf_url_async_fetcher_(context_->fetcher()),
-      message_handler_(context_->message_handler()),
-      file_system_(context_->file_system()),
-      file_cache_(context_->file_cache()),
-      http_cache_(context_->http_cache()),
-      cache_url_fetcher_(context_->cache_url_fetcher()),
-      cache_url_async_fetcher_(context_->cache_url_async_fetcher()),
       url_(url),
-      html_parse_(message_handler_),
-      rewrite_driver_(&html_parse_, file_system_,
-                      cache_url_async_fetcher_),
-      hash_resource_manager_(GetCachePrefix(request),
-                             GetUrlPrefix(),
-                             0,
-                             true,
-                             file_system_,
-                             &filename_encoder_,
-                             cache_url_fetcher_,
-                             &md5_hasher_),
+      rewrite_driver_(context_->rewrite_driver_factory()->rewrite_driver()),
       string_writer_(output) {
-  rewrite_driver_.SetResourceManager(&hash_resource_manager_);
   std::string base_url;
   if (request->parsed_uri.scheme != NULL) {
     base_url.append(request->parsed_uri.scheme);
@@ -71,23 +54,23 @@ HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
   } else {
     base_url.append(request->uri);
   }
-  rewrite_driver_.SetBaseUrl(base_url);
-  rewrite_driver_.CombineCssFiles();
-  rewrite_driver_.RewriteImages();
-  rewrite_driver_.SetWriter(&string_writer_);
-  html_parse_.StartParse(url_.c_str());
+  rewrite_driver_->SetBaseUrl(base_url);
+  // TODO(lsong): Bypass the string buffer, writer data directly to the next
+  // apache bucket.
+  rewrite_driver_->SetWriter(&string_writer_);
+  rewrite_driver_->html_parse()->StartParse(url_.c_str());
 }
 
 void HtmlRewriterImp::Finish() {
-  html_parse_.FinishParse();
+  rewrite_driver_->html_parse()->FinishParse();
 }
 
 void HtmlRewriterImp::Flush() {
-  html_parse_.Flush();
+  rewrite_driver_->html_parse()->Flush();
 }
 
 void HtmlRewriterImp::Rewrite(const char* input, int size) {
-  html_parse_.ParseText(input, size);
+  rewrite_driver_->html_parse()->ParseText(input, size);
 }
 
 }  // namespace html_rewriter
