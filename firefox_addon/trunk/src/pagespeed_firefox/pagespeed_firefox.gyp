@@ -91,55 +91,9 @@
       },
     },
     {
-      'target_name': 'pagespeed_firefox_genproto',
-      'type': 'none',
-      'sources': [
-        'protobuf/activity/profile.proto',
-      ],
-      'rules': [
-        {
-          'rule_name': 'genproto',
-          'extension': 'proto',
-          'inputs': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-          ],
-          'variables': {
-            # The protoc compiler requires a proto_path argument with the
-            # directory containing the .proto file.
-            # There's no generator variable that corresponds to this, so fake it.
-            'rule_input_relpath': 'protobuf/activity',
-          },
-          'outputs': [
-            '<(protoc_out_dir)/pagespeed_firefox/<(rule_input_relpath)/<(RULE_INPUT_ROOT).pb.h',
-            '<(protoc_out_dir)/pagespeed_firefox/<(rule_input_relpath)/<(RULE_INPUT_ROOT).pb.cc',
-          ],
-          'action': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-            '--proto_path=./<(rule_input_relpath)',
-            './<(rule_input_relpath)/<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
-            '--cpp_out=<(protoc_out_dir)/pagespeed_firefox/<(rule_input_relpath)',
-          ],
-          'message': 'Generating C++ code from <(RULE_INPUT_PATH)',
-        },
-      ],
-      'dependencies': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
-      ],
-      'direct_dependent_settings': {
-      'include_dirs': [
-          '<(protoc_out_dir)/pagespeed_firefox/protobuf/activity',
-        ]
-      },
-      'export_dependent_settings': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
-      ],
-    },
-    {
       'target_name': 'pagespeed_firefox_genidl',
       'type': 'none',
       'sources': [
-        'idl/IActivityProfiler.idl',
         'idl/IJsMin.idl',
         'idl/IPageSpeedRules.idl',
       ],
@@ -173,77 +127,6 @@
       },
       'export_dependent_settings': [
         'xulrunner_sdk',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_firefox_profile_pb',
-      'type': '<(library)',
-      'hard_dependency': 1,
-      'dependencies': [
-        'pagespeed_firefox_genproto',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
-      ],
-      'sources': [
-        '<(protoc_out_dir)/pagespeed_firefox/protobuf/activity/profile.pb.cc',
-      ],
-      'export_dependent_settings': [
-        'pagespeed_firefox_genproto',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
-      ]
-    },
-    {
-      'target_name': 'pagespeed_firefox_activity_common',
-      'type': '<(library)',
-      'variables': {
-        'activity_root': 'cpp/activity',
-      },
-      'dependencies': [
-        'pagespeed_firefox_profile_pb',
-        '<(DEPTH)/base/base.gyp:base',
-      ],
-      'sources': [
-        '<(activity_root)/call_graph.cc',
-        '<(activity_root)/call_graph_metadata.cc',
-        '<(activity_root)/call_graph_profile.cc',
-        '<(activity_root)/call_graph_profile_snapshot.cc',
-        '<(activity_root)/call_graph_timeline_event_set.cc',
-        '<(activity_root)/call_graph_timeline_visitor.cc',
-        '<(activity_root)/call_graph_util.cc',
-        '<(activity_root)/call_graph_visit_filter_interface.cc',
-        '<(activity_root)/call_graph_visitor_interface.cc',
-        '<(activity_root)/clock.cc',
-        '<(activity_root)/delayable_function_tree_view_delegate.cc',
-        '<(activity_root)/find_first_invocations_visitor.cc',
-        '<(activity_root)/timer.cc',
-        '<(activity_root)/uncalled_function_tree_view_delegate.cc',
-      ],
-      'include_dirs': [
-        '<(activity_root)',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_firefox_activity_gecko',
-      'type': '<(library)',
-      'variables': {
-        'activity_root': 'cpp/activity',
-      },
-      'dependencies': [
-        'xulrunner_sdk',
-        'pagespeed_firefox_activity_common',
-        'pagespeed_firefox_genidl',
-        '<(DEPTH)/base/base.gyp:base',
-      ],
-      'sources': [
-        '<(activity_root)/basic_tree_view.cc',
-        '<(activity_root)/jsd_call_hook.cc',
-        '<(activity_root)/jsd_function_info.cc',
-        '<(activity_root)/jsd_script_hook.cc',
-        '<(activity_root)/profiler.cc',
-        '<(activity_root)/profiler_event.cc',
-        '<(activity_root)/profiler_runnables.cc',
-      ],
-      'include_dirs': [
-        '<(activity_root)',
       ],
     },
     {
@@ -324,36 +207,6 @@
       ],
     },
     {
-      'target_name': 'pagespeed_firefox_activity_test',
-      'type': 'executable',
-      'dependencies': [
-        'pagespeed_firefox_activity_common',
-        'pagespeed_firefox_profile_pb',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-      ],
-      'sources': [
-        'cpp/activity/call_graph_metadata_test.cc',
-        'cpp/activity/call_graph_profile_test.cc',
-        'cpp/activity/call_graph_test.cc',
-        'cpp/activity/call_graph_timeline_event_set_test.cc',
-        'cpp/activity/call_graph_timeline_visitor_test.cc',
-        'cpp/activity/call_graph_util_test.cc',
-        'cpp/activity/delayable_function_tree_view_delegate_test.cc',
-        'cpp/activity/find_first_invocations_visitor_test.cc',
-        'cpp/activity/timer_test.cc',
-        'cpp/activity/uncalled_function_tree_view_delegate_test.cc',
-      ],
-      'include_dirs': [
-        '<(DEPTH)',
-        'cpp/activity',
-      ],
-      'defines': [
-        'TEST_DIR_PATH="<(DEPTH)/pagespeed_firefox/cpp/activity/testdata/"',
-      ],
-    },
-    {
       'target_name': 'pagespeed_firefox_library_rules',
       'type': '<(library)',
       'dependencies': [
@@ -390,7 +243,6 @@
       },
       'dependencies': [
         'xulrunner_sdk',
-        'pagespeed_firefox_activity_gecko',
         'pagespeed_firefox_js_min',
         'pagespeed_firefox_library_rules',
       ],

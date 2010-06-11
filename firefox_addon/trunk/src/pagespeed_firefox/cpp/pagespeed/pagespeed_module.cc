@@ -17,7 +17,6 @@
 // Author: Bryan McQuade
 // Author: Tony Gentilcore
 
-#include "activity/profiler.h"
 #include "js_min/js_minifier.h"
 #ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
 #include "pagespeed/pagespeed_rules.h"
@@ -32,10 +31,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(PageSpeedRules)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JsMinifier)
 }  // namespace pagespeed
 
-namespace activity {
-NS_GENERIC_FACTORY_CONSTRUCTOR(Profiler)
-}  // namespace pagespeed
-
 namespace {
 
 #ifdef PAGESPEED_INCLUDE_LIBRARY_RULES
@@ -47,10 +42,6 @@ const char *PAGE_SPEED_RULES_CLASSNAME = "PageSpeedRules";
 const char *JS_MINIFIER_CONTRACTID =
     "@code.google.com/p/page-speed/JsMin;1";
 const char *JS_MINIFIER_CLASSNAME = "JsMinifier";
-
-const char* PROFILER_CONTRACTID =
-    "@code.google.com/p/page-speed/ActivityProfiler;1";
-const char* PROFILER_CLASSNAME = "JavaScript Execution Tracer";
 
 // CIDs, or "class identifiers", are used by xpcom to uniquely
 // identify a class or component. See
@@ -97,12 +88,6 @@ static nsModuleComponentInfo components[] = {
     JS_MINIFIER_CID,
     JS_MINIFIER_CONTRACTID,
     pagespeed::JsMinifierConstructor,
-  },
-  {
-    PROFILER_CLASSNAME,
-    PROFILER_CID,
-    PROFILER_CONTRACTID,
-    activity::ProfilerConstructor,
   },
 };
 
