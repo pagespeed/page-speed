@@ -21,6 +21,7 @@ inline std::string IntegerToString(int i) {
   return IntToString(i);
 }
 
+
 inline void Web64Encode(const std::string& in, std::string* out) {
   *out = web64_encode(reinterpret_cast<const unsigned char*>(in.data()),
                       in.size());
@@ -83,6 +84,9 @@ struct StringCompareInsensitive {
     return strcasecmp(s1.c_str(), s2.c_str()) < 0;
   };
 };
+
+typedef std::vector<const char*> CharStarVector;
+typedef std::vector<std::string> StringVector;
 
 }  // namespace net_instaweb
 

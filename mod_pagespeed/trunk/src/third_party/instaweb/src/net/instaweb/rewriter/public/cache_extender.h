@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "net/instaweb/rewriter/public/css_filter.h"
+#include "net/instaweb/rewriter/public/resource_tag_scanner.h"
 #include "net/instaweb/rewriter/public/rewrite_filter.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
@@ -40,7 +40,7 @@ class CacheExtender : public RewriteFilter {
   HtmlParse* html_parse_;
   ResourceManager* resource_manager_;
   Hasher* hasher_;
-  CssFilter css_filter_;
+  ResourceTagScanner tag_scanner_;
   Timer* timer_;
   Variable* extension_count_;
   Variable* not_cacheable_count_;

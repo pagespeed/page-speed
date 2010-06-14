@@ -25,7 +25,7 @@ class SimpleMetaData : public MetaData {
   virtual int NumAttributes() const;
   virtual const char* Name(int index) const;
   virtual const char* Value(int index) const;
-  virtual bool Lookup(const char* name, StringVector* values) const;
+  virtual bool Lookup(const char* name, CharStarVector* values) const;
 
   // Add a new header.
   virtual void Add(const char* name, const char* value);
@@ -88,7 +88,7 @@ class SimpleMetaData : public MetaData {
   // value as an explicitly newed char*.  The risk of using a std::string
   // to hold the value is that the pointers will not survive a resize.
   typedef std::pair<const char*, char*> StringPair;  // owns the value
-  typedef std::map<std::string, StringVector,
+  typedef std::map<std::string, CharStarVector,
                    StringCompareInsensitive> AttributeMap;
   typedef std::vector<StringPair> AttributeVector;
 

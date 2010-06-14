@@ -17,16 +17,25 @@ const char* const kSensitiveTags[] = {"pre", "script", "style", "textarea"};
 
 bool IsHtmlWhiteSpace(char ch) {
   // See http://www.w3.org/TR/html401/struct/text.html#h-9.1
-  return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\f';
+  return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f';
 }
 
-// Append the input to the output with whitespace collapsed.
+// Append the input to the output with whitespace collapsed.  Specifically,
+// each contiguous sequence of whitespace is replaced with the first
+// (whitespace) character in the sequence, except that any sequence containing
+// a newline is collapsed to a newline.
 void CollapseWhitespace(const std::string& input, std::string* output) {
+  // This variable stores the first whitespace character in each whitespace
+  // sequence, or '\0' when we're not currently in the middle of a whitespace
+  // sequence.  (There's nothing special about '\0'; we could just as easily
+  // use any other non-whitespace character.)
   char whitespace = '\0';
   for (std::string::const_iterator iter = input.begin(), end = input.end();
        iter != end; ++iter) {
     const char ch = *iter;
     if (IsHtmlWhiteSpace(ch)) {
+      // We let newlines take precedence over other kinds of whitespace, for
+      // aesthetic reasons.
       if (whitespace == '\0' || ch == '\n') {
         whitespace = ch;
       }

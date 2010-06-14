@@ -50,7 +50,7 @@ bool WgetUrlFetcher::StreamingFetchUrl(const std::string& url,
   std::string cmd("/usr/bin/wget --save-headers -q -O -"), escaped_url;
 
   // Use default user-agent if none is set in headers.
-  MetaData::StringVector values;
+  CharStarVector values;
   request_headers.Lookup("user-agent", &values);
   if (values.empty()) {
     cmd += StrCat(" --user-agent=\"", kDefaultUserAgent, "\"");

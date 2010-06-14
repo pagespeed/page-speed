@@ -9,12 +9,6 @@
 
 namespace net_instaweb {
 
-void EnsureEndsInSlash(std::string* dir) {
-  if (dir->length() == 0 || dir->at(dir->length() - 1) != '/') {
-    dir->append("/");
-  }
-}
-
 FileSystem::~FileSystem() {
 }
 
