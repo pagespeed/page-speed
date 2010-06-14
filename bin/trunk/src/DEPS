@@ -6,7 +6,6 @@ vars = {
 }
 
 deps = {
-
   # Fetch chromium DEPS so we can sync our other dependencies relative
   # to it.
   "src/third_party/chromium":
@@ -52,29 +51,39 @@ deps = {
   "src/third_party/glew":
     Var("chromium_trunk") + "/src/third_party/glew" + Var("chromium_revision"),
   "src/third_party/harfbuzz":
-    Var("chromium_trunk") + "/src/third_party/harfbuzz" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/harfbuzz" +
+      Var("chromium_revision"),
   "src/third_party/libevent":
-    Var("chromium_trunk") + "/src/third_party/libevent" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/libevent" +
+      Var("chromium_revision"),
   "src/third_party/libjpeg":
-    Var("chromium_trunk") + "/src/third_party/libjpeg" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/libjpeg" +
+      Var("chromium_revision"),
   "src/third_party/libpng":
-    Var("chromium_trunk") + "/src/third_party/libpng" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/libpng" +
+      Var("chromium_revision"),
   "src/third_party/libxml":
-    Var("chromium_trunk") + "/src/third_party/libxml" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/libxml" +
+      Var("chromium_revision"),
   "src/third_party/libxslt":
-    Var("chromium_trunk") + "/src/third_party/libxslt" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/libxslt" +
+      Var("chromium_revision"),
   "src/third_party/mesa":
     Var("chromium_trunk") + "/src/third_party/mesa" + Var("chromium_revision"),
   "src/third_party/modp_b64":
-    Var("chromium_trunk") + "/src/third_party/modp_b64" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/modp_b64" +
+      Var("chromium_revision"),
   "src/third_party/npapi":
     Var("chromium_trunk") + "/src/third_party/npapi" + Var("chromium_revision"),
   "src/third_party/openmax":
-    Var("chromium_trunk") + "/src/third_party/openmax" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/openmax" +
+      Var("chromium_revision"),
   "src/third_party/protobuf2":
-    Var("chromium_trunk") + "/src/third_party/protobuf2" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/protobuf2" +
+      Var("chromium_revision"),
   "src/third_party/sqlite":
-    Var("chromium_trunk") + "/src/third_party/sqlite" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/sqlite" +
+      Var("chromium_revision"),
   "src/third_party/tcmalloc/chromium":
     Var("chromium_trunk") + "/src/third_party/tcmalloc/chromium"
       + Var("chromium_revision"),
