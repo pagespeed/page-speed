@@ -23,7 +23,17 @@
           # We're building a shared library, so everything needs to be built
           # with Position-Independent Code.
           '-fPIC',
+          # Our dependency on OpenCV need us to turn on exceptions.
+          '-fexceptions',
+          # Now we are using exceptions. -fno-asynchronous-unwind-tables is
+          # set in libpagespeed's common.gypyi. Now enable it.
+          '-fasynchronous-unwind-tables',
         ],
+      }],
+      ['OS == "mac"', {
+        'xcode_settings':{
+          'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',        # -fexceptions
+        },
       }],
     ],
   },
