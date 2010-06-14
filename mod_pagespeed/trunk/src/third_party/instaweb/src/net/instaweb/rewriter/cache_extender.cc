@@ -34,7 +34,7 @@ CacheExtender::CacheExtender(const char* filter_prefix, HtmlParse* html_parse,
       html_parse_(html_parse),
       resource_manager_(resource_manager),
       hasher_(hasher),
-      css_filter_(html_parse),
+      tag_scanner_(html_parse),
       timer_(timer),
       extension_count_(NULL),
       not_cacheable_count_(NULL) {
@@ -48,17 +48,15 @@ CacheExtender::CacheExtender(const char* filter_prefix, HtmlParse* html_parse,
 
 void CacheExtender::StartElement(HtmlElement* element) {
   MessageHandler* message_handler = html_parse_->message_handler();
-  HtmlElement::Attribute* href;
-  const char* media;
-  if (css_filter_.ParseCssElement(element, &href, &media) &&
-      html_parse_->IsRewritable(element)) {
-    InputResource* css_resource =
+  HtmlElement::Attribute* href = tag_scanner_.ScanElement(element);
+  if ((href != NULL) && html_parse_->IsRewritable(element)) {
+    InputResource* input_resource =
         resource_manager_->CreateInputResource(href->value(), message_handler);
 
     // TODO(jmarantz): create an output resource to generate a new url,
     // rather than doing the content-hashing here.
-    if (css_resource->Read(message_handler)) {
-      const MetaData* headers = css_resource->metadata();
+    if (input_resource->Read(message_handler)) {
+      const MetaData* headers = input_resource->metadata();
       int64 now_ms = timer_->NowMs();
 
       // We cannot cache-extend a resource that's completely uncacheable,
@@ -71,7 +69,8 @@ void CacheExtender::StartElement(HtmlElement* element) {
                  kMinThresholdMs) {
         ResourceUrl resource_url;
         resource_url.set_origin_url(href->value());
-        resource_url.set_content_hash(hasher_->Hash(css_resource->contents()));
+        resource_url.set_content_hash(hasher_->Hash(
+            input_resource->contents()));
         std::string url_safe_id;
         Encode(resource_url, &url_safe_id);
         std::string new_url = StrCat(

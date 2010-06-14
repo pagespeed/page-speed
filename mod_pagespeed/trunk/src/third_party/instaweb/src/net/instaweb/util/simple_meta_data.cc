@@ -46,7 +46,7 @@ const char* SimpleMetaData::Value(int index) const {
   return attribute_vector_[index].second;
 }
 
-bool SimpleMetaData::Lookup(const char* name, StringVector* values) const {
+bool SimpleMetaData::Lookup(const char* name, CharStarVector* values) const {
   AttributeMap::const_iterator p = attribute_map_.find(name);
   bool ret = false;
   if (p != attribute_map_.end()) {
@@ -68,11 +68,11 @@ void SimpleMetaData::Add(const char* name, const char* value) {
   // http://src.chromium.org/viewvc/chrome/trunk/src/net/http/http_util.cc
   // (search for IsNonCoalescingHeader)
 
-  StringVector dummy_values;
+  CharStarVector dummy_values;
   std::pair<AttributeMap::iterator, bool> iter_inserted =
       attribute_map_.insert(AttributeMap::value_type(name, dummy_values));
   AttributeMap::iterator iter = iter_inserted.first;
-  StringVector& values = iter->second;
+  CharStarVector& values = iter->second;
   int value_buf_size = strlen(value) + 1;
   char* value_copy = new char[value_buf_size];
   memcpy(value_copy, value, value_buf_size);
@@ -214,7 +214,7 @@ void SimpleMetaData::ComputeCaching() {
     resource.AddResponseHeader(Name(i), Value(i));
   }
 
-  StringVector values;
+  CharStarVector values;
   int64 date;
   // Compute the timestamp if we can find it
   if (Lookup("Date", &values) && (values.size() == 1) &&

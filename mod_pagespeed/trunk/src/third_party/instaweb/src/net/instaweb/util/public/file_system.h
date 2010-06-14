@@ -140,8 +140,17 @@ class FileSystem {
                                   MessageHandler* handler);
 };
 
-// Make sure directory's path ends in '/'
-void EnsureEndsInSlash(std::string* directory);
+// Does a path end in slash?
+inline bool EndsInSlash(const StringPiece& path) {
+  return path.size() >= 1 && path[path.size() - 1] == '/';
+}
+
+// Make sure directory's path ends in '/'.
+inline void EnsureEndsInSlash(std::string* dir) {
+  if (!EndsInSlash(*dir)) {
+    dir->append("/");
+  }
+}
 
 }  // namespace net_instaweb
 

@@ -78,8 +78,6 @@ enum Code {
 // TODO(sligocki): Stop using char* in interface.
 class MetaData {
  public:
-  typedef std::vector<const char*> StringVector;
-
   MetaData() {}
   virtual ~MetaData();
 
@@ -93,7 +91,7 @@ class MetaData {
   // Get the attribute values associated with this name.  Returns
   // false if the attribute is not found.  If it was found, then
   // the values vector is filled in.
-  virtual bool Lookup(const char* name, StringVector* values) const = 0;
+  virtual bool Lookup(const char* name, CharStarVector* values) const = 0;
 
   // Add a new header.
   virtual void Add(const char* name, const char* value) = 0;

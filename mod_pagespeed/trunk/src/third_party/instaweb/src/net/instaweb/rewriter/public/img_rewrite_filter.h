@@ -8,7 +8,7 @@
 
 #include "base/scoped_ptr.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
-#include "net/instaweb/rewriter/public/img_filter.h"
+#include "net/instaweb/rewriter/public/img_tag_scanner.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
@@ -56,7 +56,7 @@ class ImgRewriteFilter : public RewriteFilter {
 
   FileSystem* file_system_;
   HtmlParse* html_parse_;
-  scoped_ptr<ImgFilter> img_filter_;
+  scoped_ptr<ImgTagScanner> img_filter_;
   ResourceManager* resource_manager_;
   const Atom s_width_;
   const Atom s_height_;

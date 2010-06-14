@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <utility>  // for std::pair
+
+#include "base/logging.h"
 #include "net/instaweb/htmlparse/html_event.h"
 #include "net/instaweb/htmlparse/html_lexer.h"
 #include "net/instaweb/htmlparse/public/html_element.h"
@@ -240,9 +242,9 @@ bool HtmlParse::ReplaceNode(HtmlNode* existing_node, HtmlNode* new_node) {
   bool replaced = false;
   if (IsRewritable(existing_node)) {
     replaced = InsertElementBeforeElement(existing_node, new_node);
-    assert(replaced);
+    CHECK(replaced);
     replaced = DeleteElement(existing_node);
-    assert(replaced);
+    CHECK(replaced);
   }
   return replaced;
 }

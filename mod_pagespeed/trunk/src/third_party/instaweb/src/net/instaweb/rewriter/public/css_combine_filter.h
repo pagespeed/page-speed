@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "net/instaweb/rewriter/public/css_filter.h"
+#include "net/instaweb/rewriter/public/css_tag_scanner.h"
 #include "net/instaweb/rewriter/public/rewrite_filter.h"
 #include "net/instaweb/util/public/atom.h"
 #include <string>
@@ -59,7 +59,7 @@ class CssCombineFilter : public RewriteFilter {
   HtmlParse* html_parse_;
   HtmlElement* head_element_;  // Pointer to head element for future use
   ResourceManager* resource_manager_;
-  CssFilter css_filter_;
+  CssTagScanner css_filter_;
   Variable* counter_;
 };
 

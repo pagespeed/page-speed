@@ -6,7 +6,7 @@
 #include "net/instaweb/htmlparse/public/html_element.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/rewriter/public/image.h"
-#include "net/instaweb/rewriter/public/img_filter.h"
+#include "net/instaweb/rewriter/public/img_tag_scanner.h"
 #include "net/instaweb/rewriter/public/input_resource.h"
 #include "net/instaweb/rewriter/public/output_resource.h"
 #include "net/instaweb/rewriter/public/resource_manager.h"
@@ -44,7 +44,7 @@ ImgRewriteFilter::ImgRewriteFilter(StringPiece path_prefix,
     : RewriteFilter(path_prefix),
       file_system_(file_system),
       html_parse_(html_parse),
-      img_filter_(new ImgFilter(html_parse)),
+      img_filter_(new ImgTagScanner(html_parse)),
       resource_manager_(resource_manager),
       s_width_(html_parse->Intern("width")),
       s_height_(html_parse->Intern("height")),
