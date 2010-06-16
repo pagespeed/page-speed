@@ -25,10 +25,12 @@ deps = {
   Var("chromium_deps_root"):
     File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
 
-  "src/googleurl": From(Var("chromium_deps_root")),
-  "src/testing/gtest": From(Var("chromium_deps_root")),
-  "src/third_party/protobuf2/src": From(Var("chromium_deps_root")),
-  "src/tools/gyp": From(Var("chromium_deps_root")),
+  "src/site_scons/site_tools":
+    (Var("chromium_trunk") + "/src/site_scons/site_tools" +
+     Var("chromium_revision")),
+
+  "src/testing":
+    Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
 
   "src/third_party/chromium/src/build":
     Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
@@ -39,15 +41,24 @@ deps = {
   "src/third_party/chromium/src/net/base":
     Var("chromium_trunk") + "/src/net/base" + Var("chromium_revision"),
 
-  "src/site_scons/site_tools":
-    (Var("chromium_trunk") + "/src/site_scons/site_tools" +
+  "src/third_party/libjpeg":
+    (Var("chromium_trunk") + "/src/third_party/libjpeg" +
      Var("chromium_revision")),
 
-  "src/testing":
-    Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
+  "src/third_party/libpng":
+    (Var("chromium_trunk") + "/src/third_party/libpng" +
+     Var("chromium_revision")),
+
+  "src/third_party/zlib":
+    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
+
+  "src/third_party/protobuf2":
+    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
+     Var("chromium_revision")),
 
   "src/third_party/scons":
-    Var("chromium_trunk") + "/src/third_party/scons" + Var("chromium_revision"),
+    Var("chromium_trunk") + "/src/third_party/scons" +
+      Var("chromium_revision"),
 
   "src/tools/data_pack":
     Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
@@ -55,20 +66,10 @@ deps = {
   "src/tools/grit":
     Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
 
-  "src/third_party/protobuf2":
-    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
-     Var("chromium_revision")),
-
-  "src/third_party/zlib":
-    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
-
-  "src/third_party/libpng":
-    (Var("chromium_trunk") + "/src/third_party/libpng" +
-     Var("chromium_revision")),
-
-  "src/third_party/libjpeg":
-    (Var("chromium_trunk") + "/src/third_party/libjpeg" +
-     Var("chromium_revision")),
+  "src/googleurl": From(Var("chromium_deps_root")),
+  "src/testing/gtest": From(Var("chromium_deps_root")),
+  "src/third_party/protobuf2/src": From(Var("chromium_deps_root")),
+  "src/tools/gyp": From(Var("chromium_deps_root")),
 }
 
 
