@@ -3,6 +3,8 @@ vars = {
     "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@49687",
   "chromium_deps_root": "src/third_party/chromium",
+  "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
+  "libpagespeed_revision": "@head",
 }
 
 deps = {
@@ -117,6 +119,14 @@ deps = {
     From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
   "src/v8": From(Var("chromium_deps_root")),
+
+  "src/third_party/libpagespeed/src/pagespeed":
+    (Var("libpagespeed_trunk") + "/src/pagespeed" +
+     Var("libpagespeed_revision")),
+
+  "src/third_party/libpagespeed/src/third_party":
+    (Var("libpagespeed_trunk") + "/src/third_party" +
+     Var("libpagespeed_revision")),
 }
 
 

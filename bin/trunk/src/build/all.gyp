@@ -9,7 +9,7 @@
       'type': 'none',
       'xcode_create_dependents_test_runner': 1,
       'dependencies': [
-        '../third_party/WebKit/WebKit/chromium/WebKit.gyp:*',
+        '../pagespeed/pagespeed_bin.gyp:*',
       ],
     }
   ]
