@@ -16,20 +16,19 @@ vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@40280",
+  "chromium_deps_root": "src/third_party/chromium_deps",
 }
 
 deps = {
-  "src/googleurl":
-    "http://google-url.googlecode.com/svn/trunk@121",
+  # Fetch chromium DEPS so we can sync our other dependencies relative
+  # to it.
+  Var("chromium_deps_root"):
+    File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
 
-  "src/testing/gtest":
-    "http://googletest.googlecode.com/svn/trunk@359",
-
-  "src/third_party/protobuf2/src":
-    "http://protobuf.googlecode.com/svn/trunk@305",
-
-  "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@790",
+  "src/googleurl": From(Var("chromium_deps_root")),
+  "src/testing/gtest": From(Var("chromium_deps_root")),
+  "src/third_party/protobuf2/src": From(Var("chromium_deps_root")),
+  "src/tools/gyp": From(Var("chromium_deps_root")),
 
   "src/third_party/chromium/src/build":
     Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
@@ -75,11 +74,8 @@ deps = {
 
 deps_os = {
   "win": {
-    "src/third_party/cygwin":
-      Var("chromium_trunk") + "/deps/third_party/cygwin@11984",
-
-    "src/third_party/python_24":
-      Var("chromium_trunk") + "/deps/third_party/python_24@22967",
+    "src/third_party/cygwin": From(Var("chromium_deps_root")),
+    "src/third_party/python_24": From(Var("chromium_deps_root")),
   },
   "mac": {
   },
