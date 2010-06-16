@@ -4,30 +4,47 @@
 
 {
   'variables': {
-    'chromium_libjpeg_root': '<(DEPTH)/third_party/libjpeg'
+    'chromium_libjpeg_root': '<(DEPTH)/third_party/libjpeg',
+    'conditions': [
+      [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+        # Link to system .so since we already use it due to GTK.
+        'use_system_libjpeg%': 1,
+      }, {  # OS!="linux" and OS!="freebsd" and OS!="openbsd"
+        'use_system_libjpeg%': 0,
+      }],
+    ],
   },
-  'targets': [
-    {
-      'target_name': 'libjpeg_trans',
-      'type': '<(library)',
-      'sources': [
-        'jctrans.c',
-        'jdtrans.c',
+  'conditions': [
+    ['use_system_libjpeg==0', {
+      'targets': [
+        {
+          'target_name': 'libjpeg_trans',
+          'type': '<(library)',
+          'sources': [
+            'jctrans.c',
+            'jdtrans.c',
+          ],
+          'dependencies': [
+            '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+          ],
+          'export_dependent_settings': [
+            '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+          ],
+        },
       ],
-      'dependencies': [
-        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+    }, {
+      'targets': [
+        {
+          'target_name': 'libjpeg_trans',
+          'type': 'settings',
+          'dependencies': [
+            '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+          ],
+          'export_dependent_settings': [
+            '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+          ],
+        }
       ],
-      'export_dependent_settings': [
-        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
-      ],
-      'include_dirs': [
-        '<(DEPTH)/third_party/libjpeg',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(DEPTH)/third_party/libjpeg',
-        ],
-      },
-    },
+    }],
   ],
 }
