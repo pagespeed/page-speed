@@ -4,7 +4,7 @@
 
 {
   'variables': {
-    'chromium_libjpeg_root': '<(DEPTH)/third_party/chromium/src/third_party/libjpeg'
+    'chromium_libjpeg_root': '<(DEPTH)/third_party/libjpeg'
   },
   'targets': [
     {

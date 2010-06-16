@@ -20,15 +20,12 @@
     {
       'target_name': 'pagespeed_image_attributes_factory',
       'type': '<(library)',
-      'variables': {
-        'chromium_libjpeg_root': '<(DEPTH)/third_party/chromium/src/third_party/libjpeg',
-      },
       'dependencies': [
         'pagespeed_jpeg_reader',
         'pagespeed_png_optimizer',
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
-        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
       'sources': [
@@ -47,12 +44,9 @@
     {
       'target_name': 'pagespeed_jpeg_reader',
       'type': '<(library)',
-      'variables': {
-        'chromium_libjpeg_root': '<(DEPTH)/third_party/chromium/src/third_party/libjpeg'
-      },
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
+        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
       ],
       'sources': [
         'jpeg_reader.cc',
@@ -73,7 +67,7 @@
       'dependencies': [
         'pagespeed_jpeg_reader',
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/third_party/libjpeg/libjpeg_trans.gyp:libjpeg_trans',
+        '<(pagespeed_root)/third_party/libjpeg_trans/libjpeg_trans.gyp:libjpeg_trans',
       ],
       'sources': [
         'jpeg_optimizer.cc',

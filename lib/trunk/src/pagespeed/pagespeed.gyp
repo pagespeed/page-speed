@@ -138,9 +138,6 @@
     {
       'target_name': 'pagespeed_image_test',
       'type': 'executable',
-      'variables': {
-        'chromium_libjpeg_root': '<(DEPTH)/third_party/chromium/src/third_party/libjpeg',
-      },
       'dependencies': [
         'pagespeed',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
@@ -150,8 +147,8 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
-        '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
         '<(pagespeed_root)/third_party/readpng/readpng.gyp:readpng',
       ],
       'include_dirs': [
