@@ -26,8 +26,8 @@ extern "C" {
 #include "jpeglib.h"
 #include "jerror.h"
 #else
-#include "third_party/chromium/src/third_party/libjpeg/jpeglib.h"
-#include "third_party/chromium/src/third_party/libjpeg/jerror.h"
+#include "third_party/libjpeg/jpeglib.h"
+#include "third_party/libjpeg/jerror.h"
 #endif
 }
 
