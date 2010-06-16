@@ -20,6 +20,14 @@
       'export_dependent_settings': [
         '<(chromium_libjpeg_root)/libjpeg.gyp:libjpeg',
       ],
+      'include_dirs': [
+        '<(DEPTH)/third_party/libjpeg',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(DEPTH)/third_party/libjpeg',
+        ],
+      },
     },
   ],
 }
