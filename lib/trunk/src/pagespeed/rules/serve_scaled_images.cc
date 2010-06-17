@@ -234,7 +234,7 @@ bool ServeScaledImages::AppendResults(const PagespeedInput& input,
     const OriginalSizesMap::const_iterator size_entry =
         original_sizes_map.find(url);
     if (size_entry == original_sizes_map.end()) {
-      LOG(ERROR) << "No resource for url: " << url;
+      LOG(INFO) << "No resource for url: " << url;
       continue;
     }
 

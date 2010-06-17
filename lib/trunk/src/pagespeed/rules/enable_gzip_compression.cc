@@ -181,7 +181,7 @@ bool ZlibComputer::ComputeSavings(const pagespeed::Resource& resource,
       8,   // default mem level (no zlib constant exists for this value)
       Z_DEFAULT_STRATEGY);
   if (err != Z_OK) {
-    LOG(WARNING) << "Failed to deflateInit2: " << err;
+    LOG(INFO) << "Failed to deflateInit2: " << err;
     return false;
   }
 
@@ -195,7 +195,7 @@ bool ZlibComputer::ComputeSavings(const pagespeed::Resource& resource,
   // clean up.
   err = deflateEnd(&c_stream);
   if (err != Z_OK) {
-    LOG(WARNING) << "Failed to deflateEnd: " << err;
+    LOG(INFO) << "Failed to deflateEnd: " << err;
     return false;
   }
 
@@ -224,7 +224,7 @@ bool ZlibComputer::GetCompressedSize(z_stream* c_stream, int* compressed_size) {
         break;
 
       default:
-        LOG(WARNING) << "GetCompressedSize encountered error: " << err;
+        LOG(INFO) << "GetCompressedSize encountered error: " << err;
         return false;
     }
 
@@ -233,7 +233,7 @@ bool ZlibComputer::GetCompressedSize(z_stream* c_stream, int* compressed_size) {
 
   const bool success = (err == Z_STREAM_END);
   if (!success) {
-    LOG(WARNING) << "GetCompressedSize expected Z_STREAM_END, got " << err;
+    LOG(INFO) << "GetCompressedSize expected Z_STREAM_END, got " << err;
   }
   return success;
 }

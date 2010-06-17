@@ -408,7 +408,7 @@ void HtmlCompactor::CompactForeign(const char* begin, const char* end) {
     if (cssmin::MinifyCss(input, &minified)) {
       output_->append(minified);
     } else {
-      LOG(WARNING) << "Inline CSS minification failed.";
+      LOG(INFO) << "Inline CSS minification failed.";
       output_->append(begin, end - begin);
     }
   } else if (cur_tag_.tagname() == "script") {
@@ -417,7 +417,7 @@ void HtmlCompactor::CompactForeign(const char* begin, const char* end) {
     if (jsmin::MinifyJs(input, &minified)) {
       output_->append(minified);
     } else {
-      LOG(WARNING) << "Inline JS minification failed.";
+      LOG(INFO) << "Inline JS minification failed.";
       output_->append(begin, end - begin);
     }
   } else {  // Keep the content intact for other tags.
