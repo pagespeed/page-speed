@@ -114,6 +114,10 @@
     'mac_sdk%': '10.5',
     'mac_deployment_target%': '10.5',
 
+    # Turn on -Wextra on chromium code during Mac compile.
+    # TODO(mark,tvl): drop this and turn it always on when it works.
+    'chromium_mac_wextra%': 0,
+
     # To do a shared build on linux we need to be able to choose between type
     # static_library and shared_library. We default to doing a static build
     # but you can override this with "gyp -Dlibrary=shared_library" or you
