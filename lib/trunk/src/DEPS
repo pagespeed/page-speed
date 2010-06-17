@@ -15,7 +15,7 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@40280",
+  "chromium_revision": "@50096",
   "chromium_deps_root": "src/third_party/chromium_deps",
 }
 
@@ -40,6 +40,17 @@ deps = {
 
   "src/third_party/chromium/src/net/base":
     Var("chromium_trunk") + "/src/net/base" + Var("chromium_revision"),
+
+  "src/build/linux":
+    Var("chromium_trunk") + "/src/build/linux" + Var("chromium_revision"),
+  "src/build/mac":
+    Var("chromium_trunk") + "/src/build/mac" + Var("chromium_revision"),
+  "src/build/win":
+    Var("chromium_trunk") + "/src/build/win" + Var("chromium_revision"),
+  "src/build/util":
+    Var("chromium_trunk") + "/src/build/util" + Var("chromium_revision"),
+  "src/build/internal":
+    Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
 
   "src/third_party/libjpeg":
     (Var("chromium_trunk") + "/src/third_party/libjpeg" +
