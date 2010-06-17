@@ -6,6 +6,7 @@
   'target_defaults': {
     'variables': {
       'base_target': 0,
+      'base_extra_target': 0,
       'chromium_root': '<(DEPTH)/third_party/chromium/src',
     },
     'target_conditions': [
@@ -27,7 +28,6 @@
         '<(chromium_root)/base/lock_impl_posix.cc',
         '<(chromium_root)/base/lock_impl_win.cc',
         'logging.cc',
-        '<(chromium_root)/base/md5.cc',
         '<(chromium_root)/base/platform_thread_mac.mm',
         '<(chromium_root)/base/platform_thread_posix.cc',
         '<(chromium_root)/base/platform_thread_win.cc',
@@ -66,6 +66,18 @@
           },],
         ],
       }],
+      ['base_extra_target', {
+        'sources': [
+        '<(chromium_root)/base/md5.cc',
+        ],
+        'conditions': [
+          [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd"', {
+            'cflags': [
+              '-Wno-write-strings',
+            ],
+          },],
+        ],
+      }],
     ],
   },
   'targets': [
@@ -75,6 +87,7 @@
       'msvs_guid': '1832A374-8A74-4F9E-B536-69A699B3E165',
       'variables': {
         'base_target': 1,
+        'base_extra_target': 1,
       },
       # TODO(gregoryd): direct_dependent_settings should be shared with the
       #  64-bit target, but it doesn't work due to a bug in gyp
@@ -122,7 +135,7 @@
         ],
       ],
       'sources': [
-        '<(chromium_root)/base/dynamic_annotations.cc',
+        '<(chromium_root)/base/third_party/dynamic_annotations/dynamic_annotations.c',
         'string16.cc',
       ],
     },

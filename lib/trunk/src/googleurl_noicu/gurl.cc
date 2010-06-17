@@ -311,8 +311,7 @@ GURL GURL::GetWithEmptyPath() const {
 }
 
 bool GURL::IsStandard() const {
-  return url_util::IsStandard(spec_.data(), static_cast<int>(spec_.length()),
-                              parsed_.scheme);
+  return url_util::IsStandard(spec_.data(), parsed_.scheme);
 }
 
 bool GURL::SchemeIs(const char* lower_ascii_scheme) const {

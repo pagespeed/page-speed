@@ -497,6 +497,43 @@ bool TrimString(const std::string& input,
   return TrimStringT(input, trim_chars, TRIM_ALL, output) != TRIM_NONE;
 }
 
+#ifdef ICU_DEPENDENCY
+void TruncateUTF8ToByteSize(const std::string& input,
+                            const size_t byte_size,
+                            std::string* output) {
+  if (byte_size > input.length()) {
+    *output = input;
+    return;
+  }
+
+  int32 truncation_length = static_cast<int32>(byte_size);
+  int32 char_index = truncation_length - 1;
+  const char* cstr = input.c_str();
+
+  // Using CBU8, we will move backwards from the truncation point
+  // to the beginning of the string looking for a valid UTF8
+  // character.  Once a full UTF8 character is found, we will
+  // truncate the string to the end of that character.
+  while (char_index >= 0) {
+    int32 prev = char_index;
+    uint32 code_point = 0;
+    CBU8_NEXT(cstr, char_index, truncation_length, code_point);
+    if (!base::IsValidCharacter(code_point) ||
+        !base::IsValidCodepoint(code_point)) {
+      char_index = prev - 1;
+    } else {
+      break;
+    }
+  }
+
+  DCHECK(output != NULL);
+  if (char_index >= 0 )
+    *output = input.substr(0, char_index);
+  else
+    output->clear();
+}
+#endif
+
 TrimPositions TrimWhitespace(const std::wstring& input,
                              TrimPositions positions,
                              std::wstring* output) {
@@ -604,6 +641,32 @@ bool ContainsOnlyWhitespace(const string16& str) {
   return true;
 }
 
+template<typename STR>
+static bool ContainsOnlyCharsT(const STR& input, const STR& characters) {
+  for (typename STR::const_iterator iter = input.begin();
+       iter != input.end(); ++iter) {
+    if (characters.find(*iter) == STR::npos)
+      return false;
+  }
+  return true;
+}
+
+bool ContainsOnlyChars(const std::wstring& input,
+                       const std::wstring& characters) {
+  return ContainsOnlyCharsT(input, characters);
+}
+
+#if !defined(WCHAR_T_IS_UTF16)
+bool ContainsOnlyChars(const string16& input, const string16& characters) {
+  return ContainsOnlyCharsT(input, characters);
+}
+#endif
+
+bool ContainsOnlyChars(const std::string& input,
+                       const std::string& characters) {
+  return ContainsOnlyCharsT(input, characters);
+}
+
 std::string WideToASCII(const std::wstring& wide) {
   DCHECK(IsStringASCII(wide)) << wide;
   return std::string(wide.begin(), wide.end());
@@ -674,141 +737,21 @@ bool IsStringASCII(const base::StringPiece& str) {
   return DoIsStringASCII(str);
 }
 
-// Helper functions that determine whether the given character begins a
-// UTF-8 sequence of bytes with the given length. A character satisfies
-// "IsInUTF8Sequence" if it is anything but the first byte in a multi-byte
-// character.
-static inline bool IsBegin2ByteUTF8(int c) {
-  return (c & 0xE0) == 0xC0;
-}
-static inline bool IsBegin3ByteUTF8(int c) {
-  return (c & 0xF0) == 0xE0;
-}
-static inline bool IsBegin4ByteUTF8(int c) {
-  return (c & 0xF8) == 0xF0;
-}
-static inline bool IsInUTF8Sequence(int c) {
-  return (c & 0xC0) == 0x80;
-}
+#ifdef ICU_DEPENDENCY
+bool IsStringUTF8(const std::string& str) {
+  const char *src = str.data();
+  int32 src_len = static_cast<int32>(str.length());
+  int32 char_index = 0;
 
-// This function was copied from Mozilla, with modifications. The original code
-// was 'IsUTF8' in xpcom/string/src/nsReadableUtils.cpp. The license block for
-// this function is:
-//   This function subject to the Mozilla Public License Version
-//   1.1 (the "License"); you may not use this code except in compliance with
-//   the License. You may obtain a copy of the License at
-//   http://www.mozilla.org/MPL/
-//
-//   Software distributed under the License is distributed on an "AS IS" basis,
-//   WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-//   for the specific language governing rights and limitations under the
-//   License.
-//
-//   The Original Code is mozilla.org code.
-//
-//   The Initial Developer of the Original Code is
-//   Netscape Communications Corporation.
-//   Portions created by the Initial Developer are Copyright (C) 2000
-//   the Initial Developer. All Rights Reserved.
-//
-//   Contributor(s):
-//     Scott Collins <scc@mozilla.org> (original author)
-//
-// This is a template so that it can be run on wide and 8-bit strings. We want
-// to run it on wide strings when we have input that we think may have
-// originally been UTF-8, but has been converted to wide characters because
-// that's what we (and Windows) use internally.
-template<typename CHAR>
-static bool IsStringUTF8T(const CHAR* str, size_t length) {
-  bool overlong = false;
-  bool surrogate = false;
-  bool nonchar = false;
-
-  // overlong byte upper bound
-  typename ToUnsigned<CHAR>::Unsigned olupper = 0;
-
-  // surrogate byte lower bound
-  typename ToUnsigned<CHAR>::Unsigned slower = 0;
-
-  // incremented when inside a multi-byte char to indicate how many bytes
-  // are left in the sequence
-  int positions_left = 0;
-
-  for (uintptr_t i = 0; i < length; i++) {
-    // This whole function assume an unsigned value so force its conversion to
-    // an unsigned value.
-    typename ToUnsigned<CHAR>::Unsigned c = str[i];
-    if (c < 0x80)
-      continue;  // ASCII
-
-    if (c <= 0xC1) {
-      // [80-BF] where not expected, [C0-C1] for overlong
-      return false;
-    } else if (IsBegin2ByteUTF8(c)) {
-      positions_left = 1;
-    } else if (IsBegin3ByteUTF8(c)) {
-      positions_left = 2;
-      if (c == 0xE0) {
-        // to exclude E0[80-9F][80-BF]
-        overlong = true;
-        olupper = 0x9F;
-      } else if (c == 0xED) {
-        // ED[A0-BF][80-BF]: surrogate codepoint
-        surrogate = true;
-        slower = 0xA0;
-      } else if (c == 0xEF) {
-        // EF BF [BE-BF] : non-character
-        // TODO(jungshik): EF B7 [90-AF] should be checked as well.
-        nonchar = true;
-      }
-    } else if (c <= 0xF4) {
-      positions_left = 3;
-      nonchar = true;
-      if (c == 0xF0) {
-        // to exclude F0[80-8F][80-BF]{2}
-        overlong = true;
-        olupper = 0x8F;
-      } else if (c == 0xF4) {
-        // to exclude F4[90-BF][80-BF]
-        // actually not surrogates but codepoints beyond 0x10FFFF
-        surrogate = true;
-        slower = 0x90;
-      }
-    } else {
-      return false;
-    }
-
-    // eat the rest of this multi-byte character
-    while (positions_left) {
-      positions_left--;
-      i++;
-      c = str[i];
-      if (!c)
-        return false;  // end of string but not end of character sequence
-
-      // non-character : EF BF [BE-BF] or F[0-7] [89AB]F BF [BE-BF]
-      if (nonchar && ((!positions_left && c < 0xBE) ||
-                      (positions_left == 1 && c != 0xBF) ||
-                      (positions_left == 2 && 0x0F != (0x0F & c) ))) {
-        nonchar = false;
-      }
-      if (!IsInUTF8Sequence(c) || (overlong && c <= olupper) ||
-          (surrogate && slower <= c) || (nonchar && !positions_left) ) {
+  while (char_index < src_len) {
+    int32 code_point;
+    CBU8_NEXT(src, char_index, src_len, code_point);
+    if (!base::IsValidCharacter(code_point))
         return false;
       }
-      overlong = surrogate = false;
-    }
-  }
   return true;
 }
-
-bool IsStringUTF8(const std::string& str) {
-  return IsStringUTF8T(str.data(), str.length());
-}
-
-bool IsStringWideUTF8(const std::wstring& str) {
-  return IsStringUTF8T(str.data(), str.length());
-}
+#endif  // ICU_DEPENDENCY
 
 template<typename Iter>
 static inline bool DoLowerCaseEqualsASCII(Iter a_begin,
@@ -1015,19 +958,13 @@ std::wstring FormatBytesInternal(int64 bytes,
   for (int i = 0; i < units; ++i)
     unit_amount /= 1024.0;
 
-  wchar_t tmp[64];
-  // If the first decimal digit is 0, don't show it.
-  double int_part;
-  double fractional_part = modf(unit_amount, &int_part);
-  modf(fractional_part * 10, &int_part);
-  if (int_part == 0) {
-    base::swprintf(tmp, arraysize(tmp),
-                   L"%lld", static_cast<int64>(unit_amount));
-  } else {
-    base::swprintf(tmp, arraysize(tmp), L"%.1lf", unit_amount);
-  }
+  wchar_t buf[64];
+  if (bytes != 0 && units != DATA_UNITS_BYTE && unit_amount < 100)
+    base::swprintf(buf, arraysize(buf), L"%.1lf", unit_amount);
+  else
+    base::swprintf(buf, arraysize(buf), L"%.0lf", unit_amount);
 
-  std::wstring ret(tmp);
+  std::wstring ret(buf);
   if (show_units) {
     ret += L" ";
     ret += suffix[units];
@@ -1464,6 +1401,42 @@ void SplitStringDontTrim(const std::string& str,
   SplitStringT(str, s, false, r);
 }
 
+#ifdef ICU_DEPENDENCY
+template <typename STR>
+static void SplitStringUsingSubstrT(const STR& str,
+                                    const STR& s,
+                                    std::vector<STR>* r) {
+  typename STR::size_type begin_index = 0;
+  while (true) {
+    const typename STR::size_type end_index = str.find(s, begin_index);
+    if (end_index == STR::npos) {
+      const STR term = str.substr(begin_index);
+      STR tmp;
+      TrimWhitespace(term, TRIM_ALL, &tmp);
+      r->push_back(tmp);
+      return;
+    }
+    const STR term = str.substr(begin_index, end_index - begin_index);
+    STR tmp;
+    TrimWhitespace(term, TRIM_ALL, &tmp);
+    r->push_back(tmp);
+    begin_index = end_index + s.size();
+  }
+}
+
+void SplitStringUsingSubstr(const string16& str,
+                            const string16& s,
+                            std::vector<string16>* r) {
+  SplitStringUsingSubstrT(str, s, r);
+}
+
+void SplitStringUsingSubstr(const std::string& str,
+                            const std::string& s,
+                            std::vector<std::string>* r) {
+  SplitStringUsingSubstrT(str, s, r);
+}
+#endif  // ICU_DEPENDENCY
+
 template<typename STR>
 static size_t TokenizeT(const STR& str,
                         const STR& delimiters,
@@ -1502,6 +1475,12 @@ size_t Tokenize(const string16& str,
 size_t Tokenize(const std::string& str,
                 const std::string& delimiters,
                 std::vector<std::string>* tokens) {
+  return TokenizeT(str, delimiters, tokens);
+}
+
+size_t Tokenize(const base::StringPiece& str,
+                const base::StringPiece& delimiters,
+                std::vector<base::StringPiece>* tokens) {
   return TokenizeT(str, delimiters, tokens);
 }
 

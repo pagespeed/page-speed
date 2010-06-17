@@ -1,50 +1,24 @@
 #!/usr/bin/python
 
-# Copyright (c) 2009 The Chromium Authors. All rights reserved.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
+# Copyright 2010 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-"""Compiler version checking tool for gcc
-
-Print gcc version as XY if you are running gcc X.Y.*.
-This is used to tweak build flags for gcc 4.4.
-"""
+# This script is wrapper for the Chromium version of compiler_version.py.
 
 import os
-import re
-import subprocess
-import sys
 
-def GetVersion(compiler):
-  try:
-    # Note that compiler could be something tricky like "distcc g++".
-    compiler = compiler + " -dumpversion"
-    pipe = subprocess.Popen(compiler, stdout=subprocess.PIPE, shell=True)
-    gcc_output = pipe.communicate()[0]
-    result = re.match(r"(\d+)\.(\d+)", gcc_output)
-    return result.group(1) + result.group(2)
-  except Exception, e:
-    print >> sys.stderr, "compiler_version.py failed to execute:", compiler
-    print >> sys.stderr, e
-    return ""
+script_dir = os.path.dirname(__file__)
+chrome_src = os.path.normpath(os.path.join(script_dir, os.pardir, 'third_party', 'chromium', 'src'))
 
-def main():
-  # Check if CXX environment variable exists and
-  # if it does use that compiler.
-  cxx = os.getenv("CXX", None)
-  if cxx:
-    cxxversion = GetVersion(cxx)
-    if cxxversion != "":
-      print cxxversion
-      return 0
-  else:
-    # Otherwise we check the g++ version.
-    gccversion = GetVersion("g++")
-    if gccversion != "":
-      print gccversion
-      return 0
-
-  return 1
-
-if __name__ == "__main__":
-  sys.exit(main())
+execfile(os.path.join(chrome_src, 'build', 'compiler_version.py'))
