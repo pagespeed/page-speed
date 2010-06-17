@@ -45,8 +45,8 @@ bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
   if (!pagespeed::resource_util::GetHeaderDirectives(
           resource.GetResponseHeader("Cache-Control"),
           &cache_directives)) {
-    LOG(ERROR) << "Failed to parse cache control directives for "
-               << resource.GetRequestUrl();
+    LOG(INFO) << "Failed to parse cache control directives for "
+              << resource.GetRequestUrl();
     return false;
   }
 
@@ -191,8 +191,8 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
   DirectiveMap cache_directives;
   if (!GetHeaderDirectives(resource.GetResponseHeader("Cache-Control"),
                            &cache_directives)) {
-    LOG(ERROR) << "Failed to parse cache control directives for "
-               << resource.GetRequestUrl();
+    LOG(INFO) << "Failed to parse cache control directives for "
+              << resource.GetRequestUrl();
     return true;
   }
 
@@ -322,8 +322,8 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
       resource.GetResponseHeader("Cache-Control");
   DirectiveMap cache_directives;
   if (!GetHeaderDirectives(cache_control, &cache_directives)) {
-    LOG(ERROR) << "Failed to parse cache control directives for "
-               << resource.GetRequestUrl();
+    LOG(INFO) << "Failed to parse cache control directives for "
+              << resource.GetRequestUrl();
   } else {
     DirectiveMap::const_iterator it = cache_directives.find("max-age");
     if (it != cache_directives.end()) {
@@ -354,9 +354,9 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
   const std::string& date = resource.GetResponseHeader("Date");
   int64 date_value = 0;
   if (date.empty() || !ParseTimeValuedHeader(date.c_str(), &date_value)) {
-    LOG(ERROR) << "Missing or invalid date header: '" << date << "'. "
-               << "Assuming resource " << resource.GetRequestUrl()
-               << " is not cacheable.";
+    LOG(INFO) << "Missing or invalid date header: '" << date << "'. "
+              << "Assuming resource " << resource.GetRequestUrl()
+              << " is not cacheable.";
     // We have an Expires header, but no Date header to reference
     // from. Thus we assume that the resource is heuristically
     // cacheable, but not explicitly cacheable.

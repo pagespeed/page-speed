@@ -224,8 +224,8 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
         ++p;
         const std::string str(attr_name_start, p - attr_name_start);
         if (HasAttr(str)) {
-          LOG(WARNING) << "duplicated " << str << " attribute in "
-                       << tag_name_ << " tag";
+          LOG(INFO) << "duplicated " << str << " attribute in "
+                    << tag_name_ << " tag";
         } else {
           AddAttr(str);
         }
@@ -243,8 +243,8 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
     READTAG_SKIP(isspace);
     if (*p != '=') {  // we don't have a value
       if (HasAttr(attr_name)) {
-        LOG(WARNING) << "duplicated " << attr_name << " attribute in "
-                     << tag_name_ << " tag";
+        LOG(INFO) << "duplicated " << attr_name << " attribute in "
+                  << tag_name_ << " tag";
       } else {
         AddAttr(attr_name);
       }
@@ -275,8 +275,8 @@ const char* HtmlTag::ReadTag(const char* begin, const char* end) {
     // ignore all but the first value given for the attribute, so that's what
     // HtmlTag does too.  (mdsteele)
     if (HasAttr(attr_name)) {
-      LOG(WARNING) << "duplicated " << attr_name << " attribute in "
-                   << tag_name_ << " tag";
+      LOG(INFO) << "duplicated " << attr_name << " attribute in "
+                << tag_name_ << " tag";
     } else {
       const std::string attr_value(attr_value_start, attr_value_end);
       AddAttr(attr_name);

@@ -49,8 +49,8 @@ bool PagespeedInput::IsValidResource(const Resource* resource) const {
     return false;
   }
   if (!allow_duplicate_resources_ && has_resource_with_url(url)) {
-    LOG(WARNING) << "Ignoring duplicate AddResource for resource at \""
-                 << url << "\".";
+    LOG(INFO) << "Ignoring duplicate AddResource for resource at \""
+              << url << "\".";
     return false;
   }
   if (resource->GetResponseStatusCode() <= 0) {
