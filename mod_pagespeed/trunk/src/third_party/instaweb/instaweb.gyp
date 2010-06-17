@@ -163,7 +163,7 @@
       'hard_dependency': 1,
       'dependencies': [
           '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
-          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
+          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
        ],
       'actions': [
         {
@@ -177,7 +177,7 @@
             '<(SHARED_INTERMEDIATE_DIR)/net/instaweb/rewriter/rewrite.pb.h',
           ],
           'dependencies': [
-            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
+            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
@@ -208,7 +208,7 @@
       'hard_dependency': 1,
       'dependencies': [
           '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
-          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
+          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
        ],
       'actions': [
         {
@@ -222,7 +222,7 @@
             '<(SHARED_INTERMEDIATE_DIR)/net/instaweb/util/util.pb.h',
           ],
           'dependencies': [
-            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc',
+            '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',

@@ -14,11 +14,14 @@
 
 vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@40280",
+  "chromium_revision": "@50096",
+  "chromium_deps_root": "src/third_party/chromium_deps",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
+  "libpagespeed_deps_root": "src/third_party/libpagespeed_deps",
   "mod_spdy_trunk": "http://mod-spdy.googlecode.com/svn/trunk",
   "mod_spdy_revision": "@head",
+  "mod_spdy_deps_root": "src/third_party/mod_spdy_deps",
   "serf_src": "http://serf.googlecode.com/svn/tags/0.3.1",
   "serf_revision": "@head",
   "apr_src": "http://svn.apache.org/repos/asf/apr/apr/tags/1.4.2",
@@ -33,52 +36,35 @@ vars = {
 }
 
 deps = {
+  # Fetch dependent DEPS so we can sync our other dependencies
+  # relative to them.
+  Var("libpagespeed_deps_root"):
+    File(Var("libpagespeed_trunk") + "/src/DEPS" +
+      Var("libpagespeed_revision")),
+
+  Var("chromium_deps_root"):
+    File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
+
+  Var("mod_spdy_deps_root"):
+    File(Var("mod_spdy_trunk") + "/src/DEPS" + Var("mod_spdy_revision")),
 
   "src/base":
     Var("libpagespeed_trunk") + "/src/base" + Var("libpagespeed_revision"),
-
-  "src/googleurl":
-    "http://google-url.googlecode.com/svn/trunk@121",
 
   "src/googleurl_noicu":
     (Var("libpagespeed_trunk") + "/src/googleurl_noicu" +
      Var("libpagespeed_revision")),
 
-  "src/site_scons/site_tools":
-    (Var("chromium_trunk") + "/src/site_scons/site_tools" +
-     Var("chromium_revision")),
-
-  "src/testing":
-    Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
-
-  "src/testing/gtest":
-    "http://googletest.googlecode.com/svn/trunk@359",
-
   "src/third_party/apache":
     Var("mod_spdy_trunk") + "/src/third_party/apache" +
     Var("mod_spdy_revision"),
 
-  "src/third_party/apache/apr/src":
-    Var("apr_src") + Var("apr_revision"),
-
-  "src/third_party/apache/aprutil/src":
-    Var("aprutil_src") + Var("aprutil_revision"),
-
-  "src/third_party/apache/httpd/src/include":
-    Var("apache_httpd_src") + "/include" + Var("apache_httpd_revision"),
-
-  "src/third_party/apache/httpd/src/os":
-    Var("apache_httpd_src") + "/os" + Var("apache_httpd_revision"),
-
-  "src/third_party/chromium/src/base":
-    Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
-
-  "src/third_party/chromium/src/build":
-    Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
-
   "src/third_party/libpagespeed/src/build":
     (Var("libpagespeed_trunk") + "/src/build" +
      Var("libpagespeed_revision")),
+
+  "src/third_party/libpagespeed/src/build/internal":
+    Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
 
   "src/third_party/libpagespeed/src/pagespeed":
     (Var("libpagespeed_trunk") + "/src/pagespeed" +
@@ -88,55 +74,48 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
-  "src/third_party/libjpeg":
-    (Var("chromium_trunk") + "/src/third_party/libjpeg" +
-     Var("chromium_revision")),
-
-  "src/third_party/libpng":
-    (Var("chromium_trunk") + "/src/third_party/libpng" +
-     Var("chromium_revision")),
-
   "src/third_party/mod_spdy/src/mod_spdy/apache":
     Var("mod_spdy_trunk") + "/src/mod_spdy/apache" + Var("mod_spdy_revision"),
 
   "src/third_party/opencv/src":
     Var("opencv_src") + Var("opencv_revision"),
 
-  "src/third_party/protobuf2":
-    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
-     Var("chromium_revision")),
-
-  "src/third_party/protobuf2/src":
-    "http://protobuf.googlecode.com/svn/trunk@305",
-
-  "src/third_party/scons":
-    (Var("chromium_trunk") + "/src/third_party/scons" +
-     Var("chromium_revision")),
-
   "src/third_party/serf/src":
     Var("serf_src") + Var("serf_revision"),
 
-  "src/third_party/zlib":
-    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
+  "src/build/internal": From(Var("libpagespeed_deps_root")),
+  "src/build/linux": From(Var("libpagespeed_deps_root")),
+  "src/build/mac": From(Var("libpagespeed_deps_root")),
+  "src/build/util": From(Var("libpagespeed_deps_root")),
+  "src/build/win": From(Var("libpagespeed_deps_root")),
+  "src/site_scons/site_tools": From(Var("libpagespeed_deps_root")),
+  "src/testing": From(Var("libpagespeed_deps_root")),
+  "src/third_party/libjpeg": From(Var("libpagespeed_deps_root")),
+  "src/third_party/libpng": From(Var("libpagespeed_deps_root")),
+  "src/third_party/protobuf2": From(Var("libpagespeed_deps_root")),
+  "src/third_party/zlib": From(Var("libpagespeed_deps_root")),
+  "src/third_party/chromium/src/base": From(Var("libpagespeed_deps_root")),
+  "src/third_party/chromium/src/build": From(Var("libpagespeed_deps_root")),
+  "src/third_party/chromium/src/net/base": From(Var("libpagespeed_deps_root")),
+  "src/tools/data_pack": From(Var("libpagespeed_deps_root")),
+  "src/tools/grit": From(Var("libpagespeed_deps_root")),
 
-  "src/tools/data_pack":
-    Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
+  "src/googleurl": From(Var("chromium_deps_root")),
+  "src/testing/gtest": From(Var("chromium_deps_root")),
+  "src/third_party/protobuf2/src": From(Var("chromium_deps_root")),
+  "src/tools/gyp": From(Var("chromium_deps_root")),
 
-  "src/tools/grit":
-    Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
-
-  "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@790",
+  "src/third_party/apache/apr/src": From(Var("mod_spdy_deps_root")),
+  "src/third_party/apache/aprutil/src": From(Var("mod_spdy_deps_root")),
+  "src/third_party/apache/httpd/src/include": From(Var("mod_spdy_deps_root")),
+  "src/third_party/apache/httpd/src/os": From(Var("mod_spdy_deps_root")),
 }
 
 
 deps_os = {
   "win": {
-    "src/third_party/cygwin":
-      Var("chromium_trunk") + "/deps/third_party/cygwin@11984",
-
-    "src/third_party/python_24":
-      Var("chromium_trunk") + "/deps/third_party/python_24@22967",
+    "src/third_party/cygwin": From(Var("chromium_deps_root")),
+    "src/third_party/python_24": From(Var("chromium_deps_root")),
   },
   "mac": {
   },
