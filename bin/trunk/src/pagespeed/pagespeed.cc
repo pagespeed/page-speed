@@ -11,62 +11,37 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// This code is based loosely on chromium's DumpRenderTree.cpp.
 
 #include <string>
 #include <vector>
 
-#include "third_party/WebKit/WebKitTools/DumpRenderTree/chromium/config.h"
-
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/pagespeed_input_populator.h"
+#include "pagespeed/test_shell_runner.h"
 #include "third_party/libpagespeed/src/pagespeed/core/engine.h"
 #include "third_party/libpagespeed/src/pagespeed/core/pagespeed_input.h"
 #include "third_party/libpagespeed/src/pagespeed/core/rule.h"
 #include "third_party/libpagespeed/src/pagespeed/formatters/text_formatter.h"
 #include "third_party/libpagespeed/src/pagespeed/image_compression/image_attributes_factory.h"
 #include "third_party/libpagespeed/src/pagespeed/rules/rule_provider.h"
-#include "third_party/WebKit/WebKitTools/DumpRenderTree/chromium/TestShell.h"
-#include "webkit/support/webkit_support.h"
-
-void platformInit();
 
 namespace {
 
 // 2 minutes
-const int kTimeoutMsec = 2 * 60 * 1000;
+const int kTimeoutMillis = 2 * 60 * 1000;
 
-void RunTestShell(const TestParams& params) {
-  TestShell shell(false);
+// Loads the web page at the given URL, and returns a PagespeedInput
+// instance that's populated with the resources fetched during that
+// page load.
+pagespeed::PagespeedInput* PopulatePageSpeedInput(const std::string& url) {
+  pagespeed::TestShellRunner runner;
+  pagespeed::PagespeedInputPopulator populator;
 
-  shell.resetTestController();
-  shell.setLayoutTestTimeout(kTimeoutMsec);
-  shell.runFileTest(params);
-
-  // TODO(bmcquade): find out why DumpRenderTree.cpp calls this method
-  // twice, and whether it's necessary to call twice.
-  shell.callJSGC();
-  shell.callJSGC();
-
-  // When we finish the last test, cleanup the LayoutTestController.
-  // It may have references to not-yet-cleaned up windows.  By
-  // cleaning up here we help purify reports.
-  shell.resetTestController();
-}
-
-pagespeed::PagespeedInput* GetPageSpeedInput(const std::string& url) {
-  TestParams params;
-  params.dumpTree = false;
-  params.testUrl = webkit_support::CreateURLForPathOrURL(url);
-  if (!params.testUrl.isValid()) {
+  populator.Attach();
+  if (!runner.Run(url, kTimeoutMillis)) {
     return NULL;
   }
-
-  pagespeed::PagespeedInputPopulator populator;
-  populator.Attach();
-  RunTestShell(params);
   return populator.Detach();
 }
 
@@ -77,7 +52,8 @@ bool RunPagespeed(const char* url) {
     return false;
   }
 
-  scoped_ptr<pagespeed::PagespeedInput> input(GetPageSpeedInput(gurl.spec()));
+  scoped_ptr<pagespeed::PagespeedInput> input(
+      PopulatePageSpeedInput(gurl.spec()));
   if (input == NULL || input->num_resources() == 0) {
     fprintf(stderr,
             "Unable to construct PagespeedInput for %s.\n", url);
@@ -119,9 +95,8 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  webkit_support::SetUpTestEnvironment();
-  platformInit();
+  pagespeed::TestShellRunner::SetUp();
   bool result = RunPagespeed(argv[1]);
-  webkit_support::TearDownTestEnvironment();
+  pagespeed::TestShellRunner::TearDown();
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
