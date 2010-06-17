@@ -1,8 +1,8 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@49687",
-  "chromium_deps_root": "src/third_party/chromium",
+  "chromium_revision": "@50096",
+  "chromium_deps_root": "src/third_party/chromium_deps",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
 }
@@ -10,7 +10,7 @@ vars = {
 deps = {
   # Fetch chromium DEPS so we can sync our other dependencies relative
   # to it.
-  "src/third_party/chromium":
+  Var("chromium_deps_root"):
     File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
 
   # Fetch the subset of chromium src that we depend on.
