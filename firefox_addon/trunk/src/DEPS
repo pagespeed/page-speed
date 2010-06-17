@@ -22,7 +22,7 @@ vars = {
   # commented-out line below.
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@40280",
+  "chromium_revision": "@50096",
 }
 
 deps = {
@@ -56,6 +56,9 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/build" +
      Var("libpagespeed_revision")),
 
+  "src/third_party/libpagespeed/src/build/internal":
+    Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
+
   "src/third_party/libpagespeed/src/pagespeed":
     (Var("libpagespeed_trunk") + "/src/pagespeed" +
      Var("libpagespeed_revision")),
@@ -64,6 +67,11 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
+  "src/build/linux": From(Var("libpagespeed_deps_root")),
+  "src/build/mac": From(Var("libpagespeed_deps_root")),
+  "src/build/win": From(Var("libpagespeed_deps_root")),
+  "src/build/util": From(Var("libpagespeed_deps_root")),
+  "src/build/internal": From(Var("libpagespeed_deps_root")),
   "src/site_scons/site_tools": From(Var("libpagespeed_deps_root")),
   "src/testing": From(Var("libpagespeed_deps_root")),
   "src/third_party/libjpeg": From(Var("libpagespeed_deps_root")),

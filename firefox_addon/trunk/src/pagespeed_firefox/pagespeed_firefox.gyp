@@ -38,12 +38,12 @@
           ['OS == "linux"', {
             'cflags': [
               '-fshort-wchar',
-              '-include', '<(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
+              '-include', 'pagespeed_firefox/<(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
             ],
             'ldflags': [
-              '-L<(xulrunner_sdk_arch_root)/lib',
-              '-L<(xulrunner_sdk_arch_root)/bin',
-              '-Wl,-rpath-link,<(xulrunner_sdk_arch_root)/bin',
+              '-Lpagespeed_firefox/<(xulrunner_sdk_arch_root)/lib',
+              '-Lpagespeed_firefox/<(xulrunner_sdk_arch_root)/bin',
+              '-Wl,-rpath-link,pagespeed_firefox/<(xulrunner_sdk_arch_root)/bin',
             ],
             'link_settings': {
               'libraries': [
