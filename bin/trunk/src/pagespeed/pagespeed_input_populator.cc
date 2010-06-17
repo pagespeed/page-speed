@@ -81,6 +81,7 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
     in_flight_responses_[job] = "";
   }
 
+  // The remaining methods implement URLRequestJobTracker::JobObserver
   virtual void OnJobRemoved(URLRequestJob* job) {
     std::map<const URLRequestJob*, std::string>::iterator it =
         in_flight_responses_.find(job);
@@ -113,8 +114,10 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
       // no rules look at POST bodies at the moment, we can defer this
       // work.
     }
-    // resource->SetRequestProtocol();
-    // resource->AddRequestHeader();
+
+    // TODO(bmcquade): Extend URLRequest to expose the full set of
+    // request headers, and populate the Resource's request headers
+    // here.
 
     std::string name;
     std::string value;

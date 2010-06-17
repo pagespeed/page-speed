@@ -37,6 +37,7 @@
       'sources': [
         'pagespeed.cc',
         'pagespeed_input_populator.cc',
+        'test_shell_runner.cc',
       ],
     },
     {
