@@ -1077,9 +1077,6 @@
             'defines': ['USE_SECCOMP_SANDBOX'],
           }],
           ['library=="shared_library"', {
-            # When building with shared libraries, remove the visiblity-hiding
-            # flag.
-            'cflags!': [ '-fvisibility=hidden' ],
             'conditions': [
               ['target_arch=="x64" or target_arch=="arm"', {
                 # Shared libraries need -fPIC on x86-64 and arm

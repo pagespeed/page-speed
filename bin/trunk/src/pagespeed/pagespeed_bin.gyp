@@ -22,13 +22,11 @@
   },
   'targets': [
     {
-      'target_name': 'pagespeed_chromium',
-      'type': 'executable',
+      'target_name': 'pagespeed_chromium_lib',
+      'type': '<(library)',
       'dependencies': [
         'drtlib',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:pagespeed',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/core/core.gyp:pagespeed_core',
         '<(DEPTH)/third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
       ],
       'include_dirs': [
@@ -36,9 +34,25 @@
       ],
       'sources': [
         'http_content_decoder.cc',
-        'pagespeed.cc',
         'pagespeed_input_populator.cc',
         'test_shell_runner.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_chromium',
+      'type': 'executable',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        'pagespeed_chromium_lib',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:pagespeed',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
+      ],
+      'sources': [
+        'pagespeed.cc',
       ],
     },
     {
