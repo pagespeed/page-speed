@@ -55,7 +55,6 @@ void CreatePageSpeedProcessContext(server_rec* server) {
   context->rewrite_driver_factory()->set_use_http_cache(true);
   // TODO(lsong): Make the rewriter_driver to use configurations from
   // httpd.conf.
-  context->rewrite_driver_factory()->MakeRewriteDriver();
 }
 
 }  // namespace html_rewriter

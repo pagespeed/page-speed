@@ -31,7 +31,7 @@ HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
                                  const std::string& url, std::string* output)
     : context_(GetPageSpeedProcessContext(request->server)),
       url_(url),
-      rewrite_driver_(context_->rewrite_driver_factory()->rewrite_driver()),
+      rewrite_driver_(context_->rewrite_driver_factory()->GetRewriteDriver()),
       string_writer_(output) {
   std::string base_url;
   if (request->parsed_uri.scheme != NULL) {
@@ -59,6 +59,10 @@ HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
   // apache bucket.
   rewrite_driver_->SetWriter(&string_writer_);
   rewrite_driver_->html_parse()->StartParse(url_.c_str());
+}
+
+HtmlRewriterImp::~HtmlRewriterImp() {
+  context_->rewrite_driver_factory()->ReleaseRewriteDriver(rewrite_driver_);
 }
 
 void HtmlRewriterImp::Finish() {
