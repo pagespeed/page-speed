@@ -1,4 +1,19 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #include "net/instaweb/rewriter/public/css_combine_filter.h"
@@ -73,7 +88,7 @@ void CssCombineFilter::EndElement(HtmlElement* element) {
   if (css_filter_.ParseCssElement(element, &href, &media)) {
     css_elements_.push_back(element);
   } else if (element->tag() == s_head_) {
-    EmitCombinations();
+    EmitCombinations(element);
   }
 }
 
@@ -101,7 +116,7 @@ void CssCombineFilter::Flush() {
   css_elements_.clear();
 }
 
-void CssCombineFilter::EmitCombinations() {
+void CssCombineFilter::EmitCombinations(HtmlElement* head) {
   MessageHandler* handler = html_parse_->message_handler();
 
   // It's possible that we'll have found 2 css files to combine, but one
@@ -157,7 +172,7 @@ void CssCombineFilter::EmitCombinations() {
     }
     Encode(css_combine_url, &url_safe_id);
 
-    HtmlElement* combine_element = html_parse_->NewElement(s_link_);
+    HtmlElement* combine_element = html_parse_->NewElement(head, s_link_);
     combine_element->AddAttribute(s_rel_, "stylesheet", "\"");
     combine_element->AddAttribute(s_type_, "text/css", "\"");
 

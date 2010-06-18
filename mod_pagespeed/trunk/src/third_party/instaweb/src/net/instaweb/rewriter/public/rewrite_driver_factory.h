@@ -1,4 +1,19 @@
-// Copyright 2010 Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -110,27 +125,33 @@ class RewriteDriverFactory {
   int num_shards() { return num_shards_; }
   ResourceManager* resource_manager();
 
-  RewriteDriver* rewrite_driver();
+  // Generates a mutex.
+  virtual AbstractMutex* NewMutex() = 0;
 
-  // Create a new RewriteDriver from settings. May only be called once.
-  RewriteDriver* MakeRewriteDriver();
+  // Generates a new RewriteDriver.  Each RewriteDriver is not
+  // thread-safe, but you can generate a RewriteDriver* for each
+  // thread.  The returned drivers are deleted by the factory; they do
+  // not need to be deleted by the allocator.
+  RewriteDriver* NewRewriteDriver();
 
  protected:
   // Provide default fetchers.
   virtual UrlFetcher* DefaultUrlFetcher() = 0;
   virtual UrlAsyncFetcher* DefaultAsyncUrlFetcher() = 0;
 
-  // Provide defaults.
+  // Implementors of RewriteDriverFactory must supply default definitions
+  // for each of these methods, although they may be overridden via set_
+  // methods above
   virtual MessageHandler* NewHtmlParseMessageHandler() = 0;
   virtual FileSystem* NewFileSystem() = 0;
   virtual Hasher* NewHasher() = 0;
   virtual HtmlParse* NewHtmlParse() = 0;
   virtual Timer* NewTimer() = 0;
   virtual CacheInterface* NewCacheInterface() = 0;
-  virtual AbstractMutex* NewMutex() = 0;
 
-  // Get the cache mutex. It should not be exposed to the public.
-  AbstractMutex* CacheMutex();
+  // Implementors of RewriteDriverFactory must supply two mutexes.
+  virtual AbstractMutex* cache_mutex() = 0;
+  virtual AbstractMutex* rewrite_drivers_mutex() = 0;
 
  private:
   scoped_ptr<FileSystem> file_system_;
@@ -158,11 +179,10 @@ class RewriteDriverFactory {
 
   scoped_ptr<ResourceManager> resource_manager_;
 
-  scoped_ptr<RewriteDriver> rewrite_driver_;
+  std::vector<RewriteDriver*> rewrite_drivers_;
 
   // Caching support
   scoped_ptr<MessageHandler> html_parse_message_handler_;
-  scoped_ptr<AbstractMutex> cache_mutex_;
   scoped_ptr<HTTPCache> http_cache_;
   scoped_ptr<CacheInterface> threadsafe_cache_;
   scoped_ptr<CacheUrlFetcher> cache_fetcher_;

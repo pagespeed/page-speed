@@ -1,4 +1,19 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #ifndef NET_INSTAWEB_UTIL_PUBLIC_DELAY_CONTROLLER_H_
@@ -7,6 +22,7 @@
 #include <list>
 #include <map>
 #include "base/scoped_ptr.h"
+#include "net/instaweb/util/public/file_system.h"
 #include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/util/public/timer.h"
 class Closure {
@@ -16,6 +32,8 @@ class Closure {
 };
 
 namespace net_instaweb {
+
+class MessageHandler;
 
 // Class to model a browser's connection to the internet, including overall
 // bandwidth, and per-connection limits.
@@ -31,7 +49,8 @@ class DelayController {
     kChrome4,
     kIE8,
     kFirefox36,
-    kSafari40
+    kSafari40,
+    kUnitDelay
   };
 
   static const int kNoTransactionsPending;
@@ -72,6 +91,8 @@ class DelayController {
   void set_bandwidth_kbytes_per_sec(int b) { bandwidth_kbytes_per_sec_ = b; }
 
   void Clear();
+  void PrintStats(FileSystem::OutputFile* file, MessageHandler* handler) const;
+  void ClearStats();
 
   int max_requests() const { return max_requests_; }
   int max_domain_requests() const { return max_domain_requests_; }

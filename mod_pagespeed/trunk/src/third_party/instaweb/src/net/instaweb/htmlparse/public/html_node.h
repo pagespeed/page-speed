@@ -1,4 +1,19 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: mdsteele@google.com (Matthew D. Steele)
 
 #ifndef NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_NODE_H_
@@ -16,8 +31,15 @@ class HtmlNode {
   virtual ~HtmlNode();
   friend class HtmlParse;
 
+  HtmlElement* parent() const { return parent_; }
+
  protected:
-  HtmlNode() {}
+  // TODO(jmarantz): jmaessen suggests instantiating the html nodes
+  // without parents and computing them from context at the time they
+  // are instantiated from the lexer.  This is a little more difficult
+  // when synthesizing new nodes, however.  We assert sanity, however,
+  // when calling HtmlParse::ApplyFilter.
+  explicit HtmlNode(HtmlElement* parent) : parent_(parent) {}
 
   // Create new event object(s) representing this node, and insert them into
   // the queue just before the given iterator; also, update this node object as
@@ -32,6 +54,12 @@ class HtmlNode {
   virtual HtmlEventListIterator end() const = 0;
 
  private:
+  // Note: setting the parent doesn't change the DOM -- it just updates
+  // the pointer.  This is intended to be called only from the DOM manipulation
+  // methods in HtmlParse.
+  void set_parent(HtmlElement* parent) { parent_ = parent; }
+
+  HtmlElement* parent_;
   DISALLOW_COPY_AND_ASSIGN(HtmlNode);
 };
 
@@ -42,7 +70,9 @@ class HtmlLeafNode : public HtmlNode {
   friend class HtmlParse;
 
  protected:
-  explicit HtmlLeafNode(const HtmlEventListIterator& iter) : iter_(iter) {}
+  HtmlLeafNode(HtmlElement* parent, const HtmlEventListIterator& iter)
+      : HtmlNode(parent),
+        iter_(iter) {}
   virtual HtmlEventListIterator begin() const { return iter_; }
   virtual HtmlEventListIterator end() const { return iter_; }
   void set_iter(const HtmlEventListIterator& iter) { iter_ = iter; }
@@ -64,9 +94,10 @@ class HtmlCdataNode : public HtmlLeafNode {
                                 HtmlEventList* queue);
 
  private:
-  HtmlCdataNode(const std::string& contents,
+  HtmlCdataNode(HtmlElement* parent,
+                const std::string& contents,
                 const HtmlEventListIterator& iter)
-      : HtmlLeafNode(iter), contents_(contents) {}
+      : HtmlLeafNode(parent, iter), contents_(contents) {}
   const std::string contents_;
   DISALLOW_COPY_AND_ASSIGN(HtmlCdataNode);
 };
@@ -83,9 +114,10 @@ class HtmlCharactersNode : public HtmlLeafNode {
                                 HtmlEventList* queue);
 
  private:
-  HtmlCharactersNode(const std::string& contents,
+  HtmlCharactersNode(HtmlElement* parent,
+                     const std::string& contents,
                      const HtmlEventListIterator& iter)
-      : HtmlLeafNode(iter), contents_(contents) {}
+      : HtmlLeafNode(parent, iter), contents_(contents) {}
   const std::string contents_;
   DISALLOW_COPY_AND_ASSIGN(HtmlCharactersNode);
 };
@@ -102,9 +134,10 @@ class HtmlCommentNode : public HtmlLeafNode {
                                 HtmlEventList* queue);
 
  private:
-  HtmlCommentNode(const std::string& contents,
+  HtmlCommentNode(HtmlElement* parent,
+                  const std::string& contents,
                   const HtmlEventListIterator& iter)
-      : HtmlLeafNode(iter), contents_(contents) {}
+      : HtmlLeafNode(parent, iter), contents_(contents) {}
   const std::string contents_;
   DISALLOW_COPY_AND_ASSIGN(HtmlCommentNode);
 };
@@ -121,9 +154,10 @@ class HtmlDirectiveNode : public HtmlLeafNode {
                                 HtmlEventList* queue);
 
  private:
-  HtmlDirectiveNode(const std::string& contents,
+  HtmlDirectiveNode(HtmlElement* parent,
+                    const std::string& contents,
                     const HtmlEventListIterator& iter)
-      : HtmlLeafNode(iter), contents_(contents) {}
+      : HtmlLeafNode(parent, iter), contents_(contents) {}
   const std::string contents_;
   DISALLOW_COPY_AND_ASSIGN(HtmlDirectiveNode);
 };

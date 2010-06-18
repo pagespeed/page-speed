@@ -1,4 +1,19 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #include "net/instaweb/htmlparse/public/html_parse.h"
@@ -24,7 +39,6 @@ HtmlParse::HtmlParse(MessageHandler* message_handler)
       sequence_(0),
       current_(queue_.end()),
       deleted_current_(false),
-      rewind_(false),
       message_handler_(message_handler),
       line_number_(1) {
 }
@@ -44,12 +58,33 @@ HtmlEventListIterator HtmlParse::Last() {
   return p;
 }
 
+// Checks that the parent provided when creating the event's Node is
+// consistent with the position in the list.  An alternative approach
+// here is to use this code and remove the explicit specification of
+// parents when constructing nodes.
+//
+// A complexity we will run into with that approach is that the queue_ is
+// cleared on a Flush, so we cannot reliably derive the correct parent
+// from the queue.  However, the Lexer keeps an element stack across
+// flushes, and therefore can keep correct parent pointers.  So we have
+// to inject pessimism in this process.
+//
+// Note that we also have sanity checks that run after each filter.
+void HtmlParse::CheckParentFromAddEvent(HtmlEvent* event) {
+  HtmlNode* node = event->GetNode();
+  if (node != NULL) {
+    CHECK(lexer_->Parent() == node->parent());
+  }
+}
+
 void HtmlParse::AddEvent(HtmlEvent* event) {
+  CheckParentFromAddEvent(event);
   queue_.push_back(event);
+
   // If this is a leaf-node event, we need to set the iterator of the
   // corresponding leaf node to point to this event's position in the queue.
   // If this is an element event, then the iterators of the element will get
-  // set in HtmlParse::AddElement and HtmlLexer::CloseElement, so there's no
+  // set in HtmlParse::AddElement and HtmlParse::CloseElement, so there's no
   // need to do it here.  If this is some other kind of event, there are no
   // iterators to set.
   HtmlLeafNode* leaf = event->GetLeafNode();
@@ -59,33 +94,40 @@ void HtmlParse::AddEvent(HtmlEvent* event) {
   }
 }
 
-HtmlCdataNode* HtmlParse::NewCdataNode(const std::string& contents) {
-  HtmlCdataNode* cdata = new HtmlCdataNode(contents, queue_.end());
+HtmlCdataNode* HtmlParse::NewCdataNode(HtmlElement* parent,
+                                       const std::string& contents) {
+  HtmlCdataNode* cdata = new HtmlCdataNode(parent, contents, queue_.end());
   nodes_.insert(cdata);
   return cdata;
 }
 
-HtmlCharactersNode* HtmlParse::NewCharactersNode(const std::string& literal) {
-  HtmlCharactersNode* characters = new HtmlCharactersNode(literal,
-                                                          queue_.end());
+HtmlCharactersNode* HtmlParse::NewCharactersNode(HtmlElement* parent,
+                                                 const std::string& literal) {
+  HtmlCharactersNode* characters =
+      new HtmlCharactersNode(parent, literal, queue_.end());
   nodes_.insert(characters);
   return characters;
 }
 
-HtmlCommentNode* HtmlParse::NewCommentNode(const std::string& contents) {
-  HtmlCommentNode* comment = new HtmlCommentNode(contents, queue_.end());
+HtmlCommentNode* HtmlParse::NewCommentNode(HtmlElement* parent,
+                                           const std::string& contents) {
+  HtmlCommentNode* comment = new HtmlCommentNode(parent, contents,
+                                                 queue_.end());
   nodes_.insert(comment);
   return comment;
 }
 
-HtmlDirectiveNode* HtmlParse::NewDirectiveNode(const std::string& contents) {
-  HtmlDirectiveNode* directive = new HtmlDirectiveNode(contents, queue_.end());
+HtmlDirectiveNode* HtmlParse::NewDirectiveNode(HtmlElement* parent,
+                                               const std::string& contents) {
+  HtmlDirectiveNode* directive = new HtmlDirectiveNode(parent, contents,
+                                                       queue_.end());
   nodes_.insert(directive);
   return directive;
 }
 
-HtmlElement* HtmlParse::NewElement(Atom tag) {
-  HtmlElement* element = new HtmlElement(tag, queue_.end(), queue_.end());
+HtmlElement* HtmlParse::NewElement(HtmlElement* parent, Atom tag) {
+  HtmlElement* element = new HtmlElement(parent, tag, queue_.end(),
+                                         queue_.end());
   nodes_.insert(element);
   element->set_sequence(sequence_++);
   return element;
@@ -117,25 +159,93 @@ void HtmlParse::ParseText(const char* text, int size) {
   lexer_->Parse(text, size);
 }
 
+// This is factored out of Flush() for testing purposes.
+void HtmlParse::ApplyFilter(HtmlFilter* filter) {
+  for (current_ = queue_.begin(); current_ != queue_.end(); ) {
+    HtmlEvent* event = *current_;
+    line_number_ = event->line_number();
+    event->Run(filter);
+    deleted_current_ = false;
+    ++current_;
+  }
+  filter->Flush();
+
+  SanityCheck();
+}
+
+void HtmlParse::CheckEventParent(HtmlEvent* event, HtmlElement* expect,
+                                 HtmlElement* actual) {
+  if ((expect != NULL) && (actual != expect)) {
+    std::string actual_buf, expect_buf, event_buf;
+    if (actual != NULL) {
+      actual->ToString(&actual_buf);
+    } else {
+      actual_buf = "(null)";
+    }
+    expect->ToString(&expect_buf);
+    event->ToString(&event_buf);
+    FatalErrorHere("HtmlElement Parents of %s do not match:\n"
+                   "Actual:   %s\n"
+                   "Expected: %s\n",
+                   event_buf.c_str(), actual_buf.c_str(), expect_buf.c_str());
+  }
+}
+
+void HtmlParse::SanityCheck() {
+  // Sanity check that the Node parent-pointers are consistent with the
+  // begin/end-element events.  This is done in a second pass to avoid
+  // confusion when the filter mutates the event-stream.  Also note that
+  // a mid-HTML call to HtmlParse::Flush means that we may pop out beyond
+  // the stack we can detect in this event stream.  This is represented
+  // here by an empty stack.
+  std::vector<HtmlElement*> element_stack;
+  HtmlElement* expect_parent = NULL;
+  for (current_ = queue_.begin(); current_ != queue_.end(); ++current_) {
+    HtmlEvent* event = *current_;
+
+    // Determine whether the event we are looking at is a StartElement,
+    // EndElement, or a leaf.  We manipulate our temporary stack when
+    // we see StartElement and EndElement, and we always test to make
+    // sure the elements have the expected parent based on context, when
+    // we can figure out what the expected parent is.
+    HtmlElement* start_element = event->GetStartElement();
+    HtmlElement* actual_parent = NULL;
+    if (start_element != NULL) {
+      CheckEventParent(event, expect_parent, start_element->parent());
+      element_stack.push_back(start_element);
+      expect_parent = start_element;
+    } else {
+      HtmlElement* end_element = event->GetEndElement();
+      if (end_element != NULL) {
+        if (!element_stack.empty()) {
+          // The element stack can be empty on End can happen due
+          // to this sequence:
+          //   <tag1>
+          //     FLUSH
+          //   </tag1>   <!-- tag1 close seen with empty stack -->
+          CHECK(element_stack.back() == end_element);
+          element_stack.pop_back();
+        }
+        actual_parent = end_element->parent();
+        expect_parent = element_stack.empty() ? NULL : element_stack.back();
+        CheckEventParent(event, expect_parent, end_element->parent());
+      } else {
+        // We only know for sure what the parents are once we have seen
+        // a start_element.
+        HtmlLeafNode* leaf_node = event->GetLeafNode();
+        if (leaf_node != NULL) {   // Start/EndDocument are not leaf nodes
+          CheckEventParent(event, expect_parent, leaf_node->parent());
+        }
+      }
+    }
+  }
+}
+
 void HtmlParse::Flush() {
   for (size_t i = 0; i < filters_.size(); ++i) {
     HtmlFilter* filter = filters_[i];
-    for (current_ = queue_.begin(); current_ != queue_.end(); ) {
-      HtmlEvent* event = *current_;
-      line_number_ = event->line_number();
-      event->Run(filter);
-      deleted_current_ = false;
-      if (rewind_) {
-        // Special-case iteration after deleting first element.
-        current_ = queue_.begin();
-        rewind_ = false;
-      } else {
-        ++current_;
-      }
-    }
-    filter->Flush();
+    ApplyFilter(filter);
   }
-  rewind_ = false;
 
   // Detach all the elements from their events, as we are now invalidating
   // the events, but not the elements.
@@ -163,11 +273,13 @@ void HtmlParse::Flush() {
 
 bool HtmlParse::InsertElementBeforeElement(const HtmlNode* existing_node,
                                            HtmlNode* new_node) {
+  CHECK(existing_node->parent() == new_node->parent());
   return InsertElementBeforeEvent(existing_node->begin(), new_node);
 }
 
 bool HtmlParse::InsertElementAfterElement(const HtmlNode* existing_node,
                                           HtmlNode* new_node) {
+  CHECK(existing_node->parent() == new_node->parent());
   HtmlEventListIterator event = existing_node->end();
   ++event;
   return InsertElementBeforeEvent(event, new_node);
@@ -183,12 +295,46 @@ bool HtmlParse::InsertElementBeforeCurrent(HtmlNode* new_node) {
 
 bool HtmlParse::InsertElementBeforeEvent(const HtmlEventListIterator& event,
                                          HtmlNode* new_node) {
-  bool ret = false;
-  if (event != queue_.end()) {
-    new_node->SynthesizeEvents(event, &queue_);
-    ret = true;
+  new_node->SynthesizeEvents(event, &queue_);
+  // TODO(jmarantz): make this routine return void, as well as the other
+  // wrappers around it.
+  return true;
+}
+
+bool HtmlParse::AddParentToSequence(HtmlNode* first, HtmlNode* last,
+                                    HtmlElement* new_parent) {
+  bool added = false;
+  HtmlElement* original_parent = first->parent();
+  if (IsRewritable(first) && IsRewritable(last) &&
+      (last->parent() == original_parent) &&
+      (new_parent->begin() == queue_.end()) &&
+      (new_parent->end() == queue_.end()) &&
+      InsertElementBeforeEvent(first->begin(), new_parent)) {
+    // This sequence of checks culminated in inserting the parent's begin
+    // and end before 'first'.  Now we must mutate new_parent's end pointer
+    // to insert it after the last->end().  list::insert(iter) inserts
+    // *before* the iter, so we'll increment last->end().
+    HtmlEvent* end_element_event = *new_parent->end();
+    queue_.erase(new_parent->end());
+    HtmlEventListIterator p = last->end();
+    ++p;
+    new_parent->set_end(queue_.insert(p, end_element_event));
+
+    // Loop over all the nodes from first->begin() to last->end(), inclusive,
+    // and set the parent pointer for the node, if there is one.  A few
+    // event types don't have HtmlNodes, such as Comments and IEDirectives.
+    HtmlEventListIterator end = last->end();
+    CHECK(end != queue_.end());
+    ++end;
+    for (p = first->begin(); p != end; ++p) {
+      HtmlNode* node = (*p)->GetNode();
+      if ((node != NULL) && (node->parent() == original_parent)) {
+        node->set_parent(new_parent);
+      }
+    }
+    added = true;
   }
-  return ret;
+  return added;
 }
 
 bool HtmlParse::DeleteElement(HtmlNode* node) {
@@ -363,6 +509,17 @@ void HtmlParse::FatalErrorHere(const char* msg, ...) {
   va_start(args, msg);
   FatalErrorHereV(msg, args);
   va_end(args);
+}
+
+void HtmlParse::CloseElement(
+    HtmlElement* element, HtmlElement::CloseStyle close_style,
+    int line_number) {
+  HtmlEndElementEvent* end_event =
+      new HtmlEndElementEvent(element, line_number);
+  element->set_close_style(close_style);
+  AddEvent(end_event);
+  element->set_end(Last());
+  element->set_end_line_number(line_number);
 }
 
 }  // namespace net_instaweb

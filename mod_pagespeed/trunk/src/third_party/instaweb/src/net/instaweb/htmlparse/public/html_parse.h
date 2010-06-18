@@ -1,4 +1,19 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #ifndef NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_PARSE_H_
@@ -55,10 +70,14 @@ class HtmlParse {
 
   // Utility methods for implementing filters
 
-  HtmlCdataNode* NewCdataNode(const std::string& contents);
-  HtmlCharactersNode* NewCharactersNode(const std::string& literal);
-  HtmlCommentNode* NewCommentNode(const std::string& contents);
-  HtmlDirectiveNode* NewDirectiveNode(const std::string& contents);
+  HtmlCdataNode* NewCdataNode(HtmlElement* parent,
+                              const std::string& contents);
+  HtmlCharactersNode* NewCharactersNode(HtmlElement* parent,
+                                        const std::string& literal);
+  HtmlCommentNode* NewCommentNode(HtmlElement* parent,
+                                  const std::string& contents);
+  HtmlDirectiveNode* NewDirectiveNode(HtmlElement* parent,
+                                      const std::string& contents);
 
   // TODO(mdsteele): Rename these methods to e.g. InsertNodeBeforeNode.
   // This and downstream filters will then see inserted elements but upstream
@@ -70,7 +89,15 @@ class HtmlParse {
   // Insert element before current event.
   bool InsertElementBeforeCurrent(HtmlNode* node);
 
-  HtmlElement* NewElement(Atom tag);
+
+  // Enclose element around two elements in a sequence.  The first
+  // element must precede the second element in the event-stream, and
+  // this is not checked, but the two elements do not need to be adjacent.
+  // They must have the same parent to start with.
+  bool AddParentToSequence(HtmlNode* first, HtmlNode* last,
+                           HtmlElement* new_parent);
+
+  HtmlElement* NewElement(HtmlElement* parent, Atom tag);
 
   // If the given node is rewritable, delete it and all of its children (if
   // any) and return true; otherwise, do nothing and return false.
@@ -142,13 +169,28 @@ class HtmlParse {
     FatalErrorV(filename_.c_str(), line_number_, msg, args);
   }
 
+  void CloseElement(HtmlElement* element, HtmlElement::CloseStyle close_style,
+                    int line_number);
+
+  // Run a filter on the current queue of parse nodes.  This is visible
+  // for testing.
+  void ApplyFilter(HtmlFilter* filter);
+
+  // Visible for testing only.
+  // TODO(jmarantz): Consider using a Peer class that is declared as a friend,
+  // and instantiating that from the tests.
+  void AddEvent(HtmlEvent* event);
+
  private:
   void AddElement(HtmlElement* element, int line_number);
-  void AddEvent(HtmlEvent* event);
-  HtmlEventListIterator Last();  // Last element in queue
+    HtmlEventListIterator Last();  // Last element in queue
   bool IsInEventWindow(const HtmlEventListIterator& iter) const;
   bool InsertElementBeforeEvent(const HtmlEventListIterator& event,
                                 HtmlNode* new_node);
+  void SanityCheck();
+  void CheckEventParent(HtmlEvent* event, HtmlElement* expect,
+                        HtmlElement* actual);
+  void CheckParentFromAddEvent(HtmlEvent* event);
 
   SymbolTableInsensitive string_table_;
   std::vector<HtmlFilter*> filters_;
@@ -159,7 +201,6 @@ class HtmlParse {
   HtmlEventListIterator current_;
   // Have we deleted current? Then we shouldn't do certain manipulations to it.
   bool deleted_current_;
-  bool rewind_;
   MessageHandler* message_handler_;
   std::string filename_;
   int line_number_;
