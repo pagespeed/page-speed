@@ -35,6 +35,7 @@
         '<(DEPTH)',
       ],
       'sources': [
+        'http_content_decoder.cc',
         'pagespeed.cc',
         'pagespeed_input_populator.cc',
         'test_shell_runner.cc',

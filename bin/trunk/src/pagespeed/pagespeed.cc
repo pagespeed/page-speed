@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/pagespeed_input_populator.h"
@@ -95,8 +96,12 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  // Only display WARNING and above on the console.
+  logging::SetMinLogLevel(logging::LOG_WARNING);
+
   pagespeed::TestShellRunner::SetUp();
   bool result = RunPagespeed(argv[1]);
   pagespeed::TestShellRunner::TearDown();
+
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

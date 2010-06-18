@@ -14,9 +14,10 @@
 
 #include "pagespeed/pagespeed_input_populator.h"
 
-#include <string>
 #include <map>
+#include <string>
 
+#include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "net/http/http_response_headers.h"
@@ -24,6 +25,7 @@
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"
+#include "pagespeed/http_content_decoder.h"
 #include "third_party/libpagespeed/src/pagespeed/core/pagespeed_input.h"
 
 namespace {
@@ -105,7 +107,7 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
       return;
     }
 
-    pagespeed::Resource* resource = new pagespeed::Resource();
+    scoped_ptr<pagespeed::Resource> resource(new pagespeed::Resource());
     resource->SetRequestUrl(url);
     resource->SetRequestMethod(job->request()->method());
     if (job->request()->has_upload()) {
@@ -127,10 +129,16 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
     }
     resource->SetResponseStatusCode(headers->response_code());
 
-    // TODO(bmcquade): some responses will arrive compressed. Need to
-    // use gzip_filter, etc to decompress them.
+    HttpContentDecoder decoder(job, in_flight_responses_[job]);
+    if (decoder.NeedsDecoding()) {
+      std::string decoded_body;
+      if (decoder.Decode(&decoded_body)) {
+        resource->SetResponseBody(decoded_body);
+      }
+    } else {
     resource->SetResponseBody(in_flight_responses_[job]);
-    input_->AddResource(resource);
+    }
+    input_->AddResource(resource.release());
   }
 
   virtual void OnJobRedirect(URLRequestJob* job, const GURL& location,
