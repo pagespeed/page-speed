@@ -44,8 +44,9 @@ namespace html_rewriter {
 // object for every request involves creating all the internal objects.
 class HtmlRewriterImp {
  public:
-  explicit HtmlRewriterImp(request_rec* request,
-                        const std::string& url, std::string* output);
+  HtmlRewriterImp(request_rec* request,
+                  const std::string& url, std::string* output);
+  ~HtmlRewriterImp();
   // Rewrite input using internal StringWriter.
   void Rewrite(const char* input, int size);
   void Rewrite(const std::string& input) {

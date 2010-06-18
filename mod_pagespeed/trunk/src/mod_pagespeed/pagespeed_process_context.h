@@ -34,15 +34,16 @@ class PageSpeedProcessContext {
  public:
   PageSpeedProcessContext();
   ~PageSpeedProcessContext();
-  void set_rewrite_driver_factory(net_instaweb::RewriteDriverFactory* factory) {
+  void set_rewrite_driver_factory(
+      net_instaweb::ApacheRewriteDriverFactory* factory) {
     rewrite_driver_factory_.reset(factory);
   }
-  net_instaweb::RewriteDriverFactory* rewrite_driver_factory() {
+  net_instaweb::ApacheRewriteDriverFactory* rewrite_driver_factory() {
     return rewrite_driver_factory_.get();
   }
 
  private:
-  scoped_ptr<net_instaweb::RewriteDriverFactory> rewrite_driver_factory_;
+  scoped_ptr<net_instaweb::ApacheRewriteDriverFactory> rewrite_driver_factory_;
 };
 
 PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server);

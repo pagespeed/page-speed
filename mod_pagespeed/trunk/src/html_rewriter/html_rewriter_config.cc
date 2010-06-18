@@ -24,6 +24,10 @@
 namespace {
 
 // TODO(lsong): replace the temporary strings with appropriate strings.
+// All these constants are for the conviniece of developing. They are sure not
+// working on difference platforms or different configuration of systems. We
+// plan to use http.conf to configure those setting.
+const char* kDefaultDocumentRoot = "/usr/local/apache2/htdocs";
 const char* kCacheDir = "/cache/";
 const char* kCacheFilePrefix = "cache_pre_";
 const char* kUrlPrefix = "http://localhost:9999/cache/cache_pre_";
@@ -36,7 +40,13 @@ const int kFetcherTimeOut = 30000;  // 30 seconds.
 namespace html_rewriter {
 
 std::string GetCachePrefix(request_rec* request) {
-  std::string cache_root = ap_document_root(request);
+  // TODO(lsong): Again, here is a workaround to get he document root without a
+  // request instance. We use the default document root, but that may not work
+  // on all systems.
+  std::string cache_root(kDefaultDocumentRoot);
+  if (request != NULL) {
+    cache_root = ap_document_root(request);
+  }
   cache_root.append(kCacheDir);
   std::string cache_prefix(cache_root);
   cache_prefix.append(kCacheFilePrefix);

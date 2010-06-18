@@ -11,6 +11,7 @@
 #include "html_rewriter/md5_hasher.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
 #include "html_rewriter/serf_url_fetcher.h"
+#include "mod_spdy/apache/log_message_handler.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/util/public/file_cache.h"
 #include "third_party/apache/apr/src/include/apr_pools.h"
@@ -21,8 +22,10 @@ namespace net_instaweb {
 
 ApacheRewriteDriverFactory::ApacheRewriteDriverFactory() {
   apr_pool_create(&pool_, NULL);
-  set_filename_prefix(html_rewriter::GetFileCachePath());
+  set_filename_prefix(html_rewriter::GetCachePrefix(NULL));
   set_url_prefix(html_rewriter::GetUrlPrefix());
+  cache_mutex_.reset(NewMutex());
+  rewrite_drivers_mutex_.reset(NewMutex());
 }
 
 ApacheRewriteDriverFactory::~ApacheRewriteDriverFactory() {
@@ -68,6 +71,29 @@ HtmlParse* ApacheRewriteDriverFactory::NewHtmlParse() {
 
 AbstractMutex* ApacheRewriteDriverFactory::NewMutex() {
   return new html_rewriter::AprMutex(pool_);
+}
+
+RewriteDriver* ApacheRewriteDriverFactory::GetRewriteDriver() {
+  RewriteDriver* rewrite_driver = NULL;
+  if (!rewrite_drivers_.empty()) {
+    rewrite_driver = rewrite_drivers_.back();
+    rewrite_drivers_.pop_back();
+  } else {
+    // Create a RewriteDriver using base class.
+    rewrite_driver = NewRewriteDriver();
+  }
+  active_rewrite_drivers_.insert(rewrite_driver);
+  return rewrite_driver;
+}
+
+void ApacheRewriteDriverFactory::ReleaseRewriteDriver(
+    RewriteDriver* rewrite_driver) {
+  int count = active_rewrite_drivers_.erase(rewrite_driver);
+  if (count != 1) {
+    LOG(ERROR) << "Remove rewrite driver from the active list.";
+  } else {
+    rewrite_drivers_.push_back(rewrite_driver);
+  }
 }
 
 }  // namespace net_instaweb
