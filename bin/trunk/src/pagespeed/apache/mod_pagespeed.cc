@@ -68,6 +68,11 @@ bool RunPagespeed(const char* url, std::ostream* out_json) {
             "Unable to construct PagespeedInput for %s.\n", url);
     return false;
   }
+  if (input->num_resources() == 1 &&
+      input->GetResource(0).GetResponseStatusCode() != 200) {
+    fprintf(stderr, "Non-200 response for %s.\n", url);
+    return false;
+  }
 
   input->SetPrimaryResourceUrl(gurl.spec());
 
