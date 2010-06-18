@@ -1,9 +1,26 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #include "net/instaweb/util/public/delay_controller.h"
 
+#include <stdio.h>
 #include <algorithm>
+#include <set>
 #include <vector>
 #include "base/callback.h"
 #include "base/logging.h"
@@ -85,6 +102,9 @@ class DelayController::Domain {
  public:
   explicit Domain(const std::string& name, DelayController* dc)
       : name_(name),
+        active_count_(0),
+        byte_count_(0),
+        requests_(0),
         delay_controller_(dc) {
     for (int i = 0; i < dc->max_domain_requests(); ++i) {
       free_connections_.push_back(new Connection(dc));
@@ -111,20 +131,46 @@ class DelayController::Domain {
     return connection;
   }
 
+  void add_bytes(int n) {
+    byte_count_ += n;
+    ++requests_;
+  }
+
   void FinishTransfer(int64 now_ms, Connection* connection) {
     CHECK(active_count() > 0);
     free_connections_.push_back(connection);
     UpdateVCD(now_ms);
   }
 
+  void PrintStats(FileSystem::OutputFile* file, MessageHandler* handler) const {
+    file->Write(StringPrintf("Domain %s,%d,%d\n", name_.c_str(), byte_count_,
+                             requests_).c_str(), handler);
+    for (StringSet::const_iterator p = urls_.begin(), e = urls_.end();
+         p != e; ++e) {
+      file->Write(StringPrintf("Url: %s\n", p->c_str()).c_str(), handler);
+    }
+  }
+
   int active_count() const {
     return delay_controller_->max_domain_requests() - free_connections_.size();
   }
 
+  void ClearStats() {
+    byte_count_ = 0;
+    requests_ = 0;
+    urls_.clear();
+  }
+
  private:
   std::string name_;
+  int active_count_;
+  int byte_count_;
+  int requests_;
   std::vector<Connection*> free_connections_;
   DelayController* delay_controller_;
+
+  typedef std::set<std::string> StringSet;
+  StringSet urls_;
 };
 
 // Tracks a request as it transfers over, taking into account RTT and
@@ -201,6 +247,7 @@ class DelayController::Request {
   void Start(int64 now_ms) {
     CHECK(connection_ == NULL);
     connection_ = domain_->StartTransfer(now_ms);
+    domain_->add_bytes(size_bytes_);
     previous_update_ms_ = now_ms;
   }
 
@@ -447,13 +494,25 @@ void DelayController::Wakeup() {
 }
 
 void DelayController::SetBrowser(Browser browser) {
-  // TODO(jmarantz): this is for chrome.  Use browsercope.com for other data.
   // TODO(jmarantz): separate browser-based params from network/machine-based
   // params.
-  max_requests_ = 53;
-  max_domain_requests_ = 6;
-  rtt_ms_ = 50;
-  bandwidth_kbytes_per_sec_ = 500;
+  switch (browser) {
+    case kUnitDelay:
+      max_requests_ = 10000;
+      max_domain_requests_ = 10000;
+      packet_size_bytes_ = 1000000;
+      rtt_ms_ = 1;
+      bandwidth_kbytes_per_sec_ = 10000000;
+      break;
+    default:
+      // TODO(jmarantz): this is for chrome.  Use browserscope.org for other
+      // browsers.
+      max_requests_ = 53;
+      max_domain_requests_ = 6;
+      rtt_ms_ = 50;
+      bandwidth_kbytes_per_sec_ = 500;
+      break;
+  }
 }
 
 
@@ -471,6 +530,21 @@ void DelayController::Clear() {
   next_wakeup_time_ms_ = kNoTransactionsPending;
   vcd_recording_ = false;
   prev_num_active_ = 0;
+}
+
+void DelayController::PrintStats(FileSystem::OutputFile* file,
+                                 MessageHandler* handler) const {
+  for (DomainMap::const_iterator p = domain_map_.begin(), e = domain_map_.end();
+       p != e; ++p) {
+    p->second->PrintStats(file, handler);
+  }
+}
+
+void DelayController::ClearStats()  {
+  for (DomainMap::iterator p = domain_map_.begin(), e = domain_map_.end();
+       p != e; ++p) {
+    p->second->ClearStats();
+  }
 }
 
 }  // namespace net_instaweb

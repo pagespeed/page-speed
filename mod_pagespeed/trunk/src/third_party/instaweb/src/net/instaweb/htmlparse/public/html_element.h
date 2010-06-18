@@ -1,4 +1,19 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #ifndef NET_INSTAWEB_HTMLPARSE_PUBLIC_HTML_ELEMENT_H_
@@ -129,7 +144,14 @@ class HtmlElement : public HtmlNode {
   // for debugging.
   void set_sequence(int sequence) { sequence_ = sequence; }
 
+
   Atom tag() const {return tag_;}
+
+  // Changing that tag of an element should only occur if the caller knows
+  // that the old attributes make sense for the new tag.  E.g. a div could
+  // be changed to a span.
+  void set_tag(Atom new_tag) { tag_ = new_tag; }
+
   int attribute_size() const {return attributes_.size(); }
   const Attribute& attribute(int i) const { return *attributes_[i]; }
   Attribute& attribute(int i) { return *attributes_[i]; }
@@ -166,7 +188,7 @@ class HtmlElement : public HtmlNode {
   void set_end_line_number(int line) { end_line_number_ = line; }
 
   // construct via HtmlParse::NewElement
-  HtmlElement(Atom tag, const HtmlEventListIterator& begin,
+  HtmlElement(HtmlElement* parent, Atom tag, const HtmlEventListIterator& begin,
       const HtmlEventListIterator& end);
 
   int sequence_;

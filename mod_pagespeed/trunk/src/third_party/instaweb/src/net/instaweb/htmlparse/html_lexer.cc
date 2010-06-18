@@ -1,8 +1,22 @@
-// Copyright 2010 and onwards Google Inc.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmarantz@google.com (Joshua Marantz)
 
 #include "net/instaweb/htmlparse/html_lexer.h"
-#include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -26,17 +40,21 @@ const char* kImplicitlyClosedHtmlTags[] = {
 
 // These tags cannot be closed using the brief syntax; they must
 // be closed by using an explicit </TAG>.
-static const char* kNonBriefTerminatedTags[] = {
+const char* kNonBriefTerminatedTags[] = {
   "script", "a", "div", "span", "iframe", "style", "textarea",
   NULL
 };
 
 // These tags cause the text inside them to retained literally
 // and not interpreted.
-static const char* kLiteralTags[] = {
+const char* kLiteralTags[] = {
   "script", "iframe", "textarea", "style",
   NULL
 };
+
+// We start our stack-iterations from 1, because we put a NULL into
+// position 0 to reduce special-cases.
+const int kStartStack = 1;
 
 }  // namespace
 
@@ -430,7 +448,8 @@ void HtmlLexer::EvalLiteralTag(char c) {
   // Look explicitly for </script> in the literal buffer.
   // TODO(jmarantz): check for whitespace in unexpected places.
   if (c == '>') {
-    assert(literal_close_.size() > 3);  // expecting "</x>" for tag x.
+    // expecting "</x>" for tag x.
+    CHECK(literal_close_.size() > 3);  // NOLINT
     int literal_minus_close_size = literal_.size() - literal_close_.size();
     if ((literal_minus_close_size >= 0) &&
         (strcasecmp(literal_.c_str() + literal_minus_close_size,
@@ -451,7 +470,7 @@ void HtmlLexer::EvalLiteralTag(char c) {
 void HtmlLexer::EmitLiteral() {
   if (!literal_.empty()) {
     html_parse_->AddEvent(new HtmlCharactersEvent(
-        html_parse_->NewCharactersNode(literal_), tag_start_line_));
+        html_parse_->NewCharactersNode(Parent(), literal_), tag_start_line_));
     literal_.clear();
   }
   state_ = START;
@@ -464,7 +483,7 @@ void HtmlLexer::EmitComment() {
     html_parse_->AddEvent(new HtmlIEDirectiveEvent(token_, tag_start_line_));
   } else {
     html_parse_->AddEvent(new HtmlCommentEvent(
-        html_parse_->NewCommentNode(token_), tag_start_line_));
+        html_parse_->NewCommentNode(Parent(), token_), tag_start_line_));
   }
   token_.clear();
   state_ = START;
@@ -472,8 +491,8 @@ void HtmlLexer::EmitComment() {
 
 void HtmlLexer::EmitCdata() {
   literal_.clear();
-  html_parse_->AddEvent(new HtmlCdataEvent(html_parse_->NewCdataNode(token_),
-                                           tag_start_line_));
+  html_parse_->AddEvent(new HtmlCdataEvent(
+      html_parse_->NewCdataNode(Parent(), token_), tag_start_line_));
   token_.clear();
   state_ = START;
 }
@@ -506,7 +525,7 @@ void HtmlLexer::EmitTagOpen(bool allow_implicit_close) {
 
 void HtmlLexer::EmitTagBriefClose() {
   HtmlElement* element = PopElement();
-  CloseElement(element, HtmlElement::BRIEF_CLOSE, line_);
+  html_parse_->CloseElement(element, HtmlElement::BRIEF_CLOSE, line_);
   state_ = START;
 }
 
@@ -517,13 +536,18 @@ static void toLower(std::string* str) {
   }
 }
 
+HtmlElement* HtmlLexer::Parent() const {
+  CHECK(!element_stack_.empty());
+  return element_stack_.back();
+}
+
 void HtmlLexer::MakeElement() {
   if (element_ == NULL) {
     if (token_.empty()) {
       Error("Making element with empty tag name");
     }
     toLower(&token_);
-    element_ = html_parse_->NewElement(html_parse_->Intern(token_));
+    element_ = html_parse_->NewElement(Parent(), html_parse_->Intern(token_));
     element_->set_begin_line_number(tag_start_line_);
     token_.clear();
   }
@@ -537,6 +561,7 @@ void HtmlLexer::StartParse(const char* url) {
   attr_quote_ = "";
   state_ = START;
   element_stack_.clear();
+  element_stack_.push_back(NULL);
   element_ = NULL;
   token_.clear();
   attr_name_.clear();
@@ -564,28 +589,31 @@ void HtmlLexer::FinishParse() {
   }
 
   // Any unclosed tags?  These should be noted.
-  for (size_t i = 0; i < element_stack_.size(); ++i) {
+  CHECK(!element_stack_.empty());
+  CHECK(element_stack_[0] == NULL);
+  for (size_t i = kStartStack; i < element_stack_.size(); ++i) {
     HtmlElement* element = element_stack_[i];
     html_parse_->Warning(filename_.c_str(), element->begin_line_number(),
                          "End-of-file with open tag: %s",
                          element->tag().c_str());
   }
   element_stack_.clear();
+  element_stack_.push_back(NULL);
   element_ = NULL;
 }
 
 void HtmlLexer::MakeAttribute(bool has_value) {
-  assert(element_ != NULL);
+  CHECK(element_ != NULL);
   toLower(&attr_name_);
   Atom name = html_parse_->Intern(attr_name_);
   attr_name_.clear();
   const char* value = NULL;
-  assert(has_value == has_attr_value_);
+  CHECK(has_value == has_attr_value_);
   if (has_value) {
     value = attr_value_.c_str();
     has_attr_value_ = false;
   } else {
-    assert(attr_value_.empty());
+    CHECK(attr_value_.empty());
   }
   element_->AddAttribute(name, value, attr_quote_);
   attr_value_.clear();
@@ -727,7 +755,7 @@ void HtmlLexer::EmitTagClose(HtmlElement::CloseStyle close_style) {
   HtmlElement* element = PopElementMatchingTag(tag);
   if (element != NULL) {
     element->set_end_line_number(line_);
-    CloseElement(element, close_style, line_);
+    html_parse_->CloseElement(element, close_style, line_);
   } else {
     Error("Unexpected close-tag `%s', no tags are open", token_.c_str());
     EmitLiteral();
@@ -741,7 +769,7 @@ void HtmlLexer::EmitTagClose(HtmlElement::CloseStyle close_style) {
 void HtmlLexer::EmitDirective() {
   literal_.clear();
   html_parse_->AddEvent(new HtmlDirectiveEvent(
-      html_parse_->NewDirectiveNode(token_), line_));
+      html_parse_->NewDirectiveNode(Parent(), token_), line_));
   token_.clear();
   state_ = START;
 }
@@ -805,7 +833,7 @@ bool HtmlLexer::TagAllowsBriefTermination(Atom tag) const {
 }
 
 void HtmlLexer::DebugPrintStack() {
-  for (size_t i = 0; i < element_stack_.size(); ++i) {
+  for (size_t i = kStartStack; i < element_stack_.size(); ++i) {
     std::string buf;
     element_stack_[i]->ToString(&buf);
     fprintf(stdout, "%s\n", buf.c_str());
@@ -826,18 +854,22 @@ HtmlElement* HtmlLexer::PopElementMatchingTag(Atom tag) {
   HtmlElement* element = NULL;
 
   // Search the stack from top to bottom.
-  for (int i = element_stack_.size() - 1; i >= 0; --i) {
+  for (int i = element_stack_.size() - 1; i >= kStartStack; --i) {
     element = element_stack_[i];
     if (element->tag() == tag) {
-      // Emit warnings for the tags we are skipping, in forward order.
-      for (size_t j = i + 1; j < element_stack_.size(); ++j) {
+      // Emit warnings for the tags we are skipping.  We have to do
+      // this in reverse order so that we maintain stack discipline.
+      for (int j = element_stack_.size() - 1; j > i; --j) {
         HtmlElement* skipped = element_stack_[j];
         // TODO(jmarantz): Should this be a Warning rather than an Error?
         // In fact, should we actually perform this optimization ourselves
         // in a filter to omit closing tags that can be inferred?
         html_parse_->Error(filename_.c_str(), skipped->begin_line_number(),
                            "Unclosed element `%s'", skipped->tag().c_str());
-        CloseElement(skipped, HtmlElement::UNCLOSED, line_);
+        // Before closing the skipped element, pop it off the stack.  Otherwise,
+        // the parent redundancy check in HtmlParse::AddEvent will fail.
+        element_stack_.resize(j);
+        html_parse_->CloseElement(skipped, HtmlElement::UNCLOSED, line_);
       }
       element_stack_.resize(i);
       break;
@@ -845,17 +877,6 @@ HtmlElement* HtmlLexer::PopElementMatchingTag(Atom tag) {
     element = NULL;
   }
   return element;
-}
-
-void HtmlLexer::CloseElement(
-    HtmlElement* element, HtmlElement::CloseStyle close_style,
-    int line_number) {
-  HtmlEndElementEvent* end_event =
-      new HtmlEndElementEvent(element, line_number);
-  element->set_close_style(close_style);
-  html_parse_->AddEvent(end_event);
-  element->set_end(html_parse_->Last());
-  element->set_end_line_number(line_number);
 }
 
 void HtmlLexer::Error(const char* msg, ...) {

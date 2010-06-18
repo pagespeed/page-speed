@@ -1,4 +1,19 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: sligocki@google.com (Shawn Ligocki)
 
 #include "net/instaweb/rewriter/public/rewrite_driver_factory.h"
@@ -14,6 +29,7 @@
 #include "net/instaweb/util/public/hasher.h"
 #include "net/instaweb/util/public/http_cache.h"
 #include "net/instaweb/util/public/message_handler.h"
+#include "net/instaweb/util/public/stl_util.h"
 #include "net/instaweb/util/public/threadsafe_cache.h"
 #include "net/instaweb/util/public/timer.h"
 
@@ -38,6 +54,7 @@ RewriteDriverFactory::RewriteDriverFactory()
 }
 
 RewriteDriverFactory::~RewriteDriverFactory() {
+  STLDeleteContainerPointers(rewrite_drivers_.begin(), rewrite_drivers_.end());
 }
 
 void RewriteDriverFactory::set_html_parse_message_handler(
@@ -87,18 +104,11 @@ FileSystem* RewriteDriverFactory::file_system() {
   return file_system_.get();
 }
 
-AbstractMutex* RewriteDriverFactory::CacheMutex() {
-  if (cache_mutex_ == NULL) {
-    cache_mutex_.reset(NewMutex());
-  }
-  return cache_mutex_.get();
-}
-
 HTTPCache* RewriteDriverFactory::http_cache() {
   if (http_cache_ == NULL) {
     CacheInterface* cache = NewCacheInterface();
     if (use_threadsafe_cache_) {
-      threadsafe_cache_.reset(new ThreadsafeCache(cache, CacheMutex()));
+      threadsafe_cache_.reset(new ThreadsafeCache(cache, cache_mutex()));
       cache = threadsafe_cache_.get();
     }
     http_cache_.reset(new HTTPCache(cache, timer()));
@@ -213,43 +223,39 @@ Timer* RewriteDriverFactory::timer() {
   return timer_.get();
 }
 
-RewriteDriver* RewriteDriverFactory::rewrite_driver() {
-  if (rewrite_driver_ == NULL) {
-    rewrite_driver_.reset(new RewriteDriver(html_parse(),
-                                            file_system(),
-                                            url_async_fetcher()));
-    if (combine_css_ || outline_css_ || outline_javascript_ ||
-        rewrite_images_ || extend_cache_) {
-      rewrite_driver_->SetResourceManager(resource_manager());
-    }
-    if (add_head_) {
-      rewrite_driver_->AddHead();
-    }
-    if (add_base_tag_) {
-      rewrite_driver_->AddBaseTagFilter();
-    }
-    if (combine_css_) {
-      rewrite_driver_->CombineCssFiles();
-    }
-    if (outline_css_ || outline_javascript_) {
-      rewrite_driver_->OutlineResources(outline_css_, outline_javascript_);
-    }
-    if (rewrite_images_) {
-      rewrite_driver_->RewriteImages();
-    }
-    if (extend_cache_) {
-      rewrite_driver_->ExtendCacheLifetime(hasher(), timer());
-    }
-    if (remove_quotes_) {
-      rewrite_driver_->RemoveQuotes();
-    }
+RewriteDriver* RewriteDriverFactory::NewRewriteDriver() {
+  RewriteDriver* rewrite_driver =  new RewriteDriver(
+      html_parse(), file_system(), url_async_fetcher());
+  if (combine_css_ || outline_css_ || outline_javascript_ ||
+      rewrite_images_ || extend_cache_) {
+    rewrite_driver->SetResourceManager(resource_manager());
   }
-  return rewrite_driver_.get();
-}
-
-RewriteDriver* RewriteDriverFactory::MakeRewriteDriver() {
-  assert(rewrite_driver_ == NULL);
-  return rewrite_driver();
+  if (add_head_) {
+    rewrite_driver->AddHead();
+  }
+  if (add_base_tag_) {
+    rewrite_driver->AddBaseTagFilter();
+  }
+  if (combine_css_) {
+    rewrite_driver->CombineCssFiles();
+  }
+  if (outline_css_ || outline_javascript_) {
+    rewrite_driver->OutlineResources(outline_css_, outline_javascript_);
+  }
+  if (rewrite_images_) {
+    rewrite_driver->RewriteImages();
+  }
+  if (extend_cache_) {
+    rewrite_driver->ExtendCacheLifetime(hasher(), timer());
+  }
+  if (remove_quotes_) {
+    rewrite_driver->RemoveQuotes();
+  }
+  {
+    ScopedMutex lock(rewrite_drivers_mutex());
+    rewrite_drivers_.push_back(rewrite_driver);
+  }
+  return rewrite_driver;
 }
 
 }  // namespace net_instaweb

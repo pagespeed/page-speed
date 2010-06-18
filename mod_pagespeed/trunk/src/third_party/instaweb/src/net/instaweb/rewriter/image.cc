@@ -1,4 +1,19 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Author: jmaessen@google.com (Jan Maessen)
 
 #include "net/instaweb/rewriter/public/image.h"
@@ -11,7 +26,10 @@
 #include <string>
 #include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/util/public/writer.h"
+#undef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #define PAGESPEED_PNG_OPTIMIZER_GIF_READER 0
+#include "third_party/opencv/src/opencv/include/opencv/cv.h"
+#include "third_party/opencv/src/opencv/include/opencv/highgui.h"
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
@@ -85,7 +103,7 @@ Image::Image(const std::string& original_contents,
       output_valid_(false),
       opencv_filename_(),
       opencv_image_(NULL),
-      opencv_load_possible_(false),
+      opencv_load_possible_(true),
       resized_(false),
       url_(url),
       width_(-1),                   // Lazily initialized.  Catch errors.
@@ -234,14 +252,54 @@ const ContentType* Image::content_type() {
 // Note that if the load fails, opencv_load_possible_ will be false
 // and future calls to LoadOpenCV will fail fast.
 bool Image::LoadOpenCV() {
+  if (opencv_image_ == NULL && opencv_load_possible_) {
+    Image::Type image_type = this->image_type();
+    const ContentType* content_type = this->content_type();
+    opencv_load_possible_ = (content_type != NULL &&
+                             image_type != IMAGE_GIF);
+    if (opencv_load_possible_) {
+      opencv_load_possible_ =
+          WriteTempFileWithContentType(
+              file_prefix_, *content_type,
+              original_contents_, &opencv_filename_,
+              file_system_, handler_);
+    }
+    if (opencv_load_possible_) {
+      opencv_image_ = cvLoadImage(opencv_filename_.c_str());
+      file_system_->RemoveFile(opencv_filename_.c_str(), handler_);
+      opencv_load_possible_ = (opencv_image_ != NULL);
+    }
+  }
   return opencv_load_possible_;
 }
 
 void Image::CleanOpenCV() {
+  if (opencv_image_ != NULL) {
+    cvReleaseImage(&opencv_image_);
+  }
 }
 
 bool Image::Dimensions(int* width, int* height) {
   bool ok = false;
+  ok = opencv_image_ != NULL || LoadOpenCV();
+  if (ok) {
+    // Check our width and height against openCV.
+    // Believe OpenCV.
+    // TODO(jmaessen): rip out belt and suspenders when
+    // we're confident it works.
+    if (0 <= width_ && width_ != opencv_image_->width) {
+      handler_->Error(url_.c_str(), 0,
+                      "Computed width %d doesn't match OpenCV %d",
+                      width_, opencv_image_->width);
+    }
+    if (0 <= height_ && height_ != opencv_image_->height) {
+      handler_->Error(url_.c_str(), 0,
+                      "Computed height %d doesn't match OpenCV %d",
+                      height_, opencv_image_->height);
+    }
+    width_ = opencv_image_->width;
+    height_ = opencv_image_->height;
+  }
   if (0 <= width_ && 0 <= height_) {
     *width = width_;
     *height = height_;
@@ -251,6 +309,24 @@ bool Image::Dimensions(int* width, int* height) {
 }
 
 bool Image::ResizeTo(int width, int height) {
+  if (resized_) {
+    // If we already resized, drop data and work with original image.
+    UndoResize();
+  }
+  bool ok = opencv_image_ != NULL || LoadOpenCV();
+  if (ok) {
+    IplImage* rescaled_image =
+        cvCreateImage(cvSize(width * 1.0, height * 1.0),
+                      opencv_image_->depth,
+                      opencv_image_->nChannels);
+    ok = rescaled_image != NULL;
+    if (ok) {
+      cvResize(opencv_image_, rescaled_image);
+      cvReleaseImage(&opencv_image_);
+      opencv_image_ = rescaled_image;
+    }
+    resized_ = ok;
+  }
   return resized_;
 }
 
@@ -260,6 +336,17 @@ bool Image::ComputeOutputContents() {
     bool ok = true;
     std::string opencv_contents;
     const std::string* contents = &original_contents_;
+    // Choose appropriate source for image contents.
+    // Favor original contents if image unchanged.
+    if (resized_ && opencv_image_ != NULL) {
+      cvSaveImage(opencv_filename_.c_str(), opencv_image_);
+      ok = file_system_->ReadFile(opencv_filename_.c_str(),
+                                  &opencv_contents, handler_);
+      file_system_->RemoveFile(opencv_filename_.c_str(), handler_);
+      if (ok) {
+        contents = &opencv_contents;
+      }
+    }
     // Take image contents and re-compress them.
     if (ok) {
       // If we can't optimize the image, we'll fail.
