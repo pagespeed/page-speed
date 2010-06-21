@@ -26,6 +26,7 @@
       'type': '<(library)',
       'dependencies': [
         'drtlib',
+        '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/core/core.gyp:pagespeed_core',
         '<(DEPTH)/third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
       ],

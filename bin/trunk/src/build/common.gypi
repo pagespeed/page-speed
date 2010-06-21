@@ -95,7 +95,7 @@
 
       # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
       # libraries on linux x86-64 and arm.
-      'linux_fpic%': 0,
+      'linux_fpic%': 1,
 
       # Python version.
       'python_ver%': '2.5',
