@@ -42,11 +42,13 @@ bool TestShellRunner::Run(const std::string& url, int timeout_millis) {
   TestShell shell(false);
 
   shell.resetTestController();
+  shell.setAllowExternalPages(true);
   shell.setLayoutTestTimeout(timeout_millis);
   shell.runFileTest(params);
 
-  // TODO(bmcquade): find out why DumpRenderTree.cpp calls this method
-  // twice, and whether it's necessary to call twice.
+  // Invoke the JavaScript engine's garbage collector twice, to force
+  // a synchronous GC. We do so in order to support checking for
+  // memory leaks.
   shell.callJSGC();
   shell.callJSGC();
 
