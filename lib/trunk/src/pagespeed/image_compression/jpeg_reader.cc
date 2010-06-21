@@ -19,6 +19,7 @@
 #include "pagespeed/image_compression/jpeg_reader.h"
 
 #include <setjmp.h>  // for setjmp/longjmp
+#include <stdlib.h>
 #include <string.h>  // for memset
 
 extern "C" {
