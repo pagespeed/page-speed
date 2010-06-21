@@ -150,10 +150,11 @@ deps = {
 deps_os = {
   "win": {
     "src/third_party/cygwin": From(Var("chromium_deps_root")),
-    "src/third_party/python_24": From(Var("chromium_deps_root")),
     "src/third_party/nss": From(Var("chromium_deps_root")),
+    "src/third_party/python_24": From(Var("chromium_deps_root")),
   },
   "mac": {
+    "src/third_party/nss": From(Var("chromium_deps_root")),
     "src/third_party/yasm/source/patched-yasm": From(Var("chromium_deps_root")),
   },
   "unix": {
