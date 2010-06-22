@@ -34,8 +34,8 @@ For the Page Speed Firefox Add-on shared library:
 
 = Compile the code =
   * Linux
-    # Run: `cd src/build; hammer -j4 --mode=Release`.
-    # Build output will appear under `src/sconsbuild`.
+    # Run: `cd src; BUILDTYPE=Release make -j4`.
+    # Build output will appear under `out`.
 
   * Max OS X
     # Run: `cd src/build; xcodebuild -project all.xcodeproj -configuration Release -target All`
