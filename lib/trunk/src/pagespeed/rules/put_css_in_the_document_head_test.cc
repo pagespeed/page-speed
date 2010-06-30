@@ -201,9 +201,9 @@ class PutCssInTheDocumentHeadTest : public ::testing::Test {
     pagespeed::Results results;
     pagespeed::ResultProvider provider(put_css_in_head_rule, &results);
     ASSERT_TRUE(put_css_in_head_rule.AppendResults(*input_, &provider));
-    ASSERT_EQ(results.results_size(), expected.size());
+    ASSERT_EQ(static_cast<size_t>(results.results_size()), expected.size());
 
-    for (int i = 0; i < expected.size(); ++i) {
+    for (size_t i = 0; i < expected.size(); ++i) {
       const pagespeed::Result& result = results.results(i);
       const Violation& violation = expected[i];
       ASSERT_EQ(result.resource_urls_size(), 1);
@@ -216,8 +216,8 @@ class PutCssInTheDocumentHeadTest : public ::testing::Test {
       ASSERT_EQ(violation.num_inline_style_blocks,
                 style_details.num_inline_style_blocks());
       ASSERT_EQ(violation.external_styles.size(),
-                style_details.external_styles_size());
-      for (int j = 0; j < violation.external_styles.size(); ++j) {
+                static_cast<size_t>(style_details.external_styles_size()));
+      for (size_t j = 0; j < violation.external_styles.size(); ++j) {
         ASSERT_EQ(violation.external_styles[j],
                   style_details.external_styles(j));
       }

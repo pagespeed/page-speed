@@ -91,7 +91,8 @@ class CombineExternalResourcesTest : public ::testing::Test {
     Results results;
     ResultProvider provider(*resource_rule.get(), &results);
     resource_rule->AppendResults(*input_, &provider);
-    ASSERT_EQ(results.results_size(), expected_violations.size());
+    ASSERT_EQ(static_cast<size_t>(results.results_size()),
+              expected_violations.size());
     for (int idx = 0; idx < results.results_size(); idx++) {
       const Result* result = &results.results(idx);
       const Violation& violation = expected_violations[idx];
@@ -100,7 +101,7 @@ class CombineExternalResourcesTest : public ::testing::Test {
       ASSERT_EQ(result->savings().requests_saved(),
                 violation.expected_rt_savings);
 
-      ASSERT_EQ(result->resource_urls_size(),
+      ASSERT_EQ(static_cast<size_t>(result->resource_urls_size()),
                 violation.urls.size());
 
       for (int url_idx = 0;

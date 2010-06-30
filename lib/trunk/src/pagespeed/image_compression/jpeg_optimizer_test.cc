@@ -34,8 +34,8 @@ const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
 
 struct ImageCompressionInfo {
   const char* filename;
-  int original_size;
-  int compressed_size;
+  size_t original_size;
+  size_t compressed_size;
 };
 
 ImageCompressionInfo kValidImages[] = {
@@ -82,7 +82,7 @@ const size_t kValidImageCount = arraysize(kValidImages);
 const size_t kInvalidFileCount = arraysize(kInvalidFiles);
 
 TEST(JpegOptimizerTest, ValidJpegs) {
-  for (int i = 0; i < kValidImageCount; ++i) {
+  for (size_t i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
     ReadFileToString(kValidImages[i].filename, &src_data);
     std::string dest_data;
@@ -102,7 +102,7 @@ TEST(JpegOptimizerTest, ValidJpegs) {
 }
 
 TEST(JpegOptimizerTest, InvalidJpegs) {
-  for (int i = 0; i < kInvalidFileCount; ++i) {
+  for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string src_data;
     ReadFileToString(kInvalidFiles[i], &src_data);
     std::string dest_data;
@@ -117,7 +117,7 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
   // We will compare these files with the output we get from
   // a JpegOptimizer that had an error.
   std::vector<std::string> correctly_compressed;
-  for (int i = 0; i < kValidImageCount; ++i) {
+  for (size_t i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
     ReadFileToString(kValidImages[i].filename, &src_data);
     correctly_compressed.push_back("");
@@ -130,7 +130,7 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
   // images as invalid ones.
   ASSERT_GE(kValidImageCount, kInvalidFileCount);
 
-  for (int i = 0; i < kInvalidFileCount; ++i) {
+  for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string invalid_src_data;
     ReadFileToString(kInvalidFiles[i], &invalid_src_data);
     std::string invalid_dest_data;

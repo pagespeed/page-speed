@@ -104,7 +104,7 @@ class MinifyJavaScriptTest : public ::testing::Test {
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
-    ASSERT_EQ(result.savings().response_bytes_saved(),
+    ASSERT_EQ(static_cast<size_t>(result.savings().response_bytes_saved()),
               strlen(kUnminified) - strlen(kMinified));
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), "http://www.example.com/foo.js");

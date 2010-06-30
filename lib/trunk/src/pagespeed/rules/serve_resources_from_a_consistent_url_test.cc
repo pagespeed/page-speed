@@ -99,7 +99,7 @@ class ServeResourcesFromAConsistentUrlTest : public ::testing::Test {
     Results results;
     ResultProvider provider(rule, &results);
     rule.AppendResults(*input_, &provider);
-    ASSERT_EQ(num_collisions, results.results_size());
+    ASSERT_EQ(num_collisions, static_cast<size_t>(results.results_size()));
     for (int result_idx = 0;
          result_idx < results.results_size();
          result_idx++) {
@@ -107,16 +107,18 @@ class ServeResourcesFromAConsistentUrlTest : public ::testing::Test {
 
       int expected_savings =
           ComputeSavings(num_resources, kResponseBodies[result_idx]);
-      ASSERT_EQ(num_resources - 1, result.savings().requests_saved());
+      ASSERT_EQ(num_resources - 1,
+                static_cast<size_t>(result.savings().requests_saved()));
       ASSERT_EQ(expected_savings, result.savings().response_bytes_saved());
-      ASSERT_EQ(num_resources, result.resource_urls_size());
+      ASSERT_EQ(num_resources,
+                static_cast<size_t>(result.resource_urls_size()));
 
       // Now verify that the list or resource URLs in the Result
       // contains the expected contents. We sort both lists, then
       // assert that the sorted results are equal.
       std::vector<std::string> expected_urls;
       std::vector<std::string> actual_urls;
-      for (int url_idx = 0; url_idx < num_resources; url_idx++) {
+      for (size_t url_idx = 0; url_idx < num_resources; url_idx++) {
         expected_urls.push_back(kResponseUrls[result_idx][url_idx]);
         actual_urls.push_back(result.resource_urls(url_idx));
       }

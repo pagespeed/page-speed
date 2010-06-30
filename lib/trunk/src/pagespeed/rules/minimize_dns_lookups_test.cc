@@ -78,7 +78,7 @@ class MinimizeDnsTest : public ::testing::Test {
 
     ASSERT_EQ(expected_violations.size(), urls.size());
 
-    for (int idx = 0; idx < urls.size(); ++idx) {
+    for (size_t idx = 0; idx < urls.size(); ++idx) {
       EXPECT_EQ(expected_violations[idx], urls[idx]);
     }
   }

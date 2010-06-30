@@ -50,7 +50,7 @@ TEST(ProtoFormatterTest, BasicTest) {
   ProtoFormatter formatter(&results);
   formatter.AddChild("foo");
   formatter.AddChild("bar");
-  ASSERT_EQ(results.size(), 2);
+  ASSERT_EQ(static_cast<size_t>(2), results.size());
   ResultText* first = results[0];
   EXPECT_EQ("foo", first->format());
   EXPECT_EQ(0, first->args_size());
@@ -75,7 +75,7 @@ TEST(ProtoFormatterTest, OptimizedTest) {
   formatter.AddChild(args);
   formatter.Done();
 
-  ASSERT_EQ(results.size(), 1);
+  ASSERT_EQ(static_cast<size_t>(1), results.size());
   ResultText* first = results[0];
   EXPECT_EQ("FooBar", first->format());
   EXPECT_EQ(0, first->args_size());
@@ -96,7 +96,7 @@ TEST(ProtoFormatterTest, BasicHeaderTest) {
   formatter.AddHeader(rule2, 23);
   formatter.Done();
 
-  ASSERT_EQ(results.size(), 2);
+  ASSERT_EQ(static_cast<size_t>(2), results.size());
   ResultText* first = results[0];
   EXPECT_EQ("head", first->format());
   EXPECT_EQ(0, first->args_size());
@@ -120,7 +120,7 @@ TEST(ProtoFormatterTest, TreeTest) {
   level2->AddChild("l3-1");
   level1->AddChild("l2-2");
 
-  ASSERT_EQ(results.size(), 1);
+  ASSERT_EQ(static_cast<size_t>(1), results.size());
   const ResultText& result = *results[0];
   EXPECT_EQ("l1-1", result.format());
   EXPECT_EQ(0, result.args_size());
@@ -158,8 +158,8 @@ TEST(ProtoFormatterTest, ArgumentTypesTest) {
   formatter.AddChild("$1", string_arg);
   formatter.AddChild("$1", url_arg);
 
-  ASSERT_EQ(results.size(), 4);
-  for (int idx = 0; idx < results.size(); idx++) {
+  ASSERT_EQ(static_cast<size_t>(4), results.size());
+  for (size_t idx = 0; idx < results.size(); idx++) {
     ResultText* result = results[idx];
     EXPECT_EQ("$1", result->format());
     ASSERT_EQ(1, result->args_size());
@@ -196,10 +196,10 @@ TEST(ProtoFormatterTest, ArgumentListTest) {
   formatter.AddChild("$1 $2 $3", bytes_arg, int_arg, string_arg);
   formatter.AddChild("$1 $2 $3 $4", bytes_arg, int_arg, string_arg, url_arg);
 
-  ASSERT_EQ(results.size(), 5);
-  for (int idx = 0; idx < results.size(); idx++) {
+  ASSERT_EQ(static_cast<size_t>(5), results.size());
+  for (size_t idx = 0; idx < results.size(); idx++) {
     ResultText* result = results[idx];
-    ASSERT_EQ(idx, result->args_size());
+    ASSERT_EQ(idx, static_cast<size_t>(result->args_size()));
     EXPECT_EQ(0, result->children_size());
 
     if (idx > 0) {

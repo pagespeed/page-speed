@@ -47,7 +47,7 @@ const size_t kNumComponentsToDisplay = 2;
 
 void DoFormatTimeDuration(int64 duration,
                           std::vector<std::string> *components) {
-  for (int i = 0; i < kQuantitiesSize && duration > 0; ++i) {
+  for (size_t i = 0; i < kQuantitiesSize && duration > 0; ++i) {
     const DurationDescriptor *desc = kQuantities + i;
     int64 value = duration;
     duration /= desc->quantity;
@@ -77,7 +77,7 @@ namespace formatters {
 
 std::string FormatBytes(int64 bytes) {
   if (bytes < kBytesPerKiB) {
-    return StringPrintf("%lldB", bytes);
+    return StringPrintf("%lldB", static_cast<long long int>(bytes));
   } else if (bytes < kBytesPerMiB) {
     return StringPrintf("%.1fKiB", bytes / static_cast<double>(kBytesPerKiB));
   } else {

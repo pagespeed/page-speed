@@ -161,7 +161,8 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
       if (i + 1 != format_str.end()) {
         ++i;
         DCHECK('$' == *i || ('1' <= *i && *i <= '9' &&
-                             *i <= '0' + params.arguments().size()))
+                             static_cast<size_t>(*i) <=
+                             '0' + params.arguments().size()))
             << "Invalid placeholder: " << *i;
         if ('$' == *i) {
           str.push_back('$');

@@ -219,9 +219,9 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
     Results results;
     ResultProvider provider(dimensions_rule, &results);
     ASSERT_TRUE(dimensions_rule.AppendResults(*input_, &provider));
-    ASSERT_EQ(results.results_size(), expected.size());
+    ASSERT_EQ(static_cast<size_t>(results.results_size()), expected.size());
 
-    for (int idx = 0; idx < expected.size(); ++idx) {
+    for (size_t idx = 0; idx < expected.size(); ++idx) {
       const Result& result = results.results(idx);
       ASSERT_EQ(result.resource_urls_size(), 1);
       EXPECT_EQ(expected[idx], result.resource_urls(0));

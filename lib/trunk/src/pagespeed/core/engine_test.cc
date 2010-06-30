@@ -142,7 +142,7 @@ TEST(EngineTest, FormatResults) {
   std::vector<ResultText*> result_text;
   ProtoFormatter formatter(&result_text);
   ASSERT_TRUE(engine.FormatResults(results, &formatter));
-  ASSERT_EQ(1, result_text.size());
+  ASSERT_EQ(static_cast<size_t>(1), result_text.size());
   const ResultText& root = *result_text[0];
   ASSERT_EQ(kHeader, root.format());
   ASSERT_EQ(0, root.args_size());
@@ -174,7 +174,7 @@ TEST(EngineTest, FormatResultsNoResults) {
   std::vector<ResultText*> result_text;
   ProtoFormatter formatter(&result_text);
   ASSERT_TRUE(engine.FormatResults(results, &formatter));
-  ASSERT_EQ(1, result_text.size());
+  ASSERT_EQ(static_cast<size_t>(1), result_text.size());
   const ResultText& root = *result_text[0];
   ASSERT_EQ(kHeader, root.format());
   ASSERT_EQ(0, root.args_size());
@@ -232,7 +232,7 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   std::vector<ResultText*> result_text;
   ProtoFormatter formatter(&result_text);
   ASSERT_FALSE(engine2.FormatResults(results, &formatter));
-  ASSERT_EQ(0, result_text.size());
+  ASSERT_EQ(static_cast<size_t>(0), result_text.size());
 }
 
 }  // namespace

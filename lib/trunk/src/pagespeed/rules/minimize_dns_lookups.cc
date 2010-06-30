@@ -141,7 +141,6 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
            domain_host_resouce_map.begin(), end = domain_host_resouce_map.end();
        iter != end;
        ++iter) {
-    const std::string& host = iter->first;
     const HostResourceMap& host_resource_map = iter->second;
     if (host_resource_map.size() <= 1) {
       // If there's only a single hostname for this domain, it's not

@@ -34,7 +34,7 @@ namespace {
 // to a resource. Below this size, the cost of gzip overhead typically
 // outweighs the benefits of gzip compression (i.e. the compressed
 // resource is larger than the uncompressed resource).
-const int kMinGzipSize = 150;
+const size_t kMinGzipSize = 150;
 
 }  // namespace
 
