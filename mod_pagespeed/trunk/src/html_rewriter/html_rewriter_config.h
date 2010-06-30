@@ -39,6 +39,9 @@ std::string GetFileCachePath();
 std::string GetFetcherProxy();
 // Get the fetcher time out value in milliseconds.
 int64_t GetFetcherTimeOut();
+// Get the resource fetcher time out value in milliseconds.
+// The resource may be fetched by a real client from the browser.
+int64_t GetResourceFetcherTimeOutMs();
 
 }  // namespace html_rewriter
 
