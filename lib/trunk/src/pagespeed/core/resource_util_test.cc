@@ -50,7 +50,7 @@ class HeaderDirectiveTest : public testing::Test {
                           const char* value) {
     m_.clear();
     ASSERT_TRUE(resource_util::GetHeaderDirectives(header, &m_));
-    ASSERT_EQ(1, m_.size());
+    ASSERT_EQ(static_cast<size_t>(1), m_.size());
     resource_util::DirectiveMap::const_iterator it = m_.find(key);
     ASSERT_TRUE(m_.end() != it);
     ASSERT_STREQ(value, it->second.c_str());
@@ -63,7 +63,7 @@ class HeaderDirectiveTest : public testing::Test {
                            const char* value2) {
     m_.clear();
     ASSERT_TRUE(resource_util::GetHeaderDirectives(header, &m_));
-    ASSERT_EQ(2, m_.size());
+    ASSERT_EQ(static_cast<size_t>(2), m_.size());
     resource_util::DirectiveMap::const_iterator it = m_.find(key1);
     ASSERT_TRUE(m_.end() != it);
     ASSERT_STREQ(value1, it->second.c_str());

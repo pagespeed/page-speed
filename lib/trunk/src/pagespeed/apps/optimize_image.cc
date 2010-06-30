@@ -44,7 +44,7 @@ enum ImageType {
 
 // use file extension to determine what optimizer should be used.
 ImageType DetermineImageType(const std::string& filename) {
-  int dot_pos = filename.rfind('.');
+  size_t dot_pos = filename.rfind('.');
   if (dot_pos != std::string::npos) {
     std::string extension;
     std::transform(filename.begin() + dot_pos + 1, filename.end(),

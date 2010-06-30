@@ -241,7 +241,7 @@ ResourceType Resource::GetResourceType() const {
 
   std::string type = GetResponseHeader("Content-Type");
 
-  int separator_idx = type.find(";");
+  size_t separator_idx = type.find(";");
   if (separator_idx != std::string::npos) {
     type.erase(separator_idx);
   }
@@ -293,7 +293,7 @@ ImageType Resource::GetImageType() const {
   }
   std::string type = GetResponseHeader("Content-Type");
 
-  int separator_idx = type.find(";");
+  size_t separator_idx = type.find(";");
   if (separator_idx != std::string::npos) {
     type.erase(separator_idx);
   }

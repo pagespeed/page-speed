@@ -87,14 +87,14 @@ class OptimizeOrderTest : public ::testing::Test {
     const ResourceOrderingDetails& ordering_details =
       details.GetExtension(ResourceOrderingDetails::message_set_extension);
 
-    ASSERT_EQ(ooo_external_css.size(),
+    ASSERT_EQ(static_cast<int>(ooo_external_css.size()),
               ordering_details.out_of_order_external_css_size());
     for (int i = 0, size = ooo_external_css.size(); i < size; ++i) {
       ASSERT_EQ(ooo_external_css[i],
                 ordering_details.out_of_order_external_css(i));
     }
 
-    ASSERT_EQ(ooo_inline_scripts.size(),
+    ASSERT_EQ(static_cast<int>(ooo_inline_scripts.size()),
               ordering_details.out_of_order_inline_scripts_size());
     for (int i = 0, size = ooo_inline_scripts.size(); i < size; ++i) {
       ASSERT_EQ(ooo_inline_scripts[i],

@@ -158,7 +158,7 @@ bool PagespeedInput::has_resource_with_url(const std::string& url) const {
 }
 
 const Resource& PagespeedInput::GetResource(int idx) const {
-  DCHECK(idx >= 0 && idx < resources_.size());
+  DCHECK(idx >= 0 && static_cast<size_t>(idx) < resources_.size());
   return *resources_[idx];
 }
 
@@ -167,7 +167,7 @@ ImageAttributes* PagespeedInput::NewImageAttributes(
   if (image_attributes_factory_ == NULL) {
     return NULL;
   }
-  image_attributes_factory_->NewImageAttributes(resource);
+  return image_attributes_factory_->NewImageAttributes(resource);
 }
 
 const HostResourceMap* PagespeedInput::GetHostResourceMap() const {

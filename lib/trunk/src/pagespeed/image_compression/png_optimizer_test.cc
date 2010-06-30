@@ -134,8 +134,8 @@ void AssertPngEq(
 
 struct ImageCompressionInfo {
   const char* filename;
-  int original_size;
-  int compressed_size;
+  size_t original_size;
+  size_t compressed_size;
 };
 
 ImageCompressionInfo kValidImages[] = {
@@ -327,7 +327,7 @@ const size_t kInvalidFileCount = arraysize(kInvalidFiles);
 
 TEST(PngOptimizerTest, ValidPngs) {
   PngReader reader;
-  for (int i = 0; i < kValidImageCount; i++) {
+  for (size_t i = 0; i < kValidImageCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kValidImages[i].filename, &in);
     ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out))
@@ -345,7 +345,7 @@ TEST(PngOptimizerTest, ValidPngs) {
 
 TEST(PngOptimizerTest, InvalidPngs) {
   PngReader reader;
-  for (int i = 0; i < kInvalidFileCount; i++) {
+  for (size_t i = 0; i < kInvalidFileCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kInvalidFiles[i], &in);
     ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
@@ -356,14 +356,14 @@ TEST(PngOptimizerTest, FixPngOutOfBoundReadCrash) {
   PngReader reader;
   std::string in, out;
   ReadFileToString(kPngTestDir, "read_from_stream_crash", "png", &in);
-  ASSERT_EQ(193, in.length());
+  ASSERT_EQ(static_cast<size_t>(193), in.length());
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 }
 
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 TEST(PngOptimizerTest, ValidGifs) {
   GifReader reader;
-  for (int i = 0; i < kValidGifImageCount; i++) {
+  for (size_t i = 0; i < kValidGifImageCount; i++) {
     std::string in, out, ref;
     ReadFileToString(
         kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
@@ -385,7 +385,7 @@ TEST(PngOptimizerTest, AnimatedGif) {
   GifReader reader;
   std::string in, out;
   ReadFileToString(kGifTestDir, "animated", "gif", &in);
-  ASSERT_NE(0, in.length());
+  ASSERT_NE(static_cast<size_t>(0), in.length());
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 }
 
@@ -393,14 +393,14 @@ TEST(PngOptimizerTest, InvalidGifs) {
   // Verify that we fail gracefully when trying to parse PNGs using
   // the GIF reader.
   GifReader reader;
-  for (int i = 0; i < kValidImageCount; i++) {
+  for (size_t i = 0; i < kValidImageCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kValidImages[i].filename, &in);
     ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
   }
 
   // Also verify we fail gracefully for the invalid PNG images.
-  for (int i = 0; i < kInvalidFileCount; i++) {
+  for (size_t i = 0; i < kInvalidFileCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kInvalidFiles[i], &in);
     ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
@@ -412,7 +412,7 @@ TEST(PngOptimizerTest, InvalidGifs) {
 // compress valid images.
 TEST(PngOptimizerTest, SuccessAfterFailure) {
   PngReader reader;
-  for (int i = 0; i < kInvalidFileCount; i++) {
+  for (size_t i = 0; i < kInvalidFileCount; i++) {
     {
       std::string in, out;
       ReadPngSuiteFileToString(kInvalidFiles[i], &in);

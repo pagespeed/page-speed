@@ -18,7 +18,7 @@ namespace pagespeed {
 
 ProtocolFilter::ProtocolFilter(std::vector<std::string> *allowed_protocols) {
   std::string regex_string = "^(";
-  for (int i = 0; i < allowed_protocols->size(); ++i) {
+  for (size_t i = 0; i < allowed_protocols->size(); ++i) {
     if (i) {
       regex_string += "|";
     }

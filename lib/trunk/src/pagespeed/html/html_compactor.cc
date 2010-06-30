@@ -179,11 +179,11 @@ void InitSpecialTagMap() {
   AddTagEntry("script", TagEntry::FOREIGN);
   AddTagEntry("textarea", TagEntry::FOREIGN);
 
-  for (int i = 0; i < arraysize(kOptionalList); i++) {
+  for (size_t i = 0; i < arraysize(kOptionalList); i++) {
     AddTagEntry(kOptionalList[i], TagEntry::OPTIONAL);
   }
 
-  for (int i = 0; i < arraysize(kDefaultList); i++) {
+  for (size_t i = 0; i < arraysize(kDefaultList); i++) {
     TagEntry *t = AddTagEntry(kDefaultList[i].tag, TagEntry::SPECIAL_ATTR);
     AttrEntry a;
     a.attr_name = kDefaultList[i].attr_name;
@@ -192,7 +192,7 @@ void InitSpecialTagMap() {
     t->attrs.push_back(a);
   }
 
-  for (int i = 0; i < arraysize(kOneValueList); i++) {
+  for (size_t i = 0; i < arraysize(kOneValueList); i++) {
     TagEntry *t = AddTagEntry(kOneValueList[i].tag, TagEntry::SPECIAL_ATTR);
     AttrEntry a;
     a.attr_name = kOneValueList[i].attr_name;
@@ -280,7 +280,7 @@ static void CompactTag(HtmlTag *tag, const TagEntry *entry) {
     // processing. It turns out to be slower because entry->attrs usually have
     // only 1 or 2 entries, and doing (# of attributes in a tag) hash lookup on
     // it is slower than just compare them with all the attributes.
-    for (int i = 0; i < entry->attrs.size(); i++) {
+    for (size_t i = 0; i < entry->attrs.size(); i++) {
       const AttrEntry& item = entry->attrs[i];
       const std::string attr_name(item.attr_name);
       if (!tag->HasAttr(attr_name)) {

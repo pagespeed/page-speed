@@ -88,7 +88,7 @@ class ImageAttributesFactoryTest : public ::testing::Test {
 TEST_F(ImageAttributesFactoryTest, ValidPng) {
   ImageAttributesFactory factory;
   scoped_ptr<Resource> resource(CreatePngResource("basi0g01.png"));
-  ASSERT_LT(0, resource->GetResponseBody().size());
+  ASSERT_LT(static_cast<size_t>(0), resource->GetResponseBody().size());
   scoped_ptr<ImageAttributes> image_attributes(
       factory.NewImageAttributes(resource.get()));
   ASSERT_NE(static_cast<ImageAttributes*>(NULL), image_attributes.get());
@@ -99,7 +99,7 @@ TEST_F(ImageAttributesFactoryTest, ValidPng) {
 TEST_F(ImageAttributesFactoryTest, InvalidPng) {
   ImageAttributesFactory factory;
   scoped_ptr<Resource> resource(CreatePngResource("x00n0g01.png"));
-  ASSERT_LT(0, resource->GetResponseBody().size());
+  ASSERT_LT(static_cast<size_t>(0), resource->GetResponseBody().size());
   scoped_ptr<ImageAttributes> image_attributes(
       factory.NewImageAttributes(resource.get()));
   ASSERT_EQ(static_cast<ImageAttributes*>(NULL), image_attributes.get());
@@ -109,7 +109,7 @@ TEST_F(ImageAttributesFactoryTest, InvalidPng) {
 TEST_F(ImageAttributesFactoryTest, ValidGif) {
   ImageAttributesFactory factory;
   scoped_ptr<Resource> resource(CreateGifResource("basi0g01.gif"));
-  ASSERT_LT(0, resource->GetResponseBody().size());
+  ASSERT_LT(static_cast<size_t>(0), resource->GetResponseBody().size());
   scoped_ptr<ImageAttributes> image_attributes(
       factory.NewImageAttributes(resource.get()));
   ASSERT_NE(static_cast<ImageAttributes*>(NULL), image_attributes.get());
@@ -121,7 +121,7 @@ TEST_F(ImageAttributesFactoryTest, ValidGif) {
 TEST_F(ImageAttributesFactoryTest, ValidJpeg) {
   ImageAttributesFactory factory;
   scoped_ptr<Resource> resource(CreateJpegResource("sjpeg1.jpg"));
-  ASSERT_LT(0, resource->GetResponseBody().size());
+  ASSERT_LT(static_cast<size_t>(0), resource->GetResponseBody().size());
   scoped_ptr<ImageAttributes> image_attributes(
       factory.NewImageAttributes(resource.get()));
   ASSERT_NE(static_cast<ImageAttributes*>(NULL), image_attributes.get());
@@ -132,7 +132,7 @@ TEST_F(ImageAttributesFactoryTest, ValidJpeg) {
 TEST_F(ImageAttributesFactoryTest, InvalidJpeg) {
   ImageAttributesFactory factory;
   scoped_ptr<Resource> resource(CreateJpegResource("notajpeg.png"));
-  ASSERT_LT(0, resource->GetResponseBody().size());
+  ASSERT_LT(static_cast<size_t>(0), resource->GetResponseBody().size());
   scoped_ptr<ImageAttributes> image_attributes(
       factory.NewImageAttributes(resource.get()));
   ASSERT_EQ(static_cast<ImageAttributes*>(NULL), image_attributes.get());

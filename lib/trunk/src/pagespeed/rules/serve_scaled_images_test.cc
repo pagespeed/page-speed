@@ -230,9 +230,9 @@ class ServeScaledImagesTest : public ::testing::Test {
     pagespeed::Results results;
     pagespeed::ResultProvider provider(scaling_rule, &results);
     ASSERT_TRUE(scaling_rule.AppendResults(*input_, &provider));
-    ASSERT_EQ(expected.size(), results.results_size());
+    ASSERT_EQ(expected.size(), static_cast<size_t>(results.results_size()));
 
-    for (int idx = 0; idx < expected.size(); ++idx) {
+    for (size_t idx = 0; idx < expected.size(); ++idx) {
       const pagespeed::Result& result = results.results(idx);
       ASSERT_EQ(result.resource_urls_size(), 1);
       EXPECT_EQ(expected[idx], result.resource_urls(0));

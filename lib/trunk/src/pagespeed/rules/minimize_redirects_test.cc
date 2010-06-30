@@ -87,7 +87,8 @@ class MinimizeRedirectsTest : public ::testing::Test {
     Results results;
     ResultProvider provider(rule, &results);
     rule.AppendResults(*input_, &provider);
-    ASSERT_EQ(results.results_size(), expected_violations.size());
+    ASSERT_EQ(static_cast<size_t>(results.results_size()),
+              expected_violations.size());
     for (int idx = 0; idx < results.results_size(); idx++) {
       const Result* result = &results.results(idx);
       const Violation& violation = expected_violations[idx];
@@ -97,7 +98,7 @@ class MinimizeRedirectsTest : public ::testing::Test {
                 result->savings().requests_saved());
 
       ASSERT_EQ(violation.urls.size(),
-                result->resource_urls_size());
+                static_cast<size_t>(result->resource_urls_size()));
 
       for (int url_idx = 0;
            url_idx < result->resource_urls_size();

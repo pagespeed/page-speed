@@ -49,7 +49,7 @@ class CssminTest : public testing::Test {
 
     int minified_size = -1;
     ASSERT_TRUE(pagespeed::cssmin::GetMinifiedCssSize(before, &minified_size));
-    ASSERT_EQ(after.size(), minified_size);
+    ASSERT_EQ(static_cast<int>(after.size()), minified_size);
   }
 };
 

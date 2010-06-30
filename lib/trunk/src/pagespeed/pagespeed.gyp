@@ -15,6 +15,7 @@
 {
   'variables': {
     'pagespeed_root': '..',
+    'chromium_code': 1,
   },
   'targets': [
     {

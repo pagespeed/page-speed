@@ -28,7 +28,7 @@
 
 namespace {
 
-const int kLateThresholdBytes = 1024;
+const size_t kLateThresholdBytes = 1024;
 
 bool HasCharsetInContentTypeHeader(const std::string& header) {
   pagespeed::resource_util::DirectiveMap directives;
