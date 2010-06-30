@@ -16,6 +16,7 @@
 
 #include "base/string_util.h"
 #include "html_rewriter/html_rewriter.h"
+#include "mod_pagespeed/instaweb_handler.h"
 #include "mod_pagespeed/pagespeed_process_context.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "mod_spdy/apache/pool_util.h"
@@ -169,10 +170,10 @@ apr_bucket* rewrite_html(ap_filter_t *filter, bool flush, const char* buf,
     return NULL;
   }
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                "Rewrite %s(%s%s) original=%d, minified=%zd",
+                "Rewrite %s(%s%s) original=%d, minified=%d",
                 request->content_type,
                 request->hostname, request->unparsed_uri,
-                len, context->output.size());
+                len, static_cast<int>(context->output.size()));
   // Use the rewritten content. Create in heap since output will
   // be emptied for reuse.
   apr_bucket* bucket = apr_bucket_heap_create(
@@ -206,10 +207,11 @@ apr_bucket* create_pagespeed_bucket(ap_filter_t *filter,
                     request->unparsed_uri);
     } else {
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                    "Minify %s(%s%s) original=%zd, minified=%zd",
+                    "Minify %s(%s%s) original=%d, minified=%d",
                     request->content_type,
                     request->hostname, request->unparsed_uri,
-                    context->input.size(), context->output.size());
+                    static_cast<int>(context->input.size()),
+                    static_cast<int>(context->output.size()));
     }
     // Use the original content. Here we use apr_bucket_transient_create to save
     // one copy of the content because context->input is persisted until the
@@ -221,10 +223,11 @@ apr_bucket* create_pagespeed_bucket(ap_filter_t *filter,
     double saved_percent =
         100 - 100.0 * context->output.size() / context->input.size();
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                  "%5.2lf%% saved Minify %s(%s%s) original=%zd, minified=%zd",
+                  "%5.2lf%% saved Minify %s(%s%s) original=%d, minified=%d",
                   saved_percent,  request->content_type,
                   request->hostname, request->unparsed_uri,
-                  context->input.size(), context->output.size());
+                  static_cast<int>(context->input.size()),
+                  static_cast<int>(context->output.size()));
     if (resource_type == GIF) {
       // We minified the gif to png.
       ap_set_content_type(request, "image/png");
@@ -370,6 +373,8 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
   // Enable logging using pagespeed style
   mod_spdy::InstallLogMessageHandler();
 
+  // Use instaweb to handle generated resources.
+  ap_hook_handler(mod_pagespeed::instaweb_handler, NULL, NULL, APR_HOOK_MIDDLE);
   ap_register_output_filter(pagespeed_filter_name,
                             pagespeed_out_filter,
                             NULL,

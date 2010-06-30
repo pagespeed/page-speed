@@ -41,6 +41,7 @@
         '<(mod_spdy_root)',
       ],
       'sources': [
+        '<(DEPTH)/mod_pagespeed/instaweb_handler.cc',
         '<(DEPTH)/mod_pagespeed/mod_pagespeed.cc',
         '<(DEPTH)/mod_pagespeed/pagespeed_process_context.cc',
         '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
