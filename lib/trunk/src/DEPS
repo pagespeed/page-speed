@@ -71,6 +71,10 @@ deps = {
     Var("chromium_trunk") + "/src/third_party/scons" +
       Var("chromium_revision"),
 
+  "src/third_party/modp_b64":
+    Var("chromium_trunk") + "/src/third_party/modp_b64" +
+      Var("chromium_revision"),
+
   "src/tools/data_pack":
     Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
 

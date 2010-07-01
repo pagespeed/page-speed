@@ -185,6 +185,13 @@
       'release_extra_cflags%': '',
       'debug_extra_cflags%': '',
     },
+    # Make sure our shadow view of chromium source is available to
+    # targets that don't explicitly declare their dependencies and
+    # assume chromium source headers are available from the root
+    # (third_party/modp_b64 is one such target).
+    'include_dirs': [
+      '<(DEPTH)/third_party/chromium/src',
+    ],
     'target_conditions': [
       ['chromium_code==0', {
         'conditions': [
