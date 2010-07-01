@@ -18,6 +18,7 @@
 #include "base/logging.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "third_party/cJSON/cJSON.h"
+#include "third_party/modp_b64/modp_b64.h"
 
 namespace pagespeed {
 
@@ -139,7 +140,41 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
         if (content_text_json->type != cJSON_String) {
           INPUT_POPULATOR_ERROR() << "\"text\" field must be a string.";
         } else {
-          resource->SetResponseBody(content_text_json->valuestring);
+          cJSON* content_text_encoding =
+              cJSON_GetObjectItem(content_json, "encoding");
+          if (content_text_encoding != NULL) {
+            if (content_text_encoding->type != cJSON_String) {
+              INPUT_POPULATOR_ERROR() << "\"encoding\" field must be a string.";
+            } else {
+              if (strcmp(content_text_encoding->valuestring, "base64") != 0) {
+                INPUT_POPULATOR_ERROR() << "Received unexpected encoding: "
+                                        << content_text_encoding->valuestring;
+              } else {
+                const char* encoded_body = content_text_json->valuestring;
+                const size_t encoded_body_len = strlen(encoded_body);
+                std::string decoded_body;
+
+                // Reserve enough space to decode into.
+                decoded_body.resize(modp_b64_decode_len(encoded_body_len));
+
+                // Decode into the string's buffer.
+                int decoded_size = modp_b64_decode(&(decoded_body[0]),
+                                                   encoded_body,
+                                                   encoded_body_len);
+
+                if (decoded_size >= 0) {
+                  // Resize the buffer to the actual decoded size.
+                  decoded_body.resize(decoded_size);
+                  resource->SetResponseBody(decoded_body);
+                } else {
+                  INPUT_POPULATOR_ERROR()
+                      << "Failed to base64-decode response content.";
+                }
+              }
+            }
+          } else {
+            resource->SetResponseBody(content_text_json->valuestring);
+          }
         }
       }
     }
