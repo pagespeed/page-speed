@@ -72,6 +72,7 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_html',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_png_optimizer',
       ],
     },
@@ -111,6 +112,7 @@
         'formatters/text_formatter_test.cc',
         'har/http_archive_test.cc',
         'html/html_compactor_test.cc',
+        'html/html_minifier_test.cc',
         'html/html_tag_test.cc',
         'rules/avoid_bad_requests_test.cc',
         'rules/combine_external_resources_test.cc',

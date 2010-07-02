@@ -24,14 +24,28 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
+        '<(pagespeed_root)/third_party/instaweb/instaweb.gyp:htmlparse',
+        '<(pagespeed_root)/third_party/instaweb/instaweb.gyp:rewriter',
         '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
       ],
       'sources': [
         'html_compactor.cc',
+        'html_minifier.cc',
         'html_tag.cc',
+        'minify_js_css_filter.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/third_party/instaweb/instaweb.gyp:htmlparse',
+        '<(pagespeed_root)/third_party/instaweb/instaweb.gyp:rewriter',
       ],
     },
   ],

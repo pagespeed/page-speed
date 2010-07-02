@@ -19,6 +19,16 @@
   },
   'targets': [
     {
+      'target_name': 'minify_html_bin',
+      'type': 'executable',
+      'dependencies': [
+        '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_html',
+      ],
+      'sources': [
+        'minify_html.cc',
+      ],
+    },
+    {
       'target_name': 'pagespeed_bin',
       'type': 'executable',
       'dependencies': [
