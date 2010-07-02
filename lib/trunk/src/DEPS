@@ -17,6 +17,9 @@ vars = {
     "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@50096",
   "chromium_deps_root": "src/third_party/chromium_deps",
+  "instaweb_trunk":
+    "http://instaweb.googlecode.com/svn/trunk",
+  "instaweb_revision": "@4",
 }
 
 deps = {
@@ -51,6 +54,9 @@ deps = {
     Var("chromium_trunk") + "/src/build/util" + Var("chromium_revision"),
   "src/build/internal":
     Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
+
+  "src/third_party/instaweb/src":
+    Var("instaweb_trunk") + "/src" + Var("instaweb_revision"),
 
   "src/third_party/libjpeg":
     (Var("chromium_trunk") + "/src/third_party/libjpeg" +
