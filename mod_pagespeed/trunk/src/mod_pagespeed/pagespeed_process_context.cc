@@ -14,6 +14,7 @@
 
 #include "mod_pagespeed/pagespeed_process_context.h"
 
+#include "mod_pagespeed/mod_pagespeed.h"
 #include "third_party/apache/httpd/src/include/httpd.h"
 #include "third_party/apache/httpd/src/include/http_config.h"
 #include "third_party/apache/httpd/src/include/http_log.h"
@@ -33,24 +34,21 @@ PageSpeedProcessContext::~PageSpeedProcessContext() {
 
 PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server) {
   PageSpeedProcessContext* context =
-      static_cast<PageSpeedProcessContext*>(
-          ap_get_module_config(server->module_config, &pagespeed_module));
+      mod_pagespeed_get_config_process_context(server);
   return context;
 }
 
 void CreatePageSpeedProcessContext(server_rec* server) {
-  // TODO(lsong): thread-safty.
   PageSpeedProcessContext* context =
-      static_cast<PageSpeedProcessContext*>(
-          ap_get_module_config(server->module_config, &pagespeed_module));
+      mod_pagespeed_get_config_process_context(server);
   if (context == NULL) {
     context = new PageSpeedProcessContext;
-    ap_set_module_config(server->module_config, &pagespeed_module, context);
+    mod_pagespeed_set_config_process_context(server, context);
   } else {
     ap_log_error(APLOG_MARK, APLOG_ERR, APR_SUCCESS, server,
                  "Process context is not NULL before creating.");
   }
-  context->set_rewrite_driver_factory(new ApacheRewriteDriverFactory());
+  context->set_rewrite_driver_factory(new ApacheRewriteDriverFactory(server));
   context->rewrite_driver_factory()->set_combine_css(true);
   context->rewrite_driver_factory()->set_use_http_cache(true);
   // TODO(lsong): Make the rewriter_driver to use configurations from

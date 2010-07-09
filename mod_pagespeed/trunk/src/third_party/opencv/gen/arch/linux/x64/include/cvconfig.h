@@ -23,7 +23,7 @@
 /* #undef HAVE_CARBON */
 
 /* IEEE1394 capturing support */
-#define HAVE_DC1394
+/* #undef HAVE_DC1394 */
 
 /* libdc1394 0.9.4 or 0.9.5 */
 /* #undef HAVE_DC1394_095 */
@@ -47,10 +47,10 @@
 /* #undef HAVE_GSTREAMER_APP */
 
 /* GTK+ 2.0 Thread support */
-#define  HAVE_GTHREAD
+/* #undef HAVE_GTHREAD */
 
 /* GTK+ 2.x toolkit */
-#define  HAVE_GTK
+/* #undef HAVE_GTK */
 
 /* OpenEXR codec */
 /* #undef HAVE_ILMIMF */
@@ -77,7 +77,7 @@
 /* #undef HAVE_LIBM */
 
 /* libpng/png.h needs to be included */
-#define  HAVE_LIBPNG_PNG_H
+/* #undef HAVE_LIBPNG_PNG_H */
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #define  HAVE_LIBPTHREAD 1
@@ -92,7 +92,7 @@
 /* #undef HAVE_PNG_GET_VALID */
 
 /* png.h needs to be included */
-#define  HAVE_PNG_H
+/* #undef HAVE_PNG_H */
 
 /* Define to 1 if you have the `png_set_tRNS_to_alpha' function. */
 /* #undef HAVE_PNG_SET_TRNS_TO_ALPHA */

@@ -96,7 +96,7 @@ int instaweb_check_request(request_rec* request, std::string* resource) {
   std::string full_url(ap_construct_url(request->pool,
                                         request->unparsed_uri,
                                         request));
-  std::string url_prefix = html_rewriter::GetUrlPrefix();
+  std::string url_prefix = html_rewriter::GetUrlPrefix(request->server);
   if (full_url.compare(0, url_prefix.size(), url_prefix) != 0) {
     ap_log_rerror(APLOG_MARK, APLOG_INFO, APR_SUCCESS, request,
                   "INSTAWEB: Declined request %s", full_url.c_str());
@@ -128,7 +128,7 @@ bool fetch_resource(const request_rec* request,
       reinterpret_cast<html_rewriter::SerfUrlAsyncFetcher*>(
           context->rewrite_driver_factory()->url_async_fetcher());
   html_rewriter::AprTimer timer;
-  int64_t max_ms = html_rewriter::GetResourceFetcherTimeOutMs();
+  int64_t max_ms = html_rewriter::GetResourceFetcherTimeOutMs(request->server);
   for (int64_t start_ms = timer.NowMs(), now_ms = start_ms;
        !callback.done() && now_ms - start_ms < max_ms;
        now_ms = timer.NowMs()) {

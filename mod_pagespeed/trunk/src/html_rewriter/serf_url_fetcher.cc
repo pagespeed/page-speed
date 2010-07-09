@@ -18,6 +18,7 @@
 #include "html_rewriter/apr_timer.h"
 #include "html_rewriter/html_rewriter_config.h"
 #include "mod_pagespeed/pagespeed_process_context.h"
+#include "third_party/apache/httpd/src/include/httpd.h"
 
 namespace {
 
@@ -44,8 +45,10 @@ class AsyncCallback : public net_instaweb::UrlAsyncFetcher::Callback {
 
 namespace html_rewriter {
 
-SerfUrlFetcher::SerfUrlFetcher(SerfUrlAsyncFetcher* async_fetcher)
-  : async_fetcher_(async_fetcher) {
+SerfUrlFetcher::SerfUrlFetcher(server_rec* server,
+                               SerfUrlAsyncFetcher* async_fetcher)
+  : server_(server),
+    async_fetcher_(async_fetcher) {
 }
 
 SerfUrlFetcher::~SerfUrlFetcher() {
@@ -62,12 +65,12 @@ bool SerfUrlFetcher::StreamingFetchUrl(const std::string& url,
       fetched_content_writer, message_handler, &callback);
 
   AprTimer timer;
-  int64_t max_ms = GetFetcherTimeOut();  // milliseconds.;
-  for (int64_t start_ms = timer.NowMs(), now_ms = start_ms;
+  int64 max_ms = GetFetcherTimeOut(server_);  // milliseconds.
+  for (int64 start_ms = timer.NowMs(), now_ms = start_ms;
        !callback.done() && now_ms - start_ms < max_ms;
        now_ms = timer.NowMs()) {
-    int64_t remaining_us = std::max(static_cast<int64_t>(0),
-                                    1000 * (max_ms - now_ms));
+    int64 remaining_us = std::max(static_cast<int64>(0),
+                                  1000 * (max_ms - now_ms));
     async_fetcher_->Poll(remaining_us, message_handler);
   }
   if (!callback.done()) {
