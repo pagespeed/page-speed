@@ -44,7 +44,7 @@ void ReadFileToString(const std::string &path, std::string *dest) {
   dest->assign(std::istreambuf_iterator<char>(file_stream),
                std::istreambuf_iterator<char>());
   file_stream.close();
-  ASSERT_GT(static_cast<size_t>(0), dest->size());
+  ASSERT_GT(dest->size(), static_cast<size_t>(0));
 }
 
 class OptimizeImagesTest : public ::testing::Test {
