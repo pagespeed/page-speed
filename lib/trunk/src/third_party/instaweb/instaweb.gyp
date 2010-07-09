@@ -80,6 +80,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/base64/base64.gyp:base64',
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
       ],
       'sources': [
         '<(instaweb_root)/util/file_message_handler.cc',
@@ -100,6 +101,7 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/base64/base64.gyp:base64',
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
       ],
     },
   ],
