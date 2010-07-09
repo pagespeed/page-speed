@@ -79,7 +79,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/base64/base64.gyp:base64',
+        '<(instaweb_src)/third_party/base64/base64.gyp:base64',
         '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
       ],
       'sources': [
@@ -100,7 +100,7 @@
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/base64/base64.gyp:base64',
+        '<(instaweb_src)/third_party/base64/base64.gyp:base64',
         '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
       ],
     },
