@@ -16,6 +16,7 @@
 
 #include "base/string_util.h"
 #include "html_rewriter/html_rewriter.h"
+#include "html_rewriter/html_rewriter_config.h"
 #include "mod_pagespeed/instaweb_handler.h"
 #include "mod_pagespeed/pagespeed_process_context.h"
 #include "mod_spdy/apache/log_message_handler.h"
@@ -24,6 +25,7 @@
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
+#include "third_party/apache/apr/src/include/apr_strings.h"
 // The httpd header must be after the pagepseed_process_context.h. Otherwise,
 // the compiler will complain
 // "strtoul_is_not_a_portable_function_use_strtol_instead".
@@ -41,6 +43,18 @@ using pagespeed::image_compression::PngOptimizer;
 using jsmin::MinifyJs;
 using html_rewriter::HtmlRewriter;
 
+extern "C" {
+extern module AP_MODULE_DECLARE_DATA pagespeed_module;
+
+const char* kPagespeedRewriteUrlPrefix = "PagespeedRewriteUrlPrefix";
+const char* kPagespeedFetchProxy = "PagespeedFetchProxy";
+const char* kPagespeedGeneratedFilePrefix = "PagespeedGeneratedFilePrefix";
+const char* kPagespeedFileCachePath = "PagespeedFileCachePath";
+const char* kPagespeedFetcherTimeoutMs = "PagespeedFetcherTimeOutMs";
+const char* kPagespeedResourceTimeoutMs= "PagespeedResourceTimeOutMs";
+}  // extern "C"
+
+
 namespace {
 
 const char* pagespeed_filter_name = "PAGESPEED";
@@ -56,6 +70,16 @@ struct PagespeedContext {
   HtmlRewriter* rewriter;
   apr_bucket_brigade* bucket_brigade;
 };
+
+typedef struct pagespeed_filter_config_t {
+  html_rewriter::PageSpeedProcessContext* process_context;
+  const char* rewrite_url_prefix;
+  const char* fetch_proxy;
+  const char* generated_file_prefix;
+  const char* file_cache_path;
+  int64_t fetcher_timeout_ms;
+  int64_t resource_timeout_ms;
+} pagespeed_filter_config;
 
 // Determine the resource type from a Content-Type string
 ResourceType get_resource_type(const char* content_type) {
@@ -383,7 +407,72 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
   ap_hook_child_init(pagespeed_child_init, NULL, NULL, APR_HOOK_LAST);
 }
 
+pagespeed_filter_config* get_pagespeed_config(server_rec* server) {
+  return static_cast<pagespeed_filter_config*> ap_get_module_config(
+      server->module_config, &pagespeed_module);
+}
+
+void* mod_pagespeed_create_server_config(
+    apr_pool_t* pool,
+    server_rec* server) {
+  pagespeed_filter_config* config = static_cast<pagespeed_filter_config*> (
+      apr_pcalloc(pool, sizeof(pagespeed_filter_config)));
+  config->process_context = NULL;
+  config->rewrite_url_prefix = NULL;
+  config->fetch_proxy = NULL;
+  config->generated_file_prefix = NULL;
+  config->file_cache_path = NULL;
+  config->fetcher_timeout_ms = -1;
+  config->resource_timeout_ms = -1;
+  return config;
+}
+
 }  // namespace
+
+// Getters for mod_pagespeed configuration.
+namespace html_rewriter {
+
+PageSpeedProcessContext* mod_pagespeed_get_config_process_context(
+    server_rec* server) {
+  pagespeed_filter_config* config = get_pagespeed_config(server);
+  return config->process_context;
+}
+void mod_pagespeed_set_config_process_context(
+    server_rec* server, PageSpeedProcessContext* context) {
+  pagespeed_filter_config* config = get_pagespeed_config(server);
+  config->process_context = context;
+}
+
+
+const char* mod_pagespeed_get_config_str(server_rec* server,
+                                         const char* directive) {
+  pagespeed_filter_config* config = get_pagespeed_config(server);
+  if (strcasecmp(directive, kPagespeedRewriteUrlPrefix) == 0) {
+    return config->rewrite_url_prefix;
+  } else if (strcasecmp(directive, kPagespeedFetchProxy) == 0) {
+    return config->fetch_proxy;
+  } else if (strcasecmp(directive, kPagespeedGeneratedFilePrefix) == 0) {
+    return config->generated_file_prefix;
+  } else if (strcasecmp(directive, kPagespeedFileCachePath) == 0) {
+    return config->file_cache_path;
+  } else {
+    return NULL;
+  }
+}
+
+int64_t mod_pagespeed_get_config_int(server_rec* server,
+                                     const char* directive) {
+  pagespeed_filter_config* config = get_pagespeed_config(server);
+  if (strcasecmp(directive, kPagespeedFetcherTimeoutMs) == 0) {
+    return config->fetcher_timeout_ms;
+  } else if (strcasecmp(directive, kPagespeedResourceTimeoutMs) == 0) {
+    return config->resource_timeout_ms;
+  } else {
+    return -1;
+  }
+}
+
+}  // namespace html_rewriter
 
 extern "C" {
 // Export our module so Apache is able to load us.
@@ -392,6 +481,63 @@ extern "C" {
 #pragma GCC visibility push(default)
 #endif
 
+static const char* mod_pagespeed_config_one_string(cmd_parms* cmd, void* data,
+                                                   const char* arg) {
+  pagespeed_filter_config* config = get_pagespeed_config(cmd->server);
+  const char* directive = (cmd->directive->directive);
+  if (strcasecmp(directive, kPagespeedRewriteUrlPrefix) == 0) {
+    config->rewrite_url_prefix = apr_pstrdup(cmd->pool, arg);
+  } else if (strcasecmp(directive, kPagespeedFetchProxy) == 0) {
+    config->fetch_proxy = apr_pstrdup(cmd->pool, arg);
+  } else if (strcasecmp(directive, kPagespeedGeneratedFilePrefix) == 0) {
+    config->generated_file_prefix = apr_pstrdup(cmd->pool, arg);
+  } else if (strcasecmp(directive, kPagespeedFileCachePath) == 0) {
+    config->file_cache_path = apr_pstrdup(cmd->pool, arg);
+  } else if (strcasecmp(directive, kPagespeedFetcherTimeoutMs) == 0) {
+    config->fetcher_timeout_ms = static_cast<int64_t>(
+        apr_strtoi64(arg, NULL, 10));
+  } else if (strcasecmp(directive, kPagespeedResourceTimeoutMs) == 0) {
+    config->resource_timeout_ms = static_cast<int64_t>(
+        apr_strtoi64(arg, NULL, 10));
+  } else {
+    return "Unknown driective.";
+  }
+  return NULL;
+}
+
+static const command_rec mod_pagespeed_filter_cmds[] = {
+  AP_INIT_TAKE1(kPagespeedRewriteUrlPrefix,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set the url prefix"),
+  AP_INIT_TAKE1(kPagespeedFetchProxy,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set the fetch proxy"),
+  AP_INIT_TAKE1(kPagespeedGeneratedFilePrefix,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set generated file's prefix"),
+  AP_INIT_TAKE1(kPagespeedFileCachePath,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set the path for file cache"),
+  AP_INIT_TAKE1(kPagespeedFetcherTimeoutMs,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set internal fetcher timeout in milisecons"),
+  AP_INIT_TAKE1(kPagespeedResourceTimeoutMs,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set resource fetcher timeout in milisecons"),
+  {NULL}
+};
 // Declare and populate the module's data structure.  The
 // name of this structure ('pagespeed_module') is important - it
 // must match the name of the module.  This structure is the
@@ -404,9 +550,9 @@ module AP_MODULE_DECLARE_DATA pagespeed_module = {
   STANDARD20_MODULE_STUFF,
   NULL,
   NULL,
+  mod_pagespeed_create_server_config,
   NULL,
-  NULL,
-  NULL,
+  mod_pagespeed_filter_cmds,
   mod_pagespeed_register_hooks,      // callback for registering hooks
 };
 

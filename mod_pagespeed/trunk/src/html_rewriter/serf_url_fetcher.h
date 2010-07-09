@@ -24,11 +24,13 @@ using net_instaweb::Writer;
 using net_instaweb::MetaData;
 using net_instaweb::UrlFetcher;
 
+struct server_rec;
+
 namespace html_rewriter {
 
 class SerfUrlFetcher : public UrlFetcher {
  public:
-  explicit SerfUrlFetcher(SerfUrlAsyncFetcher* async_fetcher);
+  SerfUrlFetcher(server_rec* server, SerfUrlAsyncFetcher* async_fetcher);
   virtual ~SerfUrlFetcher();
   virtual bool StreamingFetchUrl(const std::string& url,
                               const MetaData& request_headers,
@@ -37,6 +39,7 @@ class SerfUrlFetcher : public UrlFetcher {
                               MessageHandler* message_handler);
 
  private:
+  server_rec* server_;
   SerfUrlAsyncFetcher* async_fetcher_;
 };
 

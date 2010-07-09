@@ -22,13 +22,14 @@
 #include "net/instaweb/rewriter/public/rewrite_driver_factory.h"
 
 struct apr_pool_t;
+struct server_rec;
 
 namespace net_instaweb {
 
 // Creates an Apache RewriteDriver.
 class ApacheRewriteDriverFactory : public RewriteDriverFactory {
  public:
-  ApacheRewriteDriverFactory();
+  explicit ApacheRewriteDriverFactory(server_rec* server);
   virtual ~ApacheRewriteDriverFactory();
 
   RewriteDriver* GetRewriteDriver();
@@ -51,10 +52,11 @@ class ApacheRewriteDriverFactory : public RewriteDriverFactory {
     return rewrite_drivers_mutex_.get(); }
 
  private:
+  server_rec* server_;
   apr_pool_t* pool_;
   scoped_ptr<AbstractMutex> cache_mutex_;
   scoped_ptr<AbstractMutex> rewrite_drivers_mutex_;
-  std::vector<RewriteDriver*> rewrite_drivers_;
+  std::vector<RewriteDriver*> available_rewrite_drivers_;
   std::set<RewriteDriver*> active_rewrite_drivers_;
 };
 

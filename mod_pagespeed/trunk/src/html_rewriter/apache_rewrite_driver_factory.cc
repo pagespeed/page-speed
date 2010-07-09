@@ -22,19 +22,22 @@
 #include "html_rewriter/md5_hasher.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
 #include "html_rewriter/serf_url_fetcher.h"
+#include "mod_pagespeed/mod_pagespeed.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/util/public/file_cache.h"
 #include "third_party/apache/apr/src/include/apr_pools.h"
+#include "third_party/apache/httpd/src/include/httpd.h"
 
 using html_rewriter::SerfUrlAsyncFetcher;
 
 namespace net_instaweb {
 
-ApacheRewriteDriverFactory::ApacheRewriteDriverFactory() {
-  apr_pool_create(&pool_, NULL);
-  set_filename_prefix(html_rewriter::GetCachePrefix(NULL));
-  set_url_prefix(html_rewriter::GetUrlPrefix());
+ApacheRewriteDriverFactory::ApacheRewriteDriverFactory(server_rec* server)
+  : server_(server) {
+  apr_pool_create(&pool_, server->process->pool);
+  set_filename_prefix(html_rewriter::GetFileCachePath(server_));
+  set_url_prefix(html_rewriter::GetUrlPrefix(server_));
   cache_mutex_.reset(NewMutex());
   rewrite_drivers_mutex_.reset(NewMutex());
 }
@@ -44,7 +47,7 @@ ApacheRewriteDriverFactory::~ApacheRewriteDriverFactory() {
 }
 
 FileSystem* ApacheRewriteDriverFactory::NewFileSystem() {
-  return new html_rewriter::AprFileSystem(NULL);
+  return new html_rewriter::AprFileSystem(pool_);
 }
 
 Hasher* ApacheRewriteDriverFactory::NewHasher() {
@@ -60,7 +63,7 @@ MessageHandler* ApacheRewriteDriverFactory::NewHtmlParseMessageHandler() {
 }
 
 CacheInterface* ApacheRewriteDriverFactory::NewCacheInterface() {
-  return new FileCache(html_rewriter::GetFileCachePath(),
+  return new FileCache(html_rewriter::GetFileCachePath(server_),
                        file_system(),
                        html_parse_message_handler());
 }
@@ -68,10 +71,10 @@ CacheInterface* ApacheRewriteDriverFactory::NewCacheInterface() {
 UrlFetcher* ApacheRewriteDriverFactory::DefaultUrlFetcher() {
   SerfUrlAsyncFetcher* async_fetcher =
       reinterpret_cast<SerfUrlAsyncFetcher*>(url_async_fetcher());
-  return new html_rewriter::SerfUrlFetcher(async_fetcher);
+  return new html_rewriter::SerfUrlFetcher(server_, async_fetcher);
 }
 UrlAsyncFetcher* ApacheRewriteDriverFactory::DefaultAsyncUrlFetcher() {
-  return new SerfUrlAsyncFetcher(html_rewriter::GetFetcherProxy().c_str(),
+  return new SerfUrlAsyncFetcher(html_rewriter::GetFetcherProxy(server_),
                                  pool_);
 }
 
@@ -86,9 +89,9 @@ AbstractMutex* ApacheRewriteDriverFactory::NewMutex() {
 
 RewriteDriver* ApacheRewriteDriverFactory::GetRewriteDriver() {
   RewriteDriver* rewrite_driver = NULL;
-  if (!rewrite_drivers_.empty()) {
-    rewrite_driver = rewrite_drivers_.back();
-    rewrite_drivers_.pop_back();
+  if (!available_rewrite_drivers_.empty()) {
+    rewrite_driver = available_rewrite_drivers_.back();
+    available_rewrite_drivers_.pop_back();
   } else {
     // Create a RewriteDriver using base class.
     rewrite_driver = NewRewriteDriver();
@@ -103,7 +106,7 @@ void ApacheRewriteDriverFactory::ReleaseRewriteDriver(
   if (count != 1) {
     LOG(ERROR) << "Remove rewrite driver from the active list.";
   } else {
-    rewrite_drivers_.push_back(rewrite_driver);
+    available_rewrite_drivers_.push_back(rewrite_driver);
   }
 }
 

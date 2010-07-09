@@ -41,16 +41,16 @@
 /* #undef  HAVE_FFMPEG_SWSCALE */
 
 /* GStreamer multimedia framework */
-#define  HAVE_GSTREAMER
+/* #undef HAVE_GSTREAMER */
 
 /* GStreamer with gstappsink & gstappsrc */
 /* #undef  HAVE_GSTREAMER_APP */
 
 /* GTK+ 2.0 Thread support */
-#define  HAVE_GTHREAD
+/* #undef HAVE_GTHREAD */
 
 /* GTK+ 2.x toolkit */
-#define  HAVE_GTK
+/* #undef HAVE_GTK */
 
 /* OpenEXR codec */
 /* #undef  HAVE_ILMIMF */

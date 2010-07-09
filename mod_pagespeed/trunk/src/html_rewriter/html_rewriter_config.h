@@ -23,25 +23,26 @@
 #define HTML_REWRITER_HTML_REWRITER_CONFIG_H_
 
 #include <string>
+#include "base/basictypes.h"
 
 // Forward declaration.
-struct request_rec;
+struct server_rec;
 
 namespace html_rewriter {
 
 // Get the cache file prefix.
-std::string GetCachePrefix(request_rec* request);
+std::string GetCachePrefix(server_rec* server);
 // Get the prefix of rewritten URLs.
-std::string GetUrlPrefix();
+const char* GetUrlPrefix(server_rec* server);
 // Get the path name of file cache.
-std::string GetFileCachePath();
+const char* GetFileCachePath(server_rec* server);
 // Get the fetcher proxy
-std::string GetFetcherProxy();
+const char* GetFetcherProxy(server_rec* server);
 // Get the fetcher time out value in milliseconds.
-int64_t GetFetcherTimeOut();
+int64 GetFetcherTimeOut(server_rec* server);
 // Get the resource fetcher time out value in milliseconds.
 // The resource may be fetched by a real client from the browser.
-int64_t GetResourceFetcherTimeOutMs();
+int64 GetResourceFetcherTimeOutMs(server_rec* server);
 
 }  // namespace html_rewriter
 

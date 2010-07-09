@@ -18,60 +18,60 @@
 
 #include "html_rewriter/html_rewriter_config.h"
 
+#include "mod_pagespeed/mod_pagespeed.h"
 #include "third_party/apache/httpd/src/include/httpd.h"
 #include "third_party/apache/httpd/src/include/http_core.h"
 
 namespace {
 
-// TODO(lsong): replace the temporary strings with appropriate strings.
-// All these constants are for the conviniece of developing. They are sure not
-// working on difference platforms or different configuration of systems. We
-// plan to use http.conf to configure those setting.
-const char* kDefaultDocumentRoot = "/usr/local/apache2/htdocs";
-const char* kCacheDir = "/cache/";
-const char* kCacheFilePrefix = "cache_pre_";
+// All these constants are defaults for the conviniece of developing. They are
+// sure not working on difference platforms or different configuration of
+// systems. Use http.conf to configure those setting.
+const char* kGeneratedFilePrefix = "/usr/local/apache2/htdocs/cache/cache_pre_";
 const char* kUrlPrefix = "http://localhost:9999/cache/cache_pre_";
 const char* kFileCachePath = "/tmp/html_rewrite_cache";
 const char* kFetcherProxy = "localhost:9999";
-const int64_t kFetcherTimeOut = 30000;  // 30 seconds.
-const int64_t kResourceFetcherTimeOut = 300000;  // 5 minutes.
+const int64 kFetcherTimeOut = 30000;  // 30 seconds.
+const int64 kResourceFetcherTimeOut = 300000;  // 5 minutes.
 }  // namespace
 
 
 namespace html_rewriter {
 
-std::string GetCachePrefix(request_rec* request) {
-  // TODO(lsong): Again, here is a workaround to get he document root without a
-  // request instance. We use the default document root, but that may not work
-  // on all systems.
-  std::string cache_root(kDefaultDocumentRoot);
-  if (request != NULL) {
-    cache_root = ap_document_root(request);
-  }
-  cache_root.append(kCacheDir);
-  std::string cache_prefix(cache_root);
-  cache_prefix.append(kCacheFilePrefix);
-  return cache_prefix;
+std::string GetCachePrefix(server_rec* server) {
+  const char* generated_file_prefix =
+      mod_pagespeed_get_config_str(server, kPagespeedGeneratedFilePrefix);
+  return generated_file_prefix ? generated_file_prefix : kGeneratedFilePrefix;
 }
 
-std::string GetUrlPrefix() {
-  return kUrlPrefix;
+const char* GetUrlPrefix(server_rec* server) {
+  const char* url_prefix =
+      mod_pagespeed_get_config_str(server, kPagespeedRewriteUrlPrefix);
+  return url_prefix ? url_prefix : kUrlPrefix;
 }
 
-std::string GetFileCachePath() {
-  return kFileCachePath;
+const char* GetFileCachePath(server_rec* server) {
+  const char* file_cache_path =
+      mod_pagespeed_get_config_str(server, kPagespeedFileCachePath);
+  return file_cache_path ? file_cache_path : kFileCachePath;
 }
 
-std::string GetFetcherProxy() {
-  return kFetcherProxy;
+const char* GetFetcherProxy(server_rec* server) {
+  const char* fetch_proxy =
+      mod_pagespeed_get_config_str(server, kPagespeedFetchProxy);
+  return fetch_proxy ? fetch_proxy : kFetcherProxy;
 }
 
-int64_t GetFetcherTimeOut() {
-  return kFetcherTimeOut;
+int64 GetFetcherTimeOut(server_rec* server) {
+  int64 time_out =
+      mod_pagespeed_get_config_int(server, kPagespeedFetcherTimeoutMs);
+  return time_out == -1 ? kFetcherTimeOut : time_out;
 }
 
-int64_t GetResourceFetcherTimeOutMs() {
-  return kResourceFetcherTimeOut;
+int64 GetResourceFetcherTimeOutMs(server_rec* server) {
+  int64 time_out =
+      mod_pagespeed_get_config_int(server, kPagespeedResourceTimeoutMs);
+  return time_out == -1 ? kResourceFetcherTimeOut : time_out;
 }
 
 }  // namespace html_rewriter
