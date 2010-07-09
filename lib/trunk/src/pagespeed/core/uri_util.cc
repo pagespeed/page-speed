@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/rules/rule_util.h"
+#include "pagespeed/core/uri_util.h"
 
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 
 namespace pagespeed {
-
-namespace rules {
 
 std::string ResolveUri(const std::string& uri, const std::string& base_url) {
   GURL url(base_url);
@@ -38,7 +36,5 @@ std::string ResolveUri(const std::string& uri, const std::string& base_url) {
   clear_fragment.ClearRef();
   return derived.ReplaceComponents(clear_fragment).spec();
 }
-
-}  // namespace rules
 
 }  // namespace pagespeed

@@ -51,7 +51,6 @@
         'rules/put_css_in_the_document_head.cc',
         'rules/remove_query_strings_from_static_resources.cc',
         'rules/rule_provider.cc',
-        'rules/rule_util.cc',
         'rules/savings_computer.cc',
         'rules/serve_resources_from_a_consistent_url.cc',
         'rules/serve_scaled_images.cc',

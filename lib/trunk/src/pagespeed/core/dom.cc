@@ -17,7 +17,7 @@
 #include "dom.h"
 
 #include "base/logging.h"
-#include "pagespeed/rules/rule_util.h"
+#include "pagespeed/core/uri_util.h"
 
 #define NOT_IMPLEMENTED() do {                          \
     LOG(WARNING) << __FUNCTION__ << " not implemented"; \
@@ -34,7 +34,7 @@ std::string DomDocument::GetBaseUrl() const {
 }
 
 std::string DomDocument::ResolveUri(const std::string& uri) const {
-  return pagespeed::rules::ResolveUri(uri, GetBaseUrl());
+  return pagespeed::ResolveUri(uri, GetBaseUrl());
 }
 
 DomElement::DomElement() {}

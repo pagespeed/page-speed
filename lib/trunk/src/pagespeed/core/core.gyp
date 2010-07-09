@@ -39,6 +39,7 @@
         'resource_util.cc',
         'result_provider.cc',
         'rule.cc',
+        'uri_util.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',

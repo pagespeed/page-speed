@@ -26,8 +26,8 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/rule_util.h"
 
 namespace {
 
@@ -68,8 +68,7 @@ void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
   // Construct a fully qualified URL.  The HTTP RFC says that Location should
   // be absolute but some servers out there send relative location urls anyway.
   const std::string& destination =
-      pagespeed::rules::ResolveUri(resource.GetResponseHeader("Location"),
-                                   source);
+      pagespeed::ResolveUri(resource.GetResponseHeader("Location"), source);
   if (!destination.empty()) {
     redirect_map_[source].push_back(destination);
     destinations_.insert(destination);
