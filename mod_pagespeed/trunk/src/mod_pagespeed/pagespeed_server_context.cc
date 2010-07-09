@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mod_pagespeed/pagespeed_process_context.h"
+#include "mod_pagespeed/pagespeed_server_context.h"
 
 #include "mod_pagespeed/mod_pagespeed.h"
 #include "third_party/apache/httpd/src/include/httpd.h"
@@ -26,27 +26,27 @@ extern module AP_MODULE_DECLARE_DATA pagespeed_module;
 
 namespace html_rewriter {
 
-PageSpeedProcessContext::PageSpeedProcessContext() {
+PageSpeedServerContext::PageSpeedServerContext() {
 }
 
-PageSpeedProcessContext::~PageSpeedProcessContext() {
+PageSpeedServerContext::~PageSpeedServerContext() {
 }
 
-PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server) {
-  PageSpeedProcessContext* context =
-      mod_pagespeed_get_config_process_context(server);
+PageSpeedServerContext* GetPageSpeedServerContext(server_rec* server) {
+  PageSpeedServerContext* context =
+      mod_pagespeed_get_config_server_context(server);
   return context;
 }
 
-void CreatePageSpeedProcessContext(server_rec* server) {
-  PageSpeedProcessContext* context =
-      mod_pagespeed_get_config_process_context(server);
+void CreatePageSpeedServerContext(server_rec* server) {
+  PageSpeedServerContext* context =
+      mod_pagespeed_get_config_server_context(server);
   if (context == NULL) {
-    context = new PageSpeedProcessContext;
-    mod_pagespeed_set_config_process_context(server, context);
+    context = new PageSpeedServerContext;
+    mod_pagespeed_set_config_server_context(server, context);
   } else {
     ap_log_error(APLOG_MARK, APLOG_ERR, APR_SUCCESS, server,
-                 "Process context is not NULL before creating.");
+                 "Server context is not NULL before creating.");
   }
   context->set_rewrite_driver_factory(new ApacheRewriteDriverFactory(server));
   context->rewrite_driver_factory()->set_combine_css(true);

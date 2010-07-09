@@ -22,7 +22,7 @@
 #include "html_rewriter/html_parser_message_handler.h"
 #include "html_rewriter/md5_hasher.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
-#include "mod_pagespeed/pagespeed_process_context.h"
+#include "mod_pagespeed/pagespeed_server_context.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
 #include "net/instaweb/rewriter/public/hash_resource_manager.h"
@@ -68,7 +68,7 @@ class HtmlRewriterImp {
   static void WaitForInProgressDownloads(request_rec* request);
 
  private:
-  PageSpeedProcessContext* context_;
+  PageSpeedServerContext* context_;
   std::string url_;
   net_instaweb::RewriteDriver* rewrite_driver_;
   net_instaweb::StringWriter string_writer_;

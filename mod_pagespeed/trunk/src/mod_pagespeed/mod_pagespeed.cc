@@ -18,7 +18,7 @@
 #include "html_rewriter/html_rewriter.h"
 #include "html_rewriter/html_rewriter_config.h"
 #include "mod_pagespeed/instaweb_handler.h"
-#include "mod_pagespeed/pagespeed_process_context.h"
+#include "mod_pagespeed/pagespeed_server_context.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "mod_spdy/apache/pool_util.h"
 #include "pagespeed/cssmin/cssmin.h"
@@ -26,7 +26,7 @@
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 #include "third_party/apache/apr/src/include/apr_strings.h"
-// The httpd header must be after the pagepseed_process_context.h. Otherwise,
+// The httpd header must be after the pagepseed_server_context.h. Otherwise,
 // the compiler will complain
 // "strtoul_is_not_a_portable_function_use_strtol_instead".
 #include "third_party/apache/httpd/src/include/httpd.h"
@@ -72,13 +72,13 @@ struct PagespeedContext {
 };
 
 typedef struct pagespeed_filter_config_t {
-  html_rewriter::PageSpeedProcessContext* process_context;
+  html_rewriter::PageSpeedServerContext* server_context;
   const char* rewrite_url_prefix;
   const char* fetch_proxy;
   const char* generated_file_prefix;
   const char* file_cache_path;
-  int64_t fetcher_timeout_ms;
-  int64_t resource_timeout_ms;
+  int64 fetcher_timeout_ms;
+  int64 resource_timeout_ms;
 } pagespeed_filter_config;
 
 // Determine the resource type from a Content-Type string
@@ -374,16 +374,18 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
 
 apr_status_t pagespeed_child_exit(void* data) {
   server_rec* server = static_cast<server_rec*>(data);
-  const html_rewriter::PageSpeedProcessContext* context =
-      html_rewriter::GetPageSpeedProcessContext(server);
+  const html_rewriter::PageSpeedServerContext* context =
+      html_rewriter::GetPageSpeedServerContext(server);
   delete context;
   return APR_SUCCESS;
 }
 
 
 void pagespeed_child_init(apr_pool_t* pool, server_rec* server) {
-  // Create fetcher.
-  html_rewriter::CreatePageSpeedProcessContext(server);
+  // Create PageSpeed context used by instaweb rewrite-driver.
+  // TODO(lsong): Make sure that if this is per-process, we initialize all the
+  // server's context by iterating the server lists in server->next.
+  html_rewriter::CreatePageSpeedServerContext(server);
   apr_pool_cleanup_register(pool, server, pagespeed_child_exit,
                             pagespeed_child_exit);
 }
@@ -417,7 +419,7 @@ void* mod_pagespeed_create_server_config(
     server_rec* server) {
   pagespeed_filter_config* config = static_cast<pagespeed_filter_config*> (
       apr_pcalloc(pool, sizeof(pagespeed_filter_config)));
-  config->process_context = NULL;
+  config->server_context = NULL;
   config->rewrite_url_prefix = NULL;
   config->fetch_proxy = NULL;
   config->generated_file_prefix = NULL;
@@ -432,15 +434,15 @@ void* mod_pagespeed_create_server_config(
 // Getters for mod_pagespeed configuration.
 namespace html_rewriter {
 
-PageSpeedProcessContext* mod_pagespeed_get_config_process_context(
+PageSpeedServerContext* mod_pagespeed_get_config_server_context(
     server_rec* server) {
   pagespeed_filter_config* config = get_pagespeed_config(server);
-  return config->process_context;
+  return config->server_context;
 }
-void mod_pagespeed_set_config_process_context(
-    server_rec* server, PageSpeedProcessContext* context) {
+void mod_pagespeed_set_config_server_context(
+    server_rec* server, PageSpeedServerContext* context) {
   pagespeed_filter_config* config = get_pagespeed_config(server);
-  config->process_context = context;
+  config->server_context = context;
 }
 
 
@@ -460,7 +462,7 @@ const char* mod_pagespeed_get_config_str(server_rec* server,
   }
 }
 
-int64_t mod_pagespeed_get_config_int(server_rec* server,
+int64 mod_pagespeed_get_config_int(server_rec* server,
                                      const char* directive) {
   pagespeed_filter_config* config = get_pagespeed_config(server);
   if (strcasecmp(directive, kPagespeedFetcherTimeoutMs) == 0) {
@@ -494,10 +496,10 @@ static const char* mod_pagespeed_config_one_string(cmd_parms* cmd, void* data,
   } else if (strcasecmp(directive, kPagespeedFileCachePath) == 0) {
     config->file_cache_path = apr_pstrdup(cmd->pool, arg);
   } else if (strcasecmp(directive, kPagespeedFetcherTimeoutMs) == 0) {
-    config->fetcher_timeout_ms = static_cast<int64_t>(
+    config->fetcher_timeout_ms = static_cast<int64>(
         apr_strtoi64(arg, NULL, 10));
   } else if (strcasecmp(directive, kPagespeedResourceTimeoutMs) == 0) {
-    config->resource_timeout_ms = static_cast<int64_t>(
+    config->resource_timeout_ms = static_cast<int64>(
         apr_strtoi64(arg, NULL, 10));
   } else {
     return "Unknown driective.";
