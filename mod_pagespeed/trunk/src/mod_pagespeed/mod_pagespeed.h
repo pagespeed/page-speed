@@ -16,6 +16,8 @@
 #ifndef MOD_PAGESPEED_MOD_PAGESPEED_H_
 #define MOD_PAGESPEED_MOD_PAGESPEED_H_
 
+#include "base/basictypes.h"
+
 // Forward declaration.
 struct server_rec;
 
@@ -37,17 +39,17 @@ extern const char* kPagespeedResourceTimeoutMs;
 
 namespace html_rewriter {
 
-class PageSpeedProcessContext;
+class PageSpeedServerContext;
 
-PageSpeedProcessContext* mod_pagespeed_get_config_process_context(
+PageSpeedServerContext* mod_pagespeed_get_config_server_context(
     server_rec* server);
-void mod_pagespeed_set_config_process_context(server_rec* server,
-                                              PageSpeedProcessContext* context);
+void mod_pagespeed_set_config_server_context(server_rec* server,
+                                             PageSpeedServerContext* context);
 
 const char* mod_pagespeed_get_config_str(server_rec* server,
                                          const char* directive);
-int64_t mod_pagespeed_get_config_int(server_rec* server,
-                                     const char* directive);
+int64 mod_pagespeed_get_config_int(server_rec* server,
+                                   const char* directive);
 
 }  // namespace html_rewriter
 

@@ -17,7 +17,6 @@
 #include <algorithm>
 #include "html_rewriter/apr_timer.h"
 #include "html_rewriter/html_rewriter_config.h"
-#include "mod_pagespeed/pagespeed_process_context.h"
 #include "third_party/apache/httpd/src/include/httpd.h"
 
 namespace {

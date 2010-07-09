@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOD_PAGESPEED_PAGESPEED_PROCESS_CONTEXT_H_
-#define MOD_PAGESPEED_PAGESPEED_PROCESS_CONTEXT_H_
+#ifndef MOD_PAGESPEED_PAGESPEED_SERVER_CONTEXT_H_
+#define MOD_PAGESPEED_PAGESPEED_SERVER_CONTEXT_H_
 
 #include "base/scoped_ptr.h"
 #include "html_rewriter/apache_rewrite_driver_factory.h"
@@ -30,10 +30,10 @@ namespace html_rewriter {
 
 
 
-class PageSpeedProcessContext {
+class PageSpeedServerContext {
  public:
-  PageSpeedProcessContext();
-  ~PageSpeedProcessContext();
+  PageSpeedServerContext();
+  ~PageSpeedServerContext();
   void set_rewrite_driver_factory(
       net_instaweb::ApacheRewriteDriverFactory* factory) {
     rewrite_driver_factory_.reset(factory);
@@ -46,9 +46,9 @@ class PageSpeedProcessContext {
   scoped_ptr<net_instaweb::ApacheRewriteDriverFactory> rewrite_driver_factory_;
 };
 
-PageSpeedProcessContext* GetPageSpeedProcessContext(server_rec* server);
-void CreatePageSpeedProcessContext(server_rec* server);
+PageSpeedServerContext* GetPageSpeedServerContext(server_rec* server);
+void CreatePageSpeedServerContext(server_rec* server);
 
 }  // namespace html_rewriter
 
-#endif  // MOD_PAGESPEED_PAGESPEED_PROCESS_CONTEXT_H_
+#endif  // MOD_PAGESPEED_PAGESPEED_SERVER_CONTEXT_H_

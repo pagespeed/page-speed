@@ -21,14 +21,14 @@
 #include "html_rewriter/html_rewriter.h"
 #include "html_rewriter/html_rewriter_config.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
-#include "mod_pagespeed/pagespeed_process_context.h"
+#include "mod_pagespeed/pagespeed_server_context.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
 #include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/simple_meta_data.h"
 #include "net/instaweb/util/public/string_writer.h"
 #include "third_party/apache/apr/src/include/apr_strings.h"
-// The httpd header must be after the pagepseed_process_context.h. Otherwise,
+// The httpd header must be after the pagepseed_server_context.h. Otherwise,
 // the compiler will complain
 // "strtoul_is_not_a_portable_function_use_strtol_instead".
 #include "third_party/apache/httpd/src/include/httpd.h"
@@ -110,8 +110,8 @@ bool fetch_resource(const request_rec* request,
                     const std::string& resource,
                     net_instaweb::SimpleMetaData* response_headers,
                     std::string* output) {
-  html_rewriter::PageSpeedProcessContext* context =
-      html_rewriter::GetPageSpeedProcessContext(request->server);
+  html_rewriter::PageSpeedServerContext* context =
+      html_rewriter::GetPageSpeedServerContext(request->server);
   net_instaweb::RewriteDriver* rewrite_driver =
       context->rewrite_driver_factory()->GetRewriteDriver();
   net_instaweb::SimpleMetaData request_headers;
@@ -128,11 +128,11 @@ bool fetch_resource(const request_rec* request,
       reinterpret_cast<html_rewriter::SerfUrlAsyncFetcher*>(
           context->rewrite_driver_factory()->url_async_fetcher());
   html_rewriter::AprTimer timer;
-  int64_t max_ms = html_rewriter::GetResourceFetcherTimeOutMs(request->server);
-  for (int64_t start_ms = timer.NowMs(), now_ms = start_ms;
+  int64 max_ms = html_rewriter::GetResourceFetcherTimeOutMs(request->server);
+  for (int64 start_ms = timer.NowMs(), now_ms = start_ms;
        !callback.done() && now_ms - start_ms < max_ms;
        now_ms = timer.NowMs()) {
-    int64_t remaining_us = max_ms - (now_ms - start_ms);
+    int64 remaining_us = max_ms - (now_ms - start_ms);
     async_fetcher->Poll(remaining_us, &message_handler);
   }
   if (!callback.done()) {

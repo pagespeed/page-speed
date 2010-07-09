@@ -29,7 +29,7 @@ namespace html_rewriter {
 
 HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
                                  const std::string& url, std::string* output)
-    : context_(GetPageSpeedProcessContext(request->server)),
+    : context_(GetPageSpeedServerContext(request->server)),
       url_(url),
       rewrite_driver_(context_->rewrite_driver_factory()->GetRewriteDriver()),
       string_writer_(output) {

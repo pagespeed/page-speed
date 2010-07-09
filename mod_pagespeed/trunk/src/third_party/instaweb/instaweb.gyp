@@ -1,4 +1,4 @@
-# Copyright 2009 Google Inc.
+# Copyright 2010 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,36 @@
     'protobuf_src': '<(DEPTH)/third_party/protobuf2/src/src',
   },
   'targets': [
+    {
+      # The original protobuf target from chromium does not include
+      # gzip_stream.cc, which is required by instaweb.
+      'target_name': 'gzip_protobuf',
+      'type': '<(library)',
+      'dependencies': [
+        'util',
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        '<(protobuf_src)/google/protobuf/io/gzip_stream.cc',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
+        '<(protobuf_src)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(DEPTH)',
+          '<(protobuf_src)',
+        ],
+      },
+      'dependencies': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+      ],
+    },
     {
       'target_name': 'htmlparse',
       'type': '<(library)',
@@ -165,7 +195,7 @@
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
-          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+          'gzip_protobuf',
           '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
        ],
       'actions': [
@@ -202,7 +232,7 @@
         ],
       },
       'export_dependent_settings': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+        'gzip_protobuf',
       ]
     },
     {
@@ -210,7 +240,7 @@
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
-          '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+          'gzip_protobuf',
           '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
        ],
       'actions': [
@@ -247,7 +277,7 @@
         ],
       },
       'export_dependent_settings': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf',
+        'gzip_protobuf',
       ]
     },
   ],
