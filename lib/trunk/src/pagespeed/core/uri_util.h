@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_RULES_RULE_UTIL_H_
-#define PAGESPEED_RULES_RULE_UTIL_H_
+#ifndef PAGESPEED_CORE_URI_UTIL_H_
+#define PAGESPEED_CORE_URI_UTIL_H_
 
 #include <string>
 
 namespace pagespeed {
 
-namespace rules {
-
 std::string ResolveUri(const std::string& uri, const std::string& base_url);
-
-}  // namespace rules
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_RULES_RULE_UTIL_H_
+#endif  // PAGESPEED_CORE_URI_UTIL_H_
