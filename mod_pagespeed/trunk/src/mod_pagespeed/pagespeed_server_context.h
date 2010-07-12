@@ -47,7 +47,7 @@ class PageSpeedServerContext {
 };
 
 PageSpeedServerContext* GetPageSpeedServerContext(server_rec* server);
-void CreatePageSpeedServerContext(server_rec* server);
+bool CreatePageSpeedServerContext(server_rec* server);
 
 }  // namespace html_rewriter
 

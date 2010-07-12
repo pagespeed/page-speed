@@ -382,12 +382,17 @@ apr_status_t pagespeed_child_exit(void* data) {
 
 
 void pagespeed_child_init(apr_pool_t* pool, server_rec* server) {
-  // Create PageSpeed context used by instaweb rewrite-driver.
-  // TODO(lsong): Make sure that if this is per-process, we initialize all the
-  // server's context by iterating the server lists in server->next.
-  html_rewriter::CreatePageSpeedServerContext(server);
-  apr_pool_cleanup_register(pool, server, pagespeed_child_exit,
-                            pagespeed_child_exit);
+  // Create PageSpeed context used by instaweb rewrite-driver.  This is
+  // per-process, so we initialize all the server's context by iterating the
+  // server lists in server->next.
+  server_rec* next_server = server;
+  while (next_server) {
+    if (html_rewriter::CreatePageSpeedServerContext(next_server)) {
+      apr_pool_cleanup_register(pool, next_server, pagespeed_child_exit,
+                                pagespeed_child_exit);
+    }
+    next_server = next_server->next;
+  }
 }
 
 // This function is a callback and it declares what

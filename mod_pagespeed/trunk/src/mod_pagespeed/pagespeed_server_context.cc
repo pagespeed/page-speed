@@ -38,21 +38,26 @@ PageSpeedServerContext* GetPageSpeedServerContext(server_rec* server) {
   return context;
 }
 
-void CreatePageSpeedServerContext(server_rec* server) {
+bool CreatePageSpeedServerContext(server_rec* server) {
   PageSpeedServerContext* context =
       mod_pagespeed_get_config_server_context(server);
   if (context == NULL) {
     context = new PageSpeedServerContext;
     mod_pagespeed_set_config_server_context(server, context);
   } else {
-    ap_log_error(APLOG_MARK, APLOG_ERR, APR_SUCCESS, server,
+    // The server context has been initialized. This happens when a Virtual Host
+    // has no special configuration, the Apache is smart to make the
+    // configuration to be shared with the default server.
+    ap_log_error(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, server,
                  "Server context is not NULL before creating.");
+    return false;
   }
   context->set_rewrite_driver_factory(new ApacheRewriteDriverFactory(server));
   context->rewrite_driver_factory()->set_combine_css(true);
   context->rewrite_driver_factory()->set_use_http_cache(true);
   // TODO(lsong): Make the rewriter_driver to use configurations from
   // httpd.conf.
+  return true;
 }
 
 }  // namespace html_rewriter
