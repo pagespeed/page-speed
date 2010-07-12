@@ -37,8 +37,9 @@ const char* kUnminified =
     "<html>\n"
     "  <head>\n"
     "    <title>Foo</title>\n"
-    "    <link rel=stylesheet href=\"http://example.com/style.css\">\n"
-    "    <script src=\"http://example.com/script.js\"></script>\n"
+    "    <script>\n"
+    "      var foo = 42;\n"
+    "    </script>\n"
     "  </head>\n"
     "  <body>\n"
     "    Foo!\n"
@@ -47,12 +48,16 @@ const char* kUnminified =
 
 // The same HTML, minified.
 const char* kMinified =
-    "\n"
+    "<html>\n"
+    "<head>\n"
     "<title>Foo</title>\n"
-    "<link href=http://example.com/style.css rel=stylesheet>\n"
-    "<script src=http://example.com/script.js></script>\n"
+    "<script>\n"
+    "var foo=42;</script>\n"
+    "</head>\n"
     "<body>\n"
-    "Foo!\n";
+    "Foo!\n"
+    "</body>\n"
+    "</html>\n";
 
 class MinifyHtmlTest : public ::testing::Test {
  protected:
@@ -155,7 +160,7 @@ TEST_F(MinifyHtmlTest, Basic) {
                   "text/html",
                   kUnminified);
 
-  CheckOneViolation(58);
+  CheckOneViolation(70);
 }
 
 TEST_F(MinifyHtmlTest, WrongContentTypeDoesNotGetMinified) {
