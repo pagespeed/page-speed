@@ -30,9 +30,9 @@ vars = {
   "aprutil_revision": "@head",
   "apache_httpd_src": "http://svn.apache.org/repos/asf/httpd/httpd/tags/2.2.15",
   "apache_httpd_revision": "@head",
-  "opencv_src": "https://code.ros.org/svn/opencv/tags/2.1",
-  "opencv_revision": "@head",
-
+  "instaweb_trunk":
+    "http://instaweb.googlecode.com/svn/trunk",
+  "instaweb_revision": "@13",
 }
 
 deps = {
@@ -59,6 +59,17 @@ deps = {
     Var("mod_spdy_trunk") + "/src/third_party/apache" +
     Var("mod_spdy_revision"),
 
+  "src/third_party/instaweb/net":
+    Var("instaweb_trunk") + "/src/net" + Var("instaweb_revision"),
+
+  "src/third_party/base64":
+    (Var("instaweb_trunk") + "/src/third_party/base64" + 
+     Var("instaweb_revision")),
+
+  "src/third_party/opencv":
+    (Var("instaweb_trunk") + "/src/third_party/opencv" + 
+     Var("instaweb_revision")),
+
   "src/third_party/libpagespeed/src/build":
     (Var("libpagespeed_trunk") + "/src/build" +
      Var("libpagespeed_revision")),
@@ -76,9 +87,6 @@ deps = {
 
   "src/third_party/mod_spdy/src/mod_spdy/apache":
     Var("mod_spdy_trunk") + "/src/mod_spdy/apache" + Var("mod_spdy_revision"),
-
-  "src/third_party/opencv/src":
-    Var("opencv_src") + Var("opencv_revision"),
 
   "src/third_party/serf/src":
     Var("serf_src") + Var("serf_revision"),
