@@ -18,7 +18,7 @@
 
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
-#include "pagespeed/html/html_compactor.h"
+#include "pagespeed/html/html_minifier.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -78,7 +78,9 @@ const MinifierOutput* HtmlMinifier::Minify(const Resource& resource) const {
 
   const std::string& input = resource.GetResponseBody();
   std::string minified_html;
-  if (!::pagespeed::html::HtmlCompactor::CompactHtml(input, &minified_html)) {
+  ::pagespeed::html::HtmlMinifier html_minifier;
+  if (!html_minifier.MinifyHtml(resource.GetRequestUrl(),
+                                input, &minified_html)) {
     return NULL;  // error
   }
 
