@@ -1,11 +1,8 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@50346",
+  "chromium_revision": "@52179",
   "chromium_deps_root": "src/third_party/chromium_deps",
-  "mod_spdy_trunk": "http://mod-spdy.googlecode.com/svn/trunk",
-  "mod_spdy_revision": "@head",
-  "mod_spdy_deps_root": "src/third_party/mod_spdy_deps",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
 }
@@ -15,11 +12,6 @@ deps = {
   # to it.
   Var("chromium_deps_root"):
     File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
-
-  # Fetch mod_spdy DEPS so we can sync our apache dependencies relative
-  # to it.
-  Var("mod_spdy_deps_root"):
-    File(Var("mod_spdy_trunk") + "/src/DEPS" + Var("mod_spdy_revision")),
 
   # Fetch the subset of chromium src that we depend on.
   # TODO(bmcquade): see if we can reduce this set of dependencies.
@@ -112,10 +104,6 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
-  "src/third_party/apache":
-    Var("mod_spdy_trunk") + "/src/third_party/apache" +
-    Var("mod_spdy_revision"),
-
   # The chromium dependencies that we also depend on.
   # TODO(bmcquade): see if we can reduce this set of dependencies.
   "src/googleurl": From(Var("chromium_deps_root")),
@@ -139,11 +127,6 @@ deps = {
     From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
   "src/v8": From(Var("chromium_deps_root")),
-
-  "src/third_party/apache/apr/src": From(Var("mod_spdy_deps_root")),
-  "src/third_party/apache/aprutil/src": From(Var("mod_spdy_deps_root")),
-  "src/third_party/apache/httpd/src/include": From(Var("mod_spdy_deps_root")),
-  "src/third_party/apache/httpd/src/os": From(Var("mod_spdy_deps_root")),
 }
 
 

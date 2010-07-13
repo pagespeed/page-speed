@@ -10,7 +10,6 @@
       'xcode_create_dependents_test_runner': 1,
       'dependencies': [
         '../pagespeed/pagespeed_bin.gyp:*',
-        '../pagespeed/apache/pagespeed_apache.gyp:*',
       ],
     }
   ]
