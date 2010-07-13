@@ -18,9 +18,8 @@
     # third-party code and should be subjected to strict compiler
     # warnings/errors in order to catch programming mistakes.
     'chromium_code': 1,
-    'chromium_root': '<(DEPTH)/third_party/chromium/src',
     'mod_spdy_root': '<(DEPTH)/third_party/mod_spdy/src',
-    'instaweb_root':  '<(DEPTH)/third_party/instaweb/net/instaweb',
+    'instaweb_root':  '<(DEPTH)/third_party/instaweb/src/net/instaweb',
   },
 
   'targets': [
@@ -30,10 +29,10 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/apache/httpd/httpd.gyp:include',
+        '<(DEPTH)/third_party/serf/serf.gyp:serf',
         '<(instaweb_root)/instaweb.gyp:instaweb_htmlparse',
         '<(instaweb_root)/instaweb.gyp:instaweb_rewriter',
         '<(instaweb_root)/instaweb.gyp:instaweb_util',
-        '<(DEPTH)/third_party/serf/serf.gyp:serf',
       ],
       'include_dirs': [
         '<(DEPTH)',
@@ -66,11 +65,11 @@
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
         '<(DEPTH)/third_party/apache/apr/apr.gyp:apr',
+        '<(DEPTH)/third_party/apache/aprutil/aprutil.gyp:aprutil',
         '<(DEPTH)/third_party/apache/httpd/httpd.gyp:include',
       ],
       'include_dirs': [
         '<(DEPTH)',
-        '<(mod_spdy_root)',
       ],
       'sources': [
         '<(DEPTH)/html_rewriter/apr_file_system_test.cc',
@@ -86,12 +85,11 @@
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
         '<(DEPTH)/third_party/apache/apr/apr.gyp:apr',
         '<(DEPTH)/third_party/apache/aprutil/aprutil.gyp:aprutil',
-        '<(instaweb_root)/instaweb.gyp:instaweb_util',
         '<(DEPTH)/third_party/serf/serf.gyp:serf',
+        '<(instaweb_root)/instaweb.gyp:instaweb_util',
       ],
       'include_dirs': [
         '<(DEPTH)',
-        '<(mod_spdy_root)',
       ],
       'sources': [
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher_test.cc',
