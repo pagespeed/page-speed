@@ -30,9 +30,9 @@ vars = {
   "aprutil_revision": "@head",
   "apache_httpd_src": "http://svn.apache.org/repos/asf/httpd/httpd/tags/2.2.15",
   "apache_httpd_revision": "@head",
-  "instaweb_trunk":
-    "http://instaweb.googlecode.com/svn/trunk",
-  "instaweb_revision": "@13",
+  "instaweb_trunk": "http://instaweb.googlecode.com/svn/trunk",
+  "instaweb_revision": "@15",
+  "instaweb_deps_root": "src/third_party/instaweb_deps",
 }
 
 deps = {
@@ -48,45 +48,26 @@ deps = {
   Var("mod_spdy_deps_root"):
     File(Var("mod_spdy_trunk") + "/src/DEPS" + Var("mod_spdy_revision")),
 
-  "src/base":
-    Var("libpagespeed_trunk") + "/src/base" + Var("libpagespeed_revision"),
-
-  "src/googleurl_noicu":
-    (Var("libpagespeed_trunk") + "/src/googleurl_noicu" +
-     Var("libpagespeed_revision")),
+  Var("instaweb_deps_root"):
+    File(Var("instaweb_trunk") + "/src/DEPS" + Var("instaweb_revision")),
 
   "src/third_party/apache":
     Var("mod_spdy_trunk") + "/src/third_party/apache" +
     Var("mod_spdy_revision"),
 
-  "src/third_party/instaweb/net":
-    Var("instaweb_trunk") + "/src/net" + Var("instaweb_revision"),
+  "src/third_party/instaweb/src/net/instaweb":
+    Var("instaweb_trunk") + "/src/net/instaweb" + Var("instaweb_revision"),
 
-  "src/third_party/base64":
-    (Var("instaweb_trunk") + "/src/third_party/base64" + 
-     Var("instaweb_revision")),
-
-  "src/third_party/opencv":
-    (Var("instaweb_trunk") + "/src/third_party/opencv" + 
-     Var("instaweb_revision")),
-
-  "src/third_party/libpagespeed/src/build":
-    (Var("libpagespeed_trunk") + "/src/build" +
-     Var("libpagespeed_revision")),
-
-  "src/third_party/libpagespeed/src/build/internal":
-    Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
-
-  "src/third_party/libpagespeed/src/pagespeed":
-    (Var("libpagespeed_trunk") + "/src/pagespeed" +
-     Var("libpagespeed_revision")),
-
-  "src/third_party/libpagespeed/src/third_party":
-    (Var("libpagespeed_trunk") + "/src/third_party" +
-     Var("libpagespeed_revision")),
+  "src/third_party/instaweb/src/third_party/base64":
+    Var("instaweb_trunk") + "/src/third_party/base64" +
+    Var("instaweb_revision"),
 
   "src/third_party/mod_spdy/src/mod_spdy/apache":
     Var("mod_spdy_trunk") + "/src/mod_spdy/apache" + Var("mod_spdy_revision"),
+
+  "src/third_party/opencv":
+    Var("instaweb_trunk") + "/src/third_party/opencv" +
+    Var("instaweb_revision"),
 
   "src/third_party/serf/src":
     Var("serf_src") + Var("serf_revision"),
@@ -96,7 +77,6 @@ deps = {
   "src/build/mac": From(Var("libpagespeed_deps_root")),
   "src/build/util": From(Var("libpagespeed_deps_root")),
   "src/build/win": From(Var("libpagespeed_deps_root")),
-  "src/site_scons/site_tools": From(Var("libpagespeed_deps_root")),
   "src/testing": From(Var("libpagespeed_deps_root")),
   "src/third_party/libjpeg": From(Var("libpagespeed_deps_root")),
   "src/third_party/libpng": From(Var("libpagespeed_deps_root")),
@@ -107,6 +87,28 @@ deps = {
   "src/third_party/chromium/src/net/base": From(Var("libpagespeed_deps_root")),
   "src/tools/data_pack": From(Var("libpagespeed_deps_root")),
   "src/tools/grit": From(Var("libpagespeed_deps_root")),
+
+  "src/base": From(Var("instaweb_deps_root")),
+  "src/googleurl_noicu": From(Var("instaweb_deps_root")),
+  "src/third_party/libpagespeed/src/build": From(Var("instaweb_deps_root")),
+  "src/third_party/libpagespeed/src/build/internal":
+    From(Var("instaweb_deps_root")),
+  "src/third_party/libpagespeed/src/pagespeed/core":
+    From(Var("instaweb_deps_root")),
+  "src/third_party/libpagespeed/src/pagespeed/image_compression":
+    From(Var("instaweb_deps_root")),
+  "src/third_party/libpagespeed/src/pagespeed/proto":
+    From(Var("instaweb_deps_root")),
+  "src/third_party/libpagespeed/src/third_party":
+    From(Var("instaweb_deps_root")),
+  "src/third_party/opencv/src/opencv/src": From(Var("instaweb_deps_root")),
+  "src/third_party/opencv/src/opencv/include": From(Var("instaweb_deps_root")),
+  "src/third_party/opencv/src/opencv/3rdparty/lapack":
+    From(Var("instaweb_deps_root")),
+  "src/third_party/opencv/src/opencv/3rdparty/flann":
+    From(Var("instaweb_deps_root")),
+  "src/third_party/opencv/src/opencv/3rdparty/include":
+    From(Var("instaweb_deps_root")),
 
   "src/googleurl": From(Var("chromium_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
