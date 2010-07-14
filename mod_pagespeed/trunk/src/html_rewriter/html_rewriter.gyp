@@ -18,7 +18,6 @@
     # third-party code and should be subjected to strict compiler
     # warnings/errors in order to catch programming mistakes.
     'chromium_code': 1,
-    'mod_spdy_root': '<(DEPTH)/third_party/mod_spdy/src',
     'instaweb_root':  '<(DEPTH)/third_party/instaweb/src/net/instaweb',
   },
 
@@ -36,7 +35,6 @@
       ],
       'include_dirs': [
         '<(DEPTH)',
-        '<(mod_spdy_root)',
       ],
       'sources': [
         '<(DEPTH)/html_rewriter/apache_rewrite_driver_factory.cc',
@@ -48,9 +46,9 @@
         '<(DEPTH)/html_rewriter/html_rewriter_config.cc',
         '<(DEPTH)/html_rewriter/html_rewriter_imp.cc',
         '<(DEPTH)/html_rewriter/md5_hasher.cc',
+        '<(DEPTH)/html_rewriter/pagespeed_server_context.cc',
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher.cc',
         '<(DEPTH)/html_rewriter/serf_url_fetcher.cc',
-        '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
       'export_dependent_settings': [
         '<(instaweb_root)/instaweb.gyp:instaweb_util',

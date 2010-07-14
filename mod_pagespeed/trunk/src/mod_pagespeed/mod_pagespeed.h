@@ -21,36 +21,14 @@
 // Forward declaration.
 struct server_rec;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-// Pagespeed directive names.
-extern const char* kPagespeedRewriteUrlPrefix;
-extern const char* kPagespeedFetchProxy;
-extern const char* kPagespeedGeneratedFilePrefix;
-extern const char* kPagespeedFileCachePath;
-extern const char* kPagespeedFetcherTimeoutMs;
-extern const char* kPagespeedResourceTimeoutMs;
-#ifdef __cplusplus
-}  // extern "C"
-#endif
-
-
-
 namespace html_rewriter {
 
+struct PageSpeedConfig;
 class PageSpeedServerContext;
 
+PageSpeedConfig* get_pagespeed_config(server_rec* server);
 PageSpeedServerContext* mod_pagespeed_get_config_server_context(
     server_rec* server);
-void mod_pagespeed_set_config_server_context(server_rec* server,
-                                             PageSpeedServerContext* context);
-
-const char* mod_pagespeed_get_config_str(server_rec* server,
-                                         const char* directive);
-int64 mod_pagespeed_get_config_int(server_rec* server,
-                                   const char* directive);
-
 }  // namespace html_rewriter
 
 #endif  // MOD_PAGESPEED_MOD_PAGESPEED_H_

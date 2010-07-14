@@ -20,40 +20,20 @@
 #include "base/logging.h"
 #include "html_rewriter/apache_rewrite_driver_factory.h"
 #include "html_rewriter/html_rewriter_config.h"
-#include "mod_spdy/apache/log_message_handler.h"
-#include "third_party/apache/httpd/src/include/httpd.h"
+#include "html_rewriter/pagespeed_server_context.h"
+#include "net/instaweb/htmlparse/public/html_parse.h"
 
 
 namespace html_rewriter {
 
 
-HtmlRewriterImp::HtmlRewriterImp(request_rec* request,
+HtmlRewriterImp::HtmlRewriterImp(PageSpeedServerContext* context,
+                                 const std::string& base_url,
                                  const std::string& url, std::string* output)
-    : context_(GetPageSpeedServerContext(request->server)),
+    : context_(context),
       url_(url),
       rewrite_driver_(context_->rewrite_driver_factory()->GetRewriteDriver()),
       string_writer_(output) {
-  std::string base_url;
-  if (request->parsed_uri.scheme != NULL) {
-    base_url.append(request->parsed_uri.scheme);
-  } else {
-    base_url.append("http");
-  }
-  base_url.append("://");
-  if (request->parsed_uri.hostinfo != NULL) {
-    base_url.append(request->parsed_uri.hostinfo);
-  } else {
-    base_url.append(request->hostname);
-    if (request->parsed_uri.port_str != NULL) {
-      base_url.append(":");
-      base_url.append(request->parsed_uri.port_str);
-    }
-  }
-  if (request->parsed_uri.path != NULL) {
-    base_url.append(request->parsed_uri.path);
-  } else {
-    base_url.append(request->uri);
-  }
   rewrite_driver_->SetBaseUrl(base_url);
   // TODO(lsong): Bypass the string buffer, writer data directly to the next
   // apache bucket.

@@ -12,27 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOD_PAGESPEED_PAGESPEED_SERVER_CONTEXT_H_
-#define MOD_PAGESPEED_PAGESPEED_SERVER_CONTEXT_H_
+#ifndef HTML_REWRITER_PAGESPEED_SERVER_CONTEXT_H_
+#define HTML_REWRITER_PAGESPEED_SERVER_CONTEXT_H_
 
 #include "base/scoped_ptr.h"
 #include "html_rewriter/apache_rewrite_driver_factory.h"
 
 // Forward declaration.
-struct server_rec;
-
-// Forward declaration.
-namespace net_instaweb {
-class RewriteDriverFactory;
-}
+struct apr_pool_t;
 
 namespace html_rewriter {
 
-
+class PageSpeedServerContext;
+struct PageSpeedConfig {
+  PageSpeedServerContext* context;
+  const char* rewrite_url_prefix;
+  const char* fetch_proxy;
+  const char* generated_file_prefix;
+  const char* file_cache_path;
+  int64 fetcher_timeout_ms;
+  int64 resource_timeout_ms;
+};
 
 class PageSpeedServerContext {
  public:
-  PageSpeedServerContext();
+  explicit PageSpeedServerContext(apr_pool_t* pool, PageSpeedConfig* config);
   ~PageSpeedServerContext();
   void set_rewrite_driver_factory(
       net_instaweb::ApacheRewriteDriverFactory* factory) {
@@ -41,14 +45,17 @@ class PageSpeedServerContext {
   net_instaweb::ApacheRewriteDriverFactory* rewrite_driver_factory() {
     return rewrite_driver_factory_.get();
   }
+  apr_pool_t* pool() { return pool_; }
+  const PageSpeedConfig* config() const { return config_; }
 
  private:
+  apr_pool_t* pool_;
+  PageSpeedConfig* config_;
   scoped_ptr<net_instaweb::ApacheRewriteDriverFactory> rewrite_driver_factory_;
 };
 
-PageSpeedServerContext* GetPageSpeedServerContext(server_rec* server);
-bool CreatePageSpeedServerContext(server_rec* server);
+bool CreatePageSpeedServerContext(apr_pool_t* pool, PageSpeedConfig* config);
 
 }  // namespace html_rewriter
 
-#endif  // MOD_PAGESPEED_PAGESPEED_SERVER_CONTEXT_H_
+#endif  // HTML_REWRITER_PAGESPEED_SERVER_CONTEXT_H_

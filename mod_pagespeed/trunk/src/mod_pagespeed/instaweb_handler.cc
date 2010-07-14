@@ -20,8 +20,9 @@
 #include "html_rewriter/html_parser_message_handler.h"
 #include "html_rewriter/html_rewriter.h"
 #include "html_rewriter/html_rewriter_config.h"
+#include "html_rewriter/pagespeed_server_context.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
-#include "mod_pagespeed/pagespeed_server_context.h"
+#include "mod_pagespeed/mod_pagespeed.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
 #include "net/instaweb/util/public/message_handler.h"
@@ -96,7 +97,9 @@ int instaweb_check_request(request_rec* request, std::string* resource) {
   std::string full_url(ap_construct_url(request->pool,
                                         request->unparsed_uri,
                                         request));
-  std::string url_prefix = html_rewriter::GetUrlPrefix(request->server);
+  html_rewriter::PageSpeedServerContext* context =
+      html_rewriter::mod_pagespeed_get_config_server_context(request->server);
+  std::string url_prefix = html_rewriter::GetUrlPrefix(context);
   if (full_url.compare(0, url_prefix.size(), url_prefix) != 0) {
     ap_log_rerror(APLOG_MARK, APLOG_INFO, APR_SUCCESS, request,
                   "INSTAWEB: Declined request %s", full_url.c_str());
@@ -111,7 +114,7 @@ bool fetch_resource(const request_rec* request,
                     net_instaweb::SimpleMetaData* response_headers,
                     std::string* output) {
   html_rewriter::PageSpeedServerContext* context =
-      html_rewriter::GetPageSpeedServerContext(request->server);
+      html_rewriter::mod_pagespeed_get_config_server_context(request->server);
   net_instaweb::RewriteDriver* rewrite_driver =
       context->rewrite_driver_factory()->GetRewriteDriver();
   net_instaweb::SimpleMetaData request_headers;
@@ -128,7 +131,7 @@ bool fetch_resource(const request_rec* request,
       reinterpret_cast<html_rewriter::SerfUrlAsyncFetcher*>(
           context->rewrite_driver_factory()->url_async_fetcher());
   html_rewriter::AprTimer timer;
-  int64 max_ms = html_rewriter::GetResourceFetcherTimeOutMs(request->server);
+  int64 max_ms = html_rewriter::GetResourceFetcherTimeOutMs(context);
   for (int64 start_ms = timer.NowMs(), now_ms = start_ms;
        !callback.done() && now_ms - start_ms < max_ms;
        now_ms = timer.NowMs()) {

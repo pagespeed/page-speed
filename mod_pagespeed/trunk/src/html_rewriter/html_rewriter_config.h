@@ -25,24 +25,23 @@
 #include <string>
 #include "base/basictypes.h"
 
-// Forward declaration.
-struct server_rec;
-
 namespace html_rewriter {
 
+class PageSpeedServerContext;
+
 // Get the cache file prefix.
-std::string GetCachePrefix(server_rec* server);
+std::string GetCachePrefix(PageSpeedServerContext* context);
 // Get the prefix of rewritten URLs.
-const char* GetUrlPrefix(server_rec* server);
+const char* GetUrlPrefix(PageSpeedServerContext* context);
 // Get the path name of file cache.
-const char* GetFileCachePath(server_rec* server);
+const char* GetFileCachePath(PageSpeedServerContext* context);
 // Get the fetcher proxy
-const char* GetFetcherProxy(server_rec* server);
+const char* GetFetcherProxy(PageSpeedServerContext* context);
 // Get the fetcher time out value in milliseconds.
-int64 GetFetcherTimeOut(server_rec* server);
+int64 GetFetcherTimeOut(PageSpeedServerContext* context);
 // Get the resource fetcher time out value in milliseconds.
 // The resource may be fetched by a real client from the browser.
-int64 GetResourceFetcherTimeOutMs(server_rec* server);
+int64 GetResourceFetcherTimeOutMs(PageSpeedServerContext* context);
 
 }  // namespace html_rewriter
 

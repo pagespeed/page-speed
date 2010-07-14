@@ -20,24 +20,23 @@
 #include "html_rewriter/html_parser_message_handler.h"
 #include "html_rewriter/html_rewriter_config.h"
 #include "html_rewriter/md5_hasher.h"
+#include "html_rewriter/pagespeed_server_context.h"
 #include "html_rewriter/serf_url_async_fetcher.h"
 #include "html_rewriter/serf_url_fetcher.h"
-#include "mod_pagespeed/mod_pagespeed.h"
-#include "mod_spdy/apache/log_message_handler.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/util/public/file_cache.h"
 #include "third_party/apache/apr/src/include/apr_pools.h"
-#include "third_party/apache/httpd/src/include/httpd.h"
 
 using html_rewriter::SerfUrlAsyncFetcher;
 
 namespace net_instaweb {
 
-ApacheRewriteDriverFactory::ApacheRewriteDriverFactory(server_rec* server)
-  : server_(server) {
-  apr_pool_create(&pool_, server->process->pool);
-  set_filename_prefix(html_rewriter::GetFileCachePath(server_));
-  set_url_prefix(html_rewriter::GetUrlPrefix(server_));
+ApacheRewriteDriverFactory::ApacheRewriteDriverFactory(
+    html_rewriter::PageSpeedServerContext* context)
+  : context_(context) {
+  apr_pool_create(&pool_, context->pool());
+  set_filename_prefix(html_rewriter::GetFileCachePath(context_));
+  set_url_prefix(html_rewriter::GetUrlPrefix(context_));
   cache_mutex_.reset(NewMutex());
   rewrite_drivers_mutex_.reset(NewMutex());
 }
@@ -63,7 +62,7 @@ MessageHandler* ApacheRewriteDriverFactory::NewHtmlParseMessageHandler() {
 }
 
 CacheInterface* ApacheRewriteDriverFactory::NewCacheInterface() {
-  return new FileCache(html_rewriter::GetFileCachePath(server_),
+  return new FileCache(html_rewriter::GetFileCachePath(context_),
                        file_system(),
                        html_parse_message_handler());
 }
@@ -71,10 +70,10 @@ CacheInterface* ApacheRewriteDriverFactory::NewCacheInterface() {
 UrlFetcher* ApacheRewriteDriverFactory::DefaultUrlFetcher() {
   SerfUrlAsyncFetcher* async_fetcher =
       reinterpret_cast<SerfUrlAsyncFetcher*>(url_async_fetcher());
-  return new html_rewriter::SerfUrlFetcher(server_, async_fetcher);
+  return new html_rewriter::SerfUrlFetcher(context_, async_fetcher);
 }
 UrlAsyncFetcher* ApacheRewriteDriverFactory::DefaultAsyncUrlFetcher() {
-  return new SerfUrlAsyncFetcher(html_rewriter::GetFetcherProxy(server_),
+  return new SerfUrlAsyncFetcher(html_rewriter::GetFetcherProxy(context_),
                                  pool_);
 }
 

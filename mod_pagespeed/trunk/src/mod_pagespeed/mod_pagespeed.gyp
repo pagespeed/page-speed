@@ -29,11 +29,9 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/html_rewriter/html_rewriter.gyp:html_rewriter',
         '<(DEPTH)/third_party/apache/httpd/httpd.gyp:include',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_jpeg_optimizer',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_png_optimizer',
         '<(DEPTH)/third_party/libpagespeed/src/third_party/jsmin/jsmin.gyp:jsmin',
-        '<(DEPTH)/third_party/serf/serf.gyp:serf',
       ],
       'include_dirs': [
         '<(DEPTH)',
@@ -42,7 +40,6 @@
       'sources': [
         '<(DEPTH)/mod_pagespeed/instaweb_handler.cc',
         '<(DEPTH)/mod_pagespeed/mod_pagespeed.cc',
-        '<(DEPTH)/mod_pagespeed/pagespeed_server_context.cc',
         '<(mod_spdy_root)/mod_spdy/apache/log_message_handler.cc',
       ],
     },

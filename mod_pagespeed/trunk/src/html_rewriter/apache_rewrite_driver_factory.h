@@ -24,12 +24,17 @@
 struct apr_pool_t;
 struct server_rec;
 
+namespace html_rewriter {
+class PageSpeedServerContext;
+}  // namespace html_rewriter.
+
 namespace net_instaweb {
 
 // Creates an Apache RewriteDriver.
 class ApacheRewriteDriverFactory : public RewriteDriverFactory {
  public:
-  explicit ApacheRewriteDriverFactory(server_rec* server);
+  explicit ApacheRewriteDriverFactory(
+      html_rewriter::PageSpeedServerContext* context);
   virtual ~ApacheRewriteDriverFactory();
 
   RewriteDriver* GetRewriteDriver();
@@ -52,7 +57,7 @@ class ApacheRewriteDriverFactory : public RewriteDriverFactory {
     return rewrite_drivers_mutex_.get(); }
 
  private:
-  server_rec* server_;
+  html_rewriter::PageSpeedServerContext* context_;
   apr_pool_t* pool_;
   scoped_ptr<AbstractMutex> cache_mutex_;
   scoped_ptr<AbstractMutex> rewrite_drivers_mutex_;
