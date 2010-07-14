@@ -23,12 +23,21 @@ namespace html_rewriter {
 
 // Forward declaration.
 class HtmlRewriterImp;
+class PageSpeedServerContext;
 
 class HtmlRewriter {
  public:
-  HtmlRewriter(request_rec* request,
-               const std::string& url,
-               std::string* output);
+  // base_url is used by RewriteDriver to resolve relative URLs. For example, in
+  // the document, there may be a relative URL foo.css. With the base_url as
+  // http://mysite.com/bar/index.html, the relative URL foo.css can be correctly
+  // resolved. The string output is where the rewriter will write into.
+  //
+  // Note (lsong): because the rewriter performs better with more input data, so
+  // it wants the flush as late as possible. Therefore, the output won't be
+  // avaible util Flush() or Finish().
+  HtmlRewriter(PageSpeedServerContext* context,
+               const std::string& base_url,
+               const std::string& url, std::string* output);
   ~HtmlRewriter();
   // Rewrite input using internal StringWriter.
   void Rewrite(const char* input, int size);

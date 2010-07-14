@@ -17,7 +17,7 @@
 #include <algorithm>
 #include "html_rewriter/apr_timer.h"
 #include "html_rewriter/html_rewriter_config.h"
-#include "third_party/apache/httpd/src/include/httpd.h"
+#include "html_rewriter/pagespeed_server_context.h"
 
 namespace {
 
@@ -44,9 +44,9 @@ class AsyncCallback : public net_instaweb::UrlAsyncFetcher::Callback {
 
 namespace html_rewriter {
 
-SerfUrlFetcher::SerfUrlFetcher(server_rec* server,
+SerfUrlFetcher::SerfUrlFetcher(PageSpeedServerContext* context,
                                SerfUrlAsyncFetcher* async_fetcher)
-  : server_(server),
+  : context_(context),
     async_fetcher_(async_fetcher) {
 }
 
@@ -64,7 +64,7 @@ bool SerfUrlFetcher::StreamingFetchUrl(const std::string& url,
       fetched_content_writer, message_handler, &callback);
 
   AprTimer timer;
-  int64 max_ms = GetFetcherTimeOut(server_);  // milliseconds.
+  int64 max_ms = GetFetcherTimeOut(context_);  // milliseconds.
   for (int64 start_ms = timer.NowMs(), now_ms = start_ms;
        !callback.done() && now_ms - start_ms < max_ms;
        now_ms = timer.NowMs()) {

@@ -19,7 +19,6 @@
 
 #include "base/stl_util-inl.h"
 #include "html_rewriter/apr_mutex.h"
-#include "mod_spdy/apache/pool_util.h"
 #include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/meta_data.h"
 #include "net/instaweb/util/public/writer.h"

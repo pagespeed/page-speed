@@ -18,9 +18,7 @@
 
 #include "html_rewriter/html_rewriter_config.h"
 
-#include "mod_pagespeed/mod_pagespeed.h"
-#include "third_party/apache/httpd/src/include/httpd.h"
-#include "third_party/apache/httpd/src/include/http_core.h"
+#include "html_rewriter/pagespeed_server_context.h"
 
 namespace {
 
@@ -33,44 +31,39 @@ const char* kFileCachePath = "/tmp/html_rewrite_cache";
 const char* kFetcherProxy = "localhost:9999";
 const int64 kFetcherTimeOut = 30000;  // 30 seconds.
 const int64 kResourceFetcherTimeOut = 300000;  // 5 minutes.
+
 }  // namespace
 
 
 namespace html_rewriter {
 
-std::string GetCachePrefix(server_rec* server) {
-  const char* generated_file_prefix =
-      mod_pagespeed_get_config_str(server, kPagespeedGeneratedFilePrefix);
+std::string GetCachePrefix(PageSpeedServerContext* context) {
+  const char* generated_file_prefix = context->config()->generated_file_prefix;
   return generated_file_prefix ? generated_file_prefix : kGeneratedFilePrefix;
 }
 
-const char* GetUrlPrefix(server_rec* server) {
-  const char* url_prefix =
-      mod_pagespeed_get_config_str(server, kPagespeedRewriteUrlPrefix);
+const char* GetUrlPrefix(PageSpeedServerContext* context) {
+  const char* url_prefix = context->config()->rewrite_url_prefix;
   return url_prefix ? url_prefix : kUrlPrefix;
 }
 
-const char* GetFileCachePath(server_rec* server) {
-  const char* file_cache_path =
-      mod_pagespeed_get_config_str(server, kPagespeedFileCachePath);
+const char* GetFileCachePath(PageSpeedServerContext* context) {
+  const char* file_cache_path = context->config()->file_cache_path;
   return file_cache_path ? file_cache_path : kFileCachePath;
 }
 
-const char* GetFetcherProxy(server_rec* server) {
-  const char* fetch_proxy =
-      mod_pagespeed_get_config_str(server, kPagespeedFetchProxy);
+const char* GetFetcherProxy(PageSpeedServerContext* context) {
+  const char* fetch_proxy = context->config()->fetch_proxy;
   return fetch_proxy ? fetch_proxy : kFetcherProxy;
 }
 
-int64 GetFetcherTimeOut(server_rec* server) {
-  int64 time_out =
-      mod_pagespeed_get_config_int(server, kPagespeedFetcherTimeoutMs);
+int64 GetFetcherTimeOut(PageSpeedServerContext* context) {
+  int64 time_out = context->config()->fetcher_timeout_ms;
   return time_out == -1 ? kFetcherTimeOut : time_out;
 }
 
-int64 GetResourceFetcherTimeOutMs(server_rec* server) {
-  int64 time_out =
-      mod_pagespeed_get_config_int(server, kPagespeedResourceTimeoutMs);
+int64 GetResourceFetcherTimeOutMs(PageSpeedServerContext* context) {
+  int64 time_out = context->config()->resource_timeout_ms;
   return time_out == -1 ? kResourceFetcherTimeOut : time_out;
 }
 

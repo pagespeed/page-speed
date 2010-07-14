@@ -16,7 +16,6 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "mod_spdy/apache/log_message_handler.h"
 
 namespace html_rewriter {
 

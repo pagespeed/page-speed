@@ -17,23 +17,10 @@
 
 #include <string>
 
-#include "html_rewriter/apr_file_system.h"
-#include "html_rewriter/apr_timer.h"
 #include "html_rewriter/html_parser_message_handler.h"
-#include "html_rewriter/md5_hasher.h"
-#include "html_rewriter/serf_url_async_fetcher.h"
-#include "mod_pagespeed/pagespeed_server_context.h"
-#include "net/instaweb/htmlparse/public/html_parse.h"
-#include "net/instaweb/htmlparse/public/html_writer_filter.h"
-#include "net/instaweb/rewriter/public/hash_resource_manager.h"
+#include "html_rewriter/pagespeed_server_context.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
-#include "net/instaweb/util/public/cache_url_async_fetcher.h"
-#include "net/instaweb/util/public/cache_url_fetcher.h"
-#include "net/instaweb/util/public/file_cache.h"
-#include "net/instaweb/util/public/filename_encoder.h"
-#include "net/instaweb/util/public/http_cache.h"
 #include "net/instaweb/util/public/string_writer.h"
-#include "net/instaweb/util/public/writer.h"
 
 
 struct request_rec;
@@ -44,7 +31,8 @@ namespace html_rewriter {
 // object for every request involves creating all the internal objects.
 class HtmlRewriterImp {
  public:
-  HtmlRewriterImp(request_rec* request,
+  HtmlRewriterImp(PageSpeedServerContext* context,
+                  const std::string& base_url,
                   const std::string& url, std::string* output);
   ~HtmlRewriterImp();
   // Rewrite input using internal StringWriter.

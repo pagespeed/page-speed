@@ -18,9 +18,10 @@
 
 namespace html_rewriter {
 
-HtmlRewriter::HtmlRewriter(request_rec* request,
+HtmlRewriter::HtmlRewriter(PageSpeedServerContext* context,
+                           const std::string& base_url,
                            const std::string& url, std::string* output)
-    :html_rewriter_imp_(new HtmlRewriterImp(request, url, output)) {
+    : html_rewriter_imp_(new HtmlRewriterImp(context, base_url, url, output)) {
 }
 
 HtmlRewriter::~HtmlRewriter() {
