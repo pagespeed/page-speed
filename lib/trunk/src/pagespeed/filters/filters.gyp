@@ -23,6 +23,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(pagespeed_root)/pagespeed/util/util.gyp:pagespeed_util',
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ],
       'sources': [
