@@ -15,6 +15,7 @@
 #include "pagespeed/core/resource.h"
 
 #include <algorithm>
+#include <iterator>
 #include <map>
 #include <string>
 
