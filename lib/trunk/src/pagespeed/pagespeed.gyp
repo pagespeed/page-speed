@@ -163,7 +163,7 @@
         'rules/optimize_images_test.cc',
       ],
       'defines': [
-        'IMAGE_TEST_DIR_PATH="<(pagespeed_root)/pagespeed/image_compression/testdata/"',
+        'IMAGE_TEST_DIR_PATH="pagespeed/image_compression/testdata/"',
       ],
     },
   ],
