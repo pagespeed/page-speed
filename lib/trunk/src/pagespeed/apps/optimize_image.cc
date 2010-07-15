@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iterator>
 #include <string>
 
 #ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
