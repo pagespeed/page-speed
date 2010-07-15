@@ -19,7 +19,7 @@ vars = {
   "chromium_deps_root": "src/third_party/chromium_deps",
   "instaweb_trunk":
     "http://instaweb.googlecode.com/svn/trunk",
-  "instaweb_revision": "@16",
+  "instaweb_revision": "@17",
 }
 
 deps = {
