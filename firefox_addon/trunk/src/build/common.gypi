@@ -16,19 +16,12 @@
   'variables': {
     # We must build for 10.4 for compatibility with Firefox.
     'mac_deployment_target': '10.4',
+
+    # We're building a shared library, so everything needs to be built
+    # with Position-Independent Code.
+    'linux_fpic': 1,
   },
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
-  'target_defaults': {
-    'conditions': [
-      ['OS == "linux"', {
-        'cflags': [
-          # We're building a shared library, so everything needs to be built
-          # with Position-Independent Code.
-          '-fPIC',
-        ],
-      }],
-    ],
-  },
 }
