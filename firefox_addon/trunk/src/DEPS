@@ -45,6 +45,10 @@ deps = {
   "src/base":
     Var("libpagespeed_trunk") + "/src/base" + Var("libpagespeed_revision"),
 
+  "src/build/temp_gyp":
+    (Var("libpagespeed_trunk") + "/src/build/temp_gyp" +
+     Var("libpagespeed_revision")),
+
   "src/net":
     Var("libpagespeed_trunk") + "/src/net" + Var("libpagespeed_revision"),
 
