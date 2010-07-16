@@ -5,6 +5,7 @@ vars = {
   "chromium_deps_root": "src/third_party/chromium_deps",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
+  "libpagespeed_deps_root": "src/third_party/libpagespeed_deps",
 }
 
 deps = {
@@ -12,6 +13,10 @@ deps = {
   # to it.
   Var("chromium_deps_root"):
     File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
+
+  Var("libpagespeed_deps_root"):
+    File(Var("libpagespeed_trunk") + "/src/DEPS" +
+      Var("libpagespeed_revision")),
 
   # Fetch the subset of chromium src that we depend on.
   # TODO(bmcquade): see if we can reduce this set of dependencies.
@@ -104,6 +109,8 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
+  "src/third_party/instaweb/src": From(Var("libpagespeed_deps_root")),
+
   # The chromium dependencies that we also depend on.
   # TODO(bmcquade): see if we can reduce this set of dependencies.
   "src/googleurl": From(Var("chromium_deps_root")),
@@ -173,13 +180,6 @@ hooks = [
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
     "pattern": ".",
     "action": ["python", "src/build/gyp_chromium"],
-  },
-  {
-    # Workaround XCode dependecies problem.
-    # TODO(bradnelson): remove this when fixed.
-    "pattern": ".",
-    "action": ["python",
-               "src/build/mac/clobber_generated_headers.py"],
   },
 ]
 
