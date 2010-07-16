@@ -22,9 +22,6 @@
 #include "mod_pagespeed/mod_pagespeed.h"
 #include "mod_spdy/apache/log_message_handler.h"
 #include "mod_spdy/apache/pool_util.h"
-#include "pagespeed/image_compression/gif_reader.h"
-#include "pagespeed/image_compression/jpeg_optimizer.h"
-#include "pagespeed/image_compression/png_optimizer.h"
 #include "third_party/apache/apr/src/include/apr_strings.h"
 // The httpd header must be after the pagepseed_server_context.h. Otherwise,
 // the compiler will complain
@@ -34,13 +31,7 @@
 #include "third_party/apache/httpd/src/include/http_core.h"
 #include "third_party/apache/httpd/src/include/http_log.h"
 #include "third_party/apache/httpd/src/include/http_protocol.h"
-#include "third_party/jsmin/cpp/jsmin.h"
 
-using pagespeed::image_compression::GifReader;
-using pagespeed::image_compression::OptimizeJpeg;
-using pagespeed::image_compression::PngReader;
-using pagespeed::image_compression::PngOptimizer;
-using jsmin::MinifyJs;
 using html_rewriter::HtmlRewriter;
 
 extern "C" {
@@ -59,48 +50,29 @@ namespace {
 
 const char* pagespeed_filter_name = "PAGESPEED";
 
-enum ResourceType {UNKNOWN, HTML, JAVASCRIPT, CSS, GIF, PNG, JPEG};
+enum RewriteOperation {REWRITE, FLUSH, FINISH};
 
-// We use the following structure to keep the pagespeed module context. We
-// accumulate buckets into the input string. When we receive the EOS bucket, we
-// optimize the content to the string output, and re-bucket it.
+// We use the following structure to keep the pagespeed module context. The
+// rewriter will put the rewritten content into the output string when flushed
+// or finished. We call Flush when we see the FLUSH bucket, and call Finish when
+// we see the EOS bucket.
 struct PagespeedContext {
-  std::string input;   // original content
-  std::string output;  // content after pagespeed optimization
+  std::string output;  // content after instaweb rewritten.
   HtmlRewriter* rewriter;
   apr_bucket_brigade* bucket_brigade;
 };
 
 // Determine the resource type from a Content-Type string
-ResourceType get_resource_type(const char* content_type) {
-  ResourceType type = UNKNOWN;
+bool is_html_content(const char* content_type) {
   if (StartsWithASCII(content_type, "text/html", false)) {
-    type = HTML;
-  } else if (StartsWithASCII(content_type, "text/javascript", false) ||
-             StartsWithASCII(content_type, "application/x-javascript",
-                             false) ||
-             StartsWithASCII(content_type, "application/javascript",
-                             false)) {
-    type = JAVASCRIPT;
-  } else if (StartsWithASCII(content_type, "text/css", false)) {
-    type = CSS;
-  } else if (StartsWithASCII(content_type, "image/gif", false)) {
-    type = GIF;
-  } else if (StartsWithASCII(content_type, "image/png", false)) {
-    type = PNG;
-  } else if (StartsWithASCII(content_type, "image/jpg", false) ||
-             StartsWithASCII(content_type, "image/jpeg", false)) {
-    type = JPEG;
-  } else {
-    type = UNKNOWN;
+    return true;
   }
-  return type;
+  return false;
 }
 
 // Check if pagespeed optimization rules applicable.
 bool check_pagespeed_applicable(ap_filter_t* filter,
-                                apr_bucket_brigade* bb,
-                                ResourceType* type) {
+                                apr_bucket_brigade* bb) {
   request_rec* request = filter->r;
   // We can't operate on Content-Ranges.
   if (apr_table_get(request->headers_out, "Content-Range") != NULL) {
@@ -109,9 +81,8 @@ bool check_pagespeed_applicable(ap_filter_t* filter,
     return false;
   }
 
-  // Only support text/html, javascript, css, gif, png and jpeg.
-  *type = get_resource_type(request->content_type);
-  if (*type == UNKNOWN) {
+  // Only rewrite text/html.
+  if (!is_html_content(request->content_type)) {
     ap_log_rerror(APLOG_MARK, APLOG_INFO, APR_SUCCESS, request,
                   "Content-Type=%s URI=%s%s",
                   request->content_type, request->hostname,
@@ -122,74 +93,31 @@ bool check_pagespeed_applicable(ap_filter_t* filter,
   return true;
 }
 
-// Optimize the resource.
-bool perform_resource_optimization(const ResourceType resource_type,
-                  const std::string& input, std::string* output) {
-  bool success = false;
-  switch (resource_type) {
-    case JAVASCRIPT:
-      success = MinifyJs(input, output);
-      break;
-    case CSS:
-      // We are not doing this anymore. We will remove all the resource
-      // optimizations in next CL. For now, just skip the CSS because the code
-      // is not in the dependency any longer.
-      break;
-    case GIF:
-    {
-      GifReader reader;
-      success = PngOptimizer::OptimizePng(reader, input, output);
-      break;
-    }
-    case PNG:
-    {
-      PngReader reader;
-      success = PngOptimizer::OptimizePng(reader, input, output);
-      break;
-    }
-    case JPEG:
-      success = OptimizeJpeg(input, output);
-      break;
-    default:
-      // should never be here.
-      DCHECK(false);
-      break;
-  }
-  return success;
-}
-
 // Create a new bucket from buf using HtmlRewriter.
 // TODO(lsong): the content is copied multiple times. The buf is
 // copied/processed to string output, then output is copied to new bucket.
-apr_bucket* rewrite_html(ap_filter_t *filter, bool flush, const char* buf,
-                         int len) {
+apr_bucket* rewrite_html(ap_filter_t *filter, RewriteOperation operation,
+                         const char* buf, int len) {
   request_rec* request = filter->r;
   PagespeedContext* context = static_cast<PagespeedContext*>(filter->ctx);
   if (context == NULL) {
     LOG(DFATAL) << "Context is null";
     return NULL;
   }
-  if (flush) {
-    context->rewriter->Flush();
-  } else {
-    if (buf != NULL) {
+  if (buf != NULL) {
       context->rewriter->Rewrite(buf, len);
-      // Rewrite only without flush, no output.
-      return NULL;
-    } else {
-      // when flush is false and buf is null it means we're at end of stream, so
-      // we need to call finish
-      context->rewriter->Finish();
-    }
   }
+  if (operation == REWRITE) {
+    return NULL;
+  } else if (operation == FLUSH) {
+    context->rewriter->Flush();
+  } else if (operation == FINISH) {
+    context->rewriter->Finish();
+  }
+
   if (context->output.size() == 0) {
     return NULL;
   }
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                "Rewrite %s(%s%s) original=%d, minified=%d",
-                request->content_type,
-                request->hostname, request->unparsed_uri,
-                len, static_cast<int>(context->output.size()));
   // Use the rewritten content. Create in heap since output will
   // be emptied for reuse.
   apr_bucket* bucket = apr_bucket_heap_create(
@@ -201,62 +129,6 @@ apr_bucket* rewrite_html(ap_filter_t *filter, bool flush, const char* buf,
   return bucket;
 }
 
-// Create a new bucket from context->input using pagepseed optimizer.
-apr_bucket* create_pagespeed_bucket(ap_filter_t *filter,
-                                    ResourceType resource_type) {
-  request_rec* request = filter->r;
-  PagespeedContext* context = static_cast<PagespeedContext*>(filter->ctx);
-  if (context == NULL) {
-    LOG(DFATAL) << "Context is null";
-    return NULL;
-  }
-  // Do pagespeed optimization on non-HTML resources.
-  bool success = perform_resource_optimization(resource_type,
-                                               context->input,
-                                               &context->output);
-  // Re-create the bucket.
-  if (!success || context->input.size() <= context->output.size()) {
-    if (!success) {
-      ap_log_rerror(APLOG_MARK, APLOG_ERR, APR_SUCCESS, request,
-                    "Minify %s failed. URI=%s%s",
-                    request->content_type, request->hostname,
-                    request->unparsed_uri);
-    } else {
-      ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                    "Minify %s(%s%s) original=%d, minified=%d",
-                    request->content_type,
-                    request->hostname, request->unparsed_uri,
-                    static_cast<int>(context->input.size()),
-                    static_cast<int>(context->output.size()));
-    }
-    // Use the original content. Here we use apr_bucket_transient_create to save
-    // one copy of the content because context->input is persisted until the
-    // request is being processed.
-    return apr_bucket_transient_create(context->input.data(),
-                                       context->input.size(),
-                                       request->connection->bucket_alloc);
-  } else {
-    double saved_percent =
-        100 - 100.0 * context->output.size() / context->input.size();
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                  "%5.2lf%% saved Minify %s(%s%s) original=%d, minified=%d",
-                  saved_percent,  request->content_type,
-                  request->hostname, request->unparsed_uri,
-                  static_cast<int>(context->input.size()),
-                  static_cast<int>(context->output.size()));
-    if (resource_type == GIF) {
-      // We minified the gif to png.
-      ap_set_content_type(request, "image/png");
-    }
-    // Use the optimized content. Here we use apr_bucket_transient_create to
-    // save one copy of the content because context->output is persisted until
-    // the request is being processed.
-    return apr_bucket_transient_create(context->output.data(),
-                                       context->output.size(),
-                                       request->connection->bucket_alloc);
-  }
-}
-
 apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
   // Do nothing if there is nothing, and stop passing to other filters.
   if (APR_BRIGADE_EMPTY(bb)) {
@@ -264,8 +136,7 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
   }
 
   // Check if pagespeed optimization applicable and get the resource type.
-  ResourceType resource_type;
-  if (!check_pagespeed_applicable(filter, bb, &resource_type)) {
+  if (!check_pagespeed_applicable(filter, bb)) {
     ap_remove_output_filter(filter);
     return ap_pass_brigade(filter->next, bb);
   }
@@ -280,19 +151,16 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
     context->bucket_brigade = apr_brigade_create(
         request->pool,
         request->connection->bucket_alloc);
-    if (resource_type == HTML) {
-      html_rewriter::PageSpeedServerContext* server_context =
-          html_rewriter::mod_pagespeed_get_config_server_context(
-              request->server);
-      std::string base_url(ap_construct_url(request->pool,
-                                            request->unparsed_uri,
-                                            request));
-      context->rewriter = new HtmlRewriter(server_context,
-                                           base_url,
-                                           request->unparsed_uri,
-                                           &context->output);
-      mod_spdy::PoolRegisterDelete(request->pool, context->rewriter);
-    }
+    html_rewriter::PageSpeedServerContext* server_context =
+        html_rewriter::mod_pagespeed_get_config_server_context(request->server);
+    std::string base_url(ap_construct_url(request->pool,
+                                          request->unparsed_uri,
+                                          request));
+    context->rewriter = new HtmlRewriter(server_context,
+                                         base_url,
+                                         request->unparsed_uri,
+                                         &context->output);
+    mod_spdy::PoolRegisterDelete(request->pool, context->rewriter);
     apr_table_unset(request->headers_out, "Content-Length");
     apr_table_unset(request->headers_out, "Content-MD5");
   }
@@ -300,69 +168,52 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
   apr_bucket* new_bucket = NULL;
   while (!APR_BRIGADE_EMPTY(bb)) {
     apr_bucket* bucket = APR_BRIGADE_FIRST(bb);
+    // Remove the bucket from the old brigade. We will create new bucket or
+    // reuse the bucket to insert into the new brigade.
+    APR_BUCKET_REMOVE(bucket);
     if (!APR_BUCKET_IS_METADATA(bucket)) {
       const char* buf = NULL;
       size_t bytes = 0;
       apr_status_t ret_code =
           apr_bucket_read(bucket, &buf, &bytes, APR_BLOCK_READ);
       if (ret_code == APR_SUCCESS) {
-        if (resource_type == HTML) {
-          new_bucket = rewrite_html(filter, false, buf, bytes);
-          if (new_bucket != NULL) {
-            APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, new_bucket);
-          }
-        } else {
-          // save the content of the bucket
-          context->input.append(buf, bytes);
-        }
+        new_bucket = rewrite_html(filter, REWRITE, buf, bytes);
       } else {
-        // Read error, log the eror and return.
         ap_log_rerror(APLOG_MARK, APLOG_ERR, ret_code, request,
                       "Reading bucket failed (rcode=%d)", ret_code);
+        apr_bucket_delete(bucket);
         return ret_code;
       }
       // Processed the bucket, now delete it.
       apr_bucket_delete(bucket);
-
-    } else if (APR_BUCKET_IS_EOS(bucket)) {
-      if (resource_type == HTML) {
-        new_bucket = rewrite_html(filter, false, NULL, 0);
-      } else if (context->input.empty()) {
-        break;  // Nothing to be optimized.
-      } else {
-        new_bucket = create_pagespeed_bucket(filter, resource_type);
-      }
       if (new_bucket != NULL) {
         APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, new_bucket);
       }
-      // Remove EOS from the old brigade, and insert into the new.
-      APR_BUCKET_REMOVE(bucket);
+    } else if (APR_BUCKET_IS_EOS(bucket)) {
+      new_bucket = rewrite_html(filter, FINISH, NULL, 0);
+      if (new_bucket != NULL) {
+        APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, new_bucket);
+      }
+      // Insert the EOS bucket to the new brigade.
       APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, bucket);
       // OK, we have seen the EOS. Time to pass it along down the chain.
       return ap_pass_brigade(filter->next, context->bucket_brigade);
-
     } else if (APR_BUCKET_IS_FLUSH(bucket)) {
-      if (resource_type == HTML) {
-        new_bucket = rewrite_html(filter, true, NULL, 0);
-        if (new_bucket != NULL) {
-          APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, new_bucket);
-        }
-        // Remove FLUSH from the old brigade, and insert into the new.
-        APR_BUCKET_REMOVE(bucket);
-        APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, bucket);
-        // OK, Time to flush, pass it along down the chain.
-        return ap_pass_brigade(filter->next, context->bucket_brigade);
-      } else {
-        // Ignore the FLUSH bucket.
-        apr_bucket_delete(bucket);
+      new_bucket = rewrite_html(filter, FLUSH, NULL, 0);
+      if (new_bucket != NULL) {
+        APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, new_bucket);
       }
-
+      APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, bucket);
+      // OK, Time to flush, pass it along down the chain.
+      apr_status_t ret_code =
+          ap_pass_brigade(filter->next, context->bucket_brigade);
+      if (ret_code != APR_SUCCESS) {
+        return ret_code;
+      }
     } else {
       // TODO(lsong): remove this log.
       ap_log_rerror(APLOG_MARK, APLOG_INFO, APR_SUCCESS, request,
                     "Unknown meta data");
-      // Remove meta from the old brigade, and insert into the new.
-      APR_BUCKET_REMOVE(bucket);
       APR_BRIGADE_INSERT_TAIL(context->bucket_brigade, bucket);
     }
   }
@@ -372,9 +223,10 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
 }
 
 apr_status_t pagespeed_child_exit(void* data) {
-  html_rewriter::PageSpeedServerContext* context =
-      static_cast<html_rewriter::PageSpeedServerContext*>(data);
-  delete context;
+  html_rewriter::PageSpeedConfig* config =
+      static_cast<html_rewriter::PageSpeedConfig*>(data);
+  delete config->context;
+  config->context = NULL;
   return APR_SUCCESS;
 }
 
@@ -387,7 +239,7 @@ void pagespeed_child_init(apr_pool_t* pool, server_rec* server) {
     html_rewriter::PageSpeedConfig* config =
         html_rewriter::get_pagespeed_config(next_server);
     if (html_rewriter::CreatePageSpeedServerContext(pool, config)) {
-      apr_pool_cleanup_register(pool, config->context, pagespeed_child_exit,
+      apr_pool_cleanup_register(pool, config, pagespeed_child_exit,
                                 apr_pool_cleanup_null);
     }
     next_server = next_server->next;
@@ -417,8 +269,8 @@ void* mod_pagespeed_create_server_config(
     apr_pool_t* pool,
     server_rec* server) {
   html_rewriter::PageSpeedConfig* config =
-      static_cast<html_rewriter::PageSpeedConfig*> (
-      apr_pcalloc(pool, sizeof(html_rewriter::PageSpeedConfig)));
+      static_cast<html_rewriter::PageSpeedConfig*>(
+          apr_pcalloc(pool, sizeof(html_rewriter::PageSpeedConfig)));
   config->context = NULL;
   config->rewrite_url_prefix = NULL;
   config->fetch_proxy = NULL;

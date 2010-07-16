@@ -25,9 +25,6 @@
 #include "third_party/apache/apr/src/include/apr_atomic.h"
 #include "third_party/apache/apr/src/include/apr_strings.h"
 #include "third_party/apache/apr/src/include/apr_version.h"
-// Needed before other httpd header files.
-#include "third_party/apache/httpd/src/include/httpd.h"
-#include "third_party/apache/httpd/src/include/http_config.h"
 #include "third_party/serf/src/serf.h"
 #include "third_party/serf/src/serf_bucket_util.h"
 

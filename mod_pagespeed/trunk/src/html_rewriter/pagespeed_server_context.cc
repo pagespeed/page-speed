@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include "html_rewriter/pagespeed_server_context.h"
+
+#include "html_rewriter/apr_mutex.h"
 #include "third_party/apache/apr/src/include/apr_pools.h"
 
 using net_instaweb::ApacheRewriteDriverFactory;

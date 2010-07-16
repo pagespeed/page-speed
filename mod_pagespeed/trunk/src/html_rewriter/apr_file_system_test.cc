@@ -18,8 +18,8 @@
 #include "html_rewriter/apr_file_system.h"
 #include "html_rewriter/html_parser_message_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/apache/apr/src/include/apr_file_io.h"
 #include "third_party/apache/apr/src/include/apr_pools.h"
-#include "third_party/apache/httpd/src/include/httpd.h"
 
 using html_rewriter::AprFileSystem;
 using html_rewriter::HtmlParserMessageHandler;
@@ -104,7 +104,7 @@ class AprFileSystemTest : public ::testing::Test {
     }
   }
   std::string WriteNewFile(const std::string& suffix,
-                            const std::string& content) {
+                           const std::string& content) {
     std::string filename(test_tmpdir_);
     filename += suffix;
 
@@ -132,7 +132,7 @@ class AprFileSystemTest : public ::testing::Test {
   void CheckDoesNotExist(const std::string& filename) {
     std::string read_buffer;
     EXPECT_FALSE(file_system_->ReadFile(filename.c_str(), &read_buffer,
-                                       &handler_));
+                                        &handler_));
   }
 
  protected:
@@ -185,7 +185,7 @@ TEST_F(AprFileSystemTest, TestRename) {
 
   MyDeleteFileRecursively(to_file, NULL, NULL);
   ASSERT_TRUE(file_system_->RenameFile(from_file.c_str(), to_file.c_str(),
-                                      &handler_));
+                                       &handler_));
 
   CheckDoesNotExist(from_file);
   CheckRead(to_file, from_text);

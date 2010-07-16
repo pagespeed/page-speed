@@ -150,8 +150,8 @@ bool HtmlWriterOutputFile::Flush(MessageHandler* message_handler) {
 
 bool HtmlWriterOutputFile::SetWorldReadable(MessageHandler* message_handler) {
   apr_status_t ret = apr_file_perms_set(helper_.filename().c_str(),
-                         APR_FPROT_UREAD | APR_FPROT_UWRITE |
-                         APR_FPROT_GREAD | APR_FPROT_WREAD);
+                                        APR_FPROT_UREAD | APR_FPROT_UWRITE |
+                                        APR_FPROT_GREAD | APR_FPROT_WREAD);
   if (ret != APR_SUCCESS) {
     helper_.ReportError(message_handler, "set permission", ret);
     return false;
