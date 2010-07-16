@@ -62,7 +62,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
-        '<(DEPTH)/third_party/apache/aprutil/aprutil.gyp:aprutil',
+        '<(DEPTH)/third_party/apache/apr/apr.gyp:apr',
       ],
       'include_dirs': [
         '<(DEPTH)',
@@ -79,6 +79,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/third_party/apache/apr/apr.gyp:include',
         '<(DEPTH)/third_party/apache/aprutil/aprutil.gyp:aprutil',
         '<(DEPTH)/third_party/serf/serf.gyp:serf',
         '<(instaweb_root)/instaweb.gyp:instaweb_util',
