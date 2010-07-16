@@ -549,6 +549,10 @@
               # can be removed at link time with --gc-sections.
               '-fdata-sections',
               '-ffunction-sections',
+              # We don't use exceptions.  The eh_frame section is used for those
+              # and for symbolizing backtraces.  By passing this flag we drop
+              # the eh_frame section completely.
+              '-fno-asynchronous-unwind-tables',
             ],
             'conditions' : [
               ['no_gc_sections==0', {
