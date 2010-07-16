@@ -13,6 +13,11 @@
 # limitations under the License.
 
 {
+  'variables': {
+    # We're building a shared library, so everything needs to be built
+    # with Position-Independent Code.
+    'linux_fpic': 1,
+  },
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
@@ -20,9 +25,6 @@
     'conditions': [
       ['OS == "linux"', {
         'cflags': [
-          # We're building a shared library, so everything needs to be built
-          # with Position-Independent Code.
-          '-fPIC',
           # Our dependency on OpenCV need us to turn on exceptions.
           '-fexceptions',
           # Now we are using exceptions. -fno-asynchronous-unwind-tables is

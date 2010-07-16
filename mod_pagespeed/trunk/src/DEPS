@@ -89,6 +89,7 @@ deps = {
   "src/tools/grit": From(Var("libpagespeed_deps_root")),
 
   "src/base": From(Var("instaweb_deps_root")),
+  "src/build/temp_gyp": From(Var("instaweb_deps_root")),
   "src/googleurl_noicu": From(Var("instaweb_deps_root")),
   "src/third_party/libpagespeed/src/build": From(Var("instaweb_deps_root")),
   "src/third_party/libpagespeed/src/build/internal":
