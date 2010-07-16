@@ -55,6 +55,14 @@
         # value at this level of nesting so it's available for the
         # toolkit_views test below.
         'chromeos%': '0',
+
+        # To do a shared build on linux we need to be able to choose between
+        # type static_library and shared_library. We default to doing a static
+        # build but you can override this with "gyp -Dlibrary=shared_library"
+        # or you can add the following line (without the #) to
+        # ~/.gyp/include.gypi {'variables': {'library': 'shared_library'}}
+        # to compile as shared by default
+        'library%': 'static_library',
       },
 
       # Set default value of toolkit_views on for Windows and Chrome OS.
@@ -95,7 +103,7 @@
 
       # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
       # libraries on linux x86-64 and arm.
-      'linux_fpic%': 1,
+      'linux_fpic%': 0,
 
       # Python version.
       'python_ver%': '2.5',
@@ -114,6 +122,15 @@
 
       # Remoting compilation is enabled by default. Set to 0 to disable.
       'remoting%': 1,
+
+      'library%': '<(library)',
+
+      # Variable 'component' is for cases where we would like to build some
+      # components as dynamic shared libraries but still need variable
+      # 'library' for static libraries.
+      # By default, component is set to whatever library is set to and
+      # it can be overriden by the GYP command line or by ~/.gyp/include.gypi.
+      'component%': '<(library)',
     },
 
     # Define branding and buildtype on the basis of their settings within the
@@ -133,6 +150,8 @@
     'sysroot%': '<(sysroot)',
     'disable_sse2%': '<(disable_sse2)',
     'remoting%': '<(remoting)',
+    'library%': '<(library)',
+    'component%': '<(component)',
 
     # The release channel that this build targets. This is used to restrict
     # channel-specific build options, like which installer packages to create.
@@ -182,15 +201,7 @@
     #  'win_use_allocator_shim': 0,
     #  'win_release_RuntimeLibrary': 2
     # to ~/.gyp/include.gypi, gclient runhooks --force, and do a release build.
-    'win_use_allocator_shim%': 1, # 0 = shim allocator via libcmt; 1 = msvcrt
-
-    # To do a shared build on linux we need to be able to choose between type
-    # static_library and shared_library. We default to doing a static build
-    # but you can override this with "gyp -Dlibrary=shared_library" or you
-    # can add the following line (without the #) to ~/.gyp/include.gypi
-    # {'variables': {'library': 'shared_library'}}
-    # to compile as shared by default
-    'library%': 'static_library',
+    'win_use_allocator_shim%': 1, # 1 = shim allocator via libcmt; 0 = msvcrt
 
     # Whether usage of OpenMAX is enabled.
     'enable_openmax%': 0,
@@ -264,6 +275,10 @@
     # Enable EGLImage support in OpenMAX
     'enable_eglimage%': 0,
 
+    # Enable a variable used elsewhere throughout the GYP files to determine
+    # whether to compile in the sources for the GPU plugin / process.
+    'enable_gpu%': 1,
+
     'conditions': [
       ['OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
         # This will set gcc_version to XY if you are running gcc X.Y.*.
@@ -326,6 +341,10 @@
       # It is on by default on VS 2008 and off on VS 2005.
       ['OS=="win"', {
         'conditions': [
+          ['component=="shared_library"', {
+            'win_use_allocator_shim%': 0,
+          }],
+        
           ['MSVS_VERSION=="2005"', {
             'msvs_multi_core_compile%': 0,
           },{
@@ -343,15 +362,6 @@
           # Native Client loader for 64-bit Windows.
           'NACL_WIN64',
         ],
-      }],
-      # Compute based on OS and target architecture whether the GPU
-      # plugin / process is supported.
-      [ 'OS=="win" or (OS=="linux" and target_arch!="arm") or OS=="mac"', {
-        # Enable a variable used elsewhere throughout the GYP files to determine
-        # whether to compile in the sources for the GPU plugin / process.
-        'enable_gpu%': 1,
-      }, {  # GPU plugin not supported
-        'enable_gpu%': 0,
       }],
     ],
 
@@ -385,9 +395,6 @@
       # See http://msdn.microsoft.com/en-us/library/aa652360(VS.71).aspx
       'win_release_Optimization%': '2', # 2 = /Os
       'win_debug_Optimization%': '0',   # 0 = /Od
-      # See http://msdn.microsoft.com/en-us/library/aa652367(VS.71).aspx
-      'win_release_RuntimeLibrary%': '0', # 0 = /MT (nondebug static)
-      'win_debug_RuntimeLibrary%': '1',   # 1 = /MTd (debug static)
       # See http://msdn.microsoft.com/en-us/library/8wtf2dfz(VS.71).aspx
       'win_debug_RuntimeChecks%': '3',    # 3 = all checks enabled, 0 = off
       # See http://msdn.microsoft.com/en-us/library/47238hez(VS.71).aspx
@@ -397,6 +404,18 @@
       'release_extra_cflags%': '',
       'debug_extra_cflags%': '',
       'release_valgrind_build%': 0,
+
+      'conditions': [
+        ['OS=="win" and component=="shared_library"', {
+          # See http://msdn.microsoft.com/en-us/library/aa652367.aspx
+          'win_release_RuntimeLibrary%': '2', # 2 = /MT (nondebug DLL)
+          'win_debug_RuntimeLibrary%': '3',   # 3 = /MTd (debug DLL)
+        }, {
+          # See http://msdn.microsoft.com/en-us/library/aa652367.aspx
+          'win_release_RuntimeLibrary%': '0', # 0 = /MT (nondebug static)
+          'win_debug_RuntimeLibrary%': '1',   # 1 = /MTd (debug static)
+        }],
+      ],
     },
     'conditions': [
       ['branding=="Chrome"', {
@@ -418,7 +437,7 @@
       }],
       ['fastbuild!=0', {
         'conditions': [
-          # Finally, for Windows, we simply turn on profiling.
+          # For Windows, we don't genererate debug information.
           ['OS=="win"', {
             'msvs_settings': {
               'VCLinkerTool': {
@@ -428,8 +447,10 @@
                 'DebugInformationFormat': '0',
               }
             }
-          }, { # else: OS != "win"
-            'cflags': [ '-g1' ],
+          }, { # else: OS != "win", generate less debug information.
+            'variables': {
+              'debug_extra_cflags': '-g1',
+            },
           }],
         ],  # conditions for fastbuild.
       }],  # fastbuild!=0
@@ -521,7 +542,7 @@
           [ 'OS=="mac"', {
             'xcode_settings': {
               'GCC_TREAT_WARNINGS_AS_ERRORS': 'NO',
-              'WARNING_CFLAGS!': ['-Wall'],
+              'WARNING_CFLAGS!': ['-Wall', '-Wextra'],
             },
           }],
         ],
@@ -564,11 +585,6 @@
                 'AdditionalOptions': ['/we4389'],
               },
             },
-          }],
-          # Though Skia is conceptually shared by Linux and Windows,
-          # the only _skia files in our tree are Linux-specific.
-          ['OS!="linux" and OS!="freebsd" and OS!="openbsd"', {
-            'sources/': [ ['exclude', '_skia\\.cc$'] ],
           }],
           ['chromeos!=1', {
             'sources/': [ ['exclude', '_chromeos\\.cc$'] ]
@@ -711,13 +727,6 @@
           }],
           ['win_use_allocator_shim==0', {
             'defines': ['NO_TCMALLOC'],
-          }],
-          ['win_release_RuntimeLibrary==2', {
-            # Visual C++ 2008 barfs when building anything with /MD (msvcrt):
-            #  VC\include\typeinfo(139) : warning C4275: non dll-interface
-            #  class 'stdext::exception' used as base for dll-interface
-            #  class 'std::bad_cast'
-            'msvs_disabled_warnings': [4275],
           }],
           ['OS=="linux"', {
             'cflags': [
@@ -998,6 +1007,16 @@
                   '-msse2',
                 ],
               }],
+              # Install packages have started cropping up with
+              # different headers between the 32-bit and 64-bit
+              # versions, so we have to shadow those differences off
+              # and make sure a 32-bit-on-64-bit build picks up the
+              # right files.
+              ['host_arch!="ia32"', {
+                'include_dirs+': [
+                  '/usr/include32',
+                ],
+              }],
             ],
             # -mmmx allows mmintrin.h to be used for mmx intrinsics.
             # video playback is mmx and sse2 optimized.
@@ -1077,6 +1096,9 @@
             'defines': ['USE_SECCOMP_SANDBOX'],
           }],
           ['library=="shared_library"', {
+            # When building with shared libraries, remove the visiblity-hiding
+            # flag.
+            'cflags!': [ '-fvisibility=hidden' ],
             'conditions': [
               ['target_arch=="x64" or target_arch=="arm"', {
                 # Shared libraries need -fPIC on x86-64 and arm
@@ -1139,7 +1161,16 @@
           'MACOSX_DEPLOYMENT_TARGET': '<(mac_deployment_target)',
           'PREBINDING': 'NO',                       # No -Wl,-prebind
           'USE_HEADERMAP': 'NO',
-          'WARNING_CFLAGS': ['-Wall', '-Wendif-labels'],
+          'WARNING_CFLAGS': [
+            '-Wall',
+            '-Wendif-labels',
+            '-Wextra',
+            # Don't warn about unused function parameters.
+            '-Wno-unused-parameter',
+            # Don't warn about the "struct foo f = {0};" initialization
+            # pattern.
+            '-Wno-missing-field-initializers',
+          ],
           'conditions': [
             ['chromium_mac_pch', {'GCC_PRECOMPILE_PREFIX_HEADER': 'YES'},
                                  {'GCC_PRECOMPILE_PREFIX_HEADER': 'NO'}
@@ -1208,25 +1239,32 @@
           'WINVER=0x0600',
           'WIN32',
           '_WINDOWS',
-          '_HAS_EXCEPTIONS=0',
           'NOMINMAX',
           '_CRT_RAND_S',
           'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
           'WIN32_LEAN_AND_MEAN',
           '_SECURE_ATL',
+          '_ATL_NO_OPENGL',
           '_HAS_TR1=0',
         ],
+        'conditions': [
+          ['component=="static_library"', {
+            'defines': [
+              '_HAS_EXCEPTIONS=0',
+            ],
+          }],
+        ],
+        
         'msvs_system_include_dirs': [
           '<(DEPTH)/third_party/platformsdk_win7/files/Include',
           '<(DEPTH)/third_party/directxsdk/files/Include',
           '$(VSInstallDir)/VC/atlmfc/include',
         ],
         'msvs_cygwin_dirs': ['<(DEPTH)/third_party/cygwin'],
-        'msvs_disabled_warnings': [4396, 4503, 4819],
+        'msvs_disabled_warnings': [4351, 4396, 4503, 4819],
         'msvs_settings': {
           'VCCLCompilerTool': {
             'MinimalRebuild': 'false',
-            'ExceptionHandling': '0',
             'BufferSecurityCheck': 'true',
             'EnableFunctionLevelLinking': 'true',
             'RuntimeTypeInfo': 'false',
@@ -1236,6 +1274,12 @@
             'conditions': [
               [ 'msvs_multi_core_compile', {
                 'AdditionalOptions': ['/MP'],
+              }],
+              
+              ['component=="shared_library"', {
+                'ExceptionHandling': '1',  # /EHsc
+              }, {
+                'ExceptionHandling': '0',
               }],
             ],
           },
