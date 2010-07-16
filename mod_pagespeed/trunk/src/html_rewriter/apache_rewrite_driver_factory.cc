@@ -35,13 +35,16 @@ ApacheRewriteDriverFactory::ApacheRewriteDriverFactory(
     html_rewriter::PageSpeedServerContext* context)
   : context_(context) {
   apr_pool_create(&pool_, context->pool());
-  set_filename_prefix(html_rewriter::GetFileCachePath(context_));
+  set_filename_prefix(html_rewriter::GetCachePrefix(context_));
   set_url_prefix(html_rewriter::GetUrlPrefix(context_));
   cache_mutex_.reset(NewMutex());
   rewrite_drivers_mutex_.reset(NewMutex());
 }
 
 ApacheRewriteDriverFactory::~ApacheRewriteDriverFactory() {
+  // TODO(lsong): Destroying the pool causes the Apache un-clean exit with error
+  // of "double free or corruption".  It may indicate there are real memory
+  // corruptions. Fix it.
   apr_pool_destroy(pool_);
 }
 
