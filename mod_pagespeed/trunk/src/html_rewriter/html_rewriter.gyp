@@ -55,6 +55,20 @@
       ],
     },
     {
+      'target_name': 'gzip_inflater',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
+      ],
+      'sources': [
+        '<(DEPTH)/html_rewriter/gzip_inflater.cc',
+      ],
+    },
+    {
       'target_name': 'apr_file_system_test',
       'type': 'executable',
       'dependencies': [
@@ -90,6 +104,22 @@
       ],
       'sources': [
         '<(DEPTH)/html_rewriter/serf_url_async_fetcher_test.cc',
+      ],
+    },
+    {
+      'target_name': 'gzip_inflater_test',
+      'type': 'executable',
+      'dependencies': [
+        'gzip_inflater',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
+      ],
+      'sources': [
+        'gzip_inflater_test.cc',
       ],
     },
   ],
