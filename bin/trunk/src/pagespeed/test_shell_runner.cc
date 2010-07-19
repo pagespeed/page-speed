@@ -14,6 +14,7 @@
 
 #include "pagespeed/test_shell_runner.h"
 
+#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/WebKitTools/DumpRenderTree/chromium/config.h"
 #include "third_party/WebKit/WebKitTools/DumpRenderTree/chromium/TestShell.h"
 #include "webkit/support/webkit_support.h"
@@ -31,7 +32,28 @@ void TestShellRunner::TearDown() {
   webkit_support::TearDownTestEnvironment();
 }
 
-bool TestShellRunner::Run(const std::string& url, int timeout_millis) {
+TestShellRunner::TestShellRunner()
+    : shell_(new TestShell(false)) {
+}
+
+TestShellRunner::~TestShellRunner() {
+  // Invoke the JavaScript engine's garbage collector twice, to force
+  // a synchronous GC. We do so in order to support checking for
+  // memory leaks.
+  shell_->callJSGC();
+  shell_->callJSGC();
+
+  // When we finish the last test, cleanup the LayoutTestController.
+  // It may have references to not-yet-cleaned up windows.  By
+  // cleaning up here we help purify reports.
+  shell_->resetTestController();
+
+  delete shell_;
+}
+
+bool TestShellRunner::Run(const std::string& url,
+                          int timeout_millis,
+                          WebKit::WebFrame** out_frame) {
   TestParams params;
   params.dumpTree = false;
   params.testUrl = webkit_support::CreateURLForPathOrURL(url);
@@ -39,24 +61,12 @@ bool TestShellRunner::Run(const std::string& url, int timeout_millis) {
     return false;
   }
 
-  TestShell shell(false);
+  shell_->resetTestController();
+  shell_->setAllowExternalPages(true);
+  shell_->setLayoutTestTimeout(timeout_millis);
+  shell_->runFileTest(params);
 
-  shell.resetTestController();
-  shell.setAllowExternalPages(true);
-  shell.setLayoutTestTimeout(timeout_millis);
-  shell.runFileTest(params);
-
-  // Invoke the JavaScript engine's garbage collector twice, to force
-  // a synchronous GC. We do so in order to support checking for
-  // memory leaks.
-  shell.callJSGC();
-  shell.callJSGC();
-
-  // When we finish the last test, cleanup the LayoutTestController.
-  // It may have references to not-yet-cleaned up windows.  By
-  // cleaning up here we help purify reports.
-  shell.resetTestController();
-
+  *out_frame = shell_->webView()->mainFrame();
   return true;
 }
 
