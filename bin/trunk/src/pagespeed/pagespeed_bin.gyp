@@ -26,6 +26,7 @@
       'type': '<(library)',
       'dependencies': [
         'drtlib',
+        'pagespeed_chromium_dom',
         '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/core/core.gyp:pagespeed_core',
         '<(DEPTH)/third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
@@ -37,6 +38,18 @@
         'http_content_decoder.cc',
         'pagespeed_input_populator.cc',
         'test_shell_runner.cc',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_chromium_dom',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/core/core.gyp:pagespeed_core',
+        '<(DEPTH)/third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
+      ],
+      'sources': [
+        'chromium_dom.cc',
       ],
     },
     {

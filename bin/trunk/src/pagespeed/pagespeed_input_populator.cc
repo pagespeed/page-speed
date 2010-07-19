@@ -66,7 +66,7 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
  public:
   virtual ~JobTracker() {
     if (!in_flight_responses_.empty()) {
-      LOG(DFATAL) << in_flight_responses_.size() << " in-flight responses.";
+      LOG(ERROR) << in_flight_responses_.size() << " in-flight responses.";
     }
   }
 
@@ -184,8 +184,8 @@ void PagespeedInputPopulator::Attach() {
 pagespeed::PagespeedInput* PagespeedInputPopulator::Detach() {
   pagespeed::PagespeedInput* input = NULL;
   if (tracker_ != NULL) {
-    input = tracker_->StealInput();
     g_url_request_job_tracker.RemoveObserver(tracker_);
+    input = tracker_->StealInput();
     delete tracker_;
     tracker_ = NULL;
   }

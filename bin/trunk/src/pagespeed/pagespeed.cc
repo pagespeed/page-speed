@@ -18,6 +18,7 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
+#include "pagespeed/chromium_dom.h"
 #include "pagespeed/pagespeed_input_populator.h"
 #include "pagespeed/test_shell_runner.h"
 #include "third_party/libpagespeed/src/pagespeed/core/engine.h"
@@ -26,24 +27,33 @@
 #include "third_party/libpagespeed/src/pagespeed/formatters/text_formatter.h"
 #include "third_party/libpagespeed/src/pagespeed/image_compression/image_attributes_factory.h"
 #include "third_party/libpagespeed/src/pagespeed/rules/rule_provider.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 
 namespace {
 
 // 2 minutes
 const int kTimeoutMillis = 2 * 60 * 1000;
 
-// Loads the web page at the given URL, and returns a PagespeedInput
-// instance that's populated with the resources fetched during that
-// page load.
-pagespeed::PagespeedInput* PopulatePageSpeedInput(const std::string& url) {
-  pagespeed::TestShellRunner runner;
-  pagespeed::PagespeedInputPopulator populator;
+void RunEngine(pagespeed::PagespeedInput* input) {
+  std::vector<pagespeed::Rule*> rules;
 
-  populator.Attach();
-  if (!runner.Run(url, kTimeoutMillis)) {
-    return NULL;
-  }
-  return populator.Detach();
+  // In environments where exceptions can be thrown, use
+  // STLElementDeleter to make sure we free the rules in the event
+  // that they are not transferred to the Engine.
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+
+  bool save_optimized_content = false;
+  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+
+  // Ownership of rules is transferred to the Engine instance.
+  pagespeed::Engine engine(&rules);
+  engine.Init();
+
+  scoped_ptr<pagespeed::RuleFormatter> formatter(
+      new pagespeed::formatters::TextFormatter(&std::cout));
+
+  engine.ComputeAndFormatResults(*input, formatter.get());
 }
 
 bool RunPagespeed(const char* url) {
@@ -53,8 +63,18 @@ bool RunPagespeed(const char* url) {
     return false;
   }
 
-  scoped_ptr<pagespeed::PagespeedInput> input(
-      PopulatePageSpeedInput(gurl.spec()));
+  // The page DOM's lifetime is scoped by the TestShellRunner
+  // instance, so we need to make sure that the TestShellRunner
+  // outlives the invocation of the Page Speed engine, since the
+  // engine inspects the live DOM during its execution.
+  pagespeed::TestShellRunner runner;
+  pagespeed::PagespeedInputPopulator populator;
+  WebKit::WebFrame* frame = NULL;
+  populator.Attach();
+  if (!runner.Run(url, kTimeoutMillis, &frame)) {
+    return false;
+  }
+  scoped_ptr<pagespeed::PagespeedInput> input(populator.Detach());
   if (input == NULL || input->num_resources() == 0) {
     fprintf(stderr,
             "Unable to construct PagespeedInput for %s.\n", url);
@@ -67,28 +87,12 @@ bool RunPagespeed(const char* url) {
   }
 
   input->SetPrimaryResourceUrl(gurl.spec());
-
+  input->AcquireDomDocument(
+      pagespeed::chromium::CreateDocument(frame->document()));
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
 
-  std::vector<pagespeed::Rule*> rules;
-
-  // In environments where exceptions can be thrown, use
-  // STLElementDeleter to make sure we free the rules in the event
-  // that they are not transferred to the Engine.
-  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
-
-  bool save_optimized_content = false;
-  pagespeed::rule_provider::AppendCoreRules(save_optimized_content, &rules);
-
-  // Ownership of rules is transferred to the Engine instance.
-  pagespeed::Engine engine(&rules);
-  engine.Init();
-
-  scoped_ptr<pagespeed::RuleFormatter> formatter(
-      new pagespeed::formatters::TextFormatter(&std::cout));
-
-  engine.ComputeAndFormatResults(*input.get(), formatter.get());
+  RunEngine(input.get());
 
   return true;
 }

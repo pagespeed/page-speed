@@ -24,6 +24,8 @@ deps = {
     Var("chromium_trunk") + "/src/app" + Var("chromium_revision"),
   "src/base":
     Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
+  "src/build/build_chromium":
+    Var("chromium_trunk") + "/src/build" + Var("chromium_revision"),
   "src/build/linux":
     Var("chromium_trunk") + "/src/build/linux" + Var("chromium_revision"),
   "src/build/mac":

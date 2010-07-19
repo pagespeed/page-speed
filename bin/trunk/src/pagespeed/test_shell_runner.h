@@ -17,6 +17,12 @@
 
 #include <string>
 
+class TestShell;
+
+namespace WebKit {
+class WebFrame;
+}  // namespace WebKit
+
 namespace pagespeed {
 
 // TestShellRunner is a wrapper around TestShell that abstracts away
@@ -30,13 +36,20 @@ public:
   static void SetUp();
   static void TearDown();
 
+  TestShellRunner();
+  ~TestShellRunner();
+
   // Load the web page at the given URL, with the specified
   // timeout. If the timeout is exceeded then execution will be
   // aborted.
-  bool Run(const std::string& url, int timeout_millis);
+  bool Run(const std::string& url,
+           int timeout_millis,
+           WebKit::WebFrame** out_frame);
+
+ private:
+  TestShell* const shell_;
 };
 
 }  // namespace pagespeed
 
 #endif  // PAGESPEED_PAGESPEED_TEST_SHELL_RUNNER_H_
-
