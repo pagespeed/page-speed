@@ -28,10 +28,6 @@ deps = {
   Var("chromium_deps_root"):
     File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
 
-  "src/site_scons/site_tools":
-    (Var("chromium_trunk") + "/src/site_scons/site_tools" +
-     Var("chromium_revision")),
-
   "src/testing":
     Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
 
@@ -72,10 +68,6 @@ deps = {
   "src/third_party/protobuf2":
     (Var("chromium_trunk") + "/src/third_party/protobuf2" +
      Var("chromium_revision")),
-
-  "src/third_party/scons":
-    Var("chromium_trunk") + "/src/third_party/scons" +
-      Var("chromium_revision"),
 
   "src/third_party/modp_b64":
     Var("chromium_trunk") + "/src/third_party/modp_b64" +
