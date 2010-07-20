@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_PAGESPEED_CHROMIUM_DOM_H_
-#define PAGESPEED_PAGESPEED_CHROMIUM_DOM_H_
+#ifndef PAGESPEED_CHROMIUM_DOM_H_
+#define PAGESPEED_CHROMIUM_DOM_H_
 
 namespace WebKit {
 class WebDocument;
@@ -31,4 +31,4 @@ DomDocument* CreateDocument(const WebKit::WebDocument& document);
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_PAGESPEED_CHROMIUM_DOM_H_
+#endif  // PAGESPEED_CHROMIUM_DOM_H_
