@@ -25,6 +25,8 @@ namespace html_rewriter {
 class HtmlRewriterImp;
 class PageSpeedServerContext;
 
+enum ContentEncoding {NONE, GZIP, DEFLATE, OTHER};
+
 class HtmlRewriter {
  public:
   // base_url is used by RewriteDriver to resolve relative URLs. For example, in
@@ -36,6 +38,7 @@ class HtmlRewriter {
   // it wants the flush as late as possible. Therefore, the output won't be
   // avaible util Flush() or Finish().
   HtmlRewriter(PageSpeedServerContext* context,
+               ContentEncoding encoding,
                const std::string& base_url,
                const std::string& url, std::string* output);
   ~HtmlRewriter();

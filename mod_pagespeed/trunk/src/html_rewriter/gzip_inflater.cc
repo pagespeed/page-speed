@@ -60,8 +60,7 @@ bool GzipInflater::Init() {
   // Tell zlib that the data is gzip-encoded.
   int err = inflateInit2(
       zlib_,
-      31  // window size of 15, plus 16 for gzip
-                         );
+      31);  // window size of 15, plus 16 for gzip
 
   if (err != Z_OK) {
     Free();
@@ -156,7 +155,7 @@ int GzipInflater::InflateBytes(char *buf, size_t buf_size) {
     // were unable to write any inflated bytes to the output
     // buffer. zlib documentation says that this is a non-terminal
     // error, so we do not set error_ to true here.
-    DCHECK(inflated_bytes == 0);
+    DCHECK_EQ(inflated_bytes, static_cast<size_t>(0));
   } else {
     error_ = true;
     return -1;
@@ -169,4 +168,4 @@ void GzipInflater::ShutDown() {
   Free();
 }
 
-} // namespace html_rewriter
+}  // namespace html_rewriter

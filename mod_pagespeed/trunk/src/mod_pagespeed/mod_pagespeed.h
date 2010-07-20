@@ -26,7 +26,7 @@ namespace html_rewriter {
 struct PageSpeedConfig;
 class PageSpeedServerContext;
 
-PageSpeedConfig* get_pagespeed_config(server_rec* server);
+PageSpeedConfig* mod_pagespeed_get_server_config(server_rec* server);
 PageSpeedServerContext* mod_pagespeed_get_config_server_context(
     server_rec* server);
 }  // namespace html_rewriter

@@ -16,22 +16,28 @@
 #define HTML_REWRITER_HTML_REWRITER_IMP_H_
 
 #include <string>
-
-#include "html_rewriter/html_parser_message_handler.h"
-#include "html_rewriter/pagespeed_server_context.h"
-#include "net/instaweb/rewriter/public/rewrite_driver.h"
+#include "html_rewriter/html_rewriter.h"
 #include "net/instaweb/util/public/string_writer.h"
-
 
 struct request_rec;
 
+namespace net_instaweb {
+// Forward declaration.
+class RewriteDriver;
+}  // namespace net_instaweb
+
 namespace html_rewriter {
+
+// Forward declaration.
+class PageSpeedServerContext;
+class GzipInflater;
 
 // TODO(lsong): Make HtmlRewriterImp a re-usable object because creating an
 // object for every request involves creating all the internal objects.
 class HtmlRewriterImp {
  public:
   HtmlRewriterImp(PageSpeedServerContext* context,
+                  ContentEncoding encoding,
                   const std::string& base_url,
                   const std::string& url, std::string* output);
   ~HtmlRewriterImp();
@@ -60,6 +66,7 @@ class HtmlRewriterImp {
   std::string url_;
   net_instaweb::RewriteDriver* rewrite_driver_;
   net_instaweb::StringWriter string_writer_;
+  GzipInflater* inflater_;
 };
 
 }  // namespace html_rewriter
