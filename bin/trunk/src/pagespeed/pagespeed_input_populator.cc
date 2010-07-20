@@ -18,8 +18,10 @@
 #include <string>
 
 #include "base/logging.h"
+#include "base/message_loop_proxy.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
@@ -129,14 +131,15 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
     }
     resource->SetResponseStatusCode(headers->response_code());
 
-    HttpContentDecoder decoder(job, in_flight_responses_[job]);
+    const std::string& response_body = in_flight_responses_[job];
+    HttpContentDecoder decoder(job, response_body);
     if (decoder.NeedsDecoding()) {
       std::string decoded_body;
       if (decoder.Decode(&decoded_body)) {
         resource->SetResponseBody(decoded_body);
       }
     } else {
-    resource->SetResponseBody(in_flight_responses_[job]);
+      resource->SetResponseBody(response_body);
     }
     input_->AddResource(resource.release());
   }
@@ -167,29 +170,105 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
   scoped_ptr<pagespeed::PagespeedInput> input_;
 };
 
-PagespeedInputPopulator::PagespeedInputPopulator() : tracker_(NULL) {
+PagespeedInputPopulator::PagespeedInputPopulator(
+    base::MessageLoopProxy* io_thread_proxy)
+    : tracker_(NULL),
+      io_thread_proxy_(io_thread_proxy),
+      cv_(&cv_lock_),
+      attached_(false) {
 }
 
 PagespeedInputPopulator::~PagespeedInputPopulator() {
   Detach();
 }
 
-void PagespeedInputPopulator::Attach() {
-  Detach();
-  tracker_ = new JobTracker();
-  tracker_->Init();
-  g_url_request_job_tracker.AddObserver(tracker_);
+bool PagespeedInputPopulator::Attach() {
+  // Should only be called on the main thread.
+  DCHECK(!io_thread_proxy_->BelongsToCurrentThread());
+
+  {
+    // AutoLock is scoped for this anonymous block.
+    AutoLock lock(cv_lock_);
+    DCHECK(!attached_);
+
+    tracker_ = new JobTracker();
+    tracker_->Init();
+
+    // Now we need to register the tracker with the
+    // URLRequestJobTracker. However, URLRequestJobTracker should only
+    // be used on the IO thread. Thus, we need to run a task on the IO
+    // thread that registers our tracker. We block until the operation
+    // on the IO thread completes.
+    io_thread_proxy_->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &PagespeedInputPopulator::RegisterTracker));
+    base::TimeDelta wait_time = base::TimeDelta::FromSeconds(1);
+    while (!attached_) cv_.TimedWait(wait_time);
+
+    if (!attached_) {
+      LOG(DFATAL) << "Failed to RegisterTracker.";
+      return false;
+    }
+  }
+
+  return true;
 }
 
 pagespeed::PagespeedInput* PagespeedInputPopulator::Detach() {
+  // Should only be called on the main thread.
+  DCHECK(!io_thread_proxy_->BelongsToCurrentThread());
+
+  {
+    AutoLock lock(cv_lock_);
+    if (!attached_) {
+      DCHECK(tracker_ == NULL);
+      return NULL;
+    }
+    // Unregister the tracker on the IO thread, and block until the
+    // operation completes.
+    io_thread_proxy_->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &PagespeedInputPopulator::UnregisterTracker));
+    base::TimeDelta wait_time = base::TimeDelta::FromSeconds(1);
+    while (attached_) cv_.TimedWait(wait_time);
+
+    if (attached_) {
+      LOG(DFATAL) << "Failed to UnregisterTracker.";
+      return NULL;
+    }
+  }
+
   pagespeed::PagespeedInput* input = NULL;
   if (tracker_ != NULL) {
-    g_url_request_job_tracker.RemoveObserver(tracker_);
     input = tracker_->StealInput();
     delete tracker_;
     tracker_ = NULL;
   }
   return input;
+}
+
+void PagespeedInputPopulator::RegisterTracker() {
+  DCHECK(io_thread_proxy_->BelongsToCurrentThread());
+
+  {
+    AutoLock lock(cv_lock_);
+    DCHECK(!attached_);
+    g_url_request_job_tracker.AddObserver(tracker_);
+    attached_ = true;
+  }
+
+  cv_.Signal();
+}
+
+void PagespeedInputPopulator::UnregisterTracker() {
+  DCHECK(io_thread_proxy_->BelongsToCurrentThread());
+
+  {
+    AutoLock lock(cv_lock_);
+    DCHECK(attached_);
+    g_url_request_job_tracker.RemoveObserver(tracker_);
+    attached_ = false;
+  }
+
+  cv_.Signal();
 }
 
 }  // namespace pagespeed

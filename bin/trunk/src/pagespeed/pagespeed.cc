@@ -16,6 +16,8 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "base/message_loop_proxy.h"
+#include "base/ref_counted.h"
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/chromium_dom.h"
@@ -29,6 +31,7 @@
 #include "third_party/libpagespeed/src/pagespeed/rules/rule_provider.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
+#include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 
 namespace {
 
@@ -56,6 +59,36 @@ void RunEngine(pagespeed::PagespeedInput* input) {
   engine.ComputeAndFormatResults(*input, formatter.get());
 }
 
+pagespeed::PagespeedInput* LoadPage(pagespeed::TestShellRunner* runner,
+                                    const char* url,
+                                    WebKit::WebFrame** out_frame) {
+  // Get a handle to the IO thread from the
+  // SimpleResourceLoaderBridge, since TestShell uses the
+  // SimpleResourceLoaderBridge for its resource loading
+  // operations. We need a handle to the IO thread so we can interact
+  // with the URLRequestJobTracker, which can only be used from the IO
+  // thread.
+  scoped_refptr<base::MessageLoopProxy> io_thread_proxy(
+      SimpleResourceLoaderBridge::GetIoThread());
+
+  // Instantiate the PagespeedInputPopulator, which observes all HTTP
+  // traffic in order to populate a PagespeedInput structure.
+  scoped_refptr<pagespeed::PagespeedInputPopulator> populator(
+      new pagespeed::PagespeedInputPopulator(io_thread_proxy));
+  if (!populator->Attach()) {
+    return NULL;
+  }
+
+  // Make the TestShellRunner load the page, and get a handle to the
+  // WebFrame, which has a reference to the page's DOM.
+  if (!runner->Run(url, kTimeoutMillis, out_frame)) {
+    return NULL;
+  }
+
+  // Return the populated PagespeedInput structure.
+  return populator->Detach();
+}
+
 bool RunPagespeed(const char* url) {
   const GURL gurl(url);
   if (!gurl.is_valid()) {
@@ -68,13 +101,14 @@ bool RunPagespeed(const char* url) {
   // outlives the invocation of the Page Speed engine, since the
   // engine inspects the live DOM during its execution.
   pagespeed::TestShellRunner runner;
-  pagespeed::PagespeedInputPopulator populator;
+
+  // The WebFrame object holds a reference to the page DOM, which we
+  // use for the Page Speed DOM rules. Note that the WebFrame's
+  // lifetime is scoped by the TestShellRunner instance, so it's
+  // important that the TestShellRunner outlives the invocation of the
+  // Pagespeed Engine (below).
   WebKit::WebFrame* frame = NULL;
-  populator.Attach();
-  if (!runner.Run(url, kTimeoutMillis, &frame)) {
-    return false;
-  }
-  scoped_ptr<pagespeed::PagespeedInput> input(populator.Detach());
+  scoped_ptr<pagespeed::PagespeedInput> input(LoadPage(&runner, url, &frame));
   if (input == NULL || input->num_resources() == 0) {
     fprintf(stderr,
             "Unable to construct PagespeedInput for %s.\n", url);
