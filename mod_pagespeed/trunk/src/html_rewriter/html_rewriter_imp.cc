@@ -19,21 +19,31 @@
 
 #include "base/logging.h"
 #include "html_rewriter/apache_rewrite_driver_factory.h"
+#include "html_rewriter/gzip_inflater.h"
 #include "html_rewriter/html_rewriter_config.h"
 #include "html_rewriter/pagespeed_server_context.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
+#include "net/instaweb/rewriter/public/rewrite_driver.h"
 
+namespace {
+const int kBufSize = 1024;
+}  // namespace
 
 namespace html_rewriter {
 
-
 HtmlRewriterImp::HtmlRewriterImp(PageSpeedServerContext* context,
+                                 ContentEncoding encoding,
                                  const std::string& base_url,
                                  const std::string& url, std::string* output)
     : context_(context),
       url_(url),
       rewrite_driver_(context_->rewrite_driver_factory()->GetRewriteDriver()),
-      string_writer_(output) {
+      string_writer_(output),
+      inflater_(NULL) {
+  if (encoding == GZIP) {
+    inflater_ = new GzipInflater();
+    inflater_->Init();
+  }
   rewrite_driver_->SetBaseUrl(base_url);
   // TODO(lsong): Bypass the string buffer, writer data directly to the next
   // apache bucket.
@@ -43,9 +53,13 @@ HtmlRewriterImp::HtmlRewriterImp(PageSpeedServerContext* context,
 
 HtmlRewriterImp::~HtmlRewriterImp() {
   context_->rewrite_driver_factory()->ReleaseRewriteDriver(rewrite_driver_);
+  delete inflater_;
 }
 
 void HtmlRewriterImp::Finish() {
+  if (inflater_) {
+    inflater_->ShutDown();
+  }
   rewrite_driver_->html_parse()->FinishParse();
 }
 
@@ -54,7 +68,16 @@ void HtmlRewriterImp::Flush() {
 }
 
 void HtmlRewriterImp::Rewrite(const char* input, int size) {
-  rewrite_driver_->html_parse()->ParseText(input, size);
+  if (inflater_) {
+    char buf[kBufSize];
+    inflater_->SetInput(input, size);
+    while (inflater_->HasUnconsumedInput()) {
+      int num_inflated_bytes = inflater_->InflateBytes(buf, kBufSize);
+      rewrite_driver_->html_parse()->ParseText(buf, num_inflated_bytes);
+    }
+  } else {
+    rewrite_driver_->html_parse()->ParseText(input, size);
+  }
 }
 
 }  // namespace html_rewriter

@@ -25,10 +25,6 @@ namespace {
 // All these constants are defaults for the conviniece of developing. They are
 // sure not working on difference platforms or different configuration of
 // systems. Use http.conf to configure those setting.
-const char* kGeneratedFilePrefix = "/usr/local/apache2/htdocs/cache/cache_pre_";
-const char* kUrlPrefix = "http://localhost:9999/cache/cache_pre_";
-const char* kFileCachePath = "/tmp/html_rewrite_cache";
-const char* kFetcherProxy = "localhost:9999";
 const int64 kFetcherTimeOut = 30000;  // 30 seconds.
 const int64 kResourceFetcherTimeOut = 300000;  // 5 minutes.
 
@@ -37,24 +33,24 @@ const int64 kResourceFetcherTimeOut = 300000;  // 5 minutes.
 
 namespace html_rewriter {
 
-std::string GetCachePrefix(PageSpeedServerContext* context) {
+const char* GetCachePrefix(PageSpeedServerContext* context) {
   const char* generated_file_prefix = context->config()->generated_file_prefix;
-  return generated_file_prefix ? generated_file_prefix : kGeneratedFilePrefix;
+  return generated_file_prefix;
 }
 
 const char* GetUrlPrefix(PageSpeedServerContext* context) {
   const char* url_prefix = context->config()->rewrite_url_prefix;
-  return url_prefix ? url_prefix : kUrlPrefix;
+  return url_prefix;
 }
 
 const char* GetFileCachePath(PageSpeedServerContext* context) {
   const char* file_cache_path = context->config()->file_cache_path;
-  return file_cache_path ? file_cache_path : kFileCachePath;
+  return file_cache_path;
 }
 
 const char* GetFetcherProxy(PageSpeedServerContext* context) {
   const char* fetch_proxy = context->config()->fetch_proxy;
-  return fetch_proxy ? fetch_proxy : kFetcherProxy;
+  return fetch_proxy;
 }
 
 int64 GetFetcherTimeOut(PageSpeedServerContext* context) {

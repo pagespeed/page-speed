@@ -26,6 +26,7 @@
       'target_name': 'html_rewriter',
       'type': '<(library)',
       'dependencies': [
+        'gzip_inflater',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/apache/httpd/httpd.gyp:include',
         '<(DEPTH)/third_party/serf/serf.gyp:serf',

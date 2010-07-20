@@ -30,7 +30,7 @@ namespace html_rewriter {
 class PageSpeedServerContext;
 
 // Get the cache file prefix.
-std::string GetCachePrefix(PageSpeedServerContext* context);
+const char* GetCachePrefix(PageSpeedServerContext* context);
 // Get the prefix of rewritten URLs.
 const char* GetUrlPrefix(PageSpeedServerContext* context);
 // Get the path name of file cache.

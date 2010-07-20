@@ -38,6 +38,7 @@ extern "C" {
 extern module AP_MODULE_DECLARE_DATA pagespeed_module;
 
 // Pagespeed directive names.
+const char* kPagespeed = "Pagespeed";
 const char* kPagespeedRewriteUrlPrefix = "PagespeedRewriteUrlPrefix";
 const char* kPagespeedFetchProxy = "PagespeedFetchProxy";
 const char* kPagespeedGeneratedFilePrefix = "PagespeedGeneratedFilePrefix";
@@ -129,7 +130,41 @@ apr_bucket* rewrite_html(ap_filter_t *filter, RewriteOperation operation,
   return bucket;
 }
 
+html_rewriter::ContentEncoding get_content_encoding(request_rec* request) {
+  // Check if the content is gzipped. Steal from mod_deflate.
+  const char* encoding = apr_table_get(
+      request->headers_out, "Content-Encoding");
+  if (encoding) {
+    const char* err_enc = apr_table_get(request->err_headers_out,
+                                        "Content-Encoding");
+    if (err_enc) {
+      // We don't properly handle stacked encodings now.
+      return html_rewriter::OTHER;
+    }
+  } else {
+    encoding = apr_table_get(request->err_headers_out, "Content-Encoding");
+  }
+
+  if (encoding) {
+    if (strcasecmp(encoding, "gzip") == 0) {
+      return html_rewriter::GZIP;
+    } else {
+      return  html_rewriter::OTHER;
+    }
+  } else {
+    return  html_rewriter::NONE;
+  }
+}
+
 apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
+  // Check if pagespeed is enabled.
+  html_rewriter::PageSpeedConfig* server_config =
+      html_rewriter::mod_pagespeed_get_server_config(filter->r->server);
+  if (!server_config->pagespeed_enable) {
+    ap_remove_output_filter(filter);
+    return ap_pass_brigade(filter->next, bb);
+  }
+
   // Do nothing if there is nothing, and stop passing to other filters.
   if (APR_BRIGADE_EMPTY(bb)) {
     return APR_SUCCESS;
@@ -146,17 +181,27 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
 
   // Initialize pagespeed context structure.
   if (context == NULL) {
+    html_rewriter::ContentEncoding encoding = get_content_encoding(request);
+    if (encoding == html_rewriter::GZIP) {
+      // Unset the content encoding because the html_rewriter will decode the
+      // content before parsing.
+      apr_table_unset(request->headers_out, "Content-Encoding");
+      apr_table_unset(request->err_headers_out, "Content-Encoding");
+    } else if (encoding == html_rewriter::OTHER) {
+      // We don't know the encoding, so we cannot rewrite the HTML.
+      ap_remove_output_filter(filter);
+      return ap_pass_brigade(filter->next, bb);
+    }
     filter->ctx = context = new PagespeedContext;
     mod_spdy::PoolRegisterDelete(request->pool, context);
     context->bucket_brigade = apr_brigade_create(
         request->pool,
         request->connection->bucket_alloc);
-    html_rewriter::PageSpeedServerContext* server_context =
-        html_rewriter::mod_pagespeed_get_config_server_context(request->server);
     std::string base_url(ap_construct_url(request->pool,
                                           request->unparsed_uri,
                                           request));
-    context->rewriter = new HtmlRewriter(server_context,
+    context->rewriter = new HtmlRewriter(server_config->context,
+                                         encoding,
                                          base_url,
                                          request->unparsed_uri,
                                          &context->output);
@@ -164,7 +209,6 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
     apr_table_unset(request->headers_out, "Content-Length");
     apr_table_unset(request->headers_out, "Content-MD5");
   }
-
   apr_bucket* new_bucket = NULL;
   while (!APR_BRIGADE_EMPTY(bb)) {
     apr_bucket* bucket = APR_BRIGADE_FIRST(bb);
@@ -237,13 +281,39 @@ void pagespeed_child_init(apr_pool_t* pool, server_rec* server) {
   server_rec* next_server = server;
   while (next_server) {
     html_rewriter::PageSpeedConfig* config =
-        html_rewriter::get_pagespeed_config(next_server);
+        html_rewriter::mod_pagespeed_get_server_config(next_server);
     if (html_rewriter::CreatePageSpeedServerContext(pool, config)) {
       apr_pool_cleanup_register(pool, config, pagespeed_child_exit,
                                 apr_pool_cleanup_null);
     }
     next_server = next_server->next;
   }
+}
+
+int pagespeed_post_config(apr_pool_t* pool, apr_pool_t* plog, apr_pool_t* ptemp,
+                          server_rec *server) {
+  server_rec* next_server = server;
+  while (next_server) {
+    html_rewriter::PageSpeedConfig* config =
+        html_rewriter::mod_pagespeed_get_server_config(next_server);
+    if (config->pagespeed_enable) {
+      if (config->rewrite_url_prefix == NULL ||
+          config->generated_file_prefix == NULL ||
+          config->file_cache_path == NULL) {
+        LOG(ERROR) << "Page speed is enabled. "
+                   << "The following directives must not be NULL";
+        LOG(ERROR) << kPagespeedRewriteUrlPrefix << "="
+                   << config->rewrite_url_prefix;
+        LOG(ERROR) << kPagespeedFileCachePath << "="
+                   << config->file_cache_path;
+        LOG(ERROR) << kPagespeedGeneratedFilePrefix << "="
+                   << config->generated_file_prefix;
+        return HTTP_INTERNAL_SERVER_ERROR;
+      }
+    }
+    next_server = next_server->next;
+  }
+  return OK;
 }
 
 // This function is a callback and it declares what
@@ -261,17 +331,16 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
                             pagespeed_out_filter,
                             NULL,
                             AP_FTYPE_RESOURCE);
-
+  ap_hook_post_config(pagespeed_post_config, NULL, NULL, APR_HOOK_MIDDLE);
   ap_hook_child_init(pagespeed_child_init, NULL, NULL, APR_HOOK_LAST);
 }
 
-void* mod_pagespeed_create_server_config(
-    apr_pool_t* pool,
-    server_rec* server) {
+void* mod_pagespeed_create_server_config(apr_pool_t* pool, server_rec* server) {
   html_rewriter::PageSpeedConfig* config =
       static_cast<html_rewriter::PageSpeedConfig*>(
           apr_pcalloc(pool, sizeof(html_rewriter::PageSpeedConfig)));
   config->context = NULL;
+  config->pagespeed_enable = false;
   config->rewrite_url_prefix = NULL;
   config->fetch_proxy = NULL;
   config->generated_file_prefix = NULL;
@@ -286,14 +355,14 @@ void* mod_pagespeed_create_server_config(
 // Getters for mod_pagespeed configuration.
 namespace html_rewriter {
 
-PageSpeedConfig* get_pagespeed_config(server_rec* server) {
+PageSpeedConfig* mod_pagespeed_get_server_config(server_rec* server) {
   return static_cast<PageSpeedConfig*> ap_get_module_config(
       server->module_config, &pagespeed_module);
 }
 
 PageSpeedServerContext* mod_pagespeed_get_config_server_context(
     server_rec* server) {
-  PageSpeedConfig* config = get_pagespeed_config(server);
+  PageSpeedConfig* config = mod_pagespeed_get_server_config(server);
   return config->context;
 }
 
@@ -309,9 +378,17 @@ extern "C" {
 static const char* mod_pagespeed_config_one_string(cmd_parms* cmd, void* data,
                                                    const char* arg) {
   html_rewriter::PageSpeedConfig* config =
-      html_rewriter::get_pagespeed_config(cmd->server);
+      html_rewriter::mod_pagespeed_get_server_config(cmd->server);
   const char* directive = (cmd->directive->directive);
-  if (strcasecmp(directive, kPagespeedRewriteUrlPrefix) == 0) {
+  if (strcasecmp(directive, kPagespeed) == 0) {
+    if (strcasecmp(arg, "on") == 0) {
+      config->pagespeed_enable = true;
+    } else if (strcasecmp(arg, "off") == 0) {
+      config->pagespeed_enable = false;
+    } else {
+      return apr_pstrcat(cmd->pool, kPagespeed, " on|off", NULL);
+    }
+  } else if (strcasecmp(directive, kPagespeedRewriteUrlPrefix) == 0) {
     config->rewrite_url_prefix = apr_pstrdup(cmd->pool, arg);
   } else if (strcasecmp(directive, kPagespeedFetchProxy) == 0) {
     config->fetch_proxy = apr_pstrdup(cmd->pool, arg);
@@ -326,12 +403,17 @@ static const char* mod_pagespeed_config_one_string(cmd_parms* cmd, void* data,
     config->resource_timeout_ms = static_cast<int64>(
         apr_strtoi64(arg, NULL, 10));
   } else {
-    return "Unknown driective.";
+    return "Unknown directive.";
   }
   return NULL;
 }
 
 static const command_rec mod_pagespeed_filter_cmds[] = {
+  AP_INIT_TAKE1(kPagespeed,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Enable pagespeed"),
   AP_INIT_TAKE1(kPagespeedRewriteUrlPrefix,
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),

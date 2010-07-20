@@ -26,6 +26,7 @@ namespace html_rewriter {
 class PageSpeedServerContext;
 struct PageSpeedConfig {
   PageSpeedServerContext* context;
+  bool pagespeed_enable;
   const char* rewrite_url_prefix;
   const char* fetch_proxy;
   const char* generated_file_prefix;
