@@ -15,7 +15,15 @@
 #ifndef PAGESPEED_PAGESPEED_INPUT_POPULATOR_H_
 #define PAGESPEED_PAGESPEED_INPUT_POPULATOR_H_
 
+#include "base/condition_variable.h"
+#include "base/lock.h"
+#include "base/ref_counted.h"
+
 class URLRequestJob;
+
+namespace base {
+class MessageLoopProxy;
+}  // namespace base
 
 namespace pagespeed {
 
@@ -25,19 +33,28 @@ class PagespeedInput;
 // PagespeedInputPopulator attaches itself to the Chromium network
 // stack and records all of Chromium's in-flight network requests in a
 // PagespeedInput instance.
-class PagespeedInputPopulator {
+class PagespeedInputPopulator
+    : public base::RefCountedThreadSafe<PagespeedInputPopulator> {
  public:
-  PagespeedInputPopulator();
+  explicit PagespeedInputPopulator(base::MessageLoopProxy* io_thread_proxy);
   ~PagespeedInputPopulator();
 
   // Attaches to the network stack and begins recording.
-  void Attach();
+  bool Attach();
 
   // Detaches from the network stack and returns the set of recorded resources.
   pagespeed::PagespeedInput* Detach();
 
  private:
+  void RegisterTracker();
+  void UnregisterTracker();
+
   JobTracker* tracker_;
+
+  scoped_refptr<base::MessageLoopProxy> io_thread_proxy_;
+  Lock cv_lock_;
+  ConditionVariable cv_;
+  bool attached_;
 };
 
 }  // namespace pagespeed
