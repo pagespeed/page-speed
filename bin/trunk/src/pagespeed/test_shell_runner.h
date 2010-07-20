@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_PAGESPEED_TEST_SHELL_RUNNER_H_
-#define PAGESPEED_PAGESPEED_TEST_SHELL_RUNNER_H_
+#ifndef PAGESPEED_TEST_SHELL_RUNNER_H_
+#define PAGESPEED_TEST_SHELL_RUNNER_H_
 
 #include <string>
 
@@ -30,7 +30,7 @@ namespace pagespeed {
 // directly include things like the DumpRenderTree config.h, which does
 // various nasty things like hiding base/logging.h.
 class TestShellRunner {
-public:
+ public:
   // SetUp and TearDown the TestShellRunner environment. Should be
   // called at program startup and shutdown (e.g. in main()).
   static void SetUp();
@@ -52,4 +52,4 @@ public:
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_PAGESPEED_TEST_SHELL_RUNNER_H_
+#endif  // PAGESPEED_TEST_SHELL_RUNNER_H_

@@ -27,7 +27,7 @@ namespace {
 
 class ChromiumDocument : public DomDocument {
  public:
-  ChromiumDocument(const WebKit::WebDocument& document);
+  explicit ChromiumDocument(const WebKit::WebDocument& document);
 
   virtual std::string GetDocumentUrl() const;
   virtual std::string GetBaseUrl() const;
@@ -44,7 +44,7 @@ class ChromiumDocument : public DomDocument {
 
 class ChromiumElement : public DomElement {
  public:
-  ChromiumElement(const WebKit::WebElement& element);
+  explicit ChromiumElement(const WebKit::WebElement& element);
   virtual DomDocument* GetContentDocument() const;
   virtual std::string GetTagName() const;
   virtual bool GetAttributeByName(const std::string& name,
@@ -65,7 +65,7 @@ class ChromiumElement : public DomElement {
 // root WebNode.
 class PreOrderChromiumNodeTraverser {
  public:
-  PreOrderChromiumNodeTraverser(WebKit::WebNode root);
+  explicit PreOrderChromiumNodeTraverser(WebKit::WebNode root);
 
   bool NextNode();
   WebKit::WebNode CurrentNode() { return node_; }
