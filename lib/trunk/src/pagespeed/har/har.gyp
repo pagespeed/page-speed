@@ -30,6 +30,7 @@
         'http_archive.cc',
       ],
       'include_dirs': [
+        '<(DEPTH)',
         '<(pagespeed_root)',
       ],
     },
