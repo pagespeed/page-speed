@@ -18,7 +18,8 @@
 
 #include "pagespeed/image_compression/jpeg_reader.h"
 
-#include <setjmp.h>  // for setjmp/longjmp
+#include <setjmp.h>  // for longjmp
+#include <stdio.h>  // provides FILE for jpeglib (needed for certain builds)
 #include <stdlib.h>
 #include <string.h>  // for memset
 

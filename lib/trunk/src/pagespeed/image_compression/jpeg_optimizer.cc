@@ -19,6 +19,7 @@
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 
 #include <setjmp.h>  // for setjmp/longjmp
+#include <stdio.h>  // provides FILE for jpeglib (needed for certain builds)
 #include <string.h>  // for memset
 
 #include "base/basictypes.h"
