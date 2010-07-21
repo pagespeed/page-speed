@@ -73,7 +73,8 @@ bool SerfUrlFetcher::StreamingFetchUrl(const std::string& url,
     async_fetcher_->Poll(remaining_us, message_handler);
   }
   if (!callback.done()) {
-    message_handler->Error(url.c_str(), 0, "Timeout waiting for response");
+    message_handler->Error(url.c_str(), 0, "Timeout waiting response for %d ms",
+                           static_cast<int>(max_ms));
   }
   return callback.success();
 }
