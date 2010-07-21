@@ -33,6 +33,18 @@ struct PageSpeedConfig {
   const char* file_cache_path;
   int64 fetcher_timeout_ms;
   int64 resource_timeout_ms;
+  int num_shards;
+  bool use_http_cache;
+  bool use_threadsafe_cache;
+  bool combine_css;
+  bool outline_css;
+  bool outline_javascript;
+  bool rewrite_images;
+  bool extend_cache;
+  bool add_head;
+  bool add_base_tag;
+  bool remove_quotes;
+  bool force_caching;
 };
 
 class PageSpeedServerContext {

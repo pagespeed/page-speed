@@ -38,10 +38,20 @@ bool CreatePageSpeedServerContext(apr_pool_t* pool, PageSpeedConfig* config) {
   PageSpeedServerContext* context = new PageSpeedServerContext(pool, config);
   config->context = context;
   context->set_rewrite_driver_factory(new ApacheRewriteDriverFactory(context));
-  context->rewrite_driver_factory()->set_combine_css(true);
-  context->rewrite_driver_factory()->set_use_http_cache(true);
-  // TODO(lsong): Make the rewriter_driver to use configurations from
-  // httpd.conf.
+  context->rewrite_driver_factory()->set_num_shards(config->num_shards);
+  context->rewrite_driver_factory()->set_use_http_cache(config->use_http_cache);
+  context->rewrite_driver_factory()->set_use_threadsafe_cache(
+      config->use_threadsafe_cache);
+  context->rewrite_driver_factory()->set_combine_css(config->combine_css);
+  context->rewrite_driver_factory()->set_outline_css(config->outline_css);
+  context->rewrite_driver_factory()->set_outline_javascript(
+      config->outline_javascript);
+  context->rewrite_driver_factory()->set_rewrite_images(config->rewrite_images);
+  context->rewrite_driver_factory()->set_extend_cache(config->extend_cache);
+  context->rewrite_driver_factory()->set_add_head(config->add_head);
+  context->rewrite_driver_factory()->set_add_base_tag(config->add_base_tag);
+  context->rewrite_driver_factory()->set_remove_quotes(config->remove_quotes);
+  context->rewrite_driver_factory()->set_force_caching(config->force_caching);
   return true;
 }
 

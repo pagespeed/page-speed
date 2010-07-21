@@ -55,12 +55,12 @@ const char* GetFetcherProxy(PageSpeedServerContext* context) {
 
 int64 GetFetcherTimeOut(PageSpeedServerContext* context) {
   int64 time_out = context->config()->fetcher_timeout_ms;
-  return time_out == -1 ? kFetcherTimeOut : time_out;
+  return time_out <= 0 ? kFetcherTimeOut : time_out;
 }
 
 int64 GetResourceFetcherTimeOutMs(PageSpeedServerContext* context) {
   int64 time_out = context->config()->resource_timeout_ms;
-  return time_out == -1 ? kResourceFetcherTimeOut : time_out;
+  return time_out <= 0 ? kResourceFetcherTimeOut : time_out;
 }
 
 }  // namespace html_rewriter
