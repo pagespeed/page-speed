@@ -106,17 +106,6 @@ bool check_pagespeed_applicable(ap_filter_t* filter,
     return false;
   }
 
-  // Check if mod_pagespeed has already rewritten the HTML.
-  // If the server is setup as both the original and the proxy server,
-  // mod_pagespeed filter may be applied twice. To avoid this, skip the content
-  // if it is already optimized by mod_pagespeed.
-  if (apr_table_get(request->headers_out, "x-pagespeed") != NULL) {
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
-                  "Already has x-pagespeed");
-    return false;
-  }
-
-
   return true;
 }
 
@@ -207,6 +196,17 @@ apr_status_t pagespeed_out_filter(ap_filter_t *filter, apr_bucket_brigade *bb) {
 
   // Initialize pagespeed context structure.
   if (context == NULL) {
+    // Check if mod_pagespeed has already rewritten the HTML.  If the server is
+    // setup as both the original and the proxy server, mod_pagespeed filter may
+    // be applied twice. To avoid this, skip the content if it is already
+    // optimized by mod_pagespeed.
+    if (apr_table_get(request->headers_out, "x-pagespeed") != NULL) {
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
+                    "Already has x-pagespeed");
+      ap_remove_output_filter(filter);
+      return ap_pass_brigade(filter->next, bb);
+    }
+
     html_rewriter::ContentEncoding encoding = get_content_encoding(request);
     if (encoding == html_rewriter::GZIP) {
       // Unset the content encoding because the html_rewriter will decode the
@@ -310,8 +310,9 @@ void pagespeed_child_init(apr_pool_t* pool, server_rec* server) {
     html_rewriter::PageSpeedConfig* config =
         html_rewriter::mod_pagespeed_get_server_config(next_server);
     if (html_rewriter::CreatePageSpeedServerContext(pool, config)) {
-      apr_pool_cleanup_register(pool, config, pagespeed_child_exit,
-                                apr_pool_cleanup_null);
+      // Free memory used in config before the pool is destroyed, because
+      // some the components in config use sub-pool of the pool.
+      apr_pool_pre_cleanup_register(pool, config, pagespeed_child_exit);
     }
     next_server = next_server->next;
   }
@@ -567,12 +568,12 @@ static const command_rec mod_pagespeed_filter_cmds[] = {
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
                 NULL, RSRC_CONF,
-                "Set internal fetcher timeout in milisecons"),
+                "Set internal fetcher timeout in milliseconds"),
   AP_INIT_TAKE1(kPagespeedResourceTimeoutMs,
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
                 NULL, RSRC_CONF,
-                "Set resource fetcher timeout in milisecons"),
+                "Set resource fetcher timeout in milliseconds"),
   AP_INIT_TAKE1(kPagespeedRewriterNumShards,
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
@@ -587,12 +588,12 @@ static const command_rec mod_pagespeed_filter_cmds[] = {
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
                 NULL, RSRC_CONF,
-                "Set if to use threadsafe cache"),
+                "Set if to use thread-safe cache"),
   AP_INIT_TAKE1(kPagespeedRewriterCombineCss,
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
                 NULL, RSRC_CONF,
-                "Set if to combint css"),
+                "Set if to combine css"),
   AP_INIT_TAKE1(kPagespeedRewriterOutlineCss,
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
@@ -602,7 +603,7 @@ static const command_rec mod_pagespeed_filter_cmds[] = {
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
                 NULL, RSRC_CONF,
-                "Set if to outliene javascript"),
+                "Set if to outline javascript"),
   AP_INIT_TAKE1(kPagespeedRewriterRewrieImages,
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
@@ -612,7 +613,7 @@ static const command_rec mod_pagespeed_filter_cmds[] = {
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),
                 NULL, RSRC_CONF,
-                "Set if to entend cache"),
+                "Set if to extend cache"),
   AP_INIT_TAKE1(kPagespeedRewriterAddHead,
                 reinterpret_cast<const char*(*)()>(
                     mod_pagespeed_config_one_string),

@@ -56,6 +56,10 @@ class ApacheRewriteDriverFactory : public RewriteDriverFactory {
   virtual AbstractMutex* rewrite_drivers_mutex() {
     return rewrite_drivers_mutex_.get(); }
 
+  // Release all the resources. It also calls the base class ShutDown to release
+  // the base class resources.
+  void ShutDown();
+
  private:
   html_rewriter::PageSpeedServerContext* context_;
   apr_pool_t* pool_;
