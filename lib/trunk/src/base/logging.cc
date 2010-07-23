@@ -19,7 +19,9 @@ typedef HANDLE MutexHandle;
 #include <mach/mach_time.h>
 #include <mach-o/dyld.h>
 #elif defined(OS_POSIX)
+#ifndef __native_client__
 #include <sys/syscall.h>
+#endif
 #include <time.h>
 #endif
 
@@ -132,7 +134,9 @@ int32 CurrentProcessId() {
 }
 
 int32 CurrentThreadId() {
-#if defined(OS_WIN)
+#if defined(__native_client__)
+  return 0;  // TODO(mdsteele): Try to provide a meaningful value here
+#elif defined(OS_WIN)
   return GetCurrentThreadId();
 #elif defined(OS_MACOSX)
   return mach_thread_self();
@@ -145,7 +149,9 @@ int32 CurrentThreadId() {
 }
 
 uint64 TickCount() {
-#if defined(OS_WIN)
+#if defined(__native_client__)
+  return 0;  // TODO(mdsteele): Try to provide a meaningful value here
+#elif defined(OS_WIN)
   return GetTickCount();
 #elif defined(OS_MACOSX)
   return mach_absolute_time();
@@ -170,7 +176,9 @@ void CloseFile(FileHandle log) {
 }
 
 void DeleteFilePath(const PathString& log_name) {
-#if defined(OS_WIN)
+#if defined(__native_client__)
+  return;  // Native Client can't touch files.
+#elif defined(OS_WIN)
   DeleteFile(log_name.c_str());
 #else
   unlink(log_name.c_str());
