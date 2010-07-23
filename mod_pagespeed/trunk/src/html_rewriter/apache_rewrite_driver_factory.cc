@@ -42,9 +42,9 @@ ApacheRewriteDriverFactory::ApacheRewriteDriverFactory(
 }
 
 ApacheRewriteDriverFactory::~ApacheRewriteDriverFactory() {
-  // TODO(lsong): Destroying the pool causes the Apache un-clean exit with error
-  // of "double free or corruption".  It may indicate there are real memory
-  // corruptions. Fix it.
+  // We free all the resources before destroy the pool, because some of the
+  // resource uses the sub-pool and will destroy them on destruction.
+  ShutDown();
   apr_pool_destroy(pool_);
 }
 
@@ -110,6 +110,12 @@ void ApacheRewriteDriverFactory::ReleaseRewriteDriver(
   } else {
     available_rewrite_drivers_.push_back(rewrite_driver);
   }
+}
+
+void ApacheRewriteDriverFactory::ShutDown() {
+  cache_mutex_.reset(NULL);
+  rewrite_drivers_mutex_.reset(NULL);
+  RewriteDriverFactory::ShutDown();
 }
 
 }  // namespace net_instaweb
