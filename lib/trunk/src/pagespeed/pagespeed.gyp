@@ -24,6 +24,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/net/net.gyp:net_base',
+        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
         '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',

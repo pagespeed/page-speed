@@ -20,12 +20,14 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_piece.h"
+#include "net/instaweb/htmlparse/public/html_parse.h"
+#include "net/instaweb/htmlparse/public/empty_html_filter.h"
+#include "net/instaweb/util/public/google_message_handler.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
-#include "pagespeed/html/html_tag.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -173,6 +175,87 @@ void StyleScriptVisitor::PopulateResult(Result* result) {
   }
 }
 
+class VisitStyleScriptFilter : public net_instaweb::EmptyHtmlFilter {
+ public:
+  VisitStyleScriptFilter(net_instaweb::HtmlParse* html_parse,
+                         const pagespeed::DomDocument* document);
+
+  virtual void StartDocument();
+  virtual void StartElement(net_instaweb::HtmlElement* element);
+
+  void set_visitor(StyleScriptVisitor* visitor) { visitor_ = visitor; }
+
+ private:
+  StyleScriptVisitor* visitor_;
+  const pagespeed::DomDocument* document_;
+  bool reached_body_;
+  net_instaweb::Atom body_atom_;
+  net_instaweb::Atom href_atom_;
+  net_instaweb::Atom link_atom_;
+  net_instaweb::Atom rel_atom_;
+  net_instaweb::Atom script_atom_;
+  net_instaweb::Atom src_atom_;
+
+  DISALLOW_COPY_AND_ASSIGN(VisitStyleScriptFilter);
+};
+
+VisitStyleScriptFilter::
+VisitStyleScriptFilter(net_instaweb::HtmlParse* html_parse,
+                       const pagespeed::DomDocument* document)
+    : visitor_(NULL),
+      document_(document),
+      reached_body_(false) {
+  body_atom_ = html_parse->Intern("body");
+  href_atom_ = html_parse->Intern("href");
+  link_atom_ = html_parse->Intern("link");
+  rel_atom_ = html_parse->Intern("rel");
+  script_atom_ = html_parse->Intern("script");
+  src_atom_ = html_parse->Intern("src");
+}
+
+void VisitStyleScriptFilter::StartDocument() {
+  reached_body_ = false;
+}
+
+void VisitStyleScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
+  if (reached_body_) {
+    return;
+  }
+
+  CHECK(visitor_ != NULL);
+
+  net_instaweb::Atom tag = element->tag();
+  if (tag == body_atom_) {
+    reached_body_ = true;
+  } else if (tag == script_atom_) {
+    const char* src = element->AttributeValue(src_atom_);
+    if (src != NULL) {
+      // External script.
+      std::string url(src);
+      // Resolve the URL if we have a document instance.
+      if (document_ != NULL) {
+        url = document_->ResolveUri(url);
+      }
+      visitor_->VisitExternalScript(url);
+    } else {
+      // Inline script.
+      visitor_->VisitInlineScript();
+    }
+  } else if (tag == link_atom_) {
+    const char* href = element->AttributeValue(href_atom_);
+    const char* rel = element->AttributeValue(rel_atom_);
+    if (href != NULL && rel != NULL && !strcmp(rel, "stylesheet")) {
+      // External CSS.
+      std::string url(href);
+      // Resolve the URL if we have a document instance.
+      if (document_ != NULL) {
+        url = document_->ResolveUri(url);
+      }
+      visitor_->VisitExternalStyle(url);
+    }
+  }
+}
+
 }  // namespace
 
 namespace rules {
@@ -197,62 +280,24 @@ bool OptimizeTheOrderOfStylesAndScripts::AppendResults(
 
   const pagespeed::DomDocument* document = input.dom_document();
 
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  VisitStyleScriptFilter filter(&html_parse, document);
+  html_parse.AddFilter(&filter);
+
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     if (resource.GetResourceType() != HTML) {
       continue;
     }
 
-    const std::string& response_body = resource.GetResponseBody();
-    const char* begin = response_body.data();
-    const char* end = begin + response_body.size();
-    pagespeed::html::HtmlTag tag;
     StyleScriptVisitor visitor;
+    filter.set_visitor(&visitor);
 
-    while (NULL != (begin = tag.ReadNextTag(begin, end))) {
-      if (tag.tagname() == "body") {
-        break;  // We've reached the end of the document head.
-      } else if (tag.tagname() == "script") {
-        if (tag.HasAttrValue("src")) {
-          // External script.
-          std::string url = tag.GetAttrValue("src");
-          if (document != NULL) {
-            // Resolve the URL if we have a document instance.
-            url = document->ResolveUri(url);
-          }
-          visitor.VisitExternalScript(url);
-        } else {
-          // Inline script.
-          visitor.VisitInlineScript();
-        }
-
-        if (!tag.IsEmptyElement()) {
-          begin = tag.ReadClosingForeignTag(begin, end);
-          if (NULL == begin) {
-            break;
-          }
-        }
-      } else if (tag.tagname() == "link") {
-        if (tag.HasAttrValue("href") && tag.HasAttrValue("rel") &&
-            tag.GetAttrValue("rel") == "stylesheet") {
-          // External CSS.
-          std::string url = tag.GetAttrValue("href");
-          if (document != NULL) {
-            // Resolve the URL if we have a document instance.
-            url = document->ResolveUri(url);
-          }
-          visitor.VisitExternalStyle(url);
-        }
-      } else if (tag.tagname() == "style") {
-        // Inline CSS.
-        if (!tag.IsEmptyElement()) {
-          begin = tag.ReadClosingForeignTag(begin, end);
-          if (NULL == begin) {
-            break;
-          }
-        }
-      }
-    }
+    const std::string& response_body = resource.GetResponseBody();
+    html_parse.StartParse(resource.GetRequestUrl().c_str());
+    html_parse.ParseText(response_body.data(), response_body.size());
+    html_parse.FinishParse();
 
     if (visitor.HasComplaints()) {
       Result* result = provider->NewResult();
