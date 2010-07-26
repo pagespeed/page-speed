@@ -40,18 +40,18 @@ class ApacheRewriteDriverFactory : public RewriteDriverFactory {
   RewriteDriver* GetRewriteDriver();
   void ReleaseRewriteDriver(RewriteDriver* rewrite_driver);
 
+  virtual Hasher* NewHasher();
+  virtual AbstractMutex* NewMutex();
  protected:
   virtual UrlFetcher* DefaultUrlFetcher();
   virtual UrlAsyncFetcher* DefaultAsyncUrlFetcher();
 
   // Provide defaults.
-  virtual MessageHandler* NewHtmlParseMessageHandler();
-  virtual FileSystem* NewFileSystem();
-  virtual Hasher* NewHasher();
-  virtual HtmlParse* NewHtmlParse();
-  virtual Timer* NewTimer();
-  virtual CacheInterface* NewCacheInterface();
-  virtual AbstractMutex* NewMutex();
+  virtual MessageHandler* DefaultHtmlParseMessageHandler();
+  virtual FileSystem* DefaultFileSystem();
+  virtual HtmlParse* DefaultHtmlParse();
+  virtual Timer* DefaultTimer();
+  virtual CacheInterface* DefaultCacheInterface();
   virtual AbstractMutex* cache_mutex() { return cache_mutex_.get(); }
   virtual AbstractMutex* rewrite_drivers_mutex() {
     return rewrite_drivers_mutex_.get(); }
