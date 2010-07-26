@@ -48,7 +48,7 @@ ApacheRewriteDriverFactory::~ApacheRewriteDriverFactory() {
   apr_pool_destroy(pool_);
 }
 
-FileSystem* ApacheRewriteDriverFactory::NewFileSystem() {
+FileSystem* ApacheRewriteDriverFactory::DefaultFileSystem() {
   return new html_rewriter::AprFileSystem(pool_);
 }
 
@@ -56,15 +56,15 @@ Hasher* ApacheRewriteDriverFactory::NewHasher() {
   return new html_rewriter::Md5Hasher();
 }
 
-Timer* ApacheRewriteDriverFactory::NewTimer() {
+Timer* ApacheRewriteDriverFactory::DefaultTimer() {
   return new html_rewriter::AprTimer();
 }
 
-MessageHandler* ApacheRewriteDriverFactory::NewHtmlParseMessageHandler() {
+MessageHandler* ApacheRewriteDriverFactory::DefaultHtmlParseMessageHandler() {
   return new html_rewriter::HtmlParserMessageHandler();
 }
 
-CacheInterface* ApacheRewriteDriverFactory::NewCacheInterface() {
+CacheInterface* ApacheRewriteDriverFactory::DefaultCacheInterface() {
   return new FileCache(html_rewriter::GetFileCachePath(context_),
                        file_system(),
                        html_parse_message_handler());
@@ -81,7 +81,7 @@ UrlAsyncFetcher* ApacheRewriteDriverFactory::DefaultAsyncUrlFetcher() {
 }
 
 
-HtmlParse* ApacheRewriteDriverFactory::NewHtmlParse() {
+HtmlParse* ApacheRewriteDriverFactory::DefaultHtmlParse() {
   return new HtmlParse(html_parse_message_handler());
 }
 
