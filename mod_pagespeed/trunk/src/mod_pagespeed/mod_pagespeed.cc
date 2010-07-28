@@ -80,7 +80,8 @@ struct PagespeedContext {
 
 // Determine the resource type from a Content-Type string
 bool is_html_content(const char* content_type) {
-  if (StartsWithASCII(content_type, "text/html", false)) {
+  if (content_type != NULL &&
+      StartsWithASCII(content_type, "text/html", false)) {
     return true;
   }
   return false;
@@ -376,7 +377,7 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
   mod_spdy::InstallLogMessageHandler();
 
   // Use instaweb to handle generated resources.
-  ap_hook_handler(mod_pagespeed::instaweb_handler, NULL, NULL, APR_HOOK_MIDDLE);
+  ap_hook_handler(mod_pagespeed::instaweb_handler, NULL, NULL, -1);
   ap_register_output_filter(pagespeed_filter_name,
                             pagespeed_out_filter,
                             NULL,

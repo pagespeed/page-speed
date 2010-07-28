@@ -210,14 +210,24 @@ TEST_F(AprFileSystemTest, TestExists) {
   CheckDoesNotExist(filename);
 }
 
+// Create a file along with its directory which does not exist.
+TEST_F(AprFileSystemTest, TestCreateFileInDir) {
+  std::string dir_name = test_tmpdir_ + "/make_dir";
+  MyDeleteFileRecursively(dir_name, NULL, NULL);
+  std::string filename = dir_name + "/file-in-dir.txt";
+
+  FileSystem::OutputFile* file =
+      file_system_->OpenOutputFile(filename.c_str(), &handler_);
+  ASSERT_TRUE(file);
+  file_system_->Close(file, &handler_);
+}
+
 // Make a directory and check that files may be placed in it.
 TEST_F(AprFileSystemTest, TestMakeDir) {
   std::string dir_name = test_tmpdir_ + "/make_dir";
   MyDeleteFileRecursively(dir_name, NULL, NULL);
   std::string filename = dir_name + "/file-in-dir.txt";
 
-  // Make sure we can't open a file in this directory before it exists ...
-  ASSERT_FALSE(file_system_->OpenOutputFile(filename.c_str(), &handler_));
   ASSERT_TRUE(file_system_->MakeDir(dir_name.c_str(), &handler_));
   // ... but we can open a file after we've created the directory.
   FileSystem::OutputFile* file =
