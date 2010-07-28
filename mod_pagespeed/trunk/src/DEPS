@@ -31,7 +31,7 @@ vars = {
   "apache_httpd_src": "http://svn.apache.org/repos/asf/httpd/httpd/tags/2.2.15",
   "apache_httpd_revision": "@head",
   "instaweb_trunk": "http://instaweb.googlecode.com/svn/trunk",
-  "instaweb_revision": "@27",
+  "instaweb_revision": "@30",
   "instaweb_deps_root": "src/third_party/instaweb_deps",
 }
 
@@ -55,9 +55,9 @@ deps = {
     Var("mod_spdy_trunk") + "/src/third_party/apache" +
     Var("mod_spdy_revision"),
 
-  "src/third_party/chromium/src/net/tools/dump_cache":
-     Var("chromium_trunk") + "/src/net/tools/dump_cache" +
-     Var("chromium_revision"),
+  "src/third_party/chromium/src/net/tools":
+     Var("instaweb_trunk") + "/src/third_party/chromium/src/net/tools" +
+     Var("instaweb_revision"),
 
   "src/third_party/instaweb/src/net/instaweb":
     Var("instaweb_trunk") + "/src/net/instaweb" + Var("instaweb_revision"),
@@ -95,6 +95,8 @@ deps = {
   "src/base": From(Var("instaweb_deps_root")),
   "src/build/temp_gyp": From(Var("instaweb_deps_root")),
   "src/googleurl_noicu": From(Var("instaweb_deps_root")),
+  "src/third_party/chromium/src/net/tools/dump_cache":
+    From(Var("instaweb_deps_root")),
   "src/third_party/libpagespeed/src/build": From(Var("instaweb_deps_root")),
   "src/third_party/libpagespeed/src/build/internal":
     From(Var("instaweb_deps_root")),
