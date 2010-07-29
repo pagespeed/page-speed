@@ -67,6 +67,7 @@ MessageHandler* ApacheRewriteDriverFactory::DefaultHtmlParseMessageHandler() {
 CacheInterface* ApacheRewriteDriverFactory::DefaultCacheInterface() {
   return new FileCache(html_rewriter::GetFileCachePath(context_),
                        file_system(),
+                       filename_encoder(),
                        html_parse_message_handler());
 }
 
