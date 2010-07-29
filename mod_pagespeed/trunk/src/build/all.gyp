@@ -21,7 +21,7 @@
       'dependencies': [
         '../mod_pagespeed/mod_pagespeed.gyp:*',
         '../html_rewriter/html_rewriter.gyp:*',
-        '../third_party/chromium/src/net/tools/dump_cache.gyp:*',
+        '../third_party/libpagespeed/src/third_party/jsmin/jsmin.gyp:*',
       ],
     }
   ],
