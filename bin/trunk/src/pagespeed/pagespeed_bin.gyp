@@ -53,11 +53,42 @@
       ],
     },
     {
+      # TODO: push this upstream to WebKit.gyp
+      'target_name': 'test_shell_platform_delegate',
+      'type': '<(library)',
+      'variables': {
+        'test_shell_root': '<(DEPTH)/webkit/tools/test_shell',
+      },
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/skia/skia.gyp:skia',
+      ],
+      'sources': [
+        '<(test_shell_root)/test_shell_platform_delegate.h',
+        '<(test_shell_root)/test_shell_platform_delegate_gtk.cc',
+        '<(test_shell_root)/test_shell_platform_delegate_mac.mm',
+        '<(test_shell_root)/test_shell_platform_delegate_win.cc',
+      ],
+      'conditions': [
+        ['OS!="win"', {
+          'sources/': [ ['exclude', '_win.cc$'] ],
+        }],
+        ['OS!="mac"', {
+          'sources/': [ ['exclude', '\.mm$' ] ],
+        }],
+        ['OS!="linux" and OS!="freebsd" and OS!="openbsd"', {
+          'sources/': [ ['exclude', '_gtk.cc$'] ],
+        }],
+      ],
+    },
+    {
       'target_name': 'pagespeed_chromium',
       'type': 'executable',
+      'mac_bundle': 1,
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         'pagespeed_chromium_lib',
+        'test_shell_platform_delegate',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:pagespeed',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
@@ -77,7 +108,7 @@
         '<(DEPTH)/third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
         '<(DEPTH)/third_party/WebKit/JavaScriptCore/JavaScriptCore.gyp/JavaScriptCore.gyp:wtf_config',
         '<(chromium_src_dir)/third_party/icu/icu.gyp:icuuc',
-        '<(chromium_src_dir)/webkit/support/webkit_support.gyp:npapi_layout_test_plugin',
+        '<(chromium_src_dir)/webkit/support/webkit_support.gyp:copy_npapi_layout_test_plugin',
         '<(chromium_src_dir)/webkit/support/webkit_support.gyp:webkit_support',
         '<(chromium_src_dir)/gpu/gpu.gyp:gles2_c_lib'
       ],
@@ -176,6 +207,7 @@
             '<(DEPTH)/third_party/WebKit/WebKitTools/DumpRenderTree/fonts/WebKitWeightWatcher900.ttf',
             '<(SHARED_INTERMEDIATE_DIR)/webkit/textAreaResizeCorner.png',
           ],
+          # Workaround for http://code.google.com/p/gyp/issues/detail?id=160
           'copies': [{
             'destination': '<(PRODUCT_DIR)/DumpRenderTree.app/Contents/PlugIns/',
             'files': ['<(PRODUCT_DIR)/TestNetscapePlugIn.plugin/'],
@@ -194,9 +226,6 @@
               '<(DEPTH)/third_party/WebKit/WebKitTools/DumpRenderTree/chromium/fonts.conf',
               '<(INTERMEDIATE_DIR)/repack/DumpRenderTree.pak',
             ]
-          }, {
-            'destination': '<(PRODUCT_DIR)/plugins',
-            'files': ['<(PRODUCT_DIR)/libnpapi_layout_test_plugin.so'],
           }],
         },{ # OS!="linux" and OS!="freebsd" and OS!="openbsd" and OS!="solaris"
           'sources/': [

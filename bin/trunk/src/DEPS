@@ -1,7 +1,7 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@52179",
+  "chromium_revision": "@54117",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
@@ -49,6 +49,8 @@ deps = {
     Var("chromium_trunk") + "/src/media" + Var("chromium_revision"),
   "src/net":
     Var("chromium_trunk") + "/src/net" + Var("chromium_revision"),
+  "src/printing":
+    Var("chromium_trunk") + "/src/printing" + Var("chromium_revision"),
   "src/sdch":
     Var("chromium_trunk") + "/src/sdch" + Var("chromium_revision"),
   "src/skia":

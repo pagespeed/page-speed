@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/message_loop_proxy.h"
 #include "base/ref_counted.h"
@@ -31,6 +32,7 @@
 #include "third_party/libpagespeed/src/pagespeed/rules/rule_provider.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
+#include "webkit/tools/test_shell/test_shell_platform_delegate.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 
 namespace {
@@ -139,11 +141,19 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  std::string url(argv[1]);
+
+  TestShellPlatformDelegate::PreflightArgs(&argc, &argv);
+  CommandLine::Init(argc, argv);
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
+
+  TestShellPlatformDelegate platform(parsed_command_line);
+
   // Only display WARNING and above on the console.
   logging::SetMinLogLevel(logging::LOG_WARNING);
 
   pagespeed::TestShellRunner::SetUp();
-  bool result = RunPagespeed(argv[1]);
+  bool result = RunPagespeed(url.c_str());
   pagespeed::TestShellRunner::TearDown();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
