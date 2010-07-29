@@ -39,6 +39,13 @@ const char* kAfterMinification =
     "DIV.bg1{background-image:url('www.example.com/bg1.png');}\n"
     "DIV.bg2{background-image:url(\"www.example.com/bg2.png\");}\n";
 
+// At one point, the URL
+// http://aranet.vo.llnwd.net/o28/themes/css/araStyleReset.css
+// returned the following response (invalid CSS) which caused us to
+// trigger an assert on Windows. This test verifies that when we
+// encounter data like this, we do not assert and we do not attempt to
+// modify it.
+const unsigned char kBadData[] = { 0xef, 0xbb, 0xbf, 0xba };
 
 class CssminTest : public testing::Test {
  protected:
@@ -69,6 +76,13 @@ TEST_F(CssminTest, RunawayComment) {
 TEST_F(CssminTest, RunawayString) {
   CheckMinification("DIV { background-image: url('ain\\'t   no  /*end*/ quote",
                     "DIV{background-image:url('ain\\'t   no  /*end*/ quote");
+}
+
+TEST_F(CssminTest, InvalidCss) {
+  std::string bad_data(reinterpret_cast<const char*>(kBadData),
+                       sizeof(kBadData));
+  ASSERT_TRUE(4 == bad_data.size());
+  CheckMinification(bad_data, bad_data);
 }
 
 }  // namespace
