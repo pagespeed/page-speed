@@ -14,6 +14,9 @@
 
 #include "pagespeed/formatters/text_formatter.h"
 
+#include <string>
+#include <vector>
+
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "pagespeed/formatters/formatter_util.h"
@@ -22,12 +25,12 @@ namespace pagespeed {
 
 namespace formatters {
 
-TextFormatter::TextFormatter(std::ostream* output) :
-    output_(output), level_(0) {
+TextFormatter::TextFormatter(std::ostream* output)
+    : output_(output), level_(0) {
 }
 
-TextFormatter::TextFormatter(std::ostream* output, int level) :
-    output_(output), level_(level) {
+TextFormatter::TextFormatter(std::ostream* output, int level)
+    : output_(output), level_(level) {
 }
 
 void TextFormatter::Indent(int level) {
@@ -83,7 +86,7 @@ std::string TextFormatter::Format(
         subst.push_back(arg.string_value());
         break;
       case Argument::INTEGER:
-        subst.push_back(IntToString(arg.int_value()));
+        subst.push_back(Int64ToString(arg.int_value()));
         break;
       case Argument::BYTES:
         subst.push_back(FormatBytes(arg.int_value()));

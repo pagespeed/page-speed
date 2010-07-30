@@ -18,6 +18,7 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 
 namespace {
 
@@ -99,13 +100,13 @@ bool MinifyCSS(const std::string& input, Consumer* consumer) {
           break;
         }
       }
-    } else if (isspace(*p)) {
+    } else if (IsAsciiWhitespace(*p)) {
       // Whitespace: Scan to end of whitespace; put a single space into the
       // consumer if necessary to separate tokens, otherwise put nothing.
       const char* space_start = p;
       do {
         ++p;
-      } while (p < end && isspace(*p));
+      } while (p < end && IsAsciiWhitespace(*p));
       if (space_start > begin && p < end &&
           IsExtendableCss(*(space_start - 1)) &&
           IsExtendableCss(*p)) {

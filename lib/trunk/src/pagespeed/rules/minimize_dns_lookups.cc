@@ -14,6 +14,7 @@
 
 #include "pagespeed/rules/minimize_dns_lookups.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -99,7 +100,7 @@ void AppendResult(const pagespeed::ResourceVector &lone_dns_resources,
     result->add_resource_urls(resource->GetRequestUrl());
   }
 
-  int64 num_dns_requests_saved = lone_dns_resources.size();
+  int num_dns_requests_saved = lone_dns_resources.size();
   if (!additional_hostname_available) {
     // Special case: every hostname on the domain had a single
     // resource. So combining them will still require one domain. Thus
@@ -200,7 +201,7 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
 
 int MinimizeDnsLookups::ComputeScore(const InputInformation& input_info,
                                      const ResultVector& results) {
-  int64 num_violations = 0;
+  int num_violations = 0;
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
@@ -208,7 +209,7 @@ int MinimizeDnsLookups::ComputeScore(const InputInformation& input_info,
     const Result& result = **iter;
     num_violations += result.savings().dns_requests_saved();
   }
-  const int64 num_hosts = input_info.number_hosts();
+  const int num_hosts = input_info.number_hosts();
   if (num_hosts <= 0 || num_hosts < num_violations) {
     LOG(DFATAL) << "Bad num_hosts " << num_hosts
                 << " compared to num_violations " << num_violations;

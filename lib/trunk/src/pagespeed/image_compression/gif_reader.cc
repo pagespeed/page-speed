@@ -20,7 +20,7 @@
 
 extern "C" {
 #ifdef USE_SYSTEM_LIBPNG
-#include "png.h"
+#include "png.h"  // NOLINT
 #else
 #include "third_party/libpng/png.h"
 #endif
