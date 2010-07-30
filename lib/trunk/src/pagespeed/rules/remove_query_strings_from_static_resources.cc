@@ -86,7 +86,8 @@ ComputeScore(const InputInformation& input_info,
              const ResultVector& results) {
   const double num_violoations = results.size();
   const double num_static_resources = input_info.number_static_resources();
-  return 100.0 * (1.0 - num_violoations / num_static_resources);
+  return static_cast<int>(
+      100.0 * (1.0 - num_violoations / num_static_resources));
 }
 
 }  // namespace rules

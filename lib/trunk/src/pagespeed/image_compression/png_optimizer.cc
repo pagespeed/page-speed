@@ -24,7 +24,7 @@
 
 extern "C" {
 #ifdef USE_SYSTEM_LIBPNG
-#include "png.h"
+#include "png.h"  // NOLINT
 #else
 #include "third_party/libpng/png.h"
 #endif
@@ -68,7 +68,7 @@ namespace image_compression {
 
 ScopedPngStruct::ScopedPngStruct(Type type)
     : png_ptr_(NULL), info_ptr_(NULL), type_(type) {
-  switch (type_) {
+  switch (type) {
     case READ:
       png_ptr_ = png_create_read_struct(PNG_LIBPNG_VER_STRING,
                                        NULL, NULL, NULL);
@@ -184,7 +184,8 @@ bool PngReader::ReadPng(const std::string& body,
 
 bool PngOptimizer::WritePng(std::string* buffer) {
   png_set_write_fn(write_.png_ptr(), buffer, &WritePngToString, &PngFlush);
-  png_write_png(write_.png_ptr(), write_.info_ptr(), PNG_TRANSFORM_IDENTITY, NULL);
+  png_write_png(
+      write_.png_ptr(), write_.info_ptr(), PNG_TRANSFORM_IDENTITY, NULL);
 
   return true;
 }
@@ -217,7 +218,8 @@ void PngOptimizer::CopyReadToWrite() {
 
   png_colorp palette;
   int num_palette;
-  if (png_get_PLTE(read_.png_ptr(), read_.info_ptr(), &palette, &num_palette) != 0) {
+  if (png_get_PLTE(
+          read_.png_ptr(), read_.info_ptr(), &palette, &num_palette) != 0) {
     png_set_PLTE(write_.png_ptr(),
                  write_.info_ptr(),
                  palette,

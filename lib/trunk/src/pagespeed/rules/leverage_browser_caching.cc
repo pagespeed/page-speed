@@ -244,7 +244,7 @@ int LeverageBrowserCaching::ComputeScore(const InputInformation& input_info,
                 << kMillisInAWeek;
     avg_freshness_lifetime = kMillisInAWeek;
   }
-  return 100 * avg_freshness_lifetime / kMillisInAWeek;
+  return static_cast<int>(100 * avg_freshness_lifetime / kMillisInAWeek);
 }
 
 }  // namespace rules

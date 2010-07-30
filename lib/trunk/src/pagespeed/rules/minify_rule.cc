@@ -14,7 +14,9 @@
 
 #include "pagespeed/rules/minify_rule.h"
 
+#include <algorithm>
 #include <string>
+#include <vector>
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
@@ -157,8 +159,8 @@ int CostBasedScoreComputer::ComputeScore() {
     return -1;
   }
 
-  int score =  100 * (max_possible_cost_ - ComputeCost()) /
-      max_possible_cost_;
+  int score =  static_cast<int>(
+      100 * (max_possible_cost_ - ComputeCost()) / max_possible_cost_);
 
   // Lower bound at zero. If a site's resources are very unoptimized
   // then the computed score could go below zero.
@@ -187,7 +189,7 @@ int64 WeightedCostBasedScoreComputer::ComputeCost() {
     }
   }
 
-  return total_cost * cost_weight_;
+  return static_cast<int64>(total_cost * cost_weight_);
 }
 
 }  // namespace rules
