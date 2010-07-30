@@ -207,13 +207,11 @@ class SerfFetch {
                                    void** handler_baton,
                                    apr_pool_t* pool) {
     SerfFetch* fetch = static_cast<SerfFetch*>(setup_baton);
-    std::string path(fetch->url_.path);
-    if (fetch->url_.query != NULL) {
-      path += fetch->url_.query;
-    }
+    const char* url_path = apr_uri_unparse(pool, &fetch->url_,
+                                           APR_URI_UNP_OMITSITEPART);
     *req_bkt = serf_request_bucket_request_create(
         request, kFetchMethod,
-        path.c_str(), NULL,
+        url_path, NULL,
         serf_request_get_alloc(request));
     serf_bucket_t* hdrs_bkt = serf_bucket_request_get_headers(*req_bkt);
     // TODO(lsong): Use user-agent from the request headers.
