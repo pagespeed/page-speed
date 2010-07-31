@@ -148,19 +148,17 @@ int main(int argc, char** argv) {
 
   std::string url(argv[1]);
 
+#if defined(TOOLKIT_USES_GTK)
+  // Attempt to initialize the GTK context, which is required by some
+  // NPAPI plugins.
+  gtk_init_check(&argc, &argv);
+#endif
+
   // Only display WARNING and above on the console.
   logging::SetMinLogLevel(logging::LOG_WARNING);
 
   pagespeed::TestShellRunner::SetUp();
-
-#if defined(TOOLKIT_USES_GTK)
-  if (!gtk_init_check(&argc, &argv)) {
-    // TODO: disable plugins?
-  }
-#endif
-
   bool result = RunPagespeed(url.c_str());
-
   pagespeed::TestShellRunner::TearDown();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
