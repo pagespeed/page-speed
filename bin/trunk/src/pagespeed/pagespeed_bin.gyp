@@ -53,42 +53,13 @@
       ],
     },
     {
-      # TODO: push this upstream to WebKit.gyp
-      'target_name': 'test_shell_platform_delegate',
-      'type': '<(library)',
-      'variables': {
-        'test_shell_root': '<(DEPTH)/webkit/tools/test_shell',
-      },
-      'dependencies': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/skia/skia.gyp:skia',
-      ],
-      'sources': [
-        '<(test_shell_root)/test_shell_platform_delegate.h',
-        '<(test_shell_root)/test_shell_platform_delegate_gtk.cc',
-        '<(test_shell_root)/test_shell_platform_delegate_mac.mm',
-        '<(test_shell_root)/test_shell_platform_delegate_win.cc',
-      ],
-      'conditions': [
-        ['OS!="win"', {
-          'sources/': [ ['exclude', '_win.cc$'] ],
-        }],
-        ['OS!="mac"', {
-          'sources/': [ ['exclude', '\.mm$' ] ],
-        }],
-        ['OS!="linux" and OS!="freebsd" and OS!="openbsd"', {
-          'sources/': [ ['exclude', '_gtk.cc$'] ],
-        }],
-      ],
-    },
-    {
       'target_name': 'pagespeed_chromium',
       'type': 'executable',
       'mac_bundle': 1,
       'dependencies': [
-        '<(DEPTH)/base/base.gyp:base',
         'pagespeed_chromium_lib',
-        'test_shell_platform_delegate',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/build/linux/system.gyp:gtk',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:pagespeed',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',

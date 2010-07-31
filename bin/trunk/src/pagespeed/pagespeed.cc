@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "build/build_config.h"
+
+#if defined(TOOLKIT_USES_GTK)
+#include <gtk/gtk.h>
+#endif
+
 #include <string>
 #include <vector>
 
@@ -32,7 +38,6 @@
 #include "third_party/libpagespeed/src/pagespeed/rules/rule_provider.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
-#include "webkit/tools/test_shell/test_shell_platform_delegate.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 
 namespace {
@@ -143,17 +148,19 @@ int main(int argc, char** argv) {
 
   std::string url(argv[1]);
 
-  TestShellPlatformDelegate::PreflightArgs(&argc, &argv);
-  CommandLine::Init(argc, argv);
-  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
-
-  TestShellPlatformDelegate platform(parsed_command_line);
-
   // Only display WARNING and above on the console.
   logging::SetMinLogLevel(logging::LOG_WARNING);
 
   pagespeed::TestShellRunner::SetUp();
+
+#if defined(TOOLKIT_USES_GTK)
+  if (!gtk_init_check(&argc, &argv)) {
+    // TODO: disable plugins?
+  }
+#endif
+
   bool result = RunPagespeed(url.c_str());
+
   pagespeed::TestShellRunner::TearDown();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
