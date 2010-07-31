@@ -32,16 +32,16 @@
 
 namespace {
 
-const char* GetOriginalUrlForJob(URLRequestJob* job) {
+std::string GetOriginalUrlForJob(URLRequestJob* job) {
   if (job && job->request()) {
     std::string url = job->request()->original_url().possibly_invalid_spec();
     size_t hash_location = url.find('#');
     if (hash_location != url.npos) {
       url.erase(hash_location);
     }
-    return url.c_str();
+    return url;
   }
-  return NULL;
+  return "";
 }
 
 net::HttpResponseHeaders* GetResponseHeadersForJob(URLRequestJob* job) {
@@ -94,8 +94,8 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
 
   virtual void OnJobDone(URLRequestJob* job,
                          const URLRequestStatus& status) {
-    const char* url = GetOriginalUrlForJob(job);
-    if (url == NULL) {
+    std::string url = GetOriginalUrlForJob(job);
+    if (url.empty()) {
       // Invalid job. Ignore it.
       return;
     }
