@@ -59,6 +59,13 @@ const char* kPagespeedRewriterAddHead = "PagespeedRewriterAddHead";
 const char* kPagespeedRewriterAddBaseTag = "PagespeedRewriterAddBaseTag";
 const char* kPagespeedRewriterRemoveQuotes = "PagespeedRewriterRemoveQuotes";
 const char* kPagespeedRewriterForceCaching = "PagespeedRewriterForceCaching";
+const char* kPagespeedRewriterMoveCssToHead = "PagespeedRewriterMoveCssToHead";
+const char* kPagespeedRewriterElideAttributes
+    = "PagespeedRewriterElideAttributes";
+const char* kPagespeedRewriterRemoveComments
+    = "PagespeedRewriterRemoveComments";
+const char* kPagespeedRewriterCollapseWhiteSpace
+    = "PagespeedRewriterCollapseWhiteSpace";
 }  // extern "C"
 
 namespace {
@@ -361,6 +368,14 @@ int pagespeed_post_config(apr_pool_t* pool, apr_pool_t* plog, apr_pool_t* ptemp,
                 << config->remove_quotes;
       LOG(INFO) << kPagespeedRewriterForceCaching << " "
                 << config->force_caching;
+      LOG(INFO) << kPagespeedRewriterMoveCssToHead << " "
+                << config->move_css_to_head;
+      LOG(INFO) << kPagespeedRewriterElideAttributes << " "
+                << config->elide_attributes;
+      LOG(INFO) << kPagespeedRewriterRemoveComments << " "
+                << config->remove_comments;
+      LOG(INFO) << kPagespeedRewriterCollapseWhiteSpace << " "
+                << config->collapse_whitespace;
     }
     next_server = next_server->next;
   }
@@ -429,6 +444,8 @@ extern "C" {
 #pragma GCC visibility push(default)
 #endif
 
+// TODO(lsong): Refactor the on/off options check. Use a function to repalce the
+// repeated statements.
 static const char* mod_pagespeed_config_one_string(cmd_parms* cmd, void* data,
                                                    const char* arg) {
   html_rewriter::PageSpeedConfig* config =
@@ -533,12 +550,41 @@ static const char* mod_pagespeed_config_one_string(cmd_parms* cmd, void* data,
                          " on|off", NULL);
     }
     config->force_caching = (config_switch == CONFIG_ON);
+  } else if (strcasecmp(directive, kPagespeedRewriterMoveCssToHead) == 0) {
+    ConfigSwitch config_switch = get_config_switch(arg);
+    if (config_switch == CONFIG_ERROR) {
+      return apr_pstrcat(cmd->pool, directive,
+                         " on|off", NULL);
+    }
+    config->move_css_to_head = (config_switch == CONFIG_ON);
+  } else if (strcasecmp(directive, kPagespeedRewriterElideAttributes) == 0) {
+    ConfigSwitch config_switch = get_config_switch(arg);
+    if (config_switch == CONFIG_ERROR) {
+      return apr_pstrcat(cmd->pool, directive,
+                         " on|off", NULL);
+    }
+    config->elide_attributes = (config_switch == CONFIG_ON);
+  } else if (strcasecmp(directive, kPagespeedRewriterRemoveComments) == 0) {
+    ConfigSwitch config_switch = get_config_switch(arg);
+    if (config_switch == CONFIG_ERROR) {
+      return apr_pstrcat(cmd->pool, directive,
+                         " on|off", NULL);
+    }
+    config->remove_comments = (config_switch == CONFIG_ON);
+  } else if (strcasecmp(directive, kPagespeedRewriterCollapseWhiteSpace) == 0) {
+    ConfigSwitch config_switch = get_config_switch(arg);
+    if (config_switch == CONFIG_ERROR) {
+      return apr_pstrcat(cmd->pool, directive,
+                         " on|off", NULL);
+    }
+    config->collapse_whitespace = (config_switch == CONFIG_ON);
   } else {
     return "Unknown directive.";
   }
   return NULL;
 }
 
+// TODO(lsong): Refactor this to make it simple if possible.
 static const command_rec mod_pagespeed_filter_cmds[] = {
   AP_INIT_TAKE1(kPagespeed,
                 reinterpret_cast<const char*(*)()>(
@@ -635,6 +681,26 @@ static const command_rec mod_pagespeed_filter_cmds[] = {
                     mod_pagespeed_config_one_string),
                 NULL, RSRC_CONF,
                 "Set if to force caching"),
+  AP_INIT_TAKE1(kPagespeedRewriterMoveCssToHead,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set if to move the css to head"),
+  AP_INIT_TAKE1(kPagespeedRewriterElideAttributes,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set if to elide attributes"),
+  AP_INIT_TAKE1(kPagespeedRewriterRemoveComments,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set if to remove comments"),
+  AP_INIT_TAKE1(kPagespeedRewriterCollapseWhiteSpace,
+                reinterpret_cast<const char*(*)()>(
+                    mod_pagespeed_config_one_string),
+                NULL, RSRC_CONF,
+                "Set if to collapse whitespace"),
   {NULL}
 };
 // Declare and populate the module's data structure.  The

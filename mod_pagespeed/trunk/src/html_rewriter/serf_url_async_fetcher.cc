@@ -134,6 +134,8 @@ class SerfFetch {
         ((status = serf_bucket_response_status(response, &status_line))
          == APR_SUCCESS)) {
       response_headers_->set_status_code(status_line.code);
+      response_headers_->set_major_version(status_line.version / 1000);
+      response_headers_->set_minor_version(status_line.version % 1000);
       const char* data = NULL;
       apr_size_t len = 0;
       while ((status = serf_bucket_read(response, kBufferSize, &data, &len))
