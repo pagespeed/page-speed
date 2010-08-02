@@ -45,6 +45,10 @@ struct PageSpeedConfig {
   bool add_base_tag;
   bool remove_quotes;
   bool force_caching;
+  bool move_css_to_head;
+  bool elide_attributes;
+  bool remove_comments;
+  bool collapse_whitespace;
 };
 
 class PageSpeedServerContext {

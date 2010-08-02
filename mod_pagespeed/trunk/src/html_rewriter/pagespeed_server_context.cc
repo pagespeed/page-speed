@@ -52,6 +52,14 @@ bool CreatePageSpeedServerContext(apr_pool_t* pool, PageSpeedConfig* config) {
   context->rewrite_driver_factory()->set_add_base_tag(config->add_base_tag);
   context->rewrite_driver_factory()->set_remove_quotes(config->remove_quotes);
   context->rewrite_driver_factory()->set_force_caching(config->force_caching);
+  context->rewrite_driver_factory()->set_move_css_to_head(
+      config->move_css_to_head);
+  context->rewrite_driver_factory()->set_elide_attributes(
+      config->elide_attributes);
+  context->rewrite_driver_factory()->set_remove_comments(
+      config->remove_comments);
+  context->rewrite_driver_factory()->set_collapse_whitespace(
+      config->collapse_whitespace);
   return true;
 }
 
