@@ -42,10 +42,6 @@ deps = {
   Var("chromium_deps_root"):
     File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
 
-  "src/base":
-    (Var("libpagespeed_trunk") + "/src/base" +
-     Var("libpagespeed_revision")),
-
   "src/build/temp_gyp":
     (Var("libpagespeed_trunk") + "/src/build/temp_gyp" +
      Var("libpagespeed_revision")),
@@ -55,6 +51,10 @@ deps = {
 
   "src/googleurl_noicu":
     (Var("libpagespeed_trunk") + "/src/googleurl_noicu" +
+     Var("libpagespeed_revision")),
+
+  "src/third_party/libpagespeed/src/base":
+    (Var("libpagespeed_trunk") + "/src/base" +
      Var("libpagespeed_revision")),
 
   "src/third_party/libpagespeed/src/build":

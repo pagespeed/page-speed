@@ -27,6 +27,13 @@
  #include "third_party/npapi/bindings/nphostapi.h"
 #endif
 
+#include "base/scoped_ptr.h"
+#include "base/stl_util-inl.h"
+#include "pagespeed/core/engine.h"
+#include "pagespeed/core/formatter.h"
+#include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/rule.h"
+
 namespace {
 
 // This is the method name as JavaScript sees it:
@@ -58,6 +65,28 @@ bool RunPageSpeed(const NPVariant& argument, NPVariant *result) {
     STRINGN_TO_NPVARIANT(msg_copy, msg_length - 1, *result);
   }
   return ok;
+}
+
+bool RunPageSpeedRules(const pagespeed::PagespeedInput& input,
+                       pagespeed::RuleFormatter* formatter) {
+  std::vector<pagespeed::Rule*> rules;
+
+  // In environments where exceptions can be thrown, use
+  // STLElementDeleter to make sure we free the rules in the event
+  // that they are not transferred to the Engine.
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+
+  // TODO(mdsteele): Uncomment these once we get the rules to compile in NaCl.
+  //bool save_optimized_content = true;
+  //pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+
+  // Ownership of rules is transferred to the Engine instance.
+  pagespeed::Engine engine(&rules);
+  engine.Init();
+
+  engine.ComputeAndFormatResults(input, formatter);
+
+  return true;
 }
 
 NPObject* Allocate(NPP npp, NPClass* npclass) {
