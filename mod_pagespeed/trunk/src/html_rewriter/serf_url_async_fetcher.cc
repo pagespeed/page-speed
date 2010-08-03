@@ -14,11 +14,13 @@
 
 #include "html_rewriter/serf_url_async_fetcher.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
 #include "base/stl_util-inl.h"
 #include "html_rewriter/apr_mutex.h"
+#include "html_rewriter/apr_timer.h"
 #include "net/instaweb/util/public/message_handler.h"
 #include "net/instaweb/util/public/meta_data.h"
 #include "net/instaweb/util/public/writer.h"
@@ -374,6 +376,22 @@ void SerfUrlAsyncFetcher::FetchComplete(SerfFetch* fetch) {
     // TODO(lsong): log error? Add message_handler.
   }
   completed_fetches_.push_back(fetch);
+}
+
+bool SerfUrlAsyncFetcher::WaitForInProgressFetches(
+    int64 max_milliseconds, MessageHandler* message_handler) {
+  AprTimer timer;
+  for (int64 start_ms = timer.NowMs(), now_ms = start_ms;
+       !active_fetches_.empty() && now_ms - start_ms < max_milliseconds;
+       now_ms = timer.NowMs()) {
+    int64 remaining_us = std::max(static_cast<int64>(0),
+                                  1000 * (max_milliseconds - now_ms));
+    Poll(remaining_us, message_handler);
+  }
+  if (!active_fetches_.empty()) {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace html_rewriter

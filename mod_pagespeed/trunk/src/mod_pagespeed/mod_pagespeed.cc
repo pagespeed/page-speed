@@ -17,7 +17,9 @@
 #include "base/string_util.h"
 #include "html_rewriter/html_rewriter.h"
 #include "html_rewriter/html_rewriter_config.h"
+#include "html_rewriter/html_parser_message_handler.h"
 #include "html_rewriter/pagespeed_server_context.h"
+#include "html_rewriter/serf_url_async_fetcher.h"
 #include "mod_pagespeed/instaweb_handler.h"
 #include "mod_pagespeed/mod_pagespeed.h"
 #include "mod_spdy/apache/log_message_handler.h"
@@ -382,6 +384,30 @@ int pagespeed_post_config(apr_pool_t* pool, apr_pool_t* plog, apr_pool_t* ptemp,
   return OK;
 }
 
+// Here log transaction will wait for all the asynchronous resource fetchers to
+// finish.
+apr_status_t pagespeed_log_transaction(request_rec *request) {
+  server_rec* server = request->server;
+  html_rewriter::PageSpeedConfig* config =
+      html_rewriter::mod_pagespeed_get_server_config(server);
+  if (config == NULL || config->context == NULL ||
+      config->context->rewrite_driver_factory() == NULL) {
+    return DECLINED;
+  }
+  html_rewriter::SerfUrlAsyncFetcher* url_async_fetcher =
+      config->context->rewrite_driver_factory()->serf_url_async_fetcher();
+  if (url_async_fetcher == NULL) {
+    return DECLINED;
+  }
+  int64 max_ms = GetFetcherTimeOut(config->context);  // milliseconds.
+  html_rewriter::HtmlParserMessageHandler handler;
+  if (!url_async_fetcher->WaitForInProgressFetches(max_ms, &handler)) {
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, APR_SUCCESS, request,
+                  "SerfFetch timeout reuqest=%s", request->unparsed_uri);
+  }
+  return DECLINED;
+}
+
 // This function is a callback and it declares what
 // other functions should be called for request
 // processing and configuration requests. This
@@ -399,6 +425,7 @@ void mod_pagespeed_register_hooks(apr_pool_t *p) {
                             AP_FTYPE_RESOURCE);
   ap_hook_post_config(pagespeed_post_config, NULL, NULL, APR_HOOK_MIDDLE);
   ap_hook_child_init(pagespeed_child_init, NULL, NULL, APR_HOOK_LAST);
+  ap_hook_log_transaction(pagespeed_log_transaction, NULL, NULL, APR_HOOK_LAST);
 }
 
 void* mod_pagespeed_create_server_config(apr_pool_t* pool, server_rec* server) {
