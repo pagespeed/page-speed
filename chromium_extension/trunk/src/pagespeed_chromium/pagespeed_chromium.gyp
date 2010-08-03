@@ -23,6 +23,8 @@
       'target_name': 'pagespeed_x86_64.nexe',
       'type': 'executable',
       'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
       'sources': [
         'npn_bridge.cc',
@@ -43,7 +45,6 @@
         '-lsrpc',
       ],
     },
-
     {
       'target_name': 'pagespeed_extension',
       'type': 'none',

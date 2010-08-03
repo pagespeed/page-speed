@@ -17,6 +17,9 @@
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
   'target_defaults': {
+    'include_dirs': [
+      '<(DEPTH)/build/nacl_header_stubs',
+    ],
     'conditions': [
       ['target_arch=="ia32"', {
         'cflags': [
