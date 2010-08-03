@@ -33,7 +33,9 @@ namespace net_instaweb {
 
 ApacheRewriteDriverFactory::ApacheRewriteDriverFactory(
     html_rewriter::PageSpeedServerContext* context)
-  : context_(context) {
+  : context_(context),
+    serf_url_fetcher_(NULL),
+    serf_url_async_fetcher_(NULL) {
   apr_pool_create(&pool_, context->pool());
   set_filename_prefix(html_rewriter::GetCachePrefix(context_));
   set_url_prefix(html_rewriter::GetUrlPrefix(context_));
@@ -71,13 +73,20 @@ CacheInterface* ApacheRewriteDriverFactory::DefaultCacheInterface() {
 }
 
 UrlFetcher* ApacheRewriteDriverFactory::DefaultUrlFetcher() {
-  SerfUrlAsyncFetcher* async_fetcher =
-      reinterpret_cast<SerfUrlAsyncFetcher*>(url_async_fetcher());
-  return new html_rewriter::SerfUrlFetcher(context_, async_fetcher);
+  if (serf_url_fetcher_ == NULL) {
+    DefaultAsyncUrlFetcher();  // Create async fetcher if necessary.
+    serf_url_fetcher_ = new html_rewriter::SerfUrlFetcher(
+        context_, serf_url_async_fetcher_);
+  }
+  return serf_url_fetcher_;
 }
+
 UrlAsyncFetcher* ApacheRewriteDriverFactory::DefaultAsyncUrlFetcher() {
-  return new SerfUrlAsyncFetcher(html_rewriter::GetFetcherProxy(context_),
-                                 pool_);
+  if (serf_url_async_fetcher_ == NULL) {
+    serf_url_async_fetcher_ = new SerfUrlAsyncFetcher(
+        html_rewriter::GetFetcherProxy(context_), pool_);
+  }
+  return serf_url_async_fetcher_;
 }
 
 

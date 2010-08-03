@@ -18,6 +18,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "base/basictypes.h"
 #include "net/instaweb/util/public/url_async_fetcher.h"
 #include "net/instaweb/util/public/message_handler.h"
 
@@ -47,6 +48,8 @@ class SerfUrlAsyncFetcher : public UrlAsyncFetcher {
                               UrlAsyncFetcher::Callback* callback);
 
   bool Poll(int microseconds, MessageHandler* message_handler);
+  bool WaitForInProgressFetches(int64 max_milliseconds,
+                                MessageHandler* message_handler);
 
   // Remove the completed fetch from the active fetch set, and put it into a
   // completed fetch list to be cleaned up.
