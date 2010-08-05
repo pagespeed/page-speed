@@ -14,16 +14,16 @@
 
 #include "pagespeed/rules/specify_charset_early.h"
 
-#include <algorithm>  // for search
-
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "net/instaweb/htmlparse/public/html_parse.h"
+#include "net/instaweb/htmlparse/public/empty_html_filter.h"
+#include "net/instaweb/util/public/google_message_handler.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
-#include "pagespeed/html/html_tag.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -43,58 +43,70 @@ bool HasCharsetInContentTypeHeader(const std::string& header) {
   return !directives["charset"].empty();
 }
 
-// Used to do a case-insensitive search.
-bool CaseInsensitiveBinaryPredicate(char x, char y) {
-  return ToLowerASCII(x) == ToLowerASCII(y);
-}
+class CharsetInMetaTagFilter : public net_instaweb::EmptyHtmlFilter {
+ public:
+  CharsetInMetaTagFilter(net_instaweb::HtmlParse* html_parse);
 
-bool HasCharsetInMetaTag(const std::string& body, size_t max_bytes_to_scan) {
-  const std::string meta_tag = "<meta";
-  std::string::const_iterator last_byte_to_scan =
-      body.begin() + max_bytes_to_scan;
-  std::string::const_iterator start_offset = body.begin();
-  while (start_offset < last_byte_to_scan) {
-    std::string::const_iterator meta_tag_it = std::search(
-        start_offset, last_byte_to_scan,
-        meta_tag.begin(), meta_tag.end(),
-        CaseInsensitiveBinaryPredicate);
-    if (meta_tag_it == last_byte_to_scan) {
-      // We've scanned the first max_bytes_to_scan bytes, so we're done.
-      return false;
-    }
-    start_offset = meta_tag_it + meta_tag.size();
+  virtual void StartDocument();
+  virtual void StartElement(net_instaweb::HtmlElement* element);
 
-    // Check to see if there is a charset in the meta tag.
-    pagespeed::html::HtmlTag html_tag;
-    const char* meta_tag = html_tag.ReadTag(
-        // TODO: is this &* really necessary to switch from
-        // std::string::const_iterator to const char*?
-        &*meta_tag_it,
-        body.data() + body.size());
-    if (meta_tag == NULL) {
-      // Not a valid meta tag, so skip it.
-      continue;
-    }
-
-    if (!html_tag.HasAttrValue("http-equiv")) {
-      continue;
-    }
-
-    if (!LowerCaseEqualsASCII(
-            html_tag.GetAttrValue("http-equiv"), "content-type")) {
-      continue;
-    }
-
-    if (!html_tag.HasAttrValue("content")) {
-      continue;
-    }
-
-    if (HasCharsetInContentTypeHeader(html_tag.GetAttrValue("content"))) {
-      return true;
-    }
+  // Was a charset specified in a meta tag? Call after the parse is
+  // complete.
+  bool charset_specified_in_meta_tag() const {
+    return charset_specified_in_meta_tag_;
   }
 
-  return false;
+ private:
+  net_instaweb::Atom content_atom_;
+  net_instaweb::Atom http_equiv_atom_;
+  net_instaweb::Atom meta_atom_;
+  bool charset_specified_in_meta_tag_;
+
+  DISALLOW_COPY_AND_ASSIGN(CharsetInMetaTagFilter);
+};
+
+CharsetInMetaTagFilter::CharsetInMetaTagFilter(
+    net_instaweb::HtmlParse* html_parse)
+    : content_atom_(html_parse->Intern("content")),
+      http_equiv_atom_(html_parse->Intern("http-equiv")),
+      meta_atom_(html_parse->Intern("meta")),
+      charset_specified_in_meta_tag_(false) {
+}
+
+void CharsetInMetaTagFilter::StartDocument() {
+  // Reset the state.
+  charset_specified_in_meta_tag_ = false;
+}
+
+void CharsetInMetaTagFilter::StartElement(net_instaweb::HtmlElement* element) {
+  if (charset_specified_in_meta_tag_) {
+    // We already found a valid charset, so don't bother visiting
+    // subsequent tags.
+    return;
+  }
+
+  net_instaweb::Atom tag = element->tag();
+  if (tag != meta_atom_) {
+    return;
+  }
+
+  const char* http_equiv = element->AttributeValue(http_equiv_atom_);
+  if (http_equiv == NULL) {
+    return;
+  }
+
+  if (!LowerCaseEqualsASCII(http_equiv, "content-type")) {
+    return;
+  }
+
+  const char* content = element->AttributeValue(content_atom_);
+  if (content == NULL) {
+    return;
+  }
+
+  if (HasCharsetInContentTypeHeader(content)) {
+    charset_specified_in_meta_tag_ = true;
+  }
 }
 
 }  // namespace
@@ -120,6 +132,11 @@ const char* SpecifyCharsetEarly::documentation_url() const {
 
 bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
                                         ResultProvider* provider) {
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  CharsetInMetaTagFilter filter(&html_parse);
+  html_parse.AddFilter(&filter);
+
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     const ResourceType resource_type = resource.GetResourceType();
@@ -153,7 +170,12 @@ bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
     if (body.size() > kLateThresholdBytes) {
       max_bytes_to_scan = kLateThresholdBytes;
     }
-    if (HasCharsetInMetaTag(body, max_bytes_to_scan)) {
+
+    html_parse.StartParse(resource.GetRequestUrl().c_str());
+    html_parse.ParseText(body.data(), max_bytes_to_scan);
+    html_parse.FinishParse();
+
+    if (filter.charset_specified_in_meta_tag()) {
       // There is a valid charset in a <meta> tag, so don't flag this
       // resource.
       continue;

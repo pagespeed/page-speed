@@ -94,8 +94,9 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetInHeader) {
 }
 
 TEST_F(SpecifyCharsetEarlyTest, CharsetEarlyInHtml) {
-  std::string html = "<html><head><meta http-equiv=\"Content-Type\" "
-                     "content=\"text/html;   charset= utf-8\"></head><body>"
+  // Use mixed case to test case-insensitive matching.
+  std::string html = "<html><head><META hTtP-eQuIv=\"content-TYPE\" "
+                     "conTENT=\"text/html;   charSET= utf-8\"></head><body>"
                      "Hello world"
                      "</body></html>";
 
@@ -124,6 +125,32 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetSecondInHtml) {
                   "",
                   html);
   CheckNoViolations();
+}
+
+TEST_F(SpecifyCharsetEarlyTest, TwoResourcesSecondIsViolation) {
+  std::string html = "<html><head><meta http-equiv=\"Content-Type\" "
+                     "content=\"text/html;   charset= utf-8\"></head><body>"
+                     "Hello world"
+                     "</body></html>";
+
+  // pad spaces to make the html big
+  html.append(kLateThresholdBytes, ' ');
+
+  AddTestResource("http://www.example.com/hello.html",
+                  "",
+                  "",
+                  html);
+
+  std::string html2 = "<html><head></head><body></body></html>";
+  // pad spaces to make the html big
+  html2.append(kLateThresholdBytes, ' ');
+
+  AddTestResource("http://www.example.com/hello2.html",
+                  "",
+                  "",
+                  html2);
+
+  CheckOneViolation("http://www.example.com/hello2.html");
 }
 
 TEST_F(SpecifyCharsetEarlyTest, NoSpaceCharsetEarlyInHtml) {
