@@ -24,7 +24,6 @@
       'sources': [
         '<(chromium_root)/base/debug_util_unittest.cc',
         '<(chromium_root)/base/string_piece_unittest.cc',
-        'string_util_unittest.cc',
         '<(chromium_root)/base/win_util_unittest.cc',
       ],
       'dependencies': [

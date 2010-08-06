@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "pagespeed/formatters/formatter_util.h"
 
@@ -86,7 +87,7 @@ std::string TextFormatter::Format(
         subst.push_back(arg.string_value());
         break;
       case Argument::INTEGER:
-        subst.push_back(Int64ToString(arg.int_value()));
+        subst.push_back(base::Int64ToString(arg.int_value()));
         break;
       case Argument::BYTES:
         subst.push_back(FormatBytes(arg.int_value()));

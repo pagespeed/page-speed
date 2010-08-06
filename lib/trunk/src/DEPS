@@ -15,11 +15,11 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@50096",
+  "chromium_revision": "@55218",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "instaweb_trunk":
     "http://instaweb.googlecode.com/svn/trunk",
-  "instaweb_revision": "@33",
+  "instaweb_revision": "@37",
 }
 
 deps = {

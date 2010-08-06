@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "pagespeed/formatters/formatter_util.h"
 
@@ -189,7 +190,7 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
               str.append(arg.string_value());
               break;
             case Argument::INTEGER:
-              str.append(Int64ToString(arg.int_value()));
+              str.append(base::Int64ToString(arg.int_value()));
               break;
             case Argument::BYTES:
               str.append(FormatBytes(arg.int_value()));

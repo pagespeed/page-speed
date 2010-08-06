@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
+#include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/directive_enumerator.h"
@@ -205,7 +206,7 @@ bool HasExplicitNoCacheDirective(const Resource& resource) {
   DirectiveMap::const_iterator it = cache_directives.find("max-age");
   if (it != cache_directives.end()) {
     int64 max_age_value = 0;
-    if (StringToInt64(it->second, &max_age_value) &&
+    if (base::StringToInt64(it->second, &max_age_value) &&
         max_age_value == 0) {
       // Cache-Control: max-age=0 means do not cache.
       return true;
@@ -328,7 +329,7 @@ bool GetFreshnessLifetimeMillis(const Resource& resource,
     DirectiveMap::const_iterator it = cache_directives.find("max-age");
     if (it != cache_directives.end()) {
       int64 max_age_value = 0;
-      if (StringToInt64(it->second, &max_age_value)) {
+      if (base::StringToInt64(it->second, &max_age_value)) {
         *out_freshness_lifetime_millis = max_age_value * 1000;
         return true;
       }
