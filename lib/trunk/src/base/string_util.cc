@@ -22,7 +22,9 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#ifndef __native_client__
 #include "base/singleton.h"
+#endif
 #include "base/third_party/dmg_fp/dmg_fp.h"
 #include "base/utf_string_conversion_utils.h"
 #include "base/utf_string_conversions.h"
@@ -102,7 +104,7 @@ bool IsWprintfFormatPortable(const wchar_t* format) {
 
 }  // namespace base
 
-
+#ifndef __native_client__
 const std::string& EmptyString() {
   return Singleton<EmptyStrings>::get()->s;
 }
@@ -114,6 +116,7 @@ const std::wstring& EmptyWString() {
 const string16& EmptyString16() {
   return Singleton<EmptyStrings>::get()->s16;
 }
+#endif  // __native_client__
 
 #define WHITESPACE_UNICODE \
   0x0009, /* <control-0009> to <control-000D> */ \
