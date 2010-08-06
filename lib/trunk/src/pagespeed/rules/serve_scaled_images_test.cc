@@ -41,9 +41,11 @@ class MockImageAttributesFactory : public pagespeed::ImageAttributesFactory {
 class MockDocument : public pagespeed::DomDocument {
  public:
   explicit MockDocument(const std::string& document_url)
-      : document_url_(document_url) {}
+      : document_url_(document_url), is_clone_(false) {}
   virtual ~MockDocument() {
-    STLDeleteContainerPointers(elements_.begin(), elements_.end());
+    if (!is_clone_) {
+      STLDeleteContainerPointers(elements_.begin(), elements_.end());
+    }
   }
 
   virtual std::string GetDocumentUrl() const {
@@ -64,9 +66,17 @@ class MockDocument : public pagespeed::DomDocument {
     elements_.push_back(element);
   }
 
+  MockDocument* Clone() {
+    MockDocument* doc = new MockDocument(GetDocumentUrl());
+    doc->elements_ = elements_;
+    doc->is_clone_ = true;
+    return doc;
+  }
+
  private:
   const std::string document_url_;
   std::vector<pagespeed::DomElement*> elements_;
+  bool is_clone_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDocument);
 };
@@ -116,12 +126,12 @@ class MockImageElement : public pagespeed::DomElement {
 class MockIframeElement : public pagespeed::DomElement {
  public:
   // MockIframeElement takes ownership of content.
-  explicit MockIframeElement(pagespeed::DomDocument* content)
+  explicit MockIframeElement(MockDocument* content)
       : content_(content) {}
 
   // Ownership is transferred to the caller. May be NULL.
   virtual pagespeed::DomDocument* GetContentDocument() const {
-    return content_.release();
+    return content_->Clone();
   }
 
   virtual std::string GetTagName() const {
@@ -134,7 +144,7 @@ class MockIframeElement : public pagespeed::DomElement {
   }
 
  private:
-  mutable scoped_ptr<pagespeed::DomDocument> content_;
+  mutable scoped_ptr<MockDocument> content_;
 
   DISALLOW_COPY_AND_ASSIGN(MockIframeElement);
 };
