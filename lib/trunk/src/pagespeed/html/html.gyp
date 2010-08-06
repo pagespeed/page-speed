@@ -29,9 +29,7 @@
         '<(pagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
       ],
       'sources': [
-        'html_compactor.cc',
         'html_minifier.cc',
-        'html_tag.cc',
         'minify_js_css_filter.cc',
       ],
       'include_dirs': [
