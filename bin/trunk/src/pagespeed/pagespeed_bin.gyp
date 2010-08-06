@@ -59,7 +59,6 @@
       'dependencies': [
         'pagespeed_chromium_lib',
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/build/linux/system.gyp:gtk',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:pagespeed',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
@@ -76,6 +75,7 @@
       'target_name': 'drtlib',
       'type': '<(library)',
       'dependencies': [
+        '<(DEPTH)/build/linux/system.gyp:gtk',
         '<(DEPTH)/third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
         '<(DEPTH)/third_party/WebKit/JavaScriptCore/JavaScriptCore.gyp/JavaScriptCore.gyp:wtf_config',
         '<(chromium_src_dir)/third_party/icu/icu.gyp:icuuc',

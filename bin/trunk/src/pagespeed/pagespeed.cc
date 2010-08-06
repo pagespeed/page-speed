@@ -14,10 +14,6 @@
 
 #include "build/build_config.h"
 
-#if defined(TOOLKIT_USES_GTK)
-#include <gtk/gtk.h>
-#endif
-
 #include <string>
 #include <vector>
 
@@ -132,6 +128,7 @@ bool RunPagespeed(const char* url) {
       pagespeed::chromium::CreateDocument(frame->document()));
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
+  input->Freeze();
 
   RunEngine(input.get());
 
@@ -148,16 +145,10 @@ int main(int argc, char** argv) {
 
   std::string url(argv[1]);
 
-#if defined(TOOLKIT_USES_GTK)
-  // Attempt to initialize the GTK context, which is required by some
-  // NPAPI plugins.
-  gtk_init_check(&argc, &argv);
-#endif
-
   // Only display WARNING and above on the console.
   logging::SetMinLogLevel(logging::LOG_WARNING);
 
-  pagespeed::TestShellRunner::SetUp();
+  pagespeed::TestShellRunner::SetUp(&argc, &argv);
   bool result = RunPagespeed(url.c_str());
   pagespeed::TestShellRunner::TearDown();
 

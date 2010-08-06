@@ -19,13 +19,11 @@
 #include "third_party/WebKit/WebKitTools/DumpRenderTree/chromium/TestShell.h"
 #include "webkit/support/webkit_support.h"
 
-void platformInit();
-
 namespace pagespeed {
 
-void TestShellRunner::SetUp() {
+void TestShellRunner::SetUp(int* argc, char*** argv) {
   webkit_support::SetUpTestEnvironment();
-  platformInit();
+  platformInit(argc, argv);
 }
 
 void TestShellRunner::TearDown() {
