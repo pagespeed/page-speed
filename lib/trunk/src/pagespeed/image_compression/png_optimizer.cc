@@ -89,6 +89,13 @@ ScopedPngStruct::ScopedPngStruct(Type type)
 ScopedPngStruct::~ScopedPngStruct() {
   switch (type_) {
     case READ:
+#ifdef PNG_FREE_ME_SUPPORTED
+      // optipng's pngx_malloc_rows allocates the rows. However, if
+      // PNG_FREE_ME_SUPPORTED is defined, libpng will not free this
+      // data unless PNG_FREE_ROWS is set on the free_me member. Thus
+      // we have to explicitly set that member here.
+      info_ptr_->free_me |= PNG_FREE_ROWS;
+#endif
       png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
       break;
     case WRITE:
