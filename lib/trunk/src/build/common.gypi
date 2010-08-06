@@ -65,6 +65,14 @@
             'host_arch%': 'ia32',
           }],
         ],
+
+        # To do a shared build on linux we need to be able to choose between
+        # type static_library and shared_library. We default to doing a static
+        # build but you can override this with "gyp -Dlibrary=shared_library"
+        # or you can add the following line (without the #) to
+        # ~/.gyp/include.gypi {'variables': {'library': 'shared_library'}}
+        # to compile as shared by default
+        'library%': 'static_library',
       },
 
       'host_arch%': '<(host_arch)',
@@ -85,6 +93,15 @@
 
       # On Linux, we build without sse2.
       'disable_sse2%': 1,
+
+      'library%': '<(library)',
+
+      # Variable 'component' is for cases where we would like to build some
+      # components as dynamic shared libraries but still need variable
+      # 'library' for static libraries.
+      # By default, component is set to whatever library is set to and
+      # it can be overriden by the GYP command line or by ~/.gyp/include.gypi.
+      'component%': '<(library)',
     },
 
     # Define target_arch on the basis of their settings within the
@@ -96,6 +113,8 @@
     'python_ver%': '<(python_ver)',
     'sysroot%': '<(sysroot)',
     'disable_sse2%': '<(disable_sse2)',
+    'library%': '<(library)',
+    'component%': '<(component)',
 
     # Mac OS X SDK and deployment target support.
     # The SDK identifies the version of the system headers that will be used,
@@ -113,18 +132,6 @@
     # these defaults.
     'mac_sdk%': '10.5',
     'mac_deployment_target%': '10.5',
-
-    # Turn on -Wextra on chromium code during Mac compile.
-    # TODO(mark,tvl): drop this and turn it always on when it works.
-    'chromium_mac_wextra%': 0,
-
-    # To do a shared build on linux we need to be able to choose between type
-    # static_library and shared_library. We default to doing a static build
-    # but you can override this with "gyp -Dlibrary=shared_library" or you
-    # can add the following line (without the #) to ~/.gyp/include.gypi
-    # {'variables': {'library': 'shared_library'}}
-    # to compile as shared by default
-    'library%': 'static_library',
 
     # TODO(bradnelson): eliminate this when possible.
     # To allow local gyp files to prevent release.vsprops from being included.
@@ -173,9 +180,6 @@
       # See http://msdn.microsoft.com/en-us/library/aa652360(VS.71).aspx
       'win_release_Optimization%': '2', # 2 = /Os
       'win_debug_Optimization%': '0',   # 0 = /Od
-      # See http://msdn.microsoft.com/en-us/library/aa652367(VS.71).aspx
-      'win_release_RuntimeLibrary%': '0', # 0 = /MT (nondebug static)
-      'win_debug_RuntimeLibrary%': '1',   # 1 = /MTd (debug static)
       # See http://msdn.microsoft.com/en-us/library/8wtf2dfz(VS.71).aspx
       'win_debug_RuntimeChecks%': '3',    # 3 = all checks enabled, 0 = off
       # See http://msdn.microsoft.com/en-us/library/47238hez(VS.71).aspx
@@ -184,6 +188,18 @@
 
       'release_extra_cflags%': '',
       'debug_extra_cflags%': '',
+
+      'conditions': [
+        ['OS=="win" and component=="shared_library"', {
+          # See http://msdn.microsoft.com/en-us/library/aa652367.aspx
+          'win_release_RuntimeLibrary%': '2', # 2 = /MT (nondebug DLL)
+          'win_debug_RuntimeLibrary%': '3',   # 3 = /MTd (debug DLL)
+        }, {
+          # See http://msdn.microsoft.com/en-us/library/aa652367.aspx
+          'win_release_RuntimeLibrary%': '0', # 0 = /MT (nondebug static)
+          'win_debug_RuntimeLibrary%': '1',   # 1 = /MTd (debug static)
+        }],
+      ],
     },
     # Make sure our shadow view of chromium source is available to
     # targets that don't explicitly declare their dependencies and
@@ -607,6 +623,16 @@
                   '-march=i686',
                 ],
               }],
+              # Install packages have started cropping up with
+              # different headers between the 32-bit and 64-bit
+              # versions, so we have to shadow those differences off
+              # and make sure a 32-bit-on-64-bit build picks up the
+              # right files.
+              ['host_arch!="ia32"', {
+                'include_dirs+': [
+                  '/usr/include32',
+                ],
+              }],
             ],
             # -mmmx allows mmintrin.h to be used for mmx intrinsics.
             # video playback is mmx and sse2 optimized.
@@ -683,18 +709,15 @@
           'MACOSX_DEPLOYMENT_TARGET': '<(mac_deployment_target)',
           'PREBINDING': 'NO',                       # No -Wl,-prebind
           'USE_HEADERMAP': 'NO',
-          'WARNING_CFLAGS': ['-Wall', '-Wendif-labels'],
-          'conditions': [
-            ['chromium_mac_wextra', {
-              'WARNING_CFLAGS': [
-                '-Wextra',
-                # Don't warn about unused function params.  Used everywhere.
-                '-Wno-unused-parameter',
-                # Don't warn about the "struct foo f = {0};" initialization
-                # pattern.
-                '-Wno-missing-field-initializers',
-              ]
-            }],
+          'WARNING_CFLAGS': [
+            '-Wall',
+            '-Wendif-labels',
+            '-Wextra',
+            # Don't warn about unused function parameters.
+            '-Wno-unused-parameter',
+            # Don't warn about the "struct foo f = {0};" initialization
+            # pattern.
+            '-Wno-missing-field-initializers',
           ],
         },
         'target_conditions': [
@@ -764,12 +787,21 @@
           'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
           'WIN32_LEAN_AND_MEAN',
           '_SECURE_ATL',
+          '_ATL_NO_OPENGL',
         ],
+        'conditions': [
+          ['component=="static_library"', {
+            'defines': [
+              '_HAS_EXCEPTIONS=0',
+            ],
+          }],
+        ],
+
         'msvs_system_include_dirs': [
           '$(VSInstallDir)/VC/atlmfc/include',
         ],
         'msvs_cygwin_dirs': ['<(DEPTH)/third_party/cygwin'],
-        'msvs_disabled_warnings': [4396, 4503, 4819],
+        'msvs_disabled_warnings': [4351, 4396, 4503, 4819],
         'msvs_settings': {
           'VCCLCompilerTool': {
             'MinimalRebuild': 'false',
@@ -779,6 +811,13 @@
             'WarningLevel': '3',
             'WarnAsError': 'true',
             'DebugInformationFormat': '3',
+            'conditions': [
+              ['component=="shared_library"', {
+                'ExceptionHandling': '1',  # /EHsc
+              }, {
+                'ExceptionHandling': '0',
+              }],
+            ],
           },
           'VCLibrarianTool': {
             'AdditionalOptions': ['/ignore:4221'],

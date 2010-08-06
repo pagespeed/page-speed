@@ -34,18 +34,16 @@
         '<(chromium_root)/base/registry.cc',
         '<(chromium_root)/base/safe_strerror_posix.cc',
         'stats_table.cc',
+        '<(chromium_root)/base/string_number_conversions.cc',
         '<(chromium_root)/base/string_piece.cc',
         'string_util.cc',
         '<(chromium_root)/base/win_util.cc',
+        '<(chromium_root)/base/string16.cc',
+        'stub_utf.cc',
         ],
         'include_dirs': [
           '<(chromium_root)',
         ],
-        'direct_dependent_settings': {
-          'include_dirs': [
-            '<(chromium_root)',
-          ],
-        },
         # These warnings are needed for the files in third_party\dmg_fp.
         'msvs_disabled_warnings': [
           4244, 4554, 4018, 4102,
@@ -136,7 +134,6 @@
       ],
       'sources': [
         '<(chromium_root)/base/third_party/dynamic_annotations/dynamic_annotations.c',
-        'string16.cc',
       ],
     },
   ],
