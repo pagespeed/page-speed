@@ -22,7 +22,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::ServeResourcesFromAConsistentUrl;
 using pagespeed::PagespeedInput;
@@ -58,16 +58,8 @@ const char *kResponseUrls[2][3] = {
   }
 };
 
-class ServeResourcesFromAConsistentUrlTest : public ::testing::Test {
+class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const char* url, const std::string& body) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
@@ -128,22 +120,22 @@ class ServeResourcesFromAConsistentUrlTest : public ::testing::Test {
       ASSERT_TRUE(expected_urls == actual_urls);
     }
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, NoResources) {
+  Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, SingleResource) {
   AddTestResource("http://www.example.com", kResponseBodies[0]);
+  Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, SingleEmptyResource) {
   AddTestResource("http://www.example.com", "");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -151,6 +143,7 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, MultipleEmptyResources) {
   AddTestResource(kResponseUrls[0][0], "");
   AddTestResource(kResponseUrls[0][1], "");
   AddTestResource(kResponseUrls[0][2], "");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -158,12 +151,14 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, DifferentResources) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[1]);
   AddTestResource(kResponseUrls[0][2], kResponseBodies[2]);
+  Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
+  Freeze();
   CheckViolation(1, 2);
 }
 
@@ -171,6 +166,7 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls2) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][2], "");
+  Freeze();
   CheckViolation(1, 2);
 }
 
@@ -178,6 +174,7 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls3) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][2], kResponseBodies[1]);
+  Freeze();
   CheckViolation(1, 2);
 }
 
@@ -185,6 +182,7 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceThreeUrls) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][2], kResponseBodies[0]);
+  Freeze();
   CheckViolation(1, 3);
 }
 
@@ -193,6 +191,7 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, TwoDuplicatedResources) {
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[1][0], kResponseBodies[1]);
   AddTestResource(kResponseUrls[1][1], kResponseBodies[1]);
+  Freeze();
   CheckViolation(2, 2);
 }
 
@@ -202,6 +201,7 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, BinaryResponseBodies) {
   body_a[5] = '\0';
   AddTestResource("http://www.example.com/a", body_a);
   AddTestResource("http://www.example.com/b", body_b);
+  Freeze();
   CheckNoViolations();
 }
 

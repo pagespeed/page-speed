@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/remove_query_strings_from_static_resources.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::RemoveQueryStringsFromStaticResources;
 using pagespeed::PagespeedInput;
@@ -31,17 +31,8 @@ using pagespeed::ResultProvider;
 
 namespace {
 
-class RemoveQueryStringsFromStaticResourcesTest : public ::testing::Test {
+class RemoveQueryStringsFromStaticResourcesTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const std::string& url,
                        const std::string& type) {
     Resource* resource = new Resource;
@@ -74,9 +65,6 @@ class RemoveQueryStringsFromStaticResourcesTest : public ::testing::Test {
     ASSERT_EQ(1, result.resource_urls_size());
     ASSERT_EQ(url, result.resource_urls(0));
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(RemoveQueryStringsFromStaticResourcesTest, NoProblems) {
@@ -84,6 +72,7 @@ TEST_F(RemoveQueryStringsFromStaticResourcesTest, NoProblems) {
                   "text/html");
   AddTestResource("http://static.example.com/image/40/30",
                   "image/png");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -92,6 +81,7 @@ TEST_F(RemoveQueryStringsFromStaticResourcesTest, OneViolation) {
                   "text/html");
   AddTestResource("http://static.example.com/image?w=40&h=30",
                   "image/png");
+  Freeze();
   CheckOneViolation("http://static.example.com/image?w=40&h=30");
 }
 

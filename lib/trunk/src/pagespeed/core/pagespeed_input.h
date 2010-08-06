@@ -70,9 +70,14 @@ class PagespeedInput {
   //
   // Ownership of the DomDocument is transfered over to the
   // PagespeedInput object.
-  void AcquireDomDocument(DomDocument* document);
+  bool AcquireDomDocument(DomDocument* document);
 
-  void AcquireImageAttributesFactory(ImageAttributesFactory* factory);
+  bool AcquireImageAttributesFactory(ImageAttributesFactory* factory);
+
+  // Call after populating the PagespeedInput. After calling Freeze(),
+  // no additional modifications can be made to the PagespeedInput
+  // structure.
+  bool Freeze();
 
   // Resource access.
   int num_resources() const;
@@ -87,6 +92,10 @@ class PagespeedInput {
 
  private:
   bool IsValidResource(const Resource* resource) const;
+
+  // Compute information about the set of resources. Called once at
+  // the time the PagespeedInput is frozen.
+  void PopulateInputInformation();
 
   std::vector<const Resource*> resources_;
 
@@ -104,6 +113,7 @@ class PagespeedInput {
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
   bool allow_duplicate_resources_;
+  bool frozen_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };

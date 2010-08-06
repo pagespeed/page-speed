@@ -159,6 +159,8 @@ int main(int argc, char** argv) {
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
 
+  input->Freeze();
+
   std::vector<pagespeed::Rule*> rules;
 
   // In environments where exceptions can be thrown, use

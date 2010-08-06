@@ -21,23 +21,15 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/optimize_the_order_of_styles_and_scripts.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::OptimizeTheOrderOfStylesAndScripts;
 using namespace pagespeed;
 
 namespace {
 
-class OptimizeOrderTest : public ::testing::Test {
+class OptimizeOrderTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddHtmlResource(const std::string& url, const std::string& html) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
@@ -101,14 +93,12 @@ class OptimizeOrderTest : public ::testing::Test {
                 ordering_details.out_of_order_inline_scripts(i));
     }
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(OptimizeOrderTest, Empty) {
   AddHtmlResource("http://example.com/foo.html",
                   "\n");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -116,6 +106,7 @@ TEST_F(OptimizeOrderTest, MostlyEmpty) {
   AddHtmlResource("http://example.com/foo.html",
                   "<html><head>\n"
                   "</head><body>foo</body></html>\n");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -127,6 +118,7 @@ TEST_F(OptimizeOrderTest, SimpleCssViolation) {
   std::vector<std::string> ooo_external_css;
   ooo_external_css.push_back("c1.css");
   std::vector<int> ooo_inline_scripts;
+  Freeze();
   CheckOneViolation("http://example.com/foo.html", 2, 1,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -140,6 +132,7 @@ TEST_F(OptimizeOrderTest, SimpleScriptViolation) {
   std::vector<std::string> ooo_external_css;
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
+  Freeze();
   CheckOneViolation("http://example.com/foo.html", 2, 1,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -149,6 +142,7 @@ TEST_F(OptimizeOrderTest, DoNotComplainAboutStyleInBody) {
                   "<script src=\"j1.js\"></script>\n"
                   "<body>foo\n"
                   "<link rel=stylesheet href=\"c1.css\">\n");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -164,6 +158,7 @@ TEST_F(OptimizeOrderTest, NoViolations) {
                   "<script>document.write('baz')</script>\n"
                   "<script>document.write('quux')</script>\n"
                   "</head><body>foo</body></html>\n");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -182,6 +177,7 @@ TEST_F(OptimizeOrderTest, CssOutOfOrder) {
   std::vector<std::string> ooo_external_css;
   ooo_external_css.push_back("c3.css");
   std::vector<int> ooo_inline_scripts;
+  Freeze();
   CheckOneViolation("http://example.com/foo.html", 4, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -202,6 +198,7 @@ TEST_F(OptimizeOrderTest, MultipleCssOutOfOrder) {
   ooo_external_css.push_back("c2.css");
   ooo_external_css.push_back("c3.css");
   std::vector<int> ooo_inline_scripts;
+  Freeze();
   CheckOneViolation("http://example.com/foo.html", 4, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -221,6 +218,7 @@ TEST_F(OptimizeOrderTest, InlineScriptOutOfOrder) {
   std::vector<std::string> ooo_external_css;
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
+  Freeze();
   CheckOneViolation("http://example.com/foo.html", 4, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -241,6 +239,7 @@ TEST_F(OptimizeOrderTest, MultipleInlineScriptsOutOfOrder) {
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
   ooo_inline_scripts.push_back(2);
+  Freeze();
   CheckOneViolation("http://example.com/foo.html", 5, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -257,6 +256,7 @@ TEST_F(OptimizeOrderTest, InlineScriptAtBeginningIsOkay) {
                   "<script src=\"j3.js\"></script>\n"
                   "<script>document.write('quux')</script>\n"
                   "</head><body>foo</body></html>\n");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -292,6 +292,7 @@ TEST_F(OptimizeOrderTest, NontrivialCriticalPathLength) {
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
   ooo_inline_scripts.push_back(3);
+  Freeze();
   CheckOneViolation("http://example.com/foo.html", 9, 7,
                     ooo_external_css, ooo_inline_scripts);
 }

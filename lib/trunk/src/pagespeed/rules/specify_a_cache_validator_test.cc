@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/specify_a_cache_validator.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::SpecifyACacheValidator;
 using pagespeed::PagespeedInput;
@@ -32,16 +32,8 @@ using pagespeed::Savings;
 
 namespace {
 
-class SpecifyACacheValidatorTest : public ::testing::Test {
+class SpecifyACacheValidatorTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const char* url,
                        const char* last_modified_header) {
     Resource* resource = new Resource;
@@ -76,12 +68,11 @@ class SpecifyACacheValidatorTest : public ::testing::Test {
     ASSERT_EQ(result0.resource_urls_size(), 1);
     ASSERT_EQ(result0.resource_urls(0), url);
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(SpecifyACacheValidatorTest, MissingCacheValidator) {
   AddTestResource("http://www.example.com/", NULL);
+  Freeze();
   ASSERT_EQ(1, input_->num_resources());
   CheckOneViolation("http://www.example.com/");
 }
@@ -89,12 +80,14 @@ TEST_F(SpecifyACacheValidatorTest, MissingCacheValidator) {
 TEST_F(SpecifyACacheValidatorTest, HasCacheValidator) {
   AddTestResource("http://www.example.com/1",
                   "Thu, 18 Mar 2010 10:36:52 EDT");
+  Freeze();
   ASSERT_EQ(1, input_->num_resources());
   CheckNoViolations();
 }
 
 TEST_F(SpecifyACacheValidatorTest, InvalidCacheValidator) {
   AddTestResource("http://www.example.com/1", "0");
+  Freeze();
   ASSERT_EQ(1, input_->num_resources());
   CheckOneViolation("http://www.example.com/1");
 }
@@ -106,6 +99,7 @@ TEST_F(SpecifyACacheValidatorTest, ExplicitNoCacheDirective) {
   resource->AddResponseHeader("Content-Type", "image/png");
   resource->SetResponseStatusCode(200);
   input_->AddResource(resource);
+  Freeze();
 
   // This resource should cause a violation.
   CheckOneViolation("http://www.example.com/");

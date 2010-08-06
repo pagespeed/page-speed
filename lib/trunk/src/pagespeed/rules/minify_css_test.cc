@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minify_css.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::MinifyCSS;
 using pagespeed::PagespeedInput;
@@ -38,17 +38,8 @@ const char* kUnminified = "body { color: red /*red*/; }";
 // The same CSS, minified.
 const char* kMinified = "body{color:red;}\n";
 
-class MinifyCssTest : public ::testing::Test {
+class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* body) {
@@ -130,14 +121,13 @@ class MinifyCssTest : public ::testing::Test {
     ASSERT_FALSE(minify.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(MinifyCssTest, Basic) {
   AddTestResource("http://www.example.com/foo.css",
                   "text/css",
                   kUnminified);
+  Freeze();
 
   CheckOneViolation(35);
 }
@@ -146,6 +136,7 @@ TEST_F(MinifyCssTest, WrongContentTypeDoesNotGetMinified) {
   AddTestResource("http://www.example.com/foo.css",
                   "text/html",
                   kUnminified);
+  Freeze();
 
   CheckNoViolations();
 }
@@ -154,6 +145,7 @@ TEST_F(MinifyCssTest, AlreadyMinified) {
   AddTestResource("http://www.example.com/foo.css",
                   "text/css",
                   kMinified);
+  Freeze();
 
   CheckNoViolations();
 }

@@ -23,7 +23,7 @@
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_request_size.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::MinimizeRequestSize;
 using pagespeed::PagespeedInput;
@@ -38,16 +38,8 @@ std::string kDescription =
     "The requests for the following URLs don't fit in a single packet.  "
     "Reducing the size of these requests could reduce latency.\n";
 
-class MinimizeRequestSizeTest : public ::testing::Test {
+class MinimizeRequestSizeTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(
       const std::string& url,
       const std::map<std::string, std::string>& request_headers) {
@@ -123,8 +115,6 @@ class MinimizeRequestSizeTest : public ::testing::Test {
       }
     }
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(MinimizeRequestSizeTest, NoViolationUnderThreshold) {
@@ -134,6 +124,7 @@ TEST_F(MinimizeRequestSizeTest, NoViolationUnderThreshold) {
   AddTestResource("http://www.test.com/logo.png",
                   request_headers);
 
+  Freeze();
   CheckNoViolations();
 }
 
@@ -152,6 +143,7 @@ TEST_F(MinimizeRequestSizeTest, LongCookieTest) {
   AddTestResource("http://www.test.com/logo.png",
                   request_headers);
 
+  Freeze();
   CheckOneViolation("http://www.test.com/logo.png", expected_output);
 }
 
@@ -169,6 +161,7 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTest) {
   AddTestResource("http://www.test.com/logo.png",
                   request_headers);
 
+  Freeze();
   CheckOneViolation("http://www.test.com/logo.png", expected_output);
 }
 
@@ -186,6 +179,7 @@ TEST_F(MinimizeRequestSizeTest, LongUrlTest) {
   request_headers["Referer"] = "http://www.test.com/";
   AddTestResource(url, request_headers);
 
+  Freeze();
   CheckOneViolation(url, expected_output);
 }
 
@@ -212,6 +206,7 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTwoViolationTest) {
   std::string url2 = "http://www.test.com/index.html";
   AddTestResource(url2, request_headers);
 
+  Freeze();
   CheckTwoViolations(url1, url2, expected_output);
 }
 

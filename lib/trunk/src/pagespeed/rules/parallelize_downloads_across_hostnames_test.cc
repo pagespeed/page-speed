@@ -21,7 +21,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/parallelize_downloads_across_hostnames.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::ParallelizeDownloadsAcrossHostnames;
 using pagespeed::PagespeedInput;
@@ -33,17 +33,8 @@ using pagespeed::ResultProvider;
 
 namespace {
 
-class ParallelizeDownloadsAcrossHostnamesTest : public ::testing::Test {
+class ParallelizeDownloadsAcrossHostnamesTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddStaticResources(int num, const std::string& host) {
     for (int index = 0; index < num; ++index) {
       Resource* resource = new Resource;
@@ -80,13 +71,11 @@ class ParallelizeDownloadsAcrossHostnamesTest : public ::testing::Test {
     ASSERT_EQ(critical_path_saved,
               result.savings().critical_path_length_saved());
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, NotManyResources) {
   AddStaticResources(7, "static.example.com");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -95,17 +84,20 @@ TEST_F(ParallelizeDownloadsAcrossHostnamesTest, BalancedResources) {
   AddStaticResources(52, "static2.example.com");
   AddStaticResources(55, "static3.example.com");
   AddStaticResources(53, "static4.example.com");
+  Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, JustOneHost) {
   AddStaticResources(80, "static.example.com");
+  Freeze();
   CheckOneViolation("static.example.com", 40);
 }
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, UnbalancedResources) {
   AddStaticResources(10, "static1.example.com");
   AddStaticResources(30, "static2.example.com");
+  Freeze();
   CheckOneViolation("static2.example.com", 10);
 }
 

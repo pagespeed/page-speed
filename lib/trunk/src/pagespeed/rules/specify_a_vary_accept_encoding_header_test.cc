@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/specify_a_vary_accept_encoding_header.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::SpecifyAVaryAcceptEncodingHeader;
 using pagespeed::PagespeedInput;
@@ -31,17 +31,8 @@ using pagespeed::ResultProvider;
 
 namespace {
 
-class SpecifyAVaryAcceptEncodingHeaderTest : public ::testing::Test {
+class SpecifyAVaryAcceptEncodingHeaderTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const std::string& url,
                        const std::string& type,
                        const std::string& cache_control_header,
@@ -81,9 +72,6 @@ class SpecifyAVaryAcceptEncodingHeaderTest : public ::testing::Test {
     ASSERT_EQ(1, result.resource_urls_size());
     ASSERT_EQ(url, result.resource_urls(0));
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(SpecifyAVaryAcceptEncodingHeaderTest, NoProblems) {
@@ -101,6 +89,7 @@ TEST_F(SpecifyAVaryAcceptEncodingHeaderTest, NoProblems) {
   // so make sure that the rule can handle this:
   AddTestResource("http://static.example.com/styles4.css",
                   "text/css", "", "aCcEpT-eNcOdInG");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -109,6 +98,7 @@ TEST_F(SpecifyAVaryAcceptEncodingHeaderTest, OneViolation) {
                   "text/html", "private", "");
   AddTestResource("http://static.example.com/styles.css",
                   "text/css", "", "");
+  Freeze();
   CheckOneViolation("http://static.example.com/styles.css");
 }
 

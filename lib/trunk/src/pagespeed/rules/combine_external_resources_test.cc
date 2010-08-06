@@ -22,7 +22,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/combine_external_resources.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::CombineExternalCSS;
 using pagespeed::rules::CombineExternalJavaScript;
@@ -51,16 +51,8 @@ class Violation {
   std::vector<std::string> urls;
 };
 
-class CombineExternalResourcesTest : public ::testing::Test {
+class CombineExternalResourcesTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   Resource* AddTestResource(const std::string& url,
                             const std::string& content_type) {
     Resource* resource = new Resource;
@@ -112,9 +104,6 @@ class CombineExternalResourcesTest : public ::testing::Test {
       }
     }
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(CombineExternalResourcesTest, OneUrlNoViolation) {
@@ -124,6 +113,7 @@ TEST_F(CombineExternalResourcesTest, OneUrlNoViolation) {
 
   std::vector<Violation> no_violations;
 
+  Freeze();
   CheckViolations(pagespeed::JS, no_violations);
   CheckViolations(pagespeed::CSS, no_violations);
 }
@@ -137,6 +127,7 @@ TEST_F(CombineExternalResourcesTest, OneLazyOneNotNoViolation) {
 
   std::vector<Violation> no_violations;
 
+  Freeze();
   CheckViolations(pagespeed::JS, no_violations);
   CheckViolations(pagespeed::CSS, no_violations);
 }
@@ -157,6 +148,7 @@ TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromOneHostViolation) {
   std::vector<Violation> css_violations;
   css_violations.push_back(Violation(1, "foo.com", urls));
 
+  Freeze();
   CheckViolations(pagespeed::CSS, css_violations);
   CheckViolations(pagespeed::JS, no_violations);
 }
@@ -170,6 +162,7 @@ TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
 
   std::vector<Violation> no_violations;
 
+  Freeze();
   CheckViolations(pagespeed::CSS, no_violations);
   CheckViolations(pagespeed::JS, no_violations);
 }
@@ -199,6 +192,7 @@ TEST_F(CombineExternalResourcesTest, FourCssResourcesFromTwoHostsViolation) {
   css_violations.push_back(Violation(1, "a.com", aUrls));
   css_violations.push_back(Violation(1, "b.com", bUrls));
 
+  Freeze();
   CheckViolations(pagespeed::CSS, css_violations);
   CheckViolations(pagespeed::JS, no_violations);
 }
@@ -222,6 +216,7 @@ TEST_F(CombineExternalResourcesTest, ThreeCssResourcesFromOneHostViolation) {
   std::vector<Violation> css_violations;
   css_violations.push_back(Violation(2, "foo.com", urls));
 
+  Freeze();
   CheckViolations(pagespeed::CSS, css_violations);
   CheckViolations(pagespeed::JS, no_violations);
 }
@@ -242,6 +237,7 @@ TEST_F(CombineExternalResourcesTest, TwoJsResourcesFromOneHostViolation) {
   std::vector<Violation> js_violations;
   js_violations.push_back(Violation(1, "foo.com", urls));
 
+  Freeze();
   CheckViolations(pagespeed::CSS, no_violations);
   CheckViolations(pagespeed::JS, js_violations);
 }

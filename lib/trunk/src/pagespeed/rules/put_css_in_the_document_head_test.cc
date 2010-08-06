@@ -22,7 +22,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/put_css_in_the_document_head.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::DomDocument;
 using pagespeed::StylesInBodyDetails;
@@ -128,16 +128,8 @@ class MockDocument : public pagespeed::DomDocument {
   DISALLOW_COPY_AND_ASSIGN(MockDocument);
 };
 
-class PutCssInTheDocumentHeadTest : public ::testing::Test {
+class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new pagespeed::PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   MockDocument* NewMockDocument (const std::string& url, MockElement* root) {
     pagespeed::Resource* resource = new pagespeed::Resource;
     resource->SetRequestUrl(url);
@@ -195,6 +187,7 @@ class PutCssInTheDocumentHeadTest : public ::testing::Test {
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<Violation>& expected) {
     input_->AcquireDomDocument(document);
+    Freeze();
 
     pagespeed::rules::PutCssInTheDocumentHead put_css_in_head_rule;
 
@@ -223,8 +216,6 @@ class PutCssInTheDocumentHeadTest : public ::testing::Test {
       }
     }
   }
-
-  scoped_ptr<pagespeed::PagespeedInput> input_;
 };
 
 TEST_F(PutCssInTheDocumentHeadTest, Empty) {

@@ -87,6 +87,7 @@ class TestRule : public Rule {
 
 TEST(EngineTest, ComputeResults) {
   PagespeedInput input;
+  input.Freeze();
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
@@ -108,6 +109,7 @@ TEST(EngineTest, ComputeResults) {
 
 TEST(EngineTest, ComputeResultsError) {
   PagespeedInput input;
+  input.Freeze();
 
   std::vector<Rule*> rules;
   TestRule* rule = new TestRule();
@@ -130,6 +132,7 @@ TEST(EngineTest, ComputeResultsError) {
 
 TEST(EngineTest, FormatResults) {
   PagespeedInput input;
+  input.Freeze();
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
@@ -154,6 +157,7 @@ TEST(EngineTest, FormatResults) {
 
 TEST(EngineTest, FormatResultsNoResults) {
   PagespeedInput input;
+  input.Freeze();
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
@@ -212,6 +216,7 @@ TEST(EngineTest, FormatResultsNotInitialized) {
 
 TEST(EngineTest, FormatResultsNoRuleInstance) {
   PagespeedInput input;
+  input.Freeze();
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());

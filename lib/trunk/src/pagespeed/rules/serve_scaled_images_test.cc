@@ -25,7 +25,8 @@
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/serve_scaled_images.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
 
@@ -138,16 +139,11 @@ class MockIframeElement : public pagespeed::DomElement {
   DISALLOW_COPY_AND_ASSIGN(MockIframeElement);
 };
 
-class ServeScaledImagesTest : public ::testing::Test {
+class ServeScaledImagesTest : public ::pagespeed_testing::PagespeedTest {
  protected:
 
-  virtual void SetUp() {
-    input_.reset(new pagespeed::PagespeedInput);
+  virtual void DoSetUp() {
     input_->AcquireImageAttributesFactory(new MockImageAttributesFactory());
-  }
-
-  virtual void TearDown() {
-    input_.reset();
   }
 
   MockDocument* NewMockDocument (const std::string& url) {
@@ -196,6 +192,7 @@ class ServeScaledImagesTest : public ::testing::Test {
   void CheckFormattedOutput(MockDocument* document,
                             const std::string& expected_output) {
     input_->AcquireDomDocument(document);
+    Freeze();
 
     pagespeed::Results results;
     {
@@ -224,6 +221,7 @@ class ServeScaledImagesTest : public ::testing::Test {
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<std::string>& expected) {
     input_->AcquireDomDocument(document);
+    Freeze();
 
     pagespeed::rules::ServeScaledImages scaling_rule;
 
@@ -238,8 +236,6 @@ class ServeScaledImagesTest : public ::testing::Test {
       EXPECT_EQ(expected[idx], result.resource_urls(0));
     }
   }
-
-  scoped_ptr<pagespeed::PagespeedInput> input_;
 };
 
 TEST_F(ServeScaledImagesTest, EmptyDom) {
