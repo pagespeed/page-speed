@@ -129,11 +129,13 @@ void AssertValidInput(const PagespeedInput* input) {
 
 TEST(HttpArchiveTest, ValidInput) {
   scoped_ptr<PagespeedInput> input(ParseHttpArchive(kHarInput));
+  input->Freeze();
   AssertValidInput(input.get());
 }
 
 TEST(HttpArchiveTest, ValidInputBase64) {
   scoped_ptr<PagespeedInput> input(ParseHttpArchive(kHarInputBase64));
+  input->Freeze();
   AssertValidInput(input.get());
 }
 

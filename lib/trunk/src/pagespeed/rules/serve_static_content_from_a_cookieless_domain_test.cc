@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/serve_static_content_from_a_cookieless_domain.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::ServeStaticContentFromACookielessDomain;
 using pagespeed::PagespeedInput;
@@ -31,17 +31,8 @@ using pagespeed::ResultProvider;
 
 namespace {
 
-class ServeStaticContentFromACookielessDomainTest : public ::testing::Test {
+class ServeStaticContentFromACookielessDomainTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const std::string& url,
                        const std::string& type,
                        const std::string& cookie) {
@@ -77,9 +68,6 @@ class ServeStaticContentFromACookielessDomainTest : public ::testing::Test {
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), url);
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(ServeStaticContentFromACookielessDomainTest, NoProblems) {
@@ -87,6 +75,7 @@ TEST_F(ServeStaticContentFromACookielessDomainTest, NoProblems) {
                   "text/html", "CHOCOLATE-CHIP");
   AddTestResource("http://static.example.com/styles.css",
                   "text/css", "");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -95,6 +84,7 @@ TEST_F(ServeStaticContentFromACookielessDomainTest, OneViolation) {
                   "text/html", "CHOCOLATE-CHIP");
   AddTestResource("http://static.example.com/styles.css",
                   "text/css", "OATMEAL-RAISIN");
+  Freeze();
   CheckOneViolation("http://static.example.com/styles.css");
 }
 

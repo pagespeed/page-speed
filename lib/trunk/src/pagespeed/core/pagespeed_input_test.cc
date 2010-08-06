@@ -37,8 +37,8 @@ TEST(PagespeedInputTest, DisallowDuplicates) {
 
   EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
   EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
-  ASSERT_EQ(input.num_resources(), 2);
   EXPECT_FALSE(input.AddResource(NewResource(kURL2, 200)));
+  ASSERT_TRUE(input.Freeze());
   ASSERT_EQ(input.num_resources(), 2);
   EXPECT_EQ(input.GetResource(0).GetRequestUrl(), kURL1);
   EXPECT_EQ(input.GetResource(1).GetRequestUrl(), kURL2);
@@ -51,6 +51,7 @@ TEST(PagespeedInputTest, AllowDuplicates) {
   EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
   EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
   EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
+  ASSERT_TRUE(input.Freeze());
   ASSERT_EQ(input.num_resources(), 3);
   EXPECT_EQ(input.GetResource(0).GetRequestUrl(), kURL1);
   EXPECT_EQ(input.GetResource(1).GetRequestUrl(), kURL2);
@@ -63,12 +64,14 @@ TEST(PagespeedInputTest, FilterBadResources) {
   EXPECT_FALSE(input.AddResource(NewResource("", 200)));
   EXPECT_FALSE(input.AddResource(NewResource(kURL1, 0)));
   EXPECT_FALSE(input.AddResource(NewResource(kURL1, -1)));
+  ASSERT_TRUE(input.Freeze());
 }
 
 TEST(PagespeedInputTest, FilterResources) {
   pagespeed::PagespeedInput input(
       new pagespeed::NotResourceFilter(new pagespeed::AllowAllResourceFilter));
   EXPECT_FALSE(input.AddResource(NewResource(kURL1, 200)));
+  ASSERT_TRUE(input.Freeze());
 }
 
 }  // namespace

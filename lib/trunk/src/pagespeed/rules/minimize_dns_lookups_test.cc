@@ -22,7 +22,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_dns_lookups.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::MinimizeDnsLookups;
 using pagespeed::PagespeedInput;
@@ -33,16 +33,8 @@ using pagespeed::ResultProvider;
 
 namespace {
 
-class MinimizeDnsTest : public ::testing::Test {
+class MinimizeDnsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   Resource* AddTestResource(const std::string& url) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
@@ -84,7 +76,6 @@ class MinimizeDnsTest : public ::testing::Test {
   }
 
  private:
-  scoped_ptr<PagespeedInput> input_;
   base::AtExitManager at_exit_manager_;
 };
 
@@ -93,6 +84,7 @@ TEST_F(MinimizeDnsTest, OneUrlNoViolation) {
 
   AddTestResource(url);
   SetPrimaryResourceUrl(url);
+  Freeze();
 
   std::vector<std::string> expected_violations;
 
@@ -106,6 +98,7 @@ TEST_F(MinimizeDnsTest, OneLazyOneNotNoViolation) {
   AddTestResource(url1);
   AddTestResource(url2)->SetLazyLoaded();
   SetPrimaryResourceUrl(url1);
+  Freeze();
 
   std::vector<std::string> expected_violations;
 
@@ -120,6 +113,7 @@ TEST_F(MinimizeDnsTest, OneLazyTwoNotTwoViolations) {
   AddTestResource(url1);
   AddTestResource(url2);
   AddTestResource(url3)->SetLazyLoaded();
+  Freeze();
 
   std::vector<std::string> expected_violations;
   expected_violations.push_back(url2);
@@ -134,6 +128,7 @@ TEST_F(MinimizeDnsTest, TwoUrlsOneHostNoViolations) {
 
   AddTestResource(url1);
   AddTestResource(url2);
+  Freeze();
 
   std::vector<std::string> expected_violations;
 
@@ -146,6 +141,7 @@ TEST_F(MinimizeDnsTest, TwoUrlsTwoViolations) {
 
   AddTestResource(url1);
   AddTestResource(url2);
+  Freeze();
 
   std::vector<std::string> expected_violations;
   expected_violations.push_back(url2);
@@ -162,6 +158,7 @@ TEST_F(MinimizeDnsTest, ThreeUrlsOneViolation) {
   AddTestResource(url1);
   AddTestResource(url2);
   AddTestResource(url3);
+  Freeze();
 
   std::vector<std::string> expected_violations;
   expected_violations.push_back(url3);
@@ -176,6 +173,7 @@ TEST_F(MinimizeDnsTest, MainResourceNoViolation) {
   AddTestResource(url1);
   AddTestResource(url2);
   SetPrimaryResourceUrl(url1);
+  Freeze();
 
   std::vector<std::string> expected_violations;
   expected_violations.push_back(url2);
@@ -191,6 +189,7 @@ TEST_F(MinimizeDnsTest, ExcludeNumericIps) {
   AddTestResource(url1);
   AddTestResource(url2);
   AddTestResource(url3);
+  Freeze();
 
   std::vector<std::string> expected_violations;
   expected_violations.push_back(url2);

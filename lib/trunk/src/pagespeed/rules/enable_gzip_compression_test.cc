@@ -21,7 +21,7 @@
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/savings_computer.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::compression_computer::ZlibComputer;
 using pagespeed::rules::EnableGzipCompression;
@@ -36,16 +36,8 @@ using pagespeed::Savings;
 
 namespace {
 
-class EnableGzipCompressionTest : public ::testing::Test {
+class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* content_encoding,
@@ -190,48 +182,53 @@ class EnableGzipCompressionTest : public ::testing::Test {
                                               result_vector));
     }
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
+  Freeze();
 
   CheckOneViolation(8956, 0);
 }
 
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlUtf8NoGzip) {
   AddFirstLargeHtmlResource("utf-8", false);
+  Freeze();
 
   CheckOneViolation(8956, 0);
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzip) {
   AddFirstLargeHtmlResource(true);
+  Freeze();
 
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationSmallHtmlNoGzip) {
   AddShortHtmlResource();
+  Freeze();
 
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeNoContentTypeNoGzip) {
   AddTestResource("http://www.test.com/", NULL, NULL, 9000);
+  Freeze();
 
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeImageNoGzip) {
   AddTestResource("http://www.test.com/", "image/jpeg", NULL, 9000);
+  Freeze();
 
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzipSdch) {
   AddTestResource("http://www.test.com/", "text/html", "gzip,sdch", 9000);
+  Freeze();
 
   CheckNoViolations();
 }
@@ -239,6 +236,7 @@ TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzipSdch) {
 TEST_F(EnableGzipCompressionTest, NoViolationTwoHtmlGzip) {
   AddFirstLargeHtmlResource(true);
   AddSecondLargeHtmlResource(true);
+  Freeze();
 
   CheckNoViolations();
 }
@@ -246,6 +244,7 @@ TEST_F(EnableGzipCompressionTest, NoViolationTwoHtmlGzip) {
 TEST_F(EnableGzipCompressionTest, OneViolationTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(true);
+  Freeze();
 
   CheckOneViolation(8956, 33);
 }
@@ -253,6 +252,7 @@ TEST_F(EnableGzipCompressionTest, OneViolationTwoHtmlNoGzip) {
 TEST_F(EnableGzipCompressionTest, TwoViolationsTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(false);
+  Freeze();
 
   CheckTwoViolations(8956, 4460, 0);
 }
@@ -267,6 +267,7 @@ TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
   body.append(9000, ' ');
   body[0] = '\0';
   AddTestResource("http://www.test.com/", "text/html", NULL, body);
+  Freeze();
   CheckOneViolation(8955, 0);
 }
 
@@ -290,6 +291,7 @@ class FailAtSpecifiedIndexComputer : public SavingsComputer {
 TEST_F(EnableGzipCompressionTest, FailedComputationsNotAddedToResults) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(false);
+  Freeze();
 
   CheckErrorAndOneViolation(new FailAtSpecifiedIndexComputer(1), 10);
 }
@@ -297,6 +299,7 @@ TEST_F(EnableGzipCompressionTest, FailedComputationsNotAddedToResults) {
 TEST_F(EnableGzipCompressionTest, FailedComputationsNotAddedToResults2) {
   AddSecondLargeHtmlResource(false);
   AddFirstLargeHtmlResource(false);
+  Freeze();
 
   CheckErrorAndOneViolation(new FailAtSpecifiedIndexComputer(0), 10);
 }

@@ -21,7 +21,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/optimize_images.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::OptimizeImages;
 using pagespeed::PagespeedInput;
@@ -47,17 +47,8 @@ void ReadFileToString(const std::string &path, std::string *dest) {
   ASSERT_GT(dest->size(), static_cast<size_t>(0));
 }
 
-class OptimizeImagesTest : public ::testing::Test {
+class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddJpegResource(const std::string &url,
                        const std::string &content_type,
                        const std::string &file_name) {
@@ -144,14 +135,13 @@ class OptimizeImagesTest : public ::testing::Test {
     ASSERT_FALSE(optimize.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(OptimizeImagesTest, BasicJpg) {
   AddJpegResource("http://www.example.com/foo.jpg",
                   "image/jpg",
                   "test420.jpg");
+  Freeze();
   CheckOneViolation("http://www.example.com/foo.jpg", 13);
 }
 
@@ -159,6 +149,7 @@ TEST_F(OptimizeImagesTest, BasicJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "image/jpeg",
                   "test411.jpg");
+  Freeze();
   CheckOneViolation("http://www.example.com/foo.jpeg", 10);
 }
 
@@ -166,6 +157,7 @@ TEST_F(OptimizeImagesTest, BasicPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
                  "basi3p02.png");
+  Freeze();
   CheckOneViolation("http://www.example.com/foo.png", 80);
 }
 
@@ -173,6 +165,7 @@ TEST_F(OptimizeImagesTest, UnknownImageTypeDoesNotGetOptimized) {
   AddJpegResource("http://www.example.com/foo.xyz",
                   "image/xyz",
                   "testgray.jpg");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -180,6 +173,7 @@ TEST_F(OptimizeImagesTest, WrongContentTypeDoesNotGetOptimizedJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "application/x-foo-bar-baz",
                   "testgray.jpg");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -187,6 +181,7 @@ TEST_F(OptimizeImagesTest, WrongContentTypeDoesNotGetOptimizedPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "application/x-foo-bar-baz",
                  "basi0g01.png");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -194,6 +189,7 @@ TEST_F(OptimizeImagesTest, AlreadyOptimizedJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "image/jpeg",
                   "already_optimized.jpg");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -201,6 +197,7 @@ TEST_F(OptimizeImagesTest, AlreadyOptimizedPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
                  "already_optimized.png");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -208,6 +205,7 @@ TEST_F(OptimizeImagesTest, ErrorJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "image/jpeg",
                   "corrupt.jpg");
+  Freeze();
   CheckError();
 }
 
@@ -215,6 +213,7 @@ TEST_F(OptimizeImagesTest, ErrorPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
                  "x00n0g01.png");
+  Freeze();
   CheckError();
 }
 

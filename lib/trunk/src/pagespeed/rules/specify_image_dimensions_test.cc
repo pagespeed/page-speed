@@ -24,7 +24,7 @@
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/specify_image_dimensions.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::SpecifyImageDimensions;
 using pagespeed::PagespeedInput;
@@ -134,16 +134,8 @@ class MockElement : public pagespeed::DomElement {
   DISALLOW_COPY_AND_ASSIGN(MockElement);
 };
 
-class SpecifyImageDimensionsTest : public ::testing::Test {
+class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   MockDocument* NewMockDocument(const std::string& url) {
     AddResource(url.c_str(), "text/html");
     return new MockDocument(url);
@@ -185,6 +177,7 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
   void CheckFormattedOutput(MockDocument* document,
                             const std::string& expected_output) {
     input_->AcquireDomDocument(document);
+    Freeze();
 
     pagespeed::Results results;
     {
@@ -213,6 +206,7 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<std::string>& expected) {
     input_->AcquireDomDocument(document);
+    Freeze();
 
     SpecifyImageDimensions dimensions_rule;
 
@@ -227,8 +221,6 @@ class SpecifyImageDimensionsTest : public ::testing::Test {
       EXPECT_EQ(expected[idx], result.resource_urls(0));
     }
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(SpecifyImageDimensionsTest, EmptyDom) {

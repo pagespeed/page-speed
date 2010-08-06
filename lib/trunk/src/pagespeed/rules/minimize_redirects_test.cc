@@ -22,7 +22,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minimize_redirects.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::MinimizeRedirects;
 using pagespeed::PagespeedInput;
@@ -47,15 +47,10 @@ class Violation {
   std::vector<std::string> urls;
 };
 
-class MinimizeRedirectsTest : public ::testing::Test {
+class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
+  virtual void DoSetUp() {
     input_->set_allow_duplicate_resources();
-  }
-
-  virtual void TearDown() {
-    input_.reset();
   }
 
   void AddResourceUrl(const std::string& url, int status_code) {
@@ -109,9 +104,6 @@ class MinimizeRedirectsTest : public ::testing::Test {
       }
     }
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(MinimizeRedirectsTest, SimpleRedirect) {
@@ -121,6 +113,7 @@ TEST_F(MinimizeRedirectsTest, SimpleRedirect) {
 
   AddRedirect(url1, url2);
   AddResourceUrl(url2, 200);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -140,6 +133,7 @@ TEST_F(MinimizeRedirectsTest, EmptyLocation) {
 
   AddRedirect(url1, empty);
   AddResourceUrl(url2, 200);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -158,6 +152,7 @@ TEST_F(MinimizeRedirectsTest, NoRedirects) {
 
   AddResourceUrl(url1, 200);
   AddResourceUrl(url2, 304);
+  Freeze();
 
   std::vector<Violation> violations;
 
@@ -173,6 +168,7 @@ TEST_F(MinimizeRedirectsTest, RedirectChain) {
   AddRedirect(url1, url2);
   AddRedirect(url2, url3);
   AddResourceUrl(url3, 200);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -195,6 +191,7 @@ TEST_F(MinimizeRedirectsTest, AbsoltutePath) {
   AddRedirect(url1, url2);
   AddRedirect(url2, url3_path);
   AddResourceUrl(url3, 200);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -217,6 +214,7 @@ TEST_F(MinimizeRedirectsTest, RelativePath) {
   AddRedirect(url1, url2);
   AddRedirect(url2, url3_relative);
   AddResourceUrl(url3, 200);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -239,6 +237,7 @@ TEST_F(MinimizeRedirectsTest, Fragment) {
   AddRedirect(url1, url2);
   AddRedirect(url2, url3_with_fragment);
   AddResourceUrl(url3, 200);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -262,6 +261,7 @@ TEST_F(MinimizeRedirectsTest, RedirectGraphNoCycles1) {
   AddRedirect(url2, url3);
   AddResourceUrl(url3, 200);
   AddRedirect(url4, url3);
+  Freeze();
 
   std::vector<std::string> urls1;
   urls1.push_back(url1);
@@ -292,6 +292,7 @@ TEST_F(MinimizeRedirectsTest, DiamondRedirectGraph) {
   AddResourceUrl(url3, 200);
   AddRedirect(url1, url4);
   AddRedirect(url4, url3);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -317,6 +318,7 @@ TEST_F(MinimizeRedirectsTest, RedirectGraphCycles) {
   AddRedirect(url2, url3);
   AddRedirect(url3, url4);
   AddRedirect(url4, url2);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
@@ -344,6 +346,7 @@ TEST_F(MinimizeRedirectsTest, RedirectGraphCycles2) {
   AddRedirect(url3, url4);
   AddRedirect(url4, url2);
   AddRedirect(url5, url3);
+  Freeze();
 
   std::vector<std::string> urls1;
   urls1.push_back(url5);
@@ -372,6 +375,7 @@ TEST_F(MinimizeRedirectsTest, RedirectCycles) {
   AddRedirect(url1, url2);
   AddRedirect(url2, url3);
   AddRedirect(url3, url1);
+  Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);

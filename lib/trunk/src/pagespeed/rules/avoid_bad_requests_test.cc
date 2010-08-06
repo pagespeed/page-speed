@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/avoid_bad_requests.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::AvoidBadRequests;
 using pagespeed::PagespeedInput;
@@ -31,17 +31,8 @@ using pagespeed::ResultProvider;
 
 namespace {
 
-class AvoidBadRequestsTest : public ::testing::Test {
+class AvoidBadRequestsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const std::string &url,
                        const int status_code,
                        const std::string &body) {
@@ -74,9 +65,6 @@ class AvoidBadRequestsTest : public ::testing::Test {
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), url);
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(AvoidBadRequestsTest, NoProblems) {
@@ -84,6 +72,7 @@ TEST_F(AvoidBadRequestsTest, NoProblems) {
                   200, "Hello, world!");
   AddTestResource("http://www.example.com/goodbye.txt",
                   200, "Goodbye, world!");
+  Freeze();
   CheckNoViolations();
 }
 
@@ -94,6 +83,7 @@ TEST_F(AvoidBadRequestsTest, MissingImage) {
                   404, "");
   AddTestResource("http://www.example.com/goodbye.txt",
                   200, "Goodbye, world!");
+  Freeze();
   CheckOneViolation("http://www.example.com/missing.png");
 }
 

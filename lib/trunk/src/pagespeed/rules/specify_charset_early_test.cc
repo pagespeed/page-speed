@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/specify_charset_early.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::SpecifyCharsetEarly;
 using pagespeed::PagespeedInput;
@@ -34,17 +34,8 @@ namespace {
 const int kLateThresholdBytes = 1024;
 
 
-class SpecifyCharsetEarlyTest : public ::testing::Test {
+class SpecifyCharsetEarlyTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const std::string &url,
                        const std::string &header_name,
                        const std::string &header_value,
@@ -78,9 +69,6 @@ class SpecifyCharsetEarlyTest : public ::testing::Test {
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), url);
   }
-
- private:
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(SpecifyCharsetEarlyTest, CharsetInHeader) {
@@ -90,6 +78,7 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetInHeader) {
                   "Content-Type",
                   "text/html; charset=utf-8",
                   html);
+  Freeze();
   CheckNoViolations();
 }
 
@@ -107,6 +96,7 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetEarlyInHtml) {
                   "",
                   "",
                   html);
+  Freeze();
   CheckNoViolations();
 }
 
@@ -124,6 +114,7 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetSecondInHtml) {
                   "",
                   "",
                   html);
+  Freeze();
   CheckNoViolations();
 }
 
@@ -150,6 +141,7 @@ TEST_F(SpecifyCharsetEarlyTest, TwoResourcesSecondIsViolation) {
                   "",
                   html2);
 
+  Freeze();
   CheckOneViolation("http://www.example.com/hello2.html");
 }
 
@@ -164,6 +156,7 @@ TEST_F(SpecifyCharsetEarlyTest, NoSpaceCharsetEarlyInHtml) {
                   "",
                   "",
                   html);
+  Freeze();
   CheckNoViolations();
 }
 
@@ -180,6 +173,7 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetLateInHtml) {
                   "",
                   "",
                   html);
+  Freeze();
   CheckOneViolation("http://www.example.com/hello.html");
 }
 
@@ -190,6 +184,7 @@ TEST_F(SpecifyCharsetEarlyTest, NotHtmlContent) {
                   "Content-Type",
                   "text/javascript",
                   html);
+  Freeze();
   CheckNoViolations();
 }
 
@@ -205,6 +200,7 @@ TEST_F(SpecifyCharsetEarlyTest, MissingCharset) {
                   "Content-Type",
                   "text/html",
                   html);
+  Freeze();
   CheckOneViolation("http://www.example.com/hello.html");
 }
 
@@ -220,6 +216,7 @@ TEST_F(SpecifyCharsetEarlyTest, MissingContentType) {
                   "",
                   "",
                   html);
+  Freeze();
   CheckOneViolation("http://www.example.com/hello.html");
 }
 
@@ -236,6 +233,7 @@ TEST_F(SpecifyCharsetEarlyTest, EmptyContentType) {
                   "Content-Type",
                   "",
                   html);
+  Freeze();
   CheckOneViolation("http://www.example.com/hello.html");
 }
 
@@ -251,6 +249,7 @@ TEST_F(SpecifyCharsetEarlyTest, SmallHtmlMissingCharset) {
                   "Content-Type",
                   "text/html",
                   html);
+  Freeze();
   CheckNoViolations();
 }
 
@@ -281,6 +280,7 @@ TEST_F(SpecifyCharsetEarlyTest, TwoResourcesMissingCharset) {
                   "",
                   html);
 
+  Freeze();
   CheckOneViolation("http://www.example.com/hello2.html");
 }
 

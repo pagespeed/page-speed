@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minify_javascript.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::MinifyJavaScript;
 using pagespeed::PagespeedInput;
@@ -39,17 +39,8 @@ const char* kUnminified = "function () { foo(); }";
 // prepends a newline to its output.
 const char* kMinified = "\nfunction(){foo();}";
 
-class MinifyJavaScriptTest : public ::testing::Test {
+class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* body) {
@@ -130,14 +121,13 @@ class MinifyJavaScriptTest : public ::testing::Test {
     ASSERT_FALSE(minify.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(MinifyJavaScriptTest, Basic) {
   AddTestResource("http://www.example.com/foo.js",
                   "application/x-javascript",
                   kUnminified);
+  Freeze();
 
   CheckOneViolation(85);
 }
@@ -146,6 +136,7 @@ TEST_F(MinifyJavaScriptTest, WrongContentTypeDoesNotGetMinified) {
   AddTestResource("http://www.example.com/foo.js",
                   "text/html",
                   kUnminified);
+  Freeze();
 
   CheckNoViolations();
 }
@@ -154,6 +145,7 @@ TEST_F(MinifyJavaScriptTest, AlreadyMinified) {
   AddTestResource("http://www.example.com/foo.js",
                   "application/x-javascript",
                   kMinified);
+  Freeze();
 
   CheckNoViolations();
 }
@@ -162,6 +154,7 @@ TEST_F(MinifyJavaScriptTest, Error) {
   AddTestResource("http://www.example.com/foo.js",
                   "application/x-javascript",
                   "/* not valid javascript");
+  Freeze();
 
   CheckError();
 }

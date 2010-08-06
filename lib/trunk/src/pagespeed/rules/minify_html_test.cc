@@ -20,7 +20,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/minify_html.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::rules::MinifyHTML;
 using pagespeed::PagespeedInput;
@@ -59,17 +59,8 @@ const char* kMinified =
     "</body>\n"
     "</html>\n";
 
-class MinifyHtmlTest : public ::testing::Test {
+class MinifyHtmlTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-
-  virtual void SetUp() {
-    input_.reset(new PagespeedInput);
-  }
-
-  virtual void TearDown() {
-    input_.reset();
-  }
-
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* body) {
@@ -151,15 +142,13 @@ class MinifyHtmlTest : public ::testing::Test {
     ASSERT_FALSE(minify.AppendResults(*input_, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
-
-  scoped_ptr<PagespeedInput> input_;
 };
 
 TEST_F(MinifyHtmlTest, Basic) {
   AddTestResource("http://www.example.com/foo.html",
                   "text/html",
                   kUnminified);
-
+  Freeze();
   CheckOneViolation(70);
 }
 
@@ -167,7 +156,7 @@ TEST_F(MinifyHtmlTest, WrongContentTypeDoesNotGetMinified) {
   AddTestResource("http://www.example.com/foo.html",
                   "text/css",
                   kUnminified);
-
+  Freeze();
   CheckNoViolations();
 }
 
@@ -175,7 +164,7 @@ TEST_F(MinifyHtmlTest, AlreadyMinified) {
   AddTestResource("http://www.example.com/foo.html",
                   "text/html",
                   kMinified);
-
+  Freeze();
   CheckNoViolations();
 }
 
