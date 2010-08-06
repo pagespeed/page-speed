@@ -33,7 +33,7 @@ class TestShellRunner {
  public:
   // SetUp and TearDown the TestShellRunner environment. Should be
   // called at program startup and shutdown (e.g. in main()).
-  static void SetUp();
+  static void SetUp(int* argc, char*** argv);
   static void TearDown();
 
   TestShellRunner();

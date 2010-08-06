@@ -149,16 +149,11 @@ class JobTracker : public URLRequestJobTracker::JobObserver {
   }
 
   virtual void OnBytesRead(URLRequestJob* job,
-                           // const char* buf,
+                           const char* buf,
                            int byte_count) {
-    /*
-      TODO(bmcquade): add this when OnBytesRead callback includes the
-      data buffer.
-
     if (buf) {
       in_flight_responses_[job].append(buf, byte_count);
     }
-    */
   }
 
  private:
