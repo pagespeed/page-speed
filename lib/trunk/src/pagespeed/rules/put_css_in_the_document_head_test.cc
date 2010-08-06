@@ -29,10 +29,12 @@ using pagespeed::StylesInBodyDetails;
 
 namespace {
 
+class MockDocument;
+
 class MockElement : public pagespeed::DomElement {
  public:
   // MockElement takes ownership of content.
-  MockElement(DomDocument* content,
+  MockElement(MockDocument* content,
               const std::string& tagname,
               const std::map<std::string, std::string>& attributes)
       : content_(content),
@@ -49,11 +51,7 @@ class MockElement : public pagespeed::DomElement {
   }
 
   // Creates and returns a MockElement (which takes ownership of content).
-  static MockElement* NewIframe(DomDocument* content) {
-    std::map<std::string, std::string> attributes;
-    attributes["src"] = content->GetDocumentUrl();
-    return new MockElement(content, "IFRAME", attributes);
-  }
+  static MockElement* NewIframe(MockDocument* content);
 
   static MockElement* NewLinkTag(const std::string& href) {
     std::map<std::string, std::string> attributes;
@@ -67,10 +65,7 @@ class MockElement : public pagespeed::DomElement {
     return new MockElement(NULL, "STYLE", attributes);
   }
 
-  // Ownership is transferred to the caller. May be NULL.
-  virtual DomDocument* GetContentDocument() const {
-    return content_.release();
-  }
+  virtual DomDocument* GetContentDocument() const;
 
   virtual std::string GetTagName() const {
     return tagname_;
@@ -102,7 +97,7 @@ class MockElement : public pagespeed::DomElement {
   }
 
  private:
-  mutable scoped_ptr<DomDocument> content_;
+  mutable scoped_ptr<MockDocument> content_;
   std::string tagname_;
   std::vector<MockElement*> children_;
   std::map<std::string, std::string> attributes_;
@@ -113,7 +108,13 @@ class MockElement : public pagespeed::DomElement {
 class MockDocument : public pagespeed::DomDocument {
  public:
   MockDocument(const std::string& url, MockElement* root) :
-      url_(url), root_(root) {}
+      url_(url), root_(root), is_clone_(false) {}
+
+  virtual ~MockDocument() {
+    if (!is_clone_) {
+      delete root_;
+    }
+  }
 
   virtual std::string GetDocumentUrl() const { return url_; }
 
@@ -121,12 +122,30 @@ class MockDocument : public pagespeed::DomDocument {
     root_->Traverse(visitor);
   }
 
+  MockDocument* Clone() {
+    MockDocument* doc = new MockDocument(GetDocumentUrl(), root_);
+    doc->is_clone_ = true;
+    return doc;
+  }
+
  private:
   const std::string url_;
-  scoped_ptr<MockElement> root_;
+  MockElement* root_;
+  bool is_clone_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDocument);
 };
+
+
+DomDocument* MockElement::GetContentDocument() const {
+  return content_->Clone();
+}
+
+MockElement* MockElement::NewIframe(MockDocument* content) {
+  std::map<std::string, std::string> attributes;
+  attributes["src"] = content->GetDocumentUrl();
+  return new MockElement(content, "IFRAME", attributes);
+}
 
 class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
  protected:

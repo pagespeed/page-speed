@@ -46,9 +46,11 @@ class MockImageAttributesFactory
 class MockDocument : public pagespeed::DomDocument {
  public:
   explicit MockDocument(const std::string& document_url)
-      : document_url_(document_url) {}
+      : document_url_(document_url), is_clone_(false) {}
   virtual ~MockDocument() {
-    STLDeleteContainerPointers(elements_.begin(), elements_.end());
+    if (!is_clone_) {
+      STLDeleteContainerPointers(elements_.begin(), elements_.end());
+    }
   }
 
   virtual std::string GetDocumentUrl() const {
@@ -69,9 +71,17 @@ class MockDocument : public pagespeed::DomDocument {
     elements_.push_back(element);
   }
 
+  MockDocument* Clone() {
+    MockDocument* doc = new MockDocument(GetDocumentUrl());
+    doc->elements_ = elements_;
+    doc->is_clone_ = true;
+    return doc;
+  }
+
  private:
   const std::string document_url_;
   std::vector<pagespeed::DomElement*> elements_;
+  bool is_clone_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDocument);
 };
@@ -80,15 +90,14 @@ class MockElement : public pagespeed::DomElement {
  public:
   // Creates and returns a MockElement (which takes ownership of content).
   static MockElement* New(
-      pagespeed::DomDocument* content,
+      MockDocument* content,
       const std::string& tagname,
       const std::map<std::string, std::string>& attributes) {
     return new MockElement(content, tagname, attributes);
   }
 
-  // Ownership is transferred to the caller. May be NULL.
   virtual pagespeed::DomDocument* GetContentDocument() const {
-    return content_.release();
+    return content_->Clone();
   }
 
   virtual std::string GetTagName() const {
@@ -119,7 +128,7 @@ class MockElement : public pagespeed::DomElement {
 
  private:
   // MockElement takes ownership of content.
-  MockElement(pagespeed::DomDocument* content,
+  MockElement(MockDocument* content,
               const std::string& tagname,
               const std::map<std::string, std::string>& attributes)
       : content_(content),
@@ -127,7 +136,7 @@ class MockElement : public pagespeed::DomElement {
         attributes_(attributes) {
   }
 
-  mutable scoped_ptr<pagespeed::DomDocument> content_;
+  mutable scoped_ptr<MockDocument> content_;
   std::string tagname_;
   std::map<std::string, std::string> attributes_;
 
