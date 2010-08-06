@@ -77,14 +77,14 @@ const char* kAfterMinification =
     "</body>\n"
     "</html>\n";
 
-TEST(HtmlCompactorTest, Basic) {
+TEST(HtmlMinifierTest, Basic) {
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kBeforeMinification, &output));
   ASSERT_EQ(kAfterMinification, output);
 }
 
-TEST(HtmlCompactorTest, AlreadyMinified) {
+TEST(HtmlMinifierTest, AlreadyMinified) {
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kAfterMinification, &output));
@@ -107,7 +107,7 @@ const char* kWithDoctypeMinified =
     "<body><input type=checkbox checked=checked /></body>\n"
     "</html>\n";
 
-TEST(HtmlCompactorTest, RespectDoctype) {
+TEST(HtmlMinifierTest, RespectDoctype) {
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kWithDoctype, &output));
