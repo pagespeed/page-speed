@@ -24,16 +24,18 @@
         '<(chromium_root)/base/debug_util.cc',
         '<(chromium_root)/base/lock.cc',
         '<(chromium_root)/base/lock_impl_posix.cc',
+        '<(chromium_root)/base/string16.cc',
+        '<(chromium_root)/base/string_number_conversions.cc',
         '<(chromium_root)/base/string_piece.cc',
         '<(chromium_root)/base/third_party/dmg_fp/dtoa.cc',
         '<(chromium_root)/base/third_party/dmg_fp/g_fmt.cc',
+        '<(DEPTH)/third_party/libpagespeed/src/base/stub_utf.cc',
 
         # Use the modified files below instead of these originals:
         #    <(chromium_root)/base/debug_util_posix.cc
         #    <(chromium_root)/base/third_party/nspr/prtime.cc
         #    <(chromium_root)/base/safe_strerror_posix.cc
         #    <(chromium_root)/base/logging.cc
-        #    <(chromium_root)/base/string16.cc
         #    <(chromium_root)/base/string_util.cc
         # When updating the version of Chromium that we use, be sure to check
         # for changes in these files.
@@ -41,7 +43,6 @@
         'prtime_nacl.cc',
         'safe_strerror_nacl.cc',
         '<(DEPTH)/third_party/libpagespeed/src/base/logging.cc',
-        '<(DEPTH)/third_party/libpagespeed/src/base/string16.cc',
         '<(DEPTH)/third_party/libpagespeed/src/base/string_util.cc',
       ],
       'cflags': [
