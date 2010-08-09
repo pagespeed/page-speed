@@ -25,6 +25,9 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
+        '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
+        '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
       ],
       'sources': [
         'npn_bridge.cc',

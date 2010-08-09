@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -33,11 +34,49 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/formatters/text_formatter.h"
+#include "pagespeed/har/http_archive.h"
+#include "pagespeed/rules/rule_provider.h"
 
 namespace {
 
 // This is the method name as JavaScript sees it:
 const char* kRunPageSpeedMethodId = "runPageSpeed";
+
+bool RunPageSpeedRules(const std::string& har_data,
+                       std::string* output) {
+  scoped_ptr<pagespeed::PagespeedInput> input(
+      pagespeed::ParseHttpArchive(har_data));
+
+  if (input.get() == NULL) {
+    return false;
+  }
+
+  input->Freeze();
+
+  std::vector<pagespeed::Rule*> rules;
+
+  // In environments where exceptions can be thrown, use
+  // STLElementDeleter to make sure we free the rules in the event
+  // that they are not transferred to the Engine.
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+
+  const bool save_optimized_content = false;
+  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+
+  // Ownership of rules is transferred to the Engine instance.
+  pagespeed::Engine engine(&rules);
+  engine.Init();
+
+  std::stringstream stream;
+  pagespeed::formatters::TextFormatter formatter(&stream);
+
+  engine.ComputeAndFormatResults(*input, &formatter);
+
+  output->append(stream.str());
+
+  return true;
+}
 
 // This function creates a string in the browser's memory pool and then returns
 // a variable containing a pointer to that string.  The variable is later
@@ -51,9 +90,11 @@ bool RunPageSpeed(const NPVariant& argument, NPVariant *result) {
                                  arg_NPString.UTF8Length);
 
     // Produce the result:
-    // TODO(mdsteele): Make this actually run the Page Speed library.
-    std::string output("Input was: ");
-    output.append(arg_string);
+    std::string output("Result: ");
+    const bool success = RunPageSpeedRules(arg_string, &output);
+    if (!success) {
+      output.append("Error reading HAR");
+    }
 
     // Return the result:
     const char *msg = output.c_str();
@@ -65,28 +106,6 @@ bool RunPageSpeed(const NPVariant& argument, NPVariant *result) {
     STRINGN_TO_NPVARIANT(msg_copy, msg_length - 1, *result);
   }
   return ok;
-}
-
-bool RunPageSpeedRules(const pagespeed::PagespeedInput& input,
-                       pagespeed::RuleFormatter* formatter) {
-  std::vector<pagespeed::Rule*> rules;
-
-  // In environments where exceptions can be thrown, use
-  // STLElementDeleter to make sure we free the rules in the event
-  // that they are not transferred to the Engine.
-  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
-
-  // TODO(mdsteele): Uncomment these once we get the rules to compile in NaCl.
-  //bool save_optimized_content = true;
-  //pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
-
-  // Ownership of rules is transferred to the Engine instance.
-  pagespeed::Engine engine(&rules);
-  engine.Init();
-
-  engine.ComputeAndFormatResults(input, formatter);
-
-  return true;
 }
 
 NPObject* Allocate(NPP npp, NPClass* npclass) {
