@@ -22,7 +22,7 @@ vars = {
   # commented-out line below.
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@50096",
+  "chromium_revision": "@55218",
 }
 
 deps = {

@@ -207,6 +207,7 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
     if (!root_url_str.empty()) {
       input.SetPrimaryResourceUrl(root_url_str);
     }
+    input.Freeze();
 
     std::stringstream stream;
     PluginSerializer serializer(output_dir);
