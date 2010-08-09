@@ -14,7 +14,7 @@
 
 vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@50096",
+  "chromium_revision": "@55218",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
@@ -31,7 +31,7 @@ vars = {
   "apache_httpd_src": "http://svn.apache.org/repos/asf/httpd/httpd/tags/2.2.15",
   "apache_httpd_revision": "@head",
   "instaweb_trunk": "http://instaweb.googlecode.com/svn/trunk",
-  "instaweb_revision": "@36",
+  "instaweb_revision": "@38",
   "instaweb_deps_root": "src/third_party/instaweb_deps",
 }
 
