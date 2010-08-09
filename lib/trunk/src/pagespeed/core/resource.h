@@ -16,11 +16,21 @@
 #define PAGESPEED_CORE_RESOURCE_H_
 
 #include <map>
+#include <set>
 #include <string>
 
 #include "base/basictypes.h"
 
 namespace pagespeed {
+
+class Resource;
+
+// sorts resources by their URLs.
+struct ResourceUrlLessThan {
+  bool operator() (const Resource* lhs, const Resource* rhs) const;
+};
+
+typedef std::set<const Resource*, ResourceUrlLessThan> ResourceSet;
 
 enum ResourceType {
   HTML,

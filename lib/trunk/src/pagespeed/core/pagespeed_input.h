@@ -21,7 +21,8 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "resource_filter.h"
+#include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_filter.h"
 
 namespace pagespeed {
 
@@ -29,10 +30,8 @@ class DomDocument;
 class ImageAttributes;
 class ImageAttributesFactory;
 class InputInformation;
-class Resource;
 
-typedef std::vector<const Resource*> ResourceVector;
-typedef std::map<std::string, ResourceVector> HostResourceMap;
+typedef std::map<std::string, ResourceSet> HostResourceMap;
 
 /**
  * Input set representation
