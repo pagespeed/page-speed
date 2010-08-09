@@ -240,4 +240,20 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   ASSERT_EQ(static_cast<size_t>(0), result_text.size());
 }
 
+TEST(Engine, NonFrozenInputFails) {
+  PagespeedInput input;
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
+
+  Engine engine(&rules);
+  engine.Init();
+  Results results;
+#ifdef NDEBUG
+  ASSERT_FALSE(engine.ComputeResults(input, &results));
+  ASSERT_EQ(0, results.results_size());
+#else
+  ASSERT_DEATH(engine.ComputeResults(input, &results), "");
+#endif
+}
+
 }  // namespace

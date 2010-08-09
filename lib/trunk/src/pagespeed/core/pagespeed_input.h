@@ -88,6 +88,7 @@ class PagespeedInput {
   const InputInformation* input_information() const;
   const DomDocument* dom_document() const;
   const std::string& primary_resource_url() const;
+  bool is_frozen() const { return frozen_; }
 
  private:
   bool IsValidResource(const Resource* resource) const;
