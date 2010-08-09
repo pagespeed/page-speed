@@ -40,8 +40,8 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
            end = host_resource_map.end();
        iter != end;
        ++iter) {
-    ResourceVector violations;
-    for (ResourceVector::const_iterator resource_iter = iter->second.begin(),
+    ResourceSet violations;
+    for (ResourceSet::const_iterator resource_iter = iter->second.begin(),
              resource_end = iter->second.end();
          resource_iter != resource_end;
          ++resource_iter) {
@@ -68,14 +68,14 @@ bool CombineExternalResources::AppendResults(const PagespeedInput& input,
                     << resource->GetRequestUrl();
       }
 
-      violations.push_back(resource);
+      violations.insert(resource);
     }
 
     if (violations.size() > 1) {
       Result* result = provider->NewResult();
       int requests_saved = 0;
       requests_saved += (violations.size() - 1);
-      for (ResourceVector::const_iterator violation_iter = violations.begin(),
+      for (ResourceSet::const_iterator violation_iter = violations.begin(),
                violation_end = violations.end();
            violation_iter != violation_end;
            ++violation_iter) {

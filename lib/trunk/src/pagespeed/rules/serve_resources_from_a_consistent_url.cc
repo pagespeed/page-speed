@@ -39,9 +39,9 @@ struct ResourceBodyLessThan {
   }
 };
 
-// Map of ResourceVectors, keyed by Resource bodies.
+// Map of ResourceSets, keyed by Resource bodies.
 typedef std::map<const std::string*,
-                 pagespeed::ResourceVector,
+                 pagespeed::ResourceSet,
                  ResourceBodyLessThan> ResourcesWithSameBodyMap;
 
 }  // namespace
@@ -80,14 +80,14 @@ bool ServeResourcesFromAConsistentUrl::AppendResults(
     if (body.length() < 100) {
       continue;
     }
-    map[&resource.GetResponseBody()].push_back(&resource);
+    map[&resource.GetResponseBody()].insert(&resource);
   }
 
   for (ResourcesWithSameBodyMap::const_iterator map_iter = map.begin(),
            map_iter_end = map.end();
        map_iter != map_iter_end;
        ++map_iter) {
-    const ResourceVector &resources = map_iter->second;
+    const ResourceSet &resources = map_iter->second;
     if (resources.size() > 1) {
       Result* result = provider->NewResult();
       const Resource &first_resource = **resources.begin();
@@ -99,7 +99,7 @@ bool ServeResourcesFromAConsistentUrl::AppendResults(
       savings->set_requests_saved(requests_saved);
       savings->set_response_bytes_saved(response_bytes_saved);
 
-      for (ResourceVector::const_iterator resource_iter = resources.begin(),
+      for (ResourceSet::const_iterator resource_iter = resources.begin(),
                resource_iter_end = resources.end();
            resource_iter != resource_iter_end;
            ++resource_iter) {

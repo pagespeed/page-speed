@@ -61,39 +61,41 @@ void PopulateDomainHostResourceMap(
     }
 
     // Add the resource to the map.
-    (*domain_host_resouce_map)[domain][gurl.host()].push_back(&resource);
+    (*domain_host_resouce_map)[domain][gurl.host()].insert(&resource);
   }
 }
 
 void PopulateLoneDnsResources(
     const pagespeed::PagespeedInput& input,
     const pagespeed::HostResourceMap &host_resource_map,
-    pagespeed::ResourceVector *lone_dns_resources) {
+    pagespeed::ResourceSet *lone_dns_resources) {
   for (pagespeed::HostResourceMap::const_iterator iter =
            host_resource_map.begin(), end = host_resource_map.end();
        iter != end;
        ++iter) {
-    const pagespeed::ResourceVector& resources = iter->second;
+    const pagespeed::ResourceSet& resources = iter->second;
+    DCHECK(!resources.empty());
     if (resources.size() != 1) {
       // If there's more than one resource, then it's not a candidate
       // for a lone DNS lookup.
       continue;
     }
-    if (resources[0]->GetRequestUrl() == input.primary_resource_url()) {
+    const pagespeed::Resource* resource = *resources.begin();
+    if (resource->GetRequestUrl() == input.primary_resource_url()) {
       // Special case: if this resource is the primary resource, don't
       // flag it since it's not realistic for the site to change the
       // URL of the primary resource.
       continue;
     }
-    lone_dns_resources->push_back(*resources.begin());
+    lone_dns_resources->insert(resource);
   }
 }
 
-void AppendResult(const pagespeed::ResourceVector &lone_dns_resources,
+void AppendResult(const pagespeed::ResourceSet &lone_dns_resources,
                   bool additional_hostname_available,
                   pagespeed::ResultProvider *provider) {
   pagespeed::Result* result = provider->NewResult();
-  for (pagespeed::ResourceVector::const_iterator iter =
+  for (pagespeed::ResourceSet::const_iterator iter =
            lone_dns_resources.begin(), end = lone_dns_resources.end();
        iter != end; ++iter) {
     const pagespeed::Resource* resource = *iter;
@@ -153,7 +155,7 @@ bool MinimizeDnsLookups::AppendResults(const PagespeedInput& input,
 
     // Now discover any resources that are the only resources served
     // on their hostname. These resources are considered violations.
-    ResourceVector lone_dns_resources;
+    ResourceSet lone_dns_resources;
     PopulateLoneDnsResources(input, host_resource_map, &lone_dns_resources);
 
     if (lone_dns_resources.size() > 0) {

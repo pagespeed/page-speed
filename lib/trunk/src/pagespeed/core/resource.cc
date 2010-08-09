@@ -310,4 +310,9 @@ ImageType Resource::GetImageType() const {
   }
 }
 
+bool ResourceUrlLessThan::operator()(
+    const Resource* lhs, const Resource* rhs) const {
+  return lhs->GetRequestUrl() < rhs->GetRequestUrl();
+}
+
 }  // namespace pagespeed

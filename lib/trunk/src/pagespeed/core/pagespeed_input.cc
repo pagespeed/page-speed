@@ -86,7 +86,7 @@ bool PagespeedInput::AddResource(const Resource* resource) {
 
   resources_.push_back(resource);
   url_resource_map_[url] = resource;
-  host_resource_map_[resource->GetHost()].push_back(resource);
+  host_resource_map_[resource->GetHost()].insert(resource);
   return true;
 }
 

@@ -83,13 +83,13 @@ AppendResults(const PagespeedInput& input, ResultProvider* provider) {
            end1 = host_resource_map.end(); iter1 != end1; ++iter1) {
     const std::string& host = iter1->first;
     hosts.push_back(host);
-    const ResourceVector& resources = iter1->second;
-    for (ResourceVector::const_iterator iter2 = resources.begin(),
+    const ResourceSet& resources = iter1->second;
+    for (ResourceSet::const_iterator iter2 = resources.begin(),
              end2 = resources.end(); iter2 != end2; ++iter2) {
       const Resource* resource = *iter2;
       if (!resource->IsLazyLoaded() &&
           resource_util::IsLikelyStaticResource(*resource)) {
-        static_resource_hosts[host].push_back(resource);
+        static_resource_hosts[host].insert(resource);
       }
     }
   }
@@ -109,7 +109,7 @@ AppendResults(const PagespeedInput& input, ResultProvider* provider) {
   // If the top host has at most kMinResourceThreshold static resources, then
   // parallelization is probably overkill.
   const std::string& busiest_host = *top_hosts.begin();
-  const ResourceVector& resources_on_busiest_host =
+  const ResourceSet& resources_on_busiest_host =
       static_resource_hosts[busiest_host];
   const int num_resources_on_busiest_host = resources_on_busiest_host.size();
   const int num_resources_above_threshold =
@@ -141,7 +141,7 @@ AppendResults(const PagespeedInput& input, ResultProvider* provider) {
   }
 
   Result* result = provider->NewResult();
-  for (ResourceVector::const_iterator iter = resources_on_busiest_host.begin(),
+  for (ResourceSet::const_iterator iter = resources_on_busiest_host.begin(),
            end = resources_on_busiest_host.end(); iter != end; ++iter) {
     const Resource* resource = *iter;
     result->add_resource_urls(resource->GetRequestUrl());
