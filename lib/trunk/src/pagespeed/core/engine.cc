@@ -130,6 +130,11 @@ bool Engine::ComputeResults(const PagespeedInput& input,
                             Results* results) const {
   CHECK(init_);
 
+  if (!input.is_frozen()) {
+    LOG(DFATAL) << "Attempting to ComputeResults with non-frozen input.";
+    return false;
+  }
+
   PrepareResults(input, results);
 
   bool success = true;
