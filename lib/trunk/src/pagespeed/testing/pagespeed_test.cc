@@ -36,4 +36,31 @@ void PagespeedTest::Freeze() {
   ASSERT_TRUE(input_->Freeze());
 }
 
+ResourceBuilder& PagespeedTest::NewResource(const std::string& url,
+                                            int status_code) {
+  builder_.Reset();
+  builder_.SetRequestUrl(url);
+  builder_.SetRequestMethod("GET");
+  builder_.SetResponseStatusCode(status_code);
+  input_->AddResource(builder_.Peek());
+  return builder_;
+}
+
+ResourceBuilder& PagespeedTest::New200Resource(const std::string& source) {
+  NewResource(source, 200);
+  return builder_;
+}
+
+ResourceBuilder& PagespeedTest::New302Resource(
+    const std::string& source, const std::string& destination) {
+  NewResource(source, 302);
+  builder_.AddResponseHeader("Location", destination);
+  return builder_;
+}
+
+const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
+const char* PagespeedTest::kUrl2 = "http://www.foo.com/b";
+const char* PagespeedTest::kUrl3 = "http://www.bar.com/c";
+const char* PagespeedTest::kUrl4 = "http://www.hello.com/d";
+
 }  // namespace pagespeed_testing

@@ -12,13 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+
+#include "base/string_number_conversions.h"
+#include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/testing/pagespeed_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
 namespace resource_util = pagespeed::resource_util;
+using pagespeed::Resource;
+using pagespeed_testing::PagespeedTest;
+using resource_util::CaseInsensitiveStringComparator;
+using resource_util::GetLastResourceInRedirectChain;
 
 class ResourceUtilTest : public testing::Test {
  protected:
@@ -28,7 +37,7 @@ class ResourceUtilTest : public testing::Test {
     r_.SetResponseStatusCode(200);
   }
 
-  pagespeed::Resource r_;
+  Resource r_;
 };
 
 class HeaderDirectiveTest : public testing::Test {
@@ -110,7 +119,8 @@ TEST_F(HeaderDirectiveTest, MultipleHeaderDirectives) {
   AssertTwoHeaderDirectives(
       "foo = \"bar baz \", bar= b", "foo", "\"bar baz \"", "bar", "b");
 
-  AssertTwoHeaderDirectives("private, max-age=0", "private", "", "max-age", "0");
+  AssertTwoHeaderDirectives(
+      "private, max-age=0", "private", "", "max-age", "0");
   AssertTwoHeaderDirectives(
       "text/html; charset=UTF8", "text/html", "", "charset", "UTF8");
 }
@@ -461,8 +471,6 @@ TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {
   EXPECT_EQ(100000LL, freshness_lifetime_);
 }
 
-using resource_util::CaseInsensitiveStringComparator;
-
 TEST(CaseInsensitiveStringComparatorTest, Compare) {
   EXPECT_TRUE(CaseInsensitiveStringComparator()("bar", "foo"));
   EXPECT_FALSE(CaseInsensitiveStringComparator()("foo", "bar"));
@@ -477,6 +485,156 @@ TEST(CaseInsensitiveStringComparatorTest, Compare) {
   EXPECT_FALSE(CaseInsensitiveStringComparator()("BAR", "bar"));
   EXPECT_FALSE(CaseInsensitiveStringComparator()("BaR", "bAr"));
   EXPECT_FALSE(CaseInsensitiveStringComparator()("bAr", "BaR"));
+}
+
+
+TEST(GetRedirectUrlTest, Basic) {
+  Resource r;
+  ASSERT_EQ("", resource_util::GetRedirectedUrl(r));
+  r.SetResponseStatusCode(302);
+#ifdef NDEBUG
+  ASSERT_EQ("", resource_util::GetRedirectedUrl(r));
+#else
+  ASSERT_DEATH(resource_util::GetRedirectedUrl(r), "Empty request url.");
+#endif
+
+  r.SetRequestUrl("http://www.foo.com/");
+  ASSERT_EQ("", resource_util::GetRedirectedUrl(r));
+
+  const char* kLocationUrl = "http://www.example.com/foo.html";
+  r.AddResponseHeader("Location", kLocationUrl);
+  ASSERT_EQ(kLocationUrl, resource_util::GetRedirectedUrl(r));
+}
+
+TEST(GetRedirectUrlTest, RelativeLocation1) {
+  Resource r;
+  r.SetResponseStatusCode(302);
+  r.SetRequestUrl("http://www.example.com/foo/test.html");
+  r.AddResponseHeader("Location", "/bar.html");
+  ASSERT_EQ("http://www.example.com/bar.html",
+            resource_util::GetRedirectedUrl(r));
+}
+
+TEST(GetRedirectUrlTest, RelativeLocation2) {
+  Resource r;
+  r.SetResponseStatusCode(302);
+  r.SetRequestUrl("http://www.example.com/foo/test.html");
+  r.AddResponseHeader("Location", "bar.html");
+  ASSERT_EQ("http://www.example.com/foo/bar.html",
+            resource_util::GetRedirectedUrl(r));
+}
+
+class GetLastResourceInRedirectChainTest : public PagespeedTest {
+ protected:
+  // Constant copied from resource_util.cc
+  static const int kMaxRedirects = 100;
+
+  // Build a redirect chain of the specified length, inserting each
+  // redirect resource into the vector. Returns the last resource in
+  // the chain (an HTTP 200 resource).
+  const Resource* ConstructRedirectChain(
+      const std::string& base_url,
+      const int num_redirects,
+      std::vector<const Resource*>* resources) {
+    for (int i = 0; i < num_redirects; ++i) {
+      std::string source = base_url + base::IntToString(i);
+      std::string destination = base_url + base::IntToString(i + 1);
+      resources->push_back(New302Resource(source, destination).Get());
+    }
+    return New200Resource(base_url + base::IntToString(num_redirects)).Get();
+  }
+};
+
+TEST_F(GetLastResourceInRedirectChainTest, SimpleRedirect) {
+  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
+  const Resource* r2 = New200Resource(kUrl2).Get();
+  Freeze();
+
+  ASSERT_EQ(r2, GetLastResourceInRedirectChain(*input_, *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
+}
+
+// Verify that we are able to follow a long redirect chain.
+TEST_F(GetLastResourceInRedirectChainTest, AlmostTooLongRedirectChain) {
+  std::vector<const Resource*> resources;
+  const Resource* final_resource =
+      ConstructRedirectChain(kUrl1, kMaxRedirects, &resources);
+  Freeze();
+
+  for (int i = 0; i < kMaxRedirects; ++i) {
+    ASSERT_EQ(final_resource,
+              GetLastResourceInRedirectChain(*input_, *resources[i])) << i;
+  }
+}
+
+// Verify that we abandon a redirect chain that is too long. We do
+// this in case our code fails to detect infinite redirect loops.
+TEST_F(GetLastResourceInRedirectChainTest, TooLongRedirectChain) {
+  const int num_redirects = kMaxRedirects + 1;
+  std::vector<const Resource*> resources;
+  const Resource* final_resource =
+      ConstructRedirectChain(kUrl1, num_redirects, &resources);
+  Freeze();
+
+  for (int i = 0; i < num_redirects; ++i) {
+    const Resource* expected_resource = NULL;
+    if (i >= (num_redirects - kMaxRedirects) - 1) {
+      // When there are less than kMaxRedirects to the final resource,
+      // we should be able to follow the chain to the end. Otherwise
+      // the chain is too long and we will abandon following it.
+      expected_resource = final_resource;
+    }
+    ASSERT_EQ(expected_resource,
+              GetLastResourceInRedirectChain(*input_, *resources[i])) << i;
+  }
+}
+
+TEST_F(GetLastResourceInRedirectChainTest, MissingLocation) {
+  // Create a redirect chain, from r1->r2->r3, where redirect r2 is
+  // missing its Location header.
+  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
+  const Resource* r2 = NewResource(kUrl2, 302).Get();
+  const Resource* r3 = New200Resource(kUrl3).Get();
+  Freeze();
+
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r3));
+}
+
+TEST_F(GetLastResourceInRedirectChainTest, MissingResource) {
+  // Create a partial redirect chain, from r1->r2->r3, where r3 is
+  // missing from the set of resources.
+  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
+  const Resource* r2 = New302Resource(kUrl2, kUrl3).Get();
+  const Resource* r4 = New200Resource(kUrl4).Get();
+  Freeze();
+
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r4));
+}
+
+TEST_F(GetLastResourceInRedirectChainTest, RedirectLoop) {
+  // Create a redirect loop from r1->r2->r3->r4->r1.
+  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
+  const Resource* r2 = New302Resource(kUrl2, kUrl3).Get();
+  const Resource* r3 = New302Resource(kUrl3, kUrl4).Get();
+  const Resource* r4 = New302Resource(kUrl4, kUrl1).Get();
+  Freeze();
+
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r3));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r4));
+}
+
+TEST_F(GetLastResourceInRedirectChainTest, ImmediateRedirectLoop) {
+  // Create a redirect loop from r1->r1.
+  const Resource* r1 = New302Resource(kUrl1, kUrl1).Get();
+  Freeze();
+
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
 }
 
 }  // namespace
