@@ -24,6 +24,7 @@
 namespace pagespeed {
 
 class InputInformation;
+class PagespeedInput;
 
 namespace resource_util {
 
@@ -104,6 +105,16 @@ int64 ComputeTotalResponseBytes(const InputInformation& input_into);
 // Compute the number of response bytes that are compressible using
 // gzip/deflate.
 int64 ComputeCompressibleResponseBytes(const InputInformation& input_into);
+
+// Get the URL of the resource redirected to from the specified
+// resource, or the empty string if unable to determine the redirected
+// URL.
+std::string GetRedirectedUrl(const Resource& resource);
+
+// Get the last resource in the redirect chain for the specified
+// Resource, or NULL if the specified resource is not a redirect.
+const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
+                                               const Resource& source);
 
 }  // namespace resource_util
 

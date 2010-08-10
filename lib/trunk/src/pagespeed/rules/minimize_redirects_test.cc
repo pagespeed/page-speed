@@ -135,13 +135,10 @@ TEST_F(MinimizeRedirectsTest, EmptyLocation) {
   AddResourceUrl(url2, 200);
   Freeze();
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url1);
-
+  // Though there is a 302, it does not redirect anywhere since it is
+  // missing a location header. Thus, this should not be flagged as a
+  // redirect. Perhaps it should be flagged in AvoidBadRequests.
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
-
   CheckViolations(violations);
 }
 

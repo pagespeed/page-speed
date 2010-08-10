@@ -15,6 +15,7 @@
 #include "pagespeed/core/resource_util.h"
 
 #include <algorithm>  // for lexicographical_compare
+#include <set>
 
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
@@ -22,7 +23,9 @@
 #include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/directive_enumerator.h"
+#include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -30,6 +33,10 @@ namespace {
 // each message header has a 3 byte overhead; colon between the key
 // value pair and the end-of-line CRLF.
 const int kHeaderOverhead = 3;
+
+// Maximum number of redirects we follow before giving up (to prevent
+// infinite redirect loops).
+const int kMaxRedirects = 100;
 
 bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
   if (pagespeed::resource_util::HasExplicitFreshnessLifetime(resource)) {
@@ -455,6 +462,66 @@ int64 ComputeCompressibleResponseBytes(const InputInformation& input_info) {
       input_info.text_response_bytes() +
       input_info.css_response_bytes() +
       input_info.javascript_response_bytes();
+}
+
+std::string GetRedirectedUrl(const Resource& resource) {
+  if (resource.GetResourceType() != pagespeed::REDIRECT) {
+    return "";
+  }
+
+  const std::string& source = resource.GetRequestUrl();
+  if (source.empty()) {
+    LOG(DFATAL) << "Empty request url.";
+    return "";
+  }
+
+  const std::string& location = resource.GetResponseHeader("Location");
+  if (location.empty()) {
+    // No Location header, so unable to compute redirect.
+    return "";
+  }
+
+  // Construct a fully qualified URL.  The HTTP RFC says that Location
+  // should be absolute but some servers out there send relative
+  // location urls anyway.
+  return pagespeed::ResolveUri(location, source);
+}
+
+const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
+                                               const Resource& start) {
+  std::set<const Resource*> visited;
+  if (!start.GetResourceType() == REDIRECT) {
+    return NULL;
+  }
+
+  const Resource* resource = &start;
+  int num_iterations = 0;
+  while (true) {
+    if (num_iterations++ > kMaxRedirects) {
+      LOG(WARNING) << "Encountered possible infinite redirect loop from "
+                   << start.GetRequestUrl();
+      return NULL;
+    }
+    if (visited.find(resource) != visited.end()) {
+      LOG(INFO) << "Encountered redirect loop.";
+      return NULL;
+    }
+    visited.insert(resource);
+
+    const std::string target_url = resource_util::GetRedirectedUrl(*resource);
+    if (target_url.empty()) {
+      return NULL;
+    }
+
+    resource = input.GetResourceWithUrl(target_url);
+    if (resource == NULL) {
+      LOG(INFO) << "Unable to find redirected resource for " << target_url;
+      return NULL;
+    }
+    if (resource->GetResourceType() != REDIRECT) {
+      return resource;
+    }
+  }
 }
 
 }  // namespace resource_util

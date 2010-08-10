@@ -19,6 +19,7 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/testing/resource_builder.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace pagespeed {
@@ -29,6 +30,12 @@ namespace pagespeed_testing {
 
 class PagespeedTest : public ::testing::Test {
  protected:
+  // Some sample URLs that tests may choose to use.
+  static const char* kUrl1;
+  static const char* kUrl2;
+  static const char* kUrl3;
+  static const char* kUrl4;
+
   PagespeedTest();
   virtual ~PagespeedTest();
 
@@ -44,7 +51,24 @@ class PagespeedTest : public ::testing::Test {
   // Freeze the PagespeedInput structure.
   void Freeze();
 
+  // Construct a new HTTP GET Resource with the specified URL and
+  // status code, and add that resource to our PagespeedInput.
+  ResourceBuilder& NewResource(const std::string& url, int status_code);
+
+  // Construct a new HTTP GET Resource with the specified URL and
+  // a 200 status code, and add that resource to our PagespeedInput.
+  ResourceBuilder& New200Resource(const std::string& url);
+
+  // Construct a new HTTP GET redirect (302) Resource with the
+  // specified source and destination URLs, and add that resource
+  // to our PagespeedInput.
+  ResourceBuilder& New302Resource(const std::string& source,
+                                  const std::string& destination);
+
   scoped_ptr<pagespeed::PagespeedInput> input_;
+
+ private:
+  ResourceBuilder builder_;
 };
 
 }  // namespace pagespeed_testing

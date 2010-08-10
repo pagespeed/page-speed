@@ -25,6 +25,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -56,21 +57,10 @@ class RedirectGraph {
 };
 
 void RedirectGraph::AddResource(const pagespeed::Resource& resource) {
-  if (resource.GetResourceType() != pagespeed::REDIRECT) {
-    return;
-  }
-
-  const std::string& source = resource.GetRequestUrl();
-  if (source.empty()) {
-    LOG(DFATAL) << "Empty request url.";
-    return;
-  }
-  // Construct a fully qualified URL.  The HTTP RFC says that Location should
-  // be absolute but some servers out there send relative location urls anyway.
-  const std::string& destination =
-      pagespeed::ResolveUri(resource.GetResponseHeader("Location"), source);
+  std::string destination =
+      pagespeed::resource_util::GetRedirectedUrl(resource);
   if (!destination.empty()) {
-    redirect_map_[source].push_back(destination);
+    redirect_map_[resource.GetRequestUrl()].push_back(destination);
     destinations_.insert(destination);
   }
 }

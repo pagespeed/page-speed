@@ -28,6 +28,7 @@
       ],
       'sources': [
         'pagespeed_test.cc',
+        'resource_builder.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
