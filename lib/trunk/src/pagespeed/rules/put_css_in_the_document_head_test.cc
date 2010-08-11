@@ -22,160 +22,63 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/put_css_in_the_document_head.h"
+#include "pagespeed/testing/fake_dom.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::DomDocument;
 using pagespeed::StylesInBodyDetails;
+using pagespeed_testing::FakeDomDocument;
+using pagespeed_testing::FakeDomElement;
 
 namespace {
 
-class MockDocument;
-
-class MockElement : public pagespeed::DomElement {
- public:
-  // MockElement takes ownership of content.
-  MockElement(MockDocument* content,
-              const std::string& tagname,
-              const std::map<std::string, std::string>& attributes)
-      : content_(content),
-        tagname_(tagname),
-        children_(),
-        attributes_(attributes) {}
-  virtual ~MockElement() {
-    STLDeleteContainerPointers(children_.begin(), children_.end());
-  }
-
-  static MockElement* NewTag(const std::string& tagname) {
-    std::map<std::string, std::string> attributes;
-    return new MockElement(NULL, tagname, attributes);
-  }
-
-  // Creates and returns a MockElement (which takes ownership of content).
-  static MockElement* NewIframe(MockDocument* content);
-
-  static MockElement* NewLinkTag(const std::string& href) {
-    std::map<std::string, std::string> attributes;
-    attributes["rel"] = "stylesheet";
-    attributes["href"] = href;
-    return new MockElement(NULL, "LINK", attributes);
-  }
-
-  static MockElement* NewStyleTag() {
-    std::map<std::string, std::string> attributes;
-    return new MockElement(NULL, "STYLE", attributes);
-  }
-
-  virtual DomDocument* GetContentDocument() const;
-
-  virtual std::string GetTagName() const {
-    return tagname_;
-  }
-
-  virtual bool GetAttributeByName(const std::string& name,
-                                  std::string* attr_value) const {
-    std::map<std::string, std::string>::const_iterator entry =
-        attributes_.find(name);
-    if (entry != attributes_.end()) {
-      *attr_value = entry->second;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void AddChild(MockElement* child) {
-    children_.push_back(child);
-  }
-
-  void Traverse(pagespeed::DomElementVisitor* visitor) {
-    visitor->Visit(*this);
-    for (std::vector<MockElement*>::const_iterator i = children_.begin(),
-             end = children_.end(); i != end; ++i) {
-      MockElement* child = *i;
-      child->Traverse(visitor);
-    }
-  }
-
- private:
-  mutable scoped_ptr<MockDocument> content_;
-  std::string tagname_;
-  std::vector<MockElement*> children_;
-  std::map<std::string, std::string> attributes_;
-
-  DISALLOW_COPY_AND_ASSIGN(MockElement);
-};
-
-class MockDocument : public pagespeed::DomDocument {
- public:
-  MockDocument(const std::string& url, MockElement* root) :
-      url_(url), root_(root), is_clone_(false) {}
-
-  virtual ~MockDocument() {
-    if (!is_clone_) {
-      delete root_;
-    }
-  }
-
-  virtual std::string GetDocumentUrl() const { return url_; }
-
-  virtual void Traverse(pagespeed::DomElementVisitor* visitor) const {
-    root_->Traverse(visitor);
-  }
-
-  MockDocument* Clone() {
-    MockDocument* doc = new MockDocument(GetDocumentUrl(), root_);
-    doc->is_clone_ = true;
-    return doc;
-  }
-
- private:
-  const std::string url_;
-  MockElement* root_;
-  bool is_clone_;
-
-  DISALLOW_COPY_AND_ASSIGN(MockDocument);
-};
-
-
-DomDocument* MockElement::GetContentDocument() const {
-  return content_->Clone();
-}
-
-MockElement* MockElement::NewIframe(MockDocument* content) {
-  std::map<std::string, std::string> attributes;
-  attributes["src"] = content->GetDocumentUrl();
-  return new MockElement(content, "IFRAME", attributes);
-}
-
 class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  MockDocument* NewMockDocument (const std::string& url, MockElement* root) {
+  static const char* kRootUrl;
+
+  virtual void DoSetUp() {
+    document_.reset(NewFakeDomDocument(kRootUrl));
+    html_ = FakeDomElement::NewRoot(document_.get(), "HTML");
+    head_ = FakeDomElement::New(html_, "HEAD");
+    body_ = FakeDomElement::New(html_, "BODY");
+  }
+
+  FakeDomDocument* NewFakeDomDocument(const std::string& url) {
     pagespeed::Resource* resource = new pagespeed::Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
     resource->AddResponseHeader("Content-Type", "text/html");
     input_->AddResource(resource);
-    return new MockDocument(url, root);
+    return FakeDomDocument::NewRoot(url);
   }
 
-  void CheckNoViolations(MockDocument* document) {
+  FakeDomDocument* NewFakeDomDocument(FakeDomElement* iframe,
+                                      const std::string& url) {
+    pagespeed::Resource* resource = new pagespeed::Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetResponseStatusCode(200);
+    resource->AddResponseHeader("Content-Type", "text/html");
+    input_->AddResource(resource);
+    return FakeDomDocument::New(iframe, url);
+  }
+
+  void CheckNoViolations() {
     std::vector<Violation> expected;
-    CheckExpectedViolations(document, expected);
+    CheckExpectedViolations(expected);
   }
 
-  void CheckOneViolation(MockDocument* document,
-                         const std::string& violation_url,
+  void CheckOneViolation(const std::string& violation_url,
                          int num_inline_style_blocks,
                          const std::vector<std::string>& external_styles) {
     std::vector<Violation> expected;
     expected.push_back(Violation(violation_url, num_inline_style_blocks,
                                  external_styles));
-    CheckExpectedViolations(document, expected);
+    CheckExpectedViolations(expected);
   }
 
-  void CheckTwoViolations(MockDocument* document,
-                          const std::string& violation_url1,
+  void CheckTwoViolations(const std::string& violation_url1,
                           int num_inline_style_blocks1,
                           const std::vector<std::string>& external_styles1,
                           const std::string& violation_url2,
@@ -186,8 +89,13 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
                                  external_styles1));
     expected.push_back(Violation(violation_url2, num_inline_style_blocks2,
                                  external_styles2));
-    CheckExpectedViolations(document, expected);
+    CheckExpectedViolations(expected);
   }
+
+  scoped_ptr<FakeDomDocument> document_;
+  FakeDomElement* html_;
+  FakeDomElement* head_;
+  FakeDomElement* body_;
 
  private:
   struct Violation {
@@ -203,9 +111,8 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
     std::vector<std::string> external_styles;
   };
 
-  void CheckExpectedViolations(MockDocument* document,
-                               const std::vector<Violation>& expected) {
-    input_->AcquireDomDocument(document);
+  void CheckExpectedViolations(const std::vector<Violation>& expected) {
+    input_->AcquireDomDocument(document_.get());
     Freeze();
 
     pagespeed::rules::PutCssInTheDocumentHead put_css_in_head_rule;
@@ -237,100 +144,71 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
   }
 };
 
+const char* PutCssInTheDocumentHeadTest::kRootUrl = "http://example.com/";
+
 TEST_F(PutCssInTheDocumentHeadTest, Empty) {
-  MockElement* html = MockElement::NewTag("HTML");
-  html->AddChild(MockElement::NewTag("HEAD"));
-  html->AddChild(MockElement::NewTag("BODY"));
-  MockDocument* doc = NewMockDocument("http://example.com/", html);
-  CheckNoViolations(doc);
+  CheckNoViolations();
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, StylesInHead) {
-  MockElement* html = MockElement::NewTag("HTML");
-  MockElement* head = MockElement::NewTag("HEAD");
-  head->AddChild(MockElement::NewLinkTag("http://example.com/foo.css"));
-  head->AddChild(MockElement::NewStyleTag());
-  html->AddChild(head);
-  html->AddChild(MockElement::NewTag("BODY"));
-  MockDocument* doc = NewMockDocument("http://example.com/", html);
-  CheckNoViolations(doc);
+  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head_);
+  CheckNoViolations();
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, StyleTagInBody) {
-  MockElement* html = MockElement::NewTag("HTML");
-  MockElement* head = MockElement::NewTag("HEAD");
-  head->AddChild(MockElement::NewLinkTag("http://example.com/foo.css"));
-  head->AddChild(MockElement::NewStyleTag());
-  html->AddChild(head);
-  MockElement* body = MockElement::NewTag("BODY");
-  body->AddChild(MockElement::NewStyleTag());
-  html->AddChild(body);
-  MockDocument* doc = NewMockDocument("http://example.com/", html);
+  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head_);
+  FakeDomElement::NewStyle(body_);
   std::vector<std::string> external_styles;
-  CheckOneViolation(doc, "http://example.com/", 1, external_styles);
+  CheckOneViolation("http://example.com/", 1, external_styles);
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, LinkTagInBody) {
-  MockElement* html = MockElement::NewTag("HTML");
-  MockElement* head = MockElement::NewTag("HEAD");
-  head->AddChild(MockElement::NewLinkTag("http://example.com/foo.css"));
-  head->AddChild(MockElement::NewStyleTag());
-  html->AddChild(head);
-  MockElement* body = MockElement::NewTag("BODY");
-  body->AddChild(MockElement::NewLinkTag("http://example.com/bar.css"));
-  html->AddChild(body);
-  MockDocument* doc = NewMockDocument("http://example.com/", html);
+  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head_);
+  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/bar.css");
   std::vector<std::string> external_styles;
   external_styles.push_back("http://example.com/bar.css");
-  CheckOneViolation(doc, "http://example.com/", 0, external_styles);
+  CheckOneViolation("http://example.com/", 0, external_styles);
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, SeveralThingsInBody) {
-  MockElement* html = MockElement::NewTag("HTML");
-  MockElement* head = MockElement::NewTag("HEAD");
-  head->AddChild(MockElement::NewLinkTag("http://example.com/foo.css"));
-  head->AddChild(MockElement::NewStyleTag());
-  html->AddChild(head);
-  MockElement* body = MockElement::NewTag("BODY");
-  body->AddChild(MockElement::NewStyleTag());
-  body->AddChild(MockElement::NewLinkTag("http://example.com/bar.css"));
-  body->AddChild(MockElement::NewStyleTag());
-  body->AddChild(MockElement::NewLinkTag("http://example.com/baz.css"));
-  body->AddChild(MockElement::NewStyleTag());
-  html->AddChild(body);
-  MockDocument* doc = NewMockDocument("http://example.com/", html);
+  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head_);
+  FakeDomElement::NewStyle(body_);
+  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/bar.css");
+  FakeDomElement::NewStyle(body_);
+  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/baz.css");
+  FakeDomElement::NewStyle(body_);
   std::vector<std::string> external_styles;
   external_styles.push_back("http://example.com/bar.css");
   external_styles.push_back("http://example.com/baz.css");
-  CheckOneViolation(doc, "http://example.com/", 3, external_styles);
+  CheckOneViolation("http://example.com/", 3, external_styles);
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, Iframe) {
+  // Main document:
+  FakeDomElement::NewStyle(body_);
+  FakeDomElement::NewStyle(body_);
+  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/bar.css");
+  FakeDomElement* iframe = FakeDomElement::NewIframe(body_);
+
   // Iframe document:
-  MockElement* html2 = MockElement::NewTag("HTML");
-  html2->AddChild(MockElement::NewTag("HEAD"));
-  MockElement* body2 = MockElement::NewTag("BODY");
-  body2->AddChild(MockElement::NewLinkTag("http://example.com/foo.css"));
-  body2->AddChild(MockElement::NewStyleTag());
-  html2->AddChild(body2);
-  MockDocument* doc2 = NewMockDocument("http://example.com/if.html", html2);
+  FakeDomDocument* doc2 =
+      NewFakeDomDocument(iframe, "http://example.com/if.html");
+  FakeDomElement* html2 = FakeDomElement::NewRoot(doc2, "HTML");
+  FakeDomElement::New(html2, "HEAD");
+  FakeDomElement* body2 = FakeDomElement::New(html2, "BODY");
+  FakeDomElement::NewLinkStylesheet(body2, "http://example.com/foo.css");
+  FakeDomElement::NewStyle(body2);
   std::vector<std::string> external_styles2;
   external_styles2.push_back("http://example.com/foo.css");
 
-  // Main document:
-  MockElement* html1 = MockElement::NewTag("HTML");
-  html1->AddChild(MockElement::NewTag("HEAD"));
-  MockElement* body1 = MockElement::NewTag("BODY");
-  body1->AddChild(MockElement::NewStyleTag());
-  body1->AddChild(MockElement::NewStyleTag());
-  body1->AddChild(MockElement::NewLinkTag("http://example.com/bar.css"));
-  body1->AddChild(MockElement::NewIframe(doc2));
-  html1->AddChild(body1);
-  MockDocument* doc1 = NewMockDocument("http://example.com/", html1);
   std::vector<std::string> external_styles1;
   external_styles1.push_back("http://example.com/bar.css");
 
-  CheckTwoViolations(doc1, "http://example.com/if.html", 1, external_styles2,
+  CheckTwoViolations("http://example.com/if.html", 1, external_styles2,
                      "http://example.com/", 2, external_styles1);
 }
 

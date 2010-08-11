@@ -27,6 +27,7 @@
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
       'sources': [
+        'fake_dom.cc',
         'pagespeed_test.cc',
         'resource_builder.cc',
       ],
