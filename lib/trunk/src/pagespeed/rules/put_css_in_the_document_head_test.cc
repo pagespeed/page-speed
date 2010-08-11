@@ -112,7 +112,7 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
   };
 
   void CheckExpectedViolations(const std::vector<Violation>& expected) {
-    input_->AcquireDomDocument(document_.get());
+    input_->AcquireDomDocument(document_.release());
     Freeze();
 
     pagespeed::rules::PutCssInTheDocumentHead put_css_in_head_rule;
