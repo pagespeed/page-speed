@@ -134,6 +134,7 @@
         'rules/specify_a_vary_accept_encoding_header_test.cc',
         'rules/specify_charset_early_test.cc',
         'rules/specify_image_dimensions_test.cc',
+        'testing/fake_dom_test.cc',
         'util/regex_test.cc',
       ],
     },
