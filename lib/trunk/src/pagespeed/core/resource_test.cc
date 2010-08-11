@@ -180,4 +180,50 @@ TEST(ResourceTest, ImageTypes) {
   ExpectImageType("image/png", 304, pagespeed::PNG);
 }
 
+TEST(ResourceTest, SetResourceTypeForRedirectFails) {
+  Resource r;
+  r.SetResponseStatusCode(302);
+#ifdef NDEBUG
+  r.SetResourceType(pagespeed::HTML);
+  ASSERT_EQ(pagespeed::REDIRECT, r.GetResourceType());
+#else
+  ASSERT_DEATH(r.SetResourceType(pagespeed::HTML),
+               "Unable to SetResourceType for redirect.");
+#endif
+}
+
+TEST(ResourceTest, SetResourceTypeFor500Fails) {
+  Resource r;
+  r.SetResponseStatusCode(500);
+#ifdef NDEBUG
+  r.SetResourceType(pagespeed::HTML);
+  ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
+#else
+  ASSERT_DEATH(r.SetResourceType(pagespeed::HTML),
+               "Unable to SetResourceType for code 500");
+#endif
+}
+
+TEST(ResourceTest, SetResourceTypeToRedirectFails) {
+  Resource r;
+  r.SetResponseStatusCode(200);
+#ifdef NDEBUG
+  r.SetResourceType(pagespeed::REDIRECT);
+  ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
+#else
+  ASSERT_DEATH(r.SetResourceType(pagespeed::REDIRECT),
+               "Unable to SetResourceType to redirect.");
+#endif
+}
+
+TEST(ResourceTest, SetResourceType) {
+  Resource r;
+  r.SetResponseStatusCode(200);
+  ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
+  r.AddResponseHeader("Content-Type", "text/css");
+  ASSERT_EQ(pagespeed::CSS, r.GetResourceType());
+  r.SetResourceType(pagespeed::HTML);
+  ASSERT_EQ(pagespeed::HTML, r.GetResourceType());
+}
+
 }  // namespace

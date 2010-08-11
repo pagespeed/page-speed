@@ -39,12 +39,27 @@ std::string GetNormalizedIdentifier(const std::string& name) {
   return result;
 }
 
+bool IsRedirectStatusCode(int status_code) {
+  return status_code == 301 ||
+      status_code == 302 ||
+      status_code == 303 ||
+      status_code == 307;
+}
+
+bool IsBodyStatusCode(int status_code) {
+  return status_code == 200 ||
+      status_code == 203 ||
+      status_code == 206 ||
+      status_code == 304;
+}
+
 }  // namespace
 
 namespace pagespeed {
 
 Resource::Resource()
     : status_code_(-1),
+      type_(OTHER),
       lazy_loaded_(false) {
 }
 
@@ -117,6 +132,22 @@ void Resource::SetCookies(const std::string& cookies) {
 
 void Resource::SetLazyLoaded() {
   lazy_loaded_ = true;
+}
+
+void Resource::SetResourceType(ResourceType type) {
+  if (GetResourceType() == REDIRECT) {
+    LOG(DFATAL) << "Unable to SetResourceType for redirect.";
+    return;
+  }
+  if (!IsBodyStatusCode(status_code_)) {
+    LOG(DFATAL) << "Unable to SetResourceType for code " << status_code_;
+    return;
+  }
+  if (type == REDIRECT) {
+    LOG(DFATAL) << "Unable to SetResourceType to redirect.";
+    return;
+  }
+  type_ = type;
 }
 
 const std::string& Resource::GetRequestUrl() const {
@@ -225,18 +256,16 @@ std::string Resource::GetProtocol() const {
 }
 
 ResourceType Resource::GetResourceType() const {
+  if (type_ != OTHER) {
+    return type_;
+  }
+
   const int status_code = GetResponseStatusCode();
-  if (status_code == 301 ||
-      status_code == 302 ||
-      status_code == 303 ||
-      status_code == 307) {
+  if (IsRedirectStatusCode(status_code)) {
     return REDIRECT;
   }
 
-  if (status_code != 200 &&
-      status_code != 203 &&
-      status_code != 206 &&
-      status_code != 304) {
+  if (!IsBodyStatusCode(status_code)) {
     return OTHER;
   }
 

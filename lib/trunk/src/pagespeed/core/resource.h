@@ -80,6 +80,12 @@ class Resource {
   // header.
   void SetCookies(const std::string& cookies);
 
+  // In some cases, the mime type specified in the Content-Type header
+  // can differ from the actual resource type. For instance, some sites
+  // serve JavaScript files with Content-Type: text/html. In those cases,
+  // call SetResourceType() to explicitly specify the resource type.
+  void SetResourceType(ResourceType type);
+
   // The resource is lazy-loaded if the request time is after
   // the window's onLoad time. Many of the page-speed rules
   // do not apply to lazy-loaded resources.
@@ -132,6 +138,7 @@ class Resource {
   std::map<std::string, std::string> response_headers_;
   std::string response_body_;
   std::string cookies_;
+  ResourceType type_;
   bool lazy_loaded_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
