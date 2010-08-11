@@ -34,9 +34,6 @@ class ChromiumDocument : public DomDocument {
   virtual void Traverse(DomElementVisitor* visitor) const;
 
  private:
-  void DoTraverse(DomElementVisitor* visitor,
-                  WebKit::WebElement element) const;
-
   const WebKit::WebDocument document_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromiumDocument);
@@ -94,6 +91,9 @@ std::string ChromiumDocument::GetBaseUrl() const {
 
 void ChromiumDocument::Traverse(DomElementVisitor* visitor) const {
   PreOrderChromiumNodeTraverser traverser(document_.documentElement());
+  if (traverser.CurrentNode().isNull()) {
+    return;
+  }
   do {
     WebKit::WebNode node = traverser.CurrentNode();
     if (!node.isElementNode()) {
