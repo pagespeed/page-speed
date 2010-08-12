@@ -29,7 +29,6 @@
       'sources': [
         'fake_dom.cc',
         'pagespeed_test.cc',
-        'resource_builder.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
