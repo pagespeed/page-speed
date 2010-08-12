@@ -50,7 +50,7 @@ class Violation {
 class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
   virtual void DoSetUp() {
-    input_->set_allow_duplicate_resources();
+    SetAllowDuplicateResources();
   }
 
   void AddResourceUrl(const std::string& url, int status_code) {

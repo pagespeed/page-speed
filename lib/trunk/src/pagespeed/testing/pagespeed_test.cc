@@ -62,6 +62,22 @@ bool PagespeedTest::AddResource(const pagespeed::Resource* resource) {
   return input_->AddResource(resource);
 }
 
+bool PagespeedTest::AcquireDomDocument(pagespeed::DomDocument* document) {
+  return input_->AcquireDomDocument(document);
+}
+
+bool PagespeedTest::AcquireImageAttributesFactory(
+    pagespeed::ImageAttributesFactory* factory) {
+  return input_->AcquireImageAttributesFactory(factory);
+}
+
+bool PagespeedTest::SetPrimaryResourceUrl(const std::string& url) {
+  return input_->SetPrimaryResourceUrl(url);
+}
+
+void PagespeedTest::SetAllowDuplicateResources() {
+  input_->set_allow_duplicate_resources();
+}
 
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
 const char* PagespeedTest::kUrl2 = "http://www.foo.com/b";

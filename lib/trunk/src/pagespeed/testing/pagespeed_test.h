@@ -72,11 +72,14 @@ class PagespeedTest : public ::testing::Test {
   // provided for old tests that were written before ResourceBuilder.
   bool AddResource(const pagespeed::Resource* resource);
 
-  // TODO: make input_ private once tests no longer need direct
-  // access.
-  scoped_ptr<pagespeed::PagespeedInput> input_;
+  bool AcquireDomDocument(pagespeed::DomDocument* document);
+  bool AcquireImageAttributesFactory(
+      pagespeed::ImageAttributesFactory* factory);
+  bool SetPrimaryResourceUrl(const std::string& url);
+  void SetAllowDuplicateResources();
 
  private:
+  scoped_ptr<pagespeed::PagespeedInput> input_;
   ResourceBuilder builder_;
 };
 

@@ -46,10 +46,6 @@ class MinimizeDnsTest : public ::pagespeed_testing::PagespeedTest {
     return resource;
   }
 
-  void SetPrimaryResourceUrl(const std::string& url) {
-    input_->SetPrimaryResourceUrl(url);
-  }
-
   void CheckViolations(const std::vector<std::string>& expected_violations) {
     MinimizeDnsLookups dns_rule;
 

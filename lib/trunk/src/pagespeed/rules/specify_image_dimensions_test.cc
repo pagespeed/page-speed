@@ -151,7 +151,7 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
   }
 
   void AddImageAttributesFactory() {
-    input_->AcquireImageAttributesFactory(new MockImageAttributesFactory());
+    AcquireImageAttributesFactory(new MockImageAttributesFactory());
   }
 
   void CreateResource(const char* url, const char* content_type) {
@@ -185,7 +185,7 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
 
   void CheckFormattedOutput(MockDocument* document,
                             const std::string& expected_output) {
-    input_->AcquireDomDocument(document);
+    AcquireDomDocument(document);
     Freeze();
 
     pagespeed::Results results;
@@ -214,7 +214,7 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
  private:
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<std::string>& expected) {
-    input_->AcquireDomDocument(document);
+    AcquireDomDocument(document);
     Freeze();
 
     SpecifyImageDimensions dimensions_rule;
