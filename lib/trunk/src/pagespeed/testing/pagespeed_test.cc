@@ -36,26 +36,25 @@ void PagespeedTest::Freeze() {
   ASSERT_TRUE(input_->Freeze());
 }
 
-ResourceBuilder& PagespeedTest::NewResource(const std::string& url,
-                                            int status_code) {
-  builder_.Reset();
-  builder_.SetRequestUrl(url);
-  builder_.SetRequestMethod("GET");
-  builder_.SetResponseStatusCode(status_code);
-  input_->AddResource(builder_.Peek());
-  return builder_;
+pagespeed::Resource* PagespeedTest::NewResource(const std::string& url,
+                                                int status_code) {
+  pagespeed::Resource* resource = new pagespeed::Resource();
+  resource->SetRequestUrl(url);
+  resource->SetRequestMethod("GET");
+  resource->SetResponseStatusCode(status_code);
+  input_->AddResource(resource);
+  return resource;
 }
 
-ResourceBuilder& PagespeedTest::New200Resource(const std::string& source) {
-  NewResource(source, 200);
-  return builder_;
+pagespeed::Resource* PagespeedTest::New200Resource(const std::string& source) {
+  return NewResource(source, 200);
 }
 
-ResourceBuilder& PagespeedTest::New302Resource(
+pagespeed::Resource* PagespeedTest::New302Resource(
     const std::string& source, const std::string& destination) {
-  NewResource(source, 302);
-  builder_.AddResponseHeader("Location", destination);
-  return builder_;
+  pagespeed::Resource* resource = NewResource(source, 302);
+  resource->AddResponseHeader("Location", destination);
+  return resource;
 }
 
 bool PagespeedTest::AddResource(const pagespeed::Resource* resource) {

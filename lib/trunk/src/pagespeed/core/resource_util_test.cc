@@ -539,15 +539,15 @@ class GetLastResourceInRedirectChainTest : public PagespeedTest {
     for (int i = 0; i < num_redirects; ++i) {
       std::string source = base_url + base::IntToString(i);
       std::string destination = base_url + base::IntToString(i + 1);
-      resources->push_back(New302Resource(source, destination).Get());
+      resources->push_back(New302Resource(source, destination));
     }
-    return New200Resource(base_url + base::IntToString(num_redirects)).Get();
+    return New200Resource(base_url + base::IntToString(num_redirects));
   }
 };
 
 TEST_F(GetLastResourceInRedirectChainTest, SimpleRedirect) {
-  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
-  const Resource* r2 = New200Resource(kUrl2).Get();
+  const Resource* r1 = New302Resource(kUrl1, kUrl2);
+  const Resource* r2 = New200Resource(kUrl2);
   Freeze();
 
   ASSERT_EQ(r2, GetLastResourceInRedirectChain(*input(), *r1));
@@ -592,9 +592,9 @@ TEST_F(GetLastResourceInRedirectChainTest, TooLongRedirectChain) {
 TEST_F(GetLastResourceInRedirectChainTest, MissingLocation) {
   // Create a redirect chain, from r1->r2->r3, where redirect r2 is
   // missing its Location header.
-  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
-  const Resource* r2 = NewResource(kUrl2, 302).Get();
-  const Resource* r3 = New200Resource(kUrl3).Get();
+  const Resource* r1 = New302Resource(kUrl1, kUrl2);
+  const Resource* r2 = NewResource(kUrl2, 302);
+  const Resource* r3 = New200Resource(kUrl3);
   Freeze();
 
   ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
@@ -605,9 +605,9 @@ TEST_F(GetLastResourceInRedirectChainTest, MissingLocation) {
 TEST_F(GetLastResourceInRedirectChainTest, MissingResource) {
   // Create a partial redirect chain, from r1->r2->r3, where r3 is
   // missing from the set of resources.
-  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
-  const Resource* r2 = New302Resource(kUrl2, kUrl3).Get();
-  const Resource* r4 = New200Resource(kUrl4).Get();
+  const Resource* r1 = New302Resource(kUrl1, kUrl2);
+  const Resource* r2 = New302Resource(kUrl2, kUrl3);
+  const Resource* r4 = New200Resource(kUrl4);
   Freeze();
 
   ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
@@ -617,10 +617,10 @@ TEST_F(GetLastResourceInRedirectChainTest, MissingResource) {
 
 TEST_F(GetLastResourceInRedirectChainTest, RedirectLoop) {
   // Create a redirect loop from r1->r2->r3->r4->r1.
-  const Resource* r1 = New302Resource(kUrl1, kUrl2).Get();
-  const Resource* r2 = New302Resource(kUrl2, kUrl3).Get();
-  const Resource* r3 = New302Resource(kUrl3, kUrl4).Get();
-  const Resource* r4 = New302Resource(kUrl4, kUrl1).Get();
+  const Resource* r1 = New302Resource(kUrl1, kUrl2);
+  const Resource* r2 = New302Resource(kUrl2, kUrl3);
+  const Resource* r3 = New302Resource(kUrl3, kUrl4);
+  const Resource* r4 = New302Resource(kUrl4, kUrl1);
   Freeze();
 
   ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
@@ -631,7 +631,7 @@ TEST_F(GetLastResourceInRedirectChainTest, RedirectLoop) {
 
 TEST_F(GetLastResourceInRedirectChainTest, ImmediateRedirectLoop) {
   // Create a redirect loop from r1->r1.
-  const Resource* r1 = New302Resource(kUrl1, kUrl1).Get();
+  const Resource* r1 = New302Resource(kUrl1, kUrl1);
   Freeze();
 
   ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
