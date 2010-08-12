@@ -47,7 +47,7 @@ class ServeStaticContentFromACookielessDomainTest : public ::pagespeed_testing::
     if (!cookie.empty()) {
       resource->AddRequestHeader("Cookie", cookie);
     }
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

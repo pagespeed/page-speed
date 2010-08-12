@@ -58,7 +58,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     }
 
     resource->SetResponseBody(body);
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void AddTestResource(const char* url,

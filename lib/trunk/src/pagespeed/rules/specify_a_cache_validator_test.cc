@@ -44,7 +44,7 @@ class SpecifyACacheValidatorTest : public ::pagespeed_testing::PagespeedTest {
     if (last_modified_header != NULL) {
       resource->AddResponseHeader("Last-Modified", last_modified_header);
     }
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {
@@ -98,7 +98,7 @@ TEST_F(SpecifyACacheValidatorTest, ExplicitNoCacheDirective) {
   resource->SetRequestMethod("GET");
   resource->AddResponseHeader("Content-Type", "image/png");
   resource->SetResponseStatusCode(200);
-  input_->AddResource(resource);
+  AddResource(resource);
   Freeze();
 
   // This resource should cause a violation.

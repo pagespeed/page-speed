@@ -78,7 +78,7 @@ class MinifyHtmlTest : public ::pagespeed_testing::PagespeedTest {
     if (body != NULL) {
       resource->SetResponseBody(body);
     }
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

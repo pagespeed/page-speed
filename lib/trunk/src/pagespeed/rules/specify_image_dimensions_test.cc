@@ -146,7 +146,7 @@ class MockElement : public pagespeed::DomElement {
 class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
   MockDocument* NewMockDocument(const std::string& url) {
-    AddResource(url.c_str(), "text/html");
+    CreateResource(url.c_str(), "text/html");
     return new MockDocument(url);
   }
 
@@ -154,13 +154,13 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
     input_->AcquireImageAttributesFactory(new MockImageAttributesFactory());
   }
 
-  void AddResource(const char* url, const char* content_type) {
+  void CreateResource(const char* url, const char* content_type) {
     pagespeed::Resource* resource = new pagespeed::Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
     resource->AddResponseHeader("Content-Type", content_type);
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations(MockDocument* document) {
@@ -244,7 +244,7 @@ TEST_F(SpecifyImageDimensionsTest, DimensionsSpecified) {
   attributes["width"] = "23";
   attributes["height"] = "42";
   attributes["src"] = "http://test.com/image.png";
-  AddResource("http://test.com/image.png", "image/png");
+  CreateResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributes));
@@ -257,7 +257,7 @@ TEST_F(SpecifyImageDimensionsTest, NoHeight) {
   std::map<std::string, std::string> attributes;
   attributes["width"] = "23";
   attributes["src"] = "http://test.com/image.png";
-  AddResource("http://test.com/image.png", "image/png");
+  CreateResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributes));
@@ -270,7 +270,7 @@ TEST_F(SpecifyImageDimensionsTest, NoWidth) {
   std::map<std::string, std::string> attributes;
   attributes["height"] = "42";
   attributes["src"] = "http://test.com/image.png";
-  AddResource("http://test.com/image.png", "image/png");
+  CreateResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributes));
@@ -282,7 +282,7 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensions) {
 
   std::map<std::string, std::string> attributes;
   attributes["src"] = "http://test.com/image.png";
-  AddResource("http://test.com/image.png", "image/png");
+  CreateResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributes));
@@ -307,7 +307,7 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensionsInIFrame) {
 
   std::map<std::string, std::string> attributes;
   attributes["src"] = "image.png";
-  AddResource("http://test.com/frame/image.png", "image/png");
+  CreateResource("http://test.com/frame/image.png", "image/png");
   iframe_doc->AddElement(
       MockElement::New(NULL,
                        "IMG",
@@ -327,14 +327,14 @@ TEST_F(SpecifyImageDimensionsTest, MultipleViolations) {
 
   std::map<std::string, std::string> attributesA;
   attributesA["src"] = "http://test.com/imageA.png";
-  AddResource("http://test.com/imageA.png", "image/png");
+  CreateResource("http://test.com/imageA.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributesA));
 
   std::map<std::string, std::string> attributesB;
   attributesB["src"] = "imageB.png";
-  AddResource("http://test.com/imageB.png", "image/png");
+  CreateResource("http://test.com/imageB.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributesB));
@@ -352,7 +352,7 @@ TEST_F(SpecifyImageDimensionsTest, FormatTest) {
   MockDocument* doc = NewMockDocument("http://test.com/");
   std::map<std::string, std::string> attributes;
   attributes["src"] = "http://test.com/image.png";
-  AddResource("http://test.com/image.png", "image/png");
+  CreateResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributes));
@@ -367,7 +367,7 @@ TEST_F(SpecifyImageDimensionsTest, FormatNoImageDimensionsTest) {
   MockDocument* doc = NewMockDocument("http://test.com/");
   std::map<std::string, std::string> attributes;
   attributes["src"] = "http://test.com/image.png";
-  AddResource("http://test.com/image.png", "image/png");
+  CreateResource("http://test.com/image.png", "image/png");
   doc->AddElement(MockElement::New(NULL,
                                    "IMG",
                                    attributes));

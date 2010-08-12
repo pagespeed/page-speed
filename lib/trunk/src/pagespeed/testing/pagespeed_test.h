@@ -67,6 +67,11 @@ class PagespeedTest : public ::testing::Test {
 
   const pagespeed::PagespeedInput* input() { return input_.get(); }
 
+  // Add a resource. Do not call this method. Use one of the
+  // ResourceBuilder methods above, instead. This method is only
+  // provided for old tests that were written before ResourceBuilder.
+  bool AddResource(const pagespeed::Resource* resource);
+
   // TODO: make input_ private once tests no longer need direct
   // access.
   scoped_ptr<pagespeed::PagespeedInput> input_;

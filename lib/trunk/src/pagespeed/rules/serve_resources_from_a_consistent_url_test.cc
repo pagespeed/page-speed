@@ -69,7 +69,7 @@ class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::Pagespe
     resource->SetResponseProtocol("HTTP/1.1");
     resource->SetResponseBody(body);
 
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

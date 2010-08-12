@@ -62,7 +62,7 @@ class CombineExternalResourcesTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(200);
     resource->SetResponseProtocol("HTTP/1.1");
-    input_->AddResource(resource);
+    AddResource(resource);
     return resource;
   }
 

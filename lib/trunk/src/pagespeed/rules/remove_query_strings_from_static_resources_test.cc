@@ -44,7 +44,7 @@ class RemoveQueryStringsFromStaticResourcesTest : public ::pagespeed_testing::Pa
     resource->SetResponseBody("Hello, world!");
     resource->AddResponseHeader("Content-Type", type);
     resource->AddResponseHeader("Cache-Control", "public, max-age=1000000");
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

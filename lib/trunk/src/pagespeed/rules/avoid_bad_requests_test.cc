@@ -43,7 +43,7 @@ class AvoidBadRequestsTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetResponseStatusCode(status_code);
     resource->SetResponseProtocol("HTTP/1.1");
     resource->SetResponseBody(body);
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

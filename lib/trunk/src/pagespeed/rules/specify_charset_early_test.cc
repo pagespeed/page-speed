@@ -47,7 +47,7 @@ class SpecifyCharsetEarlyTest : public ::pagespeed_testing::PagespeedTest {
       resource->AddResponseHeader(header_name, header_value);
     }
     resource->SetResponseBody(body);
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

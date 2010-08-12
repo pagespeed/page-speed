@@ -46,7 +46,7 @@ class ParallelizeDownloadsAcrossHostnamesTest : public ::pagespeed_testing::Page
       resource->SetResponseProtocol("HTTP/1.1");
       resource->AddResponseHeader("Content-Type", "text/css");
       resource->SetResponseBody("Hello, world!");
-      input_->AddResource(resource);
+      AddResource(resource);
     }
   }
 
