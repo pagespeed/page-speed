@@ -49,10 +49,6 @@ class Violation {
 
 class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  virtual void DoSetUp() {
-    SetAllowDuplicateResources();
-  }
-
   void AddResourceUrl(const std::string& url, int status_code) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
@@ -277,6 +273,8 @@ TEST_F(MinimizeRedirectsTest, RedirectGraphNoCycles1) {
 }
 
 TEST_F(MinimizeRedirectsTest, DiamondRedirectGraph) {
+  SetAllowDuplicateResources();
+
   // Graph that contains two paths from an url(diamond) to a resource
   // but a single root.
   std::string url1 = "http://foo.com/";

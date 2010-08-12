@@ -17,7 +17,6 @@
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/dom.h"
-#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
@@ -26,166 +25,44 @@
 #include "pagespeed/rules/specify_image_dimensions.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
+namespace {
+
 using pagespeed::rules::SpecifyImageDimensions;
-using pagespeed::PagespeedInput;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
-
-namespace {
-
-class MockImageAttributesFactory
-    : public pagespeed::ImageAttributesFactory {
- public:
-  virtual pagespeed::ImageAttributes* NewImageAttributes(
-      const pagespeed::Resource* resource) const {
-    return new pagespeed::ConcreteImageAttributes(42, 23);
-  }
-};
-
-class MockDocument : public pagespeed::DomDocument {
- public:
-  explicit MockDocument(const std::string& document_url)
-      : document_url_(document_url), is_clone_(false) {}
-  virtual ~MockDocument() {
-    if (!is_clone_) {
-      STLDeleteContainerPointers(elements_.begin(), elements_.end());
-    }
-  }
-
-  virtual std::string GetDocumentUrl() const {
-    return document_url_;
-  }
-
-  virtual void Traverse(pagespeed::DomElementVisitor* visitor) const {
-    for (std::vector<pagespeed::DomElement*>::const_iterator
-             iter = elements_.begin(),
-             end = elements_.end();
-         iter != end;
-         ++iter) {
-      visitor->Visit(**iter);
-    }
-  }
-
-  void AddElement(pagespeed::DomElement* element) {
-    elements_.push_back(element);
-  }
-
-  MockDocument* Clone() {
-    MockDocument* doc = new MockDocument(GetDocumentUrl());
-    doc->elements_ = elements_;
-    doc->is_clone_ = true;
-    return doc;
-  }
-
- private:
-  const std::string document_url_;
-  std::vector<pagespeed::DomElement*> elements_;
-  bool is_clone_;
-
-  DISALLOW_COPY_AND_ASSIGN(MockDocument);
-};
-
-class MockElement : public pagespeed::DomElement {
- public:
-  // Creates and returns a MockElement (which takes ownership of content).
-  static MockElement* New(
-      MockDocument* content,
-      const std::string& tagname,
-      const std::map<std::string, std::string>& attributes) {
-    return new MockElement(content, tagname, attributes);
-  }
-
-  virtual pagespeed::DomDocument* GetContentDocument() const {
-    return content_->Clone();
-  }
-
-  virtual std::string GetTagName() const {
-    return tagname_;
-  }
-
-  virtual bool GetAttributeByName(const std::string& name,
-                                  std::string* attr_value) const {
-    std::map<std::string, std::string>::const_iterator entry =
-        attributes_.find(name);
-    if (entry != attributes_.end()) {
-      *attr_value = entry->second;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  virtual Status HasHeightSpecified(bool *out) const {
-    *out = attributes_.find("height") != attributes_.end();
-    return SUCCESS;
-  }
-
-  virtual Status HasWidthSpecified(bool *out) const {
-    *out = attributes_.find("width") != attributes_.end();
-    return SUCCESS;
-  }
-
- private:
-  // MockElement takes ownership of content.
-  MockElement(MockDocument* content,
-              const std::string& tagname,
-              const std::map<std::string, std::string>& attributes)
-      : content_(content),
-        tagname_(tagname),
-        attributes_(attributes) {
-  }
-
-  mutable scoped_ptr<MockDocument> content_;
-  std::string tagname_;
-  std::map<std::string, std::string> attributes_;
-
-  DISALLOW_COPY_AND_ASSIGN(MockElement);
-};
+using pagespeed_testing::FakeDomDocument;
+using pagespeed_testing::FakeDomElement;
 
 class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  MockDocument* NewMockDocument(const std::string& url) {
-    CreateResource(url.c_str(), "text/html");
-    return new MockDocument(url);
+  static const char* kRootUrl;
+  static const char* kImgUrl;
+
+  virtual void DoSetUp() {
+    NewPrimaryResource(kRootUrl);
+    CreateHtmlHeadBodyElements();
   }
 
-  void AddImageAttributesFactory() {
-    AcquireImageAttributesFactory(new MockImageAttributesFactory());
+  void CheckNoViolations() {
+    CheckExpectedViolations(std::vector<std::string>());
   }
 
-  void CreateResource(const char* url, const char* content_type) {
-    pagespeed::Resource* resource = new pagespeed::Resource;
-    resource->SetRequestUrl(url);
-    resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
-    resource->AddResponseHeader("Content-Type", content_type);
-    AddResource(resource);
-  }
-
-  void CheckNoViolations(MockDocument* document) {
-    CheckExpectedViolations(document, std::vector<std::string>());
-  }
-
-  void CheckOneViolation(MockDocument* document,
-                         const std::string& violation_url) {
+  void CheckOneViolation(const std::string& violation_url) {
     std::vector<std::string> expected;
     expected.push_back(violation_url);
-    CheckExpectedViolations(document, expected);
+    CheckExpectedViolations(expected);
   }
 
-  void CheckTwoViolations(MockDocument* document,
-                          const std::string& violation_url1,
+  void CheckTwoViolations(const std::string& violation_url1,
                           const std::string& violation_url2) {
     std::vector<std::string> expected;
     expected.push_back(violation_url1);
     expected.push_back(violation_url2);
-    CheckExpectedViolations(document, expected);
+    CheckExpectedViolations(expected);
   }
 
-  void CheckFormattedOutput(MockDocument* document,
-                            const std::string& expected_output) {
-    AcquireDomDocument(document);
+  void CheckFormattedOutput(const std::string& expected_output) {
     Freeze();
 
     pagespeed::Results results;
@@ -212,9 +89,7 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
   }
 
  private:
-  void CheckExpectedViolations(MockDocument* document,
-                               const std::vector<std::string>& expected) {
-    AcquireDomDocument(document);
+  void CheckExpectedViolations(const std::vector<std::string>& expected) {
     Freeze();
 
     SpecifyImageDimensions dimensions_rule;
@@ -232,115 +107,72 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
   }
 };
 
+const char* SpecifyImageDimensionsTest::kRootUrl = "http://test.com/";
+const char* SpecifyImageDimensionsTest::kImgUrl = "http://test.com/image.png";
+
 TEST_F(SpecifyImageDimensionsTest, EmptyDom) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-  CheckNoViolations(doc);
+  CheckNoViolations();
 }
 
 TEST_F(SpecifyImageDimensionsTest, DimensionsSpecified) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-
-  std::map<std::string, std::string> attributes;
-  attributes["width"] = "23";
-  attributes["height"] = "42";
-  attributes["src"] = "http://test.com/image.png";
-  CreateResource("http://test.com/image.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes));
-  CheckNoViolations(doc);
+  FakeDomElement* img_element;
+  NewPngResource(kImgUrl, body(), &img_element);
+  img_element->AddAttribute("width", "23");
+  img_element->AddAttribute("height", "42");
+  CheckNoViolations();
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoHeight) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-
-  std::map<std::string, std::string> attributes;
-  attributes["width"] = "23";
-  attributes["src"] = "http://test.com/image.png";
-  CreateResource("http://test.com/image.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes));
-  CheckOneViolation(doc, "http://test.com/image.png");
+  FakeDomElement* img_element;
+  NewPngResource(kImgUrl, body(), &img_element);
+  img_element->AddAttribute("width", "23");
+  CheckOneViolation(kImgUrl);
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoWidth) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-
-  std::map<std::string, std::string> attributes;
-  attributes["height"] = "42";
-  attributes["src"] = "http://test.com/image.png";
-  CreateResource("http://test.com/image.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes));
-  CheckOneViolation(doc, "http://test.com/image.png");
+  FakeDomElement* img_element;
+  NewPngResource(kImgUrl, body(), &img_element);
+  img_element->AddAttribute("height", "42");
+  CheckOneViolation(kImgUrl);
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoDimensions) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-
-  std::map<std::string, std::string> attributes;
-  attributes["src"] = "http://test.com/image.png";
-  CreateResource("http://test.com/image.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes));
-  CheckOneViolation(doc, "http://test.com/image.png");
+  NewPngResource(kImgUrl, body());
+  CheckOneViolation(kImgUrl);
 }
 
 // Same test as above, only no resource URL specified. Now we expect
 // no violation since a resource URL is required in order to trigger a
 // violation.
 TEST_F(SpecifyImageDimensionsTest, NoViolationMissingResourceUrl) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-
-  std::map<std::string, std::string> attributes;
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes));
-  CheckNoViolations(doc);
+  FakeDomElement* img_element;
+  NewPngResource(kImgUrl, body(), &img_element);
+  img_element->RemoveAttribute("src");
+  CheckNoViolations();
 }
 
 TEST_F(SpecifyImageDimensionsTest, NoDimensionsInIFrame) {
-  MockDocument* iframe_doc = NewMockDocument("http://test.com/frame/i.html");
+  FakeDomElement* iframe = FakeDomElement::NewIframe(body());
+  FakeDomDocument* iframe_doc;
+  NewDocumentResource("http://test.com/frame/i.html", iframe, &iframe_doc);
+  FakeDomElement* html2 = FakeDomElement::NewRoot(iframe_doc, "html");
+  FakeDomElement* img_element;
+  NewPngResource("http://test.com/frame/image.png", html2, &img_element);
 
-  std::map<std::string, std::string> attributes;
-  attributes["src"] = "image.png";
-  CreateResource("http://test.com/frame/image.png", "image/png");
-  iframe_doc->AddElement(
-      MockElement::New(NULL,
-                       "IMG",
-                       attributes));
+  // Make the src attribute relative.
+  img_element->AddAttribute("src", "image.png");
 
-  MockDocument* doc = NewMockDocument("http://test.com/");
-  doc->AddElement(
-      MockElement::New(iframe_doc,
-                       "IFRAME",
-                       std::map<std::string, std::string>()));
-
-  CheckOneViolation(doc, "http://test.com/frame/image.png");
+  CheckOneViolation("http://test.com/frame/image.png");
 }
 
 TEST_F(SpecifyImageDimensionsTest, MultipleViolations) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
+  NewPngResource(kImgUrl, body());
+  FakeDomElement* img_element2;
+  NewPngResource("http://test.com/imageB.png", body(), &img_element2);
 
-  std::map<std::string, std::string> attributesA;
-  attributesA["src"] = "http://test.com/imageA.png";
-  CreateResource("http://test.com/imageA.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributesA));
-
-  std::map<std::string, std::string> attributesB;
-  attributesB["src"] = "imageB.png";
-  CreateResource("http://test.com/imageB.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributesB));
-  CheckTwoViolations(doc,
-                     "http://test.com/imageA.png",
-                     "http://test.com/imageB.png");
+  // Make the src attribute relative.
+  img_element2->AddAttribute("src", "imageB.png");
+  CheckTwoViolations(kImgUrl, "http://test.com/imageB.png");
 }
 
 TEST_F(SpecifyImageDimensionsTest, FormatTest) {
@@ -348,15 +180,9 @@ TEST_F(SpecifyImageDimensionsTest, FormatTest) {
       "The following image(s) are missing width and/or height attributes.\n"
       "  http://test.com/image.png (Dimensions: 42 x 23)\n";
 
-  AddImageAttributesFactory();
-  MockDocument* doc = NewMockDocument("http://test.com/");
-  std::map<std::string, std::string> attributes;
-  attributes["src"] = "http://test.com/image.png";
-  CreateResource("http://test.com/image.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes));
-  CheckFormattedOutput(doc, expected);
+  AddFakeImageAttributesFactory();
+  NewPngResource(kImgUrl, body());
+  CheckFormattedOutput(expected);
 }
 
 TEST_F(SpecifyImageDimensionsTest, FormatNoImageDimensionsTest) {
@@ -364,19 +190,12 @@ TEST_F(SpecifyImageDimensionsTest, FormatNoImageDimensionsTest) {
       "The following image(s) are missing width and/or height attributes.\n"
       "  http://test.com/image.png\n";
 
-  MockDocument* doc = NewMockDocument("http://test.com/");
-  std::map<std::string, std::string> attributes;
-  attributes["src"] = "http://test.com/image.png";
-  CreateResource("http://test.com/image.png", "image/png");
-  doc->AddElement(MockElement::New(NULL,
-                                   "IMG",
-                                   attributes));
-  CheckFormattedOutput(doc, expected);
+  NewPngResource(kImgUrl, body());
+  CheckFormattedOutput(expected);
 }
 
 TEST_F(SpecifyImageDimensionsTest, FormatNoOutputTest) {
-  MockDocument* doc = NewMockDocument("http://test.com/");
-  CheckFormattedOutput(doc, "");
+  CheckFormattedOutput("");
 }
 
 }  // namespace

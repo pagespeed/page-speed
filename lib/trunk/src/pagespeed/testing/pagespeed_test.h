@@ -19,6 +19,7 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/testing/fake_dom.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace pagespeed {
@@ -54,6 +55,22 @@ class PagespeedTest : public ::testing::Test {
   // status code, and add that resource to our PagespeedInput.
   pagespeed::Resource* NewResource(const std::string& url, int status_code);
 
+  // Construct the primary resource, an HTTP GET HTML
+  // resource with a 200 status code. An associated FakeDomDocument
+  // will be created for this resource, which is stored as the DOM
+  // document of the PagespeedInput. The FakeDomDocument is available
+  // via the document() method. This method must only be called once
+  // per test.
+  pagespeed::Resource* NewPrimaryResource(const std::string& url);
+
+  // Construct an HTTP GET HTML resource with a 200 status code. An
+  // associated FakeDomDocument will be created for this resource,
+  // parented under the specified iframe and returned via the
+  // out_document parameter, if specified.
+  pagespeed::Resource* NewDocumentResource(const std::string& url,
+                                           FakeDomElement* iframe,
+                                           FakeDomDocument** out = NULL);
+
   // Construct a new HTTP GET Resource with the specified URL and
   // a 200 status code, and add that resource to our PagespeedInput.
   pagespeed::Resource* New200Resource(const std::string& url);
@@ -64,7 +81,34 @@ class PagespeedTest : public ::testing::Test {
   pagespeed::Resource* New302Resource(const std::string& source,
                                       const std::string& destination);
 
+  // Construct a new HTTP GET image (PNG) resource, and add that
+  // resource to our PagespeedInput. Also create an associated DOM
+  // node, parented under the specified parent, and returned via the
+  // out_element parameter, if specified.
+  pagespeed::Resource* NewPngResource(const std::string& url,
+                                      FakeDomElement* parent,
+                                      FakeDomElement** out = NULL);
+
+  // Construct default html, head, and body DOM elements under the
+  // document. NewPrimaryResource() must be called prior to calling
+  // this method, in order to create a root document that these
+  // elements can be parented under.
+  void CreateHtmlHeadBodyElements();
+
+  // Adds an ImageAttributesFactory to the PagespeedInput that always
+  // returns ImageAttributes with width 42 and height 23.
+  bool AddFakeImageAttributesFactory();
+
+  // Enable duplicate resources in the PagespeedInput. Most tests
+  // should not need to call this, since the default PagespeedInput
+  // behavior is to not allow duplicates.
+  void SetAllowDuplicateResources();
+
   const pagespeed::PagespeedInput* input() { return input_.get(); }
+  FakeDomDocument* document() { return document_; }
+  FakeDomElement* html() { return html_; }
+  FakeDomElement* head() { return head_; }
+  FakeDomElement* body() { return body_; }
 
   // Add a resource. Do not call this method for resources constructed
   // using New*Resource, as those resources have already been added to
@@ -73,14 +117,12 @@ class PagespeedTest : public ::testing::Test {
   // methods to construct resouces.
   bool AddResource(const pagespeed::Resource* resource);
 
-  bool AcquireDomDocument(pagespeed::DomDocument* document);
-  bool AcquireImageAttributesFactory(
-      pagespeed::ImageAttributesFactory* factory);
-  bool SetPrimaryResourceUrl(const std::string& url);
-  void SetAllowDuplicateResources();
-
  private:
   scoped_ptr<pagespeed::PagespeedInput> input_;
+  FakeDomDocument* document_;
+  FakeDomElement* html_;
+  FakeDomElement* head_;
+  FakeDomElement* body_;
 };
 
 }  // namespace pagespeed_testing
