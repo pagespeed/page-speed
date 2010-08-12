@@ -39,7 +39,7 @@ class OptimizeOrderTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetResponseProtocol("HTTP/1.1");
     resource->AddResponseHeader("Content-Type", "text/html");
     resource->SetResponseBody(html);
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

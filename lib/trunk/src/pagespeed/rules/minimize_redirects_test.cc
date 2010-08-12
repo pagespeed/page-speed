@@ -60,7 +60,7 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(status_code);
     resource->SetResponseProtocol("HTTP/1.1");
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void AddRedirect(const std::string& url, const std::string& location) {
@@ -73,7 +73,7 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
     if (!location.empty()) {
       resource->AddResponseHeader("Location", location);
     }
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckViolations(const std::vector<Violation>& expected_violations) {

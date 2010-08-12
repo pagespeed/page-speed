@@ -49,7 +49,7 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
     resource->AddResponseHeader("Content-Type", "text/html");
-    input_->AddResource(resource);
+    AddResource(resource);
     return FakeDomDocument::NewRoot(url);
   }
 
@@ -60,7 +60,7 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
     resource->AddResponseHeader("Content-Type", "text/html");
-    input_->AddResource(resource);
+    AddResource(resource);
     return FakeDomDocument::New(iframe, url);
   }
 

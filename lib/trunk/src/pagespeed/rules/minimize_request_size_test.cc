@@ -56,7 +56,7 @@ class MinimizeRequestSizeTest : public ::pagespeed_testing::PagespeedTest {
          ++it) {
       resource->AddRequestHeader(it->first, it->second);
     }
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

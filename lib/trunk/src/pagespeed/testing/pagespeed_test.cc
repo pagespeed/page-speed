@@ -58,6 +58,11 @@ ResourceBuilder& PagespeedTest::New302Resource(
   return builder_;
 }
 
+bool PagespeedTest::AddResource(const pagespeed::Resource* resource) {
+  return input_->AddResource(resource);
+}
+
+
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
 const char* PagespeedTest::kUrl2 = "http://www.foo.com/b";
 const char* PagespeedTest::kUrl3 = "http://www.bar.com/c";

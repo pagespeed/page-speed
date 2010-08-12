@@ -162,7 +162,7 @@ class ServeScaledImagesTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
     resource->AddResponseHeader("Content-Type", "text/html");
-    input_->AddResource(resource);
+    AddResource(resource);
     return new MockDocument(url);
   }
 
@@ -176,7 +176,7 @@ class ServeScaledImagesTest : public ::pagespeed_testing::PagespeedTest {
     resource->SetResponseProtocol("HTTP/1.1");
     resource->AddResponseHeader("Content-Type", "image/png");
     resource->SetResponseBody(body);
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations(MockDocument* document) {

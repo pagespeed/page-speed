@@ -48,7 +48,7 @@ class LeverageBrowserCachingTest : public ::pagespeed_testing::PagespeedTest {
     if (cache_control_header != NULL) {
       resource->AddResponseHeader("Cache-Control", cache_control_header);
     }
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {

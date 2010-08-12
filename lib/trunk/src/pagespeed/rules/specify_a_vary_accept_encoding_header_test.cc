@@ -51,7 +51,7 @@ class SpecifyAVaryAcceptEncodingHeaderTest : public ::pagespeed_testing::Pagespe
     if (!vary_header.empty()) {
       resource->AddResponseHeader("Vary", vary_header);
     }
-    input_->AddResource(resource);
+    AddResource(resource);
   }
 
   void CheckNoViolations() {
