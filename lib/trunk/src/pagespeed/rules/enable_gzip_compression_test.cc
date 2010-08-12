@@ -128,7 +128,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(gzip_rule, &results);
-    ASSERT_TRUE(gzip_rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(gzip_rule.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 2);
 
     const Result& result0 = results.results(0);
@@ -145,7 +145,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     ResultVector result_vector;
     result_vector.push_back(&result0);
     result_vector.push_back(&result1);
-    ASSERT_EQ(score, gzip_rule.ComputeScore(*input_->input_information(),
+    ASSERT_EQ(score, gzip_rule.ComputeScore(*input()->input_information(),
                                             result_vector));
   }
 
@@ -155,7 +155,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(gzip_rule, &results);
-    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &provider));
+    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -167,7 +167,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(gzip_rule, &results);
-    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input_, &provider));
+    ASSERT_EQ(expect_success, gzip_rule.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -178,7 +178,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     if (expect_success) {
       ResultVector result_vector;
       result_vector.push_back(&result);
-      ASSERT_EQ(score, gzip_rule.ComputeScore(*input_->input_information(),
+      ASSERT_EQ(score, gzip_rule.ComputeScore(*input()->input_information(),
                                               result_vector));
     }
   }

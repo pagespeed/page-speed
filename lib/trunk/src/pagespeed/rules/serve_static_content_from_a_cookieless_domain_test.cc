@@ -54,7 +54,7 @@ class ServeStaticContentFromACookielessDomainTest : public ::pagespeed_testing::
     ServeStaticContentFromACookielessDomain rule;
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -62,7 +62,7 @@ class ServeStaticContentFromACookielessDomainTest : public ::pagespeed_testing::
     ServeStaticContentFromACookielessDomain rule;
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 1);
     const Result& result = results.results(0);
     ASSERT_EQ(result.resource_urls_size(), 1);

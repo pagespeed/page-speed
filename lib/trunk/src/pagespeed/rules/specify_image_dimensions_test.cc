@@ -193,7 +193,7 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
       // compute results
       SpecifyImageDimensions dimensions_rule;
       ResultProvider provider(dimensions_rule, &results);
-      ASSERT_TRUE(dimensions_rule.AppendResults(*input_, &provider));
+      ASSERT_TRUE(dimensions_rule.AppendResults(*input(), &provider));
     }
 
     {
@@ -221,7 +221,7 @@ class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(dimensions_rule, &results);
-    ASSERT_TRUE(dimensions_rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(dimensions_rule.AppendResults(*input(), &provider));
     ASSERT_EQ(static_cast<size_t>(results.results_size()), expected.size());
 
     for (size_t idx = 0; idx < expected.size(); ++idx) {

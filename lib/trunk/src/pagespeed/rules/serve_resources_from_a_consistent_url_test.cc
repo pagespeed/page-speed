@@ -77,7 +77,7 @@ class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::Pagespe
 
     Results results;
     ResultProvider provider(rule, &results);
-    rule.AppendResults(*input_, &provider);
+    rule.AppendResults(*input(), &provider);
     ASSERT_EQ(0, results.results_size());
   }
 
@@ -90,7 +90,7 @@ class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::Pagespe
 
     Results results;
     ResultProvider provider(rule, &results);
-    rule.AppendResults(*input_, &provider);
+    rule.AppendResults(*input(), &provider);
     ASSERT_EQ(num_collisions, static_cast<size_t>(results.results_size()));
     for (int result_idx = 0;
          result_idx < results.results_size();

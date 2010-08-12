@@ -100,7 +100,7 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(optimize, &results);
-    ASSERT_TRUE(optimize.AppendResults(*input_, &provider));
+    ASSERT_TRUE(optimize.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -111,7 +111,7 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(optimize, &results);
-    ASSERT_TRUE(optimize.AppendResults(*input_, &provider));
+    ASSERT_TRUE(optimize.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -123,7 +123,7 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
 
     ResultVector result_vector;
     result_vector.push_back(&result);
-    ASSERT_EQ(score, optimize.ComputeScore(*input_->input_information(),
+    ASSERT_EQ(score, optimize.ComputeScore(*input()->input_information(),
                                            result_vector));
   }
 
@@ -132,7 +132,7 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(optimize, &results);
-    ASSERT_FALSE(optimize.AppendResults(*input_, &provider));
+    ASSERT_FALSE(optimize.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 };

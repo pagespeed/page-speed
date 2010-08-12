@@ -119,7 +119,7 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
 
     pagespeed::Results results;
     pagespeed::ResultProvider provider(put_css_in_head_rule, &results);
-    ASSERT_TRUE(put_css_in_head_rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(put_css_in_head_rule.AppendResults(*input(), &provider));
     ASSERT_EQ(static_cast<size_t>(results.results_size()), expected.size());
 
     for (size_t i = 0; i < expected.size(); ++i) {

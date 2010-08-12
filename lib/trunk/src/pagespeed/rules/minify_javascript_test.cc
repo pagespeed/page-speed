@@ -82,7 +82,7 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(minify, &results);
-    ASSERT_TRUE(minify.AppendResults(*input_, &provider));
+    ASSERT_TRUE(minify.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -91,7 +91,7 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(minify, &results);
-    ASSERT_TRUE(minify.AppendResults(*input_, &provider));
+    ASSERT_TRUE(minify.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -109,7 +109,7 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
 
     ResultVector result_vector;
     result_vector.push_back(&result);
-    ASSERT_EQ(score, minify.ComputeScore(*input_->input_information(),
+    ASSERT_EQ(score, minify.ComputeScore(*input()->input_information(),
                                          result_vector));
   }
 
@@ -118,7 +118,7 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(minify, &results);
-    ASSERT_FALSE(minify.AppendResults(*input_, &provider));
+    ASSERT_FALSE(minify.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 };

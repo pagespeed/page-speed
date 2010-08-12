@@ -54,7 +54,7 @@ class SpecifyCharsetEarlyTest : public ::pagespeed_testing::PagespeedTest {
     SpecifyCharsetEarly charset_rule;
     Results results;
     ResultProvider provider(charset_rule, &results);
-    ASSERT_TRUE(charset_rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(charset_rule.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -62,7 +62,7 @@ class SpecifyCharsetEarlyTest : public ::pagespeed_testing::PagespeedTest {
     SpecifyCharsetEarly charset_rule;
     Results results;
     ResultProvider provider(charset_rule, &results);
-    ASSERT_TRUE(charset_rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(charset_rule.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 1);
     const Result& result = results.results(0);
     ASSERT_EQ(result.savings().page_reflows_saved(), 1);

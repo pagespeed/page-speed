@@ -52,7 +52,7 @@ class SpecifyACacheValidatorTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(0, results.results_size());
   }
 
@@ -61,7 +61,7 @@ class SpecifyACacheValidatorTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(1, results.results_size());
 
     const Result& result0 = results.results(0);
@@ -73,7 +73,7 @@ class SpecifyACacheValidatorTest : public ::pagespeed_testing::PagespeedTest {
 TEST_F(SpecifyACacheValidatorTest, MissingCacheValidator) {
   AddTestResource("http://www.example.com/", NULL);
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckOneViolation("http://www.example.com/");
 }
 
@@ -81,14 +81,14 @@ TEST_F(SpecifyACacheValidatorTest, HasCacheValidator) {
   AddTestResource("http://www.example.com/1",
                   "Thu, 18 Mar 2010 10:36:52 EDT");
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckNoViolations();
 }
 
 TEST_F(SpecifyACacheValidatorTest, InvalidCacheValidator) {
   AddTestResource("http://www.example.com/1", "0");
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckOneViolation("http://www.example.com/1");
 }
 
