@@ -51,7 +51,7 @@ class RemoveQueryStringsFromStaticResourcesTest : public ::pagespeed_testing::Pa
     RemoveQueryStringsFromStaticResources rule;
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(0, results.results_size());
   }
 
@@ -59,7 +59,7 @@ class RemoveQueryStringsFromStaticResourcesTest : public ::pagespeed_testing::Pa
     RemoveQueryStringsFromStaticResources rule;
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(1, results.results_size());
     const Result& result = results.results(0);
     ASSERT_EQ(1, result.resource_urls_size());

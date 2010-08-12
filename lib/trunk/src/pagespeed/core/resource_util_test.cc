@@ -550,8 +550,8 @@ TEST_F(GetLastResourceInRedirectChainTest, SimpleRedirect) {
   const Resource* r2 = New200Resource(kUrl2).Get();
   Freeze();
 
-  ASSERT_EQ(r2, GetLastResourceInRedirectChain(*input_, *r1));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
+  ASSERT_EQ(r2, GetLastResourceInRedirectChain(*input(), *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r2));
 }
 
 // Verify that we are able to follow a long redirect chain.
@@ -563,7 +563,7 @@ TEST_F(GetLastResourceInRedirectChainTest, AlmostTooLongRedirectChain) {
 
   for (int i = 0; i < kMaxRedirects; ++i) {
     ASSERT_EQ(final_resource,
-              GetLastResourceInRedirectChain(*input_, *resources[i])) << i;
+              GetLastResourceInRedirectChain(*input(), *resources[i])) << i;
   }
 }
 
@@ -585,7 +585,7 @@ TEST_F(GetLastResourceInRedirectChainTest, TooLongRedirectChain) {
       expected_resource = final_resource;
     }
     ASSERT_EQ(expected_resource,
-              GetLastResourceInRedirectChain(*input_, *resources[i])) << i;
+              GetLastResourceInRedirectChain(*input(), *resources[i])) << i;
   }
 }
 
@@ -597,9 +597,9 @@ TEST_F(GetLastResourceInRedirectChainTest, MissingLocation) {
   const Resource* r3 = New200Resource(kUrl3).Get();
   Freeze();
 
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r3));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r2));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r3));
 }
 
 TEST_F(GetLastResourceInRedirectChainTest, MissingResource) {
@@ -610,9 +610,9 @@ TEST_F(GetLastResourceInRedirectChainTest, MissingResource) {
   const Resource* r4 = New200Resource(kUrl4).Get();
   Freeze();
 
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r4));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r2));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r4));
 }
 
 TEST_F(GetLastResourceInRedirectChainTest, RedirectLoop) {
@@ -623,10 +623,10 @@ TEST_F(GetLastResourceInRedirectChainTest, RedirectLoop) {
   const Resource* r4 = New302Resource(kUrl4, kUrl1).Get();
   Freeze();
 
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r2));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r3));
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r4));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r2));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r3));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r4));
 }
 
 TEST_F(GetLastResourceInRedirectChainTest, ImmediateRedirectLoop) {
@@ -634,7 +634,7 @@ TEST_F(GetLastResourceInRedirectChainTest, ImmediateRedirectLoop) {
   const Resource* r1 = New302Resource(kUrl1, kUrl1).Get();
   Freeze();
 
-  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input_, *r1));
+  ASSERT_EQ(NULL, GetLastResourceInRedirectChain(*input(), *r1));
 }
 
 }  // namespace

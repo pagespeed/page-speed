@@ -65,6 +65,10 @@ class PagespeedTest : public ::testing::Test {
   ResourceBuilder& New302Resource(const std::string& source,
                                   const std::string& destination);
 
+  const pagespeed::PagespeedInput* input() { return input_.get(); }
+
+  // TODO: make input_ private once tests no longer need direct
+  // access.
   scoped_ptr<pagespeed::PagespeedInput> input_;
 
  private:

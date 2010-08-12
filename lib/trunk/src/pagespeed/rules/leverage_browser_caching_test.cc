@@ -56,7 +56,7 @@ class LeverageBrowserCachingTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(0, results.results_size());
   }
 
@@ -67,12 +67,12 @@ class LeverageBrowserCachingTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input_, &provider));
+    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
     ASSERT_EQ(1, results.results_size());
 
     ResultVector result_vector;
     result_vector.push_back(&results.results(0));
-    ASSERT_EQ(score, rule.ComputeScore(*input_->input_information(),
+    ASSERT_EQ(score, rule.ComputeScore(*input()->input_information(),
                                        result_vector));
 
     const Result& result0 = results.results(0);
@@ -93,35 +93,35 @@ class LeverageBrowserCachingTest : public ::pagespeed_testing::PagespeedTest {
 TEST_F(LeverageBrowserCachingTest, ShortFreshnessLifetime) {
   AddTestResource("http://www.example.com/", "max-age=500");
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckOneViolation("http://www.example.com/", 500000, 0);
 }
 
 TEST_F(LeverageBrowserCachingTest, LongFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", "max-age=31536000");
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckNoViolations();
 }
 
 TEST_F(LeverageBrowserCachingTest, NotCacheable) {
   AddTestResource("http://www.example.com/1", "no-cache");
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckNoViolations();
 }
 
 TEST_F(LeverageBrowserCachingTest, BadFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", "max-age=foo");
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckOneViolation("http://www.example.com/1", 0, 0);
 }
 
 TEST_F(LeverageBrowserCachingTest, NoFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", NULL);
   Freeze();
-  ASSERT_EQ(1, input_->num_resources());
+  ASSERT_EQ(1, input()->num_resources());
   CheckOneViolation("http://www.example.com/1", 0, 0);
 }
 
@@ -129,7 +129,7 @@ TEST_F(LeverageBrowserCachingTest, OneShortOneLongLifetime) {
   AddTestResource("http://www.example.com/a", "max-age=302400");
   AddTestResource("http://www.example.com/1", "max-age=31536000");
   Freeze();
-  ASSERT_EQ(2, input_->num_resources());
+  ASSERT_EQ(2, input()->num_resources());
   CheckOneViolation("http://www.example.com/a", 302400000, 75);
 }
 

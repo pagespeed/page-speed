@@ -50,7 +50,7 @@ class AvoidBadRequestsTest : public ::pagespeed_testing::PagespeedTest {
     AvoidBadRequests no404s;
     Results results;
     ResultProvider provider(no404s, &results);
-    ASSERT_TRUE(no404s.AppendResults(*input_, &provider));
+    ASSERT_TRUE(no404s.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -58,7 +58,7 @@ class AvoidBadRequestsTest : public ::pagespeed_testing::PagespeedTest {
     AvoidBadRequests no404s;
     Results results;
     ResultProvider provider(no404s, &results);
-    ASSERT_TRUE(no404s.AppendResults(*input_, &provider));
+    ASSERT_TRUE(no404s.AppendResults(*input(), &provider));
     ASSERT_EQ(results.results_size(), 1);
     const Result& result = results.results(0);
     ASSERT_EQ(result.savings().requests_saved(), 1);

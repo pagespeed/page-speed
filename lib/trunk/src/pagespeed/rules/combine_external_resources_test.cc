@@ -82,7 +82,7 @@ class CombineExternalResourcesTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(*resource_rule.get(), &results);
-    resource_rule->AppendResults(*input_, &provider);
+    resource_rule->AppendResults(*input(), &provider);
     ASSERT_EQ(static_cast<size_t>(results.results_size()),
               expected_violations.size());
     for (int idx = 0; idx < results.results_size(); idx++) {

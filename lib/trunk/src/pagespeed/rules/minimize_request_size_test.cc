@@ -87,7 +87,7 @@ class MinimizeRequestSizeTest : public ::pagespeed_testing::PagespeedTest {
       // compute results
       MinimizeRequestSize min_request_rule;
       ResultProvider provider(min_request_rule, &results);
-      ASSERT_TRUE(min_request_rule.AppendResults(*input_, &provider));
+      ASSERT_TRUE(min_request_rule.AppendResults(*input(), &provider));
     }
 
     {
