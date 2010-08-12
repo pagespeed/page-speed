@@ -153,7 +153,7 @@ class ServeScaledImagesTest : public ::pagespeed_testing::PagespeedTest {
  protected:
 
   virtual void DoSetUp() {
-    input_->AcquireImageAttributesFactory(new MockImageAttributesFactory());
+    AcquireImageAttributesFactory(new MockImageAttributesFactory());
   }
 
   MockDocument* NewMockDocument (const std::string& url) {
@@ -201,7 +201,7 @@ class ServeScaledImagesTest : public ::pagespeed_testing::PagespeedTest {
 
   void CheckFormattedOutput(MockDocument* document,
                             const std::string& expected_output) {
-    input_->AcquireDomDocument(document);
+    AcquireDomDocument(document);
     Freeze();
 
     pagespeed::Results results;
@@ -230,7 +230,7 @@ class ServeScaledImagesTest : public ::pagespeed_testing::PagespeedTest {
  private:
   void CheckExpectedViolations(MockDocument* document,
                                const std::vector<std::string>& expected) {
-    input_->AcquireDomDocument(document);
+    AcquireDomDocument(document);
     Freeze();
 
     pagespeed::rules::ServeScaledImages scaling_rule;
