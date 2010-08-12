@@ -13,6 +13,28 @@
 // limitations under the License.
 
 #include "pagespeed/testing/pagespeed_test.h"
+#include "pagespeed/core/image_attributes.h"
+
+namespace {
+
+void AssertNull(const void* value) {
+  ASSERT_TRUE(value == NULL);
+}
+
+void AssertNotNull(const void* value) {
+  ASSERT_TRUE(value != NULL);
+}
+
+class FakeImageAttributesFactory
+    : public pagespeed::ImageAttributesFactory {
+ public:
+  virtual pagespeed::ImageAttributes* NewImageAttributes(
+      const pagespeed::Resource* resource) const {
+    return new pagespeed::ConcreteImageAttributes(42, 23);
+  }
+};
+
+}  // namespace
 
 namespace pagespeed_testing {
 
@@ -21,11 +43,19 @@ PagespeedTest::~PagespeedTest() {}
 
 void PagespeedTest::SetUp() {
   input_.reset(new pagespeed::PagespeedInput());
+  document_ = NULL;
+  html_ = NULL;
+  head_ = NULL;
+  body_ = NULL;
   DoSetUp();
 }
 
 void PagespeedTest::TearDown() {
   DoTearDown();
+  document_ = NULL;
+  html_ = NULL;
+  head_ = NULL;
+  body_ = NULL;
   input_.reset();
 }
 
@@ -46,6 +76,28 @@ pagespeed::Resource* PagespeedTest::NewResource(const std::string& url,
   return resource;
 }
 
+pagespeed::Resource* PagespeedTest::NewPrimaryResource(const std::string& url) {
+  pagespeed::Resource* resource = New200Resource(url);
+  resource->SetResourceType(pagespeed::HTML);
+  AssertNull(document_);
+  document_ = FakeDomDocument::NewRoot(url);
+  input_->AcquireDomDocument(document_);
+  input_->SetPrimaryResourceUrl(url);
+  return resource;
+}
+
+pagespeed::Resource* PagespeedTest::NewDocumentResource(const std::string& url,
+                                                        FakeDomElement* iframe,
+                                                        FakeDomDocument** out) {
+  pagespeed::Resource* resource = New200Resource(url);
+  resource->SetResourceType(pagespeed::HTML);
+  FakeDomDocument* document = FakeDomDocument::New(iframe, url);
+  if (out != NULL) {
+    *out = document;
+  }
+  return resource;
+}
+
 pagespeed::Resource* PagespeedTest::New200Resource(const std::string& source) {
   return NewResource(source, 200);
 }
@@ -57,21 +109,35 @@ pagespeed::Resource* PagespeedTest::New302Resource(
   return resource;
 }
 
+pagespeed::Resource* PagespeedTest::NewPngResource(const std::string& url,
+                                                   FakeDomElement* parent,
+                                                   FakeDomElement** out) {
+  pagespeed::Resource* resource = New200Resource(url);
+  resource->AddResponseHeader("Content-Type", "image/png");
+  FakeDomElement* element = FakeDomElement::NewImg(parent, url);
+  if (out != NULL) {
+    *out = element;
+  }
+  return resource;
+}
+
+void PagespeedTest::CreateHtmlHeadBodyElements() {
+  AssertNotNull(document());
+  AssertNull(html_);
+  AssertNull(head_);
+  AssertNull(body_);
+  html_ = FakeDomElement::NewRoot(document(), "html");
+  head_ = FakeDomElement::New(html(), "head");
+  body_ = FakeDomElement::New(html(), "body");
+}
+
 bool PagespeedTest::AddResource(const pagespeed::Resource* resource) {
   return input_->AddResource(resource);
 }
 
-bool PagespeedTest::AcquireDomDocument(pagespeed::DomDocument* document) {
-  return input_->AcquireDomDocument(document);
-}
-
-bool PagespeedTest::AcquireImageAttributesFactory(
-    pagespeed::ImageAttributesFactory* factory) {
-  return input_->AcquireImageAttributesFactory(factory);
-}
-
-bool PagespeedTest::SetPrimaryResourceUrl(const std::string& url) {
-  return input_->SetPrimaryResourceUrl(url);
+bool PagespeedTest::AddFakeImageAttributesFactory() {
+  return input_->AcquireImageAttributesFactory(
+      new FakeImageAttributesFactory());
 }
 
 void PagespeedTest::SetAllowDuplicateResources() {

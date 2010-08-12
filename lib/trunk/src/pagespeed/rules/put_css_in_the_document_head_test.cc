@@ -25,43 +25,20 @@
 #include "pagespeed/testing/fake_dom.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
+namespace {
+
 using pagespeed::DomDocument;
 using pagespeed::StylesInBodyDetails;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
-
-namespace {
 
 class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
  protected:
   static const char* kRootUrl;
 
   virtual void DoSetUp() {
-    document_.reset(NewFakeDomDocument(kRootUrl));
-    html_ = FakeDomElement::NewRoot(document_.get(), "HTML");
-    head_ = FakeDomElement::New(html_, "HEAD");
-    body_ = FakeDomElement::New(html_, "BODY");
-  }
-
-  FakeDomDocument* NewFakeDomDocument(const std::string& url) {
-    pagespeed::Resource* resource = new pagespeed::Resource;
-    resource->SetRequestUrl(url);
-    resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
-    resource->AddResponseHeader("Content-Type", "text/html");
-    AddResource(resource);
-    return FakeDomDocument::NewRoot(url);
-  }
-
-  FakeDomDocument* NewFakeDomDocument(FakeDomElement* iframe,
-                                      const std::string& url) {
-    pagespeed::Resource* resource = new pagespeed::Resource;
-    resource->SetRequestUrl(url);
-    resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
-    resource->AddResponseHeader("Content-Type", "text/html");
-    AddResource(resource);
-    return FakeDomDocument::New(iframe, url);
+    NewPrimaryResource(kRootUrl);
+    CreateHtmlHeadBodyElements();
   }
 
   void CheckNoViolations() {
@@ -92,11 +69,6 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
     CheckExpectedViolations(expected);
   }
 
-  scoped_ptr<FakeDomDocument> document_;
-  FakeDomElement* html_;
-  FakeDomElement* head_;
-  FakeDomElement* body_;
-
  private:
   struct Violation {
     Violation() : num_inline_style_blocks(0) {}
@@ -112,7 +84,6 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
   };
 
   void CheckExpectedViolations(const std::vector<Violation>& expected) {
-    AcquireDomDocument(document_.release());
     Freeze();
 
     pagespeed::rules::PutCssInTheDocumentHead put_css_in_head_rule;
@@ -151,52 +122,54 @@ TEST_F(PutCssInTheDocumentHeadTest, Empty) {
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, StylesInHead) {
-  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
-  FakeDomElement::NewStyle(head_);
+  FakeDomElement::NewLinkStylesheet(head(), "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head());
   CheckNoViolations();
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, StyleTagInBody) {
-  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
-  FakeDomElement::NewStyle(head_);
-  FakeDomElement::NewStyle(body_);
+  FakeDomElement::NewLinkStylesheet(head(), "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head());
+  FakeDomElement::NewStyle(body());
   std::vector<std::string> external_styles;
-  CheckOneViolation("http://example.com/", 1, external_styles);
+  CheckOneViolation(kRootUrl, 1, external_styles);
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, LinkTagInBody) {
-  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
-  FakeDomElement::NewStyle(head_);
-  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/bar.css");
+  FakeDomElement::NewLinkStylesheet(head(), "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head());
+  FakeDomElement::NewLinkStylesheet(body(), "http://example.com/bar.css");
   std::vector<std::string> external_styles;
   external_styles.push_back("http://example.com/bar.css");
-  CheckOneViolation("http://example.com/", 0, external_styles);
+  CheckOneViolation(kRootUrl, 0, external_styles);
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, SeveralThingsInBody) {
-  FakeDomElement::NewLinkStylesheet(head_, "http://example.com/foo.css");
-  FakeDomElement::NewStyle(head_);
-  FakeDomElement::NewStyle(body_);
-  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/bar.css");
-  FakeDomElement::NewStyle(body_);
-  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/baz.css");
-  FakeDomElement::NewStyle(body_);
+  FakeDomElement::NewLinkStylesheet(head(), "http://example.com/foo.css");
+  FakeDomElement::NewStyle(head());
+  FakeDomElement::NewStyle(body());
+  FakeDomElement::NewLinkStylesheet(body(), "http://example.com/bar.css");
+  FakeDomElement::NewStyle(body());
+  FakeDomElement::NewLinkStylesheet(body(), "http://example.com/baz.css");
+  FakeDomElement::NewStyle(body());
   std::vector<std::string> external_styles;
   external_styles.push_back("http://example.com/bar.css");
   external_styles.push_back("http://example.com/baz.css");
-  CheckOneViolation("http://example.com/", 3, external_styles);
+  CheckOneViolation(kRootUrl, 3, external_styles);
 }
 
 TEST_F(PutCssInTheDocumentHeadTest, Iframe) {
   // Main document:
-  FakeDomElement::NewStyle(body_);
-  FakeDomElement::NewStyle(body_);
-  FakeDomElement::NewLinkStylesheet(body_, "http://example.com/bar.css");
-  FakeDomElement* iframe = FakeDomElement::NewIframe(body_);
+  FakeDomElement::NewStyle(body());
+  FakeDomElement::NewStyle(body());
+  FakeDomElement::NewLinkStylesheet(body(), "http://example.com/bar.css");
+  FakeDomElement* iframe = FakeDomElement::NewIframe(body());
 
   // Iframe document:
-  FakeDomDocument* doc2 =
-      NewFakeDomDocument(iframe, "http://example.com/if.html");
+  FakeDomDocument* doc2;
+  NewDocumentResource("http://example.com/if.html",
+                      iframe,
+                      &doc2);
   FakeDomElement* html2 = FakeDomElement::NewRoot(doc2, "HTML");
   FakeDomElement::New(html2, "HEAD");
   FakeDomElement* body2 = FakeDomElement::New(html2, "BODY");
@@ -209,7 +182,7 @@ TEST_F(PutCssInTheDocumentHeadTest, Iframe) {
   external_styles1.push_back("http://example.com/bar.css");
 
   CheckTwoViolations("http://example.com/if.html", 1, external_styles2,
-                     "http://example.com/", 2, external_styles1);
+                     kRootUrl, 2, external_styles1);
 }
 
 }  // namespace

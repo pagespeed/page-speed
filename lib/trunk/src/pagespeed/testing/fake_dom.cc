@@ -114,6 +114,14 @@ FakeDomElement* FakeDomElement::New(FakeDomElement* parent,
 }
 
 // static
+FakeDomElement* FakeDomElement::NewImg(FakeDomElement* parent,
+                                       const std::string& url) {
+  FakeDomElement* img = FakeDomElement::New(parent, "img");
+  img->AddAttribute("src", url);
+  return img;
+}
+
+// static
 FakeDomElement* FakeDomElement::NewStyle(FakeDomElement* parent) {
   return FakeDomElement::New(parent, "style");
 }
@@ -131,7 +139,9 @@ FakeDomElement::FakeDomElement(const FakeDomElement* parent,
                                const std::string& tag_name)
     : tag_name_(tag_name),
       parent_(parent),
-      document_(NULL) {
+      document_(NULL),
+      actual_width_(-1),
+      actual_height_(-1) {
   StringToUpperASCII(&tag_name_);
 }
 
@@ -171,6 +181,15 @@ bool FakeDomElement::GetAttributeByName(const std::string& name,
 void FakeDomElement::AddAttribute(const std::string& key,
                                   const std::string& value) {
   attributes_[key] = value;
+}
+
+void FakeDomElement::RemoveAttribute(const std::string& key) {
+  attributes_.erase(key);
+}
+
+void FakeDomElement::SetActualWidthAndHeight(int width, int height) {
+  actual_width_ = width;
+  actual_height_ = height;
 }
 
 const FakeDomElement* FakeDomElement::GetFirstChild() const {
@@ -225,6 +244,7 @@ FakeDomDocument* FakeDomDocument::New(FakeDomElement* iframe,
     LOG(DFATAL) << "iframe already has child document.";
     return NULL;
   }
+  iframe->AddAttribute("src", document_url);
   FakeDomDocument* document = new FakeDomDocument(document_url);
   iframe->document_ = document;
   return document;
@@ -256,6 +276,36 @@ void FakeDomDocument::Traverse(pagespeed::DomElementVisitor* visitor) const {
         traverser.CurrentElement();
     visitor->Visit(*element);
   } while (traverser.NextElement());
+}
+
+pagespeed::DomElement::Status FakeDomElement::GetActualWidth(
+    int* out_width) const {
+  if (actual_width_ >= 0) {
+    *out_width = actual_width_;
+    return SUCCESS;
+  }
+  return FAILURE;
+}
+
+pagespeed::DomElement::Status FakeDomElement::GetActualHeight(
+    int* out_height) const {
+  if (actual_height_ >= 0) {
+    *out_height = actual_height_;
+    return SUCCESS;
+  }
+  return FAILURE;
+}
+
+pagespeed::DomElement::Status FakeDomElement::HasHeightSpecified(
+    bool *out) const {
+  *out = attributes_.find("height") != attributes_.end();
+  return SUCCESS;
+}
+
+pagespeed::DomElement::Status FakeDomElement::HasWidthSpecified(
+    bool *out) const {
+  *out = attributes_.find("width") != attributes_.end();
+  return SUCCESS;
 }
 
 FakeDomDocument* FakeDomDocument::Clone() const {
