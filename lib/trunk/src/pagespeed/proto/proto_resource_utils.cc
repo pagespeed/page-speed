@@ -30,10 +30,8 @@ namespace proto {
 void PopulateResource(const ProtoResource& input, Resource* output) {
   output->SetRequestUrl(input.request_url());
   output->SetRequestMethod(input.request_method());
-  output->SetRequestProtocol(input.request_protocol());
   output->SetRequestBody(input.request_body());
   output->SetResponseStatusCode(input.response_status_code());
-  output->SetResponseProtocol(input.response_protocol());
   output->SetResponseBody(input.response_body());
 
   typedef ::google::protobuf::RepeatedPtrField<ProtoResource::Header>
@@ -75,10 +73,8 @@ void PopulatePagespeedInput(const ProtoInput& proto_input,
 void PopulateProtoResource(const Resource& input, ProtoResource* output) {
   output->set_request_url(input.GetRequestUrl());
   output->set_request_method(input.GetRequestMethod());
-  output->set_request_protocol(input.GetRequestProtocol());
   output->set_request_body(input.GetRequestBody());
   output->set_response_status_code(input.GetResponseStatusCode());
-  output->set_response_protocol(input.GetResponseProtocol());
   output->set_response_body(input.GetResponseBody());
 
   const Resource::HeaderMap& request_headers = *input.GetRequestHeaders();

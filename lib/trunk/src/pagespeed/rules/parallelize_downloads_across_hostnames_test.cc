@@ -41,9 +41,7 @@ class ParallelizeDownloadsAcrossHostnamesTest : public ::pagespeed_testing::Page
       resource->SetRequestUrl(StringPrintf("http://%s/resource%d.css",
                                            host.c_str(), index));
       resource->SetRequestMethod("GET");
-      resource->SetRequestProtocol("HTTP/1.1");
       resource->SetResponseStatusCode(200);
-      resource->SetResponseProtocol("HTTP/1.1");
       resource->AddResponseHeader("Content-Type", "text/css");
       resource->SetResponseBody("Hello, world!");
       AddResource(resource);

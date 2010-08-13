@@ -67,9 +67,7 @@ class MinifyHtmlTest : public ::pagespeed_testing::PagespeedTest {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(200);
-    resource->SetResponseProtocol("HTTP/1.1");
 
     if (content_type != NULL) {
       resource->AddResponseHeader("Content-Type", content_type);

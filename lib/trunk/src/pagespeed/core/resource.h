@@ -64,11 +64,9 @@ class Resource {
   // Setter methods
   void SetRequestUrl(const std::string& value);
   void SetRequestMethod(const std::string& value);
-  void SetRequestProtocol(const std::string& value);
   void AddRequestHeader(const std::string& name, const std::string& value);
   void SetRequestBody(const std::string& value);
   void SetResponseStatusCode(int code);
-  void SetResponseProtocol(const std::string& value);
   void AddResponseHeader(const std::string& name, const std::string& value);
   void RemoveResponseHeader(const std::string& name);
   void SetResponseBody(const std::string& value);
@@ -98,11 +96,9 @@ class Resource {
   // Accessor methods
   const std::string& GetRequestUrl() const;
   const std::string& GetRequestMethod() const;
-  const std::string& GetRequestProtocol() const;
   const std::string& GetRequestHeader(const std::string& name) const;
   const std::string& GetRequestBody() const;
   int GetResponseStatusCode() const;
-  const std::string& GetResponseProtocol() const;
   const std::string& GetResponseHeader(const std::string& name) const;
   const std::string& GetResponseBody() const;
 
@@ -134,11 +130,9 @@ class Resource {
  private:
   std::string request_url_;
   std::string request_method_;
-  std::string request_protocol_;
   HeaderMap request_headers_;
   std::string request_body_;
   int status_code_;
-  std::string response_protocol_;
   HeaderMap response_headers_;
   std::string response_body_;
   std::string cookies_;

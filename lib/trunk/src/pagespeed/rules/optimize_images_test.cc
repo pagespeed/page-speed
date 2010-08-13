@@ -71,9 +71,7 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(200);
-    resource->SetResponseProtocol("HTTP/1.1");
     resource->AddResponseHeader("Content-Type", content_type);
     resource->SetResponseBody(body);
     AddResource(resource);

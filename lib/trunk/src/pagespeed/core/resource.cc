@@ -64,10 +64,6 @@ void Resource::SetRequestMethod(const std::string& value) {
   request_method_ = value;
 }
 
-void Resource::SetRequestProtocol(const std::string& value) {
-  request_protocol_ = value;
-}
-
 void Resource::AddRequestHeader(const std::string& name,
                                 const std::string& value) {
   std::string& header = request_headers_[name];
@@ -89,10 +85,6 @@ void Resource::SetRequestBody(const std::string& value) {
 
 void Resource::SetResponseStatusCode(int code) {
   status_code_ = code;
-}
-
-void Resource::SetResponseProtocol(const std::string& value) {
-  response_protocol_ = value;
 }
 
 void Resource::AddResponseHeader(const std::string& name,
@@ -150,10 +142,6 @@ const std::string& Resource::GetRequestMethod() const {
   return request_method_;
 }
 
-const std::string& Resource::GetRequestProtocol() const {
-  return request_protocol_;
-}
-
 const std::string& Resource::GetRequestHeader(
     const std::string& name) const {
   HeaderMap::const_iterator it = request_headers_.find(name);
@@ -170,10 +158,6 @@ const std::string& Resource::GetRequestBody() const {
 
 int Resource::GetResponseStatusCode() const {
   return status_code_;
-}
-
-const std::string& Resource::GetResponseProtocol() const {
-  return response_protocol_;
 }
 
 const Resource::HeaderMap* Resource::GetResponseHeaders() const {

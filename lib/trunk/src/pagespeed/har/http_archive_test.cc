@@ -115,12 +115,10 @@ void AssertValidInput(const PagespeedInput* input) {
 
   ASSERT_EQ("http://www.example.com/index.html", resource.GetRequestUrl());
   ASSERT_EQ("GET", resource.GetRequestMethod());
-  ASSERT_EQ("HTTP/1.1", resource.GetRequestProtocol());
   ASSERT_EQ("bar", resource.GetRequestHeader("x-foo"));
   ASSERT_EQ("", resource.GetRequestBody());
 
   ASSERT_EQ(200, resource.GetResponseStatusCode());
-  ASSERT_EQ("HTTP/1.1", resource.GetResponseProtocol());
   ASSERT_EQ("text/html", resource.GetResponseHeader("content-type"));
   ASSERT_EQ("Hello, world!", resource.GetResponseBody());
 
