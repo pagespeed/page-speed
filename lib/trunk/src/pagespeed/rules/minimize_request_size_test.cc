@@ -46,7 +46,6 @@ class MinimizeRequestSizeTest : public ::pagespeed_testing::PagespeedTest {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(200);
 
     for (std::map<std::string, std::string>::const_iterator
@@ -135,7 +134,7 @@ TEST_F(MinimizeRequestSizeTest, LongCookieTest) {
       "    * Request URL: 28B\n"
       "    * Cookies: 1.4KiB\n"
       "    * Referer Url: 20B\n"
-      "    * Other: 30B\n";
+      "    * Other: 34B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Cookie"] = std::string(1450, 'a');
@@ -154,7 +153,7 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTest) {
       "    * Request URL: 28B\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 1.4KiB\n"
-      "    * Other: 21B\n";
+      "    * Other: 25B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/" + std::string(1450, 'a');
@@ -173,7 +172,7 @@ TEST_F(MinimizeRequestSizeTest, LongUrlTest) {
       "    * Request URL: 1.4KiB\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 20B\n"
-      "    * Other: 21B\n";
+      "    * Other: 25B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/";
@@ -190,12 +189,12 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTwoViolationTest) {
       "    * Request URL: 28B\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 1.4KiB\n"
-      "    * Other: 21B\n"
+      "    * Other: 25B\n"
       "  http://www.test.com/index.html has a request size of 1.5KiB\n"
       "    * Request URL: 30B\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 1.4KiB\n"
-      "    * Other: 21B\n";
+      "    * Other: 25B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/" + std::string(1450, 'a');

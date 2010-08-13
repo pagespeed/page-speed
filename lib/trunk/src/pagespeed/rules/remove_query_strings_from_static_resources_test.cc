@@ -38,9 +38,7 @@ class RemoveQueryStringsFromStaticResourcesTest : public ::pagespeed_testing::Pa
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP/1.1");
     resource->SetResponseStatusCode(200);
-    resource->SetResponseProtocol("HTTP/1.1");
     resource->SetResponseBody("Hello, world!");
     resource->AddResponseHeader("Content-Type", type);
     resource->AddResponseHeader("Cache-Control", "public, max-age=1000000");

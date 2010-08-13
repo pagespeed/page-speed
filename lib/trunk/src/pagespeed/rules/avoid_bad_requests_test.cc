@@ -39,9 +39,7 @@ class AvoidBadRequestsTest : public ::pagespeed_testing::PagespeedTest {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(status_code);
-    resource->SetResponseProtocol("HTTP/1.1");
     resource->SetResponseBody(body);
     AddResource(resource);
   }

@@ -34,9 +34,7 @@ class OptimizeOrderTest : public ::pagespeed_testing::PagespeedTest {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(200);
-    resource->SetResponseProtocol("HTTP/1.1");
     resource->AddResponseHeader("Content-Type", "text/html");
     resource->SetResponseBody(html);
     AddResource(resource);

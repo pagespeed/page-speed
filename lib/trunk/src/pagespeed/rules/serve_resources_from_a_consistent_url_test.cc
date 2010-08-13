@@ -64,9 +64,7 @@ class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::Pagespe
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(200);
-    resource->SetResponseProtocol("HTTP/1.1");
     resource->SetResponseBody(body);
 
     AddResource(resource);

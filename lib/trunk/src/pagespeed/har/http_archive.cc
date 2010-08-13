@@ -104,7 +104,6 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
 
     resource->SetRequestMethod(GetString(request_json, "method"));
     resource->SetRequestUrl(GetString(request_json, "url"));
-    resource->SetRequestProtocol(GetString(request_json, "httpVersion"));
     PopulateHeaders(cJSON_GetObjectItem(request_json, "headers"),
                     REQUEST_HEADERS, resource);
 
@@ -127,7 +126,6 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
     }
 
     resource->SetResponseStatusCode(GetInt(response_json, "status"));
-    resource->SetResponseProtocol(GetString(response_json, "httpVersion"));
     PopulateHeaders(cJSON_GetObjectItem(response_json, "headers"),
                     RESPONSE_HEADERS, resource);
 

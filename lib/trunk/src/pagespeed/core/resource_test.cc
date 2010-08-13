@@ -25,18 +25,14 @@ TEST(ResourceTest, SetFields) {
   Resource resource;
   resource.SetRequestUrl("http://www.test.com/");
   resource.SetRequestMethod("GET");
-  resource.SetRequestProtocol("HTTP");
   resource.SetRequestBody("request body");
   resource.SetResponseStatusCode(200);
-  resource.SetResponseProtocol("HTTP/1.1");
   resource.SetResponseBody("response body");
 
   EXPECT_EQ(resource.GetRequestUrl(), "http://www.test.com/");
   EXPECT_EQ(resource.GetRequestMethod(), "GET");
-  EXPECT_EQ(resource.GetRequestProtocol(), "HTTP");
   EXPECT_EQ(resource.GetRequestBody(), "request body");
   EXPECT_EQ(resource.GetResponseStatusCode(), 200);
-  EXPECT_EQ(resource.GetResponseProtocol(), "HTTP/1.1");
   EXPECT_EQ(resource.GetResponseBody(), "response body");
 
   EXPECT_EQ(resource.IsLazyLoaded(), false);

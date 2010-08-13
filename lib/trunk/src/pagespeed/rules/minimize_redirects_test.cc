@@ -53,9 +53,7 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(status_code);
-    resource->SetResponseProtocol("HTTP/1.1");
     AddResource(resource);
   }
 
@@ -63,9 +61,7 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetRequestProtocol("HTTP");
     resource->SetResponseStatusCode(302);
-    resource->SetResponseProtocol("HTTP/1.1");
     if (!location.empty()) {
       resource->AddResponseHeader("Location", location);
     }

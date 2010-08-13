@@ -123,7 +123,7 @@ int EstimateRequestBytes(const Resource& resource) {
   // Request line
   request_bytes += resource.GetRequestMethod().size() + 1 /* space */ +
       resource.GetRequestUrl().size()  + 1 /* space */ +
-      resource.GetRequestProtocol().size() + 2 /* \r\n */;
+      8 /* "HTTP/1.1" */ + 2 /* \r\n */;
 
   request_bytes += EstimateHeadersBytes(*resource.GetRequestHeaders());
   request_bytes += resource.GetRequestBody().size();
@@ -141,7 +141,7 @@ int EstimateResponseBytes(const Resource& resource) {
   // but it's not clear that it's necessarily the right thing to use
   // the gzip-compressed size.
   response_bytes += resource.GetResponseBody().size();
-  response_bytes += resource.GetResponseProtocol().size();
+  response_bytes += 8; // "HTTP/1.1"
   response_bytes += EstimateHeadersBytes(*resource.GetResponseHeaders());
   return response_bytes;
 }
