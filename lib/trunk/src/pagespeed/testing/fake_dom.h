@@ -36,6 +36,8 @@ class FakeDomElement : public pagespeed::DomElement {
                                            const std::string& url);
   static FakeDomElement* NewImg(FakeDomElement* parent,
                                 const std::string& url);
+  static FakeDomElement* NewScript(FakeDomElement* parent,
+                                   const std::string& url);
   static FakeDomElement* NewIframe(FakeDomElement* parent);
   static FakeDomElement* NewRoot(FakeDomDocument* parent,
                                  const std::string& tag_name);

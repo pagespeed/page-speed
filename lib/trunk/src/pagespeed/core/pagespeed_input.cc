@@ -18,10 +18,12 @@
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
+#include "base/string_util.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/uri_util.h"
 
 namespace pagespeed {
 
@@ -131,6 +133,9 @@ bool PagespeedInput::Freeze() {
   }
   frozen_ = true;
   PopulateInputInformation();
+  std::map<const Resource*, ResourceType> resource_type_map;
+  PopulateResourceInformationFromDom(&resource_type_map);
+  UpdateResourceTypes(resource_type_map);
   return true;
 }
 
@@ -184,6 +189,127 @@ void PagespeedInput::PopulateInputInformation() {
     if (resource_util::IsLikelyStaticResource(resource)) {
       input_info_->set_number_static_resources(
           input_info_->number_static_resources() + 1);
+    }
+  }
+}
+
+// DomElementVisitor that walks the DOM looking for nodes that
+// reference external resources (e.g. <img src="foo.gif">).
+class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
+ public:
+  ExternalResourceNodeVisitor(
+      const pagespeed::PagespeedInput* pagespeed_input,
+      const pagespeed::DomDocument* document,
+      std::map<const Resource*, ResourceType>* resource_type_map)
+      : pagespeed_input_(pagespeed_input),
+        document_(document),
+        resource_type_map_(resource_type_map) {
+  }
+
+  virtual void Visit(const pagespeed::DomElement& node);
+
+ private:
+  void ProcessUri(const std::string& relative_uri, ResourceType type);
+
+  const pagespeed::PagespeedInput* pagespeed_input_;
+  const pagespeed::DomDocument* document_;
+  std::map<const Resource*, ResourceType>* resource_type_map_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExternalResourceNodeVisitor);
+};
+
+void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
+                                             ResourceType type) {
+  std::string uri = document_->ResolveUri(relative_uri);
+  const Resource* resource = pagespeed_input_->GetResourceWithUrl(uri);
+  if (resource == NULL) {
+    LOG(INFO) << "Unable to find resource " << uri;
+    return;
+  }
+
+  if (resource->GetResourceType() == REDIRECT) {
+    resource = resource_util::GetLastResourceInRedirectChain(
+        *pagespeed_input_, *resource);
+    if (resource == NULL) {
+      return;
+    }
+  }
+  if (type != OTHER) {
+    std::map<const Resource*, ResourceType>::const_iterator it =
+        resource_type_map_->find(resource);
+    if (it != resource_type_map_->end()) {
+      ResourceType existing_type = it->second;
+      if (existing_type != type) {
+        LOG(INFO) << "Multiple ResourceTypes for " << resource->GetRequestUrl();
+      }
+    } else {
+      (*resource_type_map_)[resource] = type;
+    }
+  }
+}
+
+void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
+  if (node.GetTagName() == "IMG" ||
+      node.GetTagName() == "SCRIPT" ||
+      node.GetTagName() == "IFRAME") {
+    std::string src;
+    if (node.GetAttributeByName("src", &src)) {
+      ResourceType type;
+      if (node.GetTagName() == "IMG") {
+        type = IMAGE;
+      } else if (node.GetTagName() == "SCRIPT") {
+        type = JS;
+      } else if (node.GetTagName() == "IFRAME") {
+        type = HTML;
+      } else {
+        LOG(DFATAL) << "Unexpected type " << node.GetTagName();
+        type = OTHER;
+      }
+      ProcessUri(src, type);
+    }
+  } else if (node.GetTagName() == "LINK") {
+    std::string rel;
+    if (node.GetAttributeByName("rel", &rel) &&
+        LowerCaseEqualsASCII(rel, "stylesheet")) {
+      std::string href;
+      if (node.GetAttributeByName("href", &href)) {
+        ProcessUri(href, CSS);
+      }
+    }
+  }
+
+  if (node.GetTagName() == "IFRAME") {
+    // Do a recursive document traversal.
+    scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
+    if (child_doc.get()) {
+      ExternalResourceNodeVisitor visitor(pagespeed_input_,
+                                          child_doc.get(),
+                                          resource_type_map_);
+      child_doc->Traverse(&visitor);
+    }
+  }
+}
+
+void PagespeedInput::PopulateResourceInformationFromDom(
+    std::map<const Resource*, ResourceType>* resource_type_map) {
+  if (dom_document() != NULL) {
+    ExternalResourceNodeVisitor visitor(this,
+                                        dom_document(),
+                                        resource_type_map);
+    dom_document()->Traverse(&visitor);
+  }
+}
+
+void PagespeedInput::UpdateResourceTypes(
+    const std::map<const Resource*, ResourceType>& resource_type_map) {
+  for (int idx = 0, num = num_resources(); idx < num; ++idx) {
+    const Resource& resource = GetResource(idx);
+    std::map<const Resource*, ResourceType>::const_iterator it =
+        resource_type_map.find(&resource);
+    if (it != resource_type_map.end()) {
+      // Cast away constness in this one case so we can explicitly
+      // specify the resource type.
+      const_cast<Resource&>(resource).SetResourceType(it->second);
     }
   }
 }

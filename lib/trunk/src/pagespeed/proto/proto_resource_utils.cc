@@ -81,10 +81,8 @@ void PopulateProtoResource(const Resource& input, ProtoResource* output) {
   output->set_response_protocol(input.GetResponseProtocol());
   output->set_response_body(input.GetResponseBody());
 
-  typedef std::map<std::string, std::string> HeaderMap;
-
-  const HeaderMap& request_headers = *input.GetRequestHeaders();
-  for (HeaderMap::const_iterator iter = request_headers.begin(),
+  const Resource::HeaderMap& request_headers = *input.GetRequestHeaders();
+  for (Resource::HeaderMap::const_iterator iter = request_headers.begin(),
            end = request_headers.end();
        iter != end;
        ++iter) {
@@ -93,8 +91,8 @@ void PopulateProtoResource(const Resource& input, ProtoResource* output) {
     header->set_value(iter->second);
   }
 
-  const HeaderMap& response_headers = *input.GetResponseHeaders();
-  for (HeaderMap::const_iterator iter = response_headers.begin(),
+  const Resource::HeaderMap& response_headers = *input.GetResponseHeaders();
+  for (Resource::HeaderMap::const_iterator iter = response_headers.begin(),
            end = response_headers.end();
        iter != end;
        ++iter) {

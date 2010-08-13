@@ -121,6 +121,30 @@ pagespeed::Resource* PagespeedTest::NewPngResource(const std::string& url,
   return resource;
 }
 
+pagespeed::Resource* PagespeedTest::NewScriptResource(const std::string& url,
+                                                      FakeDomElement* parent,
+                                                      FakeDomElement** out) {
+  pagespeed::Resource* resource = New200Resource(url);
+  resource->SetResourceType(pagespeed::JS);
+  FakeDomElement* element = FakeDomElement::NewScript(parent, url);
+  if (out != NULL) {
+    *out = element;
+  }
+  return resource;
+}
+
+pagespeed::Resource* PagespeedTest::NewCssResource(const std::string& url,
+                                                   FakeDomElement* parent,
+                                                   FakeDomElement** out) {
+  pagespeed::Resource* resource = New200Resource(url);
+  resource->SetResourceType(pagespeed::CSS);
+  FakeDomElement* element = FakeDomElement::NewLinkStylesheet(parent, url);
+  if (out != NULL) {
+    *out = element;
+  }
+  return resource;
+}
+
 void PagespeedTest::CreateHtmlHeadBodyElements() {
   AssertNotNull(document());
   AssertNull(html_);

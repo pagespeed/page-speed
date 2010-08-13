@@ -29,16 +29,6 @@ const std::string& GetEmptyString() {
   return kEmptyString;
 }
 
-// normalize header name std::string by transforming it to lower case.
-std::string GetNormalizedIdentifier(const std::string& name) {
-  std::string result;
-  result.reserve(name.size());
-  std::transform(name.begin(), name.end(),
-                 std::back_insert_iterator<std::string>(result),
-                 tolower);
-  return result;
-}
-
 bool IsRedirectStatusCode(int status_code) {
   return status_code == 301 ||
       status_code == 302 ||
@@ -80,8 +70,7 @@ void Resource::SetRequestProtocol(const std::string& value) {
 
 void Resource::AddRequestHeader(const std::string& name,
                                 const std::string& value) {
-  const std::string key = GetNormalizedIdentifier(name);
-  std::string& header = request_headers_[key];
+  std::string& header = request_headers_[name];
   if (!header.empty()) {
     // In order to avoid keeping headers in a multi-map, we merge
     // duplicate headers are merged using commas.  This transformation is
@@ -108,8 +97,7 @@ void Resource::SetResponseProtocol(const std::string& value) {
 
 void Resource::AddResponseHeader(const std::string& name,
                                  const std::string& value) {
-  const std::string key = GetNormalizedIdentifier(name);
-  std::string& header = response_headers_[key];
+  std::string& header = response_headers_[name];
   if (!header.empty()) {
     // In order to avoid keeping headers in a multi-map, we merge
     // duplicate headers are merged using commas.  This transformation is
@@ -120,6 +108,10 @@ void Resource::AddResponseHeader(const std::string& name,
     header += ",";
   }
   header += value;
+}
+
+void Resource::RemoveResponseHeader(const std::string& name) {
+  response_headers_.erase(name);
 }
 
 void Resource::SetResponseBody(const std::string& value) {
@@ -164,8 +156,7 @@ const std::string& Resource::GetRequestProtocol() const {
 
 const std::string& Resource::GetRequestHeader(
     const std::string& name) const {
-  std::map<std::string, std::string>::const_iterator it =
-      request_headers_.find(GetNormalizedIdentifier(name));
+  HeaderMap::const_iterator it = request_headers_.find(name);
   if (it != request_headers_.end()) {
     return it->second;
   } else {
@@ -185,7 +176,7 @@ const std::string& Resource::GetResponseProtocol() const {
   return response_protocol_;
 }
 
-const std::map<std::string, std::string>* Resource::GetResponseHeaders() const {
+const Resource::HeaderMap* Resource::GetResponseHeaders() const {
   return &response_headers_;
 }
 
@@ -218,14 +209,13 @@ bool Resource::IsLazyLoaded() const {
   return lazy_loaded_;
 }
 
-const std::map<std::string, std::string>* Resource::GetRequestHeaders() const {
+const Resource::HeaderMap* Resource::GetRequestHeaders() const {
   return &request_headers_;
 }
 
 const std::string& Resource::GetResponseHeader(
     const std::string& name) const {
-  std::map<std::string, std::string>::const_iterator it =
-      response_headers_.find(GetNormalizedIdentifier(name));
+  HeaderMap::const_iterator it = response_headers_.find(name);
   if (it != response_headers_.end()) {
     return it->second;
   } else {

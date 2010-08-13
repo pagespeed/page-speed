@@ -20,6 +20,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "pagespeed/core/string_util.h"
 
 namespace pagespeed {
 
@@ -55,6 +56,8 @@ enum ImageType {
  */
 class Resource {
  public:
+  typedef pagespeed::string_util::CaseInsensitiveStringStringMap HeaderMap;
+
   Resource();
   virtual ~Resource();
 
@@ -67,6 +70,7 @@ class Resource {
   void SetResponseStatusCode(int code);
   void SetResponseProtocol(const std::string& value);
   void AddResponseHeader(const std::string& name, const std::string& value);
+  void RemoveResponseHeader(const std::string& name);
   void SetResponseBody(const std::string& value);
 
   // In some cases, the Cookie header can differ from the cookie(s)
@@ -112,8 +116,8 @@ class Resource {
 
   // For serialization purposes only.
   // Use GetRequestHeader/GetResponseHeader methods above for key lookup.
-  const std::map<std::string, std::string>* GetRequestHeaders() const;
-  const std::map<std::string, std::string>* GetResponseHeaders() const;
+  const HeaderMap* GetRequestHeaders() const;
+  const HeaderMap* GetResponseHeaders() const;
 
   // Helper methods
 
@@ -131,11 +135,11 @@ class Resource {
   std::string request_url_;
   std::string request_method_;
   std::string request_protocol_;
-  std::map<std::string, std::string> request_headers_;
+  HeaderMap request_headers_;
   std::string request_body_;
   int status_code_;
   std::string response_protocol_;
-  std::map<std::string, std::string> response_headers_;
+  HeaderMap response_headers_;
   std::string response_body_;
   std::string cookies_;
   ResourceType type_;

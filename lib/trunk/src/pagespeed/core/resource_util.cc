@@ -103,11 +103,11 @@ int EstimateHeaderBytes(const std::string& key, const std::string& value) {
   return kHeaderOverhead + key.size() + value.size();
 }
 
-int EstimateHeadersBytes(const std::map<std::string, std::string>& headers) {
+int EstimateHeadersBytes(const Resource::HeaderMap& headers) {
   int total_size = 0;
 
   // TODO improve the header size calculation below.
-  for (std::map<std::string, std::string>::const_iterator
+  for (Resource::HeaderMap::const_iterator
            iter = headers.begin(), end = headers.end();
        iter != end;
        ++iter) {
