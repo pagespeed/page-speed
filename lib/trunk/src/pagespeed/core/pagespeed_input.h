@@ -40,7 +40,7 @@ class PagespeedInput {
  public:
   PagespeedInput();
   // PagespeedInput takes ownership of the passed resource_filter.
-  PagespeedInput(ResourceFilter* resource_filter);
+  explicit PagespeedInput(ResourceFilter* resource_filter);
   virtual ~PagespeedInput();
 
   // Setters
@@ -84,6 +84,8 @@ class PagespeedInput {
   const Resource& GetResource(int idx) const;
   const Resource* GetResourceWithUrl(const std::string& url) const;
   ImageAttributes* NewImageAttributes(const Resource* resource) const;
+
+  // Get the map from hostname to all resources on that hostname.
   const HostResourceMap* GetHostResourceMap() const;
   const InputInformation* input_information() const;
   const DomDocument* dom_document() const;
@@ -96,6 +98,9 @@ class PagespeedInput {
   // Compute information about the set of resources. Called once at
   // the time the PagespeedInput is frozen.
   void PopulateInputInformation();
+  void PopulateResourceInformationFromDom(
+      std::map<const Resource*, ResourceType>*);
+  void UpdateResourceTypes(const std::map<const Resource*, ResourceType>&);
 
   std::vector<const Resource*> resources_;
 

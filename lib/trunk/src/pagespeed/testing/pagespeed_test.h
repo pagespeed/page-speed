@@ -84,8 +84,24 @@ class PagespeedTest : public ::testing::Test {
   // Construct a new HTTP GET image (PNG) resource, and add that
   // resource to our PagespeedInput. Also create an associated DOM
   // node, parented under the specified parent, and returned via the
-  // out_element parameter, if specified.
+  // out parameter, if specified.
   pagespeed::Resource* NewPngResource(const std::string& url,
+                                      FakeDomElement* parent,
+                                      FakeDomElement** out = NULL);
+
+  // Construct a new HTTP GET script resource, and add that
+  // resource to our PagespeedInput. Also create an associated DOM
+  // node, parented under the specified parent, and returned via the
+  // out parameter, if specified.
+  pagespeed::Resource* NewScriptResource(const std::string& url,
+                                         FakeDomElement* parent,
+                                         FakeDomElement** out = NULL);
+
+  // Construct a new HTTP GET CSS resource, and add that
+  // resource to our PagespeedInput. Also create an associated DOM
+  // node, parented under the specified parent, and returned via the
+  // out parameter, if specified.
+  pagespeed::Resource* NewCssResource(const std::string& url,
                                       FakeDomElement* parent,
                                       FakeDomElement** out = NULL);
 

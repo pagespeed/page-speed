@@ -112,6 +112,14 @@ FakeDomElement* FakeDomElement::NewImg(FakeDomElement* parent,
 }
 
 // static
+FakeDomElement* FakeDomElement::NewScript(FakeDomElement* parent,
+                                          const std::string& url) {
+  FakeDomElement* img = FakeDomElement::New(parent, "script");
+  img->AddAttribute("src", url);
+  return img;
+}
+
+// static
 FakeDomElement* FakeDomElement::NewStyle(FakeDomElement* parent) {
   return FakeDomElement::New(parent, "style");
 }
