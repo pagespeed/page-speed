@@ -26,7 +26,6 @@ namespace {
 namespace resource_util = pagespeed::resource_util;
 using pagespeed::Resource;
 using pagespeed_testing::PagespeedTest;
-using resource_util::CaseInsensitiveStringComparator;
 using resource_util::GetLastResourceInRedirectChain;
 
 class ResourceUtilTest : public testing::Test {
@@ -470,23 +469,6 @@ TEST_F(GetFreshnessLifetimeTest, PreferMaxAgeToExpires) {
                                                         &freshness_lifetime_));
   EXPECT_EQ(100000LL, freshness_lifetime_);
 }
-
-TEST(CaseInsensitiveStringComparatorTest, Compare) {
-  EXPECT_TRUE(CaseInsensitiveStringComparator()("bar", "foo"));
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("foo", "bar"));
-  EXPECT_TRUE(CaseInsensitiveStringComparator()("BAR", "FOO"));
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("FOO", "BAR"));
-  EXPECT_TRUE(CaseInsensitiveStringComparator()("bar", "FOO"));
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("FOO", "bar"));
-  EXPECT_TRUE(CaseInsensitiveStringComparator()("BAR", "foo"));
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("foo", "BAR"));
-
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("bar", "BAR"));
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("BAR", "bar"));
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("BaR", "bAr"));
-  EXPECT_FALSE(CaseInsensitiveStringComparator()("bAr", "BaR"));
-}
-
 
 TEST(GetRedirectUrlTest, Basic) {
   Resource r;

@@ -20,6 +20,7 @@
 
 #include "base/basictypes.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/string_util.h"
 
 namespace pagespeed {
 
@@ -28,13 +29,7 @@ class PagespeedInput;
 
 namespace resource_util {
 
-class CaseInsensitiveStringComparator {
- public:
-  bool operator()(const std::string& x, const std::string& y) const;
-};
-
-typedef std::map<std::string, std::string,
-                 CaseInsensitiveStringComparator> DirectiveMap;
+typedef pagespeed::string_util::CaseInsensitiveStringStringMap DirectiveMap;
 
 int EstimateHeaderBytes(const std::string& key, const std::string& value);
 int EstimateHeadersBytes(const std::map<std::string, std::string>& headers);
