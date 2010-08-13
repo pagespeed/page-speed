@@ -14,13 +14,11 @@
 
 #include "pagespeed/core/resource_util.h"
 
-#include <algorithm>  // for lexicographical_compare
 #include <set>
 
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
 #include "base/string_number_conversions.h"
-#include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/directive_enumerator.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -95,21 +93,11 @@ bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
   return true;
 }
 
-bool CaseInsensitiveCompareChars(char x, char y) {
-  return ToLowerASCII(x) < ToLowerASCII(y);
-}
-
 }  // namespace
 
 namespace pagespeed {
 
 namespace resource_util {
-
-bool CaseInsensitiveStringComparator::operator()(const std::string& x,
-                                                 const std::string& y) const {
-  return std::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end(),
-                                      CaseInsensitiveCompareChars);
-}
 
 int EstimateHeaderBytes(const std::string& key, const std::string& value) {
   return kHeaderOverhead + key.size() + value.size();

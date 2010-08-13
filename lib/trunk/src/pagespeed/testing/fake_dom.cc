@@ -72,19 +72,9 @@ bool PreOrderFakeElementTraverser::NextElement() {
   return false;
 }
 
-bool CaseInsensitiveCompareChars(char x, char y) {
-  return ToLowerASCII(x) < ToLowerASCII(y);
-}
-
 }  // namespace
 
 namespace pagespeed_testing {
-
-bool CaseInsensitiveStringComparator::operator()(const std::string& x,
-                                                 const std::string& y) const {
-  return std::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end(),
-                                      CaseInsensitiveCompareChars);
-}
 
 // static
 FakeDomElement* FakeDomElement::NewIframe(FakeDomElement* parent) {

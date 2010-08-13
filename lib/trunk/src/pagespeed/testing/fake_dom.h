@@ -21,15 +21,11 @@
 
 #include "base/basictypes.h"
 #include "pagespeed/core/dom.h"
+#include "pagespeed/core/string_util.h"
 
 namespace pagespeed_testing {
 
 class FakeDomDocument;
-
-class CaseInsensitiveStringComparator {
- public:
-  bool operator()(const std::string& x, const std::string& y) const;
-};
 
 class FakeDomElement : public pagespeed::DomElement {
  public:
@@ -70,8 +66,8 @@ class FakeDomElement : public pagespeed::DomElement {
   friend class FakeDomDocument;
 
   typedef std::vector<FakeDomElement*> ChildVector;
-  typedef std::map<std::string, std::string,
-      CaseInsensitiveStringComparator> StringStringMap;
+  typedef pagespeed::string_util::CaseInsensitiveStringStringMap
+      StringStringMap;
 
   FakeDomElement(const FakeDomElement* parent, const std::string& tag_name);
 
