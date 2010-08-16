@@ -73,7 +73,7 @@ bool PagespeedInput::IsValidResource(const Resource* resource) const {
   return true;
 }
 
-bool PagespeedInput::AddResource(const Resource* resource) {
+bool PagespeedInput::AddResource(Resource* resource) {
   if (frozen_) {
     LOG(DFATAL) << "Can't add resource " << resource->GetRequestUrl()
                 << " to frozen PagespeedInput.";
@@ -304,13 +304,11 @@ void PagespeedInput::PopulateResourceInformationFromDom(
 void PagespeedInput::UpdateResourceTypes(
     const std::map<const Resource*, ResourceType>& resource_type_map) {
   for (int idx = 0, num = num_resources(); idx < num; ++idx) {
-    const Resource& resource = GetResource(idx);
+    Resource* resource = resources_[idx];
     std::map<const Resource*, ResourceType>::const_iterator it =
-        resource_type_map.find(&resource);
+        resource_type_map.find(resource);
     if (it != resource_type_map.end()) {
-      // Cast away constness in this one case so we can explicitly
-      // specify the resource type.
-      const_cast<Resource&>(resource).SetResourceType(it->second);
+      resource->SetResourceType(it->second);
     }
   }
 }

@@ -155,7 +155,7 @@ void PagespeedTest::CreateHtmlHeadBodyElements() {
   body_ = FakeDomElement::New(html(), "body");
 }
 
-bool PagespeedTest::AddResource(const pagespeed::Resource* resource) {
+bool PagespeedTest::AddResource(pagespeed::Resource* resource) {
   return input_->AddResource(resource);
 }
 
