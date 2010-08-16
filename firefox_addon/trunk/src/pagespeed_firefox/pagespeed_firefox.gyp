@@ -94,7 +94,6 @@
       'target_name': 'pagespeed_firefox_genidl',
       'type': 'none',
       'sources': [
-        'idl/IJsMin.idl',
         'idl/IPageSpeedRules.idl',
       ],
       'rules': [
@@ -127,29 +126,6 @@
       },
       'export_dependent_settings': [
         'xulrunner_sdk',
-      ],
-    },
-    {
-      'target_name': 'pagespeed_firefox_js_min',
-      'type': '<(library)',
-      'variables': {
-        'js_min_root': 'cpp/js_min',
-      },
-      'dependencies': [
-        'xulrunner_sdk',
-        'pagespeed_firefox_genidl',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/third_party/jsmin/jsmin.gyp:jsmin',
-      ],
-      'sources': [
-        '<(js_min_root)/js_minifier.cc',
-      ],
-      'include_dirs': [
-        '<(libpagespeed_root)',
-      ],
-      'export_dependent_settings': [
-        'pagespeed_firefox_genidl',
-        '<(DEPTH)/base/base.gyp:base',
       ],
     },
     {
@@ -216,6 +192,7 @@
         'pagespeed_firefox_json_input',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
         '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
@@ -229,10 +206,9 @@
         'cpp/pagespeed',
       ],
       'export_dependent_settings': [
+        'pagespeed_firefox_genidl',
         '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
-        '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
-        '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
+        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
     },
     {
@@ -243,12 +219,9 @@
       },
       'dependencies': [
         'xulrunner_sdk',
-        'pagespeed_firefox_js_min',
         'pagespeed_firefox_library_rules',
       ],
       'defines': [
-        'PAGESPEED_INCLUDE_LIBRARY_RULES',
-
         # HAVE_VISIBILITY_ATTRIBUTE instructs the Firefox module headers
         # to mark NS_GetModule with gcc attribute visibility("default").
         # Without this, Firefox would not be able to find its entry point
