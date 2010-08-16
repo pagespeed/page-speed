@@ -11,7 +11,7 @@ Currently Windows-only
 
 ===Page Speed SDK===
 
-_NEW!_ Download the Page Speed SDK for Windows and Linux: [http://page-speed.googlecode.com/files/page-speed-1.7.zip page-speed-1.7.zip]
+_NEW!_ Download the Page Speed SDK for Windows and Linux: [http://page-speed.googlecode.com/files/page-speed-1.8.zip page-speed-1.8.zip]
 
 Also see EmbeddingPageSpeed.
 
@@ -26,8 +26,8 @@ sudo apt-get install g++ zlib1g-dev libpng12-dev libjpeg62-dev
 To build the SDK:
 
 {{{
-unzip page-speed-1.7.zip
-cd page-speed-1.7
+unzip page-speed-1.8.zip
+cd page-speed-1.8
 make
 }}}
 
@@ -35,6 +35,6 @@ make
 
 Windows users need to download the Page Speed SDK Windows dependencies: [http://page-speed.googlecode.com/files/page-speed-windeps.zip page-speed-windeps.zip]. This zip file contains static libraries for zlib, libpng, and libjpeg.
 
-Unzip page-speed-1.7.zip, then unzip page-speed-windeps.zip in the page-speed-1.7 directory (the directory that contains directories named pagespeed, base, build, third_party, etc). This will overlay the required dependencies into the Page Speed SDK build tree.
+Unzip page-speed-1.8.zip, then unzip page-speed-windeps.zip in the page-speed-1.8 directory (the directory that contains directories named pagespeed, base, build, third_party, etc). This will overlay the required dependencies into the Page Speed SDK build tree.
 
 Open pagespeed.sln and build.
