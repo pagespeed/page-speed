@@ -188,6 +188,17 @@ TEST(ResourceTest, SetResourceTypeForRedirectFails) {
 #endif
 }
 
+TEST(ResourceTest, SetResourceTypeNoStatusCodeFails) {
+  Resource r;
+#ifdef NDEBUG
+  r.SetResourceType(pagespeed::HTML);
+  ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
+#else
+  ASSERT_DEATH(r.SetResourceType(pagespeed::HTML),
+               "Unable to SetResourceType for code -1");
+#endif
+}
+
 TEST(ResourceTest, SetResourceTypeFor500Fails) {
   Resource r;
   r.SetResponseStatusCode(500);
@@ -220,6 +231,10 @@ TEST(ResourceTest, SetResourceType) {
   ASSERT_EQ(pagespeed::CSS, r.GetResourceType());
   r.SetResourceType(pagespeed::HTML);
   ASSERT_EQ(pagespeed::HTML, r.GetResourceType());
+  r.SetResponseStatusCode(500);
+  ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
+  r.SetResponseStatusCode(302);
+  ASSERT_EQ(pagespeed::REDIRECT, r.GetResourceType());
 }
 
 }  // namespace

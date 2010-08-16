@@ -86,6 +86,11 @@ class Resource {
   // can differ from the actual resource type. For instance, some sites
   // serve JavaScript files with Content-Type: text/html. In those cases,
   // call SetResourceType() to explicitly specify the resource type.
+  // Note that the status code is always preferred when determining
+  // the resource type. A redirect status code will always cause
+  // GetResourceType() to return REDIRECT, and a non-success code
+  // (e.g. 500) will always cause GetResourceType() to return OTHER,
+  // even if SetResourceType() has been explicitly called.
   void SetResourceType(ResourceType type);
 
   // The resource is lazy-loaded if the request time is after

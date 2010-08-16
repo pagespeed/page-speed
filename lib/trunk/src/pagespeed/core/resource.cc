@@ -230,10 +230,8 @@ std::string Resource::GetProtocol() const {
 }
 
 ResourceType Resource::GetResourceType() const {
-  if (type_ != OTHER) {
-    return type_;
-  }
-
+  // Prefer the status code to an explicitly specified type and the
+  // contents of the Content-Type header.
   const int status_code = GetResponseStatusCode();
   if (IsRedirectStatusCode(status_code)) {
     return REDIRECT;
@@ -243,6 +241,12 @@ ResourceType Resource::GetResourceType() const {
     return OTHER;
   }
 
+  // Next check to see if the type_ variable has been specified.
+  if (type_ != OTHER) {
+    return type_;
+  }
+
+  // Finally, fall back to the Content-Type header.
   std::string type = GetResponseHeader("Content-Type");
 
   size_t separator_idx = type.find(";");
