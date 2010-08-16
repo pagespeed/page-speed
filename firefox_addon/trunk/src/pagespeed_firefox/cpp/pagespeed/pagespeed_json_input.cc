@@ -168,8 +168,6 @@ void InputPopulator::PopulateAttribute(Resource *resource,
     resource->SetRequestUrl(ToString(attribute_json));
   } else if (key == "req_method") {
     resource->SetRequestMethod(ToString(attribute_json));
-  } else if (key == "req_protocol") {
-    resource->SetRequestProtocol(ToString(attribute_json));
   } else if (key == "req_headers") {
     AddRequestHeader add_header(resource);
     PopulateHeaders(add_header, attribute_json);
@@ -179,8 +177,6 @@ void InputPopulator::PopulateAttribute(Resource *resource,
     resource->SetCookies(ToString(attribute_json));
   } else if (key == "res_status") {
     resource->SetResponseStatusCode(ToInt(attribute_json));
-  } else if (key == "res_protocol") {
-    resource->SetResponseProtocol(ToString(attribute_json));
   } else if (key == "res_headers") {
     AddResponseHeader add_header(resource);
     PopulateHeaders(add_header, attribute_json);
