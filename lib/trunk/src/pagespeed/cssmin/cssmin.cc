@@ -67,6 +67,8 @@ class SizeConsumer {
 // characters by whitespace in order keep tokens separate.
 bool IsExtendableCss(char c) {
   switch (c) {
+    case '(':
+    case ')':
     case '[':
     case ']':
     case '{':
@@ -74,8 +76,6 @@ bool IsExtendableCss(char c) {
     case '/':
     case ';':
     case ':':
-    case '"':
-    case '\'':
       return false;
     default:
       return true;

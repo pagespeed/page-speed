@@ -85,4 +85,10 @@ TEST_F(CssminTest, InvalidCss) {
   CheckMinification(bad_data, bad_data);
 }
 
+// See http://code.google.com/p/page-speed/issues/detail?id=313
+TEST_F(CssminTest, SeparateStringsFromWords) {
+  CheckMinification("body { font: 11px \"Bitstream Vera Sans Mono\" ; }\n",
+                    "body{font:11px \"Bitstream Vera Sans Mono\";}\n");
+}
+
 }  // namespace
