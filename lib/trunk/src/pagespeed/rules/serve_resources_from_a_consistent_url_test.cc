@@ -60,14 +60,17 @@ const char *kResponseUrls[2][3] = {
 
 class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::PagespeedTest {
  protected:
-  void AddTestResource(const char* url, const std::string& body) {
+  pagespeed::Resource* AddTestResource(const char* url,
+                                       const std::string& body) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
+    resource->SetResourceType(pagespeed::HTML);
     resource->SetResponseBody(body);
 
     AddResource(resource);
+    return resource;
   }
 
   void CheckNoViolations() {
@@ -154,10 +157,18 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, DifferentResources) {
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls) {
-  AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
-  AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
+  pagespeed::Resource* r1 =
+      AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
+  pagespeed::Resource* r2 =
+      AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   Freeze();
   CheckViolation(1, 2);
+
+  // Now change the response codes of both resources, and verify that
+  // they no longer trigger a violation.
+  r1->SetResponseStatusCode(500);
+  r2->SetResponseStatusCode(500);
+  CheckNoViolations();
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls2) {

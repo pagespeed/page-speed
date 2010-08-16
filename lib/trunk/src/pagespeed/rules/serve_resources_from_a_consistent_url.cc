@@ -70,6 +70,11 @@ bool ServeResourcesFromAConsistentUrl::AppendResults(
   ResourcesWithSameBodyMap map;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
+    if (resource.GetResourceType() == OTHER) {
+      // Don't process resource types that we don't explicitly care
+      // about.
+      continue;
+    }
     const std::string& body = resource.GetResponseBody();
     // Exclude tiny resources (like 1x1 gif images).
     // Serving tiny non-cacheable resources from a large number of
