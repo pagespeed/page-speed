@@ -50,7 +50,7 @@ class PagespeedInput {
   //
   // Ownership of the resource is transfered over to the
   // PagespeedInput object.
-  bool AddResource(const Resource* resource);
+  bool AddResource(Resource* resource);
 
   // Specify the URL of the "primary" resource. Some rules want to exclude the
   // primary resource from their analysis. This is optional but should be
@@ -102,7 +102,7 @@ class PagespeedInput {
       std::map<const Resource*, ResourceType>*);
   void UpdateResourceTypes(const std::map<const Resource*, ResourceType>&);
 
-  std::vector<const Resource*> resources_;
+  std::vector<Resource*> resources_;
 
   // Map from URL to Resource. The resources_ vector, above, owns the
   // Resource instances in this map.

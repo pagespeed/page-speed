@@ -131,7 +131,7 @@ class PagespeedTest : public ::testing::Test {
   // the PagespeedInput. Use this method only for backward
   // compatibility with tests that don't use the New*Resource()
   // methods to construct resouces.
-  bool AddResource(const pagespeed::Resource* resource);
+  bool AddResource(pagespeed::Resource* resource);
 
  private:
   scoped_ptr<pagespeed::PagespeedInput> input_;
