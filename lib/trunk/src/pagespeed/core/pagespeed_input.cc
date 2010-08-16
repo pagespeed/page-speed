@@ -132,14 +132,15 @@ bool PagespeedInput::Freeze() {
     return false;
   }
   frozen_ = true;
-  PopulateInputInformation();
   std::map<const Resource*, ResourceType> resource_type_map;
   PopulateResourceInformationFromDom(&resource_type_map);
   UpdateResourceTypes(resource_type_map);
+  PopulateInputInformation();
   return true;
 }
 
 void PagespeedInput::PopulateInputInformation() {
+  input_info_->Clear();
   for (int idx = 0, num = num_resources(); idx < num; ++idx) {
     const Resource& resource = GetResource(idx);
 
