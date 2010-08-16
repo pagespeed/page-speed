@@ -178,7 +178,7 @@ PAGESPEED.NativeLibrary = {
       bodyInputStreams.push(PAGESPEED.Utils.getResourceInputStream(url));
       var requestTime = PAGESPEED.Utils.getResourceProperty(url, 'requestTime');
       resources.push({
-        // TODO Add req_method, req_protocol, req_body, and res_protocol.
+        // TODO Add req_method and req_body.
         req_headers: translateHeaders(PAGESPEED.Utils.getRequestHeaders(url)),
         res_status: PAGESPEED.Utils.getResponseCode(url),
         res_headers: translateHeaders(PAGESPEED.Utils.getResponseHeaders(url)),

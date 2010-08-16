@@ -38,10 +38,8 @@ TEST(PagespeedJsonInputTest, OneResource) {
   const char *data = ("[{"
                       "\"req_url\":\"http://www.example.com/foo\","
                       "\"req_method\":\"GET\","
-                      "\"req_protocol\":\"http\","
                       "\"req_headers\":[],"
                       "\"res_status\":200,"
-                      "\"res_protocol\":\"http\","
                       "\"res_headers\":[],"
                       "\"req_lazy_loaded\":true"
                       "}]");
@@ -51,10 +49,8 @@ TEST(PagespeedJsonInputTest, OneResource) {
   const Resource &resource = input.GetResource(0);
   ASSERT_EQ("http://www.example.com/foo", resource.GetRequestUrl());
   ASSERT_EQ("GET", resource.GetRequestMethod());
-  ASSERT_EQ("http", resource.GetRequestProtocol());
   ASSERT_EQ(0, resource.GetRequestHeaders()->size());
   ASSERT_EQ(200, resource.GetResponseStatusCode());
-  ASSERT_EQ("http", resource.GetResponseProtocol());
   ASSERT_EQ(0, resource.GetResponseHeaders()->size());
   ASSERT_EQ(true, resource.IsLazyLoaded());
 }
