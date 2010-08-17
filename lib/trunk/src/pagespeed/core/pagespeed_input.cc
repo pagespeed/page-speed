@@ -133,7 +133,8 @@ bool PagespeedInput::Freeze() {
   }
   frozen_ = true;
   std::map<const Resource*, ResourceType> resource_type_map;
-  PopulateResourceInformationFromDom(&resource_type_map);
+  PopulateResourceInformationFromDom(
+      &resource_type_map, &parent_child_resource_map_);
   UpdateResourceTypes(resource_type_map);
   PopulateInputInformation();
   return true;
@@ -201,10 +202,12 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
   ExternalResourceNodeVisitor(
       const pagespeed::PagespeedInput* pagespeed_input,
       const pagespeed::DomDocument* document,
-      std::map<const Resource*, ResourceType>* resource_type_map)
+      std::map<const Resource*, ResourceType>* resource_type_map,
+      ParentChildResourceMap* parent_child_resource_map)
       : pagespeed_input_(pagespeed_input),
         document_(document),
-        resource_type_map_(resource_type_map) {
+        resource_type_map_(resource_type_map),
+        parent_child_resource_map_(parent_child_resource_map) {
   }
 
   virtual void Visit(const pagespeed::DomElement& node);
@@ -215,6 +218,7 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
   const pagespeed::PagespeedInput* pagespeed_input_;
   const pagespeed::DomDocument* document_;
   std::map<const Resource*, ResourceType>* resource_type_map_;
+  ParentChildResourceMap* parent_child_resource_map_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalResourceNodeVisitor);
 };
@@ -235,6 +239,8 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
       return;
     }
   }
+
+  // Update the Resource->ResourceType map.
   if (type != OTHER) {
     std::map<const Resource*, ResourceType>::const_iterator it =
         resource_type_map_->find(resource);
@@ -246,6 +252,15 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
     } else {
       (*resource_type_map_)[resource] = type;
     }
+  }
+
+  // Update the Parent->Child resource map.
+  const Resource* document_resource =
+      pagespeed_input_->GetResourceWithUrl(document_->GetDocumentUrl());
+  if (document_resource != NULL) {
+    (*parent_child_resource_map_)[document_resource].insert(resource);
+  } else {
+    LOG(INFO) << "Unable to find resource for " << document_->GetDocumentUrl();
   }
 }
 
@@ -285,18 +300,21 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
     if (child_doc.get()) {
       ExternalResourceNodeVisitor visitor(pagespeed_input_,
                                           child_doc.get(),
-                                          resource_type_map_);
+                                          resource_type_map_,
+                                          parent_child_resource_map_);
       child_doc->Traverse(&visitor);
     }
   }
 }
 
 void PagespeedInput::PopulateResourceInformationFromDom(
-    std::map<const Resource*, ResourceType>* resource_type_map) {
+    std::map<const Resource*, ResourceType>* resource_type_map,
+    ParentChildResourceMap* parent_child_resource_map) {
   if (dom_document() != NULL) {
     ExternalResourceNodeVisitor visitor(this,
                                         dom_document(),
-                                        resource_type_map);
+                                        resource_type_map,
+                                        parent_child_resource_map);
     dom_document()->Traverse(&visitor);
   }
 }
@@ -339,6 +357,13 @@ const HostResourceMap* PagespeedInput::GetHostResourceMap() const {
   DCHECK(frozen_);
   return &host_resource_map_;
 }
+
+const ParentChildResourceMap*
+PagespeedInput::GetParentChildResourceMap() const {
+  DCHECK(frozen_);
+  return &parent_child_resource_map_;
+}
+
 
 const InputInformation* PagespeedInput::input_information() const {
   DCHECK(frozen_);

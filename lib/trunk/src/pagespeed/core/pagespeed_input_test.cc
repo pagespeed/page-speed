@@ -169,4 +169,137 @@ TEST_F(UpdateResourceTypesTest, DifferentTypesSameUrl) {
   ASSERT_EQ(pagespeed::CSS, resource->GetResourceType());
 }
 
+class ParentChildResourceMapTest : public pagespeed_testing::PagespeedTest {
+ protected:
+  static const char* kRootUrl;
+
+  virtual void DoSetUp() {
+    NewPrimaryResource(kRootUrl);
+    CreateHtmlHeadBodyElements();
+  }
+};
+
+const char* ParentChildResourceMapTest::kRootUrl = "http://example.com/";
+
+// TESTS: basic, iframe, some missing
+
+TEST_F(ParentChildResourceMapTest, Basic) {
+  pagespeed::Resource* css =
+      NewCssResource("http://example.com/css.css", body());
+  pagespeed::Resource* js1 =
+      NewScriptResource("http://example.com/script1.js", body());
+  pagespeed::Resource* js2 =
+      NewScriptResource("http://example.com/script2.js", body());
+  Freeze();
+
+  // Validate that the parent child resource map was populated with
+  // the expected contents.
+  pagespeed::ParentChildResourceMap expected;
+  expected[GetPrimaryResource()].insert(css);
+  expected[GetPrimaryResource()].insert(js1);
+  expected[GetPrimaryResource()].insert(js2);
+  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+}
+
+TEST_F(ParentChildResourceMapTest, Iframes) {
+  FakeDomElement* iframe1 = FakeDomElement::NewIframe(body());
+  FakeDomDocument* iframe1_doc;
+  pagespeed::Resource* iframe1_resource =
+      NewDocumentResource("http://example.com/iframe.html",
+                          iframe1, &iframe1_doc);
+  FakeDomElement* iframe1_root = FakeDomElement::NewRoot(iframe1_doc, "html");
+  pagespeed::Resource* css =
+      NewCssResource("http://example.com/css.css", iframe1_root);
+  pagespeed::Resource* js =
+      NewScriptResource("http://example.com/script.js", iframe1_root);
+
+  FakeDomElement* iframe2 = FakeDomElement::NewIframe(body());
+  FakeDomDocument* iframe2_doc;
+  pagespeed::Resource* iframe2_resource =
+      NewDocumentResource("http://example.com/iframe2.html",
+                          iframe2, &iframe2_doc);
+  FakeDomElement* iframe2_root = FakeDomElement::NewRoot(iframe2_doc, "html");
+  FakeDomElement::NewLinkStylesheet(iframe2_root, "http://example.com/css.css");
+  FakeDomElement::NewScript(iframe2_root, "http://example.com/script.js");
+
+  FakeDomElement* iframe3 = FakeDomElement::NewIframe(iframe2_root);
+  FakeDomDocument* iframe3_doc;
+  pagespeed::Resource* iframe3_resource =
+      NewDocumentResource("http://example.com/iframe3.html",
+                          iframe3, &iframe3_doc);
+  FakeDomElement* iframe3_root = FakeDomElement::NewRoot(iframe3_doc, "html");
+  FakeDomElement::NewLinkStylesheet(iframe3_root, "http://example.com/css.css");
+  pagespeed::Resource* css2 =
+      NewCssResource("http://example.com/css2.css", iframe3_root);
+  Freeze();
+  ASSERT_EQ(7, input()->num_resources());
+
+  // Validate that the parent child resource map was populated with
+  // the expected contents.
+  pagespeed::ParentChildResourceMap expected;
+  expected[GetPrimaryResource()].insert(iframe1_resource);
+  expected[iframe1_resource].insert(css);
+  expected[iframe1_resource].insert(js);
+  expected[GetPrimaryResource()].insert(iframe2_resource);
+  expected[iframe2_resource].insert(css);
+  expected[iframe2_resource].insert(js);
+  expected[iframe2_resource].insert(iframe3_resource);
+  expected[iframe3_resource].insert(css);
+  expected[iframe3_resource].insert(css2);
+  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+}
+
+TEST_F(ParentChildResourceMapTest, MissingResource) {
+  FakeDomElement* iframe1 = FakeDomElement::NewIframe(body());
+  FakeDomDocument* iframe1_doc;
+  pagespeed::Resource* iframe1_resource =
+      NewDocumentResource("http://example.com/iframe.html",
+                          iframe1, &iframe1_doc);
+  FakeDomElement* iframe1_root = FakeDomElement::NewRoot(iframe1_doc, "html");
+  pagespeed::Resource* css =
+      NewCssResource("http://example.com/css.css", iframe1_root);
+  pagespeed::Resource* js =
+      NewScriptResource("http://example.com/script.js", iframe1_root);
+
+  FakeDomElement* iframe2 = FakeDomElement::NewIframe(body());
+
+  // Create a document element inside the iframe, but do not create a
+  // corresponding Resource for that document element. We expect that
+  // the parent->child mapper will fail to find this frame or any of
+  // its resources, since the document's resource is missing.
+  FakeDomDocument* iframe2_doc =
+      FakeDomDocument::New(iframe2, "http://example.com/iframe2.html");
+  FakeDomElement* iframe2_root = FakeDomElement::NewRoot(iframe2_doc, "html");
+  FakeDomElement::NewLinkStylesheet(iframe2_root, "http://example.com/css.css");
+  FakeDomElement::NewScript(iframe2_root, "http://example.com/script.js");
+
+  // This frame and one of its children should be found, since there
+  // is a corresponding Resource for the document node.
+  FakeDomElement* iframe3 = FakeDomElement::NewIframe(iframe2_root);
+  FakeDomDocument* iframe3_doc;
+  pagespeed::Resource* iframe3_resource =
+      NewDocumentResource("http://example.com/iframe3.html",
+                          iframe3, &iframe3_doc);
+  FakeDomElement* iframe3_root = FakeDomElement::NewRoot(iframe3_doc, "html");
+  FakeDomElement::NewLinkStylesheet(iframe3_root, "http://example.com/css.css");
+
+  // Create a link element for which there is no corresponding
+  // Resource. We do not expect a resource for this node to show up in
+  // the map.
+  FakeDomElement::NewLinkStylesheet(
+      iframe3_root, "http://example.com/css2.css");
+
+  Freeze();
+  ASSERT_EQ(5, input()->num_resources());
+
+  // Validate that the parent child resource map was populated with
+  // the expected contents.
+  pagespeed::ParentChildResourceMap expected;
+  expected[GetPrimaryResource()].insert(iframe1_resource);
+  expected[iframe1_resource].insert(css);
+  expected[iframe1_resource].insert(js);
+  expected[iframe3_resource].insert(css);
+  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+}
+
 }  // namespace

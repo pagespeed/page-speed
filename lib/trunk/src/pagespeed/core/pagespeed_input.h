@@ -32,6 +32,7 @@ class ImageAttributesFactory;
 class InputInformation;
 
 typedef std::map<std::string, ResourceSet> HostResourceMap;
+typedef std::map<const Resource*, ResourceSet> ParentChildResourceMap;
 
 /**
  * Input set representation
@@ -87,6 +88,7 @@ class PagespeedInput {
 
   // Get the map from hostname to all resources on that hostname.
   const HostResourceMap* GetHostResourceMap() const;
+  const ParentChildResourceMap* GetParentChildResourceMap() const;
   const InputInformation* input_information() const;
   const DomDocument* dom_document() const;
   const std::string& primary_resource_url() const;
@@ -99,7 +101,7 @@ class PagespeedInput {
   // the time the PagespeedInput is frozen.
   void PopulateInputInformation();
   void PopulateResourceInformationFromDom(
-      std::map<const Resource*, ResourceType>*);
+      std::map<const Resource*, ResourceType>*, ParentChildResourceMap*);
   void UpdateResourceTypes(const std::map<const Resource*, ResourceType>&);
 
   std::vector<Resource*> resources_;
@@ -111,6 +113,12 @@ class PagespeedInput {
   // Map from hostname to Resources on that hostname. The resources_
   // vector, above, owns the Resource instances in this map.
   HostResourceMap host_resource_map_;
+
+  // Map from a parent (e.g. document) to all of its child
+  // resources. The children are the immediate children, e.g. the
+  // children of an iframe will not be considered children of the main
+  // document as well.
+  ParentChildResourceMap parent_child_resource_map_;
 
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
