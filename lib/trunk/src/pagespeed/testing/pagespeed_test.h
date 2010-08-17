@@ -121,6 +121,7 @@ class PagespeedTest : public ::testing::Test {
   void SetAllowDuplicateResources();
 
   const pagespeed::PagespeedInput* input() { return input_.get(); }
+  const pagespeed::Resource* GetPrimaryResource() const;
   FakeDomDocument* document() { return document_; }
   FakeDomElement* html() { return html_; }
   FakeDomElement* head() { return head_; }

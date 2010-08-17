@@ -168,6 +168,10 @@ void PagespeedTest::SetAllowDuplicateResources() {
   input_->set_allow_duplicate_resources();
 }
 
+const pagespeed::Resource* PagespeedTest::GetPrimaryResource() const {
+  return input_->GetResourceWithUrl(input_->primary_resource_url());
+}
+
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
 const char* PagespeedTest::kUrl2 = "http://www.foo.com/b";
 const char* PagespeedTest::kUrl3 = "http://www.bar.com/c";
