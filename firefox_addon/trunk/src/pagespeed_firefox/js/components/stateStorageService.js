@@ -19,12 +19,10 @@
  * @author Bryan McQuade
  */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 var IStateStorageIface = Components.interfaces.IStateStorage;
 var nsISupportsIface = Components.interfaces.nsISupports;
-
-var CLASS_ID = Components.ID('{7a596ebc-9a29-4f0e-8ad9-58d48eb79369}');
-var CLASS_NAME = 'StateStorageService';
-var CONTRACT_ID = '@code.google.com/p/page-speed/StateStorageService;1';
 
 /**
  * StateStorageService Constructor.
@@ -39,6 +37,15 @@ function StateStorageService() {
    */
   this.cache = {};
 }
+
+StateStorageService.prototype.classID =
+    Components.ID('{7a596ebc-9a29-4f0e-8ad9-58d48eb79369}');
+
+StateStorageService.prototype.classDescription =
+    "Page Speed state storage service";
+
+StateStorageService.prototype.contractID =
+    '@code.google.com/p/page-speed/StateStorageService;1';
 
 /**
  * Get a singleton object with the given string name. Multiple calls
@@ -64,45 +71,12 @@ StateStorageService.prototype.QueryInterface = function(aIID) {
   return this;
 };
 
-/**
- * Factory method for creating a StateStorageService instance.
- */
-var StateStorageFactory = {
-  createInstance: function(aOuter, aIID) {
-    if (aOuter != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
-    return (new StateStorageService()).QueryInterface(aIID);
-  }
-};
-
-// nsIModule
-var StateStorageModule = {
-  registerSelf: function(aCompMgr, aFileSpec, aLocation, aType) {
-    aCompMgr = aCompMgr.
-        QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.registerFactoryLocation(CLASS_ID, CLASS_NAME,
-        CONTRACT_ID, aFileSpec, aLocation, aType);
-  },
-
-  unregisterSelf: function(aCompMgr, aLocation, aType) {
-    aCompMgr = aCompMgr.
-        QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);
-  },
-
-  getClassObject: function(aCompMgr, aCID, aIID) {
-    if (!aIID.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-    if (aCID.equals(CLASS_ID))
-      return StateStorageFactory;
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-
-  canUnload: function(aCompMgr) { return true; }
-};
-
-function NSGetModule(aCompMgr, aFileSpec) {
-  return StateStorageModule;
+// XPCOMUtils.generateNSGetFactory was introduced in Mozilla 2 (Firefox 4).
+// XPCOMUtils.generateNSGetModule is for Mozilla 1.9.x (Firefox 3).
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory =
+      XPCOMUtils.generateNSGetFactory([StateStorageService]);
+} else {
+  var NSGetModule =
+      XPCOMUtils.generateNSGetModule([StateStorageService]);
 }
