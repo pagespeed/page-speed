@@ -30,7 +30,6 @@
 #include "nsIDOMHTMLImageElement.h"
 #include "nsIDOMNamedNodeMap.h"
 #include "nsIDOMNodeFilter.h"
-#include "nsIDOMNSHTMLImageElement.h"
 #include "nsIDOMTreeWalker.h"
 #include "nsISupportsArray.h"
 #include "nsIURI.h"

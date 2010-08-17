@@ -28,6 +28,8 @@
  * @author Bryan McQuade
  */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 var IComponentCollectorIface = Components.interfaces.IComponentCollector;
 var nsISupportsIface = Components.interfaces.nsISupports;
 var nsIContentPolicyIface = Components.interfaces.nsIContentPolicy;
@@ -40,14 +42,14 @@ var nsIDocShellIface = Components.interfaces.nsIDocShell;
 var nsIWebNavigationIface = Components.interfaces.nsIWebNavigation;
 var nsIInterfaceRequestorIface = Components.interfaces.nsIInterfaceRequestor;
 
-var CLASS_ID = Components.ID('{7bc5b600-1302-11dd-bd0b-0800200c9a66}');
-var CLASS_NAME = 'ComponentCollectorService';
-var CONTRACT_ID = '@code.google.com/p/page-speed/ComponentCollectorService;1';
+var CONTENT_POLICY = 'content-policy';
 var HTTP_ON_MODIFY_REQUEST = 'http-on-modify-request';
 var HTTP_ON_EXAMINE_RESPONSE = 'http-on-examine-response';
 // The cached response callback was added in FF3.5.
 var HTTP_ON_EXAMINE_CACHED_RESPONSE = 'http-on-examine-cached-response';
 var HTTP_ON_EXAMINE_MERGED_RESPONSE = 'http-on-examine-merged-response';
+var PROFILE_AFTER_CHANGE = 'profile-after-change';
+
 var LOG_MSG_FOUND_CYCLE = 'Found cycle in linked list for ';
 var LOG_MSG_NEG_DIFF = 'diff less than zero';
 
@@ -65,17 +67,29 @@ function PS_LOG(msg) {
   consoleService.logStringMessage(msg);
 }
 
-try {
-  var prefClass = Components.classes['@mozilla.org/preferences-service;1'];
-  if (prefClass) {
-    var prefService = prefClass.getService(Components.interfaces.nsIPrefBranch);
-    if (prefService) {
-      PS_LOG.enabled = prefService.getBoolPref(
-          'extensions.PageSpeed.enable_console_logging');
+/**
+ * Check to see if logging is enabled in the Firefox preferences.
+ */
+function checkLoggingEnabled() {
+  try {
+    var prefClass = Components.classes['@mozilla.org/preferences-service;1'];
+    if (prefClass) {
+      var prefService = prefClass.getService(Components.interfaces.nsIPrefBranch);
+      if (prefService) {
+        PS_LOG.enabled = prefService.getBoolPref(
+            'extensions.PageSpeed.enable_console_logging');
+      }
     }
+  } catch (x) {
+    PS_LOG.enabled = false;
   }
-} catch (x) {
-  PS_LOG.enabled = false;
+}
+
+/**
+ * Our setup hook. Called at startup, via the profile-after-change hook.
+ */
+function initialize() {
+  checkLoggingEnabled();
 }
 
 /**
@@ -572,6 +586,22 @@ ComponentCollectorService.type = {
   71: 'redirect'
 };
 
+ComponentCollectorService.prototype.classID =
+    Components.ID('{7bc5b600-1302-11dd-bd0b-0800200c9a66}');
+
+ComponentCollectorService.prototype.classDescription =
+    "Page Speed component collector";
+
+ComponentCollectorService.prototype.contractID =
+    '@code.google.com/p/page-speed/ComponentCollectorService;1',
+
+// Mozilla 1.9.x requires _xpcom_categories to perform category
+// registration (in Mozilla 2 this is handled in chrome.manifest).
+ComponentCollectorService.prototype._xpcom_categories =
+    [ { category: PROFILE_AFTER_CHANGE },
+      { category: CONTENT_POLICY }
+    ];
+
 // nsIPolicy
 ComponentCollectorService.prototype.shouldProcess = function(contentType,
                                                              contentLocation,
@@ -863,6 +893,11 @@ ComponentCollectorService.prototype.createDocumentEntry = function(
 ComponentCollectorService.prototype.observe = function(aSubject,
                                                        aTopic,
                                                        aData) {
+  if (PROFILE_AFTER_CHANGE == aTopic) {
+    // We receive this callback at startup.
+    initialize();
+    return;
+  }
   if (!(aSubject instanceof nsIHttpChannelIface)) {
     PS_LOG('Got non-http channel in observer callback.');
     return;
@@ -1553,54 +1588,12 @@ ComponentCollectorService.prototype.QueryInterface = function(aIID) {
   return this;
 };
 
-/**
- * Factory method for creating an ComponentCollectorService instance.
- */
-var ComponentCollectorFactory = {
-  createInstance: function(aOuter, aIID) {
-    if (aOuter != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
-    return (new ComponentCollectorService()).QueryInterface(aIID);
-  }
-};
-
-// nsIModule
-var ComponentCollectorModule = {
-  registerSelf: function(aCompMgr, aFileSpec, aLocation, aType) {
-    aCompMgr = aCompMgr.
-        QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.registerFactoryLocation(CLASS_ID, CLASS_NAME,
-        CONTRACT_ID, aFileSpec, aLocation, aType);
-
-    var aCatMgr = Components.classes['@mozilla.org/categorymanager;1']
-                  .getService(Components.interfaces.nsICategoryManager);
-    aCatMgr.addCategoryEntry('content-policy', CONTRACT_ID,
-                             CONTRACT_ID, true, true);
-  },
-
-  unregisterSelf: function(aCompMgr, aLocation, aType) {
-    aCompMgr = aCompMgr.
-        QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);
-
-    var aCatMgr = Components.classes['@mozilla.org/categorymanager;1']
-                  .getService(Components.interfaces.nsICategoryManager);
-    aCatMgr.deleteCategoryEntry('content-policy', CONTRACT_ID, true);
-  },
-
-  getClassObject: function(aCompMgr, aCID, aIID) {
-    if (!aIID.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-    if (aCID.equals(CLASS_ID))
-      return ComponentCollectorFactory;
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-
-  canUnload: function(aCompMgr) { return true; }
-};
-
-function NSGetModule(aCompMgr, aFileSpec) {
-  return ComponentCollectorModule;
+// XPCOMUtils.generateNSGetFactory was introduced in Mozilla 2 (Firefox 4).
+// XPCOMUtils.generateNSGetModule is for Mozilla 1.9.x (Firefox 3).
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory =
+      XPCOMUtils.generateNSGetFactory([ComponentCollectorService]);
+} else {
+  var NSGetModule =
+      XPCOMUtils.generateNSGetModule([ComponentCollectorService]);
 }
