@@ -43,7 +43,7 @@ class DomDocument {
   // Return the URL that is used as the base for relative URLs appearing in
   // this document.  Usually this is the same as the document URL, but it can
   // be changed with a <base> tag.
-  virtual std::string GetBaseUrl() const;
+  virtual std::string GetBaseUrl() const = 0;
 
   // Visit the elements within this document in pre-order (that is, always
   // visit a parent before visiting its children).

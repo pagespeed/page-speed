@@ -29,10 +29,6 @@ DomDocument::DomDocument() {}
 
 DomDocument::~DomDocument() {}
 
-std::string DomDocument::GetBaseUrl() const {
-  return GetDocumentUrl();
-}
-
 std::string DomDocument::ResolveUri(const std::string& uri) const {
   return pagespeed::ResolveUri(uri, GetBaseUrl());
 }
