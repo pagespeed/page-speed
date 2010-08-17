@@ -264,6 +264,12 @@ std::string FakeDomDocument::GetDocumentUrl() const {
   return url_;
 }
 
+std::string FakeDomDocument::GetBaseUrl() const {
+  // TODO: add support for specifying a different base url when/if
+  // it's needed.
+  return url_;
+}
+
 void FakeDomDocument::Traverse(pagespeed::DomElementVisitor* visitor) const {
   PreOrderFakeElementTraverser traverser(GetDocumentElement());
   if (traverser.CurrentElement() == NULL) {

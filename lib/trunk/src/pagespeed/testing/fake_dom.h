@@ -94,6 +94,7 @@ class FakeDomDocument : public pagespeed::DomDocument {
   virtual ~FakeDomDocument();
 
   virtual std::string GetDocumentUrl() const;
+  virtual std::string GetBaseUrl() const;
   virtual void Traverse(pagespeed::DomElementVisitor* visitor) const;
 
   // Create a shallow copy of this document. A cloned instance must
