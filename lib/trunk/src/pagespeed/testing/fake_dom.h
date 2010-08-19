@@ -106,7 +106,7 @@ class FakeDomDocument : public pagespeed::DomDocument {
 
  private:
   friend class FakeDomElement;
-  FakeDomDocument(const std::string& document_url);
+  explicit FakeDomDocument(const std::string& document_url);
 
   std::string url_;
   const FakeDomElement* document_element_;
@@ -115,4 +115,4 @@ class FakeDomDocument : public pagespeed::DomDocument {
 
 }  // namespace pagespeed_testing
 
-#endif // PAGESPEED_TESTING_FAKE_DOM_H_
+#endif  // PAGESPEED_TESTING_FAKE_DOM_H_

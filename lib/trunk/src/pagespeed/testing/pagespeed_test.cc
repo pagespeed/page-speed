@@ -91,9 +91,11 @@ pagespeed::Resource* PagespeedTest::NewDocumentResource(const std::string& url,
                                                         FakeDomDocument** out) {
   pagespeed::Resource* resource = New200Resource(url);
   resource->SetResourceType(pagespeed::HTML);
-  FakeDomDocument* document = FakeDomDocument::New(iframe, url);
-  if (out != NULL) {
-    *out = document;
+  if (iframe != NULL) {
+    FakeDomDocument* document = FakeDomDocument::New(iframe, url);
+    if (out != NULL) {
+      *out = document;
+    }
   }
   return resource;
 }
@@ -114,9 +116,11 @@ pagespeed::Resource* PagespeedTest::NewPngResource(const std::string& url,
                                                    FakeDomElement** out) {
   pagespeed::Resource* resource = New200Resource(url);
   resource->AddResponseHeader("Content-Type", "image/png");
-  FakeDomElement* element = FakeDomElement::NewImg(parent, url);
-  if (out != NULL) {
-    *out = element;
+  if (parent != NULL) {
+    FakeDomElement* element = FakeDomElement::NewImg(parent, url);
+    if (out != NULL) {
+      *out = element;
+    }
   }
   return resource;
 }
@@ -126,9 +130,11 @@ pagespeed::Resource* PagespeedTest::NewScriptResource(const std::string& url,
                                                       FakeDomElement** out) {
   pagespeed::Resource* resource = New200Resource(url);
   resource->SetResourceType(pagespeed::JS);
-  FakeDomElement* element = FakeDomElement::NewScript(parent, url);
-  if (out != NULL) {
-    *out = element;
+  if (parent != NULL) {
+    FakeDomElement* element = FakeDomElement::NewScript(parent, url);
+    if (out != NULL) {
+      *out = element;
+    }
   }
   return resource;
 }
@@ -138,9 +144,11 @@ pagespeed::Resource* PagespeedTest::NewCssResource(const std::string& url,
                                                    FakeDomElement** out) {
   pagespeed::Resource* resource = New200Resource(url);
   resource->SetResourceType(pagespeed::CSS);
-  FakeDomElement* element = FakeDomElement::NewLinkStylesheet(parent, url);
-  if (out != NULL) {
-    *out = element;
+  if (parent != NULL) {
+    FakeDomElement* element = FakeDomElement::NewLinkStylesheet(parent, url);
+    if (out != NULL) {
+      *out = element;
+    }
   }
   return resource;
 }

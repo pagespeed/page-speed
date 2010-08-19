@@ -19,6 +19,9 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/testing/fake_dom.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -68,7 +71,7 @@ class PagespeedTest : public ::testing::Test {
   // parented under the specified iframe and returned via the
   // out_document parameter, if specified.
   pagespeed::Resource* NewDocumentResource(const std::string& url,
-                                           FakeDomElement* iframe,
+                                           FakeDomElement* iframe = NULL,
                                            FakeDomDocument** out = NULL);
 
   // Construct a new HTTP GET Resource with the specified URL and
@@ -86,7 +89,7 @@ class PagespeedTest : public ::testing::Test {
   // node, parented under the specified parent, and returned via the
   // out parameter, if specified.
   pagespeed::Resource* NewPngResource(const std::string& url,
-                                      FakeDomElement* parent,
+                                      FakeDomElement* parent = NULL,
                                       FakeDomElement** out = NULL);
 
   // Construct a new HTTP GET script resource, and add that
@@ -94,7 +97,7 @@ class PagespeedTest : public ::testing::Test {
   // node, parented under the specified parent, and returned via the
   // out parameter, if specified.
   pagespeed::Resource* NewScriptResource(const std::string& url,
-                                         FakeDomElement* parent,
+                                         FakeDomElement* parent = NULL,
                                          FakeDomElement** out = NULL);
 
   // Construct a new HTTP GET CSS resource, and add that
@@ -102,7 +105,7 @@ class PagespeedTest : public ::testing::Test {
   // node, parented under the specified parent, and returned via the
   // out parameter, if specified.
   pagespeed::Resource* NewCssResource(const std::string& url,
-                                      FakeDomElement* parent,
+                                      FakeDomElement* parent = NULL,
                                       FakeDomElement** out = NULL);
 
   // Construct default html, head, and body DOM elements under the
@@ -140,6 +143,23 @@ class PagespeedTest : public ::testing::Test {
   FakeDomElement* html_;
   FakeDomElement* head_;
   FakeDomElement* body_;
+};
+
+// A base testing class for use when writing rule tests.
+template <class RULE> class PagespeedRuleTest : public PagespeedTest {
+ protected:
+  PagespeedRuleTest()
+      : rule_(new RULE()), provider_(*rule_.get(), &results_) {}
+
+  void AppendResults() { rule_->AppendResults(*input(), &provider_); }
+  const pagespeed::Results& results() { return results_; }
+  const int num_results() { return results_.results_size(); }
+  const pagespeed::Result& result(int idx) { return results_.results(idx); }
+
+ private:
+  scoped_ptr<pagespeed::Rule> rule_;
+  pagespeed::Results results_;
+  pagespeed::ResultProvider provider_;
 };
 
 }  // namespace pagespeed_testing
