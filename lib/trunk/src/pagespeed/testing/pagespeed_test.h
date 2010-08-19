@@ -19,6 +19,7 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -30,6 +31,11 @@ class Resource;
 }  // namespace pagespeed
 
 namespace pagespeed_testing {
+
+// Helper method that returns the output from a TextFormatter for
+// the given Rule and Results.
+std::string DoFormatResults(
+    pagespeed::Rule* rule, const pagespeed::Results& results);
 
 class PagespeedTest : public ::testing::Test {
  protected:
@@ -151,10 +157,12 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
   PagespeedRuleTest()
       : rule_(new RULE()), provider_(*rule_.get(), &results_) {}
 
-  void AppendResults() { rule_->AppendResults(*input(), &provider_); }
-  const pagespeed::Results& results() { return results_; }
-  const int num_results() { return results_.results_size(); }
-  const pagespeed::Result& result(int idx) { return results_.results(idx); }
+  const pagespeed::Results& results() const { return results_; }
+  const int num_results() const { return results_.results_size(); }
+  const pagespeed::Result& result(int i) const { return results_.results(i); }
+
+  bool AppendResults() { return rule_->AppendResults(*input(), &provider_); }
+  std::string FormatResults() { return DoFormatResults(rule_.get(), results_); }
 
  private:
   scoped_ptr<pagespeed::Rule> rule_;
