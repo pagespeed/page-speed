@@ -196,7 +196,7 @@ PAGESPEED.NativeLibrary = {
       PAGESPEED.Utils.getDocumentUrl(),
       PAGESPEED.Utils.getElementsByType('doc')[0],
       filterChoice(),
-      PAGESPEED.Utils.getOutputDir('library-output'));
+      PAGESPEED.Utils.getOutputDir('page-speed'));
     var results = JSON.parse(resultJSON);
     return buildLintRuleResults(results);
   }
