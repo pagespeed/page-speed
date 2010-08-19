@@ -47,6 +47,13 @@ bool GifReader::ReadPng(const std::string& body,
   // When positive, the return value of pngx_read_gif indicates the
   // number of frames in the GIF (1 for non-animated GIFs).
   const int read_result = pngx_read_gif(png_ptr, info_ptr, &input);
+#ifdef PNG_FREE_ME_SUPPORTED
+  // optipng's pngx_malloc_rows allocates the rows. However, if
+  // PNG_FREE_ME_SUPPORTED is defined, libpng will not free this
+  // data unless PNG_FREE_ROWS is set on the free_me member. Thus
+  // we have to explicitly set that field here.
+  info_ptr->free_me |= PNG_FREE_ROWS;
+#endif
   if (read_result == 1) {
     return true;
   }
