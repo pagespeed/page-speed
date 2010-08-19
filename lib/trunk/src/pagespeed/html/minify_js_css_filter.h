@@ -28,6 +28,7 @@ class MinifyJsCssFilter : public net_instaweb::EmptyHtmlFilter {
   explicit MinifyJsCssFilter(net_instaweb::HtmlParse* html_parse);
 
   virtual void Characters(net_instaweb::HtmlCharactersNode* characters);
+  virtual const char* Name() const { return "MinifyJsCss"; }
 
  private:
   net_instaweb::HtmlParse* html_parse_;

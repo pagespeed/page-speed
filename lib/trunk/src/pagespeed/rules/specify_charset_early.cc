@@ -49,6 +49,7 @@ class CharsetInMetaTagFilter : public net_instaweb::EmptyHtmlFilter {
 
   virtual void StartDocument();
   virtual void StartElement(net_instaweb::HtmlElement* element);
+  virtual const char* Name() const { return "CharsetInMetaTag"; }
 
   // Was a charset specified in a meta tag? Call after the parse is
   // complete.

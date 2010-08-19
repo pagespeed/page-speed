@@ -68,7 +68,7 @@ const char* kAfterMinification =
     "    don't mess with  my whitespace   please\n"
     "  </pre>\n"
     "<a href=\"http://www.example.com/\">Trailing slash in URL</a>\n"
-    "<div empty= ></div>\n"
+    "<div empty=''></div>\n"
     "<form>\n"
     "<button disabled>\n"
     "<!--[if IE]> DO NOT REMOVE <![endif]-->\n"

@@ -17,6 +17,7 @@
 
 #include "pagespeed/testing/pagespeed_test.h"
 #include "pagespeed/core/image_attributes.h"
+#include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/formatters/text_formatter.h"
 
 namespace {
@@ -182,6 +183,14 @@ void PagespeedTest::SetAllowDuplicateResources() {
 
 const pagespeed::Resource* PagespeedTest::GetPrimaryResource() const {
   return input_->GetResourceWithUrl(input_->primary_resource_url());
+}
+
+void PagespeedTest::SetUpTestCase() {
+  pagespeed::Init();
+}
+
+void PagespeedTest::TearDownTestCase() {
+  pagespeed::ShutDown();
 }
 
 std::string DoFormatResults(

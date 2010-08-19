@@ -25,6 +25,7 @@
 #include "base/string_util.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "pagespeed/core/engine.h"
+#include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/formatters/json_formatter.h"
@@ -102,26 +103,14 @@ void PrintUsage() {
   fprintf(stderr, "Usage: pagespeed <output_format> <input_format> <input>\n");
 }
 
-}  // namespace
-
-int main(int argc, char** argv) {
-  // Some of our code uses Singleton<>s, which require an
-  // AtExitManager to schedule their destruction.
-  base::AtExitManager at_exit_manager;
-
-  if (argc != 4) {
-    PrintUsage();
-    return 1;
-  }
-
-  const std::string out_format = argv[1];
-  const std::string in_format = argv[2];
-  const std::string filename = argv[3];
+bool RunPagespeed(const std::string& out_format,
+                  const std::string& in_format,
+                  const std::string& filename) {
   std::string file_contents;
   if (!ReadFileToString(filename, &file_contents)) {
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
     PrintUsage();
-    return 1;
+    return false;
   }
 
   scoped_ptr<pagespeed::RuleFormatter> formatter;
@@ -135,7 +124,7 @@ int main(int argc, char** argv) {
   } else {
     fprintf(stderr, "Invalid output format %s\n", out_format.c_str());
     PrintUsage();
-    return 1;
+    return false;
   }
   CHECK(formatter.get() != NULL);
 
@@ -147,7 +136,7 @@ int main(int argc, char** argv) {
   } else {
     fprintf(stderr, "Invalid input format %s\n", in_format.c_str());
     PrintUsage();
-    return 1;
+    return false;
   }
   CHECK(input.get() != NULL);
   if (input->primary_resource_url().empty() && input->num_resources() > 0) {
@@ -176,6 +165,24 @@ int main(int argc, char** argv) {
   engine.Init();
 
   engine.ComputeAndFormatResults(*input.get(), formatter.get());
+  return true;
+}
 
-  return 0;
+}  // namespace
+
+int main(int argc, char** argv) {
+  if (argc != 4) {
+    PrintUsage();
+    return 1;
+  }
+
+  // Some of our code uses Singleton<>s, which require an
+  // AtExitManager to schedule their destruction.
+  base::AtExitManager at_exit_manager;
+
+  pagespeed::Init();
+  bool result = RunPagespeed(argv[1], argv[2], argv[3]);
+  pagespeed::ShutDown();
+
+  return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
