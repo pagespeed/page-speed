@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 
-#include "base/at_exit.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -59,9 +58,6 @@ class MinimizeDnsTest : public ::pagespeed_testing::PagespeedTest {
       EXPECT_EQ(expected_violations[idx], urls[idx]);
     }
   }
-
- private:
-  base::AtExitManager at_exit_manager_;
 };
 
 TEST_F(MinimizeDnsTest, OneUrlNoViolation) {

@@ -19,19 +19,14 @@
 #include <fstream>
 #include <string>
 
+#include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/html/html_minifier.h"
 
-int main(int argc, char** argv) {
-  if (argc != 3) {
-    fprintf(stderr, "Usage: minify_html <input> <output>\n");
-    return 1;
-  }
-
-  std::string filename = argv[1];
-  std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
+bool MinifyHtml(const char* filename, const char* outfilename) {
+  std::ifstream in(filename, std::ios::in | std::ios::binary);
   if (!in) {
-    fprintf(stderr, "Could not read input from %s\n", filename.c_str());
-    return 1;
+    fprintf(stderr, "Could not read input from %s\n", filename);
+    return false;
   }
 
   in.seekg(0, std::ios::end);
@@ -48,12 +43,24 @@ int main(int argc, char** argv) {
   pagespeed::html::HtmlMinifier html_minifier;
   html_minifier.MinifyHtml(filename, original, &minified);
 
-  std::ofstream out(argv[2], std::ios::out | std::ios::binary);
+  std::ofstream out(outfilename, std::ios::out | std::ios::binary);
   if (!out) {
-    fprintf(stderr, "Error opening %s for write\n", argv[2]);
-    return 1;
+    fprintf(stderr, "Error opening %s for write\n", outfilename);
+    return false;
   }
   out.write(minified.c_str(), minified.size());
   out.close();
-  return 0;
+  return true;
+}
+
+int main(int argc, char** argv) {
+  if (argc != 3) {
+    fprintf(stderr, "Usage: minify_html <input> <output>\n");
+    return EXIT_FAILURE;
+  }
+
+  pagespeed::Init();
+  bool result = MinifyHtml(argv[1], argv[2]);
+  pagespeed::ShutDown();
+  return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

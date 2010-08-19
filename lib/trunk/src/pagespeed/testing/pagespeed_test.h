@@ -17,6 +17,7 @@
 
 #include <string>
 
+#include "base/at_exit.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -44,6 +45,9 @@ class PagespeedTest : public ::testing::Test {
   static const char* kUrl2;
   static const char* kUrl3;
   static const char* kUrl4;
+
+  static void SetUpTestCase();
+  static void TearDownTestCase();
 
   PagespeedTest();
   virtual ~PagespeedTest();
@@ -144,6 +148,7 @@ class PagespeedTest : public ::testing::Test {
   bool AddResource(pagespeed::Resource* resource);
 
  private:
+  base::AtExitManager at_exit_manager_;
   scoped_ptr<pagespeed::PagespeedInput> input_;
   FakeDomDocument* document_;
   FakeDomElement* html_;

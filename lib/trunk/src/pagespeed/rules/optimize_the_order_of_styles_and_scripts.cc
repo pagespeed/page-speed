@@ -182,6 +182,7 @@ class VisitStyleScriptFilter : public net_instaweb::EmptyHtmlFilter {
 
   virtual void StartDocument();
   virtual void StartElement(net_instaweb::HtmlElement* element);
+  virtual const char* Name() const { return "VisitStyleScript"; }
 
   void set_visitor(StyleScriptVisitor* visitor) { visitor_ = visitor; }
 
