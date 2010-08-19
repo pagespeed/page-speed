@@ -1,4 +1,4 @@
-# Copyright 2010 Google Inc.
+# Copyright 2009 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,28 +19,16 @@
   },
   'targets': [
     {
-      'target_name': 'pagespeed_testing',
+      'target_name': 'pagespeed_init',
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
-        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
-        '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
-        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
       ],
       'sources': [
-        'fake_dom.cc',
-        'pagespeed_test.cc',
+        'pagespeed_init.cc',
       ],
-      'include_dirs': [
-        '<(pagespeed_root)',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(pagespeed_root)',
-        ],
-      },
     },
   ],
 }
