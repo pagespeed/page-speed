@@ -32,6 +32,9 @@ std::string ResolveUri(const std::string& uri, const std::string& base_url) {
 
   // Remove everything after the #, which is not sent to the server,
   // and return the resulting url.
+  //
+  // TODO: this should probably not be the default behavior; user
+  // should have to explicitly remove the fragment.
   url_canon::Replacements<char> clear_fragment;
   clear_fragment.ClearRef();
   return derived.ReplaceComponents(clear_fragment).spec();
