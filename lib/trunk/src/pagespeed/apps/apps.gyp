@@ -22,7 +22,7 @@
       'target_name': 'minify_html_bin',
       'type': 'executable',
       'dependencies': [
-        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_init',
+        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_html',
       ],
       'sources': [
@@ -34,7 +34,7 @@
       'type': 'executable',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_init',
+        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(pagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',

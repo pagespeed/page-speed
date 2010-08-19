@@ -55,17 +55,5 @@
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
       ]
     },
-    {
-      'target_name': 'pagespeed_init',
-      'type': '<(library)',
-      'dependencies': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
-      ],
-      'sources': [
-        'pagespeed_init.cc',
-      ],
-    },
   ],
 }
