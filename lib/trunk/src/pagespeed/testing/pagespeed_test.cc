@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <sstream>
+#include <string>
+
 #include "pagespeed/testing/pagespeed_test.h"
 #include "pagespeed/core/image_attributes.h"
+#include "pagespeed/formatters/text_formatter.h"
 
 namespace {
 
@@ -178,6 +182,19 @@ void PagespeedTest::SetAllowDuplicateResources() {
 
 const pagespeed::Resource* PagespeedTest::GetPrimaryResource() const {
   return input_->GetResourceWithUrl(input_->primary_resource_url());
+}
+
+std::string DoFormatResults(
+    pagespeed::Rule* rule, const pagespeed::Results& results) {
+  pagespeed::ResultVector result_vector;
+  for (int i = 0; i < results.results_size(); ++i) {
+    result_vector.push_back(&results.results(i));
+  }
+
+  std::ostringstream output;
+  pagespeed::formatters::TextFormatter formatter(&output);
+  rule->FormatResults(result_vector, &formatter);
+  return output.str();
 }
 
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
