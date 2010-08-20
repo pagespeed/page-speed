@@ -18,12 +18,14 @@
 #include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "pagespeed/core/string_util.h"
 
 namespace pagespeed {
 
+class JavaScriptCallInfo;
 class Resource;
 
 // sorts resources by their URLs.
@@ -93,6 +95,14 @@ class Resource {
   // even if SetResourceType() has been explicitly called.
   void SetResourceType(ResourceType type);
 
+  // Add a JavaScriptCallInfo for this resource. JavaScriptCallInfos
+  // are used to track "interesting" JavaScript calls. Interesting
+  // calls include document.write and others that are known to have
+  // adverse latency impacts. JavaScriptCallInfos should be added in
+  // the order they were invoked. Ownership of the JavaScriptCallInfo is
+  // transferred to the resource.
+  void AddJavaScriptCall(const JavaScriptCallInfo* call_info);
+
   // The resource is lazy-loaded if the request time is after
   // the window's onLoad time. Many of the page-speed rules
   // do not apply to lazy-loaded resources.
@@ -112,6 +122,11 @@ class Resource {
   // header is empty, this method falls back to the Set-Cookie response
   // header.
   const std::string& GetCookies() const;
+
+  // Get all JavaScriptCallInfos for the given identifier/function
+  // name.
+  const std::vector<const JavaScriptCallInfo*>* GetJavaScriptCalls(
+      const std::string& id) const;
 
   bool IsLazyLoaded() const;
 
@@ -133,6 +148,9 @@ class Resource {
   ImageType GetImageType() const;
 
  private:
+  typedef std::map<std::string, std::vector<const JavaScriptCallInfo*> >
+      JavaScriptCallInfoMap;
+
   std::string request_url_;
   std::string request_method_;
   HeaderMap request_headers_;
@@ -142,6 +160,7 @@ class Resource {
   std::string response_body_;
   std::string cookies_;
   ResourceType type_;
+  JavaScriptCallInfoMap javascript_calls_;
   bool lazy_loaded_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
