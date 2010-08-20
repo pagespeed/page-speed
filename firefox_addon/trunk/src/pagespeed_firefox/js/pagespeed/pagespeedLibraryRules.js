@@ -177,6 +177,8 @@ PAGESPEED.NativeLibrary = {
       var res_body_index = bodyInputStreams.length;
       bodyInputStreams.push(PAGESPEED.Utils.getResourceInputStream(url));
       var requestTime = PAGESPEED.Utils.getResourceProperty(url, 'requestTime');
+      var javaScriptCalls =
+          PAGESPEED.Utils.getResourceProperty(url, 'javaScriptCalls');
       resources.push({
         // TODO Add req_method and req_body.
         req_headers: translateHeaders(PAGESPEED.Utils.getRequestHeaders(url)),
@@ -185,7 +187,8 @@ PAGESPEED.NativeLibrary = {
         res_body: res_body_index,
         req_url: url,
         req_cookies: PAGESPEED.Utils.getCookieString(url) || '',
-        req_lazy_loaded: (requestTime > onloadTime)
+        req_lazy_loaded: (requestTime > onloadTime),
+        js_calls: javaScriptCalls,
       });
     }
 

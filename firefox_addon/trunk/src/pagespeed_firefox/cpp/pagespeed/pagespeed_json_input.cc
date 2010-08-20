@@ -22,6 +22,7 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "third_party/cJSON/cJSON.h"
@@ -85,6 +86,10 @@ class InputPopulator {
   // a list of headers, add the headers represented by the JSON.
   template <class AddHeader>
   void PopulateHeaders(AddHeader &add_header, cJSON *attribute_json);
+
+  // Given a JSON value representing all JavaScript calls, add those
+  // calls to the Resource object.
+  void PopulateJsCalls(Resource* resource, cJSON *attribute_json);
 
   // Given a JSON value representing one attribute of a resource, set the
   // corresponding attribute on the Resource object.
@@ -161,6 +166,62 @@ void InputPopulator::PopulateHeaders(AddHeader &add_header,
   }
 }
 
+void InputPopulator::PopulateJsCalls(Resource* resource,
+                                     cJSON *calls_json) {
+  if (calls_json->type != cJSON_Array) {
+    INPUT_POPULATOR_ERROR() << "Expected array value for key: "
+                            << calls_json->string;
+    return;
+  }
+
+  for (cJSON *call_json = calls_json->child;
+       call_json != NULL; call_json = call_json->next) {
+    if (call_json->type != cJSON_Object) {
+      INPUT_POPULATOR_ERROR() << "Expected object value for js call entry.";
+      continue;
+    }
+
+    // Extract the 'fn', 'args', and 'line_number' attributes for each
+    // entry.
+    std::string fn;
+    std::vector<std::string> args;
+    int line_number = -1;
+    for (cJSON *call_attribute_json = call_json->child;
+         call_attribute_json != NULL;
+         call_attribute_json = call_attribute_json->next) {
+      const std::string& key = call_attribute_json->string;
+      if (key == "fn") {
+        fn = ToString(call_attribute_json);
+      } else if (key == "args") {
+        if (call_attribute_json->type != cJSON_Array) {
+          INPUT_POPULATOR_ERROR() << "Expected array value for args.";
+          return;
+        }
+        for (cJSON *arg_json = call_attribute_json->child;
+             arg_json != NULL; arg_json = arg_json->next) {
+          args.push_back(ToString(arg_json));
+        }
+      } else if (key == "line_number") {
+        line_number = ToInt(call_attribute_json);
+      } else {
+        INPUT_POPULATOR_ERROR() << "Unexpected call attribute " << key;
+        return;
+      }
+    }
+
+    if (fn.length() > 0 &&
+        args.size() > 0 &&
+        line_number >= 0) {
+      resource->AddJavaScriptCall(
+          new JavaScriptCallInfo(fn, args, line_number));
+    }
+    else {
+      INPUT_POPULATOR_ERROR() << "Failed to populate JavaScriptCallInfo.";
+      return;
+    }
+  }
+}
+
 void InputPopulator::PopulateAttribute(Resource *resource,
                                        cJSON *attribute_json) {
   const std::string &key = attribute_json->string;
@@ -192,6 +253,8 @@ void InputPopulator::PopulateAttribute(Resource *resource,
                               << key << ": " << attribute_json->type;
     }
 
+  } else if (key == "js_calls") {
+    PopulateJsCalls(resource, attribute_json);
   } else {
     INPUT_POPULATOR_ERROR() << "Unknown attribute key: " << key;
   }

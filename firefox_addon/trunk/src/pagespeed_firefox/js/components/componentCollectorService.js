@@ -28,7 +28,7 @@
  * @author Bryan McQuade
  */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var IComponentCollectorIface = Components.interfaces.IComponentCollector;
 var nsISupportsIface = Components.interfaces.nsISupports;
@@ -528,6 +528,11 @@ function ComponentCollectorService() {
   observerService.addObserver(this, HTTP_ON_EXAMINE_CACHED_RESPONSE, false);
   observerService.addObserver(this, HTTP_ON_EXAMINE_MERGED_RESPONSE, false);
 
+  // Install our progress listener. We must hold a strong reference to
+  // the progress listener, since it implements the
+  // nsISupportsWeakReference interface.
+  this.progressListener_ = this.installProgressListener();
+
   // pendingDocs_ is a map and doubly-linked list that tracks
   // documents that are pending being transitioned to, and any
   // HTTP/JS/meta redirects to those documents. The keys in the map
@@ -590,7 +595,7 @@ ComponentCollectorService.prototype.classID =
     Components.ID('{7bc5b600-1302-11dd-bd0b-0800200c9a66}');
 
 ComponentCollectorService.prototype.classDescription =
-    "Page Speed component collector";
+    'Page Speed component collector';
 
 ComponentCollectorService.prototype.contractID =
     '@code.google.com/p/page-speed/ComponentCollectorService;1',
@@ -601,6 +606,15 @@ ComponentCollectorService.prototype._xpcom_categories =
     [ { category: PROFILE_AFTER_CHANGE },
       { category: CONTENT_POLICY }
     ];
+
+ComponentCollectorService.prototype.installProgressListener = function() {
+  var progressService = Components.classes['@mozilla.org/docloaderservice;1'].
+      getService(Components.interfaces.nsIWebProgress);
+  var listener = new ProgressListenerHookInstaller(this);
+  progressService.addProgressListener(
+      listener, Components.interfaces.nsIWebProgress.NOTIFY_STATE_REQUEST);
+  return listener;
+};
 
 // nsIPolicy
 ComponentCollectorService.prototype.shouldProcess = function(contentType,
@@ -1334,6 +1348,9 @@ ComponentCollectorService.prototype.bindPendingDocumentEntries = function(
       mergeProperties(srcObject, redirect, redirect);
     }
   }
+  for (var i = 0, len = redirects.length; i < len; ++i) {
+    this.pendingDocs_.removeEntry(redirects[i]);
+  }
 };
 
 /**
@@ -1587,6 +1604,83 @@ ComponentCollectorService.prototype.QueryInterface = function(aIID) {
   }
   return this;
 };
+
+var FunctionPatchUtils = {
+  bind: function(fn, selfObj) {
+    return function() {
+      return fn.apply(selfObj, arguments);
+    };
+  },
+
+  createPatch: function(target, orig) {
+    return function(var_args) {
+      target.apply(null, arguments);
+      return orig.apply(this, arguments);
+    };
+  },
+};
+
+function DocumentWritePatcher(componentCollector, win) {
+  this.componentCollector_ = componentCollector;
+  this.win_ = win;
+};
+
+DocumentWritePatcher.prototype.writeCallback = function(html) {
+  // Find the first call frame that isn't in this file.
+  var frame = Components.stack.caller;
+  while (frame != null &&
+         frame.filename.indexOf('componentCollectorService.js') >= 0) {
+    frame = frame.caller;
+  }
+
+  var documentWriteInfo = {
+    fn: 'document.write',
+    args: [ html ],
+    line_number: frame.lineNumber
+  };
+  var srcObject = {
+    javaScriptCalls: [ documentWriteInfo ]
+  };
+
+  this.componentCollector_.bindToPendingDocumentOrComponent(
+      srcObject, this.win_, frame.filename);
+};
+
+function ProgressListenerHookInstaller(componentCollector) {
+  this.componentCollector_ = componentCollector;
+}
+
+ProgressListenerHookInstaller.prototype.EXPECTED_STATE =
+    Components.interfaces.nsIWebProgressListener.STATE_IS_REQUEST |
+    Components.interfaces.nsIWebProgressListener.STATE_START;
+
+ProgressListenerHookInstaller.prototype.onStateChange = function(aWebProgress,
+                                                                 aRequest,
+                                                                 aStateFlags,
+                                                                 aStatus) {
+  if ((aStateFlags & this.EXPECTED_STATE) != this.EXPECTED_STATE) return;
+  var win = aWebProgress.DOMWindow;
+  var doc = win.document;
+  var protocol = doc.location.protocol;
+  if (protocol != 'http:' && protocol != 'https:') return;
+  if (!doc._pageSpeedHookedDocument) {
+    doc._pageSpeedHookedDocument = true;
+    var patcher = new DocumentWritePatcher(this.componentCollector_, win);
+    var callback = FunctionPatchUtils.bind(patcher.writeCallback, patcher);
+    var unwrappedDoc = doc.wrappedJSObject;
+
+    // Patch both document.write and document.writeln so we can
+    // intercept their calls.
+    unwrappedDoc.write =
+        FunctionPatchUtils.createPatch(callback, unwrappedDoc.write);
+    unwrappedDoc.writeln =
+        FunctionPatchUtils.createPatch(callback, unwrappedDoc.writeln);
+  }
+};
+
+ProgressListenerHookInstaller.prototype.QueryInterface =
+    XPCOMUtils.generateQI([Components.interfaces.nsIWebProgressListener,
+                           Components.interfaces.nsISupportsWeakReference]);
 
 // XPCOMUtils.generateNSGetFactory was introduced in Mozilla 2 (Firefox 4).
 // XPCOMUtils.generateNSGetModule is for Mozilla 1.9.x (Firefox 3).
