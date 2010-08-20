@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+
 #include "base/scoped_ptr.h"
+#include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/resource.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using pagespeed::JavaScriptCallInfo;
 using pagespeed::Resource;
 
 namespace {
@@ -235,6 +239,54 @@ TEST(ResourceTest, SetResourceType) {
   ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
   r.SetResponseStatusCode(302);
   ASSERT_EQ(pagespeed::REDIRECT, r.GetResourceType());
+}
+
+TEST(ResourceTest, JavaScriptCallInfo) {
+  Resource r;
+  ASSERT_TRUE(NULL == r.GetJavaScriptCalls("document.write"));
+
+  std::vector<std::string> args;
+  args.push_back("<script src='foo.js'></script>");
+  const JavaScriptCallInfo* info =
+      new JavaScriptCallInfo("document.write", args, 1);
+  r.AddJavaScriptCall(info);
+  const std::vector<const JavaScriptCallInfo*>* calls =
+      r.GetJavaScriptCalls("document.write");
+  ASSERT_TRUE(NULL != calls);
+  ASSERT_EQ(1U, calls->size());
+
+  info = new JavaScriptCallInfo("document.write", args, 2);
+  r.AddJavaScriptCall(info);
+
+  info = new JavaScriptCallInfo("eval", args, 3);
+  r.AddJavaScriptCall(info);
+
+  calls = r.GetJavaScriptCalls("document.write");
+  ASSERT_TRUE(NULL != calls);
+  ASSERT_EQ(2U, calls->size());
+
+  info = (*calls)[0];
+  ASSERT_EQ("document.write", info->id());
+  ASSERT_EQ(1U, info->args().size());
+  ASSERT_EQ("<script src='foo.js'></script>", info->args()[0]);
+  ASSERT_EQ(1, info->line_number());
+
+  info = (*calls)[1];
+  ASSERT_EQ("document.write", info->id());
+  ASSERT_EQ(1U, info->args().size());
+  ASSERT_EQ("<script src='foo.js'></script>", info->args()[0]);
+  ASSERT_EQ(2, info->line_number());
+
+  calls = r.GetJavaScriptCalls("eval");
+  ASSERT_TRUE(NULL != calls);
+  ASSERT_EQ(1U, calls->size());
+
+  info = (*calls)[0];
+  ASSERT_EQ("eval", info->id());
+  ASSERT_EQ(1U, info->args().size());
+  ASSERT_EQ("<script src='foo.js'></script>", info->args()[0]);
+  ASSERT_EQ(3, info->line_number());
+
 }
 
 }  // namespace
