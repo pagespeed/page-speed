@@ -21,13 +21,14 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/html_writer_filter.h"
 #include "net/instaweb/rewriter/public/collapse_whitespace_filter.h"
 #include "net/instaweb/rewriter/public/elide_attributes_filter.h"
 #include "net/instaweb/rewriter/public/html_attribute_quote_removal.h"
 #include "net/instaweb/rewriter/public/remove_comments_filter.h"
-#include "net/instaweb/util/public/file_message_handler.h"
+#include "net/instaweb/util/public/message_handler.h"
 
 #include "pagespeed/html/minify_js_css_filter.h"
 
@@ -46,7 +47,7 @@ class HtmlMinifier {
                   std::string* output);
 
  private:
-  net_instaweb::FileMessageHandler message_handler_;
+  scoped_ptr<net_instaweb::MessageHandler> message_handler_;
   net_instaweb::HtmlParse html_parse_;
   net_instaweb::RemoveCommentsFilter remove_comments_filter_;
   net_instaweb::ElideAttributesFilter elide_attributes_filter_;
