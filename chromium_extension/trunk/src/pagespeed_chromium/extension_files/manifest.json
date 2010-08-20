@@ -2,8 +2,8 @@
   "name": "Page Speed",
   "version": "0.1",
   "description": "Page Speed",
-  "browser_action": {
-    "default_icon": "icon.png",
-    "popup": "popup.html"
-  }
+  "devtools_page": "pagespeed.html",
+  "permissions": [
+    "experimental"
+  ]
 }

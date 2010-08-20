@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <algorithm>  // for std::min()
 #include <sstream>
 #include <string>
 #include <vector>
@@ -40,9 +41,22 @@
 
 namespace {
 
-// This is the method name as JavaScript sees it:
+// These are the method names as JavaScript sees them:
+const char* kAppendDataMethodId = "appendData";
 const char* kRunPageSpeedMethodId = "runPageSpeed";
+const char* kGetOutputMethodId = "getOutput";
 
+// Buffers for input/output; data has to be transferred a piece at a time,
+// because SRPC currently can't handle strings larger than one or two dozen
+// kilobytes.
+std::string input_buffer;
+std::string output_buffer;
+size_t output_start = 0;
+// How much output we send per call to getOutput():
+const size_t kChunkSize = 8192;
+
+// Parse the HAR data and run the Page Speed rules, then format the results.
+// Return false if the HAR data could not be parsed, true otherwise.
 bool RunPageSpeedRules(const std::string& har_data,
                        std::string* output) {
   scoped_ptr<pagespeed::PagespeedInput> input(
@@ -78,34 +92,51 @@ bool RunPageSpeedRules(const std::string& har_data,
   return true;
 }
 
-// This function creates a string in the browser's memory pool and then returns
-// a variable containing a pointer to that string.  The variable is later
-// returned back to the browser by the Invoke() function that called this.
-bool RunPageSpeed(const NPVariant& argument, NPVariant *result) {
-  bool ok = true;
+// Accept a chunk of data as a string, and append it to the input buffer.
+bool AppendData(const NPVariant& argument, NPVariant *result) {
   if (result && NPVARIANT_IS_STRING(argument)) {
-    // Get the argument:
     const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
-    const std::string arg_string(arg_NPString.UTF8Characters,
-                                 arg_NPString.UTF8Length);
-
-    // Produce the result:
-    std::string output("Result: ");
-    const bool success = RunPageSpeedRules(arg_string, &output);
-    if (!success) {
-      output.append("Error reading HAR");
-    }
-
-    // Return the result:
-    const char *msg = output.c_str();
-    const int msg_length = strlen(msg) + 1;
-    // Note: |msg_copy| will be freed later on by the browser, so it needs to
-    // be allocated here with NPN_MemAlloc().
-    char *msg_copy = reinterpret_cast<char*>(NPN_MemAlloc(msg_length));
-    strncpy(msg_copy, msg, msg_length);
-    STRINGN_TO_NPVARIANT(msg_copy, msg_length - 1, *result);
+    input_buffer.append(arg_NPString.UTF8Characters,
+                       arg_NPString.UTF8Length);
+    NULL_TO_NPVARIANT(*result);
   }
-  return ok;
+  return true;
+}
+
+// Run Page Speed on the contents of the input buffer, and put the results into
+// the output buffer.
+bool RunPageSpeed(NPVariant *result) {
+  if (result) {
+    output_start = 0;
+    output_buffer.clear();
+    const bool success = RunPageSpeedRules(input_buffer, &output_buffer);
+    if (!success) {
+      output_buffer.append("Error reading HAR");
+    }
+    input_buffer.clear();
+    NULL_TO_NPVARIANT(*result);
+  }
+  return true;
+}
+
+// Produce either a string with the next chunk of data from the output buffer,
+// or null to signify the end of the output.
+bool GetOutput(NPVariant *result) {
+  if (result) {
+    if (output_start >= output_buffer.size()) {
+      output_start = 0;
+      output_buffer.clear();
+      NULL_TO_NPVARIANT(*result);
+    } else {
+      const size_t data_length = std::min(output_buffer.size() - output_start,
+                                          kChunkSize);
+      char* data_copy = reinterpret_cast<char*>(NPN_MemAlloc(data_length));
+      memcpy(data_copy, output_buffer.data() + output_start, data_length);
+      STRINGN_TO_NPVARIANT(data_copy, data_length, *result);
+      output_start += kChunkSize;
+    }
+  }
+  return true;
 }
 
 NPObject* Allocate(NPP npp, NPClass* npclass) {
@@ -120,7 +151,11 @@ void Deallocate(NPObject* object) {
 bool HasMethod(NPObject* obj, NPIdentifier method_name) {
   char *name = NPN_UTF8FromIdentifier(method_name);
   bool has_method = false;
-  if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
+  if (!strcmp((const char *)name, kAppendDataMethodId)) {
+    has_method = true;
+  } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
+    has_method = true;
+  } else if (!strcmp((const char *)name, kGetOutputMethodId)) {
     has_method = true;
   }
   NPN_MemFree(name);
@@ -150,10 +185,14 @@ bool Invoke(NPObject* obj,
   bool rval = false;
   // Map the method name to a function call.  |result| is filled in by the
   // called function, then gets returned to the browser when Invoke() returns.
-  if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
+  if (!strcmp((const char *)name, kAppendDataMethodId)) {
     if (arg_count >= 1) {
-      rval = RunPageSpeed(args[0], result);
+      rval = AppendData(args[0], result);
     }
+  } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
+    rval = RunPageSpeed(result);
+  } else if (!strcmp((const char *)name, kGetOutputMethodId)) {
+    rval = GetOutput(result);
   }
   // Since name was allocated above by NPN_UTF8FromIdentifier,
   // it needs to be freed here.
