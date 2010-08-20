@@ -16,6 +16,7 @@
 
 #include <stdio.h>  // for stderr
 
+#include "net/instaweb/util/public/google_message_handler.h"
 #include "net/instaweb/util/public/string_writer.h"
 
 namespace pagespeed {
@@ -23,9 +24,8 @@ namespace pagespeed {
 namespace html {
 
 HtmlMinifier::HtmlMinifier()
-    // TODO(mdsteele): Printing to stderr is probably not what we really want.
-    : message_handler_(stderr),
-      html_parse_(&message_handler_),
+    : message_handler_(new net_instaweb::GoogleMessageHandler()),
+      html_parse_(message_handler_.get()),
       remove_comments_filter_(&html_parse_),
       elide_attributes_filter_(&html_parse_),
       quote_removal_filter_(&html_parse_),
