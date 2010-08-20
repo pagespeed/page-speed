@@ -71,12 +71,14 @@
             '<(PRODUCT_DIR)/pagespeed',
             'extension_files/icon.png',
             'extension_files/manifest.json',
-            'extension_files/popup.html',
+            'extension_files/pagespeed.html',
+            'extension_files/pagespeed-panel.html',
           ],
           'outputs': [
             '<(PRODUCT_DIR)/pagespeed/icon.png',
             '<(PRODUCT_DIR)/pagespeed/manifest.json',
-            '<(PRODUCT_DIR)/pagespeed/popup.html',
+            '<(PRODUCT_DIR)/pagespeed/pagespeed.html',
+            '<(PRODUCT_DIR)/pagespeed/pagespeed-panel.html',
           ],
           'action': [
             'cp', '-t', '<@(_inputs)',

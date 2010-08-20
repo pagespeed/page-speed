@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Page Speed</title>
+    <script>
+      function runPageSpeed() {
+        webInspector.resources.getAll(function (resources) {
+          try {
+            // Collect the HAR data.
+            var entries = [];
+            for (var index = 0; index < resources.length; ++index) {
+              entries.push(resources[index].har);
+            }
+            var har = {log: {entries: entries}};
+
+            // Display the HAR data to the user.
+            var har_string = JSON.stringify(har);
+            var har_textarea = document.getElementById('har_textarea');
+            har_textarea.value = har_string;
+
+            // Feed the HAR data into the NaCl module.  We have to do this a
+            // piece at a time, because SRPC currently can't handle strings
+            // larger than one or two dozen kilobytes.
+            var pagespeed = document.getElementById('pagespeed_nacl_module');
+            var har_length = har_string.length;
+            var kChunkSize = 8192;
+            for (var start = 0; start < har_length; start += kChunkSize) {
+              pagespeed.appendData(har_string.substr(start, kChunkSize));
+            }
+
+            // Run the rules.
+            pagespeed.runPageSpeed();
+
+            // Get the result data back from the NaCl module.  Again, this must
+            // be done a piece at a time.
+            var results = [];
+            while (true) {
+              var piece = pagespeed.getOutput();
+              if (typeof(piece) !== 'string') {
+                break;
+              }
+              results.push(piece);
+            }
+
+            // Display the results to the user.
+            var result_textarea = document.getElementById('result_textarea');
+            result_textarea.value = results.join("");
+          } catch (e) {
+            webInspector.log("Page Speed Error: " + e.message);
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <p>
+      <button onclick="runPageSpeed()">Run Page Speed</button>
+      <embed name="nacl_module" id="pagespeed_nacl_module" width="0" height="0"
+             nexes="x86-32: pagespeed_x86_32.nexe
+                    x86-64: pagespeed_x86_64.nexe
+                    ARM: pagespeed_arm.nexe"
+             type="application/x-nacl-srpc" />
+    </p>
+    <p>
+      <textarea id="har_textarea" cols="40" rows="8">HAR</textarea>
+      <textarea id="result_textarea" cols="40" rows="8">Results</textarea>
+    </p>
+  </body>
+</html>
