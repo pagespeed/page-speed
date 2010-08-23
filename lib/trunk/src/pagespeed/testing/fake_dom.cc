@@ -265,8 +265,9 @@ std::string FakeDomDocument::GetDocumentUrl() const {
 }
 
 std::string FakeDomDocument::GetBaseUrl() const {
-  // TODO: add support for specifying a different base url when/if
-  // it's needed.
+  if (!base_url_.empty()) {
+    return base_url_;
+  }
   return url_;
 }
 
@@ -315,6 +316,7 @@ pagespeed::DomElement::Status FakeDomElement::HasWidthSpecified(
 FakeDomDocument* FakeDomDocument::Clone() const {
   FakeDomDocument* clone = new FakeDomDocument(url_);
   clone->document_element_ = document_element_;
+  clone->base_url_ = base_url_;
   clone->is_clone_ = true;
   return clone;
 }

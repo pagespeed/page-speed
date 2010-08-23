@@ -120,7 +120,7 @@ bool AvoidCssImport::FindImportedResourceUrls(
 
     // Resolve the URI relative to its parent stylesheet.
     std::string resolved_url =
-        pagespeed::ResolveUri(import_url, resource.GetRequestUrl());
+        pagespeed::uri_util::ResolveUri(import_url, resource.GetRequestUrl());
     if (resolved_url.empty()) {
       LOG(INFO) << "Unable to ResolveUri " << import_url;
       continue;

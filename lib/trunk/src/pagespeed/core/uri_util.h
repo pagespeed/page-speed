@@ -19,7 +19,30 @@
 
 namespace pagespeed {
 
+class DomDocument;
+
+namespace uri_util {
+
+// Resolve the specified URI relative to the given base URL.
 std::string ResolveUri(const std::string& uri, const std::string& base_url);
+
+// Attempt to resolve the specified URI relative to the document with
+// the given URL. This method will search through all of the child
+// documents of the specified root DomDocument, looking for a
+// DomDocument with the specified document_url. If such a DomDocument
+// is found, the specified URI will be resolved relative to that
+// document and this method will return true. Otherwise this method
+// will return false. Upon returning false, callers may choose to fall
+// back to calling ResolveUri(), which will generate the correct
+// result except in cases where the DomDocument contains a <base> tag
+// that overrides its base URL.
+bool ResolveUriForDocumentWithUrl(
+    const std::string& uri_to_resolve,
+    const pagespeed::DomDocument* root_document,
+    const std::string& document_url_to_find,
+    std::string* out_resolved_url);
+
+}  // namespace uri_util
 
 }  // namespace pagespeed
 
