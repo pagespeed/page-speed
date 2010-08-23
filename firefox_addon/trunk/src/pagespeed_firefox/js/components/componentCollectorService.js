@@ -1606,12 +1606,17 @@ ComponentCollectorService.prototype.QueryInterface = function(aIID) {
 };
 
 var FunctionPatchUtils = {
+  // Returns a function object that invokes the specified function
+  // using selfObj as the "this" object.
   bind: function(fn, selfObj) {
     return function() {
       return fn.apply(selfObj, arguments);
     };
   },
 
+  // Returns a function object that invokes a function patch followed
+  // by the original function. This allows us to hook JavaScript
+  // functions.
   createPatch: function(target, orig) {
     return function(var_args) {
       target.apply(null, arguments);
@@ -1626,10 +1631,9 @@ function DocumentWritePatcher(componentCollector, win) {
 };
 
 DocumentWritePatcher.prototype.writeCallback = function(html) {
-  // Find the first call frame that isn't in this file.
-  var frame = Components.stack.caller;
-  while (frame != null &&
-         frame.filename.indexOf('componentCollectorService.js') >= 0) {
+  // Find the top frame.
+  var frame = Components.stack;
+  while (frame != null && frame.caller != null) {
     frame = frame.caller;
   }
 
@@ -1667,6 +1671,11 @@ ProgressListenerHookInstaller.prototype.onStateChange = function(aWebProgress,
     doc._pageSpeedHookedDocument = true;
     var patcher = new DocumentWritePatcher(this.componentCollector_, win);
     var callback = FunctionPatchUtils.bind(patcher.writeCallback, patcher);
+
+    // Use the unwrapped document. This is the JavaScript instance
+    // visible to JS running in the page, so we must be careful not to
+    // add any properties that could leak information from the
+    // component collector to the page's JavaScript.
     var unwrappedDoc = doc.wrappedJSObject;
 
     // Patch both document.write and document.writeln so we can
