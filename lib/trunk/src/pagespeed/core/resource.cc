@@ -132,12 +132,14 @@ void Resource::SetResourceType(ResourceType type) {
     LOG(DFATAL) << "Unable to SetResourceType for redirect.";
     return;
   }
-  if (!IsBodyStatusCode(status_code_)) {
-    LOG(DFATAL) << "Unable to SetResourceType for code " << status_code_;
-    return;
-  }
   if (type == REDIRECT) {
     LOG(DFATAL) << "Unable to SetResourceType to redirect.";
+    return;
+  }
+  if (!IsBodyStatusCode(status_code_)) {
+    // This can happen for tracking resources that recieve 204
+    // responses (e.g. images).
+    LOG(INFO) << "Unable to SetResourceType for code " << status_code_;
     return;
   }
   type_ = type;

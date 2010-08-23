@@ -194,25 +194,15 @@ TEST(ResourceTest, SetResourceTypeForRedirectFails) {
 
 TEST(ResourceTest, SetResourceTypeNoStatusCodeFails) {
   Resource r;
-#ifdef NDEBUG
   r.SetResourceType(pagespeed::HTML);
   ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
-#else
-  ASSERT_DEATH(r.SetResourceType(pagespeed::HTML),
-               "Unable to SetResourceType for code -1");
-#endif
 }
 
 TEST(ResourceTest, SetResourceTypeFor500Fails) {
   Resource r;
   r.SetResponseStatusCode(500);
-#ifdef NDEBUG
   r.SetResourceType(pagespeed::HTML);
   ASSERT_EQ(pagespeed::OTHER, r.GetResourceType());
-#else
-  ASSERT_DEATH(r.SetResourceType(pagespeed::HTML),
-               "Unable to SetResourceType for code 500");
-#endif
 }
 
 TEST(ResourceTest, SetResourceTypeToRedirectFails) {
