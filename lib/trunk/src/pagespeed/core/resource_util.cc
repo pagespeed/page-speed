@@ -472,7 +472,7 @@ std::string GetRedirectedUrl(const Resource& resource) {
   // Construct a fully qualified URL.  The HTTP RFC says that Location
   // should be absolute but some servers out there send relative
   // location urls anyway.
-  return pagespeed::ResolveUri(location, source);
+  return pagespeed::uri_util::ResolveUri(location, source);
 }
 
 const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,

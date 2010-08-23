@@ -97,6 +97,8 @@ class FakeDomDocument : public pagespeed::DomDocument {
   virtual std::string GetBaseUrl() const;
   virtual void Traverse(pagespeed::DomElementVisitor* visitor) const;
 
+  void SetBaseUrl(const std::string& base_url) { base_url_ = base_url; }
+
   // Create a shallow copy of this document. A cloned instance must
   // not outlive the instance that created it.
   FakeDomDocument* Clone() const;
@@ -109,6 +111,7 @@ class FakeDomDocument : public pagespeed::DomDocument {
   explicit FakeDomDocument(const std::string& document_url);
 
   std::string url_;
+  std::string base_url_;
   const FakeDomElement* document_element_;
   bool is_clone_;
 };

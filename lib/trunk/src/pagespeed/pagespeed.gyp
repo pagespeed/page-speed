@@ -105,6 +105,7 @@
         'core/resource_filter_test.cc',
         'core/resource_util_test.cc',
         'core/string_util_test.cc',
+        'core/uri_util_test.cc',
         'cssmin/cssmin_test.cc',
         'filters/ad_filter_test.cc',
         'filters/protocol_filter_test.cc',
