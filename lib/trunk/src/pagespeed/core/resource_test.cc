@@ -242,23 +242,24 @@ TEST(ResourceTest, SetResourceType) {
 }
 
 TEST(ResourceTest, JavaScriptCallInfo) {
+  const char* kDocUrl = "http://www.example.com/";
   Resource r;
   ASSERT_TRUE(NULL == r.GetJavaScriptCalls("document.write"));
 
   std::vector<std::string> args;
   args.push_back("<script src='foo.js'></script>");
   const JavaScriptCallInfo* info =
-      new JavaScriptCallInfo("document.write", args, 1);
+      new JavaScriptCallInfo("document.write", kDocUrl, args, 1);
   r.AddJavaScriptCall(info);
   const std::vector<const JavaScriptCallInfo*>* calls =
       r.GetJavaScriptCalls("document.write");
   ASSERT_TRUE(NULL != calls);
   ASSERT_EQ(1U, calls->size());
 
-  info = new JavaScriptCallInfo("document.write", args, 2);
+  info = new JavaScriptCallInfo("document.write", kDocUrl, args, 2);
   r.AddJavaScriptCall(info);
 
-  info = new JavaScriptCallInfo("eval", args, 3);
+  info = new JavaScriptCallInfo("eval", kDocUrl, args, 3);
   r.AddJavaScriptCall(info);
 
   calls = r.GetJavaScriptCalls("document.write");
@@ -267,12 +268,14 @@ TEST(ResourceTest, JavaScriptCallInfo) {
 
   info = (*calls)[0];
   ASSERT_EQ("document.write", info->id());
+  ASSERT_EQ(kDocUrl, info->document_url());
   ASSERT_EQ(1U, info->args().size());
   ASSERT_EQ("<script src='foo.js'></script>", info->args()[0]);
   ASSERT_EQ(1, info->line_number());
 
   info = (*calls)[1];
   ASSERT_EQ("document.write", info->id());
+  ASSERT_EQ(kDocUrl, info->document_url());
   ASSERT_EQ(1U, info->args().size());
   ASSERT_EQ("<script src='foo.js'></script>", info->args()[0]);
   ASSERT_EQ(2, info->line_number());
@@ -283,6 +286,7 @@ TEST(ResourceTest, JavaScriptCallInfo) {
 
   info = (*calls)[0];
   ASSERT_EQ("eval", info->id());
+  ASSERT_EQ(kDocUrl, info->document_url());
   ASSERT_EQ(1U, info->args().size());
   ASSERT_EQ("<script src='foo.js'></script>", info->args()[0]);
   ASSERT_EQ(3, info->line_number());
