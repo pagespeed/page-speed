@@ -134,7 +134,7 @@ class PagespeedTest : public ::testing::Test {
   void SetAllowDuplicateResources();
 
   const pagespeed::PagespeedInput* input() { return input_.get(); }
-  const pagespeed::Resource* GetPrimaryResource() const;
+  pagespeed::Resource* primary_resource() const { return primary_resource_; }
   FakeDomDocument* document() { return document_; }
   FakeDomElement* html() { return html_; }
   FakeDomElement* head() { return head_; }
@@ -150,6 +150,7 @@ class PagespeedTest : public ::testing::Test {
  private:
   base::AtExitManager at_exit_manager_;
   scoped_ptr<pagespeed::PagespeedInput> input_;
+  pagespeed::Resource* primary_resource_;
   FakeDomDocument* document_;
   FakeDomElement* html_;
   FakeDomElement* head_;

@@ -48,6 +48,7 @@ PagespeedTest::~PagespeedTest() {}
 
 void PagespeedTest::SetUp() {
   input_.reset(new pagespeed::PagespeedInput());
+  primary_resource_ = NULL;
   document_ = NULL;
   html_ = NULL;
   head_ = NULL;
@@ -57,6 +58,7 @@ void PagespeedTest::SetUp() {
 
 void PagespeedTest::TearDown() {
   DoTearDown();
+  primary_resource_ = NULL;
   document_ = NULL;
   html_ = NULL;
   head_ = NULL;
@@ -88,6 +90,7 @@ pagespeed::Resource* PagespeedTest::NewPrimaryResource(const std::string& url) {
   document_ = FakeDomDocument::NewRoot(url);
   input_->AcquireDomDocument(document_);
   input_->SetPrimaryResourceUrl(url);
+  primary_resource_ = resource;
   return resource;
 }
 
@@ -179,10 +182,6 @@ bool PagespeedTest::AddFakeImageAttributesFactory() {
 
 void PagespeedTest::SetAllowDuplicateResources() {
   input_->set_allow_duplicate_resources();
-}
-
-const pagespeed::Resource* PagespeedTest::GetPrimaryResource() const {
-  return input_->GetResourceWithUrl(input_->primary_resource_url());
 }
 
 void PagespeedTest::SetUpTestCase() {
