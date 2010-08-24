@@ -208,17 +208,21 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
         document_(document),
         resource_type_map_(resource_type_map),
         parent_child_resource_map_(parent_child_resource_map) {
+    SetUp();
   }
 
   virtual void Visit(const pagespeed::DomElement& node);
 
  private:
+  void SetUp();
+
   void ProcessUri(const std::string& relative_uri, ResourceType type);
 
   const pagespeed::PagespeedInput* pagespeed_input_;
   const pagespeed::DomDocument* document_;
   std::map<const Resource*, ResourceType>* resource_type_map_;
   ParentChildResourceMap* parent_child_resource_map_;
+  ResourceSet visited_resources_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalResourceNodeVisitor);
 };
@@ -258,9 +262,22 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
   const Resource* document_resource =
       pagespeed_input_->GetResourceWithUrl(document_->GetDocumentUrl());
   if (document_resource != NULL) {
-    (*parent_child_resource_map_)[document_resource].insert(resource);
+    if (visited_resources_.count(resource) == 0) {
+      // Only insert the resource into the vector once.
+      visited_resources_.insert(resource);
+      (*parent_child_resource_map_)[document_resource].push_back(resource);
+    }
   } else {
     LOG(INFO) << "Unable to find resource for " << document_->GetDocumentUrl();
+  }
+}
+
+void ExternalResourceNodeVisitor::SetUp() {
+  const Resource* document_resource =
+      pagespeed_input_->GetResourceWithUrl(document_->GetDocumentUrl());
+  if (document_resource != NULL) {
+    // Create an initial entry in the parent_child_resource_map.
+    (*parent_child_resource_map_)[document_resource];
   }
 }
 
