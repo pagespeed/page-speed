@@ -181,11 +181,12 @@ void InputPopulator::PopulateJsCalls(Resource* resource,
       continue;
     }
 
-    // Extract the 'fn', 'args', and 'line_number' attributes for each
-    // entry.
+    // Extract the 'fn', 'args', 'line_number', and 'doc_url'
+    // attributes for each entry.
     std::string fn;
     std::vector<std::string> args;
     int line_number = -1;
+    std::string doc_url;
     for (cJSON *call_attribute_json = call_json->child;
          call_attribute_json != NULL;
          call_attribute_json = call_attribute_json->next) {
@@ -203,6 +204,8 @@ void InputPopulator::PopulateJsCalls(Resource* resource,
         }
       } else if (key == "line_number") {
         line_number = ToInt(call_attribute_json);
+      } else if (key == "doc_url") {
+        doc_url = ToString(call_attribute_json);
       } else {
         INPUT_POPULATOR_ERROR() << "Unexpected call attribute " << key;
         return;
@@ -211,9 +214,10 @@ void InputPopulator::PopulateJsCalls(Resource* resource,
 
     if (fn.length() > 0 &&
         args.size() > 0 &&
-        line_number >= 0) {
+        line_number > 0 &&
+        doc_url.length() > 0) {
       resource->AddJavaScriptCall(
-          new JavaScriptCallInfo(fn, args, line_number));
+          new JavaScriptCallInfo(fn, doc_url, args, line_number));
     }
     else {
       INPUT_POPULATOR_ERROR() << "Failed to populate JavaScriptCallInfo.";

@@ -1640,7 +1640,8 @@ DocumentWritePatcher.prototype.writeCallback = function(html) {
   var documentWriteInfo = {
     fn: 'document.write',
     args: [ html ],
-    line_number: frame.lineNumber
+    line_number: frame.lineNumber,
+    doc_url: getURIForWindow(this.win_),
   };
   var srcObject = {
     javaScriptCalls: [ documentWriteInfo ]

@@ -17,6 +17,10 @@
     # We must build for 10.4 for compatibility with Firefox.
     'mac_deployment_target': '10.4',
 
+    # Make sure we link statically so everything gets linked into a
+    # single shared object.
+    'library': 'static_library',
+
     # We're building a shared library, so everything needs to be built
     # with Position-Independent Code.
     'linux_fpic': 1,
