@@ -195,13 +195,15 @@ TEST_F(ParentChildResourceMapTest, Basic) {
   // Validate that the parent child resource map was populated with
   // the expected contents.
   pagespeed::ParentChildResourceMap expected;
-  expected[primary_resource()].insert(css);
-  expected[primary_resource()].insert(js1);
-  expected[primary_resource()].insert(js2);
+  expected[primary_resource()].push_back(css);
+  expected[primary_resource()].push_back(js1);
+  expected[primary_resource()].push_back(js2);
   ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
 }
 
 TEST_F(ParentChildResourceMapTest, Iframes) {
+  pagespeed::Resource* js =
+      NewScriptResource("http://example.com/script.js", body());
   FakeDomElement* iframe1 = FakeDomElement::NewIframe(body());
   FakeDomDocument* iframe1_doc;
   pagespeed::Resource* iframe1_resource =
@@ -210,8 +212,8 @@ TEST_F(ParentChildResourceMapTest, Iframes) {
   FakeDomElement* iframe1_root = FakeDomElement::NewRoot(iframe1_doc, "html");
   pagespeed::Resource* css =
       NewCssResource("http://example.com/css.css", iframe1_root);
-  pagespeed::Resource* js =
-      NewScriptResource("http://example.com/script.js", iframe1_root);
+  FakeDomElement::NewScript(iframe1_root, "http://example.com/script.js");
+  FakeDomElement::NewScript(iframe1_root, "http://example.com/script.js");
 
   FakeDomElement* iframe2 = FakeDomElement::NewIframe(body());
   FakeDomDocument* iframe2_doc;
@@ -237,15 +239,16 @@ TEST_F(ParentChildResourceMapTest, Iframes) {
   // Validate that the parent child resource map was populated with
   // the expected contents.
   pagespeed::ParentChildResourceMap expected;
-  expected[primary_resource()].insert(iframe1_resource);
-  expected[iframe1_resource].insert(css);
-  expected[iframe1_resource].insert(js);
-  expected[primary_resource()].insert(iframe2_resource);
-  expected[iframe2_resource].insert(css);
-  expected[iframe2_resource].insert(js);
-  expected[iframe2_resource].insert(iframe3_resource);
-  expected[iframe3_resource].insert(css);
-  expected[iframe3_resource].insert(css2);
+  expected[primary_resource()].push_back(js);
+  expected[primary_resource()].push_back(iframe1_resource);
+  expected[iframe1_resource].push_back(css);
+  expected[iframe1_resource].push_back(js);
+  expected[primary_resource()].push_back(iframe2_resource);
+  expected[iframe2_resource].push_back(css);
+  expected[iframe2_resource].push_back(js);
+  expected[iframe2_resource].push_back(iframe3_resource);
+  expected[iframe3_resource].push_back(css);
+  expected[iframe3_resource].push_back(css2);
   ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
 }
 
@@ -295,10 +298,10 @@ TEST_F(ParentChildResourceMapTest, MissingResource) {
   // Validate that the parent child resource map was populated with
   // the expected contents.
   pagespeed::ParentChildResourceMap expected;
-  expected[primary_resource()].insert(iframe1_resource);
-  expected[iframe1_resource].insert(css);
-  expected[iframe1_resource].insert(js);
-  expected[iframe3_resource].insert(css);
+  expected[primary_resource()].push_back(iframe1_resource);
+  expected[iframe1_resource].push_back(css);
+  expected[iframe1_resource].push_back(js);
+  expected[iframe3_resource].push_back(css);
   ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
 }
 
