@@ -233,13 +233,17 @@ const std::string InputPopulator::GetString(cJSON* object, const char* key) {
 
 }  // namespace
 
-PagespeedInput* ParseHttpArchive(const std::string& har_data) {
+PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
+                                           ResourceFilter* resource_filter) {
   cJSON* har_json = cJSON_Parse(har_data.c_str());
   if (har_json == NULL) {
+    delete resource_filter;
     return NULL;
   }
 
-  PagespeedInput* input = new PagespeedInput;
+  PagespeedInput* input = (resource_filter == NULL ?
+                           new PagespeedInput() :
+                           new PagespeedInput(resource_filter));
   const bool ok = InputPopulator::Populate(har_json, input);
 
   cJSON_Delete(har_json);
@@ -249,6 +253,10 @@ PagespeedInput* ParseHttpArchive(const std::string& har_data) {
     delete input;
     return NULL;
   }
+}
+
+PagespeedInput* ParseHttpArchive(const std::string& har_data) {
+  return ParseHttpArchiveWithFilter(har_data, NULL);
 }
 
 }  // namespace pagespeed
