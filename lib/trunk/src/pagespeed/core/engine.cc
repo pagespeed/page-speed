@@ -14,7 +14,6 @@
 
 #include "pagespeed/core/engine.h"
 
-#include <algorithm> // for stable_sort
 #include <string>
 
 #include "base/logging.h"
@@ -30,32 +29,6 @@
 namespace pagespeed {
 
 namespace {
-
-/* Return true if result1 is judged to have (strictly) greater impact than
- * result2, false otherwise.  Note that this function imposes a total order on
- * what is essentially partially-ordered data, and thus gives somewhat
- * arbitrary answers. */
-bool CompareResults(const Result* result1, const Result* result2) {
-  const Savings& savings1 = result1->savings();
-  const Savings& savings2 = result2->savings();
-  if (savings1.dns_requests_saved() != savings2.dns_requests_saved()) {
-    return savings1.dns_requests_saved() > savings2.dns_requests_saved();
-  } else if (savings1.requests_saved() != savings2.requests_saved()) {
-    return savings1.requests_saved() > savings2.requests_saved();
-  } else if (savings1.response_bytes_saved() !=
-             savings2.response_bytes_saved()) {
-    return savings1.response_bytes_saved() > savings2.response_bytes_saved();
-  } else if (result1->resource_urls_size() != result2->resource_urls_size()) {
-    return result1->resource_urls_size() > result2->resource_urls_size();
-  } else if (result1->resource_urls_size() > 0) {
-    // If the savings are equal, sort in descending alphabetical
-    // order.
-    return result1->resource_urls(0) < result2->resource_urls(0);
-  }
-
-  // The results appear to be equal.
-  return false;
-}
 
 typedef std::map<std::string, ResultVector> RuleToResultMap;
 
@@ -185,16 +158,12 @@ bool Engine::FormatResults(const Results& results,
       success = false;
       continue;
     }
+    Rule* rule = rule_iter->second;
     ResultVector& rule_results = rule_to_result_map[rule_name];
-
-    // Sort the results in a consistent order so they're always
-    // presented to the user in the same order.
-    std::stable_sort(rule_results.begin(),
-                     rule_results.end(),
-                     CompareResults);
+    rule->SortResultsInPresentationOrder(&rule_results);
     FormatRuleResults(rule_results,
                       results.input_info(),
-                      rule_iter->second,
+                      rule,
                       formatter);
   }
   formatter->Done();
