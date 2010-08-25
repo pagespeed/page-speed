@@ -15,6 +15,10 @@
 #ifndef PAGESPEED_UTIL_REGEX_H_
 #define PAGESPEED_UTIL_REGEX_H_
 
+#ifdef __native_client__
+#include <sys/types.h>
+#endif
+
 #ifdef _WIN32
 // On Windows, we use tr1 regex, which is available in Visual Studio
 // 2008 and later. This includes Visual Studio 2008 express. In the
@@ -57,4 +61,3 @@ private:
 }  // namespace pagespeed
 
 #endif  // PAGESPEED_UTIL_REGEX_H_
-
