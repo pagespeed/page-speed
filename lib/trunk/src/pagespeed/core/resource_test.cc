@@ -173,7 +173,7 @@ TEST(ResourceTest, ImageTypes) {
 #ifndef NDEBUG
   EXPECT_DEATH(
       ExpectImageType("image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE),
-      "Non-image type: 5");
+      "Non-image type: 6");
 #else
   ExpectImageType("image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE);
 #endif

@@ -71,6 +71,9 @@ class Rule {
   // @returns 0-100 score.
   virtual int ComputeScore(const InputInformation& input_info,
                            const ResultVector& results);
+
+  // Sort the results in their presentation order.
+  virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;
 };
 
 }  // namespace pagespeed

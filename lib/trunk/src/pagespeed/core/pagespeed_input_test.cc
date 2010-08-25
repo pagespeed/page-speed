@@ -110,6 +110,16 @@ TEST_F(UpdateResourceTypesTest, Img) {
   ASSERT_EQ(pagespeed::IMAGE, resource->GetResourceType());
 }
 
+TEST_F(UpdateResourceTypesTest, Embed) {
+  const char* kFlashUrl = "http://example.com/foo.swf";
+  pagespeed::Resource* resource = New200Resource(kFlashUrl);
+  resource->AddResponseHeader("Content-Type", "application/x-shockwave-flash");
+  FakeDomElement::New(body(), "embed")->AddAttribute("src", kFlashUrl);
+  ASSERT_EQ(pagespeed::FLASH, resource->GetResourceType());
+  Freeze();
+  ASSERT_EQ(pagespeed::FLASH, resource->GetResourceType());
+}
+
 TEST_F(UpdateResourceTypesTest, Stylesheet) {
   pagespeed::Resource* resource =
       NewCssResource("http://example.com/foo.css", body());
@@ -302,6 +312,20 @@ TEST_F(ParentChildResourceMapTest, MissingResource) {
   expected[iframe1_resource].push_back(css);
   expected[iframe1_resource].push_back(js);
   expected[iframe3_resource].push_back(css);
+  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+}
+
+TEST_F(ParentChildResourceMapTest, EmbedTag) {
+  const char* kFlashUrl = "http://example.com/foo.swf";
+  pagespeed::Resource* resource = New200Resource(kFlashUrl);
+  resource->AddResponseHeader("Content-Type", "application/x-shockwave-flash");
+  FakeDomElement::New(body(), "embed")->AddAttribute("src", kFlashUrl);
+  Freeze();
+
+  // Validate that the parent child resource map was populated with
+  // the expected contents.
+  pagespeed::ParentChildResourceMap expected;
+  expected[primary_resource()].push_back(resource);
   ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
 }
 

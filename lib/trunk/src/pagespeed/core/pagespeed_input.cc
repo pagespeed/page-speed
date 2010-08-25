@@ -284,7 +284,8 @@ void ExternalResourceNodeVisitor::SetUp() {
 void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
   if (node.GetTagName() == "IMG" ||
       node.GetTagName() == "SCRIPT" ||
-      node.GetTagName() == "IFRAME") {
+      node.GetTagName() == "IFRAME" ||
+      node.GetTagName() == "EMBED") {
     std::string src;
     if (node.GetAttributeByName("src", &src)) {
       ResourceType type;
@@ -294,6 +295,12 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
         type = JS;
       } else if (node.GetTagName() == "IFRAME") {
         type = HTML;
+      } else if (node.GetTagName() == "EMBED") {
+        // TODO: in some cases this resource may be flash, but not
+        // always. Thus we set type to OTHER. ProcessUri ignores type
+        // OTHER but will update the ParentChildResourceMap, which is
+        // what we want.
+        type = OTHER;
       } else {
         LOG(DFATAL) << "Unexpected type " << node.GetTagName();
         type = OTHER;

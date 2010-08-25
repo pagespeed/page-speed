@@ -36,6 +36,7 @@ struct ResourceUrlLessThan {
 typedef std::set<const Resource*, ResourceUrlLessThan> ResourceSet;
 
 enum ResourceType {
+  OTHER,
   HTML,
   TEXT,
   CSS,
@@ -43,7 +44,6 @@ enum ResourceType {
   JS,
   REDIRECT,
   FLASH,
-  OTHER
 };
 
 enum ImageType {
