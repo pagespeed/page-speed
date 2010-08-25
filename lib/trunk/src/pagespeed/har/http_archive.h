@@ -20,8 +20,18 @@
 namespace pagespeed {
 
 class PagespeedInput;
+class ResourceFilter;
 
+// Parse the HAR string into a PagespeedInput, or return NULL if there is an
+// error.
 PagespeedInput* ParseHttpArchive(const std::string& har_data);
+
+// Parse the HAR string into a PagespeedInput using the given resource filter,
+// or return NULL if there is an error.  The returned PagespeedInput will take
+// ownership of the ResourceFilter object; if this function returns NULL, it
+// will delete the ResourceFilter before returning.
+PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
+                                           ResourceFilter* resource_filter);
 
 }  // namespace pagespeed
 
