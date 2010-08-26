@@ -177,6 +177,21 @@ message AvoidCssImportDetails {
   repeated string imported_stylesheets = 1;
 }
 
+// Result detail to store the list of external resources fetched via a
+// call to document.write.
+message AvoidDocumentWriteDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional AvoidDocumentWriteDetails message_set_extension = 4277335; // 'ADW'
+  }
+
+  // List of URLs fetched via document.write.
+  repeated string urls = 1;
+
+  // Line number in the source file of the call to document.write().
+  required int32 line_number = 2;
+}
+
 message Result {
   // Identifier of rule that produced this result.
   required string rule_name = 1;
