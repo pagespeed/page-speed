@@ -37,6 +37,7 @@
       'sources': [
         'rules/avoid_bad_requests.cc',
         'rules/avoid_css_import.cc',
+        'rules/avoid_document_write.cc',
         'rules/combine_external_resources.cc',
         'rules/enable_gzip_compression.cc',
         'rules/leverage_browser_caching.cc',
@@ -118,6 +119,7 @@
         'html/html_minifier_test.cc',
         'rules/avoid_bad_requests_test.cc',
         'rules/avoid_css_import_test.cc',
+        'rules/avoid_document_write_test.cc',
         'rules/combine_external_resources_test.cc',
         'rules/enable_gzip_compression_test.cc',
         'rules/leverage_browser_caching_test.cc',
