@@ -110,7 +110,7 @@ class InputPopulator {
 };
 
 // Macro to be used only within InputPopulator instance methods:
-#define INPUT_POPULATOR_ERROR() ((error_ = true), LOG(ERROR))
+#define INPUT_POPULATOR_ERROR() ((error_ = true), LOG(DFATAL))
 
 int InputPopulator::ToInt(cJSON *value) {
   if (value->type == cJSON_Number) {
@@ -302,7 +302,7 @@ bool InputPopulator::Populate(PagespeedInput *input, const char *json_data,
     populator.PopulateInput(input, resources_json);
     ok = !populator.error_;
   } else {
-    LOG(ERROR) << "Input was not valid JSON.";
+    LOG(DFATAL) << "Input was not valid JSON.";
     ok = false;
   }
 

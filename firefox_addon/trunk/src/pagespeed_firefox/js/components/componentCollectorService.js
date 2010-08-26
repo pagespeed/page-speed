@@ -1637,9 +1637,12 @@ DocumentWritePatcher.prototype.writeCallback = function(html) {
     frame = frame.caller;
   }
 
+  // TODO: The document.write() spec supports contatenating multiple
+  // arguments. We should test in browsers and see if they do so, and
+  // if so, concatenate all arguments.
   var documentWriteInfo = {
     fn: 'document.write',
-    args: [ html ],
+    args: [ String(html) ],
     line_number: frame.lineNumber,
     doc_url: getURIForWindow(this.win_),
   };
