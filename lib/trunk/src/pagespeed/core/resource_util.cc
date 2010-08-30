@@ -478,7 +478,7 @@ std::string GetRedirectedUrl(const Resource& resource) {
 const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
                                                const Resource& start) {
   std::set<const Resource*> visited;
-  if (!start.GetResourceType() == REDIRECT) {
+  if (start.GetResourceType() != REDIRECT) {
     return NULL;
   }
 
