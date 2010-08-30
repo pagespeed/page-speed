@@ -15,10 +15,6 @@
 #ifndef PAGESPEED_UTIL_REGEX_H_
 #define PAGESPEED_UTIL_REGEX_H_
 
-#ifdef __native_client__
-#include <sys/types.h>
-#endif
-
 #ifdef _WIN32
 // On Windows, we use tr1 regex, which is available in Visual Studio
 // 2008 and later. This includes Visual Studio 2008 express. In the
@@ -27,6 +23,10 @@
 // http://www.microsoft.com/downloads/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7
 #include <regex>
 #else
+// Compilers based on older standards (e.g. NaCl) may require us to #include
+// <sys/types.h> before #including <regex.h>.  Refer to:
+//   http://opengroup.org/onlinepubs/007908775/xsh/regexec.html
+#include <sys/types.h>  // Required for <regex.h> by POSIX 1997.
 #include <regex.h>
 #endif
 
