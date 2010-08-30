@@ -782,13 +782,6 @@
           '_SECURE_ATL',
           '_ATL_NO_OPENGL',
         ],
-        'conditions': [
-          ['component=="static_library"', {
-            'defines': [
-              '_HAS_EXCEPTIONS=0',
-            ],
-          }],
-        ],
 
         'msvs_system_include_dirs': [
           '$(VSInstallDir)/VC/atlmfc/include',
@@ -804,13 +797,7 @@
             'WarningLevel': '3',
             'WarnAsError': 'true',
             'DebugInformationFormat': '3',
-            'conditions': [
-              ['component=="shared_library"', {
-                'ExceptionHandling': '1',  # /EHsc
-              }, {
-                'ExceptionHandling': '0',
-              }],
-            ],
+            'ExceptionHandling': '1',  # /EHsc
           },
           'VCLibrarianTool': {
             'AdditionalOptions': ['/ignore:4221'],
