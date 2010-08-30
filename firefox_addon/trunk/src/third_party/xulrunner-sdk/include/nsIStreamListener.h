@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIStreamListener.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIStreamListener.idl
  */
 
 #ifndef __gen_nsIStreamListener_h__
@@ -26,8 +26,6 @@ class nsIInputStream; /* forward declaration */
 
 /**
  * nsIStreamListener
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIStreamListener : public nsIRequestObserver {
  public: 

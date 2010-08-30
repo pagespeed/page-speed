@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLElement.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLElement.idl
  */
 
 #ifndef __gen_nsIDOMHTMLElement_h__
@@ -34,8 +34,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLElement : public nsIDOMElement {
  *
  * For more information on this interface please see
  * http://www.w3.org/TR/DOM-Level-2-HTML/
- *
- * @status FROZEN
  */
   /* attribute DOMString id; */
   NS_SCRIPTABLE NS_IMETHOD GetId(nsAString & aId) = 0;

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/components/nsIServiceManager.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/components/nsIServiceManager.idl
  */
 
 #ifndef __gen_nsIServiceManager_h__
@@ -34,8 +34,6 @@
  *
  * A user of a service may keep references to particular services indefinitely
  * and only must call Release when it shuts down.
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIServiceManager : public nsISupports {
  public: 
@@ -54,10 +52,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIServiceManager : public nsISupports {
      * @param result : resulting service 
      */
   /* void getService (in nsCIDRef aClass, in nsIIDRef aIID, [iid_is (aIID), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void **result NS_OUTPARAM) = 0;
 
   /* void getServiceByContractID (in string aContractID, in nsIIDRef aIID, [iid_is (aIID), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void **result NS_OUTPARAM) = 0;
 
   /**
      * isServiceInstantiated
@@ -82,22 +80,22 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIServiceManager : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSISERVICEMANAGER \
-  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void * *result NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void * *result NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void **result NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void **result NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD IsServiceInstantiated(const nsCID & aClass, const nsIID & aIID, PRBool *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD IsServiceInstantiatedByContractID(const char *aContractID, const nsIID & aIID, PRBool *_retval NS_OUTPARAM); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSISERVICEMANAGER(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void * *result NS_OUTPARAM) { return _to GetService(aClass, aIID, result); } \
-  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void * *result NS_OUTPARAM) { return _to GetServiceByContractID(aContractID, aIID, result); } \
+  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void **result NS_OUTPARAM) { return _to GetService(aClass, aIID, result); } \
+  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void **result NS_OUTPARAM) { return _to GetServiceByContractID(aContractID, aIID, result); } \
   NS_SCRIPTABLE NS_IMETHOD IsServiceInstantiated(const nsCID & aClass, const nsIID & aIID, PRBool *_retval NS_OUTPARAM) { return _to IsServiceInstantiated(aClass, aIID, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD IsServiceInstantiatedByContractID(const char *aContractID, const nsIID & aIID, PRBool *_retval NS_OUTPARAM) { return _to IsServiceInstantiatedByContractID(aContractID, aIID, _retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSISERVICEMANAGER(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetService(aClass, aIID, result); } \
-  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetServiceByContractID(aContractID, aIID, result); } \
+  NS_SCRIPTABLE NS_IMETHOD GetService(const nsCID & aClass, const nsIID & aIID, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetService(aClass, aIID, result); } \
+  NS_SCRIPTABLE NS_IMETHOD GetServiceByContractID(const char *aContractID, const nsIID & aIID, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetServiceByContractID(aContractID, aIID, result); } \
   NS_SCRIPTABLE NS_IMETHOD IsServiceInstantiated(const nsCID & aClass, const nsIID & aIID, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsServiceInstantiated(aClass, aIID, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD IsServiceInstantiatedByContractID(const char *aContractID, const nsIID & aIID, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsServiceInstantiatedByContractID(aContractID, aIID, _retval); } 
 
@@ -134,13 +132,13 @@ nsServiceManager::~nsServiceManager()
 }
 
 /* void getService (in nsCIDRef aClass, in nsIIDRef aIID, [iid_is (aIID), retval] out nsQIResult result); */
-NS_IMETHODIMP nsServiceManager::GetService(const nsCID & aClass, const nsIID & aIID, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsServiceManager::GetService(const nsCID & aClass, const nsIID & aIID, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* void getServiceByContractID (in string aContractID, in nsIIDRef aIID, [iid_is (aIID), retval] out nsQIResult result); */
-NS_IMETHODIMP nsServiceManager::GetServiceByContractID(const char *aContractID, const nsIID & aIID, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsServiceManager::GetServiceByContractID(const char *aContractID, const nsIID & aIID, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -173,8 +171,8 @@ NS_IMETHODIMP nsServiceManager::IsServiceInstantiatedByContractID(const char *aC
 #define NS_XPCOM_AUTOREGISTRATION_OBSERVER_ID "xpcom-autoregistration"
 #ifdef MOZILLA_INTERNAL_API
 #include "nsXPCOM.h"
+#include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIServiceManagerObsolete.h"
 #endif
 
 #endif /* __gen_nsIServiceManager_h__ */

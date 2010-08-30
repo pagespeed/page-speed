@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/css/nsIDOMElementCSSInlineStyle.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/css/nsIDOMElementCSSInlineStyle.idl
  */
 
 #ifndef __gen_nsIDOMElementCSSInlineStyle_h__
@@ -28,8 +28,6 @@
  *
  * For more information on this interface please see
  * http://www.w3.org/TR/DOM-Level-2-Style
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMElementCSSInlineStyle : public nsISupports {
  public: 
@@ -37,7 +35,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMElementCSSInlineStyle : public nsISupport
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IDOMELEMENTCSSINLINESTYLE_IID)
 
   /* readonly attribute nsIDOMCSSStyleDeclaration style; */
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle) = 0;
 
 };
 
@@ -45,15 +43,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMElementCSSInlineStyle : public nsISupport
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIDOMELEMENTCSSINLINESTYLE \
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle); 
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIDOMELEMENTCSSINLINESTYLE(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle) { return _to GetStyle(aStyle); } 
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle) { return _to GetStyle(aStyle); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIDOMELEMENTCSSINLINESTYLE(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetStyle(aStyle); } 
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetStyle(aStyle); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -88,7 +86,7 @@ nsDOMElementCSSInlineStyle::~nsDOMElementCSSInlineStyle()
 }
 
 /* readonly attribute nsIDOMCSSStyleDeclaration style; */
-NS_IMETHODIMP nsDOMElementCSSInlineStyle::GetStyle(nsIDOMCSSStyleDeclaration * *aStyle)
+NS_IMETHODIMP nsDOMElementCSSInlineStyle::GetStyle(nsIDOMCSSStyleDeclaration **aStyle)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

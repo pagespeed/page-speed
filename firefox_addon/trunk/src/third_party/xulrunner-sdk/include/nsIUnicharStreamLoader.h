@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIUnicharStreamLoader.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIUnicharStreamLoader.idl
  */
 
 #ifndef __gen_nsIUnicharStreamLoader_h__
@@ -173,7 +173,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIUnicharStreamLoader : public nsIStreamListen
    * and onStreamComplete callbacks.  Otherwise it will be null.
    */
   /* readonly attribute nsIChannel channel; */
-  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel * *aChannel) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel **aChannel) = 0;
 
   /**
    * The charset that onDetermineCharset returned, if that's been
@@ -189,19 +189,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIUnicharStreamLoader : public nsIStreamListen
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIUNICHARSTREAMLOADER \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIUnicharStreamLoaderObserver *aObserver, PRUint32 aSegmentSize); \
-  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel * *aChannel); \
+  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel **aChannel); \
   NS_SCRIPTABLE NS_IMETHOD GetCharset(nsACString & aCharset); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIUNICHARSTREAMLOADER(_to) \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIUnicharStreamLoaderObserver *aObserver, PRUint32 aSegmentSize) { return _to Init(aObserver, aSegmentSize); } \
-  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel * *aChannel) { return _to GetChannel(aChannel); } \
+  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel **aChannel) { return _to GetChannel(aChannel); } \
   NS_SCRIPTABLE NS_IMETHOD GetCharset(nsACString & aCharset) { return _to GetCharset(aCharset); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIUNICHARSTREAMLOADER(_to) \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIUnicharStreamLoaderObserver *aObserver, PRUint32 aSegmentSize) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aObserver, aSegmentSize); } \
-  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel * *aChannel) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetChannel(aChannel); } \
+  NS_SCRIPTABLE NS_IMETHOD GetChannel(nsIChannel **aChannel) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetChannel(aChannel); } \
   NS_SCRIPTABLE NS_IMETHOD GetCharset(nsACString & aCharset) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetCharset(aCharset); } 
 
 #if 0
@@ -243,7 +243,7 @@ NS_IMETHODIMP nsUnicharStreamLoader::Init(nsIUnicharStreamLoaderObserver *aObser
 }
 
 /* readonly attribute nsIChannel channel; */
-NS_IMETHODIMP nsUnicharStreamLoader::GetChannel(nsIChannel * *aChannel)
+NS_IMETHODIMP nsUnicharStreamLoader::GetChannel(nsIChannel **aChannel)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

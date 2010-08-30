@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIProtocolProxyService.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIProtocolProxyService.idl
  */
 
 #ifndef __gen_nsIProtocolProxyService_h__
@@ -28,17 +28,15 @@ class nsIURI; /* forward declaration */
 
 
 /* starting interface:    nsIProtocolProxyService */
-#define NS_IPROTOCOLPROXYSERVICE_IID_STR "e38ab577-786e-4a7f-936b-7ae4c7d877b2"
+#define NS_IPROTOCOLPROXYSERVICE_IID_STR "d7ec6237-162e-40f5-a2b4-46ccd5fa83c9"
 
 #define NS_IPROTOCOLPROXYSERVICE_IID \
-  {0xe38ab577, 0x786e, 0x4a7f, \
-    { 0x93, 0x6b, 0x7a, 0xe4, 0xc7, 0xd8, 0x77, 0xb2 }}
+  {0xd7ec6237, 0x162e, 0x40f5, \
+    { 0xa2, 0xb4, 0x46, 0xcc, 0xd5, 0xfa, 0x83, 0xc9 }}
 
 /**
  * nsIProtocolProxyService provides methods to access information about
  * various network proxies.
- *
- * @status UNDER_REVIEW
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolProxyService : public nsISupports {
  public: 
@@ -60,6 +58,38 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolProxyService : public nsISupports {
      * being present.
      */
   enum { RESOLVE_NON_BLOCKING = 1U };
+
+  /**
+     * When the proxy configuration is manual this flag may be passed to the
+     * resolve and asyncResolve methods to request to prefer the SOCKS proxy
+     * to HTTP ones.
+     */
+  enum { RESOLVE_PREFER_SOCKS_PROXY = 2U };
+
+  /**
+     * When the proxy configuration is manual this flag may be passed to the
+     * resolve and asyncResolve methods to request to not analyze the uri's
+     * scheme specific proxy. When this flag is set the main HTTP proxy is the
+     * preferred one.
+     *
+     * NOTE: if RESOLVE_PREFER_SOCKS_PROXY is set then the SOCKS proxy is
+     *       the preferred one.
+     *
+     * NOTE: if RESOLVE_PREFER_HTTPS_PROXY is set then the HTTPS proxy
+     *       is the preferred one.
+     */
+  enum { RESOLVE_IGNORE_URI_SCHEME = 4U };
+
+  /**
+     * When the proxy configuration is manual this flag may be passed to the
+     * resolve and asyncResolve methods to request to prefer the HTTPS proxy
+     * to the others HTTP ones.
+     *
+     * NOTE: RESOLVE_PREFER_SOCKS_PROXY takes precedence over this flag.
+     *
+     * NOTE: This flag implies RESOLVE_IGNORE_URI_SCHEME.
+     */
+  enum { RESOLVE_PREFER_HTTPS_PROXY = 12U };
 
   /**
      * This method returns a nsIProxyInfo instance that identifies a proxy to
@@ -218,6 +248,26 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolProxyService : public nsISupports {
   /* void unregisterFilter (in nsIProtocolProxyFilter aFilter); */
   NS_SCRIPTABLE NS_IMETHOD UnregisterFilter(nsIProtocolProxyFilter *aFilter) = 0;
 
+  /**
+      * These values correspond to the possible integer values for the
+      * network.proxy.type preference.
+      */
+  enum { PROXYCONFIG_DIRECT = 0U };
+
+  enum { PROXYCONFIG_MANUAL = 1U };
+
+  enum { PROXYCONFIG_PAC = 2U };
+
+  enum { PROXYCONFIG_WPAD = 4U };
+
+  enum { PROXYCONFIG_SYSTEM = 5U };
+
+  /**
+      * This attribute specifies the current type of proxy configuration.
+      */
+  /* readonly attribute unsigned long proxyConfigType; */
+  NS_SCRIPTABLE NS_IMETHOD GetProxyConfigType(PRUint32 *aProxyConfigType) = 0;
+
 };
 
   NS_DEFINE_STATIC_IID_ACCESSOR(nsIProtocolProxyService, NS_IPROTOCOLPROXYSERVICE_IID)
@@ -229,7 +279,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolProxyService : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD NewProxyInfo(const nsACString & aType, const nsACString & aHost, PRInt32 aPort, PRUint32 aFlags, PRUint32 aFailoverTimeout, nsIProxyInfo *aFailoverProxy, nsIProxyInfo **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetFailoverForProxy(nsIProxyInfo *aProxyInfo, nsIURI *aURI, nsresult aReason, nsIProxyInfo **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD RegisterFilter(nsIProtocolProxyFilter *aFilter, PRUint32 aPosition); \
-  NS_SCRIPTABLE NS_IMETHOD UnregisterFilter(nsIProtocolProxyFilter *aFilter); 
+  NS_SCRIPTABLE NS_IMETHOD UnregisterFilter(nsIProtocolProxyFilter *aFilter); \
+  NS_SCRIPTABLE NS_IMETHOD GetProxyConfigType(PRUint32 *aProxyConfigType); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIPROTOCOLPROXYSERVICE(_to) \
@@ -238,7 +289,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolProxyService : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD NewProxyInfo(const nsACString & aType, const nsACString & aHost, PRInt32 aPort, PRUint32 aFlags, PRUint32 aFailoverTimeout, nsIProxyInfo *aFailoverProxy, nsIProxyInfo **_retval NS_OUTPARAM) { return _to NewProxyInfo(aType, aHost, aPort, aFlags, aFailoverTimeout, aFailoverProxy, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetFailoverForProxy(nsIProxyInfo *aProxyInfo, nsIURI *aURI, nsresult aReason, nsIProxyInfo **_retval NS_OUTPARAM) { return _to GetFailoverForProxy(aProxyInfo, aURI, aReason, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD RegisterFilter(nsIProtocolProxyFilter *aFilter, PRUint32 aPosition) { return _to RegisterFilter(aFilter, aPosition); } \
-  NS_SCRIPTABLE NS_IMETHOD UnregisterFilter(nsIProtocolProxyFilter *aFilter) { return _to UnregisterFilter(aFilter); } 
+  NS_SCRIPTABLE NS_IMETHOD UnregisterFilter(nsIProtocolProxyFilter *aFilter) { return _to UnregisterFilter(aFilter); } \
+  NS_SCRIPTABLE NS_IMETHOD GetProxyConfigType(PRUint32 *aProxyConfigType) { return _to GetProxyConfigType(aProxyConfigType); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIPROTOCOLPROXYSERVICE(_to) \
@@ -247,7 +299,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolProxyService : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD NewProxyInfo(const nsACString & aType, const nsACString & aHost, PRInt32 aPort, PRUint32 aFlags, PRUint32 aFailoverTimeout, nsIProxyInfo *aFailoverProxy, nsIProxyInfo **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->NewProxyInfo(aType, aHost, aPort, aFlags, aFailoverTimeout, aFailoverProxy, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetFailoverForProxy(nsIProxyInfo *aProxyInfo, nsIURI *aURI, nsresult aReason, nsIProxyInfo **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFailoverForProxy(aProxyInfo, aURI, aReason, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD RegisterFilter(nsIProtocolProxyFilter *aFilter, PRUint32 aPosition) { return !_to ? NS_ERROR_NULL_POINTER : _to->RegisterFilter(aFilter, aPosition); } \
-  NS_SCRIPTABLE NS_IMETHOD UnregisterFilter(nsIProtocolProxyFilter *aFilter) { return !_to ? NS_ERROR_NULL_POINTER : _to->UnregisterFilter(aFilter); } 
+  NS_SCRIPTABLE NS_IMETHOD UnregisterFilter(nsIProtocolProxyFilter *aFilter) { return !_to ? NS_ERROR_NULL_POINTER : _to->UnregisterFilter(aFilter); } \
+  NS_SCRIPTABLE NS_IMETHOD GetProxyConfigType(PRUint32 *aProxyConfigType) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetProxyConfigType(aProxyConfigType); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -313,6 +366,12 @@ NS_IMETHODIMP nsProtocolProxyService::RegisterFilter(nsIProtocolProxyFilter *aFi
 
 /* void unregisterFilter (in nsIProtocolProxyFilter aFilter); */
 NS_IMETHODIMP nsProtocolProxyService::UnregisterFilter(nsIProtocolProxyFilter *aFilter)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* readonly attribute unsigned long proxyConfigType; */
+NS_IMETHODIMP nsProtocolProxyService::GetProxyConfigType(PRUint32 *aProxyConfigType)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

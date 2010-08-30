@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/css/nsIDOMCSSStyleDeclaration.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/css/nsIDOMCSSStyleDeclaration.idl
  */
 
 #ifndef __gen_nsIDOMCSSStyleDeclaration_h__
@@ -33,8 +33,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMCSSStyleDeclaration : public nsISupports 
  *
  * For more information on this interface please see
  * http://www.w3.org/TR/DOM-Level-2-Style
- *
- * @status FROZEN
  */
   /* attribute DOMString cssText; */
   NS_SCRIPTABLE NS_IMETHOD GetCssText(nsAString & aCssText) = 0;
@@ -62,7 +60,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMCSSStyleDeclaration : public nsISupports 
   NS_SCRIPTABLE NS_IMETHOD Item(PRUint32 index, nsAString & _retval NS_OUTPARAM) = 0;
 
   /* readonly attribute nsIDOMCSSRule parentRule; */
-  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule * *aParentRule) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule **aParentRule) = 0;
 
 };
 
@@ -79,7 +77,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMCSSStyleDeclaration : public nsISupports 
   NS_SCRIPTABLE NS_IMETHOD SetProperty(const nsAString & propertyName, const nsAString & value, const nsAString & priority); \
   NS_SCRIPTABLE NS_IMETHOD GetLength(PRUint32 *aLength); \
   NS_SCRIPTABLE NS_IMETHOD Item(PRUint32 index, nsAString & _retval NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule * *aParentRule); 
+  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule **aParentRule); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIDOMCSSSTYLEDECLARATION(_to) \
@@ -92,7 +90,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMCSSStyleDeclaration : public nsISupports 
   NS_SCRIPTABLE NS_IMETHOD SetProperty(const nsAString & propertyName, const nsAString & value, const nsAString & priority) { return _to SetProperty(propertyName, value, priority); } \
   NS_SCRIPTABLE NS_IMETHOD GetLength(PRUint32 *aLength) { return _to GetLength(aLength); } \
   NS_SCRIPTABLE NS_IMETHOD Item(PRUint32 index, nsAString & _retval NS_OUTPARAM) { return _to Item(index, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule * *aParentRule) { return _to GetParentRule(aParentRule); } 
+  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule **aParentRule) { return _to GetParentRule(aParentRule); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIDOMCSSSTYLEDECLARATION(_to) \
@@ -105,7 +103,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMCSSStyleDeclaration : public nsISupports 
   NS_SCRIPTABLE NS_IMETHOD SetProperty(const nsAString & propertyName, const nsAString & value, const nsAString & priority) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetProperty(propertyName, value, priority); } \
   NS_SCRIPTABLE NS_IMETHOD GetLength(PRUint32 *aLength) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetLength(aLength); } \
   NS_SCRIPTABLE NS_IMETHOD Item(PRUint32 index, nsAString & _retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Item(index, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule * *aParentRule) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentRule(aParentRule); } 
+  NS_SCRIPTABLE NS_IMETHOD GetParentRule(nsIDOMCSSRule **aParentRule) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentRule(aParentRule); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -192,7 +190,7 @@ NS_IMETHODIMP nsDOMCSSStyleDeclaration::Item(PRUint32 index, nsAString & _retval
 }
 
 /* readonly attribute nsIDOMCSSRule parentRule; */
-NS_IMETHODIMP nsDOMCSSStyleDeclaration::GetParentRule(nsIDOMCSSRule * *aParentRule)
+NS_IMETHODIMP nsDOMCSSStyleDeclaration::GetParentRule(nsIDOMCSSRule **aParentRule)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

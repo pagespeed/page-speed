@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLIFrameElement.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLIFrameElement.idl
  */
 
 #ifndef __gen_nsIDOMHTMLIFrameElement_h__
@@ -28,8 +28,6 @@
  *
  * For more information on this interface please see
  * http://www.w3.org/TR/DOM-Level-2-HTML/
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLIFrameElement : public nsIDOMHTMLElement {
  public: 
@@ -77,7 +75,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLIFrameElement : public nsIDOMHTMLElem
   NS_SCRIPTABLE NS_IMETHOD SetWidth(const nsAString & aWidth) = 0;
 
   /* readonly attribute nsIDOMDocument contentDocument; */
-  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument * *aContentDocument) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument **aContentDocument) = 0;
 
 };
 
@@ -105,7 +103,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLIFrameElement : public nsIDOMHTMLElem
   NS_SCRIPTABLE NS_IMETHOD SetSrc(const nsAString & aSrc); \
   NS_SCRIPTABLE NS_IMETHOD GetWidth(nsAString & aWidth); \
   NS_SCRIPTABLE NS_IMETHOD SetWidth(const nsAString & aWidth); \
-  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument * *aContentDocument); 
+  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument **aContentDocument); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIDOMHTMLIFRAMEELEMENT(_to) \
@@ -129,7 +127,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLIFrameElement : public nsIDOMHTMLElem
   NS_SCRIPTABLE NS_IMETHOD SetSrc(const nsAString & aSrc) { return _to SetSrc(aSrc); } \
   NS_SCRIPTABLE NS_IMETHOD GetWidth(nsAString & aWidth) { return _to GetWidth(aWidth); } \
   NS_SCRIPTABLE NS_IMETHOD SetWidth(const nsAString & aWidth) { return _to SetWidth(aWidth); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument * *aContentDocument) { return _to GetContentDocument(aContentDocument); } 
+  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument **aContentDocument) { return _to GetContentDocument(aContentDocument); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIDOMHTMLIFRAMEELEMENT(_to) \
@@ -153,7 +151,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLIFrameElement : public nsIDOMHTMLElem
   NS_SCRIPTABLE NS_IMETHOD SetSrc(const nsAString & aSrc) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetSrc(aSrc); } \
   NS_SCRIPTABLE NS_IMETHOD GetWidth(nsAString & aWidth) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetWidth(aWidth); } \
   NS_SCRIPTABLE NS_IMETHOD SetWidth(const nsAString & aWidth) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetWidth(aWidth); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument * *aContentDocument) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentDocument(aContentDocument); } 
+  NS_SCRIPTABLE NS_IMETHOD GetContentDocument(nsIDOMDocument **aContentDocument) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentDocument(aContentDocument); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -288,7 +286,7 @@ NS_IMETHODIMP nsDOMHTMLIFrameElement::SetWidth(const nsAString & aWidth)
 }
 
 /* readonly attribute nsIDOMDocument contentDocument; */
-NS_IMETHODIMP nsDOMHTMLIFrameElement::GetContentDocument(nsIDOMDocument * *aContentDocument)
+NS_IMETHODIMP nsDOMHTMLIFrameElement::GetContentDocument(nsIDOMDocument **aContentDocument)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

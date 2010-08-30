@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsINestedURI.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsINestedURI.idl
  */
 
 #ifndef __gen_nsINestedURI_h__
@@ -52,7 +52,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsINestedURI : public nsISupports {
    * means the returned URI must be either immutable or a clone.
    */
   /* readonly attribute nsIURI innerURI; */
-  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI * *aInnerURI) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI **aInnerURI) = 0;
 
   /**
    * The innermost URI for this nested URI.  This must not return null if the
@@ -63,7 +63,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsINestedURI : public nsISupports {
    * means the returned URI must be either immutable or a clone.   
    */
   /* readonly attribute nsIURI innermostURI; */
-  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI * *aInnermostURI) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI **aInnermostURI) = 0;
 
 };
 
@@ -71,18 +71,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsINestedURI : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSINESTEDURI \
-  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI * *aInnerURI); \
-  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI * *aInnermostURI); 
+  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI **aInnerURI); \
+  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI **aInnermostURI); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSINESTEDURI(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI * *aInnerURI) { return _to GetInnerURI(aInnerURI); } \
-  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI * *aInnermostURI) { return _to GetInnermostURI(aInnermostURI); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI **aInnerURI) { return _to GetInnerURI(aInnerURI); } \
+  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI **aInnermostURI) { return _to GetInnermostURI(aInnermostURI); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSINESTEDURI(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI * *aInnerURI) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInnerURI(aInnerURI); } \
-  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI * *aInnermostURI) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInnermostURI(aInnermostURI); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInnerURI(nsIURI **aInnerURI) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInnerURI(aInnerURI); } \
+  NS_SCRIPTABLE NS_IMETHOD GetInnermostURI(nsIURI **aInnermostURI) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInnermostURI(aInnermostURI); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -117,13 +117,13 @@ nsNestedURI::~nsNestedURI()
 }
 
 /* readonly attribute nsIURI innerURI; */
-NS_IMETHODIMP nsNestedURI::GetInnerURI(nsIURI * *aInnerURI)
+NS_IMETHODIMP nsNestedURI::GetInnerURI(nsIURI **aInnerURI)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIURI innermostURI; */
-NS_IMETHODIMP nsNestedURI::GetInnermostURI(nsIURI * *aInnermostURI)
+NS_IMETHODIMP nsNestedURI::GetInnermostURI(nsIURI **aInnermostURI)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

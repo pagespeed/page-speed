@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIProxyInfo.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIProxyInfo.idl
  */
 
 #ifndef __gen_nsIProxyInfo_h__
@@ -24,8 +24,6 @@
 
 /**
  * This interface identifies a proxy server.
- *
- * @status UNDER_REVIEW
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIProxyInfo : public nsISupports {
  public: 
@@ -81,8 +79,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProxyInfo : public nsISupports {
    * This attribute specifies the proxy to failover to when this proxy fails.
    */
   /* attribute nsIProxyInfo failoverProxy; */
-  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo * *aFailoverProxy) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo * aFailoverProxy) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo **aFailoverProxy) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo *aFailoverProxy) = 0;
 
   /****************************************************************************
    * The following "Proxy Flags" may be bit-wise combined to construct the
@@ -107,8 +105,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProxyInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetType(nsACString & aType); \
   NS_SCRIPTABLE NS_IMETHOD GetFlags(PRUint32 *aFlags); \
   NS_SCRIPTABLE NS_IMETHOD GetFailoverTimeout(PRUint32 *aFailoverTimeout); \
-  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo * *aFailoverProxy); \
-  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo * aFailoverProxy); \
+  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo **aFailoverProxy); \
+  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo *aFailoverProxy); \
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIPROXYINFO(_to) \
@@ -117,8 +115,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProxyInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetType(nsACString & aType) { return _to GetType(aType); } \
   NS_SCRIPTABLE NS_IMETHOD GetFlags(PRUint32 *aFlags) { return _to GetFlags(aFlags); } \
   NS_SCRIPTABLE NS_IMETHOD GetFailoverTimeout(PRUint32 *aFailoverTimeout) { return _to GetFailoverTimeout(aFailoverTimeout); } \
-  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo * *aFailoverProxy) { return _to GetFailoverProxy(aFailoverProxy); } \
-  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo * aFailoverProxy) { return _to SetFailoverProxy(aFailoverProxy); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo **aFailoverProxy) { return _to GetFailoverProxy(aFailoverProxy); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo *aFailoverProxy) { return _to SetFailoverProxy(aFailoverProxy); } \
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIPROXYINFO(_to) \
@@ -127,8 +125,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProxyInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetType(nsACString & aType) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetType(aType); } \
   NS_SCRIPTABLE NS_IMETHOD GetFlags(PRUint32 *aFlags) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFlags(aFlags); } \
   NS_SCRIPTABLE NS_IMETHOD GetFailoverTimeout(PRUint32 *aFailoverTimeout) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFailoverTimeout(aFailoverTimeout); } \
-  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo * *aFailoverProxy) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFailoverProxy(aFailoverProxy); } \
-  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo * aFailoverProxy) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFailoverProxy(aFailoverProxy); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFailoverProxy(nsIProxyInfo **aFailoverProxy) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFailoverProxy(aFailoverProxy); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFailoverProxy(nsIProxyInfo *aFailoverProxy) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFailoverProxy(aFailoverProxy); } \
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -193,11 +191,11 @@ NS_IMETHODIMP nsProxyInfo::GetFailoverTimeout(PRUint32 *aFailoverTimeout)
 }
 
 /* attribute nsIProxyInfo failoverProxy; */
-NS_IMETHODIMP nsProxyInfo::GetFailoverProxy(nsIProxyInfo * *aFailoverProxy)
+NS_IMETHODIMP nsProxyInfo::GetFailoverProxy(nsIProxyInfo **aFailoverProxy)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsProxyInfo::SetFailoverProxy(nsIProxyInfo * aFailoverProxy)
+NS_IMETHODIMP nsProxyInfo::SetFailoverProxy(nsIProxyInfo *aFailoverProxy)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

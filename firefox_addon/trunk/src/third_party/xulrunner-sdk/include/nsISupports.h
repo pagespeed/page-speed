@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/base/nsISupports.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/base/nsISupports.idl
  */
 
 #ifndef __gen_nsISupports_h__
@@ -32,13 +32,13 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsISupports {
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_ISUPPORTS_IID)
 
   /* void QueryInterface (in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void **result NS_OUTPARAM) = 0;
 
   /* [noscript, notxpcom] nsrefcnt AddRef (); */
-  NS_IMETHOD_(nsrefcnt) AddRef(void) = 0;
+  NS_IMETHOD_(nsrefcnt ) AddRef(void) = 0;
 
   /* [noscript, notxpcom] nsrefcnt Release (); */
-  NS_IMETHOD_(nsrefcnt) Release(void) = 0;
+  NS_IMETHOD_(nsrefcnt ) Release(void) = 0;
 
 };
 
@@ -46,21 +46,21 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSISUPPORTS \
-  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void * *result NS_OUTPARAM); \
-  NS_IMETHOD_(nsrefcnt) AddRef(void); \
-  NS_IMETHOD_(nsrefcnt) Release(void); 
+  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void **result NS_OUTPARAM); \
+  NS_IMETHOD_(nsrefcnt ) AddRef(void); \
+  NS_IMETHOD_(nsrefcnt ) Release(void); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSISUPPORTS(_to) \
-  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void * *result NS_OUTPARAM) { return _to QueryInterface(uuid, result); } \
-  NS_IMETHOD_(nsrefcnt) AddRef(void) { return _to AddRef(); } \
-  NS_IMETHOD_(nsrefcnt) Release(void) { return _to Release(); } 
+  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void **result NS_OUTPARAM) { return _to QueryInterface(uuid, result); } \
+  NS_IMETHOD_(nsrefcnt ) AddRef(void) { return _to AddRef(); } \
+  NS_IMETHOD_(nsrefcnt ) Release(void) { return _to Release(); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSISUPPORTS(_to) \
-  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->QueryInterface(uuid, result); } \
-  NS_IMETHOD_(nsrefcnt) AddRef(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddRef(); } \
-  NS_IMETHOD_(nsrefcnt) Release(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->Release(); } 
+  NS_SCRIPTABLE NS_IMETHOD QueryInterface(const nsIID & uuid, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->QueryInterface(uuid, result); } \
+  NS_IMETHOD_(nsrefcnt ) AddRef(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddRef(); } \
+  NS_IMETHOD_(nsrefcnt ) Release(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->Release(); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -95,19 +95,19 @@ nsSupports::~nsSupports()
 }
 
 /* void QueryInterface (in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-NS_IMETHODIMP nsSupports::QueryInterface(const nsIID & uuid, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsSupports::QueryInterface(const nsIID & uuid, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* [noscript, notxpcom] nsrefcnt AddRef (); */
-NS_IMETHODIMP_(nsrefcnt) nsSupports::AddRef()
+NS_IMETHODIMP_(nsrefcnt ) nsSupports::AddRef()
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* [noscript, notxpcom] nsrefcnt Release (); */
-NS_IMETHODIMP_(nsrefcnt) nsSupports::Release()
+NS_IMETHODIMP_(nsrefcnt ) nsSupports::Release()
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

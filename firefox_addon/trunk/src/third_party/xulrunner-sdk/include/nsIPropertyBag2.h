@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/ds/nsIPropertyBag2.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/ds/nsIPropertyBag2.idl
  */
 
 #ifndef __gen_nsIPropertyBag2_h__
@@ -58,7 +58,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPropertyBag2 : public nsIPropertyBag {
    * This method returns null if the value exists, but is null.
    */
   /* void getPropertyAsInterface (in AString prop, in nsIIDRef iid, [iid_is (iid), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void **result NS_OUTPARAM) = 0;
 
   /**
    * This method returns null if the value does not exist,
@@ -88,7 +88,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPropertyBag2 : public nsIPropertyBag {
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsACString(const nsAString & prop, nsACString & _retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsAUTF8String(const nsAString & prop, nsACString & _retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsBool(const nsAString & prop, PRBool *_retval NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void * *result NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void **result NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD Get(const nsAString & prop, nsIVariant **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD HasKey(const nsAString & prop, PRBool *_retval NS_OUTPARAM); 
 
@@ -103,7 +103,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPropertyBag2 : public nsIPropertyBag {
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsACString(const nsAString & prop, nsACString & _retval NS_OUTPARAM) { return _to GetPropertyAsACString(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsAUTF8String(const nsAString & prop, nsACString & _retval NS_OUTPARAM) { return _to GetPropertyAsAUTF8String(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsBool(const nsAString & prop, PRBool *_retval NS_OUTPARAM) { return _to GetPropertyAsBool(prop, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void * *result NS_OUTPARAM) { return _to GetPropertyAsInterface(prop, iid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void **result NS_OUTPARAM) { return _to GetPropertyAsInterface(prop, iid, result); } \
   NS_SCRIPTABLE NS_IMETHOD Get(const nsAString & prop, nsIVariant **_retval NS_OUTPARAM) { return _to Get(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD HasKey(const nsAString & prop, PRBool *_retval NS_OUTPARAM) { return _to HasKey(prop, _retval); } 
 
@@ -118,7 +118,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPropertyBag2 : public nsIPropertyBag {
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsACString(const nsAString & prop, nsACString & _retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPropertyAsACString(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsAUTF8String(const nsAString & prop, nsACString & _retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPropertyAsAUTF8String(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetPropertyAsBool(const nsAString & prop, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPropertyAsBool(prop, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPropertyAsInterface(prop, iid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPropertyAsInterface(prop, iid, result); } \
   NS_SCRIPTABLE NS_IMETHOD Get(const nsAString & prop, nsIVariant **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Get(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD HasKey(const nsAString & prop, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->HasKey(prop, _retval); } 
 
@@ -209,7 +209,7 @@ NS_IMETHODIMP nsPropertyBag2::GetPropertyAsBool(const nsAString & prop, PRBool *
 }
 
 /* void getPropertyAsInterface (in AString prop, in nsIIDRef iid, [iid_is (iid), retval] out nsQIResult result); */
-NS_IMETHODIMP nsPropertyBag2::GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsPropertyBag2::GetPropertyAsInterface(const nsAString & prop, const nsIID & iid, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIURL.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIURL.idl
  */
 
 #ifndef __gen_nsIURL_h__
@@ -36,8 +36,6 @@
  *                ----------------------------
  *                            |
  *                        filePath
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIURL : public nsIURI {
  public: 
@@ -166,10 +164,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIURL : public nsIURI {
   NS_SCRIPTABLE NS_IMETHOD GetCommonBaseSpec(nsIURI *aURIToCompare, nsACString & _retval NS_OUTPARAM) = 0;
 
   /**
-     * This method takes a uri and returns a substring of this if it can be
-     * made relative to the uri passed in.  If no commonality is found, the
-     * entire uri spec is returned.  If they are identical, "" is returned.
-     * Filename, query, etc are always returned except when uris are identical.
+     * This method tries to create a string which specifies the location of the
+     * argument relative to |this|.  If the argument and |this| are equal, the
+     * method returns "".  If any of the URIs' scheme, host, userpass, or port
+     * don't match, the method returns the full spec of the argument.
+     *
+     * Examples:
+     *    this.spec               aURIToCompare.spec        result
+     * 1) http://mozilla.org/     http://www.mozilla.org/   http://www.mozilla.org/
+     * 2) http://mozilla.org/     http://www.mozilla.org    http://www.mozilla.org/
+     * 3) http://foo.com/bar/     http://foo.com:80/bar/    ""
+     * 4) http://foo.com/         http://foo.com/a.htm#b    a.html#b
+     * 5) http://foo.com/a/b/     http://foo.com/c          ../../c
      */
   /* AUTF8String getRelativeSpec (in nsIURI aURIToCompare); */
   NS_SCRIPTABLE NS_IMETHOD GetRelativeSpec(nsIURI *aURIToCompare, nsACString & _retval NS_OUTPARAM) = 0;

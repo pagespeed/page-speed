@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/io/nsIOutputStream.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/io/nsIOutputStream.idl
  */
 
 #ifndef __gen_nsIOutputStream_h__
@@ -36,8 +36,6 @@ class nsIInputStream; /* forward declaration */
  * @return <any-error> if not interested in providing any data
  *
  * Errors are never passed to the caller of WriteSegments.
- *
- * @status FROZEN
  */
 typedef NS_CALLBACK(nsReadSegmentFun)(nsIOutputStream *aOutStream,
                                       void *aClosure,
@@ -71,8 +69,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIOutputStream : public nsISupports {
  * avoid locking up the main application thread.  For this reason, it is
  * generally the case that a blocking output stream should be implemented using
  * thread- safe AddRef and Release.
- *
- * @status FROZEN
  */
 /** 
      * Close the stream. Forces the output stream to flush any buffered data.
@@ -150,7 +146,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIOutputStream : public nsISupports {
      * buffer (e.g., socket output stream).
      */
   /* [noscript] unsigned long writeSegments (in nsReadSegmentFun aReader, in voidPtr aClosure, in unsigned long aCount); */
-  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void * aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) = 0;
+  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void *aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) = 0;
 
   /**
      * @return true if stream is non-blocking
@@ -175,7 +171,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIOutputStream : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Flush(void); \
   NS_SCRIPTABLE NS_IMETHOD Write(const char *aBuf, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD WriteFrom(nsIInputStream *aFromStream, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM); \
-  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void * aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM); \
+  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void *aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD IsNonBlocking(PRBool *_retval NS_OUTPARAM); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
@@ -184,7 +180,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIOutputStream : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Flush(void) { return _to Flush(); } \
   NS_SCRIPTABLE NS_IMETHOD Write(const char *aBuf, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return _to Write(aBuf, aCount, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD WriteFrom(nsIInputStream *aFromStream, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return _to WriteFrom(aFromStream, aCount, _retval); } \
-  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void * aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return _to WriteSegments(aReader, aClosure, aCount, _retval); } \
+  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void *aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return _to WriteSegments(aReader, aClosure, aCount, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD IsNonBlocking(PRBool *_retval NS_OUTPARAM) { return _to IsNonBlocking(_retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
@@ -193,7 +189,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIOutputStream : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Flush(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->Flush(); } \
   NS_SCRIPTABLE NS_IMETHOD Write(const char *aBuf, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Write(aBuf, aCount, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD WriteFrom(nsIInputStream *aFromStream, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->WriteFrom(aFromStream, aCount, _retval); } \
-  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void * aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->WriteSegments(aReader, aClosure, aCount, _retval); } \
+  NS_IMETHOD WriteSegments(nsReadSegmentFun aReader, void *aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->WriteSegments(aReader, aClosure, aCount, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD IsNonBlocking(PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsNonBlocking(_retval); } 
 
 #if 0
@@ -253,7 +249,7 @@ NS_IMETHODIMP nsOutputStream::WriteFrom(nsIInputStream *aFromStream, PRUint32 aC
 }
 
 /* [noscript] unsigned long writeSegments (in nsReadSegmentFun aReader, in voidPtr aClosure, in unsigned long aCount); */
-NS_IMETHODIMP nsOutputStream::WriteSegments(nsReadSegmentFun aReader, void * aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM)
+NS_IMETHODIMP nsOutputStream::WriteSegments(nsReadSegmentFun aReader, void *aClosure, PRUint32 aCount, PRUint32 *_retval NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

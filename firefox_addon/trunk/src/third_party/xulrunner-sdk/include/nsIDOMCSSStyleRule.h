@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/css/nsIDOMCSSStyleRule.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/css/nsIDOMCSSStyleRule.idl
  */
 
 #ifndef __gen_nsIDOMCSSStyleRule_h__
@@ -32,7 +32,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMCSSStyleRule : public nsIDOMCSSRule {
   NS_SCRIPTABLE NS_IMETHOD SetSelectorText(const nsAString & aSelectorText) = 0;
 
   /* readonly attribute nsIDOMCSSStyleDeclaration style; */
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle) = 0;
 
 };
 
@@ -42,19 +42,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMCSSStyleRule : public nsIDOMCSSRule {
 #define NS_DECL_NSIDOMCSSSTYLERULE \
   NS_SCRIPTABLE NS_IMETHOD GetSelectorText(nsAString & aSelectorText); \
   NS_SCRIPTABLE NS_IMETHOD SetSelectorText(const nsAString & aSelectorText); \
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle); 
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIDOMCSSSTYLERULE(_to) \
   NS_SCRIPTABLE NS_IMETHOD GetSelectorText(nsAString & aSelectorText) { return _to GetSelectorText(aSelectorText); } \
   NS_SCRIPTABLE NS_IMETHOD SetSelectorText(const nsAString & aSelectorText) { return _to SetSelectorText(aSelectorText); } \
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle) { return _to GetStyle(aStyle); } 
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle) { return _to GetStyle(aStyle); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIDOMCSSSTYLERULE(_to) \
   NS_SCRIPTABLE NS_IMETHOD GetSelectorText(nsAString & aSelectorText) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetSelectorText(aSelectorText); } \
   NS_SCRIPTABLE NS_IMETHOD SetSelectorText(const nsAString & aSelectorText) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetSelectorText(aSelectorText); } \
-  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration * *aStyle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetStyle(aStyle); } 
+  NS_SCRIPTABLE NS_IMETHOD GetStyle(nsIDOMCSSStyleDeclaration **aStyle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetStyle(aStyle); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -99,7 +99,7 @@ NS_IMETHODIMP nsDOMCSSStyleRule::SetSelectorText(const nsAString & aSelectorText
 }
 
 /* readonly attribute nsIDOMCSSStyleDeclaration style; */
-NS_IMETHODIMP nsDOMCSSStyleRule::GetStyle(nsIDOMCSSStyleDeclaration * *aStyle)
+NS_IMETHODIMP nsDOMCSSStyleRule::GetStyle(nsIDOMCSSStyleDeclaration **aStyle)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

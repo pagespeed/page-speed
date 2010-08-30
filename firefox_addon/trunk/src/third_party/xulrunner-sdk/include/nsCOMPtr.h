@@ -192,6 +192,29 @@ struct already_AddRefed
 
     T* get() const { return mRawPtr; }
 
+    /**
+     * This helper is useful in cases like
+     *
+     *  already_AddRefed<BaseClass>
+     *  Foo()
+     *  {
+     *    nsRefPtr<SubClass> x = ...;
+     *    return x.forget();
+     *  }
+     *
+     * The autoconversion allows one to omit the idiom
+     *
+     *    nsRefPtr<BaseClass> y = x.forget();
+     *    return y.forget();
+     */
+    template<class U>
+    operator already_AddRefed<U>()
+    {
+      U* tmp = mRawPtr;
+      mRawPtr = NULL;
+      return tmp;
+    }
+
     T* mRawPtr;
   };
 
@@ -1412,6 +1435,14 @@ getter_AddRefs( nsCOMPtr<T>& aSmartPtr )
     return nsGetterAddRefs<T>(aSmartPtr);
   }
 
+template <class T, class DestinationType>
+inline
+nsresult
+CallQueryInterface( T* aSource, nsGetterAddRefs<DestinationType> aDestination )
+{
+    return CallQueryInterface(aSource,
+                              static_cast<DestinationType**>(aDestination));
+}
 
 
   // Comparing two |nsCOMPtr|s

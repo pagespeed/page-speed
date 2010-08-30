@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/base/nsIMemory.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/base/nsIMemory.idl
  */
 
 #ifndef __gen_nsIMemory_h__
@@ -52,8 +52,6 @@
  * This will be passed as the extra data when the pressure 
  * observer has been asked to flush because a malloc() or 
  * realloc() has failed.
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIMemory : public nsISupports {
  public: 
@@ -86,7 +84,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIMemory : public nsISupports {
      * and null is returned. The returned value may be the same as ptr.
      */
   /* [noscript, notxpcom] voidPtr realloc (in voidPtr ptr, in size_t newSize); */
-  NS_IMETHOD_(void *) Realloc(void * ptr, size_t newSize) = 0;
+  NS_IMETHOD_(void *) Realloc(void *ptr, size_t newSize) = 0;
 
   /**
      * Frees a block of memory. Null is a permissible value, in which case
@@ -95,7 +93,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIMemory : public nsISupports {
      * @param ptr - the block of memory to free
      */
   /* [noscript, notxpcom] void free (in voidPtr ptr); */
-  NS_IMETHOD_(void) Free(void * ptr) = 0;
+  NS_IMETHOD_(void) Free(void *ptr) = 0;
 
   /**
      * Attempts to shrink the heap.
@@ -124,24 +122,24 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIMemory : public nsISupports {
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIMEMORY \
   NS_IMETHOD_(void *) Alloc(size_t size); \
-  NS_IMETHOD_(void *) Realloc(void * ptr, size_t newSize); \
-  NS_IMETHOD_(void) Free(void * ptr); \
+  NS_IMETHOD_(void *) Realloc(void *ptr, size_t newSize); \
+  NS_IMETHOD_(void) Free(void *ptr); \
   NS_SCRIPTABLE NS_IMETHOD HeapMinimize(PRBool immediate); \
   NS_SCRIPTABLE NS_IMETHOD IsLowMemory(PRBool *_retval NS_OUTPARAM); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIMEMORY(_to) \
   NS_IMETHOD_(void *) Alloc(size_t size) { return _to Alloc(size); } \
-  NS_IMETHOD_(void *) Realloc(void * ptr, size_t newSize) { return _to Realloc(ptr, newSize); } \
-  NS_IMETHOD_(void) Free(void * ptr) { return _to Free(ptr); } \
+  NS_IMETHOD_(void *) Realloc(void *ptr, size_t newSize) { return _to Realloc(ptr, newSize); } \
+  NS_IMETHOD_(void) Free(void *ptr) { return _to Free(ptr); } \
   NS_SCRIPTABLE NS_IMETHOD HeapMinimize(PRBool immediate) { return _to HeapMinimize(immediate); } \
   NS_SCRIPTABLE NS_IMETHOD IsLowMemory(PRBool *_retval NS_OUTPARAM) { return _to IsLowMemory(_retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIMEMORY(_to) \
   NS_IMETHOD_(void *) Alloc(size_t size) { return !_to ? NS_ERROR_NULL_POINTER : _to->Alloc(size); } \
-  NS_IMETHOD_(void *) Realloc(void * ptr, size_t newSize) { return !_to ? NS_ERROR_NULL_POINTER : _to->Realloc(ptr, newSize); } \
-  NS_IMETHOD_(void) Free(void * ptr) { return !_to ? NS_ERROR_NULL_POINTER : _to->Free(ptr); } \
+  NS_IMETHOD_(void *) Realloc(void *ptr, size_t newSize) { return !_to ? NS_ERROR_NULL_POINTER : _to->Realloc(ptr, newSize); } \
+  NS_IMETHOD_(void) Free(void *ptr) { return !_to ? NS_ERROR_NULL_POINTER : _to->Free(ptr); } \
   NS_SCRIPTABLE NS_IMETHOD HeapMinimize(PRBool immediate) { return !_to ? NS_ERROR_NULL_POINTER : _to->HeapMinimize(immediate); } \
   NS_SCRIPTABLE NS_IMETHOD IsLowMemory(PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsLowMemory(_retval); } 
 
@@ -184,13 +182,13 @@ NS_IMETHODIMP_(void *) nsMemory::Alloc(size_t size)
 }
 
 /* [noscript, notxpcom] voidPtr realloc (in voidPtr ptr, in size_t newSize); */
-NS_IMETHODIMP_(void *) nsMemory::Realloc(void * ptr, size_t newSize)
+NS_IMETHODIMP_(void *) nsMemory::Realloc(void *ptr, size_t newSize)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* [noscript, notxpcom] void free (in voidPtr ptr); */
-NS_IMETHODIMP_(void) nsMemory::Free(void * ptr)
+NS_IMETHODIMP_(void) nsMemory::Free(void *ptr)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

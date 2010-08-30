@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/io/nsILocalFile.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/io/nsILocalFile.idl
  */
 
 #ifndef __gen_nsILocalFile_h__
@@ -30,8 +30,6 @@
  * that is accessible via the local file system.
  *
  * It follows the same string conventions as nsIFile.
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsILocalFile : public nsIFile {
  public: 
@@ -93,21 +91,21 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsILocalFile : public nsIFile {
      * process.
      */
   /* [noscript] PRFileDescStar openNSPRFileDesc (in long flags, in long mode); */
-  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc * *_retval NS_OUTPARAM) = 0;
+  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc **_retval NS_OUTPARAM) = 0;
 
   /**
      * Return the result of fopen on the file.  The caller is
      * responsible for calling fclose on the result.
      */
   /* [noscript] FILE openANSIFileDesc (in string mode); */
-  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE * *_retval NS_OUTPARAM) = 0;
+  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE **_retval NS_OUTPARAM) = 0;
 
   /**
      * Return the result of PR_LoadLibrary on the file.  The caller is
      * responsible for calling PR_UnloadLibrary on the result.
      */
   /* [noscript] PRLibraryStar load (); */
-  NS_IMETHOD Load(PRLibrary * *_retval NS_OUTPARAM) = 0;
+  NS_IMETHOD Load(PRLibrary **_retval NS_OUTPARAM) = 0;
 
   /* readonly attribute PRInt64 diskSpaceAvailable; */
   NS_SCRIPTABLE NS_IMETHOD GetDiskSpaceAvailable(PRInt64 *aDiskSpaceAvailable) = 0;
@@ -201,9 +199,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsILocalFile : public nsIFile {
   NS_SCRIPTABLE NS_IMETHOD InitWithFile(nsILocalFile *aFile); \
   NS_SCRIPTABLE NS_IMETHOD GetFollowLinks(PRBool *aFollowLinks); \
   NS_SCRIPTABLE NS_IMETHOD SetFollowLinks(PRBool aFollowLinks); \
-  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc * *_retval NS_OUTPARAM); \
-  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE * *_retval NS_OUTPARAM); \
-  NS_IMETHOD Load(PRLibrary * *_retval NS_OUTPARAM); \
+  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc **_retval NS_OUTPARAM); \
+  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE **_retval NS_OUTPARAM); \
+  NS_IMETHOD Load(PRLibrary **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetDiskSpaceAvailable(PRInt64 *aDiskSpaceAvailable); \
   NS_SCRIPTABLE NS_IMETHOD AppendRelativePath(const nsAString & relativeFilePath); \
   NS_IMETHOD AppendRelativeNativePath(const nsACString & relativeFilePath); \
@@ -221,9 +219,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsILocalFile : public nsIFile {
   NS_SCRIPTABLE NS_IMETHOD InitWithFile(nsILocalFile *aFile) { return _to InitWithFile(aFile); } \
   NS_SCRIPTABLE NS_IMETHOD GetFollowLinks(PRBool *aFollowLinks) { return _to GetFollowLinks(aFollowLinks); } \
   NS_SCRIPTABLE NS_IMETHOD SetFollowLinks(PRBool aFollowLinks) { return _to SetFollowLinks(aFollowLinks); } \
-  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc * *_retval NS_OUTPARAM) { return _to OpenNSPRFileDesc(flags, mode, _retval); } \
-  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE * *_retval NS_OUTPARAM) { return _to OpenANSIFileDesc(mode, _retval); } \
-  NS_IMETHOD Load(PRLibrary * *_retval NS_OUTPARAM) { return _to Load(_retval); } \
+  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc **_retval NS_OUTPARAM) { return _to OpenNSPRFileDesc(flags, mode, _retval); } \
+  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE **_retval NS_OUTPARAM) { return _to OpenANSIFileDesc(mode, _retval); } \
+  NS_IMETHOD Load(PRLibrary **_retval NS_OUTPARAM) { return _to Load(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetDiskSpaceAvailable(PRInt64 *aDiskSpaceAvailable) { return _to GetDiskSpaceAvailable(aDiskSpaceAvailable); } \
   NS_SCRIPTABLE NS_IMETHOD AppendRelativePath(const nsAString & relativeFilePath) { return _to AppendRelativePath(relativeFilePath); } \
   NS_IMETHOD AppendRelativeNativePath(const nsACString & relativeFilePath) { return _to AppendRelativeNativePath(relativeFilePath); } \
@@ -241,9 +239,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsILocalFile : public nsIFile {
   NS_SCRIPTABLE NS_IMETHOD InitWithFile(nsILocalFile *aFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->InitWithFile(aFile); } \
   NS_SCRIPTABLE NS_IMETHOD GetFollowLinks(PRBool *aFollowLinks) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFollowLinks(aFollowLinks); } \
   NS_SCRIPTABLE NS_IMETHOD SetFollowLinks(PRBool aFollowLinks) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFollowLinks(aFollowLinks); } \
-  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc * *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->OpenNSPRFileDesc(flags, mode, _retval); } \
-  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE * *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->OpenANSIFileDesc(mode, _retval); } \
-  NS_IMETHOD Load(PRLibrary * *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Load(_retval); } \
+  NS_IMETHOD OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->OpenNSPRFileDesc(flags, mode, _retval); } \
+  NS_IMETHOD OpenANSIFileDesc(const char *mode, FILE **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->OpenANSIFileDesc(mode, _retval); } \
+  NS_IMETHOD Load(PRLibrary **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Load(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetDiskSpaceAvailable(PRInt64 *aDiskSpaceAvailable) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDiskSpaceAvailable(aDiskSpaceAvailable); } \
   NS_SCRIPTABLE NS_IMETHOD AppendRelativePath(const nsAString & relativeFilePath) { return !_to ? NS_ERROR_NULL_POINTER : _to->AppendRelativePath(relativeFilePath); } \
   NS_IMETHOD AppendRelativeNativePath(const nsACString & relativeFilePath) { return !_to ? NS_ERROR_NULL_POINTER : _to->AppendRelativeNativePath(relativeFilePath); } \
@@ -315,19 +313,19 @@ NS_IMETHODIMP nsLocalFile::SetFollowLinks(PRBool aFollowLinks)
 }
 
 /* [noscript] PRFileDescStar openNSPRFileDesc (in long flags, in long mode); */
-NS_IMETHODIMP nsLocalFile::OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc * *_retval NS_OUTPARAM)
+NS_IMETHODIMP nsLocalFile::OpenNSPRFileDesc(PRInt32 flags, PRInt32 mode, PRFileDesc **_retval NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* [noscript] FILE openANSIFileDesc (in string mode); */
-NS_IMETHODIMP nsLocalFile::OpenANSIFileDesc(const char *mode, FILE * *_retval NS_OUTPARAM)
+NS_IMETHODIMP nsLocalFile::OpenANSIFileDesc(const char *mode, FILE **_retval NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* [noscript] PRLibraryStar load (); */
-NS_IMETHODIMP nsLocalFile::Load(PRLibrary * *_retval NS_OUTPARAM)
+NS_IMETHODIMP nsLocalFile::Load(PRLibrary **_retval NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

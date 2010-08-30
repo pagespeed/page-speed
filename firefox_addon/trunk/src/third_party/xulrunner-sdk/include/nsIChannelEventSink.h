@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIChannelEventSink.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIChannelEventSink.idl
  */
 
 #ifndef __gen_nsIChannelEventSink_h__
@@ -16,13 +16,15 @@
 #endif
 class nsIChannel; /* forward declaration */
 
+class nsIAsyncVerifyRedirectCallback; /* forward declaration */
+
 
 /* starting interface:    nsIChannelEventSink */
-#define NS_ICHANNELEVENTSINK_IID_STR "6757d790-2916-498e-aaca-6b668a956875"
+#define NS_ICHANNELEVENTSINK_IID_STR "a430d870-df77-4502-9570-d46a8de33154"
 
 #define NS_ICHANNELEVENTSINK_IID \
-  {0x6757d790, 0x2916, 0x498e, \
-    { 0xaa, 0xca, 0x6b, 0x66, 0x8a, 0x95, 0x68, 0x75 }}
+  {0xa430d870, 0xdf77, 0x4502, \
+    { 0x95, 0x70, 0xd4, 0x6a, 0x8d, 0xe3, 0x31, 0x54 }}
 
 /**
  * Implement this interface to receive control over various channel events.
@@ -30,8 +32,7 @@ class nsIChannel; /* forward declaration */
  * notificationCallbacks or, if not available there, from the loadGroup's
  * notificationCallbacks.
  *
- * These methods are called before onStartRequest, and should be handled
- * SYNCHRONOUSLY.
+ * These methods are called before onStartRequest.
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIChannelEventSink : public nsISupports {
  public: 
@@ -65,7 +66,30 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIChannelEventSink : public nsISupports {
 
   /**
      * Called when a redirect occurs. This may happen due to an HTTP 3xx status
-     * code.
+     * code. The purpose of this method is to notify the sink that a redirect
+     * is about to happen, but also to give the sink the right to veto the
+     * redirect by throwing or passing a failure-code in the callback.
+     *
+     * Note that vetoing the redirect simply means that |newChannel| will not
+     * be opened. It is important to understand that |oldChannel| will continue
+     * loading as if it received a HTTP 200, which includes notifying observers
+     * and possibly display or process content attached to the HTTP response.
+     * If the sink wants to prevent this loading it must explicitly deal with
+     * it, e.g. by calling |oldChannel->Cancel()|
+     *
+     * There is a certain freedom in implementing this method:
+     *
+     * If the return-value indicates success, a callback on |callback| is
+     * required. This callback can be done from within asyncOnChannelRedirect
+     * (effectively making the call synchronous) or at some point later
+     * (making the call asynchronous). Repeat: A callback must be done
+     * if this method returns successfully.
+     *
+     * If the return value indicates error (method throws an exception)
+     * the redirect is vetoed and no callback must be done. Repeat: No
+     * callback must be done if this method throws!
+     *
+     * @see nsIAsyncVerifyRedirectCallback::onRedirectVerifyCallback()
      *
      * @param oldChannel
      *        The channel that's being redirected.
@@ -76,12 +100,14 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIChannelEventSink : public nsISupports {
      *        of flags from above.
      *        One of REDIRECT_TEMPORARY and REDIRECT_PERMANENT will always be
      *        set.
+     * @param callback
+     *        Object to inform about the async result of this method
      *
-     * @throw <any> Throwing an exception will cancel the load. No network
-     * request for the new channel will be made.
+     * @throw <any> Throwing an exception will cause the redirect to be
+     *        cancelled
      */
-  /* void onChannelRedirect (in nsIChannel oldChannel, in nsIChannel newChannel, in unsigned long flags); */
-  NS_SCRIPTABLE NS_IMETHOD OnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags) = 0;
+  /* void asyncOnChannelRedirect (in nsIChannel oldChannel, in nsIChannel newChannel, in unsigned long flags, in nsIAsyncVerifyRedirectCallback callback); */
+  NS_SCRIPTABLE NS_IMETHOD AsyncOnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags, nsIAsyncVerifyRedirectCallback *callback) = 0;
 
 };
 
@@ -89,15 +115,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIChannelEventSink : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSICHANNELEVENTSINK \
-  NS_SCRIPTABLE NS_IMETHOD OnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags); 
+  NS_SCRIPTABLE NS_IMETHOD AsyncOnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags, nsIAsyncVerifyRedirectCallback *callback); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSICHANNELEVENTSINK(_to) \
-  NS_SCRIPTABLE NS_IMETHOD OnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags) { return _to OnChannelRedirect(oldChannel, newChannel, flags); } 
+  NS_SCRIPTABLE NS_IMETHOD AsyncOnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags, nsIAsyncVerifyRedirectCallback *callback) { return _to AsyncOnChannelRedirect(oldChannel, newChannel, flags, callback); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSICHANNELEVENTSINK(_to) \
-  NS_SCRIPTABLE NS_IMETHOD OnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags) { return !_to ? NS_ERROR_NULL_POINTER : _to->OnChannelRedirect(oldChannel, newChannel, flags); } 
+  NS_SCRIPTABLE NS_IMETHOD AsyncOnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags, nsIAsyncVerifyRedirectCallback *callback) { return !_to ? NS_ERROR_NULL_POINTER : _to->AsyncOnChannelRedirect(oldChannel, newChannel, flags, callback); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -131,8 +157,8 @@ nsChannelEventSink::~nsChannelEventSink()
   /* destructor code */
 }
 
-/* void onChannelRedirect (in nsIChannel oldChannel, in nsIChannel newChannel, in unsigned long flags); */
-NS_IMETHODIMP nsChannelEventSink::OnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags)
+/* void asyncOnChannelRedirect (in nsIChannel oldChannel, in nsIChannel newChannel, in unsigned long flags, in nsIAsyncVerifyRedirectCallback callback); */
+NS_IMETHODIMP nsChannelEventSink::AsyncOnChannelRedirect(nsIChannel *oldChannel, nsIChannel *newChannel, PRUint32 flags, nsIAsyncVerifyRedirectCallback *callback)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

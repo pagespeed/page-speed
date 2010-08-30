@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/ds/nsIArray.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/ds/nsIArray.idl
  */
 
 #ifndef __gen_nsIArray_h__
@@ -47,8 +47,6 @@ class nsISimpleEnumerator; /* forward declaration */
  *
  * null is a valid entry in the array, and as such any nsISupports
  * parameters may be null, except where noted.
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIArray : public nsISupports {
  public: 
@@ -81,7 +79,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIArray : public nsISupports {
      *
      */
   /* void queryElementAt (in unsigned long index, in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM) = 0;
 
   /**
      * indexOf()
@@ -118,21 +116,21 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIArray : public nsISupports {
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIARRAY \
   NS_SCRIPTABLE NS_IMETHOD GetLength(PRUint32 *aLength); \
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD IndexOf(PRUint32 startIndex, nsISupports *element, PRUint32 *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD Enumerate(nsISimpleEnumerator **_retval NS_OUTPARAM); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIARRAY(_to) \
   NS_SCRIPTABLE NS_IMETHOD GetLength(PRUint32 *aLength) { return _to GetLength(aLength); } \
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM) { return _to QueryElementAt(index, uuid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM) { return _to QueryElementAt(index, uuid, result); } \
   NS_SCRIPTABLE NS_IMETHOD IndexOf(PRUint32 startIndex, nsISupports *element, PRUint32 *_retval NS_OUTPARAM) { return _to IndexOf(startIndex, element, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Enumerate(nsISimpleEnumerator **_retval NS_OUTPARAM) { return _to Enumerate(_retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIARRAY(_to) \
   NS_SCRIPTABLE NS_IMETHOD GetLength(PRUint32 *aLength) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetLength(aLength); } \
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->QueryElementAt(index, uuid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->QueryElementAt(index, uuid, result); } \
   NS_SCRIPTABLE NS_IMETHOD IndexOf(PRUint32 startIndex, nsISupports *element, PRUint32 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->IndexOf(startIndex, element, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Enumerate(nsISimpleEnumerator **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Enumerate(_retval); } 
 
@@ -175,7 +173,7 @@ NS_IMETHODIMP nsArray::GetLength(PRUint32 *aLength)
 }
 
 /* void queryElementAt (in unsigned long index, in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-NS_IMETHODIMP nsArray::QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsArray::QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

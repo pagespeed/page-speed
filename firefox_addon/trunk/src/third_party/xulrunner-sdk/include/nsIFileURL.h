@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIFileURL.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIFileURL.idl
  */
 
 #ifndef __gen_nsIFileURL_h__
@@ -28,8 +28,6 @@ class nsIFile; /* forward declaration */
  * nsIFileURL provides access to the underlying nsIFile object corresponding to
  * an URL.  The URL scheme need not be file:, since other local protocols may
  * map URLs to files (e.g., resource:).
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIFileURL : public nsIURL {
  public: 
@@ -47,8 +45,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFileURL : public nsIURL {
      *    the nsIFile object after setting it on this interface).
      */
   /* attribute nsIFile file; */
-  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile * *aFile) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile * aFile) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile **aFile) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile *aFile) = 0;
 
 };
 
@@ -56,18 +54,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFileURL : public nsIURL {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIFILEURL \
-  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile * *aFile); \
-  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile * aFile); 
+  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile **aFile); \
+  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile *aFile); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIFILEURL(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile * *aFile) { return _to GetFile(aFile); } \
-  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile * aFile) { return _to SetFile(aFile); } 
+  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile **aFile) { return _to GetFile(aFile); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile *aFile) { return _to SetFile(aFile); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIFILEURL(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile * *aFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFile(aFile); } \
-  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile * aFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFile(aFile); } 
+  NS_SCRIPTABLE NS_IMETHOD GetFile(nsIFile **aFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFile(aFile); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFile(nsIFile *aFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFile(aFile); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -102,11 +100,11 @@ nsFileURL::~nsFileURL()
 }
 
 /* attribute nsIFile file; */
-NS_IMETHODIMP nsFileURL::GetFile(nsIFile * *aFile)
+NS_IMETHODIMP nsFileURL::GetFile(nsIFile **aFile)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsFileURL::SetFile(nsIFile * aFile)
+NS_IMETHODIMP nsFileURL::SetFile(nsIFile *aFile)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

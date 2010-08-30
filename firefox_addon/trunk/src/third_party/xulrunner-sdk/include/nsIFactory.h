@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/components/nsIFactory.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/components/nsIFactory.idl
  */
 
 #ifndef __gen_nsIFactory_h__
@@ -25,8 +25,6 @@
 /**
  * A class factory allows the creation of nsISupports derived
  * components without specifying a concrete base class.  
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIFactory : public nsISupports {
  public: 
@@ -50,7 +48,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFactory : public nsISupports {
     *         NS_ERROR* - Method failure.
     */
   /* void createInstance (in nsISupports aOuter, in nsIIDRef iid, [iid_is (iid), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void **result NS_OUTPARAM) = 0;
 
   /**
     * LockFactory provides the client a way to keep the component
@@ -71,17 +69,17 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFactory : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIFACTORY \
-  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void * *result NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void **result NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD LockFactory(PRBool lock); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIFACTORY(_to) \
-  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void * *result NS_OUTPARAM) { return _to CreateInstance(aOuter, iid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void **result NS_OUTPARAM) { return _to CreateInstance(aOuter, iid, result); } \
   NS_SCRIPTABLE NS_IMETHOD LockFactory(PRBool lock) { return _to LockFactory(lock); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIFACTORY(_to) \
-  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->CreateInstance(aOuter, iid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD CreateInstance(nsISupports *aOuter, const nsIID & iid, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->CreateInstance(aOuter, iid, result); } \
   NS_SCRIPTABLE NS_IMETHOD LockFactory(PRBool lock) { return !_to ? NS_ERROR_NULL_POINTER : _to->LockFactory(lock); } 
 
 #if 0
@@ -117,7 +115,7 @@ nsFactory::~nsFactory()
 }
 
 /* void createInstance (in nsISupports aOuter, in nsIIDRef iid, [iid_is (iid), retval] out nsQIResult result); */
-NS_IMETHODIMP nsFactory::CreateInstance(nsISupports *aOuter, const nsIID & iid, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsFactory::CreateInstance(nsISupports *aOuter, const nsIID & iid, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

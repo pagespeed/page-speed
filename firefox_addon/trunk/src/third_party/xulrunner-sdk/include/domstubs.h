@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/base/domstubs.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/base/domstubs.idl
  */
 
 #ifndef __gen_domstubs_h__
@@ -14,7 +14,7 @@
 #ifndef NS_NO_VTABLE
 #define NS_NO_VTABLE
 #endif
-typedef PRUint64 DOMTimeStamp;
+typedef PRUint64  DOMTimeStamp;
 
 class nsIDOMAttr; /* forward declaration */
 
@@ -115,6 +115,8 @@ class nsIDOMHTMLElement; /* forward declaration */
 class nsIDOMHTMLFormElement; /* forward declaration */
 
 class nsIDOMHTMLCollection; /* forward declaration */
+
+class nsIDOMHTMLHeadElement; /* forward declaration */
 
 class nsIDOMCSSValue; /* forward declaration */
 

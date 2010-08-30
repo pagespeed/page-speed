@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/core/nsIDOMNamedNodeMap.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/core/nsIDOMNamedNodeMap.idl
  */
 
 #ifndef __gen_nsIDOMNamedNodeMap_h__
@@ -33,8 +33,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMNamedNodeMap : public nsISupports {
  *
  * For more information on this interface please see 
  * http://www.w3.org/TR/DOM-Level-2-Core/
- *
- * @status FROZEN
  */
   /* nsIDOMNode getNamedItem (in DOMString name); */
   NS_SCRIPTABLE NS_IMETHOD GetNamedItem(const nsAString & name, nsIDOMNode **_retval NS_OUTPARAM) = 0;

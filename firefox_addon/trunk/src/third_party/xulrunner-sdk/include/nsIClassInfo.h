@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/components/nsIClassInfo.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/components/nsIClassInfo.idl
  */
 
 #ifndef __gen_nsIClassInfo_h__
@@ -33,7 +33,6 @@
 
 /**
  * Provides information about a specific implementation class
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIClassInfo : public nsISupports {
  public: 
@@ -49,7 +48,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIClassInfo : public nsISupports {
      * list is not supported.
      */
   /* void getInterfaces (out PRUint32 count, [array, size_is (count), retval] out nsIIDPtr array); */
-  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID * **array NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID ***array NS_OUTPARAM) = 0;
 
   /**
      * Get a language mapping specific helper object that may assist in using
@@ -71,20 +70,20 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIClassInfo : public nsISupports {
      * (or accessed as a service, if |flags & SINGLETON|), or null.
      */
   /* readonly attribute string contractID; */
-  NS_SCRIPTABLE NS_IMETHOD GetContractID(char * *aContractID) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetContractID(char **aContractID) = 0;
 
   /**
      * A human readable string naming the class, or null.
      */
   /* readonly attribute string classDescription; */
-  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char * *aClassDescription) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char **aClassDescription) = 0;
 
   /**
      * A class ID through which an instance of this class can be created
      * (or accessed as a service, if |flags & SINGLETON|), or null.
      */
   /* readonly attribute nsCIDPtr classID; */
-  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID * *aClassID) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID **aClassID) = 0;
 
   /**
      * Return language type from list in nsIProgrammingLanguage
@@ -104,8 +103,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIClassInfo : public nsISupports {
   enum { DOM_OBJECT = 8U };
 
   enum { PLUGIN_OBJECT = 16U };
-
-  enum { EAGER_CLASSINFO = 32U };
 
   /**
      * 'flags' attribute bitflag: whether objects of this type implement
@@ -134,33 +131,33 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIClassInfo : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSICLASSINFO \
-  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID * **array NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID ***array NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetHelperForLanguage(PRUint32 language, nsISupports **_retval NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD GetContractID(char * *aContractID); \
-  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char * *aClassDescription); \
-  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID * *aClassID); \
+  NS_SCRIPTABLE NS_IMETHOD GetContractID(char **aContractID); \
+  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char **aClassDescription); \
+  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID **aClassID); \
   NS_SCRIPTABLE NS_IMETHOD GetImplementationLanguage(PRUint32 *aImplementationLanguage); \
   NS_SCRIPTABLE NS_IMETHOD GetFlags(PRUint32 *aFlags); \
   NS_IMETHOD GetClassIDNoAlloc(nsCID *aClassIDNoAlloc); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSICLASSINFO(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID * **array NS_OUTPARAM) { return _to GetInterfaces(count, array); } \
+  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID ***array NS_OUTPARAM) { return _to GetInterfaces(count, array); } \
   NS_SCRIPTABLE NS_IMETHOD GetHelperForLanguage(PRUint32 language, nsISupports **_retval NS_OUTPARAM) { return _to GetHelperForLanguage(language, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContractID(char * *aContractID) { return _to GetContractID(aContractID); } \
-  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char * *aClassDescription) { return _to GetClassDescription(aClassDescription); } \
-  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID * *aClassID) { return _to GetClassID(aClassID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetContractID(char **aContractID) { return _to GetContractID(aContractID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char **aClassDescription) { return _to GetClassDescription(aClassDescription); } \
+  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID **aClassID) { return _to GetClassID(aClassID); } \
   NS_SCRIPTABLE NS_IMETHOD GetImplementationLanguage(PRUint32 *aImplementationLanguage) { return _to GetImplementationLanguage(aImplementationLanguage); } \
   NS_SCRIPTABLE NS_IMETHOD GetFlags(PRUint32 *aFlags) { return _to GetFlags(aFlags); } \
   NS_IMETHOD GetClassIDNoAlloc(nsCID *aClassIDNoAlloc) { return _to GetClassIDNoAlloc(aClassIDNoAlloc); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSICLASSINFO(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID * **array NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInterfaces(count, array); } \
+  NS_SCRIPTABLE NS_IMETHOD GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID ***array NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInterfaces(count, array); } \
   NS_SCRIPTABLE NS_IMETHOD GetHelperForLanguage(PRUint32 language, nsISupports **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetHelperForLanguage(language, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContractID(char * *aContractID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContractID(aContractID); } \
-  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char * *aClassDescription) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetClassDescription(aClassDescription); } \
-  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID * *aClassID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetClassID(aClassID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetContractID(char **aContractID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContractID(aContractID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetClassDescription(char **aClassDescription) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetClassDescription(aClassDescription); } \
+  NS_SCRIPTABLE NS_IMETHOD GetClassID(nsCID **aClassID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetClassID(aClassID); } \
   NS_SCRIPTABLE NS_IMETHOD GetImplementationLanguage(PRUint32 *aImplementationLanguage) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetImplementationLanguage(aImplementationLanguage); } \
   NS_SCRIPTABLE NS_IMETHOD GetFlags(PRUint32 *aFlags) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFlags(aFlags); } \
   NS_IMETHOD GetClassIDNoAlloc(nsCID *aClassIDNoAlloc) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetClassIDNoAlloc(aClassIDNoAlloc); } 
@@ -198,7 +195,7 @@ nsClassInfo::~nsClassInfo()
 }
 
 /* void getInterfaces (out PRUint32 count, [array, size_is (count), retval] out nsIIDPtr array); */
-NS_IMETHODIMP nsClassInfo::GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID * **array NS_OUTPARAM)
+NS_IMETHODIMP nsClassInfo::GetInterfaces(PRUint32 *count NS_OUTPARAM, nsIID ***array NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -210,19 +207,19 @@ NS_IMETHODIMP nsClassInfo::GetHelperForLanguage(PRUint32 language, nsISupports *
 }
 
 /* readonly attribute string contractID; */
-NS_IMETHODIMP nsClassInfo::GetContractID(char * *aContractID)
+NS_IMETHODIMP nsClassInfo::GetContractID(char **aContractID)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute string classDescription; */
-NS_IMETHODIMP nsClassInfo::GetClassDescription(char * *aClassDescription)
+NS_IMETHODIMP nsClassInfo::GetClassDescription(char **aClassDescription)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsCIDPtr classID; */
-NS_IMETHODIMP nsClassInfo::GetClassID(nsCID * *aClassID)
+NS_IMETHODIMP nsClassInfo::GetClassID(nsCID **aClassID)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

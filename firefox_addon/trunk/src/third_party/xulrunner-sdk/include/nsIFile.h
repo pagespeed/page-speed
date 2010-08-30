@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/io/nsIFile.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/io/nsIFile.idl
  */
 
 #ifndef __gen_nsIFile_h__
@@ -36,8 +36,6 @@ class nsISimpleEnumerator; /* forward declaration */
  * A string containing characters encoded in the native charset cannot
  * be safely passed to javascript via xpconnect.  Therefore, the "native
  * methods" are not scriptable. 
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIFile : public nsISupports {
  public: 
@@ -371,7 +369,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFile : public nsISupports {
      *  Parent will be null when this is at the top of the volume.
      */
   /* readonly attribute nsIFile parent; */
-  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile * *aParent) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile **aParent) = 0;
 
   /**
      *  Returns an enumeration of the elements in a directory. Each
@@ -381,7 +379,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFile : public nsISupports {
      *           not specify a directory.
      */
   /* readonly attribute nsISimpleEnumerator directoryEntries; */
-  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator * *aDirectoryEntries) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator **aDirectoryEntries) = 0;
 
 };
 
@@ -432,8 +430,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFile : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Clone(nsIFile **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD Equals(nsIFile *inFile, PRBool *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD Contains(nsIFile *inFile, PRBool recur, PRBool *_retval NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile * *aParent); \
-  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator * *aDirectoryEntries); 
+  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile **aParent); \
+  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator **aDirectoryEntries); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIFILE(_to) \
@@ -480,8 +478,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFile : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Clone(nsIFile **_retval NS_OUTPARAM) { return _to Clone(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(nsIFile *inFile, PRBool *_retval NS_OUTPARAM) { return _to Equals(inFile, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Contains(nsIFile *inFile, PRBool recur, PRBool *_retval NS_OUTPARAM) { return _to Contains(inFile, recur, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile * *aParent) { return _to GetParent(aParent); } \
-  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator * *aDirectoryEntries) { return _to GetDirectoryEntries(aDirectoryEntries); } 
+  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile **aParent) { return _to GetParent(aParent); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator **aDirectoryEntries) { return _to GetDirectoryEntries(aDirectoryEntries); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIFILE(_to) \
@@ -528,8 +526,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIFile : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Clone(nsIFile **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Clone(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(nsIFile *inFile, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Equals(inFile, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Contains(nsIFile *inFile, PRBool recur, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Contains(inFile, recur, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile * *aParent) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParent(aParent); } \
-  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator * *aDirectoryEntries) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDirectoryEntries(aDirectoryEntries); } 
+  NS_SCRIPTABLE NS_IMETHOD GetParent(nsIFile **aParent) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParent(aParent); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDirectoryEntries(nsISimpleEnumerator **aDirectoryEntries) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDirectoryEntries(aDirectoryEntries); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -808,13 +806,13 @@ NS_IMETHODIMP nsFile::Contains(nsIFile *inFile, PRBool recur, PRBool *_retval NS
 }
 
 /* readonly attribute nsIFile parent; */
-NS_IMETHODIMP nsFile::GetParent(nsIFile * *aParent)
+NS_IMETHODIMP nsFile::GetParent(nsIFile **aParent)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsISimpleEnumerator directoryEntries; */
-NS_IMETHODIMP nsFile::GetDirectoryEntries(nsISimpleEnumerator * *aDirectoryEntries)
+NS_IMETHODIMP nsFile::GetDirectoryEntries(nsISimpleEnumerator **aDirectoryEntries)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

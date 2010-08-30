@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/traversal/nsIDOMTreeWalker.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/traversal/nsIDOMTreeWalker.idl
  */
 
 #ifndef __gen_nsIDOMTreeWalker_h__
@@ -32,20 +32,20 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMTreeWalker : public nsISupports {
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IDOMTREEWALKER_IID)
 
   /* readonly attribute nsIDOMNode root; */
-  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode * *aRoot) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode **aRoot) = 0;
 
   /* readonly attribute unsigned long whatToShow; */
   NS_SCRIPTABLE NS_IMETHOD GetWhatToShow(PRUint32 *aWhatToShow) = 0;
 
   /* readonly attribute nsIDOMNodeFilter filter; */
-  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter * *aFilter) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter **aFilter) = 0;
 
   /* readonly attribute boolean expandEntityReferences; */
   NS_SCRIPTABLE NS_IMETHOD GetExpandEntityReferences(PRBool *aExpandEntityReferences) = 0;
 
   /* attribute nsIDOMNode currentNode; */
-  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode * *aCurrentNode) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode * aCurrentNode) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode **aCurrentNode) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode *aCurrentNode) = 0;
 
   /* nsIDOMNode parentNode (); */
   NS_SCRIPTABLE NS_IMETHOD ParentNode(nsIDOMNode **_retval NS_OUTPARAM) = 0;
@@ -74,12 +74,12 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMTreeWalker : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIDOMTREEWALKER \
-  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode * *aRoot); \
+  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode **aRoot); \
   NS_SCRIPTABLE NS_IMETHOD GetWhatToShow(PRUint32 *aWhatToShow); \
-  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter * *aFilter); \
+  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter **aFilter); \
   NS_SCRIPTABLE NS_IMETHOD GetExpandEntityReferences(PRBool *aExpandEntityReferences); \
-  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode * *aCurrentNode); \
-  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode * aCurrentNode); \
+  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode **aCurrentNode); \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode *aCurrentNode); \
   NS_SCRIPTABLE NS_IMETHOD ParentNode(nsIDOMNode **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD FirstChild(nsIDOMNode **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD LastChild(nsIDOMNode **_retval NS_OUTPARAM); \
@@ -90,12 +90,12 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMTreeWalker : public nsISupports {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIDOMTREEWALKER(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode * *aRoot) { return _to GetRoot(aRoot); } \
+  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode **aRoot) { return _to GetRoot(aRoot); } \
   NS_SCRIPTABLE NS_IMETHOD GetWhatToShow(PRUint32 *aWhatToShow) { return _to GetWhatToShow(aWhatToShow); } \
-  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter * *aFilter) { return _to GetFilter(aFilter); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter **aFilter) { return _to GetFilter(aFilter); } \
   NS_SCRIPTABLE NS_IMETHOD GetExpandEntityReferences(PRBool *aExpandEntityReferences) { return _to GetExpandEntityReferences(aExpandEntityReferences); } \
-  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode * *aCurrentNode) { return _to GetCurrentNode(aCurrentNode); } \
-  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode * aCurrentNode) { return _to SetCurrentNode(aCurrentNode); } \
+  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode **aCurrentNode) { return _to GetCurrentNode(aCurrentNode); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode *aCurrentNode) { return _to SetCurrentNode(aCurrentNode); } \
   NS_SCRIPTABLE NS_IMETHOD ParentNode(nsIDOMNode **_retval NS_OUTPARAM) { return _to ParentNode(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD FirstChild(nsIDOMNode **_retval NS_OUTPARAM) { return _to FirstChild(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD LastChild(nsIDOMNode **_retval NS_OUTPARAM) { return _to LastChild(_retval); } \
@@ -106,12 +106,12 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMTreeWalker : public nsISupports {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIDOMTREEWALKER(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode * *aRoot) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRoot(aRoot); } \
+  NS_SCRIPTABLE NS_IMETHOD GetRoot(nsIDOMNode **aRoot) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRoot(aRoot); } \
   NS_SCRIPTABLE NS_IMETHOD GetWhatToShow(PRUint32 *aWhatToShow) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetWhatToShow(aWhatToShow); } \
-  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter * *aFilter) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFilter(aFilter); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFilter(nsIDOMNodeFilter **aFilter) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFilter(aFilter); } \
   NS_SCRIPTABLE NS_IMETHOD GetExpandEntityReferences(PRBool *aExpandEntityReferences) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetExpandEntityReferences(aExpandEntityReferences); } \
-  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode * *aCurrentNode) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetCurrentNode(aCurrentNode); } \
-  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode * aCurrentNode) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCurrentNode(aCurrentNode); } \
+  NS_SCRIPTABLE NS_IMETHOD GetCurrentNode(nsIDOMNode **aCurrentNode) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetCurrentNode(aCurrentNode); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentNode(nsIDOMNode *aCurrentNode) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCurrentNode(aCurrentNode); } \
   NS_SCRIPTABLE NS_IMETHOD ParentNode(nsIDOMNode **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->ParentNode(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD FirstChild(nsIDOMNode **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->FirstChild(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD LastChild(nsIDOMNode **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->LastChild(_retval); } \
@@ -153,7 +153,7 @@ nsDOMTreeWalker::~nsDOMTreeWalker()
 }
 
 /* readonly attribute nsIDOMNode root; */
-NS_IMETHODIMP nsDOMTreeWalker::GetRoot(nsIDOMNode * *aRoot)
+NS_IMETHODIMP nsDOMTreeWalker::GetRoot(nsIDOMNode **aRoot)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -165,7 +165,7 @@ NS_IMETHODIMP nsDOMTreeWalker::GetWhatToShow(PRUint32 *aWhatToShow)
 }
 
 /* readonly attribute nsIDOMNodeFilter filter; */
-NS_IMETHODIMP nsDOMTreeWalker::GetFilter(nsIDOMNodeFilter * *aFilter)
+NS_IMETHODIMP nsDOMTreeWalker::GetFilter(nsIDOMNodeFilter **aFilter)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -177,11 +177,11 @@ NS_IMETHODIMP nsDOMTreeWalker::GetExpandEntityReferences(PRBool *aExpandEntityRe
 }
 
 /* attribute nsIDOMNode currentNode; */
-NS_IMETHODIMP nsDOMTreeWalker::GetCurrentNode(nsIDOMNode * *aCurrentNode)
+NS_IMETHODIMP nsDOMTreeWalker::GetCurrentNode(nsIDOMNode **aCurrentNode)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsDOMTreeWalker::SetCurrentNode(nsIDOMNode * aCurrentNode)
+NS_IMETHODIMP nsDOMTreeWalker::SetCurrentNode(nsIDOMNode *aCurrentNode)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

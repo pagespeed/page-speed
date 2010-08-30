@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/ds/nsIPropertyBag.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/ds/nsIPropertyBag.idl
  */
 
 #ifndef __gen_nsIPropertyBag_h__
@@ -35,7 +35,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPropertyBag : public nsISupports {
      * Get a nsISimpleEnumerator whose elements are nsIProperty objects.
      */
   /* readonly attribute nsISimpleEnumerator enumerator; */
-  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator * *aEnumerator) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator **aEnumerator) = 0;
 
   /**
      * Get a property value for the given name.
@@ -51,17 +51,17 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPropertyBag : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIPROPERTYBAG \
-  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator * *aEnumerator); \
+  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator **aEnumerator); \
   NS_SCRIPTABLE NS_IMETHOD GetProperty(const nsAString & name, nsIVariant **_retval NS_OUTPARAM); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIPROPERTYBAG(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator * *aEnumerator) { return _to GetEnumerator(aEnumerator); } \
+  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator **aEnumerator) { return _to GetEnumerator(aEnumerator); } \
   NS_SCRIPTABLE NS_IMETHOD GetProperty(const nsAString & name, nsIVariant **_retval NS_OUTPARAM) { return _to GetProperty(name, _retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIPROPERTYBAG(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator * *aEnumerator) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetEnumerator(aEnumerator); } \
+  NS_SCRIPTABLE NS_IMETHOD GetEnumerator(nsISimpleEnumerator **aEnumerator) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetEnumerator(aEnumerator); } \
   NS_SCRIPTABLE NS_IMETHOD GetProperty(const nsAString & name, nsIVariant **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetProperty(name, _retval); } 
 
 #if 0
@@ -97,7 +97,7 @@ nsPropertyBag::~nsPropertyBag()
 }
 
 /* readonly attribute nsISimpleEnumerator enumerator; */
-NS_IMETHODIMP nsPropertyBag::GetEnumerator(nsISimpleEnumerator * *aEnumerator)
+NS_IMETHODIMP nsPropertyBag::GetEnumerator(nsISimpleEnumerator **aEnumerator)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

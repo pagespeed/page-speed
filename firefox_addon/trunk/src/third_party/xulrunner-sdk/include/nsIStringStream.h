@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/io/nsIStringStream.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/io/nsIStringStream.idl
  */
 
 #ifndef __gen_nsIStringStream_h__
@@ -27,8 +27,6 @@
  *
  * Provides scriptable and specialized C++-only methods for initializing a
  * nsIInputStream implementation with a simple character array.
- *
- * @status UNDER_REVIEW
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIStringInputStream : public nsIInputStream {
  public: 
@@ -65,7 +63,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIStringInputStream : public nsIInputStream {
      * @param dataLen   - stream data length (-1 if length should be computed)
      */
   /* [noscript] void adoptData (in charPtr data, in long dataLen); */
-  NS_IMETHOD AdoptData(char * data, PRInt32 dataLen) = 0;
+  NS_IMETHOD AdoptData(char *data, PRInt32 dataLen) = 0;
 
   /**
      * ShareData - assign data to the input stream.  the input stream references
@@ -85,19 +83,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIStringInputStream : public nsIInputStream {
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSISTRINGINPUTSTREAM \
   NS_SCRIPTABLE NS_IMETHOD SetData(const char *data, PRInt32 dataLen); \
-  NS_IMETHOD AdoptData(char * data, PRInt32 dataLen); \
+  NS_IMETHOD AdoptData(char *data, PRInt32 dataLen); \
   NS_IMETHOD ShareData(const char *data, PRInt32 dataLen); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSISTRINGINPUTSTREAM(_to) \
   NS_SCRIPTABLE NS_IMETHOD SetData(const char *data, PRInt32 dataLen) { return _to SetData(data, dataLen); } \
-  NS_IMETHOD AdoptData(char * data, PRInt32 dataLen) { return _to AdoptData(data, dataLen); } \
+  NS_IMETHOD AdoptData(char *data, PRInt32 dataLen) { return _to AdoptData(data, dataLen); } \
   NS_IMETHOD ShareData(const char *data, PRInt32 dataLen) { return _to ShareData(data, dataLen); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSISTRINGINPUTSTREAM(_to) \
   NS_SCRIPTABLE NS_IMETHOD SetData(const char *data, PRInt32 dataLen) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetData(data, dataLen); } \
-  NS_IMETHOD AdoptData(char * data, PRInt32 dataLen) { return !_to ? NS_ERROR_NULL_POINTER : _to->AdoptData(data, dataLen); } \
+  NS_IMETHOD AdoptData(char *data, PRInt32 dataLen) { return !_to ? NS_ERROR_NULL_POINTER : _to->AdoptData(data, dataLen); } \
   NS_IMETHOD ShareData(const char *data, PRInt32 dataLen) { return !_to ? NS_ERROR_NULL_POINTER : _to->ShareData(data, dataLen); } 
 
 #if 0
@@ -139,7 +137,7 @@ NS_IMETHODIMP nsStringInputStream::SetData(const char *data, PRInt32 dataLen)
 }
 
 /* [noscript] void adoptData (in charPtr data, in long dataLen); */
-NS_IMETHODIMP nsStringInputStream::AdoptData(char * data, PRInt32 dataLen)
+NS_IMETHODIMP nsStringInputStream::AdoptData(char *data, PRInt32 dataLen)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

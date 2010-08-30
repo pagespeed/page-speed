@@ -419,7 +419,7 @@ typedef ptrdiff_t PRPtrdiff;
 **      for storing a pointer or pointer sutraction. 
 ************************************************************************/
 #ifdef _WIN64
-typedef unsigned __int64 PRUptrdiff;
+typedef PRUint64 PRUptrdiff;
 #else
 typedef unsigned long PRUptrdiff;
 #endif
@@ -471,8 +471,8 @@ typedef PRUint16 PRUnichar;
 ** http://java.sun.com/docs/books/vmspec/index.html.)
 */
 #ifdef _WIN64
-typedef __int64 PRWord;
-typedef unsigned __int64 PRUword;
+typedef PRInt64 PRWord;
+typedef PRUint64 PRUword;
 #else
 typedef long PRWord;
 typedef unsigned long PRUword;
@@ -518,6 +518,14 @@ typedef unsigned long PRUword;
 
 /********* ????????????? End Fix me ?????????????????????????????? *****/
 #endif /* NO_NSPR_10_SUPPORT */
+
+/*
+** Compile-time assert. "condition" must be a constant expression.
+** The macro can be used only in places where an "extern" declaration is
+** allowed.
+*/
+#define PR_STATIC_ASSERT(condition) \
+    extern void pr_static_assert(int arg[(condition) ? 1 : -1])
 
 PR_END_EXTERN_C
 

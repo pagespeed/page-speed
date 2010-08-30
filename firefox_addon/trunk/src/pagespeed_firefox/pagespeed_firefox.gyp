@@ -18,78 +18,9 @@
     'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk',
     'xulrunner_sdk_os_root': '<(xulrunner_sdk_root)/arch/<(OS)',
     'xulrunner_sdk_arch_root': '<(xulrunner_sdk_os_root)/<(target_arch)',
-    'protoc_out_dir': '<(SHARED_INTERMEDIATE_DIR)/protoc_out',
     'xpidl_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xpidl_out',
   },
   'targets': [
-    {
-      'target_name': 'xulrunner_sdk',
-      'type': 'none',
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(SHARED_INTERMEDIATE_DIR)',  # For headers generated from idl files
-          '<(xulrunner_sdk_root)/include',
-          '<(xulrunner_sdk_os_root)/all/include',
-        ],
-        'defines': [
-          'NO_NSPR_10_SUPPORT',
-        ],
-        'conditions': [  # See https://developer.mozilla.org/en/XPCOM_Glue
-          ['OS == "linux"', {
-            'cflags': [
-              '-fshort-wchar',
-              '-include', 'pagespeed_firefox/<(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
-            ],
-            'ldflags': [
-              '-Lpagespeed_firefox/<(xulrunner_sdk_arch_root)/lib',
-              '-Lpagespeed_firefox/<(xulrunner_sdk_arch_root)/bin',
-              '-Wl,-rpath-link,pagespeed_firefox/<(xulrunner_sdk_arch_root)/bin',
-            ],
-            'link_settings': {
-              'libraries': [
-                '-lxpcomglue_s',
-                '-lxpcom',
-                '-lnspr4',
-            ]},
-          }],
-          ['OS == "mac"', {
-            'link_settings': {
-              'libraries': [
-                'libxpcomglue_s.a',
-                'libxpcom.dylib',
-                'libnspr4.dylib',
-              ],
-            },
-            'xcode_settings': {
-              'LIBRARY_SEARCH_PATHS': [
-                '<(xulrunner_sdk_arch_root)/lib',
-                '<(xulrunner_sdk_arch_root)/bin',
-              ],
-              'OTHER_CFLAGS': [
-                '-fshort-wchar',
-                '-include <(xulrunner_sdk_os_root)/all/include/xpcom-config.h',
-              ],
-            },
-          }],
-          ['OS == "win"', {
-            'cflags': [
-              '/FI "xpcom-config.h"',
-              '/Zc:wchar_t-',
-            ],
-            'defines': [
-              'XP_WIN',
-            ],
-            'link_settings': {
-              'libraries': [
-                '<(xulrunner_sdk_arch_root)/lib/xpcomglue_s.lib',
-                '<(xulrunner_sdk_arch_root)/lib/xpcom.lib',
-                '<(xulrunner_sdk_arch_root)/lib/nspr4.lib',
-              ],
-            },
-          }]
-        ],
-      },
-    },
     {
       'target_name': 'pagespeed_firefox_genidl',
       'type': 'none',
@@ -117,7 +48,7 @@
         },
       ],
       'dependencies': [
-        'xulrunner_sdk',
+        '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -125,7 +56,7 @@
         ]
       },
       'export_dependent_settings': [
-        'xulrunner_sdk',
+        '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
       ],
     },
     {
@@ -186,12 +117,12 @@
       'target_name': 'pagespeed_firefox_library_rules',
       'type': '<(library)',
       'dependencies': [
-        'xulrunner_sdk',
         'pagespeed_firefox_file_util',
         'pagespeed_firefox_genidl',
         'pagespeed_firefox_json_input',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+        '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed',
         '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
@@ -218,7 +149,7 @@
         'src_root': 'cpp',
       },
       'dependencies': [
-        'xulrunner_sdk',
+        '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
         'pagespeed_firefox_library_rules',
       ],
       'defines': [

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/io/nsIPipe.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/io/nsIPipe.idl
  */
 
 #ifndef __gen_nsIPipe_h__
@@ -87,13 +87,13 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPipe : public nsISupports {
      * The pipe's input end, which also implements nsISearchableInputStream.
      */
   /* readonly attribute nsIAsyncInputStream inputStream; */
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream * *aInputStream) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream **aInputStream) = 0;
 
   /**
      * The pipe's output end.
      */
   /* readonly attribute nsIAsyncOutputStream outputStream; */
-  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream * *aOutputStream) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream **aOutputStream) = 0;
 
 };
 
@@ -102,20 +102,20 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIPipe : public nsISupports {
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIPIPE \
   NS_SCRIPTABLE NS_IMETHOD Init(PRBool nonBlockingInput, PRBool nonBlockingOutput, PRUint32 segmentSize, PRUint32 segmentCount, nsIMemory *segmentAllocator); \
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream * *aInputStream); \
-  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream * *aOutputStream); 
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream **aInputStream); \
+  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream **aOutputStream); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIPIPE(_to) \
   NS_SCRIPTABLE NS_IMETHOD Init(PRBool nonBlockingInput, PRBool nonBlockingOutput, PRUint32 segmentSize, PRUint32 segmentCount, nsIMemory *segmentAllocator) { return _to Init(nonBlockingInput, nonBlockingOutput, segmentSize, segmentCount, segmentAllocator); } \
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream * *aInputStream) { return _to GetInputStream(aInputStream); } \
-  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream * *aOutputStream) { return _to GetOutputStream(aOutputStream); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream **aInputStream) { return _to GetInputStream(aInputStream); } \
+  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream **aOutputStream) { return _to GetOutputStream(aOutputStream); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIPIPE(_to) \
   NS_SCRIPTABLE NS_IMETHOD Init(PRBool nonBlockingInput, PRBool nonBlockingOutput, PRUint32 segmentSize, PRUint32 segmentCount, nsIMemory *segmentAllocator) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(nonBlockingInput, nonBlockingOutput, segmentSize, segmentCount, segmentAllocator); } \
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream * *aInputStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInputStream(aInputStream); } \
-  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream * *aOutputStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetOutputStream(aOutputStream); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIAsyncInputStream **aInputStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInputStream(aInputStream); } \
+  NS_SCRIPTABLE NS_IMETHOD GetOutputStream(nsIAsyncOutputStream **aOutputStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetOutputStream(aOutputStream); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -156,13 +156,13 @@ NS_IMETHODIMP nsPipe::Init(PRBool nonBlockingInput, PRBool nonBlockingOutput, PR
 }
 
 /* readonly attribute nsIAsyncInputStream inputStream; */
-NS_IMETHODIMP nsPipe::GetInputStream(nsIAsyncInputStream * *aInputStream)
+NS_IMETHODIMP nsPipe::GetInputStream(nsIAsyncInputStream **aInputStream)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIAsyncOutputStream outputStream; */
-NS_IMETHODIMP nsPipe::GetOutputStream(nsIAsyncOutputStream * *aOutputStream)
+NS_IMETHODIMP nsPipe::GetOutputStream(nsIAsyncOutputStream **aOutputStream)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -260,7 +260,7 @@ NS_IMETHODIMP nsSearchableInputStream::Search(const char *forString, PRBool igno
 /**
  * NS_NewPipe2
  *
- * This function supercedes NS_NewPipe.  It differs from NS_NewPipe in two
+ * This function supersedes NS_NewPipe.  It differs from NS_NewPipe in two
  * major ways:
  *  (1) returns nsIAsyncInputStream and nsIAsyncOutputStream, so it is
  *      not necessary to QI in order to access these interfaces.

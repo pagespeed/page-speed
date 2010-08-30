@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/base/nsrootidl.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/base/nsrootidl.idl
  */
 
 #ifndef __gen_nsrootidl_h__
@@ -21,33 +21,32 @@ class nsACString;
 #if 0
 /**
  * Root idl declarations to be used by all.
- * @status FROZEN
  */
-typedef PRBool PRBool;
+typedef PRBool  PRBool;
 
-typedef PRUint8 PRUint8;
+typedef PRUint8  PRUint8;
 
-typedef PRUint16 PRUint16;
+typedef PRUint16  PRUint16;
 
-typedef PRUint16 PRUnichar;
+typedef PRUint16  PRUnichar;
 
-typedef PRUint32 PRUint32;
+typedef PRUint32  PRUint32;
 
-typedef PRUint64 PRUint64;
+typedef PRUint64  PRUint64;
 
-typedef PRUint64 PRTime;
+typedef PRUint64  PRTime;
 
-typedef PRInt16 PRInt16;
+typedef PRInt16  PRInt16;
 
-typedef PRInt32 PRInt32;
+typedef PRInt32  PRInt32;
 
-typedef PRInt64 PRInt64;
+typedef PRInt64  PRInt64;
 
-typedef PRUint32 nsrefcnt;
+typedef PRUint32  nsrefcnt;
 
-typedef PRUint32 nsresult;
+typedef PRUint32  nsresult;
 
-typedef PRUint32 size_t;
+typedef PRUint32  size_t;
 
 /* 
  * End commenting out the C++ versions of the above in the output header

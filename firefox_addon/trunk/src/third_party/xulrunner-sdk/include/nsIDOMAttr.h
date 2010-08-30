@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/core/nsIDOMAttr.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/core/nsIDOMAttr.idl
  */
 
 #ifndef __gen_nsIDOMAttr_h__
@@ -34,8 +34,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMAttr : public nsIDOMNode {
  * 
  * For more information on this interface please see 
  * http://www.w3.org/TR/DOM-Level-2-Core/
- *
- * @status FROZEN
  */
   /* readonly attribute DOMString name; */
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) = 0;
@@ -48,7 +46,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMAttr : public nsIDOMNode {
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) = 0;
 
   /* readonly attribute nsIDOMElement ownerElement; */
-  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement * *aOwnerElement) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement **aOwnerElement) = 0;
 
 };
 
@@ -60,7 +58,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMAttr : public nsIDOMNode {
   NS_SCRIPTABLE NS_IMETHOD GetSpecified(PRBool *aSpecified); \
   NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue); \
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue); \
-  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement * *aOwnerElement); 
+  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement **aOwnerElement); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIDOMATTR(_to) \
@@ -68,7 +66,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMAttr : public nsIDOMNode {
   NS_SCRIPTABLE NS_IMETHOD GetSpecified(PRBool *aSpecified) { return _to GetSpecified(aSpecified); } \
   NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) { return _to GetValue(aValue); } \
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) { return _to SetValue(aValue); } \
-  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement * *aOwnerElement) { return _to GetOwnerElement(aOwnerElement); } 
+  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement **aOwnerElement) { return _to GetOwnerElement(aOwnerElement); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIDOMATTR(_to) \
@@ -76,7 +74,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMAttr : public nsIDOMNode {
   NS_SCRIPTABLE NS_IMETHOD GetSpecified(PRBool *aSpecified) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetSpecified(aSpecified); } \
   NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetValue(aValue); } \
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetValue(aValue); } \
-  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement * *aOwnerElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetOwnerElement(aOwnerElement); } 
+  NS_SCRIPTABLE NS_IMETHOD GetOwnerElement(nsIDOMElement **aOwnerElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetOwnerElement(aOwnerElement); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -133,7 +131,7 @@ NS_IMETHODIMP nsDOMAttr::SetValue(const nsAString & aValue)
 }
 
 /* readonly attribute nsIDOMElement ownerElement; */
-NS_IMETHODIMP nsDOMAttr::GetOwnerElement(nsIDOMElement * *aOwnerElement)
+NS_IMETHODIMP nsDOMAttr::GetOwnerElement(nsIDOMElement **aOwnerElement)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

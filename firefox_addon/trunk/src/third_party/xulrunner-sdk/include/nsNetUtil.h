@@ -23,6 +23,7 @@
  * Contributor(s):
  *   Bradley Baetz <bbaetz@student.usyd.edu.au>
  *   Malcolm Smith <malsmith@cs.rmit.edu.au>
+ *   Taras Glek <tglek@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -88,6 +89,7 @@
 #include "nsInterfaceRequestorAgg.h"
 #include "nsInt64.h"
 #include "nsINetUtil.h"
+#include "nsIURIWithPrincipal.h"
 #include "nsIAuthPrompt.h"
 #include "nsIAuthPrompt2.h"
 #include "nsIAuthPromptAdapterFactory.h"
@@ -96,15 +98,50 @@
 #include "nsINestedURI.h"
 #include "nsIMutable.h"
 #include "nsIPropertyBag2.h"
+#include "nsIWritablePropertyBag2.h"
 #include "nsIIDNService.h"
 #include "nsIChannelEventSink.h"
+#include "nsIChannelPolicy.h"
+#include "mozilla/Services.h"
 
+#ifdef MOZILLA_INTERNAL_API
+
+inline already_AddRefed<nsIIOService>
+do_GetIOService(nsresult* error = 0)
+{
+    already_AddRefed<nsIIOService> ret = mozilla::services::GetIOService();
+    if (error)
+        *error = ret.get() ? NS_OK : NS_ERROR_FAILURE;
+    return ret;
+}
+
+inline already_AddRefed<nsINetUtil>
+do_GetNetUtil(nsresult *error = 0) 
+{
+    nsCOMPtr<nsIIOService> io = mozilla::services::GetIOService();
+    already_AddRefed<nsINetUtil> ret = nsnull;
+    if (io)
+        CallQueryInterface(io, &ret.mRawPtr);
+
+    if (error)
+        *error = ret.get() ? NS_OK : NS_ERROR_FAILURE;
+    return ret;
+}
+#else
 // Helper, to simplify getting the I/O service.
 inline const nsGetServiceByContractIDWithError
 do_GetIOService(nsresult* error = 0)
 {
     return nsGetServiceByContractIDWithError(NS_IOSERVICE_CONTRACTID, error);
 }
+
+// An alias to do_GetIOService
+inline const nsGetServiceByContractIDWithError
+do_GetNetUtil(nsresult* error = 0)
+{
+    return do_GetIOService(error);
+}
+#endif
 
 // private little helper function... don't call this directly!
 inline nsresult
@@ -166,12 +203,13 @@ NS_NewFileURI(nsIURI* *result,
 }
 
 inline nsresult
-NS_NewChannel(nsIChannel           **result, 
+NS_NewChannel(nsIChannel           **result,
               nsIURI                *uri,
               nsIIOService          *ioService = nsnull,    // pass in nsIIOService to optimize callers
               nsILoadGroup          *loadGroup = nsnull,
               nsIInterfaceRequestor *callbacks = nsnull,
-              PRUint32               loadFlags = nsIRequest::LOAD_NORMAL)
+              PRUint32               loadFlags = nsIRequest::LOAD_NORMAL,
+              nsIChannelPolicy      *channelPolicy = nsnull)
 {
     nsresult rv;
     nsCOMPtr<nsIIOService> grip;
@@ -186,24 +224,18 @@ NS_NewChannel(nsIChannel           **result,
                 rv |= chan->SetNotificationCallbacks(callbacks);
             if (loadFlags != nsIRequest::LOAD_NORMAL)
                 rv |= chan->SetLoadFlags(loadFlags);
+            if (channelPolicy) {
+                nsCOMPtr<nsIWritablePropertyBag2> props = do_QueryInterface(chan, &rv);
+                if (props) {
+                    props->SetPropertyAsInterface(NS_CHANNEL_PROP_CHANNEL_POLICY,
+                                                  channelPolicy);
+                }
+            }
             if (NS_SUCCEEDED(rv))
                 chan.forget(result);
         }
     }
     return rv;
-}
-
-// For now, works only with JARChannel.  Future: with all channels that may
-// have Content-Disposition header (JAR, nsIHttpChannel, and nsIMultiPartChannel).
-inline nsresult
-NS_GetContentDisposition(nsIRequest     *channel,
-                         nsACString     &result)
-{
-    nsCOMPtr<nsIPropertyBag2> props(do_QueryInterface(channel));
-    if (props)
-        return props->GetPropertyAsACString(NS_CHANNEL_PROP_CONTENT_DISPOSITION,
-                                            result);
-    return NS_ERROR_NOT_AVAILABLE;
 }
 
 // Use this function with CAUTION. It creates a stream that blocks when you
@@ -867,7 +899,7 @@ NS_ParseContentType(const nsACString &rawContentType,
 {
     // contentCharset is left untouched if not present in rawContentType
     nsresult rv;
-    nsCOMPtr<nsINetUtil> util = do_GetIOService(&rv);
+    nsCOMPtr<nsINetUtil> util = do_GetNetUtil(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCString charset;
     PRBool hadCharset;
@@ -887,7 +919,7 @@ NS_ExtractCharsetFromContentType(const nsACString &rawContentType,
 {
     // contentCharset is left untouched if not present in rawContentType
     nsresult rv;
-    nsCOMPtr<nsINetUtil> util = do_GetIOService(&rv);
+    nsCOMPtr<nsINetUtil> util = do_GetNetUtil(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     return util->ExtractCharsetFromContentType(rawContentType,
@@ -1098,6 +1130,33 @@ NS_NewPostDataStream(nsIInputStream  **result,
 
     NS_ADDREF(*result = stream);
     return NS_OK;
+}
+
+inline nsresult
+NS_ReadInputStreamToString(nsIInputStream *aInputStream, 
+                           nsACString &aDest,
+                           PRUint32 aCount)
+{
+    nsresult rv;
+
+    aDest.SetLength(aCount);
+    if (aDest.Length() != aCount)
+        return NS_ERROR_OUT_OF_MEMORY;
+    char * p = aDest.BeginWriting();
+    PRUint32 bytesRead;
+    PRUint32 totalRead = 0;
+    while (1) {
+        rv = aInputStream->Read(p + totalRead, aCount - totalRead, &bytesRead);
+        if (!NS_SUCCEEDED(rv)) 
+            return rv;
+        totalRead += bytesRead;
+        if (totalRead == aCount)
+            break;
+        // if Read reads 0 bytes, we've hit EOF 
+        if (bytesRead == 0)
+            return NS_ERROR_UNEXPECTED;
+    }
+    return rv; 
 }
 
 inline nsresult
@@ -1395,7 +1454,13 @@ NS_EnsureSafeToReturn(nsIURI* uri, nsIURI** result)
         return NS_OK;
     }
 
-    return uri->Clone(result);
+    nsresult rv = uri->Clone(result);
+    if (NS_SUCCEEDED(rv) && !*result) {
+        NS_ERROR("nsIURI.clone contract was violated");
+        return NS_ERROR_UNEXPECTED;
+    }
+
+    return rv;
 }
 
 /**
@@ -1420,10 +1485,11 @@ NS_TryToMakeImmutable(nsIURI* uri,
                       nsresult* outRv = nsnull)
 {
     nsresult rv;
-    nsCOMPtr<nsINetUtil> util = do_GetIOService(&rv);
+    nsCOMPtr<nsINetUtil> util = do_GetNetUtil(&rv);
+
     nsIURI* result = nsnull;
     if (NS_SUCCEEDED(rv)) {
-        NS_ASSERTION(util, "do_GetIOService lied");
+        NS_ASSERTION(util, "do_GetNetUtil lied");
         rv = util->ToImmutableURI(uri, &result);
     }
 
@@ -1448,7 +1514,7 @@ NS_URIChainHasFlags(nsIURI   *uri,
                     PRBool   *result)
 {
     nsresult rv;
-    nsCOMPtr<nsINetUtil> util = do_GetIOService(&rv);
+    nsCOMPtr<nsINetUtil> util = do_GetNetUtil(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     return util->URIChainHasFlags(uri, flags, result);
@@ -1560,6 +1626,17 @@ NS_SecurityCompareURIs(nsIURI* aSourceURI,
     // If either URI is a nested URI, get the base URI
     nsCOMPtr<nsIURI> sourceBaseURI = NS_GetInnermostURI(aSourceURI);
     nsCOMPtr<nsIURI> targetBaseURI = NS_GetInnermostURI(aTargetURI);
+
+    // If either uri is an nsIURIWithPrincipal
+    nsCOMPtr<nsIURIWithPrincipal> uriPrinc = do_QueryInterface(sourceBaseURI);
+    if (uriPrinc) {
+        uriPrinc->GetPrincipalUri(getter_AddRefs(sourceBaseURI));
+    }
+
+    uriPrinc = do_QueryInterface(targetBaseURI);
+    if (uriPrinc) {
+        uriPrinc->GetPrincipalUri(getter_AddRefs(targetBaseURI));
+    }
 
     if (!sourceBaseURI || !targetBaseURI)
         return PR_FALSE;

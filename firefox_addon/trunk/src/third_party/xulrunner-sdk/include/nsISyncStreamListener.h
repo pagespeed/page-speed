@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsISyncStreamListener.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsISyncStreamListener.idl
  */
 
 #ifndef __gen_nsISyncStreamListener_h__
@@ -36,7 +36,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsISyncStreamListener : public nsIStreamListene
      * thread's event queue, which could result in any event being processed.
      */
   /* readonly attribute nsIInputStream inputStream; */
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream * *aInputStream) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream **aInputStream) = 0;
 
 };
 
@@ -44,15 +44,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsISyncStreamListener : public nsIStreamListene
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSISYNCSTREAMLISTENER \
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream * *aInputStream); 
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream **aInputStream); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSISYNCSTREAMLISTENER(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream * *aInputStream) { return _to GetInputStream(aInputStream); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream **aInputStream) { return _to GetInputStream(aInputStream); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSISYNCSTREAMLISTENER(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream * *aInputStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInputStream(aInputStream); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInputStream(nsIInputStream **aInputStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInputStream(aInputStream); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -87,7 +87,7 @@ nsSyncStreamListener::~nsSyncStreamListener()
 }
 
 /* readonly attribute nsIInputStream inputStream; */
-NS_IMETHODIMP nsSyncStreamListener::GetInputStream(nsIInputStream * *aInputStream)
+NS_IMETHODIMP nsSyncStreamListener::GetInputStream(nsIInputStream **aInputStream)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIAuthPrompt.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIAuthPrompt.idl
  */
 
 #ifndef __gen_nsIAuthPrompt_h__
@@ -24,9 +24,6 @@ class nsIPrompt; /* forward declaration */
   {0x358089f9, 0xee4b, 0x4711, \
     { 0x82, 0xfd, 0xbc, 0xd0, 0x7f, 0xc6, 0x20, 0x61 }}
 
-/**
- * @status UNDER_REVIEW
- */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIAuthPrompt : public nsISupports {
  public: 
 

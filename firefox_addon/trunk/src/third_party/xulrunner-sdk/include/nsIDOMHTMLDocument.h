@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLDocument.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLDocument.idl
  */
 
 #ifndef __gen_nsIDOMHTMLDocument_h__
@@ -28,8 +28,6 @@
  *
  * For more information on this interface please see
  * http://www.w3.org/TR/DOM-Level-2-HTML/
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLDocument : public nsIDOMDocument {
  public: 
@@ -50,23 +48,23 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLDocument : public nsIDOMDocument {
   NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) = 0;
 
   /* attribute nsIDOMHTMLElement body; */
-  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement * *aBody) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement * aBody) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement **aBody) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement *aBody) = 0;
 
   /* readonly attribute nsIDOMHTMLCollection images; */
-  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection * *aImages) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection **aImages) = 0;
 
   /* readonly attribute nsIDOMHTMLCollection applets; */
-  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection * *aApplets) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection **aApplets) = 0;
 
   /* readonly attribute nsIDOMHTMLCollection links; */
-  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection * *aLinks) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection **aLinks) = 0;
 
   /* readonly attribute nsIDOMHTMLCollection forms; */
-  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection * *aForms) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection **aForms) = 0;
 
   /* readonly attribute nsIDOMHTMLCollection anchors; */
-  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection * *aAnchors) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection **aAnchors) = 0;
 
   /* attribute DOMString cookie; */
   NS_SCRIPTABLE NS_IMETHOD GetCookie(nsAString & aCookie) = 0;
@@ -78,11 +76,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLDocument : public nsIDOMDocument {
   /* void close (); */
   NS_SCRIPTABLE NS_IMETHOD Close(void) = 0;
 
-  /* [noscript] void write (in DOMString text); */
-  NS_IMETHOD Write(const nsAString & text) = 0;
+  /* void write ([optional, Null (Stringify)] in DOMString text); */
+  NS_SCRIPTABLE NS_IMETHOD Write(const nsAString & text) = 0;
 
-  /* [noscript] void writeln (in DOMString text); */
-  NS_IMETHOD Writeln(const nsAString & text) = 0;
+  /* void writeln ([optional, Null (Stringify)] in DOMString text); */
+  NS_SCRIPTABLE NS_IMETHOD Writeln(const nsAString & text) = 0;
 
   /* nsIDOMNodeList getElementsByName (in DOMString elementName); */
   NS_SCRIPTABLE NS_IMETHOD GetElementsByName(const nsAString & elementName, nsIDOMNodeList **_retval NS_OUTPARAM) = 0;
@@ -98,19 +96,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLDocument : public nsIDOMDocument {
   NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsAString & aReferrer); \
   NS_IMETHOD GetDomain(nsAString & aDomain); \
   NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL); \
-  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement * *aBody); \
-  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement * aBody); \
-  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection * *aImages); \
-  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection * *aApplets); \
-  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection * *aLinks); \
-  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection * *aForms); \
-  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection * *aAnchors); \
+  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement **aBody); \
+  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement *aBody); \
+  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection **aImages); \
+  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection **aApplets); \
+  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection **aLinks); \
+  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection **aForms); \
+  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection **aAnchors); \
   NS_SCRIPTABLE NS_IMETHOD GetCookie(nsAString & aCookie); \
   NS_SCRIPTABLE NS_IMETHOD SetCookie(const nsAString & aCookie); \
   NS_IMETHOD Open(void); \
   NS_SCRIPTABLE NS_IMETHOD Close(void); \
-  NS_IMETHOD Write(const nsAString & text); \
-  NS_IMETHOD Writeln(const nsAString & text); \
+  NS_SCRIPTABLE NS_IMETHOD Write(const nsAString & text); \
+  NS_SCRIPTABLE NS_IMETHOD Writeln(const nsAString & text); \
   NS_SCRIPTABLE NS_IMETHOD GetElementsByName(const nsAString & elementName, nsIDOMNodeList **_retval NS_OUTPARAM); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
@@ -120,19 +118,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLDocument : public nsIDOMDocument {
   NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsAString & aReferrer) { return _to GetReferrer(aReferrer); } \
   NS_IMETHOD GetDomain(nsAString & aDomain) { return _to GetDomain(aDomain); } \
   NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return _to GetURL(aURL); } \
-  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement * *aBody) { return _to GetBody(aBody); } \
-  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement * aBody) { return _to SetBody(aBody); } \
-  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection * *aImages) { return _to GetImages(aImages); } \
-  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection * *aApplets) { return _to GetApplets(aApplets); } \
-  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection * *aLinks) { return _to GetLinks(aLinks); } \
-  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection * *aForms) { return _to GetForms(aForms); } \
-  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection * *aAnchors) { return _to GetAnchors(aAnchors); } \
+  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement **aBody) { return _to GetBody(aBody); } \
+  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement *aBody) { return _to SetBody(aBody); } \
+  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection **aImages) { return _to GetImages(aImages); } \
+  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection **aApplets) { return _to GetApplets(aApplets); } \
+  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection **aLinks) { return _to GetLinks(aLinks); } \
+  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection **aForms) { return _to GetForms(aForms); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection **aAnchors) { return _to GetAnchors(aAnchors); } \
   NS_SCRIPTABLE NS_IMETHOD GetCookie(nsAString & aCookie) { return _to GetCookie(aCookie); } \
   NS_SCRIPTABLE NS_IMETHOD SetCookie(const nsAString & aCookie) { return _to SetCookie(aCookie); } \
   NS_IMETHOD Open(void) { return _to Open(); } \
   NS_SCRIPTABLE NS_IMETHOD Close(void) { return _to Close(); } \
-  NS_IMETHOD Write(const nsAString & text) { return _to Write(text); } \
-  NS_IMETHOD Writeln(const nsAString & text) { return _to Writeln(text); } \
+  NS_SCRIPTABLE NS_IMETHOD Write(const nsAString & text) { return _to Write(text); } \
+  NS_SCRIPTABLE NS_IMETHOD Writeln(const nsAString & text) { return _to Writeln(text); } \
   NS_SCRIPTABLE NS_IMETHOD GetElementsByName(const nsAString & elementName, nsIDOMNodeList **_retval NS_OUTPARAM) { return _to GetElementsByName(elementName, _retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
@@ -142,19 +140,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLDocument : public nsIDOMDocument {
   NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsAString & aReferrer) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetReferrer(aReferrer); } \
   NS_IMETHOD GetDomain(nsAString & aDomain) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDomain(aDomain); } \
   NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetURL(aURL); } \
-  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement * *aBody) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetBody(aBody); } \
-  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement * aBody) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetBody(aBody); } \
-  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection * *aImages) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetImages(aImages); } \
-  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection * *aApplets) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetApplets(aApplets); } \
-  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection * *aLinks) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetLinks(aLinks); } \
-  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection * *aForms) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetForms(aForms); } \
-  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection * *aAnchors) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAnchors(aAnchors); } \
+  NS_SCRIPTABLE NS_IMETHOD GetBody(nsIDOMHTMLElement **aBody) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetBody(aBody); } \
+  NS_SCRIPTABLE NS_IMETHOD SetBody(nsIDOMHTMLElement *aBody) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetBody(aBody); } \
+  NS_SCRIPTABLE NS_IMETHOD GetImages(nsIDOMHTMLCollection **aImages) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetImages(aImages); } \
+  NS_SCRIPTABLE NS_IMETHOD GetApplets(nsIDOMHTMLCollection **aApplets) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetApplets(aApplets); } \
+  NS_SCRIPTABLE NS_IMETHOD GetLinks(nsIDOMHTMLCollection **aLinks) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetLinks(aLinks); } \
+  NS_SCRIPTABLE NS_IMETHOD GetForms(nsIDOMHTMLCollection **aForms) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetForms(aForms); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAnchors(nsIDOMHTMLCollection **aAnchors) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAnchors(aAnchors); } \
   NS_SCRIPTABLE NS_IMETHOD GetCookie(nsAString & aCookie) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetCookie(aCookie); } \
   NS_SCRIPTABLE NS_IMETHOD SetCookie(const nsAString & aCookie) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCookie(aCookie); } \
   NS_IMETHOD Open(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->Open(); } \
   NS_SCRIPTABLE NS_IMETHOD Close(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->Close(); } \
-  NS_IMETHOD Write(const nsAString & text) { return !_to ? NS_ERROR_NULL_POINTER : _to->Write(text); } \
-  NS_IMETHOD Writeln(const nsAString & text) { return !_to ? NS_ERROR_NULL_POINTER : _to->Writeln(text); } \
+  NS_SCRIPTABLE NS_IMETHOD Write(const nsAString & text) { return !_to ? NS_ERROR_NULL_POINTER : _to->Write(text); } \
+  NS_SCRIPTABLE NS_IMETHOD Writeln(const nsAString & text) { return !_to ? NS_ERROR_NULL_POINTER : _to->Writeln(text); } \
   NS_SCRIPTABLE NS_IMETHOD GetElementsByName(const nsAString & elementName, nsIDOMNodeList **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetElementsByName(elementName, _retval); } 
 
 #if 0
@@ -218,41 +216,41 @@ NS_IMETHODIMP nsDOMHTMLDocument::GetURL(nsAString & aURL)
 }
 
 /* attribute nsIDOMHTMLElement body; */
-NS_IMETHODIMP nsDOMHTMLDocument::GetBody(nsIDOMHTMLElement * *aBody)
+NS_IMETHODIMP nsDOMHTMLDocument::GetBody(nsIDOMHTMLElement **aBody)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsDOMHTMLDocument::SetBody(nsIDOMHTMLElement * aBody)
+NS_IMETHODIMP nsDOMHTMLDocument::SetBody(nsIDOMHTMLElement *aBody)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIDOMHTMLCollection images; */
-NS_IMETHODIMP nsDOMHTMLDocument::GetImages(nsIDOMHTMLCollection * *aImages)
+NS_IMETHODIMP nsDOMHTMLDocument::GetImages(nsIDOMHTMLCollection **aImages)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIDOMHTMLCollection applets; */
-NS_IMETHODIMP nsDOMHTMLDocument::GetApplets(nsIDOMHTMLCollection * *aApplets)
+NS_IMETHODIMP nsDOMHTMLDocument::GetApplets(nsIDOMHTMLCollection **aApplets)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIDOMHTMLCollection links; */
-NS_IMETHODIMP nsDOMHTMLDocument::GetLinks(nsIDOMHTMLCollection * *aLinks)
+NS_IMETHODIMP nsDOMHTMLDocument::GetLinks(nsIDOMHTMLCollection **aLinks)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIDOMHTMLCollection forms; */
-NS_IMETHODIMP nsDOMHTMLDocument::GetForms(nsIDOMHTMLCollection * *aForms)
+NS_IMETHODIMP nsDOMHTMLDocument::GetForms(nsIDOMHTMLCollection **aForms)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIDOMHTMLCollection anchors; */
-NS_IMETHODIMP nsDOMHTMLDocument::GetAnchors(nsIDOMHTMLCollection * *aAnchors)
+NS_IMETHODIMP nsDOMHTMLDocument::GetAnchors(nsIDOMHTMLCollection **aAnchors)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -279,13 +277,13 @@ NS_IMETHODIMP nsDOMHTMLDocument::Close()
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* [noscript] void write (in DOMString text); */
+/* void write ([optional, Null (Stringify)] in DOMString text); */
 NS_IMETHODIMP nsDOMHTMLDocument::Write(const nsAString & text)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* [noscript] void writeln (in DOMString text); */
+/* void writeln ([optional, Null (Stringify)] in DOMString text); */
 NS_IMETHODIMP nsDOMHTMLDocument::Writeln(const nsAString & text)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
