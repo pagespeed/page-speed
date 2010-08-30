@@ -54,12 +54,12 @@
         'conditions': [
           [ 'OS != "linux" and OS != "freebsd" and OS != "openbsd"', {
               'sources!': [
-                'atomicops_internals_x86_gcc.cc',
+                '<(chromium_root)/base/atomicops_internals_x86_gcc.cc',
               ],
           },],
           [ 'OS == "win"', {
               'sources!': [
-                'string16.cc',
+                '<(chromium_root)/base/string16.cc',
               ],
           },],
         ],
