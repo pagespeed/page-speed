@@ -286,6 +286,10 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
       node.GetTagName() == "SCRIPT" ||
       node.GetTagName() == "IFRAME" ||
       node.GetTagName() == "EMBED") {
+    // NOTE: an iframe created/manipulated via JS may not have a "src"
+    // attribute but can still have children. We should handle this
+    // case. This most likely requires redefining the
+    // ParentChildResourceMap structure.
     std::string src;
     if (node.GetAttributeByName("src", &src)) {
       ResourceType type;
