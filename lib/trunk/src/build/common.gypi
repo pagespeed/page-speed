@@ -394,13 +394,6 @@
           },
         },
         'conditions': [
-          ['win_release_RuntimeLibrary==2', {
-            # Visual C++ 2008 barfs when building anything with /MD (msvcrt):
-            #  VC\include\typeinfo(139) : warning C4275: non dll-interface
-            #  class 'stdext::exception' used as base for dll-interface
-            #  class 'std::bad_cast'
-            'msvs_disabled_warnings': [4275],
-          }],
           ['OS=="linux"', {
             'cflags': [
              '<@(release_extra_cflags)',
@@ -763,7 +756,7 @@
                       # Define strip_from_xcode in a variable ending in _path
                       # so that gyp understands it's a path and performs proper
                       # relativization during dict merging.
-                      'strip_from_xcode_path': 'mac/strip_from_xcode',
+                      'strip_from_xcode_path': '<(DEPTH)/build/mac/strip_from_xcode',
                     },
                     'postbuild_name': 'Strip If Needed',
                     'action': ['<(strip_from_xcode_path)'],
