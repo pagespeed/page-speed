@@ -29,22 +29,26 @@
  #include "third_party/npapi/bindings/nphostapi.h"
 #endif
 
+#include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/formatters/text_formatter.h"
+#include "pagespeed/filters/ad_filter.h"
+#include "pagespeed/filters/tracker_filter.h"
+#include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
 
 // These are the method names as JavaScript sees them:
-const char* kAppendDataMethodId = "appendData";
+const char* kAppendInputMethodId = "appendInput";
 const char* kRunPageSpeedMethodId = "runPageSpeed";
-const char* kGetOutputMethodId = "getOutput";
+const char* kReadMoreOutputMethodId = "readMoreOutput";
 
 // Buffers for input/output; data has to be transferred a piece at a time,
 // because SRPC currently can't handle strings larger than one or two dozen
@@ -55,12 +59,29 @@ size_t output_start = 0;
 // How much output we send per call to getOutput():
 const size_t kChunkSize = 8192;
 
+pagespeed::ResourceFilter* NewFilter(const std::string& analyze) {
+  if (analyze == "ads") {
+    return new pagespeed::NotResourceFilter(new pagespeed::AdFilter());
+  } else if (analyze == "trackers") {
+    return new pagespeed::NotResourceFilter(new pagespeed::TrackerFilter());
+  } else if (analyze == "content") {
+    return new pagespeed::AndResourceFilter(new pagespeed::AdFilter(),
+                                            new pagespeed::TrackerFilter());
+  } else {
+    if (analyze != "all") {
+      LOG(DFATAL) << "Unknown filter type: " << analyze;
+    }
+    return new pagespeed::AllowAllResourceFilter();
+  }
+}
+
 // Parse the HAR data and run the Page Speed rules, then format the results.
 // Return false if the HAR data could not be parsed, true otherwise.
-bool RunPageSpeedRules(const std::string& har_data,
+bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
+                       const std::string& har_data,
                        std::string* output) {
   scoped_ptr<pagespeed::PagespeedInput> input(
-      pagespeed::ParseHttpArchive(har_data));
+      pagespeed::ParseHttpArchiveWithFilter(har_data, filter));
 
   if (input.get() == NULL) {
     return false;
@@ -83,7 +104,7 @@ bool RunPageSpeedRules(const std::string& har_data,
   engine.Init();
 
   std::stringstream stream;
-  pagespeed::formatters::TextFormatter formatter(&stream);
+  pagespeed::formatters::JsonFormatter formatter(&stream, NULL);
 
   engine.ComputeAndFormatResults(*input, &formatter);
 
@@ -93,11 +114,11 @@ bool RunPageSpeedRules(const std::string& har_data,
 }
 
 // Accept a chunk of data as a string, and append it to the input buffer.
-bool AppendData(const NPVariant& argument, NPVariant *result) {
+bool AppendInput(const NPVariant& argument, NPVariant *result) {
   if (result && NPVARIANT_IS_STRING(argument)) {
     const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
     input_buffer.append(arg_NPString.UTF8Characters,
-                       arg_NPString.UTF8Length);
+                        arg_NPString.UTF8Length);
     NULL_TO_NPVARIANT(*result);
   }
   return true;
@@ -105,11 +126,17 @@ bool AppendData(const NPVariant& argument, NPVariant *result) {
 
 // Run Page Speed on the contents of the input buffer, and put the results into
 // the output buffer.
-bool RunPageSpeed(NPVariant *result) {
-  if (result) {
+bool RunPageSpeed(const NPVariant& argument, NPVariant *result) {
+  if (result && NPVARIANT_IS_STRING(argument)) {
     output_start = 0;
     output_buffer.clear();
-    const bool success = RunPageSpeedRules(input_buffer, &output_buffer);
+
+    const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
+    const std::string arg_string(arg_NPString.UTF8Characters,
+                                 arg_NPString.UTF8Length);
+
+    const bool success = RunPageSpeedRules(NewFilter(arg_string),
+                                           input_buffer, &output_buffer);
     if (!success) {
       output_buffer.append("Error reading HAR");
     }
@@ -121,7 +148,7 @@ bool RunPageSpeed(NPVariant *result) {
 
 // Produce either a string with the next chunk of data from the output buffer,
 // or null to signify the end of the output.
-bool GetOutput(NPVariant *result) {
+bool ReadMoreOutput(NPVariant *result) {
   if (result) {
     if (output_start >= output_buffer.size()) {
       output_start = 0;
@@ -151,11 +178,11 @@ void Deallocate(NPObject* object) {
 bool HasMethod(NPObject* obj, NPIdentifier method_name) {
   char *name = NPN_UTF8FromIdentifier(method_name);
   bool has_method = false;
-  if (!strcmp((const char *)name, kAppendDataMethodId)) {
+  if (!strcmp((const char *)name, kAppendInputMethodId)) {
     has_method = true;
   } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
     has_method = true;
-  } else if (!strcmp((const char *)name, kGetOutputMethodId)) {
+  } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
     has_method = true;
   }
   NPN_MemFree(name);
@@ -185,14 +212,16 @@ bool Invoke(NPObject* obj,
   bool rval = false;
   // Map the method name to a function call.  |result| is filled in by the
   // called function, then gets returned to the browser when Invoke() returns.
-  if (!strcmp((const char *)name, kAppendDataMethodId)) {
+  if (!strcmp((const char *)name, kAppendInputMethodId)) {
     if (arg_count >= 1) {
-      rval = AppendData(args[0], result);
+      rval = AppendInput(args[0], result);
     }
   } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
-    rval = RunPageSpeed(result);
-  } else if (!strcmp((const char *)name, kGetOutputMethodId)) {
-    rval = GetOutput(result);
+    if (arg_count >= 1) {
+      rval = RunPageSpeed(args[0], result);
+    }
+  } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
+    rval = ReadMoreOutput(result);
   }
   // Since name was allocated above by NPN_UTF8FromIdentifier,
   // it needs to be freed here.

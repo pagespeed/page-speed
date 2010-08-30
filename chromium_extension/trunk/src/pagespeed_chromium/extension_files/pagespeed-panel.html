@@ -1,69 +1,58 @@
 <!doctype html>
+<!----------------------------------------------------------------------
+Copyright 2010 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+----------------------------------------------------------------------->
 <html>
   <head>
     <title>Page Speed</title>
-    <script>
-      function runPageSpeed() {
-        webInspector.resources.getAll(function (resources) {
-          try {
-            // Collect the HAR data.
-            var entries = [];
-            for (var index = 0; index < resources.length; ++index) {
-              entries.push(resources[index].har);
-            }
-            var har = {log: {entries: entries}};
-
-            // Display the HAR data to the user.
-            var har_string = JSON.stringify(har);
-            var har_textarea = document.getElementById('har_textarea');
-            har_textarea.value = har_string;
-
-            // Feed the HAR data into the NaCl module.  We have to do this a
-            // piece at a time, because SRPC currently can't handle strings
-            // larger than one or two dozen kilobytes.
-            var pagespeed = document.getElementById('pagespeed_nacl_module');
-            var har_length = har_string.length;
-            var kChunkSize = 8192;
-            for (var start = 0; start < har_length; start += kChunkSize) {
-              pagespeed.appendData(har_string.substr(start, kChunkSize));
-            }
-
-            // Run the rules.
-            pagespeed.runPageSpeed();
-
-            // Get the result data back from the NaCl module.  Again, this must
-            // be done a piece at a time.
-            var results = [];
-            while (true) {
-              var piece = pagespeed.getOutput();
-              if (typeof(piece) !== 'string') {
-                break;
-              }
-              results.push(piece);
-            }
-
-            // Display the results to the user.
-            var result_textarea = document.getElementById('result_textarea');
-            result_textarea.value = results.join("");
-          } catch (e) {
-            webInspector.log("Page Speed Error: " + e.message);
-          }
-        });
-      }
-    </script>
+    <link rel="stylesheet" href="pagespeed.css" />
+    <script src="pagespeed.js"></script>
   </head>
   <body>
-    <p>
-      <button onclick="runPageSpeed()">Run Page Speed</button>
-      <embed name="nacl_module" id="pagespeed_nacl_module" width="0" height="0"
+    <div class="control-bar">
+      <button id="run-button"
+              onclick="pagespeed.runPageSpeed()">Run Page Speed</button>
+      <img id="spinner-img" src="spinner.gif" />
+      <embed name="nacl_module" id="pagespeed-module"
+             width="0" height="0"
              nexes="x86-32: pagespeed_x86_32.nexe
                     x86-64: pagespeed_x86_64.nexe
                     ARM: pagespeed_arm.nexe"
              type="application/x-nacl-srpc" />
-    </p>
-    <p>
-      <textarea id="har_textarea" cols="40" rows="8">HAR</textarea>
-      <textarea id="result_textarea" cols="40" rows="8">Results</textarea>
-    </p>
+      <select id="analyze-dropdown">
+        <option value="all">Analyze entire page</option>
+        <option value="ads">Analyze ads only</option>
+        <option value="trackers">Analyze trackers only</option>
+        <option value="content">Analyze content only</option>
+      </select>
+    </div>
+    <div id="results-container"></div>
+    <div id="welcome-container">
+      <h1>Page Speed</h1>
+      <h2>What's new in Page Speed 2.0?</h2>
+      <ul>
+        <li>It's in Chromium!</li>
+        <li>Probably some other stuff?</li>
+      </ul>
+      <p>
+        See the <a href="http://code.google.com/speed/page-speed/docs/rules_intro.html">Page Speed documentation</a>
+        for detailed information on the rules used to evaluate web pages.
+      </p>
+      <p>
+        Page Speed Copyright &copy; 2010 Google Inc.
+      </p>
+    </div>
   </body>
 </html>
