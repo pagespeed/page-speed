@@ -41,8 +41,6 @@
             ],
             'ldflags': [
               '-Lthird_party/xulrunner-sdk/<(xulrunner_sdk_arch_root)/lib',
-              '-Lthird_party/xulrunner-sdk/<(xulrunner_sdk_arch_root)/bin',
-              '-Wl,-rpath-link,third_party/xulrunner-sdk/<(xulrunner_sdk_arch_root)/bin',
             ],
             'link_settings': {
               'libraries': [
@@ -61,8 +59,11 @@
             },
             'xcode_settings': {
               'LIBRARY_SEARCH_PATHS': [
-                '<(xulrunner_sdk_arch_root)/lib',
-                '<(xulrunner_sdk_arch_root)/bin',
+                # This needs to be relative to the code that depends
+                # upon it, so we're forced to prepend a bogus
+                # directory (cpp) in order to make this work relative
+                # to the pagespeed_firefox directory.
+                'cpp/<(xulrunner_sdk_arch_root)/lib',
               ],
               'OTHER_CFLAGS': [
                 '-fshort-wchar',
