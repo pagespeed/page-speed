@@ -128,8 +128,13 @@ TEST(PagespeedJsonErrorHandlingTest, Garbage) {
   std::vector<std::string> contents;
   PagespeedInput input;
   const char *data = "]{!#&$*@";
+#ifdef NDEBUG
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
+#else
+  ASSERT_DEATH(PopulateInputFromJSON(&input, data, contents),
+               "Input was not valid JSON.");
+#endif
 }
 
 TEST(PagespeedJsonErrorHandlingTest, InvalidKey) {
@@ -137,13 +142,23 @@ TEST(PagespeedJsonErrorHandlingTest, InvalidKey) {
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
                         "\"the_answer\":42}]");
+#ifdef NDEBUG
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
+#else
+  ASSERT_DEATH(PopulateInputFromJSON(&input, data, contents),
+               "Unknown attribute key: the_answer");
+#endif
 
   const char *data2 = ("[{\"req_url\":\"http://www.example.com/foo\","
                          "\"req_lazy_loaded\":1}]");
+#ifdef NDEBUG
   const bool ok2 = PopulateInputFromJSON(&input, data2, contents);
   ASSERT_FALSE(ok2);
+#else
+  ASSERT_DEATH(PopulateInputFromJSON(&input, data2, contents),
+               "req_lazy_loaded: 3");
+#endif
 
 }
 
@@ -152,8 +167,13 @@ TEST(PagespeedJsonErrorHandlingTest, InvalidType) {
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
                         "\"req_method\":42}]");
+#ifdef NDEBUG
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
+#else
+  ASSERT_DEATH(PopulateInputFromJSON(&input, data, contents),
+               "Expected string value.");
+#endif
 }
 
 TEST(PagespeedJsonErrorHandlingTest, InvalidBodyIndex) {
@@ -162,8 +182,13 @@ TEST(PagespeedJsonErrorHandlingTest, InvalidBodyIndex) {
   PagespeedInput input;
   const char *data = ("[{\"req_url\":\"http://www.example.com/foo\","
                         "\"res_body\":1}]");
+#ifdef NDEBUG
   const bool ok = PopulateInputFromJSON(&input, data, contents);
   ASSERT_FALSE(ok);
+#else
+  ASSERT_DEATH(PopulateInputFromJSON(&input, data, contents),
+               "Body index out of range: 1");
+#endif
 }
 
 }  // namespace
