@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIIOService.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIIOService.idl
  */
 
 #ifndef __gen_nsIIOService_h__
@@ -38,8 +38,6 @@ class nsIFile; /* forward declaration */
  * also provides a set of URL parsing utility functions.  These are provided
  * as a convenience to the programmer and in some cases to improve performance
  * by eliminating intermediate data structures and interfaces.
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIIOService : public nsISupports {
  public: 

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIRequest.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIRequest.idl
  */
 
 #ifndef __gen_nsIRequest_h__
@@ -16,7 +16,7 @@
 #endif
 class nsILoadGroup; /* forward declaration */
 
-typedef PRUint32 nsLoadFlags;
+typedef PRUint32  nsLoadFlags;
 
 
 /* starting interface:    nsIRequest */
@@ -28,8 +28,6 @@ typedef PRUint32 nsLoadFlags;
 
 /**
  * nsIRequest
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIRequest : public nsISupports {
  public: 
@@ -121,8 +119,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIRequest : public nsISupports {
      * to implement this policy.
      */
   /* attribute nsILoadGroup loadGroup; */
-  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup * *aLoadGroup) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup * aLoadGroup) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup **aLoadGroup) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup *aLoadGroup) = 0;
 
   /**
      * The load flags of this request.  Bits 0-15 are reserved.
@@ -230,8 +228,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIRequest : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Cancel(nsresult aStatus); \
   NS_SCRIPTABLE NS_IMETHOD Suspend(void); \
   NS_SCRIPTABLE NS_IMETHOD Resume(void); \
-  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup * *aLoadGroup); \
-  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup * aLoadGroup); \
+  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup **aLoadGroup); \
+  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup *aLoadGroup); \
   NS_SCRIPTABLE NS_IMETHOD GetLoadFlags(nsLoadFlags *aLoadFlags); \
   NS_SCRIPTABLE NS_IMETHOD SetLoadFlags(nsLoadFlags aLoadFlags); \
 
@@ -243,8 +241,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIRequest : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Cancel(nsresult aStatus) { return _to Cancel(aStatus); } \
   NS_SCRIPTABLE NS_IMETHOD Suspend(void) { return _to Suspend(); } \
   NS_SCRIPTABLE NS_IMETHOD Resume(void) { return _to Resume(); } \
-  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup * *aLoadGroup) { return _to GetLoadGroup(aLoadGroup); } \
-  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup * aLoadGroup) { return _to SetLoadGroup(aLoadGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup **aLoadGroup) { return _to GetLoadGroup(aLoadGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup *aLoadGroup) { return _to SetLoadGroup(aLoadGroup); } \
   NS_SCRIPTABLE NS_IMETHOD GetLoadFlags(nsLoadFlags *aLoadFlags) { return _to GetLoadFlags(aLoadFlags); } \
   NS_SCRIPTABLE NS_IMETHOD SetLoadFlags(nsLoadFlags aLoadFlags) { return _to SetLoadFlags(aLoadFlags); } \
 
@@ -256,8 +254,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIRequest : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Cancel(nsresult aStatus) { return !_to ? NS_ERROR_NULL_POINTER : _to->Cancel(aStatus); } \
   NS_SCRIPTABLE NS_IMETHOD Suspend(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->Suspend(); } \
   NS_SCRIPTABLE NS_IMETHOD Resume(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->Resume(); } \
-  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup * *aLoadGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetLoadGroup(aLoadGroup); } \
-  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup * aLoadGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetLoadGroup(aLoadGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD GetLoadGroup(nsILoadGroup **aLoadGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetLoadGroup(aLoadGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD SetLoadGroup(nsILoadGroup *aLoadGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetLoadGroup(aLoadGroup); } \
   NS_SCRIPTABLE NS_IMETHOD GetLoadFlags(nsLoadFlags *aLoadFlags) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetLoadFlags(aLoadFlags); } \
   NS_SCRIPTABLE NS_IMETHOD SetLoadFlags(nsLoadFlags aLoadFlags) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetLoadFlags(aLoadFlags); } \
 
@@ -330,11 +328,11 @@ NS_IMETHODIMP nsRequest::Resume()
 }
 
 /* attribute nsILoadGroup loadGroup; */
-NS_IMETHODIMP nsRequest::GetLoadGroup(nsILoadGroup * *aLoadGroup)
+NS_IMETHODIMP nsRequest::GetLoadGroup(nsILoadGroup **aLoadGroup)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsRequest::SetLoadGroup(nsILoadGroup * aLoadGroup)
+NS_IMETHODIMP nsRequest::SetLoadGroup(nsILoadGroup *aLoadGroup)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

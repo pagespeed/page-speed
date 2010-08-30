@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/core/nsIDOMDocument.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/core/nsIDOMDocument.idl
  */
 
 #ifndef __gen_nsIDOMDocument_h__
@@ -38,17 +38,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMDocument : public nsIDOMNode {
  *
  * For more information on this interface please see 
  * http://www.w3.org/TR/DOM-Level-2-Core/
- *
- * @status FROZEN
  */
   /* readonly attribute nsIDOMDocumentType doctype; */
-  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType * *aDoctype) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType **aDoctype) = 0;
 
   /* readonly attribute nsIDOMDOMImplementation implementation; */
-  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation * *aImplementation) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation **aImplementation) = 0;
 
   /* readonly attribute nsIDOMElement documentElement; */
-  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement * *aDocumentElement) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement **aDocumentElement) = 0;
 
   /* nsIDOMElement createElement (in DOMString tagName)  raises (DOMException); */
   NS_SCRIPTABLE NS_IMETHOD CreateElement(const nsAString & tagName, nsIDOMElement **_retval NS_OUTPARAM) = 0;
@@ -98,9 +96,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMDocument : public nsIDOMNode {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIDOMDOCUMENT \
-  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType * *aDoctype); \
-  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation * *aImplementation); \
-  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement * *aDocumentElement); \
+  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType **aDoctype); \
+  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation **aImplementation); \
+  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement **aDocumentElement); \
   NS_SCRIPTABLE NS_IMETHOD CreateElement(const nsAString & tagName, nsIDOMElement **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD CreateDocumentFragment(nsIDOMDocumentFragment **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD CreateTextNode(const nsAString & data, nsIDOMText **_retval NS_OUTPARAM); \
@@ -118,9 +116,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMDocument : public nsIDOMNode {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIDOMDOCUMENT(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType * *aDoctype) { return _to GetDoctype(aDoctype); } \
-  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation * *aImplementation) { return _to GetImplementation(aImplementation); } \
-  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement * *aDocumentElement) { return _to GetDocumentElement(aDocumentElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType **aDoctype) { return _to GetDoctype(aDoctype); } \
+  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation **aImplementation) { return _to GetImplementation(aImplementation); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement **aDocumentElement) { return _to GetDocumentElement(aDocumentElement); } \
   NS_SCRIPTABLE NS_IMETHOD CreateElement(const nsAString & tagName, nsIDOMElement **_retval NS_OUTPARAM) { return _to CreateElement(tagName, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD CreateDocumentFragment(nsIDOMDocumentFragment **_retval NS_OUTPARAM) { return _to CreateDocumentFragment(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD CreateTextNode(const nsAString & data, nsIDOMText **_retval NS_OUTPARAM) { return _to CreateTextNode(data, _retval); } \
@@ -138,9 +136,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMDocument : public nsIDOMNode {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIDOMDOCUMENT(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType * *aDoctype) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDoctype(aDoctype); } \
-  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation * *aImplementation) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetImplementation(aImplementation); } \
-  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement * *aDocumentElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDocumentElement(aDocumentElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDoctype(nsIDOMDocumentType **aDoctype) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDoctype(aDoctype); } \
+  NS_SCRIPTABLE NS_IMETHOD GetImplementation(nsIDOMDOMImplementation **aImplementation) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetImplementation(aImplementation); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDocumentElement(nsIDOMElement **aDocumentElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDocumentElement(aDocumentElement); } \
   NS_SCRIPTABLE NS_IMETHOD CreateElement(const nsAString & tagName, nsIDOMElement **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->CreateElement(tagName, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD CreateDocumentFragment(nsIDOMDocumentFragment **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->CreateDocumentFragment(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD CreateTextNode(const nsAString & data, nsIDOMText **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->CreateTextNode(data, _retval); } \
@@ -189,19 +187,19 @@ nsDOMDocument::~nsDOMDocument()
 }
 
 /* readonly attribute nsIDOMDocumentType doctype; */
-NS_IMETHODIMP nsDOMDocument::GetDoctype(nsIDOMDocumentType * *aDoctype)
+NS_IMETHODIMP nsDOMDocument::GetDoctype(nsIDOMDocumentType **aDoctype)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIDOMDOMImplementation implementation; */
-NS_IMETHODIMP nsDOMDocument::GetImplementation(nsIDOMDOMImplementation * *aImplementation)
+NS_IMETHODIMP nsDOMDocument::GetImplementation(nsIDOMDOMImplementation **aImplementation)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* readonly attribute nsIDOMElement documentElement; */
-NS_IMETHODIMP nsDOMDocument::GetDocumentElement(nsIDOMElement * *aDocumentElement)
+NS_IMETHODIMP nsDOMDocument::GetDocumentElement(nsIDOMElement **aDocumentElement)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

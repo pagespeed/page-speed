@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIURI.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIURI.idl
  */
 
 #ifndef __gen_nsIURI_h__
@@ -69,8 +69,6 @@
  *
  * The correct way to create an nsIURI from a string is via
  * nsIIOService.newURI.
- * 
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIURI : public nsISupports {
  public: 

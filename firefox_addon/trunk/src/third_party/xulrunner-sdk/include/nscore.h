@@ -45,6 +45,12 @@
 #include "xpcom-config.h"
 #endif
 
+/* Definitions of functions and operators that allocate memory. */
+#if !defined(XPCOM_GLUE) && !defined(NS_NO_XPCOM) && !defined(MOZ_NO_MOZALLOC)
+#  include "mozilla/mozalloc.h"
+#  include "mozilla/mozalloc_macro_wrappers.h"
+#endif
+
 /**
  * Incorporate the core NSPR data types which XPCOM uses.
  */
@@ -149,7 +155,7 @@
     (__GNUC__ >= 3) && !defined(XP_OS2)
 #define NS_FASTCALL __attribute__ ((regparm (3), stdcall))
 #define NS_CONSTRUCTOR_FASTCALL __attribute__ ((regparm (3), stdcall))
-#elif defined(XP_WIN)
+#elif defined(XP_WIN) && !defined(_WIN64)
 #define NS_FASTCALL __fastcall
 #define NS_CONSTRUCTOR_FASTCALL
 #else
@@ -318,6 +324,26 @@
 #  endif
 #endif
 
+#if (defined(DEBUG) || defined(FORCE_BUILD_REFCNT_LOGGING))
+/* Make refcnt logging part of the build. This doesn't mean that
+ * actual logging will occur (that requires a separate enable; see
+ * nsTraceRefcnt.h for more information).  */
+#define NS_BUILD_REFCNT_LOGGING
+#endif
+
+/* If NO_BUILD_REFCNT_LOGGING is defined then disable refcnt logging
+ * in the build. This overrides FORCE_BUILD_REFCNT_LOGGING. */
+#if defined(NO_BUILD_REFCNT_LOGGING)
+#undef NS_BUILD_REFCNT_LOGGING
+#endif
+
+/* If a program allocates memory for the lifetime of the app, it doesn't make
+ * sense to touch memory pages and free that memory at shutdown,
+ * unless we are running leak stats.
+ */
+#if defined(NS_TRACE_MALLOC) || defined(NS_BUILD_REFCNT_LOGGING) || defined(MOZ_VALGRIND)
+#define NS_FREE_PERMANENT_DATA
+#endif
 
 /**
  * NS_NO_VTABLE is emitted by xpidl in interface declarations whenever
@@ -356,9 +382,15 @@ typedef PRUint32 nsrefcnt;
 #endif
 
 /**
- * The preferred symbol for null.
+ * The preferred symbol for null.  Make sure this is the same size as
+ * void* on the target.  See bug 547964.
  */
-#define nsnull 0
+#if defined(_WIN64)
+# define nsnull 0LL
+#else
+# define nsnull 0L
+#endif
+
 
 #include "nsError.h"
 
@@ -431,6 +463,11 @@ typedef PRUint32 nsrefcnt;
  */
 #define NS_STRINGIFY_HELPER(x_) #x_
 #define NS_STRINGIFY(x_) NS_STRINGIFY_HELPER(x_)
+
+/*
+ * Use NS_CLAMP to force a value (such as a preference) into a range.
+ */
+#define NS_CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 /*
  * These macros allow you to give a hint to the compiler about branch
@@ -509,11 +546,13 @@ typedef PRUint32 nsrefcnt;
 # define NS_INPARAM __attribute__((user("NS_inparam")))
 # define NS_OUTPARAM  __attribute__((user("NS_outparam")))
 # define NS_INOUTPARAM __attribute__((user("NS_inoutparam")))
+# define NS_OVERRIDE __attribute__((user("NS_override")))
 #else
 # define NS_SCRIPTABLE
 # define NS_INPARAM
 # define NS_OUTPARAM
 # define NS_INOUTPARAM
+# define NS_OVERRIDE
 #endif
 
 #endif /* nscore_h___ */

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIStreamLoader.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIStreamLoader.idl
  */
 
 #ifndef __gen_nsIStreamLoader_h__
@@ -155,7 +155,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIStreamLoader : public nsIStreamListener {
      * null after the request has finished loading.
      */
   /* readonly attribute nsIRequest request; */
-  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest * *aRequest) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest **aRequest) = 0;
 
 };
 
@@ -165,19 +165,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIStreamLoader : public nsIStreamListener {
 #define NS_DECL_NSISTREAMLOADER \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIStreamLoaderObserver *aObserver); \
   NS_SCRIPTABLE NS_IMETHOD GetNumBytesRead(PRUint32 *aNumBytesRead); \
-  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest * *aRequest); 
+  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest **aRequest); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSISTREAMLOADER(_to) \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIStreamLoaderObserver *aObserver) { return _to Init(aObserver); } \
   NS_SCRIPTABLE NS_IMETHOD GetNumBytesRead(PRUint32 *aNumBytesRead) { return _to GetNumBytesRead(aNumBytesRead); } \
-  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest * *aRequest) { return _to GetRequest(aRequest); } 
+  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest **aRequest) { return _to GetRequest(aRequest); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSISTREAMLOADER(_to) \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIStreamLoaderObserver *aObserver) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aObserver); } \
   NS_SCRIPTABLE NS_IMETHOD GetNumBytesRead(PRUint32 *aNumBytesRead) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetNumBytesRead(aNumBytesRead); } \
-  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest * *aRequest) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRequest(aRequest); } 
+  NS_SCRIPTABLE NS_IMETHOD GetRequest(nsIRequest **aRequest) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRequest(aRequest); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -224,7 +224,7 @@ NS_IMETHODIMP nsStreamLoader::GetNumBytesRead(PRUint32 *aNumBytesRead)
 }
 
 /* readonly attribute nsIRequest request; */
-NS_IMETHODIMP nsStreamLoader::GetRequest(nsIRequest * *aRequest)
+NS_IMETHODIMP nsStreamLoader::GetRequest(nsIRequest **aRequest)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

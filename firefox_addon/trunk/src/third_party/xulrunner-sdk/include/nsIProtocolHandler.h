@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIProtocolHandler.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIProtocolHandler.idl
  */
 
 #ifndef __gen_nsIProtocolHandler_h__
@@ -28,8 +28,6 @@ class nsIChannel; /* forward declaration */
 
 /**
  * nsIProtocolHandler
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolHandler : public nsISupports {
  public: 
@@ -149,7 +147,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolHandler : public nsISupports {
   /**
      * +-------------------------------------------------------------------+
      * |                                                                   |
-     * |  ALL PROTOCOL HANDLERS MUST SET ONE OF THE FOLLOWING FOUR FLAGS.  |
+     * |  ALL PROTOCOL HANDLERS MUST SET ONE OF THE FOLLOWING FIVE FLAGS.  |
      * |                                                                   |
      * +-------------------------------------------------------------------+
      *
@@ -157,7 +155,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolHandler : public nsISupports {
      * protocol.  Note that if a URI is nested, only the flags for the
      * innermost URI matter.  See nsINestedURI.
      *
-     * If none of these four flags are set, the URI must be treated as if it
+     * If none of these five flags are set, the URI must be treated as if it
      * had the URI_LOADABLE_BY_ANYONE flag set, for compatibility with protocol
      * handlers written against Gecko 1.8 or earlier.  In this case, there may
      * be run-time warning messages indicating that a "default insecure"
@@ -197,6 +195,13 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProtocolHandler : public nsISupports {
      * flag.
      */
   enum { URI_IS_LOCAL_FILE = 512U };
+
+  /**
+     * The URIs for this protocol can be loaded only by callers with a
+     * principal that subsumes this uri. For example, privileged code and
+     * websites that are same origin as this uri.
+     */
+  enum { URI_LOADABLE_BY_SUBSUMERS = 16384U };
 
   /**
      * Loading channels from this protocol has side-effects that make

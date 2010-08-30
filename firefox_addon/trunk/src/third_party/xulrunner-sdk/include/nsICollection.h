@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/ds/nsICollection.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/ds/nsICollection.idl
  */
 
 #ifndef __gen_nsICollection_h__
@@ -38,7 +38,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsICollection : public nsISerializable {
   NS_SCRIPTABLE NS_IMETHOD GetElementAt(PRUint32 index, nsISupports **_retval NS_OUTPARAM) = 0;
 
   /* void QueryElementAt (in PRUint32 index, in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM) = 0;
 
   /* void SetElementAt (in PRUint32 index, in nsISupports item); */
   NS_SCRIPTABLE NS_IMETHOD SetElementAt(PRUint32 index, nsISupports *item) = 0;
@@ -63,7 +63,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsICollection : public nsISerializable {
 #define NS_DECL_NSICOLLECTION \
   NS_SCRIPTABLE NS_IMETHOD Count(PRUint32 *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetElementAt(PRUint32 index, nsISupports **_retval NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD SetElementAt(PRUint32 index, nsISupports *item); \
   NS_SCRIPTABLE NS_IMETHOD AppendElement(nsISupports *item); \
   NS_SCRIPTABLE NS_IMETHOD RemoveElement(nsISupports *item); \
@@ -74,7 +74,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsICollection : public nsISerializable {
 #define NS_FORWARD_NSICOLLECTION(_to) \
   NS_SCRIPTABLE NS_IMETHOD Count(PRUint32 *_retval NS_OUTPARAM) { return _to Count(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetElementAt(PRUint32 index, nsISupports **_retval NS_OUTPARAM) { return _to GetElementAt(index, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM) { return _to QueryElementAt(index, uuid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM) { return _to QueryElementAt(index, uuid, result); } \
   NS_SCRIPTABLE NS_IMETHOD SetElementAt(PRUint32 index, nsISupports *item) { return _to SetElementAt(index, item); } \
   NS_SCRIPTABLE NS_IMETHOD AppendElement(nsISupports *item) { return _to AppendElement(item); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveElement(nsISupports *item) { return _to RemoveElement(item); } \
@@ -85,7 +85,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsICollection : public nsISerializable {
 #define NS_FORWARD_SAFE_NSICOLLECTION(_to) \
   NS_SCRIPTABLE NS_IMETHOD Count(PRUint32 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Count(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetElementAt(PRUint32 index, nsISupports **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetElementAt(index, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->QueryElementAt(index, uuid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->QueryElementAt(index, uuid, result); } \
   NS_SCRIPTABLE NS_IMETHOD SetElementAt(PRUint32 index, nsISupports *item) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetElementAt(index, item); } \
   NS_SCRIPTABLE NS_IMETHOD AppendElement(nsISupports *item) { return !_to ? NS_ERROR_NULL_POINTER : _to->AppendElement(item); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveElement(nsISupports *item) { return !_to ? NS_ERROR_NULL_POINTER : _to->RemoveElement(item); } \
@@ -137,7 +137,7 @@ NS_IMETHODIMP nsCollection::GetElementAt(PRUint32 index, nsISupports **_retval N
 }
 
 /* void QueryElementAt (in PRUint32 index, in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-NS_IMETHODIMP nsCollection::QueryElementAt(PRUint32 index, const nsIID & uuid, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsCollection::QueryElementAt(PRUint32 index, const nsIID & uuid, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

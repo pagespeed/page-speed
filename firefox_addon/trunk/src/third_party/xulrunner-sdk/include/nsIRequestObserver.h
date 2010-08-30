@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIRequestObserver.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIRequestObserver.idl
  */
 
 #ifndef __gen_nsIRequestObserver_h__
@@ -26,8 +26,6 @@ class nsIRequest; /* forward declaration */
 
 /**
  * nsIRequestObserver
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIRequestObserver : public nsISupports {
  public: 

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/dom/interfaces/core/nsIDOMElement.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/core/nsIDOMElement.idl
  */
 
 #ifndef __gen_nsIDOMElement_h__
@@ -33,8 +33,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMElement : public nsIDOMNode {
  *
  * For more information on this interface please see 
  * http://www.w3.org/TR/DOM-Level-2-Core/
- *
- * @status FROZEN
  */
   /* readonly attribute DOMString tagName; */
   NS_SCRIPTABLE NS_IMETHOD GetTagName(nsAString & aTagName) = 0;

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/base/nsIInterfaceRequestor.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/base/nsIInterfaceRequestor.idl
  */
 
 #ifndef __gen_nsIInterfaceRequestor_h__
@@ -32,8 +32,6 @@
  * you QI() on to get to interface B, you must be able to QI on B to get back 
  * to A.  This interface however allows you to obtain an interface C from A 
  * that may or most likely will not have the ability to get back to A. 
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIInterfaceRequestor : public nsISupports {
  public: 
@@ -51,7 +49,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIInterfaceRequestor : public nsISupports {
     *         NS_ERROR* - method failure.
     */
   /* void getInterface (in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void **result NS_OUTPARAM) = 0;
 
 };
 
@@ -59,15 +57,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIInterfaceRequestor : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIINTERFACEREQUESTOR \
-  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void * *result NS_OUTPARAM); 
+  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void **result NS_OUTPARAM); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIINTERFACEREQUESTOR(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void * *result NS_OUTPARAM) { return _to GetInterface(uuid, result); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void **result NS_OUTPARAM) { return _to GetInterface(uuid, result); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIINTERFACEREQUESTOR(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInterface(uuid, result); } 
+  NS_SCRIPTABLE NS_IMETHOD GetInterface(const nsIID & uuid, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetInterface(uuid, result); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -102,7 +100,7 @@ nsInterfaceRequestor::~nsInterfaceRequestor()
 }
 
 /* void getInterface (in nsIIDRef uuid, [iid_is (uuid), retval] out nsQIResult result); */
-NS_IMETHODIMP nsInterfaceRequestor::GetInterface(const nsIID & uuid, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsInterfaceRequestor::GetInterface(const nsIID & uuid, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

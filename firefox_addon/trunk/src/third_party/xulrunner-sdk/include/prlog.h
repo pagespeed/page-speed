@@ -189,6 +189,8 @@ NSPR_API(void) PR_LogPrint(const char *fmt, ...);
 */
 NSPR_API(void) PR_LogFlush(void);
 
+NSPR_API(void) PR_Assert(const char *s, const char *file, PRIntn ln);
+
 #if defined(DEBUG) || defined(FORCE_PR_LOG)
 #define PR_LOGGING 1
 
@@ -233,7 +235,6 @@ NSPR_API(void) PR_LogFlush(void);
 
 #if defined(DEBUG) || defined(FORCE_PR_ASSERT)
 
-NSPR_API(void) PR_Assert(const char *s, const char *file, PRIntn ln);
 #define PR_ASSERT(_expr) \
     ((_expr)?((void)0):PR_Assert(# _expr,__FILE__,__LINE__))
 
@@ -246,14 +247,6 @@ NSPR_API(void) PR_Assert(const char *s, const char *file, PRIntn ln);
 #define PR_NOT_REACHED(reasonStr)
 
 #endif /* defined(DEBUG) || defined(FORCE_PR_ASSERT) */
-
-/*
-** Compile-time assert. "condition" must be a constant expression.
-** The macro can be used only in places where an "extern" declaration is
-** allowed.
-*/
-#define PR_STATIC_ASSERT(condition) \
-    extern void pr_static_assert(int arg[(condition) ? 1 : -1])
 
 PR_END_EXTERN_C
 

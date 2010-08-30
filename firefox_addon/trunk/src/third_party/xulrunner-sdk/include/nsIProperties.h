@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/ds/nsIProperties.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/ds/nsIProperties.idl
  */
 
 #ifndef __gen_nsIProperties_h__
@@ -35,7 +35,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProperties : public nsISupports {
      * given iid.
      */
   /* void get (in string prop, in nsIIDRef iid, [iid_is (iid), retval] out nsQIResult result); */
-  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void * *result NS_OUTPARAM) = 0;
+  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void **result NS_OUTPARAM) = 0;
 
   /**
      * Sets a property with a given name to a given value. 
@@ -69,7 +69,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProperties : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIPROPERTIES \
-  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void * *result NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void **result NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD Set(const char *prop, nsISupports *value); \
   NS_SCRIPTABLE NS_IMETHOD Has(const char *prop, PRBool *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD Undefine(const char *prop); \
@@ -77,7 +77,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProperties : public nsISupports {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIPROPERTIES(_to) \
-  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void * *result NS_OUTPARAM) { return _to Get(prop, iid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void **result NS_OUTPARAM) { return _to Get(prop, iid, result); } \
   NS_SCRIPTABLE NS_IMETHOD Set(const char *prop, nsISupports *value) { return _to Set(prop, value); } \
   NS_SCRIPTABLE NS_IMETHOD Has(const char *prop, PRBool *_retval NS_OUTPARAM) { return _to Has(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Undefine(const char *prop) { return _to Undefine(prop); } \
@@ -85,7 +85,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIProperties : public nsISupports {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIPROPERTIES(_to) \
-  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void * *result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Get(prop, iid, result); } \
+  NS_SCRIPTABLE NS_IMETHOD Get(const char *prop, const nsIID & iid, void **result NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Get(prop, iid, result); } \
   NS_SCRIPTABLE NS_IMETHOD Set(const char *prop, nsISupports *value) { return !_to ? NS_ERROR_NULL_POINTER : _to->Set(prop, value); } \
   NS_SCRIPTABLE NS_IMETHOD Has(const char *prop, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Has(prop, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Undefine(const char *prop) { return !_to ? NS_ERROR_NULL_POINTER : _to->Undefine(prop); } \
@@ -124,7 +124,7 @@ nsProperties::~nsProperties()
 }
 
 /* void get (in string prop, in nsIIDRef iid, [iid_is (iid), retval] out nsQIResult result); */
-NS_IMETHODIMP nsProperties::Get(const char *prop, const nsIID & iid, void * *result NS_OUTPARAM)
+NS_IMETHODIMP nsProperties::Get(const char *prop, const nsIID & iid, void **result NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

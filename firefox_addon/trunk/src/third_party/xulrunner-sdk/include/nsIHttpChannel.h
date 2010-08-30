@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/protocol/http/public/nsIHttpChannel.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/protocol/http/nsIHttpChannel.idl
  */
 
 #ifndef __gen_nsIHttpChannel_h__
@@ -30,8 +30,6 @@ class nsIHttpHeaderVisitor; /* forward declaration */
  * This interface allows for the modification of HTTP request parameters and
  * the inspection of the resulting HTTP response status and headers when they
  * become available.
- *
- * @status FROZEN
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIHttpChannel : public nsIChannel {
  public: 
@@ -76,8 +74,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIHttpChannel : public nsIChannel {
      * @throws NS_ERROR_IN_PROGRESS if set after the channel has been opened.
      */
   /* attribute nsIURI referrer; */
-  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI * *aReferrer) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI * aReferrer) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI **aReferrer) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI *aReferrer) = 0;
 
   /**
      * Get the value of a particular request header.
@@ -299,8 +297,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIHttpChannel : public nsIChannel {
 #define NS_DECL_NSIHTTPCHANNEL \
   NS_SCRIPTABLE NS_IMETHOD GetRequestMethod(nsACString & aRequestMethod); \
   NS_SCRIPTABLE NS_IMETHOD SetRequestMethod(const nsACString & aRequestMethod); \
-  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI * *aReferrer); \
-  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI * aReferrer); \
+  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI **aReferrer); \
+  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI *aReferrer); \
   NS_SCRIPTABLE NS_IMETHOD GetRequestHeader(const nsACString & aHeader, nsACString & _retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD SetRequestHeader(const nsACString & aHeader, const nsACString & aValue, PRBool aMerge); \
   NS_SCRIPTABLE NS_IMETHOD VisitRequestHeaders(nsIHttpHeaderVisitor *aVisitor); \
@@ -321,8 +319,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIHttpChannel : public nsIChannel {
 #define NS_FORWARD_NSIHTTPCHANNEL(_to) \
   NS_SCRIPTABLE NS_IMETHOD GetRequestMethod(nsACString & aRequestMethod) { return _to GetRequestMethod(aRequestMethod); } \
   NS_SCRIPTABLE NS_IMETHOD SetRequestMethod(const nsACString & aRequestMethod) { return _to SetRequestMethod(aRequestMethod); } \
-  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI * *aReferrer) { return _to GetReferrer(aReferrer); } \
-  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI * aReferrer) { return _to SetReferrer(aReferrer); } \
+  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI **aReferrer) { return _to GetReferrer(aReferrer); } \
+  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI *aReferrer) { return _to SetReferrer(aReferrer); } \
   NS_SCRIPTABLE NS_IMETHOD GetRequestHeader(const nsACString & aHeader, nsACString & _retval NS_OUTPARAM) { return _to GetRequestHeader(aHeader, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD SetRequestHeader(const nsACString & aHeader, const nsACString & aValue, PRBool aMerge) { return _to SetRequestHeader(aHeader, aValue, aMerge); } \
   NS_SCRIPTABLE NS_IMETHOD VisitRequestHeaders(nsIHttpHeaderVisitor *aVisitor) { return _to VisitRequestHeaders(aVisitor); } \
@@ -343,8 +341,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIHttpChannel : public nsIChannel {
 #define NS_FORWARD_SAFE_NSIHTTPCHANNEL(_to) \
   NS_SCRIPTABLE NS_IMETHOD GetRequestMethod(nsACString & aRequestMethod) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRequestMethod(aRequestMethod); } \
   NS_SCRIPTABLE NS_IMETHOD SetRequestMethod(const nsACString & aRequestMethod) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetRequestMethod(aRequestMethod); } \
-  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI * *aReferrer) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetReferrer(aReferrer); } \
-  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI * aReferrer) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetReferrer(aReferrer); } \
+  NS_SCRIPTABLE NS_IMETHOD GetReferrer(nsIURI **aReferrer) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetReferrer(aReferrer); } \
+  NS_SCRIPTABLE NS_IMETHOD SetReferrer(nsIURI *aReferrer) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetReferrer(aReferrer); } \
   NS_SCRIPTABLE NS_IMETHOD GetRequestHeader(const nsACString & aHeader, nsACString & _retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRequestHeader(aHeader, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD SetRequestHeader(const nsACString & aHeader, const nsACString & aValue, PRBool aMerge) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetRequestHeader(aHeader, aValue, aMerge); } \
   NS_SCRIPTABLE NS_IMETHOD VisitRequestHeaders(nsIHttpHeaderVisitor *aVisitor) { return !_to ? NS_ERROR_NULL_POINTER : _to->VisitRequestHeaders(aVisitor); } \
@@ -404,11 +402,11 @@ NS_IMETHODIMP nsHttpChannel::SetRequestMethod(const nsACString & aRequestMethod)
 }
 
 /* attribute nsIURI referrer; */
-NS_IMETHODIMP nsHttpChannel::GetReferrer(nsIURI * *aReferrer)
+NS_IMETHODIMP nsHttpChannel::GetReferrer(nsIURI **aReferrer)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsHttpChannel::SetReferrer(nsIURI * aReferrer)
+NS_IMETHODIMP nsHttpChannel::SetReferrer(nsIURI *aReferrer)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

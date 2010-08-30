@@ -38,7 +38,6 @@
 
 /**
  * Root idl declarations to be used by all.
- * @status FROZEN
  */
 
 %{C++
@@ -119,6 +118,9 @@ typedef unsigned long       size_t;
 [ref, astring] native AString(ignored);
 [ref, astring] native AStringRef(ignored);
 [ptr, astring] native AStringPtr(ignored);
+
+[ref, jsval]  native jsval(jsval);
+              native jsid(jsid);
 
 %{C++
 /* 

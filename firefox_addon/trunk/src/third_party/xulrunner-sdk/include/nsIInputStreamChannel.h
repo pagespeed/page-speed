@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsIInputStreamChannel.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIInputStreamChannel.idl
  */
 
 #ifndef __gen_nsIInputStreamChannel_h__
@@ -57,8 +57,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIInputStreamChannel : public nsISupports {
      * has been opened.
      */
   /* attribute nsIInputStream contentStream; */
-  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream * *aContentStream) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream * aContentStream) = 0;
+  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream **aContentStream) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream *aContentStream) = 0;
 
 };
 
@@ -67,20 +67,20 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIInputStreamChannel : public nsISupports {
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_NSIINPUTSTREAMCHANNEL \
   NS_SCRIPTABLE NS_IMETHOD SetURI(nsIURI *aURI); \
-  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream * *aContentStream); \
-  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream * aContentStream); 
+  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream **aContentStream); \
+  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream *aContentStream); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_NSIINPUTSTREAMCHANNEL(_to) \
   NS_SCRIPTABLE NS_IMETHOD SetURI(nsIURI *aURI) { return _to SetURI(aURI); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream * *aContentStream) { return _to GetContentStream(aContentStream); } \
-  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream * aContentStream) { return _to SetContentStream(aContentStream); } 
+  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream **aContentStream) { return _to GetContentStream(aContentStream); } \
+  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream *aContentStream) { return _to SetContentStream(aContentStream); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_NSIINPUTSTREAMCHANNEL(_to) \
   NS_SCRIPTABLE NS_IMETHOD SetURI(nsIURI *aURI) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetURI(aURI); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream * *aContentStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentStream(aContentStream); } \
-  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream * aContentStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentStream(aContentStream); } 
+  NS_SCRIPTABLE NS_IMETHOD GetContentStream(nsIInputStream **aContentStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentStream(aContentStream); } \
+  NS_SCRIPTABLE NS_IMETHOD SetContentStream(nsIInputStream *aContentStream) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentStream(aContentStream); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -121,11 +121,11 @@ NS_IMETHODIMP nsInputStreamChannel::SetURI(nsIURI *aURI)
 }
 
 /* attribute nsIInputStream contentStream; */
-NS_IMETHODIMP nsInputStreamChannel::GetContentStream(nsIInputStream * *aContentStream)
+NS_IMETHODIMP nsInputStreamChannel::GetContentStream(nsIInputStream **aContentStream)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsInputStreamChannel::SetContentStream(nsIInputStream * aContentStream)
+NS_IMETHODIMP nsInputStreamChannel::SetContentStream(nsIInputStream *aContentStream)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

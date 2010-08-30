@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/xpcom/ds/nsISimpleEnumerator.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/ds/nsISimpleEnumerator.idl
  */
 
 #ifndef __gen_nsISimpleEnumerator_h__
@@ -28,7 +28,6 @@
  * getNext() must be pre-ceeded by a call to hasMoreElements(). There is
  * no way to "reset" an enumerator, once you obtain one.
  *
- * @status FROZEN
  * @version 1.0
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsISimpleEnumerator : public nsISupports {

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-1.9.2-linux-xulrunner/build/netwerk/base/public/nsINetUtil.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsINetUtil.idl
  */
 
 #ifndef __gen_nsINetUtil_h__
@@ -20,11 +20,11 @@ class nsIPrefBranch; /* forward declaration */
 
 
 /* starting interface:    nsINetUtil */
-#define NS_INETUTIL_IID_STR "a50d5516-5c0a-4f08-b427-703ca0c44ac3"
+#define NS_INETUTIL_IID_STR "ca68c485-9db3-4c12-82a6-4fab7948e2d5"
 
 #define NS_INETUTIL_IID \
-  {0xa50d5516, 0x5c0a, 0x4f08, \
-    { 0xb4, 0x27, 0x70, 0x3c, 0xa0, 0xc4, 0x4a, 0xc3 }}
+  {0xca68c485, 0x9db3, 0x4c12, \
+    { 0x82, 0xa6, 0x4f, 0xab, 0x79, 0x48, 0xe2, 0xd5 }}
 
 /**
  * nsINetUtil provides various network-related utility methods.
@@ -81,6 +81,14 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsINetUtil : public nsISupports {
    */
   /* nsIURI toImmutableURI (in nsIURI aURI); */
   NS_SCRIPTABLE NS_IMETHOD ToImmutableURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM) = 0;
+
+  /**
+   * Create a simple nested URI using the result of
+   * toImmutableURI on the passed-in aURI which may not be null.
+   * Note: The return URI will not have had its spec set yet.
+   */
+  /* nsIURI newSimpleNestedURI (in nsIURI aURI); */
+  NS_SCRIPTABLE NS_IMETHOD NewSimpleNestedURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM) = 0;
 
   /** Escape every character with its %XX-escaped equivalent */
   enum { ESCAPE_ALL = 0U };
@@ -215,6 +223,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsINetUtil : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD ProtocolHasFlags(nsIURI *aURI, PRUint32 aFlag, PRBool *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD URIChainHasFlags(nsIURI *aURI, PRUint32 aFlags, PRBool *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD ToImmutableURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD NewSimpleNestedURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD EscapeString(const nsACString & aString, PRUint32 aEscapeType, nsACString & _retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD EscapeURL(const nsACString & aStr, PRUint32 aFlags, nsACString & _retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD UnescapeString(const nsACString & aStr, PRUint32 aFlags, nsACString & _retval NS_OUTPARAM); \
@@ -226,6 +235,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsINetUtil : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD ProtocolHasFlags(nsIURI *aURI, PRUint32 aFlag, PRBool *_retval NS_OUTPARAM) { return _to ProtocolHasFlags(aURI, aFlag, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD URIChainHasFlags(nsIURI *aURI, PRUint32 aFlags, PRBool *_retval NS_OUTPARAM) { return _to URIChainHasFlags(aURI, aFlags, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD ToImmutableURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM) { return _to ToImmutableURI(aURI, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD NewSimpleNestedURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM) { return _to NewSimpleNestedURI(aURI, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD EscapeString(const nsACString & aString, PRUint32 aEscapeType, nsACString & _retval NS_OUTPARAM) { return _to EscapeString(aString, aEscapeType, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD EscapeURL(const nsACString & aStr, PRUint32 aFlags, nsACString & _retval NS_OUTPARAM) { return _to EscapeURL(aStr, aFlags, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD UnescapeString(const nsACString & aStr, PRUint32 aFlags, nsACString & _retval NS_OUTPARAM) { return _to UnescapeString(aStr, aFlags, _retval); } \
@@ -237,6 +247,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsINetUtil : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD ProtocolHasFlags(nsIURI *aURI, PRUint32 aFlag, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->ProtocolHasFlags(aURI, aFlag, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD URIChainHasFlags(nsIURI *aURI, PRUint32 aFlags, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->URIChainHasFlags(aURI, aFlags, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD ToImmutableURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->ToImmutableURI(aURI, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD NewSimpleNestedURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->NewSimpleNestedURI(aURI, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD EscapeString(const nsACString & aString, PRUint32 aEscapeType, nsACString & _retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->EscapeString(aString, aEscapeType, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD EscapeURL(const nsACString & aStr, PRUint32 aFlags, nsACString & _retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->EscapeURL(aStr, aFlags, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD UnescapeString(const nsACString & aStr, PRUint32 aFlags, nsACString & _retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->UnescapeString(aStr, aFlags, _retval); } \
@@ -294,6 +305,12 @@ NS_IMETHODIMP nsNetUtil::URIChainHasFlags(nsIURI *aURI, PRUint32 aFlags, PRBool 
 
 /* nsIURI toImmutableURI (in nsIURI aURI); */
 NS_IMETHODIMP nsNetUtil::ToImmutableURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* nsIURI newSimpleNestedURI (in nsIURI aURI); */
+NS_IMETHODIMP nsNetUtil::NewSimpleNestedURI(nsIURI *aURI, nsIURI **_retval NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
