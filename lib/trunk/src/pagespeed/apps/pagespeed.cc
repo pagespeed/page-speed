@@ -113,6 +113,14 @@ bool RunPagespeed(const std::string& out_format,
     return false;
   }
 
+  // TODO(lsong): Add support for byte order mark.
+  // For now, strip byte order mark of the content if exists.
+  const std::string utf_8 = "\xEF\xBB\xBF";
+  if (file_contents.compare(0, utf_8.size(), utf_8) == 0) {
+    file_contents.erase(0, utf_8.size());
+    LOG(INFO) << "Byte order mark ignored.";
+  }
+
   scoped_ptr<pagespeed::RuleFormatter> formatter;
   if (out_format == "json") {
     formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout,
