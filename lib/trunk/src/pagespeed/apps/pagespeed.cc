@@ -158,7 +158,17 @@ bool RunPagespeed(const std::string& out_format,
   STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
 
   bool save_optimized_content = true;
-  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+  std::vector<std::string> incompatible_rule_names;
+  pagespeed::rule_provider::AppendCompatibleRules(
+      save_optimized_content,
+      &rules,
+      &incompatible_rule_names,
+      pagespeed::Engine::EstimateCapabilitiesBitmap(*input));
+  if (!incompatible_rule_names.empty()) {
+    std::string incompatible_rule_list =
+        JoinString(incompatible_rule_names, ' ');
+    LOG(INFO) << "Removing incompatible rules: " << incompatible_rule_list;
+  }
 
   // Ownership of rules is transferred to the Engine instance.
   pagespeed::Engine engine(&rules);
