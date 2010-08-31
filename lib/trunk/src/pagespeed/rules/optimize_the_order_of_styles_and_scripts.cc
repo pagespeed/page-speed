@@ -261,7 +261,8 @@ void VisitStyleScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
 
 namespace rules {
 
-OptimizeTheOrderOfStylesAndScripts::OptimizeTheOrderOfStylesAndScripts() {}
+OptimizeTheOrderOfStylesAndScripts::OptimizeTheOrderOfStylesAndScripts()
+    : pagespeed::Rule(DOM | RESPONSE_BODY) {}
 
 const char* OptimizeTheOrderOfStylesAndScripts::name() const {
   return "OptimizeTheOrderOfStylesAndScripts";

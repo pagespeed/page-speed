@@ -47,7 +47,8 @@ const char* kBody2 = "Another format string";
 
 class TestRule : public Rule {
  public:
-  TestRule() : append_results_return_value_(true) {}
+  TestRule() : pagespeed::Rule(NONE),
+               append_results_return_value_(true) {}
   virtual ~TestRule() {}
 
   virtual const char* name() const {

@@ -16,6 +16,7 @@
 
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_css_import.h"
+#include "pagespeed/rules/avoid_document_write.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/leverage_browser_caching.h"
@@ -42,10 +43,10 @@ namespace pagespeed {
 
 namespace rule_provider {
 
-void AppendCoreRules(bool save_optimized_content,
-                     std::vector<Rule*> *rules) {
+void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::AvoidBadRequests());
   rules->push_back(new rules::AvoidCssImport());
+  rules->push_back(new rules::AvoidDocumentWrite());
   rules->push_back(new rules::CombineExternalCSS());
   rules->push_back(new rules::CombineExternalJavaScript());
   rules->push_back(new rules::EnableGzipCompression(
@@ -66,17 +67,31 @@ void AppendCoreRules(bool save_optimized_content,
   rules->push_back(new rules::SpecifyACacheValidator());
   rules->push_back(new rules::SpecifyAVaryAcceptEncodingHeader());
   rules->push_back(new rules::SpecifyCharsetEarly());
-}
-
-void AppendDomRules(std::vector<Rule*> *rules) {
   rules->push_back(new rules::PutCssInTheDocumentHead);
   rules->push_back(new rules::ServeScaledImages);
   rules->push_back(new rules::SpecifyImageDimensions);
 }
 
-void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules) {
-  AppendCoreRules(save_optimized_content, rules);
-  AppendDomRules(rules);
+void AppendCompatibleRules(bool save_optimized_content,
+                           std::vector<Rule*>* rules,
+                           std::vector<std::string>* incompatible_rule_names,
+                           uint32 rule_capabilities_bitfield) {
+  std::vector<Rule*> all_rules;
+  AppendAllRules(save_optimized_content, &all_rules);
+  for (std::vector<Rule*>::const_iterator it = all_rules.begin(),
+           end = all_rules.end();
+       it != end;
+       ++it) {
+    Rule* r = *it;
+    uint32 masked =
+        r->rule_requirements_bitfield() & rule_capabilities_bitfield;
+    if (masked == r->rule_requirements_bitfield()) {
+      rules->push_back(r);
+    } else {
+      incompatible_rule_names->push_back(r->name());
+      delete r;
+    }
+  }
 }
 
 }  // namespace rule_provider

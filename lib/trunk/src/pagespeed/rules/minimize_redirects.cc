@@ -132,7 +132,7 @@ namespace pagespeed {
 
 namespace rules {
 
-MinimizeRedirects::MinimizeRedirects() {
+MinimizeRedirects::MinimizeRedirects() : pagespeed::Rule(NONE) {
 }
 
 const char* MinimizeRedirects::name() const {

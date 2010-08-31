@@ -186,7 +186,8 @@ namespace pagespeed {
 
 namespace rules {
 
-ServeScaledImages::ServeScaledImages() {}
+ServeScaledImages::ServeScaledImages()
+    : pagespeed::Rule(DOM | RESPONSE_BODY) {}
 
 const char* ServeScaledImages::name() const {
   return "ServeScaledImages";

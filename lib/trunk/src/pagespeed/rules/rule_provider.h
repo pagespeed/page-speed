@@ -15,7 +15,9 @@
 #ifndef PAGESPEED_RULES_RULE_PROVIDER_H_
 #define PAGESPEED_RULES_RULE_PROVIDER_H_
 
+#include <string>
 #include <vector>
+#include "base/basictypes.h"
 
 namespace pagespeed {
 
@@ -27,20 +29,16 @@ namespace rule_provider {
  * Append all Page Speed rules to the given vector of Rule
  * instances. This includes the core rules and the DOM rules.
  */
-void AppendAllRules(bool save_optimized_content, std::vector<Rule*> *rules);
+void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules);
 
 /**
- * Append the core Page Speed rules to the given vector of Rule
- * instances.
+ * Append the Page Speed rules that are compatible with the given
+ * RuleRequirements bitfield.
  */
-void AppendCoreRules(bool save_optimized_content, std::vector<Rule*> *rules);
-
-/**
- * Append the Page Speed rules that use DOM information to the given
- * vector of Rule instances. These can be excluded in environments
- * where the DOM is not available.
- */
-void AppendDomRules(std::vector<Rule*> *rules);
+void AppendCompatibleRules(bool save_optimized_content,
+                           std::vector<Rule*>* rules,
+                           std::vector<std::string>* incompatible_rule_names,
+                           uint32 rule_requirements_bitfield);
 
 }  // namespace rule_provider
 

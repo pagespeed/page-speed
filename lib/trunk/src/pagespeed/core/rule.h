@@ -17,6 +17,7 @@
 
 #include <string>
 #include <vector>
+#include "base/basictypes.h"
 
 namespace pagespeed {
 
@@ -36,7 +37,22 @@ typedef std::vector<const Result*> ResultVector;
  */
 class Rule {
  public:
-  Rule();
+  // RuleRequirements enumerates the types of input data that a Rule
+  // instance may require. Certain types of data, such as response
+  // headers and status code, are always required and thus not
+  // enumerated here.
+  enum RuleRequirements {
+    NONE                       = 0,
+    DOM                        = 1<<0,
+    JS_CALLS_DOCUMENT_WRITE    = 1<<1,
+    LAZY_LOADED                = 1<<2,
+    PARENT_CHILD_RESOURCE_MAP  = 1<<3,
+    REQUEST_HEADERS            = 1<<4,
+    RESPONSE_BODY              = 1<<5,
+    ALL                        = ~0,
+  };
+
+  explicit Rule(uint32 rule_requirements_bitfield);
   virtual ~Rule();
 
   // String that should be used to identify this rule during result
@@ -48,6 +64,9 @@ class Rule {
 
   // URL linking to the canonical documentation for this rule.
   virtual const char* documentation_url() const = 0;
+
+  // A bitfield of RuleRequirements for this Rule.
+  uint32 rule_requirements_bitfield() { return rule_requirements_bitfield_; }
 
   // Compute results and append it to the results set.
   //
@@ -74,6 +93,9 @@ class Rule {
 
   // Sort the results in their presentation order.
   virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;
+
+private:
+  const uint32 rule_requirements_bitfield_;
 };
 
 }  // namespace pagespeed

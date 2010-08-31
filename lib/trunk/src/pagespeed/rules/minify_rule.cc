@@ -34,7 +34,8 @@ Minifier::Minifier() {}
 
 Minifier::~Minifier() {}
 
-MinifyRule::MinifyRule(Minifier* minifier) : minifier_(minifier) {}
+MinifyRule::MinifyRule(Minifier* minifier) :
+    pagespeed::Rule(RESPONSE_BODY), minifier_(minifier) {}
 
 MinifyRule::~MinifyRule() {}
 

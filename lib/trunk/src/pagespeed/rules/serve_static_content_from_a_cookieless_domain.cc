@@ -27,7 +27,7 @@ namespace pagespeed {
 namespace rules {
 
 ServeStaticContentFromACookielessDomain::
-ServeStaticContentFromACookielessDomain() {}
+ServeStaticContentFromACookielessDomain() : pagespeed::Rule(NONE) {}
 
 const char* ServeStaticContentFromACookielessDomain::name() const {
   return "ServeStaticContentFromACookielessDomain";
