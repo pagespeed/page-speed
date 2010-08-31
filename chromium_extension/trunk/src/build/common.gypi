@@ -13,6 +13,11 @@
 # limitations under the License.
 
 {
+  'variables': {
+    # Make sure we link statically so everything gets linked into a
+    # single shared object.
+    'library': 'static_library',
+  },
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
