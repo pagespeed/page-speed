@@ -14,6 +14,8 @@
 
 var pagespeed = {
 
+  currentResults: null,
+
   // Throw an error (with an optional message) if the condition is false.
   assert: function (condition, opt_message) {
     if (!condition) {
@@ -194,6 +196,7 @@ var pagespeed = {
 
   // Clear and hide the results page, and make the welcome page visible again.
   clearResults: function () {
+    pagespeed.currentResults = null;
     var results_container = document.getElementById('results-container');
     results_container.style.display = 'none';
     pagespeed.removeAllChildren(results_container);
@@ -202,15 +205,17 @@ var pagespeed = {
     pagespeed.setRunButtonText('Run Page Speed');
   },
 
-  // Format and display the given results.
-  // results -- the parsed JSON results as returned from the Page Speed module
-  // analyze -- which filter we're using (e.g. 'all', 'content', etc.)
-  showResults: function (results, analyze) {
+  // Format and display the current results.
+  showResults: function () {
+    pagespeed.assert(pagespeed.currentResults !== null,
+                     "showResults: pagespeed.currentResults must not be null");
+
     // Remove the previous results.
     var results_container = document.getElementById('results-container');
     pagespeed.removeAllChildren(results_container);
 
     // Sort the results, first by score, then by name.
+    var results = pagespeed.currentResults.results.slice();
     results.sort(function (result1, result2) {
       return (pagespeed.compare(result1.score, result2.score) ||
               pagespeed.compare(result1.name, result2.name));
@@ -227,6 +232,7 @@ var pagespeed = {
                      Math.round(overall_score / num_rules));
 
     // Create the score bar.
+    var analyze = pagespeed.currentResults.analyze;
     results_container.appendChild(pagespeed.makeElement('div', 'score-bar', [
       pagespeed.makeElement('div', null, 'Page Speed Score' +
                             (analyze === 'ads' ? ' (ads only)' :
@@ -282,7 +288,7 @@ var pagespeed = {
     pagespeed.setRunButtonText('Refresh Results');
   },
 
-  // Run Page Speed an display the results.
+  // Run Page Speed and display the results.
   runPageSpeed: function () {
     document.getElementById('run-button').disabled = true;
     document.getElementById('spinner-img').style.display = 'inline';
@@ -293,40 +299,53 @@ var pagespeed = {
         for (var index = 0; index < resources.length; ++index) {
           entries.push(resources[index].har);
         }
-        var har = {log: {entries: entries}};
-        var har_string = JSON.stringify(har);
+        var har_string = JSON.stringify({log: {entries: entries}});
   
         // Feed the HAR data into the NaCl module.  We have to do this a
         // piece at a time, because SRPC currently can't handle strings
         // larger than one or two dozen kilobytes.
-        var pagespeedModule = document.getElementById('pagespeed-module');
+        var pagespeed_module = document.getElementById('pagespeed-module');
         var har_length = har_string.length;
         var kChunkSize = 8192;
         for (var start = 0; start < har_length; start += kChunkSize) {
-          pagespeedModule.appendInput(har_string.substr(start, kChunkSize));
+          pagespeed_module.appendInput(har_string.substr(start, kChunkSize));
         }
   
         // Run the rules.
         var analyze = document.getElementById('analyze-dropdown').value;
-        pagespeedModule.runPageSpeed(analyze);
+        pagespeed_module.runPageSpeed(analyze);
   
         // Get the result data back from the NaCl module.  Again, this must
         // be done a piece at a time.
-        var results = [];
+        var output_chunks = [];
         while (true) {
-          var piece = pagespeedModule.readMoreOutput();
+          var piece = pagespeed_module.readMoreOutput();
           if (typeof(piece) !== 'string') {
             break;
           }
-          results.push(piece);
+          output_chunks.push(piece);
         }
   
         // Display the results to the user.
-        pagespeed.showResults(JSON.parse(results.join('')), analyze);
+        pagespeed.currentResults = {
+          analyze: analyze,
+          results: JSON.parse(output_chunks.join(''))
+        };
+        pagespeed.showResults();
         document.getElementById('run-button').disabled = false;
         document.getElementById('spinner-img').style.display = 'none';
       }
     ));
+  },
+
+  // Callback to be called when the user changes the value of the "Analyze"
+  // menu.
+  onAnalyzeDropdownChange: function () {
+    if (pagespeed.currentResults !== null &&
+        document.getElementById('analyze-dropdown').value !==
+        pagespeed.currentResults.analyze) {
+      pagespeed.runPageSpeed();
+    }
   }
 
 };
