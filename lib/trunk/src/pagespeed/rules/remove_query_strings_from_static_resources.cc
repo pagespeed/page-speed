@@ -30,7 +30,7 @@ namespace pagespeed {
 namespace rules {
 
 RemoveQueryStringsFromStaticResources::
-RemoveQueryStringsFromStaticResources() {}
+RemoveQueryStringsFromStaticResources() : pagespeed::Rule(NONE) {}
 
 const char* RemoveQueryStringsFromStaticResources::name() const {
   return "RemoveQueryStringsFromStaticResources";

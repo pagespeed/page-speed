@@ -120,7 +120,7 @@ namespace pagespeed {
 
 namespace rules {
 
-MinimizeDnsLookups::MinimizeDnsLookups() {
+MinimizeDnsLookups::MinimizeDnsLookups() : pagespeed::Rule(LAZY_LOADED) {
 }
 
 const char* MinimizeDnsLookups::name() const {

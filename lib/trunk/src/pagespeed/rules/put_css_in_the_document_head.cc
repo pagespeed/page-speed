@@ -112,7 +112,8 @@ class StyleVisitor : public pagespeed::DomElementVisitor {
 
 namespace rules {
 
-PutCssInTheDocumentHead::PutCssInTheDocumentHead() {}
+PutCssInTheDocumentHead::PutCssInTheDocumentHead()
+  : pagespeed::Rule(DOM) {}
 
 const char* PutCssInTheDocumentHead::name() const {
   return kRuleName;

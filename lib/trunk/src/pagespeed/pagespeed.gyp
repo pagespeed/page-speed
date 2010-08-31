@@ -133,6 +133,7 @@
         'rules/parallelize_downloads_across_hostnames_test.cc',
         'rules/put_css_in_the_document_head_test.cc',
         'rules/remove_query_strings_from_static_resources_test.cc',
+        'rules/rule_provider_test.cc',
         'rules/serve_resources_from_a_consistent_url_test.cc',
         'rules/serve_scaled_images_test.cc',
         'rules/serve_static_content_from_a_cookieless_domain_test.cc',

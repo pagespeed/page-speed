@@ -80,7 +80,8 @@ bool CompareResults(const Result* result1, const Result* result2) {
 
 }  // namespace
 
-Rule::Rule() {}
+Rule::Rule(uint32 rule_requirements_bitfield)
+  : rule_requirements_bitfield_(rule_requirements_bitfield) {}
 
 Rule::~Rule() {}
 

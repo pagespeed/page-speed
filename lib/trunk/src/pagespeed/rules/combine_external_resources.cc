@@ -29,7 +29,8 @@ namespace pagespeed {
 namespace rules {
 
 CombineExternalResources::CombineExternalResources(ResourceType resource_type)
-    : resource_type_(resource_type) {
+    : pagespeed::Rule(LAZY_LOADED),
+      resource_type_(resource_type) {
 }
 
 bool CombineExternalResources::AppendResults(const PagespeedInput& input,

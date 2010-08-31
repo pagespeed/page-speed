@@ -25,7 +25,7 @@ namespace pagespeed {
 
 namespace rules {
 
-AvoidBadRequests::AvoidBadRequests() {
+AvoidBadRequests::AvoidBadRequests() : pagespeed::Rule(NONE) {
 }
 
 const char* AvoidBadRequests::name() const {
