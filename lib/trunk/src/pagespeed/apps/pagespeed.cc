@@ -40,6 +40,10 @@
 
 namespace {
 
+// UTF-8 byte order mark.
+const char* kUtf8Bom = "\xEF\xBB\xBF";
+const size_t kUtf8BomSize = strlen(kUtf8Bom);
+
 bool ReadFileToString(const std::string &file_name, std::string *dest) {
   std::ifstream file_stream;
   file_stream.open(
@@ -115,9 +119,8 @@ bool RunPagespeed(const std::string& out_format,
 
   // TODO(lsong): Add support for byte order mark.
   // For now, strip byte order mark of the content if exists.
-  const std::string utf_8 = "\xEF\xBB\xBF";
-  if (file_contents.compare(0, utf_8.size(), utf_8) == 0) {
-    file_contents.erase(0, utf_8.size());
+  if (file_contents.compare(0, kUtf8BomSize, kUtf8Bom) == 0) {
+    file_contents.erase(0, kUtf8BomSize);
     LOG(INFO) << "Byte order mark ignored.";
   }
 
