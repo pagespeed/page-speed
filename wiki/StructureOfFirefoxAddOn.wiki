@@ -1,0 +1,37 @@
+#summary Describes the structure of the Firefox Add-on
+
+=Page Speed Firefox Add-on structure=
+
+==Introduction==
+
+The Page Speed Firefox Add-on contains !JavaScript components as well as binary (C++) components. The !JavaScript components are used to construct the UI and to collect information about the resources loaded by a page, while the binary component is used to run the Page Speed ruleset on those resources. The !JavaScript component communicates with the binary component using [https://developer.mozilla.org/en/XPCOM XPCOM], a Mozilla/Firefox technology that allows code written in different languages to call each other.
+
+==Structure of the XPI==
+
+XPI files are just zip files with a different file extension. You can run "unzip" on the XPI to extract its contents. The XPI contains the following top-level directories:
+  * . (top-level directory)
+  * chrome
+  * components
+  * platform
+  * defaults
+
+===The top-level directory===
+The top-level directory contains configuration files that Firefox reads to gather information about the Add-on.determine if the plugin is compatible with the version of Firefox hosting the add-on and to determine how to update the add-on (install.rdf) and to determine the locations of the other important files in the XPI (chrome.manifest).
+
+  * *install.rdf* contains descriptive information about the add-on, such as name, description, and version. It also contains information about which versions of Firefox the add-on is compatible with, as well as an "update" URL that allows Firefox to discover if there is a more recent version of the Add-on available.
+
+  * *chrome.manifest* describes the layout of the rest of the XPI. This includes the locations of the !JavaScript components, the binary components, the XPT files for our XPCOM interfaces, and the XUL files used to display the Page Speed UI.
+
+===The "chrome" directory===
+
+The "chrome" directory contains the !JavaScript and XUL files (XUL is a Mozilla markup language similar to HTML) used to present the Page Speed UI.
+
+===The "components" directory===
+
+The "components" directory contains XPT files, which are used my the xpcom runtime to communicate between !JavaScript and C++ code, as well as the !JavaScript-based services used to collect information about the resources on a page (componentCollectorService.js).
+
+===The "platform" directory===
+
+The "platform" directory contains the platform-specific binary components, one for each platform we support (Linux_x86-gcc3, Linux_x86_64-gcc3, Darwin_x86-gcc3, WINNT_x86-msvc).
+
+The "defaults" directory contains the default values for Page Speed configuration preferences.
