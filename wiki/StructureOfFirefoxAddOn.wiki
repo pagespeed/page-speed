@@ -38,10 +38,18 @@ The "chrome" directory contains the !JavaScript and XUL files (XUL is a Mozilla 
 
 ===The "components" directory===
 
-The "components" directory contains XPT files, which are used my the xpcom runtime to communicate between !JavaScript and C++ code, as well as the !JavaScript-based services used to collect information about the resources on a page (componentCollectorService.js).
+The "components" directory contains [https://developer.mozilla.org/en/Mozilla_Embedding_FAQ/Embedding_Gecko#Why_do_I_need_to_distribute_XPT_files_with_my_application.3f XPT files], which are used my the xpcom runtime to communicate between !JavaScript and C++, as well as the !JavaScript-based services used to collect information about the resources on a page (componentCollectorService.js).
 
 ===The "platform" directory===
 
 The "platform" directory contains the platform-specific binary components, one for each platform we support (Linux_x86-gcc3, Linux_x86_64-gcc3, Darwin_x86-gcc3, WINNT_x86-msvc).
 
+===The "defaults" directory===
+
 The "defaults" directory contains the default values for Page Speed configuration preferences.
+
+
+
+TODO:
+  * build environment and xulrunner sdk
+  * what else?
