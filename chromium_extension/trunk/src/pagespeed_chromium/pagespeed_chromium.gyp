@@ -29,16 +29,9 @@
         '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
       ],
       'sources': [
-        'npn_bridge.cc',
         'npp_gate.cc',
         'pagespeed_chromium.cc',
         'pagespeed_module.cc',
-      ],
-      'defines': [
-        # TODO(mdsteele): What does this define do?  I think it has something
-        #                 to do with NPAPI.  I copied it from the NaCl SDK
-        #                 example code.  Do we even need it?
-        'XP_UNIX',
       ],
       'ldflags': [
         '-lgoogle_nacl_imc',
