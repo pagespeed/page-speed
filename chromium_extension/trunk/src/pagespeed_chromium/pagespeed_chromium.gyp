@@ -16,11 +16,9 @@
   'variables': {
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
   },
-  # TODO(mdsteele): Add conditions as necessary so that we can build on
-  #                 non-x86_64 platforms as well.
   'targets': [
     {
-      'target_name': 'pagespeed_x86_64.nexe',
+      'target_name': 'pagespeed.nexe',
       'type': 'executable',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
@@ -53,7 +51,7 @@
       'target_name': 'pagespeed_extension',
       'type': 'none',
       'dependencies': [
-        'pagespeed_x86_64.nexe',
+        'pagespeed.nexe',
       ],
       'actions': [
         {
@@ -101,14 +99,14 @@
           'action_name': 'copy_nexe',
           'inputs': [
             '<(PRODUCT_DIR)/pagespeed',
-            '<(PRODUCT_DIR)/pagespeed_x86_64.nexe',
+            '<(PRODUCT_DIR)/pagespeed.nexe',
           ],
           'outputs': [
-            '<(PRODUCT_DIR)/pagespeed/pagespeed_x86_64.nexe',
+            '<(PRODUCT_DIR)/pagespeed/pagespeed_<(target_arch).nexe',
           ],
           'action': [
-            'cp', '<(PRODUCT_DIR)/pagespeed_x86_64.nexe',
-            '<(PRODUCT_DIR)/pagespeed/',
+            'cp', '<(PRODUCT_DIR)/pagespeed.nexe',
+            '<(PRODUCT_DIR)/pagespeed/pagespeed_<(target_arch).nexe',
           ],
         },
       ],
