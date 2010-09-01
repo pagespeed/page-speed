@@ -140,22 +140,11 @@ PAGESPEED.MinimalBeacon.prototype.sendBeacon = function(
 
   var beaconParams = this.buildBeacon_(resultsContainer);
 
-  // For now there is only one XHR to send.  We use the parallel XHR
-  // class anyway.  The class hides some ugly XHR details.  If other
-  // projects wish to recieve beacons, the capability to send more
-  // than one will be useful.
-  var xhrFlow = new PAGESPEED.ParallelXhrFlow();
-
-  xhrFlow.addRequest('GET',
-                     beaconUrl,
-                     beaconParams,
-                     '',  // No data (all data is in the params).
-                     null,  // No action on success.
-                     function() {
-                       PS_LOG('Minimal beacon failed to send results.');
-                     });
-
-  xhrFlow.sendRequests();
+  // Use an Image instead of ParallelXhrFlow, since ParallelXhrFlow
+  // fails behind proxies
+  // (http://code.google.com/p/page-speed/issues/detail?id=296).
+  var beaconImg = new Image();
+  beaconImg.src = beaconUrl + '?' + beaconParams;
 
   return true;
 };
