@@ -200,6 +200,12 @@ bool HasMethod(NPObject* obj, NPIdentifier method_name) {
   return has_method;
 }
 
+// Called by the browser to invoke the default method on an NPObject.
+// Returns null.
+// Apparently the plugin won't load properly if we simply
+// tell the browser we don't have this method.
+// Called by NPN_InvokeDefault, declared in npruntime.h
+// Documentation URL: https://developer.mozilla.org/en/NPClass
 bool InvokeDefault(NPObject *obj, const NPVariant *args,
                    uint32_t argCount, NPVariant *result) {
   if (result) {

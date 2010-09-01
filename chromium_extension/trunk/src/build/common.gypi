@@ -25,23 +25,5 @@
     'include_dirs': [
       '<(DEPTH)/build/nacl_header_stubs',
     ],
-    'conditions': [
-      ['target_arch=="ia32"', {
-        'cflags': [
-          '-m32',
-        ],
-        'ldflags': [
-          '-m32',
-        ],
-      }],
-      ['target_arch=="x64"', {
-        'cflags': [
-          '-m64',
-        ],
-        'ldflags': [
-          '-m64',
-        ],
-      }],
-    ],
   },
 }
