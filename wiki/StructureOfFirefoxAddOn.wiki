@@ -16,15 +16,25 @@ XPI files are just zip files with a different file extension. You can run "unzip
   * defaults
 
 ===The top-level directory===
-The top-level directory contains configuration files that Firefox reads to gather information about the Add-on.determine if the plugin is compatible with the version of Firefox hosting the add-on and to determine how to update the add-on (install.rdf) and to determine the locations of the other important files in the XPI (chrome.manifest).
+The top-level directory contains configuration files that Firefox reads to gather information about the Add-on.
 
   * *install.rdf* contains descriptive information about the add-on, such as name, description, and version. It also contains information about which versions of Firefox the add-on is compatible with, as well as an "update" URL that allows Firefox to discover if there is a more recent version of the Add-on available.
 
-  * *chrome.manifest* describes the layout of the rest of the XPI. This includes the locations of the !JavaScript components, the binary components, the XPT files for our XPCOM interfaces, and the XUL files used to display the Page Speed UI.
+  * *chrome.manifest* describes the layout of the rest of the XPI. This includes the locations of the !JavaScript components, the binary components, the [https://developer.mozilla.org/en/Mozilla_Embedding_FAQ/Embedding_Gecko#Why_do_I_need_to_distribute_XPT_files_with_my_application.3f XPT files] for our XPCOM interfaces, and the [https://developer.mozilla.org/en/xul XUL files] used to display the Page Speed UI.
 
 ===The "chrome" directory===
 
-The "chrome" directory contains the !JavaScript and XUL files (XUL is a Mozilla markup language similar to HTML) used to present the Page Speed UI.
+The "chrome" directory contains the !JavaScript and XUL files (XUL is a Mozilla markup language similar to HTML) used to present the Page Speed UI. The files are in the `chrome/pagespeed/content` subdirectory. The most important files are:
+
+  * *pagespeedOverlay.xul* is a [https://developer.mozilla.org/en/xul_overlays XUL overlay] which contains the XUL markup for the Page Speed UI. `chrome.manifest` indicates that this file should be overlayed into `firebugOverlay.xul`, which is what causes Page Speed to render in the Firebug UI.
+
+  * *pagespeedContext.js* TODO write this
+
+  * *pagespeedPanel.js* TODO write this
+
+  * *lint.js* TODO write this
+
+  * *pagespeedLibraryRules.js* TODO write this
 
 ===The "components" directory===
 
