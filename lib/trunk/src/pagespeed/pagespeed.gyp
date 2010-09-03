@@ -63,6 +63,7 @@
         'rules/specify_a_vary_accept_encoding_header.cc',
         'rules/specify_charset_early.cc',
         'rules/specify_image_dimensions.cc',
+        'rules/sprite_images.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -144,6 +145,7 @@
         'rules/specify_a_vary_accept_encoding_header_test.cc',
         'rules/specify_charset_early_test.cc',
         'rules/specify_image_dimensions_test.cc',
+        'rules/sprite_images_test.cc',
         'testing/fake_dom_test.cc',
         'util/regex_test.cc',
       ],
