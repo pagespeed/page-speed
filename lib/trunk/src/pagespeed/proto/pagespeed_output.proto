@@ -192,6 +192,17 @@ message AvoidDocumentWriteDetails {
   required int32 line_number = 2;
 }
 
+// Result detail to store list of script to load with async technique.
+message PreferAsyncResourcesDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional PreferAsyncResourcesDetails message_set_extension = 5012199;  // 'Pre'
+  }
+
+  // The URL of the resource that could be loaded asynchronously.
+  required string resource_url = 1;
+}
+
 message Result {
   // Identifier of rule that produced this result.
   required string rule_name = 1;
