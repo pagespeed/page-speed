@@ -15,6 +15,8 @@
 #ifndef PAGESPEED_CORE_RESULT_PROVIDER_H_
 #define PAGESPEED_CORE_RESULT_PROVIDER_H_
 
+#include "base/basictypes.h"
+
 namespace pagespeed {
 
 class Result;
@@ -34,6 +36,8 @@ class ResultProvider {
 private:
   const Rule& rule_;
   Results* const results_;
+
+  DISALLOW_COPY_AND_ASSIGN(ResultProvider);
 };
 
 }  // namespace pagespeed

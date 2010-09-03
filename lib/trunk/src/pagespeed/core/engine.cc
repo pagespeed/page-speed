@@ -170,41 +170,6 @@ bool Engine::FormatResults(const Results& results,
   return success;
 }
 
-// static
-uint32 Engine::EstimateCapabilitiesBitmap(const PagespeedInput& input) {
-  uint32 bitfield = Rule::NONE;
-  if (!input.is_frozen()) {
-    LOG(DFATAL) << "Can't estimate capabilities of non-frozen input.";
-    return bitfield;
-  }
-
-  if (input.dom_document() != NULL) {
-    bitfield |= Rule::DOM;
-    bitfield |= Rule::PARENT_CHILD_RESOURCE_MAP;
-  }
-  for (int i = 0, num = input.num_resources(); i < num; ++i) {
-    const Resource& resource = input.GetResource(i);
-    if (resource.IsLazyLoaded()) {
-      bitfield |= Rule::LAZY_LOADED;
-    }
-    if (resource.GetJavaScriptCalls("document.write") != NULL) {
-      bitfield |= Rule::JS_CALLS_DOCUMENT_WRITE;
-    }
-    if (!resource.GetResponseBody().empty()) {
-      bitfield |= Rule::RESPONSE_BODY;
-    }
-    if (!resource.GetRequestHeader("referer").empty() &&
-        !resource.GetRequestHeader("host").empty() &&
-        !resource.GetRequestHeader("accept-encoding").empty()) {
-      // If at least one resource has a Host, Referer, and
-      // Accept-Encoding header, we assume that a full set of request
-      // headers were provided.
-      bitfield |= Rule::REQUEST_HEADERS;
-    }
-  }
-  return bitfield;
-}
-
 bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
                                      RuleFormatter* formatter) const {
   CHECK(init_);

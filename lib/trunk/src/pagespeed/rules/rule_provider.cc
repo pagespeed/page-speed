@@ -75,7 +75,7 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
 void AppendCompatibleRules(bool save_optimized_content,
                            std::vector<Rule*>* rules,
                            std::vector<std::string>* incompatible_rule_names,
-                           uint32 rule_capabilities_bitfield) {
+                           const pagespeed::InputCapabilities& capabilities) {
   std::vector<Rule*> all_rules;
   AppendAllRules(save_optimized_content, &all_rules);
   for (std::vector<Rule*>::const_iterator it = all_rules.begin(),
@@ -83,9 +83,7 @@ void AppendCompatibleRules(bool save_optimized_content,
        it != end;
        ++it) {
     Rule* r = *it;
-    uint32 masked =
-        r->rule_requirements_bitfield() & rule_capabilities_bitfield;
-    if (masked == r->rule_requirements_bitfield()) {
+    if (capabilities.satisfies(r->capability_requirements())) {
       rules->push_back(r);
     } else {
       incompatible_rule_names->push_back(r->name());

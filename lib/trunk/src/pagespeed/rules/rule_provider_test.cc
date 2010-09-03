@@ -27,10 +27,11 @@ TEST(RuleProviderTest, AppendAllRules) {
 TEST(RuleProviderTest, AppendCompatibleRulesNone) {
   std::vector<pagespeed::Rule*> rules;
   std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::AppendCompatibleRules(false,
-                                                  &rules,
-                                                  &incompatible_rule_names,
-                                                  pagespeed::Rule::NONE);
+  pagespeed::rule_provider::AppendCompatibleRules(
+      false,
+      &rules,
+      &incompatible_rule_names,
+      pagespeed::InputCapabilities());
   // We expect that some rules only require "NONE" while others require more.
   ASSERT_FALSE(rules.empty());
   ASSERT_FALSE(incompatible_rule_names.empty());
@@ -39,10 +40,11 @@ TEST(RuleProviderTest, AppendCompatibleRulesNone) {
 TEST(RuleProviderTest, AppendCompatibleRulesAll) {
   std::vector<pagespeed::Rule*> rules;
   std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::AppendCompatibleRules(false,
-                                                  &rules,
-                                                  &incompatible_rule_names,
-                                                  pagespeed::Rule::ALL);
+  pagespeed::rule_provider::AppendCompatibleRules(
+      false,
+      &rules,
+      &incompatible_rule_names,
+      pagespeed::InputCapabilities(pagespeed::InputCapabilities::ALL));
   ASSERT_TRUE(incompatible_rule_names.empty());
 
   std::vector<pagespeed::Rule*> all_rules;

@@ -21,6 +21,7 @@
 
 namespace pagespeed {
 
+class InputCapabilities;
 class Rule;
 
 namespace rule_provider {
@@ -33,12 +34,12 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules);
 
 /**
  * Append the Page Speed rules that are compatible with the given
- * RuleRequirements bitfield.
+ * InputCapabilities bitfield.
  */
 void AppendCompatibleRules(bool save_optimized_content,
                            std::vector<Rule*>* rules,
                            std::vector<std::string>* incompatible_rule_names,
-                           uint32 rule_requirements_bitfield);
+                           const pagespeed::InputCapabilities& capabilities);
 
 }  // namespace rule_provider
 

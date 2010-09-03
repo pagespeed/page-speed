@@ -116,7 +116,9 @@ namespace pagespeed {
 
 namespace rules {
 
-SpecifyCharsetEarly::SpecifyCharsetEarly() : pagespeed::Rule(RESPONSE_BODY) {
+SpecifyCharsetEarly::SpecifyCharsetEarly()
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::RESPONSE_BODY)) {
 }
 
 const char* SpecifyCharsetEarly::name() const {

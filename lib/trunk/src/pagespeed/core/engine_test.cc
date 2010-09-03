@@ -48,7 +48,7 @@ const char* kBody2 = "Another format string";
 
 class TestRule : public Rule {
  public:
-  TestRule() : pagespeed::Rule(NONE),
+  TestRule() : pagespeed::Rule(pagespeed::InputCapabilities()),
                append_results_return_value_(true) {}
   virtual ~TestRule() {}
 
@@ -257,69 +257,6 @@ TEST(Engine, NonFrozenInputFails) {
   ASSERT_DEATH(engine.ComputeResults(input, &results),
                "Attempting to ComputeResults with non-frozen input.");
 #endif
-}
-
-class EstimateCapabilitiesBitmapTest
-    : public ::pagespeed_testing::PagespeedTest {};
-
-TEST_F(EstimateCapabilitiesBitmapTest, NotFrozen) {
-#ifdef NDEBUG
-  ASSERT_EQ(static_cast<uint32>(Rule::NONE),
-            Engine::EstimateCapabilitiesBitmap(*input()));
-#else
-  ASSERT_DEATH(Engine::EstimateCapabilitiesBitmap(*input()),
-               "Can't estimate capabilities of non-frozen input.");
-#endif
-}
-
-TEST_F(EstimateCapabilitiesBitmapTest, None) {
-  Freeze();
-  ASSERT_EQ(static_cast<uint32>(Rule::NONE),
-            Engine::EstimateCapabilitiesBitmap(*input()));
-}
-
-TEST_F(EstimateCapabilitiesBitmapTest, Dom) {
-  NewPrimaryResource("http://www.example.com/");
-  Freeze();
-  ASSERT_EQ(static_cast<uint32>(Rule::DOM | Rule::PARENT_CHILD_RESOURCE_MAP),
-            Engine::EstimateCapabilitiesBitmap(*input()));
-}
-
-TEST_F(EstimateCapabilitiesBitmapTest, JSCalls) {
-  std::vector<std::string> args;
-  New200Resource("http://www.example.com/")->AddJavaScriptCall(
-      new pagespeed::JavaScriptCallInfo("document.write",
-                                        "http://www.example.com/",
-                                        args,
-                                        1));
-  Freeze();
-  ASSERT_EQ(static_cast<uint32>(Rule::JS_CALLS_DOCUMENT_WRITE),
-            Engine::EstimateCapabilitiesBitmap(*input()));
-}
-
-TEST_F(EstimateCapabilitiesBitmapTest, LazyLoaded) {
-  New200Resource("http://www.example.com/")->SetLazyLoaded();
-  Freeze();
-  ASSERT_EQ(static_cast<uint32>(Rule::LAZY_LOADED),
-            Engine::EstimateCapabilitiesBitmap(*input()));
-}
-
-TEST_F(EstimateCapabilitiesBitmapTest, RequestHeaders) {
-  pagespeed::Resource* resource =
-      New200Resource("http://www.example.com/");
-  resource->AddRequestHeader("referer", "foo");
-  resource->AddRequestHeader("host", "foo");
-  resource->AddRequestHeader("accept-encoding", "foo");
-  Freeze();
-  ASSERT_EQ(static_cast<uint32>(Rule::REQUEST_HEADERS),
-            Engine::EstimateCapabilitiesBitmap(*input()));
-}
-
-TEST_F(EstimateCapabilitiesBitmapTest, ResponseBody) {
-  New200Resource("http://www.example.com/")->SetResponseBody("a");
-  Freeze();
-  ASSERT_EQ(static_cast<uint32>(Rule::RESPONSE_BODY),
-            Engine::EstimateCapabilitiesBitmap(*input()));
 }
 
 }  // namespace

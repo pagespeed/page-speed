@@ -59,7 +59,8 @@ class SortByNumberOfResources {
 }  // namespace
 
 ParallelizeDownloadsAcrossHostnames::ParallelizeDownloadsAcrossHostnames()
-    : pagespeed::Rule(LAZY_LOADED) {}
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::LAZY_LOADED)) {}
 
 const char* ParallelizeDownloadsAcrossHostnames::name() const {
   return "ParallelizeDownloadsAcrossHostnames";

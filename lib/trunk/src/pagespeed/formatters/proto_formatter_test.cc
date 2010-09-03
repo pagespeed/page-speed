@@ -30,8 +30,9 @@ namespace {
 
 class DummyTestRule : public pagespeed::Rule {
  public:
-  explicit DummyTestRule(const char* header) : pagespeed::Rule(NONE),
-                                               header_(header) {}
+  explicit DummyTestRule(const char* header)
+      : pagespeed::Rule(pagespeed::InputCapabilities()),
+        header_(header) {}
 
   virtual const char* name() const { return "Dummy Test Rule"; }
   virtual const char* header() const { return header_; }

@@ -49,7 +49,8 @@ namespace pagespeed {
 
 namespace rules {
 
-SpecifyACacheValidator::SpecifyACacheValidator() : pagespeed::Rule(NONE) {
+SpecifyACacheValidator::SpecifyACacheValidator()
+    : pagespeed::Rule(pagespeed::InputCapabilities()) {
 }
 
 const char* SpecifyACacheValidator::name() const {

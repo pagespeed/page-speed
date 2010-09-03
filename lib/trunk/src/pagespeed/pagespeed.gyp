@@ -101,6 +101,7 @@
       ],
       'sources': [
         'core/engine_test.cc',
+        'core/input_capabilities_test.cc',
         'core/pagespeed_input_test.cc',
         'core/resource_test.cc',
         'core/resource_filter_test.cc',

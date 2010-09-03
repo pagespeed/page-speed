@@ -68,15 +68,6 @@ class Engine {
   bool ComputeAndFormatResults(const PagespeedInput& input,
                                RuleFormatter* formatter) const;
 
-  // Estimate the bitmap of RuleRequirements capabilities for this
-  // PagespeedInput. Note that implementers should call this method
-  // and also explicitly augment the bitmap with the capabilities they
-  // provide. For instance, if an environment collects lazy-load
-  // information about resources but none of the resources in the
-  // PagespeedInput have been lazy loaded, this function will not
-  // include the LAZY_LOADED bit in its return value.
-  static uint32 EstimateCapabilitiesBitmap(const PagespeedInput& input);
-
  private:
   void PopulateNameToRuleMap();
 

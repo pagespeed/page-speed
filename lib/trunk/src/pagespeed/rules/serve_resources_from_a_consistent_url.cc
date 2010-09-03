@@ -51,7 +51,8 @@ namespace pagespeed {
 namespace rules {
 
 ServeResourcesFromAConsistentUrl::ServeResourcesFromAConsistentUrl()
-    : pagespeed::Rule(RESPONSE_BODY) {
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::RESPONSE_BODY)) {
 }
 
 const char* ServeResourcesFromAConsistentUrl::name() const {

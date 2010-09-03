@@ -21,6 +21,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_filter.h"
 
@@ -100,6 +101,15 @@ class PagespeedInput {
   const DomDocument* dom_document() const;
   const std::string& primary_resource_url() const;
   bool is_frozen() const { return frozen_; }
+
+  // Estimate the InputCapabilities for this PagespeedInput.
+  // Note that implementers should call this method
+  // and also explicitly augment the bitmap with the capabilities they
+  // provide. For instance, if an environment collects lazy-load
+  // information about resources but none of the resources in the
+  // PagespeedInput have been lazy loaded, this function will not
+  // include the LAZY_LOADED bit in its return value.
+  InputCapabilities EstimateCapabilities() const;
 
  private:
   bool IsValidResource(const Resource* resource) const;
