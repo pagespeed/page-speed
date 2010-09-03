@@ -29,6 +29,7 @@
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/optimize_the_order_of_styles_and_scripts.h"
 #include "pagespeed/rules/parallelize_downloads_across_hostnames.h"
+#include "pagespeed/rules/prefer_async_resources.h"
 #include "pagespeed/rules/put_css_in_the_document_head.h"
 #include "pagespeed/rules/remove_query_strings_from_static_resources.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
@@ -61,14 +62,15 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::OptimizeImages(save_optimized_content));
   rules->push_back(new rules::OptimizeTheOrderOfStylesAndScripts());
   rules->push_back(new rules::ParallelizeDownloadsAcrossHostnames());
+  rules->push_back(new rules::PreferAsyncResources());
+  rules->push_back(new rules::PutCssInTheDocumentHead);
   rules->push_back(new rules::RemoveQueryStringsFromStaticResources());
   rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
+  rules->push_back(new rules::ServeScaledImages);
   rules->push_back(new rules::ServeStaticContentFromACookielessDomain());
   rules->push_back(new rules::SpecifyACacheValidator());
   rules->push_back(new rules::SpecifyAVaryAcceptEncodingHeader());
   rules->push_back(new rules::SpecifyCharsetEarly());
-  rules->push_back(new rules::PutCssInTheDocumentHead);
-  rules->push_back(new rules::ServeScaledImages);
   rules->push_back(new rules::SpecifyImageDimensions);
 }
 
