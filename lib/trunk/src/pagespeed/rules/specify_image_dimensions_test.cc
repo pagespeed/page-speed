@@ -33,6 +33,7 @@ using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
+using pagespeed_testing::FakeImageAttributesFactory;
 
 class SpecifyImageDimensionsTest : public ::pagespeed_testing::PagespeedTest {
  protected:
@@ -180,8 +181,10 @@ TEST_F(SpecifyImageDimensionsTest, FormatTest) {
       "The following image(s) are missing width and/or height attributes.\n"
       "  http://test.com/image.png (Dimensions: 42 x 23)\n";
 
-  AddFakeImageAttributesFactory();
-  NewPngResource(kImgUrl, body());
+  pagespeed::Resource* resource = NewPngResource(kImgUrl, body());
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   CheckFormattedOutput(expected);
 }
 

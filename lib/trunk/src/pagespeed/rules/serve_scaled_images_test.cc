@@ -22,6 +22,7 @@ namespace {
 using pagespeed::rules::ServeScaledImages;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
+using pagespeed_testing::FakeImageAttributesFactory;
 
 class ServeScaledImagesTest
     : public ::pagespeed_testing::PagespeedRuleTest<ServeScaledImages> {
@@ -33,15 +34,15 @@ class ServeScaledImagesTest
   virtual void DoSetUp() {
     NewPrimaryResource(kRootUrl);
     CreateHtmlHeadBodyElements();
-    AddFakeImageAttributesFactory();
   }
 
   FakeDomElement* CreatePngElement(
-      const std::string& url, FakeDomElement* parent) {
+      const std::string& url, FakeDomElement* parent,
+      pagespeed::Resource** resource) {
     FakeDomElement* element;
-    pagespeed::Resource* resource = NewPngResource(url, parent, &element);
+    *resource = NewPngResource(url, parent, &element);
     std::string body(kImgSizeBytes, 'x');
-    resource->SetResponseBody(body);
+    (*resource)->SetResponseBody(body);
     return element;
   }
 
@@ -90,36 +91,56 @@ TEST_F(ServeScaledImagesTest, EmptyDom) {
 }
 
 TEST_F(ServeScaledImagesTest, NotResized) {
-  FakeDomElement* element = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resource;
+  FakeDomElement* element = CreatePngElement(kImgUrl, body(), &resource);
   element->SetActualWidthAndHeight(42, 23);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkHeight) {
-  FakeDomElement* element = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resource;
+  FakeDomElement* element = CreatePngElement(kImgUrl, body(), &resource);
   element->SetActualWidthAndHeight(21, 23);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckOneViolation(kImgUrl);
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkWidth) {
-  FakeDomElement* element = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resource;
+  FakeDomElement* element = CreatePngElement(kImgUrl, body(), &resource);
   element->SetActualWidthAndHeight(42, 22);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckOneViolation(kImgUrl);
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkBoth) {
-  FakeDomElement* element = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resource;
+  FakeDomElement* element = CreatePngElement(kImgUrl, body(), &resource);
   element->SetActualWidthAndHeight(21, 22);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckOneViolation(kImgUrl);
 }
 
 TEST_F(ServeScaledImagesTest, IncreasedBoth) {
-  FakeDomElement* element = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resource;
+  FakeDomElement* element = CreatePngElement(kImgUrl, body(), &resource);
   element->SetActualWidthAndHeight(84, 46);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckNoViolations();
 }
@@ -129,48 +150,71 @@ TEST_F(ServeScaledImagesTest, ShrunkInIFrame) {
   FakeDomDocument* iframe_doc;
   NewDocumentResource("http://test.com/frame/i.html", iframe, &iframe_doc);
   FakeDomElement* html2 = FakeDomElement::NewRoot(iframe_doc, "html");
+  pagespeed::Resource* resource;
   FakeDomElement* element =
-      CreatePngElement("http://test.com/frame/image.png", html2);
+      CreatePngElement("http://test.com/frame/image.png", html2, &resource);
   element->SetActualWidthAndHeight(21, 22);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckOneViolation("http://test.com/frame/image.png");
 }
 
 TEST_F(ServeScaledImagesTest, MultipleViolations) {
+  pagespeed::Resource* resourceA;
   FakeDomElement* elementA =
-      CreatePngElement("http://test.com/imageA.png", body());
+      CreatePngElement("http://test.com/imageA.png", body(), &resourceA);
   elementA->SetActualWidthAndHeight(21, 22);
+  pagespeed::Resource* resourceB;
   FakeDomElement* elementB =
-      CreatePngElement("http://test.com/imageB.png", body());
+      CreatePngElement("http://test.com/imageB.png", body(), &resourceB);
   elementB->SetActualWidthAndHeight(15, 5);
+
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resourceA] = std::make_pair(42,23);
+  size_map[resourceB] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckTwoViolations("http://test.com/imageA.png",
                      "http://test.com/imageB.png");
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkTwice) {
-  FakeDomElement* elementA = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resourceA;
+  FakeDomElement* elementA = CreatePngElement(kImgUrl, body(), &resourceA);
   elementA->SetActualWidthAndHeight(21, 22);
   FakeDomElement* elementB = FakeDomElement::NewImg(body(), kImgUrl);
   elementB->SetActualWidthAndHeight(15, 5);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resourceA] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckOneViolation(kImgUrl);
 }
 
 TEST_F(ServeScaledImagesTest, NotAlwaysShrunk) {
-  FakeDomElement* elementA = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resourceA;
+  FakeDomElement* elementA = CreatePngElement(kImgUrl, body(), &resourceA);
   elementA->SetActualWidthAndHeight(42, 23);
   FakeDomElement* elementB = FakeDomElement::NewImg(body(), kImgUrl);
   elementB->SetActualWidthAndHeight(15, 5);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resourceA] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ServeScaledImagesTest, ShrunkAndIncreased) {
-  FakeDomElement* elementA = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resourceA;
+  FakeDomElement* elementA = CreatePngElement(kImgUrl, body(), &resourceA);
   elementA->SetActualWidthAndHeight(84, 46);
   FakeDomElement* elementB = FakeDomElement::NewImg(body(), kImgUrl);
   elementB->SetActualWidthAndHeight(15, 5);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resourceA] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckNoViolations();
 }
@@ -183,8 +227,12 @@ TEST_F(ServeScaledImagesTest, FormatTest) {
       "42x23 to 15x5.  "
       "Serving a scaled image could save 47B (94% reduction).\n";
 
-  FakeDomElement* element = CreatePngElement(kImgUrl, body());
+  pagespeed::Resource* resource;
+  FakeDomElement* element = CreatePngElement(kImgUrl, body(), &resource);
   element->SetActualWidthAndHeight(15, 5);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckFormattedOutput(expected);
 }

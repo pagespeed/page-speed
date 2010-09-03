@@ -15,10 +15,12 @@
 #ifndef PAGESPEED_TESTING_PAGESPEED_TEST_H_
 #define PAGESPEED_TESTING_PAGESPEED_TEST_H_
 
+#include <map>
 #include <string>
 
 #include "base/at_exit.h"
 #include "base/scoped_ptr.h"
+#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
@@ -32,6 +34,21 @@ class Resource;
 }  // namespace pagespeed
 
 namespace pagespeed_testing {
+
+class FakeImageAttributesFactory
+    : public pagespeed::ImageAttributesFactory {
+ public:
+  typedef std::map<const pagespeed::Resource*, std::pair<int,int> >
+      ResourceSizeMap;
+  explicit FakeImageAttributesFactory(const ResourceSizeMap& resource_size_map)
+      : resource_size_map_(resource_size_map) {
+  }
+  virtual pagespeed::ImageAttributes* NewImageAttributes(
+      const pagespeed::Resource* resource) const;
+ private:
+  ResourceSizeMap resource_size_map_;
+};
+
 
 // Helper method that returns the output from a TextFormatter for
 // the given Rule and Results.
@@ -124,9 +141,10 @@ class PagespeedTest : public ::testing::Test {
   // elements can be parented under.
   void CreateHtmlHeadBodyElements();
 
-  // Adds an ImageAttributesFactory to the PagespeedInput that always
-  // returns ImageAttributes with width 42 and height 23.
-  bool AddFakeImageAttributesFactory();
+  // Adds an ImageAttributesFactory to the PagespeedInput that can
+  // returns ImageAttributes according to the ResourceSizeMap.
+  bool AddFakeImageAttributesFactory(
+      const FakeImageAttributesFactory::ResourceSizeMap& map);
 
   // Enable duplicate resources in the PagespeedInput. Most tests
   // should not need to call this, since the default PagespeedInput

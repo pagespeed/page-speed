@@ -39,6 +39,7 @@
 #include "pagespeed/rules/specify_a_vary_accept_encoding_header.h"
 #include "pagespeed/rules/specify_charset_early.h"
 #include "pagespeed/rules/specify_image_dimensions.h"
+#include "pagespeed/rules/sprite_images.h"
 
 namespace pagespeed {
 
@@ -72,6 +73,7 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::SpecifyAVaryAcceptEncodingHeader());
   rules->push_back(new rules::SpecifyCharsetEarly());
   rules->push_back(new rules::SpecifyImageDimensions);
+  rules->push_back(new rules::SpriteImages);
 }
 
 void AppendCompatibleRules(bool save_optimized_content,

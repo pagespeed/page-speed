@@ -16,7 +16,6 @@
 #include <string>
 
 #include "pagespeed/testing/pagespeed_test.h"
-#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/formatters/text_formatter.h"
 
@@ -30,18 +29,21 @@ void AssertNotNull(const void* value) {
   ASSERT_TRUE(value != NULL);
 }
 
-class FakeImageAttributesFactory
-    : public pagespeed::ImageAttributesFactory {
- public:
-  virtual pagespeed::ImageAttributes* NewImageAttributes(
-      const pagespeed::Resource* resource) const {
-    return new pagespeed::ConcreteImageAttributes(42, 23);
-  }
-};
-
 }  // namespace
 
 namespace pagespeed_testing {
+
+pagespeed::ImageAttributes* FakeImageAttributesFactory::NewImageAttributes(
+    const pagespeed::Resource* resource) const {
+  ResourceSizeMap::const_iterator c_it = resource_size_map_.find(resource);
+  if (c_it == resource_size_map_.end()) {
+    return NULL;
+  } else {
+    return new pagespeed::ConcreteImageAttributes(c_it->second.first,
+                                                  c_it->second.second);
+  }
+}
+
 
 PagespeedTest::PagespeedTest() {}
 PagespeedTest::~PagespeedTest() {}
@@ -175,9 +177,10 @@ bool PagespeedTest::AddResource(pagespeed::Resource* resource) {
   return input_->AddResource(resource);
 }
 
-bool PagespeedTest::AddFakeImageAttributesFactory() {
+bool PagespeedTest::AddFakeImageAttributesFactory(
+    const FakeImageAttributesFactory::ResourceSizeMap& map) {
   return input_->AcquireImageAttributesFactory(
-      new FakeImageAttributesFactory());
+      new FakeImageAttributesFactory(map));
 }
 
 void PagespeedTest::SetAllowDuplicateResources() {
