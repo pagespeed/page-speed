@@ -39,7 +39,9 @@ namespace pagespeed {
 
 namespace rules {
 
-MinimizeRequestSize::MinimizeRequestSize() : pagespeed::Rule(REQUEST_HEADERS) {
+MinimizeRequestSize::MinimizeRequestSize()
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::REQUEST_HEADERS)) {
 }
 
 const char* MinimizeRequestSize::name() const {

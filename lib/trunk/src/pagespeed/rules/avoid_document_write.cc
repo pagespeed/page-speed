@@ -307,11 +307,12 @@ bool DoesBlockRender(const PagespeedInput& input,
 namespace rules {
 
 AvoidDocumentWrite::AvoidDocumentWrite()
-  : pagespeed::Rule(DOM |
-                    JS_CALLS_DOCUMENT_WRITE |
-                    LAZY_LOADED |
-                    PARENT_CHILD_RESOURCE_MAP |
-                    JS_CALLS_DOCUMENT_WRITE) {
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::DOM |
+        pagespeed::InputCapabilities::JS_CALLS_DOCUMENT_WRITE |
+        pagespeed::InputCapabilities::LAZY_LOADED |
+        pagespeed::InputCapabilities::PARENT_CHILD_RESOURCE_MAP |
+        pagespeed::InputCapabilities::JS_CALLS_DOCUMENT_WRITE)) {
 }
 
 const char* AvoidDocumentWrite::name() const {

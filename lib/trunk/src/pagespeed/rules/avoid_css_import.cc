@@ -42,7 +42,9 @@ namespace pagespeed {
 
 namespace rules {
 
-AvoidCssImport::AvoidCssImport() : pagespeed::Rule(RESPONSE_BODY) {
+AvoidCssImport::AvoidCssImport()
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::RESPONSE_BODY)) {
 }
 
 const char* AvoidCssImport::name() const {

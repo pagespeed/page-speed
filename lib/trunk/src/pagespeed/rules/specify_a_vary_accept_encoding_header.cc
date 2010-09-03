@@ -30,7 +30,7 @@ namespace pagespeed {
 namespace rules {
 
 SpecifyAVaryAcceptEncodingHeader::SpecifyAVaryAcceptEncodingHeader()
-    : pagespeed::Rule(NONE) {}
+    : pagespeed::Rule(pagespeed::InputCapabilities()) {}
 
 const char* SpecifyAVaryAcceptEncodingHeader::name() const {
   return "SpecifyAVaryAcceptEncodingHeader";

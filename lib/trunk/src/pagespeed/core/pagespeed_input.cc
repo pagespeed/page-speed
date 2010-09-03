@@ -418,4 +418,39 @@ const Resource* PagespeedInput::GetResourceWithUrl(
   return it->second;
 }
 
+InputCapabilities PagespeedInput::EstimateCapabilities() const {
+  InputCapabilities capabilities;
+  if (!is_frozen()) {
+    LOG(DFATAL) << "Can't estimate capabilities of non-frozen input.";
+    return capabilities;
+  }
+
+  if (dom_document() != NULL) {
+    capabilities.add(
+        InputCapabilities::DOM |
+        InputCapabilities::PARENT_CHILD_RESOURCE_MAP);
+  }
+  for (int i = 0, num = num_resources(); i < num; ++i) {
+    const Resource& resource = GetResource(i);
+    if (resource.IsLazyLoaded()) {
+      capabilities.add(InputCapabilities::LAZY_LOADED);
+    }
+    if (resource.GetJavaScriptCalls("document.write") != NULL) {
+      capabilities.add(InputCapabilities::JS_CALLS_DOCUMENT_WRITE);
+    }
+    if (!resource.GetResponseBody().empty()) {
+      capabilities.add(InputCapabilities::RESPONSE_BODY);
+    }
+    if (!resource.GetRequestHeader("referer").empty() &&
+        !resource.GetRequestHeader("host").empty() &&
+        !resource.GetRequestHeader("accept-encoding").empty()) {
+      // If at least one resource has a Host, Referer, and
+      // Accept-Encoding header, we assume that a full set of request
+      // headers were provided.
+      capabilities.add(InputCapabilities::REQUEST_HEADERS);
+    }
+  }
+  return capabilities;
+}
+
 }  // namespace pagespeed

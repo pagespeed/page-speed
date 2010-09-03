@@ -119,7 +119,9 @@ namespace pagespeed {
 namespace rules {
 
 SpecifyImageDimensions::SpecifyImageDimensions()
-    : pagespeed::Rule(DOM | RESPONSE_BODY) {}
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::DOM |
+        pagespeed::InputCapabilities::RESPONSE_BODY)) {}
 
 const char* SpecifyImageDimensions::name() const {
   return kRuleName;

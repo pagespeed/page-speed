@@ -174,7 +174,7 @@ bool RunPagespeed(const std::string& out_format,
       save_optimized_content,
       &rules,
       &incompatible_rule_names,
-      pagespeed::Engine::EstimateCapabilitiesBitmap(*input));
+      input->EstimateCapabilities());
   if (!incompatible_rule_names.empty()) {
     std::string incompatible_rule_list =
         JoinString(incompatible_rule_names, ' ');

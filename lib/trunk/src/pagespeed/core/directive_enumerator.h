@@ -16,6 +16,7 @@
 #define PAGESPEED_CORE_DIRECTIVE_ENUMERATOR_H_
 
 #include <string>
+#include "base/basictypes.h"
 #include "base/string_tokenizer.h"
 
 namespace pagespeed {
@@ -57,6 +58,8 @@ class DirectiveEnumerator {
   std::string header_;
   StringTokenizer tok_;
   State state_;
+
+  DISALLOW_COPY_AND_ASSIGN(DirectiveEnumerator);
 };
 
 }  // namespace pagespeed

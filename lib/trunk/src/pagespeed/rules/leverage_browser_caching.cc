@@ -107,8 +107,7 @@ namespace pagespeed {
 namespace rules {
 
 LeverageBrowserCaching::LeverageBrowserCaching()
-  : pagespeed::Rule(NONE) {
-}
+    : pagespeed::Rule(pagespeed::InputCapabilities()) {}
 
 const char* LeverageBrowserCaching::name() const {
   return "LeverageBrowserCaching";
