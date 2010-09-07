@@ -103,18 +103,38 @@ class Resource {
   // transferred to the resource.
   void AddJavaScriptCall(const JavaScriptCallInfo* call_info);
 
-  // The resource is lazy-loaded if the request time is after
+  // The resource is lazy-loaded if the request start time is after
   // the window's onLoad time. Many of the page-speed rules
   // do not apply to lazy-loaded resources.
   void SetLazyLoaded();
 
   // Accessor methods
   const std::string& GetRequestUrl() const;
+
+  // Get the HTTP method used when issuing the request, e.g. GET,
+  // POST, etc.
   const std::string& GetRequestMethod() const;
+
+  // Get a specific HTTP request header. The lookup is
+  // case-insensitive. If the header is not present, the empty string
+  // is returned.
   const std::string& GetRequestHeader(const std::string& name) const;
+
+  // Get the body sent with the request. This only makes sense for
+  // POST requests.
   const std::string& GetRequestBody() const;
+
+  // Get the status code (e.g. 200) for the response.
   int GetResponseStatusCode() const;
+
+  // Get a specific HTTP response header. The lookup is
+  // case-insensitive. If the header is not present, the empty string
+  // is returned.
   const std::string& GetResponseHeader(const std::string& name) const;
+
+  // Get the body sent with the response (e.g. the HTML, CSS,
+  // JavaScript, etc content). This is the body after applying any
+  // content decodings (e.g. post ungzipping the response).
   const std::string& GetResponseBody() const;
 
   // Get the cookies specified via SetCookies. If SetCookies was
@@ -128,6 +148,7 @@ class Resource {
   const std::vector<const JavaScriptCallInfo*>* GetJavaScriptCalls(
       const std::string& id) const;
 
+  // Was the request for this resource issued after the onload event?
   bool IsLazyLoaded() const;
 
   // For serialization purposes only.
