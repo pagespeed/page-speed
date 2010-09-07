@@ -14,56 +14,16 @@
  * limitations under the License.
  */
 
-#include "base/basictypes.h"
-
-#include "pagespeed/core/dom.h"
-
-#include "nsCOMPtr.h"
-
 class nsIDOMDocument;
-class nsIDOMElement;
 
 namespace pagespeed {
 
-class FirefoxDocument : public DomDocument {
- public:
-  FirefoxDocument(nsIDOMDocument* document);
+class DomDocument;
 
-  virtual std::string GetDocumentUrl() const;
+namespace firefox {
 
-  virtual std::string GetBaseUrl() const;
+DomDocument* CreateDocument(nsIDOMDocument* document);
 
-  virtual void Traverse(DomElementVisitor* visitor) const;
-
- private:
-  nsCOMPtr<nsIDOMDocument> document_;
-
-  DISALLOW_COPY_AND_ASSIGN(FirefoxDocument);
-};
-
-class FirefoxElement : public DomElement {
- public:
-  FirefoxElement(nsIDOMElement* element);
-  virtual DomDocument* GetContentDocument() const;
-  virtual std::string GetTagName() const;
-  virtual bool GetAttributeByName(const std::string& name,
-                                  std::string* attr_value) const;
-
-  Status GetActualWidth(int* out_width) const;
-  Status GetActualHeight(int* out_height) const;
-  Status HasWidthSpecified(bool* out_width_specified) const;
-  Status HasHeightSpecified(bool* out_height_specified) const;
-
- private:
-  bool GetClientWidthOrHeight(const std::string& name,
-                              int* out_property_value) const;
-
-  bool GetCSSPropertyByName(const std::string& name,
-                            std::string* out_property_value) const;
-
-  nsCOMPtr<nsIDOMElement> element_;
-
-  DISALLOW_COPY_AND_ASSIGN(FirefoxElement);
-};
+}  // namespace firefox
 
 }  // namespace pagespeed

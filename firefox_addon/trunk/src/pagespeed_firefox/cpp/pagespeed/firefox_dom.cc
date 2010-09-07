@@ -17,6 +17,7 @@
 #include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
 
 #include "inIDOMUtils.h"
+#include "nsCOMPtr.h"
 #include "nsIDOM3Node.h"
 #include "nsIDOMAttr.h"
 #include "nsIDOMCSSStyleDeclaration.h"
@@ -39,6 +40,7 @@
 #include "nsStringAPI.h"
 
 #include "base/logging.h"
+#include "pagespeed/core/dom.h"
 
 namespace {
 
@@ -155,6 +157,50 @@ NS_IMETHODIMP NodeFilter::AcceptNode(nsIDOMNode* node, PRInt16* _retval) {
 
 namespace pagespeed {
 
+namespace {
+
+class FirefoxDocument : public DomDocument {
+ public:
+  FirefoxDocument(nsIDOMDocument* document);
+
+  virtual std::string GetDocumentUrl() const;
+
+  virtual std::string GetBaseUrl() const;
+
+  virtual void Traverse(DomElementVisitor* visitor) const;
+
+ private:
+  nsCOMPtr<nsIDOMDocument> document_;
+
+  DISALLOW_COPY_AND_ASSIGN(FirefoxDocument);
+};
+
+class FirefoxElement : public DomElement {
+ public:
+  FirefoxElement(nsIDOMElement* element);
+  virtual DomDocument* GetContentDocument() const;
+  virtual std::string GetTagName() const;
+  virtual bool GetAttributeByName(const std::string& name,
+                                  std::string* attr_value) const;
+
+  Status GetActualWidth(int* out_width) const;
+  Status GetActualHeight(int* out_height) const;
+  Status HasWidthSpecified(bool* out_width_specified) const;
+  Status HasHeightSpecified(bool* out_height_specified) const;
+
+ private:
+  bool GetClientWidthOrHeight(const std::string& name,
+                              int* out_property_value) const;
+
+  bool GetCSSPropertyByName(const std::string& name,
+                            std::string* out_property_value) const;
+
+  nsCOMPtr<nsIDOMElement> element_;
+
+  DISALLOW_COPY_AND_ASSIGN(FirefoxElement);
+};
+
+
 FirefoxDocument::FirefoxDocument(nsIDOMDocument* document)
     : document_(document) {
 }
@@ -225,7 +271,7 @@ void FirefoxDocument::Traverse(DomElementVisitor* visitor) const {
           continue;
         }
 
-        pagespeed::FirefoxElement wrapped_element(element);
+        FirefoxElement wrapped_element(element);
         visitor->Visit(wrapped_element);
       }
     } else {
@@ -359,5 +405,15 @@ bool FirefoxElement::GetCSSPropertyByName(const std::string& name,
   // external stylesheet.
   return GetCascadedStylePropertyByName(element_, name, property_value);
 }
+
+}  // namespace
+
+namespace firefox {
+
+DomDocument* CreateDocument(nsIDOMDocument* document) {
+  return new FirefoxDocument(document);
+}
+
+}  // namespace firefox
 
 }  // namespace pagespeed
