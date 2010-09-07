@@ -199,7 +199,7 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
   engine.Init();
 
   PagespeedInput input(ChoiceToFilter(filter_choice));
-  input.AcquireDomDocument(new FirefoxDocument(root_document));
+  input.AcquireDomDocument(firefox::CreateDocument(root_document));
   input.AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
   if (PopulateInputFromJSON(&input, data, contents)) {
