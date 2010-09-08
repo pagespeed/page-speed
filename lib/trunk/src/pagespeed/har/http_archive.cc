@@ -80,8 +80,7 @@ void InputPopulator::PopulateInput(cJSON* har_json, PagespeedInput* input) {
   cJSON* version_json = cJSON_GetObjectItem(log_json, "version");
   if (version_json == NULL || version_json->type != cJSON_String ||
       strcmp(version_json->valuestring, "1.2")) {
-    INPUT_POPULATOR_ERROR() << "HAR version must be 1.2";
-    return;
+    LOG(WARNING) << "HAR version should be 1.2";
   }
 
   DeterminePageFinishedMillis(log_json);
