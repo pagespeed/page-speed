@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "base/basictypes.h"  // for int64
+
 namespace pagespeed {
 
 class PagespeedInput;
@@ -32,6 +34,12 @@ PagespeedInput* ParseHttpArchive(const std::string& har_data);
 // will delete the ResourceFilter before returning.
 PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
                                            ResourceFilter* resource_filter);
+
+// Given a string in ISO 8601 format (see http://www.w3.org/TR/NOTE-datetime),
+// produce the number of milliseconds from midnight on 1 Jan 1970 UTC.  If the
+// parse is successful, return true; otherwise return false and make no change
+// to &output.
+bool Iso8601ToEpochMillis(const std::string& input, int64* output);
 
 }  // namespace pagespeed
 
