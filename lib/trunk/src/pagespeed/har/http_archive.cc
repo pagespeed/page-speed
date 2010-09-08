@@ -19,6 +19,7 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "third_party/cJSON/cJSON.h"
@@ -73,16 +74,6 @@ void InputPopulator::PopulateInput(cJSON* har_json, PagespeedInput* input) {
     return;
   }
 
-  // We require HAR version 1.2 (or, perhaps, greater?), because we need the
-  // "encoding" field for resource content.  If the version field is not
-  // present, the HAR spec says that version 1.1 should be assumed.  See
-  // http://groups.google.com/group/http-archive-specification/web/har-1-2-spec
-  cJSON* version_json = cJSON_GetObjectItem(log_json, "version");
-  if (version_json == NULL || version_json->type != cJSON_String ||
-      strcmp(version_json->valuestring, "1.2")) {
-    LOG(WARNING) << "HAR version should be 1.2";
-  }
-
   DeterminePageFinishedMillis(log_json);
 
   cJSON* entries_json = cJSON_GetObjectItem(log_json, "entries");
@@ -132,10 +123,13 @@ void InputPopulator::DeterminePageFinishedMillis(cJSON* log_json) {
     const std::string started_datetime =
         GetString(page_json, "startedDateTime");
     int64 started_millis;
-    const int64 onload_millis = static_cast<int64>(onload_json->valueint);
-    if (onload_millis >= 0 &&
-        Iso8601ToEpochMillis(started_datetime, &started_millis)) {
-      page_finished_millis_ = started_millis + onload_millis;
+    if (Iso8601ToEpochMillis(started_datetime, &started_millis)) {
+      const int64 onload_millis = static_cast<int64>(onload_json->valueint);
+      if (onload_millis >= 0) {
+        page_finished_millis_ = started_millis + onload_millis;
+      }
+    } else {
+      LOG(DFATAL) << "Failed to parse ISO 8601: " << started_datetime;
     }
   }
 }
@@ -155,6 +149,9 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
         if (started_millis > page_finished_millis_) {
           resource->SetLazyLoaded();
         }
+      } else {
+        LOG(DFATAL) << "Failed to parse ISO 8601: "
+                    << started_json->valuestring;
       }
     }
   }
@@ -355,7 +352,7 @@ bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
   if (tail[0] == '.') {
     int multiplier = 100;
     index = 1;
-    while (isdigit(tail[index])) {
+    while (IsAsciiDigit(tail[index])) {
       milliseconds += (tail[index] - '0') * multiplier;
       multiplier /= 10;
       ++index;
