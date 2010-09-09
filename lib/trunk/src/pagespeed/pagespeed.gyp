@@ -19,7 +19,7 @@
   },
   'targets': [
     {
-      'target_name': 'pagespeed',
+      'target_name': 'pagespeed_library',
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
@@ -84,7 +84,7 @@
       'target_name': 'pagespeed_test',
       'type': 'executable',
       'dependencies': [
-        'pagespeed',
+        'pagespeed_library',
         '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
         '<(pagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
@@ -154,7 +154,7 @@
       'target_name': 'pagespeed_image_test',
       'type': 'executable',
       'dependencies': [
-        'pagespeed',
+        'pagespeed_library',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
