@@ -43,7 +43,6 @@ ImageCompressionInfo kValidImages[] = {
   { "sjpeg2.jpg", 3612, 3612 },
   { "sjpeg3.jpg", 44084, 44084 },
   { "sjpeg4.jpg", 168895, 181631 },
-  { "sjpeg5.jpg", 1589842, 1633457 },
   { "sjpeg6.jpg", 149600, 215677 },
   { "test411.jpg", 6883, 4819 },
   { "test420.jpg", 6173, 4385 },
