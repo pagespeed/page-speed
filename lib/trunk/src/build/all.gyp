@@ -29,8 +29,11 @@
         '../pagespeed/html/html.gyp:*',
         '../pagespeed/image_compression/image_compression.gyp:*',
         '../pagespeed/pagespeed.gyp:*',
+        '../pagespeed/platform/platform.gyp:*',
         '../pagespeed/proto/proto.gyp:*',
         '../pagespeed/util/util.gyp:*',
         '../third_party/jsmin/jsmin.gyp:*',
-      ],} ]
+      ],
+    }
+  ]
 }

@@ -1,4 +1,4 @@
-# Copyright 2009 Google Inc.
+# Copyright 2010 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,29 +18,21 @@
     'chromium_code': 1,
   },
   'targets': [
-    {
-      'target_name': 'pagespeed_har',
-      'type': '<(library)',
-      'dependencies': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/modp_b64/modp_b64.gyp:modp_b64',
-        '<(pagespeed_root)/third_party/cJSON/cJSON.gyp:cJSON',
-      ],
-      'sources': [
-        'http_archive.cc',
-      ],
-      'include_dirs': [
-        '<(DEPTH)',
-        '<(pagespeed_root)',
-      ],
-      'conditions': [
-        ['OS=="win"', {
-          'defines': [
-            # Suppress a warning about sscanf on Windows.
-            '_CRT_SECURE_NO_WARNINGS',
+  ],
+  'conditions': [
+    ['OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'ie_dom',
+          'type': '<(library)',
+          'dependencies': [
+            '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
           ],
-        }],
-      ],
-    },
+          'sources': [
+            'ie/ie_dom.cc',
+          ],
+        }
+      ]
+    }],
   ],
 }
