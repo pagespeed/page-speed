@@ -17,7 +17,7 @@
 #include "pagespeed/core/resource.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#include "pagespeed_json_input.h"
+#include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
 
 using namespace pagespeed;
 

@@ -19,7 +19,7 @@
 #ifndef PAGE_SPEED_RULES_H_
 #define PAGE_SPEED_RULES_H_
 
-#include "IPageSpeedRules.h"
+#include "pagespeed_firefox/idl/IPageSpeedRules.h"
 
 namespace pagespeed {
 

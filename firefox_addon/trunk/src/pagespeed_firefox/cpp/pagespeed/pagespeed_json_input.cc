@@ -16,7 +16,7 @@
 
 // Author: Matthew Steele
 
-#include "pagespeed_json_input.h"
+#include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
 
 #include <string>
 

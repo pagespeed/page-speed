@@ -14,8 +14,8 @@
 
 #include <string>
 
-#include "file_util.h"
 #include "googleurl/src/gurl.h"
+#include "pagespeed_firefox/cpp/pagespeed/file_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::ChooseOutputFilename;

@@ -16,7 +16,7 @@
 
 // Author: Matthew Steele
 
-#include "pagespeed_rules.h"
+#include "pagespeed_firefox/cpp/pagespeed/pagespeed_rules.h"
 
 #include <fstream>
 #include <sstream>
@@ -37,10 +37,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/md5.h"
-#include "file_util.h"
-#include "firefox_dom.h"
 #include "googleurl/src/gurl.h"
-#include "pagespeed_json_input.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
@@ -52,6 +49,9 @@
 #include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/rule_provider.h"
+#include "pagespeed_firefox/cpp/pagespeed/file_util.h"
+#include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
+#include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
 
 namespace {
 

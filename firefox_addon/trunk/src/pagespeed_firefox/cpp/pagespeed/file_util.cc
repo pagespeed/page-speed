@@ -16,7 +16,7 @@
 
 // Author: Matthew Steele
 
-#include "file_util.h"
+#include "pagespeed_firefox/cpp/pagespeed/file_util.h"
 
 namespace {
 
