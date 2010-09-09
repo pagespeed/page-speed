@@ -59,7 +59,7 @@
       'dependencies': [
         'pagespeed_chromium_lib',
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:pagespeed',
+        '<(DEPTH)/third_party/libpagespeed/src/pagespeed/pagespeed.gyp:pagespeed_library',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(DEPTH)/third_party/libpagespeed/src/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
       ],
