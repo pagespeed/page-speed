@@ -133,9 +133,16 @@
     {
       'target_name': 'pagespeed_firefox_module',
       'type': 'loadable_module',
-      'variables': {
-        'src_root': 'cpp',
-      },
+      'product_name': 'pagespeed',
+      'conditions': [
+        ['OS=="mac"', {
+          # Firefox expects native components to be named libfoo.dylib,
+          # but the gyp xcode generator defaults to "foo.so" so we have
+          # to explicitly override the prefix and extension here.
+          'product_prefix': 'lib',
+          'product_extension': 'dylib',
+        }],
+      ],
       'dependencies': [
         '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
         'pagespeed_firefox_library_rules',
@@ -149,16 +156,47 @@
         'HAVE_VISIBILITY_ATTRIBUTE=1',
       ],
       'sources': [
-        '<(src_root)/pagespeed/pagespeed_module.cc',
+        'cpp/pagespeed/pagespeed_module.cc',
       ],
-      'conditions': [['OS == "mac"', {
-        'xcode_settings': {
-          # We must null out these two variables when building this target,
-          # because it is a loadable_module (-bundle).
-          'DYLIB_COMPATIBILITY_VERSION':'',
-          'DYLIB_CURRENT_VERSION':'',
-        }
-      }]],
+    },
+    {
+      # Copies the pagespeed shared object to the appropriate location
+      # in the ant build directory.
+      'target_name': 'pagespeed_firefox_module_copy',
+      'type': 'none',
+      'variables': {
+          'conditions': [
+            ['OS=="win"', {
+              'xpcom_os': 'WINNT',
+              'xpcom_compiler_abi': 'msvc',
+            }],
+            ['OS=="linux"', {
+              'xpcom_os': 'Linux',
+              'xpcom_compiler_abi': 'gcc3',
+            }],
+            ['OS=="mac"', {
+              'xpcom_os': 'Darwin',
+              'xpcom_compiler_abi': 'gcc3',
+            }],
+            ['target_arch=="ia32"', {
+              'xpcom_cpu_arch': 'x86',
+            }],
+            ['target_arch=="x64"', {
+              'xpcom_cpu_arch': 'x86_64',
+            }],
+          ],
+      },
+      'dependencies': [
+        'pagespeed_firefox_module',
+      ],
+      'copies': [
+        {
+          'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
+          'files': [
+            '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+          ],
+        },
+      ],
     },
   ],
 }
