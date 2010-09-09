@@ -67,8 +67,8 @@
               ],
               'OTHER_CFLAGS': [
                 '-fshort-wchar',
-                '-include <(xulrunner_sdk_arch_root)/include/mozilla-config.h',
-                '-include <(xulrunner_sdk_arch_root)/include/xpcom-config.h',
+                '-include cpp/<(xulrunner_sdk_arch_root)/include/mozilla-config.h',
+                '-include cpp/<(xulrunner_sdk_arch_root)/include/xpcom-config.h',
               ],
             },
           }],
