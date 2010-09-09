@@ -52,7 +52,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '<(xpidl_out_dir)/pagespeed_firefox/idl',
+          '<(xpidl_out_dir)',
         ]
       },
       'export_dependent_settings': [
@@ -69,9 +69,6 @@
       'sources': [
         'cpp/pagespeed/file_util.cc',
       ],
-      'include_dirs': [
-        'cpp/pagespeed',
-      ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
@@ -87,9 +84,6 @@
       ],
       'sources': [
         'cpp/pagespeed/pagespeed_json_input.cc',
-      ],
-      'include_dirs': [
-        'cpp/pagespeed',
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
@@ -108,9 +102,6 @@
       'sources': [
         'cpp/pagespeed/file_util_test.cc',
         'cpp/pagespeed/pagespeed_json_input_test.cc',
-      ],
-      'include_dirs': [
-        'cpp/pagespeed',
       ],
     },
     {
@@ -132,9 +123,6 @@
       'sources': [
         'cpp/pagespeed/firefox_dom.cc',
         'cpp/pagespeed/pagespeed_rules.cc',
-      ],
-      'include_dirs': [
-        'cpp/pagespeed',
       ],
       'export_dependent_settings': [
         'pagespeed_firefox_genidl',
@@ -162,10 +150,6 @@
       ],
       'sources': [
         '<(src_root)/pagespeed/pagespeed_module.cc',
-      ],
-      'include_dirs': [
-        '<(src_root)',
-        '<(src_root)/pagespeed',
       ],
       'conditions': [['OS == "mac"', {
         'xcode_settings': {

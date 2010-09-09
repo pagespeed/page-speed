@@ -17,7 +17,7 @@
 // Author: Bryan McQuade
 // Author: Tony Gentilcore
 
-#include "pagespeed/pagespeed_rules.h"
+#include "pagespeed_firefox/cpp/pagespeed/pagespeed_rules.h"
 
 #include "mozilla/ModuleUtils.h"
 #include "nsIClassInfoImpl.h"
