@@ -136,6 +136,7 @@ const char* SpecifyCharsetEarly::documentation_url() const {
 bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
                                         ResultProvider* provider) {
   net_instaweb::GoogleMessageHandler message_handler;
+  message_handler.set_min_message_type(net_instaweb::kError);
   net_instaweb::HtmlParse html_parse(&message_handler);
   CharsetInMetaTagFilter filter(&html_parse);
   html_parse.AddFilter(&filter);

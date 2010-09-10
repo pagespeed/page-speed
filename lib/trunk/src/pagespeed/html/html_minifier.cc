@@ -32,6 +32,11 @@ HtmlMinifier::HtmlMinifier()
       collapse_whitespace_filter_(&html_parse_),
       minify_js_css_filter_(&html_parse_),
       html_writer_filter_(&html_parse_) {
+  // The instaweb parser emits warnings when it encounters malformed
+  // content. We do not want to see these warnings; we only want to
+  // see errors that occur due to unexpected conditions encountered in
+  // the parser.
+  message_handler_->set_min_message_type(net_instaweb::kError);
   html_parse_.AddFilter(&remove_comments_filter_);
   html_parse_.AddFilter(&elide_attributes_filter_);
   html_parse_.AddFilter(&quote_removal_filter_);
