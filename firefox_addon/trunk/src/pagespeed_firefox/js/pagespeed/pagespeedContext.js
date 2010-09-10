@@ -113,6 +113,14 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
 
     // Past this point, the color codes are the same.
 
+    if (aColorCode == PAGESPEED.Utils.SCORE_CODE_RED) {
+      // If an experimental rule scores in the "red" section, make
+      // sure it appears at the bottom of the red section.
+      if (a.experimental != b.experimental) {
+        return a.experimental ? 1 : -1;
+      }
+    }
+
     var aDetails = !!((a.warnings || '') + (a.information || ''));
     var bDetails = !!((b.warnings || '') + (b.information || ''));
     if (aDetails != bDetails) {
