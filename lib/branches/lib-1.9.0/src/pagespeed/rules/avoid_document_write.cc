@@ -331,6 +331,7 @@ bool AvoidDocumentWrite::AppendResults(const PagespeedInput& input,
                                        ResultProvider* provider) {
   bool error = false;
   net_instaweb::GoogleMessageHandler message_handler;
+  message_handler.set_min_message_type(net_instaweb::kError);
   net_instaweb::HtmlParse html_parse(&message_handler);
   ExternalResourceFilter filter(&html_parse);
   html_parse.AddFilter(&filter);
