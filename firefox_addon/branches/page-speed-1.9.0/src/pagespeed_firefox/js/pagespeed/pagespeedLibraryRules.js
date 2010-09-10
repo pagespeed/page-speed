@@ -104,6 +104,16 @@ var shortNameTranslationTable = {
   ServeResourcesFromAConsistentUrl: 'DupeRsrc'
 };
 
+// New rules that haven't been reviewed by the community are marked as
+// experimental. The idea is that rules start as experimental and are
+// refined until they graduate to regular rules.
+var experimentalRules = {
+  AvoidDocumentWrite: true,
+  AvoidCssImport: true,
+  SpriteImages: true,
+  PreferAsyncResources: true,
+};
+
 /**
  * Given a list of result objects from the PageSpeedRules, create an array of
  * objects that look like LintRules.
@@ -123,7 +133,8 @@ function buildLintRuleResults(results) {
         href: result.url || '',
         warnings: formatChildren(result.children),
         information: null,
-        getStatistics: function () { return result.stats || {}; }
+        getStatistics: function () { return result.stats || {}; },
+        experimental: experimentalRules[result.name] || false,
       });
     }
   }

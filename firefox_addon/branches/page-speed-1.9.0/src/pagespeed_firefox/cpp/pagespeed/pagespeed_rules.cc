@@ -184,6 +184,13 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
                                         PRInt16 filter_choice,
                                         nsILocalFile* output_dir,
                                         char** _retval) {
+#ifdef NDEBUG
+  // In release builds, don't display INFO logs. Ideally we would do
+  // this at process startup but we don't receive any native callbacks
+  // at that point, so we do it here instead.
+  logging::SetMinLogLevel(logging::LOG_WARNING);
+#endif
+
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
