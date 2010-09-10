@@ -56,8 +56,7 @@ const char* AvoidCssImport::header() const {
 }
 
 const char* AvoidCssImport::documentation_url() const {
-  // TODO: choose a real URL before release.
-  return "css.html#AvoidCssImport";
+  return "rtt.html#AvoidCssImport";
 }
 
 bool AvoidCssImport::AppendResults(const PagespeedInput& input,
