@@ -14,18 +14,21 @@
 
 #include <vector>
 
+#include "base/stl_util-inl.h"  // for STLElementDeleter
 #include "pagespeed/core/rule.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 TEST(RuleProviderTest, AppendAllRules) {
   std::vector<pagespeed::Rule*> rules;
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
   pagespeed::rule_provider::AppendAllRules(false, &rules);
   ASSERT_FALSE(rules.empty());
 }
 
 TEST(RuleProviderTest, AppendCompatibleRulesNone) {
   std::vector<pagespeed::Rule*> rules;
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
   std::vector<std::string> incompatible_rule_names;
   pagespeed::rule_provider::AppendCompatibleRules(
       false,
@@ -39,6 +42,7 @@ TEST(RuleProviderTest, AppendCompatibleRulesNone) {
 
 TEST(RuleProviderTest, AppendCompatibleRulesAll) {
   std::vector<pagespeed::Rule*> rules;
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
   std::vector<std::string> incompatible_rule_names;
   pagespeed::rule_provider::AppendCompatibleRules(
       false,
@@ -48,6 +52,8 @@ TEST(RuleProviderTest, AppendCompatibleRulesAll) {
   ASSERT_TRUE(incompatible_rule_names.empty());
 
   std::vector<pagespeed::Rule*> all_rules;
+  STLElementDeleter<std::vector<pagespeed::Rule*> >
+      all_rule_deleter(&all_rules);
   pagespeed::rule_provider::AppendAllRules(false, &all_rules);
   ASSERT_EQ(all_rules.size(), rules.size());
 }
