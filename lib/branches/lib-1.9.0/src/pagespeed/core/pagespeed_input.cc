@@ -229,6 +229,13 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
 
 void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
                                              ResourceType type) {
+  if (relative_uri.empty()) {
+    // An empty URI gets resolved to the URI of its parent document,
+    // which will cause us to change the type of the parent
+    // document. This is not the intended effect so we skip over empty
+    // URIs.
+    return;
+  }
   std::string uri = document_->ResolveUri(relative_uri);
   const Resource* resource = pagespeed_input_->GetResourceWithUrl(uri);
   if (resource == NULL) {
