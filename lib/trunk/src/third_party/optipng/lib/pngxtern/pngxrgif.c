@@ -106,12 +106,12 @@ pngx_set_GIF_meta(png_structp png_ptr, png_infop info_ptr,
 
 
 int /* PRIVATE */
-pngx_read_gif(png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream)
+pngx_read_gif(png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream,
+              struct GIFExtension *ext)
 {
    /* GIF-specific data */
    struct GIFScreen screen;
    struct GIFImage image;
-   struct GIFExtension ext;
    struct GIFGraphicCtlExt graphicExt;
    int code;
    unsigned char *colorTable;
@@ -142,14 +142,14 @@ pngx_read_gif(png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream)
 
    /* Complete the initialization of the GIF reader. */
    GIFInitImage(&image, &screen, row_pointers);
-   GIFInitExtension(&ext, &screen, NULL, 0);
+   GIFInitExtension(ext, &screen, NULL, 0);
    transparent = (unsigned int)(-1);
    numImages = 0;
 
    /* Iterate over the GIF file. */
    for ( ; ; )
    {
-      code = GIFReadNextBlock(&image, &ext, stream);
+      code = GIFReadNextBlock(&image, ext, stream);
       if (code == GIF_IMAGE)  /* ',' */
       {
          if (image.Rows != NULL)
@@ -168,9 +168,9 @@ pngx_read_gif(png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream)
          }
          ++numImages;
       }
-      else if (code == GIF_EXTENSION && ext.Label == GIF_GRAPHICCTL)  /* '!' */
+      else if (code == GIF_EXTENSION && ext->Label == GIF_GRAPHICCTL)  /* '!' */
       {
-         GIFGetGraphicCtl(&ext, &graphicExt);
+         GIFGetGraphicCtl(ext, &graphicExt);
          if (image.Rows != NULL && graphicExt.TransparentFlag)
             if (transparent >= 256)
                transparent = graphicExt.Transparent;
@@ -178,15 +178,6 @@ pngx_read_gif(png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream)
       else if (code == GIF_TERMINATOR)  /* ';' */
          break;
    }
-
-   /* Deallocate the GIF reader's extension buffer.
-    * Use free() in conjunction with the reader's realloc().
-    */
-   if (ext.Buffer != NULL)
-      free(ext.Buffer);
-   /* FIXME:
-    * Deallocate ext.Buffer on error, to prevent memory leaks.
-    */
 
    if (image.Rows != NULL)
       png_error(png_ptr, "No image in GIF file");
