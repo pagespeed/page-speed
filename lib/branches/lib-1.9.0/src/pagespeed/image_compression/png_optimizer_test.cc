@@ -389,6 +389,35 @@ TEST(PngOptimizerTest, AnimatedGif) {
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 }
 
+// Verify that we fail gracefully when processing partial versions of
+// the animated GIF.
+TEST(PngOptimizerTest, PartialAnimatedGif) {
+  GifReader reader;
+  std::string in, out;
+  ReadFileToString(kGifTestDir, "animated", "gif", &in);
+  ASSERT_NE(static_cast<size_t>(0), in.length());
+  // Loop, removing the last byte repeatedly to generate every
+  // possible partial version of the animated gif.
+  while (true) {
+    if (in.size() == 0) {
+      break;
+    }
+    // Remove the last byte.
+    in.erase(in.length() - 1);
+    ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
+  }
+}
+
+// Make sure we do not leak memory when attempting to optimize a GIF
+// that fails to decode.
+TEST(PngOptimizerTest, BadGifNoLeak) {
+  GifReader reader;
+  std::string in, out;
+  ReadFileToString(kGifTestDir, "bad", "gif", &in);
+  ASSERT_NE(static_cast<size_t>(0), in.length());
+  ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
+}
+
 TEST(PngOptimizerTest, InvalidGifs) {
   // Verify that we fail gracefully when trying to parse PNGs using
   // the GIF reader.
