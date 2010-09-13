@@ -89,6 +89,21 @@ ScopedPngStruct::ScopedPngStruct(Type type)
 ScopedPngStruct::~ScopedPngStruct() {
   switch (type_) {
     case READ:
+#ifdef PNG_FREE_ME_SUPPORTED
+      // For GIF images only, optipng's pngx_malloc_rows allocates the
+      // rows. However, if PNG_FREE_ME_SUPPORTED is defined, libpng
+      // will not free this data unless PNG_FREE_ROWS is set on the
+      // free_me member. Thus we have to explicitly set that field
+      // here.
+      //
+      // We must set it here instead of in gif_reader.cc since the
+      // value gets cleared if we set it before the call to
+      // pngx_read_gif(), and it's possible that pngx_read_gif()
+      // triggers a longjmp which means none of the code after that
+      // point gets called. The only place where this code gets
+      // executed unconditionally is here in the destructor.
+      info_ptr_->free_me |= PNG_FREE_ROWS;
+#endif
       png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
       break;
     case WRITE:

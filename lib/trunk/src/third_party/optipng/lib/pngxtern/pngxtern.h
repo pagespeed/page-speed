@@ -21,13 +21,15 @@ extern "C" {
 #endif
 
 struct GIFInput;
+struct GIFExtension;
 
 /* GIF */
 int pngx_sig_is_gif
    PNGARG((png_bytep sig, size_t sig_size,
            png_const_charpp fmt_name, png_const_charpp fmt_description));
 int pngx_read_gif
-   PNGARG((png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream));
+   PNGARG((png_structp png_ptr, png_infop info_ptr, struct GIFInput *stream,
+           struct GIFExtension *ext));
 
 #ifdef __cplusplus
 }  /* extern "C" */
