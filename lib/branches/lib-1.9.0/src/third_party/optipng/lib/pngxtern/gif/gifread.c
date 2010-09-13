@@ -56,7 +56,7 @@ static int GIFInputReadChar(struct GIFInput *input) {
 /* These macros are masquerading as inline functions. */
 
 #define GIF_FREAD(buf, len, file) \
-    { if (GIFInputRead(buf, len, file) <= 0) GIFError(ErrRead); }
+    { if (GIFInputRead(buf, len, file) < len) GIFError(ErrRead); }
 
 #define GIF_FGETC(ch, file) \
     { if ((ch = GIFInputReadChar(file)) == EOF) GIFError(ErrRead); }

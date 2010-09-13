@@ -18,6 +18,8 @@
 
 #include "pagespeed/image_compression/gif_reader.h"
 
+#include <stdlib.h>
+
 extern "C" {
 #ifdef USE_SYSTEM_LIBPNG
 #include "png.h"  // NOLINT
@@ -25,14 +27,34 @@ extern "C" {
 #include "third_party/libpng/png.h"
 #endif
 #include "third_party/optipng/lib/pngxtern/gif/gifinput.h"
+#include "third_party/optipng/lib/pngxtern/gif/gifread.h"
 #include "third_party/optipng/lib/pngxtern/pngxtern.h"
 }
+
+namespace {
+
+void FreeGIFExtension(GIFExtension* ext) {
+  if (ext == NULL) {
+    return;
+  }
+  if (ext->Buffer != NULL) {
+    free(ext->Buffer);
+    ext->Buffer = NULL;
+  }
+  delete ext;
+}
+
+}  // namespace
 
 namespace pagespeed {
 
 namespace image_compression {
 
+GifReader::GifReader() : ext_(NULL) {
+}
+
 GifReader::~GifReader() {
+  FreeGIFExtension(ext_);
 }
 
 bool GifReader::ReadPng(const std::string& body,
@@ -44,16 +66,12 @@ bool GifReader::ReadPng(const std::string& body,
   input.len = body.length();
   input.pos = 0;
 
+  FreeGIFExtension(ext_);
+  ext_ = new GIFExtension();
+
   // When positive, the return value of pngx_read_gif indicates the
   // number of frames in the GIF (1 for non-animated GIFs).
-  const int read_result = pngx_read_gif(png_ptr, info_ptr, &input);
-#ifdef PNG_FREE_ME_SUPPORTED
-  // optipng's pngx_malloc_rows allocates the rows. However, if
-  // PNG_FREE_ME_SUPPORTED is defined, libpng will not free this
-  // data unless PNG_FREE_ROWS is set on the free_me member. Thus
-  // we have to explicitly set that field here.
-  info_ptr->free_me |= PNG_FREE_ROWS;
-#endif
+  const int read_result = pngx_read_gif(png_ptr, info_ptr, &input, ext_);
   if (read_result == 1) {
     return true;
   }
