@@ -52,23 +52,18 @@ class ScriptVisitor : public pagespeed::DomElementVisitor {
     if (document) {
       ScriptVisitor visitor(pagespeed_input, document, provider);
       document->Traverse(&visitor);
-      if (visitor.HasViolations()) {
-        visitor.AddViolations(provider, document->GetDocumentUrl());
-      }
+      visitor.AddViolations(provider, document->GetDocumentUrl());
     }
   }
 
   virtual void Visit(const DomElement& node) {
     const std::string tag_name(node.GetTagName());
     if (tag_name == "IFRAME") {
-      VisitBlockableContent();
       scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
       CheckDocument(pagespeed_input_, child_doc.get(), provider_);
     } else if (pagespeed_input_->has_resource_with_url(
         document_->GetDocumentUrl())) {
-      if (tag_name == "LINK" || tag_name == "STYLE" || tag_name == "IMG") {
-        VisitBlockableContent();
-      } else if (tag_name == "SCRIPT") {
+      if (tag_name == "SCRIPT") {
         std::string script_src;
         if (node.GetAttributeByName("src", &script_src)) {
           std::string async;
@@ -77,7 +72,6 @@ class ScriptVisitor : public pagespeed::DomElementVisitor {
               (async == "true" || async == "1")) {
             is_async = true;
           }
-          VisitBlockableContent();
           if (!is_async) {
             VisitExternalScript(script_src);
           }
@@ -87,19 +81,16 @@ class ScriptVisitor : public pagespeed::DomElementVisitor {
   }
 
   void VisitExternalScript(const std::string& script_src);
-  void VisitBlockableContent();
 
-  bool HasViolations();
   void AddViolations(ResultProvider* provider, const std::string& document_url);
 
  private:
   ScriptVisitor(const PagespeedInput* pagespeed_input,
                 const DomDocument* document, ResultProvider* provider)
-      : blockable_content_index_(0), pagespeed_input_(pagespeed_input),
+      : pagespeed_input_(pagespeed_input),
         document_(document), provider_(provider) {}
 
   std::vector<std::string> blocking_scripts_;
-  int blockable_content_index_;
 
   const PagespeedInput* pagespeed_input_;
   const DomDocument* document_;
@@ -133,21 +124,13 @@ void ScriptVisitor::VisitExternalScript(const std::string& script_src) {
   }
 }
 
-void ScriptVisitor::VisitBlockableContent() {
-  blockable_content_index_ = blocking_scripts_.size();
-}
-
-bool ScriptVisitor::HasViolations() {
-  return blockable_content_index_ > 0;
-}
-
 void ScriptVisitor::AddViolations(ResultProvider* provider,
                                   const std::string& document_url) {
   int index = 0;
   for (std::vector<std::string>::const_iterator
        iter = blocking_scripts_.begin(),
        end = blocking_scripts_.end();
-       index < blockable_content_index_ && iter != end; ++index, ++iter) {
+       iter != end; ++index, ++iter) {
     Result* result = provider->NewResult();
     result->add_resource_urls(document_url);
     Savings* savings = result->mutable_savings();
