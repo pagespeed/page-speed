@@ -29,10 +29,12 @@
  #include "third_party/npapi/bindings/nphostapi.h"
 #endif
 
+#include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "pagespeed/core/dom.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -51,12 +53,6 @@ const char* kAppendInputMethodId = "appendInput";
 const char* kRunPageSpeedMethodId = "runPageSpeed";
 const char* kReadMoreOutputMethodId = "readMoreOutput";
 
-// Buffers for input/output; data has to be transferred a piece at a time,
-// because SRPC currently can't handle strings larger than one or two dozen
-// kilobytes.
-std::string input_buffer;
-std::string output_buffer;
-size_t output_start = 0;
 // How much output we send per call to getOutput():
 const size_t kChunkSize = 8192;
 
@@ -78,15 +74,21 @@ pagespeed::ResourceFilter* NewFilter(const std::string& analyze) {
 
 // Parse the HAR data and run the Page Speed rules, then format the results.
 // Return false if the HAR data could not be parsed, true otherwise.
+// This function will take ownership of the filter and document arguments, and
+// will delete them before returning.
 bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
+                       pagespeed::DomDocument* document,
                        const std::string& har_data,
                        std::string* output) {
   scoped_ptr<pagespeed::PagespeedInput> input(
       pagespeed::ParseHttpArchiveWithFilter(har_data, filter));
 
   if (input.get() == NULL) {
+    delete document;
     return false;
   }
+
+  input->AcquireDomDocument(document); // input takes ownership of document
 
   input->Freeze();
 
@@ -124,12 +126,32 @@ bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
   return true;
 }
 
+class PageSpeedModule : public NPObject {
+ public:
+  PageSpeedModule() : output_start_(0) {}
+
+  bool AppendInput(const NPVariant& argument, NPVariant *result);
+  bool RunPageSpeed(const NPVariant& argument, NPVariant *result);
+  bool ReadMoreOutput(NPVariant* result);
+
+ private:
+  // Buffers for input/output; data has to be transferred a piece at a time,
+  // because SRPC currently can't handle strings larger than one or two dozen
+  // kilobytes.
+  std::string input_buffer_;
+  std::string output_buffer_;
+  size_t output_start_;
+
+  DISALLOW_COPY_AND_ASSIGN(PageSpeedModule);
+};
+
 // Accept a chunk of data as a string, and append it to the input buffer.
-bool AppendInput(const NPVariant& argument, NPVariant *result) {
+bool PageSpeedModule::AppendInput(const NPVariant& argument,
+                                  NPVariant *result) {
   if (result && NPVARIANT_IS_STRING(argument)) {
     const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
-    input_buffer.append(arg_NPString.UTF8Characters,
-                        arg_NPString.UTF8Length);
+    input_buffer_.append(arg_NPString.UTF8Characters,
+                         arg_NPString.UTF8Length);
     NULL_TO_NPVARIANT(*result);
   }
   return true;
@@ -137,21 +159,25 @@ bool AppendInput(const NPVariant& argument, NPVariant *result) {
 
 // Run Page Speed on the contents of the input buffer, and put the results into
 // the output buffer.
-bool RunPageSpeed(const NPVariant& argument, NPVariant *result) {
-  if (result && NPVARIANT_IS_STRING(argument)) {
-    output_start = 0;
-    output_buffer.clear();
+bool PageSpeedModule::RunPageSpeed(const NPVariant& filter_arg,
+                                   NPVariant *result) {
+  if (result && NPVARIANT_IS_STRING(filter_arg)) {
+    output_start_ = 0;
+    output_buffer_.clear();
 
-    const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
-    const std::string arg_string(arg_NPString.UTF8Characters,
-                                 arg_NPString.UTF8Length);
+    const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
+    const std::string filter_string(filter_NPString.UTF8Characters,
+                                    filter_NPString.UTF8Length);
 
-    const bool success = RunPageSpeedRules(NewFilter(arg_string),
-                                           input_buffer, &output_buffer);
+    const bool success = RunPageSpeedRules(
+        NewFilter(filter_string),
+        NULL, // TODO: Provide a DomDocument object
+        input_buffer_, &output_buffer_);
     if (!success) {
-      output_buffer.append("Error reading HAR");
+      output_buffer_.append("Error reading HAR");
     }
-    input_buffer.clear();
+
+    input_buffer_.clear();
     NULL_TO_NPVARIANT(*result);
   }
   return true;
@@ -159,26 +185,26 @@ bool RunPageSpeed(const NPVariant& argument, NPVariant *result) {
 
 // Produce either a string with the next chunk of data from the output buffer,
 // or null to signify the end of the output.
-bool ReadMoreOutput(NPVariant *result) {
+bool PageSpeedModule::ReadMoreOutput(NPVariant *result) {
   if (result) {
-    if (output_start >= output_buffer.size()) {
-      output_start = 0;
-      output_buffer.clear();
+    if (output_start_ >= output_buffer_.size()) {
+      output_start_ = 0;
+      output_buffer_.clear();
       NULL_TO_NPVARIANT(*result);
     } else {
-      const size_t data_length = std::min(output_buffer.size() - output_start,
-                                          kChunkSize);
+      const size_t data_length =
+          std::min(output_buffer_.size() - output_start_, kChunkSize);
       char* data_copy = reinterpret_cast<char*>(NPN_MemAlloc(data_length));
-      memcpy(data_copy, output_buffer.data() + output_start, data_length);
+      memcpy(data_copy, output_buffer_.data() + output_start_, data_length);
       STRINGN_TO_NPVARIANT(data_copy, data_length, *result);
-      output_start += kChunkSize;
+      output_start_ += kChunkSize;
     }
   }
   return true;
 }
 
 NPObject* Allocate(NPP npp, NPClass* npclass) {
-  return new NPObject;
+  return new PageSpeedModule;
 }
 
 void Deallocate(NPObject* object) {
@@ -227,18 +253,19 @@ bool Invoke(NPObject* obj,
     return false;
   }
   bool rval = false;
+  PageSpeedModule* module = static_cast<PageSpeedModule*>(obj);
   // Map the method name to a function call.  |result| is filled in by the
   // called function, then gets returned to the browser when Invoke() returns.
   if (!strcmp((const char *)name, kAppendInputMethodId)) {
     if (arg_count >= 1) {
-      rval = AppendInput(args[0], result);
+      rval = module->AppendInput(args[0], result);
     }
   } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
     if (arg_count >= 1) {
-      rval = RunPageSpeed(args[0], result);
+      rval = module->RunPageSpeed(args[0], result);
     }
   } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
-    rval = ReadMoreOutput(result);
+    rval = module->ReadMoreOutput(result);
   }
   // Since name was allocated above by NPN_UTF8FromIdentifier,
   // it needs to be freed here.
@@ -263,6 +290,6 @@ NPClass kPageSpeedClass = {
 
 }  // namespace
 
-NPClass *GetNPSimpleClass() {
+NPClass* GetNPSimpleClass() {
   return &kPageSpeedClass;
 }
