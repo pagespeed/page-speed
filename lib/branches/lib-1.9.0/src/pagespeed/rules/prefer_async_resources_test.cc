@@ -152,12 +152,12 @@ TEST_F(PreferAsyncResourcesTest, AsyncGoogleAnalyticsIsOkay) {
   CheckNoViolations();
 }
 
-TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsLastIsOkay) {
+TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsLastIsBad) {
   CreatePngElement(body());
   CreateCssElement(body());
   CreateScriptElement("http://test.com/test.js", body());
   CreateScriptElement("http://www.google-analytics.com/ga.js", body());
-  CheckNoViolations();
+  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/ga.js");
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsAboveCssIsBad) {
@@ -220,7 +220,8 @@ TEST_F(PreferAsyncResourcesTest, GoogleAnalyticsMixedResults) {
   CreateScriptElement("http://www.google-analytics.com/ga.js", body());
   CreateScriptElement("http://test.com/test.js", body());
   CreateScriptElement("http://www.google-analytics.com/urchin.js", body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/ga.js");
+  CheckTwoViolations(kRootUrl, "http://www.google-analytics.com/ga.js",
+                     kRootUrl, "http://www.google-analytics.com/urchin.js");
 }
 
 TEST_F(PreferAsyncResourcesTest, GoogleAnalyticsTwoViolations) {
@@ -246,10 +247,10 @@ TEST_F(PreferAsyncResourcesTest, FormatNoOutputTest) {
   CheckFormattedOutput("");
 }
 
-TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsInIframeIsOkay) {
+TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsInIframeIsBad) {
   FakeDomElement* iframe_root = CreateIframeElement(body());
   CreateScriptElement("http://www.google-analytics.com/ga.js", iframe_root);
-  CheckNoViolations();
+  CheckOneViolation(kIframeUrl, "http://www.google-analytics.com/ga.js");
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsInIframeAboveCssIsBad) {
