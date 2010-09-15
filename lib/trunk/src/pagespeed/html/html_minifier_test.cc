@@ -114,4 +114,59 @@ TEST(HtmlMinifierTest, RespectDoctype) {
   ASSERT_EQ(kWithDoctypeMinified, output);
 }
 
+TEST(HtmlMinifierTest, SgmlCommentInScriptBlock) {
+  const char* kInput =
+      "<script><!--\n function foo() { bar(); } //--></script>";
+  const char* kExpected = "<script>\nfunction foo(){bar();}</script>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
+TEST(HtmlMinifierTest, SgmlCommentInScriptBlockNoNewline) {
+  const char* kInput = "<script><!-- function foo() { bar(); } //--></script>";
+  const char* kExpected = "<script></script>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
+TEST(HtmlMinifierTest, SgmlCommentInScriptBlockWhitespace) {
+  const char* kInput =
+      "<script>  \t<!--\n function foo() { bar(); } //-->\t\n </script>";
+  const char* kExpected = "<script>\nfunction foo(){bar();}</script>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
+TEST(HtmlMinifierTest, SgmlCommentInScriptBlockMiddle) {
+  // This time, since the SGML comments don't come at the
+  // beginning/end of the script block's contents, we do not expect
+  // them to be removed. However, since jsmin removes comments, we do
+  // expect the trailing SGML comment to be removed by jsmin.
+  const char* kInput =
+      "<script>var a;<!-- function foo() { bar(); } //--></script>";
+  const char* kExpected =
+      "<script>\nvar a;<!--function foo(){bar();}</script>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
+TEST(HtmlMinifierTest, SgmlCommentInScriptBlockNoClose) {
+  const char* kInput =
+      "<script><!-- function foo() { bar(); } </script>";
+  const char* kExpected =
+      "<script><!--function foo(){bar();}</script>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
 }  // namespace
