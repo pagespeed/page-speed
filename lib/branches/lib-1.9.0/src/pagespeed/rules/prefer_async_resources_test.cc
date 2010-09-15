@@ -236,7 +236,7 @@ TEST_F(PreferAsyncResourcesTest, FormatTest) {
   std::string expected =
       "The following resources are loaded synchronously. Load them "
       "asynchronously to reduce blocking of page rendering.\n"
-      "http://test.com/ loads http://www.google-analytics.com/ga.js "
+      "  http://test.com/ loads http://www.google-analytics.com/ga.js "
       "synchronously.\n";
   CreateScriptElement("http://www.google-analytics.com/ga.js", body());
   CreateCssElement(body());

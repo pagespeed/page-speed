@@ -177,7 +177,7 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
     return;
   }
 
-  formatter->AddChild(
+  Formatter* body = formatter->AddChild(
       "The following resources are loaded synchronously. Load them "
       "asynchronously to reduce blocking of page rendering.");
 
@@ -200,9 +200,7 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
 
       Argument document_url(Argument::URL, result.resource_urls(0));
       Argument resource_url(Argument::URL, async_details.resource_url());
-
-      formatter->AddChild(
-          "$1 loads $2 synchronously.", document_url, resource_url);
+      body->AddChild("$1 loads $2 synchronously.", document_url, resource_url);
     } else {
       LOG(DFATAL) << "Async details missing.";
     }
