@@ -64,7 +64,6 @@ The following table lists the parameters sent in the minimal beacon:
 || pCssJsOrder || Score for the rule 'Optimize the order of styles and scripts'. || 100 ||
 || pParallelDl || Score for the rule 'Parallelize downloads across hostnames'. || 100 ||
 || pPreferAsync || Score for the rule 'Prefer asynchronous resources'. || 100 ||
-|| pImgDims || Score for the rule 'Specify image dimensions'. || 100 ||
 || pCssInHead || Score for the rule 'Put CSS in the document head'. || 100 ||
 || pRemoveQuery || Score for the rule 'Remove query strings from static resources'. || 100 ||
 || pDupeRsrc || Score for the rule 'Serve resources from a consistent URL'. || 100 ||
