@@ -389,6 +389,22 @@ TEST(PngOptimizerTest, AnimatedGif) {
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 }
 
+TEST(PngOptimizerTest, InterlacedGif) {
+  GifReader reader;
+  std::string in, out;
+  ReadFileToString(kGifTestDir, "interlaced", "gif", &in);
+  ASSERT_NE(static_cast<size_t>(0), in.length());
+  ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
+}
+
+TEST(PngOptimizerTest, TransparentGif) {
+  GifReader reader;
+  std::string in, out;
+  ReadFileToString(kGifTestDir, "transparent", "gif", &in);
+  ASSERT_NE(static_cast<size_t>(0), in.length());
+  ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
+}
+
 // Verify that we fail gracefully when processing partial versions of
 // the animated GIF.
 TEST(PngOptimizerTest, PartialAnimatedGif) {

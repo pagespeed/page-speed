@@ -20,7 +20,7 @@
 /* #undef HAVE_LIBGL_S */
 
 /* Define if the X11 library is installed */
-#define HAVE_LIBX11 1
+/* #undef HAVE_LIBX11 */
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -68,10 +68,10 @@
 #define HAVE_VPRINTF 1
 
 /* Define to 1 if you have the <X11/Xlib.h> header file. */
-#define HAVE_X11_XLIB_H 1
+/* #undef HAVE_X11_XLIB_H */
 
 /* Define to 1 if you have the <X11/Xutil.h> header file. */
-#define HAVE_X11_XUTIL_H 1
+/* #undef HAVE_X11_XUTIL_H */
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 /* #undef NO_MINUS_C_MINUS_O */
@@ -118,7 +118,7 @@
 #define VERSION "4.1.6"
 
 /* Define to 1 if the X Window System is missing or not being used. */
-/* #undef X_DISPLAY_MISSING */
+#define X_DISPLAY_MISSING 1
 
 /* Define like PROTOTYPES; this can be used by system headers. */
 #define __PROTOTYPES 1

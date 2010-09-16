@@ -17,19 +17,5 @@ Local Modifications:
 1. opngreduc has been modified to conditionally include support for
    ancillary chunks.
 
-2. the pngxtern GIF reader has been modified to read from in-memory
-   buffers instead of FILE pointers.
-
-3. the pngxtern API has been modified to only include support for GIF
-   files.
-
-4. a call to png_get_image_height has been inlined since not all
+2. a call to png_get_image_height has been inlined since not all
    versions of libpng provide this function.
-
-5. The signature of pngx_read_gif has been changed to take a
-   GIFExtension*. Previously, pngx_read_gif declared a local
-   GIFExtension and later attempted to free a member of that
-   GIFExtension. However, since libpng can call longjmp, this free was
-   not always called. Moving memory management of the GIFExtension
-   outside the function is necessary to guarantee that GIFExtension
-   memory is cleaned up properly.
