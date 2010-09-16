@@ -188,6 +188,14 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
   bool AppendResults() { return rule_->AppendResults(*input(), &provider_); }
   std::string FormatResults() { return DoFormatResults(rule_.get(), results_); }
 
+  int ComputeScore() {
+    pagespeed::ResultVector r;
+    for (int idx = 0, end = num_results(); idx < end; ++idx) {
+      r.push_back(&results().results(idx));
+    }
+    return rule_->ComputeScore(*input()->input_information(), r);
+  }
+
  private:
   scoped_ptr<pagespeed::Rule> rule_;
   pagespeed::Results results_;

@@ -14,6 +14,7 @@
 
 #include "pagespeed/rules/prefer_async_resources.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -206,6 +207,13 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
     }
   }
 }
+
+int PreferAsyncResources::ComputeScore(const InputInformation& input_info,
+                                       const ResultVector& results) {
+  const int reduction = static_cast<int>(results.size() * 21);
+  return std::min(100, std::max(0, 100 - reduction));
+}
+
 
 }  // namespace rules
 
