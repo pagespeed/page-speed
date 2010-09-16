@@ -14,7 +14,8 @@
 
 {
   'variables': {
-    'giflib_root': '<(DEPTH)/third_party/giflib',
+    'pagespeed_root': '../..',
+    'giflib_root': '<(pagespeed_root)/third_party/giflib',
     'giflib_src_root': '<(giflib_root)/lib',
     'giflib_gen_arch_root': '<(giflib_root)/gen/arch/<(OS)/<(target_arch)',
   },
