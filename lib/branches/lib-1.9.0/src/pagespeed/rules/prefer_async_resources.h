@@ -36,6 +36,8 @@ class PreferAsyncResources : public Rule {
   virtual bool AppendResults(const PagespeedInput& input,
                              ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results, Formatter* formatter);
+  virtual int ComputeScore(const InputInformation& input_info,
+                           const ResultVector& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PreferAsyncResources);

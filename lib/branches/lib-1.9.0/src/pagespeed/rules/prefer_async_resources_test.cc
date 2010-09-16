@@ -67,6 +67,7 @@ class PreferAsyncResourcesTest
 
   void CheckNoViolations() {
     CheckExpectedViolations(std::vector<Violation>());
+    ASSERT_EQ(100, ComputeScore());
   }
 
   void CheckOneViolation(
@@ -74,6 +75,7 @@ class PreferAsyncResourcesTest
     std::vector<Violation> expected;
     expected.push_back(Violation(document_url, resource_url));
     CheckExpectedViolations(expected);
+    ASSERT_EQ(79, ComputeScore());
   }
 
   void CheckTwoViolations(
@@ -83,6 +85,7 @@ class PreferAsyncResourcesTest
     expected.push_back(Violation(document_url1, resource_url1));
     expected.push_back(Violation(document_url2, resource_url2));
     CheckExpectedViolations(expected);
+    ASSERT_EQ(58, ComputeScore());
   }
 
   void CheckFormattedOutput(const std::string& expected_output) {
