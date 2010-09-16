@@ -47,28 +47,37 @@ The following table lists the parameters sent in the minimal beacon:
 || o || The overall score of the page.  This will be in 0-100.|| 89.2 ||
 || l || The page load time in milliseconds.|| 5000 ||
 || t || Transfer size of all resources loaded by the page, in bytes.  Because web servers can send compressed data, transfer size may be less than the size reported with the 'w' key.|| 500 ||
-|| pMinifyJS || Score for the rule 'Minify JavaScript'. || 100 ||
-|| pOptImgs || Score for the rule 'Optimize images'. || 100 ||
-|| pImgDims || Score for the rule 'Specify image dimensions'. || 100 ||
-|| pCombineJS || Score for the rule 'Combine external JavaScript'. || 100 ||
+|| pBadReqs || Score for the rule 'Avoid Bad Requests'. || 100 ||
+|| pCssImport || Score for the rule 'Avoid CSS @import'. || 100 ||
+|| pDocWrite || Score for the rule 'Avoid document.write'. || 100 ||
 || pCombineCSS || Score for the rule 'Combine external CSS'. || 100 ||
-|| pCssInHead || Score for the rule 'Put CSS in the document head'. || 100 ||
-|| pBrowserCache || Score for the rule 'Leverage browser caching'. || 100 ||
-|| pProxyCache || Score for the rule 'Leverage proxy caching'. || 100 ||
-|| pNoCookie || Score for the rule 'Serve static content from a cookieless domain'. || 100 ||
-|| pCookieSize || Score for the rule 'Minimize cookie size'. || 100 ||
-|| pParallelDl || Score for the rule 'Parallelize downloads across hostnames'. || 100 ||
-|| pCssSelect || Score for the rule 'Use efficient CSS selectors'. || 100 ||
-|| pCssJsOrder || Score for the rule 'Optimize the order of styles and scripts'. || 100 ||
-|| pDeferJS || Score for the rule 'Defer loading of JavaScript'. || 100 ||
+|| pCombineJS || Score for the rule 'Combine external JavaScript'. || 100 ||
 || pGzip || Score for the rule 'Enable gzip compression'. || 100 ||
+|| pBrowserCache || Score for the rule 'Leverage browser caching'. || 100 ||
+|| pMinifyCSS || Score for the rule 'Minify CSS'. || 100 ||
+|| pMinifyHTML || Score for the rule 'Minify HTML'. || 100 ||
+|| pMinifyJS || Score for the rule 'Minify JavaScript'. || 100 ||
+|| pMinDns || Score for the rule 'Minimize DNS lookups'. || 100 ||
 || pMinRedirect || Score for the rule 'Minimize redirects'. || 100 ||
+|| pMinReqSize || Score for the rule 'Minimize request size'. || 100 ||
+|| pOptImgs || Score for the rule 'Optimize images'. || 100 ||
+|| pCssJsOrder || Score for the rule 'Optimize the order of styles and scripts'. || 100 ||
+|| pParallelDl || Score for the rule 'Parallelize downloads across hostnames'. || 100 ||
+|| pPreferAsync || Score for the rule 'Prefer asynchronous resources'. || 100 ||
+|| pImgDims || Score for the rule 'Specify image dimensions'. || 100 ||
+|| pCssInHead || Score for the rule 'Put CSS in the document head'. || 100 ||
+|| pRemoveQuery || Score for the rule 'Remove query strings from static resources'. || 100 ||
+|| pDupeRsrc || Score for the rule 'Serve resources from a consistent URL'. || 100 ||
+|| pScaleImgs || Score for the rule 'Scale Images'. || 100 ||
+|| pNoCookie || Score for the rule 'Serve static content from a cookieless domain'. || 100 ||
+|| pCacheValid || Score for the rule 'Specify a cache validator'. || 100 ||
+|| pVaryAE || Score for the rule 'Specify a Vary: Accept-Encoding header'. || 100 ||
+|| pCharsetEarly || Score for the rule 'Specify a character set early'. || 100 ||
+|| pImgDims || Score for the rule 'Specify image dimensions'. || 100 ||
+|| pSprite || Score for the rule 'Sprite Images'. || 100 ||
+|| pDeferJS || Score for the rule 'Defer loading of JavaScript'. || 100 ||
 || pCssExpr || Score for the rule 'Avoid CSS expressions'. || 100 ||
 || pUnusedCSS || Score for the rule 'Remove unused CSS'. || 100 ||
-|| pMinDns || Score for the rule 'Minimize DNS lookups'. || 100 ||
-|| pDupeRsrc || Score for the rule 'Serve resources from a consistent URL'. || 100 ||
-|| pMinifyCSS || Score for the rule 'Minify CSS'. || 100 ||
-|| pScaleImgs || Score for the rule 'Scale Images'. || 100 ||
 
    All rules (those keys that match {{{/^p.*/}}}) can have the following values:
 
