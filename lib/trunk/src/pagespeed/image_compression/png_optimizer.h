@@ -61,6 +61,7 @@ class ScopedPngStruct {
 // source.
 class PngReaderInterface {
  public:
+  PngReaderInterface();
   virtual ~PngReaderInterface();
 
   // Parse the contents of body, convert to a PNG, and populate the
@@ -69,6 +70,9 @@ class PngReaderInterface {
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr) = 0;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(PngReaderInterface);
 };
 
 class PngOptimizer {
@@ -100,10 +104,14 @@ class PngOptimizer {
 // Reader for PNG-encoded data.
 class PngReader : public PngReaderInterface {
  public:
+  PngReader();
   virtual ~PngReader();
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr);
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(PngReader);
 };
 
 }  // namespace image_compression

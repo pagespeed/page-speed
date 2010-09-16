@@ -23,8 +23,6 @@
 #error "PAGESPEED_PNG_OPTIMIZER_GIF_READER is not set."
 #endif
 
-struct GIFExtension;
-
 #include <string>
 
 #include "base/logging.h"
@@ -45,7 +43,7 @@ class GifReader : public PngReaderInterface {
                        png_infop info_ptr);
 
  private:
-  GIFExtension* ext_;
+  DISALLOW_COPY_AND_ASSIGN(GifReader);
 };
 
 }  // namespace image_compression

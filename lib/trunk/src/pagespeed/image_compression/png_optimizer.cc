@@ -46,7 +46,7 @@ void ReadPngFromStream(png_structp read_ptr,
                                      input->offset_);
   input->offset_ += copied;
   if (copied < length) {
-    png_error(read_ptr, "ReadPngFromStream: Unexpected EOF.");
+    LOG(INFO) << "ReadPngFromStream: Unexpected EOF.";
   }
 }
 
@@ -114,6 +114,9 @@ ScopedPngStruct::~ScopedPngStruct() {
   }
 }
 
+PngReaderInterface::PngReaderInterface() {
+}
+
 PngReaderInterface::~PngReaderInterface() {
 }
 
@@ -177,6 +180,9 @@ bool PngOptimizer::OptimizePng(PngReaderInterface& reader,
                                std::string* out) {
   PngOptimizer o;
   return o.CreateOptimizedPng(reader, in, out);
+}
+
+PngReader::PngReader() {
 }
 
 PngReader::~PngReader() {

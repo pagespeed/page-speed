@@ -26,22 +26,266 @@ extern "C" {
 #else
 #include "third_party/libpng/png.h"
 #endif
-#include "third_party/optipng/lib/pngxtern/gif/gifinput.h"
-#include "third_party/optipng/lib/pngxtern/gif/gifread.h"
-#include "third_party/optipng/lib/pngxtern/pngxtern.h"
+
+// We need to include the giflib configuration file first, since
+// gif_lib.h depends on it. We cannot use a full path to
+// giflib-config.h since the full include path varies depending on
+// target build architecture.
+#include "giflib-config.h"
+#include "third_party/giflib/lib/gif_lib.h"
 }
 
 namespace {
 
-void FreeGIFExtension(GIFExtension* ext) {
-  if (ext == NULL) {
+// GIF interlace tables.
+static const int kInterlaceOffsets[] = { 0, 4, 2, 1 };
+static const int kInterlaceJumps[] = { 8, 8, 4, 2 };
+
+// Flag used to indicate that a gif extension contains transparency
+// information.
+static const unsigned char kTransparentFlag = 0x01;
+
+struct GifInput {
+  const std::string* data_;
+  int offset_;
+};
+
+int ReadGifFromStream(GifFileType* gif_file, GifByteType* data, int length) {
+  GifInput* input = reinterpret_cast<GifInput*>(gif_file->UserData);
+  size_t copied = input->data_->copy(reinterpret_cast<char*>(data), length,
+                                     input->offset_);
+  input->offset_ += copied;
+  return copied;
+}
+
+void AddTransparencyChunk(png_structp png_ptr,
+                          png_infop info_ptr,
+                          int transparent_palette_index) {
+  const int num_trans = transparent_palette_index + 1;
+  if (num_trans <= 0 || num_trans > info_ptr->num_palette) {
+    LOG(INFO) << "Transparent palette index out of bounds.";
     return;
   }
-  if (ext->Buffer != NULL) {
-    free(ext->Buffer);
-    ext->Buffer = NULL;
+
+  // TODO: to optimize tRNS size, could move transparent index to
+  // the head of the palette.
+  png_byte trans[256];
+  // First, set all palette indices to fully opaque.
+  png_memset(trans, 0xff, num_trans);
+  // Set the one transparent index to fully transparent.
+  trans[transparent_palette_index] = 0;
+  png_set_tRNS(png_ptr, info_ptr, trans, num_trans, NULL);
+}
+
+bool ReadImageDescriptor(GifFileType* gif_file,
+                         png_structp png_ptr,
+                         png_infop info_ptr) {
+  if (DGifGetImageDesc(gif_file) == GIF_ERROR) {
+    LOG(INFO) << "Failed to get image descriptor.";
+    return false;
   }
-  delete ext;
+  if (gif_file->ImageCount != 1) {
+    LOG(INFO) << "Unable to optimize image with "
+              << gif_file->ImageCount << " frames.";
+    return false;
+  }
+  const GifWord row = gif_file->Image.Top;
+  const GifWord pixel = gif_file->Image.Left;
+  const GifWord width = gif_file->Image.Width;
+  const GifWord height = gif_file->Image.Height;
+
+  // Validate coordinates.
+  if (pixel + width > gif_file->SWidth ||
+      row + height > gif_file->SHeight) {
+    LOG(INFO) << "Image coordinates outside of resolution.";
+    return false;
+  }
+
+  // Populate the color map.
+  ColorMapObject* color_map =
+      gif_file->Image.ColorMap != NULL ?
+      gif_file->Image.ColorMap : gif_file->SColorMap;
+
+  png_color palette[256];
+  if (color_map->ColorCount < 0 || color_map->ColorCount > 256) {
+    LOG(INFO) << "Invalid color count " << color_map->ColorCount;
+    return false;
+  }
+  for (int i = 0; i < color_map->ColorCount; ++i) {
+    palette[i].red = color_map->Colors[i].Red;
+    palette[i].green = color_map->Colors[i].Green;
+    palette[i].blue = color_map->Colors[i].Blue;
+  }
+  png_set_PLTE(png_ptr, info_ptr, palette, color_map->ColorCount);
+
+  if (gif_file->Image.Interlace == 0) {
+    // Not interlaced. Read each line into the PNG buffer.
+    for (GifWord i = 0; i < height; ++i) {
+      if (DGifGetLine(gif_file,
+                      static_cast<GifPixelType*>(
+                          &info_ptr->row_pointers[row + i][pixel]),
+                      width) == GIF_ERROR) {
+        LOG(INFO) << "Failed to DGifGetLine";
+        return false;
+      }
+    }
+  } else {
+    // Need to deinterlace. The deinterlace code is based on algorithm
+    // in giflib.
+    for (int i = 0; i < 4; ++i) {
+      for (int j = row + kInterlaceOffsets[i];
+           j < row + height;
+           j += kInterlaceJumps[i]) {
+        if (DGifGetLine(gif_file,
+                        static_cast<GifPixelType*>(
+                            &info_ptr->row_pointers[j][pixel]),
+                        width) == GIF_ERROR) {
+          LOG(INFO) << "Failed to DGifGetLine";
+          return false;
+        }
+      }
+    }
+  }
+
+  info_ptr->valid |= PNG_INFO_IDAT;
+  return true;
+}
+
+// Read a GIF extension. There are various extensions. The only one we
+// care about is the transparency extension, so we ignore all other
+// extensions.
+bool ReadExtension(GifFileType* gif_file,
+                   png_structp png_ptr,
+                   png_infop info_ptr,
+                   int* out_transparent_index) {
+  GifByteType* extension = NULL;
+  int ext_code = 0;
+  if (DGifGetExtension(gif_file, &ext_code, &extension) == GIF_ERROR) {
+    LOG(INFO) << "Failed to read extension.";
+    return false;
+  }
+
+  // We only care about one extension type, the graphics extension,
+  // which can contain transparency information.
+  if (ext_code == GRAPHICS_EXT_FUNC_CODE) {
+    // Make sure that the extension has the expected length.
+    if (extension[0] < 4) {
+      LOG(INFO) << "Received graphics extension with unexpected length.";
+      return false;
+    }
+    // The first payload byte contains the flags. Check to see if the
+    // transparency flag is set.
+    if ((extension[1] & kTransparentFlag) != 0) {
+      if (*out_transparent_index >= 0) {
+        // The transparent index has already been set. Ignore new
+        // values.
+        LOG(INFO) << "Found multiple transparency entries. Using first entry.";
+      } else {
+        // We found a transparency entry. The transparent index is in
+        // the 4th payload byte.
+        *out_transparent_index = extension[4];
+      }
+    }
+  }
+
+  while (extension != NULL) {
+    if (DGifGetExtensionNext(gif_file, &extension) == GIF_ERROR) {
+      LOG(INFO) << "Failed to read next extension.";
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ReadGifToPng(GifFileType* gif_file,
+                  png_structp png_ptr,
+                  png_infop info_ptr) {
+  if (static_cast<png_size_t>(gif_file->SHeight) >
+      PNG_UINT_32_MAX/png_sizeof(png_bytep)) {
+    LOG(INFO) << "GIF image is too big to process.";
+    return false;
+  }
+
+  png_set_IHDR(png_ptr,
+               info_ptr,
+               gif_file->SWidth,
+               gif_file->SHeight,
+               8,  // bit depth
+               PNG_COLOR_TYPE_PALETTE,
+               PNG_INTERLACE_NONE,
+               PNG_COMPRESSION_TYPE_BASE,
+               PNG_FILTER_TYPE_BASE);
+
+  png_uint_32 row_size = png_get_rowbytes(png_ptr, info_ptr);
+  if (row_size == 0) {
+    return false;
+  }
+
+  // Allocate the array of pointers to each row.
+  const png_size_t row_pointers_size = info_ptr->height * png_sizeof(png_bytep);
+  info_ptr->row_pointers = static_cast<png_bytepp>(
+      png_malloc(png_ptr, row_pointers_size));
+  png_memset(info_ptr->row_pointers, 0, row_pointers_size);
+#ifdef PNG_FREE_ME_SUPPORTED
+  info_ptr->free_me |= PNG_FREE_ROWS;
+#endif
+
+  // Allocate memory for each row.
+  for (png_uint_32 row = 0; row < info_ptr->height; ++row) {
+    info_ptr->row_pointers[row] =
+        static_cast<png_bytep>(png_malloc(png_ptr, row_size));
+  }
+
+  // Fill the rows with the background color.
+  png_memset(info_ptr->row_pointers[0], gif_file->SBackGroundColor, row_size);
+  for (png_uint_32 row = 1; row < info_ptr->height; ++row) {
+    png_memcpy(info_ptr->row_pointers[row],
+               info_ptr->row_pointers[0],
+               row_size);
+  }
+
+  int transparent_palette_index = -1;
+  bool found_terminator = false;
+  while (!found_terminator) {
+    GifRecordType record_type = UNDEFINED_RECORD_TYPE;
+    if (DGifGetRecordType(gif_file, &record_type) == GIF_ERROR) {
+      LOG(INFO) << "Failed to read GifRecordType";
+      return false;
+    }
+    switch (record_type) {
+      case IMAGE_DESC_RECORD_TYPE:
+        if (!ReadImageDescriptor(gif_file, png_ptr, info_ptr)) {
+          return false;
+        }
+        break;
+
+      case EXTENSION_RECORD_TYPE:
+        if (!ReadExtension(gif_file,
+                           png_ptr,
+                           info_ptr,
+                           &transparent_palette_index)) {
+          return false;
+        }
+        break;
+
+      case TERMINATE_RECORD_TYPE:
+        found_terminator = true;
+        break;
+
+      default:
+        LOG(INFO) << "Found unexpected record type " << record_type;
+        return false;
+    }
+  }
+
+  // If the GIF contained a transparency index, then add it to the PNG
+  // now.
+  if (transparent_palette_index >= 0) {
+    AddTransparencyChunk(png_ptr, info_ptr, transparent_palette_index);
+  }
+
+  return true;
 }
 
 }  // namespace
@@ -50,39 +294,31 @@ namespace pagespeed {
 
 namespace image_compression {
 
-GifReader::GifReader() : ext_(NULL) {
+GifReader::GifReader() {
 }
 
 GifReader::~GifReader() {
-  FreeGIFExtension(ext_);
 }
 
 bool GifReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
                         png_infop info_ptr) {
-  png_bytep data = reinterpret_cast<png_bytep>(const_cast<char*>(body.data()));
-  GIFInput input;
-  input.buf = data;
-  input.len = body.length();
-  input.pos = 0;
-
-  FreeGIFExtension(ext_);
-  ext_ = new GIFExtension();
-
-  // When positive, the return value of pngx_read_gif indicates the
-  // number of frames in the GIF (1 for non-animated GIFs).
-  const int read_result = pngx_read_gif(png_ptr, info_ptr, &input, ext_);
-  if (read_result == 1) {
-    return true;
-  }
-
-  if (read_result > 1) {
-    LOG(INFO) << "Unable to convert animated GIF to PNG.";
+  // Wrap the resource's response body in a structure that keeps a
+  // pointer to the body and a read offset, and pass a pointer to this
+  // object as the user data to be received by the GIF read function.
+  GifInput input;
+  input.data_ = &body;
+  input.offset_ = 0;
+  GifFileType* gif_file = DGifOpen(&input, ReadGifFromStream);
+  if (gif_file == NULL) {
     return false;
   }
 
-  LOG(INFO) << "Failed to convert GIF to PNG.";
-  return false;
+  bool result = ReadGifToPng(gif_file, png_ptr, info_ptr);
+  if (DGifCloseFile(gif_file) == GIF_ERROR) {
+    LOG(INFO) << "Failed to close GIF.";
+  }
+  return result;
 }
 
 }  // namespace image_compression

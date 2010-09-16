@@ -89,8 +89,8 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+        '<(pagespeed_root)/third_party/giflib/giflib.gyp:dgiflib',
         '<(pagespeed_root)/third_party/optipng/optipng.gyp:opngreduc',
-        '<(pagespeed_root)/third_party/optipng/optipng.gyp:pngxrgif',
       ],
       'sources': [
         'gif_reader.cc',
