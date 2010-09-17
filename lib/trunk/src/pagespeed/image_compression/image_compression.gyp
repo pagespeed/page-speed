@@ -105,9 +105,6 @@
           '<(DEPTH)',
           '<(pagespeed_root)',
         ],
-        'defines': [
-          'PAGESPEED_PNG_OPTIMIZER_GIF_READER'
-        ],
       },
       'msvs_disabled_warnings': [
         4996,  # std::string::copy() is deprecated on Windows, but we use it,
@@ -116,9 +113,6 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
       ],
-      'defines': [
-        'PAGESPEED_PNG_OPTIMIZER_GIF_READER'
-      ]
     },
   ],
 }

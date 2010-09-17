@@ -21,9 +21,7 @@
 #include <string>
 
 #include "base/basictypes.h"
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #include "pagespeed/image_compression/gif_reader.h"
-#endif
 #include "pagespeed/image_compression/png_optimizer.h"
 #include "third_party/libpng/png.h"
 #include "third_party/readpng/cpp/readpng.h"
@@ -32,9 +30,7 @@
 
 namespace {
 
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 using pagespeed::image_compression::GifReader;
-#endif
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 using pagespeed::image_compression::ScopedPngStruct;
@@ -360,7 +356,6 @@ TEST(PngOptimizerTest, FixPngOutOfBoundReadCrash) {
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 }
 
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 TEST(PngOptimizerTest, ValidGifs) {
   GifReader reader;
   for (size_t i = 0; i < kValidGifImageCount; i++) {
@@ -451,7 +446,6 @@ TEST(PngOptimizerTest, InvalidGifs) {
     ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
   }
 }
-#endif
 
 // Make sure that after we fail, we're still able to successfully
 // compress valid images.

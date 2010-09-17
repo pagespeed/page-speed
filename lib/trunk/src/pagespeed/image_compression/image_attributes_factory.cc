@@ -31,10 +31,7 @@ extern "C" {
 
 #include "pagespeed/core/resource.h"
 
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #include "pagespeed/image_compression/gif_reader.h"
-#endif  // PAGESPEED_PNG_OPTIMIZER_GIF_READER
-
 #include "pagespeed/image_compression/jpeg_reader.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
@@ -103,15 +100,11 @@ bool GetPngWidthAndHeight(const pagespeed::Resource* resource,
 bool GetGifWidthAndHeight(const pagespeed::Resource* resource,
                           int* out_width,
                           int* out_height) {
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
   pagespeed::image_compression::GifReader reader;
   return GetWidthAndHeightFromPngReader(resource,
                                         &reader,
                                         out_width,
                                         out_height);
-#else
-  return false;
-#endif
 }
 
 }  // namespace
