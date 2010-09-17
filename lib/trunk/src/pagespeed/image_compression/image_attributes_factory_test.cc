@@ -103,7 +103,6 @@ TEST_F(ImageAttributesFactoryTest, InvalidPng) {
   ASSERT_EQ(static_cast<ImageAttributes*>(NULL), image_attributes.get());
 }
 
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 TEST_F(ImageAttributesFactoryTest, ValidGif) {
   ImageAttributesFactory factory;
   scoped_ptr<Resource> resource(CreateGifResource("basi0g01.gif"));
@@ -114,7 +113,6 @@ TEST_F(ImageAttributesFactoryTest, ValidGif) {
   EXPECT_EQ(32, image_attributes->GetImageWidth());
   EXPECT_EQ(32, image_attributes->GetImageHeight());
 }
-#endif
 
 TEST_F(ImageAttributesFactoryTest, ValidJpeg) {
   ImageAttributesFactory factory;

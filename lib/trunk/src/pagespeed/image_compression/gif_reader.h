@@ -19,10 +19,6 @@
 #ifndef PNG_OPTIMIZER_GIF_READER_H_
 #define PNG_OPTIMIZER_GIF_READER_H_
 
-#ifndef PAGESPEED_PNG_OPTIMIZER_GIF_READER
-#error "PAGESPEED_PNG_OPTIMIZER_GIF_READER is not set."
-#endif
-
 #include <string>
 
 #include "base/logging.h"

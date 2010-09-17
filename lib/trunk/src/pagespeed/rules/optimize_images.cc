@@ -18,10 +18,7 @@
 
 #include "pagespeed/core/resource.h"
 
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #include "pagespeed/image_compression/gif_reader.h"
-#endif  // PAGESPEED_PNG_OPTIMIZER_GIF_READER
-
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -99,7 +96,6 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
       return NULL; // error
     }
     output_mime_type = "image/png";
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
   } else if (type == GIF) {
     image_compression::GifReader reader;
     if (!image_compression::PngOptimizer::OptimizePng(reader,
@@ -108,7 +104,6 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
       return NULL; // error
     }
     output_mime_type = "image/png";
-#endif
   } else {
     return new MinifierOutput();
   }

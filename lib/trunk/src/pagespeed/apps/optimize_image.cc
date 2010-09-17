@@ -21,15 +21,11 @@
 #include <iterator>
 #include <string>
 
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 #include "pagespeed/image_compression/gif_reader.h"
-#endif
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
-#ifdef PAGESPEED_PNG_OPTIMIZER_GIF_READER
 using pagespeed::image_compression::GifReader;
-#endif
 using pagespeed::image_compression::OptimizeJpeg;
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
@@ -99,13 +95,11 @@ int main(int argc, char** argv) {
     success = PngOptimizer::OptimizePng(reader,
                                         file_contents,
                                         &compressed);
-#if defined(PAGESPEED_PNG_OPTIMIZER_GIF_READER)
   } else if (type == GIF) {
     GifReader reader;
     success = PngOptimizer::OptimizePng(reader,
                                         file_contents,
                                         &compressed);
-#endif
   } else {
     fprintf(stderr,
             "Unsupported image type when processing %s\n",
