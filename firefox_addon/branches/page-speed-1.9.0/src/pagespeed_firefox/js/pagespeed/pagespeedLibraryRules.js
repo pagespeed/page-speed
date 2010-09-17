@@ -94,14 +94,33 @@ function formatChildren(children, opt_grand) {
 
 // See http://code.google.com/p/page-speed/wiki/BeaconDocs
 var shortNameTranslationTable = {
+  AvoidBadRequests: 'BadReqs',
+  AvoidCssImport: 'CssImport',
+  AvoidDocumentWrite: 'DocWrite',
   CombineExternalCSS: 'CombineCSS',
   CombineExternalJavaScript: 'CombineJS',
   EnableGzipCompression: 'Gzip',
+  LeverageBrowserCaching: 'BrowserCache',
+  MinifyCSS: 'MinifyCSS',
+  MinifyHTML: 'MinifyHTML',
   MinifyJavaScript: 'MinifyJS',
   MinimizeDnsLookups: 'MinDns',
   MinimizeRedirects: 'MinRedirect',
+  MinimizeRequestSize: 'MinReqSize',
   OptimizeImages: 'OptImgs',
-  ServeResourcesFromAConsistentUrl: 'DupeRsrc'
+  OptimizeTheOrderOfStylesAndScripts: 'CssJsOrder',
+  ParallelizeDownloadsAcrossHostnames: 'ParallelDl',
+  PreferAsyncResources: 'PreferAsync',
+  PutCssInTheDocumentHead: 'CssInHead',
+  RemoveQueryStringsFromStaticResources: 'RemoveQuery',
+  ServeResourcesFromAConsistentUrl: 'DupeRsrc',
+  ServeScaledImages: 'ScaleImgs',
+  ServeStaticContentFromACookielessDomain: 'NoCookie',
+  SpecifyACacheValidator: 'CacheValid',
+  SpecifyAVaryAcceptEncodingHeader: 'VaryAE',
+  SpecifyCharsetEarly: 'CharsetEarly',
+  SpecifyImageDimensions: 'ImgDims',
+  SpriteImages: 'Sprite',
 };
 
 // New rules that haven't been reviewed by the community are marked as
