@@ -27,11 +27,6 @@ extern "C" {
 #include "third_party/libpng/png.h"
 #endif
 
-// We need to include the giflib configuration file first, since
-// gif_lib.h depends on it. We cannot use a full path to
-// giflib-config.h since the full include path varies depending on
-// target build architecture.
-#include "giflib-config.h"
 #include "third_party/giflib/lib/gif_lib.h"
 }
 

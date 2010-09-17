@@ -43,7 +43,10 @@
         '<(giflib_gen_arch_root)/include/private',
       ],
       'defines': [
-        'HAVE_CONFIG_H',
+        # We assume that int is 32bit on all platforms. This is the
+        # same assumption made in basictypes.h.
+        'UINT32=unsigned int',
+        '_GBA_NO_FILEIO',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
