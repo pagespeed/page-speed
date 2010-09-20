@@ -18,8 +18,6 @@
 
 #include "pagespeed/image_compression/gif_reader.h"
 
-#include <stdlib.h>
-
 extern "C" {
 #ifdef USE_SYSTEM_LIBPNG
 #include "png.h"  // NOLINT
@@ -183,6 +181,11 @@ bool ReadExtension(GifFileType* gif_file,
     }
   }
 
+  // Some extensions (i.e. the comment extension, the text extension)
+  // allow multiple sub-blocks. However, the graphics extension can
+  // contain only one sub-block (handled above). Since we only care
+  // about the graphics extension, we can safely ignore all subsequent
+  // blocks.
   while (extension != NULL) {
     if (DGifGetExtensionNext(gif_file, &extension) == GIF_ERROR) {
       LOG(INFO) << "Failed to read next extension.";
