@@ -3,7 +3,7 @@
 
 =Page Speed Version History=
 
-== 1.8 ==
+== 1.8 6/2/2010 ==
 New features:
   * New rules
     * Specify a Vary: Accept-Encoding header
