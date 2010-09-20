@@ -10,7 +10,7 @@ New features:
     * Avoid document.write
     * Prefer asynchronous resources
     * Combine images into CSS sprites
-  * New HTML minifier based on [http://http://code.google.com/p/instaweb/  instaweb]
+  * New HTML minifier based on [http://code.google.com/p/instaweb/  instaweb]
   * Do not inspect resource bodies with non-200 response codes.
   * Switch gif decodes from optipng to giflib.
 
