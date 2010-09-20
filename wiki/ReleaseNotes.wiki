@@ -3,6 +3,22 @@
 
 =Page Speed Version History=
 
+== 1.9 Beta 9/20/2010 ==
+New features:
+  * New rules
+    * Avoid CSS @import 
+    * Avoid document.write
+    * Prefer asynchronous resources
+    * Combine images into CSS sprites
+  * New HTML minifier based on [http://http://code.google.com/p/instaweb/  instaweb]
+  * Do not inspect resource bodies with non-200 response codes.
+  * Switch gif decodes from optipng to giflib.
+
+Bug fixes:
+  * Fixed issue 296 : Use image instead of xhr for minimal beacon.
+  * Fixed memory leaks.
+
+
 == 1.8 6/2/2010 ==
 New features:
   * New rules
