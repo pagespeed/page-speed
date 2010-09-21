@@ -18,19 +18,19 @@
 
 #include "pagespeed_firefox/cpp/pagespeed/pagespeed_rules.h"
 
-#include <fstream>
 #include <sstream>
 #include <vector>
 
-#include "nsArrayUtils.h" // for do_QueryElementAt
-#include "nsComponentManagerUtils.h" // for do_CreateInstance
+#include "nsArrayUtils.h"  // for do_QueryElementAt
+#include "nsComponentManagerUtils.h"  // for do_CreateInstance
 #include "nsCOMPtr.h"
 #include "nsIInputStream.h"
 #include "nsIIOService.h"
 #include "nsILocalFile.h"
 #include "nsIURI.h"
-#include "nsNetCID.h" // for NS_IOSERVICE_CONTRACTID
-#include "nsServiceManagerUtils.h" // for do_GetService
+#include "nsNetCID.h"  // for NS_IOSERVICE_CONTRACTID
+#include "nsNetUtil.h"  // for NS_NewLocalFileOutputStream
+#include "nsServiceManagerUtils.h"  // for do_GetService
 #include "nsStringAPI.h"
 
 #include "base/at_exit.h"
@@ -76,8 +76,7 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
                                               const std::string& body) {
   // Make a copy of the base_dir_ nsIFile object.
   nsCOMPtr<nsIFile> file;
-  base_dir_->Clone(getter_AddRefs(file));
-  if (NULL == file) {
+  if (NS_FAILED(base_dir_->Clone(getter_AddRefs(file))) || NULL == file) {
     LOG(ERROR) << "Unable to clone nsILocalFile";
     return "";
   }
@@ -90,22 +89,38 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
   }
   const std::string filename =
       pagespeed::ChooseOutputFilename(url, mime_type, MD5String(body));
-  file->Append(NS_ConvertASCIItoUTF16(filename.c_str()));
+  if (NS_FAILED(file->Append(NS_ConvertASCIItoUTF16(filename.c_str())))) {
+    LOG(ERROR) << "Failed to nsILocalFile::Append " << filename;
+    return "";
+  }
 
   // Get the absolute path of the nsIFile as a C++ string.
   nsString nsString_path;
-  file->GetPath(nsString_path);
+  if (NS_FAILED(file->GetPath(nsString_path))) {
+    LOG(ERROR) << "Failed to GetPath for " << filename;
+    return "";
+  }
   const NS_ConvertUTF16toUTF8 utf8_path(nsString_path);
   const std::string string_path(utf8_path.get());
 
-  // Write the data to the file.
-  std::ofstream out(string_path.c_str(), std::ios::out | std::ios::binary);
-  if (!out) {
-    LOG(ERROR) << "Unable to save to file: " << string_path;
-    return "";
+  {
+    // Write the data to the file.
+    nsCOMPtr<nsIOutputStream> out;
+    if (NS_FAILED(NS_NewLocalFileOutputStream(getter_AddRefs(out), file))) {
+      LOG(ERROR) << "Failed to creat output stream for " << string_path;
+      return "";
+    }
+    PRUint32 num_written = 0;
+    if (NS_FAILED(out->Write(body.c_str(), body.size(), &num_written)) ||
+        num_written != body.size()) {
+      LOG(ERROR) << "Failed to write " << string_path;
+      return "";
+    }
+    if (NS_FAILED(out->Close())) {
+      LOG(ERROR) << "Failed to close " << string_path;
+      return "";
+    }
   }
-  out.write(body.c_str(), body.size());
-  out.close();
 
   // Get the file URI for the nsIFile where we stored the data.
   nsCOMPtr<nsIIOService> io_service(do_GetService(NS_IOSERVICE_CONTRACTID));
