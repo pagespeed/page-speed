@@ -17,7 +17,7 @@ Create a directory to hold your source code.  It is important that the full dire
 
   * `mkdir mod_pagespeed`
   * `cd mod_pagespeed`
-  * `gclient config http://page-speed.googlecode.com/svn/mod_pageseed/trunk/src`
+  * `gclient config http://page-speed.googlecode.com/svn/mod_pagespeed/trunk/src`
   * `gclient update --force`
 
 
@@ -45,4 +45,3 @@ AddOutputFilterByType PAGESPEED  text/html
 
   * `/usr/local/apache2/bin/apachectl stop`
   * `/usr/local/apache2/bin/apachectl start`
-
