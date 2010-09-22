@@ -93,10 +93,13 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
 
 int SpecifyAVaryAcceptEncodingHeader::
 ComputeScore(const InputInformation& input_info, const ResultVector& results) {
-  const double num_violoations = results.size();
-  const double num_static_resources = input_info.number_static_resources();
-  return static_cast<int>(
-      100.0 * (1.0 - num_violoations / num_static_resources));
+  const int num_static_resources = input_info.number_static_resources();
+  if (num_static_resources == 0) {
+    return 100;
+  }
+  const int num_non_violations = num_static_resources - results.size();
+  DCHECK(num_non_violations >= 0);
+  return 100 * num_non_violations / num_static_resources;
 }
 
 }  // namespace rules
