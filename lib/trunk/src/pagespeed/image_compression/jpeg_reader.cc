@@ -67,7 +67,7 @@ void JpegStringReader(j_decompress_ptr cinfo, const std::string &data_src) {
   if (cinfo->src == NULL) {
     cinfo->src = (struct jpeg_source_mgr*)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  sizeof(jpeg_source_mgr));
+                                  sizeof(jpeg_source_mgr));
   }
   struct jpeg_source_mgr &src = *(cinfo->src);
 
