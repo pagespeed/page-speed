@@ -77,6 +77,7 @@ bool MinimizeRequestSize::AppendResults(const PagespeedInput& input,
       details->set_url_length(resource.GetRequestUrl().size());
       details->set_cookie_length(resource.GetCookies().size());
       details->set_referer_length(resource.GetRequestHeader("referer").size());
+      details->set_is_static(resource_util::IsLikelyStaticResource(resource));
     }
   }
 
@@ -120,7 +121,13 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
       entry->AddChild("Request URL: $1", url_size);
 
       Argument cookie_size(Argument::BYTES, details.cookie_length());
-      entry->AddChild("Cookies: $1", cookie_size);
+      if (details.is_static() && details.cookie_length() > 0) {
+        entry->AddChild("Cookies: $1 (note that this is a static resource, "
+                        "and should be served from a cookieless domain)",
+                        cookie_size);
+      } else {
+        entry->AddChild("Cookies: $1", cookie_size);
+      }
 
       Argument referer_size(Argument::BYTES, details.referer_length());
       entry->AddChild("Referer Url: $1", referer_size);
