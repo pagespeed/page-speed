@@ -91,7 +91,7 @@ void JpegStringWriter(j_compress_ptr cinfo, std::string *data_dest) {
   if (cinfo->dest == NULL) {
     cinfo->dest = (struct jpeg_destination_mgr*)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  sizeof(DestinationManager));
+                                  sizeof(DestinationManager));
   }
   DestinationManager &dest =
       *reinterpret_cast<DestinationManager*>(cinfo->dest);
