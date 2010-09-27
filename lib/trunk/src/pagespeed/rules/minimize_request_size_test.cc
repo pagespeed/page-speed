@@ -41,12 +41,13 @@ std::string kDescription =
 class MinimizeRequestSizeTest : public ::pagespeed_testing::PagespeedTest {
  protected:
   void AddTestResource(
-      const std::string& url,
+      const std::string& url, const std::string& mimetype,
       const std::map<std::string, std::string>& request_headers) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
+    resource->AddResponseHeader("Content-Type", mimetype);
 
     for (std::map<std::string, std::string>::const_iterator
              it = request_headers.begin(),
@@ -120,7 +121,7 @@ TEST_F(MinimizeRequestSizeTest, NoViolationUnderThreshold) {
   std::map<std::string, std::string> request_headers;
   request_headers["Cookie"] = "foobar";
   request_headers["Referer"] = "http://www.test.com/";
-  AddTestResource("http://www.test.com/logo.png",
+  AddTestResource("http://www.test.com/logo.png", "image/png",
                   request_headers);
 
   Freeze();
@@ -132,6 +133,12 @@ TEST_F(MinimizeRequestSizeTest, LongCookieTest) {
       kDescription +
       "  http://www.test.com/logo.png has a request size of 1.5KiB\n"
       "    * Request URL: 28B\n"
+      "    * Cookies: 1.4KiB (note that this is a static resource, and should "
+      "be served from a cookieless domain)\n"
+      "    * Referer Url: 20B\n"
+      "    * Other: 34B\n"
+      "  http://www.test.com/foo.html has a request size of 1.5KiB\n"
+      "    * Request URL: 28B\n"
       "    * Cookies: 1.4KiB\n"
       "    * Referer Url: 20B\n"
       "    * Other: 34B\n";
@@ -139,11 +146,15 @@ TEST_F(MinimizeRequestSizeTest, LongCookieTest) {
   std::map<std::string, std::string> request_headers;
   request_headers["Cookie"] = std::string(1450, 'a');
   request_headers["Referer"] = "http://www.test.com/";
-  AddTestResource("http://www.test.com/logo.png",
-                  request_headers);
+
+  const std::string url1 = "http://www.test.com/logo.png";
+  AddTestResource(url1, "image/png", request_headers);
+
+  const std::string url2 = "http://www.test.com/foo.html";
+  AddTestResource(url2, "text/html", request_headers);
 
   Freeze();
-  CheckOneViolation("http://www.test.com/logo.png", expected_output);
+  CheckTwoViolations(url1, url2, expected_output);
 }
 
 TEST_F(MinimizeRequestSizeTest, LongRefererTest) {
@@ -157,7 +168,7 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTest) {
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/" + std::string(1450, 'a');
-  AddTestResource("http://www.test.com/logo.png",
+  AddTestResource("http://www.test.com/logo.png", "image/png",
                   request_headers);
 
   Freeze();
@@ -176,7 +187,7 @@ TEST_F(MinimizeRequestSizeTest, LongUrlTest) {
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/";
-  AddTestResource(url, request_headers);
+  AddTestResource(url, "text/html", request_headers);
 
   Freeze();
   CheckOneViolation(url, expected_output);
@@ -199,11 +210,11 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTwoViolationTest) {
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/" + std::string(1450, 'a');
 
-  std::string url1 = "http://www.test.com/logo.png";
-  AddTestResource(url1, request_headers);
+  const std::string url1 = "http://www.test.com/logo.png";
+  AddTestResource(url1, "image/png", request_headers);
 
-  std::string url2 = "http://www.test.com/index.html";
-  AddTestResource(url2, request_headers);
+  const std::string url2 = "http://www.test.com/index.html";
+  AddTestResource(url2, "text/html", request_headers);
 
   Freeze();
   CheckTwoViolations(url1, url2, expected_output);

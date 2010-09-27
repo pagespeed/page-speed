@@ -112,6 +112,9 @@ message RequestDetails {
 
   // Length of Referer header
   optional int32 referer_length = 3;
+
+  // Is this a static resource?
+  optional bool is_static = 4;
 }
 
 // Result detail to store image dimension information.

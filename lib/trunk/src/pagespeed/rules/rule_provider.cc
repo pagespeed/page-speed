@@ -34,7 +34,6 @@
 #include "pagespeed/rules/remove_query_strings_from_static_resources.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
 #include "pagespeed/rules/serve_scaled_images.h"
-#include "pagespeed/rules/serve_static_content_from_a_cookieless_domain.h"
 #include "pagespeed/rules/specify_a_cache_validator.h"
 #include "pagespeed/rules/specify_a_vary_accept_encoding_header.h"
 #include "pagespeed/rules/specify_charset_early.h"
@@ -68,7 +67,6 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::RemoveQueryStringsFromStaticResources());
   rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
   rules->push_back(new rules::ServeScaledImages);
-  rules->push_back(new rules::ServeStaticContentFromACookielessDomain());
   rules->push_back(new rules::SpecifyACacheValidator());
   rules->push_back(new rules::SpecifyAVaryAcceptEncodingHeader());
   rules->push_back(new rules::SpecifyCharsetEarly());
