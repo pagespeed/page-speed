@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/util/public/google_message_handler.h"
