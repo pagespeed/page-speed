@@ -51,7 +51,8 @@
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
 
-#include "effective_tld_names.cc"
+// effective_tld_names.cc contains data about domain mappings
+#include "net/base/effective_tld_names.cc"
 
 namespace net {
 
