@@ -37,6 +37,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/md5.h"
+#include "base/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -55,6 +56,75 @@
 
 namespace {
 
+// Compute the URI spec for a given file.
+bool ComputeUriSpec(nsIFile* file, nsCString* out_uri_spec) {
+  nsCOMPtr<nsIIOService> io_service(do_GetService(NS_IOSERVICE_CONTRACTID));
+  if (io_service == NULL) {
+    LOG(ERROR) << "Unable to get nsIIOService";
+    return false;
+  }
+  nsCOMPtr<nsIURI> uri;
+  if (NS_FAILED(io_service->NewFileURI(file, getter_AddRefs(uri))) ||
+      uri == NULL) {
+    LOG(ERROR) << "Unable to get file URI.";
+    return false;
+  }
+  if (NS_FAILED(uri->GetSpec(*out_uri_spec))) {
+    LOG(ERROR) << "Unable to get file spec.";
+    return false;
+  }
+
+  return true;
+}
+
+// Get the path for the nsIFile as a std::string.
+std::string GetPathForFile(nsIFile* file) {
+  nsString nsString_path;
+  if (NS_FAILED(file->GetPath(nsString_path))) {
+    LOG(ERROR) << "Failed to GetPath.";
+    return "";
+  }
+  const NS_ConvertUTF16toUTF8 utf8_path(nsString_path);
+  return utf8_path.get();
+}
+
+// Determine if the given file is a writable directory.
+bool IsWritableDirectory(nsIFile* file) {
+  PRBool out_is_directory = PR_FALSE;
+  if (NS_FAILED(file->IsDirectory(&out_is_directory)) ||
+      out_is_directory == PR_FALSE) {
+    return false;
+  }
+  PRBool out_is_directory_writable = PR_FALSE;
+  if (NS_FAILED(file->IsWritable(&out_is_directory_writable)) ||
+      out_is_directory_writable == PR_FALSE) {
+    return false;
+  }
+
+  return true;
+}
+
+// Write the data to the file.
+bool WriteDataToFile(nsIFile* file, const std::string& body) {
+  nsCOMPtr<nsIOutputStream> out;
+  if (NS_FAILED(NS_NewLocalFileOutputStream(getter_AddRefs(out), file))) {
+    LOG(ERROR) << "Failed to create output stream.";
+    return false;
+  }
+  PRUint32 num_written = 0;
+  if (NS_FAILED(out->Write(body.c_str(), body.size(), &num_written)) ||
+      num_written != body.size()) {
+    LOG(ERROR) << "Failed to write to file.";
+    return false;
+  }
+  if (NS_FAILED(out->Close())) {
+    LOG(ERROR) << "Failed to close file.";
+    return false;
+  }
+
+  return true;
+}
+
 class PluginSerializer : public pagespeed::Serializer {
  public:
   explicit PluginSerializer(nsILocalFile* base_dir)
@@ -66,6 +136,11 @@ class PluginSerializer : public pagespeed::Serializer {
                                       const std::string& body);
 
  private:
+  bool CreateFileForResource(const std::string& content_url,
+                             const std::string& mime_type,
+                             const std::string& body,
+                             nsIFile** file);
+
   nsCOMPtr<nsILocalFile> base_dir_;
 
   DISALLOW_COPY_AND_ASSIGN(PluginSerializer);
@@ -74,69 +149,95 @@ class PluginSerializer : public pagespeed::Serializer {
 std::string PluginSerializer::SerializeToFile(const std::string& content_url,
                                               const std::string& mime_type,
                                               const std::string& body) {
-  // Make a copy of the base_dir_ nsIFile object.
   nsCOMPtr<nsIFile> file;
-  if (NS_FAILED(base_dir_->Clone(getter_AddRefs(file))) || NULL == file) {
-    LOG(ERROR) << "Unable to clone nsILocalFile";
+  if (!CreateFileForResource(
+          content_url, mime_type, body, getter_AddRefs(file)) ||
+      file == NULL) {
+    LOG(ERROR) << "Failed to CreateFileForResource for " << content_url;
     return "";
   }
 
-  // Choose a filename for the saved data.
+  // Compute the path to the file as a std::string. Used for debugging
+  // only.
+  std::string string_path(GetPathForFile(file));
+
+  // Determine if the file exists.
+  PRBool out_file_exists = PR_FALSE;
+  if (NS_FAILED(file->Exists(&out_file_exists))) {
+    LOG(ERROR) << "Unable to determine if file exists: " << string_path;
+    return "";
+  }
+
+  // Get the file URI for the nsIFile where we stored the data.
+  nsCString uri_spec;
+  if (!ComputeUriSpec(file, &uri_spec)) {
+    LOG(ERROR) << "Unable to ComputeUriSpec for " << string_path;
+    return "";
+  }
+
+  if (out_file_exists == PR_TRUE) {
+    // Already exists. Since the path contains a hash of the contents,
+    // assume the file on disk is the same as what we want to write,
+    // and return the path of the file.
+    return uri_spec.get();
+  }
+
+  if (!IsWritableDirectory(base_dir_)) {
+    LOG(ERROR) << "Unable to write to non-writable directory.";
+    return "";
+  }
+
+  // Attempt to create the file with appropriate permissions.
+  if (NS_FAILED(file->Create(nsIFile::NORMAL_FILE_TYPE, 0600))) {
+    LOG(ERROR) << "Unable to create file " << string_path;
+    return "";
+  }
+
+  PRBool out_is_file_writable = PR_FALSE;
+  if (NS_FAILED(file->IsWritable(&out_is_file_writable)) ||
+      out_is_file_writable == PR_FALSE) {
+    LOG(ERROR) << "Unable to write to non-writable file " << string_path;
+    return "";
+  }
+
+  if (!WriteDataToFile(file, body)) {
+    LOG(ERROR) << "Failed to WriteDataToFile for " << string_path;
+    return false;
+  }
+
+  return uri_spec.get();
+}
+
+bool PluginSerializer::CreateFileForResource(const std::string& content_url,
+                                             const std::string& mime_type,
+                                             const std::string& body,
+                                             nsIFile** out_file) {
+  if (base_dir_ == NULL) {
+    LOG(DFATAL) << "No base directory available.";
+    return false;
+  }
+
   const GURL url(content_url);
   if (!url.is_valid()) {
     LOG(ERROR) << "Invalid url: " << content_url;
-    return "";
+    return false;
+  }
+  // Make a copy of the base_dir_.
+  nsCOMPtr<nsIFile> file;
+  if (NS_FAILED(base_dir_->Clone(getter_AddRefs(file))) || NULL == file) {
+    LOG(ERROR) << "Unable to clone directory.";
+    return false;
   }
   const std::string filename =
       pagespeed::ChooseOutputFilename(url, mime_type, MD5String(body));
   if (NS_FAILED(file->Append(NS_ConvertASCIItoUTF16(filename.c_str())))) {
     LOG(ERROR) << "Failed to nsILocalFile::Append " << filename;
-    return "";
+    return false;
   }
 
-  // Get the absolute path of the nsIFile as a C++ string.
-  nsString nsString_path;
-  if (NS_FAILED(file->GetPath(nsString_path))) {
-    LOG(ERROR) << "Failed to GetPath for " << filename;
-    return "";
-  }
-  const NS_ConvertUTF16toUTF8 utf8_path(nsString_path);
-  const std::string string_path(utf8_path.get());
-
-  {
-    // Write the data to the file.
-    nsCOMPtr<nsIOutputStream> out;
-    if (NS_FAILED(NS_NewLocalFileOutputStream(getter_AddRefs(out), file))) {
-      LOG(ERROR) << "Failed to creat output stream for " << string_path;
-      return "";
-    }
-    PRUint32 num_written = 0;
-    if (NS_FAILED(out->Write(body.c_str(), body.size(), &num_written)) ||
-        num_written != body.size()) {
-      LOG(ERROR) << "Failed to write " << string_path;
-      return "";
-    }
-    if (NS_FAILED(out->Close())) {
-      LOG(ERROR) << "Failed to close " << string_path;
-      return "";
-    }
-  }
-
-  // Get the file URI for the nsIFile where we stored the data.
-  nsCOMPtr<nsIIOService> io_service(do_GetService(NS_IOSERVICE_CONTRACTID));
-  if (io_service == NULL) {
-    LOG(ERROR) << "Unable to get nsIIOService";
-    return "";
-  }
-  nsCOMPtr<nsIURI> uri;
-  io_service->NewFileURI(file, getter_AddRefs(uri));
-  if (uri == NULL) {
-    LOG(ERROR) << "Unable to get file URI for path: " << string_path;
-    return "";
-  }
-  nsCString uri_spec;
-  uri->GetSpec(uri_spec);
-  return uri_spec.get();
+  *out_file = file;
+  NS_ADDREF(*out_file);
+  return true;
 }
 
 void AppendInputStreamsContents(nsIArray *input_streams,
@@ -232,8 +333,11 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
     input.Freeze();
 
     std::stringstream stream;
-    PluginSerializer serializer(output_dir);
-    formatters::JsonFormatter formatter(&stream, &serializer);
+    scoped_ptr<PluginSerializer> serializer;
+    if (output_dir != NULL) {
+      serializer.reset(new PluginSerializer(output_dir));
+    }
+    formatters::JsonFormatter formatter(&stream, serializer.get());
     engine.ComputeAndFormatResults(input, &formatter);
 
     const std::string& output_string = stream.str();

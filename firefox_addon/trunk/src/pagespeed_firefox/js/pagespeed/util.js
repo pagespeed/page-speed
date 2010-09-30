@@ -2113,7 +2113,7 @@ PAGESPEED.Utils = {  // Begin namespace
       }
 
       if (outputDir.exists() && !outputDir.isDirectory()) {
-        PS_LOG('Failed to create output directory "' + outputDir +
+        PS_LOG('Failed to create output directory "' + outputDir.path +
                '": a file already exists at that path.');
         return null;
       }
@@ -2142,12 +2142,17 @@ PAGESPEED.Utils = {  // Begin namespace
                   '.'].join(''));
         }
       }
+      if (!outputDir.isDirectory() || !outputDir.isWritable()) {
+        PS_LOG('getOutputDir(): Directory ' + outputDir.path +
+               ' is not writable.');
+        return null;
+      }
 
       return outputDir.clone();
 
     } catch (e) {
       PS_LOG('getOutputDir(): Failed to create output directory "' +
-             outputDir + '" due to an exception: ' +
+             outputDir.path + '" due to an exception: ' +
              PAGESPEED.Utils.formatException(e) + ')');
       return null;
     }
