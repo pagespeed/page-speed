@@ -217,8 +217,11 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
     input.Freeze();
 
     std::stringstream stream;
-    PluginSerializer serializer(output_dir);
-    formatters::JsonFormatter formatter(&stream, &serializer);
+    scoped_ptr<PluginSerializer> serializer;
+    if (output_dir != NULL) {
+      serializer.reset(new PluginSerializer(output_dir));
+    }
+    formatters::JsonFormatter formatter(&stream, serializer.get());
     engine.ComputeAndFormatResults(input, &formatter);
 
     const std::string& output_string = stream.str();
