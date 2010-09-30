@@ -1,0 +1,14 @@
+URL: https://developer.mozilla.org/En/Gecko_SDK/
+     http://ftp.mozilla.org/pub/mozilla.org/xulrunner/nightly/latest-trunk/
+Version: 2.0b5pre (8/29/2010 trunk build)
+License: MPL 1.1/GPL 2.0/LGPL 2.1
+License File: LICENSE
+
+Description:
+xulrunner sdk components that are needed in order to build the page-speed
+extension using gyp.
+
+Local Modifications:
+Merged distributions for multiple platforms in a single tree and excluded
+many files that are currently not needed in order to build the page-speed
+extension.
