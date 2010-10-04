@@ -67,12 +67,9 @@ class ScriptVisitor : public pagespeed::DomElementVisitor {
         std::string script_src;
         if (node.GetAttributeByName("src", &script_src)) {
           std::string async;
-          bool is_async = false;
-          if (node.GetAttributeByName("async", &async) &&
-              (async == "true" || async == "1")) {
-            is_async = true;
-          }
-          if (!is_async) {
+          // The presence of a boolean attribute on an element represents
+          // the true value.
+          if (!node.GetAttributeByName("async", &async)) {
             VisitExternalScript(script_src);
           }
         }
