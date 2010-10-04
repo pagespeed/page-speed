@@ -63,12 +63,10 @@ class SizeConsumer {
   DISALLOW_COPY_AND_ASSIGN(SizeConsumer);
 };
 
-// Return true for any character that must separated from other "extendable"
-// characters by whitespace in order keep tokens separate.
-bool IsExtendableCss(char c) {
+// Return true for any character that never needs to be separated from other
+// characters via whitespace.
+bool Unextendable(char c) {
   switch (c) {
-    case '(':
-    case ')':
     case '[':
     case ']':
     case '{':
@@ -76,10 +74,24 @@ bool IsExtendableCss(char c) {
     case '/':
     case ';':
     case ':':
-      return false;
-    default:
       return true;
+    default:
+      return false;
   }
+}
+
+// Return true for any character that must separated from other "extendable"
+// characters by whitespace on the _right_ in order keep tokens separate.
+bool IsExtendableOnRight(char c) {
+  // N.B. Left paren only here -- see
+  //      http://code.google.com/p/page-speed/issues/detail?id=339
+  return !(Unextendable(c) || c == '(');
+}
+
+// Return true for any character that must separated from other "extendable"
+// characters by whitespace on the _left_ in order keep tokens separate.
+bool IsExtendableOnLeft(char c) {
+  return !(Unextendable(c) || c == ')');  // N.B. Right paren only here.
 }
 
 // Given a CSS string, minify it into the given consumer.
@@ -108,8 +120,8 @@ bool MinifyCSS(const std::string& input, Consumer* consumer) {
         ++p;
       } while (p < end && IsAsciiWhitespace(*p));
       if (space_start > begin && p < end &&
-          IsExtendableCss(*(space_start - 1)) &&
-          IsExtendableCss(*p)) {
+          IsExtendableOnRight(*(space_start - 1)) &&
+          IsExtendableOnLeft(*p)) {
         consumer->push_back(' ');
       }
     } else if (*p == '\'' || *p == '"') {
