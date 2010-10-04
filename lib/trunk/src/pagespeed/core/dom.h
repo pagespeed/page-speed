@@ -93,7 +93,9 @@ class DomElement {
 
   // @param name attribute name
   // @param attr_value output parameter to hold attribute value
-  // @return true if the node has an attribute with that name.
+  // @return true if the node has an attribute with that name. If the attribute
+  // is boolean, attr_value will be empty. See HTML5 Specs:
+  // (http://dev.w3.org/html5/spec/Overview.html#boolean-attributes)
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const = 0;
 
