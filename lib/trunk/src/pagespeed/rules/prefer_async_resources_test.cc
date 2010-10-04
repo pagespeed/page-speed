@@ -145,7 +145,7 @@ TEST_F(PreferAsyncResourcesTest, EmptyDom) {
 TEST_F(PreferAsyncResourcesTest, AsyncGoogleAnalyticsIsOkay) {
   FakeDomElement* ga_script = CreateScriptElement(
       "http://www.google-analytics.com/ga.js", body());
-  ga_script->AddAttribute("async", "true");
+  ga_script->AddAttribute("async", "");
   CreatePngElement(body());
   CreateCssElement(body());
   CreateScriptElement("http://test.com/test.js", body());
