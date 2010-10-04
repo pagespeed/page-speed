@@ -200,7 +200,21 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
 
   const bool save_optimized_content = true;
   std::vector<Rule*> rules;
-  rule_provider::AppendAllRules(save_optimized_content, &rules);
+  std::vector<std::string> incompatible_rule_names;
+  InputCapabilities capabilities(InputCapabilities::DOM |
+                                 InputCapabilities::LAZY_LOADED |
+                                 InputCapabilities::PARENT_CHILD_RESOURCE_MAP |
+                                 InputCapabilities::REQUEST_HEADERS |
+                                 InputCapabilities::RESPONSE_BODY);
+  rule_provider::AppendCompatibleRules(
+      save_optimized_content, &rules, &incompatible_rule_names, capabilities);
+  // We expect that only the "AvoidDocumentWrite" rule will be removed
+  // from the set. If other rules are also removed, then log an error.
+  if (incompatible_rule_names.size() != 1 ||
+      incompatible_rule_names[0] != "AvoidDocumentWrite") {
+    LOG(ERROR) << "Removed " << incompatible_rule_names.size()
+               << " incompatible rules.";
+  }
 
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
