@@ -205,7 +205,15 @@ PAGESPEED.NativeLibrary = {
     for (var i = 0; i < resourceURLs.length; ++i) {
       var url = resourceURLs[i];
       var res_body_index = bodyInputStreams.length;
-      bodyInputStreams.push(PAGESPEED.Utils.getResourceInputStream(url));
+      var inputStream;
+      try {
+        inputStream = PAGESPEED.Utils.getResourceInputStream(url);
+      } catch (e) {
+        PS_LOG('Could not get input stream for "' + url + '": ' +
+               PAGESPEED.Utils.formatException(e));
+        continue;
+      }
+      bodyInputStreams.push(inputStream);
       var requestTime = PAGESPEED.Utils.getResourceProperty(url, 'requestTime');
       var javaScriptCalls =
           PAGESPEED.Utils.getResourceProperty(url, 'javaScriptCalls');
@@ -218,7 +226,7 @@ PAGESPEED.NativeLibrary = {
         req_url: url,
         req_cookies: PAGESPEED.Utils.getCookieString(url) || '',
         req_lazy_loaded: (requestTime > onloadTime),
-        js_calls: javaScriptCalls,
+        js_calls: javaScriptCalls
       });
     }
 
