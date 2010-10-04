@@ -113,7 +113,6 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
           H3("What's new in Page Speed 1.9?"),
           UL(LI(B('New rules')),
              OL(LI(B('Avoid CSS @import')),
-                LI(B('Avoid document.write')),
                 LI(B('Combine images into CSS sprites')),
                 LI(B('Prefer asynchronous resources'))),
              LI(B('Improved HTML parser')),
