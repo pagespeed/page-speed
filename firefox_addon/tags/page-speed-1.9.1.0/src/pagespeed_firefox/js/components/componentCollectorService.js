@@ -528,11 +528,6 @@ function ComponentCollectorService() {
   observerService.addObserver(this, HTTP_ON_EXAMINE_CACHED_RESPONSE, false);
   observerService.addObserver(this, HTTP_ON_EXAMINE_MERGED_RESPONSE, false);
 
-  // Install our progress listener. We must hold a strong reference to
-  // the progress listener, since it implements the
-  // nsISupportsWeakReference interface.
-  this.progressListener_ = this.installProgressListener();
-
   // pendingDocs_ is a map and doubly-linked list that tracks
   // documents that are pending being transitioned to, and any
   // HTTP/JS/meta redirects to those documents. The keys in the map
