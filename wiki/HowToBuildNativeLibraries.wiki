@@ -47,6 +47,6 @@ For the Page Speed Firefox Add-on shared library:
     # Build output will appear under src/build/Release or src/build/Debug depending on your configuration options.
 
 = Cross-compiling on Linux =
-  * To compile an x86/ia32 binary on an x86_64 system:
+  * To compile an x86/ia32 binary on an x86_64 system (after the code has already been sync'd):
     # `GYP_DEFINES="target_arch=ia32" gclient runhooks`
     # `cd src; BUILDTYPE=Release make -j4`
