@@ -91,4 +91,12 @@ TEST_F(CssminTest, SeparateStringsFromWords) {
                     "body{font:11px \"Bitstream Vera Sans Mono\";}\n");
 }
 
+// See http://code.google.com/p/page-speed/issues/detail?id=339
+TEST_F(CssminTest, SeparateParensFromWords) {
+  CheckMinification("div { background: url( 'bg.gif' ) no-repeat "
+                    "left center; border-style: none;",
+                    "div{background:url('bg.gif') no-repeat "
+                    "left center;border-style:none;");
+}
+
 }  // namespace
