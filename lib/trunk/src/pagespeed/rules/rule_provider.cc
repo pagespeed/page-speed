@@ -63,15 +63,15 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::OptimizeTheOrderOfStylesAndScripts());
   rules->push_back(new rules::ParallelizeDownloadsAcrossHostnames());
   rules->push_back(new rules::PreferAsyncResources());
-  rules->push_back(new rules::PutCssInTheDocumentHead);
+  rules->push_back(new rules::PutCssInTheDocumentHead());
   rules->push_back(new rules::RemoveQueryStringsFromStaticResources());
   rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
-  rules->push_back(new rules::ServeScaledImages);
+  rules->push_back(new rules::ServeScaledImages());
   rules->push_back(new rules::SpecifyACacheValidator());
   rules->push_back(new rules::SpecifyAVaryAcceptEncodingHeader());
   rules->push_back(new rules::SpecifyCharsetEarly());
-  rules->push_back(new rules::SpecifyImageDimensions);
-  rules->push_back(new rules::SpriteImages);
+  rules->push_back(new rules::SpecifyImageDimensions());
+  rules->push_back(new rules::SpriteImages());
 }
 
 void AppendCompatibleRules(bool save_optimized_content,
