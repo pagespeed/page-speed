@@ -24,7 +24,7 @@
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
-using pagespeed::rules::CombineExternalCSS;
+using pagespeed::rules::CombineExternalCss;
 using pagespeed::rules::CombineExternalJavaScript;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
@@ -69,8 +69,8 @@ class CombineExternalResourcesTest : public ::pagespeed_testing::PagespeedTest {
     scoped_ptr<Rule> resource_rule;
     const char* rule_name = NULL;
     if (type == pagespeed::CSS) {
-      resource_rule.reset(new CombineExternalCSS());
-      rule_name = "CombineExternalCSS";
+      resource_rule.reset(new CombineExternalCss());
+      rule_name = "CombineExternalCss";
     } else if (type == pagespeed::JS) {
       resource_rule.reset(new CombineExternalJavaScript());
       rule_name = "CombineExternalJavaScript";

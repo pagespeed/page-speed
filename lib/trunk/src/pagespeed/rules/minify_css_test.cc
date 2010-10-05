@@ -22,7 +22,7 @@
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
-using pagespeed::rules::MinifyCSS;
+using pagespeed::rules::MinifyCss;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
@@ -75,7 +75,7 @@ class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
 
  private:
   void CheckNoViolationsInternal(bool save_optimized_content) {
-    MinifyCSS minify(save_optimized_content);
+    MinifyCss minify(save_optimized_content);
 
     Results results;
     ResultProvider provider(minify, &results);
@@ -84,7 +84,7 @@ class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
   }
 
   void CheckOneViolationInternal(int score, bool save_optimized_content) {
-    MinifyCSS minify(save_optimized_content);
+    MinifyCss minify(save_optimized_content);
 
     Results results;
     ResultProvider provider(minify, &results);
@@ -112,7 +112,7 @@ class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
   }
 
   void CheckErrorInternal(bool save_optimized_content) {
-    MinifyCSS minify(save_optimized_content);
+    MinifyCss minify(save_optimized_content);
 
     Results results;
     ResultProvider provider(minify, &results);

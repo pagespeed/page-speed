@@ -96,7 +96,7 @@ bool IsExtendableOnLeft(char c) {
 
 // Given a CSS string, minify it into the given consumer.
 template <typename Consumer>
-bool MinifyCSS(const std::string& input, Consumer* consumer) {
+bool MinifyCss(const std::string& input, Consumer* consumer) {
   const char* begin = input.data();
   const char* end = begin + input.size();
   // We have these tokens:
@@ -164,12 +164,12 @@ namespace cssmin {
 
 bool MinifyCss(const std::string& input, std::string* out) {
   StringConsumer consumer(out);
-  return MinifyCSS(input, &consumer);
+  return MinifyCss(input, &consumer);
 }
 
 bool GetMinifiedCssSize(const std::string& input, int* minified_size) {
   SizeConsumer consumer;
-  if (MinifyCSS(input, &consumer)) {
+  if (MinifyCss(input, &consumer)) {
     *minified_size = consumer.size();
     return true;
   } else {

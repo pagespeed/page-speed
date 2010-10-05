@@ -25,14 +25,14 @@ namespace rules {
 /**
  * Lint rule that checks that CSS resources are minified.
  */
-class MinifyCSS : public MinifyRule {
+class MinifyCss : public MinifyRule {
  public:
-  MinifyCSS(bool save_optimized_content);
+  MinifyCss(bool save_optimized_content);
   virtual int ComputeScore(const InputInformation& input_info,
                            const ResultVector& results);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(MinifyCSS);
+  DISALLOW_COPY_AND_ASSIGN(MinifyCss);
 };
 
 }  // namespace rules
