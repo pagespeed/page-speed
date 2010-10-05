@@ -45,3 +45,8 @@ For the Page Speed Firefox Add-on shared library:
     # Open src/build/All.vcproj in Visual Studio.
     # Run "Build Solution" from the "Build" menu.
     # Build output will appear under src/build/Release or src/build/Debug depending on your configuration options.
+
+= Cross-compiling on Linux =
+  * To compile an x86/ia32 binary on an x86_64 system:
+    # `GYP_DEFINES="target_arch=ia32" gclient runhooks`
+    # `cd src; BUILDTYPE=Release make -j4`
