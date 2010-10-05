@@ -54,9 +54,9 @@ class CombineExternalJavaScript : public CombineExternalResources {
   DISALLOW_COPY_AND_ASSIGN(CombineExternalJavaScript);
 };
 
-class CombineExternalCSS : public CombineExternalResources {
+class CombineExternalCss : public CombineExternalResources {
  public:
-  CombineExternalCSS();
+  CombineExternalCss();
 
   // Rule interface.
   virtual const char* name() const;
@@ -64,7 +64,7 @@ class CombineExternalCSS : public CombineExternalResources {
   virtual const char* documentation_url() const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CombineExternalCSS);
+  DISALLOW_COPY_AND_ASSIGN(CombineExternalCss);
 };
 
 }  // namespace rules

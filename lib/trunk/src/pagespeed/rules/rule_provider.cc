@@ -48,12 +48,12 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::AvoidBadRequests());
   rules->push_back(new rules::AvoidCssImport());
   rules->push_back(new rules::AvoidDocumentWrite());
-  rules->push_back(new rules::CombineExternalCSS());
+  rules->push_back(new rules::CombineExternalCss());
   rules->push_back(new rules::CombineExternalJavaScript());
   rules->push_back(new rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
   rules->push_back(new rules::LeverageBrowserCaching());
-  rules->push_back(new rules::MinifyCSS(save_optimized_content));
+  rules->push_back(new rules::MinifyCss(save_optimized_content));
   rules->push_back(new rules::MinifyHTML(save_optimized_content));
   rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
   rules->push_back(new rules::MinimizeDnsLookups());

@@ -140,20 +140,20 @@ const char* CombineExternalJavaScript::documentation_url() const {
   return "rtt.html#CombineExternalJS";
 }
 
-CombineExternalCSS::CombineExternalCSS()
+CombineExternalCss::CombineExternalCss()
     : CombineExternalResources(CSS) {
 }
 
-const char* CombineExternalCSS::name() const {
-  return "CombineExternalCSS";
+const char* CombineExternalCss::name() const {
+  return "CombineExternalCss";
 }
 
-const char* CombineExternalCSS::header() const {
+const char* CombineExternalCss::header() const {
   return "Combine external CSS";
 }
 
-const char* CombineExternalCSS::documentation_url() const {
-  return "rtt.html#CombineExternalCSS";
+const char* CombineExternalCss::documentation_url() const {
+  return "rtt.html#CombineExternalCss";
 }
 
 }  // namespace rules

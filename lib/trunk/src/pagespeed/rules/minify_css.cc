@@ -51,7 +51,7 @@ class CssMinifier : public Minifier {
 };
 
 const char* CssMinifier::name() const {
-  return "MinifyCSS";
+  return "MinifyCss";
 }
 
 const char* CssMinifier::header_format() const {
@@ -59,7 +59,7 @@ const char* CssMinifier::header_format() const {
 }
 
 const char* CssMinifier::documentation_url() const {
-  return "payload.html#MinifyCSS";
+  return "payload.html#MinifyCss";
 }
 
 const char* CssMinifier::body_format() const {
@@ -95,10 +95,10 @@ const MinifierOutput* CssMinifier::Minify(const Resource& resource) const {
 
 }  // namespace
 
-MinifyCSS::MinifyCSS(bool save_optimized_content)
+MinifyCss::MinifyCss(bool save_optimized_content)
     : MinifyRule(new CssMinifier(save_optimized_content)) {}
 
-int MinifyCSS::ComputeScore(const InputInformation& input_info,
+int MinifyCss::ComputeScore(const InputInformation& input_info,
                             const ResultVector& results) {
   WeightedCostBasedScoreComputer score_computer(
       &results, input_info.css_response_bytes(), kCostWeight);
