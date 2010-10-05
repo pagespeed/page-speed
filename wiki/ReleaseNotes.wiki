@@ -7,7 +7,6 @@
 New features:
   * New rules
     * Avoid CSS @import 
-    * Avoid document.write
     * Prefer asynchronous resources
     * Combine images into CSS sprites
   * New HTML minifier based on [http://code.google.com/p/instaweb/  instaweb]
