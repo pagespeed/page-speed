@@ -11,7 +11,7 @@ Currently Windows-only
 
 ===Page Speed SDK===
 
-_NEW!_ Download the Page Speed SDK for Windows and Linux: [http://page-speed.googlecode.com/files/page-speed-1.8.zip page-speed-1.8.zip]
+_NEW!_ Download the Page Speed SDK for Windows and Linux: [https://dl-ssl.google.com/page-speed/sdk/current/page-speed-sdk.zip page-speed-sdk.zip]
 
 Also see EmbeddingPageSpeed.
 
