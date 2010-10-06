@@ -268,36 +268,6 @@ TEST_F(MinimizeRedirectsTest, RedirectGraphNoCycles1) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, DiamondRedirectGraph) {
-  SetAllowDuplicateResources();
-
-  // Graph that contains two paths from an url(diamond) to a resource
-  // but a single root.
-  std::string url1 = "http://foo.com/";
-  std::string url2 = "http://www.foo.com/";
-  std::string url3 = "http://www.foo.com/index.html";
-  std::string url4 = "http://www.bar.com/";
-
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3);
-  AddResourceUrl(url3, 200);
-  AddRedirect(url1, url4);
-  AddRedirect(url4, url3);
-  Freeze();
-
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
-  urls.push_back(url3);
-  urls.push_back(url4);
-  urls.push_back(url3);
-
-  std::vector<Violation> violations;
-  violations.push_back(Violation(4, urls));
-
-  CheckViolations(violations);
-}
-
 TEST_F(MinimizeRedirectsTest, RedirectGraphCycles) {
   // break cycles that are part of rooted graphs arbitrarily.
   std::string url1 = "http://foo.com/";
