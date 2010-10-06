@@ -146,11 +146,6 @@ class PagespeedTest : public ::testing::Test {
   bool AddFakeImageAttributesFactory(
       const FakeImageAttributesFactory::ResourceSizeMap& map);
 
-  // Enable duplicate resources in the PagespeedInput. Most tests
-  // should not need to call this, since the default PagespeedInput
-  // behavior is to not allow duplicates.
-  void SetAllowDuplicateResources();
-
   const pagespeed::PagespeedInput* input() { return input_.get(); }
   pagespeed::Resource* primary_resource() const { return primary_resource_; }
   FakeDomDocument* document() { return document_; }

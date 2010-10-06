@@ -63,11 +63,6 @@ class PagespeedInput {
   // the set of currently added resources, does nothing and returns false.
   bool SetPrimaryResourceUrl(const std::string& url);
 
-  // Normally we only allow one resource per URL.  Setting this flag
-  // allows duplicate resource addition, which is useful when
-  // constructing an input set that is meant for serialization.
-  void set_allow_duplicate_resources() { allow_duplicate_resources_ = true; }
-
   // Set the DOM Document information.
   //
   // Ownership of the DomDocument is transfered over to the
@@ -138,7 +133,6 @@ class PagespeedInput {
   scoped_ptr<ResourceFilter> resource_filter_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
-  bool allow_duplicate_resources_;
   bool frozen_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);

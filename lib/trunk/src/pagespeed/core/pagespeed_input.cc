@@ -30,14 +30,12 @@ namespace pagespeed {
 PagespeedInput::PagespeedInput()
     : input_info_(new InputInformation),
       resource_filter_(new AllowAllResourceFilter),
-      allow_duplicate_resources_(false),
       frozen_(false) {
 }
 
 PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
     : input_info_(new InputInformation),
       resource_filter_(resource_filter),
-      allow_duplicate_resources_(false),
       frozen_(false) {
   DCHECK_NE(resource_filter, static_cast<ResourceFilter*>(NULL));
 }
@@ -52,7 +50,7 @@ bool PagespeedInput::IsValidResource(const Resource* resource) const {
     LOG(WARNING) << "Refusing Resource with empty URL.";
     return false;
   }
-  if (!allow_duplicate_resources_ && has_resource_with_url(url)) {
+  if (has_resource_with_url(url)) {
     LOG(INFO) << "Ignoring duplicate AddResource for resource at \""
               << url << "\".";
     return false;

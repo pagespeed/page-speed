@@ -183,10 +183,6 @@ bool PagespeedTest::AddFakeImageAttributesFactory(
       new FakeImageAttributesFactory(map));
 }
 
-void PagespeedTest::SetAllowDuplicateResources() {
-  input_->set_allow_duplicate_resources();
-}
-
 void PagespeedTest::SetUpTestCase() {
   pagespeed::Init();
 }
