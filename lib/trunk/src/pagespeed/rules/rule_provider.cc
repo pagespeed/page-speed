@@ -14,6 +14,7 @@
 
 #include "pagespeed/rules/rule_provider.h"
 
+#include "base/string_util.h"
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_css_import.h"
 #include "pagespeed/rules/avoid_document_write.h"
@@ -43,6 +44,71 @@
 namespace pagespeed {
 
 namespace rule_provider {
+
+// Note: keep this methed up-to-date with the active set of rules.
+Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
+  // Compare the function parameter name to the given rule name, and construct a
+  // new rule of the appropriate type if they match
+#define RULE(rule_name, cnstr) { \
+  if (LowerCaseEqualsASCII(name, (rule_name))) { \
+    return new cnstr; \
+  } \
+}
+  RULE("avoidbadrequests", rules::AvoidBadRequests());
+  RULE("avoidcssimport", rules::AvoidCssImport());
+  RULE("avoiddocumentwrite", rules::AvoidDocumentWrite());
+  RULE("combineexternalcss", rules::CombineExternalCss());
+  RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
+  RULE("enablegzipcompression", rules::EnableGzipCompression(
+      new rules::compression_computer::ZlibComputer()));
+  RULE("leveragebrowsercaching", rules::LeverageBrowserCaching());
+  RULE("minifycss", rules::MinifyCss(save_optimized_content));
+  RULE("minifyhtml", rules::MinifyHTML(save_optimized_content));
+  RULE("minifyjavascript", rules::MinifyJavaScript(save_optimized_content));
+  RULE("minimizednslookups", rules::MinimizeDnsLookups());
+  RULE("minimizeredirects", rules::MinimizeRedirects());
+  RULE("minimizerequestsize", rules::MinimizeRequestSize());
+  RULE("optimizeimages", rules::OptimizeImages(save_optimized_content));
+  RULE("optimizetheorderofstylesandscripts",
+       rules::OptimizeTheOrderOfStylesAndScripts());
+  RULE("parallelizedownloadsacrosshostnames",
+       rules::ParallelizeDownloadsAcrossHostnames());
+  RULE("preferasyncresources", rules::PreferAsyncResources());
+  RULE("putcssinthedocumenthead", rules::PutCssInTheDocumentHead());
+  RULE("removequerystringsfromstaticresources",
+       rules::RemoveQueryStringsFromStaticResources());
+  RULE("serveresourcesfromaconsistenturl",
+       rules::ServeResourcesFromAConsistentUrl());
+  RULE("servescaledimages", rules::ServeScaledImages());
+  RULE("specifyacachevalidator", rules::SpecifyACacheValidator());
+  RULE("specifyavaryacceptencodingheader",
+       rules::SpecifyAVaryAcceptEncodingHeader());
+  RULE("specifycharsetearly", rules::SpecifyCharsetEarly());
+  RULE("specifyimagedimensions", rules::SpecifyImageDimensions());
+  RULE("spriteimages", rules::SpriteImages());
+
+  // No rule name matched.
+  return NULL;
+}
+
+bool AppendRulesWithNames(bool save_optimized_content,
+                          const std::vector<std::string>& rule_names,
+                          std::vector<pagespeed::Rule*>* rules) {
+  if (!rules)
+    return false;
+
+  bool success = true;
+  for (std::vector<std::string>::const_iterator it = rule_names.begin();
+       it != rule_names.end();
+       ++it) {
+    Rule* rule = CreateRuleWithName(save_optimized_content, *it);
+    if (rule)
+      rules->push_back(rule);
+    else
+      success = false;
+  }
+  return success;
+}
 
 void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::AvoidBadRequests());

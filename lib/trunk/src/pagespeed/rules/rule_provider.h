@@ -27,6 +27,20 @@ class Rule;
 namespace rule_provider {
 
 /**
+ * Create a new Rule object from a rule name (case-insensitive).  If no rule is
+ * found with the given name, then return NULL.
+ */
+Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name);
+
+/**
+ * Append the rules with the given names to the given vector of Rules.  Return
+ * true if all rules were able to be instantiated.
+ */
+bool AppendRulesWithNames(bool save_optimized_content,
+                          const std::vector<std::string>& rule_names,
+                          std::vector<Rule*>* rules);
+
+/**
  * Append all Page Speed rules to the given vector of Rule
  * instances. This includes the core rules and the DOM rules.
  */
