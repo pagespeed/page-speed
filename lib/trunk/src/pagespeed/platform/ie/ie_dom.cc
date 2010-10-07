@@ -270,8 +270,32 @@ std::string IEElement::GetTagName() const {
 
 bool IEElement::GetAttributeByName(const std::string& name,
                                    std::string* attr_value) const {
+  CComQIPtr<IHTMLElement4> element4(element_);
+  if (element4 == NULL) {
+    LOG(DFATAL) << "Failed to QI to IHTMLElement4.";
+    return false;
+  }
   CComBSTR name_bstr(name.c_str());
+  CComPtr<IHTMLDOMAttribute> attribute;
+  if (FAILED(element4->getAttributeNode(name_bstr, &attribute)) ||
+      attribute == NULL) {
+    // Attribute does not exist (is not specified in the DOM).
+    return false;
+  }
+  VARIANT_BOOL specified;
+  if (FAILED(attribute->get_specified(&specified))) {
+    LOG(DFATAL) << "Failed to get_specified.";
+    return false;
+  }
+  if (specified == VARIANT_FALSE) {
+    // The attribute is not specified in the DOM.
+    return false;
+  }
   _variant_t var_val;
+  // We call element->getAttribute rather than attribute->get_nodeValue
+  // since getAttribute supports a flag (2) to convert the out-param to a
+  // bstr. Otherwise boolean attributes would be returned as VT_BOOL, etc,
+  // which is not what we want.
   if (FAILED(element_->getAttribute(name_bstr, 2, &var_val))) {
     LOG(DFATAL) << "Failed to getAttribute for " << name;
     return false;
@@ -281,7 +305,9 @@ bool IEElement::GetAttributeByName(const std::string& name,
     return false;
   }
   if (var_val.bstrVal == NULL) {
-    return false;
+    // Attribute was specified as the empty string.
+    *attr_value = "";
+    return true;
   }
   _bstr_t text = (_bstr_t)var_val;
   *attr_value = static_cast<LPSTR>(CW2A(text));
