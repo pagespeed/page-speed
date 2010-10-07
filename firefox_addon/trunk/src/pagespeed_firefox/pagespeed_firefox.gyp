@@ -22,6 +22,37 @@
   },
   'targets': [
     {
+      'target_name': 'pagespeed_firefox_genxpt',
+      'type': 'none',
+      'sources': [
+        'idl/IPageSpeedRules.idl',
+      ],
+      'rules': [
+        {
+          'rule_name': 'genxpt',
+          'extension': 'idl',
+          'variables': {
+            'rule_input_relpath': 'idl',
+          },
+          'outputs': [
+            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IPageSpeedRules.xpt',
+          ],
+          'action': [
+            '<(xulrunner_sdk_arch_root)/bin/xpidl',
+            '-m', 'typelib',
+            '-w',
+            '-I', '<(xulrunner_sdk_root)/idl',
+            '-e', '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IPageSpeedRules.xpt',
+            './<(rule_input_relpath)/<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
+          ],
+          'message': 'Generating xpt components from <(RULE_INPUT_PATH)',
+        },
+      ],
+      'dependencies': [
+        '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
+      ],
+    },
+    {
       'target_name': 'pagespeed_firefox_genidl',
       'type': 'none',
       'sources': [
@@ -188,12 +219,19 @@
       },
       'dependencies': [
         'pagespeed_firefox_module',
+        'pagespeed_firefox_genxpt',
       ],
       'copies': [
         {
           'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
           'files': [
             '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+          ],
+        },
+        {
+          'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/components',
+          'files': [
+            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IPageSpeedRules.xpt'
           ],
         },
       ],

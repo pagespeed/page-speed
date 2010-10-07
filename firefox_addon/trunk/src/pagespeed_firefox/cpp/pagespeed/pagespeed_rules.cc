@@ -293,19 +293,25 @@ PageSpeedRules::PageSpeedRules() {}
 PageSpeedRules::~PageSpeedRules() {}
 
 NS_IMETHODIMP
-PageSpeedRules::ComputeAndFormatResults(const char* data,
+PageSpeedRules::ComputeAndFormatResults(const nsACString& data,
                                         nsIArray* input_streams,
-                                        const char* root_url,
+                                        const nsACString& root_url,
                                         nsIDOMDocument* root_document,
                                         PRInt16 filter_choice,
                                         nsILocalFile* output_dir,
-                                        char** _retval) {
+                                        nsACString& _retval NS_OUTPARAM) {
 #ifdef NDEBUG
   // In release builds, don't display INFO logs. Ideally we would do
   // this at process startup but we don't receive any native callbacks
   // at that point, so we do it here instead.
   logging::SetMinLogLevel(logging::LOG_WARNING);
 #endif
+  const char* data_utf8;
+  PRBool terminated = 0;
+  PRUint32 count = NS_CStringGetData(data, &data_utf8, &terminated);
+  // It would be a fatal error to receive unterminated strings here so better
+  // to crash. We do not expect that to ever happen.
+  CHECK(terminated) << "Received unterminated data.";
 
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
@@ -325,8 +331,11 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
   input.AcquireDomDocument(firefox::CreateDocument(root_document));
   input.AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
-  if (PopulateInputFromJSON(&input, data, contents)) {
-    const std::string root_url_str(root_url);
+  if (PopulateInputFromJSON(&input, data_utf8, contents)) {
+    const char* root_url_utf8;
+    NS_CStringGetData(root_url, &root_url_utf8, &terminated);
+    CHECK(terminated) << "Received unterminated data.";
+    const std::string root_url_str(root_url_utf8);
     if (!root_url_str.empty()) {
       input.SetPrimaryResourceUrl(root_url_str);
     }
@@ -341,8 +350,7 @@ PageSpeedRules::ComputeAndFormatResults(const char* data,
     engine.ComputeAndFormatResults(input, &formatter);
 
     const std::string& output_string = stream.str();
-    nsCString retval(output_string.c_str(), output_string.length());
-    *_retval = NS_CStringCloneData(retval);
+    _retval.Assign(output_string.c_str(), output_string.length());
     return NS_OK;
   } else {
     return NS_ERROR_FAILURE;
