@@ -272,7 +272,7 @@ bool IEElement::GetAttributeByName(const std::string& name,
                                    std::string* attr_value) const {
   CComBSTR name_bstr(name.c_str());
   _variant_t var_val;
-  if (FAILED(element_->getAttribute(name_bstr, 0, &var_val))) {
+  if (FAILED(element_->getAttribute(name_bstr, 2, &var_val))) {
     LOG(DFATAL) << "Failed to getAttribute for " << name;
     return false;
   }
@@ -280,9 +280,12 @@ bool IEElement::GetAttributeByName(const std::string& name,
     LOG(DFATAL) << "Received unexpected variant type " << var_val.vt;
     return false;
   }
+  if (var_val.bstrVal == NULL) {
+    return false;
+  }
   _bstr_t text = (_bstr_t)var_val;
   *attr_value = static_cast<LPSTR>(CW2A(text));
-  return !attr_value->empty();
+  return true;
 }
 
 DomElement::Status IEElement::GetActualWidth(int* out_width) const {
