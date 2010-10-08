@@ -80,7 +80,7 @@ class Engine {
 
   std::vector<Rule*> rules_;
   NameToRuleMap name_to_rule_map_;
-  bool init_;
+  bool init_has_been_called_;
 
   DISALLOW_COPY_AND_ASSIGN(Engine);
 };

@@ -37,7 +37,7 @@ class DummyTestRule : public pagespeed::Rule {
   virtual const char* name() const { return "Dummy Test Rule"; }
   virtual const char* header() const { return header_; }
   virtual const char* documentation_url() const { return ""; }
-  virtual bool AppendResults(const pagespeed::PagespeedInput& input,
+  virtual bool AppendResults(const pagespeed::RuleInput& input,
                              pagespeed::ResultProvider* provider) {
     return true;
   }

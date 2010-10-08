@@ -20,9 +20,6 @@
 
 namespace pagespeed {
 
-class PagespeedInput;
-class Results;
-
 namespace rules {
 
 /**
@@ -36,9 +33,9 @@ class LeverageBrowserCaching : public Rule {
   virtual const char* name() const;
   virtual const char* header() const;
   virtual const char* documentation_url() const;
-  virtual bool AppendResults(const PagespeedInput& input,
-                             ResultProvider* provider);
-  virtual void FormatResults(const ResultVector& results, Formatter* formatter);
+  virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
+  virtual void FormatResults(const ResultVector& results,
+                             Formatter* formatter);
   virtual int ComputeScore(const InputInformation& input_info,
                            const ResultVector& results);
 

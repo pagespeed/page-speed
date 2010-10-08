@@ -198,7 +198,7 @@ TEST_F(ParentChildResourceMapTest, Basic) {
   expected[primary_resource()].push_back(css);
   expected[primary_resource()].push_back(js1);
   expected[primary_resource()].push_back(js2);
-  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
 }
 
 TEST_F(ParentChildResourceMapTest, Iframes) {
@@ -234,7 +234,7 @@ TEST_F(ParentChildResourceMapTest, Iframes) {
   Resource* css2 =
       NewCssResource("http://example.com/css2.css", iframe3_root);
   Freeze();
-  ASSERT_EQ(7, input()->num_resources());
+  ASSERT_EQ(7, pagespeed_input()->num_resources());
 
   // Validate that the parent child resource map was populated with
   // the expected contents.
@@ -249,7 +249,7 @@ TEST_F(ParentChildResourceMapTest, Iframes) {
   expected[iframe2_resource].push_back(iframe3_resource);
   expected[iframe3_resource].push_back(css);
   expected[iframe3_resource].push_back(css2);
-  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
 }
 
 TEST_F(ParentChildResourceMapTest, MissingResource) {
@@ -293,7 +293,7 @@ TEST_F(ParentChildResourceMapTest, MissingResource) {
       iframe3_root, "http://example.com/css2.css");
 
   Freeze();
-  ASSERT_EQ(5, input()->num_resources());
+  ASSERT_EQ(5, pagespeed_input()->num_resources());
 
   // Validate that the parent child resource map was populated with
   // the expected contents.
@@ -302,7 +302,7 @@ TEST_F(ParentChildResourceMapTest, MissingResource) {
   expected[iframe1_resource].push_back(css);
   expected[iframe1_resource].push_back(js);
   expected[iframe3_resource].push_back(css);
-  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
 }
 
 TEST_F(ParentChildResourceMapTest, EmbedTag) {
@@ -316,7 +316,7 @@ TEST_F(ParentChildResourceMapTest, EmbedTag) {
   // the expected contents.
   pagespeed::ParentChildResourceMap expected;
   expected[primary_resource()].push_back(resource);
-  ASSERT_TRUE(expected == *input()->GetParentChildResourceMap());
+  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
 }
 
 class EstimateCapabilitiesTest : public ::pagespeed_testing::PagespeedTest {};
@@ -325,9 +325,9 @@ TEST_F(EstimateCapabilitiesTest, NotFrozen) {
 #ifdef NDEBUG
   ASSERT_TRUE(
       InputCapabilities(InputCapabilities::NONE).equals(
-          input()->EstimateCapabilities()));
+          pagespeed_input()->EstimateCapabilities()));
 #else
-  ASSERT_DEATH(input()->EstimateCapabilities(),
+  ASSERT_DEATH(pagespeed_input()->EstimateCapabilities(),
                "Can't estimate capabilities of non-frozen input.");
 #endif
 }
@@ -336,7 +336,7 @@ TEST_F(EstimateCapabilitiesTest, None) {
   Freeze();
   ASSERT_TRUE(
       InputCapabilities(InputCapabilities::NONE).equals(
-          input()->EstimateCapabilities()));
+          pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, Dom) {
@@ -345,7 +345,7 @@ TEST_F(EstimateCapabilitiesTest, Dom) {
   ASSERT_TRUE(
       InputCapabilities(InputCapabilities::PARENT_CHILD_RESOURCE_MAP |
                         InputCapabilities::DOM).equals(
-                            input()->EstimateCapabilities()));
+                            pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, JSCalls) {
@@ -358,7 +358,7 @@ TEST_F(EstimateCapabilitiesTest, JSCalls) {
   Freeze();
   ASSERT_TRUE(
       InputCapabilities(InputCapabilities::JS_CALLS_DOCUMENT_WRITE).equals(
-          input()->EstimateCapabilities()));
+          pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, LazyLoaded) {
@@ -366,7 +366,7 @@ TEST_F(EstimateCapabilitiesTest, LazyLoaded) {
   Freeze();
   ASSERT_TRUE(
       InputCapabilities(InputCapabilities::LAZY_LOADED).equals(
-      input()->EstimateCapabilities()));
+      pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, RequestHeaders) {
@@ -378,7 +378,7 @@ TEST_F(EstimateCapabilitiesTest, RequestHeaders) {
   Freeze();
   ASSERT_TRUE(InputCapabilities(
       InputCapabilities::REQUEST_HEADERS).equals(
-          input()->EstimateCapabilities()));
+          pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, ResponseBody) {
@@ -386,7 +386,7 @@ TEST_F(EstimateCapabilitiesTest, ResponseBody) {
   Freeze();
   ASSERT_TRUE(
       InputCapabilities(InputCapabilities::RESPONSE_BODY).equals(
-          input()->EstimateCapabilities()));
+          pagespeed_input()->EstimateCapabilities()));
 }
 
 }  // namespace

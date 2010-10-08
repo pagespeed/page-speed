@@ -22,6 +22,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -121,7 +122,7 @@ const char* LeverageBrowserCaching::documentation_url() const {
   return "caching.html#LeverageBrowserCaching";
 }
 
-bool LeverageBrowserCaching::AppendResults(const PagespeedInput& input,
+bool LeverageBrowserCaching::AppendResults(const RuleInput& rule_input,
                                            ResultProvider* provider) {
   // NOTE: It's important that this rule only include results returned
   // from IsLikelyStaticResource. The logic in
@@ -133,6 +134,7 @@ bool LeverageBrowserCaching::AppendResults(const PagespeedInput& input,
   // AppendResults changes such that this is no longer true, the
   // computation of number_properly_cached_resources will need to
   // change to match.
+  const PagespeedInput& input = rule_input.pagespeed_input();
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (!resource_util::IsLikelyStaticResource(resource)) {

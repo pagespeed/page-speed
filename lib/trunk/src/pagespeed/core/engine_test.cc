@@ -20,6 +20,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
@@ -36,6 +37,7 @@ using pagespeed::ResultProvider;
 using pagespeed::ResultText;
 using pagespeed::Rule;
 using pagespeed::RuleFormatter;
+using pagespeed::RuleInput;
 using pagespeed::formatters::ProtoFormatter;
 
 namespace {
@@ -69,7 +71,7 @@ class TestRule : public Rule {
     append_results_return_value_ = retval;
   }
 
-  virtual bool AppendResults(const PagespeedInput& input,
+  virtual bool AppendResults(const RuleInput& input,
                              ResultProvider* provider) {
     provider->NewResult();
     return append_results_return_value_;

@@ -24,6 +24,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -162,8 +163,9 @@ const char* PreferAsyncResources::documentation_url() const {
   return "rtt.html#PreferAsyncResources";
 }
 
-bool PreferAsyncResources::AppendResults(const PagespeedInput& input,
+bool PreferAsyncResources::AppendResults(const RuleInput& rule_input,
                                          ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   ScriptVisitor::CheckDocument(&input, input.dom_document(), provider);
   return true;
 }

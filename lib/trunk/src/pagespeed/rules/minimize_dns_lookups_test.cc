@@ -39,7 +39,8 @@ class MinimizeDnsTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(dns_rule, &results);
-    dns_rule.AppendResults(*input(), &provider);
+    pagespeed::RuleInput rule_input(*pagespeed_input());
+    ASSERT_TRUE(dns_rule.AppendResults(rule_input, &provider));
     ASSERT_EQ((expected_violations.size() >= 1) ? 1 : 0, results.results_size());
 
     std::vector<std::string> urls;

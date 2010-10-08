@@ -87,7 +87,6 @@ class PreferAsyncResourcesTest
 
   void CheckFormattedOutput(const std::string& expected_output) {
     Freeze();
-
     ASSERT_TRUE(AppendResults());
     EXPECT_EQ(expected_output, FormatResults());
   }
@@ -104,7 +103,6 @@ class PreferAsyncResourcesTest
   void CheckExpectedViolations(
       const std::vector<Violation>& expected) {
     Freeze();
-
     ASSERT_TRUE(AppendResults());
     ASSERT_EQ(expected.size(), static_cast<size_t>(num_results()));
 

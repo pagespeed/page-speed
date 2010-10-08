@@ -24,6 +24,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -68,7 +69,8 @@ void FormatRuleResults(const ResultVector& rule_results,
 
 }  // namespace
 
-Engine::Engine(std::vector<Rule*>* rules) : rules_(*rules), init_(false) {
+Engine::Engine(std::vector<Rule*>* rules)
+    : rules_(*rules), init_has_been_called_(false) {
   // Now that we've transferred the rule ownership to our local
   // vector, clear the passed in vector.
   rules->clear();
@@ -79,10 +81,10 @@ Engine::~Engine() {
 }
 
 void Engine::Init() {
-  CHECK(!init_);
+  CHECK(!init_has_been_called_);
 
   PopulateNameToRuleMap();
-  init_ = true;
+  init_has_been_called_ = true;
 }
 
 void Engine::PopulateNameToRuleMap() {
@@ -99,16 +101,18 @@ void Engine::PopulateNameToRuleMap() {
   }
 }
 
-bool Engine::ComputeResults(const PagespeedInput& input,
+bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
                             Results* results) const {
-  CHECK(init_);
+  CHECK(init_has_been_called_);
 
-  if (!input.is_frozen()) {
+  if (!pagespeed_input.is_frozen()) {
     LOG(DFATAL) << "Attempting to ComputeResults with non-frozen input.";
     return false;
   }
 
-  PrepareResults(input, results);
+  PrepareResults(pagespeed_input, results);
+
+  const RuleInput rule_input(pagespeed_input);
 
   bool success = true;
   for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
@@ -117,7 +121,7 @@ bool Engine::ComputeResults(const PagespeedInput& input,
        ++iter) {
     Rule* rule = *iter;
     ResultProvider provider(*rule, results);
-    bool rule_success = rule->AppendResults(input, &provider);
+    const bool rule_success = rule->AppendResults(rule_input, &provider);
     if (!rule_success) {
       // Record that the rule encountered an error.
       results->add_error_rules(rule->name());
@@ -135,7 +139,7 @@ bool Engine::ComputeResults(const PagespeedInput& input,
 
 bool Engine::FormatResults(const Results& results,
                            RuleFormatter* formatter) const {
-  CHECK(init_);
+  CHECK(init_has_been_called_);
 
   if (!results.IsInitialized()) {
     LOG(ERROR) << "Results instance not fully initialized.";
@@ -172,7 +176,7 @@ bool Engine::FormatResults(const Results& results,
 
 bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
                                      RuleFormatter* formatter) const {
-  CHECK(init_);
+  CHECK(init_has_been_called_);
 
   Results results;
   bool success = ComputeResults(input, &results);

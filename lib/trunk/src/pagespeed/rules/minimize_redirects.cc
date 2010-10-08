@@ -27,6 +27,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -168,8 +169,9 @@ const char* MinimizeRedirects::documentation_url() const {
  *     input:  a -> [b, c], b -> d, c -> d
  *     output: a, b, d, c, d
  */
-bool MinimizeRedirects::AppendResults(const PagespeedInput& input,
+bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
                                       ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   RedirectGraph redirect_graph;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     redirect_graph.AddResource(input.GetResource(idx));

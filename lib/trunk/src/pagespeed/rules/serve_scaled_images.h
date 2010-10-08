@@ -34,9 +34,9 @@ class ServeScaledImages : public Rule {
   virtual const char* name() const;
   virtual const char* header() const;
   virtual const char* documentation_url() const;
-  virtual bool AppendResults(const PagespeedInput& input,
-                             ResultProvider* provider);
-  virtual void FormatResults(const ResultVector& results, Formatter* formatter);
+  virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
+  virtual void FormatResults(const ResultVector& results,
+                             Formatter* formatter);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ServeScaledImages);

@@ -24,6 +24,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -75,7 +76,8 @@ const char* ParallelizeDownloadsAcrossHostnames::documentation_url() const {
 }
 
 bool ParallelizeDownloadsAcrossHostnames::
-AppendResults(const PagespeedInput& input, ResultProvider* provider) {
+AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   const HostResourceMap& host_resource_map = *input.GetHostResourceMap();
   std::vector<std::string> hosts;
   HostResourceMap static_resource_hosts;

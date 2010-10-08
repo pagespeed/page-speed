@@ -19,6 +19,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -41,8 +42,9 @@ const char* AvoidBadRequests::documentation_url() const {
   return "rtt.html#AvoidBadRequests";
 }
 
-bool AvoidBadRequests::AppendResults(const PagespeedInput& input,
+bool AvoidBadRequests::AppendResults(const RuleInput& rule_input,
                                      ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     const int status_code = resource.GetResponseStatusCode();

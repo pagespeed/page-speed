@@ -31,8 +31,10 @@ using pagespeed::DomDocument;
 using pagespeed::StylesInBodyDetails;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
+using pagespeed_testing::PagespeedRuleTest;
 
-class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
+class PutCssInTheDocumentHeadTest
+    : public PagespeedRuleTest<pagespeed::rules::PutCssInTheDocumentHead> {
  protected:
   static const char* kRootUrl;
 
@@ -85,20 +87,15 @@ class PutCssInTheDocumentHeadTest : public ::pagespeed_testing::PagespeedTest {
 
   void CheckExpectedViolations(const std::vector<Violation>& expected) {
     Freeze();
-
-    pagespeed::rules::PutCssInTheDocumentHead put_css_in_head_rule;
-
-    pagespeed::Results results;
-    pagespeed::ResultProvider provider(put_css_in_head_rule, &results);
-    ASSERT_TRUE(put_css_in_head_rule.AppendResults(*input(), &provider));
-    ASSERT_EQ(static_cast<size_t>(results.results_size()), expected.size());
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(static_cast<size_t>(num_results()), expected.size());
 
     for (size_t i = 0; i < expected.size(); ++i) {
-      const pagespeed::Result& result = results.results(i);
+      const pagespeed::Result& res = result(i);
       const Violation& violation = expected[i];
-      ASSERT_EQ(result.resource_urls_size(), 1);
-      ASSERT_EQ(violation.url, result.resource_urls(0));
-      const pagespeed::ResultDetails& details = result.details();
+      ASSERT_EQ(res.resource_urls_size(), 1);
+      ASSERT_EQ(violation.url, res.resource_urls(0));
+      const pagespeed::ResultDetails& details = res.details();
       ASSERT_TRUE(details.HasExtension(
           StylesInBodyDetails::message_set_extension));
       const StylesInBodyDetails& style_details = details.GetExtension(

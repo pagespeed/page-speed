@@ -25,10 +25,12 @@
 
 using pagespeed::rules::OptimizeTheOrderOfStylesAndScripts;
 using namespace pagespeed;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
-class OptimizeOrderTest : public ::pagespeed_testing::PagespeedTest {
+class OptimizeOrderTest
+    : public PagespeedRuleTest<OptimizeTheOrderOfStylesAndScripts> {
  protected:
   void AddHtmlResource(const std::string& url, const std::string& html) {
     Resource* resource = new Resource;
@@ -40,38 +42,28 @@ class OptimizeOrderTest : public ::pagespeed_testing::PagespeedTest {
     AddResource(resource);
   }
 
-  void CheckNoViolations() {
-    OptimizeTheOrderOfStylesAndScripts rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    rule.AppendResults(*input(), &provider);
-    ASSERT_EQ(0, results.results_size());
-  }
-
   void CheckOneViolation(const std::string& url,
                          int original_cpl,
                          int potential_cpl,
                          std::vector<std::string>& ooo_external_css,
                          std::vector<int>& ooo_inline_scripts) {
-    OptimizeTheOrderOfStylesAndScripts rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    rule.AppendResults(*input(), &provider);
+    Freeze();
+    ASSERT_TRUE(AppendResults());
 
-    ASSERT_EQ(1, results.results_size());
-    const Result& result = results.results(0);
-    ASSERT_EQ("OptimizeTheOrderOfStylesAndScripts", result.rule_name());
-    ASSERT_EQ(1, result.resource_urls_size());
-    ASSERT_EQ(url, result.resource_urls(0));
-    ASSERT_EQ(original_cpl, result.original_critical_path_length());
+    ASSERT_EQ(1, num_results());
+    const Result& result0 = result(0);
+    ASSERT_EQ("OptimizeTheOrderOfStylesAndScripts", result0.rule_name());
+    ASSERT_EQ(1, result0.resource_urls_size());
+    ASSERT_EQ(url, result0.resource_urls(0));
+    ASSERT_EQ(original_cpl, result0.original_critical_path_length());
 
-    ASSERT_TRUE(result.has_savings());
-    const Savings& savings = result.savings();
+    ASSERT_TRUE(result0.has_savings());
+    const Savings& savings = result0.savings();
     ASSERT_EQ(original_cpl - potential_cpl,
               savings.critical_path_length_saved());
 
-    ASSERT_TRUE(result.has_details());
-    const ResultDetails& details = result.details();
+    ASSERT_TRUE(result0.has_details());
+    const ResultDetails& details = result0.details();
     ASSERT_TRUE(details.HasExtension(
         ResourceOrderingDetails::message_set_extension));
     const ResourceOrderingDetails& ordering_details =
@@ -96,7 +88,6 @@ class OptimizeOrderTest : public ::pagespeed_testing::PagespeedTest {
 TEST_F(OptimizeOrderTest, Empty) {
   AddHtmlResource("http://example.com/foo.html",
                   "\n");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -104,7 +95,6 @@ TEST_F(OptimizeOrderTest, MostlyEmpty) {
   AddHtmlResource("http://example.com/foo.html",
                   "<html><head>\n"
                   "</head><body>foo</body></html>\n");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -116,7 +106,6 @@ TEST_F(OptimizeOrderTest, SimpleCssViolation) {
   std::vector<std::string> ooo_external_css;
   ooo_external_css.push_back("c1.css");
   std::vector<int> ooo_inline_scripts;
-  Freeze();
   CheckOneViolation("http://example.com/foo.html", 2, 1,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -130,7 +119,6 @@ TEST_F(OptimizeOrderTest, SimpleScriptViolation) {
   std::vector<std::string> ooo_external_css;
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
-  Freeze();
   CheckOneViolation("http://example.com/foo.html", 2, 1,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -140,7 +128,6 @@ TEST_F(OptimizeOrderTest, DoNotComplainAboutStyleInBody) {
                   "<script src=\"j1.js\"></script>\n"
                   "<body>foo\n"
                   "<link rel=stylesheet href=\"c1.css\">\n");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -156,7 +143,6 @@ TEST_F(OptimizeOrderTest, NoViolations) {
                   "<script>document.write('baz')</script>\n"
                   "<script>document.write('quux')</script>\n"
                   "</head><body>foo</body></html>\n");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -175,7 +161,6 @@ TEST_F(OptimizeOrderTest, CssOutOfOrder) {
   std::vector<std::string> ooo_external_css;
   ooo_external_css.push_back("c3.css");
   std::vector<int> ooo_inline_scripts;
-  Freeze();
   CheckOneViolation("http://example.com/foo.html", 4, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -196,7 +181,6 @@ TEST_F(OptimizeOrderTest, MultipleCssOutOfOrder) {
   ooo_external_css.push_back("c2.css");
   ooo_external_css.push_back("c3.css");
   std::vector<int> ooo_inline_scripts;
-  Freeze();
   CheckOneViolation("http://example.com/foo.html", 4, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -216,7 +200,6 @@ TEST_F(OptimizeOrderTest, InlineScriptOutOfOrder) {
   std::vector<std::string> ooo_external_css;
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
-  Freeze();
   CheckOneViolation("http://example.com/foo.html", 4, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -237,7 +220,6 @@ TEST_F(OptimizeOrderTest, MultipleInlineScriptsOutOfOrder) {
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
   ooo_inline_scripts.push_back(2);
-  Freeze();
   CheckOneViolation("http://example.com/foo.html", 5, 3,
                     ooo_external_css, ooo_inline_scripts);
 }
@@ -254,7 +236,6 @@ TEST_F(OptimizeOrderTest, InlineScriptAtBeginningIsOkay) {
                   "<script src=\"j3.js\"></script>\n"
                   "<script>document.write('quux')</script>\n"
                   "</head><body>foo</body></html>\n");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -290,7 +271,6 @@ TEST_F(OptimizeOrderTest, NontrivialCriticalPathLength) {
   std::vector<int> ooo_inline_scripts;
   ooo_inline_scripts.push_back(1);
   ooo_inline_scripts.push_back(3);
-  Freeze();
   CheckOneViolation("http://example.com/foo.html", 9, 7,
                     ooo_external_css, ooo_inline_scripts);
 }

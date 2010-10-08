@@ -28,10 +28,11 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using ::pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
-class AvoidBadRequestsTest : public ::pagespeed_testing::PagespeedTest {
+class AvoidBadRequestsTest : public PagespeedRuleTest<AvoidBadRequests> {
  protected:
   void AddTestResource(const std::string &url,
                        const int status_code,
@@ -45,20 +46,14 @@ class AvoidBadRequestsTest : public ::pagespeed_testing::PagespeedTest {
   }
 
   void CheckNoViolations() {
-    AvoidBadRequests no404s;
-    Results results;
-    ResultProvider provider(no404s, &results);
-    ASSERT_TRUE(no404s.AppendResults(*input(), &provider));
-    ASSERT_EQ(results.results_size(), 0);
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(num_results(), 0);
   }
 
   void CheckOneViolation(const std::string &url) {
-    AvoidBadRequests no404s;
-    Results results;
-    ResultProvider provider(no404s, &results);
-    ASSERT_TRUE(no404s.AppendResults(*input(), &provider));
-    ASSERT_EQ(results.results_size(), 1);
-    const Result& result = results.results(0);
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(num_results(), 1);
+    const Result& result = results().results(0);
     ASSERT_EQ(result.savings().requests_saved(), 1);
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), url);
