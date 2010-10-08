@@ -315,13 +315,49 @@ bool IEElement::GetAttributeByName(const std::string& name,
 }
 
 DomElement::Status IEElement::GetActualWidth(int* out_width) const {
-  // TODO(bmcquade): find a way to get the width of an element.
-  return FAILURE;
+  CComQIPtr<IHTMLElement2> element2(element_);
+  if (element2 == NULL) {
+    LOG(DFATAL) << "Failed to QI to IHTMLElement2.";
+    return FAILURE;
+  }
+  CComPtr<IHTMLRect> rect;
+  if (FAILED(element2->getBoundingClientRect(&rect)) || rect == NULL) {
+    return FAILURE;
+  }
+  long left = 0;
+  long right = 0;
+  if (FAILED(rect->get_left(&left)) || FAILED(rect->get_right(&right))) {
+    return FAILURE;
+  }
+
+  *out_width = (right - left);
+  if (*out_width <= 0) {
+    return FAILURE;
+  }
+  return SUCCESS;
 }
 
 DomElement::Status IEElement::GetActualHeight(int* out_height) const {
-  // TODO(bmcquade): find a way to get the height of an element.
-  return FAILURE;
+  CComQIPtr<IHTMLElement2> element2(element_);
+  if (element2 == NULL) {
+    LOG(DFATAL) << "Failed to QI to IHTMLElement2.";
+    return FAILURE;
+  }
+  CComPtr<IHTMLRect> rect;
+  if (FAILED(element2->getBoundingClientRect(&rect)) || rect == NULL) {
+    return FAILURE;
+  }
+  long top = 0;
+  long bottom = 0;
+  if (FAILED(rect->get_top(&top)) || FAILED(rect->get_bottom(&bottom))) {
+    return FAILURE;
+  }
+
+  *out_height = (bottom - top);
+  if (*out_height <= 0) {
+    return FAILURE;
+  }
+  return SUCCESS;
 }
 
 DomElement::Status IEElement::HasWidthSpecified(
