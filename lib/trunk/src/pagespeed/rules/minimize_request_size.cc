@@ -23,6 +23,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -56,8 +57,9 @@ const char* MinimizeRequestSize::documentation_url() const {
   return "request.html#MinimizeRequestSize";
 }
 
-bool MinimizeRequestSize::AppendResults(const PagespeedInput& input,
+bool MinimizeRequestSize::AppendResults(const RuleInput& rule_input,
                                         ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
 

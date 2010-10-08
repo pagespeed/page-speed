@@ -30,6 +30,7 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
@@ -58,7 +59,8 @@ const char *kResponseUrls[2][3] = {
   }
 };
 
-class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::PagespeedTest {
+class ServeResourcesFromAConsistentUrlTest
+    : public PagespeedRuleTest<ServeResourcesFromAConsistentUrl> {
  protected:
   pagespeed::Resource* AddTestResource(const char* url,
                                        const std::string& body) {
@@ -73,38 +75,24 @@ class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::Pagespe
     return resource;
   }
 
-  void CheckNoViolations() {
-    ServeResourcesFromAConsistentUrl rule;
-
-    Results results;
-    ResultProvider provider(rule, &results);
-    rule.AppendResults(*input(), &provider);
-    ASSERT_EQ(0, results.results_size());
-  }
-
   int ComputeSavings(size_t num_resources, const char *body) {
     return (num_resources - 1) * strlen(body);
   }
 
   void CheckViolation(size_t num_collisions, size_t num_resources) {
-    ServeResourcesFromAConsistentUrl rule;
-
-    Results results;
-    ResultProvider provider(rule, &results);
-    rule.AppendResults(*input(), &provider);
-    ASSERT_EQ(num_collisions, static_cast<size_t>(results.results_size()));
-    for (int result_idx = 0;
-         result_idx < results.results_size();
-         result_idx++) {
-      const Result& result = results.results(result_idx);
+    Freeze();
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(num_collisions, static_cast<size_t>(num_results()));
+    for (int result_idx = 0; result_idx < num_results(); result_idx++) {
+      const Result& res = result(result_idx);
 
       int expected_savings =
           ComputeSavings(num_resources, kResponseBodies[result_idx]);
       ASSERT_EQ(num_resources - 1,
-                static_cast<size_t>(result.savings().requests_saved()));
-      ASSERT_EQ(expected_savings, result.savings().response_bytes_saved());
+                static_cast<size_t>(res.savings().requests_saved()));
+      ASSERT_EQ(expected_savings, res.savings().response_bytes_saved());
       ASSERT_EQ(num_resources,
-                static_cast<size_t>(result.resource_urls_size()));
+                static_cast<size_t>(res.resource_urls_size()));
 
       // Now verify that the list or resource URLs in the Result
       // contains the expected contents. We sort both lists, then
@@ -113,7 +101,7 @@ class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::Pagespe
       std::vector<std::string> actual_urls;
       for (size_t url_idx = 0; url_idx < num_resources; url_idx++) {
         expected_urls.push_back(kResponseUrls[result_idx][url_idx]);
-        actual_urls.push_back(result.resource_urls(url_idx));
+        actual_urls.push_back(res.resource_urls(url_idx));
       }
       std::sort(expected_urls.begin(), expected_urls.end());
       std::sort(actual_urls.begin(), actual_urls.end());
@@ -124,19 +112,16 @@ class ServeResourcesFromAConsistentUrlTest : public ::pagespeed_testing::Pagespe
 };
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, NoResources) {
-  Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, SingleResource) {
   AddTestResource("http://www.example.com", kResponseBodies[0]);
-  Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ServeResourcesFromAConsistentUrlTest, SingleEmptyResource) {
   AddTestResource("http://www.example.com", "");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -144,7 +129,6 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, MultipleEmptyResources) {
   AddTestResource(kResponseUrls[0][0], "");
   AddTestResource(kResponseUrls[0][1], "");
   AddTestResource(kResponseUrls[0][2], "");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -152,18 +136,20 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, DifferentResources) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[1]);
   AddTestResource(kResponseUrls[0][2], kResponseBodies[2]);
-  Freeze();
   CheckNoViolations();
 }
 
-TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls) {
+TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls0) {
+  AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
+  AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
+  CheckViolation(1, 2);
+}
+
+TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls1) {
   pagespeed::Resource* r1 =
       AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   pagespeed::Resource* r2 =
       AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
-  Freeze();
-  CheckViolation(1, 2);
-
   // Now change the response codes of both resources, and verify that
   // they no longer trigger a violation.
   r1->SetResponseStatusCode(500);
@@ -175,7 +161,6 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls2) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][2], "");
-  Freeze();
   CheckViolation(1, 2);
 }
 
@@ -183,7 +168,6 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceTwoUrls3) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][2], kResponseBodies[1]);
-  Freeze();
   CheckViolation(1, 2);
 }
 
@@ -191,7 +175,6 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, SameResourceThreeUrls) {
   AddTestResource(kResponseUrls[0][0], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[0][2], kResponseBodies[0]);
-  Freeze();
   CheckViolation(1, 3);
 }
 
@@ -200,7 +183,6 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, TwoDuplicatedResources) {
   AddTestResource(kResponseUrls[0][1], kResponseBodies[0]);
   AddTestResource(kResponseUrls[1][0], kResponseBodies[1]);
   AddTestResource(kResponseUrls[1][1], kResponseBodies[1]);
-  Freeze();
   CheckViolation(2, 2);
 }
 
@@ -210,7 +192,6 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, BinaryResponseBodies) {
   body_a[5] = '\0';
   AddTestResource("http://www.example.com/a", body_a);
   AddTestResource("http://www.example.com/b", body_b);
-  Freeze();
   CheckNoViolations();
 }
 

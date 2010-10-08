@@ -23,6 +23,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -67,8 +68,9 @@ const char* ServeResourcesFromAConsistentUrl::documentation_url() const {
   return "payload.html#duplicate_resources";
 }
 
-bool ServeResourcesFromAConsistentUrl::AppendResults(
-    const PagespeedInput& input, ResultProvider* provider) {
+bool ServeResourcesFromAConsistentUrl::
+AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   ResourcesWithSameBodyMap map;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);

@@ -24,6 +24,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -133,8 +134,9 @@ const char* SpecifyCharsetEarly::documentation_url() const {
   return "rendering.html#SpecifyCharsetEarly";
 }
 
-bool SpecifyCharsetEarly::AppendResults(const PagespeedInput& input,
+bool SpecifyCharsetEarly::AppendResults(const RuleInput& rule_input,
                                         ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   net_instaweb::GoogleMessageHandler message_handler;
   message_handler.set_min_message_type(net_instaweb::kError);
   net_instaweb::HtmlParse html_parse(&message_handler);

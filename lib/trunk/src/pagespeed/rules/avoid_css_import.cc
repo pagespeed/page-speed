@@ -22,6 +22,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -59,8 +60,9 @@ const char* AvoidCssImport::documentation_url() const {
   return "rtt.html#AvoidCssImport";
 }
 
-bool AvoidCssImport::AppendResults(const PagespeedInput& input,
+bool AvoidCssImport::AppendResults(const RuleInput& rule_input,
                                    ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (resource.GetResourceType() != CSS) {

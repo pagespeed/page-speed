@@ -26,6 +26,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -203,11 +204,12 @@ const char* ServeScaledImages::documentation_url() const {
   return "payload.html#ScaleImages";
 }
 
-bool ServeScaledImages::AppendResults(const PagespeedInput& input,
+bool ServeScaledImages::AppendResults(const RuleInput& rule_input,
                                       ResultProvider* provider) {
   // TODO Consider adding the ability to perform the resizing and provide
   //      the resized image file to the user.
 
+  const PagespeedInput& input = rule_input.pagespeed_input();
   const DomDocument* document = input.dom_document();
   if (!document) {
     return true;

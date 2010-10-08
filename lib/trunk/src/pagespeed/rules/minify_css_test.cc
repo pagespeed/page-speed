@@ -79,7 +79,8 @@ class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(minify, &results);
-    ASSERT_TRUE(minify.AppendResults(*input(), &provider));
+    pagespeed::RuleInput rule_input(*pagespeed_input());
+    ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 
@@ -88,7 +89,8 @@ class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(minify, &results);
-    ASSERT_TRUE(minify.AppendResults(*input(), &provider));
+    pagespeed::RuleInput rule_input(*pagespeed_input());
+    ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
     ASSERT_EQ(results.results_size(), 1);
 
     const Result& result = results.results(0);
@@ -107,8 +109,9 @@ class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
 
     ResultVector result_vector;
     result_vector.push_back(&result);
-    ASSERT_EQ(score, minify.ComputeScore(*input()->input_information(),
-                                         result_vector));
+    ASSERT_EQ(score, minify.ComputeScore(
+        *pagespeed_input()->input_information(),
+        result_vector));
   }
 
   void CheckErrorInternal(bool save_optimized_content) {
@@ -116,7 +119,8 @@ class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
 
     Results results;
     ResultProvider provider(minify, &results);
-    ASSERT_FALSE(minify.AppendResults(*input(), &provider));
+    pagespeed::RuleInput rule_input(*pagespeed_input());
+    ASSERT_FALSE(minify.AppendResults(rule_input, &provider));
     ASSERT_EQ(results.results_size(), 0);
   }
 };

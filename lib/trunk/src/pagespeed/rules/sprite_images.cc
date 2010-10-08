@@ -26,6 +26,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -58,10 +59,11 @@ const char* SpriteImages::documentation_url() const {
   return "rtt.html#SpriteImages";
 }
 
-bool SpriteImages::AppendResults(const PagespeedInput& input,
+bool SpriteImages::AppendResults(const RuleInput& rule_input,
                                  ResultProvider* provider) {
   typedef std::map<std::string, ResourceSet> DomainResourceMap;
   DomainResourceMap violations;
+  const PagespeedInput& input = rule_input.pagespeed_input();
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     const ResourceType resource_type = resource.GetResourceType();

@@ -28,6 +28,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -278,10 +279,9 @@ const char* OptimizeTheOrderOfStylesAndScripts::documentation_url() const {
   return "rtt.html#PutStylesBeforeScripts";
 }
 
-bool OptimizeTheOrderOfStylesAndScripts::AppendResults(
-    const PagespeedInput& input,
-    ResultProvider* provider) {
-
+bool OptimizeTheOrderOfStylesAndScripts::
+AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   const pagespeed::DomDocument* document = input.dom_document();
 
   net_instaweb::GoogleMessageHandler message_handler;

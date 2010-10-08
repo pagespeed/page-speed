@@ -28,6 +28,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -328,9 +329,10 @@ const char* AvoidDocumentWrite::documentation_url() const {
   return "rtt.html#AvoidDocumentWrite";
 }
 
-bool AvoidDocumentWrite::AppendResults(const PagespeedInput& input,
+bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
                                        ResultProvider* provider) {
   bool error = false;
+  const PagespeedInput& input = rule_input.pagespeed_input();
   net_instaweb::GoogleMessageHandler message_handler;
   message_handler.set_min_message_type(net_instaweb::kError);
   net_instaweb::HtmlParse html_parse(&message_handler);

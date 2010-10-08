@@ -23,6 +23,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -45,7 +46,8 @@ const char* SpecifyAVaryAcceptEncodingHeader::documentation_url() const {
 }
 
 bool SpecifyAVaryAcceptEncodingHeader::
-AppendResults(const PagespeedInput& input, ResultProvider* provider) {
+AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     // Complain if:

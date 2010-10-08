@@ -28,10 +28,12 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
-class RemoveQueryStringsFromStaticResourcesTest : public ::pagespeed_testing::PagespeedTest {
+class RemoveQueryStringsFromStaticResourcesTest
+    : public PagespeedRuleTest<RemoveQueryStringsFromStaticResources> {
  protected:
   void AddTestResource(const std::string& url,
                        const std::string& type) {
@@ -45,23 +47,13 @@ class RemoveQueryStringsFromStaticResourcesTest : public ::pagespeed_testing::Pa
     AddResource(resource);
   }
 
-  void CheckNoViolations() {
-    RemoveQueryStringsFromStaticResources rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
-    ASSERT_EQ(0, results.results_size());
-  }
-
   void CheckOneViolation(const std::string& url) {
-    RemoveQueryStringsFromStaticResources rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
-    ASSERT_EQ(1, results.results_size());
-    const Result& result = results.results(0);
-    ASSERT_EQ(1, result.resource_urls_size());
-    ASSERT_EQ(url, result.resource_urls(0));
+    Freeze();
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(1, num_results());
+    const Result& result0 = result(0);
+    ASSERT_EQ(1, result0.resource_urls_size());
+    ASSERT_EQ(url, result0.resource_urls(0));
   }
 };
 
@@ -70,7 +62,6 @@ TEST_F(RemoveQueryStringsFromStaticResourcesTest, NoProblems) {
                   "text/html");
   AddTestResource("http://static.example.com/image/40/30",
                   "image/png");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -79,7 +70,6 @@ TEST_F(RemoveQueryStringsFromStaticResourcesTest, OneViolation) {
                   "text/html");
   AddTestResource("http://static.example.com/image?w=40&h=30",
                   "image/png");
-  Freeze();
   CheckOneViolation("http://static.example.com/image?w=40&h=30");
 }
 

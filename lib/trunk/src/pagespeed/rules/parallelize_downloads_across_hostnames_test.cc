@@ -30,10 +30,12 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
-class ParallelizeDownloadsAcrossHostnamesTest : public ::pagespeed_testing::PagespeedTest {
+class ParallelizeDownloadsAcrossHostnamesTest
+    : public PagespeedRuleTest<ParallelizeDownloadsAcrossHostnames> {
  protected:
   void AddStaticResources(int num, const std::string& host) {
     for (int index = 0; index < num; ++index) {
@@ -49,31 +51,26 @@ class ParallelizeDownloadsAcrossHostnamesTest : public ::pagespeed_testing::Page
   }
 
   void CheckNoViolations() {
-    ParallelizeDownloadsAcrossHostnames rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
-    ASSERT_EQ(0, results.results_size());
+    Freeze();
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(0, num_results());
   }
 
   void CheckOneViolation(const std::string &host,
                          int critical_path_saved) {
-    ParallelizeDownloadsAcrossHostnames rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
-    ASSERT_EQ(1, results.results_size());
-    const Result& result = results.results(0);
-    ASSERT_EQ(host, result.details().GetExtension(
+    Freeze();
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(1, num_results());
+    const Result& result0 = result(0);
+    ASSERT_EQ(host, result0.details().GetExtension(
         ParallelizableHostDetails::message_set_extension).host());
     ASSERT_EQ(critical_path_saved,
-              result.savings().critical_path_length_saved());
+              result0.savings().critical_path_length_saved());
   }
 };
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, NotManyResources) {
   AddStaticResources(7, "static.example.com");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -82,20 +79,17 @@ TEST_F(ParallelizeDownloadsAcrossHostnamesTest, BalancedResources) {
   AddStaticResources(52, "static2.example.com");
   AddStaticResources(55, "static3.example.com");
   AddStaticResources(53, "static4.example.com");
-  Freeze();
   CheckNoViolations();
 }
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, JustOneHost) {
   AddStaticResources(80, "static.example.com");
-  Freeze();
   CheckOneViolation("static.example.com", 40);
 }
 
 TEST_F(ParallelizeDownloadsAcrossHostnamesTest, UnbalancedResources) {
   AddStaticResources(10, "static1.example.com");
   AddStaticResources(30, "static2.example.com");
-  Freeze();
   CheckOneViolation("static2.example.com", 10);
 }
 

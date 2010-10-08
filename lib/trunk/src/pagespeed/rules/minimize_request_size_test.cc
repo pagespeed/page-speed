@@ -31,6 +31,7 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
@@ -38,7 +39,7 @@ std::string kDescription =
     "The requests for the following URLs don't fit in a single packet.  "
     "Reducing the size of these requests could reduce latency.\n";
 
-class MinimizeRequestSizeTest : public ::pagespeed_testing::PagespeedTest {
+class MinimizeRequestSizeTest : public PagespeedRuleTest<MinimizeRequestSize> {
  protected:
   void AddTestResource(
       const std::string& url, const std::string& mimetype,
@@ -82,37 +83,16 @@ class MinimizeRequestSizeTest : public ::pagespeed_testing::PagespeedTest {
  private:
   void CheckExpectedViolations(const std::vector<std::string>& expected,
                                const std::string& expected_output) {
-    Results results;
-    {
-      // compute results
-      MinimizeRequestSize min_request_rule;
-      ResultProvider provider(min_request_rule, &results);
-      ASSERT_TRUE(min_request_rule.AppendResults(*input(), &provider));
-    }
+    Freeze();
+    ASSERT_TRUE(AppendResults());
+    EXPECT_EQ(expected_output, FormatResults());
 
-    {
-      // Check formatted output
-      pagespeed::ResultVector result_vector;
-      for (int ii = 0; ii < results.results_size(); ++ii) {
-        result_vector.push_back(&results.results(ii));
-      }
+    ASSERT_EQ(static_cast<size_t>(num_results()), expected.size());
 
-      std::stringstream output;
-      pagespeed::formatters::TextFormatter formatter(&output);
-      MinimizeRequestSize dimensions_rule;
-      dimensions_rule.FormatResults(result_vector, &formatter);
-      EXPECT_STREQ(expected_output.c_str(), output.str().c_str());
-    }
-
-    {
-      // Check contents of results object
-      ASSERT_EQ(static_cast<size_t>(results.results_size()), expected.size());
-
-      for (size_t idx = 0; idx < expected.size(); ++idx) {
-        const Result& result = results.results(idx);
-        ASSERT_EQ(result.resource_urls_size(), 1);
-        EXPECT_EQ(expected[idx], result.resource_urls(0));
-      }
+    for (size_t idx = 0; idx < expected.size(); ++idx) {
+      const Result& result = results().results(idx);
+      ASSERT_EQ(result.resource_urls_size(), 1);
+      EXPECT_EQ(expected[idx], result.resource_urls(0));
     }
   }
 };
@@ -123,8 +103,6 @@ TEST_F(MinimizeRequestSizeTest, NoViolationUnderThreshold) {
   request_headers["Referer"] = "http://www.test.com/";
   AddTestResource("http://www.test.com/logo.png", "image/png",
                   request_headers);
-
-  Freeze();
   CheckNoViolations();
 }
 
@@ -153,7 +131,6 @@ TEST_F(MinimizeRequestSizeTest, LongCookieTest) {
   const std::string url2 = "http://www.test.com/foo.html";
   AddTestResource(url2, "text/html", request_headers);
 
-  Freeze();
   CheckTwoViolations(url1, url2, expected_output);
 }
 
@@ -171,7 +148,6 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTest) {
   AddTestResource("http://www.test.com/logo.png", "image/png",
                   request_headers);
 
-  Freeze();
   CheckOneViolation("http://www.test.com/logo.png", expected_output);
 }
 
@@ -189,7 +165,6 @@ TEST_F(MinimizeRequestSizeTest, LongUrlTest) {
   request_headers["Referer"] = "http://www.test.com/";
   AddTestResource(url, "text/html", request_headers);
 
-  Freeze();
   CheckOneViolation(url, expected_output);
 }
 
@@ -216,7 +191,6 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTwoViolationTest) {
   const std::string url2 = "http://www.test.com/index.html";
   AddTestResource(url2, "text/html", request_headers);
 
-  Freeze();
   CheckTwoViolations(url1, url2, expected_output);
 }
 

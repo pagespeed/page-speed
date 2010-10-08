@@ -28,10 +28,12 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
-class SpecifyAVaryAcceptEncodingHeaderTest : public ::pagespeed_testing::PagespeedTest {
+class SpecifyAVaryAcceptEncodingHeaderTest
+    : public PagespeedRuleTest<SpecifyAVaryAcceptEncodingHeader> {
  protected:
   void AddTestResource(const std::string& url,
                        const std::string& type,
@@ -51,25 +53,6 @@ class SpecifyAVaryAcceptEncodingHeaderTest : public ::pagespeed_testing::Pagespe
     }
     AddResource(resource);
   }
-
-  void CheckNoViolations() {
-    SpecifyAVaryAcceptEncodingHeader rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
-    ASSERT_EQ(0, results.results_size());
-  }
-
-  void CheckOneViolation(const std::string& url) {
-    SpecifyAVaryAcceptEncodingHeader rule;
-    Results results;
-    ResultProvider provider(rule, &results);
-    ASSERT_TRUE(rule.AppendResults(*input(), &provider));
-    ASSERT_EQ(1, results.results_size());
-    const Result& result = results.results(0);
-    ASSERT_EQ(1, result.resource_urls_size());
-    ASSERT_EQ(url, result.resource_urls(0));
-  }
 };
 
 TEST_F(SpecifyAVaryAcceptEncodingHeaderTest, NoProblems) {
@@ -87,7 +70,6 @@ TEST_F(SpecifyAVaryAcceptEncodingHeaderTest, NoProblems) {
   // so make sure that the rule can handle this:
   AddTestResource("http://static.example.com/styles4.css",
                   "text/css", "", "aCcEpT-eNcOdInG");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -96,8 +78,7 @@ TEST_F(SpecifyAVaryAcceptEncodingHeaderTest, OneViolation) {
                   "text/html", "private", "");
   AddTestResource("http://static.example.com/styles.css",
                   "text/css", "", "");
-  Freeze();
-  CheckOneViolation("http://static.example.com/styles.css");
+  CheckOneUrlViolation("http://static.example.com/styles.css");
 }
 
 }  // namespace

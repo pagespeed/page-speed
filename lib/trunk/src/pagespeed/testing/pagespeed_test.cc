@@ -49,7 +49,7 @@ PagespeedTest::PagespeedTest() {}
 PagespeedTest::~PagespeedTest() {}
 
 void PagespeedTest::SetUp() {
-  input_.reset(new pagespeed::PagespeedInput());
+  pagespeed_input_.reset(new pagespeed::PagespeedInput());
   primary_resource_ = NULL;
   document_ = NULL;
   html_ = NULL;
@@ -65,14 +65,14 @@ void PagespeedTest::TearDown() {
   html_ = NULL;
   head_ = NULL;
   body_ = NULL;
-  input_.reset();
+  pagespeed_input_.reset();
 }
 
 void PagespeedTest::DoSetUp() {}
 void PagespeedTest::DoTearDown() {}
 
 void PagespeedTest::Freeze() {
-  ASSERT_TRUE(input_->Freeze());
+  ASSERT_TRUE(pagespeed_input_->Freeze());
 }
 
 pagespeed::Resource* PagespeedTest::NewResource(const std::string& url,
@@ -81,7 +81,7 @@ pagespeed::Resource* PagespeedTest::NewResource(const std::string& url,
   resource->SetRequestUrl(url);
   resource->SetRequestMethod("GET");
   resource->SetResponseStatusCode(status_code);
-  input_->AddResource(resource);
+  pagespeed_input_->AddResource(resource);
   return resource;
 }
 
@@ -90,8 +90,8 @@ pagespeed::Resource* PagespeedTest::NewPrimaryResource(const std::string& url) {
   resource->SetResourceType(pagespeed::HTML);
   AssertNull(document_);
   document_ = FakeDomDocument::NewRoot(url);
-  input_->AcquireDomDocument(document_);
-  input_->SetPrimaryResourceUrl(url);
+  pagespeed_input_->AcquireDomDocument(document_);
+  pagespeed_input_->SetPrimaryResourceUrl(url);
   primary_resource_ = resource;
   return resource;
 }
@@ -174,12 +174,12 @@ void PagespeedTest::CreateHtmlHeadBodyElements() {
 }
 
 bool PagespeedTest::AddResource(pagespeed::Resource* resource) {
-  return input_->AddResource(resource);
+  return pagespeed_input_->AddResource(resource);
 }
 
 bool PagespeedTest::AddFakeImageAttributesFactory(
     const FakeImageAttributesFactory::ResourceSizeMap& map) {
-  return input_->AcquireImageAttributesFactory(
+  return pagespeed_input_->AcquireImageAttributesFactory(
       new FakeImageAttributesFactory(map));
 }
 

@@ -24,12 +24,12 @@ namespace pagespeed {
 
 class Formatter;
 class InputInformation;
-class PagespeedInput;
 class Resource;
 class Result;
 class Results;
 class ResultProvider;
 class ResultText;
+class RuleInput;
 
 typedef std::vector<const Result*> ResultVector;
 
@@ -61,7 +61,7 @@ class Rule {
   // @param input Input to process.
   // @param result_provider
   // @return true iff the computation was completed without errors.
-  virtual bool AppendResults(const PagespeedInput& input,
+  virtual bool AppendResults(const RuleInput& input,
                              ResultProvider* result_provider) = 0;
 
   // Interpret the results structure and produce a formatted representation.

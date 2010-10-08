@@ -25,6 +25,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/testing/fake_dom.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -146,7 +147,9 @@ class PagespeedTest : public ::testing::Test {
   bool AddFakeImageAttributesFactory(
       const FakeImageAttributesFactory::ResourceSizeMap& map);
 
-  const pagespeed::PagespeedInput* input() { return input_.get(); }
+  const pagespeed::PagespeedInput* pagespeed_input() {
+    return pagespeed_input_.get();
+  }
   pagespeed::Resource* primary_resource() const { return primary_resource_; }
   FakeDomDocument* document() { return document_; }
   FakeDomElement* html() { return html_; }
@@ -162,7 +165,7 @@ class PagespeedTest : public ::testing::Test {
 
  private:
   base::AtExitManager at_exit_manager_;
-  scoped_ptr<pagespeed::PagespeedInput> input_;
+  scoped_ptr<pagespeed::PagespeedInput> pagespeed_input_;
   pagespeed::Resource* primary_resource_;
   FakeDomDocument* document_;
   FakeDomElement* html_;
@@ -176,22 +179,73 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
   PagespeedRuleTest()
       : rule_(new RULE()), provider_(*rule_.get(), &results_) {}
 
+  const pagespeed::RuleInput* rule_input() { return rule_input_.get(); }
   const pagespeed::Results& results() const { return results_; }
   const int num_results() const { return results_.results_size(); }
   const pagespeed::Result& result(int i) const { return results_.results(i); }
 
-  bool AppendResults() { return rule_->AppendResults(*input(), &provider_); }
-  std::string FormatResults() { return DoFormatResults(rule_.get(), results_); }
+  virtual void SetUp() {
+    PagespeedTest::SetUp();
+    // TODO(mdsteele): This next line should really happen _between_ the
+    // super-setup and DoSetUp().
+    rule_input_.reset(new pagespeed::RuleInput(*pagespeed_input()));
+  }
+
+  virtual void TearDown() {
+    rule_input_.reset();
+    PagespeedTest::TearDown();
+  }
+
+  bool AppendResults() {
+    return rule_->AppendResults(*rule_input(), &provider_);
+  }
+
+  void CheckNoViolations() {
+    Freeze();
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(0, num_results());
+  }
+
+  void CheckOneUrlViolation(const std::string& violation_url) {
+    std::vector<std::string> expected;
+    expected.push_back(violation_url);
+    CheckExpectedUrlViolations(expected);
+  }
+
+  void CheckTwoUrlViolations(const std::string& violation_url1,
+                             const std::string& violation_url2) {
+    std::vector<std::string> expected;
+    expected.push_back(violation_url1);
+    expected.push_back(violation_url2);
+    CheckExpectedUrlViolations(expected);
+  }
+
+  void CheckExpectedUrlViolations(const std::vector<std::string>& expected) {
+    Freeze();
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(num_results(), static_cast<int>(expected.size()));
+
+    for (size_t idx = 0; idx < expected.size(); ++idx) {
+      const pagespeed::Result& res = result(idx);
+      ASSERT_EQ(res.resource_urls_size(), 1);
+      EXPECT_EQ(expected[idx], res.resource_urls(0));
+    }
+  }
+
+  std::string FormatResults() {
+    return DoFormatResults(rule_.get(), results_);
+  }
 
   int ComputeScore() {
     pagespeed::ResultVector r;
     for (int idx = 0, end = num_results(); idx < end; ++idx) {
       r.push_back(&results().results(idx));
     }
-    return rule_->ComputeScore(*input()->input_information(), r);
+    return rule_->ComputeScore(*pagespeed_input()->input_information(), r);
   }
 
  private:
+  scoped_ptr<pagespeed::RuleInput> rule_input_;
   scoped_ptr<pagespeed::Rule> rule_;
   pagespeed::Results results_;
   pagespeed::ResultProvider provider_;
