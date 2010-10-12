@@ -2,8 +2,9 @@
   "name": "Page Speed",
   "version": "0.1",
   "description": "Page Speed",
+  "background_page": "background.html",
   "devtools_page": "pagespeed.html",
   "permissions": [
-    "experimental"
+    "experimental", "tabs"
   ]
 }
