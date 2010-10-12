@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+"use strict";
+
 var pagespeed = {
 
   currentResults: null,
@@ -96,10 +98,12 @@ var pagespeed = {
   // label -- the visible text for the link
   makeLink: function (href, label) {
     var link = pagespeed.makeElement('a', null, label);
-    link.href = href;
-    // TODO (mdsteele): Clicking on a link opens the page in the Page Speed
-    // devtools pane, which is not at all what we want.  We need to figure out
-    //  how to make the link open in a new Chrome tab.
+    link.href = 'javascript:null';
+    var openUrl = function () {
+      // Tell the background page to open the url in a new tab. 
+      chrome.extension.sendRequest({kind: 'openUrl', url: href});
+    };
+    link.addEventListener('click', pagespeed.withErrorHandler(openUrl), false);
     return link;
   },
 
