@@ -50,6 +50,9 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
+    if (!resource_util::IsLikelyStaticResource(resource)) {
+      continue;  // Check only static resources.
+    }
     // Complain if:
     //   1) There's no cookie in the response,
     //   2) The resource is compressible,
