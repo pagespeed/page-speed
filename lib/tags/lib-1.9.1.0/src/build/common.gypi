@@ -27,6 +27,11 @@
     'use_system_libpng': 0,
     'use_system_zlib': 0,
 
+    # During the transition from third_party/protobuf2 to
+    # third_party/protobuf, we need a single global definition of the
+    # path to the protobuf gyp file.
+    'protobuf_gyp_path%': 'third_party/protobuf2/protobuf.gyp',
+
     # .gyp files or targets should set chromium_code to 1 if they build
     # Chromium-specific code, as opposed to external code.  This variable is
     # used to control such things as the set of warnings to enable, and

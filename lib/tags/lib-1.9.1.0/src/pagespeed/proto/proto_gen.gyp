@@ -47,8 +47,8 @@
         },
       ],
       'dependencies': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protoc#host',
+        '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
+        '<(DEPTH)/<(protobuf_gyp_path):protoc#host',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -56,7 +56,7 @@
         ]
       },
       'export_dependent_settings': [
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+        '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
       ],
     },
     {
@@ -65,14 +65,14 @@
       'hard_dependency': 1,
       'dependencies': [
         'pagespeed_genproto',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+        '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
        ],
       'sources': [
         '<(protoc_out_dir)/pagespeed/proto/pagespeed_input.pb.cc',
       ],
       'export_dependent_settings': [
         'pagespeed_genproto',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+        '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
       ]
     },
     {
@@ -81,14 +81,14 @@
       'hard_dependency': 1,
       'dependencies': [
         'pagespeed_genproto',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+        '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
        ],
       'sources': [
         '<(protoc_out_dir)/pagespeed/proto/pagespeed_output.pb.cc',
       ],
       'export_dependent_settings': [
         'pagespeed_genproto',
-        '<(DEPTH)/third_party/protobuf2/protobuf.gyp:protobuf_lite',
+        '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
       ]
     },
   ],
