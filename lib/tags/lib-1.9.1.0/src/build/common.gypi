@@ -29,8 +29,9 @@
 
     # During the transition from third_party/protobuf2 to
     # third_party/protobuf, we need a single global definition of the
-    # path to the protobuf gyp file.
+    # path to the protobuf files.
     'protobuf_gyp_path%': 'third_party/protobuf2/protobuf.gyp',
+    'protobuf_src_root%': 'third_party/protobuf2/src/src',
 
     # .gyp files or targets should set chromium_code to 1 if they build
     # Chromium-specific code, as opposed to external code.  This variable is
