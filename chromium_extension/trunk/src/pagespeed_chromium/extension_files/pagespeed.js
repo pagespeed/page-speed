@@ -336,7 +336,10 @@ var pagespeed = {
   
             // Run the rules.
             var analyze = document.getElementById('analyze-dropdown').value;
-            pagespeed_module.runPageSpeed(analyze);
+            // TODO(mdsteele): For now, pass null for the document argument.
+            // A future CL will make the changes necessary for us to provide the
+            // document to the Page Speed module.
+            pagespeed_module.runPageSpeed(null, analyze);
   
             // Get the result data back from the NaCl module.  Again, this must
             // be done a piece at a time.

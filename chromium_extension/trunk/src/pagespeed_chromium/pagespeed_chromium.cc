@@ -34,7 +34,6 @@
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
-#include "pagespeed/core/dom.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -45,6 +44,7 @@
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/rules/rule_provider.h"
+#include "pagespeed_chromium/npapi_dom.h"
 
 namespace {
 
@@ -128,13 +128,32 @@ bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
 
 class PageSpeedModule : public NPObject {
  public:
-  PageSpeedModule() : output_start_(0) {}
+  explicit PageSpeedModule(NPP npp)
+      : npp_(npp), output_start_(0) {}
 
-  bool AppendInput(const NPVariant& argument, NPVariant *result);
-  bool RunPageSpeed(const NPVariant& argument, NPVariant *result);
+  // Append the given Javascript string to our input buffer, and return null.
+  bool AppendInput(const NPVariant& input_string, NPVariant *result);
+
+  // Run the Page Speed library, given a Javascript reference to the DOM
+  // document (or null) and a Javascript string indicating what filter to use
+  // ("ads", "trackers", "content", or "all").  The current contents of the
+  // input buffer are parsed as a HAR, then the input buffer is cleared and the
+  // output buffer is populated with the JSON results from the library.
+  // Returns null to the Javascript caller.
+  bool RunPageSpeed(const NPVariant& dom_document,
+                    const NPVariant& filter_name, NPVariant *result);
+
+  // Return the next chunk of data from our output buffer as a Javascript
+  // string, or return null if the output buffer is empty.
   bool ReadMoreOutput(NPVariant* result);
 
  private:
+  // An NPP is a handle to an NPAPI plugin, and we need it to be able to call
+  // out to Javascript via functions like NPN_GetProperty().  We keep it here
+  // so we can pass it to ChromiumDocument objects we create, so that those
+  // objects can call out to Javascript to inspect the DOM.
+  const NPP npp_;
+
   // Buffers for input/output; data has to be transferred a piece at a time,
   // because SRPC currently can't handle strings larger than one or two dozen
   // kilobytes.
@@ -159,20 +178,26 @@ bool PageSpeedModule::AppendInput(const NPVariant& argument,
 
 // Run Page Speed on the contents of the input buffer, and put the results into
 // the output buffer.
-bool PageSpeedModule::RunPageSpeed(const NPVariant& filter_arg,
+bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
+                                   const NPVariant& filter_arg,
                                    NPVariant *result) {
-  if (result && NPVARIANT_IS_STRING(filter_arg)) {
+  if (result && NPVARIANT_IS_STRING(filter_arg) &&
+      (NPVARIANT_IS_OBJECT(document_arg) || NPVARIANT_IS_NULL(document_arg))) {
     output_start_ = 0;
     output_buffer_.clear();
+
+    pagespeed::DomDocument* document = NULL;
+    if (NPVARIANT_IS_OBJECT(document_arg)) {
+      document = pagespeed_chromium::CreateDocument(
+          npp_, NPVARIANT_TO_OBJECT(document_arg));
+    }
 
     const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
     const std::string filter_string(filter_NPString.UTF8Characters,
                                     filter_NPString.UTF8Length);
 
-    const bool success = RunPageSpeedRules(
-        NewFilter(filter_string),
-        NULL, // TODO: Provide a DomDocument object
-        input_buffer_, &output_buffer_);
+    const bool success = RunPageSpeedRules(NewFilter(filter_string), document,
+                                           input_buffer_, &output_buffer_);
     if (!success) {
       output_buffer_.append("Error reading HAR");
     }
@@ -204,7 +229,7 @@ bool PageSpeedModule::ReadMoreOutput(NPVariant *result) {
 }
 
 NPObject* Allocate(NPP npp, NPClass* npclass) {
-  return new PageSpeedModule;
+  return new PageSpeedModule(npp);
 }
 
 void Deallocate(NPObject* object) {
@@ -261,8 +286,8 @@ bool Invoke(NPObject* obj,
       rval = module->AppendInput(args[0], result);
     }
   } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
-    if (arg_count >= 1) {
-      rval = module->RunPageSpeed(args[0], result);
+    if (arg_count >= 2) {
+      rval = module->RunPageSpeed(args[0], args[1], result);
     }
   } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
     rval = module->ReadMoreOutput(result);

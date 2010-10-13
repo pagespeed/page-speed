@@ -29,6 +29,7 @@
         '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
       ],
       'sources': [
+        'npapi_dom.cc',
         'npp_gate.cc',
         'pagespeed_chromium.cc',
         'pagespeed_module.cc',
