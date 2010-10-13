@@ -16,6 +16,16 @@
 
 var pagespeed_bg = {
 
+  // TODO(mdsteele): What if there were multiple pending runPageSpeed requests
+  //     at once?  Maybe we should have a dict here instead of one variable.
+  // The input that was given to runPageSpeed; we have to store it so that the
+  // content script can request it asynchronously.
+  currentInput: null,
+
+  // The channel on which to respond to requests to runPageSpeed; we have to
+  // store it because we have to respond to those requests asynchronously.
+  responseChannel: null,
+
   // Wrap a function with an error handler.  Given a function, return a new
   // function that behaves the same but catches and logs errors thrown by the
   // wrapped function.
@@ -33,18 +43,37 @@ var pagespeed_bg = {
   },
 
   requestHandler: function (request, sender, sendResponse) {
-    var response = null;
-    try {
-      if (request.kind === 'openUrl') {
-        chrome.tabs.create({url: request.url});
-      } else {
-        throw new Error("Unknown request kind: kind=" + request.kind +
-                        " sender=" + JSON.stringify(sender));
+    if (request.kind === 'runPageSpeed') {
+      pagespeed_bg.currentInput = request.input;
+      pagespeed_bg.responseChannel = sendResponse;
+      chrome.tabs.executeScript(request.tab_id,
+                                {file: "content-script.js"});
+    } else {
+      var response = null;
+      try {
+        if (request.kind === 'openUrl') {
+          chrome.tabs.create({url: request.url});
+        } else if (request.kind === 'getInput') {
+          response = pagespeed_bg.currentInput;
+        } else if (request.kind === 'putResults') {
+          pagespeed_bg.currentInput = null;
+          pagespeed_bg.responseChannel(request.results);
+          pagespeed_bg.responseChannel = null;
+        } else if (request.kind === 'error') {
+          if (pagespeed_bg.responseChannel) {
+            pagespeed_bg.currentInput = null;
+            pagespeed_bg.responseChannel({error_message: request.message});
+            pagespeed_bg.responseChannel = null;
+          }
+        } else {
+          throw new Error("Unknown request kind: kind=" + request.kind +
+                          " sender=" + JSON.stringify(sender));
+        }
+      } finally {
+        // We should always send a response, even if it's empty.  See:
+        //   http://code.google.com/chrome/extensions/messaging.html#simple
+        sendResponse(response);
       }
-    } finally {
-      // We should always send a response, even if it's empty.  See:
-      //   http://code.google.com/chrome/extensions/messaging.html#simple
-      sendResponse(response);
     }
   }
 

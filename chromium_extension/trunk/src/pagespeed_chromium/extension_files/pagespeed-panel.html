@@ -25,12 +25,6 @@ limitations under the License.
       <button id="run-button"
               onclick="pagespeed.runPageSpeed()">Run Page Speed</button>
       <img id="spinner-img" src="spinner.gif" />
-      <embed name="nacl_module" id="pagespeed-module"
-             width="0" height="0"
-             nexes="x86-32: pagespeed_ia32.nexe
-                    x86-64: pagespeed_x64.nexe
-                    ARM: pagespeed_arm.nexe"
-             type="application/x-nacl-srpc" />
       <select id="analyze-dropdown"
               onchange="pagespeed.onAnalyzeDropdownChange()">
         <option value="all">Analyze entire page</option>

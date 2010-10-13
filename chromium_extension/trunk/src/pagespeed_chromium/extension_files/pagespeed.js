@@ -35,11 +35,12 @@ var pagespeed = {
       try {
         return func.apply(this, arguments);
       } catch (e) {
-        var message = 'Page Speed Error: ' + e.message;
+        var message = 'Error in Page Speed panel: ' + e;
+        alert(message + '\n\nPlease file a bug at\n' +
+              'http://code.google.com/p/page-speed/issues/');
         webInspector.log(message);
         document.getElementById('run-button').disabled = false;
         document.getElementById('spinner-img').style.display = 'none';
-        alert(message);
       }
     };
   },
@@ -305,61 +306,46 @@ var pagespeed = {
             bodyMap = {};
             bodies.forEach(function (body) {
               if (body.isError) {
-                webInspector.log("Page Speed failed to get resource content: " +
-                                 JSON.stringify(body.details));
+                webInspector.log(
+                  "Page Speed failed to get resource content: " +
+                  JSON.stringify(body.details));
               } else {
                 bodyMap[body.id] = body;
               }
             });
 
-            // Collect the HAR data.
+            // Collect the HAR data for the inspected page.
             var entries = resources.map(function (resource) {
-              var har = resource.har;
+              var entry = resource.har;
               var body = bodyMap[resource.id];
-              var content = har.response.content;
+              var content = entry.response.content;
               content.text = body.content;
               content.encoding = body.encoding;
-              return har;
+              return entry;
             });
-            var har_string = JSON.stringify({log: {entries: entries}});
-  
-            // Feed the HAR data into the NaCl module.  We have to do this a
-            // piece at a time, because SRPC currently can't handle strings
-            // larger than one or two dozen kilobytes.
-            var pagespeed_module = document.getElementById('pagespeed-module');
-            var har_length = har_string.length;
-            var kChunkSize = 8192;
-            for (var start = 0; start < har_length; start += kChunkSize) {
-              pagespeed_module.appendInput(
-                har_string.substr(start, kChunkSize));
-            }
-  
-            // Run the rules.
-            var analyze = document.getElementById('analyze-dropdown').value;
-            // TODO(mdsteele): For now, pass null for the document argument.
-            // A future CL will make the changes necessary for us to provide the
-            // document to the Page Speed module.
-            pagespeed_module.runPageSpeed(null, analyze);
-  
-            // Get the result data back from the NaCl module.  Again, this must
-            // be done a piece at a time.
-            var output_chunks = [];
-            while (true) {
-              var piece = pagespeed_module.readMoreOutput();
-              if (typeof(piece) !== 'string') {
-                break;
-              }
-              output_chunks.push(piece);
-            }
+            var har = {log: {entries: entries}};
 
-            // Display the results to the user.
-            pagespeed.currentResults = {
-              analyze: analyze,
-              results: JSON.parse(output_chunks.join(''))
-            };
-            pagespeed.showResults();
-            document.getElementById('run-button').disabled = false;
-            document.getElementById('spinner-img').style.display = 'none';
+            // Prepare the request.
+            var analyze = document.getElementById('analyze-dropdown').value;
+            var input = {analyze: analyze, har: har};
+            var tab_id = webInspector.inspectedWindow.tabId;
+            var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
+
+            // Tell the background page to run the Page Speed rules. 
+            chrome.extension.sendRequest(request, pagespeed.withErrorHandler(
+              function (response) {
+                if (!response) {
+                  throw new Error("No response to runPageSpeed request.");
+                } else if (response.error_message) {
+                  webInspector.log(response.error_message);
+                } else {
+                  pagespeed.currentResults = response;
+                  pagespeed.showResults();
+                }
+                document.getElementById('run-button').disabled = false;
+                document.getElementById('spinner-img').style.display = 'none';
+              }
+            ));
           }
         ));
       }
