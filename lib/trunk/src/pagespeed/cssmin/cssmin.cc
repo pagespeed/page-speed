@@ -67,8 +67,6 @@ class SizeConsumer {
 // characters via whitespace.
 bool Unextendable(char c) {
   switch (c) {
-    case '[':
-    case ']':
     case '{':
     case '}':
     case '/':
@@ -83,15 +81,28 @@ bool Unextendable(char c) {
 // Return true for any character that must separated from other "extendable"
 // characters by whitespace on the _right_ in order keep tokens separate.
 bool IsExtendableOnRight(char c) {
-  // N.B. Left paren only here -- see
-  //      http://code.google.com/p/page-speed/issues/detail?id=339
-  return !(Unextendable(c) || c == '(');
+  switch (c) {
+    // N.B. Left paren/bracket, but not right -- see
+    //      http://code.google.com/p/page-speed/issues/detail?id=339 and
+    //      http://code.google.com/p/page-speed/issues/detail?id=265
+    case '(':
+    case '[':
+      return false;
+    default:
+      return !Unextendable(c);
+  }
 }
 
 // Return true for any character that must separated from other "extendable"
 // characters by whitespace on the _left_ in order keep tokens separate.
 bool IsExtendableOnLeft(char c) {
-  return !(Unextendable(c) || c == ')');  // N.B. Right paren only here.
+  switch (c) {
+    case ')':
+    case ']':
+      return false;
+    default:
+      return !Unextendable(c);
+  }
 }
 
 // Given a CSS string, minify it into the given consumer.
