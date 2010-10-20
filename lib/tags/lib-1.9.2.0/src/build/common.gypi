@@ -23,9 +23,9 @@
     # (Chromium already has transitive dependencies on these libraries
     # via gtk). We want to link these libraries into our binaries so
     # we change the default behavior.
-    'use_system_libjpeg%': 0,
-    'use_system_libpng%': 0,
-    'use_system_zlib%': 0,
+    'use_system_libjpeg': 0,
+    'use_system_libpng': 0,
+    'use_system_zlib': 0,
 
     # During the transition from third_party/protobuf2 to
     # third_party/protobuf, we need a single global definition of the
