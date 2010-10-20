@@ -169,4 +169,15 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockNoClose) {
   ASSERT_EQ(kExpected, output);
 }
 
+TEST(HtmlMinifierTest, SgmlCommentInScriptWholeLine) {
+  const char* kInput =
+      "<script><!-- function foo(){bar();} //--> \n</script>";
+  const char* kExpected =
+      "<script></script>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
 }  // namespace
