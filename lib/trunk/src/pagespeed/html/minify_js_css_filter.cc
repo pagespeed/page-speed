@@ -87,7 +87,8 @@ bool RemoveWrappingSgmlComments(const std::string& in, std::string* out) {
   size_t first_newline_after_comment_start =
       in.find('\n', sgml_comment_start + kSgmlCommentStartLen);
 
-  if (first_newline_after_comment_start == in.npos) {
+  if (first_newline_after_comment_start == in.npos ||
+      first_newline_after_comment_start >= sgml_comment_end) {
     out->erase();
   } else {
     out->assign(in.begin() + first_newline_after_comment_start,
