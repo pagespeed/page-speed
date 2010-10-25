@@ -19,3 +19,5 @@ Local Modifications:
    standard jsmin license and its incompatibility with licensing
    requirements for certain OS distros such as Fedora. See
    https://bugzilla.redhat.com/show_bug.cgi?id=455507 for an example.
+
+3. Turned off control character translation (in the C++ version).
