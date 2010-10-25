@@ -109,4 +109,12 @@ TEST(JsminTest, SignedCharDoesntSignExtend) {
   ASSERT_EQ(2, minimized_size);
 }
 
+TEST(JsminTest, EscapedCrlfInStringLiteral) {
+  std::string input = "var x = 'foo\\\r\nbar';";
+  std::string expected = "\nvar x='foo\\\r\nbar';";
+  std::string output;
+  ASSERT_TRUE(jsmin::MinifyJs(input, &output));
+  ASSERT_EQ(expected, output);
+}
+
 }  // namespace

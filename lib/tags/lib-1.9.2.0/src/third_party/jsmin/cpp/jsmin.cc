@@ -158,6 +158,9 @@ Minifier<OutputConsumer>::get()
     if (theLookahead == EOF) {
         if (input_index_ < input_->length()) {
             int c = (0xff & input_->at(input_index_++));
+// Turn off control character translation for now.  It can break things when
+// we're in string literals.
+#if 0
             if (c >= ' ' || c == '\n' || c == EOF) {
                 return c;
             }
@@ -165,6 +168,9 @@ Minifier<OutputConsumer>::get()
                 return '\n';
             }
             return ' ';
+#else
+            return c;
+#endif
         } else {
             return EOF;
         }
