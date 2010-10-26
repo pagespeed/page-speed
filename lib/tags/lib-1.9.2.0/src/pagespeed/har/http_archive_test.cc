@@ -67,6 +67,7 @@ const std::string kHarInput = (
     "          \"content\":{"
     "            \"size\":13,"
     "            \"mimeType\":\"text/html\","
+    "            \"encoding\":\"\","
     "            \"text\":\"Hello, world!\""
     "          },"
     "          \"redirectUrl\":\"\","

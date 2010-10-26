@@ -270,9 +270,33 @@ std::string IEElement::GetTagName() const {
 
 bool IEElement::GetAttributeByName(const std::string& name,
                                    std::string* attr_value) const {
+  CComQIPtr<IHTMLElement4> element4(element_);
+  if (element4 == NULL) {
+    LOG(DFATAL) << "Failed to QI to IHTMLElement4.";
+    return false;
+  }
   CComBSTR name_bstr(name.c_str());
+  CComPtr<IHTMLDOMAttribute> attribute;
+  if (FAILED(element4->getAttributeNode(name_bstr, &attribute)) ||
+      attribute == NULL) {
+    // Attribute does not exist (is not specified in the DOM).
+    return false;
+  }
+  VARIANT_BOOL specified;
+  if (FAILED(attribute->get_specified(&specified))) {
+    LOG(DFATAL) << "Failed to get_specified.";
+    return false;
+  }
+  if (specified == VARIANT_FALSE) {
+    // The attribute is not specified in the DOM.
+    return false;
+  }
   _variant_t var_val;
-  if (FAILED(element_->getAttribute(name_bstr, 0, &var_val))) {
+  // We call element->getAttribute rather than attribute->get_nodeValue
+  // since getAttribute supports a flag (2) to convert the out-param to a
+  // bstr. Otherwise boolean attributes would be returned as VT_BOOL, etc,
+  // which is not what we want.
+  if (FAILED(element_->getAttribute(name_bstr, 2, &var_val))) {
     LOG(DFATAL) << "Failed to getAttribute for " << name;
     return false;
   }
@@ -280,19 +304,60 @@ bool IEElement::GetAttributeByName(const std::string& name,
     LOG(DFATAL) << "Received unexpected variant type " << var_val.vt;
     return false;
   }
+  if (var_val.bstrVal == NULL) {
+    // Attribute was specified as the empty string.
+    *attr_value = "";
+    return true;
+  }
   _bstr_t text = (_bstr_t)var_val;
   *attr_value = static_cast<LPSTR>(CW2A(text));
-  return !attr_value->empty();
+  return true;
 }
 
 DomElement::Status IEElement::GetActualWidth(int* out_width) const {
-  // TODO(bmcquade): find a way to get the width of an element.
-  return FAILURE;
+  CComQIPtr<IHTMLElement2> element2(element_);
+  if (element2 == NULL) {
+    LOG(DFATAL) << "Failed to QI to IHTMLElement2.";
+    return FAILURE;
+  }
+  CComPtr<IHTMLRect> rect;
+  if (FAILED(element2->getBoundingClientRect(&rect)) || rect == NULL) {
+    return FAILURE;
+  }
+  long left = 0;
+  long right = 0;
+  if (FAILED(rect->get_left(&left)) || FAILED(rect->get_right(&right))) {
+    return FAILURE;
+  }
+
+  *out_width = (right - left);
+  if (*out_width <= 0) {
+    return FAILURE;
+  }
+  return SUCCESS;
 }
 
 DomElement::Status IEElement::GetActualHeight(int* out_height) const {
-  // TODO(bmcquade): find a way to get the height of an element.
-  return FAILURE;
+  CComQIPtr<IHTMLElement2> element2(element_);
+  if (element2 == NULL) {
+    LOG(DFATAL) << "Failed to QI to IHTMLElement2.";
+    return FAILURE;
+  }
+  CComPtr<IHTMLRect> rect;
+  if (FAILED(element2->getBoundingClientRect(&rect)) || rect == NULL) {
+    return FAILURE;
+  }
+  long top = 0;
+  long bottom = 0;
+  if (FAILED(rect->get_top(&top)) || FAILED(rect->get_bottom(&bottom))) {
+    return FAILURE;
+  }
+
+  *out_height = (bottom - top);
+  if (*out_height <= 0) {
+    return FAILURE;
+  }
+  return SUCCESS;
 }
 
 DomElement::Status IEElement::HasWidthSpecified(

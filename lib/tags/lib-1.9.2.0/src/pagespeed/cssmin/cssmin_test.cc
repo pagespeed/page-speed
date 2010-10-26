@@ -94,9 +94,17 @@ TEST_F(CssminTest, SeparateStringsFromWords) {
 // See http://code.google.com/p/page-speed/issues/detail?id=339
 TEST_F(CssminTest, SeparateParensFromWords) {
   CheckMinification("div { background: url( 'bg.gif' ) no-repeat "
-                    "left center; border-style: none;",
+                    "left center; border-style: none; }\n",
                     "div{background:url('bg.gif') no-repeat "
-                    "left center;border-style:none;");
+                    "left center;border-style:none;}\n");
+}
+
+// See http://code.google.com/p/page-speed/issues/detail?id=265
+TEST_F(CssminTest, SeparateBracketsFromWords) {
+  CheckMinification(".class[ rel ] { color: #f00; }\n"
+                    ".class [rel] { color: #0f0; }\n",
+                    ".class[rel]{color:#f00;}\n"
+                    ".class [rel]{color:#0f0;}\n");
 }
 
 }  // namespace
