@@ -207,7 +207,10 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
             if (content_text_encoding->type != cJSON_String) {
               INPUT_POPULATOR_ERROR() << "\"encoding\" field must be a string.";
             } else {
-              if (strcmp(content_text_encoding->valuestring, "base64") != 0) {
+              const std::string encoding(content_text_encoding->valuestring);
+              if (encoding == "") {
+                resource->SetResponseBody(content_text_json->valuestring);
+              } else if (encoding != "base64") {
                 INPUT_POPULATOR_ERROR() << "Received unexpected encoding: "
                                         << content_text_encoding->valuestring;
               } else {
