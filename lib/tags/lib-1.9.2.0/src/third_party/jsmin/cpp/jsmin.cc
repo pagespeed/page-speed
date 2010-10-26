@@ -94,7 +94,7 @@ class Minifier {
 
  private:
   // The various methods from jsmin.c, ported to this class.
-  int get();
+  int get(bool translate);
   int peek();
   int next();
   void action(int d);
@@ -153,14 +153,12 @@ Minifier<OutputConsumer>::GetOutput()
 */
 template<typename OutputConsumer>
 int
-Minifier<OutputConsumer>::get()
+Minifier<OutputConsumer>::get(bool translate)
 {
     if (theLookahead == EOF) {
         if (input_index_ < input_->length()) {
-            int c = (0xff & input_->at(input_index_++));
-// Turn off control character translation for now.  It can break things when
-// we're in string literals.
-#if 0
+          int c = (0xff & input_->at(input_index_++));
+          if (translate) {
             if (c >= ' ' || c == '\n' || c == EOF) {
                 return c;
             }
@@ -168,9 +166,9 @@ Minifier<OutputConsumer>::get()
                 return '\n';
             }
             return ' ';
-#else
+          } else {
             return c;
-#endif
+          }
         } else {
             return EOF;
         }
@@ -189,7 +187,7 @@ template<typename OutputConsumer>
 int
 Minifier<OutputConsumer>::peek()
 {
-    theLookahead = get();
+    theLookahead = get(true);
     return theLookahead;
 }
 
@@ -201,23 +199,23 @@ template<typename OutputConsumer>
 int
 Minifier<OutputConsumer>::next()
 {
-    int c = get();
+    int c = get(true);
     if  (c == '/') {
         switch (peek()) {
         case '/':
             for (;;) {
-                c = get();
+                c = get(true);
                 if (c <= '\n') {
                     return c;
                 }
             }
         case '*':
-            get();
+            get(true);
             for (;;) {
-                switch (get()) {
+                switch (get(true)) {
                 case '*':
                     if (peek() == '/') {
-                        get();
+                        get(true);
                         return ' ';
                     }
                     break;
@@ -246,13 +244,13 @@ void Minifier<OutputConsumer>::AdvanceAndDeleteA() {
   if (theA == '\'' || theA == '"') {
     for (;;) {
       output_consumer_.push_back(theA);
-      theA = get();
+      theA = get(false);
       if (theA == theB) {
         break;
       }
       if (theA == '\\') {
         output_consumer_.push_back(theA);
-        theA = get();
+        theA = get(false);
       }
       if (theA == EOF) {
         LOG(WARNING) << "Error: JSMIN unterminated string literal.";
@@ -278,13 +276,13 @@ void Minifier<OutputConsumer>::DeleteB() {
     output_consumer_.push_back(theA);
     output_consumer_.push_back(theB);
     for (;;) {
-      theA = get();
+      theA = get(true);
       if (theA == '/') {
         break;
       }
       if (theA =='\\') {
         output_consumer_.push_back(theA);
-        theA = get();
+        theA = get(true);
       }
       if (theA == EOF) {
         LOG(WARNING) << "Error: JSMIN unterminated "
