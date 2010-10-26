@@ -109,6 +109,22 @@ TEST(JsminTest, SignedCharDoesntSignExtend) {
   ASSERT_EQ(2, minimized_size);
 }
 
+TEST(JsminTest, DealWithCrlf) {
+  std::string input = "var x = 1;\r\nvar y = 2;";
+  std::string expected = "\nvar x=1;var y=2;";
+  std::string output;
+  ASSERT_TRUE(jsmin::MinifyJs(input, &output));
+  ASSERT_EQ(expected, output);
+}
+
+TEST(JsminTest, DealWithTabs) {
+  std::string input = "var x = 1;\n\tvar y = 2;";
+  std::string expected = "\nvar x=1;var y=2;";
+  std::string output;
+  ASSERT_TRUE(jsmin::MinifyJs(input, &output));
+  ASSERT_EQ(expected, output);
+}
+
 TEST(JsminTest, EscapedCrlfInStringLiteral) {
   std::string input = "var x = 'foo\\\r\nbar';";
   std::string expected = "\nvar x='foo\\\r\nbar';";
