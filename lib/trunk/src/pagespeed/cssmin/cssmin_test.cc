@@ -100,11 +100,17 @@ TEST_F(CssminTest, SeparateParensFromWords) {
 }
 
 // See http://code.google.com/p/page-speed/issues/detail?id=265
-TEST_F(CssminTest, SeparateBracketsFromWords) {
+TEST_F(CssminTest, SeparateBracketsFromWords1) {
   CheckMinification(".class[ rel ] { color: #f00; }\n"
                     ".class [rel] { color: #0f0; }\n",
                     ".class[rel]{color:#f00;}\n"
                     ".class [rel]{color:#0f0;}\n");
+}
+
+// See http://code.google.com/p/page-speed/issues/detail?id=379
+TEST_F(CssminTest, SeparateBracketsFromWords2) {
+  CheckMinification("body[class$=\"section\"] header {}\n",
+                    "body[class$=\"section\"] header{}\n");
 }
 
 }  // namespace
