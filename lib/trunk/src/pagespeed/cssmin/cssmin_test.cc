@@ -113,4 +113,10 @@ TEST_F(CssminTest, SeparateBracketsFromWords2) {
                     "body[class$=\"section\"] header{}\n");
 }
 
+// See http://code.google.com/p/page-speed/issues/detail?id=381
+TEST_F(CssminTest, SeparateBracketsFromPeriods) {
+  CheckMinification("html[xmlns] .clearfix { display: block; }\n",
+                    "html[xmlns] .clearfix{display:block;}\n");
+}
+
 }  // namespace
