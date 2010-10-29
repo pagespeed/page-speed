@@ -111,7 +111,7 @@ TEST(JsminTest, SignedCharDoesntSignExtend) {
 
 TEST(JsminTest, DealWithCrlf) {
   std::string input = "var x = 1;\r\nvar y = 2;";
-  std::string expected = "\nvar x=1;var y=2;";
+  std::string expected = "var x=1;var y=2;";
   std::string output;
   ASSERT_TRUE(jsmin::MinifyJs(input, &output));
   ASSERT_EQ(expected, output);
@@ -119,7 +119,7 @@ TEST(JsminTest, DealWithCrlf) {
 
 TEST(JsminTest, DealWithTabs) {
   std::string input = "var x = 1;\n\tvar y = 2;";
-  std::string expected = "\nvar x=1;var y=2;";
+  std::string expected = "var x=1;var y=2;";
   std::string output;
   ASSERT_TRUE(jsmin::MinifyJs(input, &output));
   ASSERT_EQ(expected, output);
@@ -127,7 +127,35 @@ TEST(JsminTest, DealWithTabs) {
 
 TEST(JsminTest, EscapedCrlfInStringLiteral) {
   std::string input = "var x = 'foo\\\r\nbar';";
-  std::string expected = "\nvar x='foo\\\r\nbar';";
+  std::string expected = "var x='foo\\\r\nbar';";
+  std::string output;
+  ASSERT_TRUE(jsmin::MinifyJs(input, &output));
+  ASSERT_EQ(expected, output);
+}
+
+TEST(JsminTest, EmptyInput) {
+  std::string output;
+  ASSERT_TRUE(jsmin::MinifyJs("", &output));
+  ASSERT_EQ("", output);
+}
+
+// See http://code.google.com/p/page-speed/issues/detail?id=198
+TEST(JsminTest, LeaveIEConditionalCompilationComments) {
+  const std::string input =
+      "/*@cc_on\n"
+      "  /*@if (@_win32)\n"
+      "    document.write('IE');\n"
+      "  @else @*/\n"
+      "    document.write('other');\n"
+      "  /*@end\n"
+      "@*/";
+  const std::string expected =
+      "/*@cc_on\n"
+      "  /*@if (@_win32)\n"
+      "    document.write('IE');\n"
+      "  @else @*/\n"
+      "document.write('other');/*@end\n"
+      "@*/";
   std::string output;
   ASSERT_TRUE(jsmin::MinifyJs(input, &output));
   ASSERT_EQ(expected, output);

@@ -151,7 +151,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockMiddle) {
   const char* kInput =
       "<script>var a;<!-- function foo() { bar(); } //--></script>";
   const char* kExpected =
-      "<script>\nvar a;<!--function foo(){bar();}</script>";
+      "<script>var a;<!--function foo(){bar();}</script>";
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
