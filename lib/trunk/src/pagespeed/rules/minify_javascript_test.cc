@@ -35,9 +35,8 @@ namespace {
 // Unminified JavaScript.
 const char* kUnminified = "function () { foo(); }";
 
-// The same JavaScript, minified using JSMin. Notice that JSMin
-// prepends a newline to its output.
-const char* kMinified = "\nfunction(){foo();}";
+// The same JavaScript, minified using JSMin.
+const char* kMinified = "function(){foo();}";
 
 class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
  protected:
@@ -131,7 +130,7 @@ TEST_F(MinifyJavaScriptTest, Basic) {
                   kUnminified);
   Freeze();
 
-  CheckOneViolation(85);
+  CheckOneViolation(79);
 }
 
 TEST_F(MinifyJavaScriptTest, WrongContentTypeDoesNotGetMinified) {
