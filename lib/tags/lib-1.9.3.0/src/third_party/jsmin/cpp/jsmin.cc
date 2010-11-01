@@ -54,6 +54,10 @@ class StringConsumer {
     output_.push_back(character);
   }
 
+  void append(const std::string& str) {
+    output_.append(str);
+  }
+
   std::string output_;
 };
 
@@ -64,6 +68,10 @@ class SizeConsumer {
 
   void push_back(int character) {
     ++size_;
+  }
+
+  void append(const std::string& str) {
+    size_ += str.size();
   }
 
   int size_;
@@ -93,6 +101,7 @@ class Minifier {
   OutputConsumer* GetOutput();
 
  private:
+  void WriteCccIfAny();
   // The various methods from jsmin.c, ported to this class.
   int get(bool translate);
   int peek();
@@ -118,6 +127,7 @@ class Minifier {
   const std::string *input_;
   int input_index_;
   OutputConsumer output_consumer_;
+  std::string ccc_contents_; // the last Conditional Compilation Comment
   bool error_;
 };
 
@@ -144,6 +154,18 @@ Minifier<OutputConsumer>::GetOutput()
         return &output_consumer_;
     }
     return NULL;
+}
+
+// If there's currently a Conditional Compilation Comment in the buffer, write
+// it to the output.
+template<typename OutputConsumer>
+void Minifier<OutputConsumer>::WriteCccIfAny() {
+  if (!ccc_contents_.empty()) {
+    output_consumer_.append("/*");
+    output_consumer_.append(ccc_contents_);
+    output_consumer_.append("*/");
+    ccc_contents_.clear();
+  }
 }
 
 
@@ -194,7 +216,12 @@ Minifier<OutputConsumer>::peek()
 /* next -- get the next character, excluding comments. peek() is used to see
         if a '/' is followed by a '/' or '*'.
 */
-
+// If next() sees a comment, it'll skip over it and return ' '.  If the comment
+// it sees is a Conditional Compilation Comment, it'll store it in the
+// ccc_contents_ buffer.  CCC's should be sent to the output, but we can't send
+// them right away in next() because that might cause reordering.  Instead, we
+// call WriteCccIfAny() at certain times to flush the ccc_contents_ buffer to
+// the output.  [-mdsteele]
 template<typename OutputConsumer>
 int
 Minifier<OutputConsumer>::next()
@@ -210,19 +237,31 @@ Minifier<OutputConsumer>::next()
                 }
             }
         case '*':
-            get(true);
+            get(true);  // get the star we just peeked
             for (;;) {
-                switch (get(true)) {
+                const int c2 = get(false);
+                switch (c2) {
                 case '*':
                     if (peek() == '/') {
-                        get(true);
-                        return ' ';
+                      get(true);  // get the slash we just peeked
+                      // If this looks like an IE conditional compilation
+                      // comment, leave it in.
+                      if (!(ccc_contents_.size() >= 2 &&
+                            ccc_contents_[0] == '@' &&
+                            ccc_contents_[ccc_contents_.size() - 1] == '@')) {
+                        ccc_contents_.clear();
+                      }
+                      return ' ';
+                    } else {
+                      ccc_contents_.push_back(static_cast<char>(c2));
                     }
                     break;
                 case EOF:
                     LOG(WARNING) << "Error: JSMIN Unterminated comment.";
                     error_ = true;
                     return EOF;
+                default:
+                    ccc_contents_.push_back(static_cast<char>(c2));
                 }
             }
         default:
@@ -241,6 +280,7 @@ void Minifier<OutputConsumer>::AdvanceAndOutputA() {
 template<typename OutputConsumer>
 void Minifier<OutputConsumer>::AdvanceAndDeleteA() {
   theA = theB;
+  WriteCccIfAny();
   if (theA == '\'' || theA == '"') {
     for (;;) {
       output_consumer_.push_back(theA);
@@ -274,6 +314,7 @@ void Minifier<OutputConsumer>::DeleteB() {
                       theA == '{' || theA == '}' || theA == ';' ||
                       theA == '\n')) {
     output_consumer_.push_back(theA);
+    WriteCccIfAny();
     output_consumer_.push_back(theB);
     for (;;) {
       theA = get(true);
@@ -306,8 +347,8 @@ template<typename OutputConsumer>
 void
 Minifier<OutputConsumer>::jsmin()
 {
-    theA = '\n';
     DeleteB();
+    AdvanceAndDeleteA();
     if (error_) {
         return;
     }
