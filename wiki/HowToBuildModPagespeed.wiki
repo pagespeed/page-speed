@@ -1,1 +1,3 @@
+==mod_pagespeed has moved==
+
 mod_pagespeed has moved to [http://code.google.com/p/modpagespeed/]. See [http://code.google.com/p/modpagespeed/wiki/HowToBuild HowToBuild] for build instructions.
