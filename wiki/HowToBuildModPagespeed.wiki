@@ -1,1 +1,1 @@
-mod_pagespeed has moved. see [http://code.google.com/p/modpagespeed/wiki/HowToBuild HowToBuild].
+mod_pagespeed has moved to a new codebase at [http://code.google.com/p/modpagespeed/]. See [http://code.google.com/p/modpagespeed/wiki/HowToBuild HowToBuild] for build instructions.
