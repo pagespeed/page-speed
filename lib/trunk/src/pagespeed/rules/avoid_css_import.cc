@@ -238,7 +238,7 @@ bool AvoidCssImport::IsCssImportLine(
       url.erase(url_end, url.size() - url_end);
       TrimWhitespaceASCII(url, TRIM_ALL, &url);
       // remove quotes, if the URL is quoted.
-      if ((url[0] == '"' || url[0] == '\'')) {
+      if (!url.empty() && (url[0] == '"' || url[0] == '\'')) {
         if (url.length() > 1 && url[url.length() - 1] == url[0]) {
           url.erase(0, 1);
           url.erase(url.length() - 1);
