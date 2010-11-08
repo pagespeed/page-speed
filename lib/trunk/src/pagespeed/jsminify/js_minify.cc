@@ -351,9 +351,9 @@ void Minifier<OutputConsumer>::Minify() {
     // tokens into ++ or two - tokens into --, and avoid minifying the sequence
     // of tokens < ! -- into an SGML line comment.
     else {
-      if (prev_token_ == ch && (ch == '+' || ch == '-') ||
-          prev_token_ == '<' && ch == '!' ||
-          prev_token_ == '!' && ch == '-') {
+      if ((prev_token_ == ch && (ch == '+' || ch == '-')) ||
+          (prev_token_ == '<' && ch == '!') ||
+          (prev_token_ == '!' && ch == '-')) {
         InsertSpaceIfNeeded();
       }
       ChangeToken(ch);
