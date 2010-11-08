@@ -58,8 +58,7 @@ const char* kAfterMinification =
     "<title>foo</title>\n"
     "<style>BODY{color:green;}\n"
     "</style>\n"
-    "<script>\n"
-    "function increment(x){return x+1;}</script>\n"
+    "<script>function increment(x){return x+1;}</script>\n"
     "</head>\n"
     "<body>\n"
     "Bar.\n"
@@ -117,7 +116,7 @@ TEST(HtmlMinifierTest, RespectDoctype) {
 TEST(HtmlMinifierTest, SgmlCommentInScriptBlock) {
   const char* kInput =
       "<script><!--\n function foo() { bar(); } //--></script>";
-  const char* kExpected = "<script>\nfunction foo(){bar();}</script>";
+  const char* kExpected = "<script>function foo(){bar();}</script>";
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
@@ -136,7 +135,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockNoNewline) {
 TEST(HtmlMinifierTest, SgmlCommentInScriptBlockWhitespace) {
   const char* kInput =
       "<script>  \t<!--\n function foo() { bar(); } //-->\t\n </script>";
-  const char* kExpected = "<script>\nfunction foo(){bar();}</script>";
+  const char* kExpected = "<script>function foo(){bar();}</script>";
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
@@ -144,14 +143,10 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockWhitespace) {
 }
 
 TEST(HtmlMinifierTest, SgmlCommentInScriptBlockMiddle) {
-  // This time, since the SGML comments don't come at the
-  // beginning/end of the script block's contents, we do not expect
-  // them to be removed. However, since jsmin removes comments, we do
-  // expect the trailing SGML comment to be removed by jsmin.
   const char* kInput =
       "<script>var a;<!-- function foo() { bar(); } //--></script>";
   const char* kExpected =
-      "<script>var a;<!--function foo(){bar();}</script>";
+      "<script>var a;</script>";
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
@@ -162,7 +157,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockNoClose) {
   const char* kInput =
       "<script><!-- function foo() { bar(); } </script>";
   const char* kExpected =
-      "<script><!--function foo(){bar();}</script>";
+      "<script></script>";
   std::string output;
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));

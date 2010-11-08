@@ -51,8 +51,7 @@ const char* kMinified =
     "<html>\n"
     "<head>\n"
     "<title>Foo</title>\n"
-    "<script>\n"
-    "var foo=42;</script>\n"
+    "<script>var foo=42;</script>\n"
     "</head>\n"
     "<body>\n"
     "Foo!\n"
@@ -147,7 +146,7 @@ TEST_F(MinifyHtmlTest, Basic) {
                   "text/html",
                   kUnminified);
   Freeze();
-  CheckOneViolation(70);
+  CheckOneViolation(68);
 }
 
 TEST_F(MinifyHtmlTest, WrongContentTypeDoesNotGetMinified) {
