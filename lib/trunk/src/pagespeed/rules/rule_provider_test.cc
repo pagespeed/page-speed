@@ -58,6 +58,50 @@ void TestNamedRule(const char* name) {
 
 }
 
+TEST(RuleProviderTest, AppendRuleSet) {
+  using pagespeed::rule_provider::AppendRuleSet;
+  using pagespeed::rule_provider::CORE_RULES;
+  using pagespeed::rule_provider::OLD_BROWSER_RULES;
+  using pagespeed::rule_provider::NEW_BROWSER_RULES;
+  using pagespeed::rule_provider::EXPERIMENTAL_RULES;
+
+  std::vector<pagespeed::Rule*> rules;
+  std::vector<pagespeed::Rule*> all_rules;
+
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+  STLElementDeleter<std::vector<pagespeed::Rule*> >
+      all_rule_deleter(&all_rules);
+
+  // Append each rule set
+  EXPECT_TRUE(AppendRuleSet(false, CORE_RULES, &rules));
+  EXPECT_TRUE(AppendRuleSet(false, OLD_BROWSER_RULES, &rules));
+  EXPECT_TRUE(AppendRuleSet(false, NEW_BROWSER_RULES, &rules));
+  EXPECT_TRUE(AppendRuleSet(false, EXPERIMENTAL_RULES, &rules));
+
+  // Test that each rule is in exactly one RuleSet
+  pagespeed::rule_provider::AppendAllRules(false, &all_rules);
+  EXPECT_EQ(rules.size(), all_rules.size());
+
+  // Check that each rule in rules occurs in all_rules
+  for (std::vector<pagespeed::Rule*>::const_iterator it = rules.begin();
+       it != rules.end();
+       ++it) {
+    const pagespeed::Rule* rule = *it;
+    bool found = false;
+
+    for (std::vector<pagespeed::Rule*>::const_iterator it2 = all_rules.begin();
+         it2 != all_rules.end();
+         ++it2) {
+      if (rule->name() == (*it2)->name()) {
+        found = true;
+        break;
+      }
+    }
+
+    EXPECT_TRUE(found);
+  }
+}
+
 TEST(RuleProviderTest, CreateRuleWithName) {
   // Test that each rule type is recognized correctly.
   TestNamedRule("AvoidBadRequests");
