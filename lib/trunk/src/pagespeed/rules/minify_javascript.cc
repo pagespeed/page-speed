@@ -19,7 +19,7 @@
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "third_party/jsmin/cpp/jsmin.h"
+#include "pagespeed/jsminify/js_minify.h"
 
 namespace pagespeed {
 
@@ -79,14 +79,14 @@ const MinifierOutput* JsMinifier::Minify(const Resource& resource) const {
   const std::string& input = resource.GetResponseBody();
   if (save_optimized_content_) {
     std::string minified_js;
-    if (!jsmin::MinifyJs(input, &minified_js)) {
+    if (!jsminify::MinifyJs(input, &minified_js)) {
       return NULL; // error
     }
     return new MinifierOutput(input.size() - minified_js.size(),
                               minified_js, "text/javascript");
   } else {
     int minified_js_size = 0;
-    if (!jsmin::GetMinifiedJsSize(input, &minified_js_size)) {
+    if (!jsminify::GetMinifiedJsSize(input, &minified_js_size)) {
       return NULL; // error
     }
     return new MinifierOutput(input.size() - minified_js_size);
