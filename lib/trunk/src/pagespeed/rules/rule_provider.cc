@@ -45,6 +45,88 @@ namespace pagespeed {
 
 namespace rule_provider {
 
+// The names of the Rules in each RuleSet.  Each list must be NULL-terminated
+static const char* kCoreRules[] = {
+  "avoidbadrequests",
+  "avoidcssimport",
+  "avoiddocumentwrite",
+  "enablegzipcompression",
+  "leveragebrowsercaching",
+  "minifycss",
+  "minifyhtml",
+  "minifyjavascript",
+  "minimizednslookups",
+  "minimizeredirects",
+  "minimizerequestsize",
+  "optimizeimages",
+  "optimizetheorderofstylesandscripts",
+  "parallelizedownloadsacrosshostnames",
+  "preferasyncresources",
+  "putcssinthedocumenthead",
+  "removequerystringsfromstaticresources",
+  "serveresourcesfromaconsistenturl",
+  "servescaledimages",
+  "specifyacachevalidator",
+  "specifyavaryacceptencodingheader",
+  "specifycharsetearly",
+  "specifyimagedimensions",
+  "spriteimages",
+  NULL,
+};
+
+static const char* kOldBrowserRules[] = {
+  "combineexternalcss",
+  "combineexternaljavascript",
+  NULL,
+};
+
+static const char* kNewBrowserRules[] = {
+  // TODO(aoates): which rules are "new browser" rules?
+  NULL,
+};
+
+static const char* kExperimentalRules[] = {
+  NULL,
+};
+
+bool AppendRuleSet(bool save_optimized_content, RuleSet ruleset,
+                   std::vector<Rule*>* rules) {
+  const char** rule_names = NULL;
+  bool success = true;
+
+  if (!rules)
+    return false;
+
+  switch (ruleset) {
+    case CORE_RULES:
+      rule_names = kCoreRules;
+      break;
+    case OLD_BROWSER_RULES:
+      rule_names = kOldBrowserRules;
+      break;
+    case NEW_BROWSER_RULES:
+      rule_names = kNewBrowserRules;
+      break;
+    case EXPERIMENTAL_RULES:
+      rule_names = kExperimentalRules;
+      break;
+    default:
+      return false;
+  }
+
+  while (*rule_names != NULL) {
+    const char* name = *rule_names;
+    Rule* rule = CreateRuleWithName(save_optimized_content, name);
+    if (!rule)
+      success = false;
+    else
+      rules->push_back(rule);
+    rule_names++;
+  }
+
+  return success;
+}
+
 // Note: keep this methed up-to-date with the active set of rules.
 Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   // Compare the function parameter name to the given rule name, and construct a

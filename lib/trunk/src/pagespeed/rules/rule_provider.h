@@ -27,6 +27,25 @@ class Rule;
 namespace rule_provider {
 
 /**
+ * A RuleSet is a collection of rules for a specific purpose (e.g. only useful
+ * for older browsers, or experimental).  Every rule should be in exactly one
+ * RuleSet.
+ */
+enum RuleSet {
+  CORE_RULES = 0,
+  OLD_BROWSER_RULES = 1,
+  NEW_BROWSER_RULES = 2,
+  EXPERIMENTAL_RULES = 3,
+};
+
+/**
+ * Append all the rules in a given RuleSet to the given vector of Rules.
+ * Return true if all the rules were instantiated and added.
+ */
+bool AppendRuleSet(bool save_optimized_content, RuleSet ruleset,
+                   std::vector<Rule*>* rules);
+
+/**
  * Create a new Rule object from a rule name (case-insensitive).  If no rule is
  * found with the given name, then return NULL.
  */
