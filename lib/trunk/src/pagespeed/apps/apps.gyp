@@ -30,6 +30,16 @@
       ],
     },
     {
+      'target_name': 'minify_js_bin',
+      'type': 'executable',
+      'dependencies': [
+        '<(pagespeed_root)/pagespeed/jsminify/js_minify.gyp:pagespeed_jsminify',
+      ],
+      'sources': [
+        'minify_js.cc',
+      ],
+    },
+    {
       'target_name': 'pagespeed_bin',
       'type': 'executable',
       'dependencies': [

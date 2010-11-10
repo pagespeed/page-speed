@@ -29,6 +29,11 @@
       'include_dirs': [
         '<(pagespeed_root)',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
     },
   ],
 }
