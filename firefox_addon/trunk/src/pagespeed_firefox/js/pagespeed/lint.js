@@ -45,14 +45,19 @@ PAGESPEED.LintRulesImpl.prototype.registerLintRule = function(lintRule) {
  * Executes all lint rules.
  * @param {Object} browserTab The browser object of the tab PageSpeed is
  *     linting.
+ * @param {Function} opt_doneCallback A custom callback to run when
+ *     scoring completes. If not specified, the default callback,
+ *     which updates the Page Speed UI, is run.
  */
-PAGESPEED.LintRulesImpl.prototype.exec = function(browserTab) {
+PAGESPEED.LintRulesImpl.prototype.exec = function(
+    browserTab, opt_doneCallback) {
   this.browserTab_ = browserTab;
   this.onProgress(0, 'Running Page Speed rules');
   this.completed = false;  // Set in ruleCompleted() when all rules are done.
   this.url = null; // Set in ruleCompleted() when all rules are done.
   this.rulesRemaining = this.lintRules.length;
   this.nativeRuleResults = [];
+  this.doneCallback_ = opt_doneCallback;
   // TODO Note that this next line will freeze the UI while the native rules
   //      run; usually, this takes a fraction of a second, and is thus
   //      acceptable, but in the future we should be running pieces of the
@@ -123,8 +128,10 @@ PAGESPEED.LintRulesImpl.prototype.onProgress = function(
   var majorProgress = 100 * (rulesCompleted / numRules);
   var overallProgress = Math.round(majorProgress);
 
-  FirebugContext.getPanel('pagespeed').setProgress(
-    overallProgress, opt_message);
+  if (!this.doneCallback_) {
+    FirebugContext.getPanel('pagespeed').setProgress(
+        overallProgress, opt_message);
+  }
 };
 
 /**
@@ -148,8 +155,10 @@ PAGESPEED.LintRulesImpl.prototype.onPartialProgress = function(
   var minorProgress = rulePartialProgress * (100 / numRules);
   var overallProgress = Math.round(majorProgress + minorProgress);
 
-  FirebugContext.getPanel('pagespeed').setProgress(
-      overallProgress, undefined, opt_message);
+  if (!this.doneCallback_) {
+    FirebugContext.getPanel('pagespeed').setProgress(
+        overallProgress, undefined, opt_message);
+  }
 };
 
 /**
@@ -184,9 +193,21 @@ PAGESPEED.LintRulesImpl.prototype.ruleCompleted = function() {
       this.url = null;
     }
 
-    PAGESPEED.PageSpeedContext.processResults(
-        FirebugContext.getPanel('pagespeed'),
-        this.browserTab_);
+    if (this.doneCallback_) {
+      // TODO: we need to compute the overall score. However, the
+      // logic to do so is currently part of processResults, which
+      // also updates the UI. Need to factor out score computation
+      // from UI updates.
+      var overallScore = 0;
+      var results =
+          new PAGESPEED.ResultsContainer(this.browserTab_, overallScore);
+      this.doneCallback_(results);
+      this.doneCallback_ = null;
+    } else {
+      PAGESPEED.PageSpeedContext.processResults(
+          FirebugContext.getPanel('pagespeed'),
+          this.browserTab_);
+    }
 
     this.browserTab_ = null;
   } else {

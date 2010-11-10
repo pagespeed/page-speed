@@ -555,6 +555,10 @@ function ComponentCollectorService() {
   // collisions between tabs.
   this.pendingDocs_ = new LinkedHashMap(
       entriesNotTooFarApart, isEntryRecentEnough);
+
+  // Our array of callbacks that gets invoked whenever a new window is
+  // created.
+  this.newWindowCallbacks_ = [];
 }
 
 // Component Types
@@ -1539,6 +1543,28 @@ ComponentCollectorService.prototype.updateRedirectedResource = function(
 };
 
 /**
+ * @param {Function} callback Callback to invoke when a new window
+ * gets created.
+ */
+ComponentCollectorService.prototype.addNewWindowListener = function(callback) {
+  this.newWindowCallbacks_.push(callback);
+};
+
+/**
+ * Invokes all registered new window callbacks.
+ * @param {Object} win The window that was just created.
+ */
+ComponentCollectorService.prototype.onNewWindow = function(win) {
+  for (var i = 0, len = this.newWindowCallbacks_.length; i < len; ++i) {
+    try {
+      this.newWindowCallbacks_[i](win);
+    } catch (e) {
+      PS_LOG('newWindow callback threw exception: ' + e);
+    }
+  }
+};
+
+/**
  * @param {string} prop The name of the property.
  * @return {boolean} Whether the given property name is for a
  *     redirect, or for a component.
@@ -1671,23 +1697,9 @@ ProgressListenerHookInstaller.prototype.onStateChange = function(aWebProgress,
   var doc = win.document;
   var protocol = doc.location.protocol;
   if (protocol != 'http:' && protocol != 'https:') return;
-  if (!doc._pageSpeedHookedDocument) {
-    doc._pageSpeedHookedDocument = true;
-    var patcher = new DocumentWritePatcher(this.componentCollector_, win);
-    var callback = FunctionPatchUtils.bind(patcher.writeCallback, patcher);
-
-    // Use the unwrapped document. This is the JavaScript instance
-    // visible to JS running in the page, so we must be careful not to
-    // add any properties that could leak information from the
-    // component collector to the page's JavaScript.
-    var unwrappedDoc = doc.wrappedJSObject;
-
-    // Patch both document.write and document.writeln so we can
-    // intercept their calls.
-    unwrappedDoc.write =
-        FunctionPatchUtils.createPatch(callback, unwrappedDoc.write);
-    unwrappedDoc.writeln =
-        FunctionPatchUtils.createPatch(callback, unwrappedDoc.writeln);
+  if (!win._pageSpeedHookedWindow) {
+    win._pageSpeedHookedWindow = true;
+    this.componentCollector_.onNewWindow(win);
   }
 };
 
