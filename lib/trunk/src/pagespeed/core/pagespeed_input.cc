@@ -414,7 +414,6 @@ const std::string& PagespeedInput::primary_resource_url() const {
 
 const Resource* PagespeedInput::GetResourceWithUrl(
     const std::string& url) const {
-  DCHECK(frozen_);
   std::map<std::string, const Resource*>::const_iterator it =
       url_resource_map_.find(url);
   if (it == url_resource_map_.end()) {
