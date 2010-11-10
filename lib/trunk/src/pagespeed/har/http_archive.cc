@@ -193,7 +193,7 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
                     RESPONSE_HEADERS, resource);
 
     cJSON* content_json = cJSON_GetObjectItem(response_json, "content");
-    if (response_json == NULL || response_json->type != cJSON_Object) {
+    if (content_json == NULL || content_json->type != cJSON_Object) {
       INPUT_POPULATOR_ERROR() << "\"content\" field must be an object.";
     } else {
       cJSON* content_text_json = cJSON_GetObjectItem(content_json, "text");
