@@ -441,7 +441,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
         'collapsed', false);
   },
 
-  analyzePerformance: function() {
+  analyzePerformance: function(opt_doneCallback) {
     try {
       PAGESPEED.LintRules.stop();
 
@@ -459,7 +459,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
           if (numBeforeScoringCallbacks == 0) {
             // All of the before scoring clients are finished, so we
             // can now start the scoring process.
-            PAGESPEED.LintRules.exec(browserOfCurrentTab);
+            PAGESPEED.LintRules.exec(browserOfCurrentTab, opt_doneCallback);
           }
         };
 
@@ -471,7 +471,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
       } else {
         // No before scoring callbacks, so we can just invoke the
         // rules directly.
-        PAGESPEED.LintRules.exec(browserOfCurrentTab);
+        PAGESPEED.LintRules.exec(browserOfCurrentTab, opt_doneCallback);
       }
     } catch (e) {
       logException('PageSpeedModule.analyzePerformance()', e);
