@@ -32,7 +32,6 @@
         '../pagespeed/platform/platform.gyp:*',
         '../pagespeed/proto/proto.gyp:*',
         '../pagespeed/util/util.gyp:*',
-        '../third_party/jsmin/jsmin.gyp:*',
       ],
     }
   ]
