@@ -889,7 +889,7 @@ ComponentCollectorService.prototype.createDocumentEntry = function(
     documentUrl, opt_redirectFromUrl) {
   var entry = this.pendingDocs_.addEntry(documentUrl);
   entry.initTime = new Date().getTime();
-  entry.resourceProperties = {};
+  entry.resourceProperties = { requestTime: entry.initTime };
 };
 
 /**
@@ -968,7 +968,8 @@ ComponentCollectorService.prototype.observeRequest = function(httpChannel) {
 
   // Attach the request headers to the associated component entry.
   var srcObject = {
-    requestHeaders: getHeadersFromChannel(httpChannel, true)
+    requestHeaders: getHeadersFromChannel(httpChannel, true),
+    requestMethod: httpChannel.requestMethod,
   };
 
   this.bindToPendingDocumentOrComponent(srcObject, win, toURI);
@@ -1004,12 +1005,17 @@ ComponentCollectorService.prototype.observeRedirect = function(
     this.createDocumentEntry(toURI);
     this.pendingDocs_.linkPrev(toURI, finalURI);
   } else {
-    this.addWindowComponent(
+    var typeUrlObj = this.addWindowComponent(
         win,
         ComponentCollectorService.TYPE_REDIRECT,
         finalURI,
         toURI,
         true);
+    if (typeUrlObj) {
+      if (!typeUrlObj.requestTime) {
+        typeUrlObj.requestTime = (new Date()).getTime();
+      }
+    }
   }
 };
 
@@ -1572,7 +1578,8 @@ ComponentCollectorService.prototype.onNewWindow = function(win) {
 function isRedirectProperty(prop) {
   return prop == 'requestHeaders' ||
     prop == 'responseHeaders' ||
-    prop == 'responseCode';
+    prop == 'responseCode' ||
+    prop == 'requestMethod';
 }
 
 /**

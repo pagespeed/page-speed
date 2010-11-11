@@ -148,6 +148,7 @@
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
         '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
+        '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
       ],

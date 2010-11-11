@@ -678,7 +678,7 @@ PAGESPEED.Utils = {  // Begin namespace
     var cookieService = PAGESPEED.Utils.CCSV(
         '@mozilla.org/cookieService;1', 'nsICookieService');
     var uri = PAGESPEED.Utils.getIOService().newURI(url, null, null);
-    return cookieService.getCookieStringFromHttp(uri, uri, null);
+    return cookieService.getCookieString(uri, null);
   },
 
   /**
@@ -1435,7 +1435,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * Fetch the current document URL or return an empty string.
    * @return {string} The URL of the primary doc component.
    */
-  getDocumentUrl: function () {
+  getDocumentUrl: function() {
     var aDocUrls = PAGESPEED.Utils.getResources('doc');
     if (aDocUrls && aDocUrls[0]) {
       if (aDocUrls.length > 1) {

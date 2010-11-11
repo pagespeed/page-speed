@@ -31,36 +31,8 @@ namespace pagespeed {
 
 namespace {
 
-// These next two classes aid with the PopulateHeaders template method in the
-// InputPopulator class.
-
-class AddRequestHeader {
- public:
-  explicit AddRequestHeader(Resource* resource) : resource_(resource) {}
-  ~AddRequestHeader() {}
-  void operator() (const std::string &key, const std::string &value) {
-    resource_->AddRequestHeader(key, value);
-  }
- private:
-  Resource *resource_;
-  DISALLOW_COPY_AND_ASSIGN(AddRequestHeader);
-};
-
-class AddResponseHeader {
- public:
-  explicit AddResponseHeader(Resource* resource) : resource_(resource) {}
-  ~AddResponseHeader() {}
-  void operator() (const std::string &key, const std::string &value) {
-    resource_->AddResponseHeader(key, value);
-  }
- private:
-  Resource *resource_;
-  DISALLOW_COPY_AND_ASSIGN(AddResponseHeader);
-};
-
 // The InputPopulator class below allows us to populate a PagespeedInput object
 // from JSON data, while keeping track of our error state.
-
 class InputPopulator {
  public:
   // Parse the JSON string and use it to populate the input.  If any errors
@@ -82,11 +54,6 @@ class InputPopulator {
   // Get the contents of the body to which the JSON value refers.
   const std::string RetrieveBody(cJSON *attribute_json);
 
-  // Given a means of adding headers to a resource, and JSON value representing
-  // a list of headers, add the headers represented by the JSON.
-  template <class AddHeader>
-  void PopulateHeaders(AddHeader &add_header, cJSON *attribute_json);
-
   // Given a JSON value representing all JavaScript calls, add those
   // calls to the Resource object.
   void PopulateJsCalls(Resource* resource, cJSON *attribute_json);
@@ -103,8 +70,8 @@ class InputPopulator {
   // PagespeedInput object.
   void PopulateInput(PagespeedInput *input, cJSON *resources_json);
 
-  bool error_;  // true if there's been at least one error, false otherwise
   const std::vector<std::string> *contents_;
+  bool error_;  // true if there's been at least one error, false otherwise
 
   DISALLOW_COPY_AND_ASSIGN(InputPopulator);
 };
@@ -137,32 +104,6 @@ const std::string InputPopulator::RetrieveBody(cJSON *attribute_json) {
   } else {
     INPUT_POPULATOR_ERROR() << "Body index out of range: " << index;
     return "";
-  }
-}
-
-template <class AddHeader>
-void InputPopulator::PopulateHeaders(AddHeader &add_header,
-                                     cJSON *attribute_json) {
-  if (attribute_json->type != cJSON_Array) {
-    INPUT_POPULATOR_ERROR() << "Expected array value for key: "
-                            << attribute_json->string;
-    return;
-  }
-
-  for (cJSON *header_json = attribute_json->child;
-       header_json != NULL; header_json = header_json->next) {
-    if (header_json->type != cJSON_Array) {
-      INPUT_POPULATOR_ERROR() << "Expected array value for header entry.";
-      continue;
-    }
-
-    if (cJSON_GetArraySize(header_json) != 2) {
-      INPUT_POPULATOR_ERROR() << "Expected array of size 2 for header entry.";
-      continue;
-    }
-
-    add_header(ToString(cJSON_GetArrayItem(header_json, 0)),
-               ToString(cJSON_GetArrayItem(header_json, 1)));
   }
 }
 
@@ -228,37 +169,16 @@ void InputPopulator::PopulateJsCalls(Resource* resource,
 
 void InputPopulator::PopulateAttribute(Resource *resource,
                                        cJSON *attribute_json) {
-  const std::string &key = attribute_json->string;
-  if (key == "req_url") {
-    resource->SetRequestUrl(ToString(attribute_json));
-  } else if (key == "req_method") {
-    resource->SetRequestMethod(ToString(attribute_json));
-  } else if (key == "req_headers") {
-    AddRequestHeader add_header(resource);
-    PopulateHeaders(add_header, attribute_json);
-  } else if (key == "req_body") {
-    resource->SetRequestBody(RetrieveBody(attribute_json));
-  } else if (key == "req_cookies") {
+  const std::string key = attribute_json->string;
+  if (key =="url") {
+    // Nothing to do. we already validated this field in
+    // PopulateResource.
+  } else if (key == "cookieString") {
     resource->SetCookies(ToString(attribute_json));
-  } else if (key == "res_status") {
-    resource->SetResponseStatusCode(ToInt(attribute_json));
-  } else if (key == "res_headers") {
-    AddResponseHeader add_header(resource);
-    PopulateHeaders(add_header, attribute_json);
-  } else if (key == "res_body") {
-    resource->SetResponseBody(RetrieveBody(attribute_json));
-  } else if (key == "req_lazy_loaded") {
-    if (attribute_json->type == cJSON_True) {
-      resource->SetLazyLoaded();
-    } else if (attribute_json->type == cJSON_False) {
-      // do nothing, resource defaults to not lazy-loaded.
-    } else {
-      INPUT_POPULATOR_ERROR() << "lazy_loaded should be true(1) or false(0). "
-                              << key << ": " << attribute_json->type;
-    }
-
-  } else if (key == "js_calls") {
+  } else if (key == "jsCalls") {
     PopulateJsCalls(resource, attribute_json);
+  } else if (key == "bodyIndex") {
+    resource->SetResponseBody(RetrieveBody(attribute_json));
   } else {
     INPUT_POPULATOR_ERROR() << "Unknown attribute key: " << key;
   }
@@ -284,11 +204,17 @@ void InputPopulator::PopulateInput(PagespeedInput *input,
     return;
   }
 
+  int resource_idx = 0;
   for (cJSON *resource_json = resources_json->child;
-       resource_json != NULL; resource_json = resource_json->next) {
-    Resource *resource = new Resource();
+       resource_json != NULL;
+       resource_json = resource_json->next, ++resource_idx) {
+    std::string url = ToString(cJSON_GetObjectItem(resource_json, "url"));
+    Resource* resource = input->GetMutableResourceWithUrl(url);
+    if (resource == NULL) {
+      // This can happen if a resource filter was applied.
+      continue;
+    }
     PopulateResource(resource, resource_json);
-    input->AddResource(resource);  // Ownership is transferred to input.
   }
 }
 

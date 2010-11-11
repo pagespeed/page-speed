@@ -45,6 +45,7 @@
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
@@ -293,7 +294,8 @@ PageSpeedRules::PageSpeedRules() {}
 PageSpeedRules::~PageSpeedRules() {}
 
 NS_IMETHODIMP
-PageSpeedRules::ComputeAndFormatResults(const nsACString& data,
+PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
+                                        const nsACString& custom_data,
                                         nsIArray* input_streams,
                                         const nsACString& root_url,
                                         nsIDOMDocument* root_document,
@@ -306,9 +308,16 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& data,
   // at that point, so we do it here instead.
   logging::SetMinLogLevel(logging::LOG_WARNING);
 #endif
-  const char* data_utf8;
-  PRBool terminated = 0;
-  PRUint32 count = NS_CStringGetData(data, &data_utf8, &terminated);
+  const char* har_data_utf8;
+  PRBool terminated = PR_FALSE;
+  PRUint32 count = NS_CStringGetData(har_data, &har_data_utf8, &terminated);
+  // It would be a fatal error to receive unterminated strings here so better
+  // to crash. We do not expect that to ever happen.
+  CHECK(terminated) << "Received unterminated data.";
+
+  const char* custom_data_utf8;
+  terminated = PR_FALSE;
+  count = NS_CStringGetData(custom_data, &custom_data_utf8, &terminated);
   // It would be a fatal error to receive unterminated strings here so better
   // to crash. We do not expect that to ever happen.
   CHECK(terminated) << "Received unterminated data.";
@@ -327,19 +336,26 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& data,
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
-  PagespeedInput input(ChoiceToFilter(filter_choice));
-  input.AcquireDomDocument(firefox::CreateDocument(root_document));
-  input.AcquireImageAttributesFactory(
-      new pagespeed::image_compression::ImageAttributesFactory());
-  if (PopulateInputFromJSON(&input, data_utf8, contents)) {
+  scoped_ptr<PagespeedInput> input(
+      pagespeed::ParseHttpArchiveWithFilter(
+          har_data_utf8, ChoiceToFilter(filter_choice)));
+  if (input != NULL) {
+    if (!PopulateInputFromJSON(input.get(), custom_data_utf8, contents)) {
+      LOG(ERROR) << "Failed to parse custom JSON.";
+      return NS_ERROR_FAILURE;
+    }
     const char* root_url_utf8;
+    terminated = PR_FALSE;
     NS_CStringGetData(root_url, &root_url_utf8, &terminated);
     CHECK(terminated) << "Received unterminated data.";
     const std::string root_url_str(root_url_utf8);
     if (!root_url_str.empty()) {
-      input.SetPrimaryResourceUrl(root_url_str);
+      input->SetPrimaryResourceUrl(root_url_str);
     }
-    input.Freeze();
+    input->AcquireDomDocument(firefox::CreateDocument(root_document));
+    input->AcquireImageAttributesFactory(
+        new pagespeed::image_compression::ImageAttributesFactory());
+    input->Freeze();
 
     std::stringstream stream;
     scoped_ptr<PluginSerializer> serializer;
@@ -347,12 +363,13 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& data,
       serializer.reset(new PluginSerializer(output_dir));
     }
     formatters::JsonFormatter formatter(&stream, serializer.get());
-    engine.ComputeAndFormatResults(input, &formatter);
+    engine.ComputeAndFormatResults(*input.get(), &formatter);
 
     const std::string& output_string = stream.str();
     _retval.Assign(output_string.c_str(), output_string.length());
     return NS_OK;
   } else {
+    LOG(ERROR) << "Failed to parse HAR.";
     return NS_ERROR_FAILURE;
   }
 }
