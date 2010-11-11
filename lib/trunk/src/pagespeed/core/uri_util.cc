@@ -130,6 +130,15 @@ bool ResolveUriForDocumentWithUrl(
   return true;
 }
 
+bool IsExternalResourceUrl(const std::string& url) {
+  GURL gurl(url);
+  if (!gurl.is_valid()) {
+    return false;
+  }
+
+  return !gurl.SchemeIs("data");
+}
+
 }  // namespace uri_util
 
 }  // namespace pagespeed

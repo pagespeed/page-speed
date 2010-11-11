@@ -34,6 +34,7 @@ namespace {
 typedef std::map<std::string, ResultVector> RuleToResultMap;
 
 void PopulateRuleToResultMap(const Results& results,
+                             const ResultFilter& filter,
                              RuleToResultMap *rule_to_result_map) {
   for (int idx = 0, end = results.rules_size(); idx < end; ++idx) {
     // Create an entry for each rule that was run, even if there are
@@ -43,7 +44,9 @@ void PopulateRuleToResultMap(const Results& results,
 
   for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
     const Result& result = results.results(idx);
-    (*rule_to_result_map)[result.rule_name()].push_back(&result);
+    if (filter.IsAccepted(result)) {
+      (*rule_to_result_map)[result.rule_name()].push_back(&result);
+    }
   }
 }
 
@@ -138,6 +141,7 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
 }
 
 bool Engine::FormatResults(const Results& results,
+                           const ResultFilter& filter,
                            RuleFormatter* formatter) const {
   CHECK(init_has_been_called_);
 
@@ -147,7 +151,7 @@ bool Engine::FormatResults(const Results& results,
   }
 
   RuleToResultMap rule_to_result_map;
-  PopulateRuleToResultMap(results, &rule_to_result_map);
+  PopulateRuleToResultMap(results, filter, &rule_to_result_map);
 
   bool success = true;
   for (int idx = 0, end = results.rules_size(); idx < end; ++idx) {
@@ -175,12 +179,13 @@ bool Engine::FormatResults(const Results& results,
 }
 
 bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
+                                     const ResultFilter& filter,
                                      RuleFormatter* formatter) const {
   CHECK(init_has_been_called_);
 
   Results results;
   bool success = ComputeResults(input, &results);
-  success = FormatResults(results, formatter) && success;
+  success = FormatResults(results, filter, formatter) && success;
   return success;
 }
 
@@ -193,6 +198,16 @@ void Engine::PrepareResults(const PagespeedInput& input,
   }
   results->mutable_input_info()->CopyFrom(*input.input_information());
   GetPageSpeedVersion(results->mutable_version());
+}
+
+ResultFilter::ResultFilter() {}
+ResultFilter::~ResultFilter() {}
+
+AlwaysAcceptResultFilter::AlwaysAcceptResultFilter() {}
+AlwaysAcceptResultFilter::~AlwaysAcceptResultFilter() {}
+
+bool AlwaysAcceptResultFilter::IsAccepted(const Result& result) const {
+  return true;
 }
 
 }  // namespace pagespeed

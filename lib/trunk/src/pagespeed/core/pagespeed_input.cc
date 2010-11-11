@@ -235,6 +235,11 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
     return;
   }
   std::string uri = document_->ResolveUri(relative_uri);
+  if (!uri_util::IsExternalResourceUrl(uri)) {
+    // If this is a URL for a non-external resource (e.g. a data URI)
+    // then we should not attempt to process it.
+    return;
+  }
   const Resource* resource = pagespeed_input_->GetResourceWithUrl(uri);
   if (resource == NULL) {
     LOG(INFO) << "Unable to find resource " << uri;
@@ -420,6 +425,23 @@ const Resource* PagespeedInput::GetResourceWithUrl(
     return NULL;
   }
   return it->second;
+}
+
+Resource* PagespeedInput::GetMutableResource(int idx) {
+  if (frozen_) {
+    LOG(DFATAL) << "Unable to get mutable resource after freezing.";
+    return NULL;
+  }
+  return const_cast<Resource*>(&GetResource(idx));
+}
+
+Resource* PagespeedInput::GetMutableResourceWithUrl(
+    const std::string& url) {
+  if (frozen_) {
+    LOG(DFATAL) << "Unable to get mutable resource after freezing.";
+    return NULL;
+  }
+  return const_cast<Resource*>(GetResourceWithUrl(url));
 }
 
 InputCapabilities PagespeedInput::EstimateCapabilities() const {

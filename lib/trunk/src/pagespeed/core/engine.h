@@ -32,8 +32,33 @@ class InputInformation;
 class PagespeedInput;
 class ResultText;
 class Results;
+class Result;
 class Rule;
 class RuleFormatter;
+
+// ResultFilter is used to filter the results passed to the
+// formatter. A ResultFilter might want to remove Results that have an
+// impact under a certain threshold (e.g. saves less than 100 bytes).
+class ResultFilter {
+ public:
+  ResultFilter();
+  virtual ~ResultFilter();
+  virtual bool IsAccepted(const Result& result) const = 0;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ResultFilter);
+};
+
+class AlwaysAcceptResultFilter : public ResultFilter {
+ public:
+  AlwaysAcceptResultFilter();
+  virtual ~AlwaysAcceptResultFilter();
+
+  virtual bool IsAccepted(const Result& result) const;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(AlwaysAcceptResultFilter);
+};
 
 class Engine {
  public:
@@ -57,6 +82,7 @@ class Engine {
   // human-readable markup that will be displayed to a user.
   // @return true iff the formatting was completed without errors.
   bool FormatResults(const Results& results,
+                     const ResultFilter& filter,
                      RuleFormatter* formatter) const;
 
   // Compute the results and generate their formatted
@@ -66,7 +92,20 @@ class Engine {
   // false is returned, the formatter will only be invoked for those
   // results that did not generate errors.
   bool ComputeAndFormatResults(const PagespeedInput& input,
+                               const ResultFilter& filter,
                                RuleFormatter* formatter) const;
+
+  bool FormatResults(const Results& results,
+                     RuleFormatter* formatter) const {
+    AlwaysAcceptResultFilter filter;
+    return FormatResults(results, filter, formatter);
+  }
+
+  bool ComputeAndFormatResults(const PagespeedInput& input,
+                               RuleFormatter* formatter) const {
+    AlwaysAcceptResultFilter filter;
+    return ComputeAndFormatResults(input, filter, formatter);
+  }
 
  private:
   void PopulateNameToRuleMap();

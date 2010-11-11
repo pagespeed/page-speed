@@ -159,6 +159,41 @@ TEST(EngineTest, FormatResults) {
   delete result_text[0];
 }
 
+class NeverAcceptResultFilter : public pagespeed::ResultFilter {
+ public:
+  NeverAcceptResultFilter() {}
+  virtual ~NeverAcceptResultFilter() {}
+
+  virtual bool IsAccepted(const Result& result) const { return false; }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(NeverAcceptResultFilter);
+};
+
+TEST(EngineTest, FormatResultsFilter) {
+  PagespeedInput input;
+  input.Freeze();
+
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
+
+  Engine engine(&rules);
+  engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
+
+  std::vector<ResultText*> result_text;
+  ProtoFormatter formatter(&result_text);
+  NeverAcceptResultFilter filter;
+  ASSERT_TRUE(engine.FormatResults(results, filter, &formatter));
+  ASSERT_EQ(static_cast<size_t>(1), result_text.size());
+  const ResultText& root = *result_text[0];
+  ASSERT_EQ(kHeader, root.format());
+  ASSERT_EQ(0, root.args_size());
+  ASSERT_EQ(0, root.children_size());
+  delete result_text[0];
+}
+
 TEST(EngineTest, FormatResultsNoResults) {
   PagespeedInput input;
   input.Freeze();
