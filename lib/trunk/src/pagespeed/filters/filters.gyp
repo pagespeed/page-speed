@@ -23,12 +23,14 @@
       'type': '<(library)',
       'dependencies': [
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/util/util.gyp:pagespeed_util',
         '<(pagespeed_root)/third_party/adblockrules/adblockrules.gyp:adblockrules',
       ],
       'sources': [
         'ad_filter.cc',
         'protocol_filter.cc',
+        'response_byte_result_filter.cc',
         'tracker_filter.cc',
       ],
       'include_dirs': [

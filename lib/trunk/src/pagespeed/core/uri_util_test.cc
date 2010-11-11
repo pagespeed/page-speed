@@ -90,4 +90,13 @@ TEST_F(ResolveUriForDocumentWithUrlTest, Iframe) {
   ASSERT_EQ("http://testing.com/foo/iframe/foo", out);
 }
 
+TEST(UriUtil, IsExternalResourceUrl) {
+  ASSERT_FALSE(pagespeed::uri_util::IsExternalResourceUrl(
+      "data:image/png;base64,iVBORw0KGgoAA"));
+  ASSERT_TRUE(pagespeed::uri_util::IsExternalResourceUrl(
+      "http://www.example.com/"));
+  ASSERT_TRUE(pagespeed::uri_util::IsExternalResourceUrl(
+      "https://www.example.com/foo.js"));
+}
+
 }  // namespace

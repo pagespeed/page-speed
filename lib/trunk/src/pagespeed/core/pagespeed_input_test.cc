@@ -51,6 +51,27 @@ TEST(PagespeedInputTest, DisallowDuplicates) {
   EXPECT_EQ(input.GetResource(1).GetRequestUrl(), kURL2);
 }
 
+TEST(PagespeedInputTest, GetMutableResource) {
+  PagespeedInput input;
+
+  EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
+  EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
+  EXPECT_FALSE(input.AddResource(NewResource(kURL2, 200)));
+  ASSERT_EQ(input.num_resources(), 2);
+  EXPECT_EQ(input.GetMutableResource(0)->GetRequestUrl(), kURL1);
+  EXPECT_EQ(input.GetMutableResource(1)->GetRequestUrl(), kURL2);
+  EXPECT_EQ(input.GetMutableResourceWithUrl(kURL1)->GetRequestUrl(), kURL1);
+  EXPECT_EQ(input.GetMutableResourceWithUrl(kURL2)->GetRequestUrl(), kURL2);
+
+  ASSERT_TRUE(input.Freeze());
+#ifdef NDEBUG
+  ASSERT_EQ(NULL, input.GetMutableResource(0));
+#else
+  ASSERT_DEATH(input.GetMutableResource(0),
+               "Unable to get mutable resource after freezing.");
+#endif
+}
+
 TEST(PagespeedInputTest, FilterBadResources) {
   PagespeedInput input;
   EXPECT_FALSE(input.AddResource(NewResource("", 0)));

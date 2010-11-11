@@ -113,6 +113,7 @@
         'cssmin/cssmin_test.cc',
         'filters/ad_filter_test.cc',
         'filters/protocol_filter_test.cc',
+        'filters/response_byte_result_filter_test.cc',
         'filters/tracker_filter_test.cc',
         'formatters/formatter_util_test.cc',
         'formatters/json_formatter_test.cc',

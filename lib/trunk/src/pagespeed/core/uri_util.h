@@ -42,6 +42,10 @@ bool ResolveUriForDocumentWithUrl(
     const std::string& document_url_to_find,
     std::string* out_resolved_url);
 
+// Is the given URL for an external resource, as opposed to an inline
+// resource like a data URI?
+bool IsExternalResourceUrl(const std::string& uri);
+
 }  // namespace uri_util
 
 }  // namespace pagespeed

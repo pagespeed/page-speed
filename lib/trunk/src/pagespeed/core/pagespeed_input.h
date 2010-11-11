@@ -81,6 +81,12 @@ class PagespeedInput {
   bool has_resource_with_url(const std::string& url) const;
   const Resource& GetResource(int idx) const;
   const Resource* GetResourceWithUrl(const std::string& url) const;
+
+  // Get a non-const pointer to a resource. It is an error to call
+  // these methods after this object has been frozen.
+  Resource* GetMutableResource(int idx);
+  Resource* GetMutableResourceWithUrl(const std::string& url);
+
   ImageAttributes* NewImageAttributes(const Resource* resource) const;
 
   // Get the map from hostname to all resources on that hostname.
