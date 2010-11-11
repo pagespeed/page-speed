@@ -29,7 +29,7 @@
 function translateHeaders(headers_object) {
   var headersList = [];
   for (var key in headers_object) {
-    headersList.push([key, headers_object[key]]);
+    headersList.push({ name: key, value: headers_object[key] });
   }
   return headersList;
 }
@@ -198,8 +198,51 @@ PAGESPEED.NativeLibrary = {
       return [];
     }
 
+    var documentUrl = PAGESPEED.Utils.getDocumentUrl();
+    var docRequestTime =
+        PAGESPEED.Utils.getResourceProperty(documentUrl, 'requestTime');
+    if (!docRequestTime || docRequestTime <= 0) {
+      PS_LOG('Unable to find document request time.');
+      return [];
+    }
+    var startedDateTime = new Date(docRequestTime);
+
+    // onload may not be available in all cases, i.e. if Page Speed
+    // was invoked before the onload event.
     var onloadTime = FirebugContext.window.onloadTime;
-    var resources = [];
+    var timeToOnload = -1;
+    if (onloadTime && onloadTime > 0) {
+      timeToOnload = onloadTime - docRequestTime;
+    }
+
+    // We construct a HAR that includes just the subset of data that
+    // we need. Some fields required by HAR are excluded if the Page
+    // Speed library doesn't require them.
+    var log = {};
+    log.version = '1.2';
+    log.creator = {
+      name: 'Page Speed',
+      version: PAGESPEED.Utils.getPageSpeedVersion(),
+    };
+    log.browser = {
+      name: 'Firefox',
+      version: PAGESPEED.Utils.getFirefoxVersion(),
+    };
+    log.pages = [
+      {
+        startedDateTime: startedDateTime,
+        id: 'page_0',
+        pageTimings: {
+          onLoad: timeToOnload,
+        },
+      },
+    ];
+    log.entries = [];
+
+    // We also pass a parallel structure that contains extra
+    // per-resource data that's not part of the HAR spec.
+    var customEntries = [];
+
     var bodyInputStreams = [];
     var resourceURLs = PAGESPEED.Utils.getResources();
     for (var i = 0; i < resourceURLs.length; ++i) {
@@ -213,26 +256,61 @@ PAGESPEED.NativeLibrary = {
                PAGESPEED.Utils.formatException(e));
         continue;
       }
-      bodyInputStreams.push(inputStream);
       var requestTime = PAGESPEED.Utils.getResourceProperty(url, 'requestTime');
-      var javaScriptCalls =
-          PAGESPEED.Utils.getResourceProperty(url, 'javaScriptCalls');
-      resources.push({
-        // TODO Add req_method and req_body.
-        req_headers: translateHeaders(PAGESPEED.Utils.getRequestHeaders(url)),
-        res_status: PAGESPEED.Utils.getResponseCode(url),
-        res_headers: translateHeaders(PAGESPEED.Utils.getResponseHeaders(url)),
-        res_body: res_body_index,
-        req_url: url,
-        req_cookies: PAGESPEED.Utils.getCookieString(url) || '',
-        req_lazy_loaded: (requestTime > onloadTime),
-        js_calls: javaScriptCalls
-      });
+      if (!requestTime || requestTime <= 0) {
+        PS_LOG('Could not get request time for "' + url + '".');
+        continue;
+      }
+      var requestMethod =
+          PAGESPEED.Utils.getResourceProperty(url, 'requestMethod');
+      if (!requestMethod) {
+        PS_LOG('Unable to get request method for "' + url + '".');
+        // assume GET for backward compatibility.
+        requestMethod = 'GET';
+      }
+      bodyInputStreams.push(inputStream);
+      var entry = {
+        pageref: 'page_0',
+        startedDateTime: new Date(requestTime),
+        request: {
+          method: requestMethod,
+          url: url,
+          headers: translateHeaders(PAGESPEED.Utils.getRequestHeaders(url)),
+        },
+        response: {
+          status: PAGESPEED.Utils.getResponseCode(url),
+          headers: translateHeaders(PAGESPEED.Utils.getResponseHeaders(url)),
+          content: {
+            // Our HAR parser requires this field. We pass the
+            // contents outside of the HAR so we just provide an empty
+            // body here to make the HAR parser happy. We will
+            // overwrite this data with the actual body contents after
+            // parsing the HAR.
+            text: '',
+          },
+        },
+      };
+      log.entries.push(entry);
+
+      // We want to send some per-resource data that isn't part of the
+      // HAR spec, so we encode it into an array that parallels the
+      // contents of log.entries, and then merge them in the JSON
+      // parser.
+      var custom = {
+        url: url,
+        cookieString: PAGESPEED.Utils.getCookieString(url) || '',
+        bodyIndex: res_body_index,
+        jsCalls:
+            PAGESPEED.Utils.getResourceProperty(url, 'javaScriptCalls'),
+      };
+      customEntries.push(custom);
     }
 
-    var inputJSON = JSON.stringify(resources);
+    var har = { log: log };
+    var inputJSON = JSON.stringify(har);
     var resultJSON = pagespeedRules.computeAndFormatResults(
       inputJSON,
+      JSON.stringify(customEntries),
       PAGESPEED.Utils.newNsIArray(bodyInputStreams),
       PAGESPEED.Utils.getDocumentUrl(),
       PAGESPEED.Utils.getElementsByType('doc')[0],

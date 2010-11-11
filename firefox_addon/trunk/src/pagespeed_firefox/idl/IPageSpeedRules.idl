@@ -34,7 +34,8 @@ interface IPageSpeedRules : nsISupports {
   const short RESOURCE_FILTER_ONLY_CONTENT = 3;
 
   // Run all the rules and return the formatted results as a string.
-  AUTF8String computeAndFormatResults(in AUTF8String data,
+  AUTF8String computeAndFormatResults(in AUTF8String harData,
+                                      in AUTF8String customData,
                                       in nsIArray inputStreams,
                                       in AUTF8String rootUrl,
                                       in nsIDOMDocument rootDocument,
