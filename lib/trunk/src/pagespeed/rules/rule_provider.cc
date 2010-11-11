@@ -60,8 +60,6 @@ static const char* kCoreRules[] = {
   "minimizerequestsize",
   "optimizeimages",
   "optimizetheorderofstylesandscripts",
-  "parallelizedownloadsacrosshostnames",
-  "preferasyncresources",
   "putcssinthedocumenthead",
   "removequerystringsfromstaticresources",
   "serveresourcesfromaconsistenturl",
@@ -77,11 +75,12 @@ static const char* kCoreRules[] = {
 static const char* kOldBrowserRules[] = {
   "combineexternalcss",
   "combineexternaljavascript",
+  "parallelizedownloadsacrosshostnames",
   NULL,
 };
 
 static const char* kNewBrowserRules[] = {
-  // TODO(aoates): which rules are "new browser" rules?
+  "preferasyncresources",
   NULL,
 };
 
