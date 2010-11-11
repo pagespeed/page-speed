@@ -195,4 +195,11 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, BinaryResponseBodies) {
   CheckNoViolations();
 }
 
+TEST_F(ServeResourcesFromAConsistentUrlTest, CrossDomainXml) {
+  const char* kCrossDomainBody = "example response body";
+  AddTestResource("http://www.example.com/crossdomain.xml", kCrossDomainBody);
+  AddTestResource("http://foo.example.com/crossdomain.xml", kCrossDomainBody);
+  CheckNoViolations();
+}
+
 }  // namespace

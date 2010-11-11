@@ -28,6 +28,9 @@
 
 namespace {
 
+static const char* kCrossDomainXmlSuffix = "/crossdomain.xml";
+static const size_t kCrossDomainXmlSuffixLen = strlen(kCrossDomainXmlSuffix);
+
 struct ResourceBodyLessThan {
   bool operator()(const std::string* a,
                   const std::string* b) const {
@@ -79,15 +82,21 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
       // about.
       continue;
     }
-    const std::string& body = resource.GetResponseBody();
-    // Exclude tiny resources (like 1x1 gif images).
-    // Serving tiny non-cacheable resources from a large number of
-    // locations is a necessity for performance and/or ad tracking
-    // purposes.  These extra requests are expensive and should be
-    // treated as diffirent kind of violation instead of being clumped
-    // together with larger resources served from multiple locations.
-    if (body.length() < 100) {
+    if (resource.GetResponseBody().empty()) {
+      // Exclude responses with empty bodies.
       continue;
+    }
+    const std::string& url = resource.GetRequestUrl();
+    if (kCrossDomainXmlSuffixLen <= url.size()) {
+      const size_t offset = url.size() - kCrossDomainXmlSuffixLen;
+      if (url.find(kCrossDomainXmlSuffix, offset) == offset) {
+        // Looks like an Adobe crossdomain.xml resource, which may be
+        // hosted on different domains in order to enable cross-domain
+        // communication in Flash, so skip it. See
+        // http://kb2.adobe.com/cps/142/tn_14213.html for more
+        // information.
+        continue;
+      }
     }
     map[&resource.GetResponseBody()].insert(&resource);
   }
