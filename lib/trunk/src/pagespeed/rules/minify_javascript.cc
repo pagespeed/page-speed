@@ -63,7 +63,7 @@ const char* JsMinifier::documentation_url() const {
 }
 
 const char* JsMinifier::body_format() const {
-  return ("Minifying the following JavaScript resources using JSMin could "
+  return ("Minifying the following JavaScript resources could "
           "reduce their size by $1 ($2% reduction).");
 }
 
