@@ -318,9 +318,11 @@ var pagespeed = {
             var entries = resources.map(function (resource) {
               var entry = resource.har;
               var body = bodyMap[resource.id];
-              var content = entry.response.content;
-              content.text = body.content;
-              content.encoding = body.encoding;
+              if (body) {
+                var content = entry.response.content;
+                content.text = body.content;
+                content.encoding = body.encoding;
+              }
               return entry;
             });
             var har = {log: {entries: entries}};
