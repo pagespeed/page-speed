@@ -44,7 +44,6 @@ class InputPopulator {
   void PopulateResource(cJSON* entry_json, Resource* resource);
   void PopulateHeaders(cJSON* headers_json, HeaderType htype,
                        Resource* resource);
-  int GetInt(cJSON *object, const char* key);
   const std::string GetString(cJSON *object, const char* key);
 
   bool error_;
@@ -188,7 +187,13 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
       return;
     }
 
-    resource->SetResponseStatusCode(GetInt(response_json, "status"));
+    { // Get the response status code, if it's available.
+      cJSON* status_json = cJSON_GetObjectItem(response_json, "status");
+      if (status_json != NULL && status_json->type == cJSON_Number) {
+        resource->SetResponseStatusCode(status_json->valueint);
+      }
+    }
+
     PopulateHeaders(cJSON_GetObjectItem(response_json, "headers"),
                     RESPONSE_HEADERS, resource);
 
@@ -272,17 +277,6 @@ void InputPopulator::PopulateHeaders(cJSON* headers_json, HeaderType htype,
       default:
         DCHECK(false);
     }
-  }
-}
-
-int InputPopulator::GetInt(cJSON* object, const char* key) {
-  DCHECK(object != NULL && object->type == cJSON_Object);
-  cJSON* value = cJSON_GetObjectItem(object, key);
-  if (value != NULL && value->type == cJSON_Number) {
-    return value->valueint;
-  } else {
-    INPUT_POPULATOR_ERROR() << '"' << key << "\" field must be a number.";
-    return 0;
   }
 }
 

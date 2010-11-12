@@ -56,8 +56,8 @@ bool PagespeedInput::IsValidResource(const Resource* resource) const {
     return false;
   }
   if (resource->GetResponseStatusCode() <= 0) {
-    LOG(WARNING) << "Refusing Resource with invalid status code \""
-                 << resource->GetResponseStatusCode() << "\".";
+    LOG(WARNING) << "Refusing Resource with invalid status code "
+                 << resource->GetResponseStatusCode() << ": " << url;
     return false;
   }
 
