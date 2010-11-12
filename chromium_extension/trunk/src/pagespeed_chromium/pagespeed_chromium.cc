@@ -199,7 +199,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
     const bool success = RunPageSpeedRules(NewFilter(filter_string), document,
                                            input_buffer_, &output_buffer_);
     if (!success) {
-      output_buffer_.append("Error reading HAR");
+      output_buffer_.assign("{error_message:\"Error reading HAR\"}");
     }
 
     input_buffer_.clear();

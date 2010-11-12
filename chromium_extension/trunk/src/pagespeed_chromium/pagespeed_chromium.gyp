@@ -62,6 +62,7 @@
           'action_name': 'copy_files',
           'inputs': [
             '<(PRODUCT_DIR)/pagespeed',
+            'extension_files/audits.js',
             'extension_files/background.html',
             'extension_files/background.js',
             'extension_files/content-script.js',
@@ -77,6 +78,7 @@
             'extension_files/warningOrangeDot.png',
           ],
           'outputs': [
+            '<(PRODUCT_DIR)/pagespeed/audits.js',
             '<(PRODUCT_DIR)/pagespeed/background.html',
             '<(PRODUCT_DIR)/pagespeed/background.js',
             '<(PRODUCT_DIR)/pagespeed/content-script.js',
