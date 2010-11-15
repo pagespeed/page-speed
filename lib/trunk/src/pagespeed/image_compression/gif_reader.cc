@@ -99,6 +99,11 @@ bool ReadImageDescriptor(GifFileType* gif_file,
       gif_file->Image.ColorMap != NULL ?
       gif_file->Image.ColorMap : gif_file->SColorMap;
 
+  if (color_map == NULL) {
+    LOG(INFO) << "Failed to find color map.";
+    return false;
+  }
+
   png_color palette[256];
   if (color_map->ColorCount < 0 || color_map->ColorCount > 256) {
     LOG(INFO) << "Invalid color count " << color_map->ColorCount;
