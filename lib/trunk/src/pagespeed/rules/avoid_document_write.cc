@@ -19,7 +19,6 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
-#include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/util/public/google_message_handler.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/image_attributes.h"
@@ -29,100 +28,12 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
-#include "pagespeed/core/uri_util.h"
+#include "pagespeed/html/external_resource_filter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
 
 namespace {
-
-class ExternalResourceFilter : public net_instaweb::EmptyHtmlFilter {
- public:
-  ExternalResourceFilter(net_instaweb::HtmlParse* html_parse);
-
-  virtual void StartDocument();
-  virtual void StartElement(net_instaweb::HtmlElement* element);
-  virtual const char* Name() const { return "ExternalResource"; }
-
-  // Get the URLs of resources referenced by the parsed HTML.
-  bool GetExternalResourceUrls(std::vector<std::string>* out) const;
-
- private:
-  net_instaweb::Atom script_atom_;
-  net_instaweb::Atom src_atom_;
-  net_instaweb::Atom link_atom_;
-  net_instaweb::Atom rel_atom_;
-  net_instaweb::Atom href_atom_;
-  std::vector<std::string> external_resource_urls_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExternalResourceFilter);
-};
-
-ExternalResourceFilter::ExternalResourceFilter(
-    net_instaweb::HtmlParse* html_parse)
-    : script_atom_(html_parse->Intern("script")),
-      src_atom_(html_parse->Intern("src")),
-      link_atom_(html_parse->Intern("link")),
-      rel_atom_(html_parse->Intern("rel")),
-      href_atom_(html_parse->Intern("href")) {
-}
-
-void ExternalResourceFilter::StartDocument() {
-  external_resource_urls_.clear();
-}
-
-void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
-  net_instaweb::Atom tag = element->tag();
-  if (tag == script_atom_) {
-    const char* src = element->AttributeValue(src_atom_);
-    if (src != NULL) {
-      external_resource_urls_.push_back(src);
-    }
-    return;
-  }
-
-  if (tag == link_atom_) {
-    const char* rel = element->AttributeValue(rel_atom_);
-    if (!LowerCaseEqualsASCII(rel, "stylesheet")) {
-      return;
-    }
-    const char* href = element->AttributeValue(href_atom_);
-    if (href != NULL) {
-      external_resource_urls_.push_back(href);
-    }
-    return;
-  }
-}
-
-bool ExternalResourceFilter::GetExternalResourceUrls(
-    std::vector<std::string>* out) const {
-  *out = external_resource_urls_;
-  return !out->empty();
-}
-
-void ResolveExternalResourceUrls(
-    std::vector<std::string>* external_resource_urls,
-    const DomDocument* document,
-    const std::string& document_url) {
-  // Resolve URLs relative to their document.
-  for (std::vector<std::string>::iterator
-           it = external_resource_urls->begin(),
-           end = external_resource_urls->end();
-       it != end;
-       ++it) {
-    std::string resolved_uri;
-    if (!uri_util::ResolveUriForDocumentWithUrl(*it,
-                                                document,
-                                                document_url,
-                                                &resolved_uri)) {
-      // We failed to resolve relative to the document, so try to
-      // resolve relative to the document's URL. This will be
-      // correct unless the document contains a <base> tag.
-      resolved_uri = uri_util::ResolveUri(*it, document_url);
-    }
-    *it = resolved_uri;
-  }
-}
 
 bool IsLikelyTrackingPixel(const PagespeedInput& input,
                            const Resource& resource) {
@@ -336,7 +247,7 @@ bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
   net_instaweb::GoogleMessageHandler message_handler;
   message_handler.set_min_message_type(net_instaweb::kError);
   net_instaweb::HtmlParse html_parse(&message_handler);
-  ExternalResourceFilter filter(&html_parse);
+  html::ExternalResourceFilter filter(&html_parse);
   html_parse.AddFilter(&filter);
 
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
@@ -367,13 +278,11 @@ bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
       html_parse.FinishParse();
 
       std::vector<std::string> external_resource_urls;
-      if (!filter.GetExternalResourceUrls(&external_resource_urls)) {
+      if (!filter.GetExternalResourceUrls(&external_resource_urls,
+                                          input.dom_document(),
+                                          call->document_url())) {
         continue;
       }
-
-      ResolveExternalResourceUrls(&external_resource_urls,
-                                  input.dom_document(),
-                                  call->document_url());
 
       if (!DoesBlockRender(
               input, call->document_url(), external_resource_urls)) {
