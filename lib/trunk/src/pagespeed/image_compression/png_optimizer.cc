@@ -166,7 +166,7 @@ bool PngOptimizer::CreateOptimizedPng(PngReaderInterface& reader,
   png_set_compression_mem_level(write_.png_ptr(), 8);
   png_set_compression_strategy(write_.png_ptr(), Z_DEFAULT_STRATEGY);
   png_set_filter(write_.png_ptr(), PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
-  png_set_compression_window_bits(write_.png_ptr(), 9);
+  png_set_compression_window_bits(write_.png_ptr(), 15);
 
   if (!WritePng(out)) {
     return false;
