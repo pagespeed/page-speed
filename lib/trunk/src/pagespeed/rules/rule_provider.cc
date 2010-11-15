@@ -129,7 +129,7 @@ bool AppendRuleSet(bool save_optimized_content, RuleSet ruleset,
   return success;
 }
 
-// Note: keep this methed up-to-date with the active set of rules.
+// Note: keep this methed (and tests) up-to-date with the active set of rules.
 Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   // Compare the function parameter name to the given rule name, and construct a
   // new rule of the appropriate type if they match

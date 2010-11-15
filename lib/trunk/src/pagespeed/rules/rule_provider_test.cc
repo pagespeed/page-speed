@@ -24,6 +24,7 @@
 #include "pagespeed/rules/avoid_document_write.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
+#include "pagespeed/rules/inline_small_resources.h"
 #include "pagespeed/rules/leverage_browser_caching.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
@@ -110,6 +111,8 @@ TEST(RuleProviderTest, CreateRuleWithName) {
   TestNamedRule("CombineExternalCss");
   TestNamedRule("CombineExternalJavaScript");
   TestNamedRule("EnableGzipCompression");
+  TestNamedRule("InlineSmallCss");
+  TestNamedRule("InlineSmallJavaScript");
   TestNamedRule("LeverageBrowserCaching");
   TestNamedRule("MinifyCss");
   TestNamedRule("MinifyHTML");
