@@ -152,8 +152,8 @@ TEST_F(AvoidDocumentWriteTest, MultipleScriptSrc) {
   ASSERT_EQ(1, result(0).resource_urls_size());
   ASSERT_EQ(kRootUrl, result(0).resource_urls(0));
   ASSERT_EQ(2, details(0).urls_size());
-  ASSERT_EQ("http://example.com/foo.js", details(0).urls(0));
-  ASSERT_EQ("http://example.com/bar.js", details(0).urls(1));
+  ASSERT_EQ("http://example.com/bar.js", details(0).urls(0));
+  ASSERT_EQ("http://example.com/foo.js", details(0).urls(1));
   ASSERT_EQ(1, details(0).line_number());
 }
 
@@ -237,8 +237,8 @@ TEST_F(AvoidDocumentWriteTest, DocumentWriteOneMissingResource) {
   ASSERT_EQ(1, result(0).resource_urls_size());
   ASSERT_EQ(kRootUrl, result(0).resource_urls(0));
   ASSERT_EQ(2, details(0).urls_size());
-  ASSERT_EQ("http://example.com/foo.js", details(0).urls(0));
-  ASSERT_EQ("http://example.com/bar.js", details(0).urls(1));
+  ASSERT_EQ("http://example.com/bar.js", details(0).urls(0));
+  ASSERT_EQ("http://example.com/foo.js", details(0).urls(1));
   ASSERT_EQ(1, details(0).line_number());
 }
 

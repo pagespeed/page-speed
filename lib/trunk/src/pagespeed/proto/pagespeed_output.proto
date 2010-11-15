@@ -72,6 +72,10 @@ message InputInformation {
   optional int64 javascript_response_bytes = 10;
   optional int64 flash_response_bytes = 11;
   optional int64 other_response_bytes = 12;
+
+  // Number of JS and CSS resources accessed while rendering the page.
+  optional int32 number_js_resources = 13;
+  optional int32 number_css_resources = 14;
 }
 
 // Base class for result details
@@ -199,11 +203,19 @@ message AvoidDocumentWriteDetails {
 message PreferAsyncResourcesDetails {
   extend ResultDetails {
     // In order to attach it to Result.details
-    optional PreferAsyncResourcesDetails message_set_extension = 5012199;  // 'Pre'
+    optional PreferAsyncResourcesDetails message_set_extension = 5272165;  // 'Pre'
   }
 
   // The URL of the resource that could be loaded asynchronously.
   required string resource_url = 1;
+}
+
+message InlineSmallResourcesDetails {
+  extend ResultDetails {
+    optional InlineSmallResourcesDetails message_set_extension = 4812396;  // 'Inl'
+  }
+
+  repeated string inline_candidates = 1;
 }
 
 message Result {

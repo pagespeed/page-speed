@@ -46,5 +46,30 @@
         '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
       ],
     },
+    {
+      'target_name': 'pagespeed_external_resource_filter',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
+        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
+      ],
+      'sources': [
+        'external_resource_filter.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
+        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
+      ],
+    },
   ],
 }

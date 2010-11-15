@@ -160,6 +160,8 @@ void PagespeedInput::PopulateInputInformation() {
       case CSS:
         input_info_->set_css_response_bytes(
             input_info_->css_response_bytes() + response_bytes);
+        input_info_->set_number_css_resources(
+            input_info_->number_css_resources() + 1);
         break;
       case IMAGE:
         input_info_->set_image_response_bytes(
@@ -168,6 +170,8 @@ void PagespeedInput::PopulateInputInformation() {
       case JS:
         input_info_->set_javascript_response_bytes(
             input_info_->javascript_response_bytes() + response_bytes);
+        input_info_->set_number_js_resources(
+            input_info_->number_js_resources() + 1);
         break;
       case FLASH:
         input_info_->set_flash_response_bytes(
