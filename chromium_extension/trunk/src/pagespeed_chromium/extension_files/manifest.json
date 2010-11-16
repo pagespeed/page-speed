@@ -2,6 +2,11 @@
   "name": "Page Speed",
   "version": "0.1",
   "description": "Page Speed",
+  "icons": {
+    "32": "pagespeed-32.png",
+    "64": "pagespeed-64.png",
+    "128": "pagespeed-128.png"
+  },
   "background_page": "background.html",
   "devtools_page": "pagespeed.html",
   "permissions": [
