@@ -74,8 +74,9 @@ TEST_F(MinimizeDnsTest, OneLazyOneNotNoViolation) {
   const std::string url1 = "http://foo.com";
   const std::string url2 = "http://bar.com/baz.js";
 
+  SetOnloadTimeMillis(10);
   NewPrimaryResource(url1);
-  New200Resource(url2)->SetLazyLoaded();
+  New200Resource(url2)->SetRequestStartTimeMillis(11);
   Freeze();
 
   std::vector<std::string> expected_violations;
@@ -88,9 +89,10 @@ TEST_F(MinimizeDnsTest, OneLazyTwoNotTwoViolations) {
   const std::string url2 = "http://b.foo.com/baz.js";
   const std::string url3 = "http://c.foo.com/quux.js";
 
+  SetOnloadTimeMillis(10);
   New200Resource(url1);
   New200Resource(url2);
-  New200Resource(url3)->SetLazyLoaded();
+  New200Resource(url3)->SetRequestStartTimeMillis(11);
   Freeze();
 
   std::vector<std::string> expected_violations;

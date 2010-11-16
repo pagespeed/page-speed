@@ -91,7 +91,7 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
     for (ResourceSet::const_iterator iter2 = resources.begin(),
              end2 = resources.end(); iter2 != end2; ++iter2) {
       const Resource* resource = *iter2;
-      if (!resource->IsLazyLoaded() &&
+      if (!resource->IsLazyLoaded(input) &&
           resource_util::IsLikelyStaticResource(*resource)) {
         static_resource_hosts[host].insert(resource);
       }

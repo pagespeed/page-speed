@@ -26,6 +26,7 @@
 namespace pagespeed {
 
 class JavaScriptCallInfo;
+class PagespeedInput;
 class Resource;
 
 // sorts resources by their URLs.
@@ -103,10 +104,10 @@ class Resource {
   // transferred to the resource.
   void AddJavaScriptCall(const JavaScriptCallInfo* call_info);
 
-  // The resource is lazy-loaded if the request start time is after
-  // the window's onLoad time. Many of the page-speed rules
-  // do not apply to lazy-loaded resources.
-  void SetLazyLoaded();
+  // Set the time that this resource was requested, in milliseconds,
+  // relative to the request time of the first request. Thus the first
+  // request's start time will be 0.
+  void SetRequestStartTimeMillis(int start_millis);
 
   // Accessor methods
   const std::string& GetRequestUrl() const;
@@ -149,7 +150,23 @@ class Resource {
       const std::string& id) const;
 
   // Was the request for this resource issued after the onload event?
-  bool IsLazyLoaded() const;
+  bool IsLazyLoaded(const PagespeedInput& input) const;
+
+  // Do we have a request start time for this resource? Note that we
+  // do not provide a getter for the request start time, because we do not
+  // want rules to be implemented in terms of timing data from a single
+  // page speed run. Timing data can vary greatly between page loads so
+  // using timing data in a rule could introduce nondeterminism in the
+  // results.
+  bool has_request_start_time_millis() const {
+    return request_start_time_millis_ >= 0;
+  }
+
+  // Is the request start time of this resource less than the request
+  // start time of the specified resource? It is an error to call this
+  // method if either this resource or other resource do not have a request
+  // start time specified.
+  bool IsRequestStartTimeLessThan(const Resource& other) const;
 
   // For serialization purposes only.
   // Use GetRequestHeader/GetResponseHeader methods above for key lookup.
@@ -182,7 +199,7 @@ class Resource {
   std::string cookies_;
   ResourceType type_;
   JavaScriptCallInfoMap javascript_calls_;
-  bool lazy_loaded_;
+  int request_start_time_millis_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
 };

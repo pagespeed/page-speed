@@ -72,7 +72,7 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
     }
 
     // Exclude lazy-loaded resources.
-    if (resource.IsLazyLoaded()) {
+    if (resource.IsLazyLoaded(input)) {
       continue;
     }
 

@@ -166,7 +166,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
-  EXPECT_FALSE(resource1.IsLazyLoaded());
+  EXPECT_FALSE(resource1.IsLazyLoaded(*input));
 
   const Resource& resource2 = input->GetResource(1);
   EXPECT_EQ("http://www.example.com/lazy.js", resource2.GetRequestUrl());
@@ -176,7 +176,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ("application/javascript",
             resource2.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource2.GetResponseBody());
-  EXPECT_TRUE(resource2.IsLazyLoaded());
+  EXPECT_TRUE(resource2.IsLazyLoaded(*input));
 }
 
 TEST(HttpArchiveTest, ValidInputBase64) {
@@ -194,7 +194,7 @@ TEST(HttpArchiveTest, ValidInputBase64) {
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
-  EXPECT_FALSE(resource1.IsLazyLoaded());
+  EXPECT_FALSE(resource1.IsLazyLoaded(*input));
 }
 
 TEST(HttpArchiveTest, InvalidJSON) {

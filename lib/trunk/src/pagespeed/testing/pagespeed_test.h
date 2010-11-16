@@ -147,6 +147,10 @@ class PagespeedTest : public ::testing::Test {
   bool AddFakeImageAttributesFactory(
       const FakeImageAttributesFactory::ResourceSizeMap& map);
 
+  bool SetOnloadTimeMillis(int onload_millis) {
+    return pagespeed_input_->SetOnloadTimeMillis(onload_millis);
+  }
+
   const pagespeed::PagespeedInput* pagespeed_input() {
     return pagespeed_input_.get();
   }
