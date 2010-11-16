@@ -58,9 +58,6 @@
 
 namespace {
 
-// Don't show the user any optimizations that save less than 256 bytes.
-static const int kMinResponseByteThreshold = 256;
-
 // Compute the URI spec for a given file.
 bool ComputeUriSpec(nsIFile* file, nsCString* out_uri_spec) {
   nsCOMPtr<nsIIOService> io_service(do_GetService(NS_IOSERVICE_CONTRACTID));
@@ -367,8 +364,8 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
       serializer.reset(new PluginSerializer(output_dir));
     }
     formatters::JsonFormatter formatter(&stream, serializer.get());
-    ResponseByteResultFilter filter(kMinResponseByteThreshold);
-    engine.ComputeAndFormatResults(*input.get(), filter, &formatter);
+    ResponseByteResultFilter result_filter;
+    engine.ComputeAndFormatResults(*input.get(), result_filter, &formatter);
 
     const std::string& output_string = stream.str();
     _retval.Assign(output_string.c_str(), output_string.length());
