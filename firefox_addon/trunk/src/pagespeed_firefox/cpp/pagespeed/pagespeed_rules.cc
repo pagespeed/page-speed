@@ -58,8 +58,8 @@
 
 namespace {
 
-// Don't show the user any optimizations that save less than 512 bytes.
-static const int kMinResponseByteThreshold = 512;
+// Don't show the user any optimizations that save less than 256 bytes.
+static const int kMinResponseByteThreshold = 256;
 
 // Compute the URI spec for a given file.
 bool ComputeUriSpec(nsIFile* file, nsCString* out_uri_spec) {
