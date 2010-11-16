@@ -69,7 +69,7 @@ DIV#welcome-container {
   bottom: 0;
   left: 0;
   overflow: auto;
-  padding: 0 20px;
+  padding: 5px 25px;
   position: absolute;
   right: 0;
   top: 34px;
@@ -81,6 +81,19 @@ DIV#welcome-container > H1 {
 
 DIV#welcome-container > H2 {
   font-size: 14px;
+}
+
+DIV#welcome-container > UL {
+  list-style-position: inside;
+}
+
+#logo-img {
+  float: left;
+  margin-left: 5px;
+  margin-right: 25px;
+  /* position: absolute; */
+  /* right: 50px; */
+  /* top: 15px; */
 }
 
 /***** Results Page *****/
