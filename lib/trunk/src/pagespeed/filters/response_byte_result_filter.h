@@ -23,10 +23,16 @@ class Result;
 
 class ResponseByteResultFilter : public ResultFilter {
  public:
+  // The default threshold for this filter.
+  static const int kDefaultThresholdBytes = 256;
+
   // Construct a ResponseByteResultFilter with the given
   // threshold. Results that have a response byte savings less than
   // the specified threshold will not be accepted.
-  ResponseByteResultFilter(int threshold);
+  explicit ResponseByteResultFilter(int threshold);
+
+  // Construct a ResponseByteResultFilter with the default threshold.
+  ResponseByteResultFilter();
   virtual ~ResponseByteResultFilter();
 
   virtual bool IsAccepted(const Result& result) const;
