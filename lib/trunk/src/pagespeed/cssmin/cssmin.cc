@@ -124,16 +124,26 @@ bool MinifyCss(const std::string& input, Consumer* consumer) {
         }
       }
     } else if (IsAsciiWhitespace(*p)) {
-      // Whitespace: Scan to end of whitespace; put a single space into the
-      // consumer if necessary to separate tokens, otherwise put nothing.
+      // Whitespace: Scan to end of whitespace; replace with a single
+      // whitespace character, or nothing at all, as necessary.
       const char* space_start = p;
       do {
         ++p;
       } while (p < end && IsAsciiWhitespace(*p));
-      if (space_start > begin && p < end &&
-          IsExtendableOnRight(*(space_start - 1)) &&
-          IsExtendableOnLeft(*p)) {
-        consumer->push_back(' ');
+      if (space_start > begin && p < end) {
+        const char prev_char = *(space_start - 1);
+        const char next_char = *p;
+        // Add a newline after each closing brace (assuming there was any
+        // whitespace after that brace) to prevent output lines from being too
+        // long.
+        if (prev_char == '}') {
+          consumer->push_back('\n');
+        }
+        // Otherwise, add a single space if necessary to separate tokens.
+        else if (IsExtendableOnRight(prev_char) &&
+                 IsExtendableOnLeft(next_char)) {
+          consumer->push_back(' ');
+        }
       }
     } else if (*p == '\'' || *p == '"') {
       // Single/Double-Quoted String: Scan to end of string (first unescaped
@@ -156,11 +166,6 @@ bool MinifyCss(const std::string& input, Consumer* consumer) {
     } else {
       // Other: Just copy the character over.
       consumer->push_back(*p);
-      if (*p == '}') {
-        // Add a newline after each closing brace to prevent output lines from
-        // being too long.
-        consumer->push_back('\n');
-      }
       ++p;
     }
   }

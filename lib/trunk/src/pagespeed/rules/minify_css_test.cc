@@ -36,7 +36,7 @@ namespace {
 const char* kUnminified = "body { color: red /*red*/; }";
 
 // The same CSS, minified.
-const char* kMinified = "body{color:red;}\n";
+const char* kMinified = "body{color:red;}";
 
 class MinifyCssTest : public ::pagespeed_testing::PagespeedTest {
  protected:
@@ -131,7 +131,7 @@ TEST_F(MinifyCssTest, Basic) {
                   kUnminified);
   Freeze();
 
-  CheckOneViolation(35);
+  CheckOneViolation(28);
 }
 
 TEST_F(MinifyCssTest, WrongContentTypeDoesNotGetMinified) {

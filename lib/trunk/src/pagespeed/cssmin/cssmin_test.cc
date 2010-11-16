@@ -37,7 +37,7 @@ const char* kBeforeMinification =
 const char* kAfterMinification =
     "BODY{border:5px solid blue;color:red;}\n"
     "DIV.bg1{background-image:url('www.example.com/bg1.png');}\n"
-    "DIV.bg2{background-image:url(\"www.example.com/bg2.png\");}\n";
+    "DIV.bg2{background-image:url(\"www.example.com/bg2.png\");}";
 
 // At one point, the URL
 // http://aranet.vo.llnwd.net/o28/themes/css/araStyleReset.css
@@ -87,36 +87,42 @@ TEST_F(CssminTest, InvalidCss) {
 
 // See http://code.google.com/p/page-speed/issues/detail?id=313
 TEST_F(CssminTest, SeparateStringsFromWords) {
-  CheckMinification("body { font: 11px \"Bitstream Vera Sans Mono\" ; }\n",
-                    "body{font:11px \"Bitstream Vera Sans Mono\";}\n");
+  CheckMinification("body { font: 11px \"Bitstream Vera Sans Mono\" ; }",
+                    "body{font:11px \"Bitstream Vera Sans Mono\";}");
 }
 
 // See http://code.google.com/p/page-speed/issues/detail?id=339
 TEST_F(CssminTest, SeparateParensFromWords) {
   CheckMinification("div { background: url( 'bg.gif' ) no-repeat "
-                    "left center; border-style: none; }\n",
+                    "left center; border-style: none; }",
                     "div{background:url('bg.gif') no-repeat "
-                    "left center;border-style:none;}\n");
+                    "left center;border-style:none;}");
 }
 
 // See http://code.google.com/p/page-speed/issues/detail?id=265
 TEST_F(CssminTest, SeparateBracketsFromWords1) {
   CheckMinification(".class[ rel ] { color: #f00; }\n"
-                    ".class [rel] { color: #0f0; }\n",
+                    ".class [rel] { color: #0f0; }",
                     ".class[rel]{color:#f00;}\n"
-                    ".class [rel]{color:#0f0;}\n");
+                    ".class [rel]{color:#0f0;}");
 }
 
 // See http://code.google.com/p/page-speed/issues/detail?id=379
 TEST_F(CssminTest, SeparateBracketsFromWords2) {
-  CheckMinification("body[class$=\"section\"] header {}\n",
-                    "body[class$=\"section\"] header{}\n");
+  CheckMinification("body[class$=\"section\"] header {}",
+                    "body[class$=\"section\"] header{}");
 }
 
 // See http://code.google.com/p/page-speed/issues/detail?id=381
 TEST_F(CssminTest, SeparateBracketsFromPeriods) {
-  CheckMinification("html[xmlns] .clearfix { display: block; }\n",
-                    "html[xmlns] .clearfix{display:block;}\n");
+  CheckMinification("html[xmlns] .clearfix { display: block; }",
+                    "html[xmlns] .clearfix{display:block;}");
+}
+
+// See http://code.google.com/p/page-speed/issues/detail?id=400
+TEST_F(CssminTest, DoNotAddSpaceWhereThereWasNone) {
+  CheckMinification("body{color:red;}h1{color:blue;}",
+                    "body{color:red;}h1{color:blue;}");
 }
 
 }  // namespace
