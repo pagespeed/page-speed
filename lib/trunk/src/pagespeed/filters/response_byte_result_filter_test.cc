@@ -40,4 +40,18 @@ TEST(ResponseByteResultFilterTest, ResponseByteResultFilter) {
   EXPECT_FALSE(filter.IsAccepted(result));
 }
 
+TEST(ResponseByteResultFilterTest, DefaultThreshold) {
+  Result result;
+  ResponseByteResultFilter filter;
+
+  Savings* savings = result.mutable_savings();
+  savings->set_response_bytes_saved(
+      ResponseByteResultFilter::kDefaultThresholdBytes);
+  EXPECT_TRUE(filter.IsAccepted(result));
+
+  savings->set_response_bytes_saved(
+      ResponseByteResultFilter::kDefaultThresholdBytes - 1);
+  EXPECT_FALSE(filter.IsAccepted(result));
+}
+
 }  // namespace pagespeed

@@ -21,6 +21,10 @@ ResponseByteResultFilter::ResponseByteResultFilter(int threshold)
     : response_byte_threshold_(threshold) {
 }
 
+ResponseByteResultFilter::ResponseByteResultFilter()
+    : response_byte_threshold_(kDefaultThresholdBytes) {
+}
+
 ResponseByteResultFilter::~ResponseByteResultFilter() {
 }
 
