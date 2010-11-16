@@ -40,6 +40,7 @@
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/filters/ad_filter.h"
+#include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/har/http_archive.h"
@@ -119,7 +120,8 @@ bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
   std::stringstream stream;
   pagespeed::formatters::JsonFormatter formatter(&stream, NULL);
 
-  engine.ComputeAndFormatResults(*input, &formatter);
+  pagespeed::ResponseByteResultFilter result_filter;
+  engine.ComputeAndFormatResults(*input, result_filter, &formatter);
 
   output->append(stream.str());
 
