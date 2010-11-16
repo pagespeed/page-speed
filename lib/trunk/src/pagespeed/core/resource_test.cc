@@ -16,10 +16,12 @@
 
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/javascript_call_info.h"
+#include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::JavaScriptCallInfo;
+using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 
 namespace {
@@ -38,10 +40,36 @@ TEST(ResourceTest, SetFields) {
   EXPECT_EQ(resource.GetRequestBody(), "request body");
   EXPECT_EQ(resource.GetResponseStatusCode(), 200);
   EXPECT_EQ(resource.GetResponseBody(), "response body");
+}
 
-  EXPECT_EQ(resource.IsLazyLoaded(), false);
-  resource.SetLazyLoaded();
-  EXPECT_EQ(resource.IsLazyLoaded(), true);
+TEST(ResourceTest, LazyLoaded) {
+  PagespeedInput input;
+  Resource resource;
+  EXPECT_FALSE(resource.IsLazyLoaded(input));
+  resource.SetRequestStartTimeMillis(11);
+  EXPECT_FALSE(resource.IsLazyLoaded(input));
+  input.SetOnloadTimeMillis(10);
+  EXPECT_TRUE(resource.IsLazyLoaded(input));
+  input.SetOnloadTimeMillis(12);
+  EXPECT_FALSE(resource.IsLazyLoaded(input));
+}
+
+TEST(ResourceTest, IsRequestStartTimeLessThanDeathTest) {
+  Resource r1, r2;
+#ifndef NDEBUG
+  ASSERT_DEATH(r1.IsRequestStartTimeLessThan(r2),
+               "Unable to compute request start times for resources: ");
+#else
+  ASSERT_FALSE(r1.IsRequestStartTimeLessThan(r2));
+#endif
+}
+
+TEST(ResourceTest, IsRequestStartTimeLessThan) {
+  Resource r1, r2;
+  r1.SetRequestStartTimeMillis(1);
+  r2.SetRequestStartTimeMillis(2);
+  ASSERT_TRUE(r1.IsRequestStartTimeLessThan(r2));
+  ASSERT_FALSE(r2.IsRequestStartTimeLessThan(r1));
 }
 
 // Verify that http header matching is case-insensitive.

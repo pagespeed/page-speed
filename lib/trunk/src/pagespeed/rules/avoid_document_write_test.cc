@@ -274,12 +274,14 @@ TEST_F(AvoidDocumentWriteTest, DocumentWriteRedirected) {
 }
 
 TEST_F(AvoidDocumentWriteTest, LazyLoadedPng) {
+  SetOnloadTimeMillis(10);
   pagespeed::Resource* script_resource =
       NewScriptResource("http://example.com/a.js", body());
   AddDocumentWriteCall(
       script_resource, primary_resource(), "<script src='foo.js'></script>");
   NewScriptResource("http://example.com/foo.js", body());
-  NewPngResourceWithBody("http://example.com/foo.png", body())->SetLazyLoaded();
+  NewPngResourceWithBody(
+      "http://example.com/foo.png", body())->SetRequestStartTimeMillis(11);
   Freeze();
   AppendResults();
   ASSERT_EQ(0, num_results());

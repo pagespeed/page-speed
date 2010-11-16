@@ -63,6 +63,10 @@ class PagespeedInput {
   // the set of currently added resources, does nothing and returns false.
   bool SetPrimaryResourceUrl(const std::string& url);
 
+  // Set the onload time, in milliseconds, relative to the request
+  // time of the first resource.
+  bool SetOnloadTimeMillis(int onload_millis);
+
   // Set the DOM Document information.
   //
   // Ownership of the DomDocument is transfered over to the
@@ -92,6 +96,11 @@ class PagespeedInput {
   // Get the map from hostname to all resources on that hostname.
   const HostResourceMap* GetHostResourceMap() const;
 
+  // Get the set of all resources, sorted in request order. Will be
+  // NULL if one or more resources does not have a request start
+  // time.
+  const ResourceVector* GetResourcesInRequestOrder() const;
+
   // Get the map from a parent (e.g. document) to all of its child
   // resources. The children are the immediate children, e.g. the
   // children of an iframe will not be considered children of the main
@@ -102,6 +111,11 @@ class PagespeedInput {
   const DomDocument* dom_document() const;
   const std::string& primary_resource_url() const;
   bool is_frozen() const { return frozen_; }
+
+  // Get the onload time for the page associated with this
+  // PagespeedInput. Returns false if no onload time is available. The
+  // output parameter is only valid if this method returns true.
+  bool GetOnloadTimeMillis(int* out_onload_millis) const;
 
   // Estimate the InputCapabilities for this PagespeedInput.
   // Note that implementers should call this method
@@ -134,11 +148,14 @@ class PagespeedInput {
 
   ParentChildResourceMap parent_child_resource_map_;
 
+  ResourceVector request_order_vector_;
+
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
   scoped_ptr<ResourceFilter> resource_filter_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
+  int onload_millis_;
   bool frozen_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);

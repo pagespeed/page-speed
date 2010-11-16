@@ -36,18 +36,18 @@ class InputPopulator {
  private:
   enum HeaderType { REQUEST_HEADERS, RESPONSE_HEADERS };
 
-  InputPopulator() : error_(false), page_finished_millis_(-1) {}
+  InputPopulator() : page_started_millis_(-1), error_(false) {}
   ~InputPopulator() {}
 
   void PopulateInput(cJSON* har_json, PagespeedInput* input);
-  void DeterminePageFinishedMillis(cJSON* log_json);
+  void DeterminePageTimings(cJSON* log_json, PagespeedInput* input);
   void PopulateResource(cJSON* entry_json, Resource* resource);
   void PopulateHeaders(cJSON* headers_json, HeaderType htype,
                        Resource* resource);
   const std::string GetString(cJSON *object, const char* key);
 
+  int64 page_started_millis_;
   bool error_;
-  int64 page_finished_millis_;
 
   DISALLOW_COPY_AND_ASSIGN(InputPopulator);
 };
@@ -73,7 +73,7 @@ void InputPopulator::PopulateInput(cJSON* har_json, PagespeedInput* input) {
     return;
   }
 
-  DeterminePageFinishedMillis(log_json);
+  DeterminePageTimings(log_json, input);
 
   cJSON* entries_json = cJSON_GetObjectItem(log_json, "entries");
   if (entries_json == NULL || entries_json->type != cJSON_Array) {
@@ -93,7 +93,8 @@ void InputPopulator::PopulateInput(cJSON* har_json, PagespeedInput* input) {
   }
 }
 
-void InputPopulator::DeterminePageFinishedMillis(cJSON* log_json) {
+void InputPopulator::DeterminePageTimings(
+    cJSON* log_json, PagespeedInput* input) {
   cJSON* pages_json = cJSON_GetObjectItem(log_json, "pages");
   if (pages_json == NULL || pages_json->type != cJSON_Array) {
     // The "pages" field is optional, so give up without error if it's not
@@ -111,6 +112,11 @@ void InputPopulator::DeterminePageFinishedMillis(cJSON* log_json) {
     return;
   }
 
+  const std::string started_datetime = GetString(page_json, "startedDateTime");
+  if (!Iso8601ToEpochMillis(started_datetime, &page_started_millis_)) {
+    LOG(DFATAL) << "Failed to parse ISO 8601: " << started_datetime;
+  }
+
   cJSON* timing_json = cJSON_GetObjectItem(page_json, "pageTimings");
   if (timing_json == NULL || timing_json->type != cJSON_Object) {
     INPUT_POPULATOR_ERROR() << "\"pageTimings\" field must be an object.";
@@ -119,17 +125,7 @@ void InputPopulator::DeterminePageFinishedMillis(cJSON* log_json) {
 
   cJSON* onload_json = cJSON_GetObjectItem(timing_json, "onLoad");
   if (onload_json != NULL && onload_json->type == cJSON_Number) {
-    const std::string started_datetime =
-        GetString(page_json, "startedDateTime");
-    int64 started_millis;
-    if (Iso8601ToEpochMillis(started_datetime, &started_millis)) {
-      const int64 onload_millis = static_cast<int64>(onload_json->valueint);
-      if (onload_millis >= 0) {
-        page_finished_millis_ = started_millis + onload_millis;
-      }
-    } else {
-      LOG(DFATAL) << "Failed to parse ISO 8601: " << started_datetime;
-    }
+    input->SetOnloadTimeMillis(onload_json->valueint);
   }
 }
 
@@ -145,8 +141,9 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
     if (started_json != NULL && started_json->type == cJSON_String) {
       int64 started_millis;
       if (Iso8601ToEpochMillis(started_json->valuestring, &started_millis)) {
-        if (started_millis > page_finished_millis_) {
-          resource->SetLazyLoaded();
+        if (page_started_millis_ > 0) {
+          resource->SetRequestStartTimeMillis(
+              started_millis - page_started_millis_);
         }
       } else {
         LOG(DFATAL) << "Failed to parse ISO 8601: "

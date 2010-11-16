@@ -340,6 +340,43 @@ TEST_F(ParentChildResourceMapTest, EmbedTag) {
   ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
 }
 
+class ResourcesInRequestOrderTest :
+      public ::pagespeed_testing::PagespeedTest {};
+
+TEST_F(ResourcesInRequestOrderTest, NoResourcesWithStartTimes) {
+  New200Resource(kURL1);
+  New200Resource(kURL2);
+  Freeze();
+  ASSERT_EQ(NULL, pagespeed_input()->GetResourcesInRequestOrder());
+}
+
+TEST_F(ResourcesInRequestOrderTest, SomeResourcesWithStartTimes) {
+  New200Resource(kUrl1)->SetRequestStartTimeMillis(0);
+  New200Resource(kUrl2)->SetRequestStartTimeMillis(1);
+  New200Resource(kUrl3);
+  Freeze();
+  ASSERT_EQ(NULL, pagespeed_input()->GetResourcesInRequestOrder());
+}
+
+TEST_F(ResourcesInRequestOrderTest, ResourcesWithStartTimes) {
+  // We intentionally use the same time for two resources here, to
+  // make sure we don't accidentally filter out duplicates (e.g. if we
+  // used a set<>). PagespeedInput uses stable_sort so we should
+  // expect the sort order to be stable even with duplicate values.
+  New200Resource(kUrl4)->SetRequestStartTimeMillis(0);
+  New200Resource(kUrl3)->SetRequestStartTimeMillis(2);
+  New200Resource(kUrl1)->SetRequestStartTimeMillis(2);
+  New200Resource(kUrl2)->SetRequestStartTimeMillis(1);
+  Freeze();
+  const pagespeed::ResourceVector& rv(
+      *pagespeed_input()->GetResourcesInRequestOrder());
+  ASSERT_EQ(4U, rv.size());
+  ASSERT_EQ(kUrl4, rv[0]->GetRequestUrl());
+  ASSERT_EQ(kUrl2, rv[1]->GetRequestUrl());
+  ASSERT_EQ(kUrl3, rv[2]->GetRequestUrl());
+  ASSERT_EQ(kUrl1, rv[3]->GetRequestUrl());
+}
+
 class EstimateCapabilitiesTest : public ::pagespeed_testing::PagespeedTest {};
 
 TEST_F(EstimateCapabilitiesTest, NotFrozen) {
@@ -383,11 +420,21 @@ TEST_F(EstimateCapabilitiesTest, JSCalls) {
 }
 
 TEST_F(EstimateCapabilitiesTest, LazyLoaded) {
-  New200Resource("http://www.example.com/")->SetLazyLoaded();
+  SetOnloadTimeMillis(10);
+  New200Resource("http://www.example.com/")->SetRequestStartTimeMillis(11);
   Freeze();
   ASSERT_TRUE(
-      InputCapabilities(InputCapabilities::LAZY_LOADED).equals(
-      pagespeed_input()->EstimateCapabilities()));
+      pagespeed_input()->EstimateCapabilities().satisfies(
+          InputCapabilities(InputCapabilities::LAZY_LOADED)));
+}
+
+TEST_F(EstimateCapabilitiesTest, RequestStartTimes) {
+  New200Resource("http://www.example.com/")->SetRequestStartTimeMillis(0);
+  New200Resource("http://www.example.com/b")->SetRequestStartTimeMillis(1);
+  Freeze();
+  ASSERT_TRUE(
+      pagespeed_input()->EstimateCapabilities().satisfies(
+          InputCapabilities(InputCapabilities::REQUEST_START_TIMES)));
 }
 
 TEST_F(EstimateCapabilitiesTest, RequestHeaders) {

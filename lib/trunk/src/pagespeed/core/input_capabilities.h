@@ -33,6 +33,7 @@ class InputCapabilities {
     PARENT_CHILD_RESOURCE_MAP  = 1<<3,
     REQUEST_HEADERS            = 1<<4,
     RESPONSE_BODY              = 1<<5,
+    REQUEST_START_TIMES        = 1<<6,
     ALL                        = ~0;
 
   InputCapabilities() : capabilities_mask_(NONE) {}

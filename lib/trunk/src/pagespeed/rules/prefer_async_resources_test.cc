@@ -171,8 +171,10 @@ TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsExtendedUrlIsOk) {
 }
 
 TEST_F(PreferAsyncResourcesTest, LazyLoadedSyncGoogleAnalyticsAboveCssIsOk) {
+  SetOnloadTimeMillis(10);
   NewScriptResource(
-      "http://www.google-analytics.com/ga.js", body())->SetLazyLoaded();
+      "http://www.google-analytics.com/ga.js",
+      body())->SetRequestStartTimeMillis(11);
   CreateCssElement(body());
   CheckNoViolations();
 }

@@ -62,7 +62,7 @@ bool CombineExternalResources::AppendResults(const RuleInput& rule_input,
       }
 
       // exclude lazy-loaded resources
-      if (resource->IsLazyLoaded()) {
+      if (resource->IsLazyLoaded(input)) {
         continue;
       }
 

@@ -49,7 +49,7 @@ void PopulateDomainHostResourceMap(
     }
 
     // exclude lazy-loaded resources
-    if (resource.IsLazyLoaded()) {
+    if (resource.IsLazyLoaded(input)) {
       continue;
     }
 

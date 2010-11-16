@@ -105,7 +105,7 @@ void ScriptVisitor::VisitExternalScript(const std::string& script_src) {
   if (resource == NULL) {
     return;
   }
-  if (resource->IsLazyLoaded()) {
+  if (resource->IsLazyLoaded(*pagespeed_input_)) {
     return;
   }
   for (size_t i = 0; i < kNumScripts; i++) {

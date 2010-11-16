@@ -63,7 +63,7 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
   std::map<std::string, ResourceSet> inline_candidates;
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
-    if (resource.IsLazyLoaded()) {
+    if (resource.IsLazyLoaded(input)) {
       continue;
     }
 

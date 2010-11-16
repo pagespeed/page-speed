@@ -122,8 +122,10 @@ TEST_F(CombineExternalResourcesTest, OneLazyOneNotNoViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://foo.com/bar";
 
+  SetOnloadTimeMillis(10);
+
   AddTestResource(url1, "text/css");
-  AddTestResource(url2, "text/css")->SetLazyLoaded();
+  AddTestResource(url2, "text/css")->SetRequestStartTimeMillis(11);
 
   std::vector<Violation> no_violations;
 

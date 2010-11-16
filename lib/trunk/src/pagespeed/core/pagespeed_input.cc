@@ -27,15 +27,28 @@
 
 namespace pagespeed {
 
+namespace {
+
+// sorts resources by their request start times.
+struct ResourceRequestStartTimeLessThan {
+  bool operator() (const Resource* lhs, const Resource* rhs) const {
+    return lhs->IsRequestStartTimeLessThan(*rhs);
+  }
+};
+
+}  // namespace
+
 PagespeedInput::PagespeedInput()
     : input_info_(new InputInformation),
       resource_filter_(new AllowAllResourceFilter),
+      onload_millis_(-1),
       frozen_(false) {
 }
 
 PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
     : input_info_(new InputInformation),
       resource_filter_(resource_filter),
+      onload_millis_(-1),
       frozen_(false) {
   DCHECK_NE(resource_filter, static_cast<ResourceFilter*>(NULL));
 }
@@ -104,6 +117,19 @@ bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
   return true;
 }
 
+bool PagespeedInput::SetOnloadTimeMillis(int onload_millis) {
+  if (frozen_) {
+    LOG(DFATAL) << "Can't set onload time for frozen PagespeedInput.";
+    return false;
+  }
+  if (onload_millis < 0) {
+    LOG(DFATAL) << "Invalid onload_millis: " << onload_millis;
+    return false;
+  }
+  onload_millis_ = onload_millis;
+  return true;
+}
+
 bool PagespeedInput::AcquireDomDocument(DomDocument* document) {
   if (frozen_) {
     LOG(DFATAL) << "Can't set DomDocument for frozen PagespeedInput.";
@@ -135,6 +161,20 @@ bool PagespeedInput::Freeze() {
       &resource_type_map, &parent_child_resource_map_);
   UpdateResourceTypes(resource_type_map);
   PopulateInputInformation();
+  bool have_start_times_for_all_resources = true;
+  for (int idx = 0, num = num_resources(); idx < num; ++idx) {
+    const Resource& resource = GetResource(idx);
+    if (!resource.has_request_start_time_millis()) {
+      have_start_times_for_all_resources = false;
+      break;
+    }
+  }
+  if (have_start_times_for_all_resources) {
+    request_order_vector_.assign(resources_.begin(), resources_.end());
+    std::stable_sort(request_order_vector_.begin(),
+                     request_order_vector_.end(),
+                     ResourceRequestStartTimeLessThan());
+  }
   return true;
 }
 
@@ -400,6 +440,14 @@ const HostResourceMap* PagespeedInput::GetHostResourceMap() const {
   return &host_resource_map_;
 }
 
+const ResourceVector*
+PagespeedInput::GetResourcesInRequestOrder() const {
+  DCHECK(frozen_);
+  if (request_order_vector_.empty()) return NULL;
+  DCHECK(request_order_vector_.size() == resources_.size());
+  return &request_order_vector_;
+}
+
 const ParentChildResourceMap*
 PagespeedInput::GetParentChildResourceMap() const {
   DCHECK(frozen_);
@@ -419,6 +467,12 @@ const DomDocument* PagespeedInput::dom_document() const {
 
 const std::string& PagespeedInput::primary_resource_url() const {
   return primary_resource_url_;
+}
+
+bool PagespeedInput::GetOnloadTimeMillis(int* out_onload_millis) const {
+  if (onload_millis_ <= 0) return false;
+  *out_onload_millis = onload_millis_;
+  return true;
 }
 
 const Resource* PagespeedInput::GetResourceWithUrl(
@@ -455,16 +509,26 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
     return capabilities;
   }
 
+  if (resources_.empty()) {
+    // No resources means we have nothing with which to compute
+    // capabilities.
+    return capabilities;
+  }
+
   if (dom_document() != NULL) {
     capabilities.add(
         InputCapabilities::DOM |
         InputCapabilities::PARENT_CHILD_RESOURCE_MAP);
   }
-  for (int i = 0, num = num_resources(); i < num; ++i) {
-    const Resource& resource = GetResource(i);
-    if (resource.IsLazyLoaded()) {
+  if (GetResourcesInRequestOrder() != NULL) {
+    capabilities.add(InputCapabilities::REQUEST_START_TIMES);
+    int onload_millis;
+    if (GetOnloadTimeMillis(&onload_millis)) {
       capabilities.add(InputCapabilities::LAZY_LOADED);
     }
+  }
+  for (int i = 0, num = num_resources(); i < num; ++i) {
+    const Resource& resource = GetResource(i);
     if (resource.GetJavaScriptCalls("document.write") != NULL) {
       capabilities.add(InputCapabilities::JS_CALLS_DOCUMENT_WRITE);
     }

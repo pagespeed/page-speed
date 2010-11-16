@@ -23,6 +23,7 @@
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/javascript_call_info.h"
+#include "pagespeed/core/pagespeed_input.h"
 
 namespace {
 
@@ -52,7 +53,7 @@ namespace pagespeed {
 Resource::Resource()
     : status_code_(-1),
       type_(OTHER),
-      lazy_loaded_(false) {
+      request_start_time_millis_(-1) {
 }
 
 Resource::~Resource() {
@@ -123,8 +124,12 @@ void Resource::SetCookies(const std::string& cookies) {
   cookies_ = cookies;
 }
 
-void Resource::SetLazyLoaded() {
-  lazy_loaded_ = true;
+void Resource::SetRequestStartTimeMillis(int start_millis) {
+  if (start_millis < 0) {
+    LOG(DFATAL) << "Invalid start_millis: " << start_millis;
+    return;
+  }
+  request_start_time_millis_ = start_millis;
 }
 
 void Resource::SetResourceType(ResourceType type) {
@@ -213,8 +218,17 @@ const std::string& Resource::GetCookies() const {
   return GetEmptyString();
 }
 
-bool Resource::IsLazyLoaded() const {
-  return lazy_loaded_;
+bool Resource::IsLazyLoaded(const PagespeedInput& input) const {
+  int onload_millis = 0;
+  if (!input.GetOnloadTimeMillis(&onload_millis)) {
+    // If we don't have an onload time, assume the resource is not
+    // lazy loaded.
+    return false;
+  }
+
+  // A resource is lazy loaded if its request time is after the onload
+  // time.
+  return request_start_time_millis_ > onload_millis;
 }
 
 const Resource::HeaderMap* Resource::GetRequestHeaders() const {
@@ -339,6 +353,16 @@ ImageType Resource::GetImageType() const {
   } else {
     return UNKNOWN_IMAGE_TYPE;
   }
+}
+
+bool Resource::IsRequestStartTimeLessThan(const Resource& other) const {
+  if (!has_request_start_time_millis() ||
+      !other.has_request_start_time_millis()) {
+    LOG(DFATAL) << "Unable to compute request start times for resources: "
+                << GetRequestUrl() << ", " << other.GetRequestUrl();
+    return false;
+  }
+  return request_start_time_millis_ < other.request_start_time_millis_;
 }
 
 bool ResourceUrlLessThan::operator()(
