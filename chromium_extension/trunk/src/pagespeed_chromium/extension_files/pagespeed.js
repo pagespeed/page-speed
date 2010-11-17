@@ -16,7 +16,11 @@
 
 var pagespeed = {
 
+  // We track the current results in this global variable.
   currentResults: null,
+
+  // The currently active ResourceAccumulator, if any.
+  resourceAccumulator: null,
 
   // Throw an error (with an optional message) if the condition is false.
   assert: function (condition, opt_message) {
@@ -101,7 +105,7 @@ var pagespeed = {
     var link = pagespeed.makeElement('a', null, label);
     link.href = 'javascript:null';
     var openUrl = function () {
-      // Tell the background page to open the url in a new tab. 
+      // Tell the background page to open the url in a new tab.
       chrome.extension.sendRequest({kind: 'openUrl', url: href});
     };
     link.addEventListener('click', pagespeed.withErrorHandler(openUrl), false);
@@ -293,65 +297,104 @@ var pagespeed = {
     pagespeed.setRunButtonText('Refresh Results');
   },
 
-  // Run Page Speed and display the results.
+  // Run Page Speed and display the results. This is done
+  // asynchronously using the ResourceAccumulator.
   runPageSpeed: function () {
     document.getElementById('run-button').disabled = true;
     document.getElementById('spinner-img').style.display = 'inline';
-    webInspector.resources.getAll(pagespeed.withErrorHandler(
-      function (resources) {
-        var ids = resources.map(function (resource) { return resource.id; });
-        webInspector.resources.getContent(ids, pagespeed.withErrorHandler(
-          function (bodies) {
-            // Get the resource bodies.
-            bodyMap = {};
-            bodies.forEach(function (body) {
-              if (body.isError) {
-                webInspector.log(
-                  "Page Speed failed to get resource content: " +
-                  JSON.stringify(body.details));
-              } else {
-                bodyMap[body.id] = body;
-              }
-            });
+    if (pagespeed.resourceAccumulator) {
+      pagespeed.resourceAccumulator.cancel();
+    }
+    pagespeed.resourceAccumulator = new pagespeed.ResourceAccumulator(
+        pagespeed.withErrorHandler(pagespeed.onResourceAccumulatorComplete));
+    pagespeed.resourceAccumulator.start();
+  },
 
-            // Collect the HAR data for the inspected page.
-            var entries = resources.map(function (resource) {
-              var entry = resource.har;
-              var body = bodyMap[resource.id];
-              if (body) {
-                var content = entry.response.content;
-                content.text = body.content;
-                content.encoding = body.encoding;
-              }
-              return entry;
-            });
-            var har = {log: {entries: entries}};
-
-            // Prepare the request.
-            var analyze = document.getElementById('analyze-dropdown').value;
-            var input = {analyze: analyze, har: har};
-            var tab_id = webInspector.inspectedWindow.tabId;
-            var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
-
-            // Tell the background page to run the Page Speed rules. 
-            chrome.extension.sendRequest(request, pagespeed.withErrorHandler(
-              function (response) {
-                if (!response) {
-                  throw new Error("No response to runPageSpeed request.");
-                } else if (response.error_message) {
-                  webInspector.log(response.error_message);
-                } else {
-                  pagespeed.currentResults = response;
-                  pagespeed.showResults();
-                }
-                document.getElementById('run-button').disabled = false;
-                document.getElementById('spinner-img').style.display = 'none';
-              }
-            ));
-          }
-        ));
+  // Helper that constructs a HAR from a ResourceAccumulator result.
+  getHarFromResourceAccumulatorResults: function(result) {
+    // Get the resource bodies.
+    var bodyMap = {};
+    result.content.forEach(function (body) {
+      if (body.isError) {
+        webInspector.log(
+            "Page Speed failed to get resource content: " +
+            JSON.stringify(body.details));
+      } else {
+        bodyMap[body.id] = body;
       }
-    ));
+    });
+
+    // webInspector's API does not provide us with the page's overall
+    // startedDateTime, so we need to infer it by looking for the
+    // earliest startedDateTime of all the resources. We track both
+    // the earliestResourceStartDate, which is a Date object that we
+    // can compare with other Date objects, and the
+    // earliestResourceStartDateStr, which is an ISO8601
+    // representation of that Date.
+    var earliestResourceStartDate;
+    var earliestResourceStartDateStr;
+
+    // Collect the HAR data for the inspected page.
+    var entries = result.resources.map(function (resource) {
+      var entry = resource.har;
+      var body = bodyMap[resource.id];
+      var resourceStartDate = new Date(entry.startedDateTime);
+      if (!earliestResourceStartDate ||
+          resourceStartDate < earliestResourceStartDate) {
+        earliestResourceStartDate = resourceStartDate;
+        earliestResourceStartDateStr = entry.startedDateTime;
+      }
+      if (body) {
+        var content = entry.response.content;
+        content.text = body.content;
+        content.encoding = body.encoding;
+      }
+      return entry;
+    });
+
+    var har = {
+      log: {
+        pages: [{
+          startedDateTime: earliestResourceStartDateStr,
+          pageTimings: result.pageTimings,
+        }],
+        entries: entries
+      }
+    };
+
+    return har;
+  },
+
+  // Invoked when the ResourceAccumulator has finished collecting data
+  // from the web inspector.
+  onResourceAccumulatorComplete: function(result) {
+    var har = pagespeed.getHarFromResourceAccumulatorResults(result);
+    pagespeed.resourceAccumulator = null;
+
+    // Prepare the request.
+    var analyze = document.getElementById('analyze-dropdown').value;
+    var input = {analyze: analyze, har: har};
+    var tab_id = webInspector.inspectedWindow.tabId;
+    var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
+
+    // Tell the background page to run the Page Speed rules.
+    chrome.extension.sendRequest(
+        request, pagespeed.withErrorHandler(pagespeed.onPageSpeedResults));
+  },
+
+  // Invoked in response to our background page running Page Speed on
+  // the current page.
+  onPageSpeedResults: function(response) {
+    if (!response) {
+      throw new Error("No response to runPageSpeed request.");
+    } else if (response.error_message) {
+      webInspector.log(response.error_message);
+    } else {
+      pagespeed.currentResults = response;
+      pagespeed.showResults();
+    }
+    document.getElementById('run-button').disabled = false;
+    document.getElementById('spinner-img').style.display = 'none';
   },
 
   // Callback to be called when the user changes the value of the "Analyze"
@@ -364,4 +407,71 @@ var pagespeed = {
     }
   }
 
+};
+
+// ResourceAccumulator manages a flow of asynchronous callbacks from
+// the web inspector, storing results along the way and finally
+// invoking the client callback when all results have been
+// accumulated.
+pagespeed.ResourceAccumulator = function(clientCallback) {
+  this.clientCallback_ = clientCallback;
+};
+
+pagespeed.ResourceAccumulator.prototype.cancelled_ = false;
+
+// Start the accumulator.
+pagespeed.ResourceAccumulator.prototype.start = function() {
+  webInspector.resources.getAll(
+      pagespeed.withErrorHandler(this.onAll_.bind(this)));
+};
+
+// Cancel the accumulator.
+pagespeed.ResourceAccumulator.prototype.cancel = function() {
+  this.cancelled_ = true;
+  // TODO: is it possible to tell web inspector to cancel the
+  // currently outstanding request?
+};
+
+pagespeed.ResourceAccumulator.prototype.onAll_ = function(resources) {
+  if (this.cancelled_) {
+    // We've been cancelled so ignore the callback.
+    return;
+  }
+
+  this.resources_ = resources;
+  var ids = this.resources_.map(function(resource) { return resource.id; });
+  webInspector.resources.getContent(
+      ids,
+      pagespeed.withErrorHandler(this.onContent_.bind(this)));
+};
+
+pagespeed.ResourceAccumulator.prototype.onContent_ = function(content) {
+  if (this.cancelled_) {
+    // We've been cancelled so ignore the callback.
+    return;
+  }
+
+  this.content_ = content;
+  webInspector.resources.getPageTimings(
+      pagespeed.withErrorHandler(this.onPageTimings_.bind(this)));
+};
+
+pagespeed.ResourceAccumulator.prototype.onPageTimings_ = function(timings) {
+  if (this.cancelled_) {
+    // We've been cancelled so ignore the callback.
+    return;
+  }
+
+  this.pageTimings_ = timings;
+  this.invokeClientCallback_();
+};
+
+pagespeed.ResourceAccumulator.prototype.invokeClientCallback_ = function() {
+  var result = {
+    resources: this.resources_,
+    content: this.content_,
+    pageTimings: this.pageTimings_,
+  };
+
+  this.clientCallback_(result);
 };

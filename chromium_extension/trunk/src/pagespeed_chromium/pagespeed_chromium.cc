@@ -44,6 +44,7 @@
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/har/http_archive.h"
+#include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_chromium/npapi_dom.h"
 
@@ -89,8 +90,12 @@ bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
     return false;
   }
 
-  input->AcquireDomDocument(document); // input takes ownership of document
+  // TODO: call input->SetPrimaryResourceUrl() if we can get the URL
+  // from the HAR.
 
+  input->AcquireDomDocument(document); // input takes ownership of document
+  input->AcquireImageAttributesFactory(
+      new pagespeed::image_compression::ImageAttributesFactory());
   input->Freeze();
 
   std::vector<pagespeed::Rule*> rules;
