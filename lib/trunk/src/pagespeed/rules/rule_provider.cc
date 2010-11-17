@@ -14,6 +14,8 @@
 
 #include "pagespeed/rules/rule_provider.h"
 
+#include <algorithm>
+
 #include "base/string_util.h"
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_css_import.h"
@@ -193,6 +195,34 @@ bool AppendRulesWithNames(bool save_optimized_content,
     else
       success = false;
   }
+  return success;
+}
+
+bool RemoveRuleWithName(const std::string& name, std::vector<Rule*>* rules,
+                        Rule** removed_rule) {
+  if (!rules || !removed_rule)
+    return false;
+
+  // Construct a new vector<Rule*> on the stack, then copy it over when finished
+  bool success = false;
+  std::vector<Rule*> out_rules;
+  for (std::vector<Rule*>::iterator it = rules->begin();
+       it != rules->end();
+       ++it) {
+    if (*it && strcasecmp(name.c_str(), (*it)->name()) != 0) {
+      out_rules.push_back(*it);
+    } else {
+      *removed_rule = *it;
+      success = true;
+      // Copy over the rest of the rules
+      ++it;
+      std::copy(it, rules->end(),
+                std::back_insert_iterator< std::vector<Rule*> >(out_rules));
+      break;
+    }
+  }
+
+  *rules = out_rules;
   return success;
 }
 

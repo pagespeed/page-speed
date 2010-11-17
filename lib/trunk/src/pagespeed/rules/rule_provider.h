@@ -60,6 +60,16 @@ bool AppendRulesWithNames(bool save_optimized_content,
                           std::vector<Rule*>* rules);
 
 /**
+ * Remove the rule with the given name from the given vector of Rules (mutating
+ * it). Return true and set removed_rule to point to the removed Rule object if
+ * the rule was found in the vector.
+ * Note: RemoveRuleWithName does *not* delete the removed Rule --- the caller
+ * is responsible for deleting the removed rule (returned in removed_rule).
+ */
+bool RemoveRuleWithName(const std::string& name, std::vector<Rule*>* rules,
+                        Rule** removed_rule);
+
+/**
  * Append all Page Speed rules to the given vector of Rule
  * instances. This includes the core rules and the DOM rules.
  */

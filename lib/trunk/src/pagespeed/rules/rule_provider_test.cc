@@ -185,6 +185,40 @@ TEST(RuleProviderTest, AppendRulesWithNames) {
       pagespeed::rule_provider::AppendRulesWithNames(false, names, NULL));
 }
 
+TEST(RuleProviderTest, RemoveRuleWithName) {
+  using pagespeed::rule_provider::CreateRuleWithName;
+  using pagespeed::rule_provider::RemoveRuleWithName;
+
+  std::vector<pagespeed::Rule*> rules;
+  rules.push_back(CreateRuleWithName(false, "SpriteImages"));
+  rules.push_back(CreateRuleWithName(false, "MinifyHTML"));
+  rules.push_back(CreateRuleWithName(false, "AvoidBadRequests"));
+  // Add the same rule twice to test for leaks
+  rules.push_back(CreateRuleWithName(false, "MinifyHTML"));
+
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+
+  pagespeed::Rule* removed_rule = NULL;
+  RemoveRuleWithName("MinifyHTML", &rules, &removed_rule);
+  ASSERT_TRUE(removed_rule != NULL);
+  delete removed_rule;
+  removed_rule = NULL;
+
+  EXPECT_EQ((size_t)3, rules.size());
+  EXPECT_STREQ("SpriteImages", rules[0]->name());
+  EXPECT_STREQ("AvoidBadRequests", rules[1]->name());
+  EXPECT_STREQ("MinifyHTML", rules[2]->name());
+
+  // Test invalid rule name
+  EXPECT_FALSE(RemoveRuleWithName("bad_rule", &rules, &removed_rule));
+  EXPECT_EQ(NULL, removed_rule);
+
+  EXPECT_EQ((size_t)3, rules.size());
+  EXPECT_STREQ("SpriteImages", rules[0]->name());
+  EXPECT_STREQ("AvoidBadRequests", rules[1]->name());
+  EXPECT_STREQ("MinifyHTML", rules[2]->name());
+}
+
 TEST(RuleProviderTest, AppendAllRules) {
   std::vector<pagespeed::Rule*> rules;
   STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
