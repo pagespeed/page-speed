@@ -47,24 +47,24 @@ ICUCharsetConverter::ICUCharsetConverter(UConverter* converter)
 void ICUCharsetConverter::ConvertFromUTF16(const char16* input,
                                            int input_len,
                                            CanonOutput* output) {
-  LOG(DFATAL) << "ConvertFromUTF16 not supported (non-icu build)";
+  LOG(INFO) << "ConvertFromUTF16 not supported (non-icu build)";
 }
 
 bool IDNToASCII(const char16* src, int src_len, CanonOutputW* output) {
-  LOG(DFATAL) << "IDNToASCII not supported (non-icu build)";
+  LOG(INFO) << "IDNToASCII not supported (non-icu build)";
   return false;
 }
 
 bool ReadUTFChar(const char* str, int* begin, int length,
                  unsigned* code_point_out) {
-  LOG(DFATAL) << "ReadUTFChar not supported (non-icu build)";
+  LOG(INFO) << "ReadUTFChar not supported (non-icu build)";
   *code_point_out = kUnicodeReplacementCharacter;
   return false;
 }
 
 bool ReadUTFChar(const char16* str, int* begin, int length,
                  unsigned* code_point) {
-  LOG(DFATAL) << "ReadUTFChar not supported (non-icu build)";
+  LOG(INFO) << "ReadUTFChar not supported (non-icu build)";
   *code_point = kUnicodeReplacementCharacter;
   return false;
 }
