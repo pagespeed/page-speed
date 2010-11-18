@@ -24,6 +24,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -50,7 +51,8 @@ const char* MinimizeRequestSize::name() const {
 }
 
 const char* MinimizeRequestSize::header() const {
-  return "Minimize request size";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minimize request size");
 }
 
 const char* MinimizeRequestSize::documentation_url() const {
@@ -94,8 +96,9 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
 
   Argument size_threshold(Argument::BYTES, kMaximumRequestSize);
   Formatter* body = formatter->AddChild(
-      "The requests for the following URLs don't fit in a single packet.  "
-      "Reducing the size of these requests could reduce latency.",
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The requests for the following URLs don't fit in a single packet.  "
+        "Reducing the size of these requests could reduce latency."),
       size_threshold);
 
   for (ResultVector::const_iterator iter = results.begin(),
@@ -112,7 +115,9 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
 
     Argument url(Argument::URL, result.resource_urls(0));
     Argument size(Argument::BYTES, result.original_request_bytes());
-    Formatter* entry = body->AddChild("$1 has a request size of $2", url, size);
+    // TRANSLATOR: TODO: add a translator comment describing this string
+    Formatter* entry = body->AddChild(_("$1 has a request size of $2"),
+                                      url, size);
 
     const ResultDetails& details_container = result.details();
     if (details_container.HasExtension(RequestDetails::message_set_extension)) {
@@ -120,26 +125,31 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
           RequestDetails::message_set_extension);
 
       Argument url_size(Argument::BYTES, details.url_length());
-      entry->AddChild("Request URL: $1", url_size);
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      entry->AddChild(_("Request URL: $1"), url_size);
 
       Argument cookie_size(Argument::BYTES, details.cookie_length());
       if (details.is_static() && details.cookie_length() > 0) {
-        entry->AddChild("Cookies: $1 (note that this is a static resource, "
-                        "and should be served from a cookieless domain)",
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        entry->AddChild(_("Cookies: $1 (note that this is a static resource, "
+                          "and should be served from a cookieless domain)"),
                         cookie_size);
       } else {
-        entry->AddChild("Cookies: $1", cookie_size);
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        entry->AddChild(_("Cookies: $1"), cookie_size);
       }
 
       Argument referer_size(Argument::BYTES, details.referer_length());
-      entry->AddChild("Referer Url: $1", referer_size);
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      entry->AddChild(_("Referer Url: $1"), referer_size);
 
       Argument other_size(Argument::BYTES,
                           result.original_request_bytes() -
                           details.url_length() -
                           details.cookie_length() -
                           details.referer_length());
-      entry->AddChild("Other: $1", other_size);
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      entry->AddChild(_("Other: $1"), other_size);
     }
   }
 }

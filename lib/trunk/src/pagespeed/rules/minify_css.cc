@@ -19,6 +19,7 @@
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/cssmin/cssmin.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -55,7 +56,8 @@ const char* CssMinifier::name() const {
 }
 
 const char* CssMinifier::header_format() const {
-  return "Minify CSS";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minify CSS");
 }
 
 const char* CssMinifier::documentation_url() const {
@@ -63,12 +65,14 @@ const char* CssMinifier::documentation_url() const {
 }
 
 const char* CssMinifier::body_format() const {
-  return ("Minifying the following CSS resources could "
-          "reduce their size by $1 ($2% reduction).");
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minifying the following CSS resources could "
+           "reduce their size by $1 ($2% reduction).");
 }
 
 const char* CssMinifier::child_format() const {
-  return "Minifying $1 could save $2 ($3% reduction).";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minifying $1 could save $2 ($3% reduction).");
 }
 
 const MinifierOutput* CssMinifier::Minify(const Resource& resource) const {

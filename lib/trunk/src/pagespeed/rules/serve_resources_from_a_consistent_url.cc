@@ -24,6 +24,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -64,7 +65,8 @@ const char* ServeResourcesFromAConsistentUrl::name() const {
 }
 
 const char* ServeResourcesFromAConsistentUrl::header() const {
-  return "Serve resources from a consistent URL";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Serve resources from a consistent URL");
 }
 
 const char* ServeResourcesFromAConsistentUrl::documentation_url() const {
@@ -142,9 +144,10 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
     Argument num_bytes_arg(
         Argument::BYTES, result.savings().response_bytes_saved());
     Formatter* body = formatter->AddChild(
-        "The following resources have identical contents, but are served from "
-        "different URLs.  Serve these resources from a consistent URL to save "
-        "$1 request(s) and $2.",
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        _("The following resources have identical contents, but are served "
+          "from different URLs.  Serve these resources from a consistent URL "
+          "to save $1 request(s) and $2."),
         num_resources_arg,
         num_bytes_arg);
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {

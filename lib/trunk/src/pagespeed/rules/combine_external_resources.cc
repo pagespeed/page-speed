@@ -23,6 +23,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -98,11 +99,13 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
                                              Formatter* formatter) {
   const char* body_tmpl = NULL;
   if (resource_type_ == CSS) {
-    body_tmpl = "There are $1 CSS files served from $2. "
-        "They should be combined into as few files as possible.";
+    // TRANSLATOR: TODO: add a translator comment describing this string
+    body_tmpl = _("There are $1 CSS files served from $2. "
+        "They should be combined into as few files as possible.");
   } else if (resource_type_ == JS) {
-    body_tmpl = "There are $1 JavaScript files served from $2. "
-        "They should be combined into as few files as possible.";
+    // TRANSLATOR: TODO: add a translator comment describing this string
+    body_tmpl = _("There are $1 JavaScript files served from $2. "
+        "They should be combined into as few files as possible.");
   } else {
     LOG(DFATAL) << "Unknown violation type " << resource_type_;
     return;
@@ -135,7 +138,8 @@ const char* CombineExternalJavaScript::name() const {
 }
 
 const char* CombineExternalJavaScript::header() const {
-  return "Combine external JavaScript";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Combine external JavaScript");
 }
 
 const char* CombineExternalJavaScript::documentation_url() const {
@@ -151,7 +155,8 @@ const char* CombineExternalCss::name() const {
 }
 
 const char* CombineExternalCss::header() const {
-  return "Combine external CSS";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Combine external CSS");
 }
 
 const char* CombineExternalCss::documentation_url() const {

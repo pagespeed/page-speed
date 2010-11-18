@@ -21,6 +21,7 @@
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -57,7 +58,8 @@ const char* ImageMinifier::name() const {
 }
 
 const char* ImageMinifier::header_format() const {
-  return "Optimize images";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Optimize images");
 }
 
 const char* ImageMinifier::documentation_url() const {
@@ -65,12 +67,14 @@ const char* ImageMinifier::documentation_url() const {
 }
 
 const char* ImageMinifier::body_format() const {
-  return ("Optimizing the following images could reduce their size "
-          "by $1 ($2% reduction).");
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Optimizing the following images could reduce their size "
+           "by $1 ($2% reduction).");
 }
 
 const char* ImageMinifier::child_format() const {
-  return "Losslessly compressing $1 could save $2 ($3% reduction).";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Losslessly compressing $1 could save $2 ($3% reduction).");
 }
 
 const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {

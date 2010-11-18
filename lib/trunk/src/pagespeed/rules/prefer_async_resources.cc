@@ -25,6 +25,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -156,7 +157,8 @@ const char* PreferAsyncResources::name() const {
 }
 
 const char* PreferAsyncResources::header() const {
-  return "Prefer asynchronous resources";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Prefer asynchronous resources");
 }
 
 const char* PreferAsyncResources::documentation_url() const {
@@ -177,8 +179,9 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The following resources are loaded synchronously. Load them "
-      "asynchronously to reduce blocking of page rendering.");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following resources are loaded synchronously. Load them "
+        "asynchronously to reduce blocking of page rendering."));
 
   // CheckDocument adds the results in post-order.
 
@@ -199,7 +202,9 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
 
       Argument document_url(Argument::URL, result.resource_urls(0));
       Argument resource_url(Argument::URL, async_details.resource_url());
-      body->AddChild("$1 loads $2 synchronously.", document_url, resource_url);
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      body->AddChild(_("$1 loads $2 synchronously."),
+                     document_url, resource_url);
     } else {
       LOG(DFATAL) << "Async details missing.";
     }

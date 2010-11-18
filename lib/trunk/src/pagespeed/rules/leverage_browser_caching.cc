@@ -23,6 +23,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -115,7 +116,8 @@ const char* LeverageBrowserCaching::name() const {
 }
 
 const char* LeverageBrowserCaching::header() const {
-  return "Leverage browser caching";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Leverage browser caching");
 }
 
 const char* LeverageBrowserCaching::documentation_url() const {
@@ -182,9 +184,10 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The following cacheable resources have a short "
-      "freshness lifetime. Specify an expiration at least one "
-      "week in the future for the following resources:");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following cacheable resources have a short "
+        "freshness lifetime. Specify an expiration at least one "
+        "week in the future for the following resources:"));
 
   // Show the resources with the shortest freshness lifetime first.
   ResultVector sorted_results = results;
@@ -225,7 +228,8 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
           caching_details.freshness_lifetime_millis());
       body->AddChild("$1 ($2)", url, freshness_lifetime);
     } else {
-      Argument no_caching(Argument::STRING, "expiration not specified");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      Argument no_caching(Argument::STRING, _("expiration not specified"));
       body->AddChild("$1 ($2)", url, no_caching);
     }
   }

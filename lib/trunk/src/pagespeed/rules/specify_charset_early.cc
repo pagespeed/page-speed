@@ -25,6 +25,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -127,7 +128,8 @@ const char* SpecifyCharsetEarly::name() const {
 }
 
 const char* SpecifyCharsetEarly::header() const {
-  return "Specify a character set early";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Specify a character set early");
 }
 
 const char* SpecifyCharsetEarly::documentation_url() const {
@@ -208,10 +210,11 @@ void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The following resources have no character set specified "
-      "or have a non-default character set specified late in the "
-      "document. Specifying a character set early in these "
-      "documents can speed up browser rendering.");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following resources have no character set specified "
+        "or have a non-default character set specified late in the "
+        "document. Specifying a character set early in these "
+        "documents can speed up browser rendering."));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();

@@ -27,6 +27,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -131,7 +132,8 @@ const char* MinimizeDnsLookups::name() const {
 }
 
 const char* MinimizeDnsLookups::header() const {
-  return "Minimize DNS lookups";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minimize DNS lookups");
 }
 
 const char* MinimizeDnsLookups::documentation_url() const {
@@ -192,9 +194,10 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The hostnames of the following urls only serve one "
-      "resource each. Avoid the extra DNS "
-      "lookups by serving these resources from existing hostnames.");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The hostnames of the following urls only serve one "
+        "resource each. Avoid the extra DNS "
+        "lookups by serving these resources from existing hostnames."));
 
   for (std::vector<std::string>::const_iterator iter = violation_urls.begin(),
            end = violation_urls.end();

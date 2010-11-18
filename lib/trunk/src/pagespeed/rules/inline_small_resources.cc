@@ -28,6 +28,7 @@
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/cssmin/cssmin.h"
 #include "pagespeed/html/external_resource_filter.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/jsminify/js_minify.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -186,9 +187,10 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The following external resources have small response bodies. "
-      "Inlining the response in HTML can reduce blocking "
-      "of page rendering.");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following external resources have small response bodies. "
+       "Inlining the response in HTML can reduce blocking "
+       "of page rendering."));
 
   for (ResultVector::const_iterator it = results.begin(), end = results.end();
        it != end; ++it) {
@@ -207,7 +209,8 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
 
       Argument document_url(Argument::URL, result.resource_urls(0));
       Formatter* child =
-          body->AddChild("$1 should inline the following small resources:",
+          // TRANSLATOR: TODO: add a translator comment describing this string
+          body->AddChild(_("$1 should inline the following small resources:"),
                          document_url);
       for (int i = 0; i < isr_details.inline_candidates_size(); ++i) {
         Argument candidate_url(Argument::URL, isr_details.inline_candidates(i));
@@ -266,7 +269,8 @@ int InlineSmallResources::ComputeScore(const InputInformation& input_info,
 
 InlineSmallCss::InlineSmallCss() : InlineSmallResources(CSS) {}
 const char* InlineSmallCss::name() const { return "InlineSmallCss"; }
-const char* InlineSmallCss::header() const { return "Inline Small CSS"; }
+// TRANSLATOR: TODO: add a translator comment describing this string
+const char* InlineSmallCss::header() const { return _("Inline Small CSS"); }
 const char* InlineSmallCss::documentation_url() const {
   return "caching.html#InlineSmallResources";
 }
@@ -287,7 +291,8 @@ const char* InlineSmallJavaScript::name() const {
 }
 
 const char* InlineSmallJavaScript::header() const {
-  return "Inline Small JavaScript";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Inline Small JavaScript");
 }
 
 const char* InlineSmallJavaScript::documentation_url() const {

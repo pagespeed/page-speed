@@ -25,6 +25,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -122,7 +123,8 @@ const char* PutCssInTheDocumentHead::name() const {
 }
 
 const char* PutCssInTheDocumentHead::header() const {
-  return "Put CSS in the document head";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Put CSS in the document head");
 }
 
 const char* PutCssInTheDocumentHead::documentation_url() const {
@@ -142,8 +144,9 @@ void PutCssInTheDocumentHead::FormatResults(const ResultVector& results,
     return;
   }
 
-  formatter->AddChild("CSS in the document body adversely impacts rendering "
-                      "performance.");
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  formatter->AddChild(_("CSS in the document body adversely impacts rendering "
+                        "performance."));
 
   // CheckDocument adds the results in post-order.
   // TODO: What order do we _really_ want?  Pre-order?  Alphabetical?
@@ -164,25 +167,29 @@ void PutCssInTheDocumentHead::FormatResults(const ResultVector& results,
 
       Argument url(Argument::URL, result.resource_urls(0));
       Formatter* entry = formatter->AddChild(
-          "$1 has CSS in the document body:", url);
+          // TRANSLATOR: TODO: add a translator comment describing this string
+          _("$1 has CSS in the document body:"), url);
 
       int num_inline_style_blocks =
           style_details.num_inline_style_blocks();
       if (num_inline_style_blocks > 0) {
         Argument num(Argument::INTEGER, num_inline_style_blocks);
-        entry->AddChild("$1 style block(s) in the body should be moved to "
-                        "the document head.", num);
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        entry->AddChild(_("$1 style block(s) in the body should be moved to "
+                          "the document head."), num);
       }
 
       for (int i = 0, size = style_details.external_styles_size();
            i < size; ++i) {
         Argument href(Argument::URL, style_details.external_styles(i));
-        entry->AddChild("Link node $1 should be moved to the document head.",
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        entry->AddChild(_("Link node $1 should be moved to the document head."),
                         href);
       }
     } else {
       Argument url(Argument::URL, result.resource_urls(0));
-      formatter->AddChild("$1 has CSS in the document body.", url);
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      formatter->AddChild(_("$1 has CSS in the document body."), url);
     }
   }
 }
