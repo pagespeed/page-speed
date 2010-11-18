@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/jsminify/js_minify.h"
 
@@ -55,7 +56,8 @@ const char* JsMinifier::name() const {
 }
 
 const char* JsMinifier::header_format() const {
-  return "Minify JavaScript";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minify JavaScript");
 }
 
 const char* JsMinifier::documentation_url() const {
@@ -63,12 +65,14 @@ const char* JsMinifier::documentation_url() const {
 }
 
 const char* JsMinifier::body_format() const {
-  return ("Minifying the following JavaScript resources could "
-          "reduce their size by $1 ($2% reduction).");
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minifying the following JavaScript resources could "
+           "reduce their size by $1 ($2% reduction).");
 }
 
 const char* JsMinifier::child_format() const {
-  return "Minifying $1 could save $2 ($3% reduction).";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minifying $1 could save $2 ($3% reduction).");
 }
 
 const MinifierOutput* JsMinifier::Minify(const Resource& resource) const {

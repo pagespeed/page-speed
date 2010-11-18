@@ -29,6 +29,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/html/external_resource_filter.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -233,7 +234,8 @@ const char* AvoidDocumentWrite::name() const {
 }
 
 const char* AvoidDocumentWrite::header() const {
-  return "Avoid document.write";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Avoid document.write");
 }
 
 const char* AvoidDocumentWrite::documentation_url() const {
@@ -319,9 +321,10 @@ bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
 void AvoidDocumentWrite::FormatResults(const ResultVector& results,
                                        Formatter* formatter) {
   formatter = formatter->AddChild(
-      "Using document.write to fetch external resources can introduce "
-      "serialization delays in the rendering of the page. The following "
-      "resources use document.write to fetch external resources:");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("Using document.write to fetch external resources can introduce "
+        "serialization delays in the rendering of the page. The following "
+        "resources use document.write to fetch external resources:"));
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
@@ -342,7 +345,8 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
         Argument line_number(Argument::INTEGER, adw_details.line_number());
         Formatter* body =
             formatter->AddChild(
-                "$1 calls document.write on line $2 to fetch:",
+                // TRANSLATOR: TODO: add a translator comment describing this string
+                _("$1 calls document.write on line $2 to fetch:"),
                 res_url, line_number);
         for (int i = 0, size = adw_details.urls_size(); i < size; ++i) {
           Argument url(Argument::URL, adw_details.urls(i));

@@ -21,6 +21,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -59,7 +60,8 @@ const char* SpecifyACacheValidator::name() const {
 }
 
 const char* SpecifyACacheValidator::header() const {
-  return "Specify a cache validator";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Specify a cache validator");
 }
 
 const char* SpecifyACacheValidator::documentation_url() const {
@@ -98,10 +100,11 @@ void SpecifyACacheValidator::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The following resources are missing a cache validator. Resources "
-      "that do not specify a cache validator cannot be refreshed efficiently. "
-      "Specify a Last-Modified or ETag header to enable cache validation "
-      "for the following resources:");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following resources are missing a cache validator. Resources "
+        "that do not specify a cache validator cannot be refreshed "
+        "efficiently. Specify a Last-Modified or ETag header to enable cache "
+        "validation for the following resources:"));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();

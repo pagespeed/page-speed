@@ -19,6 +19,7 @@
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/html/html_minifier.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -55,7 +56,8 @@ const char* HtmlMinifier::name() const {
 }
 
 const char* HtmlMinifier::header_format() const {
-  return "Minify HTML";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minify HTML");
 }
 
 const char* HtmlMinifier::documentation_url() const {
@@ -63,12 +65,14 @@ const char* HtmlMinifier::documentation_url() const {
 }
 
 const char* HtmlMinifier::body_format() const {
-  return ("Minifying the following HTML resources could "
-          "reduce their size by $1 ($2% reduction).");
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minifying the following HTML resources could "
+           "reduce their size by $1 ($2% reduction).");
 }
 
 const char* HtmlMinifier::child_format() const {
-  return "Minifying $1 could save $2 ($3% reduction).";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minifying $1 could save $2 ($3% reduction).");
 }
 
 const MinifierOutput* HtmlMinifier::Minify(const Resource& resource) const {

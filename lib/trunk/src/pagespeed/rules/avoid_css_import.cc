@@ -24,6 +24,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/core/uri_util.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -53,7 +54,8 @@ const char* AvoidCssImport::name() const {
 }
 
 const char* AvoidCssImport::header() const {
-  return "Avoid CSS @import";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Avoid CSS @import");
 }
 
 const char* AvoidCssImport::documentation_url() const {
@@ -152,8 +154,9 @@ void AvoidCssImport::FormatResults(const ResultVector& results,
       if (import_details.imported_stylesheets_size() > 0) {
         Argument css_url(Argument::URL, result.resource_urls(0));
         Formatter* body = formatter->AddChild(
-            "The following external stylesheets were included in $1 "
-            "using @import.", css_url);
+            // TRANSLATOR: TODO: add a translator comment describing this string
+            _("The following external stylesheets were included in $1 "
+              "using @import."), css_url);
         for (int i = 0,
                  size = import_details.imported_stylesheets_size();
              i < size; ++i) {

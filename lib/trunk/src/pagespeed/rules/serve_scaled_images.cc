@@ -27,6 +27,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -197,7 +198,8 @@ const char* ServeScaledImages::name() const {
 }
 
 const char* ServeScaledImages::header() const {
-  return "Serve scaled images";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Serve scaled images");
 }
 
 const char* ServeScaledImages::documentation_url() const {
@@ -294,9 +296,10 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
   Argument percent_arg(Argument::INTEGER,
                        (total_original_size == 0 ? 0 :
                         (100 * total_bytes_saved) / total_original_size));
-  Formatter* body = formatter->AddChild("The following images are resized in "
-                                        "HTML or CSS.  Serving scaled images "
-                                        "could save $1 ($2% reduction).",
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  Formatter* body = formatter->AddChild(_("The following images are resized in "
+                                          "HTML or CSS.  Serving scaled images "
+                                          "could save $1 ($2% reduction)."),
                                         size_arg, percent_arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
@@ -328,8 +331,9 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       Argument actual_h(Argument::INTEGER, image_details.actual_height());
 
       std::string format_str =
-          "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
-          "Serving a scaled image could save $6 ($7% reduction).";
+          // TRANSLATOR: TODO: add a translator comment describing this string
+          _("$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
+            "Serving a scaled image could save $6 ($7% reduction).");
       std::vector<const Argument*> args;
       args.push_back(&url_arg);
       args.push_back(&expected_w);
@@ -342,8 +346,9 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       FormatterParameters formatter_args(&format_str, &args);
       body->AddChild(formatter_args);
     } else {
-      body->AddChild("$1 is resized in HTML or CSS.  Serving a "
-                     "scaled image could save $2 ($3% reduction).",
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      body->AddChild(_("$1 is resized in HTML or CSS.  Serving a "
+                       "scaled image could save $2 ($3% reduction)."),
                      url_arg, size_arg, percent_arg);
     }
   }

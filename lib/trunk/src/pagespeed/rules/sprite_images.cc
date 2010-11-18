@@ -27,6 +27,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -52,7 +53,8 @@ const char* SpriteImages::name() const {
 }
 
 const char* SpriteImages::header() const {
-  return "Combine images into CSS sprites";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Combine images into CSS sprites");
 }
 
 const char* SpriteImages::documentation_url() const {
@@ -142,8 +144,9 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
 void SpriteImages::FormatResults(const ResultVector& results,
                                  Formatter* formatter) {
   const char* body_tmpl =
-      "The following images served from $1 should be combined into as few "
-      "images as possible using CSS sprites.";
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following images served from $1 should be combined into as few "
+        "images as possible using CSS sprites.");
 
   if (results.empty()) {
     return;

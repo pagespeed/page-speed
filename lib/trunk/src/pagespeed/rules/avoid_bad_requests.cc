@@ -20,6 +20,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -35,7 +36,8 @@ const char* AvoidBadRequests::name() const {
 }
 
 const char* AvoidBadRequests::header() const {
-  return "Avoid bad requests";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Avoid bad requests");
 }
 
 const char* AvoidBadRequests::documentation_url() const {
@@ -69,9 +71,10 @@ void AvoidBadRequests::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The following requests are returning 404/410 responses.  Either fix "
-      "the broken links, or remove the references to the non-existent "
-      "resources.");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following requests are returning 404/410 responses.  Either fix "
+        "the broken links, or remove the references to the non-existent "
+        "resources."));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();

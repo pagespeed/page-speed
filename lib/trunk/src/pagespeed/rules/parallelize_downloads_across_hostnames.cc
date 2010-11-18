@@ -25,6 +25,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -68,7 +69,8 @@ const char* ParallelizeDownloadsAcrossHostnames::name() const {
 }
 
 const char* ParallelizeDownloadsAcrossHostnames::header() const {
-  return "Parallelize downloads across hostnames";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Parallelize downloads across hostnames");
 }
 
 const char* ParallelizeDownloadsAcrossHostnames::documentation_url() const {
@@ -178,9 +180,10 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
       Argument num_resources_arg(Argument::INTEGER, num_resources);
       Argument host_arg(Argument::STRING, host_details.host());
       Formatter* body = formatter->AddChild(
-          "This page makes $1 parallelizable requests to $2.  Increase "
-          "download parallelization by distributing these requests across "
-          "multiple hostnames:", num_resources_arg, host_arg);
+          // TRANSLATOR: TODO: add a translator comment describing this string
+          _("This page makes $1 parallelizable requests to $2.  Increase "
+            "download parallelization by distributing these requests across "
+            "multiple hostnames:"), num_resources_arg, host_arg);
 
       for (int index = 0; index < num_resources; ++index) {
         Argument url(Argument::URL, result.resource_urls(index));

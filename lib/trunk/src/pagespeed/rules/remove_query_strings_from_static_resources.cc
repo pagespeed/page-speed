@@ -24,6 +24,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -39,7 +40,8 @@ const char* RemoveQueryStringsFromStaticResources::name() const {
 }
 
 const char* RemoveQueryStringsFromStaticResources::header() const {
-  return "Remove query strings from static resources";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Remove query strings from static resources");
 }
 
 const char* RemoveQueryStringsFromStaticResources::documentation_url() const {
@@ -67,9 +69,10 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
   }
 
   Formatter* body = formatter->AddChild(
-      "Resources with a \"?\" in the URL are not cached by some proxy caching "
-      "servers.  Remove the query string and encode the parameters into the "
-      "URL for the following resources:");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("Resources with a \"?\" in the URL are not cached by some proxy "
+        "caching servers.  Remove the query string and encode the parameters "
+        "into the URL for the following resources:"));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end(); iter != end; ++iter) {

@@ -28,6 +28,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -271,7 +272,8 @@ const char* OptimizeTheOrderOfStylesAndScripts::name() const {
 }
 
 const char* OptimizeTheOrderOfStylesAndScripts::header() const {
-  return "Optimize the order of styles and scripts";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Optimize the order of styles and scripts");
 }
 
 const char* OptimizeTheOrderOfStylesAndScripts::documentation_url() const {
@@ -339,26 +341,29 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
       if (ordering_details.out_of_order_inline_scripts_size() > 0) {
         Argument html_url(Argument::URL, result.resource_urls(0));
         Formatter* body = formatter->AddChild(
-            "The following inline script blocks were found in $1 between an "
-            "external CSS file and another resource.  To allow parallel "
-            "downloading, move the inline script before the external CSS "
-            "file, or after the next resource.", html_url);
+            // TRANSLATOR: TODO: add a translator comment describing this string
+            _("The following inline script blocks were found in $1 between an "
+              "external CSS file and another resource.  To allow parallel "
+              "downloading, move the inline script before the external CSS "
+              "file, or after the next resource."), html_url);
         for (int i = 0,
                  size = ordering_details.out_of_order_inline_scripts_size();
              i < size; ++i) {
           Argument index(Argument::INTEGER,
                          ordering_details.out_of_order_inline_scripts(i));
-          body->AddChild("Inline script block #$1", index);
+          // TRANSLATOR: TODO: add a translator comment describing this string
+          body->AddChild(_("Inline script block #$1"), index);
         }
       }
 
       if (ordering_details.out_of_order_external_css_size() > 0) {
         Argument html_url(Argument::URL, result.resource_urls(0));
         Formatter* body = formatter->AddChild(
-            "The following external CSS files were included after an external "
-            "JavaScript file in $1.  To ensure CSS files are downloaded in "
-            "parallel, always include external CSS before external "
-            "JavaScript.", html_url);
+            // TRANSLATOR: TODO: add a translator comment describing this string
+            _("The following external CSS files were included after an "
+              "external JavaScript file in $1.  To ensure CSS files are "
+              "downloaded in parallel, always include external CSS before "
+              " external JavaScript."), html_url);
         for (int i = 0,
                  size = ordering_details.out_of_order_external_css_size();
              i < size; ++i) {

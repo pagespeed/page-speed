@@ -29,6 +29,7 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/core/uri_util.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -142,7 +143,8 @@ const char* MinimizeRedirects::name() const {
 }
 
 const char* MinimizeRedirects::header() const {
-  return "Minimize redirects";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Minimize redirects");
 }
 
 const char* MinimizeRedirects::documentation_url() const {
@@ -188,7 +190,8 @@ void MinimizeRedirects::FormatResults(const ResultVector& results,
        iter != end;
        ++iter) {
     Formatter* body = formatter->AddChild(
-        "Remove the following redirect chain if possible:");
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        _("Remove the following redirect chain if possible:"));
 
     const Result& result = **iter;
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {

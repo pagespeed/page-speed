@@ -26,6 +26,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
@@ -129,7 +130,8 @@ const char* SpecifyImageDimensions::name() const {
 }
 
 const char* SpecifyImageDimensions::header() const {
-  return "Specify image dimensions";
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Specify image dimensions");
 }
 
 const char* SpecifyImageDimensions::documentation_url() const {
@@ -154,7 +156,8 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      "The following image(s) are missing width and/or height attributes.");
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      _("The following image(s) are missing width and/or height attributes."));
 
   std::map<Result, int, ResultUrlLessThan> result_count_map;
   for (ResultVector::const_iterator iter = results.begin(),
@@ -189,10 +192,12 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
       Argument height(Argument::INTEGER, image_details.expected_height());
       if ( count > 1 ) {
         Argument instances(Argument::INTEGER, count);
-        body->AddChild("$1 (Dimensions: $2 x $3) ($4 uses)",
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        body->AddChild(_("$1 (Dimensions: $2 x $3) ($4 uses)"),
                         url, width, height, instances);
       } else {
-        body->AddChild("$1 (Dimensions: $2 x $3)",
+        // TRANSLATOR: TODO: add a translator comment describing this string
+        body->AddChild(_("$1 (Dimensions: $2 x $3)"),
                         url, width, height);
       }
     } else {
