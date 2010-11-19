@@ -1355,40 +1355,6 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
-   * This function returns all resources that were fetched before onload.
-   * @param {Array.<string>} opt_types Return urls with these resource types.
-   *     If unset or empty, all types are returned.
-   * @return {Array.<string>} A list of URLs fetched before onload.
-   */
-  getResourcesBeforeOnload: function(opt_types) {
-    var onLoadTime = FirebugContext.window.onloadTime;
-
-    var resourceFetchedBeforeOnLoad = function(url, resource) {
-      if (!resource.requestTime) {
-        PS_LOG('No fetch time on URL ' + url);
-        return true;
-      }
-
-      // Return true when the fetch time came before the onload time.
-      return (onLoadTime > resource.requestTime);
-    };
-
-    var resourceFilterFn;
-    if (!onLoadTime) {
-      // An undefined onload time means the onLoad event has not yet fired.
-      // Because onload has not yet happened, every resource fetched so far
-      // was fetched before onLoad.
-      resourceFilterFn = PAGESPEED.Utils.alwaysReturnTrueFn;
-    } else {
-      resourceFilterFn = resourceFetchedBeforeOnLoad;
-    }
-
-    return PAGESPEED.Utils.getResourcesWithFilter(
-        resourceFilterFn,
-        opt_types);
-  },
-
-  /**
    * Retrieve the cache entry for a given URL.
    * @param {string} url The URL of the resource to fetch from cache.
    * @return {nsICacheEntryDescriptor} The cache descriptor for the resource or
