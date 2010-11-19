@@ -1336,6 +1336,10 @@ ComponentCollectorService.prototype.bindPendingDocumentEntries = function(
   var srcObject = this.pendingDocs_.getEntry(documentUrl).resourceProperties;
   var doc = components.doc[documentUrl];
   mergeProperties(srcObject, doc, doc);
+  var earliestStartTime = doc.requestTime;
+  if (earliestStartTime <= 0) {
+    PS_LOG('Found invalid doc.requestTime ' + earliestStartTime);
+  }
 
   var redirects = this.pendingDocs_.getAllToHead(documentUrl);
   // Walk the array in reverse order, since the array is ordered from
@@ -1345,6 +1349,14 @@ ComponentCollectorService.prototype.bindPendingDocumentEntries = function(
     var toURL = redirects[i];
     var fromURL = this.pendingDocs_.getPrev(toURL);
     if (toURL && fromURL) {
+      var fromEntry = this.pendingDocs_.getEntry(fromURL);
+      var redirectStartTime = fromEntry.initTime;
+      if (redirectStartTime > 0 && redirectStartTime < earliestStartTime) {
+        earliestStartTime = redirectStartTime;
+      } else {
+        PS_LOG('Found out of order or invalid redirect time ' +
+               redirectStartTime);
+      }
       this.addWindowComponent(
           win,
           ComponentCollectorService.TYPE_REDIRECT,
@@ -1353,13 +1365,18 @@ ComponentCollectorService.prototype.bindPendingDocumentEntries = function(
           true);
 
       // Bind each redirect's properties.
-      var srcObject = this.pendingDocs_.getEntry(fromURL).resourceProperties;
+      var srcObject = fromEntry.resourceProperties;
       var redirect = components.redirect[fromURL];
       mergeProperties(srcObject, redirect, redirect);
     }
   }
   for (var i = 0, len = redirects.length; i < len; ++i) {
     this.pendingDocs_.removeEntry(redirects[i]);
+  }
+  if (earliestStartTime > 0) {
+    doc.pageLoadStartTime = earliestStartTime;
+  } else {
+    PS_LOG('invalid earliestStartTime ' + earliestStartTime);
   }
 };
 
@@ -1557,10 +1574,55 @@ ComponentCollectorService.prototype.addNewWindowListener = function(callback) {
 };
 
 /**
+ * Onload handler for the windows on the page.
+ * @param {Object} event The onload event for the given window.
+ */
+ComponentCollectorService.prototype.onLoad = function(event) {
+  var doc = event.target;
+  if (!doc.defaultView) {
+    PS_LOG('Unable to get defaultView for loaded document.');
+    return;
+  }
+  var win = doc.defaultView.top;
+  var components = this.getWindowComponents(win);
+  if (!components) {
+    PS_LOG('Unable to getWindowComponents for loaded document.');
+    return;
+  }
+  function recordOnLoadTime(componentType) {
+    if (!componentType) return false;
+    for (var url in componentType) {
+      var elts = componentType[url].elements;
+      for (var i = 0, len = elts.length; i < len; ++i) {
+        var elt = elts[i];
+        // Small hack. We reuse this logic for both iframe nodes and
+        // document nodes. if it's an iframe node it will have a
+        // content document which points to the actual document in the
+        // frame. Otherwise it is a document node.
+        if (elt.contentDocument) elt = elt.contentDocument;
+        if (elt == doc) {
+          componentType[url].onLoadTime = new Date().getTime();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  // Note: it is possible to embed a child document using the <object>
+  // tag. We will fail to catch those cases here. This is sufficiently
+  // rare and nonstandard that we do not need to support it.
+  if (!recordOnLoadTime(components.doc) &&
+      !recordOnLoadTime(components.iframe)) {
+    PS_LOG('Unable to find document ' + doc.URL + '. onload not recorded.');
+  }
+};
+
+/**
  * Invokes all registered new window callbacks.
  * @param {Object} win The window that was just created.
  */
 ComponentCollectorService.prototype.onNewWindow = function(win) {
+  win.addEventListener('load', FunctionUtils.bind(this.onLoad, this), false);
   for (var i = 0, len = this.newWindowCallbacks_.length; i < len; ++i) {
     try {
       this.newWindowCallbacks_[i](win);
@@ -1617,11 +1679,7 @@ function mergeProperties(src, component, redirect) {
       dest[i] = src[i];
     } else if (dest[i] !== src[i] && !KEEP_OLD_VALUE_WHEN_MERGING[i]) {
       // Non-array property. If the property exists at the
-      // destination, the best we can do is replace it. Log so
-      // we notice when we're replacing (and possibly losing) data.
-      if (dest[i]) {
-        PS_LOG('Replacing property ' + i);
-      }
+      // destination, the best we can do is replace it.
       dest[i] = src[i];
     }
   }
@@ -1638,7 +1696,7 @@ ComponentCollectorService.prototype.QueryInterface = function(aIID) {
   return this;
 };
 
-var FunctionPatchUtils = {
+var FunctionUtils = {
   // Returns a function object that invokes the specified function
   // using selfObj as the "this" object.
   bind: function(fn, selfObj) {

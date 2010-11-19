@@ -199,20 +199,25 @@ PAGESPEED.NativeLibrary = {
     }
 
     var documentUrl = PAGESPEED.Utils.getDocumentUrl();
-    var docRequestTime =
-        PAGESPEED.Utils.getResourceProperty(documentUrl, 'requestTime');
-    if (!docRequestTime || docRequestTime <= 0) {
+    var pageLoadStartTime =
+        PAGESPEED.Utils.getResourceProperty(documentUrl, 'pageLoadStartTime');
+    if (!pageLoadStartTime || pageLoadStartTime <= 0) {
       PS_LOG('Unable to find document request time.');
       return [];
     }
-    var startedDateTime = new Date(docRequestTime);
+    var startedDateTime = new Date(pageLoadStartTime);
 
     // onload may not be available in all cases, i.e. if Page Speed
     // was invoked before the onload event.
-    var onloadTime = FirebugContext.window.onloadTime;
+    var onloadTime =
+        PAGESPEED.Utils.getResourceProperty(documentUrl, 'onLoadTime');
     var timeToOnload = -1;
     if (onloadTime && onloadTime > 0) {
-      timeToOnload = onloadTime - docRequestTime;
+      timeToOnload = onloadTime - pageLoadStartTime;
+      if (timeToOnload <= 0) {
+        PS_LOG('Invalid timeToOnload ' + timeToOnload);
+        timeToOnload = -1;
+      }
     }
 
     // We construct a HAR that includes just the subset of data that
@@ -264,8 +269,8 @@ PAGESPEED.NativeLibrary = {
       var requestMethod =
           PAGESPEED.Utils.getResourceProperty(url, 'requestMethod');
       if (!requestMethod) {
-        PS_LOG('Unable to get request method for "' + url + '".');
-        // assume GET for backward compatibility.
+        // This can happen for images that are read out of the image
+        // cache. Assume GET for backward compatibility.
         requestMethod = 'GET';
       }
       bodyInputStreams.push(inputStream);
