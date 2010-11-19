@@ -125,7 +125,14 @@ void InputPopulator::DeterminePageTimings(
 
   cJSON* onload_json = cJSON_GetObjectItem(timing_json, "onLoad");
   if (onload_json != NULL && onload_json->type == cJSON_Number) {
-    input->SetOnloadTimeMillis(onload_json->valueint);
+    int onload_millis = onload_json->valueint;
+    if (onload_millis < 0) {
+      // When onLoad is specified but negative, it indicates that
+      // onload has not yet fired.
+      input->SetOnloadState(PagespeedInput::ONLOAD_NOT_YET_FIRED);
+    } else {
+      input->SetOnloadTimeMillis(onload_json->valueint);
+    }
   }
 }
 

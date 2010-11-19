@@ -41,6 +41,18 @@ typedef std::map<const Resource*, ResourceVector> ParentChildResourceMap;
  */
 class PagespeedInput {
  public:
+  enum OnloadState {
+    // There is not enough information to know whether the onload
+    // event has fired. This is the default state.
+    UNKNOWN,
+
+    // The onload event has already fired.
+    ONLOAD_FIRED,
+
+    // The onload event has not yet fired for this page.
+    ONLOAD_NOT_YET_FIRED,
+  };
+
   PagespeedInput();
   // PagespeedInput takes ownership of the passed resource_filter.
   explicit PagespeedInput(ResourceFilter* resource_filter);
@@ -63,8 +75,18 @@ class PagespeedInput {
   // the set of currently added resources, does nothing and returns false.
   bool SetPrimaryResourceUrl(const std::string& url);
 
+  // Set the onload state for this page load. If setting to
+  // ONLOAD_FIRED, you must also call SetOnloadTimeMillis with the onload
+  // time. Note that it is not necessary to call this method if
+  // setting to ONLOAD_FIRED; you can just call SetOnloadTimeMillis with
+  // the onload time directly, which will update the onload state to
+  // ONLOAD_FIRED.
+  bool SetOnloadState(OnloadState state);
+
   // Set the onload time, in milliseconds, relative to the request
-  // time of the first resource.
+  // time of the first resource. Calling this method also sets the
+  // onload state to ONLOAD_FIRED. It is not necessary to call
+  // SetOnloadState(ONLOAD_FIRED) if you are calling this method.
   bool SetOnloadTimeMillis(int onload_millis);
 
   // Set the DOM Document information.
@@ -112,10 +134,10 @@ class PagespeedInput {
   const std::string& primary_resource_url() const;
   bool is_frozen() const { return frozen_; }
 
-  // Get the onload time for the page associated with this
-  // PagespeedInput. Returns false if no onload time is available. The
-  // output parameter is only valid if this method returns true.
-  bool GetOnloadTimeMillis(int* out_onload_millis) const;
+  // Was the given resource loaded after onload? If timing data is
+  // unavailable, or if onload has not yet fired, this method returns
+  // false.
+  bool IsResourceLoadedAfterOnload(const Resource& resource) const;
 
   // Estimate the InputCapabilities for this PagespeedInput.
   // Note that implementers should call this method
@@ -155,6 +177,7 @@ class PagespeedInput {
   scoped_ptr<ResourceFilter> resource_filter_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
+  OnloadState onload_state_;
   int onload_millis_;
   bool frozen_;
 

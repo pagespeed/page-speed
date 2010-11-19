@@ -41,6 +41,7 @@ struct ResourceRequestStartTimeLessThan {
 PagespeedInput::PagespeedInput()
     : input_info_(new InputInformation),
       resource_filter_(new AllowAllResourceFilter),
+      onload_state_(UNKNOWN),
       onload_millis_(-1),
       frozen_(false) {
 }
@@ -48,6 +49,7 @@ PagespeedInput::PagespeedInput()
 PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
     : input_info_(new InputInformation),
       resource_filter_(resource_filter),
+      onload_state_(UNKNOWN),
       onload_millis_(-1),
       frozen_(false) {
   DCHECK_NE(resource_filter, static_cast<ResourceFilter*>(NULL));
@@ -117,6 +119,15 @@ bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
   return true;
 }
 
+bool PagespeedInput::SetOnloadState(OnloadState state) {
+  if (frozen_) {
+    LOG(DFATAL) << "Can't set onload state for frozen PagespeedInput.";
+    return false;
+  }
+  onload_state_ = state;
+  return true;
+}
+
 bool PagespeedInput::SetOnloadTimeMillis(int onload_millis) {
   if (frozen_) {
     LOG(DFATAL) << "Can't set onload time for frozen PagespeedInput.";
@@ -126,6 +137,7 @@ bool PagespeedInput::SetOnloadTimeMillis(int onload_millis) {
     LOG(DFATAL) << "Invalid onload_millis: " << onload_millis;
     return false;
   }
+  onload_state_ = ONLOAD_FIRED;
   onload_millis_ = onload_millis;
   return true;
 }
@@ -469,10 +481,23 @@ const std::string& PagespeedInput::primary_resource_url() const {
   return primary_resource_url_;
 }
 
-bool PagespeedInput::GetOnloadTimeMillis(int* out_onload_millis) const {
-  if (onload_millis_ <= 0) return false;
-  *out_onload_millis = onload_millis_;
-  return true;
+bool PagespeedInput::IsResourceLoadedAfterOnload(
+    const Resource& resource) const {
+  if (onload_state_ != ONLOAD_FIRED) {
+    // If we don't have an onload time, assume the resource is not
+    // loaded after onload.
+    return false;
+  }
+  if (onload_millis_ < 0) {
+    LOG(DFATAL)
+        << "onload_state_ is ONLOAD_FIRED but no onload time specified.";
+    return false;
+  }
+  if (!resource.has_request_start_time_millis()) {
+    // If no request start time, assume it's not loaded after onload.
+    return false;
+  }
+  return resource.request_start_time_millis_ > onload_millis_;
 }
 
 const Resource* PagespeedInput::GetResourceWithUrl(
@@ -522,8 +547,7 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
   }
   if (GetResourcesInRequestOrder() != NULL) {
     capabilities.add(InputCapabilities::REQUEST_START_TIMES);
-    int onload_millis;
-    if (GetOnloadTimeMillis(&onload_millis)) {
+    if (onload_state_ != UNKNOWN) {
       capabilities.add(InputCapabilities::LAZY_LOADED);
     }
   }

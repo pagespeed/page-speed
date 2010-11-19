@@ -419,13 +419,18 @@ TEST_F(EstimateCapabilitiesTest, JSCalls) {
           pagespeed_input()->EstimateCapabilities()));
 }
 
-TEST_F(EstimateCapabilitiesTest, LazyLoaded) {
+TEST_F(EstimateCapabilitiesTest, OnLoad) {
   SetOnloadTimeMillis(10);
-  New200Resource("http://www.example.com/")->SetRequestStartTimeMillis(11);
+  Resource* r1 = New200Resource("http://www.example.com/");
+  r1->SetRequestStartTimeMillis(11);
+  Resource* r2 = New200Resource("http://www.example.com/");
+  r2->SetRequestStartTimeMillis(9);
   Freeze();
   ASSERT_TRUE(
       pagespeed_input()->EstimateCapabilities().satisfies(
           InputCapabilities(InputCapabilities::LAZY_LOADED)));
+  ASSERT_TRUE(pagespeed_input()->IsResourceLoadedAfterOnload(*r1));
+  ASSERT_FALSE(pagespeed_input()->IsResourceLoadedAfterOnload(*r2));
 }
 
 TEST_F(EstimateCapabilitiesTest, RequestStartTimes) {
