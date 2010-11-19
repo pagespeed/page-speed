@@ -186,6 +186,13 @@ class Resource {
   ImageType GetImageType() const;
 
  private:
+  // We let PagespeedInput access our private data in order to inspect
+  // the request_start_time_millis_ field. We do not want to expose
+  // this field to rules since we don't want rules implemented in
+  // terms of absolute resource timing information, since it would
+  // lead to nondeterminism in results.
+  friend class PagespeedInput;
+
   typedef std::map<std::string, std::vector<const JavaScriptCallInfo*> >
       JavaScriptCallInfoMap;
 

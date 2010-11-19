@@ -219,16 +219,7 @@ const std::string& Resource::GetCookies() const {
 }
 
 bool Resource::IsLazyLoaded(const PagespeedInput& input) const {
-  int onload_millis = 0;
-  if (!input.GetOnloadTimeMillis(&onload_millis)) {
-    // If we don't have an onload time, assume the resource is not
-    // lazy loaded.
-    return false;
-  }
-
-  // A resource is lazy loaded if its request time is after the onload
-  // time.
-  return request_start_time_millis_ > onload_millis;
+  return input.IsResourceLoadedAfterOnload(*this);
 }
 
 const Resource::HeaderMap* Resource::GetRequestHeaders() const {
