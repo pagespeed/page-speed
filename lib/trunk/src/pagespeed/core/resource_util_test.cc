@@ -545,7 +545,8 @@ TEST_F(GetLastResourceInRedirectChainTest, AlmostTooLongRedirectChain) {
 
   for (int i = 0; i < kMaxRedirects; ++i) {
     ASSERT_EQ(final_resource,
-              GetLastResourceInRedirectChain(*pagespeed_input(), *resources[i])) << i;
+              GetLastResourceInRedirectChain(*pagespeed_input(),
+                                             *resources[i])) << i;
   }
 }
 

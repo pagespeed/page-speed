@@ -35,7 +35,7 @@ const char* AvoidBadRequests::name() const {
   return "AvoidBadRequests";
 }
 
-const char* AvoidBadRequests::header() const {
+LocalizableString AvoidBadRequests::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Avoid bad requests");
 }
@@ -87,7 +87,7 @@ void AvoidBadRequests::FormatResults(const ResultVector& results,
       continue;
     }
     Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild("$1", url);
+    body->AddChild(not_localized("$1"), url);
   }
 }
 

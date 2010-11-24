@@ -115,7 +115,7 @@ const char* LeverageBrowserCaching::name() const {
   return "LeverageBrowserCaching";
 }
 
-const char* LeverageBrowserCaching::header() const {
+LocalizableString LeverageBrowserCaching::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Leverage browser caching");
 }
@@ -226,11 +226,13 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
       Argument freshness_lifetime(
           Argument::DURATION,
           caching_details.freshness_lifetime_millis());
-      body->AddChild("$1 ($2)", url, freshness_lifetime);
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      body->AddChild(_("$1 ($2)"), url, freshness_lifetime);
     } else {
       // TRANSLATOR: TODO: add a translator comment describing this string
       Argument no_caching(Argument::STRING, _("expiration not specified"));
-      body->AddChild("$1 ($2)", url, no_caching);
+      // TRANSLATOR: TODO: add a translator comment describing this string
+      body->AddChild(_("$1 ($2)"), url, no_caching);
     }
   }
 }

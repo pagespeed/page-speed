@@ -131,7 +131,7 @@ const char* MinimizeDnsLookups::name() const {
   return "MinimizeDnsLookups";
 }
 
-const char* MinimizeDnsLookups::header() const {
+LocalizableString MinimizeDnsLookups::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Minimize DNS lookups");
 }
@@ -204,7 +204,7 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
        iter != end;
        ++iter) {
     Argument url(Argument::URL, *iter);
-    body->AddChild("$1", url);
+    body->AddChild(not_localized("$1"), url);
   }
 }
 

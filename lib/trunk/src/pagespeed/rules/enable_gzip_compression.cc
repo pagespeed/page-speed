@@ -53,10 +53,10 @@ class GzipMinifier : public Minifier {
 
   // Minifier interface:
   virtual const char* name() const;
-  virtual const char* header_format() const;
+  virtual LocalizableString header_format() const;
   virtual const char* documentation_url() const;
-  virtual const char* body_format() const;
-  virtual const char* child_format() const;
+  virtual LocalizableString body_format() const;
+  virtual LocalizableString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
 
  private:
@@ -72,7 +72,7 @@ const char* GzipMinifier::name() const {
   return "EnableGzipCompression";
 }
 
-const char* GzipMinifier::header_format() const {
+LocalizableString GzipMinifier::header_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Enable compression");
 }
@@ -81,13 +81,13 @@ const char* GzipMinifier::documentation_url() const {
   return "payload.html#GzipCompression";
 }
 
-const char* GzipMinifier::body_format() const {
+LocalizableString GzipMinifier::body_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Compressing the following resources with gzip could reduce their "
            "transfer size by $1 ($2% reduction).");
 }
 
-const char* GzipMinifier::child_format() const {
+LocalizableString GzipMinifier::child_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Compressing $1 could save $2 ($3% reduction).");
 }

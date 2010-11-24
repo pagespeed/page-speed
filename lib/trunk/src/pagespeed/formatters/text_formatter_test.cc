@@ -15,23 +15,25 @@
 #include <iostream>
 
 #include "pagespeed/formatters/text_formatter.h"
+#include "pagespeed/l10n/l10n.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Argument;
 using pagespeed::Formatter;
 using pagespeed::formatters::TextFormatter;
+using pagespeed::LocalizableString;
 
 namespace {
 
 class DummyTestRule : public pagespeed::Rule {
  public:
-  explicit DummyTestRule(const char* header)
+  explicit DummyTestRule(const LocalizableString& header)
       : pagespeed::Rule(pagespeed::InputCapabilities()),
         header_(header) {}
 
-  virtual const char* name() const { return "Dummy Test Rule"; }
-  virtual const char* header() const { return header_; }
-  virtual const char* documentation_url() const { return ""; }
+  virtual const char* name() const { return "DummyTestRule"; }
+  virtual LocalizableString header() const { return header_; }
+  virtual const char* documentation_url() const { return "doc.html"; }
   virtual bool AppendResults(const pagespeed::RuleInput& input,
                              pagespeed::ResultProvider* provider) {
     return true;
@@ -39,14 +41,14 @@ class DummyTestRule : public pagespeed::Rule {
   virtual void FormatResults(const pagespeed::ResultVector& results,
                              Formatter* formatter) {}
  private:
-  const char* header_;
+  LocalizableString header_;
 };
 
 TEST(TextFormatterTest, BasicTest) {
   std::stringstream output;
   TextFormatter formatter(&output);
-  formatter.AddChild("foo");
-  formatter.AddChild("bar");
+  formatter.AddChild(not_localized("foo"));
+  formatter.AddChild(not_localized("bar"));
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("foo\nbar\n", result);
@@ -54,8 +56,8 @@ TEST(TextFormatterTest, BasicTest) {
 
 TEST(TextFormatterTest, BasicHeaderTest) {
   std::stringstream output;
-  DummyTestRule rule1("foo");
-  DummyTestRule rule2("bar");
+  DummyTestRule rule1(not_localized("foo"));
+  DummyTestRule rule2(not_localized("bar"));
   TextFormatter formatter(&output);
   formatter.AddHeader(rule1, 0);
   formatter.AddHeader(rule2, 1);
@@ -67,15 +69,15 @@ TEST(TextFormatterTest, BasicHeaderTest) {
 TEST(TextFormatterTest, TreeTest) {
   std::stringstream output;
   TextFormatter formatter(&output);
-  DummyTestRule rule("l1-1");
+  DummyTestRule rule(not_localized("l1-1"));
   Formatter* level1 = formatter.AddHeader(rule, -1);
-  Formatter* level2 = level1->AddChild("l2-1");
-  Formatter* level3 = level2->AddChild("l3-1");
-  level3->AddChild("l4-1");
-  level3->AddChild("l4-2");
-  level3 = level2->AddChild("l3-2");
-  level3->AddChild("l4-3");
-  level3->AddChild("l4-4");
+  Formatter* level2 = level1->AddChild(not_localized("l2-1"));
+  Formatter* level3 = level2->AddChild(not_localized("l3-1"));
+  level3->AddChild(not_localized("l4-1"));
+  level3->AddChild(not_localized("l4-2"));
+  level3 = level2->AddChild(not_localized("l3-2"));
+  level3->AddChild(not_localized("l4-3"));
+  level3->AddChild(not_localized("l4-4"));
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("_l1-1_ (score=n/a)\n"
@@ -95,10 +97,10 @@ TEST(TextFormatterTest, ArgumentTypesTest) {
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
   Argument url_arg(Argument::URL, "http://test.com/");
-  formatter.AddChild("$1", bytes_arg);
-  formatter.AddChild("$1", int_arg);
-  formatter.AddChild("$1", string_arg);
-  formatter.AddChild("$1", url_arg);
+  formatter.AddChild(not_localized("$1"), bytes_arg);
+  formatter.AddChild(not_localized("$1"), int_arg);
+  formatter.AddChild(not_localized("$1"), string_arg);
+  formatter.AddChild(not_localized("$1"), url_arg);
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("1.5KiB\n"
@@ -115,11 +117,12 @@ TEST(TextFormatterTest, ArgumentListTest) {
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
   Argument url_arg(Argument::URL, "http://test.com/");
-  formatter.AddChild("");
-  formatter.AddChild("$1", bytes_arg);
-  formatter.AddChild("$1 $2", bytes_arg, int_arg);
-  formatter.AddChild("$1 $2 $3", bytes_arg, int_arg, string_arg);
-  formatter.AddChild("$1 $2 $3 $4", bytes_arg, int_arg, string_arg, url_arg);
+  formatter.AddChild(not_localized(""));
+  formatter.AddChild(not_localized("$1"), bytes_arg);
+  formatter.AddChild(not_localized("$1 $2"), bytes_arg, int_arg);
+  formatter.AddChild(not_localized("$1 $2 $3"), bytes_arg, int_arg, string_arg);
+  formatter.AddChild(not_localized("$1 $2 $3 $4"), bytes_arg, int_arg,
+                     string_arg, url_arg);
   std::string result = output.str();
   EXPECT_EQ("\n"
             "1.5KiB\n"

@@ -271,7 +271,7 @@ const char* OptimizeTheOrderOfStylesAndScripts::name() const {
   return "OptimizeTheOrderOfStylesAndScripts";
 }
 
-const char* OptimizeTheOrderOfStylesAndScripts::header() const {
+LocalizableString OptimizeTheOrderOfStylesAndScripts::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Optimize the order of styles and scripts");
 }
@@ -369,7 +369,7 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
              i < size; ++i) {
           Argument url(Argument::URL,
                        ordering_details.out_of_order_external_css(i));
-          body->AddChild("$1", url);
+          body->AddChild(not_localized("$1"), url);
         }
       }
     }

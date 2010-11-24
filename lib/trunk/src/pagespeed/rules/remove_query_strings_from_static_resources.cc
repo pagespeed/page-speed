@@ -39,7 +39,7 @@ const char* RemoveQueryStringsFromStaticResources::name() const {
   return "RemoveQueryStringsFromStaticResources";
 }
 
-const char* RemoveQueryStringsFromStaticResources::header() const {
+LocalizableString RemoveQueryStringsFromStaticResources::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Remove query strings from static resources");
 }
@@ -83,7 +83,7 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
       continue;
     }
     Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild("$1", url);
+    body->AddChild(not_localized("$1"), url);
   }
 }
 

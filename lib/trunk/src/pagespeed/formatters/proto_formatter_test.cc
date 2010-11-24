@@ -17,6 +17,7 @@
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/formatters/proto_formatter.h"
+#include "pagespeed/l10n/l10n.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Argument;
@@ -24,19 +25,20 @@ using pagespeed::FormatArgument;
 using pagespeed::FormatterParameters;
 using pagespeed::Formatter;
 using pagespeed::formatters::ProtoFormatter;
+using pagespeed::LocalizableString;
 using pagespeed::ResultText;
 
 namespace {
 
 class DummyTestRule : public pagespeed::Rule {
  public:
-  explicit DummyTestRule(const char* header)
+  explicit DummyTestRule(const LocalizableString& header)
       : pagespeed::Rule(pagespeed::InputCapabilities()),
         header_(header) {}
 
-  virtual const char* name() const { return "Dummy Test Rule"; }
-  virtual const char* header() const { return header_; }
-  virtual const char* documentation_url() const { return ""; }
+  virtual const char* name() const { return "DummyTestRule"; }
+  virtual LocalizableString header() const { return header_; }
+  virtual const char* documentation_url() const { return "doc.html"; }
   virtual bool AppendResults(const pagespeed::RuleInput& input,
                              pagespeed::ResultProvider* provider) {
     return true;
@@ -44,14 +46,14 @@ class DummyTestRule : public pagespeed::Rule {
   virtual void FormatResults(const pagespeed::ResultVector& results,
                              Formatter* formatter) {}
  private:
-  const char* header_;
+  LocalizableString header_;
 };
 
 TEST(ProtoFormatterTest, BasicTest) {
   std::vector<ResultText*> results;
   ProtoFormatter formatter(&results);
-  formatter.AddChild("foo");
-  formatter.AddChild("bar");
+  formatter.AddChild(not_localized("foo"));
+  formatter.AddChild(not_localized("bar"));
   ASSERT_EQ(static_cast<size_t>(2), results.size());
   ResultText* first = results[0];
   EXPECT_EQ("foo", first->format());
@@ -67,7 +69,7 @@ TEST(ProtoFormatterTest, BasicTest) {
 }
 
 TEST(ProtoFormatterTest, OptimizedTest) {
-  std::string format_str = "FooBar";
+  LocalizableString format_str = not_localized("FooBar");
   FormatterParameters args(&format_str);
   std::string optimized = "<optimized result>";
   args.set_optimized_content(&optimized, "text/css");
@@ -90,11 +92,11 @@ TEST(ProtoFormatterTest, OptimizedTest) {
 TEST(ProtoFormatterTest, BasicHeaderTest) {
   std::vector<ResultText*> results;
   ProtoFormatter formatter(&results);
-  DummyTestRule rule1("head");
-  DummyTestRule rule2("head2");
+  DummyTestRule rule1(not_localized("head"));
+  DummyTestRule rule2(not_localized("head2"));
   Formatter* child_formatter = formatter.AddHeader(rule1, 42);
-  child_formatter->AddChild("foo");
-  child_formatter->AddChild("bar");
+  child_formatter->AddChild(not_localized("foo"));
+  child_formatter->AddChild(not_localized("bar"));
   formatter.AddHeader(rule2, 23);
   formatter.Done();
 
@@ -117,10 +119,10 @@ TEST(ProtoFormatterTest, BasicHeaderTest) {
 TEST(ProtoFormatterTest, TreeTest) {
   std::vector<ResultText*> results;
   ProtoFormatter formatter(&results);
-  Formatter* level1 = formatter.AddChild("l1-1");
-  Formatter* level2 = level1->AddChild("l2-1");
-  level2->AddChild("l3-1");
-  level1->AddChild("l2-2");
+  Formatter* level1 = formatter.AddChild(not_localized("l1-1"));
+  Formatter* level2 = level1->AddChild(not_localized("l2-1"));
+  level2->AddChild(not_localized("l3-1"));
+  level1->AddChild(not_localized("l2-2"));
 
   ASSERT_EQ(static_cast<size_t>(1), results.size());
   const ResultText& result = *results[0];
@@ -155,10 +157,10 @@ TEST(ProtoFormatterTest, ArgumentTypesTest) {
   Argument string_arg(Argument::STRING, "test");
   Argument url_arg(Argument::URL, "http://test.com/");
 
-  formatter.AddChild("$1", bytes_arg);
-  formatter.AddChild("$1", int_arg);
-  formatter.AddChild("$1", string_arg);
-  formatter.AddChild("$1", url_arg);
+  formatter.AddChild(not_localized("$1"), bytes_arg);
+  formatter.AddChild(not_localized("$1"), int_arg);
+  formatter.AddChild(not_localized("$1"), string_arg);
+  formatter.AddChild(not_localized("$1"), url_arg);
 
   ASSERT_EQ(static_cast<size_t>(4), results.size());
   for (size_t idx = 0; idx < results.size(); idx++) {
@@ -192,11 +194,12 @@ TEST(ProtoFormatterTest, ArgumentListTest) {
   Argument string_arg(Argument::STRING, "test");
   Argument url_arg(Argument::URL, "http://test.com/");
 
-  formatter.AddChild("");
-  formatter.AddChild("$1", bytes_arg);
-  formatter.AddChild("$1 $2", bytes_arg, int_arg);
-  formatter.AddChild("$1 $2 $3", bytes_arg, int_arg, string_arg);
-  formatter.AddChild("$1 $2 $3 $4", bytes_arg, int_arg, string_arg, url_arg);
+  formatter.AddChild(not_localized(""));
+  formatter.AddChild(not_localized("$1"), bytes_arg);
+  formatter.AddChild(not_localized("$1 $2"), bytes_arg, int_arg);
+  formatter.AddChild(not_localized("$1 $2 $3"), bytes_arg, int_arg, string_arg);
+  formatter.AddChild(not_localized("$1 $2 $3 $4"), bytes_arg, int_arg,
+                     string_arg, url_arg);
 
   ASSERT_EQ(static_cast<size_t>(5), results.size());
   for (size_t idx = 0; idx < results.size(); idx++) {

@@ -142,7 +142,7 @@ const char* MinimizeRedirects::name() const {
   return kRuleName;
 }
 
-const char* MinimizeRedirects::header() const {
+LocalizableString MinimizeRedirects::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Minimize redirects");
 }
@@ -196,7 +196,7 @@ void MinimizeRedirects::FormatResults(const ResultVector& results,
     const Result& result = **iter;
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
       Argument url(Argument::URL, result.resource_urls(url_idx));
-      body->AddChild("$1", url);
+      body->AddChild(not_localized("$1"), url);
     }
   }
 }

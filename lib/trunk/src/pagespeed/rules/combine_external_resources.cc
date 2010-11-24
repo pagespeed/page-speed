@@ -97,7 +97,7 @@ bool CombineExternalResources::AppendResults(const RuleInput& rule_input,
 
 void CombineExternalResources::FormatResults(const ResultVector& results,
                                              Formatter* formatter) {
-  const char* body_tmpl = NULL;
+  LocalizableString body_tmpl;
   if (resource_type_ == CSS) {
     // TRANSLATOR: TODO: add a translator comment describing this string
     body_tmpl = _("There are $1 CSS files served from $2. "
@@ -124,7 +124,7 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       Argument url(Argument::URL, result.resource_urls(idx));
-      body->AddChild("$1", url);
+      body->AddChild(not_localized("$1"), url);
     }
   }
 }
@@ -137,7 +137,7 @@ const char* CombineExternalJavaScript::name() const {
   return "CombineExternalJavaScript";
 }
 
-const char* CombineExternalJavaScript::header() const {
+LocalizableString CombineExternalJavaScript::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Combine external JavaScript");
 }
@@ -154,7 +154,7 @@ const char* CombineExternalCss::name() const {
   return "CombineExternalCss";
 }
 
-const char* CombineExternalCss::header() const {
+LocalizableString CombineExternalCss::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Combine external CSS");
 }

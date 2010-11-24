@@ -16,6 +16,7 @@
 
 #include "pagespeed/core/rule.h"
 #include "pagespeed/core/serializer.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -23,17 +24,18 @@ using pagespeed::Argument;
 using pagespeed::Formatter;
 using pagespeed::FormatterParameters;
 using pagespeed::formatters::JsonFormatter;
+using pagespeed::LocalizableString;
 
 namespace {
 
 class DummyTestRule : public pagespeed::Rule {
  public:
-  explicit DummyTestRule(const char* header)
+  explicit DummyTestRule(const LocalizableString& header)
       : pagespeed::Rule(pagespeed::InputCapabilities()),
         header_(header) {}
 
   virtual const char* name() const { return "DummyTestRule"; }
-  virtual const char* header() const { return header_; }
+  virtual LocalizableString header() const { return header_; }
   virtual const char* documentation_url() const { return "doc.html"; }
   virtual bool AppendResults(const pagespeed::RuleInput& input,
                              pagespeed::ResultProvider* provider) {
@@ -42,7 +44,7 @@ class DummyTestRule : public pagespeed::Rule {
   virtual void FormatResults(const pagespeed::ResultVector& results,
                              Formatter* formatter) {}
  private:
-  const char* header_;
+  LocalizableString header_;
 };
 
 class DummyTestSerializer : public pagespeed::Serializer {
@@ -59,8 +61,8 @@ class DummyTestSerializer : public pagespeed::Serializer {
 TEST(JsonFormatterTest, BasicTest) {
   std::stringstream output;
   JsonFormatter formatter(&output, NULL);
-  formatter.AddChild("foo");
-  formatter.AddChild("bar");
+  formatter.AddChild(not_localized("foo"));
+  formatter.AddChild(not_localized("bar"));
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\",\"value\":\"foo\"}]},\n"
@@ -71,11 +73,11 @@ TEST(JsonFormatterTest, BasicTest) {
 TEST(JsonFormatterTest, BasicHeaderTest) {
   std::stringstream output;
   JsonFormatter formatter(&output, NULL);
-  DummyTestRule rule1("head");
-  DummyTestRule rule2("head2");
+  DummyTestRule rule1(not_localized("head"));
+  DummyTestRule rule2(not_localized("head2"));
   Formatter* child_formatter = formatter.AddHeader(rule1, 42);
-  child_formatter->AddChild("foo");
-  child_formatter->AddChild("bar");
+  child_formatter->AddChild(not_localized("foo"));
+  child_formatter->AddChild(not_localized("bar"));
   formatter.AddHeader(rule2, 23);
   formatter.Done();
   std::string result = output.str();
@@ -99,7 +101,7 @@ TEST(JsonFormatterTest, BasicHeaderTest) {
 TEST(JsonFormatterTest, EscapeTest) {
   std::stringstream output;
   JsonFormatter formatter(&output, NULL);
-  formatter.AddChild("\n\\\t\x12\f\"\r<>");
+  formatter.AddChild(not_localized("\n\\\t\x12\f\"\r<>"));
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\","
@@ -111,7 +113,7 @@ TEST(JsonFormatterTest, UrlEscapeTest) {
   std::stringstream output;
   JsonFormatter formatter(&output, NULL);
   Argument url_arg(Argument::URL, "http://a.com/\n\\\t\x12\f\"\r<>");
-  formatter.AddChild("url: $1", url_arg);
+  formatter.AddChild(not_localized("url: $1"), url_arg);
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ(
@@ -126,14 +128,14 @@ TEST(JsonFormatterTest, UrlEscapeTest) {
 TEST(JsonFormatterTest, TreeTest) {
   std::stringstream output;
   JsonFormatter formatter(&output, NULL);
-  Formatter* level1 = formatter.AddChild("l1-1");
-  Formatter* level2 = level1->AddChild("l2-1");
-  Formatter* level3 = level2->AddChild("l3-1");
-  level3->AddChild("l4-1");
-  level3->AddChild("l4-2");
-  level3 = level2->AddChild("l3-2");
-  level3->AddChild("l4-3");
-  level3->AddChild("l4-4");
+  Formatter* level1 = formatter.AddChild(not_localized("l1-1"));
+  Formatter* level2 = level1->AddChild(not_localized("l2-1"));
+  Formatter* level3 = level2->AddChild(not_localized("l3-1"));
+  level3->AddChild(not_localized("l4-1"));
+  level3->AddChild(not_localized("l4-2"));
+  level3 = level2->AddChild(not_localized("l3-2"));
+  level3->AddChild(not_localized("l4-3"));
+  level3->AddChild(not_localized("l4-4"));
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\",\"value\":\"l1-1\"}],"
@@ -158,10 +160,10 @@ TEST(JsonFormatterTest, ArgumentTypesTest) {
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
   Argument url_arg(Argument::URL, "http://test.com/");
-  formatter.AddChild("$1", bytes_arg);
-  formatter.AddChild("$1", int_arg);
-  formatter.AddChild("$1", string_arg);
-  formatter.AddChild("$1", url_arg);
+  formatter.AddChild(not_localized("$1"), bytes_arg);
+  formatter.AddChild(not_localized("$1"), int_arg);
+  formatter.AddChild(not_localized("$1"), string_arg);
+  formatter.AddChild(not_localized("$1"), url_arg);
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\",\"value\":\"1.5KiB\"}]},\n"
@@ -173,7 +175,7 @@ TEST(JsonFormatterTest, ArgumentTypesTest) {
 }
 
 TEST(JsonFormatterTest, OptimizedTest) {
-  std::string format_str = "FooBar $1";
+  LocalizableString format_str = not_localized("FooBar $1");
   Argument url_arg(Argument::URL, "http://test.com/");
   std::vector<const Argument*> arguments;
   arguments.push_back(&url_arg);
@@ -204,7 +206,7 @@ TEST(JsonFormatterTest, OptimizedTest) {
 }
 
 TEST(JsonFormatterTest, OptimizedTestNoUrl) {
-  std::string format_str = "FooBar";
+  LocalizableString format_str = not_localized("FooBar");
   FormatterParameters args(&format_str);
   std::string optimized = "<optimized result>";
   args.set_optimized_content(&optimized, "text/css");
@@ -235,11 +237,12 @@ TEST(JsonFormatterTest, ArgumentListTest) {
   Argument int_arg(Argument::INTEGER, 42);
   Argument string_arg(Argument::STRING, "test");
   Argument url_arg(Argument::URL, "http://test.com/");
-  formatter.AddChild("");
-  formatter.AddChild("$1", bytes_arg);
-  formatter.AddChild("$2 $1", bytes_arg, int_arg);
-  formatter.AddChild("$1 $2 $3", bytes_arg, int_arg, string_arg);
-  formatter.AddChild("$1 $4 $3 $2", bytes_arg, int_arg, string_arg, url_arg);
+  formatter.AddChild(not_localized(""));
+  formatter.AddChild(not_localized("$1"), bytes_arg);
+  formatter.AddChild(not_localized("$2 $1"), bytes_arg, int_arg);
+  formatter.AddChild(not_localized("$1 $2 $3"), bytes_arg, int_arg, string_arg);
+  formatter.AddChild(not_localized("$1 $4 $3 $2"),
+                     bytes_arg, int_arg, string_arg, url_arg);
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[]},\n"
@@ -258,7 +261,7 @@ TEST(JsonFormatterTest, FormatBytesTest) {
   Argument bytes1(Argument::BYTES, 617);
   Argument bytes2(Argument::BYTES, 1024);
   Argument bytes3(Argument::BYTES, 1 << 21);
-  formatter.AddChild("$1 | $2 | $3", bytes1, bytes2, bytes3);
+  formatter.AddChild(not_localized("$1 | $2 | $3"), bytes1, bytes2, bytes3);
   formatter.Done();
   std::string result = output.str();
   EXPECT_EQ("[\n{\"format\":[{\"type\":\"str\",\"value\":\"617B | 1.0KiB |"

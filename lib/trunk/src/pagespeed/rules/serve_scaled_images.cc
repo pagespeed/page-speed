@@ -197,7 +197,7 @@ const char* ServeScaledImages::name() const {
   return "ServeScaledImages";
 }
 
-const char* ServeScaledImages::header() const {
+LocalizableString ServeScaledImages::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Serve scaled images");
 }
@@ -330,7 +330,7 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       Argument actual_w(Argument::INTEGER, image_details.actual_width());
       Argument actual_h(Argument::INTEGER, image_details.actual_height());
 
-      std::string format_str =
+      LocalizableString format_str =
           // TRANSLATOR: TODO: add a translator comment describing this string
           _("$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
             "Serving a scaled image could save $6 ($7% reduction).");

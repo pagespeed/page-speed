@@ -50,7 +50,7 @@ const char* MinimizeRequestSize::name() const {
   return "MinimizeRequestSize";
 }
 
-const char* MinimizeRequestSize::header() const {
+LocalizableString MinimizeRequestSize::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Minimize request size");
 }

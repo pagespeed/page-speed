@@ -53,7 +53,7 @@ const char* AvoidCssImport::name() const {
   return "AvoidCssImport";
 }
 
-const char* AvoidCssImport::header() const {
+LocalizableString AvoidCssImport::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Avoid CSS @import");
 }
@@ -162,7 +162,7 @@ void AvoidCssImport::FormatResults(const ResultVector& results,
              i < size; ++i) {
           Argument imported_url(
               Argument::URL, import_details.imported_stylesheets(i));
-          body->AddChild("$1", imported_url);
+          body->AddChild(not_localized("$1"), imported_url);
         }
       }
     }

@@ -122,7 +122,7 @@ const char* PutCssInTheDocumentHead::name() const {
   return kRuleName;
 }
 
-const char* PutCssInTheDocumentHead::header() const {
+LocalizableString PutCssInTheDocumentHead::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Put CSS in the document head");
 }

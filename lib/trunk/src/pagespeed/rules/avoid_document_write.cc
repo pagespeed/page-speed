@@ -233,7 +233,7 @@ const char* AvoidDocumentWrite::name() const {
   return "AvoidDocumentWrite";
 }
 
-const char* AvoidDocumentWrite::header() const {
+LocalizableString AvoidDocumentWrite::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Avoid document.write");
 }
@@ -344,13 +344,13 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
         Argument res_url(Argument::URL, result.resource_urls(0));
         Argument line_number(Argument::INTEGER, adw_details.line_number());
         Formatter* body =
+            // TRANSLATOR: TODO: add a translator comment describing this string
             formatter->AddChild(
-                // TRANSLATOR: TODO: add a translator comment describing this string
                 _("$1 calls document.write on line $2 to fetch:"),
                 res_url, line_number);
         for (int i = 0, size = adw_details.urls_size(); i < size; ++i) {
           Argument url(Argument::URL, adw_details.urls(i));
-          body->AddChild("$1", url);
+          body->AddChild(not_localized("$1"), url);
         }
       }
     }
