@@ -84,6 +84,8 @@ class PagespeedTest : public ::testing::Test {
 
   // Construct a new HTTP GET Resource with the specified URL and
   // status code, and add that resource to our PagespeedInput.
+  // Return NULL if the resource was unable to be created or added to
+  // the PagespeedInput.
   pagespeed::Resource* NewResource(const std::string& url, int status_code);
 
   // Construct the primary resource, an HTTP GET HTML

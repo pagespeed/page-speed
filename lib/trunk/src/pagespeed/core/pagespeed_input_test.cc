@@ -421,9 +421,9 @@ TEST_F(EstimateCapabilitiesTest, JSCalls) {
 
 TEST_F(EstimateCapabilitiesTest, OnLoad) {
   SetOnloadTimeMillis(10);
-  Resource* r1 = New200Resource("http://www.example.com/");
+  Resource* r1 = New200Resource("http://www.example.com/A");
   r1->SetRequestStartTimeMillis(11);
-  Resource* r2 = New200Resource("http://www.example.com/");
+  Resource* r2 = New200Resource("http://www.example.com/B");
   r2->SetRequestStartTimeMillis(9);
   Freeze();
   ASSERT_TRUE(
