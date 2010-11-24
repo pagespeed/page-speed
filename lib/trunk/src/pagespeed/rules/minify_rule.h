@@ -96,10 +96,10 @@ class Minifier {
   virtual ~Minifier();
 
   virtual const char* name() const = 0;
-  virtual const char* header_format() const = 0;
+  virtual LocalizableString header_format() const = 0;
   virtual const char* documentation_url() const = 0;
-  virtual const char* body_format() const = 0;
-  virtual const char* child_format() const = 0;
+  virtual LocalizableString body_format() const = 0;
+  virtual LocalizableString child_format() const = 0;
   virtual const MinifierOutput* Minify(const Resource& resource) const = 0;
 
  private:
@@ -116,7 +116,7 @@ class MinifyRule : public Rule {
 
   // Rule interface.
   virtual const char* name() const;
-  virtual const char* header() const;
+  virtual LocalizableString header() const;
   virtual const char* documentation_url() const;
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,

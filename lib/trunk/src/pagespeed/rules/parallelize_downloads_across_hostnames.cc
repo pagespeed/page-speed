@@ -68,7 +68,7 @@ const char* ParallelizeDownloadsAcrossHostnames::name() const {
   return "ParallelizeDownloadsAcrossHostnames";
 }
 
-const char* ParallelizeDownloadsAcrossHostnames::header() const {
+LocalizableString ParallelizeDownloadsAcrossHostnames::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Parallelize downloads across hostnames");
 }
@@ -187,7 +187,7 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
 
       for (int index = 0; index < num_resources; ++index) {
         Argument url(Argument::URL, result.resource_urls(index));
-        body->AddChild("$1", url);
+        body->AddChild(not_localized("$1"), url);
       }
     }
   }

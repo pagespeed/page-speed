@@ -22,6 +22,7 @@
 #include "pagespeed/core/rule.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/formatters/proto_formatter.h"
+#include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
@@ -30,6 +31,7 @@ using pagespeed::Engine;
 using pagespeed::FormatArgument;
 using pagespeed::Formatter;
 using pagespeed::InputInformation;
+using pagespeed::LocalizableString;
 using pagespeed::PagespeedInput;
 using pagespeed::Result;
 using pagespeed::Results;
@@ -59,8 +61,8 @@ class TestRule : public Rule {
   }
 
   // Human readable rule name.
-  virtual const char* header() const {
-    return kHeader;
+  virtual LocalizableString header() const {
+    return not_localized(kHeader);
   }
 
   virtual const char* documentation_url() const {
@@ -79,8 +81,8 @@ class TestRule : public Rule {
 
   virtual void FormatResults(const pagespeed::ResultVector& results,
                              Formatter* formatter) {
-    formatter->AddChild(kBody1);
-    formatter->AddChild(kBody2);
+    formatter->AddChild(not_localized(kBody1));
+    formatter->AddChild(not_localized(kBody2));
   }
 
  private:

@@ -39,10 +39,10 @@ class JsMinifier : public Minifier {
 
   // Minifier interface:
   virtual const char* name() const;
-  virtual const char* header_format() const;
+  virtual LocalizableString header_format() const;
   virtual const char* documentation_url() const;
-  virtual const char* body_format() const;
-  virtual const char* child_format() const;
+  virtual LocalizableString body_format() const;
+  virtual LocalizableString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
 
  private:
@@ -55,7 +55,7 @@ const char* JsMinifier::name() const {
   return "MinifyJavaScript";
 }
 
-const char* JsMinifier::header_format() const {
+LocalizableString JsMinifier::header_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Minify JavaScript");
 }
@@ -64,13 +64,13 @@ const char* JsMinifier::documentation_url() const {
   return "payload.html#MinifyJS";
 }
 
-const char* JsMinifier::body_format() const {
+LocalizableString JsMinifier::body_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Minifying the following JavaScript resources could "
            "reduce their size by $1 ($2% reduction).");
 }
 
-const char* JsMinifier::child_format() const {
+LocalizableString JsMinifier::child_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Minifying $1 could save $2 ($3% reduction).");
 }

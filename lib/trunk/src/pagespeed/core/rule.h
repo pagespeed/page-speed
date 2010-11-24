@@ -19,6 +19,7 @@
 #include <vector>
 #include "base/basictypes.h"
 #include "pagespeed/core/input_capabilities.h"
+#include "pagespeed/l10n/localizable_string.h"
 
 namespace pagespeed {
 
@@ -46,7 +47,7 @@ class Rule {
   virtual const char* name() const = 0;
 
   // Human readable rule name.
-  virtual const char* header() const = 0;
+  virtual LocalizableString header() const = 0;
 
   // URL linking to the canonical documentation for this rule.
   virtual const char* documentation_url() const = 0;

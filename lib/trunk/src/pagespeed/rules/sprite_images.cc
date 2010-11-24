@@ -52,7 +52,7 @@ const char* SpriteImages::name() const {
   return kRuleName;
 }
 
-const char* SpriteImages::header() const {
+LocalizableString SpriteImages::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Combine images into CSS sprites");
 }
@@ -143,7 +143,7 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
 
 void SpriteImages::FormatResults(const ResultVector& results,
                                  Formatter* formatter) {
-  const char* body_tmpl =
+  LocalizableString body_tmpl =
       // TRANSLATOR: TODO: add a translator comment describing this string
       _("The following images served from $1 should be combined into as few "
         "images as possible using CSS sprites.");
@@ -165,7 +165,7 @@ void SpriteImages::FormatResults(const ResultVector& results,
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       Argument url(Argument::URL, result.resource_urls(idx));
-      body->AddChild("$1", url);
+      body->AddChild(not_localized("$1"), url);
     }
 
   }

@@ -129,7 +129,7 @@ const char* SpecifyImageDimensions::name() const {
   return kRuleName;
 }
 
-const char* SpecifyImageDimensions::header() const {
+LocalizableString SpecifyImageDimensions::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Specify image dimensions");
 }
@@ -202,7 +202,7 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
       }
     } else {
       Argument url(Argument::URL, result.resource_urls(0));
-      body->AddChild("$1", url);
+      body->AddChild(not_localized("$1"), url);
     }
   }
 }

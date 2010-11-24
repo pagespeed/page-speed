@@ -59,7 +59,7 @@ const char* SpecifyACacheValidator::name() const {
   return "SpecifyACacheValidator";
 }
 
-const char* SpecifyACacheValidator::header() const {
+LocalizableString SpecifyACacheValidator::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Specify a cache validator");
 }
@@ -117,7 +117,7 @@ void SpecifyACacheValidator::FormatResults(const ResultVector& results,
       continue;
     }
     Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild("$1", url);
+    body->AddChild(not_localized("$1"), url);
   }
 }
 

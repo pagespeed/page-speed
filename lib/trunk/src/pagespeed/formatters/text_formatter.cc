@@ -21,6 +21,7 @@
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "pagespeed/formatters/formatter_util.h"
+#include "pagespeed/l10n/l10n.h"
 
 namespace pagespeed {
 
@@ -49,11 +50,13 @@ Formatter* TextFormatter::AddHeader(const Rule& rule, int score) {
   } else {
     score_arg.reset(new Argument(Argument::STRING, "n/a"));
   }
-  return AddChild("_$1_ (score=$2)", header_arg, *score_arg);
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return AddChild(_("_$1_ (score=$2)"), header_arg, *score_arg);
 }
 
 Formatter* TextFormatter::NewChild(const FormatterParameters& params) {
-  const std::string str = Format(params.format_str(), params.arguments());
+  const std::string str = Format(std::string(params.format_str()),
+                                 params.arguments());
 
   Indent(level_);
   switch (level_) {

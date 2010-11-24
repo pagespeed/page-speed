@@ -21,6 +21,7 @@
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "pagespeed/formatters/formatter_util.h"
+#include "pagespeed/l10n/l10n.h"
 
 namespace {
 
@@ -136,7 +137,7 @@ void JsonFormatter::DoneAddingChildren() {
 
 Formatter* JsonFormatter::AddHeader(const Rule& rule, int score) {
   Argument arg(Argument::STRING, rule.header());
-  Formatter* child_formatter = AddChild("$1", arg);
+  Formatter* child_formatter = AddChild(not_localized("$1"), arg);
   *output_ << ",\"name\":" << QuotedJsonString(rule.name())
            << ",\"score\":" << score
            << ",\"url\":" << QuotedJsonString(rule.documentation_url());
@@ -155,7 +156,7 @@ Formatter* JsonFormatter::NewChild(const FormatterParameters& params) {
 
   *output_ << "\n{\"format\":[";
 
-  const std::string& format_str = params.format_str();
+  const std::string format_str(params.format_str());
 
   bool needs_comma = false;
   std::string str;

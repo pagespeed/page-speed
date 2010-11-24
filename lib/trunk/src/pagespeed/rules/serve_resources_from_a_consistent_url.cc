@@ -64,7 +64,7 @@ const char* ServeResourcesFromAConsistentUrl::name() const {
   return "ServeResourcesFromAConsistentUrl";
 }
 
-const char* ServeResourcesFromAConsistentUrl::header() const {
+LocalizableString ServeResourcesFromAConsistentUrl::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Serve resources from a consistent URL");
 }
@@ -152,7 +152,7 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
         num_bytes_arg);
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
       Argument url(Argument::URL, result.resource_urls(url_idx));
-      body->AddChild("$1", url);
+      body->AddChild(not_localized("$1"), url);
     }
   }
 }

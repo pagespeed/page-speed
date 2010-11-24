@@ -41,10 +41,10 @@ class ImageMinifier : public Minifier {
 
   // Minifier interface:
   virtual const char* name() const;
-  virtual const char* header_format() const;
+  virtual LocalizableString header_format() const;
   virtual const char* documentation_url() const;
-  virtual const char* body_format() const;
-  virtual const char* child_format() const;
+  virtual LocalizableString body_format() const;
+  virtual LocalizableString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
 
  private:
@@ -57,7 +57,7 @@ const char* ImageMinifier::name() const {
   return "OptimizeImages";
 }
 
-const char* ImageMinifier::header_format() const {
+LocalizableString ImageMinifier::header_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Optimize images");
 }
@@ -66,13 +66,13 @@ const char* ImageMinifier::documentation_url() const {
   return "payload.html#CompressImages";
 }
 
-const char* ImageMinifier::body_format() const {
+LocalizableString ImageMinifier::body_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Optimizing the following images could reduce their size "
            "by $1 ($2% reduction).");
 }
 
-const char* ImageMinifier::child_format() const {
+LocalizableString ImageMinifier::child_format() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Losslessly compressing $1 could save $2 ($3% reduction).");
 }

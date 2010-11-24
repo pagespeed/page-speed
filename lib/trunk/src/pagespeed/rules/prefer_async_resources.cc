@@ -156,7 +156,7 @@ const char* PreferAsyncResources::name() const {
   return kRuleName;
 }
 
-const char* PreferAsyncResources::header() const {
+LocalizableString PreferAsyncResources::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Prefer asynchronous resources");
 }

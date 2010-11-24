@@ -214,7 +214,7 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
                          document_url);
       for (int i = 0; i < isr_details.inline_candidates_size(); ++i) {
         Argument candidate_url(Argument::URL, isr_details.inline_candidates(i));
-        child->AddChild("$1", candidate_url);
+        child->AddChild(not_localized("$1"), candidate_url);
       }
     } else {
       LOG(DFATAL) << "InlineSmallResourcesDetails missing.";
@@ -269,8 +269,10 @@ int InlineSmallResources::ComputeScore(const InputInformation& input_info,
 
 InlineSmallCss::InlineSmallCss() : InlineSmallResources(CSS) {}
 const char* InlineSmallCss::name() const { return "InlineSmallCss"; }
-// TRANSLATOR: TODO: add a translator comment describing this string
-const char* InlineSmallCss::header() const { return _("Inline Small CSS"); }
+LocalizableString InlineSmallCss::header() const {
+  // TRANSLATOR: TODO: add a translator comment describing this string
+  return _("Inline Small CSS");
+}
 const char* InlineSmallCss::documentation_url() const {
   return "caching.html#InlineSmallResources";
 }
@@ -290,7 +292,7 @@ const char* InlineSmallJavaScript::name() const {
   return "InlineSmallJavaScript";
 }
 
-const char* InlineSmallJavaScript::header() const {
+LocalizableString InlineSmallJavaScript::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Inline Small JavaScript");
 }

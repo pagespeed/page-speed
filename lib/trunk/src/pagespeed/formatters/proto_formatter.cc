@@ -49,7 +49,7 @@ Formatter* ProtoFormatter::NewChild(const FormatterParameters& params) {
     new_child = result_text_->add_children();
   }
 
-  Format(new_child, params.format_str(), params.arguments());
+  Format(new_child, std::string(params.format_str()), params.arguments());
 
   if (params.has_optimized_content()) {
     new_child->set_optimized_content(params.optimized_content());

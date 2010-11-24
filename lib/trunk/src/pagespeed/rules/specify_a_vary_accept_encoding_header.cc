@@ -38,7 +38,7 @@ const char* SpecifyAVaryAcceptEncodingHeader::name() const {
   return "SpecifyAVaryAcceptEncodingHeader";
 }
 
-const char* SpecifyAVaryAcceptEncodingHeader::header() const {
+LocalizableString SpecifyAVaryAcceptEncodingHeader::header() const {
   // TRANSLATOR: TODO: add a translator comment describing this string
   return _("Specify a Vary: Accept-Encoding header");
 }
@@ -95,7 +95,7 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
       continue;
     }
     Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild("$1", url);
+    body->AddChild(not_localized("$1"), url);
   }
 }
 
