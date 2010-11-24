@@ -21,6 +21,8 @@ using pagespeed::html::HtmlMinifier;
 
 namespace {
 
+const char* kTestUrl = "http://www.example.com";
+
 const char* kBeforeMinification =
     "<HTML>\n"
     " <Head>\n"
@@ -57,7 +59,7 @@ const char* kAfterMinification =
     "<head>\n"
     "<title>foo</title>\n"
     "<style>BODY{color:green;}</style>\n"
-    "<script>function increment(x){return x+1;}</script>\n"
+    "<script language=whatever>function increment(x){return x+1;}</script>\n"
     "</head>\n"
     "<body>\n"
     "Bar.\n"
@@ -78,14 +80,14 @@ const char* kAfterMinification =
 TEST(HtmlMinifierTest, Basic) {
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kBeforeMinification, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kBeforeMinification, &output));
   ASSERT_EQ(kAfterMinification, output);
 }
 
 TEST(HtmlMinifierTest, AlreadyMinified) {
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kAfterMinification, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kAfterMinification, &output));
   ASSERT_EQ(kAfterMinification, output);
 }
 
@@ -108,7 +110,7 @@ const char* kWithDoctypeMinified =
 TEST(HtmlMinifierTest, RespectDoctype) {
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kWithDoctype, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kWithDoctype, &output));
   ASSERT_EQ(kWithDoctypeMinified, output);
 }
 
@@ -118,7 +120,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlock) {
   const char* kExpected = "<script>function foo(){bar();}</script>";
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kInput, &output));
   ASSERT_EQ(kExpected, output);
 }
 
@@ -127,7 +129,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockNoNewline) {
   const char* kExpected = "<script></script>";
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kInput, &output));
   ASSERT_EQ(kExpected, output);
 }
 
@@ -137,7 +139,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockWhitespace) {
   const char* kExpected = "<script>function foo(){bar();}</script>";
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kInput, &output));
   ASSERT_EQ(kExpected, output);
 }
 
@@ -148,7 +150,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockMiddle) {
       "<script>var a;</script>";
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kInput, &output));
   ASSERT_EQ(kExpected, output);
 }
 
@@ -159,7 +161,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptBlockNoClose) {
       "<script></script>";
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kInput, &output));
   ASSERT_EQ(kExpected, output);
 }
 
@@ -170,7 +172,7 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptWholeLine) {
       "<script></script>";
   std::string output;
   HtmlMinifier minifier;
-  ASSERT_TRUE(minifier.MinifyHtml("test", kInput, &output));
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kInput, &output));
   ASSERT_EQ(kExpected, output);
 }
 
