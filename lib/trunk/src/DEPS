@@ -17,9 +17,9 @@ vars = {
     "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@55218",
   "chromium_deps_root": "src/third_party/chromium_deps",
-  "instaweb_trunk":
-    "http://instaweb.googlecode.com/svn/trunk",
-  "instaweb_revision": "@51",
+  "modpagespeed_src":
+    "http://modpagespeed.googlecode.com/svn/tags/0.9.10.1",
+  "instaweb_revision": "@250",
 }
 
 deps = {
@@ -51,8 +51,8 @@ deps = {
   "src/build/internal":
     Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
 
-  "src/third_party/instaweb/src":
-    Var("instaweb_trunk") + "/src" + Var("instaweb_revision"),
+  "src/third_party/instaweb/src/net/instaweb":
+    Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
 
   "src/third_party/libjpeg":
     (Var("chromium_trunk") + "/src/third_party/libjpeg" +
