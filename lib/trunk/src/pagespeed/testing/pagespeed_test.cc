@@ -81,7 +81,8 @@ pagespeed::Resource* PagespeedTest::NewResource(const std::string& url,
   resource->SetRequestUrl(url);
   resource->SetRequestMethod("GET");
   resource->SetResponseStatusCode(status_code);
-  pagespeed_input_->AddResource(resource);
+  if (!pagespeed_input_->AddResource(resource))
+    return NULL; // resource deleted in AddResource
   return resource;
 }
 
