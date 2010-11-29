@@ -14,6 +14,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/icu/icu.gyp:iculite',
       ],
       'sources': [
         '<(DEPTH)/googleurl_noicu/gurl.cc',
@@ -52,6 +53,22 @@
           '<(DEPTH)',
         ],
       },
+    },
+    {
+      'target_name': 'googleurl_unittests',
+      'type': 'executable',
+      'dependencies': [
+        'googleurl',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/third_party/icu/icu.gyp:iculite',
+      ],
+      'sources': [
+        '<(DEPTH)/googleurl_noicu/gurl_unittest.cc',
+        '<(DEPTH)/googleurl_noicu/url_canon_unittest.cc',
+        '<(DEPTH)/googleurl/src/url_parse_unittest.cc',
+        '<(DEPTH)/googleurl/src/url_util_unittest.cc',
+      ],
     },
   ],
 }
