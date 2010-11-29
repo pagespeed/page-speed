@@ -20,6 +20,7 @@
       'xcode_create_dependents_test_runner': 1,
       'dependencies': [
         '../base/base.gyp:*',
+        '../build/temp_gyp/googleurl.gyp:*',
         '../pagespeed/apps/apps.gyp:*',
         '../pagespeed/core/core.gyp:*',
         '../pagespeed/cssmin/cssmin.gyp:*',

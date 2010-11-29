@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "googleurl/src/gurl.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
@@ -97,6 +98,16 @@ TEST(UriUtil, IsExternalResourceUrl) {
       "http://www.example.com/"));
   ASSERT_TRUE(pagespeed::uri_util::IsExternalResourceUrl(
       "https://www.example.com/foo.js"));
+}
+
+// Basic test to make sure we properly process UTF8 characters in
+// URLs.
+TEST(UriUtil, Utf8) {
+  const char *kUtf8Url = "http://www.example.com/Résumé.html?q=Résumé";
+  GURL gurl(kUtf8Url);
+  ASSERT_TRUE(gurl.is_valid());
+  ASSERT_EQ("http://www.example.com/R%C3%A9sum%C3%A9.html?q=R%C3%A9sum%C3%A9",
+            gurl.spec());
 }
 
 }  // namespace
