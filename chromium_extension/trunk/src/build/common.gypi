@@ -17,6 +17,11 @@
     # Make sure we link statically so everything gets linked into a
     # single shared object.
     'library': 'static_library',
+
+    # The nacl toolchain fails to build valid nexes when we enable gc
+    # sections, at least on 64 bit builds. TODO: revisit this to see
+    # if a newer nacl toolchain supports it.
+    'no_gc_sections': 1,
   },
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
