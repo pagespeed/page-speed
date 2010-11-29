@@ -87,10 +87,28 @@ function receiveInput(response) {
     });
   };
 
-  // We mustn't call passInputToPageSpeedModule() until the NaCl module has
-  // loaded, so give it a little time to load before we try.
-  // TODO(mdsteele): Find a less fragile way to deal with this issue.
-  setTimeout(withErrorHandler(passInputToPageSpeedModule), 700);
+  var timesTried = 0;
+  var tryPassingInput = function () {
+    try {
+      // If the module is ready, this will have no effect; if not, it will
+      // throw an error.
+      pagespeed_module.appendInput('');
+    } catch (e) {
+      // If we've been doing this for a few seconds with no success, give up.
+      ++timesTried;
+      if (timesTried >= 20) {
+        throw e;
+      }
+      // The module isn't ready yet, so wait for a short time and try again.
+      // TODO(mdsteele): Is there a way to know exactly when the module has
+      //   loaded?  I haven't been able to get onLoad handlers to work.
+      setTimeout(withErrorHandler(tryPassingInput), 100);
+      return;
+    }
+    // The module seems to be ready now.
+    passInputToPageSpeedModule();
+  };
+  tryPassingInput();
 }
 
 chrome.extension.sendRequest({kind: 'getInput'},
