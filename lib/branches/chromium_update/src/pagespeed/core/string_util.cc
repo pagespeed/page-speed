@@ -20,7 +20,7 @@
 namespace {
 
 bool CaseInsensitiveCompareChars(char x, char y) {
-  return ToLowerASCII(x) < ToLowerASCII(y);
+  return base::ToLowerASCII(x) < base::ToLowerASCII(y);
 }
 
 }  // namespace

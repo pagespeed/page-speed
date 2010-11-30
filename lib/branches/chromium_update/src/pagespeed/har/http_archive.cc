@@ -59,7 +59,7 @@ bool InputPopulator::Populate(cJSON* har_json, PagespeedInput* input) {
 }
 
 // Macro to be used only within InputPopulator instance methods:
-#define INPUT_POPULATOR_ERROR() ((error_ = true), LOG(ERROR))
+#define INPUT_POPULATOR_ERROR() error_ = true; LOG(ERROR)
 
 void InputPopulator::PopulateInput(cJSON* har_json, PagespeedInput* input) {
   if (har_json->type != cJSON_Object) {
