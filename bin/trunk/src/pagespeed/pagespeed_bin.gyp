@@ -84,14 +84,14 @@
         '<(chromium_src_dir)/gpu/gpu.gyp:gles2_c_lib'
       ],
       'include_dirs': [
-        '<(DEPTH)/third_party/WebKit/WebKit/chromium',
+        '<(DEPTH)/third_party/WebKit/WebKit/chromium/public',
         '<(DEPTH)/third_party/WebKit/JavaScriptCore',
         '<(DEPTH)/third_party/WebKit/JavaScriptCore/wtf', # wtf/text/*.h refers headers in wtf/ without wtf/.
         '<(DEPTH)',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '<(DEPTH)/third_party/WebKit/WebKit/chromium',
+          '<(DEPTH)/third_party/WebKit/WebKit/chromium/public',
           '<(DEPTH)/third_party/WebKit/JavaScriptCore',
           '<(DEPTH)/third_party/WebKit/JavaScriptCore/wtf', # wtf/text/*.h refers headers in wtf/ without wtf/.
           '<(DEPTH)',

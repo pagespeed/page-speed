@@ -20,7 +20,10 @@
 #include "base/scoped_ptr.h"
 
 class Filter;
+
+namespace net {
 class URLRequestJob;
+}  // namespace net
 
 namespace pagespeed {
 
@@ -29,7 +32,7 @@ class HttpContentDecoder {
   // URLRequestJob should be const, but
   // URLRequestJob::GetContentEncodings() is a non-const method so we are
   // forced to take a non-const pointer to the URLRequestJob.
-  HttpContentDecoder(URLRequestJob* job,
+  HttpContentDecoder(net::URLRequestJob* job,
                      const std::string& encoded_body);
   ~HttpContentDecoder();
 
@@ -52,7 +55,7 @@ class HttpContentDecoder {
   DecodeResult PullDecodedDataFromFilter(Filter* filter,
                                          std::string* out_decoded_body);
 
-  URLRequestJob *const job_;
+  net::URLRequestJob *const job_;
   std::string encoded_body_;
   int encoded_body_pos_;
   const scoped_array<char> buf_;
