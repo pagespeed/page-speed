@@ -28,8 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <errno.h>
-#include <unicode/ucnv.h>
 
+#include "base/third_party/icu/icu_utf.h"
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_canon_icu.h"
 #include "googleurl/src/url_canon_internal.h"

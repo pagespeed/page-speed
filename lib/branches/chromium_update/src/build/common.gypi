@@ -30,8 +30,8 @@
     # During the transition from third_party/protobuf2 to
     # third_party/protobuf, we need a single global definition of the
     # path to the protobuf files.
-    'protobuf_gyp_path%': 'third_party/protobuf2/protobuf.gyp',
-    'protobuf_src_root%': 'third_party/protobuf2/src/src',
+    'protobuf_gyp_path%': 'third_party/protobuf/protobuf.gyp',
+    'protobuf_src_root%': 'third_party/protobuf/src',
 
     # .gyp files or targets should set chromium_code to 1 if they build
     # Chromium-specific code, as opposed to external code.  This variable is
@@ -80,6 +80,18 @@
         # to compile as shared by default
         'library%': 'static_library',
       },
+
+      # We set those at this level of nesting so the values are available for
+      # other conditionals below.
+      'conditions': [
+        # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
+        # libraries on linux x86-64 and arm.
+        ['host_arch=="ia32"', {
+          'linux_fpic%': 0,
+        }, {
+          'linux_fpic%': 1,
+        }],
+      ],
 
       'host_arch%': '<(host_arch)',
 
@@ -156,6 +168,12 @@
     # 'Debug' configuration in the 'target_defaults' dict below,
     # but that doesn't work as we'd like.
     'msvs_debug_link_incremental%': '2',
+
+    # Set this to true when building with Clang.
+    # See http://code.google.com/p/chromium/wiki/Clang for details.
+    # TODO: eventually clang should behave identically to gcc, and this
+    # won't be necessary.
+    'clang%': 0,
 
     'conditions': [
       ['OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
@@ -254,31 +272,31 @@
         ],
         'conditions': [
           ['OS!="win"', {
-            'sources/': [ ['exclude', '_win(_unittest)?\\.cc$'],
-                          ['exclude', '/win/'],
-                          ['exclude', '/win_[^/]*\\.cc$'] ],
+            'sources/': [ ['exclude', '_win(_unittest)?\\.(h|cc)$'],
+                          ['exclude', '(^|/)win/'],
+                          ['exclude', '(^|/)win_[^/]*\\.(h|cc)$'] ],
           }],
           ['OS!="mac"', {
-            'sources/': [ ['exclude', '_(cocoa|mac)(_unittest)?\\.cc$'],
-                          ['exclude', '/(cocoa|mac)/'],
-                          ['exclude', '\.mm?$' ] ],
+            'sources/': [ ['exclude', '_(cocoa|mac)(_unittest)?\\.(h|cc)$'],
+                          ['exclude', '(^|/)(cocoa|mac)/'],
+                          ['exclude', '\\.mm?$' ] ],
           }],
           ['OS!="linux" and OS!="freebsd" and OS!="openbsd"', {
             'sources/': [
-              ['exclude', '_(chromeos|gtk|x|x11|xdg)(_unittest)?\\.cc$'],
-              ['exclude', '/gtk/'],
-              ['exclude', '/(gtk|x11)_[^/]*\\.cc$'],
+              ['exclude', '_(chromeos|gtk|x|x11|xdg)(_unittest)?\\.(h|cc)$'],
+              ['exclude', '(^|/)gtk/'],
+              ['exclude', '(^|/)(gtk|x11)_[^/]*\\.(h|cc)$'],
             ],
           }],
           ['OS!="linux"', {
             'sources/': [
-              ['exclude', '_linux(_unittest)?\\.cc$'],
-              ['exclude', '/linux/'],
+              ['exclude', '_linux(_unittest)?\\.(h|cc)$'],
+              ['exclude', '(^|/)linux/'],
             ],
           }],
           # We use "POSIX" to refer to all non-Windows operating systems.
           ['OS=="win"', {
-            'sources/': [ ['exclude', '_posix\\.cc$'] ],
+            'sources/': [ ['exclude', '_posix\\.(h|cc)$'] ],
             # turn on warnings for signed/unsigned mismatch on chromium code.
             'msvs_settings': {
               'VCCLCompilerTool': {
@@ -297,8 +315,7 @@
       #   2 == /INCREMENTAL
       # Debug links incremental, Release does not.
       #
-      # Abstract base configurations to cover common
-      # attributes.
+      # Abstract base configurations to cover common attributes.
       #
       'Common_Base': {
         'abstract': 1,
@@ -456,6 +473,7 @@
           # Don't export any symbols (for example, to plugins we dlopen()).
           # Note: this is *required* to make some plugins work.
           '-fvisibility=hidden',
+          '-pipe',
         ],
         'cflags_cc': [
           '-fno-rtti',
@@ -717,6 +735,21 @@
             # Don't warn about the "struct foo f = {0};" initialization
             # pattern.
             '-Wno-missing-field-initializers',
+          ],
+          'conditions': [
+            ['clang==1', {
+              'WARNING_CFLAGS': [
+                # Don't die on dtoa code that uses a char as an array index.
+                # This is required solely for base/third_party/dmg_fp/dtoa.cc.
+                '-Wno-char-subscripts',
+                # Clang spots more unused functions.
+                '-Wno-unused-function',
+                # Survive EXPECT_EQ(unnamed_enum, unsigned int) -- see
+                # http://code.google.com/p/googletest/source/detail?r=446 .
+                # TODO(thakis): Use -isystem instead (http://crbug.com/58751 ).
+                '-Wno-unnamed-type-template-args',
+              ],
+            }],
           ],
         },
         'target_conditions': [
