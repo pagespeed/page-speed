@@ -32,6 +32,7 @@ using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::Rule;
+using pagespeed::RuleResults;
 
 namespace {
 
@@ -71,17 +72,16 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
   void CheckViolations(const std::vector<Violation>& expected_violations) {
     MinimizeRedirects rule;
 
-    Results results;
-    ResultProvider provider(rule, &results);
+    RuleResults rule_results;
+    ResultProvider provider(rule, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(static_cast<size_t>(results.results_size()),
+    ASSERT_EQ(static_cast<size_t>(rule_results.results_size()),
               expected_violations.size());
-    for (int idx = 0; idx < results.results_size(); idx++) {
-      const Result* result = &results.results(idx);
+    for (int idx = 0; idx < rule_results.results_size(); idx++) {
+      const Result* result = &rule_results.results(idx);
       const Violation& violation = expected_violations[idx];
 
-      ASSERT_EQ("MinimizeRedirects", result->rule_name());
       ASSERT_EQ(violation.expected_request_savings,
                 result->savings().requests_saved());
 

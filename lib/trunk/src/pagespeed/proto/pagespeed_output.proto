@@ -219,8 +219,9 @@ message InlineSmallResourcesDetails {
 }
 
 message Result {
-  // Identifier of rule that produced this result.
-  required string rule_name = 1;
+  // Identifier of rule that produced this result. DEPRECATED (rule name is
+  // stored in RuleResults)
+  optional string rule_name = 1 [deprecated=true];
 
   // Potential savings if page was optimized.
   optional Savings savings = 2;
@@ -248,6 +249,19 @@ message Result {
   optional string optimized_content_mime_type = 9;
 }
 
+// The set of results from a single rule
+message RuleResults {
+  // Identifier of rule that produced this result.
+  required string rule_name = 1;
+
+  // Score assigned by Page Speed for this rule.  It should be set in most
+  // cases, but may be left out if the rule is unable to compute a score (e.g.
+  // due to missing input information).
+  optional int32 rule_score = 2;
+
+  repeated Result results = 3;
+}
+
 message Version {
   required int32 major = 1;
   required int32 minor = 2;
@@ -257,8 +271,8 @@ message Version {
 }
 
 message Results {
-  // Set of results.
-  repeated Result results = 1;
+  // Set of results. DEPRECATED (use rule_results instead)
+  repeated Result results = 1 [deprecated=true];
 
   // Summary of information about the inputs.
   required InputInformation input_info = 2;
@@ -272,6 +286,12 @@ message Results {
   // Version of the Page Speed library used to generate this Results
   // structure.
   required Version version = 5;
+
+  // Set of results for each rule
+  repeated RuleResults rule_results = 6;
+
+  // Overall score assigned by Page Speed
+  optional int32 score = 7;
 }
 
 // Typed format string arguments.

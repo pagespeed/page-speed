@@ -40,6 +40,7 @@ using pagespeed::ResultText;
 using pagespeed::Rule;
 using pagespeed::RuleFormatter;
 using pagespeed::RuleInput;
+using pagespeed::RuleResults;
 using pagespeed::formatters::ProtoFormatter;
 
 namespace {
@@ -52,12 +53,16 @@ const char* kBody2 = "Another format string";
 
 class TestRule : public Rule {
  public:
-  TestRule() : pagespeed::Rule(pagespeed::InputCapabilities()),
-               append_results_return_value_(true) {}
+  TestRule(const char* name = kRuleName)
+      : pagespeed::Rule(pagespeed::InputCapabilities()),
+        name_(name),
+        append_results_return_value_(true),
+        append_results_(true),
+        score_(100) {}
   virtual ~TestRule() {}
 
   virtual const char* name() const {
-    return kRuleName;
+    return name_;
   }
 
   // Human readable rule name.
@@ -73,9 +78,12 @@ class TestRule : public Rule {
     append_results_return_value_ = retval;
   }
 
+  void set_append_results(bool append) { append_results_ = append; }
+
   virtual bool AppendResults(const RuleInput& input,
                              ResultProvider* provider) {
-    provider->NewResult();
+    if (append_results_)
+      provider->NewResult();
     return append_results_return_value_;
   }
 
@@ -85,8 +93,18 @@ class TestRule : public Rule {
     formatter->AddChild(not_localized(kBody2));
   }
 
+  void set_score(int score) { score_ = score; }
+
+  virtual int ComputeScore(const InputInformation& input_info,
+                           const RuleResults& results) {
+    return score_;
+  }
+
  private:
+  const char* name_;
   bool append_results_return_value_;
+  bool append_results_;
+  int score_;
 
   DISALLOW_COPY_AND_ASSIGN(TestRule);
 };
@@ -102,14 +120,17 @@ TEST(EngineTest, ComputeResults) {
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(1, results.results_size());
+  ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(1, results.rule_results(0).results_size());
+  ASSERT_EQ(100, results.rule_results(0).rule_score());
   ASSERT_EQ(1, results.rules_size());
   ASSERT_EQ(kRuleName, results.rules(0));
   ASSERT_EQ(0, results.error_rules_size());
   ASSERT_NE(0, results.version().major());
   ASSERT_NE(0, results.version().minor());
+  ASSERT_EQ(100, results.score());
 
-  const Result& result = results.results(0);
+  const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
 }
 
@@ -126,14 +147,60 @@ TEST(EngineTest, ComputeResultsError) {
   engine.Init();
   Results results;
   ASSERT_FALSE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(1, results.results_size());
+  ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(1, results.rule_results(0).results_size());
   ASSERT_EQ(1, results.rules_size());
   ASSERT_EQ(1, results.error_rules_size());
   ASSERT_EQ(kRuleName, results.rules(0));
   ASSERT_EQ(kRuleName, results.error_rules(0));
+  ASSERT_FALSE(results.has_score());
 
-  const Result& result = results.results(0);
+  const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
+}
+
+TEST(EngineTest, NoScore) {
+  PagespeedInput input;
+  input.Freeze();
+
+  TestRule* rule = new TestRule();
+  std::vector<Rule*> rules;
+  rule->set_score(-1);
+  rules.push_back(rule);
+
+  Engine engine(&rules);
+  engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
+  ASSERT_FALSE(results.rule_results(0).has_rule_score());
+  ASSERT_FALSE(results.has_score());
+}
+
+TEST(EngineTest, ComputeScores) {
+  PagespeedInput input;
+  input.Freeze();
+
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule("rule1"));
+  rules.push_back(new TestRule("rule2"));
+  rules.push_back(new TestRule("rule3"));
+  rules.push_back(new TestRule("rule4"));
+  static_cast<TestRule*>(rules[0])->set_score(50);
+  static_cast<TestRule*>(rules[1])->set_score(-1);
+  static_cast<TestRule*>(rules[2])->set_score(120);  // should be clamped to 100
+  static_cast<TestRule*>(rules[3])->set_score(100);
+  static_cast<TestRule*>(rules[3])->set_append_results_return_value(false);
+
+  Engine engine(&rules);
+  engine.Init();
+  Results results;
+  ASSERT_FALSE(engine.ComputeResults(input, &results));
+
+  ASSERT_EQ(50, results.rule_results(0).rule_score());
+  ASSERT_FALSE(results.rule_results(1).has_rule_score());
+  ASSERT_EQ(100, results.rule_results(2).rule_score());
+  ASSERT_FALSE(results.rule_results(3).has_rule_score());
+  ASSERT_EQ(75, results.score());
 }
 
 TEST(EngineTest, FormatResults) {
@@ -200,19 +267,18 @@ TEST(EngineTest, FormatResultsNoResults) {
   PagespeedInput input;
   input.Freeze();
 
+  TestRule* rule = new TestRule();
+  rule->set_append_results(false);
   std::vector<Rule*> rules;
-  rules.push_back(new TestRule());
+  rules.push_back(rule);
 
   Engine engine(&rules);
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
   ASSERT_EQ(1, results.rules_size());
-  ASSERT_EQ(1, results.results_size());
-  results.clear_results();
-  ASSERT_EQ(0, results.results_size());
-
-  ASSERT_EQ(1, results.rules_size());
+  ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(0, results.rule_results(0).results_size());
 
   // Verify that when there are no results, but there is an entry in
   // the rules vector, we do emit a header for that rule.
@@ -230,8 +296,8 @@ TEST(EngineTest, FormatResultsNoResults) {
 TEST(EngineTest, FormatResultsEngineNotInitialized) {
   TestRule rule;
   Results results;
-  Result* result = results.add_results();
-  result->set_rule_name(rule.name());
+  RuleResults* rule_results = results.add_rule_results();
+  rule_results->set_rule_name(rule.name());
 
   std::vector<Rule*> rules;
   rules.push_back(new TestRule());
@@ -266,7 +332,8 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(1, results.results_size());
+  ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(1, results.rule_results(0).results_size());
 
   // Now instantiate an Engine with no Rules and attempt to format the
   // results. We expect this to fail since the Engine doesn't know

@@ -103,7 +103,7 @@ MinifyJavaScript::MinifyJavaScript(bool save_optimized_content)
     : MinifyRule(new JsMinifier(save_optimized_content)) {}
 
 int MinifyJavaScript::ComputeScore(const InputInformation& input_info,
-                                   const ResultVector& results) {
+                                   const RuleResults& results) {
   WeightedCostBasedScoreComputer score_computer(
       &results, input_info.javascript_response_bytes(), kCostWeight);
   return score_computer.ComputeScore();

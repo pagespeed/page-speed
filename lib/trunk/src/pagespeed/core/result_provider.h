@@ -20,14 +20,14 @@
 namespace pagespeed {
 
 class Result;
-class Results;
 class Rule;
+class RuleResults;
 
 // Provides an interface to instantiate new result objects that are
 // configured for the given rule.
 class ResultProvider {
  public:
-  ResultProvider(const Rule& rule, Results* results);
+  ResultProvider(const Rule& rule, RuleResults* rule_results);
 
   // Instantiate a new Result instance, configured for the given
   // rule. Ownership is *not* transferred to the caller.
@@ -35,7 +35,7 @@ class ResultProvider {
 
 private:
   const Rule& rule_;
-  Results* const results_;
+  RuleResults* const rule_results_;
 
   DISALLOW_COPY_AND_ASSIGN(ResultProvider);
 };

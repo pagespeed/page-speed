@@ -90,7 +90,7 @@ class MinimizeRequestSizeTest : public PagespeedRuleTest<MinimizeRequestSize> {
     ASSERT_EQ(static_cast<size_t>(num_results()), expected.size());
 
     for (size_t idx = 0; idx < expected.size(); ++idx) {
-      const Result& result = results().results(idx);
+      const Result& result = this->result(idx);
       ASSERT_EQ(result.resource_urls_size(), 1);
       EXPECT_EQ(expected[idx], result.resource_urls(0));
     }

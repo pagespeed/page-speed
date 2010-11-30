@@ -28,6 +28,7 @@ using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
+using pagespeed::RuleResults;
 using pagespeed::ResultProvider;
 
 namespace {
@@ -37,16 +38,16 @@ class MinimizeDnsTest : public ::pagespeed_testing::PagespeedTest {
   void CheckViolations(const std::vector<std::string>& expected_violations) {
     MinimizeDnsLookups dns_rule;
 
-    Results results;
-    ResultProvider provider(dns_rule, &results);
+    RuleResults rule_results;
+    ResultProvider provider(dns_rule, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(dns_rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ((expected_violations.size() >= 1) ? 1 : 0, results.results_size());
+    ASSERT_EQ((expected_violations.size() >= 1) ? 1 : 0,
+              rule_results.results_size());
 
     std::vector<std::string> urls;
-    for (int idx = 0; idx < results.results_size(); idx++) {
-      const Result& result = results.results(idx);
-      ASSERT_EQ("MinimizeDnsLookups", result.rule_name()) << idx;
+    for (int idx = 0; idx < rule_results.results_size(); idx++) {
+      const Result& result = rule_results.results(idx);
       ASSERT_EQ(1, result.savings().dns_requests_saved());
       for (int i = 0; i < result.resource_urls_size(); i++) {
         urls.push_back(result.resource_urls(i));

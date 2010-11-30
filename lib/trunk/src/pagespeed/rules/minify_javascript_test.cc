@@ -29,6 +29,7 @@ using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::ResultVector;
+using pagespeed::RuleResults;
 
 namespace {
 
@@ -38,6 +39,8 @@ const char* kUnminified = "function () { foo(); }";
 // The same JavaScript, minified using JSMin.
 const char* kMinified = "function(){foo();}";
 
+// TODO(aoates): combine this with the tests from MinifyCss and MinifyHtml
+// (since there's a lot of common code).
 class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
  protected:
   void AddTestResource(const char* url,
@@ -77,23 +80,23 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
   void CheckNoViolationsInternal(bool save_optimized_content) {
     MinifyJavaScript minify(save_optimized_content);
 
-    Results results;
-    ResultProvider provider(minify, &results);
+    RuleResults rule_results;
+    ResultProvider provider(minify, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 0);
+    ASSERT_EQ(rule_results.results_size(), 0);
   }
 
   void CheckOneViolationInternal(int score, bool save_optimized_content) {
     MinifyJavaScript minify(save_optimized_content);
 
-    Results results;
-    ResultProvider provider(minify, &results);
+    RuleResults rule_results;
+    ResultProvider provider(minify, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 1);
+    ASSERT_EQ(rule_results.results_size(), 1);
 
-    const Result& result = results.results(0);
+    const Result& result = rule_results.results(0);
     ASSERT_EQ(static_cast<size_t>(result.savings().response_bytes_saved()),
               strlen(kUnminified) - strlen(kMinified));
     ASSERT_EQ(result.resource_urls_size(), 1);
@@ -106,21 +109,19 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
       ASSERT_FALSE(result.has_optimized_content());
     }
 
-    ResultVector result_vector;
-    result_vector.push_back(&result);
     ASSERT_EQ(score, minify.ComputeScore(
         *pagespeed_input()->input_information(),
-        result_vector));
+        rule_results));
   }
 
   void CheckErrorInternal(bool save_optimized_content) {
     MinifyJavaScript minify(save_optimized_content);
 
-    Results results;
-    ResultProvider provider(minify, &results);
+    RuleResults rule_results;
+    ResultProvider provider(minify, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_FALSE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 0);
+    ASSERT_EQ(rule_results.results_size(), 0);
   }
 };
 

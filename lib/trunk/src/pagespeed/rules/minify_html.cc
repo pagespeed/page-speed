@@ -102,7 +102,7 @@ MinifyHTML::MinifyHTML(bool save_optimized_content)
     : MinifyRule(new HtmlMinifier(save_optimized_content)) {}
 
 int MinifyHTML::ComputeScore(const InputInformation& input_info,
-                             const ResultVector& results) {
+                             const RuleResults& results) {
   WeightedCostBasedScoreComputer score_computer(
       &results, input_info.html_response_bytes(), kCostWeight);
   return score_computer.ComputeScore();

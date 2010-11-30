@@ -19,13 +19,12 @@
 
 namespace pagespeed {
 
-ResultProvider::ResultProvider(const Rule& rule, Results* results)
-    : rule_(rule), results_(results) {
+ResultProvider::ResultProvider(const Rule& rule, RuleResults* rule_results)
+    : rule_(rule), rule_results_(rule_results) {
 }
 
 Result* ResultProvider::NewResult() {
-  Result* result = results_->add_results();
-  result->set_rule_name(rule_.name());
+  Result* result = rule_results_->add_results();
   return result;
 }
 

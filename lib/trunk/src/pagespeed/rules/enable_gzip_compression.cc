@@ -124,7 +124,7 @@ bool GzipMinifier::IsViolation(const Resource& resource) const {
 
 class EnableCompressionScoreComputer : public CostBasedScoreComputer {
  public:
-  EnableCompressionScoreComputer(const ResultVector* results,
+  EnableCompressionScoreComputer(const RuleResults* results,
                                  int64 max_possible_cost);
   virtual ~EnableCompressionScoreComputer();
 
@@ -132,11 +132,11 @@ class EnableCompressionScoreComputer : public CostBasedScoreComputer {
   virtual int64 ComputeCost();
 
  private:
-  const ResultVector* const results_;
+  const RuleResults* const results_;
 };
 
 EnableCompressionScoreComputer::EnableCompressionScoreComputer(
-    const ResultVector* results, int64 max_possible_cost)
+    const RuleResults* results, int64 max_possible_cost)
     : CostBasedScoreComputer(max_possible_cost),
       results_(results) {
 }
@@ -145,12 +145,9 @@ EnableCompressionScoreComputer::~EnableCompressionScoreComputer() {}
 
 int64 EnableCompressionScoreComputer::ComputeCost() {
   int64 total_cost = 0;
-  for (std::vector<const Result*>::const_iterator iter = results_->begin(),
-           end = results_->end();
-       iter != end;
-       ++iter) {
-    const Result* result = *iter;
-    total_cost += result->original_response_bytes();
+  for (int idx = 0, end = results_->results_size(); idx < end; ++idx) {
+    const Result& result = results_->results(idx);
+    total_cost += result.original_response_bytes();
   }
 
   return total_cost;
@@ -162,7 +159,7 @@ EnableGzipCompression::EnableGzipCompression(SavingsComputer* computer)
     : MinifyRule(new GzipMinifier(computer)) {}
 
 int EnableGzipCompression::ComputeScore(const InputInformation& input_info,
-                                        const ResultVector& results) {
+                                        const RuleResults& results) {
   EnableCompressionScoreComputer score_computer(
       &results, resource_util::ComputeCompressibleResponseBytes(input_info));
   return score_computer.ComputeScore();

@@ -27,10 +27,9 @@ class Formatter;
 class InputInformation;
 class Resource;
 class Result;
-class Results;
 class ResultProvider;
-class ResultText;
 class RuleInput;
+class RuleResults;
 
 typedef std::vector<const Result*> ResultVector;
 
@@ -78,7 +77,7 @@ class Rule {
   // @param results Result vector that contains savings information.
   // @returns 0-100 score.
   virtual int ComputeScore(const InputInformation& input_info,
-                           const ResultVector& results);
+                           const RuleResults& results);
 
   // Sort the results in their presentation order.
   virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;

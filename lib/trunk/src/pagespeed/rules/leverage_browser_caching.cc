@@ -56,9 +56,9 @@ int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
 
 int64 ComputeAverageFreshnessLifetimeMillis(
     const pagespeed::InputInformation& input_info,
-    const pagespeed::ResultVector& results) {
-  if (results.size() <= 0) {
-    LOG(DFATAL) << "Unexpected inputs: " << results.size();
+    const pagespeed::RuleResults& results) {
+  if (results.results_size() <= 0) {
+    LOG(DFATAL) << "Unexpected inputs: " << results.results_size();
     return -1;
   }
   const int number_static_resources = input_info.number_static_resources();
@@ -68,7 +68,7 @@ int64 ComputeAverageFreshnessLifetimeMillis(
   // implementation of AppendResults(). See the NOTE comment at the
   // top of that function for more details.
   const int number_properly_cached_resources =
-      number_static_resources - results.size();
+      number_static_resources - results.results_size();
   if (number_properly_cached_resources < 0) {
     LOG(DFATAL) << "Number of results exceeds number of static resources.";
     return -1;
@@ -77,8 +77,9 @@ int64 ComputeAverageFreshnessLifetimeMillis(
   // Sum all of the freshness lifetimes of the results, so we can
   // compute an average.
   int64 freshness_lifetime_sum = 0;
-  for (int i = 0, num = results.size(); i < num; ++i) {
-    int64 resource_freshness_lifetime = GetFreshnessLifetimeMillis(*results[i]);
+  for (int i = 0, num = results.results_size(); i < num; ++i) {
+    int64 resource_freshness_lifetime =
+        GetFreshnessLifetimeMillis(results.results(i));
     if (resource_freshness_lifetime < 0) {
       // An error occurred.
       return -1;
@@ -238,7 +239,7 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
 }
 
 int LeverageBrowserCaching::ComputeScore(const InputInformation& input_info,
-                                         const ResultVector& results) {
+                                         const RuleResults& results) {
   int64 avg_freshness_lifetime =
       ComputeAverageFreshnessLifetimeMillis(input_info, results);
   if (avg_freshness_lifetime < 0) {

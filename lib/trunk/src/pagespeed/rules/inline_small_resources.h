@@ -36,7 +36,7 @@ class InlineSmallResources : public Rule {
   virtual void FormatResults(const ResultVector& results,
                              Formatter* formatter);
   virtual int ComputeScore(const InputInformation& input_info,
-                           const ResultVector& results);
+                           const RuleResults& results);
 
  protected:
   virtual bool ComputeMinifiedSize(

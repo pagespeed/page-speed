@@ -234,7 +234,7 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
 // have been combined, the score for this rule will go down, and it
 // will become more prominent in the results list.
 int InlineSmallResources::ComputeScore(const InputInformation& input_info,
-                                       const ResultVector& results) {
+                                       const RuleResults& results) {
   int total_resources = GetTotalResourcesOfSameType(input_info);
   if (total_resources == 0) {
     // No candidates to inline.
@@ -242,9 +242,8 @@ int InlineSmallResources::ComputeScore(const InputInformation& input_info,
   }
 
   int num_candidates = 0;
-  for (ResultVector::const_iterator it = results.begin(), end = results.end();
-       it != end; ++it) {
-    const Result& result = **it;
+  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
+    const Result& result = results.results(idx);
     const ResultDetails& details = result.details();
     if (!details.HasExtension(
             InlineSmallResourcesDetails::message_set_extension)) {

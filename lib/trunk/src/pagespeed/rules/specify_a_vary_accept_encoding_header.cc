@@ -100,12 +100,12 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
 }
 
 int SpecifyAVaryAcceptEncodingHeader::
-ComputeScore(const InputInformation& input_info, const ResultVector& results) {
+ComputeScore(const InputInformation& input_info, const RuleResults& results) {
   const int num_static_resources = input_info.number_static_resources();
   if (num_static_resources == 0) {
     return 100;
   }
-  const int num_non_violations = num_static_resources - results.size();
+  const int num_non_violations = num_static_resources - results.results_size();
   DCHECK(num_non_violations >= 0);
   return 100 * num_non_violations / num_static_resources;
 }
