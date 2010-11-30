@@ -103,7 +103,7 @@ MinifyCss::MinifyCss(bool save_optimized_content)
     : MinifyRule(new CssMinifier(save_optimized_content)) {}
 
 int MinifyCss::ComputeScore(const InputInformation& input_info,
-                            const ResultVector& results) {
+                            const RuleResults& results) {
   WeightedCostBasedScoreComputer score_computer(
       &results, input_info.css_response_bytes(), kCostWeight);
   return score_computer.ComputeScore();

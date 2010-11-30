@@ -66,7 +66,7 @@ class LeverageBrowserCachingTest
 
     ASSERT_EQ(score, ComputeScore());
 
-    const Result& result0 = results().results(0);
+    const Result& result0 = result(0);
     ASSERT_EQ(result0.resource_urls_size(), 1);
     ASSERT_EQ(result0.resource_urls(0), url);
 

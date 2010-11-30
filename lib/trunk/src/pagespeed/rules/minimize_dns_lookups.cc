@@ -209,13 +209,10 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
 }
 
 int MinimizeDnsLookups::ComputeScore(const InputInformation& input_info,
-                                     const ResultVector& results) {
+                                     const RuleResults& results) {
   int num_violations = 0;
-  for (ResultVector::const_iterator iter = results.begin(),
-           end = results.end();
-       iter != end;
-       ++iter) {
-    const Result& result = **iter;
+  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
+    const Result& result = results.results(idx);
     num_violations += result.savings().dns_requests_saved();
   }
   const int num_hosts = input_info.number_hosts();

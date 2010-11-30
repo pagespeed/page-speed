@@ -38,7 +38,7 @@ class RemoveQueryStringsFromStaticResources : public Rule {
   virtual void FormatResults(const ResultVector& results,
                              Formatter* formatter);
   virtual int ComputeScore(const InputInformation& input_info,
-                           const ResultVector& results);
+                           const RuleResults& results);
 
   DISALLOW_COPY_AND_ASSIGN(RemoveQueryStringsFromStaticResources);
 };

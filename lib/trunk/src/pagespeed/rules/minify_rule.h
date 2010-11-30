@@ -50,7 +50,7 @@ class CostBasedScoreComputer {
 // 100 web sites.
 class WeightedCostBasedScoreComputer : public CostBasedScoreComputer {
  public:
-  WeightedCostBasedScoreComputer(const ResultVector* results,
+  WeightedCostBasedScoreComputer(const RuleResults* results,
                                  int64 max_possible_cost,
                                  double cost_weight);
 
@@ -58,7 +58,7 @@ class WeightedCostBasedScoreComputer : public CostBasedScoreComputer {
   virtual int64 ComputeCost();
 
  private:
-  const ResultVector* const results_;
+  const RuleResults* const results_;
   const double cost_weight_;
 };
 

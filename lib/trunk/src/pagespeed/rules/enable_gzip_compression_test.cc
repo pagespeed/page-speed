@@ -33,6 +33,7 @@ using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::ResultVector;
 using pagespeed::RuleInput;
+using pagespeed::RuleResults;
 using pagespeed::Savings;
 
 namespace {
@@ -125,40 +126,37 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
                           int score) {
     EnableGzipCompression gzip_rule(new ZlibComputer());
 
-    Results results;
-    ResultProvider provider(gzip_rule, &results);
+    RuleResults rule_results;
+    ResultProvider provider(gzip_rule, &rule_results);
     RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(gzip_rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 2);
+    ASSERT_EQ(rule_results.results_size(), 2);
 
-    const Result& result0 = results.results(0);
+    const Result& result0 = rule_results.results(0);
     ASSERT_EQ(result0.savings().response_bytes_saved(), first_expected_savings);
     ASSERT_EQ(result0.resource_urls_size(), 1);
     ASSERT_EQ(result0.resource_urls(0), "http://www.test.com/");
 
-    const Result& result1 = results.results(1);
+    const Result& result1 = rule_results.results(1);
     ASSERT_EQ(result1.savings().response_bytes_saved(),
               second_expected_savings);
     ASSERT_EQ(result1.resource_urls_size(), 1);
     ASSERT_EQ(result1.resource_urls(0), "http://www.test.com/foo");
 
-    ResultVector result_vector;
-    result_vector.push_back(&result0);
-    result_vector.push_back(&result1);
     ASSERT_EQ(score, gzip_rule.ComputeScore(
         *pagespeed_input()->input_information(),
-        result_vector));
+        rule_results));
   }
 
  private:
   void CheckNoViolationsInternal(bool expect_success) {
     EnableGzipCompression gzip_rule(new ZlibComputer());
 
-    Results results;
-    ResultProvider provider(gzip_rule, &results);
+    RuleResults rule_results;
+    ResultProvider provider(gzip_rule, &rule_results);
     RuleInput rule_input(*pagespeed_input());
     ASSERT_EQ(expect_success, gzip_rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 0);
+    ASSERT_EQ(rule_results.results_size(), 0);
   }
 
   void CheckOneViolationInternal(SavingsComputer* computer,
@@ -167,23 +165,21 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
                                  bool expect_success) {
     EnableGzipCompression gzip_rule(computer);
 
-    Results results;
-    ResultProvider provider(gzip_rule, &results);
+    RuleResults rule_results;
+    ResultProvider provider(gzip_rule, &rule_results);
     RuleInput rule_input(*pagespeed_input());
     ASSERT_EQ(expect_success, gzip_rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 1);
+    ASSERT_EQ(rule_results.results_size(), 1);
 
-    const Result& result = results.results(0);
+    const Result& result = rule_results.results(0);
     ASSERT_EQ(result.savings().response_bytes_saved(), expected_savings);
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), "http://www.test.com/");
 
     if (expect_success) {
-      ResultVector result_vector;
-      result_vector.push_back(&result);
       ASSERT_EQ(score, gzip_rule.ComputeScore(
           *pagespeed_input()->input_information(),
-          result_vector));
+          rule_results));
     }
   }
 };

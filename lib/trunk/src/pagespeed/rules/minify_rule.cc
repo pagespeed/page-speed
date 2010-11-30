@@ -174,7 +174,7 @@ int CostBasedScoreComputer::ComputeScore() {
 }
 
 WeightedCostBasedScoreComputer::WeightedCostBasedScoreComputer(
-    const ResultVector* results,
+    const RuleResults* results,
     int64 max_possible_cost,
     double cost_weight) :
     CostBasedScoreComputer(max_possible_cost),
@@ -184,13 +184,10 @@ WeightedCostBasedScoreComputer::WeightedCostBasedScoreComputer(
 
 int64 WeightedCostBasedScoreComputer::ComputeCost() {
   int64 total_cost = 0;
-  for (std::vector<const Result*>::const_iterator iter = results_->begin(),
-           end = results_->end();
-       iter != end;
-       ++iter) {
-    const Result* result = *iter;
-    if (result->has_savings()) {
-      const Savings& savings = result->savings();
+  for (int idx = 0, end = results_->results_size(); idx < end; ++idx) {
+    const Result& result = results_->results(idx);
+    if (result.has_savings()) {
+      const Savings& savings = result.savings();
       total_cost += savings.response_bytes_saved();
     }
   }

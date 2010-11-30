@@ -31,42 +31,27 @@ namespace pagespeed {
 
 namespace {
 
-typedef std::map<std::string, ResultVector> RuleToResultMap;
-
-void PopulateRuleToResultMap(const Results& results,
-                             const ResultFilter& filter,
-                             RuleToResultMap *rule_to_result_map) {
-  for (int idx = 0, end = results.rules_size(); idx < end; ++idx) {
-    // Create an entry for each rule that was run, even if there are
-    // no results for that rule.
-    (*rule_to_result_map)[results.rules(idx)];
-  }
-
-  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
-    const Result& result = results.results(idx);
-    if (filter.IsAccepted(result)) {
-      (*rule_to_result_map)[result.rule_name()].push_back(&result);
-    }
-  }
-}
-
-void FormatRuleResults(const ResultVector& rule_results,
+void FormatRuleResults(const RuleResults& rule_results,
                        const InputInformation& input_info,
                        Rule* rule,
-                       RuleFormatter* formatter) {
-  int score = 100;
-  if (!rule_results.empty()) {
-    score = rule->ComputeScore(input_info, rule_results);
-    if (score > 100 || score < -1) {
-      // Note that the value -1 indicates a valid score could not be
-      // computed, so we need to allow it.
-      LOG(ERROR) << "Score for " << rule->name() << " out of bounds: " << score;
-      score = std::max(-1, std::min(100, score));
+                       const ResultFilter& filter,
+                       RuleFormatter* root_formatter) {
+  // Sort results according to presentation order
+  ResultVector sorted_results;
+  for (int result_idx = 0, end = rule_results.results_size();
+       result_idx < end; ++result_idx) {
+    const Result& result = rule_results.results(result_idx);
+
+    if (filter.IsAccepted(result)) {
+      sorted_results.push_back(&rule_results.results(result_idx));
     }
   }
-  Formatter* rule_formatter = formatter->AddHeader(*rule, score);
-  if (!rule_results.empty()) {
-    rule->FormatResults(rule_results, rule_formatter);
+  rule->SortResultsInPresentationOrder(&sorted_results);
+
+  Formatter* rule_formatter =
+      root_formatter->AddHeader(*rule, rule_results.rule_score());
+  if (!sorted_results.empty()) {
+    rule->FormatResults(sorted_results, rule_formatter);
   }
 }
 
@@ -116,6 +101,8 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
   PrepareResults(pagespeed_input, results);
 
   const RuleInput rule_input(pagespeed_input);
+  int total_score = 0;
+  int total_weights = 0;
 
   bool success = true;
   for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
@@ -123,14 +110,42 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
        iter != end;
        ++iter) {
     Rule* rule = *iter;
-    ResultProvider provider(*rule, results);
+    RuleResults* rule_results = results->add_rule_results();
+    rule_results->set_rule_name(rule->name());
+
+    ResultProvider provider(*rule, rule_results);
     const bool rule_success = rule->AppendResults(rule_input, &provider);
     if (!rule_success) {
       // Record that the rule encountered an error.
       results->add_error_rules(rule->name());
       success = false;
     }
+
+    int score = 100;
+    if (rule_results->results_size() > 0) {
+      score = rule->ComputeScore(results->input_info(), *rule_results);
+      if (score > 100 || score < -1) {
+        // Note that the value -1 indicates a valid score could not be
+        // computed, so we need to allow it.
+        LOG(ERROR) << "Score for " << rule->name() << " out of bounds: "
+                   << score;
+        score = std::max(-1, std::min(100, score));
+      }
+    }
+
+    // Instead of using a -1 to indicate an error, we just don't set rule_score
+    if (rule_success && score >= 0) {
+      rule_results->set_rule_score(score);
+
+      total_score += score;
+      total_weights++;
+    }
   }
+
+  // TODO(mdsteele): better scoring algorithm?
+  // Calculate the overall score (currently just the mean of all rule scores)
+  if (total_weights)
+    results->set_score(total_score / total_weights);
 
   if (!results->IsInitialized()) {
     LOG(DFATAL) << "Failed to fully initialize results object.";
@@ -150,12 +165,10 @@ bool Engine::FormatResults(const Results& results,
     return false;
   }
 
-  RuleToResultMap rule_to_result_map;
-  PopulateRuleToResultMap(results, filter, &rule_to_result_map);
-
   bool success = true;
-  for (int idx = 0, end = results.rules_size(); idx < end; ++idx) {
-    const std::string& rule_name = results.rules(idx);
+  for (int idx = 0, end = results.rule_results_size(); idx < end; ++idx) {
+    const RuleResults& rule_results = results.rule_results(idx);
+    const std::string& rule_name = rule_results.rule_name();
     NameToRuleMap::const_iterator rule_iter = name_to_rule_map_.find(rule_name);
     if (rule_iter == name_to_rule_map_.end()) {
       // No rule registered to handle the given rule name. This could
@@ -166,14 +179,12 @@ bool Engine::FormatResults(const Results& results,
       success = false;
       continue;
     }
+
     Rule* rule = rule_iter->second;
-    ResultVector& rule_results = rule_to_result_map[rule_name];
-    rule->SortResultsInPresentationOrder(&rule_results);
-    FormatRuleResults(rule_results,
-                      results.input_info(),
-                      rule,
+    FormatRuleResults(rule_results, results.input_info(), rule, filter,
                       formatter);
   }
+
   formatter->Done();
   return success;
 }

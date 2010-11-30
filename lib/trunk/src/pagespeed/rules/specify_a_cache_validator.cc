@@ -122,7 +122,7 @@ void SpecifyACacheValidator::FormatResults(const ResultVector& results,
 }
 
 int SpecifyACacheValidator::ComputeScore(const InputInformation& input_info,
-                                         const ResultVector& results) {
+                                         const RuleResults& results) {
   // Every static/cacheable resource should have a cache validator. So
   // we compute the score as the number of static resources with a
   // validator over the total number of static resources.
@@ -130,7 +130,7 @@ int SpecifyACacheValidator::ComputeScore(const InputInformation& input_info,
   if (num_static_resources == 0) {
     return 100;
   }
-  const int num_non_violations = num_static_resources - results.size();
+  const int num_non_violations = num_static_resources - results.results_size();
   DCHECK(num_non_violations >= 0);
   return 100 * num_non_violations / num_static_resources;
 }

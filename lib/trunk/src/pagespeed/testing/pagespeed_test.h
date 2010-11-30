@@ -54,7 +54,7 @@ class FakeImageAttributesFactory
 // Helper method that returns the output from a TextFormatter for
 // the given Rule and Results.
 std::string DoFormatResults(
-    pagespeed::Rule* rule, const pagespeed::Results& results);
+    pagespeed::Rule* rule, const pagespeed::RuleResults& rule_results);
 
 class PagespeedTest : public ::testing::Test {
  protected:
@@ -183,12 +183,19 @@ class PagespeedTest : public ::testing::Test {
 template <class RULE> class PagespeedRuleTest : public PagespeedTest {
  protected:
   PagespeedRuleTest()
-      : rule_(new RULE()), provider_(*rule_.get(), &results_) {}
+      : rule_(new RULE()), provider_(*rule_.get(), &rule_results_) {
+    rule_results_.set_rule_name(rule_->name());
+  }
 
   const pagespeed::RuleInput* rule_input() { return rule_input_.get(); }
-  const pagespeed::Results& results() const { return results_; }
-  const int num_results() const { return results_.results_size(); }
-  const pagespeed::Result& result(int i) const { return results_.results(i); }
+  const pagespeed::RuleResults& rule_results() const { return rule_results_; }
+  const int num_results() const { return rule_results_.results_size(); }
+  const pagespeed::Result& result(int i) const {
+    return rule_results_.results(i);
+  }
+  const std::string& results_rule_name() const {
+    return rule_results_.rule_name();
+  }
 
   virtual void SetUp() {
     PagespeedTest::SetUp();
@@ -239,21 +246,18 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
   }
 
   std::string FormatResults() {
-    return DoFormatResults(rule_.get(), results_);
+    return DoFormatResults(rule_.get(), rule_results_);
   }
 
   int ComputeScore() {
-    pagespeed::ResultVector r;
-    for (int idx = 0, end = num_results(); idx < end; ++idx) {
-      r.push_back(&results().results(idx));
-    }
-    return rule_->ComputeScore(*pagespeed_input()->input_information(), r);
+    return rule_->ComputeScore(*pagespeed_input()->input_information(),
+                               rule_results_);
   }
 
  private:
   scoped_ptr<pagespeed::RuleInput> rule_input_;
   scoped_ptr<pagespeed::Rule> rule_;
-  pagespeed::Results results_;
+  pagespeed::RuleResults rule_results_;
   pagespeed::ResultProvider provider_;
 };
 

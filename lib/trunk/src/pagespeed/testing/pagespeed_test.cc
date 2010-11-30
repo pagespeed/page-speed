@@ -193,10 +193,10 @@ void PagespeedTest::TearDownTestCase() {
 }
 
 std::string DoFormatResults(
-    pagespeed::Rule* rule, const pagespeed::Results& results) {
+    pagespeed::Rule* rule, const pagespeed::RuleResults& rule_results) {
   pagespeed::ResultVector result_vector;
-  for (int i = 0; i < results.results_size(); ++i) {
-    result_vector.push_back(&results.results(i));
+  for (int i = 0; i < rule_results.results_size(); ++i) {
+    result_vector.push_back(&rule_results.results(i));
   }
 
   std::ostringstream output;

@@ -51,8 +51,8 @@ class OptimizeOrderTest
     ASSERT_TRUE(AppendResults());
 
     ASSERT_EQ(1, num_results());
+    ASSERT_EQ("OptimizeTheOrderOfStylesAndScripts", results_rule_name());
     const Result& result0 = result(0);
-    ASSERT_EQ("OptimizeTheOrderOfStylesAndScripts", result0.rule_name());
     ASSERT_EQ(1, result0.resource_urls_size());
     ASSERT_EQ(url, result0.resource_urls(0));
     ASSERT_EQ(original_cpl, result0.original_critical_path_length());

@@ -29,7 +29,7 @@ class MinifyHTML : public MinifyRule {
  public:
   MinifyHTML(bool save_optimized_content);
   virtual int ComputeScore(const InputInformation& input_info,
-                           const ResultVector& results);
+                           const RuleResults& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MinifyHTML);

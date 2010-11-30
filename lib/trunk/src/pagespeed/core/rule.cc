@@ -86,16 +86,13 @@ Rule::Rule(const InputCapabilities& capability_requirements)
 Rule::~Rule() {}
 
 int Rule::ComputeScore(const InputInformation& input_info,
-                       const ResultVector& results) {
+                       const RuleResults& results) {
   int request_bytes_saved = 0, response_bytes_saved = 0, dns_saved = 0,
       requests_saved = 0, reflows_saved = 0, critical_path_saved = 0;
-  for (std::vector<const Result*>::const_iterator iter = results.begin(),
-           end = results.end();
-       iter != end;
-       ++iter) {
-    const Result* result = *iter;
-    if (result->has_savings()) {
-      const Savings& savings = result->savings();
+  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
+    const Result& result = results.results(idx);
+    if (result.has_savings()) {
+      const Savings& savings = result.savings();
       request_bytes_saved += savings.request_bytes_saved();
       response_bytes_saved += savings.response_bytes_saved();
       dns_saved += savings.dns_requests_saved();

@@ -53,7 +53,7 @@ class AvoidBadRequestsTest : public PagespeedRuleTest<AvoidBadRequests> {
   void CheckOneViolation(const std::string &url) {
     ASSERT_TRUE(AppendResults());
     ASSERT_EQ(num_results(), 1);
-    const Result& result = results().results(0);
+    const Result& result = this->result(0);
     ASSERT_EQ(result.savings().requests_saved(), 1);
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), url);

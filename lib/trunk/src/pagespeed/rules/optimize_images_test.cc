@@ -30,6 +30,7 @@ using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::ResultVector;
+using pagespeed::RuleResults;
 
 namespace {
 
@@ -96,11 +97,11 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
   void CheckNoViolationsInternal(bool save_optimized_content) {
     OptimizeImages optimize(save_optimized_content);
 
-    Results results;
-    ResultProvider provider(optimize, &results);
+    RuleResults rule_results;
+    ResultProvider provider(optimize, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(optimize.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 0);
+    ASSERT_EQ(rule_results.results_size(), 0);
   }
 
   void CheckOneViolationInternal(const std::string &url,
@@ -108,34 +109,32 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
                                  int score) {
     OptimizeImages optimize(save_optimized_content);
 
-    Results results;
-    ResultProvider provider(optimize, &results);
+    RuleResults rule_results;
+    ResultProvider provider(optimize, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(optimize.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 1);
+    ASSERT_EQ(rule_results.results_size(), 1);
 
-    const Result& result = results.results(0);
+    const Result& result = rule_results.results(0);
     ASSERT_GT(result.savings().response_bytes_saved(), 0);
     ASSERT_EQ(result.resource_urls_size(), 1);
     ASSERT_EQ(result.resource_urls(0), url);
 
     ASSERT_EQ(save_optimized_content, result.has_optimized_content());
 
-    ResultVector result_vector;
-    result_vector.push_back(&result);
     ASSERT_EQ(score, optimize.ComputeScore(
         *pagespeed_input()->input_information(),
-        result_vector));
+        rule_results));
   }
 
   void CheckErrorInternal(bool save_optimized_content) {
     OptimizeImages optimize(save_optimized_content);
 
-    Results results;
-    ResultProvider provider(optimize, &results);
+    RuleResults rule_results;
+    ResultProvider provider(optimize, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_FALSE(optimize.AppendResults(rule_input, &provider));
-    ASSERT_EQ(results.results_size(), 0);
+    ASSERT_EQ(rule_results.results_size(), 0);
   }
 };
 

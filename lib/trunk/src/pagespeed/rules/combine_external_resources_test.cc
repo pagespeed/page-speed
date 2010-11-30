@@ -34,6 +34,7 @@ using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::Rule;
 using pagespeed::RuleInput;
+using pagespeed::RuleResults;
 
 namespace {
 
@@ -79,17 +80,16 @@ class CombineExternalResourcesTest : public ::pagespeed_testing::PagespeedTest {
       CHECK(false);
     }
 
-    Results results;
-    ResultProvider provider(*resource_rule.get(), &results);
+    RuleResults rule_results;
+    ResultProvider provider(*resource_rule.get(), &rule_results);
     const RuleInput rule_input(*pagespeed_input());
     resource_rule->AppendResults(rule_input, &provider);
-    ASSERT_EQ(static_cast<size_t>(results.results_size()),
+    ASSERT_EQ(static_cast<size_t>(rule_results.results_size()),
               expected_violations.size());
-    for (int idx = 0; idx < results.results_size(); idx++) {
-      const Result* result = &results.results(idx);
+    for (int idx = 0; idx < rule_results.results_size(); idx++) {
+      const Result* result = &rule_results.results(idx);
       const Violation& violation = expected_violations[idx];
 
-      ASSERT_EQ(result->rule_name(), rule_name);
       ASSERT_EQ(result->savings().requests_saved(),
                 violation.expected_rt_savings);
 
