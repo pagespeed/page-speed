@@ -1,7 +1,6 @@
 vars = {
-  "chromium_trunk":
-    "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@55224",
+  "chromium_trunk": "http://src.chromium.org/svn/trunk",
+  "chromium_revision": "@67505",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
   "libpagespeed_revision": "@head",
@@ -38,6 +37,9 @@ deps = {
     Var("chromium_trunk") + "/src/build/util" + Var("chromium_revision"),
   "src/build/internal":
     Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
+  "src/chrome/browser/policy/proto":
+    Var("chromium_trunk") + "/src/chrome/browser/policy/proto" +
+      Var("chromium_revision"),
   "src/chrome/browser/sync/protocol":
     Var("chromium_trunk") + "/src/chrome/browser/sync/protocol" +
       Var("chromium_revision"),
@@ -45,10 +47,14 @@ deps = {
     Var("chromium_trunk") + "/src/gfx" + Var("chromium_revision"),
   "src/gpu":
     Var("chromium_trunk") + "/src/gpu" + Var("chromium_revision"),
+  "src/ipc":
+    Var("chromium_trunk") + "/src/ipc" + Var("chromium_revision"),
   "src/media":
     Var("chromium_trunk") + "/src/media" + Var("chromium_revision"),
   "src/net":
     Var("chromium_trunk") + "/src/net" + Var("chromium_revision"),
+  "src/ppapi":
+    Var("chromium_trunk") + "/src/ppapi" + Var("chromium_revision"),
   "src/printing":
     Var("chromium_trunk") + "/src/printing" + Var("chromium_revision"),
   "src/sdch":
@@ -59,10 +65,11 @@ deps = {
     Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
   "src/tools":
     Var("chromium_trunk") + "/src/tools" + Var("chromium_revision"),
-  "src/third_party/glew":
-    Var("chromium_trunk") + "/src/third_party/glew" + Var("chromium_revision"),
   "src/third_party/harfbuzz":
     Var("chromium_trunk") + "/src/third_party/harfbuzz" +
+      Var("chromium_revision"),
+  "src/third_party/iccjpeg":
+    Var("chromium_trunk") + "/src/third_party/iccjpeg" +
       Var("chromium_revision"),
   "src/third_party/libevent":
     Var("chromium_trunk") + "/src/third_party/libevent" +
@@ -72,6 +79,9 @@ deps = {
       Var("chromium_revision"),
   "src/third_party/libpng":
     Var("chromium_trunk") + "/src/third_party/libpng" +
+      Var("chromium_revision"),
+  "src/third_party/libwebp":
+    Var("chromium_trunk") + "/src/third_party/libwebp" +
       Var("chromium_revision"),
   "src/third_party/libxml":
     Var("chromium_trunk") + "/src/third_party/libxml" +
@@ -89,12 +99,15 @@ deps = {
   "src/third_party/openmax":
     Var("chromium_trunk") + "/src/third_party/openmax" +
       Var("chromium_revision"),
-  "src/third_party/protobuf2":
-    Var("chromium_trunk") + "/src/third_party/protobuf2" +
+  "src/third_party/protobuf":
+    Var("chromium_trunk") + "/src/third_party/protobuf" +
       Var("chromium_revision"),
   "src/third_party/sqlite":
     Var("chromium_trunk") + "/src/third_party/sqlite" +
       Var("chromium_revision"),
+  "src/third_party/talloc":
+    Var("chromium_trunk") + "/src/third_party/talloc"
+      + Var("chromium_revision"),
   "src/third_party/tcmalloc/chromium":
     Var("chromium_trunk") + "/src/third_party/tcmalloc/chromium"
       + Var("chromium_revision"),
@@ -113,7 +126,7 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
-  "src/third_party/instaweb/src": From(Var("libpagespeed_deps_root")),
+  "src/third_party/instaweb/src/net/instaweb": From(Var("libpagespeed_deps_root")),
 
   # The chromium dependencies that we also depend on.
   # TODO(bmcquade): see if we can reduce this set of dependencies.
@@ -123,11 +136,9 @@ deps = {
   "src/third_party/angle": From(Var("chromium_deps_root")),
   "src/third_party/ffmpeg": From(Var("chromium_deps_root")),
   "src/third_party/icu": From(Var("chromium_deps_root")),
-  "src/third_party/libvpx/include": From(Var("chromium_deps_root")),
-  "src/third_party/libvpx/lib": From(Var("chromium_deps_root")),
+  "src/third_party/libvpx": From(Var("chromium_deps_root")),
+  "src/third_party/openssl": From(Var("chromium_deps_root")),
   "src/third_party/ots": From(Var("chromium_deps_root")),
-  "src/third_party/ppapi": From(Var("chromium_deps_root")),
-  "src/third_party/protobuf2/src": From(Var("chromium_deps_root")),
   "src/third_party/skia/src": From(Var("chromium_deps_root")),
   "src/third_party/skia/include": From(Var("chromium_deps_root")),
   "src/third_party/WebKit": From(Var("chromium_deps_root")),
