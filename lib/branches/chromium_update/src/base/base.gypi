@@ -65,7 +65,6 @@
         '<(chromium_root)/base/registry.h',
         '<(chromium_root)/base/safe_strerror_posix.cc',
         '<(chromium_root)/base/safe_strerror_posix.h',
-        '<(chromium_root)/base/stats_table.h',
         '<(chromium_root)/base/string_number_conversions.cc',
         '<(chromium_root)/base/string_number_conversions.h',
         '<(chromium_root)/base/string_piece.cc',
@@ -143,6 +142,7 @@
           [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
             'cflags': [
               '-Wno-write-strings',
+              '-Wno-error',
             ],
           },],
           [ 'OS != "win"', {
