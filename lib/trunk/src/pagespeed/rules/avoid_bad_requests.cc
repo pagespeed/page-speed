@@ -36,7 +36,11 @@ const char* AvoidBadRequests::name() const {
 }
 
 LocalizableString AvoidBadRequests::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to try and avoid
+  // writing pages that generate bad HTTP requests (i.e. requests that return
+  // HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
+  // style sheet.  This is displayed in a list of rule names that Page Speed
+  // generates.
   return _("Avoid bad requests");
 }
 
@@ -71,7 +75,10 @@ void AvoidBadRequests::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+      // detected as bad requests (requesting them returned HTTP codes 404 or
+      // 410).  It describes the problem to the user, and tells them how to fix
+      // it by eliminating the bad requests.
       _("The following requests are returning 404/410 responses.  Either fix "
         "the broken links, or remove the references to the non-existent "
         "resources."));
