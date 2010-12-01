@@ -198,7 +198,11 @@ const char* ServeScaledImages::name() const {
 }
 
 LocalizableString ServeScaledImages::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that is triggered when users
+  // serve images, then rescale them in HTML or CSS to the final size (it is
+  // more efficient to serve the image with the dimensions it will be shown at).
+  // This is displayed at the top of a list of rules names that Page Speed
+  // generates.
   return _("Serve scaled images");
 }
 
@@ -296,7 +300,11 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
   Argument percent_arg(Argument::INTEGER,
                        (total_original_size == 0 ? 0 :
                         (100 * total_bytes_saved) / total_original_size));
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: A descriptive header at the top of a list of URLs of images
+  // that are resized in HTML or CSS.  It describes the problem to the user.
+  // The parameters are as follows:
+  //   $1 - the total savings in bytes from serving images in their final size.
+  //   $2 - the percentage reduction of bytes transferred from doing so.
   Formatter* body = formatter->AddChild(_("The following images are resized in "
                                           "HTML or CSS.  Serving scaled images "
                                           "could save $1 ($2% reduction)."),
@@ -330,8 +338,18 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       Argument actual_w(Argument::INTEGER, image_details.actual_width());
       Argument actual_h(Argument::INTEGER, image_details.actual_height());
 
+      // TRANSLATOR: Describes a single URL of an image that is resized in
+      // HTML or CSS.  It gives the served size of the image, the final size
+      // of the image, and the amount saved by serving the image in the
+      // final size.  The paramaters are as follows:
+      //   $1 - the URL of the image resource
+      //   $2 - the original (served) width of the image
+      //   $3 - the original (served) height of the image
+      //   $4 - the final (resized) width of the image
+      //   $5 - the final (resized) height of the image
+      //   $6 - the amount saved (in bytes) by serving the image correctly sized
+      //   $7 - the percentage saved by serving the image correctly sized
       LocalizableString format_str =
-          // TRANSLATOR: TODO: add a translator comment describing this string
           _("$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
             "Serving a scaled image could save $6 ($7% reduction).");
       std::vector<const Argument*> args;
@@ -346,7 +364,12 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       FormatterParameters formatter_args(&format_str, &args);
       body->AddChild(formatter_args);
     } else {
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Describes a single URL of an image that is resized in HTML
+      // or CSS.  It gives the amount saved by serving the image in its final
+      // size.  The parameters are as follows:
+      //   $1 - the URL of the image resource
+      //   $2 - the amount saved (in bytes) by serving the image correctly sized
+      //   $3 - the percentage saved by serving the image correctly sized
       body->AddChild(_("$1 is resized in HTML or CSS.  Serving a "
                        "scaled image could save $2 ($3% reduction)."),
                      url_arg, size_arg, percent_arg);

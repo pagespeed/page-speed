@@ -40,7 +40,11 @@ const char* RemoveQueryStringsFromStaticResources::name() const {
 }
 
 LocalizableString RemoveQueryStringsFromStaticResources::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells webmasters to remove
+  // query strings from the URLs of static resources (i.e.
+  // 'www.google.com/style.css?x=2), because it hurts the cachability of the
+  // resource (in this case 'style.css').  This is displayed in a list of rule
+  // names that Page Speed generates.
   return _("Remove query strings from static resources");
 }
 
@@ -69,7 +73,11 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Descriptive header at the top of a list of URLs that
+      // violate the RemoveQueryStringsFromStaticResources rule by using a query
+      // string in the URL of a static resource (such as
+      // www.google.com/style.css?x=2).  It describes the problem to the user,
+      // and tells the user how to fix it.
       _("Resources with a \"?\" in the URL are not cached by some proxy "
         "caching servers.  Remove the query string and encode the parameters "
         "into the URL for the following resources:"));
