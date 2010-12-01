@@ -81,18 +81,6 @@
         'library%': 'static_library',
       },
 
-      # We set those at this level of nesting so the values are available for
-      # other conditionals below.
-      'conditions': [
-        # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
-        # libraries on linux x86-64 and arm.
-        ['host_arch=="ia32"', {
-          'linux_fpic%': 0,
-        }, {
-          'linux_fpic%': 1,
-        }],
-      ],
-
       'host_arch%': '<(host_arch)',
 
       # Default architecture we're building for is the architecture we're
