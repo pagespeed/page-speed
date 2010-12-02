@@ -358,7 +358,7 @@ TEST(Engine, NonFrozenInputFails) {
   Results results;
 #ifdef NDEBUG
   ASSERT_FALSE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(0, results.results_size());
+  ASSERT_EQ(0, results.rule_results_size());
 #else
   ASSERT_DEATH(engine.ComputeResults(input, &results),
                "Attempting to ComputeResults with non-frozen input.");
