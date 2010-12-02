@@ -756,6 +756,7 @@ function getNetPanelCategory(url) {
       case 'doc':
       case 'iframe':
       case 'other':
+      case 'xhr':
         return 'txt';
     }
   }

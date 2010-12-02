@@ -134,33 +134,6 @@ var experimentalRules = {
 };
 
 /**
- * Given a list of result objects from the PageSpeedRules, create an array of
- * objects that look like LintRules.
- * @param {array} results An array of results from PageSpeedRules.
- * @return {array} An array of LintRule-like objects.
- */
-function buildLintRuleResults(results) {
-  var lintRules = [];
-  if (results) {
-    for (var i = 0; i < results.length; ++i) {
-      var result = results[i];
-      lintRules.push({
-        name: buildHtml(result.format),
-        shortName: shortNameTranslationTable[result.name] || result.name,
-        score: result.score,
-        weight: 3,
-        href: result.url || '',
-        warnings: formatChildren(result.children),
-        information: null,
-        getStatistics: function () { return result.stats || {}; },
-        experimental: experimentalRules[result.name] || false,
-      });
-    }
-  }
-  return lintRules;
-}
-
-/**
  * Returns an integer representing the filter the user has chosen from
  * the Filter Results menu.
  * @return {number} 0 for filter nothing, 1 for filter non-ads, etc.
@@ -186,21 +159,23 @@ function filterChoice() {
 
 PAGESPEED.NativeLibrary = {
 
-/**
- * Invoke the native library rules and return an array of LintRule-like
- * objects, or return an empty array if the library is unavailable.
- * @return {array} An array of LintRule-like objects.
- */
-  invokeNativeLibraryRules: function () {
-    var pagespeedRules = PAGESPEED.Utils.CCIN(
-      '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
-    if (!pagespeedRules) {
-      return [];
-    }
-
-    var documentUrl = PAGESPEED.Utils.getDocumentUrl();
+  /**
+   * Construct the inputs to the Page Speed native library.
+   * @param {String} documentUrl The URL of the document being analyzed.
+   * @param {RegExp?} opt_regexp_url_exclude_filter An optional URL
+   * filter. URLs that match the filter will not be included in the
+   * analysis.
+   * @return {Object} Object with two properties: har, which contains the HAR,
+   * and custom, which contains custom properties.
+   */
+  constructInputs: function(documentUrl, opt_regexp_url_exclude_filter) {
     var pageLoadStartTime =
         PAGESPEED.Utils.getResourceProperty(documentUrl, 'pageLoadStartTime');
+    if (!pageLoadStartTime || pageLoadStartTime <= 0) {
+      // Try the requestTime instead.
+      pageLoadStartTime =
+          PAGESPEED.Utils.getResourceProperty(documentUrl, 'requestTime');
+    }
     if (!pageLoadStartTime || pageLoadStartTime <= 0) {
       PS_LOG('Unable to find document request time.');
       return [];
@@ -252,6 +227,12 @@ PAGESPEED.NativeLibrary = {
     var resourceURLs = PAGESPEED.Utils.getResources();
     for (var i = 0; i < resourceURLs.length; ++i) {
       var url = resourceURLs[i];
+      if (opt_regexp_url_exclude_filter &&
+          url.match(opt_regexp_url_exclude_filter)) {
+        // This URL matches the URL filter, so it should not be
+        // included in the analysis.
+        continue;
+      }
       var res_body_index = bodyInputStreams.length;
       var inputStream;
       try {
@@ -312,19 +293,72 @@ PAGESPEED.NativeLibrary = {
     }
 
     var har = { log: log };
-    var inputJSON = JSON.stringify(har);
+    var out = { har: har,
+                custom: customEntries,
+                bodyInputStreams: bodyInputStreams };
+    return out;
+  },
+
+  /**
+   * Invoke the native library rules and return an array of LintRule-like
+   * objects, or return an empty array if the library is unavailable.
+   * @param {nsIDOMDocument?} opt_doc The document to analyze. If
+   * null, the root document for the current window is used.
+   * @param {RegExp?} opt_regexp_url_exclude_filter An optional URL
+   * filter. URLs that match the filter will not be included in the
+   * analysis.
+   * @return {array} An array of LintRule-like objects.
+   */
+  invokeNativeLibraryRules: function(opt_doc, opt_regexp_url_exclude_filter) {
+    var pagespeedRules = PAGESPEED.Utils.CCIN(
+      '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
+    if (!pagespeedRules) {
+      return [];
+    }
+
+    var documentUrl = PAGESPEED.Utils.getDocumentUrl();
+    if (opt_doc) {
+      documentUrl = PAGESPEED.Utils.stripUriFragment(opt_doc.URL);
+    }
+    var input = PAGESPEED.NativeLibrary.constructInputs(
+        documentUrl, opt_regexp_url_exclude_filter);
     var resultJSON = pagespeedRules.computeAndFormatResults(
-      inputJSON,
-      JSON.stringify(customEntries),
-      PAGESPEED.Utils.newNsIArray(bodyInputStreams),
-      PAGESPEED.Utils.getDocumentUrl(),
-      PAGESPEED.Utils.getElementsByType('doc')[0],
+      JSON.stringify(input.har),
+      JSON.stringify(input.custom),
+      PAGESPEED.Utils.newNsIArray(input.bodyInputStreams),
+      documentUrl,
+      opt_doc ? opt_doc : PAGESPEED.Utils.getElementsByType('doc')[0],
       filterChoice(),
       PAGESPEED.Utils.getOutputDir('page-speed'));
-    var results = JSON.parse(resultJSON);
-    return buildLintRuleResults(results);
-  }
+    return JSON.parse(resultJSON);
+  },
 
+  /**
+   * Given a list of result objects from the PageSpeedRules, create an array of
+   * objects that look like LintRules.
+   * @param {array} results An array of results from PageSpeedRules.
+   * @return {array} An array of LintRule-like objects.
+   */
+  buildLintRuleResults: function(results) {
+    var lintRules = [];
+    if (results) {
+      for (var i = 0; i < results.length; ++i) {
+        var result = results[i];
+        lintRules.push({
+          name: buildHtml(result.format),
+          shortName: shortNameTranslationTable[result.name] || result.name,
+          score: result.score,
+          weight: 3,
+          href: result.url || '',
+          warnings: formatChildren(result.children),
+          information: null,
+          getStatistics: function () { return result.stats || {}; },
+          experimental: experimentalRules[result.name] || false,
+        });
+      }
+    }
+    return lintRules;
+  },
 };
 
 })();  // End closure
