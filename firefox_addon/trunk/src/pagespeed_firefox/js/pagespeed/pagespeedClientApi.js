@@ -23,7 +23,7 @@
 
 function onNewWindow(win) {
   var pagespeed = {};
-  pagespeed.analyze = Firebug.PageSpeedModule.analyzePerformance;
+  pagespeed.analyze = PAGESPEED.NativeLibrary.invokeNativeLibraryRules;
   win.wrappedJSObject.pagespeed = pagespeed;
 }
 

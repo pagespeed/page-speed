@@ -219,6 +219,35 @@ function alwaysTrueFn() {
 }
 
 /**
+ * Is the given document in what looks like a friendly iframe? A
+ * friendly iframe is an iframe on the same domain as the parent page,
+ * without an actual 'src' URL. It can be used to allow the main page
+ * to do work in a frame that does not block the main page (e.g. to
+ * load blocking third-party ads).
+ */
+function isLikelyFriendlyIframe(doc) {
+  // If the iframe has a 'src' attribute then it's not a friendly
+  // iframe.
+  if (!doc.defaultView ||
+      !doc.defaultView.frameElement ||
+      doc.defaultView.frameElement.src) {
+    return false;
+  }
+
+  // A friendly iframe, that is one without a src URL, will have a
+  // document that says its URL is that of the parent document's
+  // URL. This isn't really the URL of the document but that's the
+  // expected behavior for friendly iframes (documented as part of the
+  // HTML5 spec).
+  if (!doc.defaultView.parent ||
+      !doc.defaultView.parent.document ||
+      doc.defaultView.parent.document.URL != doc.URL) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Doubly linked hash map. This class is declared inline in
  * componentCollectorService.js because it is not possible to import
  * other JS files from within a JS-based xpcom component.
@@ -582,7 +611,7 @@ ComponentCollectorService.TYPE_OBJECT_SUBREQUEST = 12;
 // Component Type Names
 ComponentCollectorService.type = {
   1:  'other',  // Typically XHR.
-  11: 'other',  // XHR.
+  11: 'xhr',  // XHR.
   12: 'subobject',  // e.g. Flash request.
   2:  'js',
   3:  'image',
@@ -1613,7 +1642,9 @@ ComponentCollectorService.prototype.onLoad = function(event) {
   // rare and nonstandard that we do not need to support it.
   if (!recordOnLoadTime(components.doc) &&
       !recordOnLoadTime(components.iframe)) {
-    PS_LOG('Unable to find document ' + doc.URL + '. onload not recorded.');
+    if (!isLikelyFriendlyIframe(doc)) {
+      PS_LOG('Unable to find document ' + doc.URL + '. onload not recorded.');
+    }
   }
 };
 
