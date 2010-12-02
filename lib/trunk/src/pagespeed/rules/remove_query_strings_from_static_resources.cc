@@ -44,7 +44,8 @@ LocalizableString RemoveQueryStringsFromStaticResources::header() const {
   // query strings from the URLs of static resources (i.e.
   // 'www.google.com/style.css?x=2), because it hurts the cachability of the
   // resource (in this case 'style.css').  This is displayed in a list of rule
-  // names that Page Speed generates.
+  // names that Page Speed generates, telling webmasters which rules they broke
+  // in their website.
   return _("Remove query strings from static resources");
 }
 

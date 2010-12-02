@@ -40,7 +40,7 @@ LocalizableString AvoidBadRequests::header() const {
   // writing pages that generate bad HTTP requests (i.e. requests that return
   // HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
   // style sheet.  This is displayed in a list of rule names that Page Speed
-  // generates.
+  // generates, telling webmasters which rules they broke in their website.
   return _("Avoid bad requests");
 }
 
