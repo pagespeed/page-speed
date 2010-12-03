@@ -77,7 +77,7 @@ const std::string kHarInput = (
     "      },"
     "      {"
     "        \"pageref\": \"page_0\","
-    "        \"startedDateTime\": \"2009-04-16T12:07:25.596Z\","
+    "        \"startedDateTime\": \"2009-05-16T12:07:25.596Z\","
     "        \"request\":{"
     "          \"method\":\"GET\","
     "          \"url\":\"http://www.example.com/lazy.js\","
@@ -177,6 +177,16 @@ TEST(HttpArchiveTest, ValidInput) {
             resource2.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource2.GetResponseBody());
   EXPECT_TRUE(resource2.IsLazyLoaded(*input));
+
+  // Make sure that request start time truncation works properly.
+  Resource other;
+  other.SetRequestStartTimeMillis(kint32max);
+  EXPECT_FALSE(resource2.IsRequestStartTimeLessThan(other));
+  EXPECT_FALSE(other.IsRequestStartTimeLessThan(resource2));
+
+  other.SetRequestStartTimeMillis(kint32max - 1);
+  EXPECT_FALSE(resource2.IsRequestStartTimeLessThan(other));
+  EXPECT_TRUE(other.IsRequestStartTimeLessThan(resource2));
 }
 
 TEST(HttpArchiveTest, ValidInputBase64) {
