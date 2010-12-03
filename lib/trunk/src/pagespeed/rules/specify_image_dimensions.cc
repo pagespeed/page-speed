@@ -130,7 +130,10 @@ const char* SpecifyImageDimensions::name() const {
 }
 
 LocalizableString SpecifyImageDimensions::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
+  // their webpage explicitly specifies the width/height dimensions of each
+  // image that appears in the page.  This is displayed in a list of rule names
+  // that Page Speed generates.
   return _("Specify image dimensions");
 }
 
@@ -156,7 +159,9 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of a list of URLs of images that Page
+      // Speed detected as not having both width and height explicitly
+      // specified in the page in which the image appears.
       _("The following image(s) are missing width and/or height attributes."));
 
   std::map<Result, int, ResultUrlLessThan> result_count_map;
@@ -192,11 +197,31 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
       Argument height(Argument::INTEGER, image_details.expected_height());
       if ( count > 1 ) {
         Argument instances(Argument::INTEGER, count);
-        // TRANSLATOR: TODO: add a translator comment describing this string
+        // TRANSLATOR: A format string for one item in a list of images that
+        // Page Speed detected as not having both width and height explicitly
+        // specified in the page in which the image appears; each list item
+        // provides the URL of the image, and the actual width/height
+        // dimensions of the image to aid the user in specifying those
+        // dimensions in the page.  The "$1" is a format token that will be
+        // replaced with the URL of the image; the "$2" is a format token that
+        // will be replaced with the width of the image, in pixels
+        // (e.g. "320"); the $3 is a format token that will be replaced with
+        // the height of the image, in pixels (e.g. "240"); the $4 is a format
+        // token that will be replaced with the number of times this image
+        // appears in the page (e.g. "3").
         body->AddChild(_("$1 (Dimensions: $2 x $3) ($4 uses)"),
                         url, width, height, instances);
       } else {
-        // TRANSLATOR: TODO: add a translator comment describing this string
+        // TRANSLATOR: A format string for one item in a list of images that
+        // Page Speed detected as not having both width and height explicitly
+        // specified in the page in which the image appears; each list item
+        // provides the URL of the image, and the actual width/height
+        // dimensions of the image to aid the user in specifying those
+        // dimensions in the page.  The "$1" is a format token that will be
+        // replaced with the URL of the image; the "$2" is a format token that
+        // will be replaced with the width of the image, in pixels
+        // (e.g. "320"); the $3 is a format token that will be replaced with
+        // the height of the image, in pixels (e.g. "240").
         body->AddChild(_("$1 (Dimensions: $2 x $3)"),
                         url, width, height);
       }

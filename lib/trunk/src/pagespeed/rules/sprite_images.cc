@@ -53,7 +53,13 @@ const char* SpriteImages::name() const {
 }
 
 LocalizableString SpriteImages::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to try to
+  // replace a group of small images on their site with a "CSS sprite" -- that
+  // is, a single larger image containing a number of subimages, which can then
+  // be used to display a single subimage at a time by using CSS to reveal a
+  // different section of the large image in place of each of the original
+  // small images.  This is displayed in a list of rule names that Page Speed
+  // generates.
   return _("Combine images into CSS sprites");
 }
 
@@ -144,7 +150,15 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
 void SpriteImages::FormatResults(const ResultVector& results,
                                  Formatter* formatter) {
   LocalizableString body_tmpl =
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+      // detected as being good candidates to be combined into CSS sprites
+      // (that is, larger images containing a number of subimages, which can
+      // then be used to display a single subimage at a time by using CSS to
+      // reveal a different section of the large image in place of each of the
+      // original small images).  It describes the problem to the user, and
+      // tells them how to fix it by combining multiple small images into a
+      // larger image.  The "$1" is a format string that will be replaced with
+      // the URL of the page in which the small images appear.
       _("The following images served from $1 should be combined into as few "
         "images as possible using CSS sprites.");
 

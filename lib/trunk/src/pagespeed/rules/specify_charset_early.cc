@@ -128,7 +128,10 @@ const char* SpecifyCharsetEarly::name() const {
 }
 
 LocalizableString SpecifyCharsetEarly::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
+  // their webpages include a declaration of the character set (e.g. UTF-8,
+  // Latin-1, or some other text encoding) being used, early on in the page.
+  // This is displayed in a list of rule names that Page Speed generates.
   return _("Specify a character set early");
 }
 
@@ -210,7 +213,13 @@ void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+      // detected as either not declaring the character set (e.g. UTF-8,
+      // Latin-1, or some other text encoding) being used, or declaring a
+      // character set but doing so late in the page for a character set other
+      // than what the browser was previously assuming.  It describes the
+      // problem to the user, and tells them how to fix it by explicitly
+      // specifying the character set near the beginning of the page.
       _("The following resources have no character set specified "
         "or have a non-default character set specified late in the "
         "document. Specifying a character set early in these "

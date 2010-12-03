@@ -65,7 +65,10 @@ const char* ServeResourcesFromAConsistentUrl::name() const {
 }
 
 LocalizableString ServeResourcesFromAConsistentUrl::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to avoid
+  // writing pages that serve the same resource (or equivalently, two resources
+  // that are byte-for-byte identical) from two different URLs.  This is
+  // displayed in a list of rule names that Page Speed generates.
   return _("Serve resources from a consistent URL");
 }
 
@@ -144,7 +147,14 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
     Argument num_bytes_arg(
         Argument::BYTES, result.savings().response_bytes_saved());
     Formatter* body = formatter->AddChild(
-        // TRANSLATOR: TODO: add a translator comment describing this string
+        // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+        // detected as being identical yet served multiple times from different
+        // URLs.  It describes the problem to the user, and tells them how to
+        // fix it by serving all these resources from the same URL.  The "$1"
+        // is a format string that will be replaced with the number of requests
+        // that could be saved (e.g. "3"); the "$2" is a format string that
+        // will be replaced with the number of bytes that could be saved
+        // (e.g. "12.3kB").
         _("The following resources have identical contents, but are served "
           "from different URLs.  Serve these resources from a consistent URL "
           "to save $1 request(s) and $2."),
