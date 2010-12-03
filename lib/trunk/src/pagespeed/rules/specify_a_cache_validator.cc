@@ -60,7 +60,11 @@ const char* SpecifyACacheValidator::name() const {
 }
 
 LocalizableString SpecifyACacheValidator::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
+  // their server provides a "cache validator" for each served resource -- that
+  // is, an HTTP header that indicates to the browser how to check whether a
+  // particular item in its cache is still valid.  This is displayed in a list
+  // of rule names that Page Speed generates.
   return _("Specify a cache validator");
 }
 
@@ -100,7 +104,14 @@ void SpecifyACacheValidator::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+      // detected as lacking a "cache validator" -- that is, an HTTP header
+      // that indicates to the browser how to check whether a particular item
+      // in its cache is still valid.  It describes the problem to the user,
+      // and tells them how to fix it by configuring their server to include a
+      // "Last-Modified" HTTP header, or an "ETag" HTTP header, either of which
+      // can serve as a cache validator.  Note that "Last-Modified" and "ETag"
+      // are code and should not be translated.
       _("The following resources are missing a cache validator. Resources "
         "that do not specify a cache validator cannot be refreshed "
         "efficiently. Specify a Last-Modified or ETag header to enable cache "

@@ -39,7 +39,11 @@ const char* SpecifyAVaryAcceptEncodingHeader::name() const {
 }
 
 LocalizableString SpecifyAVaryAcceptEncodingHeader::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
+  // certain resources on their webpage are served with a "Vary" HTTP header
+  // whose value is set to "Accept-Encoding".  This is displayed in a list of
+  // rule names that Page Speed generates.  Note that "Vary: Accept-Encoding"
+  // is code and should not be translated.
   return _("Specify a Vary: Accept-Encoding header");
 }
 
@@ -82,7 +86,15 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of a list of URLs of webpage resources
+      // that Page Speed detected as having three properties: 1) they are
+      // publicly cacheable (that is, they can be cached by HTTP proxies), 2)
+      // they are compressible (that is, the data may be compressed during
+      // transfer), and 3) the resource does not have a "Vary" HTTP header
+      // whose value is set to "Accept-Encoding".  It describes the problem to
+      // the user, and explains how to fix the problem by adding a Vary:
+      // Accept-Encoding header to each of the listed resources.  Note that
+      // "Vary: Accept-Encoding" is code and should not be translated.
       _("The following publicly cacheable, compressible resources should have "
         "a \"Vary: Accept-Encoding\" header:"));
 
