@@ -57,6 +57,10 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/base" +
      Var("libpagespeed_revision")),
 
+  "src/third_party/icu":
+    (Var("libpagespeed_trunk") + "/src/third_party/icu" +
+     Var("libpagespeed_revision")),
+
   "src/third_party/libpagespeed/src/build":
     (Var("libpagespeed_trunk") + "/src/build" +
      Var("libpagespeed_revision")),
@@ -78,7 +82,8 @@ deps = {
   "src/build/util": From(Var("libpagespeed_deps_root")),
   "src/build/internal": From(Var("libpagespeed_deps_root")),
   "src/testing": From(Var("libpagespeed_deps_root")),
-  "src/third_party/instaweb/src": From(Var("libpagespeed_deps_root")),
+  "src/third_party/instaweb/src/net/instaweb":
+    From(Var("libpagespeed_deps_root")),
   "src/third_party/libjpeg": From(Var("libpagespeed_deps_root")),
   "src/third_party/libpng": From(Var("libpagespeed_deps_root")),
   "src/third_party/modp_b64": From(Var("libpagespeed_deps_root")),

@@ -39,7 +39,7 @@ var pagespeed = {
       try {
         return func.apply(this, arguments);
       } catch (e) {
-        var message = 'Error in Page Speed panel: ' + e;
+        var message = 'Error in Page Speed panel\n: ' + e.stack;
         alert(message + '\n\nPlease file a bug at\n' +
               'http://code.google.com/p/page-speed/issues/');
         webInspector.log(message);
@@ -306,69 +306,13 @@ var pagespeed = {
       pagespeed.resourceAccumulator.cancel();
     }
     pagespeed.resourceAccumulator = new pagespeed.ResourceAccumulator(
-        pagespeed.withErrorHandler(pagespeed.onResourceAccumulatorComplete));
+      pagespeed.withErrorHandler(pagespeed.onResourceAccumulatorComplete));
     pagespeed.resourceAccumulator.start();
-  },
-
-  // Helper that constructs a HAR from a ResourceAccumulator result.
-  getHarFromResourceAccumulatorResults: function(result) {
-    // Get the resource bodies.
-    var bodyMap = {};
-    result.content.forEach(function (body) {
-      if (body.isError) {
-        webInspector.log(
-            "Page Speed failed to get resource content: " +
-            JSON.stringify(body.details));
-      } else {
-        bodyMap[body.id] = body;
-      }
-    });
-
-    // webInspector's API does not provide us with the page's overall
-    // startedDateTime, so we need to infer it by looking for the
-    // earliest startedDateTime of all the resources. We track both
-    // the earliestResourceStartDate, which is a Date object that we
-    // can compare with other Date objects, and the
-    // earliestResourceStartDateStr, which is an ISO8601
-    // representation of that Date.
-    var earliestResourceStartDate;
-    var earliestResourceStartDateStr;
-
-    // Collect the HAR data for the inspected page.
-    var entries = result.resources.map(function (resource) {
-      var entry = resource.har;
-      var body = bodyMap[resource.id];
-      var resourceStartDate = new Date(entry.startedDateTime);
-      if (!earliestResourceStartDate ||
-          resourceStartDate < earliestResourceStartDate) {
-        earliestResourceStartDate = resourceStartDate;
-        earliestResourceStartDateStr = entry.startedDateTime;
-      }
-      if (body) {
-        var content = entry.response.content;
-        content.text = body.content;
-        content.encoding = body.encoding;
-      }
-      return entry;
-    });
-
-    var har = {
-      log: {
-        pages: [{
-          startedDateTime: earliestResourceStartDateStr,
-          pageTimings: result.pageTimings,
-        }],
-        entries: entries
-      }
-    };
-
-    return har;
   },
 
   // Invoked when the ResourceAccumulator has finished collecting data
   // from the web inspector.
-  onResourceAccumulatorComplete: function(result) {
-    var har = pagespeed.getHarFromResourceAccumulatorResults(result);
+  onResourceAccumulatorComplete: function(har) {
     pagespeed.resourceAccumulator = null;
 
     // Prepare the request.
@@ -415,63 +359,45 @@ var pagespeed = {
 // accumulated.
 pagespeed.ResourceAccumulator = function(clientCallback) {
   this.clientCallback_ = clientCallback;
+  this.nextEntryIndex_ = 0;
+  this.cancelled_ = false;
+  this.har_ = null;
 };
-
-pagespeed.ResourceAccumulator.prototype.cancelled_ = false;
 
 // Start the accumulator.
 pagespeed.ResourceAccumulator.prototype.start = function() {
-  webInspector.resources.getAll(
-      pagespeed.withErrorHandler(this.onAll_.bind(this)));
+  webInspector.resources.getHAR(
+    pagespeed.withErrorHandler(this.onHAR_.bind(this)));
 };
 
 // Cancel the accumulator.
 pagespeed.ResourceAccumulator.prototype.cancel = function() {
   this.cancelled_ = true;
-  // TODO: is it possible to tell web inspector to cancel the
-  // currently outstanding request?
 };
 
-pagespeed.ResourceAccumulator.prototype.onAll_ = function(resources) {
+pagespeed.ResourceAccumulator.prototype.onHAR_ = function(har) {
   if (this.cancelled_) {
-    // We've been cancelled so ignore the callback.
-    return;
+    return;  // We've been cancelled so ignore the callback.
   }
-
-  this.resources_ = resources;
-  var ids = this.resources_.map(function(resource) { return resource.id; });
-  webInspector.resources.getContent(
-      ids,
-      pagespeed.withErrorHandler(this.onContent_.bind(this)));
+  pagespeed.assert(this.har_ === null);
+  this.har_ = har;
+  this.getNextEntryBody_();
 };
 
-pagespeed.ResourceAccumulator.prototype.onContent_ = function(content) {
+pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function() {
+  if (this.nextEntryIndex_ >= this.har_.entries.length) {
+    this.clientCallback_({log: this.har_});  // We're finished.
+  } else {
+    this.har_.entries[this.nextEntryIndex_].getContent(
+      pagespeed.withErrorHandler(this.onBody_.bind(this)));
+  }
+}
+
+pagespeed.ResourceAccumulator.prototype.onBody_ = function(text) {
   if (this.cancelled_) {
-    // We've been cancelled so ignore the callback.
-    return;
+    return;  // We've been cancelled so ignore the callback.
   }
-
-  this.content_ = content;
-  webInspector.resources.getPageTimings(
-      pagespeed.withErrorHandler(this.onPageTimings_.bind(this)));
-};
-
-pagespeed.ResourceAccumulator.prototype.onPageTimings_ = function(timings) {
-  if (this.cancelled_) {
-    // We've been cancelled so ignore the callback.
-    return;
-  }
-
-  this.pageTimings_ = timings;
-  this.invokeClientCallback_();
-};
-
-pagespeed.ResourceAccumulator.prototype.invokeClientCallback_ = function() {
-  var result = {
-    resources: this.resources_,
-    content: this.content_,
-    pageTimings: this.pageTimings_,
-  };
-
-  this.clientCallback_(result);
+  this.har_.entries[this.nextEntryIndex_].response.content.text = text;
+  ++this.nextEntryIndex_;
+  this.getNextEntryBody_();
 };
