@@ -187,7 +187,10 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of the list of URLs that Page
+      // Speed detected as candidates for being moved directly into
+      // the HTML. This describes the problem to the user and tells
+      // them how to fix it.
       _("The following external resources have small response bodies. "
        "Inlining the response in HTML can reduce blocking "
        "of page rendering."));
@@ -209,7 +212,12 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
 
       Argument document_url(Argument::URL, result.resource_urls(0));
       Formatter* child =
-          // TRANSLATOR: TODO: add a translator comment describing this string
+          // TRANSLATOR: A sub-heading that contains the URL of the
+          // document and a statement instructing the user what to
+          // do. Parameters are:
+          //   $1 - the URL of the document that contains the
+          //        resources that can be inserted directly into the
+          //        HTML document.
           body->AddChild(_("$1 should inline the following small resources:"),
                          document_url);
       for (int i = 0; i < isr_details.inline_candidates_size(); ++i) {
@@ -269,7 +277,12 @@ int InlineSmallResources::ComputeScore(const InputInformation& input_info,
 InlineSmallCss::InlineSmallCss() : InlineSmallResources(CSS) {}
 const char* InlineSmallCss::name() const { return "InlineSmallCss"; }
 LocalizableString InlineSmallCss::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Name of a Page Speed rule. A longer description
+  // would be "Insert (or move) small CSS resources directly into the
+  // HTML document" but rule names are intentionally short so we use
+  // "Inline Small CSS". Please choose a similarly short description
+  // that describes this concept. The word 'CSS' should not be
+  // localized.
   return _("Inline Small CSS");
 }
 const char* InlineSmallCss::documentation_url() const {
@@ -292,7 +305,12 @@ const char* InlineSmallJavaScript::name() const {
 }
 
 LocalizableString InlineSmallJavaScript::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Name of the Page Speed rule. A longer description
+  // would be "Insert (or move) small JavaScript resources directly
+  // into the HTML document" but rule names are intentionally short so
+  // we use "Inline Small JavaScript". Please choose a similarly short
+  // description that describes this concept. The word 'JavaScript'
+  // should not be localized.
   return _("Inline Small JavaScript");
 }
 

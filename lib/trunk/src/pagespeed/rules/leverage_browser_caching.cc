@@ -117,7 +117,13 @@ const char* LeverageBrowserCaching::name() const {
 }
 
 LocalizableString LeverageBrowserCaching::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Rule name. A longer description would be "Specify
+  // proper caching expirations for the resources on the web
+  // page". Caching expirations are attached to each file on a web
+  // page and instruct the browser to keep a copy of the resource
+  // locally so it doesn't need to request that resource again. You
+  // can read the documentation on the page speed web site for more
+  // details.
   return _("Leverage browser caching");
 }
 
@@ -185,7 +191,11 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Heading that indicates which resources should
+      // have a longer cache freshness lifetime. Here "freshness
+      // lifetime" means the length of the period of time that the
+      // file can be reused without checking to see if there is a
+      // newer version of the file available.
       _("The following cacheable resources have a short "
         "freshness lifetime. Specify an expiration at least one "
         "week in the future for the following resources:"));
@@ -227,8 +237,7 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
       Argument freshness_lifetime(
           Argument::DURATION,
           caching_details.freshness_lifetime_millis());
-      // TRANSLATOR: TODO: add a translator comment describing this string
-      body->AddChild(_("$1 ($2)"), url, freshness_lifetime);
+      body->AddChild(not_localized("$1 ($2)"), url, freshness_lifetime);
     } else {
       // TRANSLATOR: TODO: add a translator comment describing this string
       Argument no_caching(Argument::STRING, _("expiration not specified"));
