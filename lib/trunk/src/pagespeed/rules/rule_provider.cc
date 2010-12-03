@@ -209,7 +209,7 @@ bool RemoveRuleWithName(const std::string& name, std::vector<Rule*>* rules,
   for (std::vector<Rule*>::iterator it = rules->begin();
        it != rules->end();
        ++it) {
-    if (*it && strcasecmp(name.c_str(), (*it)->name()) != 0) {
+    if (*it && base::strcasecmp(name.c_str(), (*it)->name()) != 0) {
       out_rules.push_back(*it);
     } else {
       *removed_rule = *it;
