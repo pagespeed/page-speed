@@ -24,13 +24,13 @@ For the Page Speed library:
   * `mkdir page-speed-library`
   * `cd page-speed-library`
   * `gclient config http://page-speed.googlecode.com/svn/lib/trunk/src`
-  * `gclient update --force`
+  * `gclient sync --force`
 
 For the Page Speed Firefox Add-on shared library:
   * `mkdir page-speed-firefox`
   * `cd page-speed-firefox`
   * `gclient config http://page-speed.googlecode.com/svn/firefox_addon/trunk/src`
-  * `gclient update --force`
+  * `gclient sync --force`
 
 = Compile the code =
   * Linux
