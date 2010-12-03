@@ -56,7 +56,9 @@ const char* CssMinifier::name() const {
 }
 
 LocalizableString CssMinifier::header_format() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Name of a Page Speed rule. Here, minify means "remove
+  // whitespace and comments". The goal is to reduce the size of the
+  // CSS file by removing the parts that are unnecessary.
   return _("Minify CSS");
 }
 
@@ -65,13 +67,22 @@ const char* CssMinifier::documentation_url() const {
 }
 
 LocalizableString CssMinifier::body_format() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Heading that describes the savings possible from
+  // minifying resources. Parameters:
+  //   $1 - the absolute number of bytes or kilobytes that can be
+  //   saved (e.g. "5 bytes" or "23.2kB").
+  //   $2 - the percent savings (e.g. "50%").
   return _("Minifying the following CSS resources could "
            "reduce their size by $1 ($2% reduction).");
 }
 
 LocalizableString CssMinifier::child_format() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Subheading that describes the savings possible from
+  // minifying a single resource. Parameters:
+  //   $1 - URL of the resource
+  //   $2 - the absolute number of bytes or kilobytes that can be
+  //   saved (e.g. "5 bytes" or "23.2kB").
+  //   $3 - the percent savings (e.g. "50%").
   return _("Minifying $1 could save $2 ($3% reduction).");
 }
 

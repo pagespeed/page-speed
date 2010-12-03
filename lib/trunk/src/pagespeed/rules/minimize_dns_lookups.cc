@@ -132,7 +132,10 @@ const char* MinimizeDnsLookups::name() const {
 }
 
 LocalizableString MinimizeDnsLookups::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Name of a Page Speed rule. A "DNS lookup" is a
+  // request that the browser issues to resolve a hostname to an
+  // internet address. The word "DNS" should remain in the translated
+  // string.
   return _("Minimize DNS lookups");
 }
 
@@ -194,7 +197,9 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Heading that explains why the URLs that follow
+      // should be moved to different hostnames. "DNS" should remain
+      // in the translated format string.
       _("The hostnames of the following urls only serve one "
         "resource each. Avoid the extra DNS "
         "lookups by serving these resources from existing hostnames."));
