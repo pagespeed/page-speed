@@ -19,7 +19,7 @@ vars = {
   "chromium_deps_root": "src/third_party/chromium_deps",
   "modpagespeed_src":
     "http://modpagespeed.googlecode.com/svn/trunk",
-  "instaweb_revision": "@277",
+  "instaweb_revision": "@286",
 }
 
 deps = {
