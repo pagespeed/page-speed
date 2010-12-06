@@ -18,6 +18,8 @@
 #include <map>
 #include <string>
 
+#include "base/string_piece.h"
+
 namespace pagespeed {
 
 namespace string_util {
@@ -30,6 +32,16 @@ class CaseInsensitiveStringComparator {
 typedef std::map<std::string, std::string,
                  CaseInsensitiveStringComparator>
     CaseInsensitiveStringStringMap;
+
+// Return true iff the two strings are equal, ignoring case.
+bool StringCaseEqual(const base::StringPiece& s1,
+                     const base::StringPiece& s2);
+// Return true iff str starts with prefix, ignoring case.
+bool StringCaseStartsWith(const base::StringPiece& str,
+                          const base::StringPiece& prefix);
+// Return true iff str ends with suffix, ignoring case.
+bool StringCaseEndsWith(const base::StringPiece& str,
+                        const base::StringPiece& suffix);
 
 }  // namespace string_util
 

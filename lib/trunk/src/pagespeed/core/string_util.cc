@@ -35,6 +35,25 @@ bool CaseInsensitiveStringComparator::operator()(const std::string& x,
                                       CaseInsensitiveCompareChars);
 }
 
+bool StringCaseEqual(const base::StringPiece& s1,
+                     const base::StringPiece& s2) {
+  return (s1.size() == s2.size() &&
+          0 == base::strncasecmp(s1.data(), s2.data(), s1.size()));
+}
+
+bool StringCaseStartsWith(const base::StringPiece& str,
+                          const base::StringPiece& prefix) {
+  return (str.size() >= prefix.size() &&
+          0 == base::strncasecmp(str.data(), prefix.data(), prefix.size()));
+}
+
+bool StringCaseEndsWith(const base::StringPiece& str,
+                        const base::StringPiece& suffix) {
+  return (str.size() >= suffix.size() &&
+          0 == base::strncasecmp(str.data() + str.size() - suffix.size(),
+                                 suffix.data(), suffix.size()));
+}
+
 }  // namespace string_util
 
 }  // namespace pagespeed
