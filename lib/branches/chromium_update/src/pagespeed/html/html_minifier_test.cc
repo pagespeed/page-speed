@@ -104,7 +104,7 @@ const char* kWithDoctypeMinified =
     "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"
     "<html>\n"
     "<head><title>Foo</title></head>\n"
-    "<body><input type=checkbox checked=checked /></body>\n"
+    "<body><input type=checkbox checked /></body>\n"
     "</html>\n";
 
 TEST(HtmlMinifierTest, RespectDoctype) {
