@@ -7,11 +7,15 @@
 
 namespace base {
 
+#if defined(OS_POSIX)
+
 bool LaunchApp(const std::vector<std::string>& argv,
                const file_handle_mapping_vector& fds_to_remap,
                bool wait, ProcessHandle* process_handle) {
   LOG(INFO) << "LaunchApp not supported";
   return false;
 }
+
+#endif
 
 }  // namespace base
