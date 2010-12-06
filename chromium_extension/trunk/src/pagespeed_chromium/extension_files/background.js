@@ -34,10 +34,10 @@ var pagespeed_bg = {
       try {
         return func.apply(this, arguments);
       } catch (e) {
-        var message = e.toString();
-        alert("Error in Page Speed background page: " + message +
-              '\n\nPlease file a bug at\n' +
+        var message = 'Error in Page Speed background page\n: ' + e.stack;
+        alert(message + '\n\nPlease file a bug at\n' +
               'http://code.google.com/p/page-speed/issues/');
+        console.log(message);
       }
     };
   },
