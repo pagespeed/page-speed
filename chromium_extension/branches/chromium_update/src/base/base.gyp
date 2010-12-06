@@ -1,62 +1,46 @@
-# Copyright 2010 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Base was branched from the chromium version to reduce the number of
+# dependencies of this package.  Specifically, we would like to avoid
+# depending on the chrome directory, which contains the chrome version
+# and branding information.
+# TODO: push this refactoring to chronium trunk.
 
 {
   'variables': {
+    'chromium_code': 1,
     'chromium_root': '<(DEPTH)/third_party/chromium/src',
   },
+  'includes': [
+    'base.gypi',
+  ],
   'targets': [
     {
-      'target_name': 'base',
-      'type': '<(library)',
+      'target_name': 'base_unittests',
+      'type': 'executable',
+      'msvs_guid': '27A30967-4BBA-48D1-8522-CDE95F7B1CEC',
       'sources': [
-        '<(chromium_root)/base/debug_util.cc',
-        '<(chromium_root)/base/lock.cc',
-        '<(chromium_root)/base/lock_impl_posix.cc',
-        '<(chromium_root)/base/string16.cc',
-        '<(chromium_root)/base/string_number_conversions.cc',
-        '<(chromium_root)/base/string_piece.cc',
-        '<(chromium_root)/base/third_party/dmg_fp/dtoa.cc',
-        '<(chromium_root)/base/third_party/dmg_fp/g_fmt.cc',
-        '<(DEPTH)/third_party/libpagespeed/src/base/stub_utf.cc',
-
-        # Use the modified files below instead of these originals:
-        #    <(chromium_root)/base/debug_util_posix.cc
-        #    <(chromium_root)/base/third_party/nspr/prtime.cc
-        #    <(chromium_root)/base/safe_strerror_posix.cc
-        #    <(chromium_root)/base/logging.cc
-        #    <(chromium_root)/base/string_util.cc
-        # When updating the version of Chromium that we use, be sure to check
-        # for changes in these files.
-        'debug_util_nacl.cc',
-        'prtime_nacl.cc',
-        'safe_strerror_nacl.cc',
-        '<(DEPTH)/third_party/libpagespeed/src/base/logging.cc',
-        '<(DEPTH)/third_party/libpagespeed/src/base/string_util.cc',
+        '<(chromium_root)/base/string_piece_unittest.cc',
+        '<(chromium_root)/base/win_util_unittest.cc',
       ],
-      'cflags': [
-        '-Wno-write-strings',
-        '-Wno-error',
+      'dependencies': [
+        'base',
+        '<(DEPTH)/testing/gmock.gyp:gmock',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtest_main',
       ],
       'include_dirs': [
-        '<(chromium_root)',
+        '<(DEPTH)',
       ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(chromium_root)',
-        ],
-      },
+      'conditions': [
+        ['OS != "win"', {
+          'sources!': [
+            '<(chromium_root)/base/win_util_unittest.cc',
+          ],
+        }],
+      ],
     },
   ],
 }
