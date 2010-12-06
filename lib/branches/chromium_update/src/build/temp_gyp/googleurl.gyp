@@ -59,7 +59,7 @@
       'dependencies': [
         'googleurl',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/testing/gtest.gyp:gtest_main',
       ],
       'sources': [
         '<(DEPTH)/googleurl/src/gurl_unittest.cc',
