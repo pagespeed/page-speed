@@ -8,8 +8,10 @@
     "128": "pagespeed-128.png"
   },
   "background_page": "background.html",
-  "devtools_page": "pagespeed.html",
+  "devtools_page": "devtools-page.html",
   "permissions": [
-    "experimental", "tabs", "http://*/*", "https://*/*"
+    "experimental",
+    "tabs",
+    "http://*/*", "https://*/*"
   ]
 }
