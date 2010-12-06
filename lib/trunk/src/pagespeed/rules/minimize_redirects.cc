@@ -143,7 +143,9 @@ const char* MinimizeRedirects::name() const {
 }
 
 LocalizableString MinimizeRedirects::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to minimize
+  // HTTP redirects from one URL to another URL. This is displayed in a list of
+  // rule names that Page Speed generates.
   return _("Minimize redirects");
 }
 
@@ -190,7 +192,9 @@ void MinimizeRedirects::FormatResults(const ResultVector& results,
        iter != end;
        ++iter) {
     Formatter* body = formatter->AddChild(
-        // TRANSLATOR: TODO: add a translator comment describing this string
+        // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+        // detected as a chain of HTTP redirections. It tells the user to fix
+        // the problem by removing the URLs that redirect to others.
         _("Remove the following redirect chain if possible:"));
 
     const Result& result = **iter;

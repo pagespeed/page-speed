@@ -157,7 +157,9 @@ const char* PreferAsyncResources::name() const {
 }
 
 LocalizableString PreferAsyncResources::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to use
+  // asynchronous resources. This is displayed in a list of rule names that
+  // Page Speed generates.
   return _("Prefer asynchronous resources");
 }
 
@@ -179,7 +181,9 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
   }
 
   Formatter* body = formatter->AddChild(
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+      // detected as loaded synchronously. It describes the problem and tells
+      // the user how to fix by loading them asynchronously.
       _("The following resources are loaded synchronously. Load them "
         "asynchronously to reduce blocking of page rendering."));
 
@@ -202,7 +206,9 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
 
       Argument document_url(Argument::URL, result.resource_urls(0));
       Argument resource_url(Argument::URL, async_details.resource_url());
-      // TRANSLATOR: TODO: add a translator comment describing this string
+      // TRANSLATOR: Detail for resource that loads synchronously. The "$1" will
+      // be replaced by the document (HTML page, or a iframe) URL; the "$2" will
+      // be replaced by the resource URL.
       body->AddChild(_("$1 loads $2 synchronously."),
                      document_url, resource_url);
     } else {
