@@ -1,34 +1,61 @@
-// Copyright 2009 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2010 Google Inc. All Rights Reserved.
+// Author: aoates@google.com (Andrew Oates)
 
+#include "pagespeed/formatters/proto_formatter.h"
+
+#include <string>
 #include <vector>
 
-#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
+#include "base/logging.h"
+#include "pagespeed/core/rule.h"
+#include "pagespeed/l10n/localizable_string.h"
+#include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/formatters/proto_formatter.h"
-#include "pagespeed/l10n/l10n.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::Argument;
 using pagespeed::FormatArgument;
-using pagespeed::FormatterParameters;
+using pagespeed::FormatString;
 using pagespeed::Formatter;
-using pagespeed::formatters::ProtoFormatter;
+using pagespeed::FormatterParameters;
 using pagespeed::LocalizableString;
-using pagespeed::ResultText;
+using pagespeed::FormattedResults;
+using pagespeed::FormattedRuleResults;
+using pagespeed::formatters::ProtoFormatter;
+using pagespeed::l10n::Localizer;
+using pagespeed::l10n::NullLocalizer;
 
 namespace {
+
+#define _N(X) LocalizableString(X)
+
+// Test localizer that outputs only the character '*'
+class TestLocalizer : public Localizer {
+ public:
+  TestLocalizer() : symbol_('*') {}
+
+  bool SetLocale(const std::string& locale) { return false; }
+
+  std::string LocalizeString(const std::string& val) const {
+    return std::string(val.length(), symbol_);
+  }
+
+  std::string LocalizeInt(int64 val) const { return "*"; }
+
+  std::string LocalizeUrl(const std::string& url) const {
+    return std::string(url.length(), symbol_);
+  }
+
+  std::string LocalizeBytes(int64 bytes) const { return "**"; }
+
+  std::string LocalizeTimeDuration(int64 ms) const { return "***"; }
+
+ private:
+  char symbol_;
+
+  DISALLOW_COPY_AND_ASSIGN(TestLocalizer);
+};
 
 class DummyTestRule : public pagespeed::Rule {
  public:
@@ -50,185 +77,152 @@ class DummyTestRule : public pagespeed::Rule {
 };
 
 TEST(ProtoFormatterTest, BasicTest) {
-  std::vector<ResultText*> results;
-  ProtoFormatter formatter(&results);
-  formatter.AddChild(not_localized("foo"));
-  formatter.AddChild(not_localized("bar"));
-  ASSERT_EQ(static_cast<size_t>(2), results.size());
-  ResultText* first = results[0];
-  EXPECT_EQ("foo", first->format());
-  EXPECT_EQ(0, first->args_size());
-  EXPECT_EQ(0, first->children_size());
+  FormattedResults results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &results);
+  results.set_locale("en_US.UTF-8");
 
-  ResultText* second = results[1];
-  EXPECT_EQ("bar", second->format());
-  EXPECT_EQ(0, second->args_size());
-  EXPECT_EQ(0, second->children_size());
+  DummyTestRule rule1(_N("rule1"));
+  DummyTestRule rule2(_N("rule2"));
 
-  STLDeleteContainerPointers(results.begin(), results.end());
+  Formatter* body = formatter.AddHeader(rule1, 100);
+  Formatter* block = body->AddChild(_N("url block 1"));
+  Formatter* url = block->AddChild(_N("URL 1"));
+  url->AddChild(_N("URL 1, detail 1"));
+  url->AddChild(_N("URL 1, detail 2"));
+  url = block->AddChild(_N("URL 2"));
+  url->AddChild(_N("URL 2, detail 1"));
+
+  block = body->AddChild(_N("url block 2"));
+  url = block->AddChild(_N("URL 3"));
+
+  body = formatter.AddHeader(rule2, 50);
+  block = body->AddChild(_N("url block 3"));
+  url = block->AddChild(_N("URL 4"));
+
+  ASSERT_TRUE(results.IsInitialized());
+
+  ASSERT_EQ(2, results.rule_results_size());
+  const FormattedRuleResults& r1 = results.rule_results(0);
+  ASSERT_EQ("DummyTestRule", r1.rule());
+  ASSERT_EQ("rule1", r1.localized_rule_name());
+  ASSERT_EQ(2, r1.url_blocks_size());
+
+  ASSERT_EQ("url block 1", r1.url_blocks(0).header().format());
+  ASSERT_EQ(2, r1.url_blocks(0).urls_size());
+  ASSERT_EQ("URL 1", r1.url_blocks(0).urls(0).result().format());
+  ASSERT_EQ(2, r1.url_blocks(0).urls(0).details_size());
+  ASSERT_EQ("URL 1, detail 1", r1.url_blocks(0).urls(0).details(0).format());
+  ASSERT_EQ("URL 1, detail 2", r1.url_blocks(0).urls(0).details(1).format());
+  ASSERT_EQ("URL 2", r1.url_blocks(0).urls(1).result().format());
+  ASSERT_EQ(1, r1.url_blocks(0).urls(1).details_size());
+  ASSERT_EQ("URL 2, detail 1", r1.url_blocks(0).urls(1).details(0).format());
+
+  ASSERT_EQ("url block 2", r1.url_blocks(1).header().format());
+  ASSERT_EQ(1, r1.url_blocks(1).urls_size());
+  ASSERT_EQ("URL 3", r1.url_blocks(1).urls(0).result().format());
+  ASSERT_EQ(0, r1.url_blocks(1).urls(0).details_size());
+
+  const FormattedRuleResults& r2 = results.rule_results(1);
+  ASSERT_EQ("DummyTestRule", r2.rule());
+  ASSERT_EQ("rule2", r2.localized_rule_name());
+  ASSERT_EQ(1, r2.url_blocks_size());
+
+  ASSERT_EQ("url block 3", r2.url_blocks(0).header().format());
+  ASSERT_EQ(1, r2.url_blocks(0).urls_size());
+  ASSERT_EQ("URL 4", r2.url_blocks(0).urls(0).result().format());
+  ASSERT_EQ(0, r2.url_blocks(0).urls(0).details_size());
 }
 
-TEST(ProtoFormatterTest, OptimizedTest) {
-  LocalizableString format_str = not_localized("FooBar");
-  FormatterParameters args(&format_str);
-  std::string optimized = "<optimized result>";
-  args.set_optimized_content(&optimized, "text/css");
+TEST(ProtoFormatterTest, FormattingTest) {
+  FormattedResults results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &results);
+  results.set_locale("en_US.UTF-8");
 
-  std::vector<ResultText*> results;
-  ProtoFormatter formatter(&results);
-  formatter.AddChild(args);
-  formatter.Done();
+  DummyTestRule rule1(_N("rule1"));
 
-  ASSERT_EQ(static_cast<size_t>(1), results.size());
-  ResultText* first = results[0];
-  EXPECT_EQ("FooBar", first->format());
-  EXPECT_EQ(0, first->args_size());
-  EXPECT_EQ(0, first->children_size());
-  EXPECT_EQ("<optimized result>", first->optimized_content());
+  Formatter* body = formatter.AddHeader(rule1, 100);
+  Argument arg1(Argument::INTEGER, 50);
+  Argument arg2(Argument::BYTES, 100);
+  body->AddChild(_N("url block 1, $1 urls $2"), arg1, arg2);
 
-  STLDeleteContainerPointers(results.begin(), results.end());
+  ASSERT_TRUE(results.IsInitialized());
+
+  ASSERT_EQ(1, results.rule_results_size());
+  const FormattedRuleResults& r1 = results.rule_results(0);
+  ASSERT_EQ("DummyTestRule", r1.rule());
+  ASSERT_EQ("rule1", r1.localized_rule_name());
+  ASSERT_EQ(1, r1.url_blocks_size());
+
+  const FormatString& header = r1.url_blocks(0).header();
+  ASSERT_EQ("url block 1, $1 urls $2", header.format());
+  ASSERT_EQ(2, header.args_size());
+  ASSERT_EQ(FormatArgument::INT_LITERAL, header.args(0).type());
+  ASSERT_EQ(50, header.args(0).int_value());
+  ASSERT_EQ("50", header.args(0).localized_value());
+
+  ASSERT_EQ(FormatArgument::BYTES, header.args(1).type());
+  ASSERT_EQ(100, header.args(1).int_value());
+  ASSERT_EQ("100", header.args(1).localized_value());
 }
 
-TEST(ProtoFormatterTest, BasicHeaderTest) {
-  std::vector<ResultText*> results;
-  ProtoFormatter formatter(&results);
-  DummyTestRule rule1(not_localized("head"));
-  DummyTestRule rule2(not_localized("head2"));
-  Formatter* child_formatter = formatter.AddHeader(rule1, 42);
-  child_formatter->AddChild(not_localized("foo"));
-  child_formatter->AddChild(not_localized("bar"));
-  formatter.AddHeader(rule2, 23);
-  formatter.Done();
+// Tests that the localizer is correctly invoked for all parameters
+TEST(ProtoFormatterTest, LocalizerTest) {
+  FormattedResults results;
+  TestLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &results);
+  results.set_locale("en_US.UTF-8");
 
-  ASSERT_EQ(static_cast<size_t>(2), results.size());
-  ResultText* first = results[0];
-  EXPECT_EQ("head", first->format());
-  EXPECT_EQ(0, first->args_size());
-  ASSERT_EQ(2, first->children_size());
-  EXPECT_EQ("foo", first->children(0).format());
-  EXPECT_EQ("bar", first->children(1).format());
+  DummyTestRule rule1(_N("rule1"));
 
-  ResultText* second = results[1];
-  EXPECT_EQ("head2", second->format());
-  EXPECT_EQ(0, second->args_size());
-  EXPECT_EQ(0, second->children_size());
+  Formatter* body = formatter.AddHeader(rule1, 100);
+  std::vector<const Argument*> args;
+  args.push_back(new Argument(Argument::URL, "http://www.google.com"));
+  args.push_back(new Argument(Argument::STRING, "abcd"));
+  args.push_back(new Argument(Argument::INTEGER, 100));
+  args.push_back(new Argument(Argument::BYTES, 150));
+  args.push_back(new Argument(Argument::DURATION, 200));
+  LocalizableString format_str = _N("text $1 $2 $3 $4 $5");
+  FormatterParameters formatter_params(&format_str, &args);
+  body->AddChild(formatter_params);
 
-  STLDeleteContainerPointers(results.begin(), results.end());
+  ASSERT_TRUE(results.IsInitialized());
+
+  ASSERT_EQ(1, results.rule_results_size());
+  const FormattedRuleResults& r1 = results.rule_results(0);
+  ASSERT_EQ("DummyTestRule", r1.rule());
+  ASSERT_EQ("*****", r1.localized_rule_name());
+  ASSERT_EQ(1, r1.url_blocks_size());
+
+  const FormatString& header = r1.url_blocks(0).header();
+  ASSERT_EQ("*******************", header.format());
+  ASSERT_EQ(5, header.args_size());
+
+  ASSERT_EQ(FormatArgument::URL, header.args(0).type());
+  ASSERT_FALSE(header.args(0).has_int_value());
+  ASSERT_EQ("http://www.google.com", header.args(0).string_value());
+  ASSERT_EQ("*********************", header.args(0).localized_value());
+
+  ASSERT_EQ(FormatArgument::STRING_LITERAL, header.args(1).type());
+  ASSERT_FALSE(header.args(1).has_int_value());
+  ASSERT_EQ("abcd", header.args(1).string_value());
+  ASSERT_EQ("****", header.args(1).localized_value());
+
+  ASSERT_EQ(FormatArgument::INT_LITERAL, header.args(2).type());
+  ASSERT_FALSE(header.args(2).has_string_value());
+  ASSERT_EQ(100, header.args(2).int_value());
+  ASSERT_EQ("*", header.args(2).localized_value());
+
+  ASSERT_EQ(FormatArgument::BYTES, header.args(3).type());
+  ASSERT_FALSE(header.args(3).has_string_value());
+  ASSERT_EQ(150, header.args(3).int_value());
+  ASSERT_EQ("**", header.args(3).localized_value());
+
+  ASSERT_EQ(FormatArgument::DURATION, header.args(4).type());
+  ASSERT_FALSE(header.args(4).has_string_value());
+  ASSERT_EQ(200, header.args(4).int_value());
+  ASSERT_EQ("***", header.args(4).localized_value());
 }
 
-TEST(ProtoFormatterTest, TreeTest) {
-  std::vector<ResultText*> results;
-  ProtoFormatter formatter(&results);
-  Formatter* level1 = formatter.AddChild(not_localized("l1-1"));
-  Formatter* level2 = level1->AddChild(not_localized("l2-1"));
-  level2->AddChild(not_localized("l3-1"));
-  level1->AddChild(not_localized("l2-2"));
-
-  ASSERT_EQ(static_cast<size_t>(1), results.size());
-  const ResultText& result = *results[0];
-  EXPECT_EQ("l1-1", result.format());
-  EXPECT_EQ(0, result.args_size());
-  ASSERT_EQ(2, result.children_size());
-
-  const ResultText& child_result1 = result.children(0);
-  EXPECT_EQ("l2-1", child_result1.format());
-  EXPECT_EQ(0, child_result1.args_size());
-  ASSERT_EQ(1, child_result1.children_size());
-
-  const ResultText& grandchild_result = child_result1.children(0);
-  EXPECT_EQ("l3-1", grandchild_result.format());
-  EXPECT_EQ(0, grandchild_result.args_size());
-  EXPECT_EQ(0, grandchild_result.children_size());
-
-  const ResultText& child_result2 = result.children(1);
-  EXPECT_EQ("l2-2", child_result2.format());
-  EXPECT_EQ(0, child_result2.args_size());
-  EXPECT_EQ(0, child_result2.children_size());
-
-  STLDeleteContainerPointers(results.begin(), results.end());
-}
-
-TEST(ProtoFormatterTest, ArgumentTypesTest) {
-  std::vector<ResultText*> results;
-  ProtoFormatter formatter(&results);
-
-  Argument bytes_arg(Argument::BYTES, 23);
-  Argument int_arg(Argument::INTEGER, 42);
-  Argument string_arg(Argument::STRING, "test");
-  Argument url_arg(Argument::URL, "http://test.com/");
-
-  formatter.AddChild(not_localized("$1"), bytes_arg);
-  formatter.AddChild(not_localized("$1"), int_arg);
-  formatter.AddChild(not_localized("$1"), string_arg);
-  formatter.AddChild(not_localized("$1"), url_arg);
-
-  ASSERT_EQ(static_cast<size_t>(4), results.size());
-  for (size_t idx = 0; idx < results.size(); idx++) {
-    ResultText* result = results[idx];
-    EXPECT_EQ("$1", result->format());
-    ASSERT_EQ(1, result->args_size());
-    EXPECT_EQ(0, result->children_size());
-  }
-
-  EXPECT_EQ(FormatArgument::BYTES, results[0]->args(0).type());
-  EXPECT_EQ(23, results[0]->args(0).int_value());
-
-  EXPECT_EQ(FormatArgument::INT_LITERAL, results[1]->args(0).type());
-  EXPECT_EQ(42, results[1]->args(0).int_value());
-
-  EXPECT_EQ(FormatArgument::STRING_LITERAL, results[2]->args(0).type());
-  EXPECT_EQ("test", results[2]->args(0).string_value());
-
-  EXPECT_EQ(FormatArgument::URL, results[3]->args(0).type());
-  EXPECT_EQ("http://test.com/", results[3]->args(0).string_value());
-
-  STLDeleteContainerPointers(results.begin(), results.end());
-}
-
-TEST(ProtoFormatterTest, ArgumentListTest) {
-  std::vector<ResultText*> results;
-  ProtoFormatter formatter(&results);
-
-  Argument bytes_arg(Argument::BYTES, 23);
-  Argument int_arg(Argument::INTEGER, 42);
-  Argument string_arg(Argument::STRING, "test");
-  Argument url_arg(Argument::URL, "http://test.com/");
-
-  formatter.AddChild(not_localized(""));
-  formatter.AddChild(not_localized("$1"), bytes_arg);
-  formatter.AddChild(not_localized("$1 $2"), bytes_arg, int_arg);
-  formatter.AddChild(not_localized("$1 $2 $3"), bytes_arg, int_arg, string_arg);
-  formatter.AddChild(not_localized("$1 $2 $3 $4"), bytes_arg, int_arg,
-                     string_arg, url_arg);
-
-  ASSERT_EQ(static_cast<size_t>(5), results.size());
-  for (size_t idx = 0; idx < results.size(); idx++) {
-    ResultText* result = results[idx];
-    ASSERT_EQ(idx, static_cast<size_t>(result->args_size()));
-    EXPECT_EQ(0, result->children_size());
-
-    if (idx > 0) {
-      EXPECT_EQ(FormatArgument::BYTES, result->args(0).type());
-      EXPECT_EQ(23, result->args(0).int_value());
-    }
-
-    if (idx > 1) {
-      EXPECT_EQ(FormatArgument::INT_LITERAL, result->args(1).type());
-      EXPECT_EQ(42, result->args(1).int_value());
-    }
-
-    if (idx > 2) {
-      EXPECT_EQ(FormatArgument::STRING_LITERAL, result->args(2).type());
-      EXPECT_EQ("test", result->args(2).string_value());
-    }
-
-    if (idx > 3) {
-      EXPECT_EQ(FormatArgument::URL, result->args(3).type());
-      EXPECT_EQ("http://test.com/", result->args(3).string_value());
-    }
-  }
-
-  STLDeleteContainerPointers(results.begin(), results.end());
-}
-
-}  // namespace
+} // namespace

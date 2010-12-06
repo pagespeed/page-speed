@@ -29,6 +29,7 @@
         '../pagespeed/har/har.gyp:*',
         '../pagespeed/html/html.gyp:*',
         '../pagespeed/image_compression/image_compression.gyp:*',
+        '../pagespeed/l10n/l10n.gyp:*',
         '../pagespeed/pagespeed.gyp:*',
         '../pagespeed/platform/platform.gyp:*',
         '../pagespeed/proto/proto.gyp:*',

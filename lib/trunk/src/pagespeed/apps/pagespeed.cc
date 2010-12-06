@@ -33,6 +33,7 @@
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
+#include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
@@ -56,37 +57,6 @@ bool ReadFileToString(const std::string &file_name, std::string *dest) {
   file_stream.close();
   return true;
 }
-
-/**
- * Formatter that prints the binary ResultText protobuf output.
- */
-class PrintProtoFormatter : public pagespeed::formatters::ProtoFormatter {
- public:
-  PrintProtoFormatter() : ProtoFormatter(&results_) {}
-  virtual ~PrintProtoFormatter() {
-    STLDeleteContainerPointers(results_.begin(), results_.end());
-  }
-
- protected:
-  // Formatter interface
-  virtual void DoneAddingChildren() {
-    ProtoFormatter::DoneAddingChildren();
-
-    for (std::vector<pagespeed::ResultText*>::const_iterator
-             it = results_.begin(),
-             end = results_.end();
-         it != end;
-         ++it) {
-      std::string out;
-      ::google::protobuf::io::StringOutputStream out_stream(&out);
-      (*it)->SerializeToZeroCopyStream(&out_stream);
-      std::cout << out;
-    }
-  }
-
- private:
-  std::vector<pagespeed::ResultText*> results_;
-};
 
 pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
   pagespeed::ProtoInput input_proto;
@@ -129,7 +99,7 @@ bool RunPagespeed(const std::string& out_format,
     formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout,
                                                              NULL));
   } else if (out_format == "proto") {
-    formatter.reset(new PrintProtoFormatter);
+    // We don't need a formatter, since we're printing the raw results
   } else if (out_format == "text") {
     formatter.reset(new pagespeed::formatters::TextFormatter(&std::cout));
   } else {
@@ -137,7 +107,6 @@ bool RunPagespeed(const std::string& out_format,
     PrintUsage();
     return false;
   }
-  CHECK(formatter.get() != NULL);
 
   scoped_ptr<pagespeed::PagespeedInput> input;
   if (in_format == "har") {
@@ -185,7 +154,19 @@ bool RunPagespeed(const std::string& out_format,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
-  engine.ComputeAndFormatResults(*input.get(), formatter.get());
+  // If we have a formatter, use it; otherwise, print the raw Results proto
+  if (formatter.get()) {
+    engine.ComputeAndFormatResults(*input.get(), formatter.get());
+  } else {
+    pagespeed::Results results;
+    engine.ComputeResults(*input.get(), &results);
+
+    std::string out;
+    ::google::protobuf::io::StringOutputStream out_stream(&out);
+    results.SerializeToZeroCopyStream(&out_stream);
+    std::cout << out;
+  }
+
   return true;
 }
 

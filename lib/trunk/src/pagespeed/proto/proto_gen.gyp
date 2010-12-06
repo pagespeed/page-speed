@@ -25,6 +25,7 @@
       'sources': [
         'pagespeed_input.proto',
         'pagespeed_output.proto',
+        'pagespeed_proto_formatter.proto',
       ],
       'rules': [
         {
@@ -85,6 +86,7 @@
        ],
       'sources': [
         '<(protoc_out_dir)/pagespeed/proto/pagespeed_output.pb.cc',
+        '<(protoc_out_dir)/pagespeed/proto/pagespeed_proto_formatter.pb.cc',
       ],
       'export_dependent_settings': [
         'pagespeed_genproto',

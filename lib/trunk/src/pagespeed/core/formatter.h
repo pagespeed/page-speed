@@ -94,6 +94,8 @@ class Formatter {
   // Returns a child formatter, which is valid until the next call to
   // AddChild on this formatter or one of its parents.  Calls to this
   // method also delete the previous child and all of its decendents.
+  // TODO(aoates): add comment describing that you can't store the params given
+  // anywhere (they might change after you return)
   Formatter* AddChild(const FormatterParameters& params);
 
   // Convenience methods implemented in terms of AddChild(FormatterParameters).
