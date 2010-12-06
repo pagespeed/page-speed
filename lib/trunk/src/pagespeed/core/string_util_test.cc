@@ -17,7 +17,7 @@
 
 namespace {
 
-using pagespeed::string_util::CaseInsensitiveStringComparator;
+using namespace pagespeed::string_util;
 
 TEST(CaseInsensitiveStringComparatorTest, Compare) {
   EXPECT_TRUE(CaseInsensitiveStringComparator()("bar", "foo"));
@@ -33,6 +33,34 @@ TEST(CaseInsensitiveStringComparatorTest, Compare) {
   EXPECT_FALSE(CaseInsensitiveStringComparator()("BAR", "bar"));
   EXPECT_FALSE(CaseInsensitiveStringComparator()("BaR", "bAr"));
   EXPECT_FALSE(CaseInsensitiveStringComparator()("bAr", "BaR"));
+}
+
+TEST(StringCaseTest, TestStringCaseEqual) {
+  EXPECT_FALSE(StringCaseEqual("foobar", "fobar"));
+  EXPECT_TRUE(StringCaseEqual("foobar", "foobar"));
+  EXPECT_TRUE(StringCaseEqual("foobar", "FOOBAR"));
+  EXPECT_TRUE(StringCaseEqual("FOOBAR", "foobar"));
+  EXPECT_TRUE(StringCaseEqual("fOoBaR", "FoObAr"));
+}
+
+TEST(StringCaseTest, TestStringCaseStartsWith) {
+  EXPECT_FALSE(StringCaseStartsWith("foobar", "fob"));
+  EXPECT_TRUE(StringCaseStartsWith("foobar", "foobar"));
+  EXPECT_TRUE(StringCaseStartsWith("foobar", "foo"));
+  EXPECT_TRUE(StringCaseStartsWith("foobar", "FOO"));
+  EXPECT_TRUE(StringCaseStartsWith("FOOBAR", "foo"));
+  EXPECT_TRUE(StringCaseStartsWith("fOoBaR", "FoO"));
+  EXPECT_FALSE(StringCaseStartsWith("zzz", "zzzz"));
+}
+
+TEST(StringCaseTest, TestStringCaseEndsWith) {
+  EXPECT_FALSE(StringCaseEndsWith("foobar", "baar"));
+  EXPECT_TRUE(StringCaseEndsWith("foobar", "foobar"));
+  EXPECT_TRUE(StringCaseEndsWith("foobar", "bar"));
+  EXPECT_TRUE(StringCaseEndsWith("foobar", "BAR"));
+  EXPECT_TRUE(StringCaseEndsWith("FOOBAR", "bar"));
+  EXPECT_TRUE(StringCaseEndsWith("fOoBaR", "bAr"));
+  EXPECT_FALSE(StringCaseEndsWith("zzz", "zzzz"));
 }
 
 }  // namespace

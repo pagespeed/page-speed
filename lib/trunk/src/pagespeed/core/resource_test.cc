@@ -181,31 +181,53 @@ TEST(ResourceTest, ResourceTypes) {
   ExpectResourceType("text/html", 100, pagespeed::OTHER);
   ExpectResourceType("text/html", 304, pagespeed::HTML);
   ExpectResourceType("text/html", 401, pagespeed::OTHER);
+
+  // See http://en.wikipedia.org/wiki/CE-HTML
+  ExpectResourceType("application/ce-html+xml", 200, pagespeed::HTML);
 }
 
-void ExpectImageType(const char *content_type,
+void ExpectImageType(const std::string& ext,
+                     const std::string& content_type,
                      int status_code,
                      pagespeed::ImageType type) {
   Resource r;
+  r.SetRequestUrl("http://www.example.com/image" + ext);
   r.SetResponseStatusCode(status_code);
   r.AddResponseHeader("Content-Type", content_type);
+  if (status_code == 200) {
+    r.SetResourceType(pagespeed::IMAGE);
+  }
   EXPECT_EQ(type, r.GetImageType());
 }
 
 TEST(ResourceTest, ImageTypes) {
-  ExpectImageType("image/gif", 200, pagespeed::GIF);
-  ExpectImageType("image/png", 200, pagespeed::PNG);
-  ExpectImageType("image/jpg", 200, pagespeed::JPEG);
-  ExpectImageType("image/jpeg", 200, pagespeed::JPEG);
-  ExpectImageType("image/xyz", 200, pagespeed::UNKNOWN_IMAGE_TYPE);
+  // Get the image type from the content-type:
+  ExpectImageType("", "image/gif", 200, pagespeed::GIF);
+  ExpectImageType("", "image/png", 200, pagespeed::PNG);
+  ExpectImageType("", "image/jpg", 200, pagespeed::JPEG);
+  ExpectImageType("", "image/jpeg", 200, pagespeed::JPEG);
+  ExpectImageType("", "image/xyz", 200, pagespeed::UNKNOWN_IMAGE_TYPE);
 #ifndef NDEBUG
   EXPECT_DEATH(
-      ExpectImageType("image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE),
+      ExpectImageType("", "image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE),
       "Non-image type: 6");
 #else
-  ExpectImageType("image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE);
+  ExpectImageType("", "image/png", 302, pagespeed::UNKNOWN_IMAGE_TYPE);
 #endif
-  ExpectImageType("image/png", 304, pagespeed::PNG);
+  ExpectImageType("", "image/png", 304, pagespeed::PNG);
+
+  // Use the extension when we don't have a content-type:
+  ExpectImageType(".gif", "", 200, pagespeed::GIF);
+  ExpectImageType(".png", "", 200, pagespeed::PNG);
+  ExpectImageType(".jpg", "", 200, pagespeed::JPEG);
+  ExpectImageType(".jpeg", "", 200, pagespeed::JPEG);
+  ExpectImageType(".xyz", "", 200, pagespeed::UNKNOWN_IMAGE_TYPE);
+
+  // If we have both, prefer the content-type:
+  ExpectImageType(".gif", "image/png", 200, pagespeed::PNG);
+  ExpectImageType(".jpeg", "image/gif", 200, pagespeed::GIF);
+  ExpectImageType(".xyz", "image/jpg", 200, pagespeed::JPEG);
+  ExpectImageType(".png", "image/xyz", 200, pagespeed::UNKNOWN_IMAGE_TYPE);
 }
 
 TEST(ResourceTest, SetResourceTypeForRedirectFails) {

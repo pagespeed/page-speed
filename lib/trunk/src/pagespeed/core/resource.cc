@@ -50,6 +50,8 @@ bool IsBodyStatusCode(int status_code) {
 
 namespace pagespeed {
 
+using namespace string_util;
+
 Resource::Resource()
     : status_code_(-1),
       type_(OTHER),
@@ -283,39 +285,45 @@ ResourceType Resource::GetResourceType() const {
     type.erase(separator_idx);
   }
 
-  if (type.find("text/") == 0) {
-    if (type == "text/html" ||
-        type == "text/html-sandboxed") {
+  // Use case-insensitive comparisons, since MIME types are case insensitive.
+  // See http://www.w3.org/Protocols/rfc1341/4_Content-Type.html
+  if (StringCaseStartsWith(type, "text/")) {
+    if (StringCaseEqual(type, "text/html") ||
+        StringCaseEqual(type, "text/html-sandboxed")) {
       return HTML;
-    } else if (type == "text/css") {
+    } else if (StringCaseEqual(type, "text/css")) {
       return CSS;
-    } else if (type.find("javascript") != type.npos ||
-               type.find("json") != type.npos ||
-               type.find("ecmascript") != type.npos ||
-               type == "text/livescript" ||
-               type == "text/js" ||
-               type == "text/jscript" ||
-               type == "text/x-js") {
+    } else if (StringCaseStartsWith(type, "text/javascript") ||
+               StringCaseStartsWith(type, "text/x-javascript") ||
+               StringCaseEndsWith(type, "json") ||
+               StringCaseEndsWith(type, "ecmascript") ||
+               StringCaseEqual(type, "text/livescript") ||
+               StringCaseEqual(type, "text/js") ||
+               StringCaseEqual(type, "text/jscript") ||
+               StringCaseEqual(type, "text/x-js")) {
       return JS;
     } else {
       return TEXT;
     }
-  } else if (type.find("image/") == 0) {
+  } else if (StringCaseStartsWith(type, "image/")) {
     return IMAGE;
-  } else if (type.find("application/") == 0) {
-    if (type.find("javascript") != type.npos ||
-        type.find("json") != type.npos ||
-        type.find("ecmascript") != type.npos ||
-        type == "application/livescript" ||
-        type == "application/js" ||
-        type == "application/jscript" ||
-        type == "application/x-js") {
+  } else if (StringCaseStartsWith(type, "application/")) {
+    if (StringCaseStartsWith(type, "application/javascript") ||
+        StringCaseStartsWith(type, "application/x-javascript") ||
+        StringCaseEndsWith(type, "json") ||
+        StringCaseEndsWith(type, "ecmascript") ||
+        StringCaseEqual(type, "application/livescript") ||
+        StringCaseEqual(type, "application/jscript") ||
+        StringCaseEqual(type, "application/js") ||
+        StringCaseEqual(type, "application/x-js")) {
       return JS;
-    } else if (type == "application/xhtml+xml") {
+    } else if (StringCaseEqual(type, "application/xhtml+xml")) {
       return HTML;
-    } else if (type == "application/xml") {
+    } else if (StringCaseEqual(type, "application/ce-html+xml")) {
+      return HTML;
+    } else if (StringCaseEqual(type, "application/xml")) {
       return TEXT;
-    } else if (type == "application/x-shockwave-flash") {
+    } else if (StringCaseEqual(type, "application/x-shockwave-flash")) {
       return FLASH;
     }
   }
@@ -330,20 +338,35 @@ ImageType Resource::GetImageType() const {
   }
   std::string type = GetResponseHeader("Content-Type");
 
-  size_t separator_idx = type.find(";");
-  if (separator_idx != std::string::npos) {
-    type.erase(separator_idx);
+  if (type.empty()) {
+    // If there is no Content-Type header, then guess the type based on the
+    // extension.
+    const std::string path = GURL(GetRequestUrl()).path();
+    if (StringCaseEndsWith(path, ".png")) {
+      return PNG;
+    } else if (StringCaseEndsWith(path, ".gif")) {
+      return GIF;
+    } else if (StringCaseEndsWith(path, ".jpg") ||
+               StringCaseEndsWith(path, ".jpeg")) {
+      return JPEG;
+    }
+  } else {
+    size_t separator_idx = type.find(";");
+    if (separator_idx != std::string::npos) {
+      type.erase(separator_idx);
+    }
+
+    if (StringCaseEqual(type, "image/png")) {
+      return PNG;
+    } else if (StringCaseEqual(type, "image/gif")) {
+      return GIF;
+    } else if (StringCaseEqual(type, "image/jpg") ||
+               StringCaseEqual(type, "image/jpeg")) {
+      return JPEG;
+    }
   }
 
-  if (type == "image/png") {
-    return PNG;
-  } else if (type == "image/gif") {
-    return GIF;
-  } else if (type == "image/jpg" || type == "image/jpeg") {
-    return JPEG;
-  } else {
-    return UNKNOWN_IMAGE_TYPE;
-  }
+  return UNKNOWN_IMAGE_TYPE;
 }
 
 bool Resource::IsRequestStartTimeLessThan(const Resource& other) const {
