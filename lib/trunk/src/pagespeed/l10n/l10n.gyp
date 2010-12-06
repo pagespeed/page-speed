@@ -23,7 +23,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatter_util',
+        '<(pagespeed_root)/pagespeed/formatters/formatter_util.gyp:pagespeed_formatter_util',
       ],
       'sources': [
         'localizer.cc',
@@ -38,7 +38,7 @@
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatter_util',
+        '<(pagespeed_root)/pagespeed/formatters/formatter_util.gyp:pagespeed_formatter_util',
       ]
     },
   ],
