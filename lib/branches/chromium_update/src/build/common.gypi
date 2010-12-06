@@ -81,15 +81,15 @@
         'library%': 'static_library',
       },
 
+      # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
+      # libraries on linux x86-64 and arm.
+      'linux_fpic%': 0,
+
       'host_arch%': '<(host_arch)',
 
       # Default architecture we're building for is the architecture we're
       # building on.
       'target_arch%': '<(host_arch)',
-
-      # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
-      # libraries on linux x86-64 and arm.
-      'linux_fpic%': 0,
 
       # Python version.
       'python_ver%': '2.5',
@@ -197,6 +197,12 @@
       # See http://msdn.microsoft.com/en-us/library/47238hez(VS.71).aspx
       'win_debug_InlineFunctionExpansion%': '',    # empty = default, 0 = off,
       'win_release_InlineFunctionExpansion%': '2', # 1 = only __inline, 2 = max
+      # VS inserts quite a lot of extra checks to algorithms like
+      # std::partial_sort in Debug build which make them O(N^2)
+      # instead of O(N*logN). This is particularly slow under memory
+      # tools like ThreadSanitizer so we want it to be disablable.
+      # See http://msdn.microsoft.com/en-us/library/aa985982(v=VS.80).aspx
+      'win_debug_disable_iterator_debugging%': '0',
 
       'release_extra_cflags%': '',
       'debug_extra_cflags%': '',
@@ -356,6 +362,9 @@
                 'InlineFunctionExpansion':
                   '<(win_debug_InlineFunctionExpansion)',
               }],
+              ['win_debug_disable_iterator_debugging==1', {
+                'PreprocessorDefinitions': ['_HAS_ITERATOR_DEBUGGING=0'],
+              }],
             ],
           },
           'VCLinkerTool': {
@@ -473,65 +482,6 @@
         'ldflags': [
           '-pthread', '-Wl,-z,noexecstack',
         ],
-        'scons_variable_settings': {
-          'LIBPATH': ['$LIB_DIR'],
-
-          # We have several cases where archives depend on each other in
-          # a cyclic fashion.  Since the GNU linker does only a single
-          # pass over the archives we surround the libraries with
-          # --start-group and --end-group (aka -( and -) ). That causes
-          # ld to loop over the group until no more undefined symbols
-          # are found. In an ideal world we would only make groups from
-          # those libraries which we knew to be in cycles. However,
-          # that's tough with SCons, so we bodge it by making all the
-          # archives a group by redefining the linking command here.
-          #
-          # TODO:  investigate whether we still have cycles that
-          # require --{start,end}-group.  There has been a lot of
-          # refactoring since this was first coded, which might have
-          # eliminated the circular dependencies.
-          #
-          # Note:  $_LIBDIRFLAGS comes before ${LINK,SHLINK,LDMODULE}FLAGS
-          # so that we prefer our own built libraries (e.g. -lpng) to
-          # system versions of libraries that pkg-config might turn up.
-          # TODO(sgk): investigate handling this not by re-ordering the
-          # flags this way, but by adding a hook to use the SCons
-          # ParseFlags() option on the output from pkg-config.
-          'LINKCOM': [['$LINK', '-o', '$TARGET',
-                       '$_LIBDIRFLAGS', '$LINKFLAGS', '$SOURCES',
-                       '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
-          'SHLINKCOM': [['$SHLINK', '-o', '$TARGET',
-                         '$_LIBDIRFLAGS', '$SHLINKFLAGS', '$SOURCES',
-                         '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
-          'LDMODULECOM': [['$LDMODULE', '-o', '$TARGET',
-                           '$_LIBDIRFLAGS', '$LDMODULEFLAGS', '$SOURCES',
-                           '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
-          'IMPLICIT_COMMAND_DEPENDENCIES': 0,
-          # -rpath is only used when building with shared libraries.
-          'conditions': [
-            [ 'library=="shared_library"', {
-              'RPATH': '$LIB_DIR',
-            }],
-          ],
-        },
-        'scons_import_variables': [
-          'AS',
-          'CC',
-          'CXX',
-          'LINK',
-        ],
-        'scons_propagate_variables': [
-          'AS',
-          'CC',
-          'CCACHE_DIR',
-          'CXX',
-          'DISTCC_DIR',
-          'DISTCC_HOSTS',
-          'HOME',
-          'INCLUDE_SERVER_ARGS',
-          'INCLUDE_SERVER_PORT',
-          'LINK',
-        ],
         'configurations': {
           'Debug_Base': {
             'variables': {
@@ -543,11 +493,6 @@
             'cflags': [
               '-O>(debug_optimize)',
               '-g',
-              # One can use '-gstabs' to enable building the debugging
-              # information in STABS format for breakpad's dumpsyms.
-            ],
-            'ldflags': [
-              '-rdynamic',  # Allows backtrace to resolve symbols.
             ],
           },
           'Release_Base': {
@@ -570,15 +515,22 @@
               # can be removed at link time with --gc-sections.
               '-fdata-sections',
               '-ffunction-sections',
-              # We don't use exceptions.  The eh_frame section is used for those
-              # and for symbolizing backtraces.  By passing this flag we drop
-              # the eh_frame section completely.
-              '-fno-asynchronous-unwind-tables',
+            ],
+            'ldflags': [
+              # Specifically tell the linker to perform optimizations.
+              # See http://lwn.net/Articles/192624/ .
+              '-Wl,-O1',
+              '-Wl,--as-needed',
             ],
             'conditions' : [
               ['no_gc_sections==0', {
                 'ldflags': [
                   '-Wl,--gc-sections',
+                ],
+              }],
+              ['clang==1', {
+                'cflags!': [
+                  '-fno-ident',
                 ],
               }],
             ]
@@ -664,6 +616,27 @@
                   '--sysroot=<(sysroot)',
                 ],
               }]]
+          }],
+          ['clang==1', {
+            'cflags': [
+              # Don't warn about unused variables, due to a common pattern:
+              #   scoped_deleter unused_variable(&thing_to_delete);
+              '-Wno-unused-variable',
+              # Clang spots more unused functions.
+              '-Wno-unused-function',
+              # gtest confuses clang.
+              '-Wno-bool-conversions',
+              # Don't die on dtoa code that uses a char as an array index.
+              '-Wno-char-subscripts',
+              # Survive EXPECT_EQ(unnamed_enum, unsigned int) -- see
+              # http://code.google.com/p/googletest/source/detail?r=446 .
+              # TODO(thakis): Use -isystem instead (http://crbug.com/58751 ).
+              '-Wno-unnamed-type-template-args',
+            ],
+            'cflags!': [
+              # Clang doesn't seem to know know this flag.
+              '-mfpmath=sse',
+            ],
           }],
           ['no_strict_aliasing==1', {
             'cflags': [
@@ -898,10 +871,6 @@
       },
     }],
   ],
-  'scons_settings': {
-    'sconsbuild_dir': '<(DEPTH)/sconsbuild',
-    'tools': ['ar', 'as', 'gcc', 'g++', 'gnulink', 'chromium_builders'],
-  },
   'xcode_settings': {
     # DON'T ADD ANYTHING NEW TO THIS BLOCK UNLESS YOU REALLY REALLY NEED IT!
     # This block adds *project-wide* configuration settings to each project

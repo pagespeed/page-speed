@@ -61,8 +61,6 @@
         '<(chromium_root)/base/platform_thread_win.cc',
         'process_util_stub.cc',
         '<(chromium_root)/base/process_util.h',
-        '<(chromium_root)/base/registry.cc',
-        '<(chromium_root)/base/registry.h',
         '<(chromium_root)/base/safe_strerror_posix.cc',
         '<(chromium_root)/base/safe_strerror_posix.h',
         '<(chromium_root)/base/string_number_conversions.cc',
@@ -90,6 +88,10 @@
         '<(chromium_root)/base/thread_restrictions.cc',
         '<(chromium_root)/base/vlog.cc',
         '<(chromium_root)/base/vlog.h',
+        '<(chromium_root)/base/win/registry.cc',
+        '<(chromium_root)/base/win/registry.h',
+        '<(chromium_root)/base/win/windows_version.cc',
+        '<(chromium_root)/base/win/windows_version.h',
         '<(chromium_root)/base/win_util.cc',
         '<(chromium_root)/base/win_util.h',
         '<(chromium_root)/base/utf_string_conversion_utils.cc',
@@ -117,8 +119,8 @@
           [ 'OS != "linux"', {
               'sources!': [
                 # Not automatically excluded by the *linux.cc rules.
-                'setproctitle_linux.c',
-                'setproctitle_linux.h',
+                '<(chromium_root)/base/setproctitle_linux.c',
+                '<(chromium_root)/base/setproctitle_linux.h',
               ],
             },
           ],
