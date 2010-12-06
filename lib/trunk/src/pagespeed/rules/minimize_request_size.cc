@@ -159,7 +159,7 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
       // TRANSLATOR: Item showing how large the referrer URL is in a request
       // that violates the MinimizeRequestSizeRule by being large. The "$1" will
       // be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-      entry->AddChild(_("Referrer Url: $1"), referer_size);
+      entry->AddChild(_("Referer Url: $1"), referer_size);
 
       Argument other_size(Argument::BYTES,
                           result.original_request_bytes() -
