@@ -149,8 +149,17 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
       int64 started_millis;
       if (Iso8601ToEpochMillis(started_json->valuestring, &started_millis)) {
         if (page_started_millis_ > 0) {
+          int64 request_start_time_millis =
+              started_millis - page_started_millis_;
+          // Truncate to 32 bits, which gives us a range of about 24
+          // days.
+          if (request_start_time_millis > kint32max) {
+            LOG(INFO) << "Request starts more than kint32max milliseconds "
+                      << "in the future. Truncating.";
+            request_start_time_millis = kint32max;
+          }
           resource->SetRequestStartTimeMillis(
-              started_millis - page_started_millis_);
+              static_cast<int>(request_start_time_millis));
         }
       } else {
         LOG(DFATAL) << "Failed to parse ISO 8601: "
