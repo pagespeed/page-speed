@@ -58,7 +58,9 @@ const char* ImageMinifier::name() const {
 }
 
 LocalizableString ImageMinifier::header_format() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to optimize the
+  // images (better compression). This is displayed in a list of rule names that
+  // Page Speed generates.
   return _("Optimize images");
 }
 
@@ -67,13 +69,20 @@ const char* ImageMinifier::documentation_url() const {
 }
 
 LocalizableString ImageMinifier::body_format() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Header at the top a list of image URLs that Page Speed detected
+  // as can be optimized by using better compression. It describes the problem
+  // to the user that the size of the images can be reduced. The "$1" will be
+  // replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
+  // the number of percent (e.g. 25).
   return _("Optimizing the following images could reduce their size "
            "by $1 ($2% reduction).");
 }
 
 LocalizableString ImageMinifier::child_format() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Detail info for one image URL. It tells the user how much can
+  // be save for one image. The "$1" will be replace the the image URL; "$2"
+  // will be replace by the number of bytes (e.g. 27B); the "$3" will be
+  // replace by the number of percent (e.g. 12).
   return _("Losslessly compressing $1 could save $2 ($3% reduction).");
 }
 

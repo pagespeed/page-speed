@@ -272,7 +272,9 @@ const char* OptimizeTheOrderOfStylesAndScripts::name() const {
 }
 
 LocalizableString OptimizeTheOrderOfStylesAndScripts::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to optimize the
+  // order of resources of style sheets and scripts in HTML. This is displayed
+  // in a list of rule names that Page Speed generates.
   return _("Optimize the order of styles and scripts");
 }
 
@@ -341,7 +343,12 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
       if (ordering_details.out_of_order_inline_scripts_size() > 0) {
         Argument html_url(Argument::URL, result.resource_urls(0));
         Formatter* body = formatter->AddChild(
-            // TRANSLATOR: TODO: add a translator comment describing this string
+            // TRANSLATOR: Header at the top of a list of inline javascript
+            // blocks that Page Speed detected as preventing parallel
+            // downloading.  It describes the problem to the user and tells them
+            // how to fix it by moving the inline script before the external CSS
+            // URL, or after the next resource. The "$1" will be replace by the
+            // URL of the HTML page.
             _("The following inline script blocks were found in $1 between an "
               "external CSS file and another resource.  To allow parallel "
               "downloading, move the inline script before the external CSS "
@@ -351,7 +358,8 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
              i < size; ++i) {
           Argument index(Argument::INTEGER,
                          ordering_details.out_of_order_inline_scripts(i));
-          // TRANSLATOR: TODO: add a translator comment describing this string
+          // TRANSLATOR: Detail of inline script block. The "$1" will be replace
+          // by the index of the script block (e.g. 3).
           body->AddChild(_("Inline script block #$1"), index);
         }
       }
@@ -359,7 +367,11 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
       if (ordering_details.out_of_order_external_css_size() > 0) {
         Argument html_url(Argument::URL, result.resource_urls(0));
         Formatter* body = formatter->AddChild(
-            // TRANSLATOR: TODO: add a translator comment describing this string
+            // TRANSLATOR: Header at the top of a list of CSS URLs that Page
+            // Speed detected as not able to be downloaded in parallel. It
+            // describes the problem to the user, and tells them how to fix it
+            // by including the external CSS before external JavaScript. The
+            // "$1" will be replaced by URL of the HTML page.
             _("The following external CSS files were included after an "
               "external JavaScript file in $1.  To ensure CSS files are "
               "downloaded in parallel, always include external CSS before "

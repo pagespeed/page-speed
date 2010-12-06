@@ -69,7 +69,9 @@ const char* ParallelizeDownloadsAcrossHostnames::name() const {
 }
 
 LocalizableString ParallelizeDownloadsAcrossHostnames::header() const {
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: The name of a Page Speed rule that tells users to parallelize
+  // downloads resources (image, css, javascript) across hostnames. This is
+  // displayed in a list of rule names that Page Speed generates.
   return _("Parallelize downloads across hostnames");
 }
 
@@ -180,7 +182,12 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
       Argument num_resources_arg(Argument::INTEGER, num_resources);
       Argument host_arg(Argument::STRING, host_details.host());
       Formatter* body = formatter->AddChild(
-          // TRANSLATOR: TODO: add a translator comment describing this string
+          // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+          // detected as from one host. It describes the problem to the user,
+          // and tells them how to fix it by distributing the requests across
+          // multiple hostnames. The "$1" will be replace by the number of the
+          // URLs; the "$2" wil be replaced by the name of the host (e.g.
+          // google.com).
           _("This page makes $1 parallelizable requests to $2.  Increase "
             "download parallelization by distributing these requests across "
             "multiple hostnames:"), num_resources_arg, host_arg);
