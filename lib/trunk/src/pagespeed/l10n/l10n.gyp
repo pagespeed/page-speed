@@ -19,19 +19,14 @@
   },
   'targets': [
     {
-      'target_name': 'pagespeed_formatters',
+      'target_name': 'pagespeed_l10n',
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
-        '<(pagespeed_root)/pagespeed/l10n/l10n.gyp:pagespeed_l10n',
-        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
-        'pagespeed_formatter_util',
+        '<(DEPTH)/pagespeed/formatters/formatters.gyp:pagespeed_formatter_util',
       ],
       'sources': [
-        'json_formatter.cc',
-        'proto_formatter.cc',
-        'text_formatter.cc',
+        'localizer.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -43,27 +38,8 @@
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
-        '<(pagespeed_root)/pagespeed/l10n/l10n.gyp:pagespeed_l10n',
+        '<(DEPTH)/pagespeed/formatters/formatters.gyp:pagespeed_formatter_util',
       ]
     },
-    {
-      'target_name': 'pagespeed_formatter_util',
-      'type': '<(library)',
-      'dependencies': [
-      ],
-      'sources': [
-        'formatter_util.cc',
-      ],
-      'include_dirs': [
-        '<(pagespeed_root)',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(pagespeed_root)',
-        ],
-      },
-    },
-
   ],
 }

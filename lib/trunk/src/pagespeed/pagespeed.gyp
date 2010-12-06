@@ -22,6 +22,7 @@
       'target_name': 'pagespeed_library',
       'type': '<(library)',
       'dependencies': [
+# TODO(aoates): do we need l10n/l10n.gyp here?
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/net/net.gyp:net_base',
         '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
@@ -91,6 +92,7 @@
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(pagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(pagespeed_root)/pagespeed/jsminify/js_minify.gyp:pagespeed_jsminify',
+        '<(pagespeed_root)/pagespeed/l10n/l10n.gyp:pagespeed_l10n',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_proto',
@@ -125,6 +127,7 @@
         'html/external_resource_filter_test.cc',
         'html/html_minifier_test.cc',
         'jsminify/js_minify_test.cc',
+        'l10n/localizer_test.cc',
         'rules/avoid_bad_requests_test.cc',
         'rules/avoid_css_import_test.cc',
         'rules/avoid_document_write_test.cc',

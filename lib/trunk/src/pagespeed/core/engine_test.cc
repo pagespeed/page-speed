@@ -23,7 +23,9 @@
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/l10n/l10n.h"
+#include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::Argument;
@@ -32,16 +34,18 @@ using pagespeed::FormatArgument;
 using pagespeed::Formatter;
 using pagespeed::InputInformation;
 using pagespeed::LocalizableString;
+using pagespeed::FormattedResults;
+using pagespeed::FormattedRuleResults;
 using pagespeed::PagespeedInput;
 using pagespeed::Result;
-using pagespeed::Results;
 using pagespeed::ResultProvider;
-using pagespeed::ResultText;
+using pagespeed::Results;
 using pagespeed::Rule;
 using pagespeed::RuleFormatter;
 using pagespeed::RuleInput;
 using pagespeed::RuleResults;
 using pagespeed::formatters::ProtoFormatter;
+using pagespeed::l10n::NullLocalizer;
 
 namespace {
 
@@ -215,17 +219,18 @@ TEST(EngineTest, FormatResults) {
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
 
-  std::vector<ResultText*> result_text;
-  ProtoFormatter formatter(&result_text);
+  FormattedResults formatted_results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &formatted_results);
+
   ASSERT_TRUE(engine.FormatResults(results, &formatter));
-  ASSERT_EQ(static_cast<size_t>(1), result_text.size());
-  const ResultText& root = *result_text[0];
-  ASSERT_EQ(kHeader, root.format());
-  ASSERT_EQ(0, root.args_size());
-  ASSERT_EQ(2, root.children_size());
-  ASSERT_EQ(kBody1, root.children(0).format());
-  ASSERT_EQ(kBody2, root.children(1).format());
-  delete result_text[0];
+  ASSERT_EQ(1, formatted_results.rule_results_size());
+  const FormattedRuleResults& rule_results =
+      formatted_results.rule_results(0);
+  ASSERT_EQ(kHeader, rule_results.localized_rule_name());
+  ASSERT_EQ(2, rule_results.url_blocks_size());
+  ASSERT_EQ(kBody1, rule_results.url_blocks(0).header().format());
+  ASSERT_EQ(kBody2, rule_results.url_blocks(1).header().format());
 }
 
 class NeverAcceptResultFilter : public pagespeed::ResultFilter {
@@ -251,16 +256,17 @@ TEST(EngineTest, FormatResultsFilter) {
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
 
-  std::vector<ResultText*> result_text;
-  ProtoFormatter formatter(&result_text);
+  FormattedResults formatted_results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &formatted_results);
   NeverAcceptResultFilter filter;
   ASSERT_TRUE(engine.FormatResults(results, filter, &formatter));
-  ASSERT_EQ(static_cast<size_t>(1), result_text.size());
-  const ResultText& root = *result_text[0];
-  ASSERT_EQ(kHeader, root.format());
-  ASSERT_EQ(0, root.args_size());
-  ASSERT_EQ(0, root.children_size());
-  delete result_text[0];
+
+  ASSERT_EQ(1, formatted_results.rule_results_size());
+  const FormattedRuleResults& rule_results =
+      formatted_results.rule_results(0);
+  ASSERT_EQ(kHeader, rule_results.localized_rule_name());
+  ASSERT_EQ(0, rule_results.url_blocks_size());
 }
 
 TEST(EngineTest, FormatResultsNoResults) {
@@ -282,15 +288,16 @@ TEST(EngineTest, FormatResultsNoResults) {
 
   // Verify that when there are no results, but there is an entry in
   // the rules vector, we do emit a header for that rule.
-  std::vector<ResultText*> result_text;
-  ProtoFormatter formatter(&result_text);
+  FormattedResults formatted_results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &formatted_results);
   ASSERT_TRUE(engine.FormatResults(results, &formatter));
-  ASSERT_EQ(static_cast<size_t>(1), result_text.size());
-  const ResultText& root = *result_text[0];
-  ASSERT_EQ(kHeader, root.format());
-  ASSERT_EQ(0, root.args_size());
-  ASSERT_EQ(0, root.children_size());
-  delete result_text[0];
+
+  ASSERT_EQ(1, formatted_results.rule_results_size());
+  const FormattedRuleResults& rule_results =
+      formatted_results.rule_results(0);
+  ASSERT_EQ(kHeader, rule_results.localized_rule_name());
+  ASSERT_EQ(0, rule_results.url_blocks_size());
 }
 
 TEST(EngineTest, FormatResultsEngineNotInitialized) {
@@ -303,8 +310,9 @@ TEST(EngineTest, FormatResultsEngineNotInitialized) {
   rules.push_back(new TestRule());
   Engine engine(&rules);
 
-  std::vector<ResultText*> result_text;
-  ProtoFormatter formatter(&result_text);
+  FormattedResults formatted_results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &formatted_results);
   ASSERT_DEATH(engine.FormatResults(results, &formatter),
                "Check failed: init_.");
 }
@@ -316,8 +324,9 @@ TEST(EngineTest, FormatResultsNotInitialized) {
   Engine engine(&rules);
   engine.Init();
 
-  std::vector<ResultText*> result_text;
-  ProtoFormatter formatter(&result_text);
+  FormattedResults formatted_results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &formatted_results);
   ASSERT_FALSE(engine.FormatResults(results, &formatter));
 }
 
@@ -342,10 +351,11 @@ TEST(EngineTest, FormatResultsNoRuleInstance) {
   Engine engine2(&rules);
   engine2.Init();
 
-  std::vector<ResultText*> result_text;
-  ProtoFormatter formatter(&result_text);
+  FormattedResults formatted_results;
+  NullLocalizer localizer;
+  ProtoFormatter formatter(&localizer, &formatted_results);
   ASSERT_FALSE(engine2.FormatResults(results, &formatter));
-  ASSERT_EQ(static_cast<size_t>(0), result_text.size());
+  ASSERT_EQ(0, formatted_results.rule_results_size());
 }
 
 TEST(Engine, NonFrozenInputFails) {

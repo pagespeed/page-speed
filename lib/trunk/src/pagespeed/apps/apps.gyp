@@ -57,6 +57,23 @@
       ],
     },
     {
+      'target_name': 'localize_results',
+      'type': 'executable',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
+        '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
+        '<(pagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
+        '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+        '<(pagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
+        '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_proto',
+      ],
+      'sources': [
+        'localize_results.cc',
+      ],
+    },
+    {
       'target_name': 'optimize_image_bin',
       'type': 'executable',
       'dependencies': [

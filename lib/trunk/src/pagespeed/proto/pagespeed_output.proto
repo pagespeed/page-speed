@@ -293,34 +293,3 @@ message Results {
   // Overall score assigned by Page Speed
   optional int32 score = 7;
 }
-
-// Typed format string arguments.
-message FormatArgument {
-  enum ArgumentType {
-    URL = 1;
-    STRING_LITERAL = 2;
-    INT_LITERAL = 3;
-    BYTES = 4;
-    DURATION = 5;
-  }
-
-  required ArgumentType type = 1;
-  optional string string_value = 2;
-  optional int64 int_value = 3;
-}
-
-// Result as text document node that contains the markup type, format
-// string, instances and children.
-message ResultText {
-  // format string.  Use '$<number>' to specify position information.
-  optional string format = 1;
-
-  // format string arguments.
-  repeated FormatArgument args = 2;
-
-  // Children.
-  repeated ResultText children = 3;
-
-  // Optimized version of the current resource, if applicable.
-  optional bytes optimized_content = 4;
-}
