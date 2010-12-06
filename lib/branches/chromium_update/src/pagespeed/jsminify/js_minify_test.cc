@@ -123,13 +123,14 @@ TEST(JsMinifyTest, ErrorUnclosedRegex) {
 }
 
 TEST(JsMinifyTest, SignedCharDoesntSignExtend) {
-  const char input[] = { 0xff, 0x00 };
+  const unsigned char input[] = { 0xff, 0x00 };
+  const char* input_nosign = reinterpret_cast<const char*>(input);
   std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(input, output);
+  ASSERT_TRUE(MinifyJs(input_nosign, &output));
+  ASSERT_EQ(input_nosign, output);
 
   int minimized_size = -1;
-  ASSERT_TRUE(GetMinifiedJsSize(input, &minimized_size));
+  ASSERT_TRUE(GetMinifiedJsSize(input_nosign, &minimized_size));
   ASSERT_EQ(1, minimized_size);
 }
 
