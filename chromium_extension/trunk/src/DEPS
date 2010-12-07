@@ -20,9 +20,15 @@ vars = {
 
   # TODO: remove these once gclient is able to correctly process the
   # commented-out line below.
-  "chromium_trunk":
-    "http://src.chromium.org/svn/trunk",
+  "chromium_trunk": "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@68180",
+  "naclsdk_trunk": "http://nativeclient-sdk.googlecode.com/svn/trunk",
+  "naclsdk_revision": "@head",
+
+  # This constant comes from
+  # http://nativeclient-sdk.googlecode.com/svn/trunk/src/DEPS and
+  # should be kept in sync with the version in that file.
+  "naclsdk_compiler_version": "3746",
 }
 
 deps = {
@@ -72,6 +78,10 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
+  "src/third_party/naclsdk/download":
+    File(Var("naclsdk_trunk") + "/src/build_tools/download_compilers.py" +
+      Var("naclsdk_revision")),
+
   "src/build/linux": From(Var("libpagespeed_deps_root")),
   "src/build/mac": From(Var("libpagespeed_deps_root")),
   "src/build/win": From(Var("libpagespeed_deps_root")),
@@ -114,5 +124,12 @@ hooks = [
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
     "pattern": ".",
     "action": ["python", "src/build/gyp_chromium"],
+  },
+  {
+    # Grab the NaCl toolchain.  This action has to happen before the testing
+    # libraries are installed, and before boost gets installed.
+    "pattern": ".",
+    "action": ["python", "src/third_party/naclsdk/download/download_compilers.py",
+               "-v", Var("naclsdk_compiler_version")],
   },
 ]

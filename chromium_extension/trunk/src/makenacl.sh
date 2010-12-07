@@ -15,7 +15,8 @@
 # limitations under the License.
 
 # Allow callers to override the nacl home directory.
-DEFAULT_NACL_HOME="/home/$USER/bin/native_client_sdk"
+RELATIVE_PATH=$(dirname $0)
+DEFAULT_NACL_HOME="${RELATIVE_PATH}/third_party/naclsdk"
 if [ -z "$NACL_HOME" ]; then NACL_HOME=$DEFAULT_NACL_HOME; fi
 
 if [ ! -d "$NACL_HOME" ]; then
