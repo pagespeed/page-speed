@@ -142,7 +142,7 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
     return;
   }
 
-  // Determine if the resource was lazy-loaded.
+  // Determine if the resource was loaded after onload.
   {
     cJSON* started_json = cJSON_GetObjectItem(entry_json, "startedDateTime");
     if (started_json != NULL && started_json->type == cJSON_String) {

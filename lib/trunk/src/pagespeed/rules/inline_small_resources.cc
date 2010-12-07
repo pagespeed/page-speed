@@ -46,7 +46,8 @@ namespace rules {
 
 InlineSmallResources::InlineSmallResources(ResourceType resource_type)
     : pagespeed::Rule(pagespeed::InputCapabilities(
-        pagespeed::InputCapabilities::LAZY_LOADED |
+        pagespeed::InputCapabilities::ONLOAD |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES |
         pagespeed::InputCapabilities::RESPONSE_BODY)),
       resource_type_(resource_type) {
 }
@@ -64,7 +65,7 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
   std::map<std::string, ResourceSet> inline_candidates;
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
-    if (resource.IsLazyLoaded(input)) {
+    if (input.IsResourceLoadedAfterOnload(resource)) {
       continue;
     }
 

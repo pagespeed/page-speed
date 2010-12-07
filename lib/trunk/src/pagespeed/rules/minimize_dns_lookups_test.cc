@@ -71,7 +71,7 @@ TEST_F(MinimizeDnsTest, OneUrlNoViolation) {
   CheckViolations(expected_violations);
 }
 
-TEST_F(MinimizeDnsTest, OneLazyOneNotNoViolation) {
+TEST_F(MinimizeDnsTest, OnePostOnloadOneNotNoViolation) {
   const std::string url1 = "http://foo.com";
   const std::string url2 = "http://bar.com/baz.js";
 
@@ -85,7 +85,7 @@ TEST_F(MinimizeDnsTest, OneLazyOneNotNoViolation) {
   CheckViolations(expected_violations);
 }
 
-TEST_F(MinimizeDnsTest, OneLazyTwoNotTwoViolations) {
+TEST_F(MinimizeDnsTest, OnePostOnloadTwoNotTwoViolations) {
   const std::string url1 = "http://foo.com";
   const std::string url2 = "http://b.foo.com/baz.js";
   const std::string url3 = "http://c.foo.com/quux.js";

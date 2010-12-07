@@ -106,7 +106,7 @@ void ScriptVisitor::VisitExternalScript(const std::string& script_src) {
   if (resource == NULL) {
     return;
   }
-  if (resource->IsLazyLoaded(*pagespeed_input_)) {
+  if (pagespeed_input_->IsResourceLoadedAfterOnload(*resource)) {
     return;
   }
   for (size_t i = 0; i < kNumScripts; i++) {
@@ -149,7 +149,8 @@ namespace rules {
 PreferAsyncResources::PreferAsyncResources()
     : pagespeed::Rule(pagespeed::InputCapabilities(
         pagespeed::InputCapabilities::DOM |
-        pagespeed::InputCapabilities::LAZY_LOADED)) {
+        pagespeed::InputCapabilities::ONLOAD |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES)) {
 }
 
 const char* PreferAsyncResources::name() const {

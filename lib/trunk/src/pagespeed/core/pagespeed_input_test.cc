@@ -428,7 +428,8 @@ TEST_F(EstimateCapabilitiesTest, OnLoad) {
   Freeze();
   ASSERT_TRUE(
       pagespeed_input()->EstimateCapabilities().satisfies(
-          InputCapabilities(InputCapabilities::LAZY_LOADED)));
+          InputCapabilities(InputCapabilities::ONLOAD |
+                            InputCapabilities::REQUEST_START_TIMES)));
   ASSERT_TRUE(pagespeed_input()->IsResourceLoadedAfterOnload(*r1));
   ASSERT_FALSE(pagespeed_input()->IsResourceLoadedAfterOnload(*r2));
 }

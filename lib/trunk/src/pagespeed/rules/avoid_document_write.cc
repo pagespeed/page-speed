@@ -201,10 +201,9 @@ bool DoesBlockRender(const PagespeedInput& input,
        sib_it != sib_end;
        ++sib_it) {
     const Resource* peer_resource = *sib_it;
-    if (peer_resource->IsLazyLoaded(input)) {
-      // If the resource was lazy loaded, it must have been inserted
-      // into the document after onload, so we should not consider
-      // it.
+    if (input.IsResourceLoadedAfterOnload(*peer_resource)) {
+      // If the resource was loaded post-onload, we should not
+      // consider it.
       continue;
     }
     if (IsUserVisibleResource(input, *peer_resource)) {
@@ -224,7 +223,8 @@ AvoidDocumentWrite::AvoidDocumentWrite()
     : pagespeed::Rule(pagespeed::InputCapabilities(
         pagespeed::InputCapabilities::DOM |
         pagespeed::InputCapabilities::JS_CALLS_DOCUMENT_WRITE |
-        pagespeed::InputCapabilities::LAZY_LOADED |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES |
+        pagespeed::InputCapabilities::ONLOAD |
         pagespeed::InputCapabilities::PARENT_CHILD_RESOURCE_MAP |
         pagespeed::InputCapabilities::JS_CALLS_DOCUMENT_WRITE)) {
 }
@@ -258,7 +258,7 @@ bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
 
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
-    if (resource.IsLazyLoaded(input)) {
+    if (input.IsResourceLoadedAfterOnload(resource)) {
       continue;
     }
     const std::vector<const JavaScriptCallInfo*>* calls =

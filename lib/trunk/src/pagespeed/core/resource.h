@@ -149,9 +149,6 @@ class Resource {
   const std::vector<const JavaScriptCallInfo*>* GetJavaScriptCalls(
       const std::string& id) const;
 
-  // Was the request for this resource issued after the onload event?
-  bool IsLazyLoaded(const PagespeedInput& input) const;
-
   // Do we have a request start time for this resource? Note that we
   // do not provide a getter for the request start time, because we do not
   // want rules to be implemented in terms of timing data from a single

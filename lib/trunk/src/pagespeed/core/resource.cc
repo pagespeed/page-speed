@@ -220,10 +220,6 @@ const std::string& Resource::GetCookies() const {
   return GetEmptyString();
 }
 
-bool Resource::IsLazyLoaded(const PagespeedInput& input) const {
-  return input.IsResourceLoadedAfterOnload(*this);
-}
-
 const Resource::HeaderMap* Resource::GetRequestHeaders() const {
   return &request_headers_;
 }

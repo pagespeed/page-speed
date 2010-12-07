@@ -547,9 +547,9 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
   }
   if (GetResourcesInRequestOrder() != NULL) {
     capabilities.add(InputCapabilities::REQUEST_START_TIMES);
-    if (onload_state_ != UNKNOWN) {
-      capabilities.add(InputCapabilities::LAZY_LOADED);
-    }
+  }
+  if (onload_state_ != UNKNOWN) {
+    capabilities.add(InputCapabilities::ONLOAD);
   }
   for (int i = 0, num = num_resources(); i < num; ++i) {
     const Resource& resource = GetResource(i);
