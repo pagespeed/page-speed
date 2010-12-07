@@ -80,7 +80,7 @@ const std::string kHarInput = (
     "        \"startedDateTime\": \"2009-05-16T12:07:25.596Z\","
     "        \"request\":{"
     "          \"method\":\"GET\","
-    "          \"url\":\"http://www.example.com/lazy.js\","
+    "          \"url\":\"http://www.example.com/postonload.js\","
     "          \"httpVersion\":\"HTTP/1.1\","
     "          \"cookies\":[],"
     "          \"headers\":[],"
@@ -166,17 +166,17 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
-  EXPECT_FALSE(resource1.IsLazyLoaded(*input));
+  EXPECT_FALSE(input->IsResourceLoadedAfterOnload(resource1));
 
   const Resource& resource2 = input->GetResource(1);
-  EXPECT_EQ("http://www.example.com/lazy.js", resource2.GetRequestUrl());
+  EXPECT_EQ("http://www.example.com/postonload.js", resource2.GetRequestUrl());
   EXPECT_EQ("GET", resource2.GetRequestMethod());
   EXPECT_EQ("", resource2.GetRequestBody());
   EXPECT_EQ(200, resource2.GetResponseStatusCode());
   EXPECT_EQ("application/javascript",
             resource2.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource2.GetResponseBody());
-  EXPECT_TRUE(resource2.IsLazyLoaded(*input));
+  EXPECT_TRUE(input->IsResourceLoadedAfterOnload(resource2));
 
   // Make sure that request start time truncation works properly.
   Resource other;
@@ -204,7 +204,7 @@ TEST(HttpArchiveTest, ValidInputBase64) {
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
-  EXPECT_FALSE(resource1.IsLazyLoaded(*input));
+  EXPECT_FALSE(input->IsResourceLoadedAfterOnload(resource1));
 }
 
 TEST(HttpArchiveTest, InvalidJSON) {

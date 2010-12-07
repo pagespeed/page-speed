@@ -49,8 +49,8 @@ void PopulateDomainHostResourceMap(
       continue;
     }
 
-    // exclude lazy-loaded resources
-    if (resource.IsLazyLoaded(input)) {
+    // exclude post-onload resources
+    if (input.IsResourceLoadedAfterOnload(resource)) {
       continue;
     }
 
@@ -124,7 +124,8 @@ namespace rules {
 
 MinimizeDnsLookups::MinimizeDnsLookups()
     : pagespeed::Rule(pagespeed::InputCapabilities(
-        pagespeed::InputCapabilities::LAZY_LOADED)) {
+        pagespeed::InputCapabilities::ONLOAD |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES)) {
 }
 
 const char* MinimizeDnsLookups::name() const {

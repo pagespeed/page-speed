@@ -32,7 +32,8 @@ namespace rules {
 
 CombineExternalResources::CombineExternalResources(ResourceType resource_type)
     : pagespeed::Rule(pagespeed::InputCapabilities(
-        pagespeed::InputCapabilities::LAZY_LOADED)),
+        pagespeed::InputCapabilities::ONLOAD |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES)),
       resource_type_(resource_type) {
 }
 
@@ -62,8 +63,8 @@ bool CombineExternalResources::AppendResults(const RuleInput& rule_input,
         continue;
       }
 
-      // exclude lazy-loaded resources
-      if (resource->IsLazyLoaded(input)) {
+      // exclude post-onload resources
+      if (input.IsResourceLoadedAfterOnload(*resource)) {
         continue;
       }
 

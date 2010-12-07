@@ -29,7 +29,7 @@ class InputCapabilities {
     NONE                       = 0,
     DOM                        = 1<<0,
     JS_CALLS_DOCUMENT_WRITE    = 1<<1,
-    LAZY_LOADED                = 1<<2,
+    ONLOAD                     = 1<<2,
     PARENT_CHILD_RESOURCE_MAP  = 1<<3,
     REQUEST_HEADERS            = 1<<4,
     RESPONSE_BODY              = 1<<5,

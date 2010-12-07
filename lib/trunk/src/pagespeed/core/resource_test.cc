@@ -42,18 +42,6 @@ TEST(ResourceTest, SetFields) {
   EXPECT_EQ(resource.GetResponseBody(), "response body");
 }
 
-TEST(ResourceTest, LazyLoaded) {
-  PagespeedInput input;
-  Resource resource;
-  EXPECT_FALSE(resource.IsLazyLoaded(input));
-  resource.SetRequestStartTimeMillis(11);
-  EXPECT_FALSE(resource.IsLazyLoaded(input));
-  input.SetOnloadTimeMillis(10);
-  EXPECT_TRUE(resource.IsLazyLoaded(input));
-  input.SetOnloadTimeMillis(12);
-  EXPECT_FALSE(resource.IsLazyLoaded(input));
-}
-
 TEST(ResourceTest, IsRequestStartTimeLessThanDeathTest) {
   Resource r1, r2;
 #ifndef NDEBUG

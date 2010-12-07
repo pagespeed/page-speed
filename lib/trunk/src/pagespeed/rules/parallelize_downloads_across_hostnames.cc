@@ -62,7 +62,8 @@ class SortByNumberOfResources {
 
 ParallelizeDownloadsAcrossHostnames::ParallelizeDownloadsAcrossHostnames()
     : pagespeed::Rule(pagespeed::InputCapabilities(
-        pagespeed::InputCapabilities::LAZY_LOADED)) {}
+        pagespeed::InputCapabilities::ONLOAD |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES)) {}
 
 const char* ParallelizeDownloadsAcrossHostnames::name() const {
   return "ParallelizeDownloadsAcrossHostnames";
@@ -95,7 +96,7 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
     for (ResourceSet::const_iterator iter2 = resources.begin(),
              end2 = resources.end(); iter2 != end2; ++iter2) {
       const Resource* resource = *iter2;
-      if (!resource->IsLazyLoaded(input) &&
+      if (!input.IsResourceLoadedAfterOnload(*resource) &&
           resource_util::IsLikelyStaticResource(*resource)) {
         static_resource_hosts[host].insert(resource);
       }

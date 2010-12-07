@@ -45,7 +45,8 @@ const size_t kMinSpriteImageCount = 5;
 SpriteImages::SpriteImages()
   : pagespeed::Rule(pagespeed::InputCapabilities(
         pagespeed::InputCapabilities::RESPONSE_BODY |
-        pagespeed::InputCapabilities::LAZY_LOADED)) {
+        pagespeed::InputCapabilities::ONLOAD |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES)) {
 }
 
 const char* SpriteImages::name() const {
@@ -79,8 +80,8 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
       continue;
     }
 
-    // Exclude lazy-loaded resources.
-    if (resource.IsLazyLoaded(input)) {
+    // Exclude post-onload resources.
+    if (input.IsResourceLoadedAfterOnload(resource)) {
       continue;
     }
 

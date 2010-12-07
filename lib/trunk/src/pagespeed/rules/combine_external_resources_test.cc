@@ -118,7 +118,7 @@ TEST_F(CombineExternalResourcesTest, OneUrlNoViolation) {
   CheckViolations(pagespeed::CSS, no_violations);
 }
 
-TEST_F(CombineExternalResourcesTest, OneLazyOneNotNoViolation) {
+TEST_F(CombineExternalResourcesTest, OnePostOnloadOneNotNoViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://foo.com/bar";
 

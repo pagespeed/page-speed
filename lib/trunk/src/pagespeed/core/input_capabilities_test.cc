@@ -43,7 +43,7 @@ TEST(InputCapabilitiesTest, All) {
 
 TEST(InputCapabilitiesTest, Different) {
   InputCapabilities a(InputCapabilities::DOM);
-  InputCapabilities b(InputCapabilities::LAZY_LOADED);
+  InputCapabilities b(InputCapabilities::ONLOAD);
   ASSERT_FALSE(a.equals(b));
   ASSERT_FALSE(b.equals(a));
   ASSERT_FALSE(a.satisfies(b));
@@ -53,7 +53,7 @@ TEST(InputCapabilitiesTest, Different) {
 TEST(InputCapabilitiesTest, Subset) {
   InputCapabilities a(InputCapabilities::DOM);
   InputCapabilities b(InputCapabilities::DOM |
-                      InputCapabilities::LAZY_LOADED);
+                      InputCapabilities::ONLOAD);
   ASSERT_FALSE(a.equals(b));
   ASSERT_FALSE(b.equals(a));
   ASSERT_FALSE(a.satisfies(b));

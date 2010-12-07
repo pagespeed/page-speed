@@ -273,7 +273,7 @@ TEST_F(AvoidDocumentWriteTest, DocumentWriteRedirected) {
   ASSERT_EQ(1, details(0).line_number());
 }
 
-TEST_F(AvoidDocumentWriteTest, LazyLoadedPng) {
+TEST_F(AvoidDocumentWriteTest, PostOnloadPng) {
   SetOnloadTimeMillis(10);
   pagespeed::Resource* script_resource =
       NewScriptResource("http://example.com/a.js", body());
