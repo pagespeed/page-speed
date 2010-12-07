@@ -77,7 +77,7 @@ class InputPopulator {
 };
 
 // Macro to be used only within InputPopulator instance methods:
-#define INPUT_POPULATOR_ERROR() ((error_ = true), LOG(DFATAL))
+#define INPUT_POPULATOR_ERROR() error_ = true; LOG(DFATAL)
 
 int InputPopulator::ToInt(cJSON *value) {
   if (value->type == cJSON_Number) {
