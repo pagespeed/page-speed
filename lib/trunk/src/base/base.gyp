@@ -22,7 +22,6 @@
       'type': 'executable',
       'msvs_guid': '27A30967-4BBA-48D1-8522-CDE95F7B1CEC',
       'sources': [
-        '<(chromium_root)/base/debug_util_unittest.cc',
         '<(chromium_root)/base/string_piece_unittest.cc',
         '<(chromium_root)/base/win_util_unittest.cc',
       ],
@@ -30,7 +29,7 @@
         'base',
         '<(DEPTH)/testing/gmock.gyp:gmock',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/testing/gtest.gyp:gtest_main',
       ],
       'include_dirs': [
         '<(DEPTH)',
