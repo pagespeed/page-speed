@@ -40,19 +40,14 @@
 #include "net/base/registry_controlled_domain.h"
 
 #include "base/logging.h"
-#ifdef __native_client__
-#include "base/scoped_ptr.h"
-#else
 #include "base/singleton.h"
-#endif
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
 
-// effective_tld_names.cc contains data about domain mappings
-#include "net/base/effective_tld_names.cc"
+#include "effective_tld_names.cc"
 
 namespace net {
 
@@ -280,39 +275,13 @@ RegistryControlledDomainService* RegistryControlledDomainService::SetInstance(
   return old_instance;
 }
 
-#ifdef __native_client__
-namespace {
-
-scoped_ptr<RegistryControlledDomainService> gService;
-
-// Circumvent RegistryControlledDomainService's protected constructor.  We are
-// _not_ supposed to do this for non-testing purposes, but Singleton doesn't
-// seem to work in Native Client, so we have little choice.
-class EvilRCDS : public RegistryControlledDomainService {
- public:
-  EvilRCDS() {}
- private:
-  DISALLOW_COPY_AND_ASSIGN(EvilRCDS);
-};
-
-}  // namespace
-#endif
-
 // static
 RegistryControlledDomainService* RegistryControlledDomainService::GetInstance()
 {
   if (test_instance_)
     return test_instance_;
 
-#ifdef __native_client__
-  // This is probably not thread-safe, so don't use threads when we're in NaCl.
-  if (gService == NULL) {
-    gService.reset(new EvilRCDS);
-  }
-  return gService.get();
-#else
   return Singleton<RegistryControlledDomainService>::get();
-#endif
 }
 
 // static

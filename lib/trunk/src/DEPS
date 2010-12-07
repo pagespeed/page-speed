@@ -15,7 +15,7 @@
 vars = {
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@55218",
+  "chromium_revision": "@68180",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "modpagespeed_src":
     "http://modpagespeed.googlecode.com/svn/trunk",
@@ -65,8 +65,8 @@ deps = {
   "src/third_party/zlib":
     Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
 
-  "src/third_party/protobuf2":
-    (Var("chromium_trunk") + "/src/third_party/protobuf2" +
+  "src/third_party/protobuf":
+    (Var("chromium_trunk") + "/src/third_party/protobuf" +
      Var("chromium_revision")),
 
   "src/third_party/modp_b64":
@@ -81,7 +81,6 @@ deps = {
 
   "src/googleurl": From(Var("chromium_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
-  "src/third_party/protobuf2/src": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 }
 
@@ -89,7 +88,7 @@ deps = {
 deps_os = {
   "win": {
     "src/third_party/cygwin": From(Var("chromium_deps_root")),
-    "src/third_party/python_24": From(Var("chromium_deps_root")),
+    "src/third_party/python_26": From(Var("chromium_deps_root")),
   },
   "mac": {
   },

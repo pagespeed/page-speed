@@ -14,10 +14,9 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/icu/icu.gyp:iculite',
       ],
       'sources': [
-        '<(DEPTH)/googleurl_noicu/gurl.cc',
+        '<(DEPTH)/googleurl/src/gurl.cc',
         '<(DEPTH)/googleurl/src/gurl.h',
         '<(DEPTH)/googleurl/src/url_canon.h',
         '<(DEPTH)/googleurl/src/url_canon_etc.cc',
@@ -60,11 +59,10 @@
       'dependencies': [
         'googleurl',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
-        '<(DEPTH)/third_party/icu/icu.gyp:iculite',
+        '<(DEPTH)/testing/gtest.gyp:gtest_main',
       ],
       'sources': [
-        '<(DEPTH)/googleurl_noicu/gurl_unittest.cc',
+        '<(DEPTH)/googleurl/src/gurl_unittest.cc',
         '<(DEPTH)/googleurl_noicu/url_canon_unittest.cc',
         '<(DEPTH)/googleurl/src/url_parse_unittest.cc',
         '<(DEPTH)/googleurl/src/url_util_unittest.cc',

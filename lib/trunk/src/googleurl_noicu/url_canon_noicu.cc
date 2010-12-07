@@ -27,17 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Stubs for ICU integration functions, to be linked into googleurl when not
-// using icu.
+// ICU integration functions.
 
 #include <stdlib.h>
 #include <string.h>
-#include <unicode/utf.h>
 
 #include "googleurl/src/url_canon_icu.h"
-#include "googleurl/src/url_canon_internal.h"
+#include "googleurl/src/url_canon_internal.h"  // for _itoa_s
 
 #include "base/logging.h"
+#include "base/third_party/icu/icu_utf.h"
 
 namespace url_canon {
 
@@ -59,7 +58,7 @@ bool IDNToASCII(const char16* src, int src_len, CanonOutputW* output) {
 bool ReadUTFChar(const char* str, int* begin, int length,
                  unsigned* code_point_out) {
   int code_point;  // Avoids warning when U8_NEXT writes -1 to it.
-  U8_NEXT(str, *begin, length, code_point);
+  CBU8_NEXT(str, *begin, length, code_point);
   *code_point_out = static_cast<unsigned>(code_point);
 
   // The ICU macro above moves to the next char, we want to point to the last
@@ -67,7 +66,7 @@ bool ReadUTFChar(const char* str, int* begin, int length,
   (*begin)--;
 
   // Validate the decoded value.
-  if (U_IS_UNICODE_CHAR(code_point))
+  if (CBU_IS_UNICODE_CHAR(code_point))
     return true;
   *code_point_out = kUnicodeReplacementCharacter;
   return false;
@@ -75,15 +74,15 @@ bool ReadUTFChar(const char* str, int* begin, int length,
 
 bool ReadUTFChar(const char16* str, int* begin, int length,
                  unsigned* code_point) {
-  if (U16_IS_SURROGATE(str[*begin])) {
-    if (!U16_IS_SURROGATE_LEAD(str[*begin]) || *begin + 1 >= length ||
-        !U16_IS_TRAIL(str[*begin + 1])) {
+  if (CBU16_IS_SURROGATE(str[*begin])) {
+    if (!CBU16_IS_SURROGATE_LEAD(str[*begin]) || *begin + 1 >= length ||
+        !CBU16_IS_TRAIL(str[*begin + 1])) {
       // Invalid surrogate pair.
       *code_point = kUnicodeReplacementCharacter;
       return false;
     } else {
       // Valid surrogate pair.
-      *code_point = U16_GET_SUPPLEMENTARY(str[*begin], str[*begin + 1]);
+      *code_point = CBU16_GET_SUPPLEMENTARY(str[*begin], str[*begin + 1]);
       (*begin)++;
     }
   } else {
@@ -91,7 +90,7 @@ bool ReadUTFChar(const char16* str, int* begin, int length,
     *code_point = str[*begin];
   }
 
-  if (U_IS_UNICODE_CHAR(*code_point))
+  if (CBU_IS_UNICODE_CHAR(*code_point))
     return true;
 
   // Invalid code point.
