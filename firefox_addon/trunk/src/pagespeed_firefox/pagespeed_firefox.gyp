@@ -128,7 +128,7 @@
         'pagespeed_firefox_file_util',
         'pagespeed_firefox_json_input',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtestmain',
+        '<(DEPTH)/testing/gtest.gyp:gtest_main',
       ],
       'sources': [
         'cpp/pagespeed/file_util_test.cc',
