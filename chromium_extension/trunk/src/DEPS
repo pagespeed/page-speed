@@ -22,7 +22,7 @@ vars = {
   # commented-out line below.
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@55218",
+  "chromium_revision": "@68180",
 }
 
 deps = {
@@ -57,10 +57,6 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/base" +
      Var("libpagespeed_revision")),
 
-  "src/third_party/icu":
-    (Var("libpagespeed_trunk") + "/src/third_party/icu" +
-     Var("libpagespeed_revision")),
-
   "src/third_party/libpagespeed/src/build":
     (Var("libpagespeed_trunk") + "/src/build" +
      Var("libpagespeed_revision")),
@@ -87,7 +83,7 @@ deps = {
   "src/third_party/libjpeg": From(Var("libpagespeed_deps_root")),
   "src/third_party/libpng": From(Var("libpagespeed_deps_root")),
   "src/third_party/modp_b64": From(Var("libpagespeed_deps_root")),
-  "src/third_party/protobuf2": From(Var("libpagespeed_deps_root")),
+  "src/third_party/protobuf": From(Var("libpagespeed_deps_root")),
   "src/third_party/zlib": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/base": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/build": From(Var("libpagespeed_deps_root")),
@@ -97,7 +93,6 @@ deps = {
 
   "src/googleurl": From(Var("chromium_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
-  "src/third_party/protobuf2/src": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 }
 
