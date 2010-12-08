@@ -151,6 +151,8 @@
         '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_results_converter',
       ],
       'sources': [
         'cpp/pagespeed/firefox_dom.cc',

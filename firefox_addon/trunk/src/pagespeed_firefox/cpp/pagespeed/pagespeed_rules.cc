@@ -48,9 +48,8 @@
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
-#include "pagespeed/rules/minify_css.h"
-#include "pagespeed/rules/minify_html.h"
-#include "pagespeed/rules/optimize_images.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/results_to_json_converter.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_firefox/cpp/pagespeed/file_util.h"
 #include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
@@ -284,6 +283,58 @@ pagespeed::ResourceFilter* ChoiceToFilter(int filter_choice) {
   }
 }
 
+// Helper that converts from mozilla nsACString to const char*.
+bool GetDataFromCString(const nsACString& in,
+                        const char** out_utf8) {
+  PRBool terminated = PR_FALSE;
+  NS_CStringGetData(in, out_utf8, &terminated);
+  return terminated;
+}
+
+// Creates a PagespeedInput from the specified parameters.
+pagespeed::PagespeedInput*
+ConstructPageSpeedInput(const nsACString& har_data,
+                        const nsACString& custom_data,
+                        nsIArray* input_streams,
+                        const nsACString& root_url,
+                        nsIDOMDocument* root_document,
+                        PRInt16 filter_choice) {
+  const char* har_data_utf8;
+  const char* custom_data_utf8;
+  const char* root_url_utf8;
+  if (!GetDataFromCString(har_data, &har_data_utf8) ||
+      !GetDataFromCString(custom_data, &custom_data_utf8) ||
+      !GetDataFromCString(root_url, &root_url_utf8)) {
+    LOG(ERROR) << "Failed to convert strings to UTF8.";
+    return NULL;
+  }
+
+  std::vector<std::string> contents;
+  AppendInputStreamsContents(input_streams, &contents);
+
+  scoped_ptr<pagespeed::PagespeedInput> input(
+      pagespeed::ParseHttpArchiveWithFilter(
+          har_data_utf8, ChoiceToFilter(filter_choice)));
+  if (input == NULL) {
+    return NULL;
+  }
+
+  if (!pagespeed::PopulateInputFromJSON(
+          input.get(), custom_data_utf8, contents)) {
+    LOG(ERROR) << "Failed to parse custom JSON.";
+    return NULL;
+  }
+  const std::string root_url_str(root_url_utf8);
+  if (!root_url_str.empty()) {
+    input->SetPrimaryResourceUrl(root_url_str);
+  }
+  input->AcquireDomDocument(pagespeed::firefox::CreateDocument(root_document));
+  input->AcquireImageAttributesFactory(
+      new pagespeed::image_compression::ImageAttributesFactory());
+  input->Freeze();
+  return input.release();
+}
+
 }  // namespace
 
 namespace pagespeed {
@@ -293,6 +344,58 @@ NS_IMPL_ISUPPORTS1(PageSpeedRules, IPageSpeedRules)
 PageSpeedRules::PageSpeedRules() {}
 
 PageSpeedRules::~PageSpeedRules() {}
+
+NS_IMETHODIMP
+PageSpeedRules::ComputeResults(const nsACString& har_data,
+                               const nsACString& custom_data,
+                               nsIArray* input_streams,
+                               const nsACString& root_url,
+                               nsIDOMDocument* root_document,
+                               PRInt16 filter_choice,
+                               nsACString& _retval NS_OUTPARAM) {
+#ifdef NDEBUG
+  // In release builds, don't display INFO logs. Ideally we would do
+  // this at process startup but we don't receive any native callbacks
+  // at that point, so we do it here instead.
+  logging::SetMinLogLevel(logging::LOG_WARNING);
+#endif
+
+  // Instantiate an AtExitManager so our Singleton<>s are able to
+  // schedule themselves for destruction.
+  base::AtExitManager at_exit_manager;
+
+  scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
+                                                           custom_data,
+                                                           input_streams,
+                                                           root_url,
+                                                           root_document,
+                                                           filter_choice));
+
+  if (input == NULL) {
+    LOG(ERROR) << "Failed to construct PagespeedInput.";
+    return NS_ERROR_FAILURE;
+  }
+
+  const bool save_optimized_content = true;
+  std::vector<pagespeed::Rule*> rules;
+  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+
+  Engine engine(&rules);  // Ownership of rules is transferred to engine.
+  engine.Init();
+
+  Results results;
+  engine.ComputeResults(*input.get(), &results);
+
+  std::string results_json;
+  if (!pagespeed::proto::ResultsToJsonConverter::Convert(
+          results, &results_json)) {
+    LOG(ERROR) << "Failed to ResultsToJsonConverter::Convert.";
+    return NS_ERROR_FAILURE;
+  }
+
+  _retval.Assign(results_json.c_str(), results_json.length());
+  return NS_OK;
+}
 
 NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
@@ -309,71 +412,42 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
   // at that point, so we do it here instead.
   logging::SetMinLogLevel(logging::LOG_WARNING);
 #endif
-  const char* har_data_utf8;
-  PRBool terminated = PR_FALSE;
-  PRUint32 count = NS_CStringGetData(har_data, &har_data_utf8, &terminated);
-  // It would be a fatal error to receive unterminated strings here so better
-  // to crash. We do not expect that to ever happen.
-  CHECK(terminated) << "Received unterminated data.";
-
-  const char* custom_data_utf8;
-  terminated = PR_FALSE;
-  count = NS_CStringGetData(custom_data, &custom_data_utf8, &terminated);
-  // It would be a fatal error to receive unterminated strings here so better
-  // to crash. We do not expect that to ever happen.
-  CHECK(terminated) << "Received unterminated data.";
 
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
 
-  std::vector<std::string> contents;
-  AppendInputStreamsContents(input_streams, &contents);
+  scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
+                                                           custom_data,
+                                                           input_streams,
+                                                           root_url,
+                                                           root_document,
+                                                           filter_choice));
+
+  if (input == NULL) {
+    LOG(ERROR) << "Failed to construct PagespeedInput.";
+    return NS_ERROR_FAILURE;
+  }
 
   const bool save_optimized_content = true;
-  std::vector<Rule*> rules;
-  rule_provider::AppendAllRules(save_optimized_content, &rules);
+  std::vector<pagespeed::Rule*> rules;
+  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
 
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
-  scoped_ptr<PagespeedInput> input(
-      pagespeed::ParseHttpArchiveWithFilter(
-          har_data_utf8, ChoiceToFilter(filter_choice)));
-  if (input != NULL) {
-    if (!PopulateInputFromJSON(input.get(), custom_data_utf8, contents)) {
-      LOG(ERROR) << "Failed to parse custom JSON.";
-      return NS_ERROR_FAILURE;
-    }
-    const char* root_url_utf8;
-    terminated = PR_FALSE;
-    NS_CStringGetData(root_url, &root_url_utf8, &terminated);
-    CHECK(terminated) << "Received unterminated data.";
-    const std::string root_url_str(root_url_utf8);
-    if (!root_url_str.empty()) {
-      input->SetPrimaryResourceUrl(root_url_str);
-    }
-    input->AcquireDomDocument(firefox::CreateDocument(root_document));
-    input->AcquireImageAttributesFactory(
-        new pagespeed::image_compression::ImageAttributesFactory());
-    input->Freeze();
-
-    std::stringstream stream;
-    scoped_ptr<PluginSerializer> serializer;
-    if (output_dir != NULL) {
-      serializer.reset(new PluginSerializer(output_dir));
-    }
-    formatters::JsonFormatter formatter(&stream, serializer.get());
-    ResponseByteResultFilter result_filter;
-    engine.ComputeAndFormatResults(*input.get(), result_filter, &formatter);
-
-    const std::string& output_string = stream.str();
-    _retval.Assign(output_string.c_str(), output_string.length());
-    return NS_OK;
-  } else {
-    LOG(ERROR) << "Failed to parse HAR.";
-    return NS_ERROR_FAILURE;
+  std::stringstream stream;
+  scoped_ptr<PluginSerializer> serializer;
+  if (output_dir != NULL) {
+    serializer.reset(new PluginSerializer(output_dir));
   }
+  formatters::JsonFormatter formatter(&stream, serializer.get());
+  ResponseByteResultFilter result_filter;
+  engine.ComputeAndFormatResults(*input.get(), result_filter, &formatter);
+
+  const std::string& output_string = stream.str();
+  _retval.Assign(output_string.c_str(), output_string.length());
+  return NS_OK;
 }
 
 }  // namespace pagespeed
