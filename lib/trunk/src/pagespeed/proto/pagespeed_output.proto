@@ -277,8 +277,8 @@ message Results {
   // Summary of information about the inputs.
   required InputInformation input_info = 2;
 
-  // Names of all rules that were run.
-  repeated string rules = 3;
+  // Names of all rules that were run (use rule_results instead).
+  repeated string rules = 3 [deprecated=true];
 
   // Names of rules that encountered errors during processing.
   repeated string error_rules = 4;
