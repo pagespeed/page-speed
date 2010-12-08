@@ -110,11 +110,6 @@ class Engine {
  private:
   void PopulateNameToRuleMap();
 
-  // Populate the Results structure with additional information
-  // (i.e. the Page Speed library version, the set of rules being run,
-  // etc).
-  void PrepareResults(const PagespeedInput& input, Results *results) const;
-
   typedef std::map<std::string, Rule*> NameToRuleMap;
 
   std::vector<Rule*> rules_;

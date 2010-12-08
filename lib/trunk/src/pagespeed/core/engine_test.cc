@@ -125,10 +125,9 @@ TEST(EngineTest, ComputeResults) {
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
   ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(kRuleName, results.rule_results(0).rule_name());
   ASSERT_EQ(1, results.rule_results(0).results_size());
   ASSERT_EQ(100, results.rule_results(0).rule_score());
-  ASSERT_EQ(1, results.rules_size());
-  ASSERT_EQ(kRuleName, results.rules(0));
   ASSERT_EQ(0, results.error_rules_size());
   ASSERT_NE(0, results.version().major());
   ASSERT_NE(0, results.version().minor());
@@ -152,10 +151,9 @@ TEST(EngineTest, ComputeResultsError) {
   Results results;
   ASSERT_FALSE(engine.ComputeResults(input, &results));
   ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(kRuleName, results.rule_results(0).rule_name());
   ASSERT_EQ(1, results.rule_results(0).results_size());
-  ASSERT_EQ(1, results.rules_size());
   ASSERT_EQ(1, results.error_rules_size());
-  ASSERT_EQ(kRuleName, results.rules(0));
   ASSERT_EQ(kRuleName, results.error_rules(0));
   ASSERT_FALSE(results.has_score());
 
@@ -282,8 +280,8 @@ TEST(EngineTest, FormatResultsNoResults) {
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(1, results.rules_size());
   ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(kRuleName, results.rule_results(0).rule_name());
   ASSERT_EQ(0, results.rule_results(0).results_size());
 
   // Verify that when there are no results, but there is an entry in

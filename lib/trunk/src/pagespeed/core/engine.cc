@@ -98,7 +98,8 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
     return false;
   }
 
-  PrepareResults(pagespeed_input, results);
+  results->mutable_input_info()->CopyFrom(*pagespeed_input.input_information());
+  GetPageSpeedVersion(results->mutable_version());
 
   const RuleInput rule_input(pagespeed_input);
   int total_score = 0;
@@ -198,17 +199,6 @@ bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
   bool success = ComputeResults(input, &results);
   success = FormatResults(results, filter, formatter) && success;
   return success;
-}
-
-void Engine::PrepareResults(const PagespeedInput& input,
-                            Results* results) const {
-  for (std::vector<Rule*>::const_iterator it = rules_.begin(),
-           end = rules_.end(); it != end; ++it) {
-    const Rule& rule = **it;
-    results->add_rules(rule.name());
-  }
-  results->mutable_input_info()->CopyFrom(*input.input_information());
-  GetPageSpeedVersion(results->mutable_version());
 }
 
 ResultFilter::ResultFilter() {}
