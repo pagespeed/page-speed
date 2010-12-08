@@ -22,7 +22,7 @@ window.pagespeed.computeFormattedResults(doc, exclusionRegex);
 
 Each function takes two arguments: a document that is the document of the root HTML page to be analyzed, as well as regular expression that can be used to filter resources on the page from being included in Page Speed analysis. Both parameters are optional. If they are omitted, the document of the topmost window will be used, and all resources will be included in the analysis. The two parameters can be used together in order to constrain analysis to the contents of a specific frame on the page.
 
-For instance if you use a test harness that hosts content in an iframe such as [http://code.google.com/p/puppet-test/ puppet], you can integrate Page Speed and invoke it on the iframe that Selenium uses for its tests, by passing in the document associated with the test frame and specifying an exclusionRegex that filters out the puppet resources.
+For instance if you use a test harness that hosts content in an iframe such as [http://code.google.com/p/puppet-test/ puppet], you can run Page Speed as part of your puppet tests by passing in the document associated with puppet's test iframe and specifying an exclusionRegex that filters out the puppet resources that aren't part of the page being tested.
 
 So, for instance, to analyze the contents of an iframe, you might do the following:
 
@@ -101,6 +101,6 @@ Results {
 
 == computeFormattedResults ==
 
-The `computeFormattedResults` API returns a !JavaScript object that can be used to generate human-readable Page Speed results. In fact it is the structure used by the Page Speed Firefox extension when displaying results in the Page Speed UI.
+The `computeFormattedResults` API returns a !JavaScript object that can be used to generate human-readable Page Speed results.
 
 TODO: document this structure
