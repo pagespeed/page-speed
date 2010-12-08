@@ -1,0 +1,12 @@
+#summary Information about the Page Speed JavaScript API exposed to web pages.
+
+= Introduction =
+
+As of the 1.10 release, Page Speed exposes a JavaScript API that pages can invoke to analyze web pages within the browser.
+
+
+= Details =
+
+== Enabling the JavaScript API ==
+
+The JavaScript API is not enabled by default. To enable it, set the Firefox preference `extensions.PageSpeed.enable_client_api` to `true` in [about:config].
