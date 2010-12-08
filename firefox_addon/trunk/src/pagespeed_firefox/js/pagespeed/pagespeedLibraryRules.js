@@ -300,8 +300,9 @@ PAGESPEED.NativeLibrary = {
   },
 
   /**
-   * Invoke the native library rules and return an array of LintRule-like
-   * objects, or return an empty array if the library is unavailable.
+   * Invoke the native library rules and return a structure that
+   * contains formatted results, or null if the library is
+   * unavailable.
    * @param {nsIDOMDocument?} opt_doc The document to analyze. If
    * null, the root document for the current window is used.
    * @param {RegExp?} opt_regexp_url_exclude_filter An optional URL
@@ -309,11 +310,12 @@ PAGESPEED.NativeLibrary = {
    * analysis.
    * @return {array} An array of LintRule-like objects.
    */
-  invokeNativeLibraryRules: function(opt_doc, opt_regexp_url_exclude_filter) {
+  invokeNativeLibraryAndFormatResults: function(
+      opt_doc, opt_regexp_url_exclude_filter) {
     var pagespeedRules = PAGESPEED.Utils.CCIN(
       '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
     if (!pagespeedRules) {
-      return [];
+      return null;
     }
 
     var documentUrl = PAGESPEED.Utils.getDocumentUrl();
@@ -330,6 +332,41 @@ PAGESPEED.NativeLibrary = {
       opt_doc ? opt_doc : PAGESPEED.Utils.getElementsByType('doc')[0],
       filterChoice(),
       PAGESPEED.Utils.getOutputDir('page-speed'));
+    return JSON.parse(resultJSON);
+  },
+
+  /**
+   * Invoke the native library rules and return a JavaScript
+   * representation of the Page Speed Results output protocol buffer,
+   * or null if the library is unavailable.
+   * @param {nsIDOMDocument?} opt_doc The document to analyze. If
+   * null, the root document for the current window is used.
+   * @param {RegExp?} opt_regexp_url_exclude_filter An optional URL
+   * filter. URLs that match the filter will not be included in the
+   * analysis.
+   * @return {array} An array of LintRule-like objects.
+   */
+  invokeNativeLibraryAndComputeResults: function(
+      opt_doc, opt_regexp_url_exclude_filter) {
+    var pagespeedRules = PAGESPEED.Utils.CCIN(
+      '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
+    if (!pagespeedRules) {
+      return null;
+    }
+
+    var documentUrl = PAGESPEED.Utils.getDocumentUrl();
+    if (opt_doc) {
+      documentUrl = PAGESPEED.Utils.stripUriFragment(opt_doc.URL);
+    }
+    var input = PAGESPEED.NativeLibrary.constructInputs(
+        documentUrl, opt_regexp_url_exclude_filter);
+    var resultJSON = pagespeedRules.computeResults(
+      JSON.stringify(input.har),
+      JSON.stringify(input.custom),
+      PAGESPEED.Utils.newNsIArray(input.bodyInputStreams),
+      documentUrl,
+      opt_doc ? opt_doc : PAGESPEED.Utils.getElementsByType('doc')[0],
+      filterChoice());
     return JSON.parse(resultJSON);
   },
 

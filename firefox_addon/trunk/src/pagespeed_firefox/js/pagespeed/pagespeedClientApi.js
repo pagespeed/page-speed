@@ -23,7 +23,8 @@
 
 function onNewWindow(win) {
   var pagespeed = {};
-  pagespeed.analyze = PAGESPEED.NativeLibrary.invokeNativeLibraryRules;
+  pagespeed.computeFormattedResults = PAGESPEED.NativeLibrary.invokeNativeLibraryAndFormatResults;
+  pagespeed.computeResults = PAGESPEED.NativeLibrary.invokeNativeLibraryAndComputeResults;
   win.wrappedJSObject.pagespeed = pagespeed;
 }
 
