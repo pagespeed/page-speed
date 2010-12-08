@@ -93,9 +93,6 @@ Results {
       ]
     },
   ],
-
-  // Overall score assigned by Page Speed
-  optional int32 score = 7;
 }
 }}}
 
