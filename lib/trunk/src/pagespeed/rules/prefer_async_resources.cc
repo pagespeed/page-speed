@@ -34,17 +34,55 @@ namespace {
 
 const char* kRuleName = "PreferAsyncResources";
 
-const char* kScriptSuffixes[] = {
-  "google-analytics.com/ga.js",
-  "google-analytics.com/urchin.js",
+const size_t kMaxChunksPerScriptMatcher = 5;
+
+const char* kScriptMatchers[][kMaxChunksPerScriptMatcher] = {
+  { "google-analytics.com/ga.js", NULL },
+  { "google-analytics.com/urchin.js", NULL },
+
+  // See: http://developers.facebook.com/docs/reference/javascript/
+  { "connect.facebook.net/", "/all.js", NULL },
+
   // TODO: Add additional scripts that can be loaded asynchronously.
 };
-const size_t kScriptSuffixLens[] = {
-  strlen(kScriptSuffixes[0]),
-  strlen(kScriptSuffixes[1]),
-  // TODO: Add additional scripts that can be loaded asynchronously.
-};
-const size_t kNumScripts = sizeof(kScriptSuffixes) / sizeof(kScriptSuffixes[0]);
+
+const size_t kNumScriptMatchers =
+    sizeof(kScriptMatchers) / sizeof(kScriptMatchers[0]);
+
+bool IsBlockingScript(
+    const char** script_matcher, const std::string& resolved_src) {
+  // strip query parameters from the source
+  size_t query_params_pos = resolved_src.find_first_of('?');
+  std::string stripped_resolved_src(resolved_src, 0, query_params_pos);
+
+  size_t offset = 0;
+  bool is_blocking_script = true;
+
+  for (const char** script_match_chunk = &(script_matcher[0]);
+       *script_match_chunk != NULL; ++script_match_chunk) {
+    const size_t script_match_chunk_len = strlen(*script_match_chunk);
+    const size_t remaining_resolved_src_len =
+        stripped_resolved_src.size() - offset;
+    if (script_match_chunk_len > remaining_resolved_src_len) {
+      // The chunk is longer than the entire URL, so it can't
+      // possibly match. Skip this matcher.
+      is_blocking_script = false;
+      break;
+    }
+
+    size_t pos = stripped_resolved_src.find(*script_match_chunk, offset);
+    if (pos == std::string::npos) {
+      // failed to find the chunk in the url, so skip the matcher.
+      is_blocking_script = false;
+      break;
+    }
+
+    offset = pos + script_match_chunk_len;
+  }
+
+  // check for trailing characters
+  return is_blocking_script && (offset == stripped_resolved_src.size());
+}
 
 class ScriptVisitor : public pagespeed::DomElementVisitor {
  public:
@@ -109,14 +147,9 @@ void ScriptVisitor::VisitExternalScript(const std::string& script_src) {
   if (pagespeed_input_->IsResourceLoadedAfterOnload(*resource)) {
     return;
   }
-  for (size_t i = 0; i < kNumScripts; i++) {
-    if (kScriptSuffixLens[i] > resolved_src.size()) {
-      // The suffix is longer than the entire URL, so it can't
-      // possibly match. Skip it.
-      continue;
-    }
-    size_t offset = resolved_src.size() - kScriptSuffixLens[i];
-    if (resolved_src.find(kScriptSuffixes[i], offset) == offset) {
+
+  for (size_t i = 0; i < kNumScriptMatchers; i++) {
+    if (IsBlockingScript(kScriptMatchers[i], resolved_src)) {
       blocking_scripts_.push_back(resolved_src);
       break;
     }

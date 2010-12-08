@@ -34,6 +34,13 @@ class PreferAsyncResourcesTest
   static const char* kRootUrl;
   static const char* kIframeUrl;
 
+  static const char* kGaScriptUrl;
+  static const char* kUrchinScriptUrl;
+  static const char* kFacebookScriptEnUsUrl;
+  static const char* kFacebookScriptEnGbUrl;
+  static const char* kFacebookScriptAcceptedUrl;
+  static const char* kFacebookScriptRejectedUrl;
+
   virtual void DoSetUp() {
     NewPrimaryResource(kRootUrl);
     CreateHtmlHeadBodyElements();
@@ -136,13 +143,31 @@ const char* PreferAsyncResourcesTest::kIframeUrl = "http://test.com/iframe.htm";
 const char* PreferAsyncResourcesRelativeTest::kRelativeRootUrl =
     "http://www.google-analytics.com/index.html";
 
+const char* PreferAsyncResourcesTest::kGaScriptUrl =
+    "http://www.google-analytics.com/ga.js";
+const char* PreferAsyncResourcesTest::kUrchinScriptUrl =
+    "http://www.google-analytics.com/urchin.js";
+const char* PreferAsyncResourcesTest::kFacebookScriptEnUsUrl =
+    "http://connect.facebook.net/en_US/all.js";
+const char* PreferAsyncResourcesTest::kFacebookScriptEnGbUrl =
+    "http://connect.facebook.net/en_GB/all.js";
+
+// This URL isn't valid for getting the FB js, however it should match
+// our matcher.
+const char* PreferAsyncResourcesTest::kFacebookScriptAcceptedUrl =
+    "http://connect.facebook.net//all.js";
+
+// This URL isn't valid either, and it too should not match our
+// matcher.
+const char* PreferAsyncResourcesTest::kFacebookScriptRejectedUrl =
+    "http://connect.facebook.net/all.js";
+
 TEST_F(PreferAsyncResourcesTest, EmptyDom) {
   CheckNoViolations();
 }
 
 TEST_F(PreferAsyncResourcesTest, AsyncGoogleAnalyticsIsOkay) {
-  FakeDomElement* ga_script = CreateScriptElement(
-      "http://www.google-analytics.com/ga.js", body());
+  FakeDomElement* ga_script = CreateScriptElement(kGaScriptUrl, body());
   ga_script->AddAttribute("async", "");
   CreatePngElement(body());
   CreateCssElement(body());
@@ -154,14 +179,14 @@ TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsLastIsBad) {
   CreatePngElement(body());
   CreateCssElement(body());
   CreateScriptElement("http://test.com/test.js", body());
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/ga.js");
+  CreateScriptElement(kGaScriptUrl, body());
+  CheckOneViolation(kRootUrl, kGaScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsAboveCssIsBad) {
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
+  CreateScriptElement(kGaScriptUrl, body());
   CreateCssElement(body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/ga.js");
+  CheckOneViolation(kRootUrl, kGaScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsExtendedUrlIsOk) {
@@ -172,9 +197,8 @@ TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsExtendedUrlIsOk) {
 
 TEST_F(PreferAsyncResourcesTest, PostOnloadSyncGoogleAnalyticsAboveCssIsOk) {
   SetOnloadTimeMillis(10);
-  NewScriptResource(
-      "http://www.google-analytics.com/ga.js",
-      body())->SetRequestStartTimeMillis(11);
+  NewScriptResource(kGaScriptUrl,
+                    body())->SetRequestStartTimeMillis(11);
   CreateCssElement(body());
   CheckNoViolations();
 }
@@ -186,50 +210,50 @@ TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsAboveCssWithHttpsIsBad) {
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsAboveImageIsBad) {
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
+  CreateScriptElement(kGaScriptUrl, body());
   CreatePngElement(body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/ga.js");
+  CheckOneViolation(kRootUrl, kGaScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsAboveScriptIsBad) {
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
+  CreateScriptElement(kGaScriptUrl, body());
   CreateScriptElement("http://test.com/test.js", body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/ga.js");
+  CheckOneViolation(kRootUrl, kGaScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsAboveIframeIsBad) {
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
+  CreateScriptElement(kGaScriptUrl, body());
   CreateIframeElement(body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/ga.js");
+  CheckOneViolation(kRootUrl, kGaScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, UrchinGoogleAnalyticsAboveOtherContentIsBad) {
-  CreateScriptElement("http://www.google-analytics.com/urchin.js", body());
+  CreateScriptElement(kUrchinScriptUrl, body());
   CreateCssElement(body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/urchin.js");
+  CheckOneViolation(kRootUrl, kUrchinScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest,
        UrchinAndSyncGoogleAnalyticsAboveOtherConentIsBad) {
-  CreateScriptElement("http://www.google-analytics.com/urchin.js", body());
+  CreateScriptElement(kUrchinScriptUrl, body());
   CreateCssElement(body());
-  CheckOneViolation(kRootUrl, "http://www.google-analytics.com/urchin.js");
+  CheckOneViolation(kRootUrl, kUrchinScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, GoogleAnalyticsMixedResults) {
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
+  CreateScriptElement(kGaScriptUrl, body());
   CreateScriptElement("http://test.com/test.js", body());
-  CreateScriptElement("http://www.google-analytics.com/urchin.js", body());
-  CheckTwoViolations(kRootUrl, "http://www.google-analytics.com/ga.js",
-                     kRootUrl, "http://www.google-analytics.com/urchin.js");
+  CreateScriptElement(kUrchinScriptUrl, body());
+  CheckTwoViolations(kRootUrl, kGaScriptUrl,
+                     kRootUrl, kUrchinScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, GoogleAnalyticsTwoViolations) {
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
-  CreateScriptElement("http://www.google-analytics.com/urchin.js", body());
+  CreateScriptElement(kGaScriptUrl, body());
+  CreateScriptElement(kUrchinScriptUrl, body());
   CreateScriptElement("http://test.com/test.js", body());
-  CheckTwoViolations(kRootUrl, "http://www.google-analytics.com/ga.js",
-                     kRootUrl, "http://www.google-analytics.com/urchin.js");
+  CheckTwoViolations(kRootUrl, kGaScriptUrl,
+                     kRootUrl, kUrchinScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, FormatTest) {
@@ -238,7 +262,7 @@ TEST_F(PreferAsyncResourcesTest, FormatTest) {
       "asynchronously to reduce blocking of page rendering.\n"
       "  http://test.com/ loads http://www.google-analytics.com/ga.js "
       "synchronously.\n";
-  CreateScriptElement("http://www.google-analytics.com/ga.js", body());
+  CreateScriptElement(kGaScriptUrl, body());
   CreateCssElement(body());
   CheckFormattedOutput(expected);
 }
@@ -249,36 +273,75 @@ TEST_F(PreferAsyncResourcesTest, FormatNoOutputTest) {
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsInIframeIsBad) {
   FakeDomElement* iframe_root = CreateIframeElement(body());
-  CreateScriptElement("http://www.google-analytics.com/ga.js", iframe_root);
-  CheckOneViolation(kIframeUrl, "http://www.google-analytics.com/ga.js");
+  CreateScriptElement(kGaScriptUrl, iframe_root);
+  CheckOneViolation(kIframeUrl, kGaScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncGoogleAnalyticsInIframeAboveCssIsBad) {
   FakeDomElement* iframe_root = CreateIframeElement(body());
-  CreateScriptElement("http://www.google-analytics.com/ga.js", iframe_root);
+  CreateScriptElement(kGaScriptUrl, iframe_root);
   CreateCssElement(iframe_root);
-  CheckOneViolation(kIframeUrl, "http://www.google-analytics.com/ga.js");
+  CheckOneViolation(kIframeUrl, kGaScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncScriptInBodyAndIframeIsDoublyBad) {
-  CreateScriptElement("http://www.google-analytics.com/urchin.js", body());
+  CreateScriptElement(kUrchinScriptUrl, body());
   FakeDomElement* iframe_root = CreateIframeElement(body());
-  CreateScriptElement("http://www.google-analytics.com/ga.js", iframe_root);
+  CreateScriptElement(kGaScriptUrl, iframe_root);
   CreateCssElement(iframe_root);
-  CheckTwoViolations(kIframeUrl, "http://www.google-analytics.com/ga.js",
-                     kRootUrl, "http://www.google-analytics.com/urchin.js");
+  CheckTwoViolations(kIframeUrl, kGaScriptUrl,
+                     kRootUrl, kUrchinScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, SyncFacebookBeforeAnyContentIsBad) {
+  CreateScriptElement(kFacebookScriptEnUsUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kFacebookScriptEnUsUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, AsyncFacebookAnywhereIsGood) {
+  FakeDomElement* element;
+  NewScriptResource(kFacebookScriptEnUsUrl, body(), &element);
+  element->AddAttribute("async", "");
+  CreatePngElement(body());
+  CreateCssElement(body());
+  CreateScriptElement("http://test.com/test.js", body());
+  CheckNoViolations();
+}
+
+TEST_F(PreferAsyncResourcesTest, SyncFacebookExtendedUrlIsOk) {
+  CreateScriptElement("http://connect.facebook.net/en_US/all.jsfoo", body());
+  CreateCssElement(body());
+  CheckNoViolations();
+}
+
+TEST_F(PreferAsyncResourcesTest, SyncFacebookWithVersionIsBad) {
+  CreateScriptElement("http://connect.facebook.net/en_US/all.js?v=25.9.51", body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, "http://connect.facebook.net/en_US/all.js?v=25.9.51");
+}
+
+TEST_F(PreferAsyncResourcesTest, SyncFacebookForAnyRegionIsBad) {
+  CreateScriptElement(kFacebookScriptEnUsUrl, body());
+  CreateScriptElement(kFacebookScriptEnGbUrl, body());
+  CreateCssElement(body());
+  CheckTwoViolations(kRootUrl, kFacebookScriptEnUsUrl,
+                     kRootUrl, kFacebookScriptEnGbUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, FacebookUrlCornerCases) {
+  CreateScriptElement(kFacebookScriptAcceptedUrl, body());
+  CreateScriptElement(kFacebookScriptRejectedUrl, body());
+  CheckOneViolation(kRootUrl, kFacebookScriptAcceptedUrl);
 }
 
 // Make sure the DOM traversal properly resolves relative URLs.
 TEST_F(PreferAsyncResourcesRelativeTest, SyncGoogleAnalyticsRelativeUrl) {
   FakeDomElement* element;
-  NewScriptResource("http://www.google-analytics.com/ga.js",
-                    body(),
-                    &element);
+  NewScriptResource(kGaScriptUrl, body(), &element);
   element->AddAttribute("src", "ga.js");
   CreateCssElement(body());
-  CheckOneViolation(kRelativeRootUrl,
-                    "http://www.google-analytics.com/ga.js");
+  CheckOneViolation(kRelativeRootUrl, kGaScriptUrl);
 }
 
 }  // namespace
