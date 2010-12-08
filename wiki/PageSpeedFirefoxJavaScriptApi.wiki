@@ -2,11 +2,105 @@
 
 = Introduction =
 
-As of the 1.10 release, Page Speed exposes a JavaScript API that pages can invoke to analyze web pages within the browser.
+As of the 1.10 release, Page Speed exposes a !JavaScript API that pages can invoke to analyze web pages within the browser.
 
 
 = Details =
 
-== Enabling the JavaScript API ==
+== Enabling the !JavaScript API ==
 
-The JavaScript API is not enabled by default. To enable it, set the Firefox preference `extensions.PageSpeed.enable_client_api` to `true` in [about:config].
+The !JavaScript API is not enabled by default. To enable it, create a boolean preference `extensions.PageSpeed.enable_client_api` and set it to `true` in about:config.
+
+== Invoking the !JavaScript API ==
+
+The JavaScript API is exposed via the `window.pagespeed` object. There are currently two methods:
+
+{{{
+window.pagespeed.computeResults(doc, exclusionRegex);
+window.pagespeed.computeFormattedResults(doc, exclusionRegex);
+}}}
+
+Each function takes two arguments: a document that is the document of the root HTML page to be analyzed, as well as regular expression that can be used to filter resources on the page from being included in Page Speed analysis. Both parameters are optional. If they are omitted, the document of the topmost window will be used, and all resources will be included in the analysis. The two parameters can be used together in order to constrain analysis to the contents of a specific frame on the page.
+
+For instance if you use a test harness that hosts content in an iframe such as [http://code.google.com/p/puppet-test/ puppet], you can integrate Page Speed and invoke it on the iframe that Selenium uses for its tests, by passing in the document associated with the test frame and specifying an exclusionRegex that filters out the puppet resources.
+
+So, for instance, to analyze the contents of an iframe, you might do the following:
+
+{{{
+var frame = document.getElementById('myIframe');
+var doc = frame.contentDocument;
+var results = window.pagespeed.computeResults(doc, /\/puppet\//);
+alert(JSON.Stringify(results));
+}}}
+
+This would display the results structure in an alert dialog.
+
+== computeResults ==
+
+The `computeResults` API returns a !JavaScript object that contains the list of violations discovered by Page Speed, grouped by Page Speed rule.
+
+The structure is based on the `Results` protocol buffer in [http://code.google.com/p/page-speed/source/browse/lib/trunk/src/pagespeed/proto/pagespeed_output.proto#273 pagespeed_output.proto]. It's structure is:
+
+{{{
+Results {
+  // Version of the Page Speed library used to generate this Results
+  // structure.
+  version: {
+    major: <number>,  // e.g. 1
+    minor: <number>,  // e.g. 10
+
+    // Set to true in official release builds, false for debug/trunk builds.
+    official_release: <boolean>,
+  },
+
+  // Overall Page Speed score, between 1 and 100.
+  score: <number>,  // e.g. 85
+
+  // rule_results contains one object for each Page Speed rule.
+  rule_results: [
+    {
+      rule_name: <string>,   // e.g. CombineExternalJavaScript
+      rule_score: <number>,  // 0-100
+
+      // results contains zero or more objects, one for each specific 
+      // Page Speed suggestion. For instance if the MinifyHTML rule
+      // finds two HTML files that can be minified, it will generate
+      // two objects in the results array.
+      results: [
+        {
+          // Array of URLs associated with this violation.
+          // Most rules emit Result objects with a single element
+          // in resource_urls, however some rules (e.g. 
+          // CombineExternalJavaScript) will contain multiple URLs 
+          // per Result object.
+          resource_urls: [
+            'http://www.example.com/sample.js',
+          ],
+
+          // Structure which computes the estimated savings from
+          // fixing this violation. Zero or more fields will be 
+          // available. In some cases no savings information will
+          // be provided, which indicates that the rule's savings
+          // cannot be expressed using one of the default fields.
+          savings: {
+            dns_requests_saved: <number>,
+            requests_saved: <number>,
+            response_bytes_saved: <number>,
+            request_bytes_saved: <number>,
+            critical_path_length_saved: <number>
+          }
+        },
+      ]
+    },
+  ],
+
+  // Overall score assigned by Page Speed
+  optional int32 score = 7;
+}
+}}}
+
+== computeFormattedResults ==
+
+The `computeFormattedResults` API returns a !JavaScript object that can be used to generate human-readable Page Speed results. In fact it is the structure used by the Page Speed Firefox extension when displaying results in the Page Speed UI.
+
+TODO: document this structure
