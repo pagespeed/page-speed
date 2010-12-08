@@ -178,7 +178,11 @@ Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
   rule_results->set_localized_rule_name(
       localizer_->LocalizeString(std::string(rule.header())));
 
-  return new FormattedRuleResultsFormatter(localizer_, rule_results);
+  ReleaseActiveChild();
+  Formatter* new_child =
+      new FormattedRuleResultsFormatter(localizer_, rule_results);
+  AcquireActiveChild(new_child);
+  return new_child;
 }
 
 Formatter* ProtoFormatter::NewChild(const FormatterParameters& params) {

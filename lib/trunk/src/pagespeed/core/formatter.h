@@ -130,6 +130,17 @@ class Formatter {
   // Indicates that no more children will be added.
   virtual void DoneAddingChildren() = 0;
 
+  // Releases the current active child formatter, if any.  Calls
+  // active_child_->Done(), and resets the pointer.  Called (along with
+  // AcquireActiveChild(...) by a sub class if it wants to manually allocate a
+  // child formatter without calling AddChild (e.g.  in
+  // RuleFormatter::AddHeader(...) below).
+  void ReleaseActiveChild();
+
+  // Acquires a new child formatter as the current active child.  Updates the
+  // active_child_ pointer.
+  void AcquireActiveChild(Formatter* new_child);
+
  private:
   scoped_ptr<Formatter> active_child_;
   DISALLOW_COPY_AND_ASSIGN(Formatter);
