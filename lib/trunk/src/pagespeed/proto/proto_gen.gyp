@@ -93,5 +93,27 @@
         '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
       ]
     },
+    {
+      'target_name': 'pagespeed_proto_results_converter',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+      ],
+      'sources': [
+        'results_to_json_converter.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ]
+    },
   ],
 }
