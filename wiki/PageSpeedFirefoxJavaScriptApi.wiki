@@ -13,7 +13,7 @@ The !JavaScript API is not enabled by default. To enable it, create a boolean pr
 
 == Invoking the !JavaScript API ==
 
-The JavaScript API is exposed via the `window.pagespeed` object. There are currently two methods:
+The !JavaScript API is exposed via the `window.pagespeed` object. There are currently two methods:
 
 {{{
 window.pagespeed.computeResults(doc, exclusionRegex);
