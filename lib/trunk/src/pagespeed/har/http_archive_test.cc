@@ -26,7 +26,7 @@ using pagespeed::Resource;
 
 namespace {
 
-const std::string kHarInput = (
+const char* kHarInput = (
     "{"
     "  \"log\":{"
     "    \"version\":\"1.2\","
@@ -110,7 +110,7 @@ const std::string kHarInput = (
     "  }"
     "}");
 
-const std::string kHarInputBase64 = (
+const char* kHarInputBase64 = (
     "{"
     "  \"log\":{"
     "    \"version\":\"1.2\","
