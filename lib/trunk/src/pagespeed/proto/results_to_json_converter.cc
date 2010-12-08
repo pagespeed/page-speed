@@ -127,14 +127,6 @@ Value* ResultsToJsonConverter::ConvertResults(
   }
   DictionaryValue* root = new DictionaryValue();
 
-  if (results.rules_size() > 0) {
-    ListValue* rule_names = new ListValue();
-    for (int i = 0, len = results.rules_size(); i < len; ++i) {
-      rule_names->Append(Value::CreateStringValue(results.rules(i)));
-    }
-    root->Set("rules", rule_names);
-  }
-
   if (results.has_version()) {
     root->Set("version", ConvertVersion(results.version()));
   }

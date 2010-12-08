@@ -58,7 +58,6 @@ const char *kFullJson =
     "\"rule_score\":100"
    "}"
   "],"
- "\"rules\":[\"Foo\",\"Bar\"],"
  "\"score\":42,"
  "\"version\":{\"major\":1,\"minor\":9,\"official_release\":false}"
 "}";
@@ -94,8 +93,6 @@ TEST(ResultsToJsonConverterTest, Basic) {
 TEST(ResultsToJsonConverterTest, Full) {
   Results results;
   PopulateBasicFields(&results);
-  results.add_rules("Foo");
-  results.add_rules("Bar");
 
   RuleResults* rule_results = results.add_rule_results();
   rule_results->set_rule_name("Foo");
