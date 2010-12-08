@@ -64,9 +64,6 @@ class PagespeedTest : public ::testing::Test {
   static const char* kUrl3;
   static const char* kUrl4;
 
-  static void SetUpTestCase();
-  static void TearDownTestCase();
-
   PagespeedTest();
   virtual ~PagespeedTest();
 

@@ -184,14 +184,6 @@ bool PagespeedTest::AddFakeImageAttributesFactory(
       new FakeImageAttributesFactory(map));
 }
 
-void PagespeedTest::SetUpTestCase() {
-  pagespeed::Init();
-}
-
-void PagespeedTest::TearDownTestCase() {
-  pagespeed::ShutDown();
-}
-
 std::string DoFormatResults(
     pagespeed::Rule* rule, const pagespeed::RuleResults& rule_results) {
   pagespeed::ResultVector result_vector;

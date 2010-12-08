@@ -25,7 +25,6 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
-        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
       ],
@@ -41,6 +40,21 @@
           '<(pagespeed_root)',
         ],
       },
+    },
+    {
+      'target_name': 'pagespeed_test_main',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
+        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
+      ],
+      'sources': [
+        'pagespeed_test_main.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
     },
   ],
 }
