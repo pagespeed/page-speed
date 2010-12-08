@@ -172,11 +172,10 @@ Formatter* Formatter::AddChild(const LocalizableString& format_str,
 }
 
 Formatter* Formatter::AddChild(const FormatterParameters& params) {
-  if (active_child_ != NULL) {
-    active_child_->Done();
-  }
-  active_child_.reset(NewChild(params));
-  return active_child_.get();
+  ReleaseActiveChild();
+  Formatter* new_child = NewChild(params);
+  AcquireActiveChild(new_child);
+  return new_child;
 }
 
 void Formatter::Done() {
@@ -184,6 +183,21 @@ void Formatter::Done() {
     active_child_->Done();
   }
   DoneAddingChildren();
+}
+
+void Formatter::ReleaseActiveChild() {
+  if (active_child_ != NULL) {
+    active_child_->Done();
+  }
+  active_child_.reset(NULL);
+}
+
+void Formatter::AcquireActiveChild(Formatter* new_child) {
+  if (active_child_ != NULL) {
+    LOG(DFATAL) << "new active child acquired before the old one is released";
+    ReleaseActiveChild();
+  }
+  active_child_.reset(new_child);
 }
 
 RuleFormatter::~RuleFormatter() {

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "base/stl_util-inl.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/localizable_string.h"
 #include "pagespeed/l10n/localizer.h"
@@ -183,6 +184,8 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   args.push_back(new Argument(Argument::INTEGER, 100));
   args.push_back(new Argument(Argument::BYTES, 150));
   args.push_back(new Argument(Argument::DURATION, 200));
+  STLElementDeleter<std::vector<const Argument*> > arg_deleter(&args);
+
   LocalizableString format_str = _N("text $1 $2 $3 $4 $5");
   FormatterParameters formatter_params(&format_str, &args);
   body->AddChild(formatter_params);
