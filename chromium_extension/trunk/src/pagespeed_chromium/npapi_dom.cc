@@ -41,6 +41,22 @@ NPObject* GetObjectProperty(NPP npp, NPObject* object, const char* name) {
   return rval;
 }
 
+// Try to get a integer-valued property with the given name from the given
+// NPObject.  If successful, put the value into the output int and return true;
+// otherwise, return false.
+bool GetIntProperty(NPP npp, NPObject* object, const char* name, int* output) {
+  bool rval = false;
+  NPVariant result;
+  if (NPN_GetProperty(npp, object, NPN_GetStringIdentifier(name), &result)) {
+    if (NPVARIANT_IS_INT32(result)) {
+      *output = static_cast<int>(NPVARIANT_TO_INT32(result));
+      rval = true;
+    }
+    NPN_ReleaseVariantValue(&result);
+  }
+  return rval;
+}
+
 // Try to get a string-valued property with the given name from the given
 // NPObject.  If successful, put the value into the output string and return
 // true; otherwise, return false.
@@ -50,8 +66,9 @@ bool GetStringProperty(NPP npp, NPObject* object, const char* name,
   NPVariant result;
   if (NPN_GetProperty(npp, object, NPN_GetStringIdentifier(name), &result)) {
     if (NPVARIANT_IS_STRING(result)) {
-      const NPString& url_NPString = NPVARIANT_TO_STRING(result);
-      output->assign(url_NPString.UTF8Characters, url_NPString.UTF8Length);
+      const NPString& result_NPString = NPVARIANT_TO_STRING(result);
+      output->assign(result_NPString.UTF8Characters,
+                     result_NPString.UTF8Length);
       rval = true;
     }
     NPN_ReleaseVariantValue(&result);
@@ -116,7 +133,17 @@ class NpapiElement : public pagespeed::DomElement {
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
 
+  virtual Status GetActualWidth(int* out_width) const;
+  virtual Status GetActualHeight(int* out_height) const;
+  virtual Status HasWidthSpecified(bool* out_width_specified) const;
+  virtual Status HasHeightSpecified(bool* out_height_specified) const;
+
  private:
+  // Get the value of a CSS property, whether defined in an inline style or in
+  // an external stylesheet.
+  bool GetCssPropertyByName(const std::string& name,
+                            std::string* property_value) const;
+
   const NPP npp_;
   NPObject* const element_;
 
@@ -201,7 +228,56 @@ std::string NpapiElement::GetTagName() const {
 
 bool NpapiElement::GetAttributeByName(const std::string& name,
                                       std::string* attr_value) const {
-  return GetStringProperty(npp_, element_, name.c_str(), attr_value);
+  bool rval = false;
+  NPVariant argument, result;
+  STRINGN_TO_NPVARIANT(name.data(), name.size(), argument);
+  // Note that we won't call NPN_ReleaseVariantValue on &argument, because that
+  // would call NPN_MemFree on its data, but that data was allocated by a
+  // std::string rather than by NPN_MemAlloc.
+  if (NPN_Invoke(npp_, element_, NPN_GetStringIdentifier("getAttribute"),
+                 &argument, 1, &result)) {
+    if (NPVARIANT_IS_STRING(result)) {
+      const NPString& result_NPString = NPVARIANT_TO_STRING(result);
+      attr_value->assign(result_NPString.UTF8Characters,
+                         result_NPString.UTF8Length);
+      rval = true;
+    }
+    NPN_ReleaseVariantValue(&result);
+  }
+  return rval;
+}
+
+bool NpapiElement::GetCssPropertyByName(const std::string& name,
+                                        std::string* attr_value) const {
+  return false;  // TODO(mdsteele): Figure out how to implement this.
+}
+
+NpapiElement::Status NpapiElement::GetActualWidth(int* out_width) const {
+  return (GetIntProperty(npp_, element_, "width", out_width) ?
+          SUCCESS : FAILURE);
+}
+
+NpapiElement::Status NpapiElement::GetActualHeight(int* out_height) const {
+  return (GetIntProperty(npp_, element_, "height", out_height) ?
+          SUCCESS : FAILURE);
+}
+
+NpapiElement::Status
+NpapiElement::HasWidthSpecified(bool* out_width_specified) const {
+  std::string value;
+  *out_width_specified = (GetAttributeByName("width", &value) ||
+                          (GetCssPropertyByName("width", &value) &&
+                           !value.empty()));
+  return SUCCESS;
+}
+
+NpapiElement::Status
+NpapiElement::HasHeightSpecified(bool* out_height_specified) const {
+  std::string value;
+  *out_height_specified = (GetAttributeByName("height", &value) ||
+                           (GetCssPropertyByName("height", &value) &&
+                            !value.empty()));
+  return SUCCESS;
 }
 
 }  // namespace

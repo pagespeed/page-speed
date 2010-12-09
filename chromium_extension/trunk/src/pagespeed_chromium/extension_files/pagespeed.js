@@ -393,11 +393,13 @@ pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function() {
   }
 }
 
-pagespeed.ResourceAccumulator.prototype.onBody_ = function(text) {
+pagespeed.ResourceAccumulator.prototype.onBody_ = function(text, encoding) {
   if (this.cancelled_) {
     return;  // We've been cancelled so ignore the callback.
   }
-  this.har_.entries[this.nextEntryIndex_].response.content.text = text;
+  var content = this.har_.entries[this.nextEntryIndex_].response.content;
+  content.text = text;
+  content.encoding = encoding;
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
 };
