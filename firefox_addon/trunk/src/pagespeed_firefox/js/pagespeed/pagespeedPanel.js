@@ -101,6 +101,19 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
   // Indicates that the content of this panel is not editable.
   editable: false,
 
+  errorPageTag:
+  DIV({'class': 'moduleManagerBox',
+       'style': 'padding: 0 10px;'},
+    H1({'class': 'moduleManagerHead'},
+       'Page Speed'
+       ),
+    H3('Unable to run Page Speed on $currentPageUrl'),
+       P(B('Please navigate to a web URL and try running Page Speed again.')),
+    P({'class': 'moduleManagerDecription'},
+      'Page Speed Copyright &copy; 2010 Google Inc.'
+      )
+    ),
+
   // Initial domplate that is displayed when the panel is opened.
   welcomePageTag:
       DIV({'class': 'moduleManagerBox',
