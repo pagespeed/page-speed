@@ -84,6 +84,20 @@ function logException(functionName, e) {
 PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
     panel, browserTab) {
 
+  if (PAGESPEED.LintRules.nativeRuleResults.length == 0) {
+    // We encountered an error running the native rules so we should
+    // show an error page.
+    var docUrl = 'current page';
+    if (FirebugContext.window &&
+        FirebugContext.window.document &&
+        FirebugContext.window.document.URL) {
+      docUrl = FirebugContext.window.document.URL;
+    }
+    panel.table = panel.errorPageTag.replace(
+        {'currentPageUrl': docUrl}, panel.panelNode, panel);
+    return;
+  }
+
   // The rules array holds the rule objects used to fill the domplate.
   var rules = [];
   var totalScore = 0;
