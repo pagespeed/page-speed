@@ -29,6 +29,7 @@
     <em:homepageURL>http://code.google.com/speed/page-speed/</em:homepageURL>
     <em:updateURL><![CDATA[https://tools.google.com/service/update2/ff?guid=%ITEM_ID%&version=%ITEM_VERSION%&application=%APP_ID%&appversion=%APP_VERSION%]]></em:updateURL>
     <em:type>2</em:type> <!-- type=extension -->
+    <em:unpack>true</em:unpack>
 
     <!-- Any suitably modern toolkit application -->
     <em:targetApplication>
