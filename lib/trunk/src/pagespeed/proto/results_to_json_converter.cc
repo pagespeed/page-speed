@@ -88,11 +88,11 @@ Value* ResultsToJsonConverter::ConvertResult(
   if (result.has_savings()) {
     root->Set("savings", ConvertSavings(result.savings()));
   }
-  ListValue* resource_urls = new ListValue();
-  for (int i = 0, len = result.resource_urls_size(); i < len; ++i) {
-    resource_urls->Append(Value::CreateStringValue(result.resource_urls(i)));
-  }
-  if (!resource_urls->empty()) {
+  if (result.resource_urls_size() > 0) {
+    ListValue* resource_urls = new ListValue();
+    for (int i = 0, len = result.resource_urls_size(); i < len; ++i) {
+      resource_urls->Append(Value::CreateStringValue(result.resource_urls(i)));
+    }
     root->Set("resource_urls", resource_urls);
   }
 
@@ -111,11 +111,13 @@ Value* ResultsToJsonConverter::ConvertRuleResult(
   if (rule_results.has_rule_score()) {
     root->SetInteger("rule_score", rule_results.rule_score());
   }
-  ListValue* results = new ListValue();
-  for (int i = 0, len = rule_results.results_size(); i < len; ++i) {
-    results->Append(ConvertResult(rule_results.results(i)));
+  if (rule_results.results_size() > 0) {
+    ListValue* results = new ListValue();
+    for (int i = 0, len = rule_results.results_size(); i < len; ++i) {
+      results->Append(ConvertResult(rule_results.results(i)));
+    }
+    root->Set("results", results);
   }
-  root->Set("results", results);
   return root;
 }
 

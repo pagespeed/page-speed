@@ -14,6 +14,7 @@
 
 #include "pagespeed/proto/results_to_json_converter.h"
 
+#include "base/values.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -122,6 +123,48 @@ TEST(ResultsToJsonConverterTest, Full) {
   std::string json;
   ASSERT_TRUE(ResultsToJsonConverter::Convert(results, &json));
   ASSERT_EQ(kFullJson, json);
+
+  Value* value = ResultsToJsonConverter::ConvertResults(results);
+  ASSERT_NE(static_cast<Value*>(NULL), value);
+  delete value;
+}
+
+TEST(ResultsToJsonConverterTest, ConvertVersion) {
+  Version version;
+  Value* value = ResultsToJsonConverter::ConvertVersion(version);
+  ASSERT_EQ(NULL, value);
+
+  version.set_major(1);
+  version.set_minor(9);
+  version.set_official_release(true);
+  value = ResultsToJsonConverter::ConvertVersion(version);
+  ASSERT_NE(static_cast<Value*>(NULL), value);
+  delete value;
+}
+
+TEST(ResultsToJsonConverterTest, ConvertSavings) {
+  Savings savings;
+  Value* value = ResultsToJsonConverter::ConvertSavings(savings);
+  ASSERT_NE(static_cast<Value*>(NULL), value);
+  delete value;
+}
+
+TEST(ResultsToJsonConverterTest, ConvertResult) {
+  Result result;
+  Value* value = ResultsToJsonConverter::ConvertResult(result);
+  ASSERT_NE(static_cast<Value*>(NULL), value);
+  delete value;
+}
+
+TEST(ResultsToJsonConverterTest, ConvertRuleResult) {
+  RuleResults rule_results;
+  Value* value = ResultsToJsonConverter::ConvertRuleResult(rule_results);
+  ASSERT_EQ(NULL, value);
+
+  rule_results.set_rule_name("Foo");
+  value = ResultsToJsonConverter::ConvertRuleResult(rule_results);
+  ASSERT_NE(static_cast<Value*>(NULL), value);
+  delete value;
 }
 
 }  // namespace
