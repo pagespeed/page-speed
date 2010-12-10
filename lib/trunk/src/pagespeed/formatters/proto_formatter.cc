@@ -35,50 +35,61 @@ namespace formatters {
 namespace {
 
 // Fills in a FormatString proto from a FormatterParameters object
+// TODO(aoates): move this functionality into the Argument and FormatterParams
+// classes, to provide l10n for all formatters that want it.
 void FillFormatString(const Localizer* loc,
                       const FormatterParameters& params,
                       FormatString& out) {
-  out.set_format(loc->LocalizeString(std::string(params.format_str())));
+  std::string localized_format;
+  loc->LocalizeString(std::string(params.format_str()), &localized_format);
+  out.set_format(localized_format);
 
   for (unsigned int i = 0; i < params.arguments().size(); ++i) {
     const Argument* arg = params.arguments()[i];
+    bool success = true;
+    std::string localized;
+
     FormatArgument* format_arg = out.add_args();
     switch (arg->type()) {
       case Argument::INTEGER:
         format_arg->set_type(FormatArgument::INT_LITERAL);
         format_arg->set_int_value(arg->int_value());
-        format_arg->set_localized_value(loc->LocalizeInt(arg->int_value()));
+        success = loc->LocalizeInt(arg->int_value(), &localized);
         break;
       case Argument::BYTES:
         format_arg->set_type(FormatArgument::BYTES);
         format_arg->set_int_value(arg->int_value());
-        format_arg->set_localized_value(loc->LocalizeBytes(arg->int_value()));
+        success = loc->LocalizeBytes(arg->int_value(), &localized);
         break;
       case Argument::DURATION:
         format_arg->set_type(FormatArgument::DURATION);
         format_arg->set_int_value(arg->int_value());
-        format_arg->set_localized_value(
-            loc->LocalizeTimeDuration(arg->int_value()));
+        success = loc->LocalizeTimeDuration(arg->int_value(), &localized);
         break;
       case Argument::STRING:
         format_arg->set_type(FormatArgument::STRING_LITERAL);
         format_arg->set_string_value(arg->string_value());
-        format_arg->set_localized_value(
-            loc->LocalizeString(arg->string_value()));
+        loc->LocalizeString(arg->string_value(), &localized);
         break;
       case Argument::URL:
         format_arg->set_type(FormatArgument::URL);
         format_arg->set_string_value(arg->string_value());
-        format_arg->set_localized_value(loc->LocalizeUrl(arg->string_value()));
+        success = loc->LocalizeUrl(arg->string_value(), &localized);
         break;
       default:
         LOG(DFATAL) << "Unknown argument type "
                     << arg->type();
         format_arg->set_type(FormatArgument::STRING_LITERAL);
         format_arg->set_string_value("?");
-        format_arg->set_localized_value("?");
+        localized = "?";
         break;
     }
+    if (!success) {
+      LOG(WARNING) << "warning: unable to localize argument $" << (i+1)
+                   << " (" << localized << ") in format string '"
+                   << params.format_str();
+    }
+    format_arg->set_localized_value(localized);
   }
 }
 
@@ -175,8 +186,10 @@ ProtoFormatter::ProtoFormatter(const Localizer* localizer,
 Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
   FormattedRuleResults* rule_results = results_->add_rule_results();
   rule_results->set_rule(rule.name());
-  rule_results->set_localized_rule_name(
-      localizer_->LocalizeString(std::string(rule.header())));
+
+  std::string localized;
+  DCHECK(localizer_->LocalizeString(std::string(rule.header()), &localized));
+  rule_results->set_localized_rule_name(localized);
 
   ReleaseActiveChild();
   Formatter* new_child =

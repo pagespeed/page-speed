@@ -195,7 +195,6 @@ TEST_F(SpriteImagesTest, BigImages) {
   const std::string url4 = "http://test.com/image4.png";
   const std::string url5 = "http://test.com/image5.png";
   const std::string url6 = "http://test.com/image6.png";
-  const std::string url7 = "http://test.com/image7.png";
   pagespeed::Resource* resource1 = CreatePngResource(url1, kImgSizeBytes);
   size_map[resource1] = std::make_pair(42, 23);
   pagespeed::Resource* resource2 = CreatePngResource(url2, kImgSizeBytes);
@@ -207,9 +206,7 @@ TEST_F(SpriteImagesTest, BigImages) {
   pagespeed::Resource* resource5 = CreatePngResource(url5, kImgSizeBytes);
   size_map[resource5] = std::make_pair(42, 23);
   pagespeed::Resource* resource6 = CreatePngResource(url6, kImgSizeBytes);
-  size_map[resource6] = std::make_pair(96, 96);
-  pagespeed::Resource* resource7 = CreatePngResource(url7, kImgSizeBytes);
-  size_map[resource7] = std::make_pair(96, 97);
+  size_map[resource6] = std::make_pair(42, 23);
   AddFakeImageAttributesFactory(size_map);
   Freeze();
   std::vector<std::string> urls;

@@ -24,32 +24,37 @@ namespace pagespeed {
 
 namespace l10n {
 
-/**
- * Interface for a class that provides localization.
+/** Interface for a class that provides localization.
  *
  * Provides methods for localizing generic constants (such as strings and ints),
  * as well as converting values such as byte counts and time durations into a
  * localized, human-readable format.
+ *
+ * Each of the Localize* methods takes a value and an std::string pointer out.
+ * The Localizer should attempt to localize the value, and return true if
+ * successful, putting the localized value in *out.  The Localizer should put a
+ * reasonable value in *out even if localization fails.
  */
 class Localizer {
  public:
   virtual ~Localizer();
 
   // Localize a string constant into the current locale
-  virtual std::string LocalizeString(const std::string& val) const = 0;
+  virtual bool
+      LocalizeString(const std::string& val, std::string* out) const = 0;
 
   // Localize an integer constant into the current locale
-  virtual std::string LocalizeInt(int64 val) const = 0;
+  virtual bool LocalizeInt(int64 val, std::string* out) const = 0;
 
   // Localize a URL into the current locale
-  virtual std::string LocalizeUrl(const std::string& url) const = 0;
+  virtual bool LocalizeUrl(const std::string& url, std::string* out) const = 0;
 
   // Localize a byte count into a human-readable string in the current locale
-  virtual std::string LocalizeBytes(int64 bytes) const = 0;
+  virtual bool LocalizeBytes(int64 bytes, std::string* out) const = 0;
 
   // Localize a time duration (in ms) into a human-readable string in the
   // current locale
-  virtual std::string LocalizeTimeDuration(int64 ms) const = 0;
+  virtual bool LocalizeTimeDuration(int64 ms, std::string* out) const = 0;
 };
 
 /**
@@ -58,11 +63,11 @@ class Localizer {
  */
 class BasicLocalizer : public Localizer {
  public:
-  virtual std::string LocalizeString(const std::string& val) const;
-  virtual std::string LocalizeInt(int64 val) const;
-  virtual std::string LocalizeUrl(const std::string& url) const;
-  virtual std::string LocalizeBytes(int64 bytes) const;
-  virtual std::string LocalizeTimeDuration(int64 ms) const;
+  virtual bool LocalizeString(const std::string& val, std::string* out) const;
+  virtual bool LocalizeInt(int64 val, std::string* out) const;
+  virtual bool LocalizeUrl(const std::string& url, std::string* out) const;
+  virtual bool LocalizeBytes(int64 bytes, std::string* out) const;
+  virtual bool LocalizeTimeDuration(int64 ms, std::string* out) const;
 };
 
 /**
@@ -70,11 +75,11 @@ class BasicLocalizer : public Localizer {
  */
 class NullLocalizer : public Localizer {
  public:
-  virtual std::string LocalizeString(const std::string& val) const;
-  virtual std::string LocalizeInt(int64 val) const;
-  virtual std::string LocalizeUrl(const std::string& url) const;
-  virtual std::string LocalizeBytes(int64 bytes) const;
-  virtual std::string LocalizeTimeDuration(int64 ms) const;
+  virtual bool LocalizeString(const std::string& val, std::string* out) const;
+  virtual bool LocalizeInt(int64 val, std::string* out) const;
+  virtual bool LocalizeUrl(const std::string& url, std::string* out) const;
+  virtual bool LocalizeBytes(int64 bytes, std::string* out) const;
+  virtual bool LocalizeTimeDuration(int64 ms, std::string* out) const;
 };
 
 } // namespace l10n

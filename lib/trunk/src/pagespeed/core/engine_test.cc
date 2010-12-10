@@ -155,8 +155,7 @@ TEST(EngineTest, ComputeResultsError) {
   ASSERT_EQ(1, results.rule_results(0).results_size());
   ASSERT_EQ(1, results.error_rules_size());
   ASSERT_EQ(kRuleName, results.error_rules(0));
-  ASSERT_TRUE(results.has_score());
-  ASSERT_EQ(100, results.score());
+  ASSERT_FALSE(results.has_score());
 
   const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -202,8 +201,8 @@ TEST(EngineTest, ComputeScores) {
   ASSERT_EQ(50, results.rule_results(0).rule_score());
   ASSERT_FALSE(results.rule_results(1).has_rule_score());
   ASSERT_EQ(100, results.rule_results(2).rule_score());
-  ASSERT_EQ(100, results.rule_results(3).rule_score());
-  ASSERT_EQ(83, results.score());
+  ASSERT_FALSE(results.rule_results(3).has_rule_score());
+  ASSERT_EQ(75, results.score());
 }
 
 TEST(EngineTest, FormatResults) {

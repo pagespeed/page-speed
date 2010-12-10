@@ -324,13 +324,12 @@ bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
 
 void AvoidDocumentWrite::FormatResults(const ResultVector& results,
                                        Formatter* formatter) {
-
-  // TRANSLATOR: This appears as a header before a list of URLs of resources
-  // that use the JavaScript command "document.write" ("document.write" is code,
-  // and should not be translated).  It describes how using "document.write" can
-  // slow down your website (by forcing external resources to load serially, not
-  // in parallel).
   formatter = formatter->AddChild(
+      // TRANSLATOR: This appears as a header before a list of URLs of resources
+      // that use the JavaScript command "document.write" ("document.write" is
+      // code, and should not be translated).  It describes how using
+      // "document.write" can slow down your website (by forcing external
+      // resources to load serially, not in parallel).
       _("Using document.write to fetch external resources can introduce "
         "serialization delays in the rendering of the page. The following "
         "resources use document.write to fetch external resources:"));
@@ -352,18 +351,21 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
       if (adw_details.urls_size() > 0) {
         Argument res_url(Argument::URL, result.resource_urls(0));
         Argument line_number(Argument::INTEGER, adw_details.line_number());
-        // TRANSLATOR: Describes a single resource that violates the
-        // AvoidDocumentWrite rule by using the "document.write" JavaScript
-        // command ("document.write" is code, and should not be translated).  It
-        // gives the URL of the resource that uses "document.write" (parameter
-        // $1), and the line number of that call.  Following this will be a list
-        // of the URLs that are fetched as a result of that "document.write"
-        // call.  The parameters are,
-        //   $1 - the URL of the external resource that uses "document.write"
-        //   $2 - the line number of the call to "document.write" in that
-        //        resource.
+
         Formatter* body =
             formatter->AddChild(
+                // TRANSLATOR: Describes a single resource that violates the
+                // AvoidDocumentWrite rule by using the "document.write"
+                // JavaScript command ("document.write" is code, and should not
+                // be translated).  It gives the URL of the resource that uses
+                // "document.write" (parameter $1), and the line number of that
+                // call.  Following this will be a list of the URLs that are
+                // fetched as a result of that "document.write" call.  The
+                // parameters are,
+                //   $1 - the URL of the external resource that uses
+                //        "document.write"
+                //   $2 - the line number of the call to "document.write" in
+                //        that resource.
                 _("$1 calls document.write on line $2 to fetch:"),
                 res_url, line_number);
         for (int i = 0, size = adw_details.urls_size(); i < size; ++i) {
