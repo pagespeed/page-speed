@@ -26,6 +26,15 @@
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
+namespace {
+
+// Allow 2 or fewer resources. Many sites have a site-wide CSS/JS file
+// as well as a per-page CSS/JS file. Thus we allow 2 resources per
+// hostname without showing a warning.
+const size_t kMaxResourcesPerDomain = 2;
+
+}  // namespace
+
 namespace pagespeed {
 
 namespace rules {
@@ -77,10 +86,9 @@ bool CombineExternalResources::AppendResults(const RuleInput& rule_input,
       violations.insert(resource);
     }
 
-    if (violations.size() > 1) {
+    if (violations.size() > kMaxResourcesPerDomain) {
       Result* result = provider->NewResult();
-      int requests_saved = 0;
-      requests_saved += (violations.size() - 1);
+      int requests_saved = violations.size() - kMaxResourcesPerDomain;
       for (ResourceSet::const_iterator violation_iter = violations.begin(),
                violation_end = violations.end();
            violation_iter != violation_end;

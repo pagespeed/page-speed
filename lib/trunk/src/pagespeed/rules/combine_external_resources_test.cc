@@ -134,7 +134,7 @@ TEST_F(CombineExternalResourcesTest, OnePostOnloadOneNotNoViolation) {
   CheckViolations(pagespeed::CSS, no_violations);
 }
 
-TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromOneHostViolation) {
+TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromOneHostNoViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://foo.com/bar";
 
@@ -143,15 +143,8 @@ TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromOneHostViolation) {
 
   std::vector<Violation> no_violations;
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
-
-  std::vector<Violation> css_violations;
-  css_violations.push_back(Violation(1, "foo.com", urls));
-
   Freeze();
-  CheckViolations(pagespeed::CSS, css_violations);
+  CheckViolations(pagespeed::CSS, no_violations);
   CheckViolations(pagespeed::JS, no_violations);
 }
 
@@ -169,26 +162,32 @@ TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
   CheckViolations(pagespeed::JS, no_violations);
 }
 
-TEST_F(CombineExternalResourcesTest, FourCssResourcesFromTwoHostsViolation) {
+TEST_F(CombineExternalResourcesTest, SixCssResourcesFromTwoHostsViolation) {
   std::string url1 = "http://a.com";
-  std::string url2 = "http://a.com/foo";
-  std::string url3 = "http://b.com";
-  std::string url4 = "http://b.com/foo";
+  std::string url2 = "http://a.com/bar";
+  std::string url3 = "http://a.com/foo";
+  std::string url4 = "http://b.com";
+  std::string url5 = "http://b.com/bar";
+  std::string url6 = "http://b.com/foo";
 
   AddTestResource(url1, "text/css");
   AddTestResource(url2, "text/css");
   AddTestResource(url3, "text/css");
   AddTestResource(url4, "text/css");
+  AddTestResource(url5, "text/css");
+  AddTestResource(url6, "text/css");
 
   std::vector<Violation> no_violations;
 
   std::vector<std::string> aUrls;
   aUrls.push_back(url1);
   aUrls.push_back(url2);
+  aUrls.push_back(url3);
 
   std::vector<std::string> bUrls;
-  bUrls.push_back(url3);
   bUrls.push_back(url4);
+  bUrls.push_back(url5);
+  bUrls.push_back(url6);
 
   std::vector<Violation> css_violations;
   css_violations.push_back(Violation(1, "a.com", aUrls));
@@ -216,14 +215,14 @@ TEST_F(CombineExternalResourcesTest, ThreeCssResourcesFromOneHostViolation) {
   urls.push_back(url3);
 
   std::vector<Violation> css_violations;
-  css_violations.push_back(Violation(2, "foo.com", urls));
+  css_violations.push_back(Violation(1, "foo.com", urls));
 
   Freeze();
   CheckViolations(pagespeed::CSS, css_violations);
   CheckViolations(pagespeed::JS, no_violations);
 }
 
-TEST_F(CombineExternalResourcesTest, TwoJsResourcesFromOneHostViolation) {
+TEST_F(CombineExternalResourcesTest, TwoJsResourcesFromOneHostNoViolation) {
   std::string url1 = "http://foo.com";
   std::string url2 = "http://foo.com/bar";
 
@@ -232,16 +231,9 @@ TEST_F(CombineExternalResourcesTest, TwoJsResourcesFromOneHostViolation) {
 
   std::vector<Violation> no_violations;
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
-
-  std::vector<Violation> js_violations;
-  js_violations.push_back(Violation(1, "foo.com", urls));
-
   Freeze();
   CheckViolations(pagespeed::CSS, no_violations);
-  CheckViolations(pagespeed::JS, js_violations);
+  CheckViolations(pagespeed::JS, no_violations);
 }
 
 }  // namespace
