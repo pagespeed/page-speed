@@ -55,6 +55,7 @@
             '<(poc_out_dir)/pagespeed/po/master.po.cc',
           ],
           'action': [
+            'python',
             '<(poc_executable)',
             '<(poc_out_dir)/pagespeed/po',
             '<(pagespeed_root)/pagespeed/po/pagespeed.pot',
