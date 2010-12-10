@@ -17,17 +17,17 @@
 """poc: .po file compiler.  Converts a single .pot file and a number of .po
 files into source files containing string tables with C syntax.
 
-For each .po file "<locale>.po" given, poc will generate a file
-"<locale>.po.cc" that contains the string table for that locale.
-Additionally, a file called "master.po.cc" will be generated with
-a "master" list of the english strings from the .pot file.  All files will be
-written to the directory given by the out_dir argument.
+For each .po file "<locale>.po" given, poc will generate a file "<locale>.po.cc"
+that contains the string table for that locale.  If no .po files are given, a
+file called "master.po.cc" will be generated with a "master" list of the english
+strings from the .pot file.  All files will be written to the directory given by
+the out_dir argument.
 
 Each string table will have n+1 elements (where n is the number of strings in
 the .pot file).  The first n elements will be the strings in the appropriate
 locale, and the final element will be a NULL pointer.
 
-Usage: poc out_dir pot_file po_file1 [po_file2 ...]
+Usage: poc out_dir pot_file [po_file1 [po_file2 ...]]
 """
 
 __author__ = 'aoates@google.com (Andrew Oates)'
@@ -131,9 +131,11 @@ def GenerateStringTables(out_dir, pot_file, po_files):
     master_strings.append(entry.msgid)
     master_table[entry.msgid] = len(master_strings)-1
 
-  # write out master table to header file
-  WriteStringTable(master_strings, "master_string_table",
-                   None, out_dir, "master.po.cc")
+  # if no .po files were given (just the .pot file), generate the master table
+  if po_files == []:
+    # write out master table to source file
+    WriteStringTable(master_strings, "master_string_table",
+                     None, out_dir, "master.po.cc")
 
   # now write out a table for each locale
   locales = []
@@ -168,9 +170,9 @@ def GenerateStringTables(out_dir, pot_file, po_files):
                      locale_name, comments = master_strings)
 
 if __name__ == "__main__":
-  if len(sys.argv) < 4:
+  if len(sys.argv) < 3:
     print >> sys.stderr, (
-           "Usage: poc out_dir pot_file po_file1 [po_file2 ...]")
+           "Usage: poc out_dir pot_file [po_file1 [po_file2 ...]]")
     sys.exit(1)
 
   GenerateStringTables(sys.argv[1], sys.argv[2], sys.argv[3:])

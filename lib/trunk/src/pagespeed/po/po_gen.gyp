@@ -32,12 +32,14 @@
   'targets': [
     {
       # target to generate .po.cc files from .po files.  For each .po file in
-      # 'sources', it runs build/poc/poc which generates a .po.cc file, as
-      # well as a file called 'master.po.cc' with the master strings.
+      # 'sources', it runs build/poc/poc which generates a .po.cc file.
+      # Also generates master.po.cc from pagespeed.pot.
       'target_name': 'pagespeed_genpo',
       'type': 'none',
       'hard_dependency': 1,
       'sources': [
+        'pagespeed.pot',
+
         # translations used by test cases
         'backwards.po',
         'empty.po',
@@ -52,7 +54,6 @@
           ],
           'outputs': [
             '<(poc_out_dir)/pagespeed/po/<(RULE_INPUT_ROOT).po.cc',
-            '<(poc_out_dir)/pagespeed/po/master.po.cc',
           ],
           'action': [
             'python',
@@ -60,6 +61,24 @@
             '<(poc_out_dir)/pagespeed/po',
             '<(pagespeed_root)/pagespeed/po/pagespeed.pot',
             '<(RULE_INPUT_PATH)',
+          ],
+          'message': 'Generating C code from <(RULE_INPUT_PATH)',
+        },
+        {
+          'rule_name': 'genmasterpo',
+          'extension': 'pot',
+          'inputs': [
+            '<(poc_executable)',
+            '<(pagespeed_root)/pagespeed/po/pagespeed.pot',
+          ],
+          'outputs': [
+            '<(poc_out_dir)/pagespeed/po/master.po.cc',
+          ],
+          'action': [
+            'python',
+            '<(poc_executable)',
+            '<(poc_out_dir)/pagespeed/po',
+            '<(pagespeed_root)/pagespeed/po/pagespeed.pot',
           ],
           'message': 'Generating C code from <(RULE_INPUT_PATH)',
         },
