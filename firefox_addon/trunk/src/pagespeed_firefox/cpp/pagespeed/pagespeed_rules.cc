@@ -335,6 +335,24 @@ ConstructPageSpeedInput(const nsACString& har_data,
   return input.release();
 }
 
+void InstantiatePageSpeedRules(const pagespeed::PagespeedInput& input,
+                               std::vector<pagespeed::Rule*>* rules) {
+  const bool save_optimized_content = true;
+  std::vector<std::string> incompatible_rule_names;
+  pagespeed::rule_provider::AppendCompatibleRules(save_optimized_content,
+                                                  rules,
+                                                  &incompatible_rule_names,
+                                                  input.EstimateCapabilities());
+  if (!incompatible_rule_names.empty()) {
+    // We would like to display the rule names using base::JoinString,
+    // however including base/string_util.h causes a collision with
+    // mozilla headers, so we just print the number of excluded rules
+    // instead.
+    LOG(INFO) << "Removing " << incompatible_rule_names.size()
+              << " incompatible rules.";
+  }
+}
+
 }  // namespace
 
 namespace pagespeed {
@@ -376,15 +394,14 @@ PageSpeedRules::ComputeResults(const nsACString& har_data,
     return NS_ERROR_FAILURE;
   }
 
-  const bool save_optimized_content = true;
   std::vector<pagespeed::Rule*> rules;
-  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+  InstantiatePageSpeedRules(*input, &rules);
 
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
   Results results;
-  engine.ComputeResults(*input.get(), &results);
+  engine.ComputeResults(*input, &results);
 
   std::string results_json;
   if (!pagespeed::proto::ResultsToJsonConverter::Convert(
@@ -429,9 +446,8 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
     return NS_ERROR_FAILURE;
   }
 
-  const bool save_optimized_content = true;
   std::vector<pagespeed::Rule*> rules;
-  pagespeed::rule_provider::AppendAllRules(save_optimized_content, &rules);
+  InstantiatePageSpeedRules(*input, &rules);
 
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
@@ -443,7 +459,7 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
   }
   formatters::JsonFormatter formatter(&stream, serializer.get());
   ResponseByteResultFilter result_filter;
-  engine.ComputeAndFormatResults(*input.get(), result_filter, &formatter);
+  engine.ComputeAndFormatResults(*input, result_filter, &formatter);
 
   const std::string& output_string = stream.str();
   _retval.Assign(output_string.c_str(), output_string.length());
