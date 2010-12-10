@@ -134,8 +134,19 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
       }
     }
 
-    // Instead of using a -1 to indicate an error, we just don't set rule_score
-    if (rule_success && score >= 0) {
+    // TODO(bmcquade): Ideally we would not set the rule score if
+    // there was a rule error, however many of our rules generate
+    // errors when they encounter invalid content (e.g. when we
+    // encounter an image that we can't parse). These content errors
+    // are not fatal errors and we may still be able to generate a
+    // meaningful score in these cases. Once we fix rules to only
+    // signal error on internal Page Speed logic errors, we can update
+    // the if test below to also check for rule_success, in order to
+    // prevent setting a score when we encounter an internal error.
+    //
+    // Instead of using a -1 to indicate an error, we just don't set
+    // rule_score.
+    if (score >= 0) {
       rule_results->set_rule_score(score);
 
       total_score += score;
