@@ -28,53 +28,77 @@ Localizer::~Localizer() {
 }
 
 
-std::string BasicLocalizer::LocalizeString(const std::string& val) const {
-  return val;
+bool BasicLocalizer::LocalizeString(const std::string& val,
+                                    std::string* out) const {
+  CHECK(out);
+  *out = val;
+  return true;
 }
 
-std::string BasicLocalizer::LocalizeInt(int64 val) const {
+bool BasicLocalizer::LocalizeInt(int64 val, std::string* out) const {
+  CHECK(out);
   std::ostringstream ss;
   ss << val;
-  return ss.str();
+  *out = ss.str();
+  return true;
 }
 
-std::string BasicLocalizer::LocalizeUrl(const std::string& url) const {
-  return url;
+bool BasicLocalizer::LocalizeUrl(const std::string& url,
+                                 std::string* out) const {
+  CHECK(out);
+  *out = url;
+  return true;
 }
 
-std::string BasicLocalizer::LocalizeBytes(int64 bytes) const {
-  return pagespeed::formatters::FormatBytes(bytes);
+bool BasicLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
+  CHECK(out);
+  *out = pagespeed::formatters::FormatBytes(bytes);
+  return true;
 }
 
-std::string BasicLocalizer::LocalizeTimeDuration(int64 ms) const {
-  return pagespeed::formatters::FormatTimeDuration(ms);
+bool BasicLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
+  CHECK(out);
+  *out = pagespeed::formatters::FormatTimeDuration(ms);
+  return true;
 }
 
 
-std::string NullLocalizer::LocalizeString(const std::string& val) const {
-  return val;
+bool NullLocalizer::LocalizeString(const std::string& val,
+                                   std::string* out) const {
+  CHECK(out);
+  *out = val;
+  return true;
 }
 
-std::string NullLocalizer::LocalizeInt(int64 val) const {
+bool NullLocalizer::LocalizeInt(int64 val, std::string* out) const {
+  CHECK(out);
   std::ostringstream ss;
   ss << val;
-  return ss.str();
+  *out = ss.str();
+  return true;
 }
 
-std::string NullLocalizer::LocalizeUrl(const std::string& url) const {
-  return url;
+bool NullLocalizer::LocalizeUrl(const std::string& url,
+                                std::string* out) const {
+  CHECK(out);
+  *out = url;
+  return true;
 }
 
-std::string NullLocalizer::LocalizeBytes(int64 bytes) const {
+bool NullLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
+  CHECK(out);
   std::ostringstream ss;
   ss << bytes;
-  return ss.str();
+  *out = ss.str();
+  return true;
 }
 
-std::string NullLocalizer::LocalizeTimeDuration(int64 ms) const {
+bool NullLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
+  CHECK(out);
   std::ostringstream ss;
   ss << ms;
-  return ss.str();
+  *out = ss.str();
+  return true;
 }
 
 } // namespace l10n

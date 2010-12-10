@@ -50,7 +50,10 @@ Formatter* TextFormatter::AddHeader(const Rule& rule, int score) {
   } else {
     score_arg.reset(new Argument(Argument::STRING, "n/a"));
   }
-  // TRANSLATOR: TODO: add a translator comment describing this string
+  // TRANSLATOR: Header in a list of Page Speed rule results.  $1 is a format
+  // argument that will be replaced by the name of the Page Speed rule (e.g.
+  // "Leverage Browser Caching"; $1 is a format argument that will be replaced
+  // by the rule's Page Speed score (e.g. "93").
   return AddChild(_("_$1_ (score=$2)"), header_arg, *score_arg);
 }
 

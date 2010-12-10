@@ -30,6 +30,8 @@
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/l10n/localizer.h"
+#include "pagespeed/l10n/gettext_localizer.h"
+#include "pagespeed/l10n/register_locale.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/rules/rule_provider.h"
@@ -39,7 +41,7 @@
 namespace {
 
 void PrintUsage() {
-  fprintf(stderr, "Usage: localized_results_printer <input>\n");
+  fprintf(stderr, "Usage: localize_results <locale> <input>\n");
 }
 
 bool ReadFileToString(const std::string &file_name, std::string *dest) {
@@ -120,7 +122,8 @@ bool PrintFormattedResultsToStream(const pagespeed::FormattedResults& results,
   return true;
 }
 
-bool LocalizeResults(const pagespeed::Results& results,
+bool LocalizeResults(const std::string& locale,
+                     const pagespeed::Results& results,
                      pagespeed::FormattedResults* out) {
   // Allocate all the rules we know about
   std::vector<pagespeed::Rule*> rules;
@@ -136,14 +139,25 @@ bool LocalizeResults(const pagespeed::Results& results,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
-  // TODO(aoates): use a real localizer once one is implemented
-  pagespeed::l10n::BasicLocalizer localizer;
-  pagespeed::formatters::ProtoFormatter formatter(&localizer, out);
+  scoped_ptr<pagespeed::l10n::Localizer> localizer;
+  localizer.reset(pagespeed::l10n::GettextLocalizer::Create(locale));
+  if (!localizer.get()) {
+    std::cerr << "error: locale '" << locale << "' not found" << std::endl;
+    std::cerr << "available locales: " << std::endl;
+
+    std::vector<std::string> locales;
+    pagespeed::l10n::RegisterLocale::GetAllLocales(&locales);
+    for (size_t i=0; i < locales.size(); i++)
+      std::cerr << "  " << locales[i] << std::endl;
+
+    return false;
+  }
+  pagespeed::formatters::ProtoFormatter formatter(localizer.get(), out);
 
   return engine.FormatResults(results, &formatter);
 }
 
-bool LocalizeResults(const std::string fname) {
+bool LocalizeResults(const std::string& locale, const std::string& fname) {
   std::string file_contents;
   if (!ReadFileToString(fname, &file_contents))
     return false;
@@ -156,7 +170,8 @@ bool LocalizeResults(const std::string fname) {
   }
 
   pagespeed::FormattedResults localized_results;
-  if (!LocalizeResults(results, &localized_results)) {
+  localized_results.set_locale(locale);
+  if (!LocalizeResults(locale, results, &localized_results)) {
     std::cerr << "error: could not localize results" << std::endl;
     return false;
   }
@@ -167,7 +182,7 @@ bool LocalizeResults(const std::string fname) {
 }  // namespace
 
 int main(int argc, char** argv) {
-  if (argc != 2) {
+  if (argc != 3) {
     PrintUsage();
     return 1;
   }
@@ -177,7 +192,7 @@ int main(int argc, char** argv) {
   base::AtExitManager at_exit_manager;
 
   pagespeed::Init();
-  bool result = LocalizeResults(argv[1]);
+  bool result = LocalizeResults(argv[1], argv[2]);
   pagespeed::ShutDown();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;

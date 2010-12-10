@@ -226,7 +226,7 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
         CachingDetails::message_set_extension);
     if (!caching_details.has_freshness_lifetime_millis() &&
         !caching_details.is_heuristically_cacheable()) {
-      // We expect the resource to either hae an explicit
+      // We expect the resource to either have an explicit
       // freshness_lifetime_millis or that it's heuristically
       // cacheable.
       LOG(DFATAL) << "Details structure is missing fields.";
@@ -239,10 +239,10 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
           caching_details.freshness_lifetime_millis());
       body->AddChild(not_localized("$1 ($2)"), url, freshness_lifetime);
     } else {
-      // TRANSLATOR: TODO: add a translator comment describing this string
-      Argument no_caching(Argument::STRING, _("expiration not specified"));
-      // TRANSLATOR: TODO: add a translator comment describing this string
-      body->AddChild(_("$1 ($2)"), url, no_caching);
+      // TRANSLATOR: Item describing a single URL that violates the
+      // LeverageBrowserCaching rule by not having a cache expiration.
+      // "$1" is a format string that will be replaced by the URL.
+      body->AddChild(_("$1 (expiration not specified)"), url);
     }
   }
 }

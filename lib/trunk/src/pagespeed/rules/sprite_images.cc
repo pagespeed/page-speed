@@ -39,7 +39,6 @@ namespace {
 const char* kRuleName = "SpriteImages";
 const size_t kSpriteImageSizeLimit = 2 * 1024;
 const size_t kMinSpriteImageCount = 5;
-const size_t kSpriteImagePixelLimit = 96 * 96;
 
 }  // namespace
 
@@ -103,14 +102,6 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
     if (image_attributes == NULL ||
         (image_attributes->GetImageWidth() <= 1 &&
          image_attributes->GetImageHeight() <= 1)) {
-      continue;
-    }
-
-    // Exclude large images from the set of candidates.
-    const size_t num_pixels =
-        image_attributes->GetImageWidth() *
-        image_attributes->GetImageHeight();
-    if (num_pixels > kSpriteImagePixelLimit) {
       continue;
     }
 

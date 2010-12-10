@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Copyright 2009 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{
-  'variables': {
-    'pagespeed_root': '../..',
-    'chromium_code': 1,
-  },
-  'targets': [
-    {
-      'target_name': 'pagespeed_init',
-      'type': '<(library)',
-      'dependencies': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
-        '<(pagespeed_root)/pagespeed/l10n/l10n.gyp:pagespeed_l10n',
-      ],
-      'sources': [
-        'pagespeed_init.cc',
-      ],
-    },
-  ],
-}
+# Wrapper script for tools/poc/poc.py that sets up the path correctly
+
+import os
+import sys
+
+script_dir = os.path.dirname(__file__)
+third_party_dir = os.path.normpath(
+    os.path.join(script_dir, os.pardir, os.pardir, 'third_party'))
+
+# append third_party/ to our path, then execute poc.py
+sys.path.append(third_party_dir)
+execfile(os.path.join(script_dir, 'poc.py'))

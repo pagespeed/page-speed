@@ -24,9 +24,12 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(pagespeed_root)/pagespeed/formatters/formatter_util.gyp:pagespeed_formatter_util',
+        '<(pagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_genpo',
       ],
       'sources': [
         'localizer.cc',
+        'gettext_localizer.cc',
+        'register_locale.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -39,6 +42,7 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
         '<(pagespeed_root)/pagespeed/formatters/formatter_util.gyp:pagespeed_formatter_util',
+        '<(pagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_genpo',
       ]
     },
   ],

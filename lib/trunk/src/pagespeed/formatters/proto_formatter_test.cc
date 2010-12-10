@@ -1,4 +1,16 @@
 // Copyright 2010 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // Author: aoates@google.com (Andrew Oates)
 
 #include "pagespeed/formatters/proto_formatter.h"
@@ -36,21 +48,30 @@ class TestLocalizer : public Localizer {
  public:
   TestLocalizer() : symbol_('*') {}
 
-  bool SetLocale(const std::string& locale) { return false; }
-
-  std::string LocalizeString(const std::string& val) const {
-    return std::string(val.length(), symbol_);
+  bool LocalizeString(const std::string& val, std::string* out) const {
+    *out = std::string(val.length(), symbol_);
+    return true;
   }
 
-  std::string LocalizeInt(int64 val) const { return "*"; }
-
-  std::string LocalizeUrl(const std::string& url) const {
-    return std::string(url.length(), symbol_);
+  bool LocalizeInt(int64 val, std::string* out) const {
+    *out = "*";
+    return true;
   }
 
-  std::string LocalizeBytes(int64 bytes) const { return "**"; }
+  bool LocalizeUrl(const std::string& url, std::string* out) const {
+    *out = std::string(url.length(), symbol_);
+    return true;
+  }
 
-  std::string LocalizeTimeDuration(int64 ms) const { return "***"; }
+  bool LocalizeBytes(int64 bytes, std::string* out) const {
+    *out = "**";
+    return true;
+  }
+
+  bool LocalizeTimeDuration(int64 ms, std::string* out) const {
+    *out = "***";
+    return true;
+  }
 
  private:
   char symbol_;

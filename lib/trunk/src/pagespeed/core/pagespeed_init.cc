@@ -16,12 +16,14 @@
 
 #include "googleurl/src/url_util.h"
 #include "net/instaweb/htmlparse/public/html_escape.h"
+#include "pagespeed/l10n/register_locale.h"
 
 namespace pagespeed {
 
 void Init() {
   url_util::Initialize();
   net_instaweb::HtmlEscape::Init();
+  l10n::RegisterLocale::Freeze();
 }
 
 void ShutDown() {

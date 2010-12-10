@@ -25,22 +25,34 @@ namespace {
 
 TEST(LocalizerTest, BasicLocalizerTest) {
   BasicLocalizer l;
+  std::string out;
 
-  ASSERT_EQ("test string", l.LocalizeString("test string"));
-  ASSERT_EQ("3000", l.LocalizeInt(3000));
-  ASSERT_EQ("http://www.google.com", l.LocalizeUrl("http://www.google.com"));
-  ASSERT_EQ("3.1KiB", l.LocalizeBytes(3174));
-  ASSERT_EQ("5 minutes 2 seconds", l.LocalizeTimeDuration(302000));
+  ASSERT_TRUE(l.LocalizeString("test string", &out));
+  ASSERT_EQ("test string", out);
+  ASSERT_TRUE(l.LocalizeInt(3000, &out));
+  ASSERT_EQ("3000", out);
+  ASSERT_TRUE(l.LocalizeUrl("http://www.google.com", &out));
+  ASSERT_EQ("http://www.google.com", out);
+  ASSERT_TRUE(l.LocalizeBytes(3174, &out));
+  ASSERT_EQ("3.1KiB", out);
+  ASSERT_TRUE(l.LocalizeTimeDuration(302000, &out));
+  ASSERT_EQ("5 minutes 2 seconds", out);
 }
 
 TEST(LocalizerTest, NullLocalizerTest) {
   NullLocalizer l;
+  std::string out;
 
-  ASSERT_EQ("test string", l.LocalizeString("test string"));
-  ASSERT_EQ("3000", l.LocalizeInt(3000));
-  ASSERT_EQ("http://www.google.com", l.LocalizeUrl("http://www.google.com"));
-  ASSERT_EQ("3174", l.LocalizeBytes(3174));
-  ASSERT_EQ("302000", l.LocalizeTimeDuration(302000));
+  ASSERT_TRUE(l.LocalizeString("test string", &out));
+  ASSERT_EQ("test string", out);
+  ASSERT_TRUE(l.LocalizeInt(3000, &out));
+  ASSERT_EQ("3000", out);
+  ASSERT_TRUE(l.LocalizeUrl("http://www.google.com", &out));
+  ASSERT_EQ("http://www.google.com", out);
+  ASSERT_TRUE(l.LocalizeBytes(3174, &out));
+  ASSERT_EQ("3174", out);
+  ASSERT_TRUE(l.LocalizeTimeDuration(302000, &out));
+  ASSERT_EQ("302000", out);
 }
 
 } // namespace
