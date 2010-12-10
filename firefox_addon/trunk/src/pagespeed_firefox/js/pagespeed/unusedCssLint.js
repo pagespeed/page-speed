@@ -239,6 +239,10 @@ var unusedCssLint = function() {
 
   // Iterate through all stylesheets on this page.
   var inlineBlockNum = 1;
+
+  // Need to get html panel first, otherwise exception will be generated when
+  // getting css panel (inside will access the parentPanel, which is html).
+  FirebugContext.getPanel('html');
   var cssPanel = FirebugContext.getPanel('css');
   var styleSheets = cssPanel.getLocationList();
   if (styleSheets.length == 0) {
