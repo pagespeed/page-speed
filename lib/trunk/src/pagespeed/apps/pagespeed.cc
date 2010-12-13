@@ -24,6 +24,7 @@
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+#include "google/protobuf/stubs/common.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -74,14 +75,24 @@ pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
 }
 
 void PrintUsage() {
-  fprintf(stderr, "Usage: pagespeed <output_format> <input_format> <input>\n");
+  fprintf(stderr,
+          "Usage: pagespeed <output_format> <input_format> <file>\n"
+          "       <output_format> can be one of 'text', 'json', or 'proto'\n"
+          "       <input_format> can be one of 'har', or 'proto'\n"
+          "       if <file> is '-', input will be read from stdin.\n"
+          "       Otherwise input will be read from the specified filename.\n");
 }
 
 bool RunPagespeed(const std::string& out_format,
                   const std::string& in_format,
                   const std::string& filename) {
   std::string file_contents;
-  if (!ReadFileToString(filename, &file_contents)) {
+  if (filename == "-") {
+    // Special case: if user specifies input file as '-', read the
+    // input from stdin.
+    file_contents.assign(std::istreambuf_iterator<char>(std::cin),
+                         std::istreambuf_iterator<char>());
+  } else if (!ReadFileToString(filename, &file_contents)) {
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
     PrintUsage();
     return false;
@@ -118,7 +129,10 @@ bool RunPagespeed(const std::string& out_format,
     PrintUsage();
     return false;
   }
-  CHECK(input.get() != NULL);
+  if (input == NULL) {
+    fprintf(stderr, "Failed to parse input.\n");
+    return false;
+  }
   if (input->primary_resource_url().empty() && input->num_resources() > 0) {
     // If no primary resource URL was specified, assume the first
     // resource is the primary resource.
@@ -185,6 +199,7 @@ int main(int argc, char** argv) {
   pagespeed::Init();
   bool result = RunPagespeed(argv[1], argv[2], argv[3]);
   pagespeed::ShutDown();
+  google::protobuf::ShutdownProtobufLibrary();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
