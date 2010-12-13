@@ -94,7 +94,7 @@ const char** RegisterLocale::GetStringTable(const std::string& locale) {
 void RegisterLocale::GetAllLocales(std::vector<std::string>* out) {
   CHECK(out);
   CHECK(frozen_);
-  
+
   if (!string_table_map_)
     return;
   CHECK(master_string_map_);
