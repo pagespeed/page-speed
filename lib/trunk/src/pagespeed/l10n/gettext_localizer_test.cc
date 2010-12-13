@@ -35,23 +35,24 @@ TEST(GettextLocalizerTest, CreateTest) {
 
   vector<string> locales;
   pagespeed::l10n::RegisterLocale::GetAllLocales(&locales);
-  ASSERT_EQ(static_cast<size_t>(3), locales.size());
-  ASSERT_EQ("backwards", locales[0]);
-  ASSERT_EQ("empty", locales[1]);
-  ASSERT_EQ("en_US", locales[2]);
+  ASSERT_EQ(static_cast<size_t>(4), locales.size());
+  ASSERT_EQ("en_US", locales[0]);
+  ASSERT_EQ("test_backwards", locales[1]);
+  ASSERT_EQ("test_empty", locales[2]);
+  ASSERT_EQ("test_encoding", locales[3]);
 
-  loc.reset(GettextLocalizer::Create("backwards"));
+  loc.reset(GettextLocalizer::Create("test_backwards"));
   ASSERT_TRUE(loc.get() != NULL);
 
   ASSERT_EQ(NULL, GettextLocalizer::Create("bad_locale"));
 }
 
 TEST(GettextLocalizerTest, StringTest) {
-  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("backwards"));
+  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_backwards"));
   ASSERT_TRUE(loc.get() != NULL);
 
   std::string out;
-  ASSERT_TRUE(loc->LocalizeString(std::string(_("Avoid CSS @import")), &out));
+  ASSERT_TRUE(loc->LocalizeString(std::string("Avoid CSS @import"), &out));
   ASSERT_EQ("@IMPORT css aVOID", out);
 
   ASSERT_FALSE(loc->LocalizeString("test string", &out));
@@ -59,7 +60,7 @@ TEST(GettextLocalizerTest, StringTest) {
 }
 
 TEST(GettextLocalizerTest, OtherTest) {
-  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("backwards"));
+  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_backwards"));
   ASSERT_TRUE(loc.get() != NULL);
 
   std::string out;
@@ -82,8 +83,22 @@ TEST(GettextLocalizerTest, OtherTest) {
   ASSERT_EQ("6 seconds", out);
 }
 
+// Tests that utf8-encoding translations make it through the entire pipeline
+TEST(GettextLocalizerTest, EncodingTest) {
+  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_encoding"));
+  ASSERT_TRUE(loc.get() != NULL);
+
+  const char* original = "Avoid CSS @import";
+  const char* encoded = "\xed\x94\xbc\xed\x95\x98 @ "
+      "\xec\x88\x98\xec\x9e\x85\xec\x9d\x84 CSS\xeb\xa5\xbc";
+
+  std::string out;
+  ASSERT_TRUE(loc->LocalizeString(std::string(original), &out));
+  ASSERT_EQ(encoded, out);
+}
+
 TEST(GettextLocalizerTest, ErrorTests) {
-  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("empty"));
+  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_empty"));
   ASSERT_TRUE(loc.get() != NULL);
 
   std::string out;
