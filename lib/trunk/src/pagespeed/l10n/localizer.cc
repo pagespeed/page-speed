@@ -20,6 +20,12 @@
 #include "base/logging.h"
 #include "pagespeed/formatters/formatter_util.h"
 
+namespace {
+
+const char* kNativeLocale = "en_US";
+
+} // namespace
+
 namespace pagespeed {
 
 namespace l10n {
@@ -27,6 +33,9 @@ namespace l10n {
 Localizer::~Localizer() {
 }
 
+const char* BasicLocalizer::GetLocale() const {
+  return kNativeLocale;
+}
 
 bool BasicLocalizer::LocalizeString(const std::string& val,
                                     std::string* out) const {
@@ -62,6 +71,10 @@ bool BasicLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
   return true;
 }
 
+
+const char* NullLocalizer::GetLocale() const {
+  return kNativeLocale;
+}
 
 bool NullLocalizer::LocalizeString(const std::string& val,
                                    std::string* out) const {

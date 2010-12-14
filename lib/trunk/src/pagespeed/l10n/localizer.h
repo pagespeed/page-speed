@@ -39,6 +39,9 @@ class Localizer {
  public:
   virtual ~Localizer();
 
+  // Return the current locale
+  virtual const char* GetLocale() const = 0;
+
   // Localize a string constant into the current locale
   virtual bool
       LocalizeString(const std::string& val, std::string* out) const = 0;
@@ -63,6 +66,7 @@ class Localizer {
  */
 class BasicLocalizer : public Localizer {
  public:
+  virtual const char* GetLocale() const;
   virtual bool LocalizeString(const std::string& val, std::string* out) const;
   virtual bool LocalizeInt(int64 val, std::string* out) const;
   virtual bool LocalizeUrl(const std::string& url, std::string* out) const;
@@ -75,6 +79,7 @@ class BasicLocalizer : public Localizer {
  */
 class NullLocalizer : public Localizer {
  public:
+  virtual const char* GetLocale() const;
   virtual bool LocalizeString(const std::string& val, std::string* out) const;
   virtual bool LocalizeInt(int64 val, std::string* out) const;
   virtual bool LocalizeUrl(const std::string& url, std::string* out) const;
