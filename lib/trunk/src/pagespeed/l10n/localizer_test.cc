@@ -27,6 +27,7 @@ TEST(LocalizerTest, BasicLocalizerTest) {
   BasicLocalizer l;
   std::string out;
 
+  ASSERT_STREQ("en_US", l.GetLocale());
   ASSERT_TRUE(l.LocalizeString("test string", &out));
   ASSERT_EQ("test string", out);
   ASSERT_TRUE(l.LocalizeInt(3000, &out));
@@ -43,6 +44,7 @@ TEST(LocalizerTest, NullLocalizerTest) {
   NullLocalizer l;
   std::string out;
 
+  ASSERT_STREQ("en_US", l.GetLocale());
   ASSERT_TRUE(l.LocalizeString("test string", &out));
   ASSERT_EQ("test string", out);
   ASSERT_TRUE(l.LocalizeInt(3000, &out));

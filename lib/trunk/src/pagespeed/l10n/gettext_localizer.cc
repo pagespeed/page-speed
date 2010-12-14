@@ -45,11 +45,16 @@ GettextLocalizer* GettextLocalizer::Create(const std::string& locale) {
     return NULL;
   }
 
-  return new GettextLocalizer(locale_table);
+  return new GettextLocalizer(locale, locale_table);
 }
 
-GettextLocalizer::GettextLocalizer(const char** locale_string_table)
-    : locale_string_table_(locale_string_table) {
+GettextLocalizer::GettextLocalizer(const std::string& locale,
+                                   const char** locale_string_table)
+    : locale_(locale), locale_string_table_(locale_string_table) {
+}
+
+const char* GettextLocalizer::GetLocale() const {
+  return locale_.c_str();
 }
 
 bool GettextLocalizer::LocalizeString(const std::string& val,

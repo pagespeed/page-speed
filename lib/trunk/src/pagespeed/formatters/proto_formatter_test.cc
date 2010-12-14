@@ -48,6 +48,8 @@ class TestLocalizer : public Localizer {
  public:
   TestLocalizer() : symbol_('*') {}
 
+  const char* GetLocale() const { return "test"; }
+
   bool LocalizeString(const std::string& val, std::string* out) const {
     *out = std::string(val.length(), symbol_);
     return true;
