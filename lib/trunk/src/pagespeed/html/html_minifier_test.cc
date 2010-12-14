@@ -104,7 +104,7 @@ const char* kWithDoctypeMinified =
     "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"
     "<html>\n"
     "<head><title>Foo</title></head>\n"
-    "<body><input type=checkbox checked /></body>\n"
+    "<body><input type=\"checkbox\" checked=\"checked\"/></body>\n"
     "</html>\n";
 
 TEST(HtmlMinifierTest, RespectDoctype) {
@@ -112,6 +112,25 @@ TEST(HtmlMinifierTest, RespectDoctype) {
   HtmlMinifier minifier;
   ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kWithDoctype, &output));
   ASSERT_EQ(kWithDoctypeMinified, output);
+}
+
+const char* kWithoutDoctype =
+    "<HTML>\n"
+    " <HEAD><TITLE>Foo</TITLE></HEAD>\n"
+    " <BODY><INPUT type=\"checkbox\" checked=\"checked\" /></BODY>\n"
+    "</HTML>\n";
+
+const char* kWithoutDoctypeMinified =
+    "<html>\n"
+    "<head><title>Foo</title></head>\n"
+    "<body><input type=checkbox checked /></body>\n"
+    "</html>\n";
+
+TEST(HtmlMinifierTest, NoDoctypeMoreAggressiveMinification) {
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtml(kTestUrl, kWithoutDoctype, &output));
+  ASSERT_EQ(kWithoutDoctypeMinified, output);
 }
 
 TEST(HtmlMinifierTest, SgmlCommentInScriptBlock) {
