@@ -358,14 +358,13 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
                 // AvoidDocumentWrite rule by using the "document.write"
                 // JavaScript command ("document.write" is code, and should not
                 // be translated).  It gives the URL of the resource that uses
-                // "document.write" (parameter $1), and the line number of that
+                // "document.write", and the line number of that
                 // call.  Following this will be a list of the URLs that are
-                // fetched as a result of that "document.write" call.  The
-                // parameters are,
-                //   $1 - the URL of the external resource that uses
-                //        "document.write"
-                //   $2 - the line number of the call to "document.write" in
-                //        that resource.
+                // fetched as a result of that "document.write" call.  "$1" is a
+                // format token that will be replaced with the URL of the
+                // external resource that uses "document.write".  "$2" will be
+                // replaced with the line number of the call to "document.write"
+                // in that resource.
                 _("$1 calls document.write on line $2 to fetch:"),
                 res_url, line_number);
         for (int i = 0, size = adw_details.urls_size(); i < size; ++i) {

@@ -36,14 +36,13 @@ msgstr ""
 #. AvoidDocumentWrite rule by using the "document.write"
 #. JavaScript command ("document.write" is code, and should not
 #. be translated).  It gives the URL of the resource that uses
-#. "document.write" (parameter $1), and the line number of that
+#. "document.write", and the line number of that
 #. call.  Following this will be a list of the URLs that are
-#. fetched as a result of that "document.write" call.  The
-#. parameters are,
-#. $1 - the URL of the external resource that uses
-#. "document.write"
-#. $2 - the line number of the call to "document.write" in
-#. that resource.
+#. fetched as a result of that "document.write" call.  "$1" is a
+#. format token that will be replaced with the URL of the
+#. external resource that uses "document.write".  "$2" will be
+#. replaced with the line number of the call to "document.write"
+#. in that resource.
 msgid "$1 calls document.write on line $2 to fetch:"
 msgstr ""
 
@@ -68,26 +67,26 @@ msgstr ""
 msgid "$1 has a request size of $2"
 msgstr ""
 
-#. TRANSLATOR: Describes a single URL of an image that is resized in
-#. HTML or CSS.  It gives the served size of the image, the final size
-#. of the image, and the amount saved by serving the image in the
-#. final size.  The paramaters are as follows:
-#. $1 - the URL of the image resource
-#. $2 - the original (served) width of the image
-#. $3 - the original (served) height of the image
-#. $4 - the final (resized) width of the image
-#. $5 - the final (resized) height of the image
-#. $6 - the amount saved (in bytes) by serving the image correctly sized
-#. $7 - the percentage saved by serving the image correctly sized
+#. TRANSLATOR: Describes a single URL of an image that is resized in HTML
+#. or CSS.  It gives the served size of the image, the final size of the
+#. image, and the amount saved by serving the image in the final size.
+#. "$1" is a format token that will be replaced with the URL of the image
+#. resource.  "$2" and "$3" will be replaced with the original (served)
+#. width and height (respectively) of the image resource.  "$4" and "$5"
+#. will be replaced with the final (resized) width and height
+#. (respectively) of the image resource.  "$6" will be replaced with the
+#. amount saved (in bytes) by serving the image correctly size (e.g.
+#. "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
+#. "25").
 msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7% reduction)."
 msgstr ""
 
 #. TRANSLATOR: Describes a single URL of an image that is resized in HTML
 #. or CSS.  It gives the amount saved by serving the image in its final
-#. size.  The parameters are as follows:
-#. $1 - the URL of the image resource
-#. $2 - the amount saved (in bytes) by serving the image correctly sized
-#. $3 - the percentage saved by serving the image correctly sized
+#. size.  "$1" is a format token that will be replaced with the URL of the
+#. image resource.  "$2" will be replaced with the amount saved (in bytes)
+#. by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
+#. replaced with the percentage saved (e.g. "25").
 msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3% reduction)."
 msgstr ""
 
@@ -97,12 +96,11 @@ msgstr ""
 msgid "$1 loads $2 synchronously."
 msgstr ""
 
-#. TRANSLATOR: A sub-heading that contains the URL of the
-#. document and a statement instructing the user what to
-#. do. Parameters are:
-#. $1 - the URL of the document that contains the
-#. resources that can be inserted directly into the
-#. HTML document.
+#. TRANSLATOR: A sub-heading that contains the URL of the document and
+#. a statement instructing the user to inline certain small resources.
+#. "$1" is a format token that will be replaced with the URL of the
+#. document that contains the resources that can be inserted directly
+#. into the HTML document.
 msgid "$1 should inline the following small resources:"
 msgstr ""
 
@@ -186,11 +184,11 @@ msgstr ""
 #. TRANSLATOR: Description of a single resource that was served uncompressed,
 #. in violation of the EnableGzipCompression rule.  It gives the URL of the
 #. resource, as well as the amount of data that would be saved by compressing.
-#. It appears in a list of all the uncompressed resources on a site.  The
-#. parameters are,
-#. $1 - the URL of the uncompressed resource in question
-#. $2 - the amount of data transferred saved by compressing (in bytes)
-#. $3 - the percentage of data transferred saved by compressing
+#. It appears in a list of all the uncompressed resources on a site.  "$1" is
+#. a format token that will be replaced with the URL of the uncompressed
+#. resource in question.  "$2" will be replaced with the amount of data
+#. transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
+#. replaced with the percentage of data transferred saved by compressing.
 msgid "Compressing $1 could save $2 ($3% reduction)."
 msgstr ""
 
@@ -198,9 +196,10 @@ msgstr ""
 #. uncompressed, in violation of the EnableGzipCompression rule.  It tells the
 #. webmaster that compressing all of those resources could reduce the amount
 #. of data transferred (which would speed up the site).  It is followed by a
-#. list of uncompressed resource URLs.  The parameters are,
-#. $1 - the amount of data transferred saved by compressing (in bytes)
-#. $2 - the percentage of data transferred saved by compressing
+#. list of uncompressed resource URLs.  "$1" is a format token that will be
+#. replaced by the amount of data transferred saved by compressing (in bytes)
+#. (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
+#. compressing (e.g. "25").
 msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2% reduction)."
 msgstr ""
 
@@ -290,36 +289,37 @@ msgstr ""
 msgid "Minify JavaScript"
 msgstr ""
 
-#. TRANSLATOR: Subheading that describes the savings possible from
-#. minifying a single resource. Parameters:
-#. $1 - URL of the resource
-#. $2 - the absolute number of bytes or kilobytes that can be
-#. saved (e.g. "5 bytes" or "23.2kB").
-#. $3 - the percent savings (e.g. "50%").
+#. TRANSLATOR: Subheading that describes the savings possible from minifying a
+#. single resource. "$1" is a format token that will be replaced by the URL of
+#. the resource. "$2" will be replaced bythe absolute number of bytes or
+#. kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
+#. replaced by the percent savings (e.g. "50").
+#. TRANSLATOR: Subheading that describes the savings possible from minifying a
+#. single resource.  "$1" will be replaced by the URL of the resource. "$2"
+#. will be replaced by the absolute number of bytes or kilobytes that can be
+#. saved (e.g. "5 bytes" or "23.2KiB").  "$3" will be replaced by the percent
+#. savings (e.g. "50").
 msgid "Minifying $1 could save $2 ($3% reduction)."
 msgstr ""
 
 #. TRANSLATOR: Heading that describes the savings possible from
-#. minifying resources. Parameters:
-#. $1 - the absolute number of bytes or kilobytes that can be
-#. saved (e.g. "5 bytes" or "23.2kB").
-#. $2 - the percent savings (e.g. "50%").
+#. minifying resources. "$1" is a format token that will be replaced by the
+#. absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#. "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
 msgid "Minifying the following CSS resources could reduce their size by $1 ($2% reduction)."
 msgstr ""
 
 #. TRANSLATOR: Heading that describes the savings possible from
-#. minifying resources. Parameters:
-#. $1 - the absolute number of bytes or kilobytes that can be
-#. saved (e.g. "5 bytes" or "23.2kB").
-#. $2 - the percent savings (e.g. "50%").
+#. minifying resources. "$1" is a format token that will be replaced by the
+#. absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#. "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
 msgid "Minifying the following HTML resources could reduce their size by $1 ($2% reduction)."
 msgstr ""
 
-#. TRANSLATOR: Heading that describes the savings possible from
-#. minifying resources. Parameters:
-#. $1 - the absolute number of bytes or kilobytes that can be
-#. saved (e.g. "5 bytes" or "23.2kB").
-#. $2 - the percent savings (e.g. "50%").
+#. TRANSLATOR: Heading that describes the savings possible from minifying
+#. resources.  "$1" will be replaced by the absolute number of bytes or
+#. kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
+#. replaced by the percent savings (e.g. "50").
 msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2% reduction)."
 msgstr ""
 
@@ -495,9 +495,8 @@ msgstr ""
 #. is code, and should not be translated).  It gives the URL of the
 #. style sheet that violates the AvoidCssImport rule (the $1
 #. parameter) by using @import --- the style sheets that it imports
-#. will be listed below it.
-#. The parameters are,
-#. $1 - the URL of the style sheet that uses @import
+#. will be listed below it.  "$1" is a format token that will be
+#. replaced with the URL of the style sheet that uses @import.
 msgid "The following external stylesheets were included in $1 using @import."
 msgstr ""
 
@@ -509,9 +508,9 @@ msgstr ""
 
 #. TRANSLATOR: A descriptive header at the top of a list of URLs of images
 #. that are resized in HTML or CSS.  It describes the problem to the user.
-#. The parameters are as follows:
-#. $1 - the total savings in bytes from serving images in their final size.
-#. $2 - the percentage reduction of bytes transferred from doing so.
+#. "$1" is a format token that is replaced with the total savings in bytes
+#. from serving images in their final size (e.g. "32.5KiB").  "$2" is replaced
+#. with the percentage reduction of bytes transferred (e.g. "25").
 msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
 msgstr ""
 
@@ -607,13 +606,13 @@ msgstr ""
 
 #. TRANSLATOR: Descriptive header describing a list of CSS resources that
 #. are all served from a single domain (in violation of the
-#. CombineExternalResources rule).  It says how many resources were
-#. loaded from that domain, gives the domain name itself, and is followed by
-#. a list of the URLs of those resources.  It then tells the webmaster
-#. how to solve the problem, by combining the resources into fewer files.
-#. The parameters are,
-#. $1 - the number of CSS files loaded from the given domain
-#. $2 - the domain name from which all the CSS files were loaded
+#. CombineExternalResources rule).  It says how many resources were loaded
+#. from that domain, gives the domain name itself, and is followed by a list
+#. of the URLs of those resources.  It then tells the webmaster how to solve
+#. the problem, by combining the resources into fewer files.  "$1" is a
+#. format token that will be replaced with the number of CSS files loaded
+#. from the given domain. "$2" will be replaced by the domain name from
+#. which all the CSS files were loaded.
 msgid "There are $1 CSS files served from $2. They should be combined into as few files as possible."
 msgstr ""
 
@@ -622,10 +621,10 @@ msgstr ""
 #. CombineExternalResources rule).  It says how many resources were loaded
 #. from that domain, gives the domain name itself, and is followed by a list
 #. of the URLs of those resources.  It then tells the webmaster how to solve
-#. the problem, by combining the resources into fewer files.  The parameters
-#. are,
-#. $1 - the number of JavaScript files loaded from the given domain
-#. $2 - the domain name from which all the JavaScript files were loaded
+#. the problem, by combining the resources into fewer files.  "$1" is a
+#. format token that will be replaced by the number of JavaScript files
+#. loaded from the given domain.  "$2" will be replaced by the domain name
+#. from which all the JavaScript files were loaded.
 msgid "There are $1 JavaScript files served from $2. They should be combined into as few files as possible."
 msgstr ""
 

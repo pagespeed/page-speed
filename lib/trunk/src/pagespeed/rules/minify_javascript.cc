@@ -67,22 +67,20 @@ const char* JsMinifier::documentation_url() const {
 }
 
 LocalizableString JsMinifier::body_format() const {
-  // TRANSLATOR: Heading that describes the savings possible from
-  // minifying resources. Parameters:
-  //   $1 - the absolute number of bytes or kilobytes that can be
-  //   saved (e.g. "5 bytes" or "23.2kB").
-  //   $2 - the percent savings (e.g. "50%").
+  // TRANSLATOR: Heading that describes the savings possible from minifying
+  // resources.  "$1" will be replaced by the absolute number of bytes or
+  // kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
+  // replaced by the percent savings (e.g. "50").
   return _("Minifying the following JavaScript resources could "
            "reduce their size by $1 ($2% reduction).");
 }
 
 LocalizableString JsMinifier::child_format() const {
-  // TRANSLATOR: Subheading that describes the savings possible from
-  // minifying a single resource. Parameters:
-  //   $1 - URL of the resource
-  //   $2 - the absolute number of bytes or kilobytes that can be
-  //   saved (e.g. "5 bytes" or "23.2kB").
-  //   $3 - the percent savings (e.g. "50%").
+  // TRANSLATOR: Subheading that describes the savings possible from minifying a
+  // single resource.  "$1" will be replaced by the URL of the resource. "$2"
+  // will be replaced by the absolute number of bytes or kilobytes that can be
+  // saved (e.g. "5 bytes" or "23.2KiB").  "$3" will be replaced by the percent
+  // savings (e.g. "50").
   return _("Minifying $1 could save $2 ($3% reduction).");
 }
 

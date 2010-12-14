@@ -110,13 +110,13 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
   if (resource_type_ == CSS) {
     // TRANSLATOR: Descriptive header describing a list of CSS resources that
     // are all served from a single domain (in violation of the
-    // CombineExternalResources rule).  It says how many resources were
-    // loaded from that domain, gives the domain name itself, and is followed by
-    // a list of the URLs of those resources.  It then tells the webmaster
-    // how to solve the problem, by combining the resources into fewer files.
-    // The parameters are,
-    //   $1 - the number of CSS files loaded from the given domain
-    //   $2 - the domain name from which all the CSS files were loaded
+    // CombineExternalResources rule).  It says how many resources were loaded
+    // from that domain, gives the domain name itself, and is followed by a list
+    // of the URLs of those resources.  It then tells the webmaster how to solve
+    // the problem, by combining the resources into fewer files.  "$1" is a
+    // format token that will be replaced with the number of CSS files loaded
+    // from the given domain. "$2" will be replaced by the domain name from
+    // which all the CSS files were loaded.
     body_tmpl = _("There are $1 CSS files served from $2. "
         "They should be combined into as few files as possible.");
   } else if (resource_type_ == JS) {
@@ -125,10 +125,10 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
     // CombineExternalResources rule).  It says how many resources were loaded
     // from that domain, gives the domain name itself, and is followed by a list
     // of the URLs of those resources.  It then tells the webmaster how to solve
-    // the problem, by combining the resources into fewer files.  The parameters
-    // are,
-    //   $1 - the number of JavaScript files loaded from the given domain
-    //   $2 - the domain name from which all the JavaScript files were loaded
+    // the problem, by combining the resources into fewer files.  "$1" is a
+    // format token that will be replaced by the number of JavaScript files
+    // loaded from the given domain.  "$2" will be replaced by the domain name
+    // from which all the JavaScript files were loaded.
     body_tmpl = _("There are $1 JavaScript files served from $2. "
         "They should be combined into as few files as possible.");
   } else {

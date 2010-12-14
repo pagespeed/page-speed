@@ -213,12 +213,11 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
 
       Argument document_url(Argument::URL, result.resource_urls(0));
       Formatter* child =
-          // TRANSLATOR: A sub-heading that contains the URL of the
-          // document and a statement instructing the user what to
-          // do. Parameters are:
-          //   $1 - the URL of the document that contains the
-          //        resources that can be inserted directly into the
-          //        HTML document.
+          // TRANSLATOR: A sub-heading that contains the URL of the document and
+          // a statement instructing the user to inline certain small resources.
+          // "$1" is a format token that will be replaced with the URL of the
+          // document that contains the resources that can be inserted directly
+          // into the HTML document.
           body->AddChild(_("$1 should inline the following small resources:"),
                          document_url);
       for (int i = 0; i < isr_details.inline_candidates_size(); ++i) {
