@@ -77,10 +77,10 @@ LocalizableString JsMinifier::body_format() const {
 
 LocalizableString JsMinifier::child_format() const {
   // TRANSLATOR: Subheading that describes the savings possible from minifying a
-  // single resource.  "$1" will be replaced by the URL of the resource. "$2"
-  // will be replaced by the absolute number of bytes or kilobytes that can be
-  // saved (e.g. "5 bytes" or "23.2KiB").  "$3" will be replaced by the percent
-  // savings (e.g. "50").
+  // single resource. "$1" is a format token that will be replaced by the URL of
+  // the resource. "$2" will be replaced bythe absolute number of bytes or
+  // kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
+  // replaced by the percent savings (e.g. "50").
   return _("Minifying $1 could save $2 ($3% reduction).");
 }
 
