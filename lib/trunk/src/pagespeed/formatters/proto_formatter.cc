@@ -188,7 +188,9 @@ Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
   rule_results->set_rule(rule.name());
 
   std::string localized;
-  DCHECK(localizer_->LocalizeString(std::string(rule.header()), &localized));
+  if (!localizer_->LocalizeString(std::string(rule.header()), &localized)) {
+    LOG(DFATAL) << "Unable to LocalizeString " << rule.header();
+  }
   rule_results->set_localized_rule_name(localized);
 
   ReleaseActiveChild();
