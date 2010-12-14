@@ -43,6 +43,7 @@ TEST(GettextLocalizerTest, CreateTest) {
 
   loc.reset(GettextLocalizer::Create("test_backwards"));
   ASSERT_TRUE(loc.get() != NULL);
+  ASSERT_STREQ("test_backwards", loc->GetLocale());
 
   ASSERT_EQ(NULL, GettextLocalizer::Create("bad_locale"));
 }
@@ -87,6 +88,7 @@ TEST(GettextLocalizerTest, OtherTest) {
 TEST(GettextLocalizerTest, EncodingTest) {
   scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_encoding"));
   ASSERT_TRUE(loc.get() != NULL);
+  ASSERT_STREQ("test_encoding", loc->GetLocale());
 
   const char* original = "Avoid CSS @import";
   const char* encoded = "\xed\x94\xbc\xed\x95\x98 @ "
@@ -100,6 +102,7 @@ TEST(GettextLocalizerTest, EncodingTest) {
 TEST(GettextLocalizerTest, ErrorTests) {
   scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_empty"));
   ASSERT_TRUE(loc.get() != NULL);
+  ASSERT_STREQ("test_empty", loc->GetLocale());
 
   std::string out;
   ASSERT_FALSE(loc->LocalizeString("no translation", &out));

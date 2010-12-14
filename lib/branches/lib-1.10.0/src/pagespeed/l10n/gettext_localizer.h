@@ -38,6 +38,7 @@ class GettextLocalizer : public Localizer {
   // the locale cannot be instantiated.  Caller owns the returned object.
   static GettextLocalizer* Create(const std::string& locale);
 
+  virtual const char* GetLocale() const;
   virtual bool LocalizeString(const std::string& val, std::string* out) const;
   virtual bool LocalizeInt(int64 val, std::string* out) const;
   virtual bool LocalizeUrl(const std::string& url, std::string* out) const;
@@ -45,7 +46,9 @@ class GettextLocalizer : public Localizer {
   virtual bool LocalizeTimeDuration(int64 ms, std::string* out) const;
 
  private:
-  GettextLocalizer(const char** locale_string_table);
+  GettextLocalizer(const std::string& locale, const char** locale_string_table);
+
+  const std::string locale_;
 
   // Pointer to the string table for the chosen locale
   const char** locale_string_table_;
