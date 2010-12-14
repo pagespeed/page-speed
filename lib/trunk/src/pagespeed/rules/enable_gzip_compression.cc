@@ -90,9 +90,10 @@ LocalizableString GzipMinifier::body_format() const {
   // uncompressed, in violation of the EnableGzipCompression rule.  It tells the
   // webmaster that compressing all of those resources could reduce the amount
   // of data transferred (which would speed up the site).  It is followed by a
-  // list of uncompressed resource URLs.  The parameters are,
-  //   $1 - the amount of data transferred saved by compressing (in bytes)
-  //   $2 - the percentage of data transferred saved by compressing
+  // list of uncompressed resource URLs.  "$1" is a format token that will be
+  // replaced by the amount of data transferred saved by compressing (in bytes)
+  // (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
+  // compressing (e.g. "25").
   return _("Compressing the following resources with gzip could reduce their "
            "transfer size by $1 ($2% reduction).");
 }
@@ -101,11 +102,11 @@ LocalizableString GzipMinifier::child_format() const {
   // TRANSLATOR: Description of a single resource that was served uncompressed,
   // in violation of the EnableGzipCompression rule.  It gives the URL of the
   // resource, as well as the amount of data that would be saved by compressing.
-  // It appears in a list of all the uncompressed resources on a site.  The
-  // parameters are,
-  //   $1 - the URL of the uncompressed resource in question
-  //   $2 - the amount of data transferred saved by compressing (in bytes)
-  //   $3 - the percentage of data transferred saved by compressing
+  // It appears in a list of all the uncompressed resources on a site.  "$1" is
+  // a format token that will be replaced with the URL of the uncompressed
+  // resource in question.  "$2" will be replaced with the amount of data
+  // transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
+  // replaced with the percentage of data transferred saved by compressing.
   return _("Compressing $1 could save $2 ($3% reduction).");
 }
 

@@ -163,9 +163,8 @@ void AvoidCssImport::FormatResults(const ResultVector& results,
             // is code, and should not be translated).  It gives the URL of the
             // style sheet that violates the AvoidCssImport rule (the $1
             // parameter) by using @import --- the style sheets that it imports
-            // will be listed below it.
-            // The parameters are,
-            //    $1 - the URL of the style sheet that uses @import
+            // will be listed below it.  "$1" is a format token that will be
+            // replaced with the URL of the style sheet that uses @import.
             _("The following external stylesheets were included in $1 "
               "using @import."), css_url);
         for (int i = 0,
