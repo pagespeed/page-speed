@@ -77,7 +77,7 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
 
   if (tag == link_atom_) {
     const char* rel = element->AttributeValue(rel_atom_);
-    if (!LowerCaseEqualsASCII(rel, "stylesheet")) {
+    if (rel == NULL || !LowerCaseEqualsASCII(rel, "stylesheet")) {
       return;
     }
     const char* href = element->AttributeValue(href_atom_);
