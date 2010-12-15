@@ -29,6 +29,8 @@
     <em:homepageURL>http://code.google.com/speed/page-speed/</em:homepageURL>
     <em:updateURL><![CDATA[https://tools.google.com/service/update2/ff?guid=%ITEM_ID%&version=%ITEM_VERSION%&application=%APP_ID%&appversion=%APP_VERSION%]]></em:updateURL>
     <em:type>2</em:type> <!-- type=extension -->
+    <em:iconURL>chrome://pagespeed/content/pagespeed-32.png</em:iconURL>
+    <em:icon64URL>chrome://pagespeed/content/pagespeed-64.png</em:icon64URL>
     <em:unpack>true</em:unpack>
 
     <!-- Any suitably modern toolkit application -->
