@@ -3,6 +3,21 @@
 
 =Page Speed Version History=
 
+== 1.10 ==
+  * Improved Firefox 4 support
+  * Improved Firebug 1.6, 1.7 support
+  * New client API
+  * Merged "Serve static content from a cookieless domain" into "Minimize request size"
+  * Improved JavaScript, CSS, and HTML minifiers
+  * Improved support for XHTML
+  * Don't show suggestions that save a very small number of bytes
+  * New rules:
+    * Inline small JavaScript
+    * Inline small CSS
+  * Improved async resource detection
+  * Improved image sprite candidate detection
+
+
 == 1.9 9/20/2010 ==
 New features:
   * New rules
