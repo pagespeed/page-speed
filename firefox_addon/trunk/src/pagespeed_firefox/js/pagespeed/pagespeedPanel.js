@@ -118,10 +118,13 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
   welcomePageTag:
       DIV({'class': 'moduleManagerBox',
            'style': 'padding: 0 10px;'},
-          H1({'class': 'moduleManagerHead'},
-             'Page Speed'
-            ),
+        H1({'class': 'moduleManagerHead', 'style': 'font-style:italic'},
+             IMG({'src': 'chrome://pagespeed/content/pagespeed-32.png',
+                  'style': 'vertical-align:middle;padding-bottom:5px'}),
+             ' Page Speed'
+           ),
           INPUT({'type': 'button', 'value': 'Analyze Performance',
+                 'style': 'margin-top:8px;margin-left:10px;margin-bottom:5px',
                  'onclick': '$analyzePerformance'}),
           H3("What's new in Page Speed 1.10?"),
 

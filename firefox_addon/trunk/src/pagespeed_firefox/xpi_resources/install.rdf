@@ -23,12 +23,14 @@
     <!-- This GUID is hard-coded into util.js.  If it is ever changed, util.js needs to be updated. -->
     <em:id>{e3f6c2cc-d8db-498c-af6c-499fb211db97}</em:id>
     <em:name>Page Speed</em:name>
-    <em:version>1.10pre+svn</em:version>
+    <em:version>1.10pre1</em:version>
     <em:description>Speed up your web pages with this performance diagnostics tool. Requires Firebug.</em:description>
     <em:creator>Google Inc.</em:creator>
     <em:homepageURL>http://code.google.com/speed/page-speed/</em:homepageURL>
     <em:updateURL><![CDATA[https://tools.google.com/service/update2/ff?guid=%ITEM_ID%&version=%ITEM_VERSION%&application=%APP_ID%&appversion=%APP_VERSION%]]></em:updateURL>
     <em:type>2</em:type> <!-- type=extension -->
+    <em:iconURL>chrome://pagespeed/content/pagespeed-32.png</em:iconURL>
+    <em:icon64URL>chrome://pagespeed/content/pagespeed-64.png</em:icon64URL>
     <em:unpack>true</em:unpack>
 
     <!-- Any suitably modern toolkit application -->
