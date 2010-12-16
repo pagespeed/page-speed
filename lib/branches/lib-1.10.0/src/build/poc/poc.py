@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.6
 #
 # Copyright 2010 Google Inc. All Rights Reserved.
 #
@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""poc: .po file compiler.  Converts a single .pot file and a number of .po
-files into source files containing string tables with C syntax.
+"""poc: .po file compiler.
+
+Converts a single .pot file and a number of .po files into source files
+containing string tables with C syntax.
 
 For each .po file "<locale>.po" given, poc will generate a file "<locale>.po.cc"
 that contains the string table for that locale.  If no .po files are given, a
@@ -34,8 +36,9 @@ __author__ = 'aoates@google.com (Andrew Oates)'
 
 import datetime
 import os
-import polib
 import sys
+
+import polib
 
 # template for generated string table files
 STRING_TABLE_TEMPLATE = """
@@ -70,13 +73,14 @@ pagespeed::l10n::RegisterLocale
 } // namespace
 """
 
+
 def UnicodeToCLiteral(s):
-  """Converts a unicode string to a C-style escaped string (e.g. "\xe1\x84")"""
+  """Converts a unicode string to a C-style escaped string (e.g. "\xe1\x84")."""
   s = s.encode('utf8')
   out = ['"']
   for c in s:
     if ord(c) > 127:
-      out.append(r"\x%.2x" % ord(c))
+      out.append(r'\x%.2x' % ord(c))
       # to prevent the compiler from interpreting subsequent characters as part
       # of the hex code, we break the string literal.
       #
@@ -87,42 +91,56 @@ def UnicodeToCLiteral(s):
   out.append('"')
   return ''.join(out)
 
+
 def WriteStringTable(strings, table_name, locale, out_dir,
-                     filename, comments = None):
+                     filename, comments=None):
   """Writes a c-style string table to the given file in the given directory.
 
-  strings is an ordered list of strings to be written to the table.  table_name
-  will be used as the name of the generated table.  locale is the locale of the
-  string table being generated (e.g. "fr_FR"), or None for the master string
-  table.  comments, if given, is a list of strings such that len(comments) ==
-  len(strings), and each element of comments is written out as a comment next to
-  the corresponding string."""
+  Args:
+    strings: An ordered list of strings to be written to the table.
+    table_name: The name of the generated table.
+    locale: The locale of the string table being generated (e.g. "fr_FR"),
+        or None for the master string table.
+    out_dir: The directory to write the string table to.
+    filename: The name of the file to generate.
+    comments: A list of strings such that len(comments) == len(strings),
+        each element of which is written out as a comment next to
+        the corresponding string.  If None, then no comments are written.
+  """
   string_lines = []
-  
+
   quoted_strings = [s.replace('"', r'\"') for s in strings]
   escaped_strings = [UnicodeToCLiteral(s) for s in quoted_strings]
 
   if comments:
     for (s, c) in zip(escaped_strings, comments):
-      string_lines.append('  %s, // %s' % (s,c))
+      string_lines.append('  %s, // %s' % (s, c))
   else:
     for s in escaped_strings:
       string_lines.append('  %s,' % s)
-  string_lines.append('  0x0');
+  string_lines.append('  0x0')
 
   file_contents = STRING_TABLE_TEMPLATE % {
-      'date' : str(datetime.datetime.now()),
-      'table_name' : table_name,
-      'table_data' : '\n'.join(string_lines),
-      'locale_str' : ('"%s"' % locale) if locale else 'NULL',
-      'locale' : locale if locale else 'master',
-    }
-  
+      'date': str(datetime.datetime.now()),
+      'table_name': table_name,
+      'table_data': '\n'.join(string_lines),
+      'locale_str': ('"%s"' % locale) if locale else 'NULL',
+      'locale': locale if locale else 'master',
+      }
+
   f = open(os.path.join(out_dir, filename), 'w')
   f.write(file_contents)
   f.close()
 
+
 def GenerateStringTables(out_dir, pot_file, po_files):
+  """Generates string tables from .po files.
+
+  Args:
+    out_dir: The directory to put the string table files in.
+    pot_file: The .pot file containing the master list of strings.
+    po_files: A list of .po files to generate string tables from.
+  """
   # first build map of string -> id for the master table
   master_table = {}
   master_strings = []
@@ -132,10 +150,10 @@ def GenerateStringTables(out_dir, pot_file, po_files):
     master_table[entry.msgid] = len(master_strings)-1
 
   # if no .po files were given (just the .pot file), generate the master table
-  if po_files == []:
+  if not po_files:
     # write out master table to source file
-    WriteStringTable(master_strings, "master_string_table",
-                     None, out_dir, "master.po.cc")
+    WriteStringTable(master_strings, 'master_string_table',
+                     None, out_dir, 'master.po.cc')
 
   # now write out a table for each locale
   locales = []
@@ -145,8 +163,8 @@ def GenerateStringTables(out_dir, pot_file, po_files):
     locales.append(locale_name)
 
     if not os.path.exists(po_file):
-      print >> sys.stderr, "error: %s does not exist!" % po_file
-      sys.exit(1);
+      print >> sys.stderr, 'error: %s does not exist!' % po_file
+      sys.exit(1)
 
     po = polib.pofile(po_file)
 
@@ -162,17 +180,21 @@ def GenerateStringTables(out_dir, pot_file, po_files):
         locale_strings.append('')
 
     if len(locale_strings) != len(master_strings):
-      print >> sys.stderr, ("warning: %s doesn't match master .pot file" %
+      print >> sys.stderr, ('warning: %s doesn\'t match master .pot file' %
                             po_file)
 
-    WriteStringTable(locale_strings, "%s_string_table" % locale_name,
-                     locale_name, out_dir, "%s.po.cc" %
-                     locale_name, comments = master_strings)
+    WriteStringTable(locale_strings, '%s_string_table' % locale_name,
+                     locale_name, out_dir, '%s.po.cc' % locale_name,
+                     comments=master_strings)
 
-if __name__ == "__main__":
+
+def main():
   if len(sys.argv) < 3:
     print >> sys.stderr, (
-           "Usage: poc out_dir pot_file [po_file1 [po_file2 ...]]")
+        'Usage: poc out_dir pot_file [po_file1 [po_file2 ...]]')
     sys.exit(1)
 
   GenerateStringTables(sys.argv[1], sys.argv[2], sys.argv[3:])
+
+if __name__ == '__main__':
+  main()
