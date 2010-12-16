@@ -43,7 +43,6 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
 #include "pagespeed/filters/ad_filter.h"
-#include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/har/http_archive.h"
@@ -458,8 +457,7 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
     serializer.reset(new PluginSerializer(output_dir));
   }
   formatters::JsonFormatter formatter(&stream, serializer.get());
-  ResponseByteResultFilter result_filter;
-  engine.ComputeAndFormatResults(*input, result_filter, &formatter);
+  engine.ComputeAndFormatResults(*input, &formatter);
 
   const std::string& output_string = stream.str();
   _retval.Assign(output_string.c_str(), output_string.length());
