@@ -100,6 +100,8 @@ var shortNameTranslationTable = {
   CombineExternalCss: 'CombineCSS',
   CombineExternalJavaScript: 'CombineJS',
   EnableGzipCompression: 'Gzip',
+  InlineSmallCss: 'InlineCSS',
+  InlineSmallJavaScript: 'InlineJS',
   LeverageBrowserCaching: 'BrowserCache',
   MinifyCss: 'MinifyCSS',
   MinifyHTML: 'MinifyHTML',
