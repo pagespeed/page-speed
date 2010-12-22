@@ -43,8 +43,8 @@ var pagespeed = {
         alert(message + '\n\nPlease file a bug at\n' +
               'http://code.google.com/p/page-speed/issues/');
         webInspector.log(message);
-        document.getElementById('run-button').disabled = false;
-        document.getElementById('spinner-img').style.display = 'none';
+        pagespeed.endCurrentRun();
+        pagespeed.setStatusText('ERROR');
       }
     };
   },
@@ -131,6 +131,15 @@ var pagespeed = {
     run_button.appendChild(document.createTextNode(text));
   },
 
+  // Set the text of the status bar.
+  setStatusText: function (text) {
+    var status_container = document.getElementById('status-text');
+    pagespeed.removeAllChildren(status_container);
+    if (text) {
+      status_container.appendChild(document.createTextNode(text));
+    }
+  },
+
   // Get a version of a URL that is suitable for display in the UI
   // (~100 characters or fewer).
   getDisplayUrl: function (fullUrl) {
@@ -205,6 +214,7 @@ var pagespeed = {
 
   // Clear and hide the results page, and make the welcome page visible again.
   clearResults: function () {
+    pagespeed.endCurrentRun();
     pagespeed.currentResults = null;
     var results_container = document.getElementById('results-container');
     results_container.style.display = 'none';
@@ -300,11 +310,9 @@ var pagespeed = {
   // Run Page Speed and display the results. This is done
   // asynchronously using the ResourceAccumulator.
   runPageSpeed: function () {
+    pagespeed.endCurrentRun();
     document.getElementById('run-button').disabled = true;
     document.getElementById('spinner-img').style.display = 'inline';
-    if (pagespeed.resourceAccumulator) {
-      pagespeed.resourceAccumulator.cancel();
-    }
     pagespeed.resourceAccumulator = new pagespeed.ResourceAccumulator(
       pagespeed.withErrorHandler(pagespeed.onResourceAccumulatorComplete));
     pagespeed.resourceAccumulator.start();
@@ -312,7 +320,7 @@ var pagespeed = {
 
   // Invoked when the ResourceAccumulator has finished collecting data
   // from the web inspector.
-  onResourceAccumulatorComplete: function(har) {
+  onResourceAccumulatorComplete: function (har) {
     pagespeed.resourceAccumulator = null;
 
     // Prepare the request.
@@ -322,13 +330,14 @@ var pagespeed = {
     var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
 
     // Tell the background page to run the Page Speed rules.
+    pagespeed.setStatusText('Invoking Page Speed rules...');
     chrome.extension.sendRequest(
         request, pagespeed.withErrorHandler(pagespeed.onPageSpeedResults));
   },
 
   // Invoked in response to our background page running Page Speed on
   // the current page.
-  onPageSpeedResults: function(response) {
+  onPageSpeedResults: function (response) {
     if (!response) {
       throw new Error("No response to runPageSpeed request.");
     } else if (response.error_message) {
@@ -337,8 +346,17 @@ var pagespeed = {
       pagespeed.currentResults = response;
       pagespeed.showResults();
     }
+    pagespeed.endCurrentRun();
+  },
+
+  // Cancel the current run, if any, and reset the status indicators.
+  endCurrentRun: function () {
+    if (pagespeed.resourceAccumulator) {
+      pagespeed.resourceAccumulator.cancel();
+    }
     document.getElementById('run-button').disabled = false;
     document.getElementById('spinner-img').style.display = 'none';
+    pagespeed.setStatusText(null);
   },
 
   // Callback to be called when the user changes the value of the "Analyze"
@@ -357,7 +375,7 @@ var pagespeed = {
 // the web inspector, storing results along the way and finally
 // invoking the client callback when all results have been
 // accumulated.
-pagespeed.ResourceAccumulator = function(clientCallback) {
+pagespeed.ResourceAccumulator = function (clientCallback) {
   this.clientCallback_ = clientCallback;
   this.nextEntryIndex_ = 0;
   this.cancelled_ = false;
@@ -365,17 +383,18 @@ pagespeed.ResourceAccumulator = function(clientCallback) {
 };
 
 // Start the accumulator.
-pagespeed.ResourceAccumulator.prototype.start = function() {
+pagespeed.ResourceAccumulator.prototype.start = function () {
+  pagespeed.setStatusText('Fetching page HAR...');
   webInspector.resources.getHAR(
     pagespeed.withErrorHandler(this.onHAR_.bind(this)));
 };
 
 // Cancel the accumulator.
-pagespeed.ResourceAccumulator.prototype.cancel = function() {
+pagespeed.ResourceAccumulator.prototype.cancel = function () {
   this.cancelled_ = true;
 };
 
-pagespeed.ResourceAccumulator.prototype.onHAR_ = function(har) {
+pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   if (this.cancelled_) {
     return;  // We've been cancelled so ignore the callback.
   }
@@ -384,16 +403,20 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function(har) {
   this.getNextEntryBody_();
 };
 
-pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function() {
+pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function () {
   if (this.nextEntryIndex_ >= this.har_.entries.length) {
     this.clientCallback_({log: this.har_});  // We're finished.
   } else {
-    this.har_.entries[this.nextEntryIndex_].getContent(
-      pagespeed.withErrorHandler(this.onBody_.bind(this)));
+    var entry = this.har_.entries[this.nextEntryIndex_];
+    pagespeed.setStatusText('Fetching content for [' +
+                            (this.nextEntryIndex_ + 1) + '/' +
+                            this.har_.entries.length + '] ' +
+                            entry.request.url);
+    entry.getContent(pagespeed.withErrorHandler(this.onBody_.bind(this)));
   }
-}
+};
 
-pagespeed.ResourceAccumulator.prototype.onBody_ = function(text, encoding) {
+pagespeed.ResourceAccumulator.prototype.onBody_ = function (text, encoding) {
   if (this.cancelled_) {
     return;  // We've been cancelled so ignore the callback.
   }
