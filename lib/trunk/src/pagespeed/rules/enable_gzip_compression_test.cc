@@ -257,10 +257,13 @@ TEST_F(EnableGzipCompressionTest, TwoViolationsTwoHtmlNoGzip) {
   CheckTwoViolations(8956, 4460, 0);
 }
 
+// The DCHECK will only trigger in debug builds.
+#ifndef NDEBUG
 TEST_F(EnableGzipCompressionTest, NullComputer) {
   ASSERT_DEATH(new EnableGzipCompression(NULL),
                "SavingsComputer must be non-null.");
 }
+#endif
 
 TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
   std::string body;
