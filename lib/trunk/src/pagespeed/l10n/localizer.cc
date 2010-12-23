@@ -39,13 +39,19 @@ const char* BasicLocalizer::GetLocale() const {
 
 bool BasicLocalizer::LocalizeString(const std::string& val,
                                     std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   *out = val;
   return true;
 }
 
 bool BasicLocalizer::LocalizeInt(int64 val, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   std::ostringstream ss;
   ss << val;
   *out = ss.str();
@@ -54,19 +60,28 @@ bool BasicLocalizer::LocalizeInt(int64 val, std::string* out) const {
 
 bool BasicLocalizer::LocalizeUrl(const std::string& url,
                                  std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   *out = url;
   return true;
 }
 
 bool BasicLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   *out = pagespeed::formatters::FormatBytes(bytes);
   return true;
 }
 
 bool BasicLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   *out = pagespeed::formatters::FormatTimeDuration(ms);
   return true;
 }
@@ -78,13 +93,19 @@ const char* NullLocalizer::GetLocale() const {
 
 bool NullLocalizer::LocalizeString(const std::string& val,
                                    std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   *out = val;
   return true;
 }
 
 bool NullLocalizer::LocalizeInt(int64 val, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   std::ostringstream ss;
   ss << val;
   *out = ss.str();
@@ -93,13 +114,19 @@ bool NullLocalizer::LocalizeInt(int64 val, std::string* out) const {
 
 bool NullLocalizer::LocalizeUrl(const std::string& url,
                                 std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   *out = url;
   return true;
 }
 
 bool NullLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   std::ostringstream ss;
   ss << bytes;
   *out = ss.str();
@@ -107,7 +134,10 @@ bool NullLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
 }
 
 bool NullLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
   std::ostringstream ss;
   ss << ms;
   *out = ss.str();

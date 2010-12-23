@@ -137,7 +137,10 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   const double average_num_static_resources =
       static_cast<double>(num_static_resources) /
       static_cast<double>(kOptimalNumberOfHostnames);
-  CHECK(average_num_static_resources > 0.0);
+  if (average_num_static_resources <= 0.0) {
+    LOG(DFATAL) << "average_num_static_resources <= 0.0";
+    return false;
+  }
 
   // Don't penalize the site unless it's sufficiently unbalanced.
   const double num_resources_above_average =
