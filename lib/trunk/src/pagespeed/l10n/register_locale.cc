@@ -75,13 +75,28 @@ RegisterLocale::~RegisterLocale() {
   }
 }
 
+void RegisterLocale::Freeze() {
+  if (frozen_) {
+    LOG(DFATAL) << "Freeze called multiple times.";
+    return;
+  }
+
+  // If any locales were registered, we must have a master string table.
+  if (string_table_map_)
+    CHECK(master_string_map_);
+
+  frozen_ = true;
+}
+
 const char** RegisterLocale::GetStringTable(const std::string& locale) {
-  CHECK(frozen_);
+  if (!frozen_) {
+    LOG(DFATAL) << "RegisterLocale not frozen (call pagespeed::Init())";
+    return NULL;
+  }
 
   if (!string_table_map_)
     return NULL; // no locales have been registered
 
-  CHECK(master_string_map_); // we must have a master string table
   std::map<std::string, const char**>::const_iterator itr =
       string_table_map_->find(locale);
 
@@ -92,12 +107,13 @@ const char** RegisterLocale::GetStringTable(const std::string& locale) {
 }
 
 void RegisterLocale::GetAllLocales(std::vector<std::string>* out) {
-  CHECK(out);
-  CHECK(frozen_);
-
-  if (!string_table_map_)
+  if (!frozen_) {
+    LOG(DFATAL) << "RegisterLocale not frozen (call pagespeed::Init())";
     return;
-  CHECK(master_string_map_);
+  }
+
+  if (!out || !string_table_map_)
+    return;
 
   std::map<std::string, const char**>::const_iterator itr;
   for (itr = string_table_map_->begin();

@@ -59,11 +59,17 @@ const char* GettextLocalizer::GetLocale() const {
 
 bool GettextLocalizer::LocalizeString(const std::string& val,
                                       std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
 
   const std::map<std::string, size_t>* master_string_map =
       RegisterLocale::GetMasterStringMap();
-  CHECK(master_string_map);
+  if (!master_string_map) {
+    LOG(DFATAL) << "no master string table found";
+    return false;
+  }
   std::map<std::string, size_t>::const_iterator itr =
       master_string_map->find(val);
 
@@ -91,7 +97,11 @@ bool GettextLocalizer::LocalizeString(const std::string& val,
 }
 
 bool GettextLocalizer::LocalizeInt(int64 val, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+
   ClearOstream();
   ostream_ << val;
   *out = ostream_.str();
@@ -100,13 +110,21 @@ bool GettextLocalizer::LocalizeInt(int64 val, std::string* out) const {
 
 bool GettextLocalizer::LocalizeUrl(const std::string& url,
                                    std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+
   *out = url;
   return true;
 }
 
 bool GettextLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+
   const char* format;
   std::string value;
 
@@ -147,7 +165,10 @@ bool GettextLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
 }
 
 bool GettextLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
-  CHECK(out);
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
 
   // TODO(aoates): localize time durations
   *out = pagespeed::formatters::FormatTimeDuration(ms);

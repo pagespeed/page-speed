@@ -48,7 +48,7 @@ namespace {
 class GzipMinifier : public Minifier {
  public:
   explicit GzipMinifier(SavingsComputer* computer) : computer_(computer) {
-    CHECK(NULL != computer) << "SavingsComputer must be non-null.";
+    DCHECK(NULL != computer) << "SavingsComputer must be non-null.";
   }
 
   // Minifier interface:
@@ -111,6 +111,9 @@ LocalizableString GzipMinifier::child_format() const {
 }
 
 const MinifierOutput* GzipMinifier::Minify(const Resource& resource) const {
+  if (!computer_.get())
+    return NULL;
+
   if (!IsViolation(resource)) {
     return new MinifierOutput();
   }

@@ -224,7 +224,10 @@ void VisitStyleScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
     return;
   }
 
-  CHECK(visitor_ != NULL);
+  if (!visitor_) {
+    LOG(DFATAL) << "visitor_ == NULL";
+    return;
+  }
 
   net_instaweb::Atom tag = element->tag();
   if (tag == body_atom_) {

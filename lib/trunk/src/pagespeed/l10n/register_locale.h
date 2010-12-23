@@ -45,7 +45,7 @@ class RegisterLocale {
   // Freezes the string tables, so that any subsequent modification causes a
   // fatal error.  Should be called after static initialization, but before any
   // threads are created.
-  static void Freeze() { frozen_ = true; }
+  static void Freeze();
 
   // Returns the string table for the given locale, or NULL if it doesn't exist.
   static const char** GetStringTable(const std::string& locale);
