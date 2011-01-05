@@ -75,16 +75,16 @@ class PocTest(unittest.TestCase):
     """Tests calling WriteStringTable with normal arguments."""
     strings = ['string1', 'string2']
     comments = ['comment1', 'comment2']
-    golden_data = ('  "string1", // comment1\n' +
-                   '  "string2", // comment2\n' +
+    golden_data = ('  "string1", // comment1\n'
+                   '  "string2", // comment2\n'
                    '  0x0')
     self.DoWriteStringTableTest(strings, comments, golden_data)
 
   def testWriteStringTableNoComments(self):
     """Tests calling WriteStringTable with normal arguments."""
     strings = ['string1', 'string2']
-    golden_data = ('  "string1",\n' +
-                   '  "string2",\n' +
+    golden_data = ('  "string1",\n'
+                   '  "string2",\n'
                    '  0x0')
     self.DoWriteStringTableTest(strings, None, golden_data)
 
@@ -98,8 +98,8 @@ class PocTest(unittest.TestCase):
                          'test_table.po.cc', comments)
     self.assertEqual(['test_table.po.cc'], os.listdir(self.out_dir))
 
-    golden_data = ('  "string1", // comment1\n' +
-                   '  "string2", // comment2\n' +
+    golden_data = ('  "string1", // comment1\n'
+                   '  "string2", // comment2\n'
                    '  0x0')
     golden = poc.STRING_TABLE_TEMPLATE % {
         'table_name': 'test_table',
