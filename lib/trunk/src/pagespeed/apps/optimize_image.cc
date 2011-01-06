@@ -39,6 +39,8 @@ enum ImageType {
   GIF,
 };
 
+const char *kUsage = "Usage: optimize_image <input> <output>\n";
+
 // use file extension to determine what optimizer should be used.
 ImageType DetermineImageType(const std::string& filename) {
   size_t dot_pos = filename.rfind('.');
@@ -58,19 +60,12 @@ ImageType DetermineImageType(const std::string& filename) {
   return NOT_SUPPORTED;
 }
 
-}
-
-int main(int argc, char** argv) {
-  if (argc != 3) {
-    fprintf(stderr, "Usage: optimize_image <input> <output>\n");
-    return 1;
-  }
-
-  std::string filename = argv[1];
+bool OptimizeImage(const char* infile, const char* outfile) {
+  std::string filename(infile);
   std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
   if (!in) {
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
-    return 1;
+    return false;
   }
 
   in.seekg (0, std::ios::end);
@@ -104,26 +99,60 @@ int main(int argc, char** argv) {
     fprintf(stderr,
             "Unsupported image type when processing %s\n",
             filename.c_str());
-    return 1;
+    return false;
   }
 
   if (!success) {
     fprintf(stderr,
             "Image compression failed when processing %s\n",
             filename.c_str());
-    return 1;
+    return false;
   }
 
   if (compressed.size() >= file_contents.size()) {
     compressed = file_contents;
   }
 
-  std::ofstream out(argv[2], std::ios::out | std::ios::binary);
-  if (!out) {
-    fprintf(stderr, "Error opening %s for write\n", argv[2]);
-    return 1;
+  if (outfile != NULL) {
+    std::ofstream out(outfile, std::ios::out | std::ios::binary);
+    if (!out) {
+      fprintf(stderr, "Error opening %s for write\n", outfile);
+      return false;
+    }
+    out.write(compressed.c_str(), compressed.size());
+    out.close();
   }
-  out.write(compressed.c_str(), compressed.size());
-  out.close();
-  return 0;
+
+  return true;
+}
+
+}  // namespace
+
+
+
+int main(int argc, char** argv) {
+  if (argc == 1) {
+    fprintf(stderr, "%s", kUsage);
+    return EXIT_SUCCESS;
+  }
+
+  // If running in batch mode, optimize every image specified on the
+  // command line. Do not write any optimized files to disk. This mode
+  // can be used to determine how long it takes to optimize a set of
+  // files.
+  if (strcmp("--batch", argv[1]) == 0) {
+    for (int i = 2; i < argc; ++i) {
+      OptimizeImage(argv[i], NULL);
+    }
+    return EXIT_SUCCESS;
+  }
+
+  // Otherwise we are running in normal mode, where the arguments are
+  // <infile> <outfile>.
+  if (argc != 3) {
+    fprintf(stderr, "%s", kUsage);
+    return EXIT_FAILURE;
+  }
+
+  return OptimizeImage(argv[1], argv[2]) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
