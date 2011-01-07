@@ -25,9 +25,9 @@
 
 // Macro for marking strings that need to be localized.  Any string
 // that should be localized should be surrounded by _(...).
-#define _(X) (::pagespeed::LocalizableString(X))
+#define _(X) (::pagespeed::LocalizableString(X, true))
 
 // Macro for marking user-facing strings that should *not* be localized.
-#define not_localized(X) (::pagespeed::LocalizableString(X))
+#define not_localized(X) (::pagespeed::LocalizableString(X, false))
 
 #endif  // PAGESPEED_L10N_L10N_H_

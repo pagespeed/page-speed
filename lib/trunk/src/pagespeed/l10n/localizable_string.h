@@ -25,12 +25,21 @@ namespace pagespeed {
 // All functions and methods that generate user-facing strings take a
 // LocalizableString, which are only created when a string is passed through the
 // _(...) localization markup macro in l10n.h.  This allows checking at
-// compile-time that all user-facing strings are appropriately marked.
+// compile-time that all user-facing strings are appropriately marked.  Each
+// string is marked with a flag should_localize --- localized strings (marked
+// with the _(...) macro) should be passed through the localization process
+// (i.e.  translated and put in string tables), while non-localized strings
+// (marked with the non_localized(...) macro) should not.  This allows us to
+// skip lookups on non-translatable strings like "$1".
 class LocalizableString {
  public:
   LocalizableString() : value_(NULL) {}
   // This should NEVER be called, except by the macros in l10n.h
-  explicit LocalizableString(const char* s) : value_(s) {}
+  LocalizableString(const char* s, bool should_localize)
+      : value_(s), should_localize_(should_localize) {}
+
+  // Returns true if the string should be localized before presentation.
+  bool ShouldLocalize() const { return should_localize_; }
 
   // Conversion operator that allows LocalizableString to be cast into a
   // const char* (e.g. for use passing to a method that takes a const char*)
@@ -38,6 +47,7 @@ class LocalizableString {
 
  private:
   const char* value_;
+  bool should_localize_;
 };
 
 } // namespace pagespeed

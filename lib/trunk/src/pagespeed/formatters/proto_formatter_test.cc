@@ -41,9 +41,9 @@ using pagespeed::l10n::NullLocalizer;
 
 namespace {
 
-#define _N(X) LocalizableString(X)
+#define _N(X) LocalizableString(X, true)
 
-// Test localizer that outputs only the character '*'
+// Test localizer that outputs only the character '*'.
 class TestLocalizer : public Localizer {
  public:
   TestLocalizer() : symbol_('*') {}
@@ -191,14 +191,15 @@ TEST(ProtoFormatterTest, FormattingTest) {
   ASSERT_EQ("100", header.args(1).localized_value());
 }
 
-// Tests that the localizer is correctly invoked for all parameters
+// Tests that the localizer is correctly invoked for all parameters.
 TEST(ProtoFormatterTest, LocalizerTest) {
   FormattedResults results;
   TestLocalizer localizer;
   ProtoFormatter formatter(&localizer, &results);
   results.set_locale("en_US.UTF-8");
 
-  DummyTestRule rule1(_N("rule1"));
+  DummyTestRule rule1(LocalizableString("rule1", true));
+  DummyTestRule rule2(LocalizableString("rule2", false));
 
   Formatter* body = formatter.AddHeader(rule1, 100);
   std::vector<const Argument*> args;
@@ -209,46 +210,68 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   args.push_back(new Argument(Argument::DURATION, 200));
   STLElementDeleter<std::vector<const Argument*> > arg_deleter(&args);
 
-  LocalizableString format_str = _N("text $1 $2 $3 $4 $5");
+  // Test a localized format string.
+  LocalizableString format_str("text $1 $2 $3 $4 $5", true);
   FormatterParameters formatter_params(&format_str, &args);
   body->AddChild(formatter_params);
 
+  // Test a non-localized format string.
+  std::vector<const Argument*> args2;
+  LocalizableString format_str2("not localized", false);
+  FormatterParameters formatter_params2(&format_str2, &args2);
+  body->AddChild(formatter_params2);
+
+  // Test a non-localized rule header.
+  formatter.AddHeader(rule2, 100);
+
   ASSERT_TRUE(results.IsInitialized());
 
-  ASSERT_EQ(1, results.rule_results_size());
+  ASSERT_EQ(2, results.rule_results_size());
   const FormattedRuleResults& r1 = results.rule_results(0);
-  ASSERT_EQ("DummyTestRule", r1.rule());
-  ASSERT_EQ("*****", r1.localized_rule_name());
-  ASSERT_EQ(1, r1.url_blocks_size());
+  EXPECT_EQ("DummyTestRule", r1.rule());
+  EXPECT_EQ("*****", r1.localized_rule_name());
+  ASSERT_EQ(2, r1.url_blocks_size());
 
   const FormatString& header = r1.url_blocks(0).header();
-  ASSERT_EQ("*******************", header.format());
+  EXPECT_EQ("*******************", header.format());
   ASSERT_EQ(5, header.args_size());
 
-  ASSERT_EQ(FormatArgument::URL, header.args(0).type());
-  ASSERT_FALSE(header.args(0).has_int_value());
-  ASSERT_EQ("http://www.google.com", header.args(0).string_value());
-  ASSERT_EQ("*********************", header.args(0).localized_value());
+  EXPECT_EQ(FormatArgument::URL, header.args(0).type());
+  EXPECT_FALSE(header.args(0).has_int_value());
+  EXPECT_EQ("http://www.google.com", header.args(0).string_value());
+  EXPECT_EQ("*********************", header.args(0).localized_value());
 
-  ASSERT_EQ(FormatArgument::STRING_LITERAL, header.args(1).type());
-  ASSERT_FALSE(header.args(1).has_int_value());
-  ASSERT_EQ("abcd", header.args(1).string_value());
-  ASSERT_EQ("****", header.args(1).localized_value());
+  // Test that string literals are *not* localized.
+  EXPECT_EQ(FormatArgument::STRING_LITERAL, header.args(1).type());
+  EXPECT_FALSE(header.args(1).has_int_value());
+  EXPECT_EQ("abcd", header.args(1).string_value());
+  EXPECT_EQ("abcd", header.args(1).localized_value());
 
-  ASSERT_EQ(FormatArgument::INT_LITERAL, header.args(2).type());
-  ASSERT_FALSE(header.args(2).has_string_value());
-  ASSERT_EQ(100, header.args(2).int_value());
-  ASSERT_EQ("*", header.args(2).localized_value());
+  EXPECT_EQ(FormatArgument::INT_LITERAL, header.args(2).type());
+  EXPECT_FALSE(header.args(2).has_string_value());
+  EXPECT_EQ(100, header.args(2).int_value());
+  EXPECT_EQ("*", header.args(2).localized_value());
 
-  ASSERT_EQ(FormatArgument::BYTES, header.args(3).type());
-  ASSERT_FALSE(header.args(3).has_string_value());
-  ASSERT_EQ(150, header.args(3).int_value());
-  ASSERT_EQ("**", header.args(3).localized_value());
+  EXPECT_EQ(FormatArgument::BYTES, header.args(3).type());
+  EXPECT_FALSE(header.args(3).has_string_value());
+  EXPECT_EQ(150, header.args(3).int_value());
+  EXPECT_EQ("**", header.args(3).localized_value());
 
-  ASSERT_EQ(FormatArgument::DURATION, header.args(4).type());
-  ASSERT_FALSE(header.args(4).has_string_value());
-  ASSERT_EQ(200, header.args(4).int_value());
-  ASSERT_EQ("***", header.args(4).localized_value());
+  EXPECT_EQ(FormatArgument::DURATION, header.args(4).type());
+  EXPECT_FALSE(header.args(4).has_string_value());
+  EXPECT_EQ(200, header.args(4).int_value());
+  EXPECT_EQ("***", header.args(4).localized_value());
+
+  // Test non-localized format string.
+  const FormatString& header2 = r1.url_blocks(1).header();
+  EXPECT_EQ("not localized", header2.format());
+  ASSERT_EQ(0, header2.args_size());
+
+  // Test that string marked not localized isn't passed through the localizer.
+  const FormattedRuleResults& r2 = results.rule_results(1);
+  EXPECT_EQ("DummyTestRule", r2.rule());
+  EXPECT_EQ("rule2", r2.localized_rule_name());
+  ASSERT_EQ(0, r2.url_blocks_size());
 }
 
 } // namespace
