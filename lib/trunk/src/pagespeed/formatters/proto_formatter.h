@@ -42,7 +42,7 @@ class ProtoFormatter : public RuleFormatter {
   virtual Formatter* AddHeader(const Rule& rule, int score);
 
  protected:
-  // Formatter interface
+  // Formatter interface.
   virtual Formatter* NewChild(const FormatterParameters& params);
   virtual void DoneAddingChildren();
 

@@ -34,15 +34,32 @@ namespace formatters {
 
 namespace {
 
+// Localizes str iff str.ShouldLocalize() == true, returning true on success.
+bool MaybeLocalizeString(const Localizer* loc,
+                         const LocalizableString& str, std::string* out) {
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+
+  if (str.ShouldLocalize()) {
+    return loc->LocalizeString(std::string(str), out);
+  } else {
+    // ShouldLocalize() is false for string constants that are not appropriate
+    // for translation (i.e. those marked with not_localized(...), such as "$1"
+    // or "$1 ($2)"), so we pass them through as-is.
+    *out = std::string(str);
+    return true;
+  }
+}
+
 // Fills in a FormatString proto from a FormatterParameters object
 // TODO(aoates): move this functionality into the Argument and FormatterParams
 // classes, to provide l10n for all formatters that want it.
 void FillFormatString(const Localizer* loc,
                       const FormatterParameters& params,
                       FormatString& out) {
-  std::string localized_format;
-  loc->LocalizeString(std::string(params.format_str()), &localized_format);
-  out.set_format(localized_format);
+  MaybeLocalizeString(loc, params.format_str(), out.mutable_format());
 
   for (unsigned int i = 0; i < params.arguments().size(); ++i) {
     const Argument* arg = params.arguments()[i];
@@ -69,7 +86,9 @@ void FillFormatString(const Localizer* loc,
       case Argument::STRING:
         format_arg->set_type(FormatArgument::STRING_LITERAL);
         format_arg->set_string_value(arg->string_value());
-        loc->LocalizeString(arg->string_value(), &localized);
+        // Don't localize string arguments, since they're used for
+        // "user-generated" content (such as hostnames and domains).
+        localized = arg->string_value();
         break;
       case Argument::URL:
         format_arg->set_type(FormatArgument::URL);
@@ -187,11 +206,11 @@ Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
   FormattedRuleResults* rule_results = results_->add_rule_results();
   rule_results->set_rule(rule.name());
 
-  std::string localized;
-  if (!localizer_->LocalizeString(std::string(rule.header()), &localized)) {
+  if (!MaybeLocalizeString(localizer_,
+                           rule.header(),
+                           rule_results->mutable_localized_rule_name())) {
     LOG(DFATAL) << "Unable to LocalizeString " << rule.header();
   }
-  rule_results->set_localized_rule_name(localized);
 
   ReleaseActiveChild();
   Formatter* new_child =
