@@ -118,6 +118,10 @@ deps = {
   "src/webkit":
     Var("chromium_trunk") + "/src/webkit" + Var("chromium_revision"),
 
+  "src/third_party/libpagespeed/src/build":
+    (Var("libpagespeed_trunk") + "/src/build" +
+     Var("libpagespeed_revision")),
+
   "src/third_party/libpagespeed/src/pagespeed":
     (Var("libpagespeed_trunk") + "/src/pagespeed" +
      Var("libpagespeed_revision")),
