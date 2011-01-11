@@ -70,7 +70,7 @@ const char* kAfterMinification =
     "<a href=\"http://www.example.com/\">Trailing slash in URL</a>\n"
     "<div empty=''></div>\n"
     "<form>\n"
-    "<button disabled>\n"
+    "<button type=submit disabled>\n"
     "<!--[if IE]> DO NOT REMOVE <![endif]-->\n"
     "<button type=reset disabled>\n"
     "</form>\n"
