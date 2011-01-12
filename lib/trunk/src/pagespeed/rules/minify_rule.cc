@@ -47,7 +47,7 @@ const char* MinifyRule::name() const {
   return minifier_->name();
 }
 
-LocalizableString MinifyRule::header() const {
+UserFacingString MinifyRule::header() const {
   return minifier_->header_format();
 }
 
@@ -134,7 +134,7 @@ void MinifyRule::FormatResults(const ResultVector& results,
                          (original_size == 0 ? 0 :
                           (100 * bytes_saved) / original_size));
 
-    LocalizableString format_str = minifier_->child_format();
+    UserFacingString format_str = minifier_->child_format();
     std::vector<const Argument*> args;
     args.push_back(&url_arg);
     args.push_back(&size_arg);

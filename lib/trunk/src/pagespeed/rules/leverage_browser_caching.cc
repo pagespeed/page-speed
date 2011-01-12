@@ -116,7 +116,7 @@ const char* LeverageBrowserCaching::name() const {
   return "LeverageBrowserCaching";
 }
 
-LocalizableString LeverageBrowserCaching::header() const {
+UserFacingString LeverageBrowserCaching::header() const {
   // TRANSLATOR: Rule name. A longer description would be "Specify
   // proper caching expirations for the resources on the web
   // page". Caching expirations are attached to each file on a web

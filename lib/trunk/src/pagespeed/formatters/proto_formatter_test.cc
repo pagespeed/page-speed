@@ -21,7 +21,7 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/l10n/localizable_string.h"
+#include "pagespeed/l10n/user_facing_string.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
@@ -32,7 +32,7 @@ using pagespeed::FormatArgument;
 using pagespeed::FormatString;
 using pagespeed::Formatter;
 using pagespeed::FormatterParameters;
-using pagespeed::LocalizableString;
+using pagespeed::UserFacingString;
 using pagespeed::FormattedResults;
 using pagespeed::FormattedRuleResults;
 using pagespeed::formatters::ProtoFormatter;
@@ -41,7 +41,7 @@ using pagespeed::l10n::NullLocalizer;
 
 namespace {
 
-#define _N(X) LocalizableString(X, true)
+#define _N(X) UserFacingString(X, true)
 
 // Test localizer that outputs only the character '*'.
 class TestLocalizer : public Localizer {
@@ -83,12 +83,12 @@ class TestLocalizer : public Localizer {
 
 class DummyTestRule : public pagespeed::Rule {
  public:
-  explicit DummyTestRule(const LocalizableString& header)
+  explicit DummyTestRule(const UserFacingString& header)
       : pagespeed::Rule(pagespeed::InputCapabilities()),
         header_(header) {}
 
   virtual const char* name() const { return "DummyTestRule"; }
-  virtual LocalizableString header() const { return header_; }
+  virtual UserFacingString header() const { return header_; }
   virtual const char* documentation_url() const { return "doc.html"; }
   virtual bool AppendResults(const pagespeed::RuleInput& input,
                              pagespeed::ResultProvider* provider) {
@@ -97,7 +97,7 @@ class DummyTestRule : public pagespeed::Rule {
   virtual void FormatResults(const pagespeed::ResultVector& results,
                              Formatter* formatter) {}
  private:
-  LocalizableString header_;
+  UserFacingString header_;
 };
 
 TEST(ProtoFormatterTest, BasicTest) {
@@ -198,8 +198,8 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   ProtoFormatter formatter(&localizer, &results);
   results.set_locale("en_US.UTF-8");
 
-  DummyTestRule rule1(LocalizableString("rule1", true));
-  DummyTestRule rule2(LocalizableString("rule2", false));
+  DummyTestRule rule1(UserFacingString("rule1", true));
+  DummyTestRule rule2(UserFacingString("rule2", false));
 
   Formatter* body = formatter.AddHeader(rule1, 100);
   std::vector<const Argument*> args;
@@ -211,13 +211,13 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   STLElementDeleter<std::vector<const Argument*> > arg_deleter(&args);
 
   // Test a localized format string.
-  LocalizableString format_str("text $1 $2 $3 $4 $5", true);
+  UserFacingString format_str("text $1 $2 $3 $4 $5", true);
   FormatterParameters formatter_params(&format_str, &args);
   body->AddChild(formatter_params);
 
   // Test a non-localized format string.
   std::vector<const Argument*> args2;
-  LocalizableString format_str2("not localized", false);
+  UserFacingString format_str2("not localized", false);
   FormatterParameters formatter_params2(&format_str2, &args2);
   body->AddChild(formatter_params2);
 

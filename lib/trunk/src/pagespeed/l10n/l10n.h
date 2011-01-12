@@ -17,7 +17,7 @@
 #ifndef PAGESPEED_L10N_L10N_H_
 #define PAGESPEED_L10N_L10N_H_
 
-#include "pagespeed/l10n/localizable_string.h"
+#include "pagespeed/l10n/user_facing_string.h"
 
 #if defined(_) || defined(not_localized)
 #error localization macros are already defined.
@@ -25,9 +25,9 @@
 
 // Macro for marking strings that need to be localized.  Any string
 // that should be localized should be surrounded by _(...).
-#define _(X) (::pagespeed::LocalizableString(X, true))
+#define _(X) (::pagespeed::UserFacingString(X, true))
 
 // Macro for marking user-facing strings that should *not* be localized.
-#define not_localized(X) (::pagespeed::LocalizableString(X, false))
+#define not_localized(X) (::pagespeed::UserFacingString(X, false))
 
 #endif  // PAGESPEED_L10N_L10N_H_

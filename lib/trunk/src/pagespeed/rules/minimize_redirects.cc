@@ -142,7 +142,7 @@ const char* MinimizeRedirects::name() const {
   return kRuleName;
 }
 
-LocalizableString MinimizeRedirects::header() const {
+UserFacingString MinimizeRedirects::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to minimize
   // HTTP redirects from one URL to another URL. This is displayed in a list of
   // rule names that Page Speed generates.

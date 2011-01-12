@@ -19,7 +19,7 @@
 namespace {
 
 const std::string kEmptyString;
-const pagespeed::LocalizableString kLocalizableEmptyString;
+const pagespeed::UserFacingString kLocalizableEmptyString;
 const std::vector<const pagespeed::Argument*> kEmptyParameterList;
 
 }  // namespace
@@ -58,20 +58,20 @@ Argument::ArgumentType Argument::type() const {
   return type_;
 }
 
-FormatterParameters::FormatterParameters(const LocalizableString* format_str)
+FormatterParameters::FormatterParameters(const UserFacingString* format_str)
     : format_str_(format_str),
       arguments_(&kEmptyParameterList),
       optimized_content_(NULL) {
-  DCHECK_NE(format_str, static_cast<const LocalizableString*>(NULL));
+  DCHECK_NE(format_str, static_cast<const UserFacingString*>(NULL));
 }
 
 FormatterParameters::FormatterParameters(
-    const LocalizableString* format_str,
+    const UserFacingString* format_str,
     const std::vector<const Argument*>* arguments)
     : format_str_(format_str),
       arguments_(arguments),
       optimized_content_(NULL) {
-  DCHECK_NE(format_str, static_cast<const LocalizableString*>(NULL));
+  DCHECK_NE(format_str, static_cast<const UserFacingString*>(NULL));
   DCHECK_NE(arguments,
             static_cast<std::vector<const pagespeed::Argument*>*>(NULL));
 }
@@ -82,7 +82,7 @@ void FormatterParameters::set_optimized_content(const std::string* content,
   optimized_content_mime_type_.assign(mime_type);
 }
 
-const LocalizableString& FormatterParameters::format_str() const {
+const UserFacingString& FormatterParameters::format_str() const {
   if (format_str_ != NULL) {
     return *format_str_;
   } else {
@@ -121,12 +121,12 @@ Formatter::Formatter() {
 Formatter::~Formatter() {
 }
 
-Formatter* Formatter::AddChild(const LocalizableString& format_str) {
+Formatter* Formatter::AddChild(const UserFacingString& format_str) {
   FormatterParameters formatter_params(&format_str);
   return AddChild(formatter_params);
 }
 
-Formatter* Formatter::AddChild(const LocalizableString& format_str,
+Formatter* Formatter::AddChild(const UserFacingString& format_str,
                                const Argument& arg1) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
@@ -135,7 +135,7 @@ Formatter* Formatter::AddChild(const LocalizableString& format_str,
   return AddChild(formatter_params);
 }
 
-Formatter* Formatter::AddChild(const LocalizableString& format_str,
+Formatter* Formatter::AddChild(const UserFacingString& format_str,
                                const Argument& arg1,
                                const Argument& arg2) {
   std::vector<const Argument*> args;
@@ -145,7 +145,7 @@ Formatter* Formatter::AddChild(const LocalizableString& format_str,
   return AddChild(formatter_params);
 }
 
-Formatter* Formatter::AddChild(const LocalizableString& format_str,
+Formatter* Formatter::AddChild(const UserFacingString& format_str,
                                const Argument& arg1,
                                const Argument& arg2,
                                const Argument& arg3) {
@@ -157,7 +157,7 @@ Formatter* Formatter::AddChild(const LocalizableString& format_str,
   return AddChild(formatter_params);
 }
 
-Formatter* Formatter::AddChild(const LocalizableString& format_str,
+Formatter* Formatter::AddChild(const UserFacingString& format_str,
                                const Argument& arg1,
                                const Argument& arg2,
                                const Argument& arg3,

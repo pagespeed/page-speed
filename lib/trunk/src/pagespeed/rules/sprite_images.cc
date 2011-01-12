@@ -54,7 +54,7 @@ const char* SpriteImages::name() const {
   return kRuleName;
 }
 
-LocalizableString SpriteImages::header() const {
+UserFacingString SpriteImages::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to try to
   // replace a group of small images on their site with a "CSS sprite" -- that
   // is, a single larger image containing a number of subimages, which can then
@@ -159,7 +159,7 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
 
 void SpriteImages::FormatResults(const ResultVector& results,
                                  Formatter* formatter) {
-  LocalizableString body_tmpl =
+  UserFacingString body_tmpl =
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as being good candidates to be combined into CSS sprites
       // (that is, larger images containing a number of subimages, which can

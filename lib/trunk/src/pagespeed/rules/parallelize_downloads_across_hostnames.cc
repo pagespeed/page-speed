@@ -69,7 +69,7 @@ const char* ParallelizeDownloadsAcrossHostnames::name() const {
   return "ParallelizeDownloadsAcrossHostnames";
 }
 
-LocalizableString ParallelizeDownloadsAcrossHostnames::header() const {
+UserFacingString ParallelizeDownloadsAcrossHostnames::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to parallelize
   // downloads resources (image, css, javascript) across hostnames. This is
   // displayed in a list of rule names that Page Speed generates.

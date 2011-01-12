@@ -41,10 +41,10 @@ class ImageMinifier : public Minifier {
 
   // Minifier interface:
   virtual const char* name() const;
-  virtual LocalizableString header_format() const;
+  virtual UserFacingString header_format() const;
   virtual const char* documentation_url() const;
-  virtual LocalizableString body_format() const;
-  virtual LocalizableString child_format() const;
+  virtual UserFacingString body_format() const;
+  virtual UserFacingString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
 
  private:
@@ -57,7 +57,7 @@ const char* ImageMinifier::name() const {
   return "OptimizeImages";
 }
 
-LocalizableString ImageMinifier::header_format() const {
+UserFacingString ImageMinifier::header_format() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to optimize the
   // images (better compression). This is displayed in a list of rule names that
   // Page Speed generates.
@@ -68,7 +68,7 @@ const char* ImageMinifier::documentation_url() const {
   return "payload.html#CompressImages";
 }
 
-LocalizableString ImageMinifier::body_format() const {
+UserFacingString ImageMinifier::body_format() const {
   // TRANSLATOR: Header at the top a list of image URLs that Page Speed detected
   // as can be optimized by using better compression. It describes the problem
   // to the user that the size of the images can be reduced. The "$1" will be
@@ -78,7 +78,7 @@ LocalizableString ImageMinifier::body_format() const {
            "by $1 ($2% reduction).");
 }
 
-LocalizableString ImageMinifier::child_format() const {
+UserFacingString ImageMinifier::child_format() const {
   // TRANSLATOR: Detail info for one image URL. It tells the user how much can
   // be save for one image. The "$1" will be replace the the image URL; "$2"
   // will be replace by the number of bytes (e.g. 27B); the "$3" will be

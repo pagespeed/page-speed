@@ -36,7 +36,7 @@ namespace {
 
 // Localizes str iff str.ShouldLocalize() == true, returning true on success.
 bool MaybeLocalizeString(const Localizer* loc,
-                         const LocalizableString& str, std::string* out) {
+                         const UserFacingString& str, std::string* out) {
   if (!out) {
     LOG(DFATAL) << "out == NULL";
     return false;

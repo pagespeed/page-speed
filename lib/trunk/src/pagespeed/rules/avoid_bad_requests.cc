@@ -35,7 +35,7 @@ const char* AvoidBadRequests::name() const {
   return "AvoidBadRequests";
 }
 
-LocalizableString AvoidBadRequests::header() const {
+UserFacingString AvoidBadRequests::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to try and avoid
   // writing pages that generate bad HTTP requests (i.e. requests that return
   // HTTP 404 or HTTP 410 codes), for example by referencing a missing image or

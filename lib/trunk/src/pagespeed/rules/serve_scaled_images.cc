@@ -197,7 +197,7 @@ const char* ServeScaledImages::name() const {
   return "ServeScaledImages";
 }
 
-LocalizableString ServeScaledImages::header() const {
+UserFacingString ServeScaledImages::header() const {
   // TRANSLATOR: The name of a Page Speed rule that is triggered when users
   // serve images, then rescale them in HTML or CSS to the final size (it is
   // more efficient to serve the image with the dimensions it will be shown at).
@@ -338,7 +338,7 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       Argument actual_w(Argument::INTEGER, image_details.actual_width());
       Argument actual_h(Argument::INTEGER, image_details.actual_height());
 
-      LocalizableString format_str =
+      UserFacingString format_str =
       // TRANSLATOR: Describes a single URL of an image that is resized in HTML
       // or CSS.  It gives the served size of the image, the final size of the
       // image, and the amount saved by serving the image in the final size.

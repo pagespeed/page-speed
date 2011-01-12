@@ -59,7 +59,7 @@ const char* SpecifyACacheValidator::name() const {
   return "SpecifyACacheValidator";
 }
 
-LocalizableString SpecifyACacheValidator::header() const {
+UserFacingString SpecifyACacheValidator::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
   // their server provides a "cache validator" for each served resource -- that
   // is, an HTTP header that indicates to the browser how to check whether a

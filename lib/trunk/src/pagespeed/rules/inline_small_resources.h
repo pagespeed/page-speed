@@ -57,7 +57,7 @@ class InlineSmallJavaScript : public InlineSmallResources {
  public:
   InlineSmallJavaScript();
   virtual const char* name() const;
-  virtual LocalizableString header() const;
+  virtual UserFacingString header() const;
   virtual const char* documentation_url() const;
 
  protected:
@@ -75,7 +75,7 @@ class InlineSmallCss : public InlineSmallResources {
  public:
   InlineSmallCss();
   virtual const char* name() const;
-  virtual LocalizableString header() const;
+  virtual UserFacingString header() const;
   virtual const char* documentation_url() const;
 
  protected:

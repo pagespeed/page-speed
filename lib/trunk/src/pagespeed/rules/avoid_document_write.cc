@@ -233,7 +233,7 @@ const char* AvoidDocumentWrite::name() const {
   return "AvoidDocumentWrite";
 }
 
-LocalizableString AvoidDocumentWrite::header() const {
+UserFacingString AvoidDocumentWrite::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells webmasters to avoid
   // using the "document.write" command in their JavaScript code
   // ("document.write" is code, and should not be translated).  This appears in

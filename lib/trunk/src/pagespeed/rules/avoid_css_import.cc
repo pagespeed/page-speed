@@ -53,7 +53,7 @@ const char* AvoidCssImport::name() const {
   return "AvoidCssImport";
 }
 
-LocalizableString AvoidCssImport::header() const {
+UserFacingString AvoidCssImport::header() const {
   // TRANSLATOR: The name of a Page Speed rule telling webmasters to avoid using
   // the @import directive in their CSS style sheets ("@import" is code, and
   // should not be translated).  This is displayed in a list of rule names that
