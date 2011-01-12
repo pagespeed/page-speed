@@ -21,16 +21,19 @@
       'type': '<(library)',
       'msvs_guid': 'D3A97815-3309-44F8-B9BB-CBBE2393A454',
       'sources': [
-        'icudt42.dll',
          'linux/icudt42l_dat.S',
          'mac/icudt42l_dat.s',
       ],
       'conditions': [
         [ 'OS == "win"', {
           'type': 'none',
-          'msvs_tool_files': ['../../build/output_dll_copy.rules'],
-        }, {  # else: OS != "win"
-          'sources!': ['icudt42.dll'],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'AdditionalDependencies': [
+                'icudt42.lib',
+              ],
+            },
+          },
         }],
         [ 'OS != "linux"', {
           'sources!': ['linux/icudt42l_dat.S'],
