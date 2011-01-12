@@ -20,6 +20,7 @@ vars = {
   "modpagespeed_src":
     "http://modpagespeed.googlecode.com/svn/tags/0.9.14.6",
   "instaweb_revision": "@head",
+  "icu42_deps_revision": "@69864",
 }
 
 deps = {
@@ -50,6 +51,22 @@ deps = {
     Var("chromium_trunk") + "/src/build/util" + Var("chromium_revision"),
   "src/build/internal":
     Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
+
+  "src/third_party/icu/public":
+    (Var("chromium_trunk") + "/deps/third_party/icu42/public" +
+     Var("icu42_deps_revision")),
+
+  "src/third_party/icu/source/common":
+    (Var("chromium_trunk") + "/deps/third_party/icu42/source/common" +
+     Var("icu42_deps_revision")),
+
+  "src/third_party/icu/source/i18n":
+    (Var("chromium_trunk") + "/deps/third_party/icu42/source/i18n" +
+     Var("icu42_deps_revision")),
+
+  "src/third_party/icu/source/stubdata":
+    (Var("chromium_trunk") + "/deps/third_party/icu42/source/stubdata" +
+     Var("icu42_deps_revision")),
 
   "src/third_party/instaweb/src/net/instaweb":
     Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
