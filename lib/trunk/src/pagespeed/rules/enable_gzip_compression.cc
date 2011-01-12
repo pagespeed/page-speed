@@ -53,10 +53,10 @@ class GzipMinifier : public Minifier {
 
   // Minifier interface:
   virtual const char* name() const;
-  virtual LocalizableString header_format() const;
+  virtual UserFacingString header_format() const;
   virtual const char* documentation_url() const;
-  virtual LocalizableString body_format() const;
-  virtual LocalizableString child_format() const;
+  virtual UserFacingString body_format() const;
+  virtual UserFacingString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
 
  private:
@@ -72,7 +72,7 @@ const char* GzipMinifier::name() const {
   return "EnableGzipCompression";
 }
 
-LocalizableString GzipMinifier::header_format() const {
+UserFacingString GzipMinifier::header_format() const {
   // TRANSLATOR: The name of a Page Speed rule that tells webmasters to enable
   // gzip compression on their servers (i.e. enable compressing the web content
   // before it is sent to clients).  This appears in a list of rule names
@@ -85,7 +85,7 @@ const char* GzipMinifier::documentation_url() const {
   return "payload.html#GzipCompression";
 }
 
-LocalizableString GzipMinifier::body_format() const {
+UserFacingString GzipMinifier::body_format() const {
   // TRANSLATOR: Descriptive header for a list of URLs that were served
   // uncompressed, in violation of the EnableGzipCompression rule.  It tells the
   // webmaster that compressing all of those resources could reduce the amount
@@ -98,7 +98,7 @@ LocalizableString GzipMinifier::body_format() const {
            "transfer size by $1 ($2% reduction).");
 }
 
-LocalizableString GzipMinifier::child_format() const {
+UserFacingString GzipMinifier::child_format() const {
   // TRANSLATOR: Description of a single resource that was served uncompressed,
   // in violation of the EnableGzipCompression rule.  It gives the URL of the
   // resource, as well as the amount of data that would be saved by compressing.

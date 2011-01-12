@@ -50,7 +50,7 @@ const char* MinimizeRequestSize::name() const {
   return "MinimizeRequestSize";
 }
 
-LocalizableString MinimizeRequestSize::header() const {
+UserFacingString MinimizeRequestSize::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to minimize
   // the URL, cookies and request headers as small as possible. This is
   // displayed in a list of rule names that Page Speed generates.

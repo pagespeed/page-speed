@@ -127,7 +127,7 @@ const char* SpecifyCharsetEarly::name() const {
   return "SpecifyCharsetEarly";
 }
 
-LocalizableString SpecifyCharsetEarly::header() const {
+UserFacingString SpecifyCharsetEarly::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
   // their webpages include a declaration of the character set (e.g. UTF-8,
   // Latin-1, or some other text encoding) being used, early on in the page.

@@ -47,7 +47,7 @@ class CombineExternalJavaScript : public CombineExternalResources {
 
   // Rule interface.
   virtual const char* name() const;
-  virtual LocalizableString header() const;
+  virtual UserFacingString header() const;
   virtual const char* documentation_url() const;
 
  private:
@@ -60,7 +60,7 @@ class CombineExternalCss : public CombineExternalResources {
 
   // Rule interface.
   virtual const char* name() const;
-  virtual LocalizableString header() const;
+  virtual UserFacingString header() const;
   virtual const char* documentation_url() const;
 
  private:

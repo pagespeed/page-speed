@@ -24,18 +24,18 @@ using pagespeed::Argument;
 using pagespeed::Formatter;
 using pagespeed::FormatterParameters;
 using pagespeed::formatters::JsonFormatter;
-using pagespeed::LocalizableString;
+using pagespeed::UserFacingString;
 
 namespace {
 
 class DummyTestRule : public pagespeed::Rule {
  public:
-  explicit DummyTestRule(const LocalizableString& header)
+  explicit DummyTestRule(const UserFacingString& header)
       : pagespeed::Rule(pagespeed::InputCapabilities()),
         header_(header) {}
 
   virtual const char* name() const { return "DummyTestRule"; }
-  virtual LocalizableString header() const { return header_; }
+  virtual UserFacingString header() const { return header_; }
   virtual const char* documentation_url() const { return "doc.html"; }
   virtual bool AppendResults(const pagespeed::RuleInput& input,
                              pagespeed::ResultProvider* provider) {
@@ -44,7 +44,7 @@ class DummyTestRule : public pagespeed::Rule {
   virtual void FormatResults(const pagespeed::ResultVector& results,
                              Formatter* formatter) {}
  private:
-  LocalizableString header_;
+  UserFacingString header_;
 };
 
 class DummyTestSerializer : public pagespeed::Serializer {
@@ -175,7 +175,7 @@ TEST(JsonFormatterTest, ArgumentTypesTest) {
 }
 
 TEST(JsonFormatterTest, OptimizedTest) {
-  LocalizableString format_str = not_localized("FooBar $1");
+  UserFacingString format_str = not_localized("FooBar $1");
   Argument url_arg(Argument::URL, "http://test.com/");
   std::vector<const Argument*> arguments;
   arguments.push_back(&url_arg);
@@ -206,7 +206,7 @@ TEST(JsonFormatterTest, OptimizedTest) {
 }
 
 TEST(JsonFormatterTest, OptimizedTestNoUrl) {
-  LocalizableString format_str = not_localized("FooBar");
+  UserFacingString format_str = not_localized("FooBar");
   FormatterParameters args(&format_str);
   std::string optimized = "<optimized result>";
   args.set_optimized_content(&optimized, "text/css");

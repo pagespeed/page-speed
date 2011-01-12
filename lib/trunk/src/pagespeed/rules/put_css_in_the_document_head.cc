@@ -122,7 +122,7 @@ const char* PutCssInTheDocumentHead::name() const {
   return kRuleName;
 }
 
-LocalizableString PutCssInTheDocumentHead::header() const {
+UserFacingString PutCssInTheDocumentHead::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to put CSS
   // (style sheet) resources in HTML head. This is displayed in a list of
   // rule names that Page Speed generates.

@@ -274,7 +274,7 @@ const char* OptimizeTheOrderOfStylesAndScripts::name() const {
   return "OptimizeTheOrderOfStylesAndScripts";
 }
 
-LocalizableString OptimizeTheOrderOfStylesAndScripts::header() const {
+UserFacingString OptimizeTheOrderOfStylesAndScripts::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to optimize the
   // order of resources of style sheets and scripts in HTML. This is displayed
   // in a list of rule names that Page Speed generates.

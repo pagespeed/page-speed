@@ -129,7 +129,7 @@ const char* SpecifyImageDimensions::name() const {
   return kRuleName;
 }
 
-LocalizableString SpecifyImageDimensions::header() const {
+UserFacingString SpecifyImageDimensions::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
   // their webpage explicitly specifies the width/height dimensions of each
   // image that appears in the page.  This is displayed in a list of rule names

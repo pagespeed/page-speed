@@ -276,7 +276,7 @@ int InlineSmallResources::ComputeScore(const InputInformation& input_info,
 
 InlineSmallCss::InlineSmallCss() : InlineSmallResources(CSS) {}
 const char* InlineSmallCss::name() const { return "InlineSmallCss"; }
-LocalizableString InlineSmallCss::header() const {
+UserFacingString InlineSmallCss::header() const {
   // TRANSLATOR: Name of a Page Speed rule. A longer description
   // would be "Insert (or move) small CSS resources directly into the
   // HTML document" but rule names are intentionally short so we use
@@ -304,7 +304,7 @@ const char* InlineSmallJavaScript::name() const {
   return "InlineSmallJavaScript";
 }
 
-LocalizableString InlineSmallJavaScript::header() const {
+UserFacingString InlineSmallJavaScript::header() const {
   // TRANSLATOR: Name of the Page Speed rule. A longer description
   // would be "Insert (or move) small JavaScript resources directly
   // into the HTML document" but rule names are intentionally short so

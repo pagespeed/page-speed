@@ -64,7 +64,7 @@ const char* ServeResourcesFromAConsistentUrl::name() const {
   return "ServeResourcesFromAConsistentUrl";
 }
 
-LocalizableString ServeResourcesFromAConsistentUrl::header() const {
+UserFacingString ServeResourcesFromAConsistentUrl::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to avoid
   // writing pages that serve the same resource (or equivalently, two resources
   // that are byte-for-byte identical) from two different URLs.  This is

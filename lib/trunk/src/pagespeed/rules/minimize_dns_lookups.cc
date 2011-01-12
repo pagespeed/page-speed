@@ -132,7 +132,7 @@ const char* MinimizeDnsLookups::name() const {
   return "MinimizeDnsLookups";
 }
 
-LocalizableString MinimizeDnsLookups::header() const {
+UserFacingString MinimizeDnsLookups::header() const {
   // TRANSLATOR: Name of a Page Speed rule. A "DNS lookup" is a
   // request that the browser issues to resolve a hostname to an
   // internet address. The word "DNS" should remain in the translated

@@ -39,10 +39,10 @@ class HtmlMinifier : public Minifier {
 
   // Minifier interface:
   virtual const char* name() const;
-  virtual LocalizableString header_format() const;
+  virtual UserFacingString header_format() const;
   virtual const char* documentation_url() const;
-  virtual LocalizableString body_format() const;
-  virtual LocalizableString child_format() const;
+  virtual UserFacingString body_format() const;
+  virtual UserFacingString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
 
  private:
@@ -55,7 +55,7 @@ const char* HtmlMinifier::name() const {
   return "MinifyHTML";
 }
 
-LocalizableString HtmlMinifier::header_format() const {
+UserFacingString HtmlMinifier::header_format() const {
  // TRANSLATOR: Name of a Page Speed rule. Here, minify means "remove
   // whitespace and comments". The goal is to reduce the size of the
   // HTML file by removing the parts that are unnecessary.
@@ -66,7 +66,7 @@ const char* HtmlMinifier::documentation_url() const {
   return "payload.html#MinifyHTML";
 }
 
-LocalizableString HtmlMinifier::body_format() const {
+UserFacingString HtmlMinifier::body_format() const {
   // TRANSLATOR: Heading that describes the savings possible from
   // minifying resources. "$1" is a format token that will be replaced by the
   // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
@@ -75,7 +75,7 @@ LocalizableString HtmlMinifier::body_format() const {
            "reduce their size by $1 ($2% reduction).");
 }
 
-LocalizableString HtmlMinifier::child_format() const {
+UserFacingString HtmlMinifier::child_format() const {
   // TRANSLATOR: Subheading that describes the savings possible from minifying a
   // single resource. "$1" is a format token that will be replaced by the URL of
   // the resource. "$2" will be replaced bythe absolute number of bytes or

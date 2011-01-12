@@ -39,7 +39,7 @@ const char* RemoveQueryStringsFromStaticResources::name() const {
   return "RemoveQueryStringsFromStaticResources";
 }
 
-LocalizableString RemoveQueryStringsFromStaticResources::header() const {
+UserFacingString RemoveQueryStringsFromStaticResources::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells webmasters to remove
   // query strings from the URLs of static resources (i.e.
   // 'www.google.com/style.css?x=2), because it hurts the cachability of the

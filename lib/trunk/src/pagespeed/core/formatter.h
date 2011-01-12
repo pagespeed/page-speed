@@ -21,7 +21,7 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/l10n/localizable_string.h"
+#include "pagespeed/l10n/user_facing_string.h"
 
 namespace pagespeed {
 
@@ -62,20 +62,20 @@ class Argument {
  */
 class FormatterParameters {
  public:
-  explicit FormatterParameters(const LocalizableString* format_str);
-  FormatterParameters(const LocalizableString* format_str,
+  explicit FormatterParameters(const UserFacingString* format_str);
+  FormatterParameters(const UserFacingString* format_str,
                       const std::vector<const Argument*>* arguments);
   void set_optimized_content(const std::string* content,
                              const std::string& mime_type);
 
-  const LocalizableString& format_str() const;
+  const UserFacingString& format_str() const;
   const std::vector<const Argument*>& arguments() const;
   bool has_optimized_content() const;
   const std::string& optimized_content() const;
   const std::string& optimized_content_mime_type() const;
 
  private:
-  const LocalizableString* format_str_;
+  const UserFacingString* format_str_;
   const std::vector<const Argument*>* arguments_;
   const std::string* optimized_content_;
   std::string optimized_content_mime_type_;
@@ -99,21 +99,21 @@ class Formatter {
   Formatter* AddChild(const FormatterParameters& params);
 
   // Convenience methods implemented in terms of AddChild(FormatterParameters).
-  Formatter* AddChild(const LocalizableString& format_str);
+  Formatter* AddChild(const UserFacingString& format_str);
 
-  Formatter* AddChild(const LocalizableString& format_str,
+  Formatter* AddChild(const UserFacingString& format_str,
                       const Argument& arg1);
 
-  Formatter* AddChild(const LocalizableString& format_str,
+  Formatter* AddChild(const UserFacingString& format_str,
                       const Argument& arg1,
                       const Argument& arg2);
 
-  Formatter* AddChild(const LocalizableString& format_str,
+  Formatter* AddChild(const UserFacingString& format_str,
                       const Argument& arg1,
                       const Argument& arg2,
                       const Argument& arg3);
 
-  Formatter* AddChild(const LocalizableString& format_str,
+  Formatter* AddChild(const UserFacingString& format_str,
                       const Argument& arg1,
                       const Argument& arg2,
                       const Argument& arg3,

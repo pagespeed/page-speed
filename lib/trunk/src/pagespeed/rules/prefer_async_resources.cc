@@ -190,7 +190,7 @@ const char* PreferAsyncResources::name() const {
   return kRuleName;
 }
 
-LocalizableString PreferAsyncResources::header() const {
+UserFacingString PreferAsyncResources::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to use
   // asynchronous resources. This is displayed in a list of rule names that
   // Page Speed generates.

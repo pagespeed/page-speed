@@ -33,7 +33,7 @@ using pagespeed::Engine;
 using pagespeed::FormatArgument;
 using pagespeed::Formatter;
 using pagespeed::InputInformation;
-using pagespeed::LocalizableString;
+using pagespeed::UserFacingString;
 using pagespeed::FormattedResults;
 using pagespeed::FormattedRuleResults;
 using pagespeed::PagespeedInput;
@@ -70,7 +70,7 @@ class TestRule : public Rule {
   }
 
   // Human readable rule name.
-  virtual LocalizableString header() const {
+  virtual UserFacingString header() const {
     return not_localized(kHeader);
   }
 

@@ -38,7 +38,7 @@ const char* SpecifyAVaryAcceptEncodingHeader::name() const {
   return "SpecifyAVaryAcceptEncodingHeader";
 }
 
-LocalizableString SpecifyAVaryAcceptEncodingHeader::header() const {
+UserFacingString SpecifyAVaryAcceptEncodingHeader::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
   // certain resources on their webpage are served with a "Vary" HTTP header
   // whose value is set to "Accept-Encoding".  This is displayed in a list of
