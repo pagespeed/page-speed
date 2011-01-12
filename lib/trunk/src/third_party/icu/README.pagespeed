@@ -46,7 +46,11 @@ Open a Visual Studio Command Prompt (from the 'Tools' menu) and run:
 
 > c:\src\icu\bin\pkgdata.exe -f -e icudt 42 -v -m static -c -p icudt421 -T c:\src\icu\source\data\out\tmp -L icudt42 -d c:\src\icu\source\data\out\build\icudt42l -s . c:\src\icu\source\data\out\tmp\icudata.lst
 
-This will generate a icudt42.lib file in source\data\out\tmp, which you can copy to the third_party\icu directory.
+This will generate icudt42.lib in source\data\out\tmp, which you can copy to third_party\icu and check in.
+
+> c:\src\icu\bin\pkgdata.exe -f -e icudt 42 -v -m dll -c -p icudt421 -T c:\src\icu\source\data\out\tmp -L icudt42 -d c:\src\icu\source\data\out\build\icudt42l -s . c:\src\icu\source\data\out\tmp\icudata.lst
+
+This will generate icudt42.dll in the current directory, which you can copy to third_party\icu and check in.
 
 On Mac:
 TODO: add mac instructions
