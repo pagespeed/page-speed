@@ -52,8 +52,8 @@ deps = {
   "src/net":
     Var("libpagespeed_trunk") + "/src/net" + Var("libpagespeed_revision"),
 
-  "src/googleurl_noicu":
-    (Var("libpagespeed_trunk") + "/src/googleurl_noicu" +
+  "src/googleurl_noconv":
+    (Var("libpagespeed_trunk") + "/src/googleurl_noconv" +
      Var("libpagespeed_revision")),
 
   "src/third_party/icu":
