@@ -26,17 +26,16 @@
       ],
       'conditions': [
         [ 'OS == "win"', {
-          'type': 'none',
-          'all_dependent_settings': {
-            # NOTE: all_dependent_settings are inherited by all
-            # dependent targets. Please limit what you add to this
-            # block.
-            'link_settings': {
-              'libraries': [
-                '<(DEPTH)/third_party/icu/icudt42.lib',
-              ],
-            },
+          'link_settings': {
+            'libraries': [
+              '<(DEPTH)/third_party/icu/icudt42.lib',
+            ],
           },
+          'sources': [
+            # In order to pass our icudt42.lib dependency on to dependent
+            # targets, we need to have at least one source file.
+            'empty.c',
+          ],
         }],
         [ 'OS != "linux"', {
           'sources!': ['linux/icudt42l_dat.S'],
