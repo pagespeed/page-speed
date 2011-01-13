@@ -64,10 +64,6 @@ deps = {
     (Var("chromium_trunk") + "/deps/third_party/icu42/source/i18n" +
      Var("icu42_deps_revision")),
 
-  "src/third_party/icu/source/stubdata":
-    (Var("chromium_trunk") + "/deps/third_party/icu42/source/stubdata" +
-     Var("icu42_deps_revision")),
-
   "src/third_party/instaweb/src/net/instaweb":
     Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
 
