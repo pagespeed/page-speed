@@ -28,8 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <errno.h>
+#include <unicode/ucnv.h>
 
-#include "base/third_party/icu/icu_utf.h"
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_canon_icu.h"
 #include "googleurl/src/url_canon_internal.h"
@@ -94,6 +94,26 @@ struct ReplaceCase {
   const char* query;
   const char* ref;
   const char* expected;
+};
+
+// Wrapper around a UConverter object that managers creation and destruction.
+class UConvScoper {
+ public:
+  explicit UConvScoper(const char* charset_name) {
+    UErrorCode err = U_ZERO_ERROR;
+    converter_ = ucnv_open(charset_name, &err);
+  }
+
+  ~UConvScoper() {
+    if (converter_)
+      ucnv_close(converter_);
+  }
+
+  // Returns the converter object, may be NULL.
+  UConverter* converter() const { return converter_; }
+
+ private:
+  UConverter* converter_;
 };
 
 // Magic string used in the replacements code that tells SetupReplComp to
@@ -237,6 +257,60 @@ TEST(URLCanonTest, UTF) {
   }
 }
 
+TEST(URLCanonTest, ICUCharsetConverter) {
+  struct ICUCase {
+    const wchar_t* input;
+    const char* encoding;
+    const char* expected;
+  } icu_cases[] = {
+      // UTF-8.
+    {L"Hello, world", "utf-8", "Hello, world"},
+    {L"\x4f60\x597d", "utf-8", "\xe4\xbd\xa0\xe5\xa5\xbd"},
+      // Non-BMP UTF-8.
+    {L"!\xd800\xdf00!", "utf-8", "!\xf0\x90\x8c\x80!"},
+#if !defined(ICU_NO_CONVERTER_DATA)
+      // Big5
+    {L"\x4f60\x597d", "big5", "\xa7\x41\xa6\x6e"},
+      // Unrepresentable character in the destination set.
+    {L"hello\x4f60\x06de\x597dworld", "big5", "hello\xa7\x41%26%231758%3B\xa6\x6eworld"},
+#endif
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE(icu_cases); i++) {
+    UConvScoper conv(icu_cases[i].encoding);
+    ASSERT_TRUE(conv.converter() != NULL) << i;
+    url_canon::ICUCharsetConverter converter(conv.converter());
+
+    std::string str;
+    url_canon::StdStringCanonOutput output(&str);
+
+    string16 input_str(WStringToUTF16(icu_cases[i].input));
+    int input_len = static_cast<int>(input_str.length());
+    converter.ConvertFromUTF16(input_str.c_str(), input_len, &output);
+    output.Complete();
+
+    EXPECT_STREQ(icu_cases[i].expected, str.c_str());
+  }
+
+  // Test string sizes around the resize boundary for the output to make sure
+  // the converter resizes as needed.
+  const int static_size = 16;
+  UConvScoper conv("utf-8");
+  ASSERT_TRUE(conv.converter());
+  url_canon::ICUCharsetConverter converter(conv.converter());
+  for (int i = static_size - 2; i <= static_size + 2; i++) {
+    // Make a string with the appropriate length.
+    string16 input;
+    for (int ch = 0; ch < i; ch++)
+      input.push_back('a');
+
+    url_canon::RawCanonOutput<static_size> output;
+    converter.ConvertFromUTF16(input.c_str(), static_cast<int>(input.length()),
+                               &output);
+    EXPECT_EQ(input.length(), static_cast<size_t>(output.length()));
+  }
+}
+
 TEST(URLCanonTest, Scheme) {
   // Here, we're mostly testing that unusual characters are handled properly.
   // The canonicalizer doesn't do any parsing or whitespace detection. It will
@@ -327,20 +401,46 @@ TEST(URLCanonTest, Host) {
     {"\xef\xb7\x90zyx.com", L"\xfdd0zyx.com", "%EF%BF%BDzyx.com", url_parse::Component(0, 16), CanonHostInfo::BROKEN, -1},
       // ...This is the same as previous but with with escaped.
     {"%ef%b7%90zyx.com", L"%ef%b7%90zyx.com", "%EF%BF%BDzyx.com", url_parse::Component(0, 16), CanonHostInfo::BROKEN, -1},
+      // Test name prepping, fullwidth input should be converted to ASCII and NOT
+      // IDN-ized. This is "Go" in fullwidth UTF-8/UTF-16.
+    {"\xef\xbc\xa7\xef\xbd\x8f.com", L"\xff27\xff4f.com", "go.com", url_parse::Component(0, 6), CanonHostInfo::NEUTRAL, -1},
+      // Test that fullwidth escaped values are properly name-prepped,
+      // then converted or rejected.
+      // ...%41 in fullwidth = 'A' (also as escaped UTF-8 input)
+    {"\xef\xbc\x85\xef\xbc\x94\xef\xbc\x91.com", L"\xff05\xff14\xff11.com", "a.com", url_parse::Component(0, 5), CanonHostInfo::NEUTRAL, -1},
+    {"%ef%bc%85%ef%bc%94%ef%bc%91.com", L"%ef%bc%85%ef%bc%94%ef%bc%91.com", "a.com", url_parse::Component(0, 5), CanonHostInfo::NEUTRAL, -1},
+      // ...%00 in fullwidth should fail (also as escaped UTF-8 input)
+    {"\xef\xbc\x85\xef\xbc\x90\xef\xbc\x90.com", L"\xff05\xff10\xff10.com", "%00.com", url_parse::Component(0, 7), CanonHostInfo::BROKEN, -1},
+    {"%ef%bc%85%ef%bc%90%ef%bc%90.com", L"%ef%bc%85%ef%bc%90%ef%bc%90.com", "%00.com", url_parse::Component(0, 7), CanonHostInfo::BROKEN, -1},
+      // Basic IDN support, UTF-8 and UTF-16 input should be converted to IDN
+    {"\xe4\xbd\xa0\xe5\xa5\xbd\xe4\xbd\xa0\xe5\xa5\xbd", L"\x4f60\x597d\x4f60\x597d", "xn--6qqa088eba", url_parse::Component(0, 14), CanonHostInfo::NEUTRAL, -1},
+      // Mixed UTF-8 and escaped UTF-8 (narrow case) and UTF-16 and escaped
+      // UTF-8 (wide case). The output should be equivalent to the true wide
+      // character input above).
+    {"%E4%BD%A0%E5%A5%BD\xe4\xbd\xa0\xe5\xa5\xbd", L"%E4%BD%A0%E5%A5%BD\x4f60\x597d", "xn--6qqa088eba", url_parse::Component(0, 14), CanonHostInfo::NEUTRAL, -1},
       // Invalid escaped characters should fail and the percents should be
       // escaped.
     {"%zz%66%a", L"%zz%66%a", "%25zzf%25a", url_parse::Component(0, 10), CanonHostInfo::BROKEN, -1},
       // If we get an invalid character that has been escaped.
     {"%25", L"%25", "%25", url_parse::Component(0, 3), CanonHostInfo::BROKEN, -1},
     {"hello%00", L"hello%00", "hello%00", url_parse::Component(0, 8), CanonHostInfo::BROKEN, -1},
+      // Escaped numbers should be treated like IP addresses if they are.
+    {"%30%78%63%30%2e%30%32%35%30.01", L"%30%78%63%30%2e%30%32%35%30.01", "192.168.0.1", url_parse::Component(0, 11), CanonHostInfo::IPV4, 3},
+    {"%30%78%63%30%2e%30%32%35%30.01%2e", L"%30%78%63%30%2e%30%32%35%30.01%2e", "192.168.0.1", url_parse::Component(0, 11), CanonHostInfo::IPV4, 3},
       // Invalid escaping should trigger the regular host error handling.
     {"%3g%78%63%30%2e%30%32%35%30%2E.01", L"%3g%78%63%30%2e%30%32%35%30%2E.01", "%253gxc0.0250..01", url_parse::Component(0, 17), CanonHostInfo::BROKEN, -1},
       // Something that isn't exactly an IP should get treated as a host and
       // spaces escaped.
     {"192.168.0.1 hello", L"192.168.0.1 hello", "192.168.0.1%20hello", url_parse::Component(0, 19), CanonHostInfo::NEUTRAL, -1},
+      // Fullwidth and escaped UTF-8 fullwidth should still be treated as IP.
+      // These are "0Xc0.0250.01" in fullwidth.
+    {"\xef\xbc\x90%Ef%bc\xb8%ef%Bd%83\xef\xbc\x90%EF%BC%8E\xef\xbc\x90\xef\xbc\x92\xef\xbc\x95\xef\xbc\x90\xef\xbc%8E\xef\xbc\x90\xef\xbc\x91", L"\xff10\xff38\xff43\xff10\xff0e\xff10\xff12\xff15\xff10\xff0e\xff10\xff11", "192.168.0.1", url_parse::Component(0, 11), CanonHostInfo::IPV4, 3},
       // Broken IP addresses get marked as such.
     {"192.168.0.257", L"192.168.0.257", "192.168.0.257", url_parse::Component(0, 13), CanonHostInfo::BROKEN, -1},
     {"[google.com]", L"[google.com]", "[google.com]", url_parse::Component(0, 12), CanonHostInfo::BROKEN, -1},
+      // Cyrillic letter followed buy ( should return punicode for ( escaped before punicode string was created. I.e.
+      // if ( is escaped after punicode is created we would get xn--%28-8tb (incorrect).
+    {"\xd1\x82(", L"\x0442(", "xn--%28-7ed", url_parse::Component(0, 11), CanonHostInfo::NEUTRAL, -1},
   };
 
   // CanonicalizeHost() non-verbose.
@@ -356,6 +456,27 @@ TEST(URLCanonTest, Host) {
       url_canon::StdStringCanonOutput output(&out_str);
 
       bool success = url_canon::CanonicalizeHost(host_cases[i].input8, in_comp,
+                                                 &output, &out_comp);
+      output.Complete();
+
+      EXPECT_EQ(host_cases[i].expected_family != CanonHostInfo::BROKEN,
+                success);
+      EXPECT_EQ(std::string(host_cases[i].expected), out_str);
+      EXPECT_EQ(host_cases[i].expected_component.begin, out_comp.begin);
+      EXPECT_EQ(host_cases[i].expected_component.len, out_comp.len);
+    }
+
+    // Wide version.
+    if (host_cases[i].input16) {
+      string16 input16(WStringToUTF16(host_cases[i].input16));
+      int host_len = static_cast<int>(input16.length());
+      url_parse::Component in_comp(0, host_len);
+      url_parse::Component out_comp;
+
+      out_str.clear();
+      url_canon::StdStringCanonOutput output(&out_str);
+
+      bool success = url_canon::CanonicalizeHost(input16.c_str(), in_comp,
                                                  &output, &out_comp);
       output.Complete();
 
@@ -393,6 +514,30 @@ TEST(URLCanonTest, Host) {
       }
     }
 
+    // Wide version.
+    if (host_cases[i].input16) {
+      string16 input16(WStringToUTF16(host_cases[i].input16));
+      int host_len = static_cast<int>(input16.length());
+      url_parse::Component in_comp(0, host_len);
+
+      out_str.clear();
+      url_canon::StdStringCanonOutput output(&out_str);
+      CanonHostInfo host_info;
+
+      url_canon::CanonicalizeHostVerbose(input16.c_str(), in_comp,
+                                         &output, &host_info);
+      output.Complete();
+
+      EXPECT_EQ(host_cases[i].expected_family, host_info.family);
+      EXPECT_EQ(std::string(host_cases[i].expected), out_str);
+      EXPECT_EQ(host_cases[i].expected_component.begin,
+                host_info.out_host.begin);
+      EXPECT_EQ(host_cases[i].expected_component.len, host_info.out_host.len);
+      if (host_cases[i].expected_family == CanonHostInfo::IPV4) {
+        EXPECT_EQ(host_cases[i].expected_num_ipv4_components,
+                  host_info.num_ipv4_components);
+      }
+    }
   }
 }
 
@@ -934,9 +1079,11 @@ TEST(URLCanonTest, Query) {
       // Regular ASCII case in some different encodings.
     {"foo=bar", L"foo=bar", NULL, "?foo=bar"},
     {"foo=bar", L"foo=bar", "utf-8", "?foo=bar"},
+#if !defined(ICU_NO_CONVERTER_DATA)
     {"foo=bar", L"foo=bar", "shift_jis", "?foo=bar"},
     {"foo=bar", L"foo=bar", "gb2312", "?foo=bar"},
-      // Allow question marks in the query without escaping
+#endif
+    // Allow question marks in the query without escaping
     {"as?df", L"as?df", NULL, "?as?df"},
       // Always escape '#' since it would mark the ref.
     {"as#df", L"as#df", NULL, "?as%23df"},
@@ -945,6 +1092,14 @@ TEST(URLCanonTest, Query) {
     {"%40%41123", L"%40%41123", NULL, "?%40%41123"},
       // Chinese input/output
     {"q=\xe4\xbd\xa0\xe5\xa5\xbd", L"q=\x4f60\x597d", NULL, "?q=%E4%BD%A0%E5%A5%BD"},
+#if !defined(ICU_NO_CONVERTER_DATA)
+    {"q=\xe4\xbd\xa0\xe5\xa5\xbd", L"q=\x4f60\x597d", "gb2312", "?q=%C4%E3%BA%C3"},
+    {"q=\xe4\xbd\xa0\xe5\xa5\xbd", L"q=\x4f60\x597d", "big5", "?q=%A7A%A6n"},
+#endif
+    // Unencodable character in the destination character set should be
+      // escaped. The escape sequence unescapes to be the entity name:
+      // "?q=&#20320;"
+    {"q=Chinese\xef\xbc\xa7", L"q=Chinese\xff27", "iso-8859-1", "?q=Chinese%26%2365319%3B"},
       // Invalid UTF-8/16 input should be replaced with invalid characters.
     {"q=\xed\xed", L"q=\xd800\xd800", NULL, "?q=%EF%BF%BD%EF%BF%BD"},
       // Don't allow < or > because sometimes they are used for XSS if the
@@ -957,6 +1112,15 @@ TEST(URLCanonTest, Query) {
   for (size_t i = 0; i < ARRAYSIZE(query_cases); i++) {
     url_parse::Component out_comp;
 
+    UConvScoper conv(query_cases[i].encoding);
+    ASSERT_TRUE(!query_cases[i].encoding || conv.converter()) << i;
+    url_canon::ICUCharsetConverter converter(conv.converter());
+
+    // Map NULL to a NULL converter pointer.
+    url_canon::ICUCharsetConverter* conv_pointer = &converter;
+    if (!query_cases[i].encoding)
+      conv_pointer = NULL;
+
     if (query_cases[i].input8) {
       int len = static_cast<int>(strlen(query_cases[i].input8));
       url_parse::Component in_comp(0, len);
@@ -964,7 +1128,21 @@ TEST(URLCanonTest, Query) {
 
       url_canon::StdStringCanonOutput output(&out_str);
       url_canon::CanonicalizeQuery(query_cases[i].input8, in_comp,
-                                   NULL, &output, &out_comp);
+                                   conv_pointer, &output, &out_comp);
+      output.Complete();
+
+      EXPECT_EQ(query_cases[i].expected, out_str);
+    }
+
+    if (query_cases[i].input16) {
+      string16 input16(WStringToUTF16(query_cases[i].input16));
+      int len = static_cast<int>(input16.length());
+      url_parse::Component in_comp(0, len);
+      std::string out_str;
+
+      url_canon::StdStringCanonOutput output(&out_str);
+      url_canon::CanonicalizeQuery(input16.c_str(), in_comp,
+                                   conv_pointer, &output, &out_comp);
       output.Complete();
 
       EXPECT_EQ(query_cases[i].expected, out_str);
