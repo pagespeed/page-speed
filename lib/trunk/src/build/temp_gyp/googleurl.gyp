@@ -2,8 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Slightly modified version of googleurl library target with a custom
-# implementation of url_canon_icu.cc to break a dependency on icu.
 {
   'variables': {
     'chromium_code': 1,
@@ -14,6 +12,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
       ],
       'sources': [
         '<(DEPTH)/googleurl/src/gurl.cc',
@@ -22,7 +21,7 @@
         '<(DEPTH)/googleurl/src/url_canon_etc.cc',
         '<(DEPTH)/googleurl/src/url_canon_fileurl.cc',
         '<(DEPTH)/googleurl/src/url_canon_host.cc',
-        '<(DEPTH)/googleurl_noicu/url_canon_noicu.cc',
+        '<(DEPTH)/googleurl/src/url_canon_icu.cc',
         '<(DEPTH)/googleurl/src/url_canon_icu.h',
         '<(DEPTH)/googleurl/src/url_canon_internal.cc',
         '<(DEPTH)/googleurl/src/url_canon_internal.h',
@@ -59,14 +58,28 @@
       'dependencies': [
         'googleurl',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtest_main',
+        '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
+      ],
+      'defines': [
+        # Our ICU build does not provide character set converters. We
+        # set this define to disable tests that depend on non-default
+        # character set conversions.
+        'ICU_NO_CONVERTER_DATA',
       ],
       'sources': [
         '<(DEPTH)/googleurl/src/gurl_unittest.cc',
-        '<(DEPTH)/googleurl_noicu/url_canon_unittest.cc',
+        '<(DEPTH)/googleurl_noconv/src/url_canon_unittest.cc',
         '<(DEPTH)/googleurl/src/url_parse_unittest.cc',
+        '<(DEPTH)/googleurl/src/url_test_utils.h',
         '<(DEPTH)/googleurl/src/url_util_unittest.cc',
+        '<(DEPTH)/googleurl/src/gurl_test_main.cc',
       ],
     },
   ],
 }
+
+# Local Variables:
+# tab-width:2
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=2 shiftwidth=2:
