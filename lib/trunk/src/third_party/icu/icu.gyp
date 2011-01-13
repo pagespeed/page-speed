@@ -27,10 +27,13 @@
       'conditions': [
         [ 'OS == "win"', {
           'type': 'none',
-          'msvs_settings': {
-            'VCLinkerTool': {
-              'AdditionalDependencies': [
-                'icudt42.lib',
+          'all_dependent_settings': {
+            # NOTE: all_dependent_settings are inherited by all
+            # dependent targets. Please limit what you add to this
+            # block.
+            'link_settings': {
+              'libraries': [
+                '<(DEPTH)/third_party/icu/icudt42.lib',
               ],
             },
           },
@@ -204,6 +207,7 @@
       'msvs_disabled_warnings': [4005],
       'defines': [
         'U_COMMON_IMPLEMENTATION',
+        'U_STATIC_IMPLEMENTATION',
         'U_USING_ICU_NAMESPACE=0',
       ],
       'dependencies': [
@@ -214,28 +218,12 @@
           'public/common',
           'public/i18n',
         ],
-        'conditions': [
-          # TODO(mark): Do we need this as a dependent setting
-          # on any platform? If we actually do need it, it's probably
-          # Windows-only...
-          [ 'OS != "mac" and (OS!="win" or component=="static_library")', {
-            'defines': [
-              'U_STATIC_IMPLEMENTATION',
-            ],
-          }],
+        'defines': [
+          'U_COMMON_IMPLEMENTATION',
+          'U_STATIC_IMPLEMENTATION',
         ],
       },
       'conditions': [
-        ['OS!="win" or component=="static_library"', {
-          'defines': [
-            'U_STATIC_IMPLEMENTATION',
-          ],
-        }],
-        [ 'OS == "win"', {
-          'sources': [
-            'source/stubdata/stubdata.c',
-          ],
-        }],
         [ 'OS == "linux"', {
           'cflags': [
             # Since ICU wants to internally use its own deprecated APIs,
