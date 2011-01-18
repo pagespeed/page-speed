@@ -20,15 +20,26 @@
 #include "base/logging.h"
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"
+#include "base/third_party/icu/icu_utf.h"
 #include "pagespeed/formatters/formatter_util.h"
 #include "pagespeed/l10n/l10n.h"
 
 namespace {
 
 std::string QuotedJsonString(const std::string& str) {
+  const char *src = str.data();
+  int32 src_len = static_cast<int32>(str.length());
+  int32 char_index = 0;
   std::string quoted("\"");
-  for (std::string::const_iterator i = str.begin(); i != str.end(); ++i) {
-    switch (*i) {
+  while (char_index < src_len) {
+    int32 code_point;
+    int32 last_char_index = char_index;
+    CBU8_NEXT(src, char_index, src_len, code_point);
+    switch (code_point) {
+      case CBU_SENTINEL:
+        LOG(INFO) << "Ignoring invalid UTF-8 char at index "
+                  << last_char_index << " in '" << str << "'";
+        break;
       case '"':
         quoted.append("\\\"");
         break;
@@ -51,21 +62,24 @@ std::string QuotedJsonString(const std::string& str) {
       case '>':
         // Escape < and > to avoid security issues related to json
         // string contents being interpreted as html by a browser.
-        if (*i == '<') {
+        if (code_point == '<') {
           quoted.append("\\x3c");
         } else {
           quoted.append("\\x3e");
         }
         break;
       default:
-        // Unicode escape ASCII control and Extended ASCII characters.
-        if (*i < 0x20 || *i >= 0x7F) {
-          // TODO this doesn't represent binary data properly.  Also,
-          // it does weird things when the format argument is
-          // negative.
-          quoted.append(StringPrintf("\\u%04x", static_cast<int>(*i)));
+        // Per the JSON RFC (http://www.ietf.org/rfc/rfc4627.txt), we
+        // must unicode escape ASCII control characters.
+        if (code_point < 0x20) {
+          quoted.append(StringPrintf("\\u%04x", code_point));
         } else {
-          quoted.push_back(*i);
+          // Append the bytes of the current UTF8 character.
+          const size_t code_point_len = CBU8_LENGTH(code_point);
+          for (size_t i = last_char_index;
+               i < last_char_index + code_point_len;
+               ++i)
+            quoted.push_back(src[i]);
         }
         break;
     }
