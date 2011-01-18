@@ -269,4 +269,37 @@ TEST(JsonFormatterTest, FormatBytesTest) {
             result);
 }
 
+TEST(JsonFormatterTest, FormatUtf8) {
+  std::stringstream output;
+  JsonFormatter formatter(&output, NULL);
+  Argument url(Argument::URL, "http://президент.рф/?<>");
+  formatter.AddChild(not_localized("$1"), url);
+  formatter.Done();
+  std::string result = output.str();
+  EXPECT_EQ("[\n{\"format\":[{\"type\":\"url\",\"value\":"
+            "\"http://президент.рф/?\\x3c\\x3e\""
+            "}]}]\n",
+            result);
+}
+
+TEST(JsonFormatterTest, FormatInvalidUtf8) {
+  // The bytes 0xc2 and 0xc3 indicate the start of a 2-character UTF8
+  // character. However, when the following character is ' ' (0x20),
+  // it is not a valid UTF8 character. We expect the 0xc2 and 0xc3
+  // bytes to be skipped when formatting the UTF8 sequence. We include
+  // \xc2\xa1 "¡" in the sequence to verify that we do still emit
+  // valid UTF8 characters.
+  const char* kInvalidUtf8 = "hello\xc2 \xc2\xa1\xc3 hello";
+  std::stringstream output;
+  JsonFormatter formatter(&output, NULL);
+  Argument url(Argument::URL, kInvalidUtf8);
+  formatter.AddChild(not_localized("$1"), url);
+  formatter.Done();
+  std::string result = output.str();
+  EXPECT_EQ("[\n{\"format\":[{\"type\":\"url\",\"value\":"
+            "\"hello ¡ hello\""
+            "}]}]\n",
+            result);
+}
+
 }  // namespace
