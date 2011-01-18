@@ -74,3 +74,5 @@ engine.!ComputeAndFormatResults(input, &formatter);
 = Getting the code =
 
 ... coming soon ...
+
+*Please don't ask questions in the comments.* Use the [http://groups.google.com/group/page-speed-discuss/ mailing list] instead.
