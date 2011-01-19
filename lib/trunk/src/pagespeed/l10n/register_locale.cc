@@ -98,7 +98,7 @@ const char** RegisterLocale::GetStringTable(const std::string& locale) {
   if (!string_table_map_)
     return NULL; // no locales have been registered
 
-  std::map<std::string, const char**>::const_iterator itr =
+  RegisterLocale::StringTableMap::const_iterator itr =
       string_table_map_->find(locale);
 
   if (itr == string_table_map_->end())
@@ -116,7 +116,7 @@ void RegisterLocale::GetAllLocales(std::vector<std::string>* out) {
   if (!out || !string_table_map_)
     return;
 
-  std::map<std::string, const char**>::const_iterator itr;
+  RegisterLocale::StringTableMap::const_iterator itr;
   for (itr = string_table_map_->begin();
        itr != string_table_map_->end();
        ++itr) {
