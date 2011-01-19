@@ -41,7 +41,7 @@
         'pagespeed.pot',
 
         # translations used by test cases
-        'test_backwards.po',
+        'test.po',
         'test_empty.po',
         'test_encoding.po',
       ],
@@ -126,7 +126,7 @@
       'hard_dependency': 1,
       'direct_dependent_settings': {
         'sources': [
-          '<(poc_out_dir)/pagespeed/po/test_backwards.po.cc',
+          '<(poc_out_dir)/pagespeed/po/test.po.cc',
           '<(poc_out_dir)/pagespeed/po/test_empty.po.cc',
           '<(poc_out_dir)/pagespeed/po/test_encoding.po.cc',
           '<(poc_out_dir)/pagespeed/po/master.po.cc',

@@ -34,9 +34,10 @@ const char* kNativeLocale = "en_US";
 using std::map;
 using std::string;
 using std::vector;
+using pagespeed::string_util::CaseInsensitiveStringComparator;
 
 bool RegisterLocale::frozen_ = false;
-std::map<std::string, const char**>* RegisterLocale::string_table_map_ = NULL;
+RegisterLocale::StringTableMap* RegisterLocale::string_table_map_ = NULL;
 std::map<std::string, size_t>* RegisterLocale::master_string_map_ = NULL;
 
 RegisterLocale::RegisterLocale(const char* locale, const char** string_table) {
@@ -45,7 +46,7 @@ RegisterLocale::RegisterLocale(const char* locale, const char** string_table) {
 
   // Instantiate the locale -> string table map if it doesn't already exist
   if (!string_table_map_) {
-    string_table_map_ = new std::map<std::string, const char**>();
+    string_table_map_ = new RegisterLocale::StringTableMap();
   }
 
   if (!locale) {

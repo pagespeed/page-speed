@@ -37,15 +37,80 @@ const int kBytesPerMiB = 1 << 20;
 
 } // namespace
 
+void ParseLocaleString(const std::string& locale, std::string* language_out,
+                       std::string* country_out, std::string* encoding_out) {
+  size_t language_end = locale.find_first_of("_-@.");
+  if (language_end == std::string::npos)
+    language_end = locale.length();
+
+  if (language_out)
+    *language_out = locale.substr(0, language_end);
+
+  if (language_end < locale.length()) {
+    size_t country_end = locale.find_first_of("@.", language_end);
+    if (country_end == std::string::npos)
+      country_end = locale.length();
+
+    if (country_out && (country_end - language_end) > 0) {
+      *country_out = locale.substr(language_end + 1,
+                                   country_end - language_end - 1);
+    }
+
+    // Strip unused @modifiers.
+    if (country_end < locale.length()) {
+      size_t encoding_end = locale.find('@', country_end);
+      if (encoding_end == std::string::npos)
+        encoding_end = locale.length();
+      else
+        LOG(INFO) << "ignoring unused @modifier in '" << locale << "'";
+
+      if (encoding_out && (encoding_end - country_end) > 0) {
+        *encoding_out = locale.substr(country_end + 1,
+                                      encoding_end - country_end - 1);
+      }
+    }
+  }
+}
+
 GettextLocalizer* GettextLocalizer::Create(const std::string& locale) {
-  const char** locale_table = RegisterLocale::GetStringTable(locale);
-  if (!locale_table) {
-    LOG(ERROR) << "could not find string table for locale '"
-               << locale << "'";
+  // Parse the locale string.
+  std::string language, country, encoding;
+  ParseLocaleString(locale, &language, &country, &encoding);
+
+  // Check that encoding is empty or UTF-8.
+  if (!encoding.empty() &&
+      !pagespeed::string_util::StringCaseEqual(encoding, "utf-8")) {
+    LOG(ERROR) << "could not provide encoding '" << encoding
+               << "' for locale '" << locale << "'";
     return NULL;
   }
 
-  return new GettextLocalizer(locale, locale_table);
+  std::string requested_locale;
+  const char** locale_table = NULL;
+
+  // Check <language>_<country> first.
+  if (!country.empty()) {
+    requested_locale = language + "_" + country;
+    locale_table = RegisterLocale::GetStringTable(requested_locale);
+    
+    if (!locale_table) {
+      LOG(INFO) << "could not find string table for locale '"
+                << requested_locale << "', trying '" << language << "'";
+    }
+  }
+
+  if (!locale_table) {
+    requested_locale = language;
+    locale_table = RegisterLocale::GetStringTable(requested_locale);
+  }
+
+  if (!locale_table) {
+    LOG(ERROR) << "could not find string table matching locale '"
+               << locale << "'";
+    return NULL;
+  } else {
+    return new GettextLocalizer(requested_locale, locale_table);
+  }
 }
 
 GettextLocalizer::GettextLocalizer(const std::string& locale,

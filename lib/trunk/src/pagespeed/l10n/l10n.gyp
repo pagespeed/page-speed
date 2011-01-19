@@ -23,6 +23,7 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(pagespeed_root)/pagespeed/formatters/formatter_util.gyp:pagespeed_formatter_util',
         '<(pagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_genpo',
       ],
