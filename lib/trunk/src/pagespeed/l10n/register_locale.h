@@ -20,6 +20,8 @@
 #include <string>
 #include <vector>
 
+#include "pagespeed/core/string_util.h"
+
 namespace pagespeed {
 
 namespace l10n {
@@ -63,10 +65,13 @@ class RegisterLocale {
   // flag that indicates any future writing to the string table maps is an error
   static bool frozen_;
 
+  typedef std::map<std::string, const char**,
+      ::pagespeed::string_util::CaseInsensitiveStringComparator> StringTableMap;
+
   // map from locale name to string table --- instantiated in the first
   // RegisterLocale constructor called at process startup.  Deleted in the first
   // RegisterLocale destructor called at process shutdown.
-  static std::map<std::string, const char**>* string_table_map_;
+  static StringTableMap* string_table_map_;
 
   // map from string constant to table index, generated from the "master" string
   // table.  Instantiated when RegisterLocale(NULL, ...) is called.

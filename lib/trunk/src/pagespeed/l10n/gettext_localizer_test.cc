@@ -28,28 +28,63 @@ using pagespeed::l10n::GettextLocalizer;
 using std::vector;
 using std::string;
 
-namespace {
+namespace pagespeed {
 
-TEST(GettextLocalizerTest, CreateTest) {
+namespace l10n {
+
+class GettextLocalizerTest : public ::testing::Test {
+ protected:
+  void TestLocaleString(const std::string& locale,
+                        const std::string& language,
+                        const std::string& country,
+                        const std::string& encoding) {
+    std::string language_out, country_out, encoding_out;
+
+    ParseLocaleString(locale, &language_out, &country_out, &encoding_out);
+    EXPECT_EQ(language, language_out);
+    EXPECT_EQ(country, country_out);
+    EXPECT_EQ(encoding, encoding_out);
+  }
+};
+
+TEST_F(GettextLocalizerTest, CreateTest) {
   scoped_ptr<GettextLocalizer> loc;
 
   vector<string> locales;
   pagespeed::l10n::RegisterLocale::GetAllLocales(&locales);
   ASSERT_EQ(static_cast<size_t>(4), locales.size());
   ASSERT_EQ("en_US", locales[0]);
-  ASSERT_EQ("test_backwards", locales[1]);
+  ASSERT_EQ("test", locales[1]);
   ASSERT_EQ("test_empty", locales[2]);
   ASSERT_EQ("test_encoding", locales[3]);
 
-  loc.reset(GettextLocalizer::Create("test_backwards"));
+  loc.reset(GettextLocalizer::Create("test"));
   ASSERT_TRUE(loc.get() != NULL);
-  ASSERT_STREQ("test_backwards", loc->GetLocale());
+  ASSERT_STREQ("test", loc->GetLocale());
 
-  ASSERT_EQ(NULL, GettextLocalizer::Create("bad_locale"));
+  ASSERT_EQ(NULL, GettextLocalizer::Create("test2_bad"));
 }
 
-TEST(GettextLocalizerTest, StringTest) {
-  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_backwards"));
+TEST_F(GettextLocalizerTest, LocaleNameTest) {
+  scoped_ptr<GettextLocalizer> loc;
+
+  // Test case insensitivity.
+  loc.reset(GettextLocalizer::Create("tEsT_eMpTY"));
+  ASSERT_TRUE(loc.get() != NULL);
+  ASSERT_STREQ("tEsT_eMpTY", loc->GetLocale());
+
+  // Test locale fallback.
+  loc.reset(GettextLocalizer::Create("test_unknown"));
+  ASSERT_TRUE(loc.get() != NULL);
+  ASSERT_STREQ("test", loc->GetLocale());
+
+  loc.reset(GettextLocalizer::Create("test"));
+  ASSERT_TRUE(loc.get() != NULL);
+  ASSERT_STREQ("test", loc->GetLocale());
+}
+
+TEST_F(GettextLocalizerTest, StringTest) {
+  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test"));
   ASSERT_TRUE(loc.get() != NULL);
 
   std::string out;
@@ -60,8 +95,8 @@ TEST(GettextLocalizerTest, StringTest) {
   ASSERT_EQ("test string", out);
 }
 
-TEST(GettextLocalizerTest, OtherTest) {
-  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_backwards"));
+TEST_F(GettextLocalizerTest, OtherTest) {
+  scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test"));
   ASSERT_TRUE(loc.get() != NULL);
 
   std::string out;
@@ -85,7 +120,7 @@ TEST(GettextLocalizerTest, OtherTest) {
 }
 
 // Tests that utf8-encoding translations make it through the entire pipeline
-TEST(GettextLocalizerTest, EncodingTest) {
+TEST_F(GettextLocalizerTest, EncodingTest) {
   scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_encoding"));
   ASSERT_TRUE(loc.get() != NULL);
   ASSERT_STREQ("test_encoding", loc->GetLocale());
@@ -97,9 +132,19 @@ TEST(GettextLocalizerTest, EncodingTest) {
   std::string out;
   ASSERT_TRUE(loc->LocalizeString(std::string(original), &out));
   ASSERT_EQ(encoded, out);
+
+  // Test requesting encodings.
+  loc.reset(GettextLocalizer::Create("test_encoding.utf-8"));
+  ASSERT_TRUE(loc.get() != NULL);
+
+  loc.reset(GettextLocalizer::Create("test_encoding.UTF-8"));
+  ASSERT_TRUE(loc.get() != NULL);
+
+  ASSERT_TRUE(NULL == GettextLocalizer::Create("test_encoding.UTF8"));
+  ASSERT_TRUE(NULL == GettextLocalizer::Create("test_encoding.utf-32"));
 }
 
-TEST(GettextLocalizerTest, ErrorTests) {
+TEST_F(GettextLocalizerTest, ErrorTests) {
   scoped_ptr<GettextLocalizer> loc(GettextLocalizer::Create("test_empty"));
   ASSERT_TRUE(loc.get() != NULL);
   ASSERT_STREQ("test_empty", loc->GetLocale());
@@ -112,4 +157,34 @@ TEST(GettextLocalizerTest, ErrorTests) {
   ASSERT_EQ("53B", out);
 }
 
-} // namespace
+TEST_F(GettextLocalizerTest, ParseLocaleStringTest) {
+  TestLocaleString("", "", "", "");
+  TestLocaleString("en_US.utf-8", "en", "US", "utf-8");
+  TestLocaleString("en_US", "en", "US", "");
+  TestLocaleString("en", "en", "", "");
+  TestLocaleString("en.utf-8", "en", "", "utf-8");
+  TestLocaleString("_US", "", "US", "");
+  TestLocaleString("_US.utf-8", "", "US", "utf-8");
+  TestLocaleString(".utf-8", "", "", "utf-8");
+  TestLocaleString("_.utf-8", "", "", "utf-8");
+  TestLocaleString("en_US_US.utf-8", "en", "US_US", "utf-8");
+  TestLocaleString("en_US_US.utf-8.utf-8", "en", "US_US", "utf-8.utf-8");
+
+  // Test dashes instead of underscores.
+  TestLocaleString("en-US.utf-8", "en", "US", "utf-8");
+  TestLocaleString("en_US-US.utf-8", "en", "US-US", "utf-8");
+  TestLocaleString("en-US_US.utf-8", "en", "US_US", "utf-8");
+
+  // Test @modifiers.
+  TestLocaleString("en_US.utf-8@silly", "en", "US", "utf-8");
+  TestLocaleString("en_US@silly", "en", "US", "");
+  TestLocaleString("en@silly", "en", "", "");
+  TestLocaleString("en.utf-8@silly", "en", "", "utf-8");
+
+  // Test NULL handling.
+  ParseLocaleString("en_US.utf-8", NULL, NULL, NULL);
+}
+
+} // namespace l10n
+
+} // namespace pagespeed

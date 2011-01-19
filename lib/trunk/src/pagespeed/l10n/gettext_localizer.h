@@ -27,6 +27,11 @@ namespace pagespeed {
 
 namespace l10n {
 
+// Parses a locale string into its three parts (language, country, and
+// encoding), returning them in the out parameters.
+void ParseLocaleString(const std::string& locale, std::string* language_out,
+                       std::string* country_out, std::string* encoding_out);
+
 /**
  * A localizer that looks up translations of strings in copies of gettext .po
  * files compiled into the binary.  Uses std::locale for localizing numbers,
@@ -36,6 +41,12 @@ class GettextLocalizer : public Localizer {
  public:
   // Create and return a new GettextLocalizer for the given locale, or NULL if
   // the locale cannot be instantiated.  Caller owns the returned object.
+  // locale should be of the form "<language>_<country>.<encoding>"
+  // (e.g. "en_UK.utf-8" signifies the dialect of English spoken in the UK, in
+  // utf-8 encoding).  The country and encoding portions are optional (any
+  // non-utf8 encodings will fail).  A locale string will match the most
+  // specific locale available --- e.g. "en_UK" will return "en_UK" if
+  // available, or "en" if not.  Locale matching is case-insensitive.
   static GettextLocalizer* Create(const std::string& locale);
 
   virtual const char* GetLocale() const;
