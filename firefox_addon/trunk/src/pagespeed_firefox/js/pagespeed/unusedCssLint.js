@@ -158,7 +158,7 @@ PAGESPEED.UnusedCss = {  // Begin namespace
     var totalMinifiedSize = 0;
     for (var i = 0, len = rules.length; i < len; ++i) {
       var rule = rules[i];
-      if (!rule || !rule.props) continue;
+      if (!rule || !rule.props || !rule.selector) continue;
       var size = rule.selector.length + 2;  // Add two for the curly braces.
       for (var j = 0, len = rule.props.length; j < len; ++j) {
         var prop = rule.props[j];
