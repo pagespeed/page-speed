@@ -31,6 +31,7 @@ void PopulateResource(const ProtoResource& input, Resource* output) {
   output->SetRequestUrl(input.request_url());
   output->SetRequestMethod(input.request_method());
   output->SetRequestBody(input.request_body());
+  output->SetResponseProtocol(input.response_protocol());
   output->SetResponseStatusCode(input.response_status_code());
   output->SetResponseBody(input.response_body());
 
@@ -74,6 +75,7 @@ void PopulateProtoResource(const Resource& input, ProtoResource* output) {
   output->set_request_url(input.GetRequestUrl());
   output->set_request_method(input.GetRequestMethod());
   output->set_request_body(input.GetRequestBody());
+  output->set_response_protocol(input.GetResponseProtocolString());
   output->set_response_status_code(input.GetResponseStatusCode());
   output->set_response_body(input.GetResponseBody());
 
