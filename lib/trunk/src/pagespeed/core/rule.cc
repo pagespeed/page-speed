@@ -52,6 +52,11 @@ const double kReflowPenalty = 0.05;
 // TODO Improve critical-path-length scoring algorithm.
 const double kCriticalPathPenalty = 0.15;
 
+// Connections are not reused.
+// TODO(lsong): Improve connections scoring algorithm.
+const double kConnectionsPenalty = 0.5;
+
+
 /* Return true if result1 is judged to have (strictly) greater impact than
  * result2, false otherwise.  Note that this function imposes a total order on
  * what is essentially partially-ordered data, and thus gives somewhat
@@ -88,7 +93,8 @@ Rule::~Rule() {}
 int Rule::ComputeScore(const InputInformation& input_info,
                        const RuleResults& results) {
   int request_bytes_saved = 0, response_bytes_saved = 0, dns_saved = 0,
-      requests_saved = 0, reflows_saved = 0, critical_path_saved = 0;
+      requests_saved = 0, reflows_saved = 0, critical_path_saved = 0,
+      connections_saved = 0;
   for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
     const Result& result = results.results(idx);
     if (result.has_savings()) {
@@ -99,6 +105,7 @@ int Rule::ComputeScore(const InputInformation& input_info,
       requests_saved += savings.requests_saved();
       reflows_saved += savings.page_reflows_saved();
       critical_path_saved += savings.critical_path_length_saved();
+      connections_saved += savings.connections_saved();
     }
   }
 
@@ -147,6 +154,15 @@ int Rule::ComputeScore(const InputInformation& input_info,
   if (critical_path_saved > 0) {
     normalized_savings += (kCriticalPathPenalty * critical_path_saved);
   }
+
+  if (connections_saved > 0) {
+    if (input_info.number_resources() == 0) {
+      return -1;  // information is not available
+    }
+    normalized_savings +=
+        kConnectionsPenalty * connections_saved / input_info.number_resources();
+  }
+
 
   return std::max(0, (int)(100 * (1.0 - normalized_savings)));
 }

@@ -27,6 +27,10 @@
 
 namespace {
 
+const char* kHttp11 = "HTTP/1.1";
+const char* kHttp10 = "HTTP/1.0";
+const char* kHttpUnknown = "Unknown";
+
 const std::string& GetEmptyString() {
   static const std::string kEmptyString = "";
   return kEmptyString;
@@ -50,10 +54,14 @@ bool IsBodyStatusCode(int status_code) {
 
 namespace pagespeed {
 
-using namespace string_util;
+// Using functions from namespace string_util.
+using string_util::StringCaseEqual;
+using string_util::StringCaseStartsWith;
+using string_util::StringCaseEndsWith;
 
 Resource::Resource()
     : status_code_(-1),
+      response_protocol_(UNKNOWN_PROTOCOL),
       type_(OTHER),
       request_start_time_millis_(-1) {
 }
@@ -93,6 +101,31 @@ void Resource::AddRequestHeader(const std::string& name,
 
 void Resource::SetRequestBody(const std::string& value) {
   request_body_ = value;
+}
+
+void Resource::SetResponseProtocol(const std::string& protocol) {
+  if (string_util::StringCaseEqual(protocol, kHttp11)) {
+    SetResponseProtocol(HTTP_11);
+  } else if (string_util::StringCaseEqual(protocol, kHttp10)) {
+    SetResponseProtocol(HTTP_10);
+  } else {
+    // Log what unknown protocol is used here.
+    LOG(INFO) << "Setting unkown protocol " << protocol;
+    SetResponseProtocol(UNKNOWN_PROTOCOL);
+  }
+}
+
+const char* Resource::GetResponseProtocolString() const {
+  switch (GetResponseProtocol()) {
+    case HTTP_11:
+      return kHttp11;
+    case HTTP_10:
+      return kHttp10;
+    case UNKNOWN_PROTOCOL:
+      return kHttpUnknown;
+  }
+  // It should not reach here.
+  return kHttpUnknown;
 }
 
 void Resource::SetResponseStatusCode(int code) {

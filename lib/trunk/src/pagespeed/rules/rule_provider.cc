@@ -22,6 +22,7 @@
 #include "pagespeed/rules/avoid_document_write.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
+#include "pagespeed/rules/enable_keep_alive.h"
 #include "pagespeed/rules/inline_small_resources.h"
 #include "pagespeed/rules/leverage_browser_caching.h"
 #include "pagespeed/rules/minify_css.h"
@@ -54,6 +55,7 @@ static const char* kCoreRules[] = {
   "avoidcssimport",
   "avoiddocumentwrite",
   "enablegzipcompression",
+  "enablekeepalive",
   "inlinesmallcss",
   "inlinesmalljavascript",
   "leveragebrowsercaching",
@@ -147,6 +149,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
   RULE("enablegzipcompression", rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
+  RULE("enablekeepalive", rules::EnableKeepAlive());
   RULE("inlinesmallcss", rules::InlineSmallCss());
   RULE("inlinesmalljavascript", rules::InlineSmallJavaScript());
   RULE("leveragebrowsercaching", rules::LeverageBrowserCaching());
@@ -234,6 +237,7 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::CombineExternalJavaScript());
   rules->push_back(new rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
+  rules->push_back(new rules::EnableKeepAlive());
   rules->push_back(new rules::InlineSmallCss());
   rules->push_back(new rules::InlineSmallJavaScript());
   rules->push_back(new rules::LeverageBrowserCaching());

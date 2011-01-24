@@ -54,6 +54,12 @@ enum ImageType {
   UNKNOWN_IMAGE_TYPE
 };
 
+enum Protocol {
+  HTTP_10,
+  HTTP_11,
+  UNKNOWN_PROTOCOL
+};
+
 /**
  * Represents an individual input resource.
  */
@@ -73,6 +79,10 @@ class Resource {
   void AddResponseHeader(const std::string& name, const std::string& value);
   void RemoveResponseHeader(const std::string& name);
   void SetResponseBody(const std::string& value);
+  void SetResponseProtocol(const std::string& protocol);
+  void SetResponseProtocol(Protocol protocol) {
+    response_protocol_ = protocol;
+  }
 
   // In some cases, the Cookie header can differ from the cookie(s)
   // that would be associated with a resource. For instance, if a resource
@@ -178,6 +188,14 @@ class Resource {
   // extract the protocol std::string from the request url
   std::string GetProtocol() const;
 
+  // Get the protocol string from response, e.g., HTTP/1.1.
+  const char* GetResponseProtocolString() const;
+
+  // Get the protocol from response, e.g., HTTP_11.
+  Protocol GetResponseProtocol() const {
+    return response_protocol_;
+  }
+
   // Extract resource type from the Content-Type header.
   ResourceType GetResourceType() const;
   ImageType GetImageType() const;
@@ -198,6 +216,7 @@ class Resource {
   HeaderMap request_headers_;
   std::string request_body_;
   int status_code_;
+  Protocol response_protocol_;
   HeaderMap response_headers_;
   std::string response_body_;
   std::string cookies_;

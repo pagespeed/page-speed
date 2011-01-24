@@ -43,6 +43,10 @@ message Savings {
   // Number of times resource loading was blocked that could have been
   // saved.
   optional int32 critical_path_length_saved = 6;
+
+  // Number of connections that could have been saved if connection was reused.
+  optional int32 connections_saved = 7;
+
 }
 
 message InputInformation {
