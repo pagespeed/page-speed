@@ -21,6 +21,7 @@
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "base/third_party/icu/icu_utf.h"
+#include "pagespeed/core/rule.h"
 #include "pagespeed/formatters/formatter_util.h"
 #include "pagespeed/l10n/l10n.h"
 

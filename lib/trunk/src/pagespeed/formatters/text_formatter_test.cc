@@ -14,6 +14,7 @@
 
 #include <iostream>
 
+#include "pagespeed/core/rule.h"
 #include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/l10n/l10n.h"
 #include "testing/gtest/include/gtest/gtest.h"

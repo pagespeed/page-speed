@@ -20,10 +20,11 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/user_facing_string.h"
 
 namespace pagespeed {
+
+class Rule;
 
 /**
  * Typed format argument representation.
