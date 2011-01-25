@@ -15,6 +15,7 @@
 #include "pagespeed/core/formatter.h"
 
 #include "base/logging.h"
+#include "pagespeed/core/rule.h"
 
 namespace {
 

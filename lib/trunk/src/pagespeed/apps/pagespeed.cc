@@ -29,6 +29,7 @@
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/rule.h"
 #include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/formatters/text_formatter.h"

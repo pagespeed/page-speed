@@ -28,6 +28,7 @@
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_init.h"
+#include "pagespeed/core/rule.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/l10n/gettext_localizer.h"
