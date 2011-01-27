@@ -96,7 +96,7 @@ TEST_F(ImageAttributesFactoryTest, ValidPng) {
 
 TEST_F(ImageAttributesFactoryTest, InvalidPng) {
   ImageAttributesFactory factory;
-  scoped_ptr<Resource> resource(CreatePngResource("x00n0g01.png"));
+  scoped_ptr<Resource> resource(CreatePngResource("xcrn0g04.png"));
   ASSERT_LT(static_cast<size_t>(0), resource->GetResponseBody().size());
   scoped_ptr<ImageAttributes> image_attributes(
       factory.NewImageAttributes(resource.get()));

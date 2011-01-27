@@ -38,6 +38,12 @@ class GifReader : public PngReaderInterface {
                        png_structp png_ptr,
                        png_infop info_ptr);
 
+  virtual bool GetAttributes(const std::string& body,
+                             int* out_width,
+                             int* out_height,
+                             int* out_bit_depth,
+                             int* out_color_type);
+
  private:
   DISALLOW_COPY_AND_ASSIGN(GifReader);
 };

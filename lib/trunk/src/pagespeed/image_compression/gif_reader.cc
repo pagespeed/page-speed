@@ -225,19 +225,27 @@ bool ReadGifToPng(GifFileType* gif_file,
     return false;
   }
 
-  // Allocate the array of pointers to each row.
-  const png_size_t row_pointers_size = info_ptr->height * png_sizeof(png_bytep);
-  info_ptr->row_pointers = static_cast<png_bytepp>(
-      png_malloc(png_ptr, row_pointers_size));
-  png_memset(info_ptr->row_pointers, 0, row_pointers_size);
+  // Like libpng's png_read_png, we free the row pointers unless they
+  // weren't allocated by libpng, in which case we reuse them.
 #ifdef PNG_FREE_ME_SUPPORTED
-  info_ptr->free_me |= PNG_FREE_ROWS;
+  png_free_data(png_ptr, info_ptr, PNG_FREE_ROWS, 0);
+#endif
+  if (info_ptr->row_pointers == NULL) {
+    // Allocate the array of pointers to each row.
+    const png_size_t row_pointers_size =
+        info_ptr->height * png_sizeof(png_bytep);
+    info_ptr->row_pointers = static_cast<png_bytepp>(
+        png_malloc(png_ptr, row_pointers_size));
+    png_memset(info_ptr->row_pointers, 0, row_pointers_size);
+#ifdef PNG_FREE_ME_SUPPORTED
+    info_ptr->free_me |= PNG_FREE_ROWS;
 #endif
 
-  // Allocate memory for each row.
-  for (png_uint_32 row = 0; row < info_ptr->height; ++row) {
-    info_ptr->row_pointers[row] =
-        static_cast<png_bytep>(png_malloc(png_ptr, row_size));
+    // Allocate memory for each row.
+    for (png_uint_32 row = 0; row < info_ptr->height; ++row) {
+      info_ptr->row_pointers[row] =
+          static_cast<png_bytep>(png_malloc(png_ptr, row_size));
+    }
   }
 
   // Fill the rows with the background color.
@@ -322,6 +330,38 @@ bool GifReader::ReadPng(const std::string& body,
     LOG(INFO) << "Failed to close GIF.";
   }
   return result;
+}
+
+bool GifReader::GetAttributes(const std::string& body,
+                              int* out_width,
+                              int* out_height,
+                              int* out_bit_depth,
+                              int* out_color_type) {
+  // We need the length of the magic bytes (GIF_STAMP_LEN), plus 2
+  // bytes for width, plus 2 bytes for height.
+  const size_t kGifMinHeaderSize = GIF_STAMP_LEN + 2 + 2;
+  if (body.size() < kGifMinHeaderSize) {
+    return false;
+  }
+
+  // Make sure this looks like a GIF. Either GIF87a or GIF89a.
+  if (strncmp(GIF_STAMP, body.data(), GIF_VERSION_POS) != 0) {
+    return false;
+  }
+  const unsigned char* body_data =
+      reinterpret_cast<const unsigned char*>(body.data());
+  const unsigned char* width_data = body_data + GIF_STAMP_LEN;
+  const unsigned char* height_data = width_data + 2;
+
+  *out_width =
+      (static_cast<unsigned int>(width_data[1]) << 8) + width_data[0];
+  *out_height =
+      (static_cast<unsigned int>(height_data[1]) << 8) + height_data[0];
+
+  // GIFs are always 8 bits per channel, paletted images.
+  *out_bit_depth = 8;
+  *out_color_type = PNG_COLOR_TYPE_PALETTE;
+  return true;
 }
 
 }  // namespace image_compression

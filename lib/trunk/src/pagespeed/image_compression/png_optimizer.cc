@@ -23,11 +23,18 @@
 #include "base/logging.h"
 
 extern "C" {
+#ifdef USE_SYSTEM_ZLIB
+#include "zlib.h"  // NOLINT
+#else
+#include "third_party/zlib/zlib.h"
+#endif
+
 #ifdef USE_SYSTEM_LIBPNG
 #include "png.h"  // NOLINT
 #else
 #include "third_party/libpng/png.h"
 #endif
+
 #include "third_party/optipng/src/opngreduc.h"
 }
 
@@ -47,6 +54,9 @@ void ReadPngFromStream(png_structp read_ptr,
   input->offset_ += copied;
   if (copied < length) {
     LOG(INFO) << "ReadPngFromStream: Unexpected EOF.";
+
+    // We weren't able to satisfy the read, so abort.
+    longjmp(read_ptr->jmpbuf, 1);
   }
 }
 
@@ -57,8 +67,29 @@ void WritePngToString(png_structp write_ptr,
   buffer.append(reinterpret_cast<char*>(data), length);
 }
 
+void PngErrorFn(png_structp png_ptr, png_const_charp msg) {
+  LOG(INFO) << "libpng error: " << msg;
+
+  // Invoking the error function indicates a terminal failure, which
+  // means we must longjmp to abort the libpng invocation.
+  longjmp(png_ptr->jmpbuf, 1);
+}
+
+void PngWarningFn(png_structp png_ptr, png_const_charp msg) {
+  LOG(INFO) << "libpng warning: " << msg;
+}
+
 // no-op
 void PngFlush(png_structp write_ptr) {}
+
+// Helper that reads an unsigned 32-bit integer from a stream of
+// big-endian bytes.
+inline uint32 ReadUint32FromBigEndianBytes(const unsigned char* read_head) {
+  return ((uint32)(*read_head) << 24) +
+      ((uint32)(*(read_head + 1)) << 16) +
+      ((uint32)(*(read_head + 2)) << 8) +
+      (uint32)(*(read_head + 3));
+}
 
 }  // namespace
 
@@ -84,26 +115,13 @@ ScopedPngStruct::ScopedPngStruct(Type type)
   if (png_ptr_ != NULL) {
     info_ptr_ = png_create_info_struct(png_ptr_);
   }
+
+  png_set_error_fn(png_ptr_, NULL, &PngErrorFn, &PngWarningFn);
 }
 
 ScopedPngStruct::~ScopedPngStruct() {
   switch (type_) {
     case READ:
-#ifdef PNG_FREE_ME_SUPPORTED
-      // For GIF images only, optipng's pngx_malloc_rows allocates the
-      // rows. However, if PNG_FREE_ME_SUPPORTED is defined, libpng
-      // will not free this data unless PNG_FREE_ROWS is set on the
-      // free_me member. Thus we have to explicitly set that field
-      // here.
-      //
-      // We must set it here instead of in gif_reader.cc since the
-      // value gets cleared if we set it before the call to
-      // pngx_read_gif(), and it's possible that pngx_read_gif()
-      // triggers a longjmp which means none of the code after that
-      // point gets called. The only place where this code gets
-      // executed unconditionally is here in the destructor.
-      info_ptr_->free_me |= PNG_FREE_ROWS;
-#endif
       png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
       break;
     case WRITE:
@@ -122,7 +140,8 @@ PngReaderInterface::~PngReaderInterface() {
 
 PngOptimizer::PngOptimizer()
     : read_(ScopedPngStruct::READ),
-      write_(ScopedPngStruct::WRITE) {
+      write_(ScopedPngStruct::WRITE),
+      best_compression_(false) {
 }
 
 PngOptimizer::~PngOptimizer() {
@@ -136,6 +155,8 @@ bool PngOptimizer::CreateOptimizedPng(PngReaderInterface& reader,
                 << read_.valid() << ", w: " << write_.valid();
     return false;
   }
+
+  out->clear();
 
   // Configure error handlers.
   if (setjmp(read_.png_ptr()->jmpbuf)) {
@@ -161,8 +182,9 @@ bool PngOptimizer::CreateOptimizedPng(PngReaderInterface& reader,
   // (e.g. RGB->palette, etc).
   opng_reduce_image(write_.png_ptr(), write_.info_ptr(), OPNG_REDUCE_ALL);
 
-  // TODO: try a few different strategies and pick the best one.
-  png_set_compression_level(write_.png_ptr(), Z_BEST_COMPRESSION);
+  int compression_level =
+      best_compression_ ? Z_BEST_COMPRESSION : Z_DEFAULT_COMPRESSION;
+  png_set_compression_level(write_.png_ptr(), compression_level);
   png_set_compression_mem_level(write_.png_ptr(), 8);
   png_set_compression_strategy(write_.png_ptr(), Z_DEFAULT_STRATEGY);
   png_set_filter(write_.png_ptr(), PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
@@ -179,6 +201,14 @@ bool PngOptimizer::OptimizePng(PngReaderInterface& reader,
                                const std::string& in,
                                std::string* out) {
   PngOptimizer o;
+  return o.CreateOptimizedPng(reader, in, out);
+}
+
+bool PngOptimizer::OptimizePngBestCompression(PngReaderInterface& reader,
+                                              const std::string& in,
+                                              std::string* out) {
+  PngOptimizer o;
+  o.EnableBestCompression();
   return o.CreateOptimizedPng(reader, in, out);
 }
 
@@ -200,6 +230,90 @@ bool PngReader::ReadPng(const std::string& body,
   png_set_read_fn(png_ptr, &input, &ReadPngFromStream);
   png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
+  return true;
+}
+
+bool PngReader::GetAttributes(const std::string& body,
+                              int* out_width,
+                              int* out_height,
+                              int* out_bit_depth,
+                              int* out_color_type) {
+  // We need to read the PNG signature plus the IDAT chunk.
+  //
+  // Signature is 8 bytes, documentation:
+  //  http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature
+  //
+  // Chunk layout is 4 bytes chunk len + 4 bytes chunk name + chunk +
+  // 4 bytes chunk CRC, documentation:
+  //  http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#Chunk-layout
+  //
+  // IDAT chunk is 13 bytes (see code for details), documentation:
+  //  http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#C.IHDR
+
+  const size_t kPngSigBytesSize = 8;
+  const size_t kChunkLenSize = 4;
+  const size_t kChunkNameSize = 4;
+  const size_t kIHDRChunkSize = 13;
+  const size_t kChunkCRCSize = 4;
+
+  const size_t kPngMinHeaderSize =
+      kPngSigBytesSize +
+      kChunkLenSize +
+      kChunkNameSize +
+      kIHDRChunkSize +
+      kChunkCRCSize;
+
+  if (body.size() < kPngMinHeaderSize) {
+    // Not enough bytes for us to read, so abort early.
+    return false;
+  }
+
+  const unsigned char* read_head =
+      reinterpret_cast<const unsigned char*>(body.data());
+
+  // Validate the PNG signature.
+  if (png_sig_cmp(
+          const_cast<unsigned char*>(read_head), 0, kPngSigBytesSize) != 0) {
+    return false;
+  }
+  read_head += kPngSigBytesSize;
+
+  // The first 4 bytes of the chunk contains the chunk length.
+  const uint32 first_chunk_len = ReadUint32FromBigEndianBytes(read_head);
+  if (first_chunk_len != kIHDRChunkSize) {
+    return false;
+  }
+  read_head += kChunkLenSize;
+
+  if (strncmp("IHDR", reinterpret_cast<const char*>(read_head), 4) != 0) {
+    return false;
+  }
+
+  // Compute the CRC for the chunk (using zlib's CRC computer since
+  // it's already available to us).
+  uint32 computed_crc = crc32(0L, Z_NULL, 0);
+  computed_crc =
+      crc32(computed_crc, read_head, kChunkNameSize + kIHDRChunkSize);
+  read_head += kChunkNameSize;
+
+  // Extract the expected CRC, after the end of the IHDR data.
+  uint32 expected_crc =
+      ReadUint32FromBigEndianBytes(read_head + kIHDRChunkSize);
+  if (expected_crc != computed_crc) {
+    // CRC mismatch. Invalid chunk. Abort.
+    return false;
+  }
+
+  // Now read the IHDR chunk contents. Its layout is:
+  // width: 4 bytes
+  // height: 4 bytes
+  // bit_depth: 1 byte
+  // color_type: 1 byte
+  // other data: 3 bytes
+  *out_width = ReadUint32FromBigEndianBytes(read_head);
+  *out_height = ReadUint32FromBigEndianBytes(read_head + 4);
+  *out_bit_depth = read_head[8];
+  *out_color_type = read_head[9];
   return true;
 }
 
@@ -234,6 +348,13 @@ void PngOptimizer::CopyReadToWrite() {
                compression_type,
                filter_type);
 
+  // NOTE: if libpng's free_me capability is not enabled, sharing
+  // rowbytes between the read and write structs will lead to a
+  // double-free. Thus we test for the PNG_FREE_ME_SUPPORTED define
+  // here.
+#ifndef PNG_FREE_ME_SUPPORTED
+#error PNG_FREE_ME_SUPPORTED is required or double-frees may happen.
+#endif
   png_bytepp row_pointers = png_get_rows(read_.png_ptr(), read_.info_ptr());
   png_set_rows(write_.png_ptr(), write_.info_ptr(), row_pointers);
 

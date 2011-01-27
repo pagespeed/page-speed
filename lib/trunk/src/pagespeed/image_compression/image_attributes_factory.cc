@@ -68,22 +68,15 @@ bool GetWidthAndHeightFromPngReader(
     pagespeed::image_compression::PngReaderInterface* reader,
     int* out_width,
     int* out_height) {
-  pagespeed::image_compression::ScopedPngStruct png_struct(
-      pagespeed::image_compression::ScopedPngStruct::READ);
-
-  // Configure error handlers.
-  if (setjmp(png_struct.png_ptr()->jmpbuf)) {
+  int bit_depth, color_type;
+  if (!reader->GetAttributes(resource->GetResponseBody(),
+                             out_width,
+                             out_height,
+                             &bit_depth,
+                             &color_type)) {
     return false;
   }
 
-  if (!reader->ReadPng(resource->GetResponseBody(),
-                       png_struct.png_ptr(),
-                       png_struct.info_ptr())) {
-    return false;
-  }
-
-  *out_width = png_struct.info_ptr()->width;
-  *out_height = png_struct.info_ptr()->height;
   return true;
 }
 
