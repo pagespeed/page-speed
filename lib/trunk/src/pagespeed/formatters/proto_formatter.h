@@ -27,7 +27,7 @@ namespace l10n { class Localizer; }
 
 namespace formatters {
 
-// TODO(aoates): should the localization functionality  be moved into the base
+// TODO(aoates): should the localization functionality be moved into the base
 // Formatter class, so that all formatters are supplied transparently with
 // localized strings?
 /**
@@ -36,7 +36,7 @@ namespace formatters {
 class ProtoFormatter : public RuleFormatter {
  public:
   ProtoFormatter(const pagespeed::l10n::Localizer* localizer,
-                     FormattedResults* results);
+                 FormattedResults* results);
 
   // RuleFormatter interface.
   virtual Formatter* AddHeader(const Rule& rule, int score);

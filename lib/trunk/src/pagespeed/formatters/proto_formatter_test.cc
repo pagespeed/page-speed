@@ -128,7 +128,8 @@ TEST(ProtoFormatterTest, BasicTest) {
 
   ASSERT_EQ(2, results.rule_results_size());
   const FormattedRuleResults& r1 = results.rule_results(0);
-  ASSERT_EQ("DummyTestRule", r1.rule());
+  ASSERT_EQ("DummyTestRule", r1.rule_name());
+  ASSERT_EQ(100, r1.rule_score());
   ASSERT_EQ("rule1", r1.localized_rule_name());
   ASSERT_EQ(2, r1.url_blocks_size());
 
@@ -148,7 +149,8 @@ TEST(ProtoFormatterTest, BasicTest) {
   ASSERT_EQ(0, r1.url_blocks(1).urls(0).details_size());
 
   const FormattedRuleResults& r2 = results.rule_results(1);
-  ASSERT_EQ("DummyTestRule", r2.rule());
+  ASSERT_EQ("DummyTestRule", r2.rule_name());
+  ASSERT_EQ(50, r2.rule_score());
   ASSERT_EQ("rule2", r2.localized_rule_name());
   ASSERT_EQ(1, r2.url_blocks_size());
 
@@ -175,7 +177,8 @@ TEST(ProtoFormatterTest, FormattingTest) {
 
   ASSERT_EQ(1, results.rule_results_size());
   const FormattedRuleResults& r1 = results.rule_results(0);
-  ASSERT_EQ("DummyTestRule", r1.rule());
+  ASSERT_EQ("DummyTestRule", r1.rule_name());
+  ASSERT_EQ(100, r1.rule_score());
   ASSERT_EQ("rule1", r1.localized_rule_name());
   ASSERT_EQ(1, r1.url_blocks_size());
 
@@ -228,7 +231,8 @@ TEST(ProtoFormatterTest, LocalizerTest) {
 
   ASSERT_EQ(2, results.rule_results_size());
   const FormattedRuleResults& r1 = results.rule_results(0);
-  EXPECT_EQ("DummyTestRule", r1.rule());
+  EXPECT_EQ("DummyTestRule", r1.rule_name());
+  EXPECT_EQ(100, r1.rule_score());
   EXPECT_EQ("*****", r1.localized_rule_name());
   ASSERT_EQ(2, r1.url_blocks_size());
 
@@ -269,7 +273,8 @@ TEST(ProtoFormatterTest, LocalizerTest) {
 
   // Test that string marked not localized isn't passed through the localizer.
   const FormattedRuleResults& r2 = results.rule_results(1);
-  EXPECT_EQ("DummyTestRule", r2.rule());
+  EXPECT_EQ("DummyTestRule", r2.rule_name());
+  EXPECT_EQ(100, r2.rule_score());
   EXPECT_EQ("rule2", r2.localized_rule_name());
   ASSERT_EQ(0, r2.url_blocks_size());
 }

@@ -291,9 +291,9 @@ message Results {
   // structure.
   required Version version = 5;
 
-  // Set of results for each rule
+  // Set of results for each rule.
   repeated RuleResults rule_results = 6;
 
-  // Overall score assigned by Page Speed
+  // Overall score assigned by Page Speed.
   optional int32 score = 7;
 }

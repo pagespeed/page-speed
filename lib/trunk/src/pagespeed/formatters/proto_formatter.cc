@@ -197,7 +197,7 @@ class FormattedRuleResultsFormatter : public Formatter {
 } // namespace
 
 ProtoFormatter::ProtoFormatter(const Localizer* localizer,
-                                       FormattedResults* results)
+                               FormattedResults* results)
     : localizer_(localizer), results_(results) {
   DCHECK(localizer_);
   DCHECK(results_);
@@ -205,7 +205,8 @@ ProtoFormatter::ProtoFormatter(const Localizer* localizer,
 
 Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
   FormattedRuleResults* rule_results = results_->add_rule_results();
-  rule_results->set_rule(rule.name());
+  rule_results->set_rule_name(rule.name());
+  rule_results->set_rule_score(score);
 
   if (!MaybeLocalizeString(localizer_,
                            rule.header(),
