@@ -71,6 +71,16 @@ class PngReaderInterface {
                        png_structp png_ptr,
                        png_infop info_ptr) = 0;
 
+  // Get just the attributes of the given image. out_bit_depth is the
+  // number of bits per channel. out_color_type is one of the
+  // PNG_COLOR_TYPE_* declared in png.h.
+  // TODO(bmcquade): consider merging this with ImageAttributes.
+  virtual bool GetAttributes(const std::string& body,
+                             int* out_width,
+                             int* out_height,
+                             int* out_bit_depth,
+                             int* out_color_type) = 0;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(PngReaderInterface);
 };
@@ -80,6 +90,10 @@ class PngOptimizer {
   static bool OptimizePng(PngReaderInterface& reader,
                           const std::string& in,
                           std::string* out);
+
+  static bool OptimizePngBestCompression(PngReaderInterface& reader,
+                                         const std::string& in,
+                                         std::string* out);
 
  private:
   PngOptimizer();
@@ -92,11 +106,16 @@ class PngOptimizer {
                           const std::string& in,
                           std::string* out);
 
+  // Turn on best compression. Requires additional CPU but produces
+  // smaller files.
+  void EnableBestCompression() { best_compression_ = true; }
+
   bool WritePng(std::string* buffer);
   void CopyReadToWrite();
 
   ScopedPngStruct read_;
   ScopedPngStruct write_;
+  bool best_compression_;
 
   DISALLOW_COPY_AND_ASSIGN(PngOptimizer);
 };
@@ -110,7 +129,13 @@ class PngReader : public PngReaderInterface {
                        png_structp png_ptr,
                        png_infop info_ptr);
 
- private:
+  virtual bool GetAttributes(const std::string& body,
+                             int* out_width,
+                             int* out_height,
+                             int* out_bit_depth,
+                             int* out_color_type);
+
+private:
   DISALLOW_COPY_AND_ASSIGN(PngReader);
 };
 

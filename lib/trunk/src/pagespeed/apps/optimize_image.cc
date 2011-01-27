@@ -87,14 +87,14 @@ bool OptimizeImage(const char* infile, const char* outfile) {
     success = OptimizeJpeg(file_contents, &compressed);
   } else if (type == PNG) {
     PngReader reader;
-    success = PngOptimizer::OptimizePng(reader,
-                                        file_contents,
-                                        &compressed);
+    success = PngOptimizer::OptimizePngBestCompression(reader,
+                                                       file_contents,
+                                                       &compressed);
   } else if (type == GIF) {
     GifReader reader;
-    success = PngOptimizer::OptimizePng(reader,
-                                        file_contents,
-                                        &compressed);
+    success = PngOptimizer::OptimizePngBestCompression(reader,
+                                                       file_contents,
+                                                       &compressed);
   } else {
     fprintf(stderr,
             "Unsupported image type when processing %s\n",
