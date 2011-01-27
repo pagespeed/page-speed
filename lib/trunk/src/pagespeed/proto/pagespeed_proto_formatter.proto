@@ -68,13 +68,18 @@ message FormattedUrlBlockResults {
 // Formatted and structured results from one rule.
 message FormattedRuleResults {
   // The rule that generated these results.
-  required string rule = 1;
+  required string rule_name = 1;
 
   // Formatted version of the rule name.
   required string localized_rule_name = 2;
 
   // Blocks of URLs (e.g. one for each redirect chain to be eliminated).
   repeated FormattedUrlBlockResults url_blocks = 3;
+
+  // Score assigned by Page Speed for this rule.  It should be set in most
+  // cases, but may be left out if the rule is unable to compute a score (e.g.
+  // due to missing input information).
+  optional int32 rule_score = 4;
 }
 
 // Formatted and localized results proto, mirroring the hiercharchy of results
@@ -83,6 +88,9 @@ message FormattedResults {
   // Locale for which these results are generated.
   required string locale = 1;
 
-  // Formatted results for each rule
+  // Formatted results for each rule.
   repeated FormattedRuleResults rule_results = 2;
+
+  // Overall score assigned by Page Speed.
+  optional int32 score = 3;
 }

@@ -19,10 +19,6 @@
 #include "base/values.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
-namespace {
-
-}  // namespace
-
 namespace pagespeed {
 
 namespace proto {
