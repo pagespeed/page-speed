@@ -1,7 +1,5 @@
 #summary Identifies Operating Systems compatible with Page Speed for Firefox
 
-Please see [http://code.google.com/speed/page-speed/download.html] for additional details.
-
 If you see the "Your browser or operating system may not be supported." message when trying to run Page Speed for Firefox, please make sure your system is compatible with the supported platforms, listed below:
 
 = Supported Platforms =
