@@ -68,6 +68,7 @@
       ],
       'sources': [
         'pagespeed.cc',
+        'dom_statistics.cc',
       ],
     },
     {
