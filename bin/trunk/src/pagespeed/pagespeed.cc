@@ -14,6 +14,7 @@
 
 #include "build/build_config.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -24,8 +25,10 @@
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/chromium_dom.h"
+#include "pagespeed/dom_statistics.h"
 #include "pagespeed/pagespeed_input_populator.h"
 #include "pagespeed/test_shell_runner.h"
+#include "third_party/libpagespeed/src/pagespeed/core/dom.h"
 #include "third_party/libpagespeed/src/pagespeed/core/engine.h"
 #include "third_party/libpagespeed/src/pagespeed/core/pagespeed_input.h"
 #include "third_party/libpagespeed/src/pagespeed/core/rule.h"
@@ -92,6 +95,36 @@ pagespeed::PagespeedInput* LoadPage(pagespeed::TestShellRunner* runner,
   return populator->Detach();
 }
 
+bool RunDomStat(const char* url) {
+  const GURL gurl(url);
+  if (!gurl.is_valid()) {
+    fprintf(stderr, "Invalid URL %s.\n", url);
+    return false;
+  }
+  // The page DOM's lifetime is scoped by the TestShellRunner
+  // instance, so we need to make sure that the TestShellRunner
+  // outlives the invocation of the Page Speed engine, since the
+  // engine inspects the live DOM during its execution.
+  pagespeed::TestShellRunner runner;
+
+  WebKit::WebFrame* frame = NULL;
+  if (!runner.Run(url, kTimeoutMillis, &frame)) {
+    return false;
+  }
+
+  pagespeed::DomStatistics stats;
+  stats.count(frame->document());
+  std::map<std::string, int> tag_count_map = stats.TagCountMap();
+  fprintf(stdout, "DOM_COUNT DIV: %d\n", tag_count_map["DIV"]);
+  fprintf(stdout, "DOM_COUNT IFRAME: %d\n", tag_count_map["IFRAME"]);
+  fprintf(stdout, "DOM_COUNT IMG: %d\n", tag_count_map["IMG"]);
+  fprintf(stdout, "DOM_COUNT node: %d\n", stats.TotalNodeCount());
+  fprintf(stdout, "DOM_COUNT element: %d\n", stats.TotalElementCount());
+  fprintf(stdout, "DOM_COUNT max-depth: %d\n", stats.MaxDepth());
+
+  return true;
+}
+
 bool RunPagespeed(const char* url) {
   const GURL gurl(url);
   if (!gurl.is_valid()) {
@@ -131,25 +164,48 @@ bool RunPagespeed(const char* url) {
   input->Freeze();
 
   RunEngine(input.get());
-
   return true;
 }
 
 }  // namespace
 
 int main(int argc, char** argv) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <url>\n\n", argv[0]);
-    return 1;
+  const char* kFlagDomStat = "--dom-stat";
+  const char* kFlagDebug = "--debug";
+  enum RunFunction {PAGESPEED, DOM_STAT};
+
+  RunFunction run = PAGESPEED;
+  // Default only display WARNING and above on the console.
+  logging::LogSeverity log_level = logging::LOG_WARNING;
+  const char* url = NULL;
+  for (int idx=1; idx < argc; ++idx) {
+    if (argv[idx][0] != '-') {
+      url = argv[idx];
+      break;
+    } else if (strncmp(argv[idx], kFlagDomStat, strlen(kFlagDomStat)) == 0) {
+      run = DOM_STAT;
+    } else if (strncmp(argv[idx], kFlagDebug, strlen(kFlagDebug)) == 0) {
+      log_level = logging::LOG_VERBOSE;
+    }
   }
 
-  std::string url(argv[1]);
-
-  // Only display WARNING and above on the console.
-  logging::SetMinLogLevel(logging::LOG_WARNING);
+  if (url == NULL) {
+    fprintf(stderr, "Usage: %s [options] <url>\n\n", argv[0]);
+    return 1;
+  }
+  // Set the log level.
+  logging::SetMinLogLevel(log_level);
 
   pagespeed::TestShellRunner::SetUp(&argc, &argv);
-  bool result = RunPagespeed(url.c_str());
+  bool result = false;
+  switch (run) {
+    case PAGESPEED:
+      result = RunPagespeed(url);
+      break;
+    case DOM_STAT:
+      result = RunDomStat(url);
+      break;
+  }
   pagespeed::TestShellRunner::TearDown();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
