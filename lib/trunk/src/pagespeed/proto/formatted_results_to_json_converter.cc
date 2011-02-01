@@ -178,7 +178,7 @@ Value* FormattedResultsToJsonConverter::ConvertFormatArgument(
     root->SetString("string_value", format_arg.string_value());
   }
   if (format_arg.has_int_value()) {
-    root->SetInteger("int_value", format_arg.int_value());
+    root->SetInteger("int_value", static_cast<int>(format_arg.int_value()));
   }
   return root;
 }
