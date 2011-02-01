@@ -24,6 +24,9 @@ package pagespeed;
 
 // Typed format string arguments.
 message FormatArgument {
+
+  // NOTE: these must be kept in sync with kArgumentTypeToNameMap in
+  // formatted_results_to_json_converter.cc.
   enum ArgumentType {
     URL = 1;
     STRING_LITERAL = 2;
