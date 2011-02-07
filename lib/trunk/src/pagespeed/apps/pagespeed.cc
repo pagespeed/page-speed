@@ -36,12 +36,22 @@
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/l10n/localizer.h"
+#include "pagespeed/proto/formatted_results_to_json_converter.h"
+#include "pagespeed/proto/formatted_results_to_text_converter.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
 #include "pagespeed/rules/rule_provider.h"
 
 namespace {
+
+enum OutputFormat {
+  PROTO_OUTPUT,
+  TEXT_OUTPUT,
+  JSON_OUTPUT,
+  FORMATTED_PROTO_OUTPUT
+};
 
 // UTF-8 byte order mark.
 const char* kUtf8Bom = "\xEF\xBB\xBF";
@@ -78,8 +88,9 @@ pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
 void PrintUsage() {
   fprintf(stderr,
           "Usage: pagespeed <output_format> <input_format> <file>\n"
-          "       <output_format> can be one of 'text', 'json', or 'proto'\n"
-          "       <input_format> can be one of 'har', or 'proto'\n"
+          "       <output_format> can be one of 'proto', 'text', 'json', or\n"
+          "                       'formatted_proto'\n"
+          "       <input_format> can be one of 'har' or 'proto'\n"
           "       if <file> is '-', input will be read from stdin.\n"
           "       Otherwise input will be read from the specified filename.\n");
 }
@@ -87,6 +98,21 @@ void PrintUsage() {
 bool RunPagespeed(const std::string& out_format,
                   const std::string& in_format,
                   const std::string& filename) {
+  OutputFormat output_format;
+  if (out_format == "proto") {
+    output_format = PROTO_OUTPUT;
+  } else if (out_format == "text") {
+    output_format = TEXT_OUTPUT;
+  } else if (out_format == "json") {
+    output_format = JSON_OUTPUT;
+  } else if (out_format == "formatted_proto") {
+    output_format = FORMATTED_PROTO_OUTPUT;
+  } else {
+    fprintf(stderr, "Invalid output format %s\n", out_format.c_str());
+    PrintUsage();
+    return false;
+  }
+
   std::string file_contents;
   if (filename == "-") {
     // Special case: if user specifies input file as '-', read the
@@ -104,20 +130,6 @@ bool RunPagespeed(const std::string& out_format,
   if (file_contents.compare(0, kUtf8BomSize, kUtf8Bom) == 0) {
     file_contents.erase(0, kUtf8BomSize);
     LOG(INFO) << "Byte order mark ignored.";
-  }
-
-  scoped_ptr<pagespeed::RuleFormatter> formatter;
-  if (out_format == "json") {
-    formatter.reset(new pagespeed::formatters::JsonFormatter(&std::cout,
-                                                             NULL));
-  } else if (out_format == "proto") {
-    // We don't need a formatter, since we're printing the raw results
-  } else if (out_format == "text") {
-    formatter.reset(new pagespeed::formatters::TextFormatter(&std::cout));
-  } else {
-    fprintf(stderr, "Invalid output format %s\n", out_format.c_str());
-    PrintUsage();
-    return false;
   }
 
   scoped_ptr<pagespeed::PagespeedInput> input;
@@ -169,18 +181,45 @@ bool RunPagespeed(const std::string& out_format,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
-  // If we have a formatter, use it; otherwise, print the raw Results proto
-  if (formatter.get()) {
-    engine.ComputeAndFormatResults(*input.get(), formatter.get());
-  } else {
-    pagespeed::Results results;
-    engine.ComputeResults(*input.get(), &results);
-
-    std::string out;
+  // If the output format is "proto", print the raw results proto; otherwise,
+  // use an appropriate converter.
+  std::string out;
+  pagespeed::Results results;
+  engine.ComputeResults(*input, &results);
+  if (output_format == PROTO_OUTPUT) {
     ::google::protobuf::io::StringOutputStream out_stream(&out);
     results.SerializeToZeroCopyStream(&out_stream);
-    std::cout << out;
+  } else {
+    // Compute and format results, and put the library-computed overall score
+    // into the FormattedResults.
+    // TODO(mdsteele): Once we change the formatter API,
+    //     engine.ComputeAndFormatResults should do this for us.
+    pagespeed::l10n::BasicLocalizer localizer;
+    pagespeed::FormattedResults formatted_results;
+    // TODO(mdsteele): Add a command-line flag to support other locales.
+    formatted_results.set_locale("en_US");
+    pagespeed::formatters::ProtoFormatter formatter(&localizer,
+                                                    &formatted_results);
+    engine.FormatResults(results, &formatter);
+    if (results.has_score()) {
+      formatted_results.set_score(results.score());
+    }
+
+    // Convert the FormattedResults into text/json.
+    if (output_format == TEXT_OUTPUT) {
+      pagespeed::proto::FormattedResultsToTextConverter::Convert(
+          formatted_results, &out);
+    } else if (output_format == JSON_OUTPUT) {
+      pagespeed::proto::FormattedResultsToJsonConverter::Convert(
+          formatted_results, &out);
+    } else if (output_format == FORMATTED_PROTO_OUTPUT) {
+      ::google::protobuf::io::StringOutputStream out_stream(&out);
+      formatted_results.SerializeToZeroCopyStream(&out_stream);
+    } else {
+      LOG(DFATAL) << "unexpected output_format value: " << output_format;
+    }
   }
+  std::cout << out;
 
   return true;
 }

@@ -124,6 +124,7 @@
       ],
       'sources': [
         'formatted_results_to_json_converter.cc',
+        'formatted_results_to_text_converter.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
