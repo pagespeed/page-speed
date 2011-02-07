@@ -85,16 +85,27 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
     panel, browserTab) {
 
   if (PAGESPEED.LintRules.nativeRuleResults.length == 0) {
-    // We encountered an error running the native rules so we should
-    // show an error page.
-    var docUrl = 'current page';
-    if (FirebugContext.window &&
-        FirebugContext.window.document &&
-        FirebugContext.window.document.URL) {
-      docUrl = FirebugContext.window.document.URL;
+    // If we failed to generate any native rules, it might be because
+    // the user's browser or OS is not compatible with our native
+    // library. If we can't instantiate the IPageSpeedRules instance
+    // then show them the incompatible browser error message.
+    var pagespeedRules = PAGESPEED.Utils.CCIN(
+      '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
+    if (!pagespeedRules) {
+      panel.table = panel.incompatibleBrowserPageTag.replace(
+          {}, panel.panelNode, panel);
+    } else {
+      // We encountered an error running the native rules so we should
+      // show an error page.
+      var docUrl = 'current page';
+      if (FirebugContext.window &&
+          FirebugContext.window.document &&
+          FirebugContext.window.document.URL) {
+        docUrl = FirebugContext.window.document.URL;
+      }
+      panel.table = panel.errorPageTag.replace(
+          {'currentPageUrl': docUrl}, panel.panelNode, panel);
     }
-    panel.table = panel.errorPageTag.replace(
-        {'currentPageUrl': docUrl}, panel.panelNode, panel);
     return;
   }
 

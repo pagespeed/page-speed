@@ -114,6 +114,26 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
       )
     ),
 
+  incompatibleBrowserPageTag:
+  DIV({'class': 'moduleManagerBox',
+       'style': 'padding: 0 10px;'},
+    H1({'class': 'moduleManagerHead'},
+       'Page Speed'
+       ),
+    H3('Unable to run Page Speed.'),
+    P(B('Your browser or operating system may not be supported.')),
+    P('Please see ',
+      A({'href': 'http://code.google.com/p/page-speed/wiki/' +
+         'CompatibleOperatingSystems',
+         'onclick': '$openLink'},
+        'Page Speed Compatibility'
+        ),
+      ' for more information.'),
+    P({'class': 'moduleManagerDecription'},
+      'Page Speed Copyright &copy; 2010 Google Inc.'
+      )
+    ),
+
   // Initial domplate that is displayed when the panel is opened.
   welcomePageTag:
       DIV({'class': 'moduleManagerBox',
