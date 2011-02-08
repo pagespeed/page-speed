@@ -54,10 +54,10 @@ var LOG_MSG_FOUND_CYCLE = 'Found cycle in linked list for ';
 var LOG_MSG_NEG_DIFF = 'diff less than zero';
 
 // We consider an entry in the pendingDocs_ map too old, and remove
-// it, if it's older than 10 seconds. This allows us to catch most
+// it, if it's older than 2 minutes. This allows us to catch most
 // redirects, even if the user is on a slow connection with a very
 // high RTT and/or the server is taking a long time to respond.
-var MAX_AGE_MS = 10000;
+var MAX_AGE_MS = 120000;
 
 function PS_LOG(msg) {
   // We set PS_LOG.enabled below.
