@@ -551,6 +551,10 @@ var getScriptFiles = function(context) {
   // contain javascript. This includes js files and HTML pages (main
   // page and iframes).
   var scriptPanel = context.getPanel('script');
+  if (scriptPanel == null) {
+    throw {message: 'Please make sure script panel is enabled in Firebug.'};
+  }
+
   if (scriptPanel.updateScriptFiles) {
     scriptPanel.updateScriptFiles(context);
   } else {
