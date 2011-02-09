@@ -191,12 +191,6 @@ class VisitStyleScriptFilter : public net_instaweb::EmptyHtmlFilter {
   StyleScriptVisitor* visitor_;
   const pagespeed::DomDocument* document_;
   bool reached_body_;
-  net_instaweb::Atom body_atom_;
-  net_instaweb::Atom href_atom_;
-  net_instaweb::Atom link_atom_;
-  net_instaweb::Atom rel_atom_;
-  net_instaweb::Atom script_atom_;
-  net_instaweb::Atom src_atom_;
 
   DISALLOW_COPY_AND_ASSIGN(VisitStyleScriptFilter);
 };
@@ -207,12 +201,6 @@ VisitStyleScriptFilter(net_instaweb::HtmlParse* html_parse,
     : visitor_(NULL),
       document_(document),
       reached_body_(false) {
-  body_atom_ = html_parse->Intern("body");
-  href_atom_ = html_parse->Intern("href");
-  link_atom_ = html_parse->Intern("link");
-  rel_atom_ = html_parse->Intern("rel");
-  script_atom_ = html_parse->Intern("script");
-  src_atom_ = html_parse->Intern("src");
 }
 
 void VisitStyleScriptFilter::StartDocument() {
@@ -229,11 +217,11 @@ void VisitStyleScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
     return;
   }
 
-  net_instaweb::Atom tag = element->tag();
-  if (tag == body_atom_) {
+  net_instaweb::HtmlName::Keyword keyword = element->keyword();
+  if (keyword == net_instaweb::HtmlName::kBody) {
     reached_body_ = true;
-  } else if (tag == script_atom_) {
-    const char* src = element->AttributeValue(src_atom_);
+  } else if (keyword == net_instaweb::HtmlName::kScript) {
+    const char* src = element->AttributeValue(net_instaweb::HtmlName::kSrc);
     if (src != NULL) {
       // External script.
       std::string url(src);
@@ -246,9 +234,9 @@ void VisitStyleScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
       // Inline script.
       visitor_->VisitInlineScript();
     }
-  } else if (tag == link_atom_) {
-    const char* href = element->AttributeValue(href_atom_);
-    const char* rel = element->AttributeValue(rel_atom_);
+  } else if (keyword == net_instaweb::HtmlName::kLink) {
+    const char* href = element->AttributeValue(net_instaweb::HtmlName::kHref);
+    const char* rel = element->AttributeValue(net_instaweb::HtmlName::kRel);
     if (href != NULL && rel != NULL && !strcmp(rel, "stylesheet")) {
       // External CSS.
       std::string url(href);

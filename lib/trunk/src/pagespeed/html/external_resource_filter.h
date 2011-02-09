@@ -15,9 +15,9 @@
 #ifndef PAGESPEED_HTML_EXTERNAL_RESOURCE_FILTER_H_
 #define PAGESPEED_HTML_EXTERNAL_RESOURCE_FILTER_H_
 
+#include <vector>
 #include "base/basictypes.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
-#include "net/instaweb/util/public/atom.h"
 
 namespace pagespeed {
 
@@ -42,11 +42,6 @@ class ExternalResourceFilter : public net_instaweb::EmptyHtmlFilter {
                                const std::string& document_url) const;
 
  private:
-  net_instaweb::Atom script_atom_;
-  net_instaweb::Atom src_atom_;
-  net_instaweb::Atom link_atom_;
-  net_instaweb::Atom rel_atom_;
-  net_instaweb::Atom href_atom_;
   std::vector<std::string> external_resource_urls_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalResourceFilter);

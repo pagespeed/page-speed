@@ -15,6 +15,7 @@
 #include "pagespeed/html/minify_js_css_filter.h"
 
 #include <functional>
+#include <string>
 
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -28,23 +29,21 @@ namespace html {
 
 MinifyJsCssFilter::MinifyJsCssFilter(net_instaweb::HtmlParse* html_parse)
     : html_parse_(html_parse) {
-  script_atom_ = html_parse_->Intern("script");
-  style_atom_ = html_parse_->Intern("style");
 }
 
 void MinifyJsCssFilter::Characters(
     net_instaweb::HtmlCharactersNode* characters) {
   net_instaweb::HtmlElement* parent = characters->parent();
   if (parent != NULL) {
-    net_instaweb::Atom tag = parent->tag();
+    net_instaweb::HtmlName::Keyword keyword = parent->keyword();
     bool did_minify = false;
     std::string minified;
-    if (tag == script_atom_) {
+    if (keyword == net_instaweb::HtmlName::kScript) {
       did_minify = jsminify::MinifyJs(characters->contents(), &minified);
       if (!did_minify) {
         LOG(INFO) << "Inline JS minification failed.";
       }
-    } else if (tag == style_atom_) {
+    } else if (keyword == net_instaweb::HtmlName::kStyle) {
       // We do not currently strip SGML comments from CSS since CSS
       // parsing behavior within CSS comments is inconsistent between
       // browsers.
