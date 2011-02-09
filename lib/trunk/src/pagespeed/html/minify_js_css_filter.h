@@ -17,7 +17,6 @@
 
 #include "base/basictypes.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
-#include "net/instaweb/util/public/atom.h"
 
 namespace pagespeed {
 
@@ -32,8 +31,6 @@ class MinifyJsCssFilter : public net_instaweb::EmptyHtmlFilter {
 
  private:
   net_instaweb::HtmlParse* html_parse_;
-  net_instaweb::Atom script_atom_;
-  net_instaweb::Atom style_atom_;
 
   DISALLOW_COPY_AND_ASSIGN(MinifyJsCssFilter);
 };

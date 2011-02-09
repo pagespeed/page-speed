@@ -14,7 +14,10 @@
 
 #include "pagespeed/html/external_resource_filter.h"
 
+#include <set>
+#include <string>
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
+#include "net/instaweb/htmlparse/public/html_name.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "pagespeed/core/uri_util.h"
 
@@ -51,12 +54,7 @@ void ResolveExternalResourceUrls(
 namespace html {
 
 ExternalResourceFilter::ExternalResourceFilter(
-    net_instaweb::HtmlParse* html_parse)
-    : script_atom_(html_parse->Intern("script")),
-      src_atom_(html_parse->Intern("src")),
-      link_atom_(html_parse->Intern("link")),
-      rel_atom_(html_parse->Intern("rel")),
-      href_atom_(html_parse->Intern("href")) {
+    net_instaweb::HtmlParse* html_parse) {
 }
 
 ExternalResourceFilter::~ExternalResourceFilter() {}
@@ -66,21 +64,21 @@ void ExternalResourceFilter::StartDocument() {
 }
 
 void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
-  net_instaweb::Atom tag = element->tag();
-  if (tag == script_atom_) {
-    const char* src = element->AttributeValue(src_atom_);
+  net_instaweb::HtmlName::Keyword keyword = element->keyword();
+  if (keyword == net_instaweb::HtmlName::kScript) {
+    const char* src = element->AttributeValue(net_instaweb::HtmlName::kSrc);
     if (src != NULL) {
       external_resource_urls_.push_back(src);
     }
     return;
   }
 
-  if (tag == link_atom_) {
-    const char* rel = element->AttributeValue(rel_atom_);
+  if (keyword == net_instaweb::HtmlName::kLink) {
+    const char* rel = element->AttributeValue(net_instaweb::HtmlName::kRel);
     if (rel == NULL || !LowerCaseEqualsASCII(rel, "stylesheet")) {
       return;
     }
-    const char* href = element->AttributeValue(href_atom_);
+    const char* href = element->AttributeValue(net_instaweb::HtmlName::kHref);
     if (href != NULL) {
       external_resource_urls_.push_back(href);
     }

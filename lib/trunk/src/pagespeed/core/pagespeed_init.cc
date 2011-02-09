@@ -15,19 +15,19 @@
 #include "pagespeed/core/pagespeed_init.h"
 
 #include "googleurl/src/url_util.h"
-#include "net/instaweb/htmlparse/public/html_escape.h"
+#include "net/instaweb/htmlparse/public/html_keywords.h"
 #include "pagespeed/l10n/register_locale.h"
 
 namespace pagespeed {
 
 void Init() {
   url_util::Initialize();
-  net_instaweb::HtmlEscape::Init();
+  net_instaweb::HtmlKeywords::Init();
   l10n::RegisterLocale::Freeze();
 }
 
 void ShutDown() {
-  net_instaweb::HtmlEscape::ShutDown();
+  net_instaweb::HtmlKeywords::ShutDown();
   url_util::Shutdown();
 }
 

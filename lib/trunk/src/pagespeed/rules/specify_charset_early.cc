@@ -14,9 +14,11 @@
 
 #include "pagespeed/rules/specify_charset_early.h"
 
+#include <string>
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
+#include "net/instaweb/htmlparse/public/html_name.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/util/public/google_message_handler.h"
 #include "pagespeed/core/formatter.h"
@@ -60,9 +62,6 @@ class CharsetInMetaTagFilter : public net_instaweb::EmptyHtmlFilter {
   }
 
  private:
-  net_instaweb::Atom content_atom_;
-  net_instaweb::Atom http_equiv_atom_;
-  net_instaweb::Atom meta_atom_;
   bool charset_specified_in_meta_tag_;
 
   DISALLOW_COPY_AND_ASSIGN(CharsetInMetaTagFilter);
@@ -70,10 +69,7 @@ class CharsetInMetaTagFilter : public net_instaweb::EmptyHtmlFilter {
 
 CharsetInMetaTagFilter::CharsetInMetaTagFilter(
     net_instaweb::HtmlParse* html_parse)
-    : content_atom_(html_parse->Intern("content")),
-      http_equiv_atom_(html_parse->Intern("http-equiv")),
-      meta_atom_(html_parse->Intern("meta")),
-      charset_specified_in_meta_tag_(false) {
+    : charset_specified_in_meta_tag_(false) {
 }
 
 void CharsetInMetaTagFilter::StartDocument() {
@@ -88,12 +84,13 @@ void CharsetInMetaTagFilter::StartElement(net_instaweb::HtmlElement* element) {
     return;
   }
 
-  net_instaweb::Atom tag = element->tag();
-  if (tag != meta_atom_) {
+  net_instaweb::HtmlName::Keyword keyword = element->keyword();
+  if (keyword != net_instaweb::HtmlName::kMeta) {
     return;
   }
 
-  const char* http_equiv = element->AttributeValue(http_equiv_atom_);
+  const char* http_equiv = element->AttributeValue(
+      net_instaweb::HtmlName::kHttpEquiv);
   if (http_equiv == NULL) {
     return;
   }
@@ -102,7 +99,8 @@ void CharsetInMetaTagFilter::StartElement(net_instaweb::HtmlElement* element) {
     return;
   }
 
-  const char* content = element->AttributeValue(content_atom_);
+  const char* content = element->AttributeValue(
+      net_instaweb::HtmlName::kContent);
   if (content == NULL) {
     return;
   }
