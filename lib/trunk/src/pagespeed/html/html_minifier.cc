@@ -43,6 +43,7 @@ HtmlMinifier::HtmlMinifier()
   html_parse_.AddFilter(&collapse_whitespace_filter_);
   html_parse_.AddFilter(&minify_js_css_filter_);
   html_parse_.AddFilter(&html_writer_filter_);
+  html_writer_filter_.set_case_fold(true);
 }
 
 HtmlMinifier::~HtmlMinifier() {}
