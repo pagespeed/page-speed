@@ -18,7 +18,7 @@ vars = {
   "chromium_revision": "@68180",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/trunk",
-  "instaweb_revision": "@446",
+  "instaweb_revision": "@452",
   "icu42_deps_revision": "@69864",
 }
 
