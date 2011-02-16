@@ -126,7 +126,6 @@
         'formatters/formatter_util_test.cc',
         'formatters/json_formatter_test.cc',
         'formatters/proto_formatter_test.cc',
-        'formatters/text_formatter_test.cc',
         'har/http_archive_test.cc',
         'html/external_resource_filter_test.cc',
         'html/html_minifier_test.cc',

@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "pagespeed/testing/pagespeed_test.h"
+
 #include <sstream>
 #include <string>
 
-#include "pagespeed/testing/pagespeed_test.h"
 #include "pagespeed/core/pagespeed_init.h"
-#include "pagespeed/formatters/text_formatter.h"
+#include "pagespeed/formatters/proto_formatter.h"
+#include "pagespeed/l10n/localizer.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
+#include "pagespeed/testing/formatted_results_test_converter.h"
 
 namespace {
 
@@ -191,10 +195,17 @@ std::string DoFormatResults(
     result_vector.push_back(&rule_results.results(i));
   }
 
-  std::ostringstream output;
-  pagespeed::formatters::TextFormatter formatter(&output);
-  rule->FormatResults(result_vector, &formatter);
-  return output.str();
+  pagespeed::l10n::BasicLocalizer localizer;
+  pagespeed::FormattedResults results;
+  results.set_locale("en_US");
+  pagespeed::formatters::ProtoFormatter rule_formatter(&localizer, &results);
+  pagespeed::Formatter* formatter =
+      rule_formatter.AddHeader(*rule, rule_results.rule_score());
+  rule->FormatResults(result_vector, formatter);
+  rule_formatter.Done();
+  std::string out;
+  FormattedResultsTestConverter::Convert(results, &out);
+  return out;
 }
 
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";

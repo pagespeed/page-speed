@@ -27,9 +27,11 @@
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
       ],
       'sources': [
         'fake_dom.cc',
+        'formatted_results_test_converter.cc',
         'pagespeed_test.cc',
       ],
       'include_dirs': [
