@@ -335,6 +335,7 @@ TEST_F(AvoidCssImportTest, NoImport) {
 
 TEST_F(AvoidCssImportTest, BasicImport) {
   NewCssResource(kCssUrl)->SetResponseBody(kBasicImportBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(1, num_results());
   ASSERT_EQ(1, result(0).resource_urls_size());
@@ -345,6 +346,7 @@ TEST_F(AvoidCssImportTest, BasicImport) {
 
 TEST_F(AvoidCssImportTest, TwoBasicImports) {
   NewCssResource(kCssUrl)->SetResponseBody(kTwoBasicImportsBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(1, num_results());
   ASSERT_EQ(1, result(0).resource_urls_size());
@@ -356,6 +358,7 @@ TEST_F(AvoidCssImportTest, TwoBasicImports) {
 
 TEST_F(AvoidCssImportTest, TwoRelativeImports) {
   NewCssResource(kCssUrl)->SetResponseBody(kTwoRelativeImportsBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(1, num_results());
   ASSERT_EQ(1, result(0).resource_urls_size());
@@ -367,6 +370,7 @@ TEST_F(AvoidCssImportTest, TwoRelativeImports) {
 
 TEST_F(AvoidCssImportTest, OneImport) {
   NewCssResource(kCssUrl)->SetResponseBody(kOneImportBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(1, num_results());
   ASSERT_EQ(1, result(0).resource_urls_size());
@@ -377,18 +381,21 @@ TEST_F(AvoidCssImportTest, OneImport) {
 
 TEST_F(AvoidCssImportTest, NoImportInComment) {
   NewCssResource(kCssUrl)->SetResponseBody(kImportInCommentBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(0, num_results());
 }
 
 TEST_F(AvoidCssImportTest, NoImportUnterminatedComment) {
   NewCssResource(kCssUrl)->SetResponseBody(kUnterminatedCommentBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(0, num_results());
 }
 
 TEST_F(AvoidCssImportTest, BadUrlInImport) {
   NewCssResource(kCssUrl)->SetResponseBody(kBadImportUrlBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(0, num_results());
 }

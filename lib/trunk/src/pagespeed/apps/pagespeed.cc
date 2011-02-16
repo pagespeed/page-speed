@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include <fstream>
+#include <iostream>  // for std::cin and std::cout
 
 #include "base/at_exit.h"
 #include "base/logging.h"
@@ -30,9 +31,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/formatters/json_formatter.h"
 #include "pagespeed/formatters/proto_formatter.h"
-#include "pagespeed/formatters/text_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/l10n/localizer.h"

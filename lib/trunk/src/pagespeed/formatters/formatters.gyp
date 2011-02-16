@@ -31,7 +31,6 @@
       'sources': [
         'json_formatter.cc',
         'proto_formatter.cc',
-        'text_formatter.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
