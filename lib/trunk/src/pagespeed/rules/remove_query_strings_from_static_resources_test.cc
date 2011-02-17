@@ -73,4 +73,11 @@ TEST_F(RemoveQueryStringsFromStaticResourcesTest, OneViolation) {
   CheckOneViolation("http://static.example.com/image?w=40&h=30");
 }
 
+TEST_F(RemoveQueryStringsFromStaticResourcesTest, ExcludeNonStaticResources) {
+  AddTestResource("http://www.example.com/index.html?query",
+                  "text/html");
+  CheckNoViolations();
+  ASSERT_EQ(100, ComputeScore());
+}
+
 }  // namespace

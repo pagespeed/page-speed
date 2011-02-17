@@ -59,6 +59,7 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (resource.GetRequestUrl().find('?') != std::string::npos &&
+        resource_util::IsLikelyStaticResource(resource) &&
         resource_util::IsProxyCacheableResource(resource)) {
       Result* result = provider->NewResult();
       result->add_resource_urls(resource.GetRequestUrl());
