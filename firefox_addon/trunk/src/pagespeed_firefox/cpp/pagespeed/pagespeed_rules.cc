@@ -45,10 +45,13 @@
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
-#include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
+#include "pagespeed/l10n/localizer.h"
+#include "pagespeed/proto/formatted_results_to_json_converter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/results_to_json_converter.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_firefox/cpp/pagespeed/file_util.h"
@@ -452,16 +455,32 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
-  std::stringstream stream;
-  scoped_ptr<PluginSerializer> serializer;
-  if (output_dir != NULL) {
-    serializer.reset(new PluginSerializer(output_dir));
-  }
-  formatters::JsonFormatter formatter(&stream, serializer.get());
-  ResponseByteResultFilter result_filter;
-  engine.ComputeAndFormatResults(*input, result_filter, &formatter);
+  // Compute the results:
+  pagespeed::Results results;
+  engine.ComputeResults(*input, &results);
 
-  const std::string& output_string = stream.str();
+  // Format the results into a protobuf:
+  pagespeed::l10n::BasicLocalizer localizer;
+  pagespeed::FormattedResults formatted_results;
+  // TODO(mdsteele): Change front-end API to support other locales.
+  formatted_results.set_locale("en_US");
+  formatters::ProtoFormatter formatter(&localizer, &formatted_results);
+  ResponseByteResultFilter result_filter;
+  engine.FormatResults(results, result_filter, &formatter);
+  // TODO(mdsteele): Once the formatter API has been changed, we can use
+  //    engine.ComputeAndFormatResults() and not need to do this next thing.
+  if (results.has_score()) {
+    formatted_results.set_score(results.score());
+  }
+
+  // Convert the formatted results into JSON:
+  std::string output_string;
+  pagespeed::proto::FormattedResultsToJsonConverter::Convert(
+      formatted_results, &output_string);
+  // TODO(mdsteele): Provide optimized content via the new API, once that has
+  //    been completed.
+
+  // Send the JSON output back to the front-end:
   _retval.Assign(output_string.c_str(), output_string.length());
   return NS_OK;
 }

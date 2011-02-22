@@ -34,62 +34,64 @@ function translateHeaders(headers_object) {
   return headersList;
 }
 
-/**
- * Given a format array from the results of PageSpeedRules, produce a formatted
- * HTML string.
- * @param {array} formatArray The format array.
- * @return {string} The resulting raw HTML.
- */
-function buildHtml(formatArray) {
-  var stringParts = [];
-  for (var i = 0, length = formatArray.length; i < length; ++i) {
-    var item = formatArray[i];
-    if (item.type === "url") {
-      stringParts.push('<a href="', item.value,
-                       '" onclick="document.openLink(this);return false;">',
-                       PAGESPEED.Utils.htmlEscape(
-                         item.alt ||
-                         PAGESPEED.Utils.getDisplayUrl(item.value)),
-                       '</a>');
-      if (item.alt) {
-        stringParts.push(' or ',
-                         '<a href="', item.value,
-                         '" onclick="document.saveLink(this);return false;"',
-                         '" type="application/octet-stream"',
-                         '> Save as</a>');
-      }
-    } else if (item.type === "str") {
-      stringParts.push(PAGESPEED.Utils.htmlEscape(item.value));
-    }
-  }
-  return stringParts.join('');
-}
-
-/**
- * Given an array of children of a result object from PageSpeedRules, produce a
- * formatted HTML string.
- * @param {array} children The children objects to format.
- * @param {boolean} opt_grand If true, these are (great-)*grandchildren.
- * @return {string} The resulting raw HTML.
- */
-function formatChildren(children, opt_grand) {
-  if (!children) {
+// Convert to HTML from a list of objects produced by
+// FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults().
+function formatUrlBlocks(url_blocks) {
+  if (!url_blocks) {
     return null;
   }
-  var warnings = [];
-  for (var i = 0; i < children.length; ++i) {
-    var child = children[i];
-    var warning = buildHtml(child.format);
-    if (child.children) {
-      warning += ' ' + formatChildren(child.children, true);
+  var strings = [];
+  for (var i = 0; i < url_blocks.length; ++i) {
+    var url_block = url_blocks[i];
+    strings.push('<p>');
+    strings.push(formatFormatString(url_block.header));
+    if (url_block.urls) {
+      strings.push('<ul>');
+      for (var j = 0; j < url_block.urls.length; ++j) {
+        var entry = url_block.urls[j];
+        strings.push('<li>', formatFormatString(entry.result));
+        if (entry.details) {
+          strings.push('<ul>');
+          for (var k = 0; k < entry.details.length; ++k) {
+            strings.push('<li>', formatFormatString(entry.details[k]),
+                         '</li>');
+          }
+          strings.push('</ul>');
+        }
+        strings.push('</li>');
+      }
+      strings.push('</ul>');
     }
-    warnings.push(warning);
+    strings.push('</p>');
   }
-  if (opt_grand) {
-    return PAGESPEED.Utils.formatWarnings(warnings, /*allow-raw-html*/true);
-  } else {
-    return warnings.join('\n<p>\n');
-  }
+  return strings.join('');
+}
+
+// Convert to HTML from an object produced by
+// FormattedResultsToJsonConverter::ConvertFormatString().
+function formatFormatString(format_string) {
+  return format_string.format.replace(/\$[1-9]/g, function (argnum) {
+    // The regex above ensures that argnum will be a string of the form "$n"
+    // where "n" is a digit from 1 to 9.  We use .substr(1) to get just the "n"
+    // part, then use parseInt() to parse it into an integer (base 10), then
+    // subtract 1 to get an array index from 0 to 8.  We use this index to get
+    // the appropriate argument spec from the format_string.args array.
+    var arg = format_string.args[parseInt(argnum.substr(1), 10) - 1];
+    // If format_string was constructed wrong, then the index above might have
+    // been invalid.  In that case, just leave the "$n" substring as is.
+    if (!arg) {
+      return argnum;
+    }
+    // If this argument is a URL, replace the "$n" with a link.  For all other
+    // argument types, just replace it with (localized) text.
+    if (arg.type === 'url') {
+      return ['<a href="', arg.string_value,
+              '" onclick="document.openLink(this);return false;">',
+              arg.localized_value, '</a>'].join('');
+    } else {
+      return arg.localized_value;
+    }
+  });
 }
 
 // See http://code.google.com/p/page-speed/wiki/BeaconDocs
@@ -123,6 +125,39 @@ var shortNameTranslationTable = {
   SpecifyCharsetEarly: 'CharsetEarly',
   SpecifyImageDimensions: 'ImgDims',
   SpriteImages: 'Sprite',
+};
+
+// The (relative) URLs for the docs for each rule:
+var documentationURLs = {
+  AvoidBadRequests: 'rtt.html#AvoidBadRequests',
+  AvoidCssImport: 'rtt.html#AvoidCssImport',
+  AvoidDocumentWrite: 'rtt.html#AvoidDocumentWrite',
+  CombineExternalCss: 'rtt.html#CombineExternalCss',
+  CombineExternalJavaScript: 'rtt.html#CombineExternalJS',
+  EnableGzipCompression: 'payload.html#GzipCompression',
+  EnableKeepAlive: 'rtt.html#EnableKeepAlive',
+  InlineSmallCss: 'caching.html#InlineSmallResources',
+  InlineSmallJavaScript: 'caching.html#InlineSmallResources',
+  LeverageBrowserCaching: 'caching.html#LeverageBrowserCaching',
+  MinifyCss: 'payload.html#MinifyCss',
+  MinifyHTML: 'payload.html#MinifyHTML',
+  MinifyJavaScript: 'payload.html#MinifyJS',
+  MinimizeDnsLookups: 'rtt.html#MinimizeDNSLookups',
+  MinimizeRedirects: 'rtt.html#AvoidRedirects',
+  MinimizeRequestSize: 'request.html#MinimizeRequestSize',
+  OptimizeImages: 'payload.html#CompressImages',
+  OptimizeTheOrderOfStylesAndScripts: 'rtt.html#PutStylesBeforeScripts',
+  ParallelizeDownloadsAcrossHostnames: 'rtt.html#ParallelizeDownloads',
+  PreferAsyncResources: 'rtt.html#PreferAsyncResources',
+  PutCssInTheDocumentHead: 'rendering.html#PutCSSInHead',
+  RemoveQueryStringsFromStaticResources: 'caching.html#LeverageProxyCaching',
+  ServeResourcesFromAConsistentUrl: 'payload.html#duplicate_resources',
+  ServeScaledImages: 'payload.html#ScaleImages',
+  SpecifyACacheValidator: 'caching.html#LeverageBrowserCaching',
+  SpecifyAVaryAcceptEncodingHeader: 'caching.html#LeverageProxyCaching',
+  SpecifyCharsetEarly: 'rendering.html#SpecifyCharsetEarly',
+  SpecifyImageDimensions: 'rendering.html#SpecifyImageDimensions',
+  SpriteImages: 'rtt.html#SpriteImages',
 };
 
 // New rules that haven't been reviewed by the community are marked as
@@ -378,21 +413,23 @@ PAGESPEED.NativeLibrary = {
    * @param {array} results An array of results from PageSpeedRules.
    * @return {array} An array of LintRule-like objects.
    */
-  buildLintRuleResults: function(results) {
+  buildLintRuleResults: function(full_results) {
     var lintRules = [];
-    if (results) {
-      for (var i = 0; i < results.length; ++i) {
-        var result = results[i];
+    if (full_results) {
+      var rule_results = full_results.rule_results;
+      for (var i = 0; i < rule_results.length; ++i) {
+        var rule_result = rule_results[i];
         lintRules.push({
-          name: buildHtml(result.format),
-          shortName: shortNameTranslationTable[result.name] || result.name,
-          score: result.score,
+          name: rule_result.localized_rule_name,
+          shortName: (shortNameTranslationTable[rule_result.rule_name] ||
+                      rule_result.rule_name),
+          score: rule_result.rule_score,
           weight: 3,
-          href: result.url || '',
-          warnings: formatChildren(result.children),
+          href: documentationURLs[rule_result.rule_name] || '',
+          warnings: formatUrlBlocks(rule_result.url_blocks),
           information: null,
-          getStatistics: function () { return result.stats || {}; },
-          experimental: experimentalRules[result.name] || false,
+          getStatistics: function () { return rule_result.stats || {}; },
+          experimental: experimentalRules[rule_result.rule_name] || false,
         });
       }
     }
