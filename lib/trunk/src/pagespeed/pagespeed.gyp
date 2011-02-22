@@ -124,7 +124,6 @@
         'filters/response_byte_result_filter_test.cc',
         'filters/tracker_filter_test.cc',
         'formatters/formatter_util_test.cc',
-        'formatters/json_formatter_test.cc',
         'formatters/proto_formatter_test.cc',
         'har/http_archive_test.cc',
         'html/external_resource_filter_test.cc',
