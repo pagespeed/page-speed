@@ -29,7 +29,6 @@
         '<(pagespeed_root)/pagespeed/formatters/formatter_util.gyp:pagespeed_formatter_util',
       ],
       'sources': [
-        'json_formatter.cc',
         'proto_formatter.cc',
       ],
       'include_dirs': [
