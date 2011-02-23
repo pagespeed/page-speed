@@ -139,15 +139,12 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
 void EnableKeepAlive::FormatResults(const ResultVector& results,
                                  Formatter* formatter) {
   UserFacingString body_tmpl =
-      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
-      // detected as being good candidates to be combined into CSS sprites
-      // (that is, larger images containing a number of subimages, which can
-      // then be used to display a single subimage at a time by using CSS to
-      // reveal a different section of the large image in place of each of the
-      // original small images).  It describes the problem to the user, and
-      // tells them how to fix it by combining multiple small images into a
-      // larger image.  The "$1" is a format string that will be replaced with
-      // the URL of the page in which the small images appear.
+      // TRANSLATOR: Header at the top of a list of URLs of resources that are
+      // served from a domain that does not have HTTP Keep-Alive enabled.  It
+      // tells the user to enable keep-alive on that domain.  The "$1" is a
+      // format string that will be replaced with the domain in question.
+      // "Keep-Alive" is the name of an HTTP header, and shouldn't be
+      // translated.
       _("The host $1 should enable Keep-Alive. It serves the following "
         "resources.");
 
