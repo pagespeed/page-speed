@@ -18,6 +18,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "base/stl_util-inl.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
@@ -59,15 +60,15 @@ bool MaybeLocalizeString(const Localizer* loc,
 // classes, to provide l10n for all formatters that want it.
 void FillFormatString(const Localizer* loc,
                       const FormatterParameters& params,
-                      FormatString& out) {
-  MaybeLocalizeString(loc, params.format_str(), out.mutable_format());
+                      FormatString* out) {
+  MaybeLocalizeString(loc, params.format_str(), out->mutable_format());
 
   for (unsigned int i = 0; i < params.arguments().size(); ++i) {
     const Argument* arg = params.arguments()[i];
     bool success = true;
     std::string localized;
 
-    FormatArgument* format_arg = out.add_args();
+    FormatArgument* format_arg = out->add_args();
     switch (arg->type()) {
       case Argument::INTEGER:
         format_arg->set_type(FormatArgument::INT_LITERAL);
@@ -113,88 +114,7 @@ void FillFormatString(const Localizer* loc,
   }
 }
 
-// Formatters for each of the proto messages that need to be constructed.  Each
-// reinforces that the input its given matches the appropriate structure
-// (logging to DFATAL if not), and constructs the appropriate child messages.
-// TODO(aoates): move the structure constraints into the Formatter interface
-
-// A formatter used when there should be no children
-class DeadEndFormatter : public Formatter {
- protected:
-  virtual Formatter* NewChild(const FormatterParameters& params) {
-    LOG(DFATAL) << "NewChild() called on DeadEndFormatter ---"
-                << " a Rule is not structuring its output correctly";
-    return new DeadEndFormatter();
-  }
-  virtual void DoneAddingChildren() {}
-};
-
-class FormattedUrlResultFormatter : public Formatter {
- public:
-  FormattedUrlResultFormatter(const Localizer* l,
-                              FormattedUrlResult* url_result)
-      : localizer_(l), url_result_(url_result) {}
- protected:
-  // Called for each "detail" line about the URL's result (see
-  // MinimizeRequestSize rule for an example)
-  virtual Formatter* NewChild(const FormatterParameters& params) {
-    FormatString* detail = url_result_->add_details();
-    FillFormatString(localizer_, params, *detail);
-
-    return new DeadEndFormatter();
-  }
-
-  virtual void DoneAddingChildren() {
-  }
-
- private:
-  const Localizer* localizer_;
-  FormattedUrlResult* url_result_;
-};
-
-class FormattedUrlBlockResultsFormatter : public Formatter {
- public:
-  FormattedUrlBlockResultsFormatter(const Localizer* l,
-                                    FormattedUrlBlockResults* url_block_results)
-      : localizer_(l), url_block_results_(url_block_results) {}
- protected:
-  // Called once for each URL in a given block
-  virtual Formatter* NewChild(const FormatterParameters& params) {
-    FormattedUrlResult* url_result = url_block_results_->add_urls();
-    FillFormatString(localizer_, params, *url_result->mutable_result());
-
-    return new FormattedUrlResultFormatter(localizer_, url_result);
-  }
-
-  virtual void DoneAddingChildren() {}
-
- private:
-  const Localizer* localizer_;
-  FormattedUrlBlockResults* url_block_results_;
-};
-
-class FormattedRuleResultsFormatter : public Formatter {
- public:
-  FormattedRuleResultsFormatter(const Localizer* l,
-                                FormattedRuleResults* rule_results)
-      : localizer_(l), rule_results_(rule_results) {}
- protected:
-  // Called once for each block of URLs
-  virtual Formatter* NewChild(const FormatterParameters& params) {
-    FormattedUrlBlockResults* url_block = rule_results_->add_url_blocks();
-    FillFormatString(localizer_, params, *url_block->mutable_header());
-
-    return new FormattedUrlBlockResultsFormatter(localizer_, url_block);
-  }
-
-  virtual void DoneAddingChildren() {}
-
- private:
-  const Localizer* localizer_;
-  FormattedRuleResults* rule_results_;
-};
-
-} // namespace
+}  // namespace
 
 ProtoFormatter::ProtoFormatter(const Localizer* localizer,
                                FormattedResults* results)
@@ -203,10 +123,17 @@ ProtoFormatter::ProtoFormatter(const Localizer* localizer,
   DCHECK(results_);
 }
 
-Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
+ProtoFormatter::~ProtoFormatter() {
+  STLDeleteContainerPointers(rule_formatters_.begin(),
+                             rule_formatters_.end());
+}
+
+RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, int score,
+                                       double impact) {
   FormattedRuleResults* rule_results = results_->add_rule_results();
   rule_results->set_rule_name(rule.name());
   rule_results->set_rule_score(score);
+  // TODO(mdsteele): rule_results->set_rule_impact(impact);
 
   if (!MaybeLocalizeString(localizer_,
                            rule.header(),
@@ -214,23 +141,69 @@ Formatter* ProtoFormatter::AddHeader(const Rule& rule, int score) {
     LOG(DFATAL) << "Unable to LocalizeString " << rule.header();
   }
 
-  ReleaseActiveChild();
-  Formatter* new_child =
-      new FormattedRuleResultsFormatter(localizer_, rule_results);
-  AcquireActiveChild(new_child);
-  return new_child;
+  RuleFormatter* rule_formatter =
+      new ProtoRuleFormatter(localizer_, rule_results);
+  rule_formatters_.push_back(rule_formatter);
+  return rule_formatter;
 }
 
-Formatter* ProtoFormatter::NewChild(const FormatterParameters& params) {
-  // There should be no non-rule children for a FormattedResults
-  LOG(DFATAL) << "NewChild() called on ProtoFormatter, which cannot"
-              << " have any non-rule children";
-  return new DeadEndFormatter();
+ProtoRuleFormatter::ProtoRuleFormatter(const Localizer* localizer,
+                                       FormattedRuleResults* rule_results)
+    : localizer_(localizer), rule_results_(rule_results) {
+  DCHECK(localizer_);
+  DCHECK(rule_results_);
 }
 
-void ProtoFormatter::DoneAddingChildren() {
+ProtoRuleFormatter::~ProtoRuleFormatter() {
+  STLDeleteContainerPointers(url_block_formatters_.begin(),
+                             url_block_formatters_.end());
 }
 
-} // namespace formatters
+UrlBlockFormatter* ProtoRuleFormatter::AddUrlBlock(
+    const FormatterParameters& params) {
+  FormattedUrlBlockResults* url_block_results =
+      rule_results_->add_url_blocks();
+  FillFormatString(localizer_, params, url_block_results->mutable_header());
+  UrlBlockFormatter* url_block_formatter =
+      new ProtoUrlBlockFormatter(localizer_, url_block_results);
+  url_block_formatters_.push_back(url_block_formatter);
+  return url_block_formatter;
+}
 
-} // namespace pagespeed
+ProtoUrlBlockFormatter::ProtoUrlBlockFormatter(
+    const Localizer* localizer,
+    FormattedUrlBlockResults* url_block_results)
+    : localizer_(localizer), url_block_results_(url_block_results) {
+  DCHECK(localizer_);
+  DCHECK(url_block_results_);
+}
+
+ProtoUrlBlockFormatter::~ProtoUrlBlockFormatter() {
+  STLDeleteContainerPointers(url_formatters_.begin(),
+                             url_formatters_.end());
+}
+
+UrlFormatter* ProtoUrlBlockFormatter::AddUrlResult(
+    const FormatterParameters& params) {
+  FormattedUrlResult* url_result = url_block_results_->add_urls();
+  FillFormatString(localizer_, params, url_result->mutable_result());
+  UrlFormatter* url_formatter =
+      new ProtoUrlFormatter(localizer_, url_result);
+  url_formatters_.push_back(url_formatter);
+  return url_formatter;
+}
+
+ProtoUrlFormatter::ProtoUrlFormatter(const Localizer* localizer,
+                                     FormattedUrlResult* url_result)
+    : localizer_(localizer), url_result_(url_result) {
+  DCHECK(localizer_);
+  DCHECK(url_result_);
+}
+
+void ProtoUrlFormatter::AddDetail(const FormatterParameters& params) {
+  FillFormatString(localizer_, params, url_result_->add_details());
+}
+
+}  // namespace formatters
+
+}  // namespace pagespeed

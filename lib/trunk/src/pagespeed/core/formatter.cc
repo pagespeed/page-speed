@@ -16,6 +16,7 @@
 
 #include "base/logging.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/l10n/l10n.h"  // for not_localized()
 
 namespace {
 
@@ -116,92 +117,119 @@ const std::string& FormatterParameters::optimized_content_mime_type() const {
   return optimized_content_mime_type_;
 }
 
-Formatter::Formatter() {
+void UrlFormatter::AddDetail(const UserFacingString& format_str) {
+  std::vector<const Argument*> args;
+  const FormatterParameters params(&format_str, &args);
+  AddDetail(params);
 }
 
-Formatter::~Formatter() {
-}
-
-Formatter* Formatter::AddChild(const UserFacingString& format_str) {
-  FormatterParameters formatter_params(&format_str);
-  return AddChild(formatter_params);
-}
-
-Formatter* Formatter::AddChild(const UserFacingString& format_str,
-                               const Argument& arg1) {
+void UrlFormatter::AddDetail(const UserFacingString& format_str,
+                             const Argument& arg1) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
-
-  FormatterParameters formatter_params(&format_str, &args);
-  return AddChild(formatter_params);
+  const FormatterParameters params(&format_str, &args);
+  AddDetail(params);
 }
 
-Formatter* Formatter::AddChild(const UserFacingString& format_str,
-                               const Argument& arg1,
-                               const Argument& arg2) {
+void UrlFormatter::AddDetail(const UserFacingString& format_str,
+                             const Argument& arg1,
+                             const Argument& arg2) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
-  FormatterParameters formatter_params(&format_str, &args);
-  return AddChild(formatter_params);
+  const FormatterParameters params(&format_str, &args);
+  AddDetail(params);
 }
 
-Formatter* Formatter::AddChild(const UserFacingString& format_str,
-                               const Argument& arg1,
-                               const Argument& arg2,
-                               const Argument& arg3) {
+UrlFormatter* UrlBlockFormatter::AddUrl(const std::string& url) {
+  const UserFacingString format = not_localized("$1");
+  const Argument arg(Argument::URL, url);
+  std::vector<const Argument*> args;
+  args.push_back(&arg);
+  const FormatterParameters params(&format, &args);
+  return AddUrlResult(params);
+}
+
+UrlFormatter* UrlBlockFormatter::AddUrlResult(
+    const UserFacingString& format_str) {
+  std::vector<const Argument*> args;
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlResult(params);
+}
+
+UrlFormatter* UrlBlockFormatter::AddUrlResult(
+    const UserFacingString& format_str,
+    const Argument& arg1) {
+  std::vector<const Argument*> args;
+  args.push_back(&arg1);
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlResult(params);
+}
+
+UrlFormatter* UrlBlockFormatter::AddUrlResult(
+    const UserFacingString& format_str,
+    const Argument& arg1,
+    const Argument& arg2) {
+  std::vector<const Argument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlResult(params);
+}
+
+UrlFormatter* UrlBlockFormatter::AddUrlResult(
+    const UserFacingString& format_str,
+    const Argument& arg1,
+    const Argument& arg2,
+    const Argument& arg3) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
-  FormatterParameters formatter_params(&format_str, &args);
-  return AddChild(formatter_params);
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlResult(params);
 }
 
-Formatter* Formatter::AddChild(const UserFacingString& format_str,
-                               const Argument& arg1,
-                               const Argument& arg2,
-                               const Argument& arg3,
-                               const Argument& arg4) {
+UrlFormatter* UrlBlockFormatter::AddUrlResult(
+    const UserFacingString& format_str,
+    const Argument& arg1,
+    const Argument& arg2,
+    const Argument& arg3,
+    const Argument& arg4) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
   args.push_back(&arg4);
-  FormatterParameters formatter_params(&format_str, &args);
-  return AddChild(formatter_params);
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlResult(params);
 }
 
-Formatter* Formatter::AddChild(const FormatterParameters& params) {
-  ReleaseActiveChild();
-  Formatter* new_child = NewChild(params);
-  AcquireActiveChild(new_child);
-  return new_child;
+UrlBlockFormatter* RuleFormatter::AddUrlBlock(
+    const UserFacingString& format_str) {
+  std::vector<const Argument*> args;
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlBlock(params);
 }
 
-void Formatter::Done() {
-  if (active_child_ != NULL) {
-    active_child_->Done();
-  }
-  DoneAddingChildren();
+UrlBlockFormatter* RuleFormatter::AddUrlBlock(
+    const UserFacingString& format_str,
+    const Argument& arg1) {
+  std::vector<const Argument*> args;
+  args.push_back(&arg1);
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlBlock(params);
 }
 
-void Formatter::ReleaseActiveChild() {
-  if (active_child_ != NULL) {
-    active_child_->Done();
-  }
-  active_child_.reset(NULL);
-}
-
-void Formatter::AcquireActiveChild(Formatter* new_child) {
-  if (active_child_ != NULL) {
-    LOG(DFATAL) << "new active child acquired before the old one is released";
-    ReleaseActiveChild();
-  }
-  active_child_.reset(new_child);
-}
-
-RuleFormatter::~RuleFormatter() {
+UrlBlockFormatter* RuleFormatter::AddUrlBlock(
+    const UserFacingString& format_str,
+    const Argument& arg1,
+    const Argument& arg2) {
+  std::vector<const Argument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  const FormatterParameters params(&format_str, &args);
+  return AddUrlBlock(params);
 }
 
 }  // namespace pagespeed

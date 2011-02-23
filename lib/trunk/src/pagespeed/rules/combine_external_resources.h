@@ -34,7 +34,7 @@ class CombineExternalResources : public Rule {
   // Rule interface.
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
-                             Formatter* formatter);
+                             RuleFormatter* formatter);
 
  private:
   const ResourceType resource_type_;

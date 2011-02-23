@@ -28,13 +28,13 @@
 
 namespace pagespeed {
 
+class Formatter;
 class InputInformation;
 class PagespeedInput;
 class ResultText;
 class Results;
 class Result;
 class Rule;
-class RuleFormatter;
 
 // ResultFilter is used to filter the results passed to the
 // formatter. A ResultFilter might want to remove Results that have an
@@ -83,7 +83,7 @@ class Engine {
   // @return true iff the formatting was completed without errors.
   bool FormatResults(const Results& results,
                      const ResultFilter& filter,
-                     RuleFormatter* formatter) const;
+                     Formatter* formatter) const;
 
   // Compute the results and generate their formatted
   // representation. This is a convenience method that invokes both
@@ -93,16 +93,16 @@ class Engine {
   // results that did not generate errors.
   bool ComputeAndFormatResults(const PagespeedInput& input,
                                const ResultFilter& filter,
-                               RuleFormatter* formatter) const;
+                               Formatter* formatter) const;
 
   bool FormatResults(const Results& results,
-                     RuleFormatter* formatter) const {
+                     Formatter* formatter) const {
     AlwaysAcceptResultFilter filter;
     return FormatResults(results, filter, formatter);
   }
 
   bool ComputeAndFormatResults(const PagespeedInput& input,
-                               RuleFormatter* formatter) const {
+                               Formatter* formatter) const {
     AlwaysAcceptResultFilter filter;
     return ComputeAndFormatResults(input, filter, formatter);
   }

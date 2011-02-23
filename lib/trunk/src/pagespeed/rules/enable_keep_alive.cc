@@ -137,7 +137,7 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
 }
 
 void EnableKeepAlive::FormatResults(const ResultVector& results,
-                                 Formatter* formatter) {
+                                    RuleFormatter* formatter) {
   UserFacingString body_tmpl =
       // TRANSLATOR: Header at the top of a list of URLs of resources that are
       // served from a domain that does not have HTTP Keep-Alive enabled.  It
@@ -161,11 +161,10 @@ void EnableKeepAlive::FormatResults(const ResultVector& results,
     std::string domain =
         net::RegistryControlledDomainService::GetDomainAndRegistry(gurl);
     Argument host(Argument::STRING, domain);
-    Formatter* body = formatter->AddChild(body_tmpl, host);
+    UrlBlockFormatter* body = formatter->AddUrlBlock(body_tmpl, host);
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
-      Argument url(Argument::URL, result.resource_urls(idx));
-      body->AddChild(not_localized("$1"), url);
+      body->AddUrl(result.resource_urls(idx));
     }
 
   }

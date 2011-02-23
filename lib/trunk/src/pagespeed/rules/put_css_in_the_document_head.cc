@@ -141,15 +141,16 @@ bool PutCssInTheDocumentHead::AppendResults(const RuleInput& rule_input,
 }
 
 void PutCssInTheDocumentHead::FormatResults(const ResultVector& results,
-                                            Formatter* formatter) {
+                                            RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  // TRANSLATOR: Header at the top of a list of URLs that Page Speed deteced as
-  // having CSS resources in the document body. It describes the problem.
-  formatter->AddChild(_("CSS in the document body adversely impacts rendering "
-                        "performance."));
+  formatter->AddUrlBlock(
+      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+      // deteced as having CSS resources in the document body. It describes the
+      // problem.
+      _("CSS in the document body adversely impacts rendering performance."));
 
   // CheckDocument adds the results in post-order.
   // TODO: What order do we _really_ want?  Pre-order?  Alphabetical?
@@ -169,7 +170,7 @@ void PutCssInTheDocumentHead::FormatResults(const ResultVector& results,
           StylesInBodyDetails::message_set_extension);
 
       Argument url(Argument::URL, result.resource_urls(0));
-      Formatter* entry = formatter->AddChild(
+      UrlBlockFormatter* entry = formatter->AddUrlBlock(
           // TRANSLATOR: Header of a list of items the Page Speed suggests to
           // move to document head. The "$1" will be replaced by the document
           // URL.
@@ -182,25 +183,25 @@ void PutCssInTheDocumentHead::FormatResults(const ResultVector& results,
         // TRANSLATOR: Detail of the inline CSS. It tells the user how many
         // style blocks should be moved to document head. The "$1" will be
         // replaced by the number of style blocks.
-        entry->AddChild(_("$1 style block(s) in the body should be moved to "
-                          "the document head."), num);
+        entry->AddUrlResult(_("$1 style block(s) in the body should be moved "
+                              "to the document head."), num);
       }
 
       for (int i = 0, size = style_details.external_styles_size();
            i < size; ++i) {
         Argument href(Argument::URL, style_details.external_styles(i));
-        // TRANSLATOR: Detail of external CSS resources. It tells the user how
-        // to fix the problem by moving the CSS to document head. The "$1" will
-        // be replaced by the CSS resource URL.
-        entry->AddChild(_("Link node $1 should be moved to the document head."),
-                        href);
+        entry->AddUrlResult(
+            // TRANSLATOR: Detail of external CSS resources. It tells the user
+            // how to fix the problem by moving the CSS to document head. The
+            // "$1" will be replaced by the CSS resource URL.
+            _("Link node $1 should be moved to the document head."), href);
       }
     } else {
       Argument url(Argument::URL, result.resource_urls(0));
       // TRANSLATOR: The document that Page Speed detected as have CSS
       // resources in document body. The "$1" will be replaced by the document
       // URL.
-      formatter->AddChild(_("$1 has CSS in the document body."), url);
+      formatter->AddUrlBlock(_("$1 has CSS in the document body."), url);
     }
   }
 }

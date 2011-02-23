@@ -91,13 +91,13 @@ bool MinimizeRequestSize::AppendResults(const RuleInput& rule_input,
 }
 
 void MinimizeRequestSize::FormatResults(const ResultVector& results,
-                                       Formatter* formatter) {
+                                        RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
   Argument size_threshold(Argument::BYTES, kMaximumRequestSize);
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as having large requests. It describes the problem to the
       // user, and tells them how to fix it by reducing the size of requests.
@@ -124,8 +124,8 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
     // in the request. This is displayed at the top of a breakdown of how large
     // each element of the request is.
     //
-    Formatter* entry = body->AddChild(_("$1 has a request size of $2"), url,
-                                      size);
+    UrlFormatter* entry = body->AddUrlResult(_("$1 has a request size of $2"),
+                                             url, size);
 
     const ResultDetails& details_container = result.details();
     if (details_container.HasExtension(RequestDetails::message_set_extension)) {
@@ -136,7 +136,7 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
       // TRANSLATOR: Item showing how large the URL is in a request that
       // violates the MinimizeRequestSizeRule by being large. The "$1" will be
       // replace by the size of the request URL in bytes (e.g. "5.3KiB").
-      entry->AddChild(_("Request URL: $1"), url_size);
+      entry->AddDetail(_("Request URL: $1"), url_size);
 
       Argument cookie_size(Argument::BYTES, details.cookie_length());
       if (details.is_static() && details.cookie_length() > 0) {
@@ -145,21 +145,21 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
         // user that the resource is static, and it should be served from a
         // cookieless domain. The "$1" will be replace by the size of the
         // cookies in bytes (e.g. "5.3KiB").
-        entry->AddChild(_("Cookies: $1 (note that this is a static resource, "
-                          "and should be served from a cookieless domain)"),
-                        cookie_size);
+        entry->AddDetail(_("Cookies: $1 (note that this is a static resource, "
+                           "and should be served from a cookieless domain)"),
+                         cookie_size);
       } else {
         // TRANSLATOR: Item showing how large the cookie is in a request that
         // violates the MinimizeRequestSizeRule by being large. The "$1" will be
         // replace by the size of the cookies in bytes (e.g. "5.3KiB").
-        entry->AddChild(_("Cookies: $1"), cookie_size);
+        entry->AddDetail(_("Cookies: $1"), cookie_size);
       }
 
       Argument referer_size(Argument::BYTES, details.referer_length());
       // TRANSLATOR: Item showing how large the referrer URL is in a request
       // that violates the MinimizeRequestSizeRule by being large. The "$1" will
       // be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-      entry->AddChild(_("Referer Url: $1"), referer_size);
+      entry->AddDetail(_("Referer Url: $1"), referer_size);
 
       Argument other_size(Argument::BYTES,
                           result.original_request_bytes() -
@@ -170,7 +170,7 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
       // request that violates the MinimizeRequestSizeRule by being large. The
       // "$1" will be replace by the total size of other components of the
       // request in bytes (e.g. "5.3KiB").
-      entry->AddChild(_("Other: $1"), other_size);
+      entry->AddDetail(_("Other: $1"), other_size);
     }
   }
 }

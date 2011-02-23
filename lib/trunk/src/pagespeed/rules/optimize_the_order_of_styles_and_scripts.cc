@@ -310,7 +310,7 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
 
 void OptimizeTheOrderOfStylesAndScripts::FormatResults(
     const ResultVector& results,
-    Formatter* formatter) {
+    RuleFormatter* formatter) {
 
   if (results.empty()) {
     return;
@@ -333,7 +333,7 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
 
       if (ordering_details.out_of_order_inline_scripts_size() > 0) {
         Argument html_url(Argument::URL, result.resource_urls(0));
-        Formatter* body = formatter->AddChild(
+        UrlBlockFormatter* body = formatter->AddUrlBlock(
             // TRANSLATOR: Header at the top of a list of inline javascript
             // blocks that Page Speed detected as preventing parallel
             // downloading.  It describes the problem to the user and tells them
@@ -351,13 +351,13 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
                          ordering_details.out_of_order_inline_scripts(i));
           // TRANSLATOR: Detail of inline script block. The "$1" will be replace
           // by the index of the script block (e.g. 3).
-          body->AddChild(_("Inline script block #$1"), index);
+          body->AddUrlResult(_("Inline script block #$1"), index);
         }
       }
 
       if (ordering_details.out_of_order_external_css_size() > 0) {
         Argument html_url(Argument::URL, result.resource_urls(0));
-        Formatter* body = formatter->AddChild(
+        UrlBlockFormatter* body = formatter->AddUrlBlock(
             // TRANSLATOR: Header at the top of a list of CSS URLs that Page
             // Speed detected as not able to be downloaded in parallel. It
             // describes the problem to the user, and tells them how to fix it
@@ -370,9 +370,7 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
         for (int i = 0,
                  size = ordering_details.out_of_order_external_css_size();
              i < size; ++i) {
-          Argument url(Argument::URL,
-                       ordering_details.out_of_order_external_css(i));
-          body->AddChild(not_localized("$1"), url);
+          body->AddUrl(ordering_details.out_of_order_external_css(i));
         }
       }
     }

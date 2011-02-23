@@ -120,7 +120,7 @@ class MinifyRule : public Rule {
   virtual const char* documentation_url() const;
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
-                             Formatter* formatter);
+                             RuleFormatter* formatter);
  private:
   scoped_ptr<Minifier> minifier_;
 

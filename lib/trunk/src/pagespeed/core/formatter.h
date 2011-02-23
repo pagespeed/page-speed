@@ -84,77 +84,90 @@ class FormatterParameters {
   DISALLOW_COPY_AND_ASSIGN(FormatterParameters);
 };
 
-/**
- * Result text formatter interface.
- */
-class Formatter {
+class UrlFormatter {
  public:
-  virtual ~Formatter();
+  UrlFormatter() {}
+  virtual ~UrlFormatter() {}
 
-  // Format an item and add it to the formatter's output stream.
-  // Returns a child formatter, which is valid until the next call to
-  // AddChild on this formatter or one of its parents.  Calls to this
-  // method also delete the previous child and all of its decendents.
-  // TODO(aoates): add comment describing that you can't store the params given
-  // anywhere (they might change after you return)
-  Formatter* AddChild(const FormatterParameters& params);
+  virtual void AddDetail(const FormatterParameters& params) = 0;
 
-  // Convenience methods implemented in terms of AddChild(FormatterParameters).
-  Formatter* AddChild(const UserFacingString& format_str);
-
-  Formatter* AddChild(const UserFacingString& format_str,
-                      const Argument& arg1);
-
-  Formatter* AddChild(const UserFacingString& format_str,
-                      const Argument& arg1,
-                      const Argument& arg2);
-
-  Formatter* AddChild(const UserFacingString& format_str,
-                      const Argument& arg1,
-                      const Argument& arg2,
-                      const Argument& arg3);
-
-  Formatter* AddChild(const UserFacingString& format_str,
-                      const Argument& arg1,
-                      const Argument& arg2,
-                      const Argument& arg3,
-                      const Argument& arg4);
-
-  // Calls DoneAddingChildren for all descendants, from bottom to top.
-  void Done();
-
- protected:
-  Formatter();
-  // Child constructor; to be implemented by sub classes.
-  virtual Formatter* NewChild(const FormatterParameters& params) = 0;
-
-  // Indicates that no more children will be added.
-  virtual void DoneAddingChildren() = 0;
-
-  // Releases the current active child formatter, if any.  Calls
-  // active_child_->Done(), and resets the pointer.  Called (along with
-  // AcquireActiveChild(...) by a sub class if it wants to manually allocate a
-  // child formatter without calling AddChild (e.g.  in
-  // RuleFormatter::AddHeader(...) below).
-  void ReleaseActiveChild();
-
-  // Acquires a new child formatter as the current active child.  Updates the
-  // active_child_ pointer.
-  void AcquireActiveChild(Formatter* new_child);
+  // Convenience methods:
+  void AddDetail(const UserFacingString& format_str);
+  void AddDetail(const UserFacingString& format_str,
+                 const Argument& arg1);
+  void AddDetail(const UserFacingString& format_str,
+                 const Argument& arg1,
+                 const Argument& arg2);
 
  private:
-  scoped_ptr<Formatter> active_child_;
-  DISALLOW_COPY_AND_ASSIGN(Formatter);
+  DISALLOW_COPY_AND_ASSIGN(UrlFormatter);
 };
 
-class RuleFormatter : public Formatter {
+class UrlBlockFormatter {
  public:
-  virtual ~RuleFormatter();
+  UrlBlockFormatter() {}
+  virtual ~UrlBlockFormatter() {}
 
-  // Higher-level overridable method that adds a rule header.
-  // Reference implementations are implemented in terms of AddChild;
-  // ignoring the rule score.
-  virtual Formatter* AddHeader(const Rule& rule, int score) = 0;
+  // Create, add, and return a new UrlFormatter.  The returned object has the
+  // same lifetime as the parent.
+  virtual UrlFormatter* AddUrlResult(const FormatterParameters& params) = 0;
+
+  // Convenience methods:
+  UrlFormatter* AddUrl(const std::string& url);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str,
+                             const Argument& arg1);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str,
+                             const Argument& arg1,
+                             const Argument& arg2);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str,
+                             const Argument& arg1,
+                             const Argument& arg2,
+                             const Argument& arg3);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str,
+                             const Argument& arg1,
+                             const Argument& arg2,
+                             const Argument& arg3,
+                             const Argument& arg4);
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(UrlBlockFormatter);
+};
+
+class RuleFormatter {
+ public:
+  RuleFormatter() {}
+  virtual ~RuleFormatter() {}
+
+  // Create, add, and return a new UrlBlockFormatter.  The returned object has
+  // the same lifetime as the parent.
+  virtual UrlBlockFormatter* AddUrlBlock(
+      const FormatterParameters& params) = 0;
+
+  // Convenience methods:
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str);
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
+                                 const Argument& arg1);
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
+                                 const Argument& arg1,
+                                 const Argument& arg2);
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(RuleFormatter);
+};
+
+class Formatter {
+ public:
+  Formatter() {}
+  virtual ~Formatter() {}
+
+  // Create, add, and return a new RuleFormatter.  The returned object has the
+  // same lifetime as the parent.
+  virtual RuleFormatter* AddRule(const Rule& rule, int score,
+                                 double impact) = 0;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Formatter);
 };
 
 }  // namespace pagespeed

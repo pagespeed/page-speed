@@ -136,7 +136,7 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
 }
 
 void ServeResourcesFromAConsistentUrl::FormatResults(
-    const ResultVector& results, Formatter* formatter) {
+    const ResultVector& results, RuleFormatter* formatter) {
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
@@ -146,7 +146,7 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
         Argument::INTEGER, result.savings().requests_saved());
     Argument num_bytes_arg(
         Argument::BYTES, result.savings().response_bytes_saved());
-    Formatter* body = formatter->AddChild(
+    UrlBlockFormatter* body = formatter->AddUrlBlock(
         // TRANSLATOR: Header at the top of a list of URLs that Page Speed
         // detected as being identical yet served multiple times from different
         // URLs.  It describes the problem to the user, and tells them how to
@@ -161,8 +161,7 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
         num_resources_arg,
         num_bytes_arg);
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
-      Argument url(Argument::URL, result.resource_urls(url_idx));
-      body->AddChild(not_localized("$1"), url);
+      body->AddUrl(result.resource_urls(url_idx));
     }
   }
 }

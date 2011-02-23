@@ -35,7 +35,7 @@ void FormatRuleResults(const RuleResults& rule_results,
                        const InputInformation& input_info,
                        Rule* rule,
                        const ResultFilter& filter,
-                       RuleFormatter* root_formatter) {
+                       Formatter* root_formatter) {
   // Sort results according to presentation order
   ResultVector sorted_results;
   for (int result_idx = 0, end = rule_results.results_size();
@@ -48,8 +48,9 @@ void FormatRuleResults(const RuleResults& rule_results,
   }
   rule->SortResultsInPresentationOrder(&sorted_results);
 
-  Formatter* rule_formatter =
-      root_formatter->AddHeader(*rule, rule_results.rule_score());
+  // TODO(mdsteele): Use rule_impact instead of 0, once we add it.
+  RuleFormatter* rule_formatter =
+      root_formatter->AddRule(*rule, rule_results.rule_score(), 0);
   if (!sorted_results.empty()) {
     rule->FormatResults(sorted_results, rule_formatter);
   }
@@ -169,7 +170,7 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
 
 bool Engine::FormatResults(const Results& results,
                            const ResultFilter& filter,
-                           RuleFormatter* formatter) const {
+                           Formatter* formatter) const {
   CHECK(init_has_been_called_);
 
   if (!results.IsInitialized()) {
@@ -197,13 +198,12 @@ bool Engine::FormatResults(const Results& results,
                       formatter);
   }
 
-  formatter->Done();
   return success;
 }
 
 bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
                                      const ResultFilter& filter,
-                                     RuleFormatter* formatter) const {
+                                     Formatter* formatter) const {
   CHECK(init_has_been_called_);
 
   Results results;

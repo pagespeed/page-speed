@@ -69,12 +69,12 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
 }
 
 void RemoveQueryStringsFromStaticResources::
-FormatResults(const ResultVector& results, Formatter* formatter) {
+FormatResults(const ResultVector& results, RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Descriptive header at the top of a list of URLs that
       // violate the RemoveQueryStringsFromStaticResources rule by using a query
       // string in the URL of a static resource (such as
@@ -92,8 +92,7 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
                   << result.resource_urls_size() << ".";
       continue;
     }
-    Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild(not_localized("$1"), url);
+    body->AddUrl(result.resource_urls(0));
   }
 }
 

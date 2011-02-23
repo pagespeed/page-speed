@@ -98,12 +98,12 @@ bool SpecifyACacheValidator::AppendResults(const RuleInput& rule_input,
 }
 
 void SpecifyACacheValidator::FormatResults(const ResultVector& results,
-                                           Formatter* formatter) {
+                                           RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as lacking a "cache validator" -- that is, an HTTP header
       // that indicates to the browser how to check whether a particular item
@@ -127,8 +127,7 @@ void SpecifyACacheValidator::FormatResults(const ResultVector& results,
                   << result.resource_urls_size() << ".";
       continue;
     }
-    Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild(not_localized("$1"), url);
+    body->AddUrl(result.resource_urls(0));
   }
 }
 

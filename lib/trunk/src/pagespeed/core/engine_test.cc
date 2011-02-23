@@ -92,9 +92,9 @@ class TestRule : public Rule {
   }
 
   virtual void FormatResults(const pagespeed::ResultVector& results,
-                             Formatter* formatter) {
-    formatter->AddChild(not_localized(kBody1));
-    formatter->AddChild(not_localized(kBody2));
+                             RuleFormatter* formatter) {
+    formatter->AddUrlBlock(not_localized(kBody1));
+    formatter->AddUrlBlock(not_localized(kBody2));
   }
 
   void set_score(int score) { score_ = score; }

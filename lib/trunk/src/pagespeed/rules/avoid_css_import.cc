@@ -140,7 +140,7 @@ bool AvoidCssImport::FindImportedResourceUrls(
 }
 
 void AvoidCssImport::FormatResults(const ResultVector& results,
-                                   Formatter* formatter) {
+                                   RuleFormatter* formatter) {
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end(); iter != end; ++iter) {
     const Result& result = **iter;
@@ -157,7 +157,7 @@ void AvoidCssImport::FormatResults(const ResultVector& results,
           AvoidCssImportDetails::message_set_extension);
       if (import_details.imported_stylesheets_size() > 0) {
         Argument css_url(Argument::URL, result.resource_urls(0));
-        Formatter* body = formatter->AddChild(
+        UrlBlockFormatter* body = formatter->AddUrlBlock(
             // TRANSLATOR: Descriptive header at the top of a list of URLs that
             // are imported by a style sheet using the @import rule ("@import"
             // is code, and should not be translated).  It gives the URL of the
@@ -167,12 +167,9 @@ void AvoidCssImport::FormatResults(const ResultVector& results,
             // replaced with the URL of the style sheet that uses @import.
             _("The following external stylesheets were included in $1 "
               "using @import."), css_url);
-        for (int i = 0,
-                 size = import_details.imported_stylesheets_size();
+        for (int i = 0, size = import_details.imported_stylesheets_size();
              i < size; ++i) {
-          Argument imported_url(
-              Argument::URL, import_details.imported_stylesheets(i));
-          body->AddChild(not_localized("$1"), imported_url);
+          body->AddUrl(import_details.imported_stylesheets(i));
         }
       }
     }

@@ -209,12 +209,12 @@ bool PreferAsyncResources::AppendResults(const RuleInput& rule_input,
 }
 
 void PreferAsyncResources::FormatResults(const ResultVector& results,
-                                         Formatter* formatter) {
+                                         RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as loaded synchronously. It describes the problem and tells
       // the user how to fix by loading them asynchronously.
@@ -243,8 +243,8 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
       // TRANSLATOR: Detail for resource that loads synchronously. The "$1" will
       // be replaced by the document (HTML page, or a iframe) URL; the "$2" will
       // be replaced by the resource URL.
-      body->AddChild(_("$1 loads $2 synchronously."),
-                     document_url, resource_url);
+      body->AddUrlResult(_("$1 loads $2 synchronously."),
+                         document_url, resource_url);
     } else {
       LOG(DFATAL) << "Async details missing.";
     }

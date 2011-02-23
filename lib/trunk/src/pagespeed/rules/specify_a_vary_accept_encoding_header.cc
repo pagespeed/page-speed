@@ -80,12 +80,12 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
 }
 
 void SpecifyAVaryAcceptEncodingHeader::
-FormatResults(const ResultVector& results, Formatter* formatter) {
+FormatResults(const ResultVector& results, RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs of webpage resources
       // that Page Speed detected as having three properties: 1) they are
       // publicly cacheable (that is, they can be cached by HTTP proxies), 2)
@@ -106,8 +106,7 @@ FormatResults(const ResultVector& results, Formatter* formatter) {
                   << result.resource_urls_size() << ".";
       continue;
     }
-    Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild(not_localized("$1"), url);
+    body->AddUrl(result.resource_urls(0));
   }
 }
 
