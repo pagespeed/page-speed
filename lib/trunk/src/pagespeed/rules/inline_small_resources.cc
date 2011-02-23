@@ -182,12 +182,12 @@ bool InlineSmallResources::IsInlineCandidate(const Resource* resource,
 }
 
 void InlineSmallResources::FormatResults(const ResultVector& results,
-                                         Formatter* formatter) {
+                                         RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of the list of URLs that Page
       // Speed detected as candidates for being moved directly into
       // the HTML. This describes the problem to the user and tells
@@ -212,17 +212,16 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
           InlineSmallResourcesDetails::message_set_extension);
 
       Argument document_url(Argument::URL, result.resource_urls(0));
-      Formatter* child =
+      UrlBlockFormatter* body = formatter->AddUrlBlock(
           // TRANSLATOR: A sub-heading that contains the URL of the document and
           // a statement instructing the user to inline certain small resources.
           // "$1" is a format token that will be replaced with the URL of the
           // document that contains the resources that can be inserted directly
           // into the HTML document.
-          body->AddChild(_("$1 should inline the following small resources:"),
-                         document_url);
+          _("$1 should inline the following small resources:"),
+          document_url);
       for (int i = 0; i < isr_details.inline_candidates_size(); ++i) {
-        Argument candidate_url(Argument::URL, isr_details.inline_candidates(i));
-        child->AddChild(not_localized("$1"), candidate_url);
+        body->AddUrl(isr_details.inline_candidates(i));
       }
     } else {
       LOG(DFATAL) << "InlineSmallResourcesDetails missing.";

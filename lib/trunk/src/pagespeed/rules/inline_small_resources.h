@@ -34,7 +34,7 @@ class InlineSmallResources : public Rule {
   // Rule interface.
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
-                             Formatter* formatter);
+                             RuleFormatter* formatter);
   virtual int ComputeScore(const InputInformation& input_info,
                            const RuleResults& results);
 

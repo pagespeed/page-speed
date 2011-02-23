@@ -186,12 +186,12 @@ bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
 }
 
 void MinimizeRedirects::FormatResults(const ResultVector& results,
-                                      Formatter* formatter) {
+                                      RuleFormatter* formatter) {
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
        ++iter) {
-    Formatter* body = formatter->AddChild(
+    UrlBlockFormatter* body = formatter->AddUrlBlock(
         // TRANSLATOR: Header at the top of a list of URLs that Page Speed
         // detected as a chain of HTTP redirections. It tells the user to fix
         // the problem by removing the URLs that redirect to others.
@@ -199,8 +199,7 @@ void MinimizeRedirects::FormatResults(const ResultVector& results,
 
     const Result& result = **iter;
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
-      Argument url(Argument::URL, result.resource_urls(url_idx));
-      body->AddChild(not_localized("$1"), url);
+      body->AddUrl(result.resource_urls(url_idx));
     }
   }
 }

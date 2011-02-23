@@ -14,45 +14,96 @@
 
 // Author: aoates@google.com (Andrew Oates)
 
-#ifndef PAGESPEED_FORMATTERS_LOCALIZED_FORMATTER_H_
-#define PAGESPEED_FORMATTERS_LOCALIZED_FORMATTER_H_
+#ifndef PAGESPEED_FORMATTERS_PROTO_FORMATTER_H_
+#define PAGESPEED_FORMATTERS_PROTO_FORMATTER_H_
 
+#include <vector>
+
+#include "base/basictypes.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/serializer.h"
 
 namespace pagespeed {
 
 class FormattedResults;
+class FormattedRuleResults;
+class FormattedUrlBlockResults;
+class FormattedUrlResult;
 namespace l10n { class Localizer; }
 
 namespace formatters {
 
-// TODO(aoates): should the localization functionality be moved into the base
-// Formatter class, so that all formatters are supplied transparently with
-// localized strings?
 /**
  * Formatter that fills in a localized FormattedResults proto.
  */
-class ProtoFormatter : public RuleFormatter {
+class ProtoFormatter : public Formatter {
  public:
   ProtoFormatter(const pagespeed::l10n::Localizer* localizer,
                  FormattedResults* results);
+  ~ProtoFormatter();
 
-  // RuleFormatter interface.
-  virtual Formatter* AddHeader(const Rule& rule, int score);
-
- protected:
   // Formatter interface.
-  virtual Formatter* NewChild(const FormatterParameters& params);
-  virtual void DoneAddingChildren();
+  virtual RuleFormatter* AddRule(const Rule& rule, int score, double impact);
 
  private:
   const pagespeed::l10n::Localizer* localizer_;
   FormattedResults* results_;
+  std::vector<RuleFormatter*> rule_formatters_;
+
+  DISALLOW_COPY_AND_ASSIGN(ProtoFormatter);
+};
+
+class ProtoRuleFormatter : public RuleFormatter {
+ public:
+  ProtoRuleFormatter(const pagespeed::l10n::Localizer* localizer,
+                     FormattedRuleResults* rule_results);
+  ~ProtoRuleFormatter();
+
+  // RuleFormatter interface.
+  virtual UrlBlockFormatter* AddUrlBlock(const FormatterParameters& params);
+
+ private:
+  const pagespeed::l10n::Localizer* localizer_;
+  FormattedRuleResults* rule_results_;
+  std::vector<UrlBlockFormatter*> url_block_formatters_;
+
+  DISALLOW_COPY_AND_ASSIGN(ProtoRuleFormatter);
+};
+
+class ProtoUrlBlockFormatter : public UrlBlockFormatter {
+ public:
+  ProtoUrlBlockFormatter(const pagespeed::l10n::Localizer* localizer,
+                         FormattedUrlBlockResults* url_block_results);
+  ~ProtoUrlBlockFormatter();
+
+  // UrlBlockFormatter interface.
+  virtual UrlFormatter* AddUrlResult(const FormatterParameters& params);
+
+ private:
+  const pagespeed::l10n::Localizer* localizer_;
+  FormattedUrlBlockResults* url_block_results_;
+  std::vector<UrlFormatter*> url_formatters_;
+
+  DISALLOW_COPY_AND_ASSIGN(ProtoUrlBlockFormatter);
+};
+
+class ProtoUrlFormatter : public UrlFormatter {
+ public:
+  ProtoUrlFormatter(const pagespeed::l10n::Localizer* localizer,
+                    FormattedUrlResult* url_result);
+
+  // UrlFormatter interface.
+  virtual void AddDetail(const FormatterParameters& params);
+
+ private:
+  const pagespeed::l10n::Localizer* localizer_;
+  FormattedUrlResult* url_result_;
+
+  DISALLOW_COPY_AND_ASSIGN(ProtoUrlFormatter);
 };
 
 }  // namespace formatters
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_FORMATTERS_LOCALIZED_FORMATTER_H_
+#endif  // PAGESPEED_FORMATTERS_PROTO_FORMATTER_H_

@@ -205,12 +205,12 @@ bool SpecifyCharsetEarly::AppendResults(const RuleInput& rule_input,
 }
 
 void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
-                                        Formatter* formatter) {
+                                        RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as either not declaring the character set (e.g. UTF-8,
       // Latin-1, or some other text encoding) being used, or declaring a
@@ -233,8 +233,7 @@ void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
                   << result.resource_urls_size() << ".";
       continue;
     }
-    Argument url(Argument::URL, result.resource_urls(0));
-    body->AddChild(not_localized("$1"), url);
+    body->AddUrl(result.resource_urls(0));
   }
 }
 

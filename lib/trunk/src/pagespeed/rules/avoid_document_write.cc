@@ -323,8 +323,8 @@ bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
 }
 
 void AvoidDocumentWrite::FormatResults(const ResultVector& results,
-                                       Formatter* formatter) {
-  formatter = formatter->AddChild(
+                                       RuleFormatter* formatter) {
+  formatter->AddUrlBlock(
       // TRANSLATOR: This appears as a header before a list of URLs of resources
       // that use the JavaScript command "document.write" ("document.write" is
       // code, and should not be translated).  It describes how using
@@ -352,8 +352,8 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
         Argument res_url(Argument::URL, result.resource_urls(0));
         Argument line_number(Argument::INTEGER, adw_details.line_number());
 
-        Formatter* body =
-            formatter->AddChild(
+        UrlBlockFormatter* body =
+            formatter->AddUrlBlock(
                 // TRANSLATOR: Describes a single resource that violates the
                 // AvoidDocumentWrite rule by using the "document.write"
                 // JavaScript command ("document.write" is code, and should not
@@ -368,8 +368,7 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
                 _("$1 calls document.write on line $2 to fetch:"),
                 res_url, line_number);
         for (int i = 0, size = adw_details.urls_size(); i < size; ++i) {
-          Argument url(Argument::URL, adw_details.urls(i));
-          body->AddChild(not_localized("$1"), url);
+          body->AddUrl(adw_details.urls(i));
         }
       }
     }

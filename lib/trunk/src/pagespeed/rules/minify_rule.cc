@@ -90,7 +90,7 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
 }
 
 void MinifyRule::FormatResults(const ResultVector& results,
-                               Formatter* formatter) {
+                               RuleFormatter* formatter) {
   int total_original_size = 0;
   int total_bytes_saved = 0;
 
@@ -112,8 +112,8 @@ void MinifyRule::FormatResults(const ResultVector& results,
   Argument percent_arg(Argument::INTEGER,
                        (total_original_size == 0 ? 0 :
                         (100 * total_bytes_saved) / total_original_size));
-  Formatter* body = formatter->AddChild(minifier_->body_format(),
-                                        size_arg, percent_arg);
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
+      minifier_->body_format(), size_arg, percent_arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -148,7 +148,7 @@ void MinifyRule::FormatResults(const ResultVector& results,
           result.optimized_content_mime_type());
     }
 
-    body->AddChild(formatter_args);
+    body->AddUrlResult(formatter_args);
   }
 }
 

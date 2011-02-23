@@ -180,7 +180,7 @@ bool MinimizeDnsLookups::AppendResults(const RuleInput& rule_input,
 }
 
 void MinimizeDnsLookups::FormatResults(const ResultVector& results,
-                                       Formatter* formatter) {
+                                       RuleFormatter* formatter) {
   std::vector<std::string> violation_urls;
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -197,7 +197,7 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Heading that explains why the URLs that follow
       // should be moved to different hostnames. "DNS" should remain
       // in the translated format string.
@@ -209,8 +209,7 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
            end = violation_urls.end();
        iter != end;
        ++iter) {
-    Argument url(Argument::URL, *iter);
-    body->AddChild(not_localized("$1"), url);
+    body->AddUrl(*iter);
   }
 }
 

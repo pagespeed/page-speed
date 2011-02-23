@@ -153,12 +153,12 @@ bool SpecifyImageDimensions::AppendResults(const RuleInput& rule_input,
 }
 
 void SpecifyImageDimensions::FormatResults(const ResultVector& results,
-                                           Formatter* formatter) {
+                                           RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs of images that Page
       // Speed detected as not having both width and height explicitly
       // specified in the page in which the image appears.
@@ -209,8 +209,8 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
         // the height of the image, in pixels (e.g. "240"); the $4 is a format
         // token that will be replaced with the number of times this image
         // appears in the page (e.g. "3").
-        body->AddChild(_("$1 (Dimensions: $2 x $3) ($4 uses)"),
-                        url, width, height, instances);
+        body->AddUrlResult(_("$1 (Dimensions: $2 x $3) ($4 uses)"),
+                           url, width, height, instances);
       } else {
         // TRANSLATOR: A format string for one item in a list of images that
         // Page Speed detected as not having both width and height explicitly
@@ -222,12 +222,11 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
         // will be replaced with the width of the image, in pixels
         // (e.g. "320"); the $3 is a format token that will be replaced with
         // the height of the image, in pixels (e.g. "240").
-        body->AddChild(_("$1 (Dimensions: $2 x $3)"),
-                        url, width, height);
+        body->AddUrlResult(_("$1 (Dimensions: $2 x $3)"),
+                           url, width, height);
       }
     } else {
-      Argument url(Argument::URL, result.resource_urls(0));
-      body->AddChild(not_localized("$1"), url);
+      body->AddUrl(result.resource_urls(0));
     }
   }
 }

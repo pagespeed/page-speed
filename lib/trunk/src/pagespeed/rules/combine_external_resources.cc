@@ -105,7 +105,7 @@ bool CombineExternalResources::AppendResults(const RuleInput& rule_input,
 }
 
 void CombineExternalResources::FormatResults(const ResultVector& results,
-                                             Formatter* formatter) {
+                                             RuleFormatter* formatter) {
   UserFacingString body_tmpl;
   if (resource_type_ == CSS) {
     // TRANSLATOR: Descriptive header describing a list of CSS resources that
@@ -145,11 +145,10 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
     Argument count(Argument::INTEGER, result.resource_urls_size());
     GURL url(result.resource_urls(0));
     Argument host(Argument::STRING, url.host());
-    Formatter* body = formatter->AddChild(body_tmpl, count, host);
+    UrlBlockFormatter* body = formatter->AddUrlBlock(body_tmpl, count, host);
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
-      Argument url(Argument::URL, result.resource_urls(idx));
-      body->AddChild(not_localized("$1"), url);
+      body->AddUrl(result.resource_urls(idx));
     }
   }
 }

@@ -35,7 +35,7 @@ class EnableKeepAlive : public Rule {
   virtual const char* documentation_url() const;
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
-                             Formatter* formatter);
+                             RuleFormatter* formatter);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(EnableKeepAlive);

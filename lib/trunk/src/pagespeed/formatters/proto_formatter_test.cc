@@ -20,6 +20,7 @@
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
+#include "pagespeed/core/formatter.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/user_facing_string.h"
 #include "pagespeed/l10n/localizer.h"
@@ -30,11 +31,13 @@
 using pagespeed::Argument;
 using pagespeed::FormatArgument;
 using pagespeed::FormatString;
-using pagespeed::Formatter;
 using pagespeed::FormatterParameters;
-using pagespeed::UserFacingString;
 using pagespeed::FormattedResults;
 using pagespeed::FormattedRuleResults;
+using pagespeed::RuleFormatter;
+using pagespeed::UrlBlockFormatter;
+using pagespeed::UrlFormatter;
+using pagespeed::UserFacingString;
 using pagespeed::formatters::ProtoFormatter;
 using pagespeed::l10n::Localizer;
 using pagespeed::l10n::NullLocalizer;
@@ -95,7 +98,7 @@ class DummyTestRule : public pagespeed::Rule {
     return true;
   }
   virtual void FormatResults(const pagespeed::ResultVector& results,
-                             Formatter* formatter) {}
+                             RuleFormatter* formatter) {}
  private:
   UserFacingString header_;
 };
@@ -109,20 +112,20 @@ TEST(ProtoFormatterTest, BasicTest) {
   DummyTestRule rule1(_N("rule1"));
   DummyTestRule rule2(_N("rule2"));
 
-  Formatter* body = formatter.AddHeader(rule1, 100);
-  Formatter* block = body->AddChild(_N("url block 1"));
-  Formatter* url = block->AddChild(_N("URL 1"));
-  url->AddChild(_N("URL 1, detail 1"));
-  url->AddChild(_N("URL 1, detail 2"));
-  url = block->AddChild(_N("URL 2"));
-  url->AddChild(_N("URL 2, detail 1"));
+  RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
+  UrlBlockFormatter* block = body->AddUrlBlock(_N("url block 1"));
+  UrlFormatter* url = block->AddUrlResult(_N("URL 1"));
+  url->AddDetail(_N("URL 1, detail 1"));
+  url->AddDetail(_N("URL 1, detail 2"));
+  url = block->AddUrlResult(_N("URL 2"));
+  url->AddDetail(_N("URL 2, detail 1"));
 
-  block = body->AddChild(_N("url block 2"));
-  url = block->AddChild(_N("URL 3"));
+  block = body->AddUrlBlock(_N("url block 2"));
+  url = block->AddUrlResult(_N("URL 3"));
 
-  body = formatter.AddHeader(rule2, 50);
-  block = body->AddChild(_N("url block 3"));
-  url = block->AddChild(_N("URL 4"));
+  body = formatter.AddRule(rule2, 50, 1);
+  block = body->AddUrlBlock(_N("url block 3"));
+  url = block->AddUrlResult(_N("URL 4"));
 
   ASSERT_TRUE(results.IsInitialized());
 
@@ -168,10 +171,10 @@ TEST(ProtoFormatterTest, FormattingTest) {
 
   DummyTestRule rule1(_N("rule1"));
 
-  Formatter* body = formatter.AddHeader(rule1, 100);
+  RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
   Argument arg1(Argument::INTEGER, 50);
   Argument arg2(Argument::BYTES, 100);
-  body->AddChild(_N("url block 1, $1 urls $2"), arg1, arg2);
+  body->AddUrlBlock(_N("url block 1, $1 urls $2"), arg1, arg2);
 
   ASSERT_TRUE(results.IsInitialized());
 
@@ -204,7 +207,7 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   DummyTestRule rule1(UserFacingString("rule1", true));
   DummyTestRule rule2(UserFacingString("rule2", false));
 
-  Formatter* body = formatter.AddHeader(rule1, 100);
+  RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
   std::vector<const Argument*> args;
   args.push_back(new Argument(Argument::URL, "http://www.google.com"));
   args.push_back(new Argument(Argument::STRING, "abcd"));
@@ -216,16 +219,16 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   // Test a localized format string.
   UserFacingString format_str("text $1 $2 $3 $4 $5", true);
   FormatterParameters formatter_params(&format_str, &args);
-  body->AddChild(formatter_params);
+  body->AddUrlBlock(formatter_params);
 
   // Test a non-localized format string.
   std::vector<const Argument*> args2;
   UserFacingString format_str2("not localized", false);
   FormatterParameters formatter_params2(&format_str2, &args2);
-  body->AddChild(formatter_params2);
+  body->AddUrlBlock(formatter_params2);
 
   // Test a non-localized rule header.
-  formatter.AddHeader(rule2, 100);
+  formatter.AddRule(rule2, 100, 0);
 
   ASSERT_TRUE(results.IsInitialized());
 

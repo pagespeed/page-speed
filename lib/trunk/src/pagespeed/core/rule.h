@@ -23,11 +23,11 @@
 
 namespace pagespeed {
 
-class Formatter;
 class InputInformation;
 class Resource;
 class Result;
 class ResultProvider;
+class RuleFormatter;
 class RuleInput;
 class RuleResults;
 
@@ -69,7 +69,7 @@ class Rule {
   // @param results Results to interpret
   // @param formatter Output formatter
   virtual void FormatResults(const ResultVector& results,
-                             Formatter* formatter) = 0;
+                             RuleFormatter* formatter) = 0;
 
   // Compute the Rule score from InputInformation and ResultVector.
   //

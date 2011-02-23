@@ -185,12 +185,12 @@ bool LeverageBrowserCaching::AppendResults(const RuleInput& rule_input,
 }
 
 void LeverageBrowserCaching::FormatResults(const ResultVector& results,
-                                           Formatter* formatter) {
+                                           RuleFormatter* formatter) {
   if (results.empty()) {
     return;
   }
 
-  Formatter* body = formatter->AddChild(
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Heading that indicates which resources should
       // have a longer cache freshness lifetime. Here "freshness
       // lifetime" means the length of the period of time that the
@@ -237,12 +237,12 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
       Argument freshness_lifetime(
           Argument::DURATION,
           caching_details.freshness_lifetime_millis());
-      body->AddChild(not_localized("$1 ($2)"), url, freshness_lifetime);
+      body->AddUrlResult(not_localized("$1 ($2)"), url, freshness_lifetime);
     } else {
       // TRANSLATOR: Item describing a single URL that violates the
       // LeverageBrowserCaching rule by not having a cache expiration.
       // "$1" is a format string that will be replaced by the URL.
-      body->AddChild(_("$1 (expiration not specified)"), url);
+      body->AddUrlResult(_("$1 (expiration not specified)"), url);
     }
   }
 }
