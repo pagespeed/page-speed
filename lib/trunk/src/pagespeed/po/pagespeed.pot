@@ -217,6 +217,13 @@ msgstr ""
 msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
 msgstr ""
 
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr ""
+
 #  The name of a Page Speed rule that tells webmasters to enable
 #  gzip compression on their servers (i.e. enable compressing the web content
 #  before it is sent to clients).  This appears in a list of rule names
@@ -587,6 +594,15 @@ msgstr ""
 msgid "The following resources have no character set specified or have a non-default character set specified late in the document. Specifying a character set early in these documents can speed up browser rendering."
 msgstr ""
 
+#  Header at the top of a list of URLs of resources that are
+#  served from a domain that does not have HTTP Keep-Alive enabled.  It
+#  tells the user to enable keep-alive on that domain.  The "$1" is a
+#  format string that will be replaced with the domain in question.
+#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  translated.
+msgid "The host $1 should enable Keep-Alive. It serves the following resources."
+msgstr ""
+
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
 #  in the translated format string.
@@ -638,11 +654,4 @@ msgstr ""
 #  "document.write" can slow down your website (by forcing external
 #  resources to load serially, not in parallel).
 msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
-msgstr ""
-
-#  Header in a list of Page Speed rule results.  $1 is a format
-#  argument that will be replaced by the name of the Page Speed rule (e.g.
-#  "Leverage Browser Caching"; $1 is a format argument that will be replaced
-#  by the rule's Page Speed score (e.g. "93").
-msgid "_$1_ (score=$2)"
 msgstr ""
