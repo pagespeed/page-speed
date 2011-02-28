@@ -81,7 +81,7 @@ class CombineExternalResourcesTest : public ::pagespeed_testing::PagespeedTest {
     }
 
     RuleResults rule_results;
-    ResultProvider provider(*resource_rule.get(), &rule_results);
+    ResultProvider provider(*resource_rule.get(), &rule_results, 0);
     const RuleInput rule_input(*pagespeed_input());
     resource_rule->AppendResults(rule_input, &provider);
     ASSERT_EQ(static_cast<size_t>(rule_results.results_size()),

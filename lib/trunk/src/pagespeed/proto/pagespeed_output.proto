@@ -251,6 +251,10 @@ message Result {
   // MIME type for the optimized version of the current resource, if
   // applicable.
   optional string optimized_content_mime_type = 9;
+
+  // Identifier for this result. Each Result's id is unique within a
+  // RuleResults instance.
+  optional int32 id = 10;
 }
 
 // The set of results from a single rule

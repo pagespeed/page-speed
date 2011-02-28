@@ -127,7 +127,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     EnableGzipCompression gzip_rule(new ZlibComputer());
 
     RuleResults rule_results;
-    ResultProvider provider(gzip_rule, &rule_results);
+    ResultProvider provider(gzip_rule, &rule_results, 0);
     RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(gzip_rule.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 2);
@@ -153,7 +153,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     EnableGzipCompression gzip_rule(new ZlibComputer());
 
     RuleResults rule_results;
-    ResultProvider provider(gzip_rule, &rule_results);
+    ResultProvider provider(gzip_rule, &rule_results, 0);
     RuleInput rule_input(*pagespeed_input());
     ASSERT_EQ(expect_success, gzip_rule.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 0);
@@ -166,7 +166,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     EnableGzipCompression gzip_rule(computer);
 
     RuleResults rule_results;
-    ResultProvider provider(gzip_rule, &rule_results);
+    ResultProvider provider(gzip_rule, &rule_results, 0);
     RuleInput rule_input(*pagespeed_input());
     ASSERT_EQ(expect_success, gzip_rule.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 1);

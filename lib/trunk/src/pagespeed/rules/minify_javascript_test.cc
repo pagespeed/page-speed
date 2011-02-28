@@ -81,7 +81,7 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
     MinifyJavaScript minify(save_optimized_content);
 
     RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results);
+    ResultProvider provider(minify, &rule_results, 0);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 0);
@@ -91,7 +91,7 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
     MinifyJavaScript minify(save_optimized_content);
 
     RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results);
+    ResultProvider provider(minify, &rule_results, 0);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 1);
@@ -118,7 +118,7 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
     MinifyJavaScript minify(save_optimized_content);
 
     RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results);
+    ResultProvider provider(minify, &rule_results, 0);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_FALSE(minify.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 0);

@@ -39,7 +39,7 @@ class MinimizeDnsTest : public ::pagespeed_testing::PagespeedTest {
     MinimizeDnsLookups dns_rule;
 
     RuleResults rule_results;
-    ResultProvider provider(dns_rule, &rule_results);
+    ResultProvider provider(dns_rule, &rule_results, 0);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(dns_rule.AppendResults(rule_input, &provider));
     ASSERT_EQ((expected_violations.size() >= 1) ? 1 : 0,
