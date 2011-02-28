@@ -180,7 +180,7 @@ class PagespeedTest : public ::testing::Test {
 template <class RULE> class PagespeedRuleTest : public PagespeedTest {
  protected:
   PagespeedRuleTest()
-      : rule_(new RULE()), provider_(*rule_.get(), &rule_results_) {
+      : rule_(new RULE()), provider_(*rule_.get(), &rule_results_, 0) {
     rule_results_.set_rule_name(rule_->name());
   }
 

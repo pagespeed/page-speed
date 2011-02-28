@@ -105,6 +105,7 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
   const RuleInput rule_input(pagespeed_input);
   int total_score = 0;
   int total_weights = 0;
+  int num_results_so_far = 0;
 
   bool success = true;
   for (std::vector<Rule*>::const_iterator iter = rules_.begin(),
@@ -115,8 +116,9 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
     RuleResults* rule_results = results->add_rule_results();
     rule_results->set_rule_name(rule->name());
 
-    ResultProvider provider(*rule, rule_results);
+    ResultProvider provider(*rule, rule_results, num_results_so_far);
     const bool rule_success = rule->AppendResults(rule_input, &provider);
+    num_results_so_far += provider.num_new_results();
     if (!rule_success) {
       // Record that the rule encountered an error.
       results->add_error_rules(rule->name());
