@@ -15,6 +15,7 @@
 #ifndef PAGESPEED_HTML_EXTERNAL_RESOURCE_FILTER_H_
 #define PAGESPEED_HTML_EXTERNAL_RESOURCE_FILTER_H_
 
+#include <string>
 #include <vector>
 #include "base/basictypes.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
