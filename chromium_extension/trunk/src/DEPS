@@ -25,6 +25,12 @@ vars = {
 
   "naclsdk_trunk": "http://src.chromium.org/native_client/trunk/src/native_client",
   "naclsdk_revision": "@4444",
+
+  # This version matches the version of the most recently released
+  # NaCl SDK. To find the version of the most recent released NaCl
+  # SDK, download the SDK and run
+  # ./toolchain/linux_x86/nacl64/bin/g++ --version
+  "naclsdk_x86_toolchain_version": "4216",
 }
 
 deps = {
@@ -130,6 +136,7 @@ hooks = [
   {
     "pattern": "DEPS$",
     "action": ["python",
-               "src/third_party/naclsdk/build/download_toolchains.py"],
+               "src/third_party/naclsdk/build/download_toolchains.py",
+               "--x86-version", Var("naclsdk_x86_toolchain_version")],
   },
 ]
