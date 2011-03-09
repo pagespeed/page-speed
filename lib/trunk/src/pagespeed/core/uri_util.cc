@@ -77,11 +77,33 @@ void DocumentFinderVisitor::Visit(const pagespeed::DomElement& node) {
   }
 }
 
+GURL GetUriWithoutFragmentInternal(const GURL& url) {
+  DCHECK(url.is_valid());
+  url_canon::Replacements<char> clear_fragment;
+  clear_fragment.ClearRef();
+  return url.ReplaceComponents(clear_fragment);
+}
+
 }  // namespace
 
 namespace pagespeed {
 
 namespace uri_util {
+
+bool GetUriWithoutFragment(const std::string& uri, std::string* out) {
+  GURL url(uri);
+  if (!url.is_valid()) {
+    return false;
+  }
+  GURL url_no_fragment = GetUriWithoutFragmentInternal(url);
+  if (!url_no_fragment.is_valid()) {
+    // Should never happen.
+    DCHECK(false);
+    return false;
+  }
+  *out = url_no_fragment.spec();
+  return true;
+}
 
 std::string ResolveUri(const std::string& uri, const std::string& base_url) {
   GURL url(base_url);
@@ -99,9 +121,13 @@ std::string ResolveUri(const std::string& uri, const std::string& base_url) {
   //
   // TODO: this should probably not be the default behavior; user
   // should have to explicitly remove the fragment.
-  url_canon::Replacements<char> clear_fragment;
-  clear_fragment.ClearRef();
-  return derived.ReplaceComponents(clear_fragment).spec();
+  GURL url_no_fragment = GetUriWithoutFragmentInternal(derived);
+  if (!url_no_fragment.is_valid()) {
+    // Should never happen.
+    DCHECK(false);
+    return "";
+  }
+  return url_no_fragment.spec();
 }
 
 bool ResolveUriForDocumentWithUrl(

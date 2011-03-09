@@ -110,4 +110,20 @@ TEST(UriUtil, Utf8) {
             gurl.spec());
 }
 
+TEST(UriUtil, GetUriWithoutFragmentTest) {
+  static const char* kNoFragmentUrl = "http://www.example.com/foo";
+  static const char* kFragmentUrl = "http://www.example.com/foo#fragment";
+  static const char* kFragmentUrlNoFragment = "http://www.example.com/foo";
+  std::string uri_no_fragment;
+  ASSERT_TRUE(pagespeed::uri_util::GetUriWithoutFragment(
+      kNoFragmentUrl, &uri_no_fragment));
+  ASSERT_EQ(uri_no_fragment, kNoFragmentUrl);
+
+  ASSERT_TRUE(pagespeed::uri_util::GetUriWithoutFragment(
+      kFragmentUrl, &uri_no_fragment));
+  ASSERT_EQ(uri_no_fragment, kFragmentUrlNoFragment);
+
+  ASSERT_FALSE(pagespeed::uri_util::GetUriWithoutFragment("", &uri_no_fragment));
+}
+
 }  // namespace
