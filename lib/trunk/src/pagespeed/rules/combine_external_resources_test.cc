@@ -107,7 +107,7 @@ class CombineExternalResourcesTest : public ::pagespeed_testing::PagespeedTest {
 };
 
 TEST_F(CombineExternalResourcesTest, OneUrlNoViolation) {
-  std::string url = "http://foo.com";
+  std::string url = "http://foo.com/";
 
   AddTestResource(url, "text/css");
 
@@ -119,7 +119,7 @@ TEST_F(CombineExternalResourcesTest, OneUrlNoViolation) {
 }
 
 TEST_F(CombineExternalResourcesTest, OnePostOnloadOneNotNoViolation) {
-  std::string url1 = "http://foo.com";
+  std::string url1 = "http://foo.com/";
   std::string url2 = "http://foo.com/bar";
 
   SetOnloadTimeMillis(10);
@@ -135,7 +135,7 @@ TEST_F(CombineExternalResourcesTest, OnePostOnloadOneNotNoViolation) {
 }
 
 TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromOneHostNoViolation) {
-  std::string url1 = "http://foo.com";
+  std::string url1 = "http://foo.com/";
   std::string url2 = "http://foo.com/bar";
 
   AddTestResource(url1, "text/css");
@@ -149,8 +149,8 @@ TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromOneHostNoViolation) {
 }
 
 TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
-  std::string url1 = "http://foo.com";
-  std::string url2 = "http://bar.com";
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://bar.com/";
 
   AddTestResource(url1, "text/css");
   AddTestResource(url2, "text/css");
@@ -163,10 +163,10 @@ TEST_F(CombineExternalResourcesTest, TwoCssResourcesFromTwoHostsNoViolation) {
 }
 
 TEST_F(CombineExternalResourcesTest, SixCssResourcesFromTwoHostsViolation) {
-  std::string url1 = "http://a.com";
+  std::string url1 = "http://a.com/";
   std::string url2 = "http://a.com/bar";
   std::string url3 = "http://a.com/foo";
-  std::string url4 = "http://b.com";
+  std::string url4 = "http://b.com/";
   std::string url5 = "http://b.com/bar";
   std::string url6 = "http://b.com/foo";
 
@@ -199,7 +199,7 @@ TEST_F(CombineExternalResourcesTest, SixCssResourcesFromTwoHostsViolation) {
 }
 
 TEST_F(CombineExternalResourcesTest, ThreeCssResourcesFromOneHostViolation) {
-  std::string url1 = "http://foo.com";
+  std::string url1 = "http://foo.com/";
   std::string url2 = "http://foo.com/bar";
   std::string url3 = "http://foo.com/baz";
 
@@ -223,7 +223,7 @@ TEST_F(CombineExternalResourcesTest, ThreeCssResourcesFromOneHostViolation) {
 }
 
 TEST_F(CombineExternalResourcesTest, TwoJsResourcesFromOneHostNoViolation) {
-  std::string url1 = "http://foo.com";
+  std::string url1 = "http://foo.com/";
   std::string url2 = "http://foo.com/bar";
 
   AddTestResource(url1, "application/x-javascript");

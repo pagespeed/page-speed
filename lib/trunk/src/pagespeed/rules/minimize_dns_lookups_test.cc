@@ -63,7 +63,7 @@ class MinimizeDnsTest : public ::pagespeed_testing::PagespeedTest {
 };
 
 TEST_F(MinimizeDnsTest, OneUrlNoViolation) {
-  NewPrimaryResource("http://foo.com");
+  NewPrimaryResource("http://foo.com/");
   Freeze();
 
   std::vector<std::string> expected_violations;
@@ -72,7 +72,7 @@ TEST_F(MinimizeDnsTest, OneUrlNoViolation) {
 }
 
 TEST_F(MinimizeDnsTest, OnePostOnloadOneNotNoViolation) {
-  const std::string url1 = "http://foo.com";
+  const std::string url1 = "http://foo.com/";
   const std::string url2 = "http://bar.com/baz.js";
 
   SetOnloadTimeMillis(10);
@@ -86,7 +86,7 @@ TEST_F(MinimizeDnsTest, OnePostOnloadOneNotNoViolation) {
 }
 
 TEST_F(MinimizeDnsTest, OnePostOnloadTwoNotTwoViolations) {
-  const std::string url1 = "http://foo.com";
+  const std::string url1 = "http://foo.com/";
   const std::string url2 = "http://b.foo.com/baz.js";
   const std::string url3 = "http://c.foo.com/quux.js";
 
@@ -104,7 +104,7 @@ TEST_F(MinimizeDnsTest, OnePostOnloadTwoNotTwoViolations) {
 }
 
 TEST_F(MinimizeDnsTest, TwoUrlsOneHostNoViolations) {
-  const std::string url1 = "http://foo.com";
+  const std::string url1 = "http://foo.com/";
   const std::string url2 = "http://foo.com/favicon.ico";
 
   New200Resource(url1);
@@ -117,7 +117,7 @@ TEST_F(MinimizeDnsTest, TwoUrlsOneHostNoViolations) {
 }
 
 TEST_F(MinimizeDnsTest, TwoUrlsTwoViolations) {
-  const std::string url1 = "http://foo.com";
+  const std::string url1 = "http://foo.com/";
   const std::string url2 = "http://a.foo.com/image.png";
 
   New200Resource(url1);
@@ -132,7 +132,7 @@ TEST_F(MinimizeDnsTest, TwoUrlsTwoViolations) {
 }
 
 TEST_F(MinimizeDnsTest, ThreeUrlsOneViolation) {
-  const std::string url1 = "http://foo.com";
+  const std::string url1 = "http://foo.com/";
   const std::string url2 = "http://foo.com/favicon.ico";
   const std::string url3 = "http://a.foo.com/image.png";
 
@@ -162,7 +162,7 @@ TEST_F(MinimizeDnsTest, MainResourceNoViolation) {
 }
 
 TEST_F(MinimizeDnsTest, ExcludeNumericIps) {
-  const std::string url1 = "http://foo.com";
+  const std::string url1 = "http://foo.com/";
   const std::string url2 = "http://a.foo.com/image.png";
   const std::string url3 = "http://127.0.0.1/";
 

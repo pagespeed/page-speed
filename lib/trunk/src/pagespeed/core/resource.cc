@@ -24,6 +24,7 @@
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/uri_util.h"
 
 namespace {
 
@@ -77,7 +78,27 @@ Resource::~Resource() {
 }
 
 void Resource::SetRequestUrl(const std::string& value) {
-  request_url_ = value;
+  // We track resources by their network URL, which does not include
+  // the fragment/hash. If there is a fragment/hash for the
+  // resource, remove it. Note that this will also canonicalize the
+  // URL.
+  std::string url_no_fragment;
+  if (uri_util::GetUriWithoutFragment(value,
+                                      &url_no_fragment)) {
+    if (url_no_fragment != value) {
+      LOG(INFO) << "SetRequestUrl canonicalizing from "
+                << value << " to " << url_no_fragment;
+    }
+
+#ifndef NDEBUG
+    // Make sure that the new URL is canonicalized in debug builds.
+    std::string canon_url = url_no_fragment;
+    uri_util::CanonicalizeUrl(&canon_url);
+    DCHECK(canon_url == url_no_fragment);
+#endif
+  }
+
+  request_url_ = url_no_fragment;
 }
 
 void Resource::SetRequestMethod(const std::string& value) {

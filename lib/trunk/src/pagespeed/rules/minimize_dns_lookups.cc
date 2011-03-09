@@ -27,6 +27,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -71,6 +72,11 @@ void PopulateLoneDnsResources(
     const pagespeed::PagespeedInput& input,
     const pagespeed::HostResourceMap &host_resource_map,
     pagespeed::ResourceSet *lone_dns_resources) {
+  std::string primary_resource_url;
+  if (!pagespeed::uri_util::GetUriWithoutFragment(input.primary_resource_url(),
+                                                  &primary_resource_url)) {
+    primary_resource_url = input.primary_resource_url();
+  }
   for (pagespeed::HostResourceMap::const_iterator iter =
            host_resource_map.begin(), end = host_resource_map.end();
        iter != end;
@@ -83,7 +89,7 @@ void PopulateLoneDnsResources(
       continue;
     }
     const pagespeed::Resource* resource = *resources.begin();
-    if (resource->GetRequestUrl() == input.primary_resource_url()) {
+    if (resource->GetRequestUrl() == primary_resource_url) {
       // Special case: if this resource is the primary resource, don't
       // flag it since it's not realistic for the site to change the
       // URL of the primary resource.

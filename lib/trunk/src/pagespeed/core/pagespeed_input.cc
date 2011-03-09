@@ -111,11 +111,18 @@ bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
                 << " to frozen PagespeedInput.";
     return false;
   }
-  if (!has_resource_with_url(url)) {
-    LOG(INFO) << "No such primary resource " << url;
+  std::string canon_url = url;
+  uri_util::CanonicalizeUrl(&canon_url);
+
+  std::string canon_url_no_fragment;
+  if (!uri_util::GetUriWithoutFragment(canon_url, &canon_url_no_fragment)) {
+      canon_url_no_fragment = canon_url;
+  }
+  if (!has_resource_with_url(canon_url_no_fragment)) {
+    LOG(INFO) << "No such primary resource " << canon_url_no_fragment;
     return false;
   }
-  primary_resource_url_ = url;
+  primary_resource_url_ = canon_url;
   return true;
 }
 
@@ -502,10 +509,18 @@ bool PagespeedInput::IsResourceLoadedAfterOnload(
 
 const Resource* PagespeedInput::GetResourceWithUrl(
     const std::string& url) const {
+  std::string url_canon;
+  if (!uri_util::GetUriWithoutFragment(url, &url_canon)) {
+    url_canon = url;
+  }
   std::map<std::string, const Resource*>::const_iterator it =
-      url_resource_map_.find(url);
+      url_resource_map_.find(url_canon);
   if (it == url_resource_map_.end()) {
     return NULL;
+  }
+  if (url_canon != url) {
+    LOG(INFO) << "GetResourceWithUrl(\"" << url
+              << "\"): Returning resource with URL " << url_canon;
   }
   return it->second;
 }
