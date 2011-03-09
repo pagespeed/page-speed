@@ -23,6 +23,12 @@ class DomDocument;
 
 namespace uri_util {
 
+// Get the given URI, and remove its fragment if it has one. For
+// instance, http://www.example.com/foo#fragment will return
+// http://www.example.com/foo while http://www.example.com/bar will
+// return http://www.example.com/bar.
+bool GetUriWithoutFragment(const std::string& uri, std::string* out);
+
 // Resolve the specified URI relative to the given base URL.
 std::string ResolveUri(const std::string& uri, const std::string& base_url);
 
