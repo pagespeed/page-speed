@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/rules/rule_input.h"
+#include "pagespeed/core/rule_input.h"
 
 #include <map>
 #include <set>
