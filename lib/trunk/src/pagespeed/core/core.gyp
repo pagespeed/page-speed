@@ -39,6 +39,7 @@
         'resource_util.cc',
         'result_provider.cc',
         'rule.cc',
+        'rule_input.cc',
         'string_util.cc',
         'uri_util.cc',
       ],

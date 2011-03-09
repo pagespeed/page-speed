@@ -14,6 +14,7 @@
 
 #include "pagespeed/core/engine.h"
 
+#include <algorithm>
 #include <string>
 
 #include "base/logging.h"
@@ -102,7 +103,8 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
   results->mutable_input_info()->CopyFrom(*pagespeed_input.input_information());
   GetPageSpeedVersion(results->mutable_version());
 
-  const RuleInput rule_input(pagespeed_input);
+  RuleInput rule_input(pagespeed_input);
+  rule_input.Init();
   int total_score = 0;
   int total_weights = 0;
   int num_results_so_far = 0;
