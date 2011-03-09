@@ -25,6 +25,7 @@
 #include "pagespeed/rules/enable_keep_alive.h"
 #include "pagespeed/rules/inline_small_resources.h"
 #include "pagespeed/rules/leverage_browser_caching.h"
+#include "pagespeed/rules/make_landing_page_redirects_cacheable.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/minify_javascript.h"
@@ -59,6 +60,7 @@ static const char* kCoreRules[] = {
   "inlinesmallcss",
   "inlinesmalljavascript",
   "leveragebrowsercaching",
+  "makelandingpageredirectscacheable",
   "minifycss",
   "minifyhtml",
   "minifyjavascript",
@@ -153,6 +155,8 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("inlinesmallcss", rules::InlineSmallCss());
   RULE("inlinesmalljavascript", rules::InlineSmallJavaScript());
   RULE("leveragebrowsercaching", rules::LeverageBrowserCaching());
+  RULE("makelandingpageredirectscacheable",
+       rules::MakeLandingPageRedirectsCacheable());
   RULE("minifycss", rules::MinifyCss(save_optimized_content));
   RULE("minifyhtml", rules::MinifyHTML(save_optimized_content));
   RULE("minifyjavascript", rules::MinifyJavaScript(save_optimized_content));
@@ -241,6 +245,7 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::InlineSmallCss());
   rules->push_back(new rules::InlineSmallJavaScript());
   rules->push_back(new rules::LeverageBrowserCaching());
+  rules->push_back(new rules::MakeLandingPageRedirectsCacheable());
   rules->push_back(new rules::MinifyCss(save_optimized_content));
   rules->push_back(new rules::MinifyHTML(save_optimized_content));
   rules->push_back(new rules::MinifyJavaScript(save_optimized_content));

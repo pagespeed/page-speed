@@ -17,14 +17,15 @@
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
+#include "base/string_number_conversions.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/rules/minimize_redirects.h"
+#include "pagespeed/rules/make_landing_page_redirects_cacheable.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
-using pagespeed::rules::MinimizeRedirects;
+using pagespeed::rules::MakeLandingPageRedirectsCacheable;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::ResourceType;
@@ -35,6 +36,16 @@ using pagespeed::Rule;
 using pagespeed::RuleResults;
 
 namespace {
+
+const char* KPermanentResponsePart1 =
+    "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">"
+    "<html><head>"
+    "<title>301 Moved Permanently</title>"
+    "</head><body>"
+    "<h1>Moved Permanently</h1>"
+    "<p>The document has moved <a href=\"";
+
+const char* KPermanentResponsePart2 = "\">here</a>.</p> </body></html> ";
 
 class Violation {
  public:
@@ -48,7 +59,8 @@ class Violation {
   std::vector<std::string> urls;
 };
 
-class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
+class MakeLandingPageRedirectsCacheableTest : public
+    ::pagespeed_testing::PagespeedTest {
  protected:
   void AddResourceUrl(const std::string& url, int status_code) {
     Resource* resource = new Resource;
@@ -58,19 +70,48 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
     AddResource(resource);
   }
 
-  void AddRedirect(const std::string& url, const std::string& location) {
+  void AddRedirect(const std::string& url,
+                   int response_code,
+                   const std::string& location,
+                   const std::string& cache_control_header) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(302);
+    resource->SetResponseStatusCode(response_code);
     if (!location.empty()) {
       resource->AddResponseHeader("Location", location);
     }
+    if (!cache_control_header.empty()) {
+      resource->AddResponseHeader("Cache-Control", cache_control_header);
+    }
+    if (response_code == 301) {
+      std::string body = KPermanentResponsePart1 +
+          location + KPermanentResponsePart2;
+      resource->AddResponseHeader("Content-Length",
+                                  base::IntToString(body.size()));
+      resource->SetResponseBody(body);
+    }
     AddResource(resource);
+  }
+  void AddPermanentRedirect(const std::string& url,
+                            const std::string& location) {
+    AddRedirect(url, 301, location, "");
+  }
+
+
+  void AddTemporaryRedirect(const std::string& url,
+                   const std::string& location) {
+    AddRedirect(url, 302, location, "");
+  }
+
+
+  void AddCacheableTemporaryRedirect(const std::string& url,
+                   const std::string& location) {
+    AddRedirect(url, 302, location, "max-age=31536000");
   }
 
   void CheckViolations(const std::vector<Violation>& expected_violations) {
-    MinimizeRedirects rule;
+    MakeLandingPageRedirectsCacheable rule;
 
     RuleResults rule_results;
     ResultProvider provider(rule, &rule_results, 0);
@@ -100,18 +141,17 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
   }
 };
 
-TEST_F(MinimizeRedirectsTest, SimpleRedirect) {
+TEST_F(MakeLandingPageRedirectsCacheableTest, SimpleRedirect) {
   // Single redirect.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://www.foo.com/";
 
-  AddRedirect(url1, url2);
-  AddResourceUrl(url2, 200);
+  AddTemporaryRedirect(url1, url2);
+  NewPrimaryResource(url2);
   Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
-  urls.push_back(url2);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(1, urls));
@@ -119,14 +159,14 @@ TEST_F(MinimizeRedirectsTest, SimpleRedirect) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, EmptyLocation) {
+TEST_F(MakeLandingPageRedirectsCacheableTest, EmptyLocation) {
   // Single redirect.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://www.foo.com/";
   std::string empty = "";
 
-  AddRedirect(url1, empty);
-  AddResourceUrl(url2, 200);
+  AddTemporaryRedirect(url1, empty);
+  NewPrimaryResource(url2);
   Freeze();
 
   // Though there is a 302, it does not redirect anywhere since it is
@@ -136,13 +176,13 @@ TEST_F(MinimizeRedirectsTest, EmptyLocation) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, NoRedirects) {
+TEST_F(MakeLandingPageRedirectsCacheableTest, NoRedirects) {
   // Single redirect.
   std::string url1 = "http://www.foo.com/";
   std::string url2 = "http://www.bar.com/";
 
   AddResourceUrl(url1, 200);
-  AddResourceUrl(url2, 304);
+  NewPrimaryResource(url2);
   Freeze();
 
   std::vector<Violation> violations;
@@ -150,21 +190,20 @@ TEST_F(MinimizeRedirectsTest, NoRedirects) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, RedirectChain) {
+TEST_F(MakeLandingPageRedirectsCacheableTest, RedirectChain) {
   // Test longer chains.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://www.foo.com/";
   std::string url3 = "http://www.foo.com/index.html";
 
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3);
-  AddResourceUrl(url3, 200);
+  AddTemporaryRedirect(url1, url2);
+  AddTemporaryRedirect(url2, url3);
+  NewPrimaryResource(url3);
   Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
   urls.push_back(url2);
-  urls.push_back(url3);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(2, urls));
@@ -172,22 +211,21 @@ TEST_F(MinimizeRedirectsTest, RedirectChain) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, AbsoltutePath) {
+TEST_F(MakeLandingPageRedirectsCacheableTest, AbsoltutePath) {
   // Redirect given using an absolute path instead of fully qualified url.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://foo.com/a/b/pony.gif";
   std::string url3 = "http://foo.com/common/pony.gif";
   std::string url3_path = "/common/pony.gif";
 
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3_path);
-  AddResourceUrl(url3, 200);
+  AddTemporaryRedirect(url1, url2);
+  AddTemporaryRedirect(url2, url3_path);
+  NewPrimaryResource(url3);
   Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
   urls.push_back(url2);
-  urls.push_back(url3);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(2, urls));
@@ -195,22 +233,21 @@ TEST_F(MinimizeRedirectsTest, AbsoltutePath) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, RelativePath) {
+TEST_F(MakeLandingPageRedirectsCacheableTest, RelativePath) {
   // Redirect given using a relative path instead of fully qualified url.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://foo.com/a/b/pony.gif";
   std::string url3 = "http://foo.com/a/b/common/pony.gif";
   std::string url3_relative = "common/pony.gif";
 
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3_relative);
-  AddResourceUrl(url3, 200);
+  AddTemporaryRedirect(url1, url2);
+  AddTemporaryRedirect(url2, url3_relative);
+  NewPrimaryResource(url3);
   Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
   urls.push_back(url2);
-  urls.push_back(url3);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(2, urls));
@@ -218,22 +255,21 @@ TEST_F(MinimizeRedirectsTest, RelativePath) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, Fragment) {
+TEST_F(MakeLandingPageRedirectsCacheableTest, Fragment) {
   // Redirect given using an absolute path instead of fully qualified url.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://foo.com/a/b/pony.gif";
   std::string url3 = "http://foo.com/common";
   std::string url3_with_fragment = "http://foo.com/common#frament";
 
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3_with_fragment);
-  AddResourceUrl(url3, 200);
+  AddTemporaryRedirect(url1, url2);
+  AddTemporaryRedirect(url2, url3_with_fragment);
+  NewPrimaryResource(url3);
   Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
   urls.push_back(url2);
-  urls.push_back(url3);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(2, urls));
@@ -241,114 +277,97 @@ TEST_F(MinimizeRedirectsTest, Fragment) {
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, RedirectGraphNoCycles1) {
-  // Graph with multiple roots.
+TEST_F(MakeLandingPageRedirectsCacheableTest, SimpleRedirectPermanent) {
+  // No redirect.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://www.foo.com/";
-  std::string url3 = "http://www.foo.com/index.html";
-  std::string url4 = "http://bar.com/";
 
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3);
-  AddResourceUrl(url3, 200);
-  AddRedirect(url4, url3);
+  AddPermanentRedirect(url1, url2);
+  NewPrimaryResource(url2);
   Freeze();
 
-  std::vector<std::string> urls1;
-  urls1.push_back(url1);
-  urls1.push_back(url2);
-  urls1.push_back(url3);
-
-  std::vector<std::string> urls2;
-  urls2.push_back(url4);
-  urls2.push_back(url3);
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls2));
-  violations.push_back(Violation(2, urls1));
-
   CheckViolations(violations);
 }
 
-TEST_F(MinimizeRedirectsTest, RedirectGraphCycles) {
-  // break cycles that are part of rooted graphs arbitrarily.
+TEST_F(MakeLandingPageRedirectsCacheableTest, PermanentAndTemp) {
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://www.foo.com/";
-  std::string url3 = "http://www.bar.com/";
-  std::string url4 = "http://www.baz.com/";
+  std::string url3 = "http://www.foo.com/common";
 
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3);
-  AddRedirect(url3, url4);
-  AddRedirect(url4, url2);
+  AddPermanentRedirect(url1, url2);
+  AddTemporaryRedirect(url2, url3);
+  NewPrimaryResource(url3);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url2);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
+  CheckViolations(violations);
+}
+
+TEST_F(MakeLandingPageRedirectsCacheableTest, TempAndPermanent) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://www.foo.com/common";
+
+  AddTemporaryRedirect(url1, url2);
+  AddPermanentRedirect(url2, url3);
+  NewPrimaryResource(url3);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
+  CheckViolations(violations);
+}
+
+TEST_F(MakeLandingPageRedirectsCacheableTest, TwoNonCacheable) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://www.foo.com/common";
+  std::string url4 = "http://www.foo.com/common/";
+
+  AddTemporaryRedirect(url1, url2);
+  AddPermanentRedirect(url2, url3);
+  AddTemporaryRedirect(url3, url4);
+  NewPrimaryResource(url4);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url3);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(2, urls));
+  CheckViolations(violations);
+}
+
+TEST_F(MakeLandingPageRedirectsCacheableTest, CacheableTempAndPermanent) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://www.foo.com/common";
+
+  AddCacheableTemporaryRedirect(url1, url2);
+  AddPermanentRedirect(url2, url3);
+  NewPrimaryResource(url3);
   Freeze();
 
   std::vector<std::string> urls;
   urls.push_back(url1);
   urls.push_back(url2);
   urls.push_back(url3);
-  urls.push_back(url4);
-  urls.push_back(url2);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(4, urls));
-
-  CheckViolations(violations);
-}
-
-TEST_F(MinimizeRedirectsTest, RedirectGraphCycles2) {
-  // break cycles that are part of rooted graphs arbitrarily.
-  std::string url1 = "http://foo.com/";
-  std::string url2 = "http://www.foo.com/";
-  std::string url3 = "http://www.bar.com/";
-  std::string url4 = "http://www.baz.com/";
-  std::string url5 = "http://a.com/";
-
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3);
-  AddRedirect(url3, url4);
-  AddRedirect(url4, url2);
-  AddRedirect(url5, url3);
-  Freeze();
-
-  std::vector<std::string> urls1;
-  urls1.push_back(url5);
-  urls1.push_back(url3);
-  urls1.push_back(url4);
-  urls1.push_back(url2);
-  urls1.push_back(url3);
-
-  std::vector<std::string> urls2;
-  urls2.push_back(url1);
-  urls2.push_back(url2);
-
-  std::vector<Violation> violations;
-  violations.push_back(Violation(4, urls1));
-  violations.push_back(Violation(1, urls2));
-
-  CheckViolations(violations);
-}
-
-TEST_F(MinimizeRedirectsTest, RedirectCycles) {
-  // pure redirect cycle; currently not checked.
-  std::string url1 = "http://www.a.com/";
-  std::string url2 = "http://www.b.com/";
-  std::string url3 = "http://www.c.com/";
-
-  AddRedirect(url1, url2);
-  AddRedirect(url2, url3);
-  AddRedirect(url3, url1);
-  Freeze();
-
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
-  urls.push_back(url3);
-  urls.push_back(url1);
-
-  std::vector<Violation> violations;
-  violations.push_back(Violation(3, urls));
-
+  // No violation.
   CheckViolations(violations);
 }
 
