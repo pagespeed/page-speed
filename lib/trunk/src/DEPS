@@ -20,6 +20,8 @@ vars = {
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/trunk",
   "instaweb_revision": "@452",
   "icu42_deps_revision": "@69864",
+  "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.3.0",
+  "protobuf_revision": "@head",
 }
 
 deps = {
@@ -80,6 +82,14 @@ deps = {
   "src/third_party/protobuf":
     (Var("chromium_trunk") + "/src/third_party/protobuf" +
      Var("chromium_revision")),
+
+  "src/third_party/protobuf/java":
+    (Var("protobuf_trunk") + "/java/src/main/java" +
+     Var("protobuf_revision")),
+
+  "src/third_party/protobuf/java/descriptor":
+    File(Var("protobuf_trunk") + "/src/google/protobuf/descriptor.proto" +
+     Var("protobuf_revision")),
 
   "src/third_party/modp_b64":
     Var("chromium_trunk") + "/src/third_party/modp_b64" +

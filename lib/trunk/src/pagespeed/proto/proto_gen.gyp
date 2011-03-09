@@ -17,6 +17,9 @@
     'pagespeed_root': '../..',
     'chromium_code': 1,
     'protoc_out_dir': '<(SHARED_INTERMEDIATE_DIR)/protoc_out',
+    'java_objroot': '<(DEPTH)/out/java',
+    'pagespeed_proto_java_objroot': '<(java_objroot)/classes/pagespeed_proto',
+    'pagespeed_proto_java_srcroot': '<(protoc_out_dir)/pagespeed/proto',
   },
   'targets': [
     {
@@ -37,12 +40,16 @@
           'outputs': [
             '<(protoc_out_dir)/pagespeed/proto/<(RULE_INPUT_ROOT).pb.h',
             '<(protoc_out_dir)/pagespeed/proto/<(RULE_INPUT_ROOT).pb.cc',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedInput.java',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedOutput.java',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedProtoFormatter.java',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
             '--proto_path=',
             './<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
             '--cpp_out=<(protoc_out_dir)/pagespeed/proto',
+            '--java_out=<(pagespeed_proto_java_srcroot)',
           ],
           'message': 'Generating C++ code from <(RULE_INPUT_PATH)',
         },
@@ -137,6 +144,61 @@
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
       ]
+    },
+    {
+      'target_name': 'pagespeed_proto_java_javac',
+      'suppress_wildcard': 1,
+      'type': 'none',
+      'dependencies': [
+        'pagespeed_genproto',
+        '<(pagespeed_root)/build/temp_gyp/protobuf_java.gyp:protobuf_java_jar',
+      ],
+      'actions': [
+        {
+          'action_name': 'javac',
+          'inputs': [
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedInput.java',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedOutput.java',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedProtoFormatter.java',
+          ],
+          'outputs': [
+            '<(pagespeed_proto_java_objroot)/com/googlecode/page_speed/PagespeedInput.class',
+            '<(pagespeed_proto_java_objroot)/com/googlecode/page_speed/PagespeedOutput.class',
+            '<(pagespeed_proto_java_objroot)/com/googlecode/page_speed/PagespeedProtoFormatter.class',
+          ],
+	  # Assumes javac is in the classpath.
+          'action': [
+            'javac',
+            '-d', '<(pagespeed_proto_java_objroot)',
+            '-cp', '<(java_objroot)/protobuf.jar',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedInput.java',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedOutput.java',
+            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedProtoFormatter.java',
+          ],
+        },
+      ],
+    },
+    {
+      'target_name': 'pagespeed_proto_java_jar',
+      'suppress_wildcard': 1,
+      'type': 'none',
+      'dependencies': [
+        'pagespeed_proto_java_javac',
+      ],
+      'actions': [
+        {
+          'action_name': 'jar',
+          'inputs': [
+          ],
+          'outputs': [
+            '<(java_objroot)/pagespeed_proto.jar',
+          ],
+          'action': [
+            'jar', 'cf', '<(java_objroot)/pagespeed_proto.jar',
+            '-C', '<(pagespeed_proto_java_objroot)', '.'
+	  ],
+        },
+      ],
     },
   ],
 }
