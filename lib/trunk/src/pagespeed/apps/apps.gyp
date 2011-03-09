@@ -86,5 +86,33 @@
         'optimize_image.cc',
       ],
     },
+    {
+      'target_name': 'pagespeed_java',
+      'suppress_wildcard': 1,
+      'type': 'none',
+      'dependencies': [
+        'pagespeed_bin',
+        '<(pagespeed_root)/build/temp_gyp/protobuf_java.gyp:protobuf_java_jar',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_java_jar',
+      ],
+      'actions': [
+        {
+          'action_name': 'javac',
+          'inputs': [
+            'java/com/googlecode/page_speed/Pagespeed.java',
+          ],
+          'outputs': [
+            '<(DEPTH)/out/java/classes/pagespeed/com/googlecode/page_speed/Pagespeed.class',
+          ],
+	  # Assumes javac is in the path.
+          'action': [
+            'javac',
+            '-d', '<(DEPTH)/out/java/classes/pagespeed',
+            '-classpath', '<(DEPTH)/out/java/protobuf.jar:<(DEPTH)/out/java/pagespeed_proto.jar',
+            'java/com/googlecode/page_speed/Pagespeed.java',
+          ],
+        },
+      ],
+    },
   ],
 }

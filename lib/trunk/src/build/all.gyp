@@ -21,6 +21,7 @@
       'dependencies': [
         '../base/base.gyp:*',
         '../build/temp_gyp/googleurl.gyp:*',
+        '../build/temp_gyp/protobuf_java.gyp:*',
         '../pagespeed/apps/apps.gyp:*',
         '../pagespeed/core/core.gyp:*',
         '../pagespeed/cssmin/cssmin.gyp:*',
