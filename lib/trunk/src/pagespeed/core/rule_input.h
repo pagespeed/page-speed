@@ -25,6 +25,7 @@
 namespace pagespeed {
 
 class PagespeedInput;
+class Resource;
 
 class RuleInput {
  public:
