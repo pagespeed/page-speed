@@ -31,6 +31,8 @@ using pagespeed_testing::FakeDomElement;
 
 static const char* kURL1 = "http://www.foo.com/";
 static const char* kURL2 = "http://www.bar.com/";
+static const char* kNonCanonUrl = "http://example.com";
+static const char* kCanonicalizedUrl = "http://example.com/";
 
 Resource* NewResource(const std::string& url, int status_code) {
   Resource* resource = new Resource;
@@ -86,6 +88,33 @@ TEST(PagespeedInputTest, FilterResources) {
       new pagespeed::NotResourceFilter(new pagespeed::AllowAllResourceFilter));
   EXPECT_FALSE(input.AddResource(NewResource(kURL1, 200)));
   ASSERT_TRUE(input.Freeze());
+}
+
+// Make sure SetPrimaryResourceUrl canonicalizes its input.
+TEST(PagespeedInputTest, SetPrimaryResourceUrl) {
+  PagespeedInput input;
+  EXPECT_TRUE(input.AddResource(NewResource(kNonCanonUrl, 200)));
+  EXPECT_TRUE(input.SetPrimaryResourceUrl(kNonCanonUrl));
+  ASSERT_TRUE(input.Freeze());
+
+  EXPECT_EQ(kCanonicalizedUrl, input.primary_resource_url());
+}
+
+// Make sure SetPrimaryResourceUrl canonicalizes its input.
+TEST(PagespeedInputTest, GetResourceWithUrl) {
+  PagespeedInput input;
+  EXPECT_TRUE(input.AddResource(NewResource(kNonCanonUrl, 200)));
+  ASSERT_TRUE(input.Freeze());
+
+  const Resource* r1 = input.GetResourceWithUrl(kNonCanonUrl);
+  const Resource* r2 = input.GetResourceWithUrl(kCanonicalizedUrl);
+  ASSERT_TRUE(r1 != NULL);
+  ASSERT_TRUE(r2 != NULL);
+  ASSERT_EQ(r1, r2);
+  ASSERT_NE(kNonCanonUrl, r1->GetRequestUrl());
+  ASSERT_EQ(kCanonicalizedUrl, r1->GetRequestUrl());
+  ASSERT_NE(kNonCanonUrl, r2->GetRequestUrl());
+  ASSERT_EQ(kCanonicalizedUrl, r2->GetRequestUrl());
 }
 
 class UpdateResourceTypesTest : public pagespeed_testing::PagespeedTest {

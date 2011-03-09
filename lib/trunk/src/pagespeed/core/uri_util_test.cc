@@ -126,4 +126,12 @@ TEST(UriUtil, GetUriWithoutFragmentTest) {
   ASSERT_FALSE(pagespeed::uri_util::GetUriWithoutFragment("", &uri_no_fragment));
 }
 
+TEST(UriUtil, CanonicalizeUrl) {
+  std::string url = "http://www.foo.com";
+  pagespeed::uri_util::CanonicalizeUrl(&url);
+  ASSERT_EQ("http://www.foo.com/", url);
+  pagespeed::uri_util::CanonicalizeUrl(&url);
+  ASSERT_EQ("http://www.foo.com/", url);
+}
+
 }  // namespace
