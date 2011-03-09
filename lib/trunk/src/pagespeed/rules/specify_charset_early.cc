@@ -17,10 +17,6 @@
 #include <string>
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "net/instaweb/htmlparse/public/html_parse.h"
-#include "net/instaweb/htmlparse/public/html_name.h"
-#include "net/instaweb/htmlparse/public/empty_html_filter.h"
-#include "net/instaweb/util/public/google_message_handler.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -47,69 +43,6 @@ bool HasCharsetInContentTypeHeader(const std::string& header) {
   return !directives["charset"].empty();
 }
 
-class CharsetInMetaTagFilter : public net_instaweb::EmptyHtmlFilter {
- public:
-  CharsetInMetaTagFilter(net_instaweb::HtmlParse* html_parse);
-
-  virtual void StartDocument();
-  virtual void StartElement(net_instaweb::HtmlElement* element);
-  virtual const char* Name() const { return "CharsetInMetaTag"; }
-
-  // Was a charset specified in a meta tag? Call after the parse is
-  // complete.
-  bool charset_specified_in_meta_tag() const {
-    return charset_specified_in_meta_tag_;
-  }
-
- private:
-  bool charset_specified_in_meta_tag_;
-
-  DISALLOW_COPY_AND_ASSIGN(CharsetInMetaTagFilter);
-};
-
-CharsetInMetaTagFilter::CharsetInMetaTagFilter(
-    net_instaweb::HtmlParse* html_parse)
-    : charset_specified_in_meta_tag_(false) {
-}
-
-void CharsetInMetaTagFilter::StartDocument() {
-  // Reset the state.
-  charset_specified_in_meta_tag_ = false;
-}
-
-void CharsetInMetaTagFilter::StartElement(net_instaweb::HtmlElement* element) {
-  if (charset_specified_in_meta_tag_) {
-    // We already found a valid charset, so don't bother visiting
-    // subsequent tags.
-    return;
-  }
-
-  net_instaweb::HtmlName::Keyword keyword = element->keyword();
-  if (keyword != net_instaweb::HtmlName::kMeta) {
-    return;
-  }
-
-  const char* http_equiv = element->AttributeValue(
-      net_instaweb::HtmlName::kHttpEquiv);
-  if (http_equiv == NULL) {
-    return;
-  }
-
-  if (!LowerCaseEqualsASCII(http_equiv, "content-type")) {
-    return;
-  }
-
-  const char* content = element->AttributeValue(
-      net_instaweb::HtmlName::kContent);
-  if (content == NULL) {
-    return;
-  }
-
-  if (HasCharsetInContentTypeHeader(content)) {
-    charset_specified_in_meta_tag_ = true;
-  }
-}
-
 }  // namespace
 
 namespace pagespeed {
@@ -128,9 +61,9 @@ const char* SpecifyCharsetEarly::name() const {
 UserFacingString SpecifyCharsetEarly::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to ensure that
   // their webpages include a declaration of the character set (e.g. UTF-8,
-  // Latin-1, or some other text encoding) being used, early on in the page.
+  // Latin-1, or some other text encoding) being used, in the HTTP header.
   // This is displayed in a list of rule names that Page Speed generates.
-  return _("Specify a character set early");
+  return _("Specify a character set");
 }
 
 const char* SpecifyCharsetEarly::documentation_url() const {
@@ -140,11 +73,6 @@ const char* SpecifyCharsetEarly::documentation_url() const {
 bool SpecifyCharsetEarly::AppendResults(const RuleInput& rule_input,
                                         ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();
-  net_instaweb::GoogleMessageHandler message_handler;
-  message_handler.set_min_message_type(net_instaweb::kError);
-  net_instaweb::HtmlParse html_parse(&message_handler);
-  CharsetInMetaTagFilter filter(&html_parse);
-  html_parse.AddFilter(&filter);
 
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
@@ -175,24 +103,7 @@ bool SpecifyCharsetEarly::AppendResults(const RuleInput& rule_input,
       continue;
     }
 
-    size_t max_bytes_to_scan = body.size();
-    if (body.size() > kLateThresholdBytes) {
-      max_bytes_to_scan = kLateThresholdBytes;
-    }
-
-    html_parse.StartParse(resource.GetRequestUrl().c_str());
-    html_parse.ParseText(body.data(), max_bytes_to_scan);
-    html_parse.FinishParse();
-
-    if (filter.charset_specified_in_meta_tag()) {
-      // There is a valid charset in a <meta> tag, so don't flag this
-      // resource.
-      continue;
-    }
-
-    // There was no charset found in the Content-Type header or in the
-    // body, so we should flag a violation.
-
+    // There was no charset found in the Content-Type header.
     Result* result = provider->NewResult();
 
     Savings* savings = result->mutable_savings();
@@ -212,16 +123,13 @@ void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
 
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
-      // detected as either not declaring the character set (e.g. UTF-8,
-      // Latin-1, or some other text encoding) being used, or declaring a
-      // character set but doing so late in the page for a character set other
-      // than what the browser was previously assuming.  It describes the
+      // detected as not declaring the character set (e.g. UTF-8,
+      // Latin-1, or some other text encoding) being used. It describes the
       // problem to the user, and tells them how to fix it by explicitly
       // specifying the character set near the beginning of the page.
       _("The following resources have no character set specified "
-        "or have a non-default character set specified late in the "
-        "document. Specifying a character set early in these "
-        "documents can speed up browser rendering."));
+        "in the HTTP header. Specifying a character set in the HTTP header "
+        "can speed up browser rendering."));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
