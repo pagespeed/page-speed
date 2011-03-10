@@ -34,14 +34,9 @@ function receiveInput(response) {
 
   // Load the Page Speed NaCl module.
   var pagespeed_module = document.createElement('embed');
-  pagespeed_module.setAttribute('name', 'nacl_module');
   pagespeed_module.setAttribute('width', 0);
   pagespeed_module.setAttribute('height', 0);
-  var nexes = ('x86-32: ' + chrome.extension.getURL('pagespeed_ia32.nexe') +
-               '\nx86-64: ' + chrome.extension.getURL('pagespeed_x64.nexe') +
-               '\nARM: ' + chrome.extension.getURL('pagespeed_arm.nexe'));
-  pagespeed_module.setAttribute('nexes', nexes);
-  pagespeed_module.setAttribute('type', 'application/x-nacl-srpc');
+  pagespeed_module.setAttribute('type', 'application/x-page-speed');
 
   // Add the module to the body so that the NaCl module will load.
   // TODO(mdsteele): Find a way to load the module without modifying the body.

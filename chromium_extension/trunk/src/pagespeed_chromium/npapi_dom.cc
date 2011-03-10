@@ -20,6 +20,8 @@
 #include "base/logging.h"
 #include "base/string_number_conversions.h"
 
+extern NPNetscapeFuncs* npnfuncs;
+
 namespace pagespeed_chromium {
 
 namespace {
@@ -31,12 +33,13 @@ namespace {
 NPObject* GetObjectProperty(NPP npp, NPObject* object, const char* name) {
   NPObject* rval = NULL;
   NPVariant result;
-  if (NPN_GetProperty(npp, object, NPN_GetStringIdentifier(name), &result)) {
+  if (npnfuncs->getproperty(npp, object, npnfuncs->getstringidentifier(name),
+                            &result)) {
     if (NPVARIANT_IS_OBJECT(result)) {
       rval = NPVARIANT_TO_OBJECT(result);
-      NPN_RetainObject(rval);
+      npnfuncs->retainobject(rval);
     }
-    NPN_ReleaseVariantValue(&result);
+    npnfuncs->releasevariantvalue(&result);
   }
   return rval;
 }
@@ -47,12 +50,13 @@ NPObject* GetObjectProperty(NPP npp, NPObject* object, const char* name) {
 bool GetIntProperty(NPP npp, NPObject* object, const char* name, int* output) {
   bool rval = false;
   NPVariant result;
-  if (NPN_GetProperty(npp, object, NPN_GetStringIdentifier(name), &result)) {
+  if (npnfuncs->getproperty(npp, object, npnfuncs->getstringidentifier(name),
+                            &result)) {
     if (NPVARIANT_IS_INT32(result)) {
       *output = static_cast<int>(NPVARIANT_TO_INT32(result));
       rval = true;
     }
-    NPN_ReleaseVariantValue(&result);
+    npnfuncs->releasevariantvalue(&result);
   }
   return rval;
 }
@@ -64,14 +68,15 @@ bool GetStringProperty(NPP npp, NPObject* object, const char* name,
                        std::string* output) {
   bool rval = false;
   NPVariant result;
-  if (NPN_GetProperty(npp, object, NPN_GetStringIdentifier(name), &result)) {
+  if (npnfuncs->getproperty(npp, object, npnfuncs->getstringidentifier(name),
+                            &result)) {
     if (NPVARIANT_IS_STRING(result)) {
       const NPString& result_NPString = NPVARIANT_TO_STRING(result);
       output->assign(result_NPString.UTF8Characters,
                      result_NPString.UTF8Length);
       rval = true;
     }
-    NPN_ReleaseVariantValue(&result);
+    npnfuncs->releasevariantvalue(&result);
   }
   return rval;
 }
@@ -152,11 +157,11 @@ class NpapiElement : public pagespeed::DomElement {
 
 NpapiDocument::NpapiDocument(NPP npp, NPObject* document)
     : npp_(npp), document_(document) {
-  NPN_RetainObject(document_);
+  npnfuncs->retainobject(document_);
 }
 
 NpapiDocument::~NpapiDocument() {
-  NPN_ReleaseObject(document_);
+  npnfuncs->releaseobject(document_);
 }
 
 std::string NpapiDocument::GetDocumentUrl() const {
@@ -189,23 +194,23 @@ void NpapiDocument::Traverse(pagespeed::DomElementVisitor* visitor) const {
       if (!parent) {
         break;
       }
-      NPN_ReleaseObject(element);
+      npnfuncs->releaseobject(element);
       element = parent;
       next = GetObjectProperty(npp_, element, "nextElementSibling");
     }
     // Continue.
-    NPN_ReleaseObject(element);
+    npnfuncs->releaseobject(element);
     element = next;
   }
 }
 
 NpapiElement::NpapiElement(NPP npp, NPObject* element)
     : npp_(npp), element_(element) {
-  NPN_RetainObject(element_);
+  npnfuncs->retainobject(element_);
 }
 
 NpapiElement::~NpapiElement() {
-  NPN_ReleaseObject(element_);
+  npnfuncs->releaseobject(element_);
 }
 
 pagespeed::DomDocument* NpapiElement::GetContentDocument() const {
@@ -217,7 +222,7 @@ pagespeed::DomDocument* NpapiElement::GetContentDocument() const {
     // constructor.  We need to do one NPN_ReleaseObject here to cancel the
     // retain from GetObjectProperty, and then the NpapiDocument destructor
     // will do the final release when the NpapiDocument object is deleted.
-    NPN_ReleaseObject(document);
+    npnfuncs->releaseobject(document);
   }
   return rval;
 }
@@ -234,15 +239,16 @@ bool NpapiElement::GetAttributeByName(const std::string& name,
   // Note that we won't call NPN_ReleaseVariantValue on &argument, because that
   // would call NPN_MemFree on its data, but that data was allocated by a
   // std::string rather than by NPN_MemAlloc.
-  if (NPN_Invoke(npp_, element_, NPN_GetStringIdentifier("getAttribute"),
-                 &argument, 1, &result)) {
+  if (npnfuncs->invoke(npp_, element_,
+                       npnfuncs->getstringidentifier("getAttribute"),
+                       &argument, 1, &result)) {
     if (NPVARIANT_IS_STRING(result)) {
       const NPString& result_NPString = NPVARIANT_TO_STRING(result);
       attr_value->assign(result_NPString.UTF8Characters,
                          result_NPString.UTF8Length);
       rval = true;
     }
-    NPN_ReleaseVariantValue(&result);
+    npnfuncs->releasevariantvalue(&result);
   }
   return rval;
 }

@@ -39,7 +39,7 @@ var pagespeed = {
       try {
         return func.apply(this, arguments);
       } catch (e) {
-        var message = 'Error in Page Speed panel\n: ' + e.stack;
+        var message = 'Error in Page Speed panel:\n ' + e.stack;
         alert(message + '\n\nPlease file a bug at\n' +
               'http://code.google.com/p/page-speed/issues/');
         webInspector.log(message);
@@ -151,34 +151,90 @@ var pagespeed = {
             fullUrl);
   },
 
-  // Given a format array (as returned from the Page Speed module), build an
-  // array of DOM nodes, suitable to be passed to makeElement().
-  formatLine: function (formatArray) {
-    var elements = [];
-    formatArray.forEach(function (item) {
-      if (item.type === 'url') {
-        elements.push(pagespeed.makeLink(item.value, item.alt ||
-                                         pagespeed.getDisplayUrl(item.value)));
-      } else if (item.type === 'str') {
-        elements.push(document.createTextNode(item.value));
-      }
-    });
-    return elements;
+  ruleDocumentationUrl: function (rule_name) {
+    return 'http://code.google.com/speed/page-speed/docs/' + ({
+      AvoidBadRequests: 'rtt.html#AvoidBadRequests',
+      AvoidCssImport: 'rtt.html#AvoidCssImport',
+      AvoidDocumentWrite: 'rtt.html#AvoidDocumentWrite',
+      CombineExternalCss: 'rtt.html#CombineExternalCss',
+      CombineExternalJavaScript: 'rtt.html#CombineExternalJS',
+      EnableGzipCompression: 'payload.html#GzipCompression',
+      EnableKeepAlive: 'rtt.html#EnableKeepAlive',
+      InlineSmallCss: 'caching.html#InlineSmallResources',
+      InlineSmallJavaScript: 'caching.html#InlineSmallResources',
+      LeverageBrowserCaching: 'caching.html#LeverageBrowserCaching',
+      MinifyCss: 'payload.html#MinifyCss',
+      MinifyHTML: 'payload.html#MinifyHTML',
+      MinifyJavaScript: 'payload.html#MinifyJS',
+      MinimizeDnsLookups: 'rtt.html#MinimizeDNSLookups',
+      MinimizeRedirects: 'rtt.html#AvoidRedirects',
+      MinimizeRequestSize: 'request.html#MinimizeRequestSize',
+      OptimizeImages: 'payload.html#CompressImages',
+      OptimizeTheOrderOfStylesAndScripts: 'rtt.html#PutStylesBeforeScripts',
+      ParallelizeDownloadsAcrossHostnames: 'rtt.html#ParallelizeDownloads',
+      PreferAsyncResources: 'rtt.html#PreferAsyncResources',
+      PutCssInTheDocumentHead: 'rendering.html#PutCSSInHead',
+      RemoveQueryStringsFromStaticResources:
+        'caching.html#LeverageProxyCaching',
+      ServeResourcesFromAConsistentUrl: 'payload.html#duplicate_resources',
+      ServeScaledImages: 'payload.html#ScaleImages',
+      SpecifyACacheValidator: 'caching.html#LeverageBrowserCaching',
+      SpecifyAVaryAcceptEncodingHeader: 'caching.html#LeverageProxyCaching',
+      SpecifyCharsetEarly: 'rendering.html#SpecifyCharsetEarly',
+      SpecifyImageDimensions: 'rendering.html#SpecifyImageDimensions',
+      SpriteImages: 'rtt.html#SpriteImages'
+    }[rule_name] || 'rules_intro.html');
   },
 
-  // Given format children (as returned from the Page Speed module), build an
-  // array of DOM nodes, suitable to be passed to makeElement().
-  formatChildren: function (children, opt_grand) {
-    var elements = [];
-    (children || []).forEach(function (child) {
-      elements.push(pagespeed.makeElement(opt_grand ? 'li' : 'p', null,
-                                          pagespeed.formatLine(child.format)));
-      if (child.children) {
-        elements.push(pagespeed.makeElement('ul', null,
-          pagespeed.formatChildren(child.children, true)));
+  // Given a list of objects produced by
+  // FormattedResultsToJsonConverter::ConvertFormatString(),
+  // build an array of DOM nodes, suitable to be passed to makeElement().
+  formatFormatString: function (format_string) {
+    var sp = pagespeed.makeElement('span');
+    sp.innerHTML = format_string.format.replace(/\$[1-9]/g, function (argnum) {
+      // The regex above ensures that argnum will be a string of the form "$n"
+      // where "n" is a digit from 1 to 9.  We use .substr(1) to get just the
+      // "n" part, then use parseInt() to parse it into an integer (base 10),
+      // then subtract 1 to get an array index from 0 to 8.  We use this index
+      // to get the appropriate argument spec from the format_string.args
+      // array.
+      var arg = format_string.args[parseInt(argnum.substr(1), 10) - 1];
+      // If format_string was constructed wrong, then the index above might
+      // have been invalid.  In that case, just leave the "$n" substring as is.
+      if (!arg) {
+        return argnum;
+      }
+      // If this argument is a URL, replace the "$n" with a link.  For all
+      // other argument types, just replace it with (localized) text.
+      if (arg.type === 'url') {
+        return ['<a href="', arg.string_value,
+                '" onclick="document.openLink(this);return false;">',
+                arg.localized_value, '</a>'].join('');
+      } else {
+        return arg.localized_value;
       }
     });
-    return elements;
+    return sp;
+  },
+
+  // Given a list of objects produced by
+  // FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults(),
+  // build an array of DOM nodes, suitable to be passed to makeElement().
+  formatUrlBlocks: function (url_blocks) {
+    return (url_blocks || []).map(function (url_block) {
+      return pagespeed.makeElement('p', null, [
+        pagespeed.formatFormatString(url_block.header),
+        (!url_block.urls ? [] :
+         pagespeed.makeElement('ul', null, url_block.urls.map(function (url) {
+           return pagespeed.makeElement('li', null, [
+             pagespeed.formatFormatString(url.result),
+             (!url.details ? [] :
+              pagespeed.makeElement('ul', null, url.details.map(function (dt) {
+                return pagespeed.makeElement(
+                  'li', null, pagespeed.formatFormatString(dt));
+              })))]);
+         })))]);
+    });
   },
 
   // Expand all the results in the rules list.
@@ -233,22 +289,19 @@ var pagespeed = {
     var results_container = document.getElementById('results-container');
     pagespeed.removeAllChildren(results_container);
 
-    // Sort the results, first by score, then by name.
-    var results = pagespeed.currentResults.results.slice();
-    results.sort(function (result1, result2) {
-      return (pagespeed.compare(result1.score, result2.score) ||
-              pagespeed.compare(result1.name, result2.name));
+    // Sort the rule results, first by score, then by name.
+    // TODO(mdsteele): Once we have impact-based scores, sort by impact.
+    var rule_results = pagespeed.currentResults.results.rule_results.slice();
+    rule_results.sort(function (result1, result2) {
+      return (pagespeed.compare(result1.rule_score, result2.rule_score) ||
+              pagespeed.compare(result1.localized_rule_name,
+                                result2.localized_rule_name));
     });
-
-    // Compute the overall score.
-    var overall_score = 0;
-    var num_rules = 0;
-    results.forEach(function (result) {
-      num_rules += 1;
-      overall_score += result.score;
-    });
-    overall_score = (num_rules === 0 ? 100 :
-                     Math.round(overall_score / num_rules));
+    var overall_score = pagespeed.currentResults.results.score;
+    // TODO(mdsteele): The below hack shouldn't be necessary; fix it.
+    if (typeof(overall_score) !== 'number') {
+      overall_score = 100;
+    }
 
     // Create the score bar.
     var analyze = pagespeed.currentResults.analyze;
@@ -267,24 +320,24 @@ var pagespeed = {
     // Create the rule results.
     var rules_container = pagespeed.makeElement('div');
     rules_container.id = 'rules-container';
-    results.forEach(function (result) {
+    rule_results.forEach(function (rule_result) {
       var header = pagespeed.makeElement('div', 'header', [
-        pagespeed.makeScoreIcon(result.score),
-        pagespeed.formatLine(result.format)
+        pagespeed.makeScoreIcon(rule_result.rule_score),
+        rule_result.localized_rule_name
       ]);
-      if (result.score >= 100) {
+      if (rule_result.rule_score >= 100) {
         header.style.fontWeight = 'normal';
       }
-      var formatted_children = pagespeed.formatChildren(result.children);
+      var formatted = pagespeed.formatUrlBlocks(rule_result.url_blocks);
       var result_div = pagespeed.makeElement('div', 'result', [
         header,
         pagespeed.makeElement('div', 'details', [
-          (formatted_children.length > 0 ? formatted_children :
+          (formatted.length > 0 ? formatted :
            pagespeed.makeElement('p', null,
                                  'There were no violations of this rule.')),
-          pagespeed.makeElement('p', null,
-            pagespeed.makeLink('http://code.google.com/speed/page-speed/docs/' +
-                               result.url, 'More information'))
+          pagespeed.makeElement('p', null, pagespeed.makeLink(
+            pagespeed.ruleDocumentationUrl(rule_result.rule_name),
+            'More information'))
         ])
       ]);
       rules_container.appendChild(result_div);
@@ -342,6 +395,8 @@ var pagespeed = {
       throw new Error("No response to runPageSpeed request.");
     } else if (response.error_message) {
       webInspector.log(response.error_message);
+    } else if (response.results.error_message) {
+      webInspector.log(response.results.error_message);
     } else {
       pagespeed.currentResults = response;
       pagespeed.showResults();
@@ -421,7 +476,9 @@ pagespeed.ResourceAccumulator.prototype.onBody_ = function (text, encoding) {
     return;  // We've been cancelled so ignore the callback.
   }
   var content = this.har_.entries[this.nextEntryIndex_].response.content;
-  content.text = text;
+  // We need the || here because sometimes we get back null for `text'.
+  // TODO(mdsteele): That's a bad thing.  Is it fixable?
+  content.text = text || "";
   content.encoding = encoding;
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
