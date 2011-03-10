@@ -12,22 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <algorithm>  // for std::min()
-#include <sstream>
 #include <string>
 #include <vector>
 
-#ifdef __native_client__
- #include <nacl/nacl_npapi.h>
-#else  // Building a develop version for debugging.
- #include "third_party/npapi/bindings/npapi.h"
- #include "third_party/npapi/bindings/nphostapi.h"
-#endif
+#include "third_party/npapi/npapi.h"
+#include "third_party/npapi/npfunctions.h"
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
@@ -41,13 +31,17 @@
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/filters/ad_filter.h"
-#include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
-#include "pagespeed/formatters/json_formatter.h"
+#include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
+#include "pagespeed/l10n/localizer.h"
+#include "pagespeed/proto/formatted_results_to_json_converter.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_chromium/npapi_dom.h"
+
+extern NPNetscapeFuncs* npnfuncs;
 
 namespace {
 
@@ -135,13 +129,17 @@ bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
-  std::stringstream stream;
-  pagespeed::formatters::JsonFormatter formatter(&stream, NULL);
+  // Compute and format results.
+  pagespeed::l10n::BasicLocalizer localizer;
+  pagespeed::FormattedResults formatted_results;
+  // TODO(mdsteele): Add an argument to support other locales.
+  formatted_results.set_locale("en_US");
+  pagespeed::formatters::ProtoFormatter formatter(&localizer,
+                                                  &formatted_results);
+  engine.ComputeAndFormatResults(*input, &formatter);
 
-  pagespeed::ResponseByteResultFilter result_filter;
-  engine.ComputeAndFormatResults(*input, result_filter, &formatter);
-
-  output->append(stream.str());
+  pagespeed::proto::FormattedResultsToJsonConverter::Convert(
+      formatted_results, output);
 
   return true;
 }
@@ -219,7 +217,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
     const bool success = RunPageSpeedRules(NewFilter(filter_string), document,
                                            input_buffer_, &output_buffer_);
     if (!success) {
-      output_buffer_.assign("{error_message:\"Error reading HAR\"}");
+      output_buffer_.assign("{\"error_message\":\"Error reading HAR\"}");
     }
 
     input_buffer_.clear();
@@ -239,7 +237,8 @@ bool PageSpeedModule::ReadMoreOutput(NPVariant *result) {
     } else {
       const size_t data_length =
           std::min(output_buffer_.size() - output_start_, kChunkSize);
-      char* data_copy = reinterpret_cast<char*>(NPN_MemAlloc(data_length));
+      char* data_copy =
+          reinterpret_cast<char*>(npnfuncs->memalloc(data_length));
       memcpy(data_copy, output_buffer_.data() + output_start_, data_length);
       STRINGN_TO_NPVARIANT(data_copy, data_length, *result);
       output_start_ += kChunkSize;
@@ -258,7 +257,7 @@ void Deallocate(NPObject* object) {
 
 // Return true if method_name is a recognized method.
 bool HasMethod(NPObject* obj, NPIdentifier method_name) {
-  char *name = NPN_UTF8FromIdentifier(method_name);
+  char *name = npnfuncs->utf8fromidentifier(method_name);
   bool has_method = false;
   if (!strcmp((const char *)name, kAppendInputMethodId)) {
     has_method = true;
@@ -267,7 +266,7 @@ bool HasMethod(NPObject* obj, NPIdentifier method_name) {
   } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
     has_method = true;
   }
-  NPN_MemFree(name);
+  npnfuncs->memfree(name);
   return has_method;
 }
 
@@ -293,7 +292,7 @@ bool Invoke(NPObject* obj,
             uint32_t arg_count,
             NPVariant *result) {
   NULL_TO_NPVARIANT(*result);
-  char *name = NPN_UTF8FromIdentifier(method_name);
+  char *name = npnfuncs->utf8fromidentifier(method_name);
   if (name == NULL) {
     return false;
   }
@@ -312,9 +311,9 @@ bool Invoke(NPObject* obj,
   } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
     rval = module->ReadMoreOutput(result);
   }
-  // Since name was allocated above by NPN_UTF8FromIdentifier,
+  // Since name was allocated above by npnfuncs->utf8fromidentifier,
   // it needs to be freed here.
-  NPN_MemFree(name);
+  npnfuncs->memfree(name);
   return rval;
 }
 

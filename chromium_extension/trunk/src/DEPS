@@ -84,8 +84,9 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
-  "src/third_party/naclsdk/build":
-    Var("naclsdk_trunk") + "/build" + Var("naclsdk_revision"),
+  # TODO(mdsteele): Uncomment this once we transition back to NaCl.
+  # "src/third_party/naclsdk/build":
+  #   Var("naclsdk_trunk") + "/build" + Var("naclsdk_revision"),
 
   "src/build/linux": From(Var("libpagespeed_deps_root")),
   "src/build/mac": From(Var("libpagespeed_deps_root")),
@@ -101,6 +102,8 @@ deps = {
   "src/third_party/libjpeg": From(Var("libpagespeed_deps_root")),
   "src/third_party/libpng": From(Var("libpagespeed_deps_root")),
   "src/third_party/modp_b64": From(Var("libpagespeed_deps_root")),
+  "src/third_party/npapi":
+    "http://npapi-sdk.googlecode.com/svn/trunk/headers@7",
   "src/third_party/protobuf": From(Var("libpagespeed_deps_root")),
   "src/third_party/zlib": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/base": From(Var("libpagespeed_deps_root")),
@@ -133,10 +136,11 @@ hooks = [
     "pattern": ".",
     "action": ["python", "src/build/gyp_chromium"],
   },
-  {
-    "pattern": "DEPS$",
-    "action": ["python",
-               "src/third_party/naclsdk/build/download_toolchains.py",
-               "--x86-version", Var("naclsdk_x86_toolchain_version")],
-  },
+  # TODO(mdsteele): Uncomment this once we transition back to NaCl.
+  # {
+  #   "pattern": "DEPS$",
+  #   "action": ["python",
+  #              "src/third_party/naclsdk/build/download_toolchains.py",
+  #              "--x86-version", Var("naclsdk_x86_toolchain_version")],
+  # },
 ]

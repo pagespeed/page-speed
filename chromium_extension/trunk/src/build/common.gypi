@@ -18,17 +18,21 @@
     # single shared object.
     'library': 'static_library',
 
-    # The nacl toolchain fails to build valid nexes when we enable gc
-    # sections, at least on 64 bit builds. TODO: revisit this to see
-    # if a newer nacl toolchain supports it.
-    'no_gc_sections': 1,
+    # # The nacl toolchain fails to build valid nexes when we enable gc
+    # # sections, at least on 64 bit builds. TODO: revisit this to see
+    # # if a newer nacl toolchain supports it.
+    # 'no_gc_sections': 1,
+
+    # We're building a shared library, so everything needs to be built
+    # with Position-Independent Code.
+    'linux_fpic': 1,
   },
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
-  'target_defaults': {
-    'include_dirs': [
-      '<(DEPTH)/build/nacl_header_stubs',
-    ],
-  },
+  # 'target_defaults': {
+  #   'include_dirs': [
+  #     '<(DEPTH)/build/nacl_header_stubs',
+  #   ],
+  # },
 }

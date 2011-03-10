@@ -17,9 +17,36 @@
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
   },
   'targets': [
+    # TODO(mdsteele): Use this build target instead, once we transition back to
+    #                 NaCl from NPAPI.
+    # {
+    #   'target_name': 'pagespeed.nexe',
+    #   'type': 'executable',
+    #   'dependencies': [
+    #     '<(DEPTH)/base/base.gyp:base',
+    #     '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+    #     '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
+    #     '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
+    #     '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
+    #     '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
+    #     '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+    #   ],
+    #   'sources': [
+    #     'npapi_dom.cc',
+    #     'npp_gate.cc',
+    #     'pagespeed_chromium.cc',
+    #     'pagespeed_module.cc',
+    #   ],
+    #   'ldflags': [
+    #     '-lgoogle_nacl_imc',
+    #     '-lgoogle_nacl_npruntime',
+    #     '-lpthread',
+    #     '-lsrpc',
+    #   ],
+    # },
     {
-      'target_name': 'pagespeed.nexe',
-      'type': 'executable',
+      'target_name': 'pagespeed_plugin',
+      'type': 'loadable_module',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
@@ -28,25 +55,25 @@
         '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
       ],
       'sources': [
-        'npapi_dom.cc',
-        'npp_gate.cc',
         'pagespeed_chromium.cc',
-        'pagespeed_module.cc',
+        'npapi_dom.cc',
+        'npapi/np_entry.cc',
+        'npapi/npp_entry.cc',
       ],
-      'ldflags': [
-        '-lgoogle_nacl_imc',
-        '-lgoogle_nacl_npruntime',
-        '-lpthread',
-        '-lsrpc',
+      'include_dirs': [
+        '<(DEPTH)',
       ],
     },
     {
       'target_name': 'pagespeed_extension',
       'type': 'none',
       'dependencies': [
-        'pagespeed.nexe',
+        'pagespeed_plugin',
+        # 'pagespeed.nexe',
       ],
       'actions': [
         {
@@ -102,18 +129,37 @@
             'cp', '-t', '<@(_inputs)',
           ],
         },
+        # TODO(mdsteele): Use this build target instead, once we transition
+        #                 back to NaCl from NPAPI.
+        # {
+        #   'action_name': 'copy_nexe',
+        #   'inputs': [
+        #     '<(PRODUCT_DIR)/pagespeed',
+        #     '<(PRODUCT_DIR)/pagespeed.nexe',
+        #   ],
+        #   'outputs': [
+        #     '<(PRODUCT_DIR)/pagespeed/pagespeed_<(target_arch).nexe',
+        #   ],
+        #   'action': [
+        #     'cp', '<(PRODUCT_DIR)/pagespeed.nexe',
+        #     '<(PRODUCT_DIR)/pagespeed/pagespeed_<(target_arch).nexe',
+        #   ],
+        # },
         {
-          'action_name': 'copy_nexe',
+          'action_name': 'copy_so',
+          'variables': {
+            'input_path': '<(PRODUCT_DIR)/obj.target/pagespeed_chromium/libpagespeed_plugin.so',
+          },
           'inputs': [
             '<(PRODUCT_DIR)/pagespeed',
-            '<(PRODUCT_DIR)/pagespeed.nexe',
+            '<(input_path)',
           ],
           'outputs': [
-            '<(PRODUCT_DIR)/pagespeed/pagespeed_<(target_arch).nexe',
+            '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.so',
           ],
           'action': [
-            'cp', '<(PRODUCT_DIR)/pagespeed.nexe',
-            '<(PRODUCT_DIR)/pagespeed/pagespeed_<(target_arch).nexe',
+            'cp', '<(input_path)',
+            '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.so',
           ],
         },
       ],

@@ -15,12 +15,8 @@
 #ifndef PAGESPEED_CHROMIUM_NPAPI_DOM_H_
 #define PAGESPEED_CHROMIUM_NPAPI_DOM_H_
 
-#ifdef __native_client__
- #include <nacl/nacl_npapi.h>
-#else  // Building a develop version for debugging.
- #include "third_party/npapi/bindings/npapi.h"
- #include "third_party/npapi/bindings/nphostapi.h"
-#endif
+#include "third_party/npapi/npapi.h"
+#include "third_party/npapi/npfunctions.h"
 
 #include "pagespeed/core/dom.h"
 
