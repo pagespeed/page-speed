@@ -67,6 +67,11 @@
       'include_dirs': [
         '<(DEPTH)',
       ],
+      'msvs_settings': {
+        'VCLinkerTool': {
+	  'ModuleDefinitionFile': 'pagespeed_plugin.def',
+	},
+      },
     },
     {
       'target_name': 'pagespeed_extension',
