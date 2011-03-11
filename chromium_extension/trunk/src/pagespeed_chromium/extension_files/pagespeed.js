@@ -298,10 +298,6 @@ var pagespeed = {
                                 result2.localized_rule_name));
     });
     var overall_score = pagespeed.currentResults.results.score;
-    // TODO(mdsteele): The below hack shouldn't be necessary; fix it.
-    if (typeof(overall_score) !== 'number') {
-      overall_score = 100;
-    }
 
     // Create the score bar.
     var analyze = pagespeed.currentResults.analyze;
