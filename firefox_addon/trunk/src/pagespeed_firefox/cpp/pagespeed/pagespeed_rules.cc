@@ -455,23 +455,13 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
-  // Compute the results:
-  pagespeed::Results results;
-  engine.ComputeResults(*input, &results);
-
-  // Format the results into a protobuf:
+  // Compute and format the results into a protobuf:
   pagespeed::l10n::BasicLocalizer localizer;
   pagespeed::FormattedResults formatted_results;
   // TODO(mdsteele): Change front-end API to support other locales.
   formatted_results.set_locale("en_US");
   formatters::ProtoFormatter formatter(&localizer, &formatted_results);
-  ResponseByteResultFilter result_filter;
-  engine.FormatResults(results, result_filter, &formatter);
-  // TODO(mdsteele): Once the formatter API has been changed, we can use
-  //    engine.ComputeAndFormatResults() and not need to do this next thing.
-  if (results.has_score()) {
-    formatted_results.set_score(results.score());
-  }
+  engine.ComputeAndFormatResults(*input, &formatter);
 
   // Convert the formatted results into JSON:
   std::string output_string;
