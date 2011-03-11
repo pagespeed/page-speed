@@ -206,10 +206,10 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
                                    const NPVariant& filter_arg,
                                    NPVariant *result) {
   if (!NPVARIANT_IS_OBJECT(document_arg) && !NPVARIANT_IS_NULL(document_arg)) {
-    return Throw("first argument to runPageSpeed must be a string");
+    return Throw("first argument to runPageSpeed must be an object or null");
   }
   if (!NPVARIANT_IS_STRING(filter_arg)) {
-    return Throw("second argument to runPageSpeed must be an object or null");
+    return Throw("second argument to runPageSpeed must be a string");
   }
 
   output_start_ = 0;
