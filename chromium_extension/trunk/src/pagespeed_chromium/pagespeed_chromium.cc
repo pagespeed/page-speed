@@ -165,6 +165,10 @@ class PageSpeedModule : public NPObject {
   // string, or return null if the output buffer is empty.
   bool ReadMoreOutput(NPVariant* result);
 
+  // Indicate that a Javascript exception should be thrown, and return a bool
+  // that can be used as a return value for Invoke().
+  bool Throw(const std::string& message);
+
  private:
   // An NPP is a handle to an NPAPI plugin, and we need it to be able to call
   // out to Javascript via functions like NPN_GetProperty().  We keep it here
@@ -185,10 +189,12 @@ class PageSpeedModule : public NPObject {
 // Accept a chunk of data as a string, and append it to the input buffer.
 bool PageSpeedModule::AppendInput(const NPVariant& argument,
                                   NPVariant *result) {
-  if (result && NPVARIANT_IS_STRING(argument)) {
-    const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
-    input_buffer_.append(arg_NPString.UTF8Characters,
-                         arg_NPString.UTF8Length);
+  if (!NPVARIANT_IS_STRING(argument)) {
+    return Throw("appendInput expects a string argument");
+  }
+  const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
+  input_buffer_.append(arg_NPString.UTF8Characters, arg_NPString.UTF8Length);
+  if (result) {
     NULL_TO_NPVARIANT(*result);
   }
   return true;
@@ -199,28 +205,34 @@ bool PageSpeedModule::AppendInput(const NPVariant& argument,
 bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
                                    const NPVariant& filter_arg,
                                    NPVariant *result) {
-  if (result && NPVARIANT_IS_STRING(filter_arg) &&
-      (NPVARIANT_IS_OBJECT(document_arg) || NPVARIANT_IS_NULL(document_arg))) {
-    output_start_ = 0;
-    output_buffer_.clear();
+  if (!NPVARIANT_IS_OBJECT(document_arg) && !NPVARIANT_IS_NULL(document_arg)) {
+    return Throw("first argument to runPageSpeed must be a string");
+  }
+  if (!NPVARIANT_IS_STRING(filter_arg)) {
+    return Throw("second argument to runPageSpeed must be an object or null");
+  }
 
-    pagespeed::DomDocument* document = NULL;
-    if (NPVARIANT_IS_OBJECT(document_arg)) {
-      document = pagespeed_chromium::CreateDocument(
-          npp_, NPVARIANT_TO_OBJECT(document_arg));
-    }
+  output_start_ = 0;
+  output_buffer_.clear();
 
-    const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
-    const std::string filter_string(filter_NPString.UTF8Characters,
-                                    filter_NPString.UTF8Length);
+  pagespeed::DomDocument* document = NULL;
+  if (NPVARIANT_IS_OBJECT(document_arg)) {
+    document = pagespeed_chromium::CreateDocument(
+        npp_, NPVARIANT_TO_OBJECT(document_arg));
+  }
 
-    const bool success = RunPageSpeedRules(NewFilter(filter_string), document,
-                                           input_buffer_, &output_buffer_);
-    if (!success) {
-      output_buffer_.assign("{\"error_message\":\"Error reading HAR\"}");
-    }
+  const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
+  const std::string filter_string(filter_NPString.UTF8Characters,
+                                  filter_NPString.UTF8Length);
 
-    input_buffer_.clear();
+  const bool success = RunPageSpeedRules(NewFilter(filter_string), document,
+                                         input_buffer_, &output_buffer_);
+  if (!success) {
+    return Throw("could not parse HAR");
+  }
+
+  input_buffer_.clear();
+  if (result) {
     NULL_TO_NPVARIANT(*result);
   }
   return true;
@@ -237,13 +249,21 @@ bool PageSpeedModule::ReadMoreOutput(NPVariant *result) {
     } else {
       const size_t data_length =
           std::min(output_buffer_.size() - output_start_, kChunkSize);
-      char* data_copy =
-          reinterpret_cast<char*>(npnfuncs->memalloc(data_length));
+      char* data_copy = static_cast<char*>(npnfuncs->memalloc(data_length));
       memcpy(data_copy, output_buffer_.data() + output_start_, data_length);
       STRINGN_TO_NPVARIANT(data_copy, data_length, *result);
       output_start_ += kChunkSize;
     }
   }
+  return true;
+}
+
+bool PageSpeedModule::Throw(const std::string& message) {
+  LOG(ERROR) << "PageSpeedModule::Throw " << message;
+  npnfuncs->setexception(this, message.c_str());
+  // You'd think we'd want to return false, to indicate an error.  If we do
+  // that, then Chrome will still throw a JS error, but it will use a generic
+  // error message instead of the one given here.  Using true seems to work.
   return true;
 }
 
@@ -259,11 +279,11 @@ void Deallocate(NPObject* object) {
 bool HasMethod(NPObject* obj, NPIdentifier method_name) {
   char *name = npnfuncs->utf8fromidentifier(method_name);
   bool has_method = false;
-  if (!strcmp((const char *)name, kAppendInputMethodId)) {
+  if (!strcmp(name, kAppendInputMethodId)) {
     has_method = true;
-  } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
+  } else if (!strcmp(name, kRunPageSpeedMethodId)) {
     has_method = true;
-  } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
+  } else if (!strcmp(name, kReadMoreOutputMethodId)) {
     has_method = true;
   }
   npnfuncs->memfree(name);
@@ -300,16 +320,24 @@ bool Invoke(NPObject* obj,
   PageSpeedModule* module = static_cast<PageSpeedModule*>(obj);
   // Map the method name to a function call.  |result| is filled in by the
   // called function, then gets returned to the browser when Invoke() returns.
-  if (!strcmp((const char *)name, kAppendInputMethodId)) {
-    if (arg_count >= 1) {
+  if (!strcmp(name, kAppendInputMethodId)) {
+    if (arg_count == 1) {
       rval = module->AppendInput(args[0], result);
+    } else {
+      rval = module->Throw("wrong number of arguments to appendInput");
     }
-  } else if (!strcmp((const char *)name, kRunPageSpeedMethodId)) {
-    if (arg_count >= 2) {
+  } else if (!strcmp(name, kRunPageSpeedMethodId)) {
+    if (arg_count == 2) {
       rval = module->RunPageSpeed(args[0], args[1], result);
+    } else {
+      rval = module->Throw("wrong number of arguments to runPageSpeed");
     }
-  } else if (!strcmp((const char *)name, kReadMoreOutputMethodId)) {
-    rval = module->ReadMoreOutput(result);
+  } else if (!strcmp(name, kReadMoreOutputMethodId)) {
+    if (arg_count == 0) {
+      rval = module->ReadMoreOutput(result);
+    } else {
+      rval = module->Throw("wrong number of arguments to readMoreOutput");
+    }
   }
   // Since name was allocated above by npnfuncs->utf8fromidentifier,
   // it needs to be freed here.
