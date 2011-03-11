@@ -148,18 +148,38 @@
         {
           'action_name': 'copy_so',
           'variables': {
-            'input_path': '<(PRODUCT_DIR)/obj.target/pagespeed_chromium/libpagespeed_plugin.so',
+            'input_path': '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed_plugin<(SHARED_LIB_SUFFIX)',
+            'conditions': [
+              ['OS=="win"', {
+                'os': 'WINNT',
+                'compiler_abi': 'msvc',
+              }],
+              ['OS=="linux"', {
+                'os': 'Linux',
+                'compiler_abi': 'gcc3',
+              }],
+              ['OS=="mac"', {
+                'os': 'Darwin',
+                'compiler_abi': 'gcc3',
+              }],
+              ['target_arch=="ia32"', {
+                'cpu_arch': 'x86',
+              }],
+              ['target_arch=="x64"', {
+                'cpu_arch': 'x86_64',
+              }],
+            ],
           },
           'inputs': [
             '<(PRODUCT_DIR)/pagespeed',
             '<(input_path)',
           ],
           'outputs': [
-            '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.so',
+            '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
           ],
           'action': [
             'cp', '<(input_path)',
-            '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.so',
+            '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
           ],
         },
       ],
