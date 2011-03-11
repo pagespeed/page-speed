@@ -19,7 +19,7 @@ function withErrorHandler(func) {
     try {
       return func.apply(this, arguments);
     } catch (e) {
-      var message = 'Error in Page Speed content script: ' + e;
+      var message = 'Error in Page Speed content script:\n ' + e.stack;
       alert(message + '\n\nPlease file a bug at\n' +
             'http://code.google.com/p/page-speed/issues/');
       chrome.extension.sendRequest({kind: 'error', message: message});
