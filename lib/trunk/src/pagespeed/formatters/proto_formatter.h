@@ -44,6 +44,7 @@ class ProtoFormatter : public Formatter {
 
   // Formatter interface.
   virtual RuleFormatter* AddRule(const Rule& rule, int score, double impact);
+  virtual void SetOverallScore(int score);
 
  private:
   const pagespeed::l10n::Localizer* localizer_;
