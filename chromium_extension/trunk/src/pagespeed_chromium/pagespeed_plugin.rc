@@ -27,8 +27,8 @@ BEGIN
         // Note that Firefox 3.0 requires the charset to be 04e4 (multi-lingual).
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", Google
-            VALUE "CompanyShortName", Google
+            VALUE "CompanyName", "Google"
+            VALUE "CompanyShortName", "Google"
             VALUE "FileDescription", "Page Speed NPAPI plugin for Chrome."
             VALUE "FileOpenName", "Page Speed Plugin"
             VALUE "FileVersion", "1, 11, 0, 0"

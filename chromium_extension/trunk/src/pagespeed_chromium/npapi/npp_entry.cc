@@ -29,6 +29,10 @@
 
 #include <stdio.h>
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #include "third_party/npapi/npapi.h"
 #include "third_party/npapi/npfunctions.h"
 #include "third_party/npapi/npruntime.h"
