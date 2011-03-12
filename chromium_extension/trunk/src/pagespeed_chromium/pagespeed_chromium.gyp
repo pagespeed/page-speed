@@ -60,6 +60,7 @@
       ],
       'sources': [
         'pagespeed_chromium.cc',
+	'pagespeed_plugin.rc',
         'npapi_dom.cc',
         'npapi/np_entry.cc',
         'npapi/npp_entry.cc',
