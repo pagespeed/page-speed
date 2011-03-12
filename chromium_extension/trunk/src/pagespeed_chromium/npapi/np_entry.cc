@@ -39,17 +39,14 @@
 //
 // Main plugin entry point implementation
 //
-#include <stdio.h>
-#include "third_party/npapi/npapi.h"
-#include "third_party/npapi/npfunctions.h"
 
 #ifdef _WINDOWS
 #include <windows.h>
-#include <GdiPlus.h>
-using namespace Gdiplus;
-ULONG_PTR token;
-#pragma comment(lib,"gdiplus.lib")
 #endif
+
+#include <stdio.h>
+#include "third_party/npapi/npapi.h"
+#include "third_party/npapi/npfunctions.h"
 
 NPNetscapeFuncs* npnfuncs = NULL;
 
@@ -92,21 +89,14 @@ NPError OSCALL NP_Initialize(NPNetscapeFuncs* npnf
 #if !defined(_WINDOWS) && !defined(WEBKIT_DARWIN_SDK)
   NP_GetEntryPoints(nppfuncs);
 #endif
-#ifdef _WINDOWS
-  GdiplusStartupInput input;
-  GdiplusStartup(&token,&input,NULL);
-#endif
-                 return NPERR_NO_ERROR;
-}
-
-NPError  OSCALL NP_Shutdown() {
-#ifdef _WINDOWS
-  GdiplusShutdown(token);
-#endif
   return NPERR_NO_ERROR;
 }
 
-char* NP_GetMIMEDescription(void) {
+NPError  OSCALL NP_Shutdown() {
+  return NPERR_NO_ERROR;
+}
+
+const char* NP_GetMIMEDescription(void) {
   return const_cast<char*>("application/x-page-speed::Page Speed Plugin");
 }
 
