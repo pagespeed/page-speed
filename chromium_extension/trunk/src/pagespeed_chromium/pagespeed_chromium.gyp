@@ -194,12 +194,24 @@
             '<(PRODUCT_DIR)/pagespeed',
             '<(input_path)',
           ],
-          'outputs': [
-            '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
-          ],
-          'action': [
-            'cp', '<(input_path)',
-            '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
+          'conditions': [
+            ['OS=="mac"', {
+              'outputs': [
+                '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
+              ],
+              'action': [
+                'cp', '-r', '<(PRODUCT_DIR)/pagespeed_plugin.plugin',
+                '<(PRODUCT_DIR)/pagespeed',
+              ],
+	    }, {
+              'outputs': [
+                '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
+              ],
+              'action': [
+                'cp', '<(input_path)',
+                 '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
+              ],
+            }],
           ],
         },
       ],
