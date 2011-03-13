@@ -47,6 +47,7 @@
     {
       'target_name': 'pagespeed_plugin',
       'type': 'loadable_module',
+      'mac_bundle': 1,
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
@@ -73,6 +74,19 @@
 	  'ModuleDefinitionFile': 'pagespeed_plugin.def',
 	},
       },
+      'xcode_settings': {
+        'INFOPLIST_FILE': 'Info.plist',
+      },
+      'conditions': [
+        ['OS=="mac"', {
+          'product_extension': 'plugin',
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
+            ],
+          },
+        }],
+      ],
     },
     {
       'target_name': 'pagespeed_extension',
