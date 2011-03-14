@@ -85,6 +85,9 @@
               '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
             ],
           },
+          'defines': [
+            'WEBKIT_DARWIN_SDK',
+          ],
         }],
       ],
     },
