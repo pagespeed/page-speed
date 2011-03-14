@@ -334,10 +334,10 @@ var pagespeed = {
         pagespeed.makeElement('div', 'details', [
           (formatted.length > 0 ? formatted :
            pagespeed.makeElement('p', null,
-                                 'There were no violations of this rule.')),
+                                 chrome.l18n.getMessage('no_rule_violations')),
           pagespeed.makeElement('p', null, pagespeed.makeLink(
             pagespeed.ruleDocumentationUrl(rule_result.rule_name),
-            'More information'))
+            chrome.l18n.getMessage('more_information')))
         ])
       ]);
       rules_container.appendChild(result_div);

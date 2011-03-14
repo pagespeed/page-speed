@@ -54,8 +54,12 @@ function receiveInput(response) {
       pagespeed_module.appendInput(har_string.substr(start, kChunkSize));
     }
 
+    // Determine the locale of the browser; for details, see
+    // http://code.google.com/chrome/extensions/i18n.html#overview-predefined
+    var locale = chrome.i18n.getMessage('@@ui_locale');
+
     // Run the rules.
-    pagespeed_module.runPageSpeed(document, response.analyze);
+    pagespeed_module.runPageSpeed(document, response.analyze, locale);
   
     // Get the result data back from the NaCl module.  Again, this must be done
     // a piece at a time.
