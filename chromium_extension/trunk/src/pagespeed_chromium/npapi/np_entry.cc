@@ -58,7 +58,7 @@ extern "C" {
 
 // Export our module so Chrome is able to load us.
 // See http://gcc.gnu.org/wiki/Visibility for more information.
-#if defined(__linux)
+#if defined(__GNUC__)
 #pragma GCC visibility push(default)
 #endif
 
@@ -105,7 +105,7 @@ NPError OSCALL NP_GetValue(void* npp, NPPVariable variable, void* value) {
   return NPP_GetValue(static_cast<NPP>(npp), variable, value);
 }
 
-#if defined(__linux)
+#if defined(__GNUC__)
 #pragma GCC visibility pop
 #endif
 
