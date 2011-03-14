@@ -190,31 +190,35 @@ var pagespeed = {
   // FormattedResultsToJsonConverter::ConvertFormatString(),
   // build an array of DOM nodes, suitable to be passed to makeElement().
   formatFormatString: function (format_string) {
-    var sp = pagespeed.makeElement('span');
-    sp.innerHTML = format_string.format.replace(/\$[1-9]/g, function (argnum) {
-      // The regex above ensures that argnum will be a string of the form "$n"
-      // where "n" is a digit from 1 to 9.  We use .substr(1) to get just the
-      // "n" part, then use parseInt() to parse it into an integer (base 10),
-      // then subtract 1 to get an array index from 0 to 8.  We use this index
-      // to get the appropriate argument spec from the format_string.args
-      // array.
-      var arg = format_string.args[parseInt(argnum.substr(1), 10) - 1];
-      // If format_string was constructed wrong, then the index above might
-      // have been invalid.  In that case, just leave the "$n" substring as is.
+    var elements = [];
+    var string = format_string.format;
+    var index;
+    // Search for the next "$n" (where n is a digit from 1 to 9).
+    while ((index = string.search(/\$[1-9]/)) >= 0) {
+      // Add everything up to the "$n" as a literal string.
+      elements.push(string.substr(0, index));
+      // Get the digit "n" as a string.
+      var argnum = string.substr(index + 1, 1);
+      // Parse "n" into a number and get the (n-1)th format argument.
+      var arg = format_string.args[parseInt(argnum, 10) - 1];
       if (!arg) {
-        return argnum;
-      }
-      // If this argument is a URL, replace the "$n" with a link.  For all
-      // other argument types, just replace it with (localized) text.
-      if (arg.type === 'url') {
-        return ['<a href="', arg.string_value,
-                '" onclick="document.openLink(this);return false;">',
-                arg.localized_value, '</a>'].join('');
+        // If there's no (n-1)th argument, replace with question marks.
+        elements.push('???');
+      } else if (arg.type === 'url') {
+        // If the argument is a URL, create a link.
+        elements.push(pagespeed.makeLink(
+          arg.string_value, pagespeed.getDisplayUrl(arg.localized_value)));
       } else {
-        return arg.localized_value;
+        // Otherwise, replace the argument with a string.
+        elements.push(arg.localized_value);
       }
-    });
-    return sp;
+      // Clip off the beginning of the format string, up to and including the
+      // "$n" that we found, and then keep going.
+      string = string.substr(index + 2);
+    }
+    // There's no more "$n"'s left, so add the remainder of the format string.
+    elements.push(string);
+    return elements;
   },
 
   // Given a list of objects produced by
