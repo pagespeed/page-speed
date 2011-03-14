@@ -139,7 +139,7 @@ bool RunPageSpeedRules(const std::string& locale,
 
   // Compute and format results.
   pagespeed::FormattedResults formatted_results;
-  formatted_results.set_locale(locale);
+  formatted_results.set_locale(localizer->GetLocale());
   pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
                                                   &formatted_results);
   engine.ComputeAndFormatResults(*input, &formatter);
