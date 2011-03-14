@@ -1,0 +1,55 @@
+<!doctype html>
+<!----------------------------------------------------------------------
+Copyright 2010 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+----------------------------------------------------------------------->
+<html>
+  <head>
+    <title>Page Speed</title>
+    <link rel="stylesheet" href="pagespeed-panel.css" />
+    <script src="pagespeed.js"></script>
+  </head>
+  <body>
+    <div class="control-bar">
+      <button id="run-button"
+              onclick="pagespeed.runPageSpeed()">Run Page Speed</button>
+      <img id="spinner-img" src="spinner.gif" />
+      <span id="status-text"></span>
+      <select id="analyze-dropdown"
+              onchange="pagespeed.onAnalyzeDropdownChange()">
+        <option value="all">Analyze entire page</option>
+        <option value="ads">Analyze ads only</option>
+        <option value="trackers">Analyze trackers only</option>
+        <option value="content">Analyze content only</option>
+      </select>
+    </div>
+    <div id="results-container"></div>
+    <div id="welcome-container">
+      <img id="logo-img" src="pagespeed-128.png" width="128" height="128" />
+      <h1>Page Speed</h1>
+      <h2>What's new in Page Speed 2.0?</h2>
+      <ul>
+        <li>It's in Chromium!</li>
+        <li>Probably some other stuff?</li>
+      </ul>
+      <p>
+        See the <a href="http://code.google.com/speed/page-speed/docs/rules_intro.html">Page Speed documentation</a>
+        for detailed information on the rules used to evaluate web pages.
+      </p>
+      <p>
+        Page Speed Copyright &copy; 2010 Google Inc.
+      </p>
+    </div>
+  </body>
+</html>
