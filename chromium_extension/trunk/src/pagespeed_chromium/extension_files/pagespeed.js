@@ -418,6 +418,13 @@ var pagespeed = {
         pagespeed.currentResults.analyze) {
       pagespeed.runPageSpeed();
     }
+  },
+
+  // Callback for when the inspected page loads.
+  onPageLoaded: function () {
+    if (pagespeed.resourceAccumulator) {
+      pagespeed.resourceAccumulator.onPageLoaded();
+    }
   }
 
 };
@@ -431,10 +438,14 @@ pagespeed.ResourceAccumulator = function (clientCallback) {
   this.nextEntryIndex_ = 0;
   this.cancelled_ = false;
   this.har_ = null;
+  this.doingReload_ = false;
 };
 
 // Start the accumulator.
 pagespeed.ResourceAccumulator.prototype.start = function () {
+  if (this.cancelled_) {
+    return;  // We've been cancelled so ignore the callback.
+  }
   pagespeed.setStatusText('Fetching page HAR...');
   webInspector.resources.getHAR(
     pagespeed.withErrorHandler(this.onHAR_.bind(this)));
@@ -445,13 +456,41 @@ pagespeed.ResourceAccumulator.prototype.cancel = function () {
   this.cancelled_ = true;
 };
 
+pagespeed.ResourceAccumulator.prototype.onPageLoaded = function () {
+  if (this.doingReload_) {
+    this.doingReload_ = false;
+    if (!this.cancelled_) {
+      // The page finished loading, but let's wait 100 milliseconds for
+      // post-onLoad things to finish up before we start scoring.
+      setTimeout(pagespeed.withErrorHandler(this.start.bind(this)), 100);
+    }
+  }
+};
+
 pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   if (this.cancelled_) {
     return;  // We've been cancelled so ignore the callback.
   }
   pagespeed.assert(this.har_ === null);
-  this.har_ = har;
-  this.getNextEntryBody_();
+
+  // The HAR will only include resources that were loaded while the DevTools
+  // panel was open, but we need all the resources.  Our trick is this: if (and
+  // only if) the DevTools panel was open when the page started loading, then
+  // the first resource entry will be the main document resource (I think).
+  // So, we check to see if the URL of the first resource matches the URL of
+  // the page.  If so, we assume we have everything, and continue.  If not, we
+  // reload the page; when the page finishes loading, our callback will call
+  // the onPageLoaded() method of this ResourceAccumulator, and we can try
+  // again.
+  if (har.entries.length == 0 ||
+      har.entries[0].request.url !== har.entries[0].pageref) {
+    pagespeed.setStatusText('Reloading page...');
+    this.doingReload_ = true;
+    webInspector.inspectedWindow.reload();
+  } else {
+    this.har_ = har;
+    this.getNextEntryBody_();
+  }
 };
 
 pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function () {
@@ -479,3 +518,7 @@ pagespeed.ResourceAccumulator.prototype.onBody_ = function (text, encoding) {
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
 };
+
+// Listen for when the page finishes (re)loading.
+webInspector.inspectedWindow.onLoaded.addListener(
+  pagespeed.withErrorHandler(pagespeed.onPageLoaded));
