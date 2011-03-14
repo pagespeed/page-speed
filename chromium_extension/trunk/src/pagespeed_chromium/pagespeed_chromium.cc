@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "pagespeed_chromium/pagespeed_chromium.h"
+
 #include <algorithm>  // for std::min()
 #include <string>
 #include <vector>
@@ -31,6 +33,7 @@
 #include "base/string_util.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
@@ -39,13 +42,12 @@
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
+#include "pagespeed/l10n/gettext_localizer.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_chromium/npapi_dom.h"
-
-extern NPNetscapeFuncs* npnfuncs;
 
 namespace {
 
@@ -77,17 +79,11 @@ pagespeed::ResourceFilter* NewFilter(const std::string& analyze) {
 // Return false if the HAR data could not be parsed, true otherwise.
 // This function will take ownership of the filter and document arguments, and
 // will delete them before returning.
-bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
+bool RunPageSpeedRules(const std::string& locale,
+                       pagespeed::ResourceFilter* filter,
                        pagespeed::DomDocument* document,
                        const std::string& har_data,
                        std::string* output) {
-#ifdef NDEBUG
-  // In release builds, don't display INFO logs. Ideally we would do
-  // this at process startup but we don't receive any native callbacks
-  // at that point, so we do it here instead.
-  logging::SetMinLogLevel(logging::LOG_WARNING);
-#endif
-
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
@@ -133,12 +129,18 @@ bool RunPageSpeedRules(pagespeed::ResourceFilter* filter,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
+  // Create a localizer.
+  scoped_ptr<pagespeed::l10n::Localizer> localizer(
+      pagespeed::l10n::GettextLocalizer::Create(locale));
+  if (localizer.get() == NULL) {
+    LOG(WARNING) << "Could not create GettextLocalizer for locale: " << locale;
+    localizer.reset(new pagespeed::l10n::BasicLocalizer);
+  }
+
   // Compute and format results.
-  pagespeed::l10n::BasicLocalizer localizer;
   pagespeed::FormattedResults formatted_results;
-  // TODO(mdsteele): Add an argument to support other locales.
-  formatted_results.set_locale("en_US");
-  pagespeed::formatters::ProtoFormatter formatter(&localizer,
+  formatted_results.set_locale(locale);
+  pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
                                                   &formatted_results);
   engine.ComputeAndFormatResults(*input, &formatter);
 
@@ -163,7 +165,9 @@ class PageSpeedModule : public NPObject {
   // output buffer is populated with the JSON results from the library.
   // Returns null to the Javascript caller.
   bool RunPageSpeed(const NPVariant& dom_document,
-                    const NPVariant& filter_name, NPVariant *result);
+                    const NPVariant& filter_name,
+                    const NPVariant& locale_string,
+                    NPVariant *result);
 
   // Return the next chunk of data from our output buffer as a Javascript
   // string, or return null if the output buffer is empty.
@@ -208,12 +212,16 @@ bool PageSpeedModule::AppendInput(const NPVariant& argument,
 // the output buffer.
 bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
                                    const NPVariant& filter_arg,
+                                   const NPVariant& locale_arg,
                                    NPVariant *result) {
   if (!NPVARIANT_IS_OBJECT(document_arg) && !NPVARIANT_IS_NULL(document_arg)) {
     return Throw("first argument to runPageSpeed must be an object or null");
   }
   if (!NPVARIANT_IS_STRING(filter_arg)) {
     return Throw("second argument to runPageSpeed must be a string");
+  }
+  if (!NPVARIANT_IS_STRING(locale_arg)) {
+    return Throw("third argument to runPageSpeed must be a string");
   }
 
   output_start_ = 0;
@@ -229,8 +237,13 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
   const std::string filter_string(filter_NPString.UTF8Characters,
                                   filter_NPString.UTF8Length);
 
-  const bool success = RunPageSpeedRules(NewFilter(filter_string), document,
-                                         input_buffer_, &output_buffer_);
+  const NPString& locale_NPString = NPVARIANT_TO_STRING(locale_arg);
+  const std::string locale_string(locale_NPString.UTF8Characters,
+                                  locale_NPString.UTF8Length);
+
+  const bool success = RunPageSpeedRules(
+      locale_string, NewFilter(filter_string), document,
+      input_buffer_, &output_buffer_);
   if (!success) {
     return Throw("could not parse HAR");
   }
@@ -331,8 +344,8 @@ bool Invoke(NPObject* obj,
       rval = module->Throw("wrong number of arguments to appendInput");
     }
   } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    if (arg_count == 2) {
-      rval = module->RunPageSpeed(args[0], args[1], result);
+    if (arg_count == 3) {
+      rval = module->RunPageSpeed(args[0], args[1], args[2], result);
     } else {
       rval = module->Throw("wrong number of arguments to runPageSpeed");
     }
@@ -366,6 +379,20 @@ NPClass kPageSpeedClass = {
 
 }  // namespace
 
+NPNetscapeFuncs* npnfuncs;
+
 NPClass* GetNPSimpleClass() {
   return &kPageSpeedClass;
+}
+
+void InitializePageSpeedPlugin() {
+#ifdef NDEBUG
+  // In release builds, don't display INFO logs.
+  logging::SetMinLogLevel(logging::LOG_WARNING);
+#endif
+  pagespeed::Init();
+}
+
+void ShutDownPageSpeedPlugin() {
+  pagespeed::ShutDown();
 }

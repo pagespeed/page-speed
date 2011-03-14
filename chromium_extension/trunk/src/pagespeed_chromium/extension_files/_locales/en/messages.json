@@ -1,0 +1,14 @@
+{
+  "extension_description": {
+    "message": "Analyze the performance of your webpages and get specific suggestions on how to optimize them.",
+    "description": "A short description of the purpose of the extension."
+  },
+  "more_information": {
+    "message": "More information",
+    "description": "Text for a hyperlink that shows more information/documentation about the current rule."
+  },
+  "no_rule_violations": {
+    "message": "There were no violations of this rule.",
+    "description": "Indicates that the inspected page completely obeys the current rule."
+  }
+}
