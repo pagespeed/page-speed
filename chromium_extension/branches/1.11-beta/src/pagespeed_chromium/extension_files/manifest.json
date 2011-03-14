@@ -9,9 +9,15 @@
   },
   "background_page": "background.html",
   "devtools_page": "devtools-page.html",
-  "plugins": [
-    { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true }
-  ],
+ "plugins": [ {
+    "path": "pagespeed_plugin_WINNT_x86-msvc.dll", "public": true
+  }, {
+    "path": "libpagespeed_plugin_Linux_x86-gcc3.so", "public": true
+  }, {
+    "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true
+  }, {
+    "path": "plugin/pagespeed_plugin.plugin", "public": true
+  } ],
   "permissions": [
     "experimental",
     "tabs",
