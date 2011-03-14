@@ -11,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleExecutable</key>
-	<string>page_speed</string>
+	<string>pagespeed_plugin</string>
 	<key>CFBundleName</key>
 	<string>Page Speed</string>
 	<key>CFBundlePackageType</key>
