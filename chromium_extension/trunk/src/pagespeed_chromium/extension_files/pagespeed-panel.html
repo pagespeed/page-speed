@@ -22,34 +22,16 @@ limitations under the License.
   </head>
   <body>
     <div class="control-bar">
-      <button id="run-button"
-              onclick="pagespeed.runPageSpeed()">Run Page Speed</button>
+      <button id="run-button" onclick="pagespeed.runPageSpeed()"></button>
       <img id="spinner-img" src="spinner.gif" />
       <span id="status-text"></span>
       <select id="analyze-dropdown"
-              onchange="pagespeed.onAnalyzeDropdownChange()">
-        <option value="all">Analyze entire page</option>
-        <option value="ads">Analyze ads only</option>
-        <option value="trackers">Analyze trackers only</option>
-        <option value="content">Analyze content only</option>
-      </select>
+              onchange="pagespeed.onAnalyzeDropdownChange()"></select>
     </div>
     <div id="results-container"></div>
     <div id="welcome-container">
       <img id="logo-img" src="pagespeed-128.png" width="128" height="128" />
-      <h1>Page Speed</h1>
-      <h2>What's new in Page Speed 2.0?</h2>
-      <ul>
-        <li>It's in Chromium!</li>
-        <li>Probably some other stuff?</li>
-      </ul>
-      <p>
-        See the <a href="http://code.google.com/speed/page-speed/docs/rules_intro.html">Page Speed documentation</a>
-        for detailed information on the rules used to evaluate web pages.
-      </p>
-      <p>
-        Page Speed Copyright &copy; 2010 Google Inc.
-      </p>
     </div>
+    <script>pagespeed.initializeUI();</script>
   </body>
 </html>

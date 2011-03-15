@@ -447,6 +447,41 @@ var pagespeed = {
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.onPageLoaded();
     }
+  },
+
+  initializeUI: function () {
+    // Initialize the "analyze" dropdown menu.
+    var analyze = document.getElementById('analyze-dropdown');
+    [['all', chrome.i18n.getMessage('analyze_entire_page')],
+     ['ads', chrome.i18n.getMessage('analyze_ads_only')],
+     ['trackers', chrome.i18n.getMessage('analyze_trackers_only')],
+     ['content', chrome.i18n.getMessage('analyze_content_only')]
+    ].forEach(function (item) {
+      var option = pagespeed.makeElement('option', null, item[1]);
+      option.setAttribute('value', item[0]);
+      analyze.appendChild(option);
+    });
+    // Initialize the welcome pane.
+    // TODO(mdsteele): Localize this stuff too, once we decide what it should
+    //   look like.
+    var welcome = document.getElementById('welcome-container');
+    welcome.appendChild(pagespeed.makeElement('h1', null, "Page Speed"));
+    welcome.appendChild(pagespeed.makeElement(
+      'h2', null, "What's new in Page Speed 1.11?"));
+    welcome.appendChild(pagespeed.makeElement('ul', null, [
+      pagespeed.makeElement('li', null, "It's in Chromium!"),
+      pagespeed.makeElement('li', null, "Probably some other stuff?")
+    ]));
+    welcome.appendChild(pagespeed.makeElement('p', null, [
+      'See the ', pagespeed.makeLink(
+        'http://code.google.com/speed/page-speed/docs/rules_intro.html',
+        'Page Speed documentation'),
+      ' for detailed information on the rules used to evaluate web pages.'
+    ]));
+    welcome.appendChild(pagespeed.makeElement(
+      'p', null, 'Page Speed Copyright \xA9 2011 Google Inc.'));
+    // Refresh the run button, etc.
+    pagespeed.clearResults();
   }
 
 };
