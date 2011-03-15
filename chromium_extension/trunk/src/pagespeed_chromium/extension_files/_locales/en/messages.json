@@ -1,4 +1,16 @@
 {
+  "clear_results": {
+    "message": "Clear Results",
+    "description": "Label for a button that the user can click to clear away the currently displayed results."
+  },
+  "collapse_all": {
+    "message": "Collapse All",
+    "description": "Label for a button that the user can click to un-expand all the disclosure tabs in the list of results, thus hiding the details for every item."
+  },
+  "expand_all": {
+    "message": "Expand All",
+    "description": "Label for a button that the user can click to expand all the disclosure tabs in the list of results, thus displaying the details for every item."
+  },
   "extension_description": {
     "message": "Analyze the performance of your webpages and get specific suggestions on how to optimize them.",
     "description": "A short description of the purpose of the extension."
@@ -44,9 +56,17 @@
     "description": "Gives a 0-100 numeric score for the Page Speed rules, scoring only tracking scripts on the webpage (as opposed to the rest of the content), with 100 being the best.",
     "placeholders": { "score": { "content": "$1", "example": "84" } }
   },
+  "refresh_results": {
+    "message": "Refresh Results",
+    "description": "Label for a button that the user can click to re-run the Page Speed rules on the webpage, updating the current results."
+  },
   "reloading_page": {
     "message": "Reloading page...",
     "description": "Status message indicating that the extension is currently reloading the webpage."
+  },
+  "run_page_speed": {
+    "message": "Run Page Speed",
+    "description": "Label for a button that the user can click to run the Page Speed rules on the webpage."
   },
   "running_rules": {
     "message": "Running Page Speed rules...",
