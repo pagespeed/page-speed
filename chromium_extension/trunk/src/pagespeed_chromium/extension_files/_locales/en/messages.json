@@ -1,4 +1,20 @@
 {
+  "analyze_ads_only": {
+    "message": "Analyze ads only",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should only analyze advertisements on the webpage (as opposed to the rest of the content)."
+  },
+  "analyze_content_only": {
+    "message": "Analyze content only",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should only analyze the content of the webpage (as opposed to e.g. advertisements)."
+  },
+  "analyze_entire_page": {
+    "message": "Analyze entire page",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should analyze the whole webpage (as opposed to e.g. just the advertisements)."
+  },
+  "analyze_trackers_only": {
+    "message": "Analyze trackers only",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should only analyze tracking scripts on the webpage (as opposed to the rest of the content)."
+  },
   "clear_results": {
     "message": "Clear Results",
     "description": "Label for a button that the user can click to clear away the currently displayed results."
