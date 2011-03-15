@@ -408,6 +408,7 @@ var pagespeed = {
   endCurrentRun: function () {
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.cancel();
+      pagespeed.resourceAccumulator = null;
     }
     document.getElementById('run-button').disabled = false;
     document.getElementById('spinner-img').style.display = 'none';
@@ -424,8 +425,22 @@ var pagespeed = {
     }
   },
 
+  // Callback for when we navigate to a new page.
+  onPageNavigate: function () {
+    // If there's an active ResourceAccumulator, it must be trying to reload
+    // the page, so don't do anything.  Otherwise, if there are results
+    // showing, they're from another page, so clear them.
+    if (pagespeed.currentResults && !pagespeed.resourceAccumulator) {
+      // TODO(mdsteele): Alternatively, we could automatically re-run the
+      //   rules.  Maybe we should have a user preference to decide which?
+      pagespeed.clearResults();
+    }
+  },
+
   // Callback for when the inspected page loads.
   onPageLoaded: function () {
+    // If there's an active ResourceAccumulator, it must be trying to reload
+    // the page, so let it know that it loaded.
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.onPageLoaded();
     }
@@ -521,6 +536,10 @@ pagespeed.ResourceAccumulator.prototype.onBody_ = function (text, encoding) {
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
 };
+
+// Listen for when we change pages.
+webInspector.inspectedWindow.onNavigated.addListener(
+  pagespeed.withErrorHandler(pagespeed.onPageNavigate));
 
 // Listen for when the page finishes (re)loading.
 webInspector.inspectedWindow.onLoaded.addListener(
