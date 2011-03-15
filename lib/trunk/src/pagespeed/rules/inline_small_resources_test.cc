@@ -35,6 +35,7 @@ static const size_t kInlineThresholdBytes = 768;
 #define SAME_DOMAIN_URL_1 "http://www.example.com/a.css"
 #define SAME_DOMAIN_URL_2 "http://www.example.com/b.css"
 #define DIFF_DOMAIN_URL_1 "http://www.foo.com/b.css"
+#define IFRAME_URL        "http://www.example.com/iframe.html"
 
 static const char* kRootUrl = "http://www.example.com/index.html";
 
@@ -64,6 +65,23 @@ static const char* kHtmlTwoCssOneSameDomain =
     "<link rel='stylesheet' href='"
     DIFF_DOMAIN_URL_1
     "'>"
+    "<link rel='stylesheet' href='"
+    SAME_DOMAIN_URL_1
+    "'>"
+    "</head><body></body></html>";
+
+static const char* kHtmlOneCssTwoDifferentFrames =
+    "<html><head>"
+    "<link rel='stylesheet' href='"
+    SAME_DOMAIN_URL_1
+    "'>"
+    "<iframe src='"
+    IFRAME_URL
+    "'>"
+    "</head><body></body></html>";
+
+static const char* kHtmlForIframe =
+    "<html><head>"
     "<link rel='stylesheet' href='"
     SAME_DOMAIN_URL_1
     "'>"
@@ -174,6 +192,13 @@ TEST_F(InlineSmallCssTest, TwoSmallExternalFilesOneSameDomain) {
   NewCssResource(DIFF_DOMAIN_URL_1, NULL, NULL)->SetResponseBody("");
   primary_resource()->SetResponseBody(kHtmlTwoCssOneSameDomain);
   CheckOneViolation(SAME_DOMAIN_URL_1);
+}
+
+TEST_F(InlineSmallCssTest, OneSmallExternalFileTwoDifferentFrames) {
+  NewCssResource(SAME_DOMAIN_URL_1, NULL, NULL)->SetResponseBody("");
+  primary_resource()->SetResponseBody(kHtmlOneCssTwoDifferentFrames);
+  NewDocumentResource(IFRAME_URL)->SetResponseBody(kHtmlForIframe);
+  CheckNoViolations();
 }
 
 }  // namespace
