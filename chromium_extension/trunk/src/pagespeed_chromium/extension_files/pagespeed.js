@@ -306,11 +306,11 @@ var pagespeed = {
     // Create the score bar.
     var analyze = pagespeed.currentResults.analyze;
     results_container.appendChild(pagespeed.makeElement('div', 'score-bar', [
-      pagespeed.makeElement('div', null, 'Page Speed Score' +
-                            (analyze === 'ads' ? ' (ads only)' :
-                             analyze === 'trackers' ? ' (trackers only)' :
-                             analyze === 'content' ? ' (content only)' : '') +
-                            ': ' + overall_score + '/100'),
+      pagespeed.makeElement('div', null, chrome.i18n.getMessage(
+        (analyze === 'ads' ? 'overall_score_ads' :
+         analyze === 'trackers' ? 'overall_score_trackers' :
+         analyze === 'content' ? 'overall_score_content' :
+         'overall_score_all'), [overall_score])),
       pagespeed.makeScoreIcon(overall_score),
       pagespeed.makeButton('Clear Results', pagespeed.clearResults),
       pagespeed.makeButton('Collapse All', pagespeed.collapseAllResults),
@@ -333,11 +333,11 @@ var pagespeed = {
         header,
         pagespeed.makeElement('div', 'details', [
           (formatted.length > 0 ? formatted :
-           pagespeed.makeElement('p', null,
-                                 chrome.l18n.getMessage('no_rule_violations')),
+           pagespeed.makeElement('p', null, chrome.i18n.getMessage(
+             'no_rule_violations'))),
           pagespeed.makeElement('p', null, pagespeed.makeLink(
             pagespeed.ruleDocumentationUrl(rule_result.rule_name),
-            chrome.l18n.getMessage('more_information')))
+            chrome.i18n.getMessage('more_information')))
         ])
       ]);
       rules_container.appendChild(result_div);
@@ -383,7 +383,7 @@ var pagespeed = {
     var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
 
     // Tell the background page to run the Page Speed rules.
-    pagespeed.setStatusText('Invoking Page Speed rules...');
+    pagespeed.setStatusText(chrome.i18n.getMessage('running_rules'));
     chrome.extension.sendRequest(
         request, pagespeed.withErrorHandler(pagespeed.onPageSpeedResults));
   },
@@ -450,7 +450,7 @@ pagespeed.ResourceAccumulator.prototype.start = function () {
   if (this.cancelled_) {
     return;  // We've been cancelled so ignore the callback.
   }
-  pagespeed.setStatusText('Fetching page HAR...');
+  pagespeed.setStatusText(chrome.i18n.getMessage('fetching_har'));
   webInspector.resources.getHAR(
     pagespeed.withErrorHandler(this.onHAR_.bind(this)));
 };
@@ -486,9 +486,9 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   // reload the page; when the page finishes loading, our callback will call
   // the onPageLoaded() method of this ResourceAccumulator, and we can try
   // again.
-  if (har.entries.length == 0 ||
+  if (har.entries.length === 0 ||
       har.entries[0].request.url !== har.entries[0].pageref) {
-    pagespeed.setStatusText('Reloading page...');
+    pagespeed.setStatusText(chrome.i18n.getMessage('reloading_page'));
     this.doingReload_ = true;
     webInspector.inspectedWindow.reload();
   } else {
@@ -502,10 +502,9 @@ pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function () {
     this.clientCallback_({log: this.har_});  // We're finished.
   } else {
     var entry = this.har_.entries[this.nextEntryIndex_];
-    pagespeed.setStatusText('Fetching content for [' +
-                            (this.nextEntryIndex_ + 1) + '/' +
-                            this.har_.entries.length + '] ' +
-                            entry.request.url);
+    pagespeed.setStatusText(chrome.i18n.getMessage(
+      'fetching_content', [this.nextEntryIndex_ + 1, this.har_.entries.length,
+                           entry.request.url]));
     entry.getContent(pagespeed.withErrorHandler(this.onBody_.bind(this)));
   }
 };
