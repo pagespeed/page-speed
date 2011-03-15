@@ -80,4 +80,11 @@ TEST_F(AvoidBadRequestsTest, MissingImage) {
   CheckOneViolation("http://www.example.com/missing.png");
 }
 
+TEST_F(AvoidBadRequestsTest, PrimaryResourceIsExcluded) {
+  Resource* primary = NewPrimaryResource("http://www.example.com/");
+  primary->SetResponseStatusCode(404);
+  Freeze();
+  CheckNoViolations();
+}
+
 }  // namespace
