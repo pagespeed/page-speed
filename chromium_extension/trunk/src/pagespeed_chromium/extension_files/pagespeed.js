@@ -281,7 +281,7 @@ var pagespeed = {
     pagespeed.removeAllChildren(results_container);
     var welcome_container = document.getElementById('welcome-container');
     welcome_container.style.display = 'block';
-    pagespeed.setRunButtonText('Run Page Speed');
+    pagespeed.setRunButtonText(chrome.i18n.getMessage('run_page_speed'));
   },
 
   // Format and display the current results.
@@ -312,9 +312,12 @@ var pagespeed = {
          analyze === 'content' ? 'overall_score_content' :
          'overall_score_all'), [overall_score])),
       pagespeed.makeScoreIcon(overall_score),
-      pagespeed.makeButton('Clear Results', pagespeed.clearResults),
-      pagespeed.makeButton('Collapse All', pagespeed.collapseAllResults),
-      pagespeed.makeButton('Expand All', pagespeed.expandAllResults)
+      pagespeed.makeButton(chrome.i18n.getMessage('clear_results'),
+                           pagespeed.clearResults),
+      pagespeed.makeButton(chrome.i18n.getMessage('collapse_all'),
+                           pagespeed.collapseAllResults),
+      pagespeed.makeButton(chrome.i18n.getMessage('expand_all'),
+                           pagespeed.expandAllResults)
     ]));
 
     // Create the rule results.
@@ -357,7 +360,7 @@ var pagespeed = {
     var welcome_container = document.getElementById('welcome-container');
     welcome_container.style.display = 'none';
     results_container.style.display = 'block';
-    pagespeed.setRunButtonText('Refresh Results');
+    pagespeed.setRunButtonText(chrome.i18n.getMessage('refresh_results'));
   },
 
   // Run Page Speed and display the results. This is done
