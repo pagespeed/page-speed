@@ -76,7 +76,9 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetEarlyInHtml) {
                   "",
                   "",
                   html);
-  CheckNoViolations();
+
+  // Charset in HTML does not help now.
+  CheckOneUrlViolation("http://www.example.com/hello.html");
 }
 
 TEST_F(SpecifyCharsetEarlyTest, CharsetSecondInHtml) {
@@ -93,7 +95,8 @@ TEST_F(SpecifyCharsetEarlyTest, CharsetSecondInHtml) {
                   "",
                   "",
                   html);
-  CheckNoViolations();
+  // Charset in HTML does not help now.
+  CheckOneUrlViolation("http://www.example.com/hello.html");
 }
 
 TEST_F(SpecifyCharsetEarlyTest, TwoResourcesSecondIsViolation) {
@@ -119,7 +122,8 @@ TEST_F(SpecifyCharsetEarlyTest, TwoResourcesSecondIsViolation) {
                   "",
                   html2);
 
-  CheckOneUrlViolation("http://www.example.com/hello2.html");
+  CheckTwoUrlViolations("http://www.example.com/hello.html",
+                       "http://www.example.com/hello2.html");
 }
 
 TEST_F(SpecifyCharsetEarlyTest, NoSpaceCharsetEarlyInHtml) {
@@ -133,7 +137,8 @@ TEST_F(SpecifyCharsetEarlyTest, NoSpaceCharsetEarlyInHtml) {
                   "",
                   "",
                   html);
-  CheckNoViolations();
+  // Charset in HTML does not help now.
+  CheckOneUrlViolation("http://www.example.com/hello.html");
 }
 
 TEST_F(SpecifyCharsetEarlyTest, CharsetLateInHtml) {
