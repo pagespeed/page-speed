@@ -135,8 +135,8 @@ void MakeLandingPageRedirectsCacheable::FormatResults(
         // TRANSLATOR: Header at the top of a list of URLs that Page Speed
         // detected as a chain of HTTP redirections. It tells the user to fix
         // the problem by removing the URLs that redirect to others.
-        _("The following landing page redirects are not cacheable. Make them"
-          "cacheable to speed up page load times for repeat visitors to your"
+        _("The following landing page redirects are not cacheable. Make them "
+          "cacheable to speed up page load times for repeat visitors to your "
           "site."));
 
     const Result& result = **iter;

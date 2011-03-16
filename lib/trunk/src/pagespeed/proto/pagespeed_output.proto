@@ -223,6 +223,15 @@ message InlineSmallResourcesDetails {
   repeated string inline_candidates = 1;
 }
 
+message DeferParsingJavaScriptDetails {
+  extend ResultDetails {
+    optional DeferParsingJavaScriptDetails message_set_extension = 446566;  // 'Def'
+  }
+
+  required bool is_inline = 1;
+  required int32 minified_javascript_size = 2;
+}
+
 message Result {
   // Identifier of rule that produced this result. DEPRECATED (rule name is
   // stored in RuleResults)
