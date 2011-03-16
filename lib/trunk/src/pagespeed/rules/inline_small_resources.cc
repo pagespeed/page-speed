@@ -113,29 +113,34 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
     }
   }
 
-  for (std::map<std::string, ResourceSet>::iterator it =
+  for (std::map<std::string, ResourceSet>::const_iterator it =
            inline_candidates.begin(), end = inline_candidates.end();
        it != end; ++it) {
     const std::string& html_url = it->first;
-    ResourceSet& resources = it->second;
 
-    // First, remove any candidates that appear in more than one
-    // document on this page. Since these resources are being reused,
-    // they are not candidates for inlining.
-    for (ResourceSet::const_iterator iter =
-             resources.begin(), end = resources.end();
-         iter != end; ++iter) {
-      const Resource* resource = *iter;
-      DCHECK(num_referring_documents[resource] >= 1);
-      if (num_referring_documents[resource] > 1) {
-        resources.erase(resource);
+    // We don't want to consider candidates that appear in more than
+    // one document on the page, so we filter the inline_candidates
+    // resource set to remove those resources that appear in multiple
+    // documents.
+    ResourceSet unique_resources;
+
+    {
+      const ResourceSet& resources = it->second;
+      for (ResourceSet::const_iterator iter =
+               resources.begin(), end = resources.end();
+           iter != end; ++iter) {
+        const Resource* resource = *iter;
+        DCHECK(num_referring_documents[resource] >= 1);
+        if (num_referring_documents[resource] == 1) {
+          unique_resources.insert(resource);
+        }
       }
     }
 
     // If there are no resources left in the set after removing the
     // resources referenced from multiple documents, then there's no
     // violation here.
-    if (resources.empty()) {
+    if (unique_resources.empty()) {
       continue;
     }
 
@@ -144,13 +149,13 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
     pagespeed::Savings* savings = result->mutable_savings();
     // TODO: some may be critical path requests. Consider improving
     // the statistics we gather from this rule.
-    savings->set_requests_saved(resources.size());
+    savings->set_requests_saved(unique_resources.size());
     ResultDetails* details = result->mutable_details();
     InlineSmallResourcesDetails* isr_details =
         details->MutableExtension(
             InlineSmallResourcesDetails::message_set_extension);
     for (ResourceSet::const_iterator iter =
-             resources.begin(), end = resources.end();
+             unique_resources.begin(), end = unique_resources.end();
          iter != end; ++iter) {
       const Resource* resource = *iter;
       isr_details->add_inline_candidates(resource->GetRequestUrl());
