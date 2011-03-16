@@ -62,7 +62,13 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
   html::ExternalResourceFilter filter(&html_parse);
   html_parse.AddFilter(&filter);
 
+  // Map from document URL to a set of resources that are candidates
+  // to inline in that document.
   std::map<std::string, ResourceSet> inline_candidates;
+
+  // Map from a candidate resource to the number of documents that
+  // reference that resource.
+  std::map<const Resource*, int> num_referring_documents;
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (input.IsResourceLoadedAfterOnload(resource)) {
@@ -102,6 +108,7 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
       const Resource* external_resource = input.GetResourceWithUrl(*it);
       if (IsInlineCandidate(external_resource, resource_domain)) {
         inline_candidates[resource.GetRequestUrl()].insert(external_resource);
+        num_referring_documents[external_resource]++;
       }
     }
   }
@@ -110,20 +117,45 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
            inline_candidates.begin(), end = inline_candidates.end();
        it != end; ++it) {
     const std::string& html_url = it->first;
-    const ResourceSet& resources = it->second;
+
+    // We don't want to consider candidates that appear in more than
+    // one document on the page, so we filter the inline_candidates
+    // resource set to remove those resources that appear in multiple
+    // documents.
+    ResourceSet unique_resources;
+
+    {
+      const ResourceSet& resources = it->second;
+      for (ResourceSet::const_iterator iter =
+               resources.begin(), end = resources.end();
+           iter != end; ++iter) {
+        const Resource* resource = *iter;
+        DCHECK(num_referring_documents[resource] >= 1);
+        if (num_referring_documents[resource] == 1) {
+          unique_resources.insert(resource);
+        }
+      }
+    }
+
+    // If there are no resources left in the set after removing the
+    // resources referenced from multiple documents, then there's no
+    // violation here.
+    if (unique_resources.empty()) {
+      continue;
+    }
 
     Result* result = provider->NewResult();
     result->add_resource_urls(html_url);
     pagespeed::Savings* savings = result->mutable_savings();
     // TODO: some may be critical path requests. Consider improving
     // the statistics we gather from this rule.
-    savings->set_requests_saved(resources.size());
+    savings->set_requests_saved(unique_resources.size());
     ResultDetails* details = result->mutable_details();
     InlineSmallResourcesDetails* isr_details =
         details->MutableExtension(
             InlineSmallResourcesDetails::message_set_extension);
     for (ResourceSet::const_iterator iter =
-             resources.begin(), end = resources.end();
+             unique_resources.begin(), end = unique_resources.end();
          iter != end; ++iter) {
       const Resource* resource = *iter;
       isr_details->add_inline_candidates(resource->GetRequestUrl());

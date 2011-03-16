@@ -128,7 +128,7 @@ void SpecifyCharsetEarly::FormatResults(const ResultVector& results,
       // problem to the user, and tells them how to fix it by explicitly
       // specifying the character set near the beginning of the page.
       _("The following resources have no character set specified "
-        "in the HTTP header. Specifying a character set in the HTTP header "
+        "in their HTTP headers. Specifying a character set in HTTP headers "
         "can speed up browser rendering."));
 
   for (ResultVector::const_iterator iter = results.begin(),

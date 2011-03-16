@@ -58,7 +58,7 @@ void TestNamedRule(const char* name) {
   EXPECT_STREQ(name, rule->name());
 }
 
-}
+}  // namespace
 
 TEST(RuleProviderTest, AppendRuleSet) {
   using pagespeed::rule_provider::AppendRuleSet;
@@ -66,6 +66,7 @@ TEST(RuleProviderTest, AppendRuleSet) {
   using pagespeed::rule_provider::OLD_BROWSER_RULES;
   using pagespeed::rule_provider::NEW_BROWSER_RULES;
   using pagespeed::rule_provider::EXPERIMENTAL_RULES;
+  using pagespeed::rule_provider::MOBILE_BROWSER_RULES;
 
   std::vector<pagespeed::Rule*> rules;
   std::vector<pagespeed::Rule*> all_rules;
@@ -79,6 +80,7 @@ TEST(RuleProviderTest, AppendRuleSet) {
   EXPECT_TRUE(AppendRuleSet(false, OLD_BROWSER_RULES, &rules));
   EXPECT_TRUE(AppendRuleSet(false, NEW_BROWSER_RULES, &rules));
   EXPECT_TRUE(AppendRuleSet(false, EXPERIMENTAL_RULES, &rules));
+  EXPECT_TRUE(AppendRuleSet(false, MOBILE_BROWSER_RULES, &rules));
 
   // Test that each rule is in exactly one RuleSet
   pagespeed::rule_provider::AppendAllRules(false, &all_rules);

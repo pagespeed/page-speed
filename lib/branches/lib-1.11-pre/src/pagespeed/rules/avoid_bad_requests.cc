@@ -51,8 +51,14 @@ const char* AvoidBadRequests::documentation_url() const {
 bool AvoidBadRequests::AppendResults(const RuleInput& rule_input,
                                      ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();
+  const Resource* primary_resource =
+      input.GetResourceWithUrl(input.primary_resource_url());
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
+    if (&resource == primary_resource) {
+      // Don't include the primary resource in the analysis.
+      continue;
+    }
     const int status_code = resource.GetResponseStatusCode();
     if (status_code == 404 || status_code == 410) {
       // TODO(mdsteele) It would be better if we could store the actual status

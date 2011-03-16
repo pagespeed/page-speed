@@ -183,26 +183,20 @@ bool RunPagespeed(const std::string& out_format,
   // If the output format is "proto", print the raw results proto; otherwise,
   // use an appropriate converter.
   std::string out;
-  pagespeed::Results results;
-  engine.ComputeResults(*input, &results);
   if (output_format == PROTO_OUTPUT) {
+    pagespeed::Results results;
+    engine.ComputeResults(*input, &results);
     ::google::protobuf::io::StringOutputStream out_stream(&out);
     results.SerializeToZeroCopyStream(&out_stream);
   } else {
-    // Compute and format results, and put the library-computed overall score
-    // into the FormattedResults.
-    // TODO(mdsteele): Once we change the formatter API,
-    //     engine.ComputeAndFormatResults should do this for us.
+    // Compute and format results.
     pagespeed::l10n::BasicLocalizer localizer;
     pagespeed::FormattedResults formatted_results;
     // TODO(mdsteele): Add a command-line flag to support other locales.
     formatted_results.set_locale("en_US");
     pagespeed::formatters::ProtoFormatter formatter(&localizer,
                                                     &formatted_results);
-    engine.FormatResults(results, &formatter);
-    if (results.has_score()) {
-      formatted_results.set_score(results.score());
-    }
+    engine.ComputeAndFormatResults(*input, &formatter);
 
     // Convert the FormattedResults into text/json.
     if (output_format == TEXT_OUTPUT) {

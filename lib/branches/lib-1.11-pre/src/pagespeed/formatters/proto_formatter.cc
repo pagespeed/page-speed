@@ -147,6 +147,11 @@ RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, int score,
   return rule_formatter;
 }
 
+void ProtoFormatter::SetOverallScore(int score) {
+  DCHECK(0 <= score && score <= 100);
+  results_->set_score(score);
+}
+
 ProtoRuleFormatter::ProtoRuleFormatter(const Localizer* localizer,
                                        FormattedRuleResults* rule_results)
     : localizer_(localizer), rule_results_(rule_results) {
