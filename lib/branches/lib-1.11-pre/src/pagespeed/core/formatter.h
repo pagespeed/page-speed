@@ -165,6 +165,8 @@ class Formatter {
   // same lifetime as the parent.
   virtual RuleFormatter* AddRule(const Rule& rule, int score,
                                  double impact) = 0;
+  // Set the overall score (from 0 to 100).
+  virtual void SetOverallScore(int score) = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Formatter);

@@ -21,6 +21,7 @@
 #include "pagespeed/rules/avoid_css_import.h"
 #include "pagespeed/rules/avoid_document_write.h"
 #include "pagespeed/rules/combine_external_resources.h"
+#include "pagespeed/rules/defer_parsing_javascript.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/enable_keep_alive.h"
 #include "pagespeed/rules/inline_small_resources.h"
@@ -60,7 +61,6 @@ static const char* kCoreRules[] = {
   "inlinesmallcss",
   "inlinesmalljavascript",
   "leveragebrowsercaching",
-  "makelandingpageredirectscacheable",
   "minifycss",
   "minifyhtml",
   "minifyjavascript",
@@ -93,6 +93,12 @@ static const char* kNewBrowserRules[] = {
   NULL,
 };
 
+static const char* kMobileBrowserRules[] = {
+  "deferparsingjavascript",
+  "makelandingpageredirectscacheable",
+  NULL,
+};
+
 static const char* kExperimentalRules[] = {
   NULL,
 };
@@ -117,6 +123,9 @@ bool AppendRuleSet(bool save_optimized_content, RuleSet ruleset,
       break;
     case EXPERIMENTAL_RULES:
       rule_names = kExperimentalRules;
+      break;
+    case MOBILE_BROWSER_RULES:
+      rule_names = kMobileBrowserRules;
       break;
     default:
       return false;
@@ -149,6 +158,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("avoiddocumentwrite", rules::AvoidDocumentWrite());
   RULE("combineexternalcss", rules::CombineExternalCss());
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
+  RULE("deferparsingjavascript", rules::DeferParsingJavaScript());
   RULE("enablegzipcompression", rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
   RULE("enablekeepalive", rules::EnableKeepAlive());
@@ -239,6 +249,7 @@ void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
   rules->push_back(new rules::AvoidDocumentWrite());
   rules->push_back(new rules::CombineExternalCss());
   rules->push_back(new rules::CombineExternalJavaScript());
+  rules->push_back(new rules::DeferParsingJavaScript());
   rules->push_back(new rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
   rules->push_back(new rules::EnableKeepAlive());
