@@ -351,7 +351,7 @@ int DeferParsingJavaScript::ComputeScore(
   double rate = (kCriticalScore - kPerfectScore) /
       (kCriticalThresholdSize - kPerfectThresholdSize);
   double offset = kPerfectScore - kPerfectThresholdSize * rate;
-  int score = total_javascript_size * rate + offset;
+  int score = static_cast<int>(total_javascript_size * rate + offset);
   if (score < 0) {
     score = 0;
   } else if (score > 100) {
