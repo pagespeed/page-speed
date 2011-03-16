@@ -53,7 +53,7 @@ class DeferParsingJavaScriptTest : public
 
   void CreateScriptBlock(size_t size, std::string* script, bool commented) {
     *script = "";
-    for (int idx; script->size() < size; ++idx) {
+    for (int idx = 0; script->size() < size; ++idx) {
       if (commented) {
         script->append("//function func_");
       } else {
@@ -135,7 +135,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeUnminifiedJavascriptFile) {
 
 TEST_F(DeferParsingJavaScriptTest, LargeMinifiedJavascriptFile) {
   std::string script = kUnminified;
-  for (int idx; script.size() < kMaxBlockOfJavascript; ++idx) {
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("function func_");
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
@@ -149,7 +149,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeMinifiedJavascriptFile) {
 
 TEST_F(DeferParsingJavaScriptTest, LargeCommentedJavascriptFile) {
   std::string script = kUnminified;
-  for (int idx; script.size() < kMaxBlockOfJavascript; ++idx) {
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("// function func_");
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
@@ -166,7 +166,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeInlineJavascript) {
   std::string primary_body = p_resource->GetResponseBody();
   std::string script_tag ="<script type=\"text/javascript\">";
   std::string script;
-  for (int idx; script.size() < kMaxBlockOfJavascript; ++idx) {
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("function func_");
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
