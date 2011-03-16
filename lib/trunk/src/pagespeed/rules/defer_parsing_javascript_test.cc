@@ -245,7 +245,7 @@ TEST_F(DeferParsingJavaScriptTest, ComputeScore) {
   std::string primary_body = p_resource->GetResponseBody();
   std::string script_tag ="<script type=\"text/javascript\">";
   std::string script;
-  for (int idx; script.size() < kScore80Size; ++idx) {
+  for (int idx = 0; script.size() < kScore80Size; ++idx) {
     script.append("function func_");
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
