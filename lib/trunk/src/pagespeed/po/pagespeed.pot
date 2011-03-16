@@ -1,3 +1,10 @@
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "$1"  will be replaced
+#  by the document (HTML page, or a iframe) URL; the "$2" will be
+#  replaced by the size of its inline JavaScripts.
+msgid "$1 ($2 of inline JavaScript)"
+msgstr ""
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -96,6 +103,12 @@ msgstr ""
 msgid "$1 loads $2 synchronously."
 msgstr ""
 
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rending."
+msgstr ""
+
 #  A sub-heading that contains the URL of the document and
 #  a statement instructing the user to inline certain small resources.
 #  "$1" is a format token that will be replaced with the URL of the
@@ -152,8 +165,9 @@ msgstr ""
 msgid "Avoid document.write"
 msgstr ""
 
-#  Header at the top of a list of URLs that Page Speed deteced as
-#  having CSS resources in the document body. It describes the problem.
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
 msgid "CSS in the document body adversely impacts rendering performance."
 msgstr ""
 
@@ -217,6 +231,12 @@ msgstr ""
 msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
 msgstr ""
 
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr ""
+
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
 #  in a list of rule names that Page Speed generates. "Keep-Alive" should not
@@ -265,9 +285,9 @@ msgstr ""
 msgid "Leverage browser caching"
 msgstr ""
 
-#  Detail of external CSS resources. It tells the user how
-#  to fix the problem by moving the CSS to document head. The "$1" will
-#  be replaced by the CSS resource URL.
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head. The
+#  "$1" will be replaced by the CSS resource URL.
 msgid "Link node $1 should be moved to the document head."
 msgstr ""
 
@@ -276,6 +296,13 @@ msgstr ""
 #  will be replace by the number of bytes (e.g. 27B); the "$3" will be
 #  replace by the number of percent (e.g. 12).
 msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
 msgstr ""
 
 #  Name of a Page Speed rule. Here, minify means "remove
@@ -457,9 +484,9 @@ msgstr ""
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpages include a declaration of the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, early on in the page.
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
 #  This is displayed in a list of rule names that Page Speed generates.
-msgid "Specify a character set early"
+msgid "Specify a character set"
 msgstr ""
 
 #  The name of a Page Speed rule that tells users to ensure that
@@ -508,11 +535,12 @@ msgstr ""
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr ""
 
-#  A descriptive header at the top of a list of URLs of images
-#  that are resized in HTML or CSS.  It describes the problem to the user.
-#  "$1" is a format token that is replaced with the total savings in bytes
-#  from serving images in their final size (e.g. "32.5KiB").  "$2" is replaced
-#  with the percentage reduction of bytes transferred (e.g. "25").
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  "$1" is a format token that is replaced with the total
+#  savings in bytes from serving images in their final size
+#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
+#  bytes transferred (e.g. "25").
 msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
 msgstr ""
 
@@ -535,6 +563,12 @@ msgstr ""
 #  URL, or after the next resource. The "$1" will be replace by the
 #  URL of the HTML page.
 msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
 msgstr ""
 
 #  Header at the top of a list of URLs of webpage resources
@@ -585,13 +619,11 @@ msgid "The following resources have identical contents, but are served from diff
 msgstr ""
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as either not declaring the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, or declaring a
-#  character set but doing so late in the page for a character set other
-#  than what the browser was previously assuming.  It describes the
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
 #  problem to the user, and tells them how to fix it by explicitly
 #  specifying the character set near the beginning of the page.
-msgid "The following resources have no character set specified or have a non-default character set specified late in the document. Specifying a character set early in these documents can speed up browser rendering."
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr ""
 
 #  Header at the top of a list of URLs of resources that are
