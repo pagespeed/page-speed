@@ -95,7 +95,7 @@ class DeferParsingJavaScriptTest : public
   void CheckNoViolations() {
     DeferParsingJavaScript rule;
     RuleResults rule_results;
-    ResultProvider provider(rule, &rule_results, 0);
+    ResultProvider provider(rule, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(rule.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 0);
@@ -104,7 +104,7 @@ class DeferParsingJavaScriptTest : public
   void CheckScore(int score) {
     DeferParsingJavaScript rule;
     RuleResults rule_results;
-    ResultProvider provider(rule, &rule_results, 0);
+    ResultProvider provider(rule, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     ASSERT_TRUE(rule.AppendResults(rule_input, &provider));
     ASSERT_EQ(rule_results.results_size(), 1);

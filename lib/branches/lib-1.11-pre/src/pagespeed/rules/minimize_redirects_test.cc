@@ -73,7 +73,7 @@ class MinimizeRedirectsTest : public ::pagespeed_testing::PagespeedTest {
     MinimizeRedirects rule;
 
     RuleResults rule_results;
-    ResultProvider provider(rule, &rule_results, 0);
+    ResultProvider provider(rule, &rule_results);
     pagespeed::RuleInput rule_input(*pagespeed_input());
     rule_input.Init();
     ASSERT_TRUE(rule.AppendResults(rule_input, &provider));
