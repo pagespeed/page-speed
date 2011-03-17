@@ -201,3 +201,28 @@ DIV#rules-container > DIV.result > DIV.details > UL {
   margin: 10px;
   margin-__MSG_@@bidi_start_edge__: 20px;
 }
+
+/***** Error report *****/
+
+DIV#error-container {
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 35px;
+}
+
+DIV#error-container > P {
+  background-color: #ffe;
+  border: 1px #eee solid;
+  font-size: 12px;
+  margin: 30px 60px 15px;
+  padding: 8px;
+}
+
+DIV#error-container > BUTTON { 
+  font-size: 10px;
+  height: 19px;
+}

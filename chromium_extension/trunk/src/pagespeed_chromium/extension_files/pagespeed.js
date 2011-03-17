@@ -368,9 +368,58 @@ var pagespeed = {
     pagespeed.setRunButtonText(chrome.i18n.getMessage('refresh_results'));
   },
 
+  showErrorMessage: function (problem) { 
+    // Remove the previous results.
+    var results_container = document.getElementById('results-container');
+    pagespeed.removeAllChildren(results_container); 
+ 
+    // Create the error pane.
+    var error_container = pagespeed.makeElement('div');
+    error_container.id = 'error-container';
+    // TODO(mdsteele): Localize these error messages.
+    if (problem === 'incognito') {
+      // TODO(mdsteele): It'd be nice if "loading this page in a regular
+      //   browser window" were a link that would do just that.
+      error_container.appendChild(pagespeed.makeElement('p', null, [
+        "Oops, looks like you're trying to run Page Speed in an incognito ",
+        "window, but you haven't enabled the Page Speed extension in ",
+        "incognito windows.  Try either loading this page in a regular ",
+        "browser window, or else going to the ",
+        pagespeed.makeLink('chrome://extensions', 'extensions page'),
+        " and checking the \"Allow in incognito\" box next to the ",
+        "Page Speed extension."
+      ]));
+    } else if (problem === 'url') {
+      error_container.appendChild(pagespeed.makeElement('p', null, [
+        "Sorry, Page Speed can only analyze pages at ",
+        pagespeed.makeElement('code', null, 'http://'), " or ",
+        pagespeed.makeElement('code', null, 'https://'),
+        " URLs.  Please try another page."
+      ]));
+    } else {
+      throw new Error("Unexpected problem: " + JSON.stringify(problem));
+    }
+    error_container.appendChild(pagespeed.makeButton(
+      'Clear', pagespeed.clearResults)),
+    results_container.appendChild(error_container);
+
+    // Display the results.
+    var welcome_container = document.getElementById('welcome-container');
+    welcome_container.style.display = 'none';
+    results_container.style.display = 'block';
+    document.getElementById('run-button').disabled = true;
+  },
+
   // Handle messages from the background page (coming over the connectionPort).
   messageHandler: function (message) {
-    if (message.kind === 'status') {
+    if (message.kind === 'approveTab') {
+      if (pagespeed.resourceAccumulator) {
+        pagespeed.resourceAccumulator.start();
+      }
+    } else if (message.kind === 'rejectTab') {
+      pagespeed.endCurrentRun();
+      pagespeed.showErrorMessage(message.reason);
+    } else if (message.kind === 'setStatusText') {
       pagespeed.setStatusText(message.message);
     } else if (message.kind === 'results') {
       pagespeed.onPageSpeedResults(message.results);
@@ -379,15 +428,29 @@ var pagespeed = {
     }
   },
 
-  // Run Page Speed and display the results. This is done
-  // asynchronously using the ResourceAccumulator.
+  // Run Page Speed and display the results. This is done asynchronously using
+  // the ResourceAccumulator.
   runPageSpeed: function () {
+    // Cancel the previous run, if any.
     pagespeed.endCurrentRun();
+    // Indicate in the UI that we are currently running.
     document.getElementById('run-button').disabled = true;
     document.getElementById('spinner-img').style.display = 'inline';
+    // Instatiate a resource accumulator now, so that when an approveTab
+    // message comes back, we know we're ready to run.
     pagespeed.resourceAccumulator = new pagespeed.ResourceAccumulator(
       pagespeed.withErrorHandler(pagespeed.onResourceAccumulatorComplete));
-    pagespeed.resourceAccumulator.start();
+    // Before we start, we need to determine if we'll be able to run our
+    // content script on this tab.  However, to determine this we need to call
+    // chrome.tab.get(), which we can't do from here.  Thus, we ask the
+    // background page to do it for us.  It will reply with either an
+    // approveTab or rejectTab message, which will be handled in
+    // pagespeed.messageHandler().
+    pagespeed.setStatusText('Checking tab...');
+    pagespeed.connectionPort.postMessage({
+      kind: 'checkTab',
+      tab_id: webInspector.inspectedWindow.tabId
+    });
   },
 
   // Invoked when the ResourceAccumulator has finished collecting data
@@ -452,7 +515,7 @@ var pagespeed = {
     // If there's an active ResourceAccumulator, it must be trying to reload
     // the page, so don't do anything.  Otherwise, if there are results
     // showing, they're from another page, so clear them.
-    if (pagespeed.currentResults && !pagespeed.resourceAccumulator) {
+    if (!pagespeed.resourceAccumulator) {
       // TODO(mdsteele): Alternatively, we could automatically re-run the
       //   rules.  Maybe we should have a user preference to decide which?
       pagespeed.clearResults();
@@ -468,6 +531,8 @@ var pagespeed = {
     }
   },
 
+  // Called once when we first load pagespeed-panel.html, to initialize the UI,
+  // with localization.
   initializeUI: function () {
     // Initialize the "analyze" dropdown menu.
     var analyze = document.getElementById('analyze-dropdown');
