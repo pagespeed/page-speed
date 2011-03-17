@@ -352,4 +352,16 @@ TEST_F(MinimizeRedirectsTest, RedirectCycles) {
   CheckViolations(violations);
 }
 
+TEST_F(MinimizeRedirectsTest, MissingDestination) {
+  // pure redirect cycle; currently not checked.
+  std::string url1 = "http://www.a.com/";
+  std::string url2 = "http://www.b.com/";
+
+  AddRedirect(url1, url2);
+  Freeze();
+
+  std::vector<Violation> violations;
+  CheckViolations(violations);
+}
+
 }  // namespace

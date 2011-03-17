@@ -90,8 +90,14 @@ bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
        redirect_chains.begin(), end = redirect_chains.end();
        it != end;
        ++it) {
-    Result* result = provider->NewResult();
     const RuleInput::RedirectChain& chain = *it;
+    if (chain.size() <= 1) {
+      // This can happen if the destination URL of a redirect doesn't
+      // have an associated Resource in the PagespeedInput.
+      LOG(INFO) << "Skipping redirect chain with one resource.";
+      continue;
+    }
+    Result* result = provider->NewResult();
     for (RuleInput::RedirectChain::const_iterator cit = chain.begin(),
         cend = chain.end();
         cit != cend;
