@@ -139,11 +139,21 @@ TEST_F(RuleInputTest, NoRedirect) {
   AddResourceUrl(url2, 200);
   Freeze();
 
+  std::vector<Violation> violations;
+  CheckViolations(violations);
+}
+
+TEST_F(RuleInputTest, MissingDestination) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  AddRedirect(url1, url2);
+  Freeze();
+
   std::vector<std::string> urls;
   urls.push_back(url1);
-  urls.push_back(url2);
 
   std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
 
   CheckViolations(violations);
 }

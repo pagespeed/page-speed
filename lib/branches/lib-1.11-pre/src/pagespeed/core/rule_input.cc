@@ -115,6 +115,10 @@ void RedirectGraph::PopulateRedirectChainResult(
     work_stack.pop_back();
     const pagespeed::Resource* resource =
         pagespeed_input_->GetResourceWithUrl(current);
+    if (resource == NULL) {
+      LOG(INFO) << "Unable to find resource with URL " << current;
+      continue;
+    }
     chain->push_back(resource);
 
     // detect and break loops.
