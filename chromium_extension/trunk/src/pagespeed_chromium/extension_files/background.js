@@ -16,15 +16,14 @@
 
 var pagespeed_bg = {
 
-  // TODO(mdsteele): What if there were multiple pending runPageSpeed requests
-  //     at once?  Maybe we should have a dict here instead of one variable.
-  // The input that was given to runPageSpeed; we have to store it so that the
-  // content script can request it asynchronously.
-  currentInput: null,
-
-  // The channel on which to respond to requests to runPageSpeed; we have to
-  // store it because we have to respond to those requests asynchronously.
-  responseChannel: null,
+  // Map from inspected tab IDs to client objects.  Each client object has the
+  // following fields:
+  //     tab_id: the ID of the inspected tab
+  //     input: an object with the following fields:
+  //         analyze: a string indicating whether to analyze ads/content/etc.
+  //         har: the page HAR, in JSON form
+  //     port: a port object connected to this client's DevTools page
+  activeClients: {},
 
   // Wrap a function with an error handler.  Given a function, return a new
   // function that behaves the same but catches and logs errors thrown by the
@@ -47,50 +46,63 @@ var pagespeed_bg = {
     };
   },
 
-  requestHandler: function (request, sender, sendResponse) {
-    // TODO: how do we want to handle re-entrancy here? Since the
-    // background page runs in a different thread/process we can't
-    // count on single-threaded execution relative to the JS executing
-    // in the content page. We also need to be careful if we use
-    // global state as an indicator that a request is in process,
-    // since a request that accidentally fails part way through
-    // processing will lock up processing for all subsequent requests.
-    if (request.kind === 'runPageSpeed') {
-      // First we need to fetch any resources for which Chrome
-      // Developer Tools Extension APIs only gave us partial data.
-      pagespeed_bg.currentInput = request.input;
-      pagespeed_bg.responseChannel = sendResponse;
+  // Given a client object and a message, set a status message in the client's
+  // DevTools panel.
+  setStatusText: function (client, message) {
+    client.port.postMessage({kind: 'status', message: message});
+  },
+
+  // Given a client object, return true if it is still active, or false if it
+  // has been cancelled.
+  isClientStillActive: function (client) {
+    return client === pagespeed_bg.activeClients[client.tab_id];
+  },
+
+  // Handle connections from DevTools panels.
+  connectHandler: function (port) {
+    port.onMessage.addListener(pagespeed_bg.withErrorHandler(
+      pagespeed_bg.messageHandler, port));
+  },
+
+  // Handle messages from DevTools panels.
+  messageHandler: function (port, request) {
+    if (request.kind === 'openUrl') {
+      chrome.tabs.create({url: request.url});
+    } else if (request.kind === 'runPageSpeed') {
+      request.port = port;
+      pagespeed_bg.activeClients[request.tab_id] = request;
       pagespeed_bg.fetchPartialResources_(request);
+    } else if (request.kind === 'cancelRun') {
+      delete pagespeed_bg.activeClients[request.tab_id];
     } else {
-      var response = null;
-      try {
-        if (request.kind === 'openUrl') {
-          chrome.tabs.create({url: request.url});
-        } else if (request.kind === 'getInput') {
-          response = pagespeed_bg.currentInput;
-        } else if (request.kind === 'putResults') {
-          pagespeed_bg.currentInput = null;
-          pagespeed_bg.responseChannel(request.results);
-          pagespeed_bg.responseChannel = null;
-        } else if (request.kind === 'error') {
-          if (pagespeed_bg.responseChannel) {
-            pagespeed_bg.currentInput = null;
-            pagespeed_bg.responseChannel({error_message: request.message});
-            pagespeed_bg.responseChannel = null;
-          }
-        } else {
-          throw new Error("Unknown request kind: kind=" + request.kind +
-                          " sender=" + JSON.stringify(sender));
-        }
-      } finally {
-        // We should always send a response, even if it's empty.  See:
-        //   http://code.google.com/chrome/extensions/messaging.html#simple
-        sendResponse(response);
-      }
+      throw new Error('Unknown message kind:' + request.kind);
     }
   },
 
-  fetchPartialResources_: function (request) {
+  // Handle requests from content scripts.
+  requestHandler: function (request, sender, sendResponse) {
+    var response = null;
+    try {
+      var client = pagespeed_bg.activeClients[sender.tab.id];
+      if (client) {
+        if (request.kind === 'getInput') {
+          response = client.input;
+        } else if (request.kind == 'putResults') {
+          client.port.postMessage({kind: 'results', results: request.results});
+        } else if (request.kind == 'setStatusText') {
+          pagespeed_bg.setStatusText(client, request.message);
+        } else {
+          throw new Error('Unknown request kind: ' + request.kind);
+        }
+      }
+    } finally {
+      // We should always send a response, even if it's empty.  See:
+      //   http://code.google.com/chrome/extensions/messaging.html#simple
+      sendResponse(response);
+    }
+  },
+
+  fetchPartialResources_: function (client) {
     var fetchContext = {}
 
     // We track in-progress requests in a map, so we know when there
@@ -101,10 +113,10 @@ var pagespeed_bg = {
     // Add a key to count the number of outstanding resources.
     fetchContext.numOutstandingResources = 0;
 
-    // Hold on to the current request instance.
-    fetchContext.request = request;
+    // Hold on to the current client instance.
+    fetchContext.client = client;
 
-    var har = request.input.har.log;
+    var har = client.input.har.log;
     for (var i = 0, len = har.entries.length; i < len; ++i) {
       var entry = har.entries[i];
 
@@ -182,23 +194,25 @@ var pagespeed_bg = {
     if (fetchContext.numOutstandingResources == 0) {
       // We have no outstanding resources being fetched, so move on to
       // the next stage of processing.
-      delete fetchContext.request;
-      pagespeed_bg.executeContentScript(request);
+      delete fetchContext.client;
+      pagespeed_bg.executeContentScript(client);
+    } else {
+      pagespeed_bg.setStatusText(client, "Fetching partial resources...");
     }
   },
 
-  executeContentScript: function(request) {
-    if (request.input === pagespeed_bg.currentInput) {
+  executeContentScript: function(client) {
+    if (pagespeed_bg.isClientStillActive(client)) {
       // Only run the content script if this is part of processing for
-      // a request that hasn't been cancelled.
-      chrome.tabs.executeScript(request.tab_id,
-                                {file: "content-script.js"});
+      // a client that hasn't been cancelled.
+      pagespeed_bg.setStatusText(client, "Executing content script...");
+      chrome.tabs.executeScript(client.tab_id, {file: "content-script.js"});
     }
   },
 
   onReadyStateChange: function (xhr, entry, fetchContext) {
-    if (pagespeed_bg.currentInput !== fetchContext.request.input) {
-      // We're processing a callback for an old request. Ignore it.
+    if (!pagespeed_bg.isClientStillActive(fetchContext.client)) {
+      // We're processing a callback for an old client. Ignore it.
       return;
     }
 
@@ -226,9 +240,9 @@ var pagespeed_bg = {
     if (fetchContext.numOutstandingResources == 0) {
       // We're done fetching outstanding resources, so move on to the
       // next phase of processing.
-      var request = fetchContext.request;
-      delete fetchContext.request;
-      pagespeed_bg.executeContentScript(request);
+      var client = fetchContext.client;
+      delete fetchContext.client;
+      pagespeed_bg.executeContentScript(client);
     }
   },
 
@@ -364,5 +378,10 @@ var pagespeed_bg = {
 
 };
 
+// Listen for connections from DevTools panels:
+chrome.extension.onConnect.addListener(
+  pagespeed_bg.withErrorHandler(pagespeed_bg.connectHandler));
+
+// Listen for requests from content scripts:
 chrome.extension.onRequest.addListener(
   pagespeed_bg.withErrorHandler(pagespeed_bg.requestHandler));

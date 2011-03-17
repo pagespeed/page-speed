@@ -16,7 +16,12 @@
 
 var pagespeed = {
 
-  // We track the current results in this global variable.
+  // A port object connected to the extension background page; this is
+  // initialized at the bottom of this file.
+  connectionPort: null,
+
+  // The current results, in JSON form.  This is null iff there are no
+  // currently displayed results in the UI.
   currentResults: null,
 
   // The currently active ResourceAccumulator, if any.
@@ -106,7 +111,7 @@ var pagespeed = {
     link.href = 'javascript:null';
     var openUrl = function () {
       // Tell the background page to open the url in a new tab.
-      chrome.extension.sendRequest({kind: 'openUrl', url: href});
+      pagespeed.connectionPort.postMessage({kind: 'openUrl', url: href});
     };
     link.addEventListener('click', pagespeed.withErrorHandler(openUrl), false);
     return link;
@@ -363,6 +368,17 @@ var pagespeed = {
     pagespeed.setRunButtonText(chrome.i18n.getMessage('refresh_results'));
   },
 
+  // Handle messages from the background page (coming over the connectionPort).
+  messageHandler: function (message) {
+    if (message.kind === 'status') {
+      pagespeed.setStatusText(message.message);
+    } else if (message.kind === 'results') {
+      pagespeed.onPageSpeedResults(message.results);
+    } else {
+      throw new Error('Unknown message kind: ' + message.kind);
+    }
+  },
+
   // Run Page Speed and display the results. This is done
   // asynchronously using the ResourceAccumulator.
   runPageSpeed: function () {
@@ -386,9 +402,8 @@ var pagespeed = {
     var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
 
     // Tell the background page to run the Page Speed rules.
-    pagespeed.setStatusText(chrome.i18n.getMessage('running_rules'));
-    chrome.extension.sendRequest(
-        request, pagespeed.withErrorHandler(pagespeed.onPageSpeedResults));
+    pagespeed.setStatusText('Sending request to background page...');
+    pagespeed.connectionPort.postMessage(request);
   },
 
   // Invoked in response to our background page running Page Speed on
@@ -416,6 +431,10 @@ var pagespeed = {
     document.getElementById('run-button').disabled = false;
     document.getElementById('spinner-img').style.display = 'none';
     pagespeed.setStatusText(null);
+    pagespeed.connectionPort.postMessage({
+      kind: 'cancelRun',
+      tab_id: webInspector.inspectedWindow.tabId
+    });
   },
 
   // Callback to be called when the user changes the value of the "Analyze"
@@ -574,6 +593,11 @@ pagespeed.ResourceAccumulator.prototype.onBody_ = function (text, encoding) {
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
 };
+
+// Connect to the extension background page.
+pagespeed.connectionPort = chrome.extension.connect();
+pagespeed.connectionPort.onMessage.addListener(
+  pagespeed.withErrorHandler(pagespeed.messageHandler));
 
 // Listen for when we change pages.
 webInspector.inspectedWindow.onNavigated.addListener(
