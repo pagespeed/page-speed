@@ -38,7 +38,7 @@ var pagespeed_bg = {
         Array.prototype.unshift.apply(newArgs, boundArgs);
         return func.apply(this, newArgs);
       } catch (e) {
-        var message = 'Error in Page Speed background page\n: ' + e.stack;
+        var message = 'Error in Page Speed background page:\n ' + e.stack;
         alert(message + '\n\nPlease file a bug at\n' +
               'http://code.google.com/p/page-speed/issues/');
         console.log(message);
@@ -49,7 +49,7 @@ var pagespeed_bg = {
   // Given a client object and a message, set a status message in the client's
   // DevTools panel.
   setStatusText: function (client, message) {
-    client.port.postMessage({kind: 'status', message: message});
+    client.port.postMessage({kind: 'setStatusText', message: message});
   },
 
   // Given a client object, return true if it is still active, or false if it
@@ -68,6 +68,9 @@ var pagespeed_bg = {
   messageHandler: function (port, request) {
     if (request.kind === 'openUrl') {
       chrome.tabs.create({url: request.url});
+    } else if (request.kind === 'checkTab') {
+      chrome.tabs.get(request.tab_id, pagespeed_bg.withErrorHandler(
+        pagespeed_bg.checkTab, port));
     } else if (request.kind === 'runPageSpeed') {
       request.port = port;
       pagespeed_bg.activeClients[request.tab_id] = request;
@@ -99,6 +102,30 @@ var pagespeed_bg = {
       // We should always send a response, even if it's empty.  See:
       //   http://code.google.com/chrome/extensions/messaging.html#simple
       sendResponse(response);
+    }
+  },
+
+  // Determine whether we will be able to run on a particular Chrome tab, and
+  // post a message to the given port indicating whether we accept or reject
+  // the tab.
+  checkTab: function (port, tab) {
+    // If tab comes back as null/undefined, it means that we're in an incognito
+    // window, but our extension hasn't been enabled for incognito use by the
+    // user.  Attempting to run our content script will fail in that case, so
+    // we reply with 'rejectTab'.
+    if (!tab) {
+      port.postMessage({kind: 'rejectTab', reason: 'incognito'});
+    }
+    // We can only inject our content script into http/https URLs; in
+    // particular, we can't run on chrome:// URLs like the extensions page or
+    // the new tab page.
+    else if (!tab.url.match(/^http/)) {
+      port.postMessage({kind: 'rejectTab', reason: 'url'});
+    }
+    // Otherwise, we expect the content script to work, so tell our DevTools
+    // panel to go ahead.
+    else {
+      port.postMessage({kind: 'approveTab'});
     }
   },
 
