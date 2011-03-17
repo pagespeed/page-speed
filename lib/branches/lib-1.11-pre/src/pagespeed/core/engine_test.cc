@@ -374,30 +374,4 @@ TEST(EngineTest, NonFrozenInputFails) {
 #endif
 }
 
-TEST(EngineTest, ResultIdAssignment) {
-  PagespeedInput input;
-  input.Freeze();
-
-  std::vector<Rule*> rules;
-  rules.push_back(new TestRule("rule1"));
-  rules.push_back(new TestRule("rule2"));
-  rules.push_back(new TestRule("rule3"));
-
-  Engine engine(&rules);
-  engine.Init();
-  Results results;
-  ASSERT_TRUE(engine.ComputeResults(input, &results));
-
-  // Make sure the expected results were generated.
-  ASSERT_EQ(3, results.rule_results_size());
-  ASSERT_EQ(1, results.rule_results(0).results_size());
-  ASSERT_EQ(1, results.rule_results(1).results_size());
-  ASSERT_EQ(1, results.rule_results(2).results_size());
-
-  // Make sure proper IDs were assigned.
-  EXPECT_EQ(0, results.rule_results(0).results(0).id());
-  EXPECT_EQ(1, results.rule_results(1).results(0).id());
-  EXPECT_EQ(2, results.rule_results(2).results(0).id());
-}
-
 }  // namespace
