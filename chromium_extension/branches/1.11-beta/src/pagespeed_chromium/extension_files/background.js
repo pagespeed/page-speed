@@ -205,9 +205,16 @@ var pagespeed_bg = {
       fetchContext.xhrs[url] = xhr;
       fetchContext.numOutstandingResources++;
 
+      // Abort any requests that take longer than 5 seconds, since
+      // some requests are "hanging GETs" that never return.
+      var timeoutCallbackId = setTimeout(
+          pagespeed_bg.withErrorHandler(pagespeed_bg.abortXmlHttpRequest_,
+                                        xhr, url),
+          5000);
+
       xhr.onreadystatechange = pagespeed_bg.withErrorHandler(
           pagespeed_bg.onReadyStateChange,
-          xhr, entry, fetchContext);
+          xhr, entry, fetchContext, timeoutCallbackId);
       try {
         xhr.open("GET", url, true);
         xhr.send();
@@ -228,6 +235,16 @@ var pagespeed_bg = {
     }
   },
 
+  abortXmlHttpRequest_: function (xhr, url) {
+    console.log('Aborting XHR for ' + url);
+    // Calling xhr.abort() will trigger a callback to
+    // onReadyStateChange, where the XHR has a status code of
+    // zero. According to the XHR spec, this may change at some time
+    // in the future, so we need to watch for that and update the code
+    // if necessary.
+    xhr.abort();
+  },
+
   executeContentScript: function(client) {
     if (pagespeed_bg.isClientStillActive(client)) {
       // Only run the content script if this is part of processing for
@@ -237,7 +254,7 @@ var pagespeed_bg = {
     }
   },
 
-  onReadyStateChange: function (xhr, entry, fetchContext) {
+  onReadyStateChange: function (xhr, entry, fetchContext, timeoutCallbackId) {
     if (!pagespeed_bg.isClientStillActive(fetchContext.client)) {
       // We're processing a callback for an old client. Ignore it.
       return;
@@ -247,6 +264,8 @@ var pagespeed_bg = {
       // Non-final state, so return.
       return;
     }
+
+    clearTimeout(timeoutCallbackId);
 
     var url = entry.request.url;
     if (!url in fetchContext.xhrs) {

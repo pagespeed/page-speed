@@ -368,11 +368,11 @@ var pagespeed = {
     pagespeed.setRunButtonText(chrome.i18n.getMessage('refresh_results'));
   },
 
-  showErrorMessage: function (problem) { 
+  showErrorMessage: function (problem) {
     // Remove the previous results.
     var results_container = document.getElementById('results-container');
-    pagespeed.removeAllChildren(results_container); 
- 
+    pagespeed.removeAllChildren(results_container);
+
     // Create the error pane.
     var error_container = pagespeed.makeElement('div');
     error_container.id = 'error-container';
@@ -548,21 +548,29 @@ var pagespeed = {
     // Initialize the welcome pane.
     // TODO(mdsteele): Localize this stuff too, once we decide what it should
     //   look like.
-    var welcome = document.getElementById('welcome-container');
-    welcome.appendChild(pagespeed.makeElement('h1', null, "Page Speed"));
-    welcome.appendChild(pagespeed.makeElement(
-      'h2', null, "What's new in Page Speed 1.11?"));
-    welcome.appendChild(pagespeed.makeElement('ul', null, [
-      pagespeed.makeElement('li', null, "It's in Chromium!"),
-      pagespeed.makeElement('li', null, "Probably some other stuff?")
+    var whatsnew = document.getElementById('whats-new-container');
+    whatsnew.appendChild(pagespeed.makeElement('h1', null, "Page Speed"));
+    whatsnew.appendChild(pagespeed.makeElement(
+      'h2', null, "What's new in Page Speed 1.11 beta?"));
+    whatsnew.appendChild(pagespeed.makeElement('ul', null, [
+      pagespeed.makeElement('li', null, "It's in Chrome!"),
+      pagespeed.makeElement('li', null, "Localized rule results"),
+      pagespeed.makeElement('li', null, "Improved scoring and suggestion ordering"),
+      pagespeed.makeElement('li', null, [ "New rules",
+        pagespeed.makeElement('ul', null, [
+          pagespeed.makeElement('li', null, "Defer parsing of JavaScript"),
+          pagespeed.makeElement('li', null, "Enable Keep-Alive"),
+          pagespeed.makeElement('li', null, "Make landing page redirects cacheable")
+        ])
+      ])
     ]));
-    welcome.appendChild(pagespeed.makeElement('p', null, [
+    whatsnew.appendChild(pagespeed.makeElement('p', null, [
       'See the ', pagespeed.makeLink(
         'http://code.google.com/speed/page-speed/docs/rules_intro.html',
         'Page Speed documentation'),
       ' for detailed information on the rules used to evaluate web pages.'
     ]));
-    welcome.appendChild(pagespeed.makeElement(
+    whatsnew.appendChild(pagespeed.makeElement(
       'p', null, 'Page Speed Copyright \xA9 2011 Google Inc.'));
     // Refresh the run button, etc.
     pagespeed.clearResults();
