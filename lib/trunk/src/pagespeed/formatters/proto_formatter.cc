@@ -133,7 +133,7 @@ RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, int score,
   FormattedRuleResults* rule_results = results_->add_rule_results();
   rule_results->set_rule_name(rule.name());
   rule_results->set_rule_score(score);
-  // TODO(mdsteele): rule_results->set_rule_impact(impact);
+  rule_results->set_rule_impact(impact);
 
   if (!MaybeLocalizeString(localizer_,
                            rule.header(),

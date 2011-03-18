@@ -28,8 +28,7 @@
 
 namespace {
 
-const int64 kMillisInADay = 1000 * 60 * 60 * 24;
-const int64 kMillisInAWeek = kMillisInADay * 7;
+const int64 kMillisInAWeek = 1000 * 60 * 60 * 24 * 7;
 
 // Extract the freshness lifetime from the result object.
 int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
@@ -263,6 +262,23 @@ int LeverageBrowserCaching::ComputeScore(const InputInformation& input_info,
     avg_freshness_lifetime = kMillisInAWeek;
   }
   return static_cast<int>(100 * avg_freshness_lifetime / kMillisInAWeek);
+}
+
+double LeverageBrowserCaching::ComputeResultImpact(
+    const InputInformation& input_info, const Result& result) {
+  const CachingDetails& caching_details = result.details().GetExtension(
+      CachingDetails::message_set_extension);
+  double lifetime = caching_details.freshness_lifetime_millis();
+  if (lifetime < 0.0 || lifetime > kMillisInAWeek) {
+    LOG(DFATAL) << "Invalid freshness lifetime: " << lifetime;
+    lifetime = 0.0;
+  }
+  const ClientCharacteristics& client = input_info.client_characteristics();
+  // TODO(mdsteele): We should take into account not only the cost of the
+  //   requests, but the cost of the bytes transferred over the net rather than
+  //   taken from cache.
+  return client.requests_weight() * client.expected_cache_hit_rate() *
+      (1.0 - lifetime / static_cast<double>(kMillisInAWeek));
 }
 
 }  // namespace rules
