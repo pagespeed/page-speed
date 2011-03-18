@@ -129,6 +129,19 @@ var pagespeed = {
     return icon;
   },
 
+  // TODO(mdsteele): This is a hack -- impact scores are relative, not
+  //   absolute, so we shouldn't be comparing them to constants.  We should
+  //   decide on a better way to do this.
+  makeImpactIcon: function (impact) {
+    pagespeed.assert(typeof(impact) === 'number',
+                     'makeImpactIcon: score must be a number');
+    pagespeed.assert(isFinite(impact), 'makeImpactIcon: score must be finite');
+    var icon = pagespeed.makeElement('div', (impact < 3 ? 'icon-okay' :
+                                             impact < 10 ? 'icon-warn' :
+                                             'icon-error'));
+    return icon;
+  },
+
   // Set the text of the "Run Page Speed" button (e.g. to "Refresh Results").
   setRunButtonText: function (text) {
     var run_button = document.getElementById('run-button');
@@ -298,11 +311,15 @@ var pagespeed = {
     var results_container = document.getElementById('results-container');
     pagespeed.removeAllChildren(results_container);
 
-    // Sort the rule results, first by score, then by name.
-    // TODO(mdsteele): Once we have impact-based scores, sort by impact.
+    // Sort the rule results, first by impact (descending), then by number of
+    // results (descending), then by name (ascending).  Sorting by number of
+    // results is in there so that zero-impact rules with results come before
+    // zero-impact rules with no results.
     var rule_results = pagespeed.currentResults.results.rule_results.slice();
     rule_results.sort(function (result1, result2) {
-      return (pagespeed.compare(result1.rule_score, result2.rule_score) ||
+      return (pagespeed.compare(result2.rule_impact, result1.rule_impact) ||
+              pagespeed.compare((result2.url_blocks || []).length,
+                                (result1.url_blocks || []).length) ||
               pagespeed.compare(result1.localized_rule_name,
                                 result2.localized_rule_name));
     });
@@ -330,10 +347,12 @@ var pagespeed = {
     rules_container.id = 'rules-container';
     rule_results.forEach(function (rule_result) {
       var header = pagespeed.makeElement('div', 'header', [
-        pagespeed.makeScoreIcon(rule_result.rule_score),
+        (localStorage.debug ? pagespeed.makeScoreIcon(rule_result.rule_score) :
+         pagespeed.makeImpactIcon(rule_result.rule_impact)),
+        (localStorage.debug ? '[' + rule_result.rule_impact + '] ' : null),
         rule_result.localized_rule_name
       ]);
-      if (rule_result.rule_score >= 100) {
+      if (!rule_result.url_blocks) {
         header.style.fontWeight = 'normal';
       }
       var formatted = pagespeed.formatUrlBlocks(rule_result.url_blocks);
