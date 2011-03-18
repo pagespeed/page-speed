@@ -607,6 +607,7 @@ pagespeed.ResourceAccumulator = function (clientCallback) {
   this.cancelled_ = false;
   this.har_ = null;
   this.doingReload_ = false;
+  this.timeoutId_ = null;
 };
 
 // Start the accumulator.
@@ -669,14 +670,37 @@ pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function () {
     pagespeed.setStatusText(chrome.i18n.getMessage(
       'fetching_content', [this.nextEntryIndex_ + 1, this.har_.entries.length,
                            entry.request.url]));
-    entry.getContent(pagespeed.withErrorHandler(this.onBody_.bind(this)));
+    // Ask the DevTools panel to give us the content of this resource.
+    entry.getContent(pagespeed.withErrorHandler(
+      this.onBody_.bind(this, this.nextEntryIndex_)));
+    // Sometimes the above call never calls us back.  This is a bug.  In the
+    // meantime, give it at most 2 seconds before we time out and move on.
+    pagespeed.assert(this.timeoutId_ === null);
+    this.timeoutId_ = setTimeout(pagespeed.withErrorHandler(
+      this.timeOut_.bind(this, this.nextEntryIndex_)), 2000);
   }
 };
 
-pagespeed.ResourceAccumulator.prototype.onBody_ = function (text, encoding) {
-  if (this.cancelled_) {
+pagespeed.ResourceAccumulator.prototype.timeOut_ = function (index) {
+  if (this.cancelled_ || index !== this.nextEntryIndex_) {
     return;  // We've been cancelled so ignore the callback.
   }
+  webInspector.log("Timed out while fetching [" + index + "/" +
+                   this.har_.entries.length + "] " +
+                   this.har_.entries[index].request.url);
+  this.timeoutId_ = null;
+  ++this.nextEntryIndex_;
+  this.getNextEntryBody_();
+};
+
+pagespeed.ResourceAccumulator.prototype.onBody_ = function (index, text,
+                                                            encoding) {
+  if (this.cancelled_ || index !== this.nextEntryIndex_) {
+    return;  // We've been cancelled so ignore the callback.
+  }
+  pagespeed.assert(this.timeoutId_ !== null);
+  clearTimeout(this.timeoutId_);
+  this.timeoutId_ = null;
   var content = this.har_.entries[this.nextEntryIndex_].response.content;
   // We need the || here because sometimes we get back null for `text'.
   // TODO(mdsteele): That's a bad thing.  Is it fixable?
