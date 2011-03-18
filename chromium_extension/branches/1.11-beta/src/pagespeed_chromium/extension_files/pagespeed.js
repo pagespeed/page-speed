@@ -16,7 +16,12 @@
 
 var pagespeed = {
 
-  // We track the current results in this global variable.
+  // A port object connected to the extension background page; this is
+  // initialized at the bottom of this file.
+  connectionPort: null,
+
+  // The current results, in JSON form.  This is null iff there are no
+  // currently displayed results in the UI.
   currentResults: null,
 
   // The currently active ResourceAccumulator, if any.
@@ -106,7 +111,7 @@ var pagespeed = {
     link.href = 'javascript:null';
     var openUrl = function () {
       // Tell the background page to open the url in a new tab.
-      chrome.extension.sendRequest({kind: 'openUrl', url: href});
+      pagespeed.connectionPort.postMessage({kind: 'openUrl', url: href});
     };
     link.addEventListener('click', pagespeed.withErrorHandler(openUrl), false);
     return link;
@@ -190,31 +195,35 @@ var pagespeed = {
   // FormattedResultsToJsonConverter::ConvertFormatString(),
   // build an array of DOM nodes, suitable to be passed to makeElement().
   formatFormatString: function (format_string) {
-    var sp = pagespeed.makeElement('span');
-    sp.innerHTML = format_string.format.replace(/\$[1-9]/g, function (argnum) {
-      // The regex above ensures that argnum will be a string of the form "$n"
-      // where "n" is a digit from 1 to 9.  We use .substr(1) to get just the
-      // "n" part, then use parseInt() to parse it into an integer (base 10),
-      // then subtract 1 to get an array index from 0 to 8.  We use this index
-      // to get the appropriate argument spec from the format_string.args
-      // array.
-      var arg = format_string.args[parseInt(argnum.substr(1), 10) - 1];
-      // If format_string was constructed wrong, then the index above might
-      // have been invalid.  In that case, just leave the "$n" substring as is.
+    var elements = [];
+    var string = format_string.format;
+    var index;
+    // Search for the next "$n" (where n is a digit from 1 to 9).
+    while ((index = string.search(/\$[1-9]/)) >= 0) {
+      // Add everything up to the "$n" as a literal string.
+      elements.push(string.substr(0, index));
+      // Get the digit "n" as a string.
+      var argnum = string.substr(index + 1, 1);
+      // Parse "n" into a number and get the (n-1)th format argument.
+      var arg = format_string.args[parseInt(argnum, 10) - 1];
       if (!arg) {
-        return argnum;
-      }
-      // If this argument is a URL, replace the "$n" with a link.  For all
-      // other argument types, just replace it with (localized) text.
-      if (arg.type === 'url') {
-        return ['<a href="', arg.string_value,
-                '" onclick="document.openLink(this);return false;">',
-                arg.localized_value, '</a>'].join('');
+        // If there's no (n-1)th argument, replace with question marks.
+        elements.push('???');
+      } else if (arg.type === 'url') {
+        // If the argument is a URL, create a link.
+        elements.push(pagespeed.makeLink(
+          arg.string_value, pagespeed.getDisplayUrl(arg.localized_value)));
       } else {
-        return arg.localized_value;
+        // Otherwise, replace the argument with a string.
+        elements.push(arg.localized_value);
       }
-    });
-    return sp;
+      // Clip off the beginning of the format string, up to and including the
+      // "$n" that we found, and then keep going.
+      string = string.substr(index + 2);
+    }
+    // There's no more "$n"'s left, so add the remainder of the format string.
+    elements.push(string);
+    return elements;
   },
 
   // Given a list of objects produced by
@@ -277,7 +286,7 @@ var pagespeed = {
     pagespeed.removeAllChildren(results_container);
     var welcome_container = document.getElementById('welcome-container');
     welcome_container.style.display = 'block';
-    pagespeed.setRunButtonText('Run Page Speed');
+    pagespeed.setRunButtonText(chrome.i18n.getMessage('run_page_speed'));
   },
 
   // Format and display the current results.
@@ -302,15 +311,18 @@ var pagespeed = {
     // Create the score bar.
     var analyze = pagespeed.currentResults.analyze;
     results_container.appendChild(pagespeed.makeElement('div', 'score-bar', [
-      pagespeed.makeElement('div', null, 'Page Speed Score' +
-                            (analyze === 'ads' ? ' (ads only)' :
-                             analyze === 'trackers' ? ' (trackers only)' :
-                             analyze === 'content' ? ' (content only)' : '') +
-                            ': ' + overall_score + '/100'),
+      pagespeed.makeElement('div', null, chrome.i18n.getMessage(
+        (analyze === 'ads' ? 'overall_score_ads' :
+         analyze === 'trackers' ? 'overall_score_trackers' :
+         analyze === 'content' ? 'overall_score_content' :
+         'overall_score_all'), [overall_score])),
       pagespeed.makeScoreIcon(overall_score),
-      pagespeed.makeButton('Clear Results', pagespeed.clearResults),
-      pagespeed.makeButton('Collapse All', pagespeed.collapseAllResults),
-      pagespeed.makeButton('Expand All', pagespeed.expandAllResults)
+      pagespeed.makeButton(chrome.i18n.getMessage('clear_results'),
+                           pagespeed.clearResults),
+      pagespeed.makeButton(chrome.i18n.getMessage('collapse_all'),
+                           pagespeed.collapseAllResults),
+      pagespeed.makeButton(chrome.i18n.getMessage('expand_all'),
+                           pagespeed.expandAllResults)
     ]));
 
     // Create the rule results.
@@ -329,11 +341,11 @@ var pagespeed = {
         header,
         pagespeed.makeElement('div', 'details', [
           (formatted.length > 0 ? formatted :
-           pagespeed.makeElement('p', null,
-                                 'There were no violations of this rule.')),
+           pagespeed.makeElement('p', null, chrome.i18n.getMessage(
+             'no_rule_violations'))),
           pagespeed.makeElement('p', null, pagespeed.makeLink(
             pagespeed.ruleDocumentationUrl(rule_result.rule_name),
-            'More information'))
+            chrome.i18n.getMessage('more_information')))
         ])
       ]);
       rules_container.appendChild(result_div);
@@ -353,18 +365,92 @@ var pagespeed = {
     var welcome_container = document.getElementById('welcome-container');
     welcome_container.style.display = 'none';
     results_container.style.display = 'block';
-    pagespeed.setRunButtonText('Refresh Results');
+    pagespeed.setRunButtonText(chrome.i18n.getMessage('refresh_results'));
   },
 
-  // Run Page Speed and display the results. This is done
-  // asynchronously using the ResourceAccumulator.
+  showErrorMessage: function (problem) { 
+    // Remove the previous results.
+    var results_container = document.getElementById('results-container');
+    pagespeed.removeAllChildren(results_container); 
+ 
+    // Create the error pane.
+    var error_container = pagespeed.makeElement('div');
+    error_container.id = 'error-container';
+    // TODO(mdsteele): Localize these error messages.
+    if (problem === 'incognito') {
+      // TODO(mdsteele): It'd be nice if "loading this page in a regular
+      //   browser window" were a link that would do just that.
+      error_container.appendChild(pagespeed.makeElement('p', null, [
+        "Oops, looks like you're trying to run Page Speed in an incognito ",
+        "window, but you haven't enabled the Page Speed extension in ",
+        "incognito windows.  Try either loading this page in a regular ",
+        "browser window, or else going to the ",
+        pagespeed.makeLink('chrome://extensions', 'extensions page'),
+        " and checking the \"Allow in incognito\" box next to the ",
+        "Page Speed extension."
+      ]));
+    } else if (problem === 'url') {
+      error_container.appendChild(pagespeed.makeElement('p', null, [
+        "Sorry, Page Speed can only analyze pages at ",
+        pagespeed.makeElement('code', null, 'http://'), " or ",
+        pagespeed.makeElement('code', null, 'https://'),
+        " URLs.  Please try another page."
+      ]));
+    } else {
+      throw new Error("Unexpected problem: " + JSON.stringify(problem));
+    }
+    error_container.appendChild(pagespeed.makeButton(
+      'Clear', pagespeed.clearResults)),
+    results_container.appendChild(error_container);
+
+    // Display the results.
+    var welcome_container = document.getElementById('welcome-container');
+    welcome_container.style.display = 'none';
+    results_container.style.display = 'block';
+    document.getElementById('run-button').disabled = true;
+  },
+
+  // Handle messages from the background page (coming over the connectionPort).
+  messageHandler: function (message) {
+    if (message.kind === 'approveTab') {
+      if (pagespeed.resourceAccumulator) {
+        pagespeed.resourceAccumulator.start();
+      }
+    } else if (message.kind === 'rejectTab') {
+      pagespeed.endCurrentRun();
+      pagespeed.showErrorMessage(message.reason);
+    } else if (message.kind === 'setStatusText') {
+      pagespeed.setStatusText(message.message);
+    } else if (message.kind === 'results') {
+      pagespeed.onPageSpeedResults(message.results);
+    } else {
+      throw new Error('Unknown message kind: ' + message.kind);
+    }
+  },
+
+  // Run Page Speed and display the results. This is done asynchronously using
+  // the ResourceAccumulator.
   runPageSpeed: function () {
+    // Cancel the previous run, if any.
     pagespeed.endCurrentRun();
+    // Indicate in the UI that we are currently running.
     document.getElementById('run-button').disabled = true;
     document.getElementById('spinner-img').style.display = 'inline';
+    // Instatiate a resource accumulator now, so that when an approveTab
+    // message comes back, we know we're ready to run.
     pagespeed.resourceAccumulator = new pagespeed.ResourceAccumulator(
       pagespeed.withErrorHandler(pagespeed.onResourceAccumulatorComplete));
-    pagespeed.resourceAccumulator.start();
+    // Before we start, we need to determine if we'll be able to run our
+    // content script on this tab.  However, to determine this we need to call
+    // chrome.tab.get(), which we can't do from here.  Thus, we ask the
+    // background page to do it for us.  It will reply with either an
+    // approveTab or rejectTab message, which will be handled in
+    // pagespeed.messageHandler().
+    pagespeed.setStatusText('Checking tab...');
+    pagespeed.connectionPort.postMessage({
+      kind: 'checkTab',
+      tab_id: webInspector.inspectedWindow.tabId
+    });
   },
 
   // Invoked when the ResourceAccumulator has finished collecting data
@@ -379,9 +465,8 @@ var pagespeed = {
     var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
 
     // Tell the background page to run the Page Speed rules.
-    pagespeed.setStatusText('Invoking Page Speed rules...');
-    chrome.extension.sendRequest(
-        request, pagespeed.withErrorHandler(pagespeed.onPageSpeedResults));
+    pagespeed.setStatusText('Sending request to background page...');
+    pagespeed.connectionPort.postMessage(request);
   },
 
   // Invoked in response to our background page running Page Speed on
@@ -404,10 +489,15 @@ var pagespeed = {
   endCurrentRun: function () {
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.cancel();
+      pagespeed.resourceAccumulator = null;
     }
     document.getElementById('run-button').disabled = false;
     document.getElementById('spinner-img').style.display = 'none';
     pagespeed.setStatusText(null);
+    pagespeed.connectionPort.postMessage({
+      kind: 'cancelRun',
+      tab_id: webInspector.inspectedWindow.tabId
+    });
   },
 
   // Callback to be called when the user changes the value of the "Analyze"
@@ -420,11 +510,62 @@ var pagespeed = {
     }
   },
 
+  // Callback for when we navigate to a new page.
+  onPageNavigate: function () {
+    // If there's an active ResourceAccumulator, it must be trying to reload
+    // the page, so don't do anything.  Otherwise, if there are results
+    // showing, they're from another page, so clear them.
+    if (!pagespeed.resourceAccumulator) {
+      // TODO(mdsteele): Alternatively, we could automatically re-run the
+      //   rules.  Maybe we should have a user preference to decide which?
+      pagespeed.clearResults();
+    }
+  },
+
   // Callback for when the inspected page loads.
   onPageLoaded: function () {
+    // If there's an active ResourceAccumulator, it must be trying to reload
+    // the page, so let it know that it loaded.
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.onPageLoaded();
     }
+  },
+
+  // Called once when we first load pagespeed-panel.html, to initialize the UI,
+  // with localization.
+  initializeUI: function () {
+    // Initialize the "analyze" dropdown menu.
+    var analyze = document.getElementById('analyze-dropdown');
+    [['all', chrome.i18n.getMessage('analyze_entire_page')],
+     ['ads', chrome.i18n.getMessage('analyze_ads_only')],
+     ['trackers', chrome.i18n.getMessage('analyze_trackers_only')],
+     ['content', chrome.i18n.getMessage('analyze_content_only')]
+    ].forEach(function (item) {
+      var option = pagespeed.makeElement('option', null, item[1]);
+      option.setAttribute('value', item[0]);
+      analyze.appendChild(option);
+    });
+    // Initialize the welcome pane.
+    // TODO(mdsteele): Localize this stuff too, once we decide what it should
+    //   look like.
+    var welcome = document.getElementById('welcome-container');
+    welcome.appendChild(pagespeed.makeElement('h1', null, "Page Speed"));
+    welcome.appendChild(pagespeed.makeElement(
+      'h2', null, "What's new in Page Speed 1.11?"));
+    welcome.appendChild(pagespeed.makeElement('ul', null, [
+      pagespeed.makeElement('li', null, "It's in Chromium!"),
+      pagespeed.makeElement('li', null, "Probably some other stuff?")
+    ]));
+    welcome.appendChild(pagespeed.makeElement('p', null, [
+      'See the ', pagespeed.makeLink(
+        'http://code.google.com/speed/page-speed/docs/rules_intro.html',
+        'Page Speed documentation'),
+      ' for detailed information on the rules used to evaluate web pages.'
+    ]));
+    welcome.appendChild(pagespeed.makeElement(
+      'p', null, 'Page Speed Copyright \xA9 2011 Google Inc.'));
+    // Refresh the run button, etc.
+    pagespeed.clearResults();
   }
 
 };
@@ -446,7 +587,7 @@ pagespeed.ResourceAccumulator.prototype.start = function () {
   if (this.cancelled_) {
     return;  // We've been cancelled so ignore the callback.
   }
-  pagespeed.setStatusText('Fetching page HAR...');
+  pagespeed.setStatusText(chrome.i18n.getMessage('fetching_har'));
   webInspector.resources.getHAR(
     pagespeed.withErrorHandler(this.onHAR_.bind(this)));
 };
@@ -482,9 +623,9 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   // reload the page; when the page finishes loading, our callback will call
   // the onPageLoaded() method of this ResourceAccumulator, and we can try
   // again.
-  if (har.entries.length == 0 ||
+  if (har.entries.length === 0 ||
       har.entries[0].request.url !== har.entries[0].pageref) {
-    pagespeed.setStatusText('Reloading page...');
+    pagespeed.setStatusText(chrome.i18n.getMessage('reloading_page'));
     this.doingReload_ = true;
     webInspector.inspectedWindow.reload();
   } else {
@@ -498,10 +639,9 @@ pagespeed.ResourceAccumulator.prototype.getNextEntryBody_ = function () {
     this.clientCallback_({log: this.har_});  // We're finished.
   } else {
     var entry = this.har_.entries[this.nextEntryIndex_];
-    pagespeed.setStatusText('Fetching content for [' +
-                            (this.nextEntryIndex_ + 1) + '/' +
-                            this.har_.entries.length + '] ' +
-                            entry.request.url);
+    pagespeed.setStatusText(chrome.i18n.getMessage(
+      'fetching_content', [this.nextEntryIndex_ + 1, this.har_.entries.length,
+                           entry.request.url]));
     entry.getContent(pagespeed.withErrorHandler(this.onBody_.bind(this)));
   }
 };
@@ -518,6 +658,15 @@ pagespeed.ResourceAccumulator.prototype.onBody_ = function (text, encoding) {
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
 };
+
+// Connect to the extension background page.
+pagespeed.connectionPort = chrome.extension.connect();
+pagespeed.connectionPort.onMessage.addListener(
+  pagespeed.withErrorHandler(pagespeed.messageHandler));
+
+// Listen for when we change pages.
+webInspector.inspectedWindow.onNavigated.addListener(
+  pagespeed.withErrorHandler(pagespeed.onPageNavigate));
 
 // Listen for when the page finishes (re)loading.
 webInspector.inspectedWindow.onLoaded.addListener(

@@ -48,7 +48,7 @@
 #include "third_party/npapi/npapi.h"
 #include "third_party/npapi/npfunctions.h"
 
-NPNetscapeFuncs* npnfuncs = NULL;
+#include "pagespeed_chromium/pagespeed_chromium.h"
 
 extern "C" {
 
@@ -89,10 +89,12 @@ NPError OSCALL NP_Initialize(NPNetscapeFuncs* npnf
 #if !defined(_WINDOWS) && !defined(WEBKIT_DARWIN_SDK)
   NP_GetEntryPoints(nppfuncs);
 #endif
+  InitializePageSpeedPlugin();
   return NPERR_NO_ERROR;
 }
 
 NPError  OSCALL NP_Shutdown() {
+  ShutDownPageSpeedPlugin();
   return NPERR_NO_ERROR;
 }
 

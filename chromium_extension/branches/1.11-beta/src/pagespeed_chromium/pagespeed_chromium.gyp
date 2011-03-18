@@ -51,11 +51,13 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
         '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+        '<(libpagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
         '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
       ],
@@ -104,10 +106,9 @@
           'inputs': [],
           'outputs': [
             '<(PRODUCT_DIR)/pagespeed',
+            '<(PRODUCT_DIR)/pagespeed/_locales/en',
           ],
-          'action': [
-            'mkdir', '<@(_outputs)',
-          ],
+          'action': ['mkdir', '-p', '<@(_outputs)'],
         },
         {
           'action_name': 'copy_files',
@@ -129,6 +130,7 @@
             'extension_files/spinner.gif',
             'extension_files/successGreenDot.png',
             'extension_files/warningOrangeDot.png',
+            'extension_files/_locales/en/messages.json',
           ],
           'outputs': [
             '<(PRODUCT_DIR)/pagespeed/audits.js',
@@ -147,10 +149,18 @@
             '<(PRODUCT_DIR)/pagespeed/spinner.gif',
             '<(PRODUCT_DIR)/pagespeed/successGreenDot.png',
             '<(PRODUCT_DIR)/pagespeed/warningOrangeDot.png',
+            '<(PRODUCT_DIR)/pagespeed/_locales/en/messages.json',
           ],
-          'action': [
-            'cp', '-t', '<@(_inputs)',
+          'action': ['cp', '-t', '<@(_inputs)'],
+        },
+        {
+          'action_name': 'copy_locale_en',
+          'inputs': [
+            '<(PRODUCT_DIR)/pagespeed/_locales/en',
+            'extension_files/_locales/en/messages.json',
           ],
+          'outputs': ['<(PRODUCT_DIR)/pagespeed/_locales/en/messages.json'],
+          'action': ['cp', '-t', '<@(_inputs)'],
         },
         # TODO(mdsteele): Use this build target instead, once we transition
         #                 back to NaCl from NPAPI.

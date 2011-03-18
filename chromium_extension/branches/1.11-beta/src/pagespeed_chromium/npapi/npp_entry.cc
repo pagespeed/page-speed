@@ -37,8 +37,7 @@
 #include "third_party/npapi/npfunctions.h"
 #include "third_party/npapi/npruntime.h"
 
-extern NPNetscapeFuncs* npnfuncs;
-extern NPClass* GetNPSimpleClass();
+#include "pagespeed_chromium/pagespeed_chromium.h"
 
 namespace {
 
