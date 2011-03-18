@@ -293,7 +293,7 @@ void DeferParsingJavaScript::FormatResults(const ResultVector& results,
       // detected to have JavaScript code. It describes the problem and tells
       // the user how to fix by defering parsing the JavaScript code.
       _("$1 of JavaScript is parsed during initial page load. Defer parsing "
-        "JavaScript to reduce blocking of page rending."), size_arg);
+        "JavaScript to reduce blocking of page rendering."), size_arg);
 
   // CheckDocument adds the results in post-order.
 
