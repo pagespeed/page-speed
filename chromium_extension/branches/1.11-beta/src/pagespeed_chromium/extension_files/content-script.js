@@ -14,6 +14,9 @@
 
 "use strict";
 
+// Wrap a function with an error handler.  Given a function, return a new
+// function that behaves the same but catches and logs errors thrown by the
+// wrapped function.
 function withErrorHandler(func) {
   return function (/*arguments*/) {
     try {
@@ -27,11 +30,17 @@ function withErrorHandler(func) {
   };
 }
 
+// Set the status text for the DevTools panel inspecting this page.
+function setStatusText(message) {
+  chrome.extension.sendRequest({kind: 'setStatusText', message: message});
+}
+
 function receiveInput(response) {
   if (!response) {
     throw new Error('No response to getInput request.');
   }
 
+  setStatusText('Loading Page Speed module...');
   // Load the Page Speed NaCl module.
   var pagespeed_module = document.createElement('embed');
   pagespeed_module.setAttribute('width', 0);
@@ -44,6 +53,7 @@ function receiveInput(response) {
   body.appendChild(pagespeed_module);
 
   var passInputToPageSpeedModule = function () {
+    setStatusText('Transferring HAR to Page Speed module...');
     // Feed the HAR data into the NaCl module.  We have to do this a piece at a
     // time, because SRPC currently can't handle strings larger than one or two
     // dozen kilobytes.
@@ -54,9 +64,15 @@ function receiveInput(response) {
       pagespeed_module.appendInput(har_string.substr(start, kChunkSize));
     }
 
+    // Determine the locale of the browser; for details, see
+    // http://code.google.com/chrome/extensions/i18n.html#overview-predefined
+    var locale = chrome.i18n.getMessage('@@ui_locale');
+
     // Run the rules.
-    pagespeed_module.runPageSpeed(document, response.analyze);
+    setStatusText(chrome.i18n.getMessage('running_rules'));
+    pagespeed_module.runPageSpeed(document, response.analyze, locale);
   
+    setStatusText('Transferring results from Page Speed module...');
     // Get the result data back from the NaCl module.  Again, this must be done
     // a piece at a time.
     var output_chunks = [];
@@ -73,6 +89,7 @@ function receiveInput(response) {
     body.removeChild(pagespeed_module);
   
     // Send the results back to the extension.
+    setStatusText('Sending results to DevTools panel...');
     chrome.extension.sendRequest({
       kind: 'putResults',
       results: {
