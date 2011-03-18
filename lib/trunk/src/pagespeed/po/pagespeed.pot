@@ -106,7 +106,7 @@ msgstr ""
 #  Header at the top of a list of URLs that Page Speed
 #  detected to have JavaScript code. It describes the problem and tells
 #  the user how to fix by defering parsing the JavaScript code.
-msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rending."
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
 msgstr ""
 
 #  A sub-heading that contains the URL of the document and
