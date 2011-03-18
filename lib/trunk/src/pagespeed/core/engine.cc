@@ -23,6 +23,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/core/rule_input.h"
@@ -49,12 +50,37 @@ void FormatRuleResults(const RuleResults& rule_results,
   }
   rule->SortResultsInPresentationOrder(&sorted_results);
 
-  // TODO(mdsteele): Use rule_impact instead of 0, once we add it.
   RuleFormatter* rule_formatter =
-      root_formatter->AddRule(*rule, rule_results.rule_score(), 0);
+      root_formatter->AddRule(*rule, rule_results.rule_score(),
+                              rule_results.rule_impact());
   if (!sorted_results.empty()) {
     rule->FormatResults(sorted_results, rule_formatter);
   }
+}
+
+double ComputePageWeight(const InputInformation& input_info) {
+  const ClientCharacteristics& client = input_info.client_characteristics();
+  double weight = 0.0;
+  weight += client.dns_requests_weight() * input_info.number_hosts();
+  weight += client.requests_weight() * input_info.number_resources();
+  weight += client.response_bytes_weight() *
+      resource_util::ComputeTotalResponseBytes(input_info);
+  weight += client.request_bytes_weight() * input_info.total_request_bytes();
+  // TODO(mdsteele): Note that there are some fields of ClientCharacteristics
+  // that we don't use here yet:
+  //
+  // - page_reflows_weight: There's no good way for us to know how many times
+  //   the page reflowed while rendering, is there?
+  //
+  // - critical_path_length_weight: We should multiply this by the current
+  //   length of the page's critical path; do we have of knowing that?
+  //
+  // - connections_weight: We should multiply this by the number of connections
+  //   the page used; do we have of knowing that?
+  //
+  // - expected_cache_hit_rate: Maybe we should be multiplying the requests
+  //   term above by (1 - hit_rate)?
+  return weight;
 }
 
 }  // namespace
@@ -105,8 +131,8 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
 
   RuleInput rule_input(pagespeed_input);
   rule_input.Init();
-  int total_score = 0;
-  int total_weights = 0;
+  double total_impact = 0.0;
+  bool any_rules_succeeded = false;
   int num_results_so_far = 0;
 
   bool success = true;
@@ -126,6 +152,18 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
       results->add_error_rules(rule->name());
       success = false;
     }
+
+    double impact = 0.0;
+    if (rule_results->results_size() > 0) {
+      impact = rule->ComputeRuleImpact(results->input_info(), *rule_results);
+      if (impact < 0.0) {
+        LOG(ERROR) << "Impact for " << rule->name() << " out of bounds: "
+                   << impact;
+        impact = 0.0;
+      }
+    }
+    rule_results->set_rule_impact(impact);
+    total_impact += impact;
 
     int score = 100;
     if (rule_results->results_size() > 0) {
@@ -152,17 +190,34 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
     // Instead of using a -1 to indicate an error, we just don't set
     // rule_score.
     if (score >= 0) {
+      any_rules_succeeded = true;
       rule_results->set_rule_score(score);
-
-      total_score += score;
-      total_weights++;
     }
   }
 
-  // TODO(mdsteele): better scoring algorithm?
-  // Calculate the overall score (currently just the mean of all rule scores)
-  if (total_weights)
-    results->set_score(total_score / total_weights);
+  // Compute the overall score based on the impacts of the rules compared to
+  // the current weight of the page.  Only set the overall score if at least
+  // one rule ran successfully.
+  // TODO(mdsteele): Ideally, we would be smarter than just summing the
+  //   impacts.  For example, maybe the impact of rules A and B together is
+  //   less than their sum (because they overlap), and maybe the impact of
+  //   rules B and C together is greater than their sum (because they're
+  //   synergetic).
+  if (any_rules_succeeded) {
+    DCHECK(total_impact >= 0.0);
+    if (total_impact == 0.0) {
+      // If the impact is zero, the score should be perfect (even if page
+      // weight is zero).
+      results->set_score(100);
+    } else {
+      const double page_weight = ComputePageWeight(results->input_info());
+      DCHECK(page_weight >= 0.0);
+      // If the impact is positive but the page weight is zero, we'll get a
+      // score of max(0, -infinity) == 0, which is what we want.
+      results->set_score(static_cast<int>(
+          std::max(0.0, 100.0 * (1.0 - total_impact / page_weight))));
+    }
+  }
 
   if (!results->IsInitialized()) {
     LOG(DFATAL) << "Failed to fully initialize results object.";

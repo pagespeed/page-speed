@@ -360,6 +360,18 @@ int DeferParsingJavaScript::ComputeScore(
   return score;
 }
 
+double DeferParsingJavaScript::ComputeResultImpact(
+    const InputInformation& input_info, const Result& result) {
+  const DeferParsingJavaScriptDetails& details = result.details().GetExtension(
+      DeferParsingJavaScriptDetails::message_set_extension);
+  int minified_size = details.minified_javascript_size();
+  if (minified_size < 0) {
+    LOG(DFATAL) << "Invalid minified javascript size: " << minified_size;
+    minified_size = 0;
+  }
+  const ClientCharacteristics& client = input_info.client_characteristics();
+  return client.javascript_parse_weight() * minified_size;
+}
 
 }  // namespace rules
 

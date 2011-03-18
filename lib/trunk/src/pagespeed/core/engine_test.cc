@@ -203,7 +203,6 @@ TEST(EngineTest, ComputeScores) {
   ASSERT_FALSE(results.rule_results(1).has_rule_score());
   ASSERT_EQ(100, results.rule_results(2).rule_score());
   ASSERT_EQ(100, results.rule_results(3).rule_score());
-  ASSERT_EQ(83, results.score());
 }
 
 TEST(EngineTest, FormatResults) {

@@ -71,6 +71,17 @@ class Rule {
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter) = 0;
 
+  // Compute the impact of the rule suggestions.  The result should be a
+  // nonnegative number, where zero means there is no room for improvement.
+  // The relative scaling of this number should depend upon the
+  // ClientCharacteristics object in the provided InputInformation.
+  //
+  // @param input_info Information about resources that are part of the page.
+  // @param results Result vector that contains savings information.
+  // @returns nonnegative impact rating
+  double ComputeRuleImpact(const InputInformation& input_info,
+                           const RuleResults& results);
+
   // Compute the Rule score from InputInformation and ResultVector.
   //
   // @param input_info Information about resources that are part of the page.
@@ -82,7 +93,19 @@ class Rule {
   // Sort the results in their presentation order.
   virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;
 
-private:
+ protected:
+  // Compute the impact of a single rule suggestion.  The result should be a
+  // nonnegative number, where zero means there is no room for improvement.
+  // The relative scaling of this number should depend upon the
+  // ClientCharacteristics object in the provided InputInformation.
+  //
+  // @param input_info Information about resources that are part of the page.
+  // @param result Result object that contains savings information.
+  // @returns nonnegative impact rating
+  virtual double ComputeResultImpact(const InputInformation& input_info,
+                                     const Result& result);
+
+ private:
   const InputCapabilities capability_requirements_;
 
   DISALLOW_COPY_AND_ASSIGN(Rule);

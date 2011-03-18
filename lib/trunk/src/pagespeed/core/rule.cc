@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include "base/basictypes.h"
+#include "base/logging.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -62,6 +63,7 @@ const double kConnectionsPenalty = 0.5;
  * what is essentially partially-ordered data, and thus gives somewhat
  * arbitrary answers. */
 bool CompareResults(const Result* result1, const Result* result2) {
+  // TODO(mdsteele): This should probably just sort by result impact number.
   const Savings& savings1 = result1->savings();
   const Savings& savings2 = result2->savings();
   if (savings1.dns_requests_saved() != savings2.dns_requests_saved()) {
@@ -89,6 +91,42 @@ Rule::Rule(const InputCapabilities& capability_requirements)
     : capability_requirements_(capability_requirements) {}
 
 Rule::~Rule() {}
+
+double Rule::ComputeRuleImpact(const InputInformation& input_info,
+                               const RuleResults& results) {
+  double total_impact = 0.0;
+  for (int index = 0, end = results.results_size(); index < end; ++index) {
+    const Result& result = results.results(index);
+    const double impact = ComputeResultImpact(input_info, result);
+    if (impact < 0.0) {
+      LOG(ERROR) << "Result impact for " << name()
+                 << " out of bounds: " << impact;
+    } else {
+      total_impact += impact;
+    }
+  }
+  return total_impact;
+}
+
+double Rule::ComputeResultImpact(const InputInformation& input_info,
+                                 const Result& result) {
+  const Savings& savings = result.savings();
+  const ClientCharacteristics& client = input_info.client_characteristics();
+  const double impact =
+      client.dns_requests_weight() * savings.dns_requests_saved() +
+      client.requests_weight() * savings.requests_saved() +
+      client.response_bytes_weight() * savings.response_bytes_saved() +
+      client.page_reflows_weight() * savings.page_reflows_saved() +
+      client.request_bytes_weight() * savings.request_bytes_saved() +
+      client.critical_path_length_weight() *
+        savings.critical_path_length_saved();
+  if (impact == 0.0) {
+    LOG(WARNING) << "Computed zero impact for result id " << result.id()
+                 << " of " << name()
+                 << "; perhaps this rule should override ComputeResultImpact";
+  }
+  return impact;
+}
 
 int Rule::ComputeScore(const InputInformation& input_info,
                        const RuleResults& results) {

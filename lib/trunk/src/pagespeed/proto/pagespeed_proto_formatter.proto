@@ -84,6 +84,10 @@ message FormattedRuleResults {
   // cases, but may be left out if the rule is unable to compute a score (e.g.
   // due to missing input information).
   optional int32 rule_score = 4;
+
+  // The impact number assigned by Page Speed for this rule.  Like the score,
+  // this may be left out if it cannot be calculated.
+  optional double rule_impact = 5;
 }
 
 // Formatted and localized results proto, mirroring the hiercharchy of results

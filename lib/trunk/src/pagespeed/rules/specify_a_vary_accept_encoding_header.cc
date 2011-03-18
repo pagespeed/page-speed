@@ -121,6 +121,13 @@ ComputeScore(const InputInformation& input_info, const RuleResults& results) {
   return 100 * num_non_violations / num_static_resources;
 }
 
+double SpecifyAVaryAcceptEncodingHeader::ComputeResultImpact(
+    const InputInformation& input_info, const Result& result) {
+  // TODO(mdsteele): What is the impact of this rule?  It's not really a
+  //   performance issue so much as a correctness issue.
+  return 0.0;
+}
+
 }  // namespace rules
 
 }  // namespace pagespeed
