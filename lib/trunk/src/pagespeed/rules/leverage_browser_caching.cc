@@ -268,7 +268,8 @@ double LeverageBrowserCaching::ComputeResultImpact(
     const InputInformation& input_info, const Result& result) {
   const CachingDetails& caching_details = result.details().GetExtension(
       CachingDetails::message_set_extension);
-  double lifetime = caching_details.freshness_lifetime_millis();
+  double lifetime =
+      static_cast<double>(caching_details.freshness_lifetime_millis());
   if (lifetime < 0.0 || lifetime > kMillisInAWeek) {
     LOG(DFATAL) << "Invalid freshness lifetime: " << lifetime;
     lifetime = 0.0;
