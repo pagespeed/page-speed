@@ -182,8 +182,10 @@ void Resource::SetCookies(const std::string& cookies) {
 
 void Resource::SetRequestStartTimeMillis(int start_millis) {
   if (start_millis < 0) {
-    LOG(DFATAL) << "Invalid start_millis: " << start_millis;
-    return;
+    LOG(DFATAL) << "Invalid start_millis "
+                << start_millis << " for " << GetRequestUrl();
+    // Clamp to 0.
+    start_millis = 0;
   }
   request_start_time_millis_ = start_millis;
 }
