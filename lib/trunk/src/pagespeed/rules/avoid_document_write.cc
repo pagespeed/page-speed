@@ -21,7 +21,6 @@
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/util/public/google_message_handler.h"
 #include "pagespeed/core/formatter.h"
-#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -35,30 +34,6 @@
 namespace pagespeed {
 
 namespace {
-
-bool IsLikelyTrackingPixel(const PagespeedInput& input,
-                           const Resource& resource) {
-  if (resource.GetResponseBody().length() == 0) {
-    // An image resource with no body is almost certainly being used
-    // for tracking.
-    return true;
-  }
-
-  scoped_ptr<ImageAttributes> attributes(
-      input.NewImageAttributes(&resource));
-  if (attributes == NULL) {
-    // This can happen if the image response doesn't decode properly.
-    LOG(INFO) << "Unable to compute image attributes for "
-              << resource.GetRequestUrl();
-    return false;
-  }
-
-  // Tracking pixels tend to be 1x1 images. We also check for 0x0
-  // images in case some formats might support that size.
-  return
-      (attributes->GetImageWidth() == 0 || attributes->GetImageWidth() == 1) &&
-      (attributes->GetImageHeight() == 0 || attributes->GetImageHeight() == 1);
-}
 
 // Gets an iterator in sibling_resources for the last resource found
 // in external_resource_urls, or sibling_resources.end() if none of
@@ -116,7 +91,7 @@ bool IsUserVisibleResource(const PagespeedInput& input,
   // resource that were loaded before onload.
   switch (resource.GetResourceType()) {
     case IMAGE:
-      return !IsLikelyTrackingPixel(input, resource);
+      return !pagespeed::resource_util::IsLikelyTrackingPixel(input, resource);
     case HTML:
       return DocumentContainsUserVisibleResource(input, resource);
     case TEXT:

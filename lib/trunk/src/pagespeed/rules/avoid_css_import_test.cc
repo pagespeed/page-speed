@@ -323,12 +323,14 @@ class AvoidCssImportTest
 
 TEST_F(AvoidCssImportTest, EmptyBody) {
   NewCssResource(kCssUrl);
+  Freeze();
   AppendResults();
   ASSERT_EQ(0, num_results());
 }
 
 TEST_F(AvoidCssImportTest, NoImport) {
   NewCssResource(kCssUrl)->SetResponseBody(kNoImportBody);
+  Freeze();
   AppendResults();
   ASSERT_EQ(0, num_results());
 }

@@ -92,15 +92,6 @@ class DeferParsingJavaScriptTest : public
     resource->SetResponseBody(script_body);
   }
 
-  void CheckNoViolations() {
-    DeferParsingJavaScript rule;
-    RuleResults rule_results;
-    ResultProvider provider(rule, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
-  }
-
   void CheckScore(int score) {
     DeferParsingJavaScript rule;
     RuleResults rule_results;
@@ -117,8 +108,6 @@ class DeferParsingJavaScriptTest : public
 TEST_F(DeferParsingJavaScriptTest, Basic) {
   AddTestResource("http://www.example.com/foo.js",
                   kUnminified);
-  Freeze();
-
   CheckNoViolations();
 }
 
@@ -128,8 +117,6 @@ TEST_F(DeferParsingJavaScriptTest, LargeUnminifiedJavascriptFile) {
 
   AddTestResource("http://www.example.com/foo.js",
                   script.c_str());
-  Freeze();
-
   CheckNoViolations();
 }
 

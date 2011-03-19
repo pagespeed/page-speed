@@ -111,6 +111,11 @@ std::string GetRedirectedUrl(const Resource& resource);
 const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
                                                const Resource& source);
 
+// Is the given resource likely a tracking pixel? Checks to see
+// if the resource is a 1x1 image.
+bool IsLikelyTrackingPixel(const PagespeedInput& input,
+                           const Resource& resource);
+
 }  // namespace resource_util
 
 }  // namespace pagespeed
