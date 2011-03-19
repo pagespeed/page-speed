@@ -23,6 +23,7 @@
 
 namespace {
 
+using pagespeed::ClientCharacteristics;
 using pagespeed::InputCapabilities;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
@@ -39,6 +40,15 @@ Resource* NewResource(const std::string& url, int status_code) {
   resource->SetRequestUrl(url);
   resource->SetResponseStatusCode(status_code);
   return resource;
+}
+
+void AssertProtoEq(const google::protobuf::MessageLite& a,
+                   const google::protobuf::MessageLite& b) {
+  std::string a_str;
+  std::string b_str;
+  ASSERT_TRUE(a.SerializePartialToString(&a_str));
+  ASSERT_TRUE(b.SerializePartialToString(&b_str));
+  ASSERT_EQ(a_str, b_str);
 }
 
 TEST(PagespeedInputTest, DisallowDuplicates) {
@@ -115,6 +125,31 @@ TEST(PagespeedInputTest, GetResourceWithUrl) {
   ASSERT_EQ(kCanonicalizedUrl, r1->GetRequestUrl());
   ASSERT_NE(kNonCanonUrl, r2->GetRequestUrl());
   ASSERT_EQ(kCanonicalizedUrl, r2->GetRequestUrl());
+}
+
+TEST(PagespeedInputTest, SetClientCharacteristicsFailsWhenFrozen) {
+  PagespeedInput input;
+  ClientCharacteristics cc;
+  cc.set_dns_requests_weight(100.0);
+  input.Freeze();
+#ifdef NDEBUG
+  ASSERT_FALSE(input.SetClientCharacteristics(cc));
+  ClientCharacteristics default_cc;
+  AssertProtoEq(input.input_information()->client_characteristics(),
+                default_cc);
+#else
+  ASSERT_DEATH(input.SetClientCharacteristics(cc),
+               "Can't set ClientCharacteristics for frozen PagespeedInput.");
+#endif
+}
+
+TEST(PagespeedInputTest, SetClientCharacteristics) {
+  PagespeedInput input;
+  ClientCharacteristics cc;
+  cc.set_dns_requests_weight(100.0);
+  ASSERT_TRUE(input.SetClientCharacteristics(cc));
+  input.Freeze();
+  AssertProtoEq(input.input_information()->client_characteristics(), cc);
 }
 
 class UpdateResourceTypesTest : public pagespeed_testing::PagespeedTest {

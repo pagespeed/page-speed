@@ -27,6 +27,7 @@
 
 namespace pagespeed {
 
+class ClientCharacteristics;
 class DomDocument;
 class ImageAttributes;
 class ImageAttributesFactory;
@@ -88,6 +89,12 @@ class PagespeedInput {
   // onload state to ONLOAD_FIRED. It is not necessary to call
   // SetOnloadState(ONLOAD_FIRED) if you are calling this method.
   bool SetOnloadTimeMillis(int onload_millis);
+
+  // Specify the client characteristics. ClientCharacteristics are
+  // used to determine the relative impact of different kinds of
+  // savings, e.g. to determine the relative impact of a byte saved as
+  // compared to an RTT saved, etc.
+  bool SetClientCharacteristics(const ClientCharacteristics& cc);
 
   // Set the DOM Document information.
   //

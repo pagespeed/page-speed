@@ -14,8 +14,6 @@
 
 #include "pagespeed/core/pagespeed_input.h"
 
-#include "pagespeed/proto/pagespeed_output.pb.h"
-
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
@@ -24,6 +22,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/uri_util.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
 
@@ -149,6 +148,15 @@ bool PagespeedInput::SetOnloadTimeMillis(int onload_millis) {
   return true;
 }
 
+bool PagespeedInput::SetClientCharacteristics(const ClientCharacteristics& cc) {
+  if (frozen_) {
+    LOG(DFATAL) << "Can't set ClientCharacteristics for frozen PagespeedInput.";
+    return false;
+  }
+  input_info_->mutable_client_characteristics()->CopyFrom(cc);
+  return true;
+}
+
 bool PagespeedInput::AcquireDomDocument(DomDocument* document) {
   if (frozen_) {
     LOG(DFATAL) << "Can't set DomDocument for frozen PagespeedInput.";
@@ -198,7 +206,6 @@ bool PagespeedInput::Freeze() {
 }
 
 void PagespeedInput::PopulateInputInformation() {
-  input_info_->Clear();
   for (int idx = 0, num = num_resources(); idx < num; ++idx) {
     const Resource& resource = GetResource(idx);
 
