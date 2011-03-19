@@ -69,14 +69,19 @@ void PopulateDomainHostResourceMap(
 }
 
 void PopulateLoneDnsResources(
-    const pagespeed::PagespeedInput& input,
+    const pagespeed::RuleInput& rule_input,
     const pagespeed::HostResourceMap &host_resource_map,
     pagespeed::ResourceSet *lone_dns_resources) {
+  const pagespeed::PagespeedInput& input = rule_input.pagespeed_input();
   std::string primary_resource_url;
   if (!pagespeed::uri_util::GetUriWithoutFragment(input.primary_resource_url(),
                                                   &primary_resource_url)) {
     primary_resource_url = input.primary_resource_url();
   }
+  const pagespeed::Resource* primary_resource =
+      input.GetResourceWithUrl(primary_resource_url);
+  const pagespeed::RuleInput::RedirectChain* primary_resource_chain =
+      rule_input.GetRedirectChainOrNull(primary_resource);
   for (pagespeed::HostResourceMap::const_iterator iter =
            host_resource_map.begin(), end = host_resource_map.end();
        iter != end;
@@ -89,10 +94,18 @@ void PopulateLoneDnsResources(
       continue;
     }
     const pagespeed::Resource* resource = *resources.begin();
-    if (resource->GetRequestUrl() == primary_resource_url) {
+    if (resource == primary_resource) {
       // Special case: if this resource is the primary resource, don't
       // flag it since it's not realistic for the site to change the
       // URL of the primary resource.
+      continue;
+    }
+    const pagespeed::RuleInput::RedirectChain* resource_chain =
+        rule_input.GetRedirectChainOrNull(resource);
+    if (resource_chain != NULL && resource_chain == primary_resource_chain) {
+      // Special case: if this resource is a redirect to the primary
+      // resource, don't flag it since it's not realistic for the site
+      // to change the URL of the primary resource.
       continue;
     }
     lone_dns_resources->insert(resource);
@@ -172,7 +185,8 @@ bool MinimizeDnsLookups::AppendResults(const RuleInput& rule_input,
     // Now discover any resources that are the only resources served
     // on their hostname. These resources are considered violations.
     ResourceSet lone_dns_resources;
-    PopulateLoneDnsResources(input, host_resource_map, &lone_dns_resources);
+    PopulateLoneDnsResources(
+        rule_input, host_resource_map, &lone_dns_resources);
 
     if (lone_dns_resources.size() > 0) {
       // Create a new result instance for the resources we discovered.

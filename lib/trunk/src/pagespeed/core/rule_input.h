@@ -34,9 +34,7 @@ class RuleInput {
   typedef std::map<const Resource*, const RedirectChain*>
       ResourceToRedirectChainMap;
 
-  explicit RuleInput(const PagespeedInput& pagespeed_input)
-      : pagespeed_input_(&pagespeed_input),
-        initialized_(false) {}
+  explicit RuleInput(const PagespeedInput& pagespeed_input);
   void Init();
   const PagespeedInput& pagespeed_input() const { return *pagespeed_input_; }
   const RedirectChainVector& GetRedirectChains() const;

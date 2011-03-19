@@ -22,6 +22,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/l10n/l10n.h"
@@ -89,6 +90,10 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
     }
     if (resource.GetResponseBody().empty()) {
       // Exclude responses with empty bodies.
+      continue;
+    }
+    if (resource_util::IsLikelyTrackingPixel(input, resource)) {
+      // Skip over tracking pixels.
       continue;
     }
     const std::string& url = resource.GetRequestUrl();

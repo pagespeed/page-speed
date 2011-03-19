@@ -77,7 +77,7 @@ class PagespeedTest : public ::testing::Test {
   virtual void DoTearDown();
 
   // Freeze the PagespeedInput structure.
-  void Freeze();
+  virtual void Freeze();
 
   // Construct a new HTTP GET Resource with the specified URL and
   // status code, and add that resource to our PagespeedInput.
@@ -196,14 +196,17 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
 
   virtual void SetUp() {
     PagespeedTest::SetUp();
-    // TODO(mdsteele): This next line should really happen _between_ the
-    // super-setup and DoSetUp().
-    rule_input_.reset(new pagespeed::RuleInput(*pagespeed_input()));
   }
 
   virtual void TearDown() {
     rule_input_.reset();
     PagespeedTest::TearDown();
+  }
+
+  virtual void Freeze() {
+    PagespeedTest::Freeze();
+    rule_input_.reset(new pagespeed::RuleInput(*pagespeed_input()));
+    rule_input_->Init();
   }
 
   bool AppendResults() {
