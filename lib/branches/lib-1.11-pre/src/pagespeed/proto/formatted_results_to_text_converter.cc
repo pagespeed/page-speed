@@ -59,13 +59,18 @@ bool FormattedResultsToTextConverter::ConvertFormattedRuleResults(
 
   out->append("_");
   out->append(rule_results.localized_rule_name());
+  out->append("_");
   if (rule_results.has_rule_score()) {
-    out->append("_ (");
+    out->append(" (");
     out->append(base::IntToString(rule_results.rule_score()));
-    out->append("/100)\n");
-  } else {
-    out->append("_\n");
+    out->append("/100)");
   }
+  if (rule_results.has_rule_impact()) {
+    out->append(" [");
+    out->append(base::DoubleToString(rule_results.rule_impact()));
+    out->append("]");
+  }
+  out->append("\n");
 
   for (int i = 0, len = rule_results.url_blocks_size(); i < len; ++i) {
     if (!ConvertFormattedUrlBlockResults(rule_results.url_blocks(i), out)) {

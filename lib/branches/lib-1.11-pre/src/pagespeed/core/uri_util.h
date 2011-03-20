@@ -29,6 +29,10 @@ namespace uri_util {
 // return http://www.example.com/bar.
 bool GetUriWithoutFragment(const std::string& uri, std::string* out);
 
+// Canonicalize the given URL. For instance, http://www.foo.com will
+// become http://www.foo.com/.
+void CanonicalizeUrl(std::string* inout_url);
+
 // Resolve the specified URI relative to the given base URL.
 std::string ResolveUri(const std::string& uri, const std::string& base_url);
 

@@ -200,8 +200,8 @@ std::string DoFormatResults(
   results.set_locale("en_US");
   pagespeed::formatters::ProtoFormatter formatter(&localizer, &results);
   pagespeed::RuleFormatter* rule_formatter =
-      // TODO(mdsteele): Use rule_impact() instead of 0, once we add it.
-      formatter.AddRule(*rule, rule_results.rule_score(), 0);
+      formatter.AddRule(*rule, rule_results.rule_score(),
+                        rule_results.rule_impact());
   rule->FormatResults(result_vector, rule_formatter);
   std::string out;
   FormattedResultsTestConverter::Convert(results, &out);

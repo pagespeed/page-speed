@@ -90,6 +90,14 @@ namespace pagespeed {
 
 namespace uri_util {
 
+void CanonicalizeUrl(std::string* inout_url) {
+  GURL url(*inout_url);
+  if (!url.is_valid()) {
+    return;
+  }
+  *inout_url = url.spec();
+}
+
 bool GetUriWithoutFragment(const std::string& uri, std::string* out) {
   GURL url(uri);
   if (!url.is_valid()) {

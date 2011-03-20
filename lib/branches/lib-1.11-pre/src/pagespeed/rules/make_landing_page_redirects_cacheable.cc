@@ -82,8 +82,13 @@ const char* MakeLandingPageRedirectsCacheable::documentation_url() const {
 bool MakeLandingPageRedirectsCacheable::AppendResults(
     const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();
-  // TODO(bmcquade): here to remove the fragment from the URL.
-  const std::string& primary_resource_url = input.primary_resource_url();
+  const std::string& primary_resource_url_fragment =
+      input.primary_resource_url();
+  std::string primary_resource_url;
+  if (!uri_util::GetUriWithoutFragment(primary_resource_url_fragment,
+                                       &primary_resource_url)) {
+    primary_resource_url = primary_resource_url_fragment;
+  }
 
   if (primary_resource_url.empty()) {
     return false;

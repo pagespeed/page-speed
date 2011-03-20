@@ -100,13 +100,13 @@ class MakeLandingPageRedirectsCacheableTest : public
 
 
   void AddTemporaryRedirect(const std::string& url,
-                   const std::string& location) {
+                            const std::string& location) {
     AddRedirect(url, 302, location, "");
   }
 
 
   void AddCacheableTemporaryRedirect(const std::string& url,
-                   const std::string& location) {
+                                     const std::string& location) {
     AddRedirect(url, 302, location, "max-age=31536000");
   }
 
@@ -361,13 +361,30 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, CacheableTempAndPermanent) {
   NewPrimaryResource(url3);
   Freeze();
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
-  urls.push_back(url3);
-
   std::vector<Violation> violations;
   // No violation.
+  CheckViolations(violations);
+}
+
+TEST_F(MakeLandingPageRedirectsCacheableTest, PrimaryResourceUrlHasFragment) {
+  static const char *kUrlWithFragment = "http://www.example.com/foo#fragment";
+  static const char *kUrlNoFragment = "http://www.example.com/foo";
+  NewPrimaryResource(kUrlWithFragment);
+  AddTemporaryRedirect(kUrl1, kUrlWithFragment);
+  Freeze();
+
+  // We expect that the resource's URL was converted to not have a
+  // fragment.
+  ASSERT_EQ(kUrlNoFragment, primary_resource()->GetRequestUrl());
+  ASSERT_EQ(kUrlWithFragment, pagespeed_input()->primary_resource_url());
+  ASSERT_EQ(
+      pagespeed_input()->GetResourceWithUrl(kUrlWithFragment)->GetRequestUrl(),
+      kUrlNoFragment);
+
+  std::vector<std::string> urls;
+  urls.push_back(kUrl1);
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
   CheckViolations(violations);
 }
 

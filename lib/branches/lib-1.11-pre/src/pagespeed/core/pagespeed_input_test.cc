@@ -23,6 +23,7 @@
 
 namespace {
 
+using pagespeed::ClientCharacteristics;
 using pagespeed::InputCapabilities;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
@@ -31,12 +32,23 @@ using pagespeed_testing::FakeDomElement;
 
 static const char* kURL1 = "http://www.foo.com/";
 static const char* kURL2 = "http://www.bar.com/";
+static const char* kNonCanonUrl = "http://example.com";
+static const char* kCanonicalizedUrl = "http://example.com/";
 
 Resource* NewResource(const std::string& url, int status_code) {
   Resource* resource = new Resource;
   resource->SetRequestUrl(url);
   resource->SetResponseStatusCode(status_code);
   return resource;
+}
+
+void AssertProtoEq(const google::protobuf::MessageLite& a,
+                   const google::protobuf::MessageLite& b) {
+  std::string a_str;
+  std::string b_str;
+  ASSERT_TRUE(a.SerializePartialToString(&a_str));
+  ASSERT_TRUE(b.SerializePartialToString(&b_str));
+  ASSERT_EQ(a_str, b_str);
 }
 
 TEST(PagespeedInputTest, DisallowDuplicates) {
@@ -86,6 +98,58 @@ TEST(PagespeedInputTest, FilterResources) {
       new pagespeed::NotResourceFilter(new pagespeed::AllowAllResourceFilter));
   EXPECT_FALSE(input.AddResource(NewResource(kURL1, 200)));
   ASSERT_TRUE(input.Freeze());
+}
+
+// Make sure SetPrimaryResourceUrl canonicalizes its input.
+TEST(PagespeedInputTest, SetPrimaryResourceUrl) {
+  PagespeedInput input;
+  EXPECT_TRUE(input.AddResource(NewResource(kNonCanonUrl, 200)));
+  EXPECT_TRUE(input.SetPrimaryResourceUrl(kNonCanonUrl));
+  ASSERT_TRUE(input.Freeze());
+
+  EXPECT_EQ(kCanonicalizedUrl, input.primary_resource_url());
+}
+
+// Make sure SetPrimaryResourceUrl canonicalizes its input.
+TEST(PagespeedInputTest, GetResourceWithUrl) {
+  PagespeedInput input;
+  EXPECT_TRUE(input.AddResource(NewResource(kNonCanonUrl, 200)));
+  ASSERT_TRUE(input.Freeze());
+
+  const Resource* r1 = input.GetResourceWithUrl(kNonCanonUrl);
+  const Resource* r2 = input.GetResourceWithUrl(kCanonicalizedUrl);
+  ASSERT_TRUE(r1 != NULL);
+  ASSERT_TRUE(r2 != NULL);
+  ASSERT_EQ(r1, r2);
+  ASSERT_NE(kNonCanonUrl, r1->GetRequestUrl());
+  ASSERT_EQ(kCanonicalizedUrl, r1->GetRequestUrl());
+  ASSERT_NE(kNonCanonUrl, r2->GetRequestUrl());
+  ASSERT_EQ(kCanonicalizedUrl, r2->GetRequestUrl());
+}
+
+TEST(PagespeedInputTest, SetClientCharacteristicsFailsWhenFrozen) {
+  PagespeedInput input;
+  ClientCharacteristics cc;
+  cc.set_dns_requests_weight(100.0);
+  input.Freeze();
+#ifdef NDEBUG
+  ASSERT_FALSE(input.SetClientCharacteristics(cc));
+  ClientCharacteristics default_cc;
+  AssertProtoEq(input.input_information()->client_characteristics(),
+                default_cc);
+#else
+  ASSERT_DEATH(input.SetClientCharacteristics(cc),
+               "Can't set ClientCharacteristics for frozen PagespeedInput.");
+#endif
+}
+
+TEST(PagespeedInputTest, SetClientCharacteristics) {
+  PagespeedInput input;
+  ClientCharacteristics cc;
+  cc.set_dns_requests_weight(100.0);
+  ASSERT_TRUE(input.SetClientCharacteristics(cc));
+  input.Freeze();
+  AssertProtoEq(input.input_information()->client_characteristics(), cc);
 }
 
 class UpdateResourceTypesTest : public pagespeed_testing::PagespeedTest {

@@ -50,6 +50,35 @@ message Savings {
 
 }
 
+// A ClientCharacteristics object tracks how much different kinds of impact
+// matter relative to each other for a particular client.  These values might
+// be different for, say, mobile browsers vs. desktop browsers.  The scaling
+// doesn't matter since impact is eventually normalized; all that matters is
+// the ratios between these numbers.  The default values below should be set to
+// reasonable values for a desktop browser, so that the library will still give
+// reasonable results if the client_characteristics field of an
+// InputInformation is not set.
+message ClientCharacteristics {
+  // Relative impact per DNS request saved.
+  optional double dns_requests_weight = 1          [default = 2.0];
+  // Relative impact per request saved.
+  optional double requests_weight = 2              [default = 1.0];
+  // Relative impact per response byte saved.
+  optional double response_bytes_weight = 3        [default = 0.0001];
+  // Relative impact per reflow saved.
+  optional double page_reflows_weight = 4          [default = 0.001];
+  // Relative impact per reqeust byte saved.
+  optional double request_bytes_weight = 5         [default = 0.0005];
+  // Relative impact per critical path length reduced.
+  optional double critical_path_length_weight = 6  [default = 1.0];
+  // Relative impact per reqeust byte saved.
+  optional double connections_weight = 7           [default = 1.0];
+  // Relative impact per byte of Javascript code parsed.
+  optional double javascript_parse_weight = 8      [default = 0.00001];
+  // Average fraction of requests expected to be in cache.
+  optional double expected_cache_hit_rate = 9      [default = 0.5];
+}
+
 message InputInformation {
   // Number of resources accessed while rendering the page.
   optional int32 number_resources = 1;
@@ -81,6 +110,10 @@ message InputInformation {
   // Number of JS and CSS resources accessed while rendering the page.
   optional int32 number_js_resources = 13;
   optional int32 number_css_resources = 14;
+
+  // The impact weights to use for scoring this page.  If the field is not
+  // present, use the default weights.
+  optional ClientCharacteristics client_characteristics = 15;
 }
 
 // Base class for result details
@@ -276,6 +309,13 @@ message RuleResults {
   // cases, but may be left out if the rule is unable to compute a score (e.g.
   // due to missing input information).
   optional int32 rule_score = 2;
+
+  // The impact number assigned by Page Speed for this rule.  Unlike the score,
+  // this is not normalized to 0-100, but can be any nonnegative number, where
+  // zero corresponds to a perfect score.  Ideally, the impact would be
+  // directly proportional to the latency improvement that would be gained by
+  // implementing all suggestions made by the rule.
+  optional double rule_impact = 4;
 
   repeated Result results = 3;
 }

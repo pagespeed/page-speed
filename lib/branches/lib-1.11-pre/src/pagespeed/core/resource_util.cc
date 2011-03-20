@@ -21,6 +21,7 @@
 #include "base/string_number_conversions.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/directive_enumerator.h"
+#include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/uri_util.h"
@@ -510,6 +511,34 @@ const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
       return resource;
     }
   }
+}
+
+bool IsLikelyTrackingPixel(const PagespeedInput& input,
+                           const Resource& resource) {
+  if (resource.GetResourceType() != IMAGE) {
+    return false;
+  }
+
+  if (resource.GetResponseBody().length() == 0) {
+    // An image resource with no body is almost certainly being used
+    // for tracking.
+    return true;
+  }
+
+  scoped_ptr<ImageAttributes> attributes(
+      input.NewImageAttributes(&resource));
+  if (attributes == NULL) {
+    // This can happen if the image response doesn't decode properly.
+    LOG(INFO) << "Unable to compute image attributes for "
+              << resource.GetRequestUrl();
+    return false;
+  }
+
+  // Tracking pixels tend to be 1x1 images. We also check for 0x0
+  // images in case some formats might support that size.
+  return
+      (attributes->GetImageWidth() == 0 || attributes->GetImageWidth() == 1) &&
+      (attributes->GetImageHeight() == 0 || attributes->GetImageHeight() == 1);
 }
 
 }  // namespace resource_util

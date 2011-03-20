@@ -138,6 +138,14 @@ void RedirectGraph::PopulateRedirectChainResult(
 
 namespace pagespeed {
 
+RuleInput::RuleInput(const PagespeedInput& pagespeed_input)
+    : pagespeed_input_(&pagespeed_input),
+      initialized_(false) {
+  if (!pagespeed_input_->is_frozen()) {
+    LOG(DFATAL) << "Passed non-frozen PagespeedInput to RuleInput.";
+  }
+}
+
 void RuleInput::BuildRedirectChains() {
   RedirectGraph redirect_graph(pagespeed_input_);
   for (int idx = 0, num = pagespeed_input_->num_resources(); idx < num; ++idx) {
@@ -177,6 +185,9 @@ const RuleInput::RedirectChainVector& RuleInput::GetRedirectChains() const {
 const RuleInput::RedirectChain* RuleInput::GetRedirectChainOrNull(
     const Resource* resource) const {
   DCHECK(initialized_);
+  if (resource == NULL) {
+    return NULL;
+  }
   ResourceToRedirectChainMap::const_iterator it =
       resource_to_redirect_chain_map_.find(resource);
   if (it == resource_to_redirect_chain_map_.end()) {

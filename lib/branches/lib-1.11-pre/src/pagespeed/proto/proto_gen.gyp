@@ -40,9 +40,6 @@
           'outputs': [
             '<(protoc_out_dir)/pagespeed/proto/<(RULE_INPUT_ROOT).pb.h',
             '<(protoc_out_dir)/pagespeed/proto/<(RULE_INPUT_ROOT).pb.cc',
-            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedInput.java',
-            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedOutput.java',
-            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedProtoFormatter.java',
           ],
           'action': [
             '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
@@ -157,9 +154,12 @@
         {
           'action_name': 'javac',
           'inputs': [
-            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedInput.java',
-            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedOutput.java',
-            '<(pagespeed_proto_java_srcroot)/com/googlecode/page_speed/PagespeedProtoFormatter.java',
+            # gyp gets confused when we declare the .java files in the
+            # outputs section of the gen rule, so we don't. Since the
+            # .pb.h and .java files are generated in the same s tep,
+            # we claim to depend on the .pb.h file so gyp can property
+            # infer dependencies.
+            '<(protoc_out_dir)/pagespeed/proto/pagespeed_output.pb.h',
           ],
           'outputs': [
             '<(pagespeed_proto_java_objroot)/com/googlecode/page_speed/PagespeedInput.class',
