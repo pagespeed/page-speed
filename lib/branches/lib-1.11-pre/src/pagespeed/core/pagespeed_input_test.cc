@@ -42,8 +42,8 @@ Resource* NewResource(const std::string& url, int status_code) {
   return resource;
 }
 
-void AssertProtoEq(const google::protobuf::MessageLite& a,
-                   const google::protobuf::MessageLite& b) {
+void AssertProtoEq(const ::google::protobuf::MessageLite& a,
+                   const ::google::protobuf::MessageLite& b) {
   std::string a_str;
   std::string b_str;
   ASSERT_TRUE(a.SerializePartialToString(&a_str));
