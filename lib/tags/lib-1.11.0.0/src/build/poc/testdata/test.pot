@@ -1,8 +1,0 @@
-msgid "string1"
-msgstr ""
-
-msgid "string2"
-msgstr ""
-
-msgid "string_no_translations"
-msgstr ""
