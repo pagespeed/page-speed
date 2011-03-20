@@ -318,7 +318,14 @@ TEST(ResourceTest, JavaScriptCallInfo) {
   ASSERT_EQ(1U, info->args().size());
   ASSERT_EQ("<script src='foo.js'></script>", info->args()[0]);
   ASSERT_EQ(3, info->line_number());
+}
 
+TEST(ResourceTest, CanonicalizeUrl) {
+  Resource r;
+  r.SetRequestUrl("http://www.example.com");
+  ASSERT_EQ("http://www.example.com/", r.GetRequestUrl());
+  r.SetRequestUrl("http://www.example.com/foo#fragment");
+  ASSERT_EQ("http://www.example.com/foo", r.GetRequestUrl());
 }
 
 }  // namespace

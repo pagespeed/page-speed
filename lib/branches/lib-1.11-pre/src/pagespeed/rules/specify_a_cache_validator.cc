@@ -145,6 +145,15 @@ int SpecifyACacheValidator::ComputeScore(const InputInformation& input_info,
   return 100 * num_non_violations / num_static_resources;
 }
 
+double SpecifyACacheValidator::ComputeResultImpact(
+    const InputInformation& input_info, const Result& result) {
+  const ClientCharacteristics& client = input_info.client_characteristics();
+  // TODO(mdsteele): This 0.5 here is a gross hack, meant to express that this
+  //   rule is not as important as LeverageBrowserCaching.  We should replace
+  //   this formula with something less arbitrary.
+  return 0.5 * client.requests_weight() * client.expected_cache_hit_rate();
+}
+
 }  // namespace rules
 
 }  // namespace pagespeed

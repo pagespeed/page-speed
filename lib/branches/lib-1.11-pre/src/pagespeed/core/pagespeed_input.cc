@@ -14,8 +14,6 @@
 
 #include "pagespeed/core/pagespeed_input.h"
 
-#include "pagespeed/proto/pagespeed_output.pb.h"
-
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
@@ -24,6 +22,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/uri_util.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
 
@@ -111,11 +110,18 @@ bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
                 << " to frozen PagespeedInput.";
     return false;
   }
-  if (!has_resource_with_url(url)) {
-    LOG(INFO) << "No such primary resource " << url;
+  std::string canon_url = url;
+  uri_util::CanonicalizeUrl(&canon_url);
+
+  std::string canon_url_no_fragment;
+  if (!uri_util::GetUriWithoutFragment(canon_url, &canon_url_no_fragment)) {
+      canon_url_no_fragment = canon_url;
+  }
+  if (!has_resource_with_url(canon_url_no_fragment)) {
+    LOG(INFO) << "No such primary resource " << canon_url_no_fragment;
     return false;
   }
-  primary_resource_url_ = url;
+  primary_resource_url_ = canon_url;
   return true;
 }
 
@@ -139,6 +145,15 @@ bool PagespeedInput::SetOnloadTimeMillis(int onload_millis) {
   }
   onload_state_ = ONLOAD_FIRED;
   onload_millis_ = onload_millis;
+  return true;
+}
+
+bool PagespeedInput::SetClientCharacteristics(const ClientCharacteristics& cc) {
+  if (frozen_) {
+    LOG(DFATAL) << "Can't set ClientCharacteristics for frozen PagespeedInput.";
+    return false;
+  }
+  input_info_->mutable_client_characteristics()->CopyFrom(cc);
   return true;
 }
 
@@ -191,7 +206,6 @@ bool PagespeedInput::Freeze() {
 }
 
 void PagespeedInput::PopulateInputInformation() {
-  input_info_->Clear();
   for (int idx = 0, num = num_resources(); idx < num; ++idx) {
     const Resource& resource = GetResource(idx);
 
@@ -502,10 +516,18 @@ bool PagespeedInput::IsResourceLoadedAfterOnload(
 
 const Resource* PagespeedInput::GetResourceWithUrl(
     const std::string& url) const {
+  std::string url_canon;
+  if (!uri_util::GetUriWithoutFragment(url, &url_canon)) {
+    url_canon = url;
+  }
   std::map<std::string, const Resource*>::const_iterator it =
-      url_resource_map_.find(url);
+      url_resource_map_.find(url_canon);
   if (it == url_resource_map_.end()) {
     return NULL;
+  }
+  if (url_canon != url) {
+    LOG(INFO) << "GetResourceWithUrl(\"" << url
+              << "\"): Returning resource with URL " << url_canon;
   }
   return it->second;
 }

@@ -108,6 +108,16 @@ ComputeScore(const InputInformation& input_info,
   return 100 * num_non_violations / num_static_resources;
 }
 
+double RemoveQueryStringsFromStaticResources::ComputeResultImpact(
+    const InputInformation& input_info, const Result& result) {
+  // TODO(mdsteele): What is the impact of this rule?  It doesn't ever actually
+  //   save a request.  It _might_ decrease the response time if 1) you're
+  //   behind a proxy that has the relevant bug, and 2) the proxy has this
+  //   resource in cache.  In all other cases, following this rule's
+  //   suggestion has no impact at all.
+  return 0.0;
+}
+
 }  // namespace rules
 
 }  // namespace pagespeed

@@ -293,7 +293,7 @@ void DeferParsingJavaScript::FormatResults(const ResultVector& results,
       // detected to have JavaScript code. It describes the problem and tells
       // the user how to fix by defering parsing the JavaScript code.
       _("$1 of JavaScript is parsed during initial page load. Defer parsing "
-        "JavaScript to reduce blocking of page rending."), size_arg);
+        "JavaScript to reduce blocking of page rendering."), size_arg);
 
   // CheckDocument adds the results in post-order.
 
@@ -360,6 +360,18 @@ int DeferParsingJavaScript::ComputeScore(
   return score;
 }
 
+double DeferParsingJavaScript::ComputeResultImpact(
+    const InputInformation& input_info, const Result& result) {
+  const DeferParsingJavaScriptDetails& details = result.details().GetExtension(
+      DeferParsingJavaScriptDetails::message_set_extension);
+  int minified_size = details.minified_javascript_size();
+  if (minified_size < 0) {
+    LOG(DFATAL) << "Invalid minified javascript size: " << minified_size;
+    minified_size = 0;
+  }
+  const ClientCharacteristics& client = input_info.client_characteristics();
+  return client.javascript_parse_weight() * minified_size;
+}
 
 }  // namespace rules
 

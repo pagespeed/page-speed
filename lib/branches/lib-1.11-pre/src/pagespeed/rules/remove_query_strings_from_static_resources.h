@@ -39,7 +39,11 @@ class RemoveQueryStringsFromStaticResources : public Rule {
                              RuleFormatter* formatter);
   virtual int ComputeScore(const InputInformation& input_info,
                            const RuleResults& results);
+ protected:
+  virtual double ComputeResultImpact(const InputInformation& input_info,
+                                     const Result& result);
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(RemoveQueryStringsFromStaticResources);
 };
 

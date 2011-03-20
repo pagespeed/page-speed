@@ -202,4 +202,18 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, CrossDomainXml) {
   CheckNoViolations();
 }
 
+TEST_F(ServeResourcesFromAConsistentUrlTest, SkipTrackingPixels) {
+  // Any non-zero-length body is sufficient.
+  static const char* kBody = "a";
+  pagespeed::Resource* a = NewPngResource(kResponseUrls[0][0]);
+  pagespeed::Resource* b = NewPngResource(kResponseUrls[0][1]);
+  a->SetResponseBody(kBody);
+  b->SetResponseBody(kBody);
+  pagespeed_testing::FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[a] = std::make_pair(1, 1);
+  size_map[b] = std::make_pair(1, 1);
+  AddFakeImageAttributesFactory(size_map);
+  CheckNoViolations();
+}
+
 }  // namespace

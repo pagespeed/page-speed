@@ -92,7 +92,7 @@ GettextLocalizer* GettextLocalizer::Create(const std::string& locale) {
   if (!country.empty()) {
     requested_locale = language + "_" + country;
     locale_table = RegisterLocale::GetStringTable(requested_locale);
-    
+
     if (!locale_table) {
       LOG(INFO) << "could not find string table for locale '"
                 << requested_locale << "', trying '" << language << "'";
