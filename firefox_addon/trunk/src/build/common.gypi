@@ -28,4 +28,13 @@
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
+  'conditions': [
+    [ 'OS=="mac" and target_arch=="x64"', {
+      'xcode_settings': {
+        'ARCHS': 'x86_64',
+        'GCC_DYNAMIC_NO_PIC': 'YES',              # No -mdynamic-no-pic
+                                                  # (Equivalent to -fPIC)
+      }
+    }]
+  ]
 }

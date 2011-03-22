@@ -109,6 +109,9 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
        ),
     H3('Unable to run Page Speed on $currentPageUrl'),
        P(B('Please navigate to a web URL and try running Page Speed again.')),
+    INPUT({'type': 'button', 'value': 'Analyze Performance',
+           'style': 'margin-top:8px;margin-left:10px;margin-bottom:5px',
+           'onclick': '$analyzePerformance'}),
     P({'class': 'moduleManagerDecription'},
       'Page Speed Copyright &copy; 2010 Google Inc.'
       )
@@ -129,6 +132,9 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
         'Page Speed Compatibility'
         ),
       ' for more information.'),
+    INPUT({'type': 'button', 'value': 'Analyze Performance',
+           'style': 'margin-top:8px;margin-left:10px;margin-bottom:5px',
+           'onclick': '$analyzePerformance'}),
     P({'class': 'moduleManagerDecription'},
       'Page Speed Copyright &copy; 2010 Google Inc.'
       )
