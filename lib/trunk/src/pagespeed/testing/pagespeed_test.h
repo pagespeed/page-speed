@@ -119,6 +119,16 @@ class PagespeedTest : public ::testing::Test {
                                       FakeDomElement* parent = NULL,
                                       FakeDomElement** out = NULL);
 
+  // Much like NewPngResource, but creates two resources -- a redirect from
+  // url1 to url2, and a PNG at url2 -- and creates an IMG element with
+  // src=url1.  This is useful for testing that a rule is able to get the
+  // content/dimensions/etc. of the image even though the DOM node refers to
+  // the URL of the redirect rather than the actual image resource.
+  pagespeed::Resource* NewRedirectedPngResource(const std::string& url1,
+                                                const std::string& url2,
+                                                FakeDomElement* parent = NULL,
+                                                FakeDomElement** out = NULL);
+
   // Construct a new HTTP GET script resource, and add that
   // resource to our PagespeedInput. Also create an associated DOM
   // node, parented under the specified parent, and returned via the
