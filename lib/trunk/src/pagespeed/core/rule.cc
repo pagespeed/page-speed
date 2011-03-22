@@ -70,6 +70,9 @@ bool CompareResults(const Result* result1, const Result* result2) {
     return savings1.dns_requests_saved() > savings2.dns_requests_saved();
   } else if (savings1.requests_saved() != savings2.requests_saved()) {
     return savings1.requests_saved() > savings2.requests_saved();
+  } else if (savings1.request_bytes_saved() !=
+             savings2.request_bytes_saved()) {
+    return savings1.request_bytes_saved() > savings2.request_bytes_saved();
   } else if (savings1.response_bytes_saved() !=
              savings2.response_bytes_saved()) {
     return savings1.response_bytes_saved() > savings2.response_bytes_saved();

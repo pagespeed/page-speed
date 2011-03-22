@@ -39,6 +39,11 @@ class RuleInput {
   const PagespeedInput& pagespeed_input() const { return *pagespeed_input_; }
   const RedirectChainVector& GetRedirectChains() const;
   const RedirectChain* GetRedirectChainOrNull(const Resource* resource) const;
+  // Given a pointer to a resource, return a pointer to the final resource in
+  // the redirect chain.  If the resource has no redirect chain, return the
+  // resource itself.  If the given pointer is NULL, return NULL.
+  const Resource* GetFinalRedirectTarget(const Resource* resource) const;
+
  private:
   void BuildRedirectChains();
 

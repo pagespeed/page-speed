@@ -121,16 +121,16 @@ class ScaledImagesChecker : public pagespeed::DomElementVisitor {
  public:
   // Ownership of document and image_data_map are _not_ transfered to the
   // ScaledImagesChecker.
-  ScaledImagesChecker(const pagespeed::PagespeedInput* pagespeed_input,
+  ScaledImagesChecker(const pagespeed::RuleInput* rule_input,
                       const pagespeed::DomDocument* document,
                       ImageDataMap* image_data_map)
-      : pagespeed_input_(pagespeed_input), document_(document),
+      : rule_input_(rule_input), document_(document),
         image_data_map_(image_data_map) {}
 
   virtual void Visit(const pagespeed::DomElement& node);
 
  private:
-  const pagespeed::PagespeedInput* pagespeed_input_;
+  const pagespeed::RuleInput* rule_input_;
   const pagespeed::DomDocument* document_;
   ImageDataMap* image_data_map_;
 
@@ -139,15 +139,17 @@ class ScaledImagesChecker : public pagespeed::DomElementVisitor {
 
 void ScaledImagesChecker::Visit(const pagespeed::DomElement& node) {
   if (node.GetTagName() == "IMG") {
-    if (pagespeed_input_->has_resource_with_url(document_->GetDocumentUrl())) {
+    if (rule_input_->pagespeed_input().has_resource_with_url(
+            document_->GetDocumentUrl())) {
       std::string src;
       if (node.GetAttributeByName("src", &src)) {
         const std::string url(document_->ResolveUri(src));
         const pagespeed::Resource* resource =
-            pagespeed_input_->GetResourceWithUrl(url);
+            rule_input_->GetFinalRedirectTarget(
+                rule_input_->pagespeed_input().GetResourceWithUrl(url));
         if (resource != NULL) {
           scoped_ptr<pagespeed::ImageAttributes> image_attributes(
-              pagespeed_input_->NewImageAttributes(resource));
+              rule_input_->pagespeed_input().NewImageAttributes(resource));
           if (image_attributes != NULL) {
             const int actual_width = image_attributes->GetImageWidth();
             const int actual_height = image_attributes->GetImageHeight();
@@ -175,7 +177,7 @@ void ScaledImagesChecker::Visit(const pagespeed::DomElement& node) {
     // Do a recursive document traversal.
     scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
     if (child_doc.get()) {
-      ScaledImagesChecker checker(pagespeed_input_, child_doc.get(),
+      ScaledImagesChecker checker(rule_input_, child_doc.get(),
                                   image_data_map_);
       child_doc->Traverse(&checker);
     }
@@ -223,15 +225,17 @@ bool ServeScaledImages::AppendResults(const RuleInput& rule_input,
 
   bool ok = true;
   ImageDataMap image_data_map;
-  ScaledImagesChecker visitor(&input, document, &image_data_map);
+  ScaledImagesChecker visitor(&rule_input, document, &image_data_map);
   document->Traverse(&visitor);
 
   typedef std::map<const std::string, int> OriginalSizesMap;
   OriginalSizesMap original_sizes_map;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
+    const Resource* target = rule_input.GetFinalRedirectTarget(&resource);
+    CHECK(target);
     original_sizes_map[resource.GetRequestUrl()] =
-        resource.GetResponseBody().size();
+        target->GetResponseBody().size();
   }
 
   for (ImageDataMap::const_iterator iter = image_data_map.begin(),

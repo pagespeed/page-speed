@@ -158,4 +158,30 @@ TEST_F(RuleInputTest, MissingDestination) {
   CheckViolations(violations);
 }
 
+TEST_F(RuleInputTest, FinalRedirectTarget) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://www.foo.com/index.html";
+
+  AddRedirect(url1, url2);
+  AddRedirect(url2, url3);
+  AddResourceUrl(url3, 200);
+  Freeze();
+
+  const PagespeedInput* input = pagespeed_input();
+  RuleInput rule_input(*input);
+  rule_input.Init();
+
+  const Resource* resource1 = input->GetResourceWithUrl(url1);
+  ASSERT_TRUE(NULL != resource1);
+  const Resource* resource2 = input->GetResourceWithUrl(url2);
+  ASSERT_TRUE(NULL != resource2);
+  const Resource* resource3 = input->GetResourceWithUrl(url3);
+  ASSERT_TRUE(NULL != resource3);
+  EXPECT_EQ(resource3, rule_input.GetFinalRedirectTarget(resource1));
+  EXPECT_EQ(resource3, rule_input.GetFinalRedirectTarget(resource2));
+  EXPECT_EQ(resource3, rule_input.GetFinalRedirectTarget(resource3));
+  EXPECT_EQ(NULL, rule_input.GetFinalRedirectTarget(NULL));
+}
+
 }  // namespace
