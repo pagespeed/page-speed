@@ -66,6 +66,12 @@ double ComputePageWeight(const InputInformation& input_info) {
   weight += client.response_bytes_weight() *
       resource_util::ComputeTotalResponseBytes(input_info);
   weight += client.request_bytes_weight() * input_info.total_request_bytes();
+
+  // There are at least as many connections as there are hosts.
+  // TODO(mdsteele): revisit this when we know the exact number of
+  // connections.
+  weight += client.connections_weight() + input_info.number_hosts();
+
   // TODO(mdsteele): Note that there are some fields of ClientCharacteristics
   // that we don't use here yet:
   //
@@ -74,9 +80,6 @@ double ComputePageWeight(const InputInformation& input_info) {
   //
   // - critical_path_length_weight: We should multiply this by the current
   //   length of the page's critical path; do we have of knowing that?
-  //
-  // - connections_weight: We should multiply this by the number of connections
-  //   the page used; do we have of knowing that?
   //
   // - expected_cache_hit_rate: Maybe we should be multiplying the requests
   //   term above by (1 - hit_rate)?
