@@ -14,8 +14,15 @@
 
 {
   'variables': {
-    # We must build for 10.4 for compatibility with Firefox.
-    'mac_deployment_target': '10.4',
+    'conditions': [
+      [ 'target_arch=="ia32"', {
+        # We build for 10.4 for compatibility with Firefox 3.x.
+        'mac_deployment_target': '10.4',
+      }, {
+        # However mac x64 requires 10.5 as a minimum.
+        'mac_deployment_target': '10.5',
+      }]
+    ],
 
     # Make sure we link statically so everything gets linked into a
     # single shared object.
@@ -32,8 +39,9 @@
     [ 'OS=="mac" and target_arch=="x64"', {
       'xcode_settings': {
         'ARCHS': 'x86_64',
-        'GCC_DYNAMIC_NO_PIC': 'YES',              # No -mdynamic-no-pic
-                                                  # (Equivalent to -fPIC)
+        'OTHER_CFLAGS': [
+          '-fPIC',
+        ]
       }
     }]
   ]
