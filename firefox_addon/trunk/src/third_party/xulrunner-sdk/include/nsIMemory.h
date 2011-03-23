@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/base/nsIMemory.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/xpcom/base/nsIMemory.idl
  */
 
 #ifndef __gen_nsIMemory_h__
@@ -111,6 +111,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIMemory : public nsISupports {
      * This predicate can be used to determine if we're in a low-memory
      * situation (what constitutes low-memory is platform dependent). This
      * can be used to trigger the memory pressure observers.
+     *
+     * DEPRECATED - Always returns false.  See bug 592308.
      */
   /* boolean isLowMemory (); */
   NS_SCRIPTABLE NS_IMETHOD IsLowMemory(PRBool *_retval NS_OUTPARAM) = 0;

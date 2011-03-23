@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLElement.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/dom/interfaces/html/nsIDOMHTMLElement.idl
  */
 
 #ifndef __gen_nsIDOMHTMLElement_h__
@@ -32,8 +32,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLElement : public nsIDOMElement {
  * interface. It represents a single [X]HTML element in the document
  * tree.
  *
- * For more information on this interface please see
+ * This interface is trying to follow the DOM Level 2 HTML specification:
  * http://www.w3.org/TR/DOM-Level-2-HTML/
+ *
+ * with changes from the work-in-progress WHATWG HTML specification:
+ * http://www.whatwg.org/specs/web-apps/current-work/
  */
   /* attribute DOMString id; */
   NS_SCRIPTABLE NS_IMETHOD GetId(nsAString & aId) = 0;

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIChannel.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/netwerk/base/public/nsIChannel.idl
  */
 
 #ifndef __gen_nsIChannel_h__
@@ -24,11 +24,11 @@ class nsIStreamListener; /* forward declaration */
 
 
 /* starting interface:    nsIChannel */
-#define NS_ICHANNEL_IID_STR "3906f857-3d79-4716-be55-ed2455d666f4"
+#define NS_ICHANNEL_IID_STR "c63a055a-a676-4e71-bf3c-6cfa11082018"
 
 #define NS_ICHANNEL_IID \
-  {0x3906f857, 0x3d79, 0x4716, \
-    { 0xbe, 0x55, 0xed, 0x24, 0x55, 0xd6, 0x66, 0xf4 }}
+  {0xc63a055a, 0xa676, 0x4e71, \
+    { 0xbf, 0x3c, 0x6c, 0xfa, 0x11, 0x08, 0x20, 0x18 }}
 
 /**
  * The nsIChannel interface allows clients to construct "GET" requests for
@@ -153,21 +153,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIChannel : public nsIRequest {
 
   /**
      * The length of the data associated with the channel if available.  A value
-     * of -1 indicates that the content length is unknown. Note that this
-     * is a 64-bit value and obsoletes the "content-length" property used on
-     * some channels.
+     * of -1 indicates that the content length is unknown.
+     *
+     * Callers should prefer getting the "content-length" property
+     * as 64-bit value by QIing the channel to nsIPropertyBag2,
+     * if that interface is exposed by the channel.
      */
-  /* attribute PRInt64 contentLength; */
-  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt64 *aContentLength) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt64 aContentLength) = 0;
-
-  /**
-     * Access to the Content-Disposition header if available and if applicable.
-     * This allows getting the preferred handling method, preferred filename,
-     * etc.  See RFC 2183.
-     */
-  /* readonly attribute ACString contentDisposition; */
-  NS_SCRIPTABLE NS_IMETHOD GetContentDisposition(nsACString & aContentDisposition) = 0;
+  /* attribute long contentLength; */
+  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt32 *aContentLength) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt32 aContentLength) = 0;
 
   /**
      * Synchronously open the channel.
@@ -302,9 +296,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIChannel : public nsIRequest {
   NS_SCRIPTABLE NS_IMETHOD SetContentType(const nsACString & aContentType); \
   NS_SCRIPTABLE NS_IMETHOD GetContentCharset(nsACString & aContentCharset); \
   NS_SCRIPTABLE NS_IMETHOD SetContentCharset(const nsACString & aContentCharset); \
-  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt64 *aContentLength); \
-  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt64 aContentLength); \
-  NS_SCRIPTABLE NS_IMETHOD GetContentDisposition(nsACString & aContentDisposition); \
+  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt32 *aContentLength); \
+  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt32 aContentLength); \
   NS_SCRIPTABLE NS_IMETHOD Open(nsIInputStream **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD AsyncOpen(nsIStreamListener *aListener, nsISupports *aContext); \
 
@@ -322,9 +315,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIChannel : public nsIRequest {
   NS_SCRIPTABLE NS_IMETHOD SetContentType(const nsACString & aContentType) { return _to SetContentType(aContentType); } \
   NS_SCRIPTABLE NS_IMETHOD GetContentCharset(nsACString & aContentCharset) { return _to GetContentCharset(aContentCharset); } \
   NS_SCRIPTABLE NS_IMETHOD SetContentCharset(const nsACString & aContentCharset) { return _to SetContentCharset(aContentCharset); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt64 *aContentLength) { return _to GetContentLength(aContentLength); } \
-  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt64 aContentLength) { return _to SetContentLength(aContentLength); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentDisposition(nsACString & aContentDisposition) { return _to GetContentDisposition(aContentDisposition); } \
+  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt32 *aContentLength) { return _to GetContentLength(aContentLength); } \
+  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt32 aContentLength) { return _to SetContentLength(aContentLength); } \
   NS_SCRIPTABLE NS_IMETHOD Open(nsIInputStream **_retval NS_OUTPARAM) { return _to Open(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD AsyncOpen(nsIStreamListener *aListener, nsISupports *aContext) { return _to AsyncOpen(aListener, aContext); } \
 
@@ -342,9 +334,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE nsIChannel : public nsIRequest {
   NS_SCRIPTABLE NS_IMETHOD SetContentType(const nsACString & aContentType) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentType(aContentType); } \
   NS_SCRIPTABLE NS_IMETHOD GetContentCharset(nsACString & aContentCharset) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentCharset(aContentCharset); } \
   NS_SCRIPTABLE NS_IMETHOD SetContentCharset(const nsACString & aContentCharset) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentCharset(aContentCharset); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt64 *aContentLength) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentLength(aContentLength); } \
-  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt64 aContentLength) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentLength(aContentLength); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentDisposition(nsACString & aContentDisposition) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentDisposition(aContentDisposition); } \
+  NS_SCRIPTABLE NS_IMETHOD GetContentLength(PRInt32 *aContentLength) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentLength(aContentLength); } \
+  NS_SCRIPTABLE NS_IMETHOD SetContentLength(PRInt32 aContentLength) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentLength(aContentLength); } \
   NS_SCRIPTABLE NS_IMETHOD Open(nsIInputStream **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->Open(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD AsyncOpen(nsIStreamListener *aListener, nsISupports *aContext) { return !_to ? NS_ERROR_NULL_POINTER : _to->AsyncOpen(aListener, aContext); } \
 
@@ -442,18 +433,12 @@ NS_IMETHODIMP nsChannel::SetContentCharset(const nsACString & aContentCharset)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* attribute PRInt64 contentLength; */
-NS_IMETHODIMP nsChannel::GetContentLength(PRInt64 *aContentLength)
+/* attribute long contentLength; */
+NS_IMETHODIMP nsChannel::GetContentLength(PRInt32 *aContentLength)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP nsChannel::SetContentLength(PRInt64 aContentLength)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* readonly attribute ACString contentDisposition; */
-NS_IMETHODIMP nsChannel::GetContentDisposition(nsACString & aContentDisposition)
+NS_IMETHODIMP nsChannel::SetContentLength(PRInt32 aContentLength)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

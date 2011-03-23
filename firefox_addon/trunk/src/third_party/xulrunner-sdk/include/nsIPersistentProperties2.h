@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/ds/nsIPersistentProperties2.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/xpcom/ds/nsIPersistentProperties2.idl
  */
 
 #ifndef __gen_nsIPersistentProperties2_h__
