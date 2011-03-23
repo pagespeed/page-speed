@@ -264,6 +264,11 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
                                rule_results_);
   }
 
+  double ComputeRuleImpact() {
+    return rule_->ComputeRuleImpact(*pagespeed_input()->input_information(),
+                                    rule_results_);
+  }
+
  private:
   scoped_ptr<pagespeed::RuleInput> rule_input_;
   scoped_ptr<pagespeed::Rule> rule_;
