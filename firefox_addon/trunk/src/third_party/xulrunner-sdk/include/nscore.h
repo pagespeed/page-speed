@@ -195,7 +195,7 @@
 #define NS_EXPORT_STATIC_MEMBER_(type) type
 #define NS_IMPORT_STATIC_MEMBER_(type) type
 
-#elif defined(XP_OS2) && defined(__declspec)
+#elif defined(XP_OS2)
 
 #define NS_IMPORT __declspec(dllimport)
 #define NS_IMPORT_(type) type __declspec(dllimport)
@@ -553,6 +553,17 @@ typedef PRUint32 nsrefcnt;
 # define NS_OUTPARAM
 # define NS_INOUTPARAM
 # define NS_OVERRIDE
+#endif
+
+/*
+ * SEH exception macros.
+ */
+#ifdef HAVE_SEH_EXCEPTIONS
+#define MOZ_SEH_TRY           __try
+#define MOZ_SEH_EXCEPT(expr)  __except(expr)
+#else
+#define MOZ_SEH_TRY           if(PR_TRUE)
+#define MOZ_SEH_EXCEPT(expr)  else
 #endif
 
 #endif /* nscore_h___ */

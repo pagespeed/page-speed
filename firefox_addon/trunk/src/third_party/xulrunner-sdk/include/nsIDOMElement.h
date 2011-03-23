@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/core/nsIDOMElement.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/dom/interfaces/core/nsIDOMElement.idl
  */
 
 #ifndef __gen_nsIDOMElement_h__

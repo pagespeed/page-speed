@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/layout/inspector/public/inIDOMUtils.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/layout/inspector/public/inIDOMUtils.idl
  */
 
 #ifndef __gen_inIDOMUtils_h__
@@ -30,11 +30,11 @@ class nsIDOMNode; /* forward declaration */
 
 
 /* starting interface:    inIDOMUtils */
-#define INIDOMUTILS_IID_STR "78fd16c2-bdfb-4b1d-8738-d536d0a8f430"
+#define INIDOMUTILS_IID_STR "aa6562de-2628-44fa-90a8-13d6aee404d6"
 
 #define INIDOMUTILS_IID \
-  {0x78fd16c2, 0xbdfb, 0x4b1d, \
-    { 0x87, 0x38, 0xd5, 0x36, 0xd0, 0xa8, 0xf4, 0x30 }}
+  {0xaa6562de, 0x2628, 0x44fa, \
+    { 0x90, 0xa8, 0x13, 0xd6, 0xae, 0xe4, 0x04, 0xd6 }}
 
 class NS_NO_VTABLE NS_SCRIPTABLE inIDOMUtils : public nsISupports {
  public: 
@@ -56,11 +56,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE inIDOMUtils : public nsISupports {
   /* nsIArray getBindingURLs (in nsIDOMElement aElement); */
   NS_SCRIPTABLE NS_IMETHOD GetBindingURLs(nsIDOMElement *aElement, nsIArray **_retval NS_OUTPARAM) = 0;
 
-  /* long getContentState (in nsIDOMElement aElement); */
-  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRInt32 *_retval NS_OUTPARAM) = 0;
+  /* unsigned long long getContentState (in nsIDOMElement aElement); */
+  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRUint64 *_retval NS_OUTPARAM) = 0;
 
-  /* void setContentState (in nsIDOMElement aElement, in long aState); */
-  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRInt32 aState) = 0;
+  /* void setContentState (in nsIDOMElement aElement, in unsigned long long aState); */
+  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRUint64 aState) = 0;
 
 };
 
@@ -73,8 +73,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE inIDOMUtils : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD IsIgnorableWhitespace(nsIDOMCharacterData *aDataNode, PRBool *_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetParentForNode(nsIDOMNode *aNode, PRBool aShowingAnonymousContent, nsIDOMNode **_retval NS_OUTPARAM); \
   NS_SCRIPTABLE NS_IMETHOD GetBindingURLs(nsIDOMElement *aElement, nsIArray **_retval NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRInt32 *_retval NS_OUTPARAM); \
-  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRInt32 aState); 
+  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRUint64 *_retval NS_OUTPARAM); \
+  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRUint64 aState); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_INIDOMUTILS(_to) \
@@ -83,8 +83,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE inIDOMUtils : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD IsIgnorableWhitespace(nsIDOMCharacterData *aDataNode, PRBool *_retval NS_OUTPARAM) { return _to IsIgnorableWhitespace(aDataNode, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetParentForNode(nsIDOMNode *aNode, PRBool aShowingAnonymousContent, nsIDOMNode **_retval NS_OUTPARAM) { return _to GetParentForNode(aNode, aShowingAnonymousContent, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetBindingURLs(nsIDOMElement *aElement, nsIArray **_retval NS_OUTPARAM) { return _to GetBindingURLs(aElement, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRInt32 *_retval NS_OUTPARAM) { return _to GetContentState(aElement, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRInt32 aState) { return _to SetContentState(aElement, aState); } 
+  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRUint64 *_retval NS_OUTPARAM) { return _to GetContentState(aElement, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRUint64 aState) { return _to SetContentState(aElement, aState); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_INIDOMUTILS(_to) \
@@ -93,8 +93,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE inIDOMUtils : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD IsIgnorableWhitespace(nsIDOMCharacterData *aDataNode, PRBool *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsIgnorableWhitespace(aDataNode, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetParentForNode(nsIDOMNode *aNode, PRBool aShowingAnonymousContent, nsIDOMNode **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentForNode(aNode, aShowingAnonymousContent, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetBindingURLs(nsIDOMElement *aElement, nsIArray **_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetBindingURLs(aElement, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRInt32 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentState(aElement, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRInt32 aState) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentState(aElement, aState); } 
+  NS_SCRIPTABLE NS_IMETHOD GetContentState(nsIDOMElement *aElement, PRUint64 *_retval NS_OUTPARAM) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetContentState(aElement, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetContentState(nsIDOMElement *aElement, PRUint64 aState) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetContentState(aElement, aState); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -158,14 +158,14 @@ NS_IMETHODIMP inDOMUtils::GetBindingURLs(nsIDOMElement *aElement, nsIArray **_re
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* long getContentState (in nsIDOMElement aElement); */
-NS_IMETHODIMP inDOMUtils::GetContentState(nsIDOMElement *aElement, PRInt32 *_retval NS_OUTPARAM)
+/* unsigned long long getContentState (in nsIDOMElement aElement); */
+NS_IMETHODIMP inDOMUtils::GetContentState(nsIDOMElement *aElement, PRUint64 *_retval NS_OUTPARAM)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void setContentState (in nsIDOMElement aElement, in long aState); */
-NS_IMETHODIMP inDOMUtils::SetContentState(nsIDOMElement *aElement, PRInt32 aState)
+/* void setContentState (in nsIDOMElement aElement, in unsigned long long aState); */
+NS_IMETHODIMP inDOMUtils::SetContentState(nsIDOMElement *aElement, PRUint64 aState)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

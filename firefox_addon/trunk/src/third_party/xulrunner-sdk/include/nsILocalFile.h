@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/io/nsILocalFile.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/xpcom/io/nsILocalFile.idl
  */
 
 #ifndef __gen_nsILocalFile_h__

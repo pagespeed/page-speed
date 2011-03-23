@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/traversal/nsIDOMDocumentTraversal.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/dom/interfaces/traversal/nsIDOMDocumentTraversal.idl
  */
 
 #ifndef __gen_nsIDOMDocumentTraversal_h__

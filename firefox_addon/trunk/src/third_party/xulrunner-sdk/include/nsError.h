@@ -97,6 +97,7 @@
 #define NS_ERROR_MODULE_STORAGE    30
 #define NS_ERROR_MODULE_SCHEMA     31
 #define NS_ERROR_MODULE_DOM_FILE   32
+#define NS_ERROR_MODULE_DOM_INDEXEDDB 33
 
 /* NS_ERROR_MODULE_GENERAL should be used by modules that do not
  * care if return code values overlap. Callers of methods that
@@ -306,6 +307,10 @@ inline int NS_SUCCEEDED(nsresult _nsresult) {
 #define NS_ERROR_LOSS_OF_SIGNIFICANT_DATA       NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_XPCOM,  3)
 
 #define NS_SUCCESS_LOSS_OF_INSIGNIFICANT_DATA   NS_ERROR_GENERATE_SUCCESS(NS_ERROR_MODULE_XPCOM,  1)
+
+/* Result codes used by nsIThreadManager */
+
+#define NS_ERROR_NOT_SAME_THREAD                NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_XPCOM,  4)
 
 /**
  * Various operations are not permitted during XPCOM shutdown and will fail

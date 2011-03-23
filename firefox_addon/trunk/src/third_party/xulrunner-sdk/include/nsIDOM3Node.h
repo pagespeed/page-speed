@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/core/nsIDOM3Node.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/dom/interfaces/core/nsIDOM3Node.idl
  */
 
 #ifndef __gen_nsIDOM3Node_h__

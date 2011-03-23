@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/protocol/file/nsIFileProtocolHandler.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/netwerk/protocol/file/nsIFileProtocolHandler.idl
  */
 
 #ifndef __gen_nsIFileProtocolHandler_h__

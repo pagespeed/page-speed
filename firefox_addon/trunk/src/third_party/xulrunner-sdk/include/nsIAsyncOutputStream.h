@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/xpcom/io/nsIAsyncOutputStream.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/xpcom/io/nsIAsyncOutputStream.idl
  */
 
 #ifndef __gen_nsIAsyncOutputStream_h__

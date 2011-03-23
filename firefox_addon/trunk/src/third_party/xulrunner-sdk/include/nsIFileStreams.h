@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/netwerk/base/public/nsIFileStreams.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/netwerk/base/public/nsIFileStreams.idl
  */
 
 #ifndef __gen_nsIFileStreams_h__
@@ -209,6 +209,102 @@ nsFileOutputStream::~nsFileOutputStream()
 
 /* void init (in nsIFile file, in long ioFlags, in long perm, in long behaviorFlags); */
 NS_IMETHODIMP nsFileOutputStream::Init(nsIFile *file, PRInt32 ioFlags, PRInt32 perm, PRInt32 behaviorFlags)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* End of implementation class template. */
+#endif
+
+
+/* starting interface:    nsIPartialFileInputStream */
+#define NS_IPARTIALFILEINPUTSTREAM_IID_STR "3ce03a2f-97f7-4375-b6bb-1788a60cad3b"
+
+#define NS_IPARTIALFILEINPUTSTREAM_IID \
+  {0x3ce03a2f, 0x97f7, 0x4375, \
+    { 0xb6, 0xbb, 0x17, 0x88, 0xa6, 0x0c, 0xad, 0x3b }}
+
+/**
+ * An input stream that allows you to read from a slice of a file.
+ */
+class NS_NO_VTABLE NS_SCRIPTABLE nsIPartialFileInputStream : public nsISupports {
+ public: 
+
+  NS_DECLARE_STATIC_IID_ACCESSOR(NS_IPARTIALFILEINPUTSTREAM_IID)
+
+  /**
+     * Initialize with a file and new start/end positions. Both start and
+     * start+length must be smaller than the size of the file. Not doing so
+     * will lead to undefined behavior.
+     * You must initialize the stream, and only initialize it once, before it
+     * can be used.
+     * 
+     * @param file          file to read from (must QI to nsILocalFile)
+     * @param start         start offset of slice to read. Must be smaller
+     *                      than the size of the file.
+     * @param length        length of slice to read. Must be small enough that
+     *                      start+length is smaller than the size of the file.
+     * @param ioFlags       file open flags listed in prio.h (see
+     *                      PR_Open documentation) or -1 to open the
+     *                      file in default mode (PR_RDONLY).
+     * @param perm          file mode bits listed in prio.h or -1 to
+     *                      use the default value (0)
+     * @param behaviorFlags flags specifying various behaviors of the class
+     *        (see enumerations in nsIFileInputStream)
+     */
+  /* void init (in nsIFile file, in unsigned long long start, in unsigned long long length, in long ioFlags, in long perm, in long behaviorFlags); */
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIFile *file, PRUint64 start, PRUint64 length, PRInt32 ioFlags, PRInt32 perm, PRInt32 behaviorFlags) = 0;
+
+};
+
+  NS_DEFINE_STATIC_IID_ACCESSOR(nsIPartialFileInputStream, NS_IPARTIALFILEINPUTSTREAM_IID)
+
+/* Use this macro when declaring classes that implement this interface. */
+#define NS_DECL_NSIPARTIALFILEINPUTSTREAM \
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIFile *file, PRUint64 start, PRUint64 length, PRInt32 ioFlags, PRInt32 perm, PRInt32 behaviorFlags); 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object. */
+#define NS_FORWARD_NSIPARTIALFILEINPUTSTREAM(_to) \
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIFile *file, PRUint64 start, PRUint64 length, PRInt32 ioFlags, PRInt32 perm, PRInt32 behaviorFlags) { return _to Init(file, start, length, ioFlags, perm, behaviorFlags); } 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
+#define NS_FORWARD_SAFE_NSIPARTIALFILEINPUTSTREAM(_to) \
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIFile *file, PRUint64 start, PRUint64 length, PRInt32 ioFlags, PRInt32 perm, PRInt32 behaviorFlags) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(file, start, length, ioFlags, perm, behaviorFlags); } 
+
+#if 0
+/* Use the code below as a template for the implementation class for this interface. */
+
+/* Header file */
+class nsPartialFileInputStream : public nsIPartialFileInputStream
+{
+public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIPARTIALFILEINPUTSTREAM
+
+  nsPartialFileInputStream();
+
+private:
+  ~nsPartialFileInputStream();
+
+protected:
+  /* additional members */
+};
+
+/* Implementation file */
+NS_IMPL_ISUPPORTS1(nsPartialFileInputStream, nsIPartialFileInputStream)
+
+nsPartialFileInputStream::nsPartialFileInputStream()
+{
+  /* member initializers and constructor code */
+}
+
+nsPartialFileInputStream::~nsPartialFileInputStream()
+{
+  /* destructor code */
+}
+
+/* void init (in nsIFile file, in unsigned long long start, in unsigned long long length, in long ioFlags, in long perm, in long behaviorFlags); */
+NS_IMETHODIMP nsPartialFileInputStream::Init(nsIFile *file, PRUint64 start, PRUint64 length, PRInt32 ioFlags, PRInt32 perm, PRInt32 behaviorFlags)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

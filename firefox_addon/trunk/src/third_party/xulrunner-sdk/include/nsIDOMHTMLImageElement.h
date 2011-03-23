@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/mozilla-central-linux-xulrunner/build/dom/interfaces/html/nsIDOMHTMLImageElement.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /builds/slave/rel-2.0-xr-lnx64-bld/build/dom/interfaces/html/nsIDOMHTMLImageElement.idl
  */
 
 #ifndef __gen_nsIDOMHTMLImageElement_h__
@@ -26,8 +26,11 @@
  * The nsIDOMHTMLImageElement interface is the interface to a [X]HTML
  * img element.
  *
- * For more information on this interface please see
+ * This interface is trying to follow the DOM Level 2 HTML specification:
  * http://www.w3.org/TR/DOM-Level-2-HTML/
+ *
+ * with changes from the work-in-progress WHATWG HTML specification:
+ * http://www.whatwg.org/specs/web-apps/current-work/
  */
 class NS_NO_VTABLE NS_SCRIPTABLE nsIDOMHTMLImageElement : public nsIDOMHTMLElement {
  public: 
