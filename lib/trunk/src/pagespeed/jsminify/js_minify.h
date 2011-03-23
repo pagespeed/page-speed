@@ -29,6 +29,16 @@ bool MinifyJs(const base::StringPiece& input, std::string* out);
 // Return true if minification was successful, false otherwise.
 bool GetMinifiedJsSize(const base::StringPiece& input, int* minimized_size);
 
+// Return true if minification and collapsing string was successful, false
+// otherwise. This functin is a special use of js_minify. It minifies the JS
+// and removes all the string literals. Example:
+//   origial: var x = 'asd \' lse'
+//   after  : var x=''
+bool MinifyJsAndCollapseStrings(const base::StringPiece& input,
+                               std::string* output);
+bool GetMinifiedStringCollapsedJsSize(const base::StringPiece& input,
+                                      int* minimized_size);
+
 }  // namespace jsminify
 
 }  // namespace pagespeed
