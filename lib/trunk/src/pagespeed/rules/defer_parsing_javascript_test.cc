@@ -75,13 +75,23 @@ class DeferParsingJavaScriptTest : public
 
   void AddTestResource(const char* url,
                        const char* script_body) {
+    AddTestResourceWithAttributes(url, script_body, NULL);
+  }
+
+  void AddTestResourceWithAttributes(const char* url,
+                       const char* script_body,
+                       const char* attributes) {
     FakeDomElement* element;
     Resource* p_resource = primary_resource();
     std::string primary_body = p_resource->GetResponseBody();
     size_t pos = primary_body.rfind("</body>");
     std::string script_tag ="<script type=\"text/javascript\" src=\"";
     script_tag += url;
-    script_tag += "\"></script>\n";
+    script_tag += "\" ";
+    if (attributes != NULL) {
+      script_tag += attributes;
+    }
+    script_tag += " ></script>\n";
     if (pos != std::string::npos) {
       primary_body.insert(pos, script_tag);
     } else {
@@ -127,7 +137,6 @@ TEST_F(DeferParsingJavaScriptTest, LargeMinifiedJavascriptFile) {
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
-  script.append(kMaxBlockOfJavascript, ' ');
   std::string url("http://www.example.com/foo.js");
   AddTestResource(url.c_str(), script.c_str());
 
@@ -141,7 +150,6 @@ TEST_F(DeferParsingJavaScriptTest, LargeCommentedJavascriptFile) {
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
-  script.append(kMaxBlockOfJavascript, ' ');
   std::string url("http://www.example.com/foo.js");
   AddTestResource(url.c_str(), script.c_str());
 
@@ -249,6 +257,35 @@ TEST_F(DeferParsingJavaScriptTest, ComputeScore) {
 
   Freeze();
   CheckScore(80);
+}
+
+TEST_F(DeferParsingJavaScriptTest, LargeAsyncMinifiedJavascriptFile) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(base::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  std::string url("http://www.example.com/foo.js");
+  AddTestResourceWithAttributes(url.c_str(), script.c_str(), "async");
+
+  CheckNoViolations();
+}
+
+TEST_F(DeferParsingJavaScriptTest, LargeQuotedMinifiedJavascriptFile) {
+  std::string script = "var code=\"";
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(base::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  script.append("\";\n");
+  script.append("var dummy='dummy';\n");
+  script.append("var dummy2=\"\\\"dummy\\\"\";\n");
+  std::string url("http://www.example.com/foo.js");
+  AddTestResource(url.c_str(), script.c_str());
+
+  CheckNoViolations();
 }
 
 }  // namespace

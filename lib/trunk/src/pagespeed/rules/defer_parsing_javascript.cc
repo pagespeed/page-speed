@@ -43,7 +43,6 @@ const char* kRuleName = "DeferParsingJavaScript";
 // Note that minified jquery.mobile-1.0a3.min.js is 54.4KB.
 const size_t kMaxBlockOfJavascript = 1024*40;
 
-
 // JavaScriptBlock is used in JavaScriptFilter to store and track the size and
 // URL of JavaScript code.
 class JavaScriptBlock {
@@ -100,13 +99,12 @@ class JavaScriptFilter : public net_instaweb::EmptyHtmlFilter {
 void JavaScriptFilter::AddJavascriptBlock(
     const std::string& url, const std::string& content, bool is_inline) {
   std::string minified;
-  size_t size = 0;
-  bool did_minify = jsminify::MinifyJs(content, &minified);
+  int size = 0;
+  bool did_minify = jsminify::GetMinifiedStringCollapsedJsSize(content,
+                                                               &size);
   if (!did_minify) {
     LOG(INFO) << "Minify JS failed. Original size is used.";
     size = content.size();
-  } else {
-    size = minified.size();
   }
   if (size == 0) {
     return;
@@ -135,7 +133,14 @@ void JavaScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
         LOG(INFO) << "Reource not found: " << src;
         return;
       }
-      AddJavascriptBlock(src, resource->GetResponseBody(), false);
+      const net_instaweb::HtmlElement::Attribute* async =
+          element->FindAttribute(net_instaweb::HtmlName::kAsync);
+      // The presence of a boolean attribute on an element represents the true
+      // value, and the absence of the attribute represents the false value.
+      // (ref: HTML5 spec).
+      if (async == NULL) {
+        AddJavascriptBlock(src, resource->GetResponseBody(), false);
+      }
     }
   }
 }
