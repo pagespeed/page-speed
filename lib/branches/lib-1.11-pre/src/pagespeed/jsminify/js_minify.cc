@@ -73,6 +73,10 @@ class Minifier {
   // successful, NULL otherwise.
   OutputConsumer* GetOutput();
 
+  // Enable collapsing strings while minifiying. Should call after constructor,
+  // and before calling GetOutput().
+  void EnableStringCollapse() { collapse_string_ = true; }
+
  private:
   int Peek();
   void ChangeToken(int next_token);
@@ -96,6 +100,7 @@ class Minifier {
   Whitespace whitespace_;  // whitespace since the previous token
   int prev_token_;
   bool error_;
+  bool collapse_string_;
 };
 
 template<typename OutputConsumer>
@@ -106,7 +111,8 @@ Minifier<OutputConsumer>::Minifier(const base::StringPiece& input,
     output_(output),
     whitespace_(NO_WHITESPACE),
     prev_token_(kStartToken),
-    error_(false) {}
+    error_(false),
+    collapse_string_(false) {}
 
 // Return the next character after index_, or kEOF if there aren't any more.
 template<typename OutputConsumer>
@@ -271,7 +277,12 @@ void Minifier<OutputConsumer>::ConsumeString() {
     } else {
       if (ch == quote) {
         ChangeToken(kStringToken);
-        output_.append(input_.substr(begin, index_ - begin));
+        if (collapse_string_) {
+          output_.push_back(quote);
+          output_.push_back(quote);
+        } else {
+          output_.append(input_.substr(begin, index_ - begin));
+        }
         return;
       }
     }
@@ -324,11 +335,11 @@ void Minifier<OutputConsumer>::Minify() {
         ChangeToken('/');
         output_.push_back(ch);
         ++index_;
-      }
-      // If we can't be sure it's division, then we must assume it's a regex so
-      // that we don't remove whitespace that we shouldn't.  There are cases
-      // that we'll get wrong, but it's hard to do better without parsing.
-      else {
+      } else {
+        // If we can't be sure it's division, then we must assume it's a regex
+        // so that we don't remove whitespace that we shouldn't.  There are
+        // cases that we'll get wrong, but it's hard to do better without
+        // parsing.
         ConsumeRegex();
       }
     }
@@ -346,11 +357,10 @@ void Minifier<OutputConsumer>::Minify() {
              (whitespace_ == LINEBREAK || prev_token_ == kStartToken) &&
              input_.substr(index_).starts_with("-->")) {
       ConsumeLineComment();
-    }
-    // Copy other characters over verbatim, but make sure not to join two +
-    // tokens into ++ or two - tokens into --, and avoid minifying the sequence
-    // of tokens < ! -- into an SGML line comment.
-    else {
+    } else {
+      // Copy other characters over verbatim, but make sure not to join two +
+      // tokens into ++ or two - tokens into --, and avoid minifying the
+      // sequence of tokens < ! -- into an SGML line comment.
       if ((prev_token_ == ch && (ch == '+' || ch == '-')) ||
           (prev_token_ == '<' && ch == '!') ||
           (prev_token_ == '!' && ch == '-')) {
@@ -385,6 +395,26 @@ bool MinifyJs(const base::StringPiece& input, std::string* out) {
 
 bool GetMinifiedJsSize(const base::StringPiece& input, int* minimized_size) {
   Minifier<SizeConsumer> minifier(input, NULL);
+  SizeConsumer* output = minifier.GetOutput();
+  if (output) {
+    *minimized_size = output->size_;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool MinifyJsAndCollapseStrings(const base::StringPiece& input,
+                               std::string* out) {
+  Minifier<StringConsumer> minifier(input, out);
+  minifier.EnableStringCollapse();
+  return (minifier.GetOutput() != NULL);
+}
+
+bool GetMinifiedStringCollapsedJsSize(const base::StringPiece& input,
+                                      int* minimized_size) {
+  Minifier<SizeConsumer> minifier(input, NULL);
+  minifier.EnableStringCollapse();
   SizeConsumer* output = minifier.GetOutput();
   if (output) {
     *minimized_size = output->size_;

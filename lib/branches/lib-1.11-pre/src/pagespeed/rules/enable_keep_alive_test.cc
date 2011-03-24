@@ -76,6 +76,11 @@ class EnableKeepAliveTest
         EXPECT_EQ(expected[idx].urls[jdx], result(idx).resource_urls(jdx));
       }
     }
+
+    if (!expected.empty()) {
+      // If there are violations, make sure we have a non-zero impact.
+      ASSERT_GT(ComputeRuleImpact(), 0.0);
+    }
   }
 };
 

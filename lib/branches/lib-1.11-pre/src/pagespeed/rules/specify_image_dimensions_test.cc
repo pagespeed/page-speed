@@ -40,6 +40,7 @@ class SpecifyImageDimensionsTest
  protected:
   static const char* kRootUrl;
   static const char* kImgUrl;
+  static const char* kRedirectUrl;
 
   virtual void DoSetUp() {
     NewPrimaryResource(kRootUrl);
@@ -55,6 +56,8 @@ class SpecifyImageDimensionsTest
 
 const char* SpecifyImageDimensionsTest::kRootUrl = "http://test.com/";
 const char* SpecifyImageDimensionsTest::kImgUrl = "http://test.com/image.png";
+const char* SpecifyImageDimensionsTest::kRedirectUrl =
+    "http://test.com/redirect/image.png";
 
 TEST_F(SpecifyImageDimensionsTest, EmptyDom) {
   CheckNoViolations();
@@ -119,6 +122,19 @@ TEST_F(SpecifyImageDimensionsTest, MultipleViolations) {
   // Make the src attribute relative.
   img_element2->AddAttribute("src", "imageB.png");
   CheckTwoUrlViolations(kImgUrl, "http://test.com/imageB.png");
+}
+
+TEST_F(SpecifyImageDimensionsTest, RedirectTest) {
+  std::string expected =
+      "The following image(s) are missing width and/or height attributes.\n"
+      "  http://test.com/redirect/image.png (Dimensions: 42 x 23)\n";
+
+  pagespeed::Resource* resource =
+      NewRedirectedPngResource(kRedirectUrl, kImgUrl, body());
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
+  CheckFormattedOutput(expected);
 }
 
 TEST_F(SpecifyImageDimensionsTest, FormatTest) {

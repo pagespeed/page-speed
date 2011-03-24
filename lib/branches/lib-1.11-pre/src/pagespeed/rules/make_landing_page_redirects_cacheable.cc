@@ -45,8 +45,13 @@ bool GetNonCacheableRedirectsInRedirectChain(
       it != end;
       ++it) {
     const pagespeed::Resource* resource =  *it;
+    if (resource->GetResourceType() != pagespeed::REDIRECT) {
+      // The last resource in each chain is the final resource, which
+      // should not be considered here.
+      continue;
+    }
     if (resource->GetResponseStatusCode() != 301 &&
-        !pagespeed::resource_util::IsCacheableResource(*resource)) {
+        !pagespeed::resource_util::HasExplicitFreshnessLifetime(*resource)) {
       resources->push_back(resource);
     }
   }

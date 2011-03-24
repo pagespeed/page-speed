@@ -104,25 +104,36 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
        iter != end;
        ++iter) {
     const ResourceSet& resource_set = iter->second;
-    if (resource_set.size() <= 1) {
-      // Get all the resources from the violating host. We warn the host if it
-      // has more than one resources and has at least one voilating resource.
-      HostResourceMap::const_iterator host_resource_iter =
-          host_resource_map.find(iter->first);
-      if (host_resource_iter == host_resource_map.end()) {
-        LOG(DFATAL) << "Host not find in host_resource map: " << iter->first;
-      }
+    // Get all the resources from the violating host. We warn the host if it
+    // has more than one resource and has at least one violating resource.
+    HostResourceMap::const_iterator host_resource_iter =
+        host_resource_map.find(iter->first);
+    if (host_resource_iter == host_resource_map.end()) {
+      LOG(DFATAL) << "Host not found in host_resource map: " << iter->first;
+      continue;
+    }
 
-      const ResourceSet& all_resource_set = host_resource_iter->second;
-      if (all_resource_set.size() <= 1) {
-        // There is no benefit from Keep-Alive if there is only one resource
-        // from  a host, so don't warn.
-        continue;
-      }
+    const ResourceSet& all_resource_set = host_resource_iter->second;
+    if (all_resource_set.size() <= 1) {
+      // There is no benefit from Keep-Alive if there is only one resource
+      // from a host, so don't warn.
+      continue;
     }
 
     Result* result = provider->NewResult();
-    int rtt_saved = resource_set.size() - 1;
+    int connections_saved;
+    if (resource_set.size() == all_resource_set.size()) {
+      // If all resources on the host did not enable keep-alive, we
+      // can only save that number of resources minus one, since we
+      // have to open at least one connection to the host.
+      connections_saved = resource_set.size() - 1;
+    } else {
+      // Otherwise, if some connections to the host did not generate
+      // violations, we can save as many connections as there are
+      // violating resources, since some other non-violating resource
+      // already opened a kept-alive connection.
+      connections_saved = resource_set.size();
+    }
     for (ResourceSet::const_iterator res_iter = resource_set.begin(),
          res_end = resource_set.end();
          res_iter != res_end;
@@ -131,7 +142,7 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
       result->add_resource_urls(resource->GetRequestUrl());
     }
     Savings* savings = result->mutable_savings();
-    savings->set_connections_saved(rtt_saved);
+    savings->set_connections_saved(connections_saved);
   }
   return true;
 }

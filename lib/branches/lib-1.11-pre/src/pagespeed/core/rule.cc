@@ -70,6 +70,9 @@ bool CompareResults(const Result* result1, const Result* result2) {
     return savings1.dns_requests_saved() > savings2.dns_requests_saved();
   } else if (savings1.requests_saved() != savings2.requests_saved()) {
     return savings1.requests_saved() > savings2.requests_saved();
+  } else if (savings1.request_bytes_saved() !=
+             savings2.request_bytes_saved()) {
+    return savings1.request_bytes_saved() > savings2.request_bytes_saved();
   } else if (savings1.response_bytes_saved() !=
              savings2.response_bytes_saved()) {
     return savings1.response_bytes_saved() > savings2.response_bytes_saved();
@@ -119,7 +122,8 @@ double Rule::ComputeResultImpact(const InputInformation& input_info,
       client.page_reflows_weight() * savings.page_reflows_saved() +
       client.request_bytes_weight() * savings.request_bytes_saved() +
       client.critical_path_length_weight() *
-        savings.critical_path_length_saved();
+        savings.critical_path_length_saved() +
+      client.connections_weight() * savings.connections_saved();
   if (impact == 0.0) {
     LOG(WARNING) << "Computed zero impact for result id " << result.id()
                  << " of " << name()

@@ -140,6 +140,23 @@ pagespeed::Resource* PagespeedTest::NewPngResource(const std::string& url,
   return resource;
 }
 
+pagespeed::Resource* PagespeedTest::NewRedirectedPngResource(
+    const std::string& url1,
+    const std::string& url2,
+    FakeDomElement* parent,
+    FakeDomElement** out) {
+  New302Resource(url1, url2);
+  pagespeed::Resource* resource = New200Resource(url2);
+  resource->AddResponseHeader("Content-Type", "image/png");
+  if (parent != NULL) {
+    FakeDomElement* element = FakeDomElement::NewImg(parent, url1);
+    if (out != NULL) {
+      *out = element;
+    }
+  }
+  return resource;
+}
+
 pagespeed::Resource* PagespeedTest::NewScriptResource(const std::string& url,
                                                       FakeDomElement* parent,
                                                       FakeDomElement** out) {
