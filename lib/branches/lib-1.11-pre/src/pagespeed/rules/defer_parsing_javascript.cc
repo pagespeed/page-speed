@@ -29,6 +29,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/jsminify/js_minify.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -114,10 +115,17 @@ void JavaScriptFilter::AddJavascriptBlock(
   if (it == javascript_blocks_.end()) {
     javascript_blocks_.insert(
         std::make_pair(url, JavaScriptBlock(url, size, is_inline)));
+  } else if (is_inline) {
+      (it->second).set_size(it->second.size() + size);
   } else {
-    // Must be inline script. Increase the size.
-    DCHECK(is_inline);
-    (it->second).set_size(it->second.size() + size);
+    LOG(INFO) << "Duplicated JavaScript: " << url;
+    // Do not count into the total size for now. It may confuse users when it
+    // shows a total size of X, but the only listed Y size of JavaScript code.
+    // TODO(lsong): Duplicated JavaScript may need parse twice and execute
+    // twice, and browsers behave differently, e.g. for Chrome, second parse is
+    // almost zero cost, but full parse for FireFox. Revisit this if situation
+    // changes.
+   return;
   }
   total_size_ += size;
 }
@@ -127,10 +135,22 @@ void JavaScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
   if (keyword == net_instaweb::HtmlName::kScript) {
     const char* src = element->AttributeValue(net_instaweb::HtmlName::kSrc);
     if (src != NULL) {
+      // Make sure to resolve the URI.
+      std::string resolved_src;
+      if (!uri_util::ResolveUriForDocumentWithUrl(
+              src,
+              pagespeed_input_->dom_document(),
+              html_parse_->url(),
+              &resolved_src)) {
+        // We failed to resolve relative to the document, so try to
+        // resolve relative to the document's URL. This will be
+        // correct unless the document contains a <base> tag.
+        resolved_src = uri_util::ResolveUri(src, html_parse_->url());
+      }
       const pagespeed::Resource* resource =
-          pagespeed_input_->GetResourceWithUrl(src);
+          pagespeed_input_->GetResourceWithUrl(resolved_src);
       if (resource == NULL) {
-        LOG(INFO) << "Reource not found: " << src;
+        LOG(INFO) << "Resource not found: " << resolved_src;
         return;
       }
       const net_instaweb::HtmlElement::Attribute* async =
@@ -139,7 +159,7 @@ void JavaScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
       // value, and the absence of the attribute represents the false value.
       // (ref: HTML5 spec).
       if (async == NULL) {
-        AddJavascriptBlock(src, resource->GetResponseBody(), false);
+        AddJavascriptBlock(resolved_src, resource->GetResponseBody(), false);
       }
     }
   }
@@ -213,7 +233,7 @@ namespace rules {
 
 DeferParsingJavaScript::DeferParsingJavaScript()
     : pagespeed::Rule(pagespeed::InputCapabilities(
-        pagespeed::InputCapabilities::DOM)) {
+        pagespeed::InputCapabilities::RESPONSE_BODY)) {
 }
 
 const char* DeferParsingJavaScript::name() const {
