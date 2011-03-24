@@ -42,6 +42,8 @@ const char* kUnminified = "function () { foo(); }";
 // This value should match the on in the .cc file.
 const size_t kMaxBlockOfJavascript = 1024*40;
 const char* kRootUrl = "http://test.com/";
+const char* kScriptRelativeUrl = "foo.js";
+const char* kScriptFullUrl = "http://test.com/foo.js";
 
 class DeferParsingJavaScriptTest : public
     ::pagespeed_testing::PagespeedRuleTest<DeferParsingJavaScript> {
@@ -98,7 +100,8 @@ class DeferParsingJavaScriptTest : public
       primary_body.append(script_tag);
     }
     p_resource->SetResponseBody(primary_body);
-    Resource* resource = NewScriptResource(url, body(), &element);
+    std::string resolved_src = document()->ResolveUri(url);
+    Resource* resource = NewScriptResource(resolved_src, body(), &element);
     resource->SetResponseBody(script_body);
   }
 
@@ -116,8 +119,7 @@ class DeferParsingJavaScriptTest : public
 };
 
 TEST_F(DeferParsingJavaScriptTest, Basic) {
-  AddTestResource("http://www.example.com/foo.js",
-                  kUnminified);
+  AddTestResource(kScriptFullUrl, kUnminified);
   CheckNoViolations();
 }
 
@@ -125,8 +127,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeUnminifiedJavascriptFile) {
   std::string script = kUnminified;
   script.append(kMaxBlockOfJavascript, ' ');
 
-  AddTestResource("http://www.example.com/foo.js",
-                  script.c_str());
+  AddTestResource(kScriptFullUrl, script.c_str());
   CheckNoViolations();
 }
 
@@ -137,10 +138,21 @@ TEST_F(DeferParsingJavaScriptTest, LargeMinifiedJavascriptFile) {
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
-  std::string url("http://www.example.com/foo.js");
-  AddTestResource(url.c_str(), script.c_str());
+  AddTestResource(kScriptFullUrl, script.c_str());
 
-  CheckOneUrlViolation(url);
+  CheckOneUrlViolation(kScriptFullUrl);
+}
+
+TEST_F(DeferParsingJavaScriptTest, LargeRelativeJavascriptFile) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(base::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  AddTestResource(kScriptRelativeUrl, script.c_str());
+
+  CheckOneUrlViolation(kScriptFullUrl);
 }
 
 TEST_F(DeferParsingJavaScriptTest, LargeCommentedJavascriptFile) {
@@ -150,8 +162,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeCommentedJavascriptFile) {
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
-  std::string url("http://www.example.com/foo.js");
-  AddTestResource(url.c_str(), script.c_str());
+  AddTestResource(kScriptFullUrl, script.c_str());
 
   CheckNoViolations();
 }
@@ -183,8 +194,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeCombinedJavascript) {
   // Add a script file.
   std::string script;
   CreateScriptBlock(kMaxBlockOfJavascript/2, &script, false);
-  std::string url("http://www.example.com/foo.js");
-  AddTestResource(url.c_str(), script.c_str());
+  AddTestResource(kScriptFullUrl, script.c_str());
 
   // Add two script block.
   Resource* p_resource = primary_resource();
@@ -204,15 +214,14 @@ TEST_F(DeferParsingJavaScriptTest, LargeCombinedJavascript) {
   p_resource->SetResponseBody(primary_body);
 
   // The inline scirpt is big than the script file.
-  CheckTwoUrlViolations(kRootUrl, url);
+  CheckTwoUrlViolations(kRootUrl, kScriptFullUrl);
 }
 
 TEST_F(DeferParsingJavaScriptTest, LargeCombinedCommentedJavascript) {
   // Add a script file.
   std::string script;
   CreateScriptBlock(kMaxBlockOfJavascript/2, &script, false);
-  std::string url("http://www.example.com/foo.js");
-  AddTestResource(url.c_str(), script.c_str());
+  AddTestResource(kScriptFullUrl, script.c_str());
 
   // Add two script block.
   Resource* p_resource = primary_resource();
@@ -266,8 +275,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeAsyncMinifiedJavascriptFile) {
     script.append(base::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
-  std::string url("http://www.example.com/foo.js");
-  AddTestResourceWithAttributes(url.c_str(), script.c_str(), "async");
+  AddTestResourceWithAttributes(kScriptFullUrl, script.c_str(), "async");
 
   CheckNoViolations();
 }
@@ -282,8 +290,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeQuotedMinifiedJavascriptFile) {
   script.append("\";\n");
   script.append("var dummy='dummy';\n");
   script.append("var dummy2=\"\\\"dummy\\\"\";\n");
-  std::string url("http://www.example.com/foo.js");
-  AddTestResource(url.c_str(), script.c_str());
+  AddTestResource(kScriptFullUrl, script.c_str());
 
   CheckNoViolations();
 }
