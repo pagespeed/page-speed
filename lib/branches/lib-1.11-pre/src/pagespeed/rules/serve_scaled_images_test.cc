@@ -29,6 +29,7 @@ class ServeScaledImagesTest
  protected:
   static const char* kRootUrl;
   static const char* kImgUrl;
+  static const char* kRedirectUrl;
   static const int kImgSizeBytes;
 
   virtual void DoSetUp() {
@@ -41,6 +42,16 @@ class ServeScaledImagesTest
       pagespeed::Resource** resource) {
     FakeDomElement* element;
     *resource = NewPngResource(url, parent, &element);
+    std::string body(kImgSizeBytes, 'x');
+    (*resource)->SetResponseBody(body);
+    return element;
+  }
+
+  FakeDomElement* CreateRedirectedPngElement(
+      const std::string& url1, const std::string& url2,
+      FakeDomElement* parent, pagespeed::Resource** resource) {
+    FakeDomElement* element;
+    *resource = NewRedirectedPngResource(url1, url2, parent, &element);
     std::string body(kImgSizeBytes, 'x');
     (*resource)->SetResponseBody(body);
     return element;
@@ -83,6 +94,8 @@ class ServeScaledImagesTest
 
 const char* ServeScaledImagesTest::kRootUrl = "http://test.com/";
 const char* ServeScaledImagesTest::kImgUrl = "http://test.com/image.png";
+const char* ServeScaledImagesTest::kRedirectUrl =
+    "http://test.com/redirect/image.png";
 const int ServeScaledImagesTest::kImgSizeBytes = 50;
 
 TEST_F(ServeScaledImagesTest, EmptyDom) {
@@ -217,6 +230,25 @@ TEST_F(ServeScaledImagesTest, ShrunkAndIncreased) {
   AddFakeImageAttributesFactory(size_map);
   Freeze();
   CheckNoViolations();
+}
+
+TEST_F(ServeScaledImagesTest, RedirectTest) {
+  std::string expected =
+      "The following images are resized in HTML or CSS.  "
+      "Serving scaled images could save 47B (94% reduction).\n"
+      "  http://test.com/redirect/image.png is resized in HTML or CSS from "
+      "42x23 to 15x5.  "
+      "Serving a scaled image could save 47B (94% reduction).\n";
+
+  pagespeed::Resource* resource;
+  FakeDomElement* element =
+      CreateRedirectedPngElement(kRedirectUrl, kImgUrl, body(), &resource);
+  element->SetActualWidthAndHeight(15, 5);
+  FakeImageAttributesFactory::ResourceSizeMap size_map;
+  size_map[resource] = std::make_pair(42,23);
+  AddFakeImageAttributesFactory(size_map);
+  Freeze();
+  CheckFormattedOutput(expected);
 }
 
 TEST_F(ServeScaledImagesTest, FormatTest) {

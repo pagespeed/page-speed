@@ -197,4 +197,12 @@ const RuleInput::RedirectChain* RuleInput::GetRedirectChainOrNull(
   }
 }
 
+const Resource* RuleInput::GetFinalRedirectTarget(
+    const Resource* resource) const {
+  // If resource is NULL, GetRedirectChainOrNull will return NULL, and so we'll
+  // return resource, which is NULL, which is what we want.
+  const RuleInput::RedirectChain* chain = GetRedirectChainOrNull(resource);
+  return chain ? chain->back() : resource;
+}
+
 }  // namespace pagespeed

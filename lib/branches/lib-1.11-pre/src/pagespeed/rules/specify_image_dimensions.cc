@@ -35,16 +35,15 @@ const char* kRuleName = "SpecifyImageDimensions";
 
 class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
  public:
-  ImageDimensionsChecker(const pagespeed::PagespeedInput* pagespeed_input,
+  ImageDimensionsChecker(const pagespeed::RuleInput* rule_input,
                          const pagespeed::DomDocument* document,
                          pagespeed::ResultProvider* provider)
-      : pagespeed_input_(pagespeed_input), document_(document),
-        provider_(provider) {}
+      : rule_input_(rule_input), document_(document), provider_(provider) {}
 
   virtual void Visit(const pagespeed::DomElement& node);
 
  private:
-  const pagespeed::PagespeedInput* pagespeed_input_;
+  const pagespeed::RuleInput* rule_input_;
   const pagespeed::DomDocument* document_;
   pagespeed::ResultProvider* provider_;
 
@@ -53,7 +52,8 @@ class ImageDimensionsChecker : public pagespeed::DomElementVisitor {
 
 void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
   if (node.GetTagName() == "IMG") {
-    if (pagespeed_input_->has_resource_with_url(document_->GetDocumentUrl())) {
+    if (rule_input_->pagespeed_input().has_resource_with_url(
+            document_->GetDocumentUrl())) {
       bool height_specified = false;
       bool width_specified = false;
       if (pagespeed::DomElement::SUCCESS !=
@@ -78,10 +78,11 @@ void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
         savings->set_page_reflows_saved(1);
 
         const pagespeed::Resource* resource =
-            pagespeed_input_->GetResourceWithUrl(uri);
+            rule_input_->GetFinalRedirectTarget(
+                rule_input_->pagespeed_input().GetResourceWithUrl(uri));
         if (resource != NULL) {
           scoped_ptr<pagespeed::ImageAttributes> image_attributes(
-              pagespeed_input_->NewImageAttributes(resource));
+              rule_input_->pagespeed_input().NewImageAttributes(resource));
           if (image_attributes != NULL) {
             pagespeed::ResultDetails* details = result->mutable_details();
             pagespeed::ImageDimensionDetails* image_details =
@@ -99,7 +100,7 @@ void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
     // Do a recursive document traversal.
     scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
     if (child_doc.get()) {
-      ImageDimensionsChecker checker(pagespeed_input_, child_doc.get(),
+      ImageDimensionsChecker checker(rule_input_, child_doc.get(),
                                      provider_);
       child_doc->Traverse(&checker);
     }
@@ -143,10 +144,9 @@ const char* SpecifyImageDimensions::documentation_url() const {
 
 bool SpecifyImageDimensions::AppendResults(const RuleInput& rule_input,
                                            ResultProvider* provider) {
-  const PagespeedInput& input = rule_input.pagespeed_input();
-  const DomDocument* document = input.dom_document();
+  const DomDocument* document = rule_input.pagespeed_input().dom_document();
   if (document) {
-    ImageDimensionsChecker visitor(&input, document, provider);
+    ImageDimensionsChecker visitor(&rule_input, document, provider);
     document->Traverse(&visitor);
   }
   return true;

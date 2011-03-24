@@ -18,8 +18,10 @@
 #include "pagespeed/jsminify/js_minify.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using namespace pagespeed::jsminify;
-
+using pagespeed::jsminify::MinifyJs;
+using pagespeed::jsminify::GetMinifiedJsSize;
+using pagespeed::jsminify::MinifyJsAndCollapseStrings;
+using pagespeed::jsminify::GetMinifiedStringCollapsedJsSize;
 namespace {
 
 // This sample code comes from Douglas Crockford's jsmin example.
@@ -293,6 +295,30 @@ TEST(JsMinifyTest, DoNotCrash) {
     std::string output;
     MinifyJs(input, &output);
   }
+}
+
+const char kCollapsingStringTestString[] =
+    "var x = 'asd \\' lse'\n"
+    "var y /*comment*/ = /re'gex/\n"
+    "var z = \"x =\" + x\n";
+
+const char kCollapsedTestString[] =
+    "var x=''\n"
+    "var y=/re'gex/\n"
+    "var z=\"\"+x";
+
+
+TEST(JsMinifyTest, CollapsingStringTest) {
+    int size = 0;
+    std::string output;
+    ASSERT_TRUE(MinifyJsAndCollapseStrings(
+        kCollapsingStringTestString, &output));
+    ASSERT_EQ(strlen(kCollapsedTestString), output.size());
+    ASSERT_EQ(kCollapsedTestString, output);
+
+    ASSERT_TRUE(GetMinifiedStringCollapsedJsSize(
+        kCollapsingStringTestString, &size));
+    ASSERT_EQ(static_cast<int>(strlen(kCollapsedTestString)), size);
 }
 
 }  // namespace
