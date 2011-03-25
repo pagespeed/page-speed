@@ -200,6 +200,14 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
       return;
     }
 
+    { // Get the response HTTP version, if it's available.
+      cJSON* status_json = cJSON_GetObjectItem(response_json, "httpVersion");
+      if (status_json != NULL && status_json->type == cJSON_String) {
+        resource->SetResponseProtocol(status_json->valuestring);
+      }
+    }
+
+
     { // Get the response status code, if it's available.
       cJSON* status_json = cJSON_GetObjectItem(response_json, "status");
       if (status_json != NULL && status_json->type == cJSON_Number) {
@@ -332,8 +340,8 @@ PagespeedInput* ParseHttpArchive(const std::string& har_data) {
   return ParseHttpArchiveWithFilter(har_data, NULL);
 }
 
-// TODO: It would be nice to have a more robust ISO 8601 parser here, but this
-// one seems to do okay for now on our unit tests.
+// TODO(mdsteele): It would be nice to have a more robust ISO 8601 parser here,
+// but this one seems to do okay for now on our unit tests.
 bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
   // We need to use unsigned ints, because otherwise sscanf() will look for +/-
   // characters, which we do not want to allow.
@@ -341,7 +349,7 @@ bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
   char tail[21];  // The tail of the string, for milliseconds and timezone.
   // Parse the first six fields, and store the remainder of the string in tail.
   // Fail if we don't successfully parse all the fields.
-  if (sscanf(input.c_str(), "%4u-%2u-%2uT%2u:%2u:%2u%20s",
+  if (sscanf(input.c_str(), "%4u-%2u-%2uT%2u:%2u:%2u%20s",  // NOLINT
              &year, &month, &day, &hours, &minutes, &seconds, tail) != 7) {
     return false;
   }
@@ -390,7 +398,7 @@ bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
     // format arguments, then we fail.
     unsigned int tz_hours, tz_minutes;
     char ignored;
-    if (sscanf(tail + index + 1, "%2u:%2u%c",
+    if (sscanf(tail + index + 1, "%2u:%2u%c",  // NOLINT
                &tz_hours, &tz_minutes, &ignored) != 2) {
       return false;
     }
