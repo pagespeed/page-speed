@@ -131,7 +131,7 @@ const char* kHarInputBase64 = (
     "        \"response\":{"
     "          \"status\":200,"
     "          \"statusText\":\"OK\","
-    "          \"httpVersion\":\"HTTP/1.1\","
+    "          \"httpVersion\":\"HTTP/1.0\","
     "          \"cookies\":[],"
     "          \"headers\":["
     "            {\"name\":\"Content-Type\", \"value\":\"text/html\"}"
@@ -163,6 +163,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ("GET", resource1.GetRequestMethod());
   EXPECT_EQ("bar", resource1.GetRequestHeader("x-foo"));
   EXPECT_EQ("", resource1.GetRequestBody());
+  EXPECT_EQ(pagespeed::HTTP_11, resource1.GetResponseProtocol());
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
@@ -172,6 +173,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ("http://www.example.com/postonload.js", resource2.GetRequestUrl());
   EXPECT_EQ("GET", resource2.GetRequestMethod());
   EXPECT_EQ("", resource2.GetRequestBody());
+  EXPECT_EQ(pagespeed::HTTP_11, resource2.GetResponseProtocol());
   EXPECT_EQ(200, resource2.GetResponseStatusCode());
   EXPECT_EQ("application/javascript",
             resource2.GetResponseHeader("content-type"));
@@ -201,6 +203,7 @@ TEST(HttpArchiveTest, ValidInputBase64) {
   EXPECT_EQ("GET", resource1.GetRequestMethod());
   EXPECT_EQ("bar", resource1.GetRequestHeader("x-foo"));
   EXPECT_EQ("", resource1.GetRequestBody());
+  EXPECT_EQ(pagespeed::HTTP_10, resource1.GetResponseProtocol());
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
