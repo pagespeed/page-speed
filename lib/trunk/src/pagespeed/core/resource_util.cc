@@ -257,6 +257,11 @@ bool IsCacheableResourceStatusCode(int status_code) {
   }
 }
 
+bool IsErrorResourceStatusCode(int status_code) {
+  int code_class = status_code / 100;
+  return code_class == 4 || code_class == 5;
+}
+
 bool IsLikelyStaticResourceType(pagespeed::ResourceType type) {
   switch (type) {
     case IMAGE:
