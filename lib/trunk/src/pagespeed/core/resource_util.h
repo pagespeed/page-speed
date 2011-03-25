@@ -82,6 +82,9 @@ bool IsCacheableResource(const Resource& resource);
 // cacheable but a 204 is not.
 bool IsCacheableResourceStatusCode(int status_code);
 
+// Is the given status code an error code (i.e. 4xx or 5xx)?
+bool IsErrorResourceStatusCode(int status_code);
+
 // Is the resource likely to be cached by proxies?
 bool IsProxyCacheableResource(const Resource& resource);
 

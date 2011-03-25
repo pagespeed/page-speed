@@ -108,7 +108,14 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
   }
   const RuleInput::RedirectChain* chain =
       rule_input.GetRedirectChainOrNull(primary_resource);
-  if (chain == NULL) {
+  if (chain == NULL || chain->empty()) {
+    return true;
+  }
+
+  if (resource_util::IsErrorResourceStatusCode(
+          chain->back()->GetResponseStatusCode())) {
+    // If the user was redirected to an error page, it should not be a
+    // cached redirect.
     return true;
   }
 
