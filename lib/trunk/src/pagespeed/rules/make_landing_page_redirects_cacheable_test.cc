@@ -388,4 +388,30 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, PrimaryResourceUrlHasFragment) {
   CheckViolations(violations);
 }
 
+TEST_F(MakeLandingPageRedirectsCacheableTest, IgnoreLoginPages) {
+  static const char* kInitialUrl = "http://www.example.com/";
+  static const char* kLoginUrl = "http://www.example.com/lOgIn?foo=bar";
+  NewPrimaryResource(kLoginUrl);
+  AddTemporaryRedirect(kInitialUrl, kLoginUrl);
+  Freeze();
+
+  std::vector<Violation> violations;
+  // No violation.
+  CheckViolations(violations);
+}
+
+TEST_F(MakeLandingPageRedirectsCacheableTest,
+       IgnoreRedirectsWithPrevUrlInQueryString) {
+  static const char* kInitialUrl = "http://www.example.com/";
+  static const char* kOopsUrl =
+      "http://www.example.com/oops?http://www.example.com/";
+  NewPrimaryResource(kOopsUrl);
+  AddTemporaryRedirect(kInitialUrl, kOopsUrl);
+  Freeze();
+
+  std::vector<Violation> violations;
+  // No violation.
+  CheckViolations(violations);
+}
+
 }  // namespace

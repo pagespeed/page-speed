@@ -20,8 +20,8 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "googleurl/src/gurl.h"
-#include "googleurl/src/url_canon.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -35,6 +35,7 @@
 namespace {
 
 const char* kRuleName = "MakeLandingPageRedirectsCacheable";
+const char* kLoginSubstring = "login";
 
 bool GetNonCacheableRedirectsInRedirectChain(
     const pagespeed::PagespeedInput& input,
@@ -109,6 +110,46 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
       rule_input.GetRedirectChainOrNull(primary_resource);
   if (chain == NULL) {
     return true;
+  }
+
+  // We use a few heuristics to filter out common valid redirect
+  // patterns: login pages, and other interstitial pages such as
+  // captchas.
+
+  // First, see if "login" is in the URL of any resources in the
+  // chain. If so, skip it.
+  const std::string login(kLoginSubstring);
+  for (RuleInput::RedirectChain::const_iterator it = chain->begin(),
+           end = chain->end();
+       it != end;
+       ++it) {
+    const Resource& r = **it;
+    const std::string& url = r.GetRequestUrl();
+    std::string::const_iterator login_it =
+        std::search(url.begin(), url.end(),
+                    login.begin(), login.end(),
+                    base::CaseInsensitiveCompareASCII<const char>());
+    if (login_it != url.end()) {
+      // Looks like a login page. Don't flag it.
+      return true;
+    }
+  }
+
+  // Next, check to see if the URL of the previous resource appears in
+  // the query string of the next URL. If so, skip it.
+  std::string last_resource_url;
+  for (RuleInput::RedirectChain::const_iterator it = chain->begin(),
+           end = chain->end();
+       it != end;
+       ++it) {
+    const Resource& r = **it;
+    if (!last_resource_url.empty()) {
+      GURL gurl(r.GetRequestUrl());
+      if (gurl.query().find(last_resource_url) != std::string::npos) {
+        return true;
+      }
+    }
+    last_resource_url = r.GetRequestUrl();
   }
 
   ResourceVector resources;
