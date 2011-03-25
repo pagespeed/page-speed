@@ -364,4 +364,22 @@ TEST_F(MinimizeRedirectsTest, MissingDestination) {
   CheckViolations(violations);
 }
 
+TEST_F(MinimizeRedirectsTest, LandingPageRedirect) {
+  // Single redirect.
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+
+  AddRedirect(url1, url2);
+  NewPrimaryResource(url2);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+
+  // No violations.
+  std::vector<Violation> violations;
+  CheckViolations(violations);
+}
+
 }  // namespace
