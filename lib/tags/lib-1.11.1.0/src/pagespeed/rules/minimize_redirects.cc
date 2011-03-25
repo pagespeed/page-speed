@@ -83,6 +83,22 @@ const char* MinimizeRedirects::documentation_url() const {
  */
 bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
                                       ResultProvider* provider) {
+  const PagespeedInput& input = rule_input.pagespeed_input();
+  const std::string& primary_resource_url_fragment =
+      input.primary_resource_url();
+  std::string primary_resource_url;
+  if (!uri_util::GetUriWithoutFragment(primary_resource_url_fragment,
+                                       &primary_resource_url)) {
+    primary_resource_url = primary_resource_url_fragment;
+  }
+  const Resource* primary_resource =
+      input.GetResourceWithUrl(primary_resource_url);
+
+  const RuleInput::RedirectChain* landing_chain = NULL;
+  if (primary_resource != NULL) {
+    landing_chain = rule_input.GetRedirectChainOrNull(primary_resource);
+  }
+
   const RuleInput::RedirectChainVector& redirect_chains =
       rule_input.GetRedirectChains();
 
@@ -95,6 +111,12 @@ bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
       // This can happen if the destination URL of a redirect doesn't
       // have an associated Resource in the PagespeedInput.
       LOG(INFO) << "Skipping redirect chain with one resource.";
+      continue;
+    }
+
+    // Skip the landing page redirect chain. This chain is handled in the
+    // MakeLandingPageRedirectsCacheable rule.
+    if (&chain == landing_chain) {
       continue;
     }
     Result* result = provider->NewResult();

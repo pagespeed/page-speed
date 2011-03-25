@@ -414,4 +414,16 @@ TEST_F(MakeLandingPageRedirectsCacheableTest,
   CheckViolations(violations);
 }
 
+TEST_F(MakeLandingPageRedirectsCacheableTest, IgnoreRedirectsToErrorPages) {
+  static const char* kInitialUrl = "http://www.example.com/";
+  static const char* kErrorUrl = "http://www.example.com/foo";
+  NewPrimaryResource(kErrorUrl)->SetResponseStatusCode(503);
+  AddTemporaryRedirect(kInitialUrl, kErrorUrl);
+  Freeze();
+
+  std::vector<Violation> violations;
+  // No violation.
+  CheckViolations(violations);
+}
+
 }  // namespace

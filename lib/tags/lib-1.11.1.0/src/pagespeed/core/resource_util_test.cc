@@ -372,6 +372,17 @@ TEST_F(ResourceUtilTest, ParseTimeValuedHeader) {
   EXPECT_FALSE(resource_util::ParseTimeValuedHeader("", &time));
 }
 
+TEST_F(ResourceUtilTest, ErrorStatusCodes) {
+  ASSERT_FALSE(resource_util::IsErrorResourceStatusCode(0));
+  ASSERT_FALSE(resource_util::IsErrorResourceStatusCode(100));
+  ASSERT_FALSE(resource_util::IsErrorResourceStatusCode(200));
+  ASSERT_FALSE(resource_util::IsErrorResourceStatusCode(301));
+  ASSERT_FALSE(resource_util::IsErrorResourceStatusCode(304));
+  ASSERT_TRUE(resource_util::IsErrorResourceStatusCode(404));
+  ASSERT_TRUE(resource_util::IsErrorResourceStatusCode(500));
+  ASSERT_TRUE(resource_util::IsErrorResourceStatusCode(503));
+}
+
 class GetFreshnessLifetimeTest : public ResourceUtilTest {
  protected:
   virtual void SetUp() {
