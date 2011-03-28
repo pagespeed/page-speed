@@ -37,11 +37,13 @@
   ],
   'conditions': [
     [ 'OS=="mac" and target_arch=="x64"', {
-      'xcode_settings': {
-        'ARCHS': 'x86_64',
-        'OTHER_CFLAGS': [
-          '-fPIC',
-        ]
+      'target_defaults': {
+        'xcode_settings': {
+          'ARCHS': 'x86_64',
+          'OTHER_CFLAGS': [
+            '-fPIC',
+          ]
+        }
       }
     }]
   ]
