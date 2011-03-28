@@ -111,127 +111,49 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
 
   // The rules array holds the rule objects used to fill the domplate.
   var rules = [];
-  var totalScore = 0;
-  var totalWeight = 0;
   var lintRules = PAGESPEED.LintRules.lintRules.concat(
     PAGESPEED.LintRules.nativeRuleResults);
 
-  /**
-   * Sorts rules by their name.
-   */
-  var sortByName = function(a, b) {
-    if (a.name == b.name) {
-      return 0;
+  // Assigne undefined rule impact to -1, so that it can compare.
+  for (var i = 0, len = lintRules.length; i < len; i++) {
+    if (typeof lintRules[i].rule_impact == 'undefined') {
+      lintRules[i].rule_impact = -1;
     }
-    return a.name > b.name ? 1 : -1;
+  }
+
+  var compare = function (a, b) {
+    return a < b ? -1 : a > b ? 1 : 0;
   };
 
-  /**
-   * Sorts rules by their color code and/or score.
-   */
-  var sortByScore = function(a, b) {
-    var aColorCode = PAGESPEED.Utils.getColorCode(a);
-    var bColorCode = PAGESPEED.Utils.getColorCode(b);
-    if (aColorCode != bColorCode) {
-      return aColorCode - bColorCode;
+  // Sort the rule results, first by impact (descending), then by number of
+  // results (descending), then by name (ascending).  Sorting by number of
+  // results is in there so that zero-impact rules with results come before
+  // zero-impact rules with no results.
+  lintRules.sort(function (result1, result2) {
+      var res = compare(result2.rule_impact, result1.rule_impact);
+      if (res !== 0) return res;
+      res = compare((result2.url_blocks || []).length,
+                    (result1.url_blocks || []).length);
+      if (res !== 0) return res;
+      return compare(result1.name, result2.name);
+  });
+
+  // Given a score, return a red/yellow/green color.
+  var makeScoreColor = function (score) {
+    if (score === 'disabled') {
+      return PAGESPEED.Utils.SCORE_CODE_INFO;
     }
-
-    // Past this point, the color codes are the same.
-
-    if (aColorCode == PAGESPEED.Utils.SCORE_CODE_RED) {
-      // If an experimental rule scores in the "red" section, make
-      // sure it appears at the bottom of the red section.
-      if (a.experimental != b.experimental) {
-        return a.experimental ? 1 : -1;
-      }
-    }
-
-    var aDetails = !!((a.warnings || '') + (a.information || ''));
-    var bDetails = !!((b.warnings || '') + (b.information || ''));
-    if (aDetails != bDetails) {
-      return aDetails ? -1 : 1;
-    }
-
-    if (aColorCode == 4) {
-      // Non-scoring (informational) color code. sort by score if both
-      // scores are strings.
-      var aIsString = (typeof a.score == 'string');
-      var bIsString = (typeof b.score == 'string');
-      if (aIsString && bIsString) {
-        // If both are strings, then perform a lexical sort.
-        if (a.score == b.score) {
-          return sortByName(a, b);
-        }
-        return (a.score > b.score) ? 1 : -1;
-      }
-      return aIsString ? 1 : -1;
-    }
-
-    if (b.weight == a.weight) {
-      return sortByName(a, b);
-    }
-
-    return b.weight - a.weight;
+    return (score > 80 ? PAGESPEED.Utils.SCORE_CODE_GREEN :
+            score > 60 ? PAGESPEED.Utils.SCORE_CODE_YELLOW :
+            PAGESPEED.Utils.SCORE_CODE_RED);
   };
-
-  lintRules.sort(sortByScore);
-
-  // Keep track of the number of each score code that we encounter.
-  var scoreCodeCounts = {};
-  scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_RED] = 0;
-  scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_YELLOW] = 0;
-  scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_GREEN] = 0;
-  scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_INFO] = 0;
 
   for (var i = 0, len = lintRules.length; i < len; i++) {
-    // Always display the rule if it is a scoring rule. If its a non-scoring
-    // rule display it only if it detected a violation.
-    if (lintRules[i].weight ||
-        (!lintRules[i].weight &&
-          lintRules[i].score != 'n/a' &&
-          lintRules[i].score != 100)) {
-      // If its a non-scoring rule, clear the score so it doesn't display.
-      if (lintRules[i].weight === 0) {
-        lintRules[i].score = 'unscored';
-      }
-      var colorCode = PAGESPEED.Utils.getColorCode(lintRules[i]);
-      if (colorCode == PAGESPEED.Utils.SCORE_CODE_INFO &&
-          !lintRules[i].information) {
-        lintRules[i].information =
-            'This suggestion does not apply to the current page.';
-      }
-      scoreCodeCounts[colorCode]++;
-      rules.push(panel.createRuleTagDomplateData(lintRules[i]));
-      if (!isNaN(lintRules[i].score) &&
-          !isNaN(lintRules[i].weight)) {
-        totalScore += lintRules[i].score * lintRules[i].weight;
-        totalWeight += lintRules[i].weight;
-      }
-    }
+    rules.push(panel.createRuleTagDomplateData(lintRules[i]));
   }
 
-  var overallScore = Math.round(totalWeight ? totalScore / totalWeight : 0);
-
-  var SCORE_CODE_THRESHOLD_ = 4;
-
-  // Determine an overall color code based on the score code counts.
-  var overallScoreColorCode = PAGESPEED.Utils.SCORE_CODE_INFO;
-  if (scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_RED] >=
-      SCORE_CODE_THRESHOLD_) {
-    // There are enough 'red' codes that we give an overall score of
-    // 'red'.
-    overallScoreColorCode = PAGESPEED.Utils.SCORE_CODE_RED;
-  } else if (scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_RED] > 0 ||
-             scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_YELLOW] >=
-                 SCORE_CODE_THRESHOLD_) {
-    // There are enough 'red' or 'yellow' codes that we give an
-    // overall score of 'yellow'.
-    overallScoreColorCode = PAGESPEED.Utils.SCORE_CODE_YELLOW;
-  } else if (scoreCodeCounts[PAGESPEED.Utils.SCORE_CODE_GREEN] > 0) {
-    // If at least one rule scores green, give an overall score of
-    // green.
-    overallScoreColorCode = PAGESPEED.Utils.SCORE_CODE_GREEN;
-  }
+  var overallScore = PAGESPEED.LintRules.score;
+  var overallScoreColorCode = makeScoreColor(overallScore);
 
   panel.table = panel.tableTag.replace(
       panel.createTableTagDomplateData(overallScoreColorCode, overallScore),

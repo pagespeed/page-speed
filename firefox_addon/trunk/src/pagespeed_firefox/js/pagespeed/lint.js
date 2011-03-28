@@ -53,13 +53,16 @@ PAGESPEED.LintRulesImpl.prototype.exec = function(browserTab) {
   this.url = null; // Set in ruleCompleted() when all rules are done.
   this.rulesRemaining = this.lintRules.length;
   this.nativeRuleResults = [];
+  this.score = 0;
   // TODO Note that this next line will freeze the UI while the native rules
   //      run; usually, this takes a fraction of a second, and is thus
   //      acceptable, but in the future we should be running pieces of the
   //      native rule set asynchronously, as we do with the JavaScript rules.
   try {
-    this.nativeRuleResults = PAGESPEED.NativeLibrary.buildLintRuleResults(
+    var fullResults = PAGESPEED.NativeLibrary.buildLintRuleResults(
         PAGESPEED.NativeLibrary.invokeNativeLibraryAndFormatResults());
+    this.nativeRuleResults = fullResults.lintRules;
+    this.score = fullResults.score;
   } catch (e) {
     PS_LOG("Exception while running pagespeed library rules: " +
            PAGESPEED.Utils.formatException(e));
