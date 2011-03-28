@@ -87,7 +87,7 @@ var reCr = /\r/g;
 var reDecimal = /(\d+)(\d{3})/;
 var reLeadingSpaces = /^\s*/;
 var reTrailingSpaces = /\s*$/;
-var reHttpStatusLine = /^HTTP\/\S+\s+(\d+)\s+[\w\s]+$/;
+var reHttpStatusLine = /(^HTTP\/\S+)\s+(\d+)\s+[\w\s]+$/;
 
 // This preference defines the path where optimized output is written.
 var OPTIMIZED_FILE_BASE_DIR = 'extensions.PageSpeed.optimized_file_base_dir';
@@ -122,6 +122,18 @@ PAGESPEED.Utils = {  // Begin namespace
    * @type {string}
    */
   RESOURCE_SIZE: 'resourceSize',
+
+  /**
+   * The name of the response status line field.
+   * @type {string}
+   */
+  RESPONSE_STATUS_LINE: 'responseStatusLine',
+
+  /**
+   * The name of the response protocol field.
+   * @type {string}
+   */
+  RESPONSE_PROTOCOL: 'responseProtocol',
 
   /**
    * The name of the response code field.
@@ -367,18 +379,11 @@ PAGESPEED.Utils = {  // Begin namespace
       // color.
       return PAGESPEED.Utils.SCORE_CODE_INFO;
     }
-
-    if (rule.weight >= 2.5 && rule.score < 50) {
-      // If the rule weight is high enough, and the score is low
-      // enough, then assign this rule a 'red' color.
-      return PAGESPEED.Utils.SCORE_CODE_RED;
-    }
-
-    if (rule.score < 80) {
-      return PAGESPEED.Utils.SCORE_CODE_YELLOW;
-    }
-
-    return PAGESPEED.Utils.SCORE_CODE_GREEN;
+    var impact = rule.rule_impact;
+    return (impact < 0 ? PAGESPEED.Utils.SCORE_CODE_INFO :
+            impact < 3 ? PAGESPEED.Utils.SCORE_CODE_GREEN :
+            impact < 10 ? PAGESPEED.Utils.SCORE_CODE_YELLOW :
+            PAGESPEED.Utils.SCORE_CODE_RED);
   },
 
   /**
@@ -596,6 +601,69 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * @param {string} url the URL to get a response status line.
+   * @return {string} the response status line or null if the response status
+   *     couldn't be found.
+   */
+  getResponseStatusLine: function(url) {
+    /**
+     * Fetch the response code from the cache.
+     * @param {string} url The URL to fetch the response code for.
+     * @param {Object} out_shouldCache Out parameter. If the return
+     *     value should be cached by the caller, we set
+     *     out_shouldCache.value to true.
+     */
+    function fetchResponseStatusLine(url, out_shouldCache) {
+      var cacheEntry = PAGESPEED.Utils.getCacheEntry(url);
+      if (!cacheEntry) return null;
+
+      var responseHeaders = cacheEntry.getMetaDataElement(
+          PAGESPEED.Utils.CACHE_RESPONSE_HEADER);
+      cacheEntry.close();
+      if (!responseHeaders) return null;
+
+      responseHeaders = responseHeaders.replace(reCr, '');
+      var headerLines = responseHeaders.split('\n');
+      if (headerLines.length <= 0) return null;
+
+      // We found the response status line, so tell the caller that
+      // it's ok to cache it.
+      out_shouldCache.value = true;
+      return headerLines[0];
+    }
+    return PAGESPEED.Utils.getAndCacheResourceProperty(
+        url, PAGESPEED.Utils.RESPONSE_STATUS_LINE, fetchResponseStatusLine);
+
+  },
+
+  /**
+   * @param {string} url the URL to get a response protocol.
+   * @return {number} the response protocol string, or null if the response
+   *     protocol couldn't be found.
+   */
+  getResponseProtocol: function(url) {
+    /**
+     * Fetch the response protocol from the cache.
+     * @param {string} url The URL to fetch the response protocol for.
+     * @param {Object} out_shouldCache Out parameter. If the return
+     *     value should be cached by the caller, we set
+     *     out_shouldCache.value to true.
+     */
+    function fetchResponseProtocol(url, out_shouldCache) {
+      var statusLine =  PAGESPEED.Utils.getResponseStatusLine(url);
+      if (statusLine == null) return null;
+      var statusCode = statusLine.match(reHttpStatusLine);
+      if (statusCode && statusCode.length >= 3) {
+        out_shouldCache.value = true;
+        return statusCode[1];
+      }
+      return null;
+    }
+    return PAGESPEED.Utils.getAndCacheResourceProperty(
+        url, PAGESPEED.Utils.RESPONSE_PROTOCOL, fetchResponseProtocol);
+  },
+
+  /**
    * @param {string} url the URL to get a response code for.
    * @return {number} the response code, or -1 if the response code
    *     couldn't be found.
@@ -609,21 +677,11 @@ PAGESPEED.Utils = {  // Begin namespace
      *     out_shouldCache.value to true.
      */
     function fetchResponseCode(url, out_shouldCache) {
-      var cacheEntry = PAGESPEED.Utils.getCacheEntry(url);
-      if (!cacheEntry) return -1;
-
-      var responseHeaders = cacheEntry.getMetaDataElement(
-          PAGESPEED.Utils.CACHE_RESPONSE_HEADER);
-      cacheEntry.close();
-      if (!responseHeaders) return -1;
-
-      responseHeaders = responseHeaders.replace(reCr, '');
-      var headerLines = responseHeaders.split('\n');
-      if (headerLines.length <= 0) return -1;
-
-      var statusCode = headerLines[0].match(reHttpStatusLine);
-      if (statusCode && statusCode.length >= 2) {
-        var code = Number(statusCode[1]);
+      var statusLine =  PAGESPEED.Utils.getResponseStatusLine(url);
+      if (statusLine == null) return -1;
+      var statusCode = statusLine.match(reHttpStatusLine);
+      if (statusCode && statusCode.length >= 3) {
+        var code = Number(statusCode[2]);
         if (code > 0) {
           // We found a valid response code, so tell the caller that
           // it's ok to cache it.

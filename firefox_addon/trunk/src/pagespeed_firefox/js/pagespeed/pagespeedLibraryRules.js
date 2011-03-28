@@ -301,6 +301,7 @@ PAGESPEED.NativeLibrary = {
           headers: translateHeaders(PAGESPEED.Utils.getRequestHeaders(url)),
         },
         response: {
+          httpVersion:  PAGESPEED.Utils.getResponseProtocol(url),
           status: PAGESPEED.Utils.getResponseCode(url),
           headers: translateHeaders(PAGESPEED.Utils.getResponseHeaders(url)),
           content: {
@@ -414,18 +415,24 @@ PAGESPEED.NativeLibrary = {
    * @return {array} An array of LintRule-like objects.
    */
   buildLintRuleResults: function(full_results) {
-    var lintRules = [];
+    var results = {
+        lintRules: [],
+        score: 0,
+    };
+    results.score = full_results.score;
     if (full_results) {
       var rule_results = full_results.rule_results;
       for (var i = 0; i < rule_results.length; ++i) {
         var rule_result = rule_results[i];
-        lintRules.push({
+        results.lintRules.push({
           name: rule_result.localized_rule_name,
           shortName: (shortNameTranslationTable[rule_result.rule_name] ||
                       rule_result.rule_name),
           score: rule_result.rule_score,
           weight: 3,
+          rule_impact: rule_result.rule_impact,
           href: documentationURLs[rule_result.rule_name] || '',
+          url_blocks: rule_result.url_blocks,
           warnings: formatUrlBlocks(rule_result.url_blocks),
           information: null,
           getStatistics: function () { return rule_result.stats || {}; },
@@ -433,7 +440,7 @@ PAGESPEED.NativeLibrary = {
         });
       }
     }
-    return lintRules;
+    return results;
   },
 };
 
