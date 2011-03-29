@@ -152,6 +152,7 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, SimpleRedirect) {
 
   std::vector<std::string> urls;
   urls.push_back(url1);
+  urls.push_back(url2);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(1, urls));
@@ -186,7 +187,6 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, NoRedirects) {
   Freeze();
 
   std::vector<Violation> violations;
-
   CheckViolations(violations);
 }
 
@@ -201,12 +201,17 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, RedirectChain) {
   NewPrimaryResource(url3);
   Freeze();
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
+  std::vector<std::string> urls1;
+  urls1.push_back(url1);
+  urls1.push_back(url2);
+
+  std::vector<std::string> urls2;
+  urls2.push_back(url2);
+  urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(2, urls));
+  violations.push_back(Violation(1, urls1));
+  violations.push_back(Violation(1, urls2));
 
   CheckViolations(violations);
 }
@@ -223,12 +228,17 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, AbsoltutePath) {
   NewPrimaryResource(url3);
   Freeze();
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
+  std::vector<std::string> urls1;
+  urls1.push_back(url1);
+  urls1.push_back(url2);
+
+  std::vector<std::string> urls2;
+  urls2.push_back(url2);
+  urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(2, urls));
+  violations.push_back(Violation(1, urls1));
+  violations.push_back(Violation(1, urls2));
 
   CheckViolations(violations);
 }
@@ -245,12 +255,17 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, RelativePath) {
   NewPrimaryResource(url3);
   Freeze();
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
+  std::vector<std::string> urls1;
+  urls1.push_back(url1);
+  urls1.push_back(url2);
+
+  std::vector<std::string> urls2;
+  urls2.push_back(url2);
+  urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(2, urls));
+  violations.push_back(Violation(1, urls1));
+  violations.push_back(Violation(1, urls2));
 
   CheckViolations(violations);
 }
@@ -267,18 +282,22 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, Fragment) {
   NewPrimaryResource(url3);
   Freeze();
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url2);
+  std::vector<std::string> urls1;
+  urls1.push_back(url1);
+  urls1.push_back(url2);
+
+  std::vector<std::string> urls2;
+  urls2.push_back(url2);
+  urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(2, urls));
+  violations.push_back(Violation(1, urls1));
+  violations.push_back(Violation(1, urls2));
 
   CheckViolations(violations);
 }
 
 TEST_F(MakeLandingPageRedirectsCacheableTest, SimpleRedirectPermanent) {
-  // No redirect.
   std::string url1 = "http://foo.com/";
   std::string url2 = "http://www.foo.com/";
 
@@ -306,6 +325,7 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, PermanentAndTemp) {
 
   std::vector<std::string> urls;
   urls.push_back(url2);
+  urls.push_back(url3);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(1, urls));
@@ -324,6 +344,7 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, TempAndPermanent) {
 
   std::vector<std::string> urls;
   urls.push_back(url1);
+  urls.push_back(url2);
 
   std::vector<Violation> violations;
   violations.push_back(Violation(1, urls));
@@ -342,12 +363,17 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, TwoNonCacheable) {
   NewPrimaryResource(url4);
   Freeze();
 
-  std::vector<std::string> urls;
-  urls.push_back(url1);
-  urls.push_back(url3);
+  std::vector<std::string> urls1;
+  urls1.push_back(url1);
+  urls1.push_back(url2);
+
+  std::vector<std::string> urls2;
+  urls2.push_back(url3);
+  urls2.push_back(url4);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(2, urls));
+  violations.push_back(Violation(1, urls1));
+  violations.push_back(Violation(1, urls2));
   CheckViolations(violations);
 }
 
@@ -361,8 +387,8 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, CacheableTempAndPermanent) {
   NewPrimaryResource(url3);
   Freeze();
 
-  std::vector<Violation> violations;
   // No violation.
+  std::vector<Violation> violations;
   CheckViolations(violations);
 }
 
@@ -383,6 +409,7 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, PrimaryResourceUrlHasFragment) {
 
   std::vector<std::string> urls;
   urls.push_back(kUrl1);
+  urls.push_back(kUrlNoFragment);
   std::vector<Violation> violations;
   violations.push_back(Violation(1, urls));
   CheckViolations(violations);
@@ -395,8 +422,8 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, IgnoreLoginPages) {
   AddTemporaryRedirect(kInitialUrl, kLoginUrl);
   Freeze();
 
-  std::vector<Violation> violations;
   // No violation.
+  std::vector<Violation> violations;
   CheckViolations(violations);
 }
 
@@ -409,8 +436,8 @@ TEST_F(MakeLandingPageRedirectsCacheableTest,
   AddTemporaryRedirect(kInitialUrl, kOopsUrl);
   Freeze();
 
-  std::vector<Violation> violations;
   // No violation.
+  std::vector<Violation> violations;
   CheckViolations(violations);
 }
 
@@ -421,8 +448,8 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, IgnoreRedirectsToErrorPages) {
   AddTemporaryRedirect(kInitialUrl, kErrorUrl);
   Freeze();
 
-  std::vector<Violation> violations;
   // No violation.
+  std::vector<Violation> violations;
   CheckViolations(violations);
 }
 

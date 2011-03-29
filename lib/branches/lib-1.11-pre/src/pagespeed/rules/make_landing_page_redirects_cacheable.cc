@@ -37,28 +37,6 @@ namespace {
 const char* kRuleName = "MakeLandingPageRedirectsCacheable";
 const char* kLoginSubstring = "login";
 
-bool GetNonCacheableRedirectsInRedirectChain(
-    const pagespeed::PagespeedInput& input,
-    const pagespeed::RuleInput::RedirectChain& chain,
-    pagespeed::ResourceVector* resources) {
-  for (pagespeed::RuleInput::RedirectChain::const_iterator it = chain.begin(),
-      end = chain.end();
-      it != end;
-      ++it) {
-    const pagespeed::Resource* resource =  *it;
-    if (resource->GetResourceType() != pagespeed::REDIRECT) {
-      // The last resource in each chain is the final resource, which
-      // should not be considered here.
-      continue;
-    }
-    if (resource->GetResponseStatusCode() != 301 &&
-        !pagespeed::resource_util::HasExplicitFreshnessLifetime(*resource)) {
-      resources->push_back(resource);
-    }
-  }
-  return (!resources->empty());
-}
-
 }  // namespace
 
 namespace pagespeed {
@@ -159,43 +137,65 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
     last_resource_url = r.GetRequestUrl();
   }
 
-  ResourceVector resources;
-  if (!GetNonCacheableRedirectsInRedirectChain(input, *chain, &resources)) {
-    return true;
-  }
-
-  Result* result = provider->NewResult();
-  for (ResourceVector::const_iterator it = resources.begin(),
-      end = resources.end();
+  for (pagespeed::RuleInput::RedirectChain::const_iterator it = chain->begin(),
+      end = chain->end();
       it != end;
       ++it) {
-    result->add_resource_urls((*it)->GetRequestUrl());
-  }
+    const pagespeed::Resource* resource =  *it;
+    if (resource->GetResourceType() != pagespeed::REDIRECT) {
+      // The last resource in each chain is the final resource, which
+      // should not be considered here.
+      continue;
+    }
+    if (resource->GetResponseStatusCode() != 301 &&
+        !pagespeed::resource_util::HasExplicitFreshnessLifetime(*resource)) {
+      // We want to record the redirect and its destination so we can
+      // present that information in the UI.
+      pagespeed::RuleInput::RedirectChain::const_iterator next = it;
+      ++next;
+      if (next == chain->end()) {
+        continue;
+      }
 
-  pagespeed::Savings* savings = result->mutable_savings();
-  savings->set_requests_saved(resources.size());
+      Result* result = provider->NewResult();
+      result->add_resource_urls(resource->GetRequestUrl());
+      result->add_resource_urls((*next)->GetRequestUrl());
+      pagespeed::Savings* savings = result->mutable_savings();
+      savings->set_requests_saved(1);
+    }
+  }
 
   return true;
 }
 
 void MakeLandingPageRedirectsCacheable::FormatResults(
     const ResultVector& results, RuleFormatter* formatter) {
+  UrlBlockFormatter* body = formatter->AddUrlBlock(
+      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
+      // detected as a chain of HTTP redirections. It tells the user to fix
+      // the problem by removing the URLs that redirect to others.
+      _("The following landing page redirects are not cacheable. Make them "
+        "cacheable to speed up page load times for repeat visitors to your "
+        "site."));
+
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;
        ++iter) {
-    UrlBlockFormatter* body = formatter->AddUrlBlock(
-        // TRANSLATOR: Header at the top of a list of URLs that Page Speed
-        // detected as a chain of HTTP redirections. It tells the user to fix
-        // the problem by removing the URLs that redirect to others.
-        _("The following landing page redirects are not cacheable. Make them "
-          "cacheable to speed up page load times for repeat visitors to your "
-          "site."));
-
     const Result& result = **iter;
-    for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
-      body->AddUrl(result.resource_urls(url_idx));
+    if (result.resource_urls_size() != 2) {
+      LOG(DFATAL) << "Unexpected number of resource URLs.  Expected 2, Got "
+                  << result.resource_urls_size() << ".";
+      continue;
     }
+
+    body->AddUrlResult(
+        // TRANSLATOR: Message displayed to indicate that a URL
+        // redirects to another URL, e.g "http://example.com/ is an
+        // uncacheable redirect to http://www.example.com/".
+        _("$1 is an uncacheable redirect to $2"),
+        Argument(Argument::URL, result.resource_urls(0)),
+        Argument(Argument::URL, result.resource_urls(1)));
   }
 }
 
