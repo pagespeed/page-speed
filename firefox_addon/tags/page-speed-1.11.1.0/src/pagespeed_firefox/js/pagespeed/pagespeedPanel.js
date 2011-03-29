@@ -182,16 +182,17 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             ),
           P({'class': 'moduleManagerDecription'},
             'Page Speed Copyright &copy; 2010 Google Inc.'
-           ),
-          DIV({'style': 'padding-top:5px'},
-              FOR('dep', '$dependencies',
-                  P('Page Speed has not been tested with the version ' +
-                    'of $dep.name currently running in Firefox.<br/>' +
-                    'If you encounter problems, please install $dep.name ' +
-                    'version $dep.maximumVersion'
-                   )
-                 )
-             )
+           )
+//          ,
+//          DIV({'style': 'padding-top:5px'},
+//              FOR('dep', '$dependencies',
+//                  P('Page Speed has not been tested with the version ' +
+//                    'of $dep.name currently running in Firefox.<br/>' +
+//                    'If you encounter problems, please install $dep.name ' +
+//                    'version $dep.maximumVersion'
+//                   )
+//                 )
+//             )
          ),
 
   // Main domplate for the rules view.
