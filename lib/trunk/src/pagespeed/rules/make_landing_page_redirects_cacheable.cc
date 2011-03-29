@@ -189,13 +189,14 @@ void MakeLandingPageRedirectsCacheable::FormatResults(
       continue;
     }
 
+    Argument url1(Argument::URL, result.resource_urls(0));
+    Argument url2(Argument::URL, result.resource_urls(1));
     body->AddUrlResult(
         // TRANSLATOR: Message displayed to indicate that a URL
         // redirects to another URL, e.g "http://example.com/ is an
         // uncacheable redirect to http://www.example.com/".
         _("$1 is an uncacheable redirect to $2"),
-        Argument(Argument::URL, result.resource_urls(0)),
-        Argument(Argument::URL, result.resource_urls(1)));
+        url1, url2);
   }
 }
 
