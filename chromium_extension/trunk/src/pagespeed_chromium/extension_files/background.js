@@ -88,7 +88,10 @@ var pagespeed_bg = {
     try {
       var client = pagespeed_bg.activeClients[sender.tab.id];
       if (client) {
-        if (request.kind === 'getInput') {
+        if (request.kind === 'error') {
+          console.log(request.message);
+          client.port.postMessage({kind: 'error', message: request.message});
+        } else if (request.kind === 'getInput') {
           response = client.input;
         } else if (request.kind == 'putResults') {
           client.port.postMessage({kind: 'results', results: request.results});

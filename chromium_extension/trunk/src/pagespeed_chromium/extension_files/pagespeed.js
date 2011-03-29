@@ -442,6 +442,8 @@ var pagespeed = {
       pagespeed.setStatusText(message.message);
     } else if (message.kind === 'results') {
       pagespeed.onPageSpeedResults(message.results);
+    } else if (message.kind === 'error') {
+      pagespeed.endCurrentRun();
     } else {
       throw new Error('Unknown message kind: ' + message.kind);
     }
