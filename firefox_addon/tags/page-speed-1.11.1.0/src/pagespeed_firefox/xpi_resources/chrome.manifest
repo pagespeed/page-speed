@@ -14,6 +14,7 @@ binary-component platform/WINNT_x86-msvc/components/pagespeed.dll ABI=WINNT_x86-
 binary-component platform/Linux_x86-gcc3/components/libpagespeed.so ABI=Linux_x86-gcc3
 binary-component platform/Linux_x86_64-gcc3/components/libpagespeed.so ABI=Linux_x86_64-gcc3
 binary-component platform/Darwin_x86-gcc3/components/libpagespeed.dylib ABI=Darwin_x86-gcc3
+binary-component platform/Darwin_x86_64-gcc3/components/libpagespeed.dylib ABI=Darwin_x86_64-gcc3
 interfaces components/IPageSpeedRules.xpt
 
 # Register the Component Collector service to be instantiated at the
