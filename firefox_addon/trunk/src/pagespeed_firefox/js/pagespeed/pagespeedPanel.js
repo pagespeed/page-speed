@@ -152,25 +152,29 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
           INPUT({'type': 'button', 'value': 'Analyze Performance',
                  'style': 'margin-top:8px;margin-left:10px;margin-bottom:5px',
                  'onclick': '$analyzePerformance'}),
-          H3("What's new in Page Speed 1.10?"),
+          H3("What's new in Page Speed 1.11?"),
 
-          UL(LI(B('Improved Firefox 4 support')),
-             LI(B('Firebug 1.6/1.7 support')),
-             LI(B('New rules')),
-             OL(LI(B('Inline small CSS')),
-                LI(B('Inline small JavaScript'))),
-             LI(B('Improved JavaScript, CSS, and HTML minifiers')),
-             LI(B('Better XHTML support')),
-             LI(B('New ',
-                A({'href': 'http://code.google.com/p/page-speed/' +
-                   'wiki/PageSpeedFirefoxJavaScriptApi',
-                   'onclick': '$openLink'}, 'client API'))),
-             LI(B('And more...'), ' See our ',
+          UL(B(LI('New: ',
                 A({'href': 'http://code.google.com/' +
-                           'p/page-speed/wiki/ReleaseNotes',
+                           'speed/page-speed/docs/using_chrome.html',
                    'onclick': '$openLink'},
-                  'release notes'
-                 ), ' for a complete list.')
+                  'Page Speed for Google Chrome'
+                  ), ' and ',
+                A({'href': 'http://pagespeed.googlelabs.com/',
+                   'onclick': '$openLink'},
+                  'Page Speed Online'
+                  ))),
+             LI(B('Improved Firefox 4 support')),
+             LI(B('Improved scoring and suggestion ordering')),
+             LI(B('New rules')),
+             OL(LI(B('Defer parsing of JavaScript')),
+                LI(B('Enable Keep-Alive')),
+                LI(B('Make landing page redirects cacheable'))),
+             LI(B('Improved rules')),
+             OL(LI(B('Avoid bad requests')),
+                LI(B('Inline small resources')),
+                LI(B('Minimize redirects')),
+                LI(B('Specify a character set')))
             ),
           P({'style': 'padding-top:5px'},
             'See the ',
