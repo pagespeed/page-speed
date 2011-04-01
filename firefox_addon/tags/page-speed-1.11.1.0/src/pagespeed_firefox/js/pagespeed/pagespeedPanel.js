@@ -150,7 +150,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
              ' Page Speed'
            ),
           INPUT({'type': 'button', 'value': 'Analyze Performance',
-                 'style': 'margin-top:8px;margin-left:10px;margin-bottom:5px',
+                 'style': 'margin-top:8px;margin-left:10px;margin-bottom:10px;' +
+                 'padding: 2px 0',
                  'onclick': '$analyzePerformance'}),
           H3("What's new in Page Speed 1.11?"),
 
@@ -204,19 +205,31 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
   // params: overallStyle, overallSummary
   tableTag: TABLE({'class': 'netTable', 'cellpadding': '0', 'cellspacing': '0',
                    'onclick': '$showDetails', 'style': 'font-size:13px'},
-                  TBODY(
+                  TBODY({'id': 'resultsTableBody'},
                     TR({'class': 'netRow netSummaryRow'},
-                       TD({'class': 'netCol',
-                           'colspan': '3',
-                           'style': 'padding: 0 10px;'},
-                          'Page Speed Score:' +
-                          '&nbsp;$overallScore/100&nbsp;&nbsp;',
+                       TD({'class': 'netCol', 'width': '30',
+                           'style': 'vertical-align:middle;text-align:center;' +
+                           'background:-moz-linear-gradient(top,#eee,#ccc);' +
+                           'min-width:30px;max-width:30px'},
                           generateIconHtml(
                               '$overallStyle',
                               CSS_STYLE_SCORE_SIZER_OVERALL_,
-                              '$overallSummary'),
-                          '&nbsp;&nbsp;',
+                              '$overallSummary')
+                         ),
+                       TD({'class': 'netCol',
+                           'colspan': '2',
+                           'style': 'padding: 3px 20px;vertical-align:middle;' +
+                           'background:-moz-linear-gradient(top,#eee,#ccc)'},
+                          'Page Speed Score: $overallScore/100',
+                          INPUT({'type': 'button', 'value': 'Expand All',
+                                 'style': 'margin-right:10px;margin-left:30px;' +
+                                 'padding: 2px 0',
+                                 'onclick': '$expandAll'}),
+                          INPUT({'type': 'button', 'value': 'Collapse All',
+                                 'style': 'margin-right:10px;padding:2px 0',
+                                 'onclick': '$collapseAll'}),
                           INPUT({'type': 'button', 'value': 'Refresh Analysis',
+                                 'style': 'margin-right:10px;padding:2px 0',
                                 'onclick': '$analyzePerformance'})
                          )
                       )
@@ -230,20 +243,30 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                TR({'class': 'netRow netRow.loaded',
                    '$hasHeaders': '$rule.hasDetails',
                    '$loaded': true},
-                  TD({'class': 'netCol', 'width': '50'},
+                 TD({'class': 'netDebugCol netCol',
+                     'title': '$rule.tooltip', 'width': '30',
+                     'style': 'border-bottom:0px solid #ffffff;min-width:30px;' +
+                     'border-right:1px solid #cccccc;background-color:#eeeeee;' +
+                     'max-width:30px;cursor:$rule.cursor'},
                      generateIconHtml(
                          '$rule.scoreStyle',
                          CSS_STYLE_SCORE_SIZER_,
                          '$rule.score')
                     ),
-                  TD({'class': 'netCol', 'width': '16'},
-                     DIV({'class': 'netHrefLabel netLabel',
-                          'style': 'display:block;margin-top:2px;height:16px;'}
+                   TD({'class': 'netCol', 'width': '25',
+                       'style': 'border-bottom:0px solid #ffffff;min-width:25px;' +
+                       'max-width:25px;visibility: $rule.visibility'},
+                     DIV({'style': 'color:#66d;text-align:right;' +
+                          'margin-right:4px;cursor:$rule.cursor',
+                          'title': '$rule.tooltip'}, '&#9656;'
                         )
                     ),
                   TD({'class': 'netSizeCol netCol', 'width': '*',
-                      'style': 'text-align:left'},
-                     DIV({'class': 'netSizeLabel netLabel'},
+                      'title': '$rule.tooltip',
+                      'style': 'border-bottom:0px solid #ffffff;' +
+                      'text-align:left;cursor:$rule.cursor'},
+                     DIV({'class': 'netSizeLabel netLabel',
+                          'title': '$rule.tooltip'},
                          A({'href': '$rule.href',
                             'style': 'z-index:100;position:relative;',
                             'title': 'Learn More',
@@ -309,16 +332,22 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             'href': BASE_LATENCY_DOC_HREF_ + oRule.href,
             'hasDetails': !!details,
             'details': details,
-            'scoreStyle': scoreStyle
+            'scoreStyle': scoreStyle,
+            'visibility': (!!details) ? 'visible' : 'hidden',
+            'tooltip': (!!details) ? 'Click for details' : '',
+            'cursor': (!!details) ? 'pointer' : 'auto'
            };
   },
 
   // Domplate for the expanded view of a rule's details.
   detailsTag: TR({'class': 'netInfoRow'},
-                 TD({'colspan': '3',
+                 TD({'class': 'netCol', 'width': '30',
+                     'style': 'border-bottom:0px solid #ffffff;' +
+                     'min-width:30px;max-width:30px;' +
+                     'border-right:1px solid #cccccc;background-color:#eeeeee'}),
+                 TD({'colspan': '2',
                      'class': 'netInfoCol'},
-                    DIV({'class': 'netInfoBody',
-                         'style': 'border-bottom:1px solid #efefef'})
+                    DIV({'class': 'netInfoBody'})
                    )
                 ),
 
@@ -664,7 +693,24 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    * the rule has details.
    */
   showDetails: function(event) {
-    this.onClick(event, this.toggleDetailsRow);
+    var open = this.onClick(event, this.toggleDetailsRow);
+    var row = FBL.getAncestorByClass(event.target, 'netRow');
+    this.updateExpander(row, open);
+  },
+
+  updateExpander: function(row, open) {
+    if (row &&
+        row.firstChild &&
+        row.firstChild.nextSibling &&
+        row.firstChild.nextSibling.firstChild) {
+      var txt;
+      if (open) {
+        txt = '&#9662;';
+      } else {
+        txt = '&#9656;';
+      }
+      row.firstChild.nextSibling.firstChild.innerHTML = txt;
+    }
   },
 
   /**
@@ -680,6 +726,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    * the given toggleMethod with a reference to the clicked row.
    */
   onClick: function(event, toggleRowMethod) {
+    var open = false;
     if (FBL.isLeftClick(event)) {
       var row = FBL.getAncestorByClass(event.target, 'netRow');
       if (row) {
@@ -688,6 +735,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
 
           if (FBL.hasClass(row, 'opened')) {
             toggleRowMethod.call(this, row);
+            open = true;
           } else {
             row.parentNode.removeChild(row.nextSibling);
           }
@@ -695,6 +743,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
         FBL.cancelEvent(event);
       }
     }
+    return open;
   },
 
   /**
@@ -702,6 +751,35 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    */
   analyzePerformance: function(event) {
     Firebug.PageSpeedModule.analyzePerformance();
+  },
+
+  expandAll: function(event) {
+    var tbody = this.panelNode.ownerDocument.getElementById('resultsTableBody');
+    var rows = tbody.children;
+    for (var i = 0; i < rows.length; ++i) {
+      var row = rows[i];
+      if (FBL.hasClass(row, 'hasHeaders') && !FBL.hasClass(row, 'opened')) {
+        FBL.toggleClass(row, 'opened');
+        this.toggleDetailsRow(row);
+        this.updateExpander(row, true);
+        // toggleDetailsRow adds another row after our row, so we need
+        // to skip over that row.
+        ++i;
+      }
+    }
+  },
+
+  collapseAll: function(event) {
+    var tbody = this.panelNode.ownerDocument.getElementById('resultsTableBody');
+    var rows = tbody.children;
+    for (var i = 0; i < rows.length; ++i) {
+      var row = rows[i];
+      if (FBL.hasClass(row, 'hasHeaders') && FBL.hasClass(row, 'opened')) {
+        FBL.toggleClass(row, 'opened');
+        row.parentNode.removeChild(row.nextSibling);
+        this.updateExpander(row, false);
+      }
+    }
   },
 
   /**
@@ -725,7 +803,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
    */
   toggleDetailsRow: function(row) {
     var detailsRow = this.detailsTag.insertRows({}, row)[0];
-    detailsRow.firstChild.firstChild.innerHTML = row.repObject.details;
+    detailsRow.firstChild.nextSibling.firstChild.innerHTML =
+        row.repObject.details;
   },
 
   /**
