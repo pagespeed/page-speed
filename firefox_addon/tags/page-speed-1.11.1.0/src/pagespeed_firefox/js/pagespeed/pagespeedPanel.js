@@ -154,7 +154,18 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                  'onclick': '$analyzePerformance'}),
           H3("What's new in Page Speed 1.11?"),
 
-          UL(LI(B('Improved scoring and suggestion ordering')),
+          UL(B(LI('New: ',
+                A({'href': 'http://code.google.com/' +
+                           'speed/page-speed/docs/using_chrome.html',
+                   'onclick': '$openLink'},
+                  'Page Speed for Google Chrome'
+                  ), ' and ',
+                A({'href': 'http://pagespeed.googlelabs.com/',
+                   'onclick': '$openLink'},
+                  'Page Speed Online'
+                  ))),
+             LI(B('Improved Firefox 4 support')),
+             LI(B('Improved scoring and suggestion ordering')),
              LI(B('New rules')),
              OL(LI(B('Defer parsing of JavaScript')),
                 LI(B('Enable Keep-Alive')),
@@ -163,13 +174,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
              OL(LI(B('Avoid bad requests')),
                 LI(B('Inline small resources')),
                 LI(B('Minimize redirects')),
-                LI(B('Specify a character set'))),
-             LI('Also available ',
-                B(A({'href': 'http://code.google.com/' +
-                           'speed/page-speed/docs/using_chrome.html',
-                   'onclick': '$openLink'},
-                  'Page Speed for Google Chrome'
-                  ), '!'))
+                LI(B('Specify a character set')))
             ),
           P({'style': 'padding-top:5px'},
             'See the ',
