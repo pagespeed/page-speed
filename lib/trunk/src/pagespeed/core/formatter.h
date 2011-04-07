@@ -168,6 +168,9 @@ class Formatter {
   // Set the overall score (from 0 to 100).
   virtual void SetOverallScore(int score) = 0;
 
+  // Finalize the formatted results.
+  virtual void Finalize() = 0;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(Formatter);
 };
