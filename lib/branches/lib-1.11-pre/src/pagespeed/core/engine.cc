@@ -261,6 +261,7 @@ bool Engine::FormatResults(const Results& results,
   if (results.has_score()) {
     formatter->SetOverallScore(results.score());
   }
+  formatter->Finalize();
 
   return success;
 }

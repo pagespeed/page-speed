@@ -152,6 +152,28 @@ void ProtoFormatter::SetOverallScore(int score) {
   results_->set_score(score);
 }
 
+void ProtoFormatter::Finalize() {
+  // Now for a superhack. If a ResultFilter is used, it may produce
+  // rule results with no suggestions, or possibly an overall
+  // formatted results with no suggestions. In those cases we need to
+  // manually repair the impact and score values so the user is not
+  // confused by a non-100 score with no suggestions.
+  bool has_any_results = false;
+  for (int i = 0; i < results_->rule_results_size(); ++i) {
+    FormattedRuleResults* rule_results =
+        results_->mutable_rule_results(i);
+    if (rule_results->url_blocks_size() == 0) {
+      rule_results->set_rule_score(100);
+      rule_results->set_rule_impact(0.0);
+    } else {
+      has_any_results = true;
+    }
+  }
+  if (!has_any_results && results_->has_score()) {
+    results_->set_score(100);
+  }
+}
+
 ProtoRuleFormatter::ProtoRuleFormatter(const Localizer* localizer,
                                        FormattedRuleResults* rule_results)
     : localizer_(localizer), rule_results_(rule_results) {

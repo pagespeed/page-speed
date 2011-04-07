@@ -83,7 +83,8 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   ResourcesWithSameBodyMap map;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
-    if (resource.GetResourceType() == OTHER) {
+    if (resource.GetResourceType() == OTHER ||
+        resource.GetResourceType() == REDIRECT) {
       // Don't process resource types that we don't explicitly care
       // about.
       continue;
