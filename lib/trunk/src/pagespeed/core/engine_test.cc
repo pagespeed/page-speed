@@ -253,6 +253,10 @@ TEST(EngineTest, FormatResultsFilter) {
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
+  results.set_score(50);
+  RuleResults* rule_results = results.mutable_rule_results(0);
+  rule_results->set_rule_score(50);
+  rule_results->set_rule_impact(5.0);
 
   FormattedResults formatted_results;
   NullLocalizer localizer;
@@ -260,11 +264,14 @@ TEST(EngineTest, FormatResultsFilter) {
   NeverAcceptResultFilter filter;
   ASSERT_TRUE(engine.FormatResults(results, filter, &formatter));
 
+  ASSERT_EQ(100, formatted_results.score());
   ASSERT_EQ(1, formatted_results.rule_results_size());
-  const FormattedRuleResults& rule_results =
+  const FormattedRuleResults& fmt_rule_results =
       formatted_results.rule_results(0);
-  ASSERT_EQ(kHeader, rule_results.localized_rule_name());
-  ASSERT_EQ(0, rule_results.url_blocks_size());
+  ASSERT_EQ(kHeader, fmt_rule_results.localized_rule_name());
+  ASSERT_EQ(0, fmt_rule_results.url_blocks_size());
+  ASSERT_EQ(100, fmt_rule_results.rule_score());
+  ASSERT_EQ(0, fmt_rule_results.rule_impact());
 }
 
 TEST(EngineTest, FormatResultsNoResults) {
