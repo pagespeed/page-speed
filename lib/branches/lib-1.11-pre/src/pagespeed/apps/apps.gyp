@@ -30,6 +30,18 @@
       ],
     },
     {
+      'target_name': 'minify_css_bin',
+      'type': 'executable',
+      'dependencies': [
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
+        '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
+      ],
+      'sources': [
+        'minify_css.cc',
+      ],
+    },
+    {
       'target_name': 'minify_js_bin',
       'type': 'executable',
       'dependencies': [

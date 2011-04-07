@@ -63,12 +63,15 @@ class ServeResourcesFromAConsistentUrlTest
     : public PagespeedRuleTest<ServeResourcesFromAConsistentUrl> {
  protected:
   pagespeed::Resource* AddTestResource(const char* url,
-                                       const std::string& body) {
+                                       const std::string& body,
+                                       int response_code = 200) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
-    resource->SetResourceType(pagespeed::HTML);
+    resource->SetResponseStatusCode(response_code);
+    if (response_code == 200) {
+      resource->SetResourceType(pagespeed::HTML);
+    }
     resource->SetResponseBody(body);
 
     AddResource(resource);
@@ -129,6 +132,13 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, MultipleEmptyResources) {
   AddTestResource(kResponseUrls[0][0], "");
   AddTestResource(kResponseUrls[0][1], "");
   AddTestResource(kResponseUrls[0][2], "");
+  CheckNoViolations();
+}
+
+TEST_F(ServeResourcesFromAConsistentUrlTest, IgnoreRedirects) {
+  AddTestResource(kResponseUrls[0][0], kResponseBodies[0], 301);
+  AddTestResource(kResponseUrls[0][1], kResponseBodies[0], 301);
+  AddTestResource(kResponseUrls[0][2], kResponseBodies[0], 301);
   CheckNoViolations();
 }
 
