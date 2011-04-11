@@ -247,10 +247,6 @@ UserFacingString DeferParsingJavaScript::header() const {
   return _("Defer parsing of JavaScript");
 }
 
-const char* DeferParsingJavaScript::documentation_url() const {
-  return "rtt.html#DeferParsingJavaScript";
-}
-
 bool DeferParsingJavaScript::AppendResults(const RuleInput& rule_input,
                                            ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

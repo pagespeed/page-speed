@@ -129,10 +129,6 @@ UserFacingString PutCssInTheDocumentHead::header() const {
   return _("Put CSS in the document head");
 }
 
-const char* PutCssInTheDocumentHead::documentation_url() const {
-  return "rendering.html#PutCSSInHead";
-}
-
 bool PutCssInTheDocumentHead::AppendResults(const RuleInput& rule_input,
                                             ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

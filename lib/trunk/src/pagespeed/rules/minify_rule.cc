@@ -51,10 +51,6 @@ UserFacingString MinifyRule::header() const {
   return minifier_->header_format();
 }
 
-const char* MinifyRule::documentation_url() const {
-  return minifier_->documentation_url();
-}
-
 bool MinifyRule::AppendResults(const RuleInput& rule_input,
                                ResultProvider* provider) {
   bool error = false;

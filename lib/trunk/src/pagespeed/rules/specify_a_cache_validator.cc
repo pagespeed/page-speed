@@ -68,10 +68,6 @@ UserFacingString SpecifyACacheValidator::header() const {
   return _("Specify a cache validator");
 }
 
-const char* SpecifyACacheValidator::documentation_url() const {
-  return "caching.html#LeverageBrowserCaching";
-}
-
 bool SpecifyACacheValidator::AppendResults(const RuleInput& rule_input,
                                            ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

@@ -76,10 +76,6 @@ UserFacingString ParallelizeDownloadsAcrossHostnames::header() const {
   return _("Parallelize downloads across hostnames");
 }
 
-const char* ParallelizeDownloadsAcrossHostnames::documentation_url() const {
-  return "rtt.html#ParallelizeDownloads";
-}
-
 bool ParallelizeDownloadsAcrossHostnames::
 AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

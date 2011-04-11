@@ -42,7 +42,6 @@ class ImageMinifier : public Minifier {
   // Minifier interface:
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
-  virtual const char* documentation_url() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
@@ -62,10 +61,6 @@ UserFacingString ImageMinifier::header_format() const {
   // images (better compression). This is displayed in a list of rule names that
   // Page Speed generates.
   return _("Optimize images");
-}
-
-const char* ImageMinifier::documentation_url() const {
-  return "payload.html#CompressImages";
 }
 
 UserFacingString ImageMinifier::body_format() const {

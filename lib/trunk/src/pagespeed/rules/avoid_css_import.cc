@@ -62,10 +62,6 @@ UserFacingString AvoidCssImport::header() const {
   return _("Avoid CSS @import");
 }
 
-const char* AvoidCssImport::documentation_url() const {
-  return "rtt.html#AvoidCssImport";
-}
-
 bool AvoidCssImport::AppendResults(const RuleInput& rule_input,
                                    ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

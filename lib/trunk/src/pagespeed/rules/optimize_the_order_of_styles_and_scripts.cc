@@ -269,10 +269,6 @@ UserFacingString OptimizeTheOrderOfStylesAndScripts::header() const {
   return _("Optimize the order of styles and scripts");
 }
 
-const char* OptimizeTheOrderOfStylesAndScripts::documentation_url() const {
-  return "rtt.html#PutStylesBeforeScripts";
-}
-
 bool OptimizeTheOrderOfStylesAndScripts::
 AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

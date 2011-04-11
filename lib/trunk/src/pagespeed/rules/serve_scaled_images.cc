@@ -208,10 +208,6 @@ UserFacingString ServeScaledImages::header() const {
   return _("Serve scaled images");
 }
 
-const char* ServeScaledImages::documentation_url() const {
-  return "payload.html#ScaleImages";
-}
-
 bool ServeScaledImages::AppendResults(const RuleInput& rule_input,
                                       ResultProvider* provider) {
   // TODO Consider adding the ability to perform the resizing and provide

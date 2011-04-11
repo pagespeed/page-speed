@@ -51,7 +51,6 @@ namespace {
 
 const char* kRuleName = "TestRule";
 const char* kHeader = "Test Rule";
-const char* kDocumentationUrl = "foobar.html#TestRule";
 const char* kBody1 = "Example format string";
 const char* kBody2 = "Another format string";
 
@@ -72,10 +71,6 @@ class TestRule : public Rule {
   // Human readable rule name.
   virtual UserFacingString header() const {
     return not_localized(kHeader);
-  }
-
-  virtual const char* documentation_url() const {
-    return kDocumentationUrl;
   }
 
   void set_append_results_return_value(bool retval) {

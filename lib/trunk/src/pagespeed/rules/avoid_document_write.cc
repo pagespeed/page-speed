@@ -217,10 +217,6 @@ UserFacingString AvoidDocumentWrite::header() const {
   return _("Avoid document.write");
 }
 
-const char* AvoidDocumentWrite::documentation_url() const {
-  return "rtt.html#AvoidDocumentWrite";
-}
-
 bool AvoidDocumentWrite::AppendResults(const RuleInput& rule_input,
                                        ResultProvider* provider) {
   bool error = false;

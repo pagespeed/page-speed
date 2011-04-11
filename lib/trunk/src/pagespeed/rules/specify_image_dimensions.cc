@@ -138,10 +138,6 @@ UserFacingString SpecifyImageDimensions::header() const {
   return _("Specify image dimensions");
 }
 
-const char* SpecifyImageDimensions::documentation_url() const {
-  return "rendering.html#SpecifyImageDimensions";
-}
-
 bool SpecifyImageDimensions::AppendResults(const RuleInput& rule_input,
                                            ResultProvider* provider) {
   const DomDocument* document = rule_input.pagespeed_input().dom_document();

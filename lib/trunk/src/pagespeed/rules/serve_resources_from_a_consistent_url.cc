@@ -73,10 +73,6 @@ UserFacingString ServeResourcesFromAConsistentUrl::header() const {
   return _("Serve resources from a consistent URL");
 }
 
-const char* ServeResourcesFromAConsistentUrl::documentation_url() const {
-  return "payload.html#duplicate_resources";
-}
-
 bool ServeResourcesFromAConsistentUrl::
 AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

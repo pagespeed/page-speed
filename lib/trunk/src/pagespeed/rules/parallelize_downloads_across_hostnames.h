@@ -33,7 +33,6 @@ class ParallelizeDownloadsAcrossHostnames : public Rule {
   // Rule interface.
   virtual const char* name() const;
   virtual UserFacingString header() const;
-  virtual const char* documentation_url() const;
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);

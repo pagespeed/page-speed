@@ -44,10 +44,6 @@ UserFacingString AvoidBadRequests::header() const {
   return _("Avoid bad requests");
 }
 
-const char* AvoidBadRequests::documentation_url() const {
-  return "rtt.html#AvoidBadRequests";
-}
-
 bool AvoidBadRequests::AppendResults(const RuleInput& rule_input,
                                      ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

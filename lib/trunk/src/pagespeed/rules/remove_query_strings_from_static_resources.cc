@@ -49,10 +49,6 @@ UserFacingString RemoveQueryStringsFromStaticResources::header() const {
   return _("Remove query strings from static resources");
 }
 
-const char* RemoveQueryStringsFromStaticResources::documentation_url() const {
-  return "caching.html#LeverageProxyCaching";
-}
-
 bool RemoveQueryStringsFromStaticResources::
 AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

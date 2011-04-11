@@ -97,7 +97,6 @@ class Minifier {
 
   virtual const char* name() const = 0;
   virtual UserFacingString header_format() const = 0;
-  virtual const char* documentation_url() const = 0;
   virtual UserFacingString body_format() const = 0;
   virtual UserFacingString child_format() const = 0;
   virtual const MinifierOutput* Minify(const Resource& resource) const = 0;
@@ -117,7 +116,6 @@ class MinifyRule : public Rule {
   // Rule interface.
   virtual const char* name() const;
   virtual UserFacingString header() const;
-  virtual const char* documentation_url() const;
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
