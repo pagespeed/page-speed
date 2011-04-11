@@ -229,7 +229,10 @@ bool ServeScaledImages::AppendResults(const RuleInput& rule_input,
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
     const Resource* target = rule_input.GetFinalRedirectTarget(&resource);
-    CHECK(target);
+    if (NULL == target) {
+      LOG(DFATAL) << "target == NULL";
+      continue;
+    }
     original_sizes_map[resource.GetRequestUrl()] =
         target->GetResponseBody().size();
   }
