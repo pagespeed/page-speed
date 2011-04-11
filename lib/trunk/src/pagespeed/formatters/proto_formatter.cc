@@ -231,6 +231,10 @@ void ProtoUrlFormatter::AddDetail(const FormatterParameters& params) {
   FillFormatString(localizer_, params, url_result_->add_details());
 }
 
+void ProtoUrlFormatter::SetAssociatedResultId(int id) {
+  url_result_->set_associated_result_id(id);
+}
+
 }  // namespace formatters
 
 }  // namespace pagespeed

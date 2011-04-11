@@ -27,6 +27,7 @@
 #include "pagespeed/core/rule.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/testing/fake_dom.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -53,8 +54,13 @@ class FakeImageAttributesFactory
 
 // Helper method that returns the output from a TextFormatter for
 // the given Rule and Results.
-std::string DoFormatResults(
-    pagespeed::Rule* rule, const pagespeed::RuleResults& rule_results);
+std::string DoFormatResultsAsText(pagespeed::Rule* rule,
+                                  const pagespeed::RuleResults& rule_results);
+
+void DoFormatResultsAsProto(pagespeed::Rule* rule,
+                            const pagespeed::RuleResults& rule_results,
+                            pagespeed::FormattedResults* formatted_results);
+
 
 class PagespeedTest : public ::testing::Test {
  protected:
@@ -255,8 +261,14 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
     }
   }
 
+  // TODO(mdsteele): Rename this to FormatResultsAsText
   std::string FormatResults() {
-    return DoFormatResults(rule_.get(), rule_results_);
+    return DoFormatResultsAsText(rule_.get(), rule_results_);
+  }
+
+  void FormatResultsAsProto(pagespeed::FormattedResults* formatted_results) {
+    return DoFormatResultsAsProto(rule_.get(), rule_results_,
+                                  formatted_results);
   }
 
   int ComputeScore() {

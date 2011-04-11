@@ -62,8 +62,7 @@ Argument::ArgumentType Argument::type() const {
 
 FormatterParameters::FormatterParameters(const UserFacingString* format_str)
     : format_str_(format_str),
-      arguments_(&kEmptyParameterList),
-      optimized_content_(NULL) {
+      arguments_(&kEmptyParameterList) {
   DCHECK_NE(format_str, static_cast<const UserFacingString*>(NULL));
 }
 
@@ -71,17 +70,10 @@ FormatterParameters::FormatterParameters(
     const UserFacingString* format_str,
     const std::vector<const Argument*>* arguments)
     : format_str_(format_str),
-      arguments_(arguments),
-      optimized_content_(NULL) {
+      arguments_(arguments) {
   DCHECK_NE(format_str, static_cast<const UserFacingString*>(NULL));
   DCHECK_NE(arguments,
             static_cast<std::vector<const pagespeed::Argument*>*>(NULL));
-}
-
-void FormatterParameters::set_optimized_content(const std::string* content,
-                                                const std::string& mime_type) {
-  optimized_content_ = content;
-  optimized_content_mime_type_.assign(mime_type);
 }
 
 const UserFacingString& FormatterParameters::format_str() const {
@@ -98,23 +90,6 @@ const std::vector<const Argument*>& FormatterParameters::arguments() const {
   } else {
     return kEmptyParameterList;
   }
-}
-
-bool FormatterParameters::has_optimized_content() const {
-  return optimized_content_ != NULL;
-}
-
-const std::string& FormatterParameters::optimized_content() const {
-  DCHECK_NE(optimized_content_, static_cast<const std::string*>(NULL));
-  if (optimized_content_ != NULL) {
-    return *optimized_content_;
-  } else {
-    return kEmptyString;
-  }
-}
-
-const std::string& FormatterParameters::optimized_content_mime_type() const {
-  return optimized_content_mime_type_;
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str) {

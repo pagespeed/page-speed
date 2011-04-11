@@ -66,20 +66,13 @@ class FormatterParameters {
   explicit FormatterParameters(const UserFacingString* format_str);
   FormatterParameters(const UserFacingString* format_str,
                       const std::vector<const Argument*>* arguments);
-  void set_optimized_content(const std::string* content,
-                             const std::string& mime_type);
 
   const UserFacingString& format_str() const;
   const std::vector<const Argument*>& arguments() const;
-  bool has_optimized_content() const;
-  const std::string& optimized_content() const;
-  const std::string& optimized_content_mime_type() const;
 
  private:
   const UserFacingString* format_str_;
   const std::vector<const Argument*>* arguments_;
-  const std::string* optimized_content_;
-  std::string optimized_content_mime_type_;
 
   DISALLOW_COPY_AND_ASSIGN(FormatterParameters);
 };
@@ -90,6 +83,8 @@ class UrlFormatter {
   virtual ~UrlFormatter() {}
 
   virtual void AddDetail(const FormatterParameters& params) = 0;
+
+  virtual void SetAssociatedResultId(int id) = 0;
 
   // Convenience methods:
   void AddDetail(const UserFacingString& format_str);

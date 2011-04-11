@@ -96,6 +96,7 @@ class ProtoUrlFormatter : public UrlFormatter {
 
   // UrlFormatter interface.
   virtual void AddDetail(const FormatterParameters& params);
+  virtual void SetAssociatedResultId(int id);
 
  private:
   const pagespeed::l10n::Localizer* localizer_;

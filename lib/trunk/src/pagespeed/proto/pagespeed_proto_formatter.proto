@@ -59,6 +59,9 @@ message FormattedUrlResult {
 
   // Optional additional details.
   repeated FormatString details = 2;
+
+  // The id of the Result object associated with this URL, if any.
+  optional int32 associated_result_id = 3;
 }
 
 message FormattedUrlBlockResults {
@@ -67,6 +70,9 @@ message FormattedUrlBlockResults {
 
   // URLs in the block.
   repeated FormattedUrlResult urls = 2;
+
+  // The id of the Result object associated with this URL block, if any.
+  optional int32 associated_result_id = 3;
 }
 
 // Formatted and structured results from one rule.

@@ -205,23 +205,30 @@ bool PagespeedTest::AddFakeImageAttributesFactory(
       new FakeImageAttributesFactory(map));
 }
 
-std::string DoFormatResults(
-    pagespeed::Rule* rule, const pagespeed::RuleResults& rule_results) {
+void DoFormatResultsAsProto(pagespeed::Rule* rule,
+                            const pagespeed::RuleResults& rule_results,
+                            pagespeed::FormattedResults* formatted_results) {
   pagespeed::ResultVector result_vector;
   for (int i = 0; i < rule_results.results_size(); ++i) {
     result_vector.push_back(&rule_results.results(i));
   }
 
   pagespeed::l10n::BasicLocalizer localizer;
-  pagespeed::FormattedResults results;
-  results.set_locale("en_US");
-  pagespeed::formatters::ProtoFormatter formatter(&localizer, &results);
+  formatted_results->set_locale("en_US");
+  pagespeed::formatters::ProtoFormatter formatter(&localizer,
+                                                  formatted_results);
   pagespeed::RuleFormatter* rule_formatter =
       formatter.AddRule(*rule, rule_results.rule_score(),
                         rule_results.rule_impact());
   rule->FormatResults(result_vector, rule_formatter);
+}
+
+std::string DoFormatResultsAsText(pagespeed::Rule* rule,
+                                  const pagespeed::RuleResults& rule_results) {
+  pagespeed::FormattedResults formatted_results;
+  DoFormatResultsAsProto(rule, rule_results, &formatted_results);
   std::string out;
-  FormattedResultsTestConverter::Convert(results, &out);
+  FormattedResultsTestConverter::Convert(formatted_results, &out);
   return out;
 }
 
