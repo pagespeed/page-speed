@@ -57,10 +57,6 @@ UserFacingString EnableKeepAlive::header() const {
   return _("Enable Keep-Alive");
 }
 
-const char* EnableKeepAlive::documentation_url() const {
-  return "rtt.html#EnableKeepAlive";
-}
-
 bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
                                  ResultProvider* provider) {
   HostResourceMap violations;

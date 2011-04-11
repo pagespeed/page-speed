@@ -58,7 +58,6 @@ class InlineSmallJavaScript : public InlineSmallResources {
   InlineSmallJavaScript();
   virtual const char* name() const;
   virtual UserFacingString header() const;
-  virtual const char* documentation_url() const;
 
  protected:
   virtual bool ComputeMinifiedSize(
@@ -76,7 +75,6 @@ class InlineSmallCss : public InlineSmallResources {
   InlineSmallCss();
   virtual const char* name() const;
   virtual UserFacingString header() const;
-  virtual const char* documentation_url() const;
 
  protected:
   virtual bool ComputeMinifiedSize(

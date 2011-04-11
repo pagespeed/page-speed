@@ -57,10 +57,6 @@ UserFacingString MinimizeRequestSize::header() const {
   return _("Minimize request size");
 }
 
-const char* MinimizeRequestSize::documentation_url() const {
-  return "request.html#MinimizeRequestSize";
-}
-
 bool MinimizeRequestSize::AppendResults(const RuleInput& rule_input,
                                         ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

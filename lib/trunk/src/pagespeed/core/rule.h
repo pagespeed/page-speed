@@ -48,9 +48,6 @@ class Rule {
   // Human readable rule name.
   virtual UserFacingString header() const = 0;
 
-  // URL linking to the canonical documentation for this rule.
-  virtual const char* documentation_url() const = 0;
-
   // Required InputCapabilities for this Rule.
   const InputCapabilities& capability_requirements() const {
     return capability_requirements_;

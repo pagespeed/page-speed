@@ -126,10 +126,6 @@ UserFacingString LeverageBrowserCaching::header() const {
   return _("Leverage browser caching");
 }
 
-const char* LeverageBrowserCaching::documentation_url() const {
-  return "caching.html#LeverageBrowserCaching";
-}
-
 bool LeverageBrowserCaching::AppendResults(const RuleInput& rule_input,
                                            ResultProvider* provider) {
   // NOTE: It's important that this rule only include results returned

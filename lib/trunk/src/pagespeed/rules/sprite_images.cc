@@ -65,10 +65,6 @@ UserFacingString SpriteImages::header() const {
   return _("Combine images into CSS sprites");
 }
 
-const char* SpriteImages::documentation_url() const {
-  return "rtt.html#SpriteImages";
-}
-
 bool SpriteImages::AppendResults(const RuleInput& rule_input,
                                  ResultProvider* provider) {
   typedef std::map<std::string, ResourceSet> DomainResourceMap;

@@ -66,10 +66,6 @@ UserFacingString SpecifyCharsetEarly::header() const {
   return _("Specify a character set");
 }
 
-const char* SpecifyCharsetEarly::documentation_url() const {
-  return "rendering.html#SpecifyCharsetEarly";
-}
-
 bool SpecifyCharsetEarly::AppendResults(const RuleInput& rule_input,
                                         ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

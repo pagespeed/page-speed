@@ -47,10 +47,6 @@ UserFacingString SpecifyAVaryAcceptEncodingHeader::header() const {
   return _("Specify a Vary: Accept-Encoding header");
 }
 
-const char* SpecifyAVaryAcceptEncodingHeader::documentation_url() const {
-  return "caching.html#LeverageProxyCaching";
-}
-
 bool SpecifyAVaryAcceptEncodingHeader::
 AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

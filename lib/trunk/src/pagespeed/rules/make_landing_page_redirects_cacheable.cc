@@ -59,10 +59,6 @@ UserFacingString MakeLandingPageRedirectsCacheable::header() const {
   return _("Make landing page redirects cacheable");
 }
 
-const char* MakeLandingPageRedirectsCacheable::documentation_url() const {
-  return "rtt.html#AvoidRedirects";
-}
-
 bool MakeLandingPageRedirectsCacheable::AppendResults(
     const RuleInput& rule_input, ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

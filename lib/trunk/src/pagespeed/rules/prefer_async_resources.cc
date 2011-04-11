@@ -197,10 +197,6 @@ UserFacingString PreferAsyncResources::header() const {
   return _("Prefer asynchronous resources");
 }
 
-const char* PreferAsyncResources::documentation_url() const {
-  return "rtt.html#PreferAsyncResources";
-}
-
 bool PreferAsyncResources::AppendResults(const RuleInput& rule_input,
                                          ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();

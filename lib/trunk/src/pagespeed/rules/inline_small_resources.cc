@@ -316,9 +316,6 @@ UserFacingString InlineSmallCss::header() const {
   // localized.
   return _("Inline Small CSS");
 }
-const char* InlineSmallCss::documentation_url() const {
-  return "caching.html#InlineSmallResources";
-}
 
 bool InlineSmallCss::ComputeMinifiedSize(
     const std::string& body, int* out_minified_size) const {
@@ -343,10 +340,6 @@ UserFacingString InlineSmallJavaScript::header() const {
   // description that describes this concept. The word 'JavaScript'
   // should not be localized.
   return _("Inline Small JavaScript");
-}
-
-const char* InlineSmallJavaScript::documentation_url() const {
-  return "caching.html#InlineSmallResources";
 }
 
 bool InlineSmallJavaScript::ComputeMinifiedSize(

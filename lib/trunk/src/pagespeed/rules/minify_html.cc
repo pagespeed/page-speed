@@ -40,7 +40,6 @@ class HtmlMinifier : public Minifier {
   // Minifier interface:
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
-  virtual const char* documentation_url() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual const MinifierOutput* Minify(const Resource& resource) const;
@@ -60,10 +59,6 @@ UserFacingString HtmlMinifier::header_format() const {
   // whitespace and comments". The goal is to reduce the size of the
   // HTML file by removing the parts that are unnecessary.
   return _("Minify HTML");
-}
-
-const char* HtmlMinifier::documentation_url() const {
-  return "payload.html#MinifyHTML";
 }
 
 UserFacingString HtmlMinifier::body_format() const {
