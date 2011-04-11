@@ -130,21 +130,11 @@ void MinifyRule::FormatResults(const ResultVector& results,
                          (original_size == 0 ? 0 :
                           (100 * bytes_saved) / original_size));
 
-    UserFacingString format_str = minifier_->child_format();
-    std::vector<const Argument*> args;
-    args.push_back(&url_arg);
-    args.push_back(&size_arg);
-    args.push_back(&percent_arg);
-
-    FormatterParameters formatter_args(&format_str, &args);
-
-    if (result.has_optimized_content()) {
-      formatter_args.set_optimized_content(
-          &result.optimized_content(),
-          result.optimized_content_mime_type());
+    UrlFormatter* url_result = body->AddUrlResult(
+        minifier_->child_format(), url_arg, size_arg, percent_arg);
+    if (result.has_id() && result.has_optimized_content()) {
+      url_result->SetAssociatedResultId(result.id());
     }
-
-    body->AddUrlResult(formatter_args);
   }
 }
 

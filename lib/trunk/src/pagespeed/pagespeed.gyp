@@ -150,6 +150,7 @@
         'rules/minify_css_test.cc',
         'rules/minify_html_test.cc',
         'rules/minify_javascript_test.cc',
+        'rules/minify_rule_test.cc',
         'rules/minimize_dns_lookups_test.cc',
         'rules/minimize_redirects_test.cc',
         'rules/minimize_request_size_test.cc',
