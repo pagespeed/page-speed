@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "nsArrayUtils.h"  // for do_QueryElementAt
-#include "nsComponentManagerUtils.h"  // for do_CreateInstance
 #include "nsCOMPtr.h"
 #include "nsIInputStream.h"
 #include "nsIIOService.h"
@@ -35,9 +34,12 @@
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
+#include "base/json/json_writer.h"  // for base::JSONWriter::Write
 #include "base/logging.h"
 #include "base/md5.h"
 #include "base/scoped_ptr.h"
+#include "base/string_number_conversions.h"  // for base::IntToString
+#include "base/values.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -455,20 +457,55 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
   Engine engine(&rules);  // Ownership of rules is transferred to engine.
   engine.Init();
 
-  // Compute and format the results into a protobuf:
+  // Get ready for localization.
   pagespeed::l10n::BasicLocalizer localizer;
   pagespeed::FormattedResults formatted_results;
   // TODO(mdsteele): Change front-end API to support other locales.
   formatted_results.set_locale("en_US");
   formatters::ProtoFormatter formatter(&localizer, &formatted_results);
-  engine.ComputeAndFormatResults(*input, &formatter);
+
+  // Compute and format the results.  Keep the Results around so that we can
+  // serialize optimized content.
+  Results results;
+  engine.ComputeResults(*input, &results);
+  engine.FormatResults(results, &formatter);
 
   // Convert the formatted results into JSON:
+  scoped_ptr<Value> json_results(
+      pagespeed::proto::FormattedResultsToJsonConverter::
+      ConvertFormattedResults(formatted_results));
+  if (json_results == NULL) {
+    LOG(ERROR) << "Failed to ConvertFormattedResults";
+    return NS_ERROR_FAILURE;
+  }
+
+  // Serialize optimized resources to disk:
+  scoped_ptr<DictionaryValue> paths(new DictionaryValue());
+  PluginSerializer serializer(output_dir);
+  for (int i = 0; i < results.rule_results_size(); ++i) {
+    const RuleResults& rule_results = results.rule_results(i);
+    for (int j = 0; j < rule_results.results_size(); ++j) {
+      const Result& result = rule_results.results(j);
+      if (result.has_optimized_content() && result.resource_urls_size() > 0) {
+        const std::string key = base::IntToString(result.id());
+        if (paths->HasKey(key)) {
+          LOG(ERROR) << "Duplicate result id " << key;
+        } else {
+          paths->SetString(key, serializer.SerializeToFile(
+              result.resource_urls(0),
+              result.optimized_content_mime_type(),
+              result.optimized_content()));
+        }
+      }
+    }
+  }
+
+  // Serialize all the JSON into a string.
+  scoped_ptr<DictionaryValue> root(new DictionaryValue());
+  root->Set("results", json_results.release());
+  root->Set("optimized_content", paths.release());
   std::string output_string;
-  pagespeed::proto::FormattedResultsToJsonConverter::Convert(
-      formatted_results, &output_string);
-  // TODO(mdsteele): Provide optimized content via the new API, once that has
-  //    been completed.
+  base::JSONWriter::Write(root.get(), false, &output_string);
 
   // Send the JSON output back to the front-end:
   _retval.Assign(output_string.c_str(), output_string.length());
