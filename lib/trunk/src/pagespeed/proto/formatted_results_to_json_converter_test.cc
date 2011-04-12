@@ -69,6 +69,9 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
   FormattedUrlBlockResults* block = rule_results->add_url_blocks();
   expected.append("\"url_blocks\":[{");
 
+  block->set_associated_result_id(17);
+  expected.append("\"associated_result_id\":17,");
+
   // Add one more URL block so we test that the serializer correctly
   // serializes multiple entries.
   block->mutable_header()->set_format("Header format string.");
@@ -76,6 +79,9 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
 
   FormattedUrlResult* result = block->add_urls();
   expected.append("\"urls\":[{");
+
+  result->set_associated_result_id(42);
+  expected.append("\"associated_result_id\":42,");
 
   FormatString* format_string = result->add_details();
   expected.append("\"details\":[{");

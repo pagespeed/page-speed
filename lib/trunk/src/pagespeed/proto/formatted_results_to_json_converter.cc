@@ -128,6 +128,10 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults(
     }
     root->Set("urls", urls);
   }
+  if (url_block_results.has_associated_result_id()) {
+    root->SetInteger("associated_result_id",
+                     url_block_results.associated_result_id());
+  }
   return root;
 }
 
@@ -145,6 +149,10 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedUrlResult(
       details->Append(ConvertFormatString(url_result.details(i)));
     }
     root->Set("details", details);
+  }
+  if (url_result.has_associated_result_id()) {
+    root->SetInteger("associated_result_id",
+                     url_result.associated_result_id());
   }
   return root;
 }
