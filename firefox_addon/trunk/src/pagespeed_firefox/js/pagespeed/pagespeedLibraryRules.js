@@ -36,20 +36,36 @@ function translateHeaders(headers_object) {
 
 // Convert to HTML from a list of objects produced by
 // FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults().
-function formatUrlBlocks(url_blocks) {
+function formatUrlBlocks(url_blocks, optimized_content_map) {
   if (!url_blocks) {
     return null;
   }
   var strings = [];
+  function formatOptimizedContentIfAny(id) {
+    if (typeof(id) !== 'number') {
+      return;
+    }
+    var url = optimized_content_map[id.toString()];
+    if (!url) {
+      return;
+    }
+    strings.push('  See <a href="', url,
+                 '" onclick="document.openLink(this);return false;">',
+                 'optimized version</a> or <a href="', url,
+                 '" onclick="document.saveLink(this);return false;"',
+                 ' type="application/octet-stream">Save as</a>.');
+  }
   for (var i = 0; i < url_blocks.length; ++i) {
     var url_block = url_blocks[i];
     strings.push('<p>');
     strings.push(formatFormatString(url_block.header));
+    formatOptimizedContentIfAny(url_block.associated_result_id);
     if (url_block.urls) {
       strings.push('<ul>');
       for (var j = 0; j < url_block.urls.length; ++j) {
         var entry = url_block.urls[j];
         strings.push('<li>', formatFormatString(entry.result));
+        formatOptimizedContentIfAny(entry.associated_result_id);
         if (entry.details) {
           strings.push('<ul>');
           for (var k = 0; k < entry.details.length; ++k) {
@@ -419,9 +435,9 @@ PAGESPEED.NativeLibrary = {
         lintRules: [],
         score: 0,
     };
-    results.score = full_results.score;
     if (full_results) {
-      var rule_results = full_results.rule_results;
+      results.score = full_results.results.score;
+      var rule_results = full_results.results.rule_results;
       for (var i = 0; i < rule_results.length; ++i) {
         var rule_result = rule_results[i];
         results.lintRules.push({
@@ -433,7 +449,8 @@ PAGESPEED.NativeLibrary = {
           rule_impact: rule_result.rule_impact,
           href: documentationURLs[rule_result.rule_name] || '',
           url_blocks: rule_result.url_blocks,
-          warnings: formatUrlBlocks(rule_result.url_blocks),
+          warnings: formatUrlBlocks(rule_result.url_blocks,
+                                    full_results.optimized_content),
           information: null,
           getStatistics: function () { return rule_result.stats || {}; },
           experimental: experimentalRules[rule_result.rule_name] || false,
