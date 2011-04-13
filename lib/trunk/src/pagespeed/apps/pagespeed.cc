@@ -163,13 +163,13 @@ bool RunPagespeed(const std::string& out_format,
   // that they are not transferred to the Engine.
   STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
 
-  bool save_optimized_content = true;
+  const bool save_optimized_content = true;
+  pagespeed::rule_provider::AppendPageSpeedRules(save_optimized_content,
+                                                 &rules);
   std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::AppendCompatibleRules(
-      save_optimized_content,
-      &rules,
-      &incompatible_rule_names,
-      input->EstimateCapabilities());
+  pagespeed::rule_provider::RemoveIncompatibleRules(&rules,
+                                                    &incompatible_rule_names,
+                                                    input->EstimateCapabilities());
   if (!incompatible_rule_names.empty()) {
     std::string incompatible_rule_list =
         JoinString(incompatible_rule_names, ' ');
