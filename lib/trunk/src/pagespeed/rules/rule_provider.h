@@ -39,6 +39,12 @@ enum RuleSet {
   MOBILE_BROWSER_RULES = 4,
 };
 
+// Special values that allow for iteration over the entire RuleSet
+// enum. These values should be kept in sync with the actual first
+// and last values in the enum, above.
+static const RuleSet kFirstRuleSet = CORE_RULES;
+static const RuleSet kLastRuleSet = MOBILE_BROWSER_RULES;
+
 /**
  * Append all the rules in a given RuleSet to the given vector of Rules.
  * Return true if all the rules were instantiated and added.
@@ -71,12 +77,36 @@ bool RemoveRuleWithName(const std::string& name, std::vector<Rule*>* rules,
                         Rule** removed_rule);
 
 /**
+ * Append the canonical set of Page Speed rules, used to generate a
+ * Page Speed Score.
+ */
+void AppendPageSpeedRules(bool save_optimized_content,
+                          std::vector<Rule*>* rules);
+
+/**
+ * Remove all rules that aren't compatible with the given
+ * InputCapabilities.
+ */
+void RemoveIncompatibleRules(std::vector<Rule*>* rules,
+                             std::vector<std::string>* incompatible_rule_names,
+                             const pagespeed::InputCapabilities& capabilities);
+
+/**
+ * NOTE: Most clients should call AppendPageSpeedRules instead of
+ * AppendAllRules. This method may be removed in a future release.
+ *
  * Append all Page Speed rules to the given vector of Rule
- * instances. This includes the core rules and the DOM rules.
+ * instances. This includes all of the rules returned from
+ * AppendPageSpeedRules as well as some rules that have been
+ * deprecated from the "Page Speed Score" set of rules.
  */
 void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules);
 
 /**
+ * NOTE: This method will be removed in a future release. Callers
+ * should instead build a vector of rules, and then call
+ * RemoveIncompatibleRules.
+ *
  * Append the Page Speed rules that are compatible with the given
  * InputCapabilities bitfield.
  */

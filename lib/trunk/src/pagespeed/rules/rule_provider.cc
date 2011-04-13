@@ -55,16 +55,16 @@ namespace rule_provider {
 static const char* kCoreRules[] = {
   "avoidbadrequests",
   "avoidcssimport",
-  "avoiddocumentwrite",
+  "deferparsingjavascript",
   "enablegzipcompression",
   "enablekeepalive",
   "inlinesmallcss",
   "inlinesmalljavascript",
   "leveragebrowsercaching",
+  "makelandingpageredirectscacheable",
   "minifycss",
   "minifyhtml",
   "minifyjavascript",
-  "minimizednslookups",
   "minimizeredirects",
   "minimizerequestsize",
   "optimizeimages",
@@ -84,6 +84,7 @@ static const char* kCoreRules[] = {
 static const char* kOldBrowserRules[] = {
   "combineexternalcss",
   "combineexternaljavascript",
+  "minimizednslookups",
   "parallelizedownloadsacrosshostnames",
   NULL,
 };
@@ -94,8 +95,10 @@ static const char* kNewBrowserRules[] = {
 };
 
 static const char* kMobileBrowserRules[] = {
-  "deferparsingjavascript",
-  "makelandingpageredirectscacheable",
+  // NOTE: Page Speed includes several mobile-targeted rules. However
+  // the rules are also applicable to desktop, so they are included as
+  // part of the "core" ruleset. Additional rules that are specific to
+  // mobile will be included soon.
   NULL,
 };
 
@@ -244,46 +247,31 @@ bool RemoveRuleWithName(const std::string& name, std::vector<Rule*>* rules,
 }
 
 void AppendAllRules(bool save_optimized_content, std::vector<Rule*>* rules) {
-  rules->push_back(new rules::AvoidBadRequests());
-  rules->push_back(new rules::AvoidCssImport());
-  rules->push_back(new rules::AvoidDocumentWrite());
-  rules->push_back(new rules::CombineExternalCss());
-  rules->push_back(new rules::CombineExternalJavaScript());
-  rules->push_back(new rules::DeferParsingJavaScript());
-  rules->push_back(new rules::EnableGzipCompression(
-      new rules::compression_computer::ZlibComputer()));
-  rules->push_back(new rules::EnableKeepAlive());
-  rules->push_back(new rules::InlineSmallCss());
-  rules->push_back(new rules::InlineSmallJavaScript());
-  rules->push_back(new rules::LeverageBrowserCaching());
-  rules->push_back(new rules::MakeLandingPageRedirectsCacheable());
-  rules->push_back(new rules::MinifyCss(save_optimized_content));
-  rules->push_back(new rules::MinifyHTML(save_optimized_content));
-  rules->push_back(new rules::MinifyJavaScript(save_optimized_content));
-  rules->push_back(new rules::MinimizeDnsLookups());
-  rules->push_back(new rules::MinimizeRedirects());
-  rules->push_back(new rules::MinimizeRequestSize());
-  rules->push_back(new rules::OptimizeImages(save_optimized_content));
-  rules->push_back(new rules::OptimizeTheOrderOfStylesAndScripts());
-  rules->push_back(new rules::ParallelizeDownloadsAcrossHostnames());
-  rules->push_back(new rules::PreferAsyncResources());
-  rules->push_back(new rules::PutCssInTheDocumentHead());
-  rules->push_back(new rules::RemoveQueryStringsFromStaticResources());
-  rules->push_back(new rules::ServeResourcesFromAConsistentUrl());
-  rules->push_back(new rules::ServeScaledImages());
-  rules->push_back(new rules::SpecifyACacheValidator());
-  rules->push_back(new rules::SpecifyAVaryAcceptEncodingHeader());
-  rules->push_back(new rules::SpecifyCharsetEarly());
-  rules->push_back(new rules::SpecifyImageDimensions());
-  rules->push_back(new rules::SpriteImages());
+  for (RuleSet r = kFirstRuleSet; r <= kLastRuleSet;
+       r = static_cast<RuleSet>(r + 1)) {
+    AppendRuleSet(save_optimized_content, r, rules);
+  }
+}
+
+void AppendPageSpeedRules(bool save_optimized_content,
+                          std::vector<Rule*>* rules) {
+  AppendRuleSet(save_optimized_content, CORE_RULES, rules);
+  AppendRuleSet(save_optimized_content, NEW_BROWSER_RULES, rules);
 }
 
 void AppendCompatibleRules(bool save_optimized_content,
                            std::vector<Rule*>* rules,
                            std::vector<std::string>* incompatible_rule_names,
                            const pagespeed::InputCapabilities& capabilities) {
+  AppendAllRules(save_optimized_content, rules);
+  RemoveIncompatibleRules(rules, incompatible_rule_names, capabilities);
+}
+
+void RemoveIncompatibleRules(std::vector<Rule*>* rules,
+                             std::vector<std::string>* incompatible_rule_names,
+                             const pagespeed::InputCapabilities& capabilities) {
   std::vector<Rule*> all_rules;
-  AppendAllRules(save_optimized_content, &all_rules);
+  all_rules.swap(*rules);
   for (std::vector<Rule*>::const_iterator it = all_rules.begin(),
            end = all_rules.end();
        it != end;

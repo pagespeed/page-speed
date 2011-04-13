@@ -102,7 +102,7 @@ TEST(RuleProviderTest, AppendRuleSet) {
       }
     }
 
-    EXPECT_TRUE(found);
+    EXPECT_TRUE(found) << rule->name();
   }
 }
 
@@ -230,34 +230,38 @@ TEST(RuleProviderTest, AppendAllRules) {
   ASSERT_FALSE(rules.empty());
 }
 
-TEST(RuleProviderTest, AppendCompatibleRulesNone) {
+TEST(RuleProviderTest, AllInputCapabilities) {
   std::vector<pagespeed::Rule*> rules;
-  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
-  std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::AppendCompatibleRules(
-      false,
-      &rules,
-      &incompatible_rule_names,
-      pagespeed::InputCapabilities());
-  // We expect that some rules only require "NONE" while others require more.
-  ASSERT_FALSE(rules.empty());
-  ASSERT_FALSE(incompatible_rule_names.empty());
-}
+  pagespeed::rule_provider::AppendAllRules(false, &rules);
+  std::vector<pagespeed::Rule*> compatible_rules(rules);
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(
+      &compatible_rules);
 
-TEST(RuleProviderTest, AppendCompatibleRulesAll) {
-  std::vector<pagespeed::Rule*> rules;
-  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
   std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::AppendCompatibleRules(
-      false,
-      &rules,
+  pagespeed::rule_provider::RemoveIncompatibleRules(
+      &compatible_rules,
       &incompatible_rule_names,
       pagespeed::InputCapabilities(pagespeed::InputCapabilities::ALL));
   ASSERT_TRUE(incompatible_rule_names.empty());
+  ASSERT_EQ(rules.size(), compatible_rules.size());
+}
 
-  std::vector<pagespeed::Rule*> all_rules;
-  STLElementDeleter<std::vector<pagespeed::Rule*> >
-      all_rule_deleter(&all_rules);
-  pagespeed::rule_provider::AppendAllRules(false, &all_rules);
-  ASSERT_EQ(all_rules.size(), rules.size());
+TEST(RuleProviderTest, NoInputCapabilities) {
+  std::vector<pagespeed::Rule*> rules;
+  pagespeed::rule_provider::AppendAllRules(false, &rules);
+  std::vector<pagespeed::Rule*> compatible_rules(rules);
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(
+      &compatible_rules);
+
+  std::vector<std::string> incompatible_rule_names;
+  pagespeed::rule_provider::RemoveIncompatibleRules(
+      &compatible_rules,
+      &incompatible_rule_names,
+      pagespeed::InputCapabilities());
+  // We expect that some rules require no capabilities, while others
+  // require some capabilities. Thus the resulting vector should
+  // include some but not all of the original rules.
+  ASSERT_FALSE(compatible_rules.empty());
+  ASSERT_FALSE(incompatible_rule_names.empty());
+  ASSERT_GT(rules.size(), compatible_rules.size());
 }
