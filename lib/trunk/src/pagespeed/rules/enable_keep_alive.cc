@@ -68,7 +68,8 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
     // Check if Keep-Alive enabled.
     const std::string& connection = resource.GetResponseHeader("Connection");
     pagespeed::resource_util::DirectiveMap directives;
-    if (pagespeed::resource_util::GetHeaderDirectives(connection,
+    if (!connection.empty() &&
+        pagespeed::resource_util::GetHeaderDirectives(connection,
                                                       &directives)) {
       has_connection_directives = true;
     }
