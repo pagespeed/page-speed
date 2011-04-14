@@ -440,6 +440,10 @@ var pagespeed = {
       pagespeed.showErrorMessage(message.reason);
     } else if (message.kind === 'setStatusText') {
       pagespeed.setStatusText(message.message);
+    } else if (message.kind === 'pageLoaded') {
+      pagespeed.onPageLoaded();
+    } else if (message.kind === 'pageNavigate') {
+      pagespeed.onPageNavigate();
     } else if (message.kind === 'results') {
       pagespeed.onPageSpeedResults(message.results);
     } else if (message.kind === 'error') {
@@ -571,6 +575,20 @@ var pagespeed = {
     //   look like.
     var whatsnew = document.getElementById('whats-new-container');
     whatsnew.appendChild(pagespeed.makeElement('h1', null, "Page Speed"));
+    if (localStorage.debug) {
+      // When the super-secret debug mode is enabled, give us a textbox where
+      // we can eval things in the context of our Devtools panel.  There does
+      // not appear to be any to get a proper console for this context, so this
+      // feature is very helpful for debugging.
+      var box = pagespeed.makeElement('input');
+      box.setAttribute('size', '80');
+      whatsnew.appendChild(pagespeed.makeElement('div', null, [
+        pagespeed.makeButton('Eval', function () {
+          try { alert('' + JSON.stringify(eval(box.value))); }
+          catch (e) { alert(e.stack); }
+        }), box
+      ]));
+    }
     whatsnew.appendChild(pagespeed.makeElement(
       'h2', null, "What's new in Page Speed 1.11 beta?"));
     whatsnew.appendChild(pagespeed.makeElement('ul', null, [
@@ -712,15 +730,18 @@ pagespeed.ResourceAccumulator.prototype.onBody_ = function (index, text,
   this.getNextEntryBody_();
 };
 
-// Connect to the extension background page.
-pagespeed.connectionPort = chrome.extension.connect();
-pagespeed.connectionPort.onMessage.addListener(
-  pagespeed.withErrorHandler(pagespeed.messageHandler));
+pagespeed.withErrorHandler(function () {
 
-// Listen for when we change pages.
-webInspector.inspectedWindow.onNavigated.addListener(
-  pagespeed.withErrorHandler(pagespeed.onPageNavigate));
+  // Connect to the extension background page.
+  pagespeed.connectionPort = chrome.extension.connect();
+  pagespeed.connectionPort.onMessage.addListener(
+    pagespeed.withErrorHandler(pagespeed.messageHandler));
 
-// Listen for when the page finishes (re)loading.
-webInspector.inspectedWindow.onLoaded.addListener(
-  pagespeed.withErrorHandler(pagespeed.onPageLoaded));
+  // Tell the background page to listen for page load events (we apparently
+  // can't do it from here).
+  pagespeed.connectionPort.postMessage({
+    kind: 'listen',
+    tab_id: webInspector.inspectedWindow.tabId
+  });
+
+})();
