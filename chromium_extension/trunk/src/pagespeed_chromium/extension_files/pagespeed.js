@@ -105,9 +105,9 @@ var pagespeed = {
 
   // Make a new DOM node for a link.
   // href -- the URL to link to
-  // label -- the visible text for the link
-  makeLink: function (href, label) {
-    var link = pagespeed.makeElement('a', null, label);
+  // opt_label -- the visible text for the link (if omitted, use href)
+  makeLink: function (href, opt_label) {
+    var link = pagespeed.makeElement('a', null, opt_label || href);
     link.href = 'javascript:null';
     var openUrl = function () {
       // Tell the background page to open the url in a new tab.
@@ -415,6 +415,18 @@ var pagespeed = {
         pagespeed.makeElement('code', null, 'https://'),
         " URLs.  Please try another page."
       ]));
+    } else if (problem === 'moduleDidNotLoad') {
+      error_container.appendChild(pagespeed.makeElement('p', null, [
+        'Unfortunately, the Page Speed plugin was not able to load.',
+        '  The usual reason for this is that you have "Plug-ins" set to',
+        ' "Block all" (or possibly to "Click to play") in the Chrome ',
+        pagespeed.makeLink('chrome://settings/content', 'preferences'),
+        '.  Try setting "Plug-ins" to "Run automatically", reloading this',
+        ' page, and then trying Page Speed again.  If you still get this',
+        ' error message, please ',
+        pagespeed.makeLink('http://code.google.com/p/page-speed/issues/',
+                           'file a bug'), '.'
+      ]));
     } else {
       throw new Error("Unexpected problem: " + JSON.stringify(problem));
     }
@@ -448,6 +460,9 @@ var pagespeed = {
       pagespeed.onPageSpeedResults(message.results);
     } else if (message.kind === 'error') {
       pagespeed.endCurrentRun();
+      if (message.reason) {
+        pagespeed.showErrorMessage(message.reason);
+      }
     } else {
       throw new Error('Unknown message kind: ' + message.kind);
     }
