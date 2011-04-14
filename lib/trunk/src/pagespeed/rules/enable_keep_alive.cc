@@ -64,18 +64,15 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
 
-    bool has_connection_directives = false;
-    // Check if Keep-Alive enabled.
     const std::string& connection = resource.GetResponseHeader("Connection");
     pagespeed::resource_util::DirectiveMap directives;
-    if (!connection.empty() &&
-        pagespeed::resource_util::GetHeaderDirectives(connection,
-                                                      &directives)) {
-      has_connection_directives = true;
+    if (!pagespeed::resource_util::GetHeaderDirectives(connection,
+                                                       &directives)) {
+      // Failed to parse directives. Skip the resource.
+      continue;
     }
 
-    if (has_connection_directives &&
-        directives.find("keep-alive") != directives.end()) {
+    if (directives.find("keep-alive") != directives.end()) {
       // Keep-Alive is explicitly enabled.
       continue;
     }
@@ -84,9 +81,9 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
       // Skip the resouce.
       continue;
     } else if (resource.GetResponseProtocol() == HTTP_11) {
-      // Keep-Alive is default in HTTP/1.1. If itt is not close then it is on.
-      if (has_connection_directives &&
-          directives.find("close") == directives.end()) {
+      // Keep-Alive is default in HTTP/1.1. If it is not "close", then
+      // Keep-Alive is enabled.
+      if (directives.find("close") == directives.end()) {
         continue;
       }
     }
