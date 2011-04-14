@@ -415,6 +415,17 @@ var pagespeed = {
         pagespeed.makeElement('code', null, 'https://'),
         " URLs.  Please try another page."
       ]));
+    } else if (problem === 'frameset') {
+      error_container.appendChild(pagespeed.makeElement('p', null, [
+        'Sorry, Page Speed for Chrome is currently unable to analyze FRAMESET',
+        ' pages.  We\'re hoping to fix this in a future version.  In the',
+        ' meantime, you can analyze this page with ',
+        pagespeed.makeLink('http://pagespeed.googlelabs.com/',
+                           'Page Speed Online'), ' or with ',
+        pagespeed.makeLink(
+          'http://code.google.com/speed/page-speed/docs/using_firefox.html',
+          'Page Speed for Firefox'), '.'
+      ]));
     } else if (problem === 'moduleDidNotLoad') {
       error_container.appendChild(pagespeed.makeElement('p', null, [
         'Unfortunately, the Page Speed plugin was not able to load.',
