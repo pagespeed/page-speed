@@ -50,6 +50,13 @@ function receiveInput(response) {
   // Add the module to the body so that the NaCl module will load.
   // TODO(mdsteele): Find a way to load the module without modifying the body.
   var body = document.getElementsByTagName('body')[0];
+  // If there's no body tag, maybe this is a frameset page.  If so, we're going
+  // to have to give up, because adding an embed tag isn't going to load the
+  // plugin.
+  if (!body && document.getElementsByTagName('frameset')[0]) {
+    chrome.extension.sendRequest({kind: 'error', reason: 'frameset'});
+    return;
+  }
   body.appendChild(pagespeed_module);
 
   var passInputToPageSpeedModule = function () {
