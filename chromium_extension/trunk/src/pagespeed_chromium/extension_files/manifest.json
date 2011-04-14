@@ -11,6 +11,7 @@
   "homepage_url": "http://code.google.com/speed/page-speed/docs/extension.html",
   "minimum_chrome_version": "10.0",
   "name": "Page Speed",
+  "options_page": "options.html",
   "permissions": [
     "experimental",
     "tabs",
@@ -19,5 +20,5 @@
   "plugins": [
     { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true }
   ],
-  "version": "1.10.9"
+  "version": "1.11.1.0"
 }

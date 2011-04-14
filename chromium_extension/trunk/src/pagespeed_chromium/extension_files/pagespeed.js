@@ -554,6 +554,10 @@ var pagespeed = {
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.onPageLoaded();
     }
+    // Otherwise, if we have run-at-onload enabled, we should start a run now.
+    else if (localStorage.runAtOnLoad) {
+      pagespeed.runPageSpeed();
+    }
   },
 
   // Called once when we first load pagespeed-panel.html, to initialize the UI,
