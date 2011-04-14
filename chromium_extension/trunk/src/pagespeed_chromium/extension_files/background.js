@@ -105,7 +105,11 @@ var pagespeed_bg = {
       if (client) {
         if (request.kind === 'error') {
           console.log(request.message);
-          client.port.postMessage({kind: 'error', message: request.message});
+          client.port.postMessage({
+            kind: 'error',
+            message: request.message,
+            reason: request.reason
+          });
         } else if (request.kind === 'getInput') {
           response = client.input;
         } else if (request.kind == 'putResults') {

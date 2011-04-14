@@ -109,12 +109,19 @@ function receiveInput(response) {
       // If we've been doing this for a few seconds with no success, give up.
       ++timesTried;
       if (timesTried >= 20) {
-        throw e;
+        chrome.extension.sendRequest({
+          kind: 'error',
+          message: 'Could not load Page Speed plugin:\n' + e.stack,
+          reason: 'moduleDidNotLoad'
+        });
+        // Take the module back out of the body.
+        body.removeChild(pagespeed_module);
+      } else {
+        // The module isn't ready yet, so wait for a short time and try again.
+        // TODO(mdsteele): Is there a way to know exactly when the module has
+        //   loaded?  I haven't been able to get onLoad handlers to work.
+        setTimeout(withErrorHandler(tryPassingInput), 100);
       }
-      // The module isn't ready yet, so wait for a short time and try again.
-      // TODO(mdsteele): Is there a way to know exactly when the module has
-      //   loaded?  I haven't been able to get onLoad handlers to work.
-      setTimeout(withErrorHandler(tryPassingInput), 100);
       return;
     }
     // The module seems to be ready now.
