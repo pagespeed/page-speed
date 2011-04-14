@@ -25,6 +25,12 @@ var pagespeed_bg = {
   //     port: a port object connected to this client's DevTools page
   activeClients: {},
 
+  // Map from inspected tab IDs to connection ports, to which we send page
+  // load/navigate events.  The port is removed from the map when it
+  // disconnects (i.e. when that instance of the Page Speed Devtools panel is
+  // closed).
+  listenTargets: {},
+
   // Wrap a function with an error handler.  Given a function, return a new
   // function that behaves the same but catches and logs errors thrown by the
   // wrapped function.
@@ -66,17 +72,26 @@ var pagespeed_bg = {
 
   // Handle messages from DevTools panels.
   messageHandler: function (port, request) {
+    var tab_id = request.tab_id;
     if (request.kind === 'openUrl') {
       chrome.tabs.create({url: request.url});
+    } else if (request.kind === 'listen') {
+      pagespeed_bg.listenTargets[tab_id] = port;
+      port.onDisconnect.addListener(pagespeed_bg.withErrorHandler(function () {
+        delete pagespeed_bg.listenTargets[tab_id];
+      }));
     } else if (request.kind === 'checkTab') {
-      chrome.tabs.get(request.tab_id, pagespeed_bg.withErrorHandler(
+      chrome.tabs.get(tab_id, pagespeed_bg.withErrorHandler(
         pagespeed_bg.checkTab, port));
     } else if (request.kind === 'runPageSpeed') {
       request.port = port;
-      pagespeed_bg.activeClients[request.tab_id] = request;
+      pagespeed_bg.activeClients[tab_id] = request;
+      port.onDisconnect.addListener(pagespeed_bg.withErrorHandler(function () {
+        delete pagespeed_bg.activeClients[tab_id];
+      }));
       pagespeed_bg.fetchPartialResources_(request);
     } else if (request.kind === 'cancelRun') {
-      delete pagespeed_bg.activeClients[request.tab_id];
+      delete pagespeed_bg.activeClients[tab_id];
     } else {
       throw new Error('Unknown message kind:' + request.kind);
     }
@@ -248,7 +263,7 @@ var pagespeed_bg = {
     xhr.abort();
   },
 
-  executeContentScript: function(client) {
+  executeContentScript: function (client) {
     if (pagespeed_bg.isClientStillActive(client)) {
       // Only run the content script if this is part of processing for
       // a client that hasn't been cancelled.
@@ -295,7 +310,7 @@ var pagespeed_bg = {
     }
   },
 
-  onXhrResponse: function(xhr, entry) {
+  onXhrResponse: function (xhr, entry) {
     var url = entry.request.url;
 
     // The server may 304 if the browser issues a conditional get,
@@ -311,7 +326,7 @@ var pagespeed_bg = {
     entry.response.status = 200;
   },
 
-  updateResponseHeaders: function(xhr, entry) {
+  updateResponseHeaders: function (xhr, entry) {
     function getHeaderKeyValue(headerLine) {
       // Find the first colon and split key, value at that point.
       var separatorIdx = headerLine.indexOf(':');
@@ -392,7 +407,7 @@ var pagespeed_bg = {
     entry.response.headers = responseHeadersArray;
   },
 
-  updateResponseBody: function(xhr, entry) {
+  updateResponseBody: function (xhr, entry) {
     var content = entry.response.content;
     if (!content || (content.text && content.text.length > 0)) {
       // Either there's no content entry, or we already have a
@@ -423,14 +438,42 @@ var pagespeed_bg = {
     if (encoding) {
       content.encoding = encoding;
     }
+  },
+
+  // Callback for when a user navigates a tab elsewhere.
+  onBeforeNavigate: function (details) {
+    var port = pagespeed_bg.listenTargets[details.tabId];
+    if (port) {
+      port.postMessage({kind: 'pageNavigate'});
+    }
+  },
+
+  // Callback for when a page completes loading.
+  onCompleted: function (details) {
+    var port = pagespeed_bg.listenTargets[details.tabId];
+    if (port) {
+      port.postMessage({kind: 'pageLoaded'});
+    }
   }
 
 };
 
-// Listen for connections from DevTools panels:
-chrome.extension.onConnect.addListener(
-  pagespeed_bg.withErrorHandler(pagespeed_bg.connectHandler));
+pagespeed_bg.withErrorHandler(function () {
 
-// Listen for requests from content scripts:
-chrome.extension.onRequest.addListener(
-  pagespeed_bg.withErrorHandler(pagespeed_bg.requestHandler));
+  // Listen for connections from DevTools panels:
+  chrome.extension.onConnect.addListener(
+    pagespeed_bg.withErrorHandler(pagespeed_bg.connectHandler));
+
+  // Listen for requests from content scripts:
+  chrome.extension.onRequest.addListener(
+    pagespeed_bg.withErrorHandler(pagespeed_bg.requestHandler));
+
+  // Listen for when navigation is happening:
+  chrome.experimental.webNavigation.onBeforeNavigate.addListener(
+    pagespeed_bg.withErrorHandler(pagespeed_bg.onBeforeNavigate));
+
+  // Listen for when a page completely loads:
+  chrome.experimental.webNavigation.onCompleted.addListener(
+    pagespeed_bg.withErrorHandler(pagespeed_bg.onCompleted));
+
+})();
