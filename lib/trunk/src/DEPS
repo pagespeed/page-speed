@@ -13,8 +13,7 @@
 # limitations under the License.
 
 vars = {
-  "chromium_trunk":
-    "http://src.chromium.org/svn/trunk",
+  "chromium_trunk": "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@68180",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.16.9",
@@ -22,6 +21,8 @@ vars = {
   "icu42_deps_revision": "@69864",
   "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.3.0",
   "protobuf_revision": "@head",
+  "gflags_src": "http://google-gflags.googlecode.com/svn/tags/gflags-1.5",
+  "gflags_revision": "@head",
 }
 
 deps = {
@@ -53,6 +54,9 @@ deps = {
   "src/build/internal":
     Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
 
+  "src/third_party/google-gflags/src":
+    Var("gflags_src") + "/src" + Var("gflags_revision"),
+
   "src/third_party/icu/public":
     (Var("chromium_trunk") + "/deps/third_party/icu42/public" +
      Var("icu42_deps_revision")),
@@ -76,8 +80,9 @@ deps = {
     (Var("chromium_trunk") + "/src/third_party/libpng" +
      Var("chromium_revision")),
 
-  "src/third_party/zlib":
-    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
+  "src/third_party/modp_b64":
+    Var("chromium_trunk") + "/src/third_party/modp_b64" +
+      Var("chromium_revision"),
 
   "src/third_party/protobuf":
     (Var("chromium_trunk") + "/src/third_party/protobuf" +
@@ -91,9 +96,8 @@ deps = {
     File(Var("protobuf_trunk") + "/src/google/protobuf/descriptor.proto" +
      Var("protobuf_revision")),
 
-  "src/third_party/modp_b64":
-    Var("chromium_trunk") + "/src/third_party/modp_b64" +
-      Var("chromium_revision"),
+  "src/third_party/zlib":
+    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
 
   "src/tools/data_pack":
     Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
