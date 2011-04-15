@@ -48,7 +48,7 @@ bool AvoidBadRequests::AppendResults(const RuleInput& rule_input,
                                      ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();
   const Resource* primary_resource =
-      input.GetResourceWithUrl(input.primary_resource_url());
+      input.GetResourceWithUrlOrNull(input.primary_resource_url());
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
     if (&resource == primary_resource) {

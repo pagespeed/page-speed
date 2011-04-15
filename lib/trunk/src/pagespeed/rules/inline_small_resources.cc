@@ -105,7 +105,7 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
              end = external_resource_urls.end();
          it != end;
          ++it) {
-      const Resource* external_resource = input.GetResourceWithUrl(*it);
+      const Resource* external_resource = input.GetResourceWithUrlOrNull(*it);
       if (IsInlineCandidate(external_resource, resource_domain)) {
         inline_candidates[resource.GetRequestUrl()].insert(external_resource);
         num_referring_documents[external_resource]++;

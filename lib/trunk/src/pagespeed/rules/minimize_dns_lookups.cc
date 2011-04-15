@@ -79,7 +79,7 @@ void PopulateLoneDnsResources(
     primary_resource_url = input.primary_resource_url();
   }
   const pagespeed::Resource* primary_resource =
-      input.GetResourceWithUrl(primary_resource_url);
+      input.GetResourceWithUrlOrNull(primary_resource_url);
   const pagespeed::RuleInput::RedirectChain* primary_resource_chain =
       rule_input.GetRedirectChainOrNull(primary_resource);
   for (pagespeed::HostResourceMap::const_iterator iter =

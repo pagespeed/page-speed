@@ -172,11 +172,11 @@ TEST_F(RuleInputTest, FinalRedirectTarget) {
   RuleInput rule_input(*input);
   rule_input.Init();
 
-  const Resource* resource1 = input->GetResourceWithUrl(url1);
+  const Resource* resource1 = input->GetResourceWithUrlOrNull(url1);
   ASSERT_TRUE(NULL != resource1);
-  const Resource* resource2 = input->GetResourceWithUrl(url2);
+  const Resource* resource2 = input->GetResourceWithUrlOrNull(url2);
   ASSERT_TRUE(NULL != resource2);
-  const Resource* resource3 = input->GetResourceWithUrl(url3);
+  const Resource* resource3 = input->GetResourceWithUrlOrNull(url3);
   ASSERT_TRUE(NULL != resource3);
   EXPECT_EQ(resource3, rule_input.GetFinalRedirectTarget(resource1));
   EXPECT_EQ(resource3, rule_input.GetFinalRedirectTarget(resource2));

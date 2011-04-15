@@ -146,7 +146,7 @@ void ScaledImagesChecker::Visit(const pagespeed::DomElement& node) {
         const std::string url(document_->ResolveUri(src));
         const pagespeed::Resource* resource =
             rule_input_->GetFinalRedirectTarget(
-                rule_input_->pagespeed_input().GetResourceWithUrl(url));
+                rule_input_->pagespeed_input().GetResourceWithUrlOrNull(url));
         if (resource != NULL) {
           scoped_ptr<pagespeed::ImageAttributes> image_attributes(
               rule_input_->pagespeed_input().NewImageAttributes(resource));

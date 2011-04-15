@@ -74,7 +74,7 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
     return false;
   }
   const Resource* primary_resource =
-      input.GetResourceWithUrl(primary_resource_url);
+      input.GetResourceWithUrlOrNull(primary_resource_url);
 
   if (primary_resource == NULL) {
     LOG(INFO) << "No resource for " << primary_resource_url;
