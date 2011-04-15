@@ -146,6 +146,7 @@
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
         '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
@@ -180,6 +181,7 @@
       ],
       'dependencies': [
         '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
+        '<(libpagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
         'pagespeed_firefox_library_rules',
       ],
       'defines': [
