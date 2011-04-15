@@ -43,7 +43,8 @@ interface IPageSpeedRules : nsISupports {
                              in short filterChoice);
 
   // Run all the rules and return the formatted results as a string.
-  AUTF8String computeAndFormatResults(in AUTF8String harData,
+  AUTF8String computeAndFormatResults(in AUTF8String locale,
+                                      in AUTF8String harData,
                                       in AUTF8String customData,
                                       in nsIArray inputStreams,
                                       in AUTF8String rootUrl,

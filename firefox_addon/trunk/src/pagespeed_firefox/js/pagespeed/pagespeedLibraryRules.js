@@ -379,6 +379,7 @@ PAGESPEED.NativeLibrary = {
     var input = PAGESPEED.NativeLibrary.constructInputs(
         documentUrl, opt_regexp_url_exclude_filter);
     var resultJSON = pagespeedRules.computeAndFormatResults(
+      navigator.language,
       JSON.stringify(input.har),
       JSON.stringify(input.custom),
       PAGESPEED.Utils.newNsIArray(input.bodyInputStreams),

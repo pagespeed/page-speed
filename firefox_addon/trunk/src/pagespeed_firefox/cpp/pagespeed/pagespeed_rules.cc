@@ -42,6 +42,7 @@
 #include "base/values.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/engine.h"
+#include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
 #include "pagespeed/filters/ad_filter.h"
@@ -50,6 +51,7 @@
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
+#include "pagespeed/l10n/gettext_localizer.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -61,6 +63,18 @@
 #include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
 
 namespace {
+
+void Initialize() {
+  static bool initialized = false;
+  if (!initialized) {
+    initialized = true;
+#ifdef NDEBUG
+    // In release builds, don't display INFO logs.
+    logging::SetMinLogLevel(logging::LOG_WARNING);
+#endif
+    pagespeed::Init();
+  }
+}
 
 // Compute the URI spec for a given file.
 bool ComputeUriSpec(nsIFile* file, nsCString* out_uri_spec) {
@@ -376,12 +390,7 @@ PageSpeedRules::ComputeResults(const nsACString& har_data,
                                nsIDOMDocument* root_document,
                                PRInt16 filter_choice,
                                nsACString& _retval NS_OUTPARAM) {
-#ifdef NDEBUG
-  // In release builds, don't display INFO logs. Ideally we would do
-  // this at process startup but we don't receive any native callbacks
-  // at that point, so we do it here instead.
-  logging::SetMinLogLevel(logging::LOG_WARNING);
-#endif
+  Initialize();
 
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
@@ -420,7 +429,8 @@ PageSpeedRules::ComputeResults(const nsACString& har_data,
 }
 
 NS_IMETHODIMP
-PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
+PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
+                                        const nsACString& har_data,
                                         const nsACString& custom_data,
                                         nsIArray* input_streams,
                                         const nsACString& root_url,
@@ -428,16 +438,17 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
                                         PRInt16 filter_choice,
                                         nsILocalFile* output_dir,
                                         nsACString& _retval NS_OUTPARAM) {
-#ifdef NDEBUG
-  // In release builds, don't display INFO logs. Ideally we would do
-  // this at process startup but we don't receive any native callbacks
-  // at that point, so we do it here instead.
-  logging::SetMinLogLevel(logging::LOG_WARNING);
-#endif
+  Initialize();
 
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
+
+  const char* locale_utf8;
+  if (!GetDataFromCString(locale, &locale_utf8)) {
+    LOG(ERROR) << "Failed to convert locale string to UTF8.";
+    return NS_ERROR_FAILURE;
+  }
 
   scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
                                                            custom_data,
@@ -451,24 +462,32 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
     return NS_ERROR_FAILURE;
   }
 
-  std::vector<pagespeed::Rule*> rules;
-  InstantiatePageSpeedRules(*input, &rules);
-
-  Engine engine(&rules);  // Ownership of rules is transferred to engine.
-  engine.Init();
-
-  // Get ready for localization.
-  pagespeed::l10n::BasicLocalizer localizer;
-  pagespeed::FormattedResults formatted_results;
-  // TODO(mdsteele): Change front-end API to support other locales.
-  formatted_results.set_locale("en_US");
-  formatters::ProtoFormatter formatter(&localizer, &formatted_results);
+  // Create a localizer.
+  scoped_ptr<pagespeed::l10n::Localizer> localizer(
+      pagespeed::l10n::GettextLocalizer::Create(locale_utf8));
+  if (localizer.get() == NULL) {
+    LOG(WARNING) << "Could not create GettextLocalizer for locale: "
+                 << locale_utf8;
+    localizer.reset(new pagespeed::l10n::BasicLocalizer);
+  }
 
   // Compute and format the results.  Keep the Results around so that we can
   // serialize optimized content.
   Results results;
-  engine.ComputeResults(*input, &results);
-  engine.FormatResults(results, &formatter);
+  FormattedResults formatted_results;
+  {
+    std::vector<pagespeed::Rule*> rules;
+    InstantiatePageSpeedRules(*input, &rules);
+
+    Engine engine(&rules);  // Ownership of rules is transferred to engine.
+    engine.Init();
+
+    engine.ComputeResults(*input, &results);
+
+    formatted_results.set_locale(localizer->GetLocale());
+    formatters::ProtoFormatter formatter(localizer.get(), &formatted_results);
+    engine.FormatResults(results, &formatter);
+  }
 
   // Convert the formatted results into JSON:
   scoped_ptr<Value> json_results(
@@ -480,7 +499,7 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
   }
 
   // Serialize optimized resources to disk:
-  scoped_ptr<DictionaryValue> paths(new DictionaryValue());
+  scoped_ptr<DictionaryValue> paths(new DictionaryValue);
   PluginSerializer serializer(output_dir);
   for (int i = 0; i < results.rule_results_size(); ++i) {
     const RuleResults& rule_results = results.rule_results(i);
@@ -501,11 +520,13 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& har_data,
   }
 
   // Serialize all the JSON into a string.
-  scoped_ptr<DictionaryValue> root(new DictionaryValue());
-  root->Set("results", json_results.release());
-  root->Set("optimized_content", paths.release());
   std::string output_string;
-  base::JSONWriter::Write(root.get(), false, &output_string);
+  {
+    scoped_ptr<DictionaryValue> root(new DictionaryValue);
+    root->Set("results", json_results.release());
+    root->Set("optimized_content", paths.release());
+    base::JSONWriter::Write(root.get(), false, &output_string);
+  }
 
   // Send the JSON output back to the front-end:
   _retval.Assign(output_string.c_str(), output_string.length());
