@@ -21,27 +21,41 @@
     {
       'target_name': 'google-gflags',
       'type': '<(library)',
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(gflags_gen_arch_root)/include',  # For configured files.
-          '<(gflags_root)/src',  # For everything else.
-        ],
-      },
       'include_dirs': [
         '<(gflags_gen_arch_root)/include/private',  # For config.h
         '<(gflags_gen_arch_root)/include',  # For configured files.
         '<(gflags_root)/src',  # For everything else.
+      ],
+      'defines': [
+        # These macros exist so flags and symbols are properly
+        # exported when building DLLs. Since we don't build DLLs, we
+        # need to disable them.
+        'GFLAGS_DLL_DECL=',
+        'GFLAGS_DLL_DECLARE_FLAG=',
+        'GFLAGS_DLL_DEFINE_FLAG=',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
           '<(gflags_gen_arch_root)/include',  # For configured files.
           '<(gflags_root)/src',  # For everything else.
         ],
+        'defines': [
+          'GFLAGS_DLL_DECL=',
+          'GFLAGS_DLL_DECLARE_FLAG=',
+          'GFLAGS_DLL_DEFINE_FLAG=',
+        ],
       },
       'sources': [
         'src/gflags.cc',
         'src/gflags_completions.cc',
         'src/gflags_reporting.cc',
+      ],
+      'conditions': [
+        ['OS == "win"', {
+          'sources': [
+            'src/windows/port.cc',
+          ],
+        }],
       ],
     },
   ],
