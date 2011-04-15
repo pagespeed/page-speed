@@ -33,6 +33,7 @@
         'formatter.cc',
         'image_attributes.cc',
         'pagespeed_input.cc',
+        'pagespeed_input_util.cc',
         'pagespeed_version.cc',
         'resource.cc',
         'resource_filter.cc',
