@@ -49,7 +49,7 @@ ResourceVector::const_iterator FindLastExternalResourceInSiblingResources(
            external_resource_urls.rbegin(), end = external_resource_urls.rend();
        it != end;
        ++it) {
-    const Resource* last_written_resource = input.GetResourceWithUrl(*it);
+    const Resource* last_written_resource = input.GetResourceWithUrlOrNull(*it);
     if (last_written_resource == NULL) {
       LOG(INFO) << "Unable to find " << *it;
       continue;
@@ -131,7 +131,7 @@ bool DocumentContainsUserVisibleResource(const PagespeedInput& input,
 bool DoesBlockRender(const PagespeedInput& input,
                      const std::string& document_url,
                      const std::vector<std::string>& external_resource_urls) {
-  const Resource* parent_resource = input.GetResourceWithUrl(document_url);
+  const Resource* parent_resource = input.GetResourceWithUrlOrNull(document_url);
   if (parent_resource == NULL) {
     LOG(INFO) << "Unable to find document " << document_url;
     return false;

@@ -404,7 +404,8 @@ TEST_F(MakeLandingPageRedirectsCacheableTest, PrimaryResourceUrlHasFragment) {
   ASSERT_EQ(kUrlNoFragment, primary_resource()->GetRequestUrl());
   ASSERT_EQ(kUrlWithFragment, pagespeed_input()->primary_resource_url());
   ASSERT_EQ(
-      pagespeed_input()->GetResourceWithUrl(kUrlWithFragment)->GetRequestUrl(),
+      pagespeed_input()->GetResourceWithUrlOrNull(
+          kUrlWithFragment)->GetRequestUrl(),
       kUrlNoFragment);
 
   std::vector<std::string> urls;

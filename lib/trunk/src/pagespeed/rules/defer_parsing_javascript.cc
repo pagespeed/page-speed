@@ -148,7 +148,7 @@ void JavaScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
         resolved_src = uri_util::ResolveUri(src, html_parse_->url());
       }
       const pagespeed::Resource* resource =
-          pagespeed_input_->GetResourceWithUrl(resolved_src);
+          pagespeed_input_->GetResourceWithUrlOrNull(resolved_src);
       if (resource == NULL) {
         LOG(INFO) << "Resource not found: " << resolved_src;
         return;

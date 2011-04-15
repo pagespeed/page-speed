@@ -140,7 +140,7 @@ void ScriptVisitor::VisitExternalScript(const std::string& script_src) {
   // Make sure to resolve the URI.
   std::string resolved_src = document_->ResolveUri(script_src);
   const pagespeed::Resource* resource =
-      pagespeed_input_->GetResourceWithUrl(resolved_src);
+      pagespeed_input_->GetResourceWithUrlOrNull(resolved_src);
   if (resource == NULL) {
     return;
   }

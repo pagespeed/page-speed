@@ -114,7 +114,7 @@ void RedirectGraph::PopulateRedirectChainResult(
     std::string current = work_stack.back();
     work_stack.pop_back();
     const pagespeed::Resource* resource =
-        pagespeed_input_->GetResourceWithUrl(current);
+        pagespeed_input_->GetResourceWithUrlOrNull(current);
     if (resource == NULL) {
       LOG(INFO) << "Unable to find resource with URL " << current;
       continue;

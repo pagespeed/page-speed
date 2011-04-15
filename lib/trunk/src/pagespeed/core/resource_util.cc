@@ -507,7 +507,7 @@ const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
       return NULL;
     }
 
-    resource = input.GetResourceWithUrl(target_url);
+    resource = input.GetResourceWithUrlOrNull(target_url);
     if (resource == NULL) {
       LOG(INFO) << "Unable to find redirected resource for " << target_url;
       return NULL;

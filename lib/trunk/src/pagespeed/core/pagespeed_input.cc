@@ -310,7 +310,7 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
     // then we should not attempt to process it.
     return;
   }
-  const Resource* resource = pagespeed_input_->GetResourceWithUrl(uri);
+  const Resource* resource = pagespeed_input_->GetResourceWithUrlOrNull(uri);
   if (resource == NULL) {
     LOG(INFO) << "Unable to find resource " << uri;
     return;
@@ -340,7 +340,7 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
 
   // Update the Parent->Child resource map.
   const Resource* document_resource =
-      pagespeed_input_->GetResourceWithUrl(document_->GetDocumentUrl());
+      pagespeed_input_->GetResourceWithUrlOrNull(document_->GetDocumentUrl());
   if (document_resource != NULL) {
     if (visited_resources_.count(resource) == 0) {
       // Only insert the resource into the vector once.
@@ -354,7 +354,7 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
 
 void ExternalResourceNodeVisitor::SetUp() {
   const Resource* document_resource =
-      pagespeed_input_->GetResourceWithUrl(document_->GetDocumentUrl());
+      pagespeed_input_->GetResourceWithUrlOrNull(document_->GetDocumentUrl());
   if (document_resource != NULL) {
     // Create an initial entry in the parent_child_resource_map.
     (*parent_child_resource_map_)[document_resource];
@@ -514,7 +514,7 @@ bool PagespeedInput::IsResourceLoadedAfterOnload(
   return resource.request_start_time_millis_ > onload_millis_;
 }
 
-const Resource* PagespeedInput::GetResourceWithUrl(
+const Resource* PagespeedInput::GetResourceWithUrlOrNull(
     const std::string& url) const {
   std::string url_canon;
   if (!uri_util::GetUriWithoutFragment(url, &url_canon)) {
@@ -526,7 +526,7 @@ const Resource* PagespeedInput::GetResourceWithUrl(
     return NULL;
   }
   if (url_canon != url) {
-    LOG(INFO) << "GetResourceWithUrl(\"" << url
+    LOG(INFO) << "GetResourceWithUrlOrNull(\"" << url
               << "\"): Returning resource with URL " << url_canon;
   }
   return it->second;
@@ -546,7 +546,7 @@ Resource* PagespeedInput::GetMutableResourceWithUrl(
     LOG(DFATAL) << "Unable to get mutable resource after freezing.";
     return NULL;
   }
-  return const_cast<Resource*>(GetResourceWithUrl(url));
+  return const_cast<Resource*>(GetResourceWithUrlOrNull(url));
 }
 
 InputCapabilities PagespeedInput::EstimateCapabilities() const {

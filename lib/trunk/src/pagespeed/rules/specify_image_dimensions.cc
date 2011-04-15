@@ -79,7 +79,7 @@ void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
 
         const pagespeed::Resource* resource =
             rule_input_->GetFinalRedirectTarget(
-                rule_input_->pagespeed_input().GetResourceWithUrl(uri));
+                rule_input_->pagespeed_input().GetResourceWithUrlOrNull(uri));
         if (resource != NULL) {
           scoped_ptr<pagespeed::ImageAttributes> image_attributes(
               rule_input_->pagespeed_input().NewImageAttributes(resource));

@@ -113,7 +113,7 @@ class PagespeedInput {
   int num_resources() const;
   bool has_resource_with_url(const std::string& url) const;
   const Resource& GetResource(int idx) const;
-  const Resource* GetResourceWithUrl(const std::string& url) const;
+  const Resource* GetResourceWithUrlOrNull(const std::string& url) const;
 
   // Get a non-const pointer to a resource. It is an error to call
   // these methods after this object has been frozen.

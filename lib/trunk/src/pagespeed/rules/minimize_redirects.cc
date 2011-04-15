@@ -88,7 +88,7 @@ bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
     primary_resource_url = primary_resource_url_fragment;
   }
   const Resource* primary_resource =
-      input.GetResourceWithUrl(primary_resource_url);
+      input.GetResourceWithUrlOrNull(primary_resource_url);
 
   const RuleInput::RedirectChain* landing_chain = NULL;
   if (primary_resource != NULL) {

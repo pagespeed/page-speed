@@ -111,13 +111,13 @@ TEST(PagespeedInputTest, SetPrimaryResourceUrl) {
 }
 
 // Make sure SetPrimaryResourceUrl canonicalizes its input.
-TEST(PagespeedInputTest, GetResourceWithUrl) {
+TEST(PagespeedInputTest, GetResourceWithUrlOrNull) {
   PagespeedInput input;
   EXPECT_TRUE(input.AddResource(NewResource(kNonCanonUrl, 200)));
   ASSERT_TRUE(input.Freeze());
 
-  const Resource* r1 = input.GetResourceWithUrl(kNonCanonUrl);
-  const Resource* r2 = input.GetResourceWithUrl(kCanonicalizedUrl);
+  const Resource* r1 = input.GetResourceWithUrlOrNull(kNonCanonUrl);
+  const Resource* r2 = input.GetResourceWithUrlOrNull(kCanonicalizedUrl);
   ASSERT_TRUE(r1 != NULL);
   ASSERT_TRUE(r2 != NULL);
   ASSERT_EQ(r1, r2);
