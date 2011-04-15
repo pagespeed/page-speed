@@ -29,12 +29,15 @@
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/l10n/localizer.h"
+#include "pagespeed/l10n/gettext_localizer.h"
+#include "pagespeed/l10n/register_locale.h"
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 #include "pagespeed/proto/formatted_results_to_text_converter.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
@@ -42,6 +45,22 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
 #include "pagespeed/rules/rule_provider.h"
+#include "third_party/google-gflags/src/google/gflags.h"
+
+DEFINE_string(input_format, "har",
+              "Format of input_file. One of 'har' or 'proto'.");
+DEFINE_string(output_format, "text",
+              "Format of the output. "
+              "One of 'proto', 'text', 'json', or 'formatted_proto'.");
+DEFINE_string(input_file, "", "Path to the input file. '-' to read from stdin");
+DEFINE_string(locale, "", "Locale to use, if localizing results.");
+DEFINE_bool(show_locales, false, "List all available locales and exit.");
+DEFINE_bool(v, false, "Show the Page Speed version and exit.");
+
+// gflags defines its own version flag, which doesn't actually provide
+// any way to show the version of the program. We disable processing
+// of that flag and handle it ourselves.
+DECLARE_bool(version);
 
 namespace {
 
@@ -85,13 +104,30 @@ pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
 }
 
 void PrintUsage() {
-  fprintf(stderr,
-          "Usage: pagespeed <output_format> <input_format> <file>\n"
-          "       <output_format> can be one of 'proto', 'text', 'json', or\n"
-          "                       'formatted_proto'\n"
-          "       <input_format> can be one of 'har' or 'proto'\n"
-          "       if <file> is '-', input will be read from stdin.\n"
-          "       Otherwise input will be read from the specified filename.\n");
+  fprintf(stderr, "\n");
+  std::vector<std::string> matching;
+  google::ShowUsageWithFlagsRestrict(google::GetArgv0(), __FILE__);
+}
+
+void PrintLocales() {
+  fprintf(stderr, "Available locales:");
+  std::vector<std::string> locales;
+  pagespeed::l10n::RegisterLocale::GetAllLocales(&locales);
+  for (size_t i = 0; i < locales.size(); i++) {
+    fprintf(stderr, " %s", locales[i].c_str());
+  }
+  fprintf(stderr, "\n");
+}
+
+void PrintVersion() {
+  pagespeed::Version version;
+  pagespeed::GetPageSpeedVersion(&version);
+  fprintf(stderr, "Page Speed v%d.%d. %s\n",
+          version.major(), version.minor(),
+          (version.official_release() ? "" : "(unofficial release)"));
+#ifndef NDEBUG
+  fprintf(stderr, "Debug build.\n");
+#endif
 }
 
 bool RunPagespeed(const std::string& out_format,
@@ -122,6 +158,19 @@ bool RunPagespeed(const std::string& out_format,
     fprintf(stderr, "Could not read input from %s\n", filename.c_str());
     PrintUsage();
     return false;
+  }
+
+  scoped_ptr<pagespeed::l10n::Localizer> localizer;
+  if (!FLAGS_locale.empty()) {
+    localizer.reset(pagespeed::l10n::GettextLocalizer::Create(FLAGS_locale));
+    if (!localizer.get()) {
+      fprintf(stderr, "Invalid locale %s.\n", FLAGS_locale.c_str());
+      PrintLocales();
+      PrintUsage();
+      return false;
+    }
+  } else {
+    localizer.reset(new pagespeed::l10n::BasicLocalizer());
   }
 
   // TODO(lsong): Add support for byte order mark.
@@ -190,11 +239,9 @@ bool RunPagespeed(const std::string& out_format,
     results.SerializeToZeroCopyStream(&out_stream);
   } else {
     // Compute and format results.
-    pagespeed::l10n::BasicLocalizer localizer;
     pagespeed::FormattedResults formatted_results;
-    // TODO(mdsteele): Add a command-line flag to support other locales.
-    formatted_results.set_locale("en_US");
-    pagespeed::formatters::ProtoFormatter formatter(&localizer,
+    formatted_results.set_locale(localizer->GetLocale());
+    pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
                                                     &formatted_results);
     engine.ComputeAndFormatResults(*input, &formatter);
 
@@ -217,22 +264,53 @@ bool RunPagespeed(const std::string& out_format,
   return true;
 }
 
+// Helper class that will run our exit functions in its destructor.
+class ScopedShutDown {
+ public:
+  ~ScopedShutDown() {
+    pagespeed::ShutDown();
+    google::protobuf::ShutdownProtobufLibrary();
+    google::ShutDownCommandLineFlags();
+  }
+};
+
+// We need to declare this as a global variable since gflags and other
+// libraries may invoke exit(), so simply declaring a ScopedShutDown
+// in main() would not guarantee that shutdown hooks get run (should
+// gflags invoke exit() to terminate execution early). This is only
+// necessary to make sure that valgrind, etc, don't detect leaks on
+// shutdown.
+ScopedShutDown g_shutdown;
+
 }  // namespace
 
 int main(int argc, char** argv) {
-  if (argc != 4) {
-    PrintUsage();
-    return 1;
-  }
-
   // Some of our code uses Singleton<>s, which require an
   // AtExitManager to schedule their destruction.
   base::AtExitManager at_exit_manager;
 
   pagespeed::Init();
-  bool result = RunPagespeed(argv[1], argv[2], argv[3]);
-  pagespeed::ShutDown();
-  google::protobuf::ShutdownProtobufLibrary();
 
-  return result ? EXIT_SUCCESS : EXIT_FAILURE;
+  google::SetUsageMessage(
+      "Reads a file (such as a HAR) and emits Page Speed results "
+      "in one of several formats.");
+  google::ParseCommandLineNonHelpFlags(&argc, &argv, true);
+
+  if (FLAGS_v || FLAGS_version) {
+    PrintVersion();
+    return 0;
+  }
+  if (FLAGS_show_locales) {
+    PrintLocales();
+    return 0;
+  }
+  if (FLAGS_input_file.empty()) {
+    fprintf(stderr, "Must specify --input_file.\n");
+    PrintUsage();
+    return 1;
+  }
+
+  return RunPagespeed(FLAGS_output_format,
+                      FLAGS_input_format,
+                      FLAGS_input_file);
 }
