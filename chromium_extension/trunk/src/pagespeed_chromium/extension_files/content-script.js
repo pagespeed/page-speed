@@ -60,16 +60,7 @@ function receiveInput(response) {
   body.appendChild(pagespeed_module);
 
   var passInputToPageSpeedModule = function () {
-    setStatusText('Transferring HAR to Page Speed module...');
-    // Feed the HAR data into the NaCl module.  We have to do this a piece at a
-    // time, because SRPC currently can't handle strings larger than one or two
-    // dozen kilobytes.
     var har_string = JSON.stringify(response.har);
-    var har_length = har_string.length;
-    var kChunkSize = 8192;
-    for (var start = 0; start < har_length; start += kChunkSize) {
-      pagespeed_module.appendInput(har_string.substr(start, kChunkSize));
-    }
 
     // Determine the locale of the browser; for details, see
     // http://code.google.com/chrome/extensions/i18n.html#overview-predefined
@@ -77,20 +68,8 @@ function receiveInput(response) {
 
     // Run the rules.
     setStatusText(chrome.i18n.getMessage('running_rules'));
-    pagespeed_module.runPageSpeed(document, response.analyze, locale);
-  
-    setStatusText('Transferring results from Page Speed module...');
-    // Get the result data back from the NaCl module.  Again, this must be done
-    // a piece at a time.
-    var output_chunks = [];
-    while (true) {
-      var piece = pagespeed_module.readMoreOutput();
-      if (typeof(piece) !== 'string') {
-        break;
-      }
-      output_chunks.push(piece);
-    }
-    var output_string = output_chunks.join('');
+    var output_string = pagespeed_module.runPageSpeed(
+      har_string, document, response.analyze, locale);
 
     // Take the module back out of the body.
     body.removeChild(pagespeed_module);
@@ -107,11 +86,11 @@ function receiveInput(response) {
   };
 
   var timesTried = 0;
-  var tryPassingInput = function () {
+  var tryPinging = function () {
     try {
       // If the module is ready, this will have no effect; if not, it will
       // throw an error.
-      pagespeed_module.appendInput('');
+      pagespeed_module.ping();
     } catch (e) {
       // If we've been doing this for a few seconds with no success, give up.
       ++timesTried;
@@ -127,14 +106,14 @@ function receiveInput(response) {
         // The module isn't ready yet, so wait for a short time and try again.
         // TODO(mdsteele): Is there a way to know exactly when the module has
         //   loaded?  I haven't been able to get onLoad handlers to work.
-        setTimeout(withErrorHandler(tryPassingInput), 100);
+        setTimeout(withErrorHandler(tryPinging), 100);
       }
       return;
     }
     // The module seems to be ready now.
     passInputToPageSpeedModule();
   };
-  tryPassingInput();
+  tryPinging();
 }
 
 chrome.extension.sendRequest({kind: 'getInput'},

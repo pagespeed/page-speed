@@ -52,12 +52,8 @@
 namespace {
 
 // These are the method names as JavaScript sees them:
-const char* kAppendInputMethodId = "appendInput";
+const char* kPingMethodId = "ping";
 const char* kRunPageSpeedMethodId = "runPageSpeed";
-const char* kReadMoreOutputMethodId = "readMoreOutput";
-
-// How much output we send per call to getOutput():
-const size_t kChunkSize = 8192;
 
 pagespeed::ResourceFilter* NewFilter(const std::string& analyze) {
   if (analyze == "ads") {
@@ -152,26 +148,17 @@ bool RunPageSpeedRules(const std::string& locale,
 
 class PageSpeedModule : public NPObject {
  public:
-  explicit PageSpeedModule(NPP npp)
-      : npp_(npp), output_start_(0) {}
-
-  // Append the given Javascript string to our input buffer, and return null.
-  bool AppendInput(const NPVariant& input_string, NPVariant *result);
+  explicit PageSpeedModule(NPP npp) : npp_(npp) {}
 
   // Run the Page Speed library, given a Javascript reference to the DOM
   // document (or null) and a Javascript string indicating what filter to use
-  // ("ads", "trackers", "content", or "all").  The current contents of the
-  // input buffer are parsed as a HAR, then the input buffer is cleared and the
-  // output buffer is populated with the JSON results from the library.
-  // Returns null to the Javascript caller.
-  bool RunPageSpeed(const NPVariant& dom_document,
+  // ("ads", "trackers", "content", or "all").  Returns JSON results (as a
+  // string) to the Javascript caller.
+  bool RunPageSpeed(const NPVariant& har_string,
+                    const NPVariant& dom_document,
                     const NPVariant& filter_name,
                     const NPVariant& locale_string,
                     NPVariant *result);
-
-  // Return the next chunk of data from our output buffer as a Javascript
-  // string, or return null if the output buffer is empty.
-  bool ReadMoreOutput(NPVariant* result);
 
   // Indicate that a Javascript exception should be thrown, and return a bool
   // that can be used as a return value for Invoke().
@@ -184,54 +171,38 @@ class PageSpeedModule : public NPObject {
   // objects can call out to Javascript to inspect the DOM.
   const NPP npp_;
 
-  // Buffers for input/output; data has to be transferred a piece at a time,
-  // because SRPC currently can't handle strings larger than one or two dozen
-  // kilobytes.
-  std::string input_buffer_;
-  std::string output_buffer_;
-  size_t output_start_;
-
   DISALLOW_COPY_AND_ASSIGN(PageSpeedModule);
 };
 
-// Accept a chunk of data as a string, and append it to the input buffer.
-bool PageSpeedModule::AppendInput(const NPVariant& argument,
-                                  NPVariant *result) {
-  if (!NPVARIANT_IS_STRING(argument)) {
-    return Throw("appendInput expects a string argument");
-  }
-  const NPString& arg_NPString = NPVARIANT_TO_STRING(argument);
-  input_buffer_.append(arg_NPString.UTF8Characters, arg_NPString.UTF8Length);
-  if (result) {
-    NULL_TO_NPVARIANT(*result);
-  }
-  return true;
-}
-
 // Run Page Speed on the contents of the input buffer, and put the results into
 // the output buffer.
-bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
+bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
+                                   const NPVariant& document_arg,
                                    const NPVariant& filter_arg,
                                    const NPVariant& locale_arg,
                                    NPVariant *result) {
+  if (!NPVARIANT_IS_STRING(har_arg)) {
+    return Throw("har argument to runPageSpeed must be a string");
+  }
   if (!NPVARIANT_IS_OBJECT(document_arg) && !NPVARIANT_IS_NULL(document_arg)) {
-    return Throw("first argument to runPageSpeed must be an object or null");
+    return Throw("second argument to runPageSpeed must be an object or null");
   }
   if (!NPVARIANT_IS_STRING(filter_arg)) {
-    return Throw("second argument to runPageSpeed must be a string");
-  }
-  if (!NPVARIANT_IS_STRING(locale_arg)) {
     return Throw("third argument to runPageSpeed must be a string");
   }
-
-  output_start_ = 0;
-  output_buffer_.clear();
+  if (!NPVARIANT_IS_STRING(locale_arg)) {
+    return Throw("fourth argument to runPageSpeed must be a string");
+  }
 
   pagespeed::DomDocument* document = NULL;
   if (NPVARIANT_IS_OBJECT(document_arg)) {
     document = pagespeed_chromium::CreateDocument(
         npp_, NPVARIANT_TO_OBJECT(document_arg));
   }
+
+  const NPString& har_NPString = NPVARIANT_TO_STRING(har_arg);
+  const std::string har_string(har_NPString.UTF8Characters,
+                               har_NPString.UTF8Length);
 
   const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
   const std::string filter_string(filter_NPString.UTF8Characters,
@@ -241,36 +212,18 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& document_arg,
   const std::string locale_string(locale_NPString.UTF8Characters,
                                   locale_NPString.UTF8Length);
 
+  std::string output;
   const bool success = RunPageSpeedRules(
-      locale_string, NewFilter(filter_string), document,
-      input_buffer_, &output_buffer_);
+      locale_string, NewFilter(filter_string), document, har_string, &output);
   if (!success) {
     return Throw("could not parse HAR");
   }
 
-  input_buffer_.clear();
   if (result) {
-    NULL_TO_NPVARIANT(*result);
-  }
-  return true;
-}
-
-// Produce either a string with the next chunk of data from the output buffer,
-// or null to signify the end of the output.
-bool PageSpeedModule::ReadMoreOutput(NPVariant *result) {
-  if (result) {
-    if (output_start_ >= output_buffer_.size()) {
-      output_start_ = 0;
-      output_buffer_.clear();
-      NULL_TO_NPVARIANT(*result);
-    } else {
-      const size_t data_length =
-          std::min(output_buffer_.size() - output_start_, kChunkSize);
-      char* data_copy = static_cast<char*>(npnfuncs->memalloc(data_length));
-      memcpy(data_copy, output_buffer_.data() + output_start_, data_length);
-      STRINGN_TO_NPVARIANT(data_copy, data_length, *result);
-      output_start_ += kChunkSize;
-    }
+    const size_t data_length = output.size();
+    char* data_copy = static_cast<char*>(npnfuncs->memalloc(data_length));
+    memcpy(data_copy, output.data(), data_length);
+    STRINGN_TO_NPVARIANT(data_copy, data_length, *result);
   }
   return true;
 }
@@ -296,11 +249,9 @@ void Deallocate(NPObject* object) {
 bool HasMethod(NPObject* obj, NPIdentifier method_name) {
   char *name = npnfuncs->utf8fromidentifier(method_name);
   bool has_method = false;
-  if (!strcmp(name, kAppendInputMethodId)) {
+  if (!strcmp(name, kPingMethodId)) {
     has_method = true;
   } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    has_method = true;
-  } else if (!strcmp(name, kReadMoreOutputMethodId)) {
     has_method = true;
   }
   npnfuncs->memfree(name);
@@ -337,23 +288,20 @@ bool Invoke(NPObject* obj,
   PageSpeedModule* module = static_cast<PageSpeedModule*>(obj);
   // Map the method name to a function call.  |result| is filled in by the
   // called function, then gets returned to the browser when Invoke() returns.
-  if (!strcmp(name, kAppendInputMethodId)) {
-    if (arg_count == 1) {
-      rval = module->AppendInput(args[0], result);
+  if (!strcmp(name, kPingMethodId)) {
+    if (arg_count == 0) {
+      if (result) {
+        NULL_TO_NPVARIANT(*result);
+      }
+      rval = true;
     } else {
-      rval = module->Throw("wrong number of arguments to appendInput");
+      rval = module->Throw("wrong number of arguments to ping");
     }
   } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    if (arg_count == 3) {
-      rval = module->RunPageSpeed(args[0], args[1], args[2], result);
+    if (arg_count == 4) {
+      rval = module->RunPageSpeed(args[0], args[1], args[2], args[3], result);
     } else {
       rval = module->Throw("wrong number of arguments to runPageSpeed");
-    }
-  } else if (!strcmp(name, kReadMoreOutputMethodId)) {
-    if (arg_count == 0) {
-      rval = module->ReadMoreOutput(result);
-    } else {
-      rval = module->Throw("wrong number of arguments to readMoreOutput");
     }
   }
   // Since name was allocated above by npnfuncs->utf8fromidentifier,
