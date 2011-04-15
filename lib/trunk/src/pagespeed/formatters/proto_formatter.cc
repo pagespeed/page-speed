@@ -138,7 +138,7 @@ RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, int score,
   if (!MaybeLocalizeString(localizer_,
                            rule.header(),
                            rule_results->mutable_localized_rule_name())) {
-    LOG(DFATAL) << "Unable to LocalizeString " << rule.header();
+    LOG(ERROR) << "Unable to LocalizeString " << rule.header();
   }
 
   RuleFormatter* rule_formatter =
