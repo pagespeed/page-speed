@@ -23,7 +23,7 @@
     <!-- This GUID is hard-coded into util.js.  If it is ever changed, util.js needs to be updated. -->
     <em:id>{e3f6c2cc-d8db-498c-af6c-499fb211db97}</em:id>
     <em:name>Page Speed</em:name>
-    <em:version>1.11pre</em:version>
+    <em:version>1.12pre</em:version>
     <em:description>Speed up your web pages with this performance diagnostics tool. Requires Firebug.</em:description>
     <em:creator>Google Inc.</em:creator>
     <em:homepageURL>http://code.google.com/speed/page-speed/</em:homepageURL>
@@ -33,12 +33,12 @@
     <em:icon64URL>chrome://pagespeed/content/pagespeed-64.png</em:icon64URL>
     <em:unpack>true</em:unpack>
 
-    <!-- Any suitably modern toolkit application -->
+   <!-- Any suitably modern toolkit application -->
     <em:targetApplication>
       <Description>
         <em:id>toolkit@mozilla.org</em:id>
         <em:minVersion>1.9.0.5</em:minVersion>
-        <em:maxVersion>2.0.0.*</em:maxVersion>
+        <em:maxVersion>2.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
