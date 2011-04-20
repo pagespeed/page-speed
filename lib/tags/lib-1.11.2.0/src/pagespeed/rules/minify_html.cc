@@ -89,6 +89,8 @@ const MinifierOutput* HtmlMinifier::Minify(const Resource& resource) const {
   ::pagespeed::html::HtmlMinifier html_minifier;
   if (!html_minifier.MinifyHtml(resource.GetRequestUrl(),
                                 input, &minified_html)) {
+    LOG(ERROR) << "MinifyHtml failed for resource: "
+               << resource.GetRequestUrl();
     return NULL;  // error
   }
 

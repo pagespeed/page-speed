@@ -116,6 +116,8 @@ const MinifierOutput* GzipMinifier::Minify(const Resource& resource) const {
   if (computer_->ComputeSavings(resource, &savings)) {
     return new MinifierOutput(savings.response_bytes_saved());
   } else {
+    LOG(ERROR) << "ComputeSavings failed for resource: "
+               << resource.GetRequestUrl();
     return NULL; // error
   }
 }
