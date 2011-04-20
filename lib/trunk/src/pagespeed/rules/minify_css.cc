@@ -88,6 +88,8 @@ const MinifierOutput* CssMinifier::Minify(const Resource& resource) const {
   if (save_optimized_content_) {
     std::string minified_css;
     if (!cssmin::MinifyCss(input, &minified_css)) {
+      LOG(ERROR) << "MinifyCss failed for resource: "
+                 << resource.GetRequestUrl();
       return NULL; // error
     }
     return new MinifierOutput(input.size() - minified_css.size(),
@@ -95,6 +97,8 @@ const MinifierOutput* CssMinifier::Minify(const Resource& resource) const {
   } else {
     int minified_css_size = 0;
     if (!cssmin::GetMinifiedCssSize(input, &minified_css_size)) {
+      LOG(ERROR) << "GetMinifiedCssSize failed for resource: "
+                 << resource.GetRequestUrl();
       return NULL; // error
     }
     return new MinifierOutput(input.size() - minified_css_size);
