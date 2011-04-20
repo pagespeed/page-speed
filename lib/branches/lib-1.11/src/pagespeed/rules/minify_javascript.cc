@@ -88,6 +88,8 @@ const MinifierOutput* JsMinifier::Minify(const Resource& resource) const {
   if (save_optimized_content_) {
     std::string minified_js;
     if (!jsminify::MinifyJs(input, &minified_js)) {
+      LOG(ERROR) << "MinifyJs failed for resource: "
+                 << resource.GetRequestUrl();
       return NULL; // error
     }
     return new MinifierOutput(input.size() - minified_js.size(),
@@ -95,6 +97,8 @@ const MinifierOutput* JsMinifier::Minify(const Resource& resource) const {
   } else {
     int minified_js_size = 0;
     if (!jsminify::GetMinifiedJsSize(input, &minified_js_size)) {
+      LOG(ERROR) << "GetMinifiedJsSize failed for resource: "
+                 << resource.GetRequestUrl();
       return NULL; // error
     }
     return new MinifierOutput(input.size() - minified_js_size);

@@ -27,7 +27,7 @@ namespace rules {
  */
 class MinifyHTML : public MinifyRule {
  public:
-  MinifyHTML(bool save_optimized_content);
+  explicit MinifyHTML(bool save_optimized_content);
   virtual int ComputeScore(const InputInformation& input_info,
                            const RuleResults& results);
 

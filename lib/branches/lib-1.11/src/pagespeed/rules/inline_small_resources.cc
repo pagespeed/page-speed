@@ -54,7 +54,6 @@ InlineSmallResources::InlineSmallResources(ResourceType resource_type)
 
 bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
                                          ResultProvider* provider) {
-  bool error = false;
   const PagespeedInput& input = rule_input.pagespeed_input();
   net_instaweb::GoogleMessageHandler message_handler;
   message_handler.set_min_message_type(net_instaweb::kError);
@@ -162,7 +161,7 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
     }
   }
 
-  return !error;
+  return true;
 }
 
 // Is this resource a candidate for inlining into the HTML document?
