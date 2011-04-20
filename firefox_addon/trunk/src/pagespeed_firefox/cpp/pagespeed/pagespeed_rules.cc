@@ -19,18 +19,19 @@
 #include "pagespeed_firefox/cpp/pagespeed/pagespeed_rules.h"
 
 #include <sstream>
+#include <string>
 #include <vector>
 
-#include "nsArrayUtils.h"  // for do_QueryElementAt
-#include "nsCOMPtr.h"
-#include "nsIInputStream.h"
-#include "nsIIOService.h"
-#include "nsILocalFile.h"
-#include "nsIURI.h"
-#include "nsNetCID.h"  // for NS_IOSERVICE_CONTRACTID
-#include "nsNetUtil.h"  // for NS_NewLocalFileOutputStream
-#include "nsServiceManagerUtils.h"  // for do_GetService
-#include "nsStringAPI.h"
+#include "nsArrayUtils.h"  // for do_QueryElementAt // NOLINT
+#include "nsCOMPtr.h"  // NOLINT
+#include "nsIInputStream.h"  // NOLINT
+#include "nsIIOService.h"  // NOLINT
+#include "nsILocalFile.h"  // NOLINT
+#include "nsIURI.h"  // NOLINT
+#include "nsNetCID.h"  // for NS_IOSERVICE_CONTRACTID  // NOLINT
+#include "nsNetUtil.h"  // for NS_NewLocalFileOutputStream  // NOLINT
+#include "nsServiceManagerUtils.h"  // for do_GetService  // NOLINT
+#include "nsStringAPI.h"  // NOLINT
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
@@ -358,10 +359,10 @@ void InstantiatePageSpeedRules(const pagespeed::PagespeedInput& input,
                                std::vector<pagespeed::Rule*>* rules) {
   const bool save_optimized_content = true;
   std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::AppendCompatibleRules(save_optimized_content,
-                                                  rules,
-                                                  &incompatible_rule_names,
-                                                  input.EstimateCapabilities());
+  pagespeed::rule_provider::AppendPageSpeedRules(save_optimized_content,
+                                                 rules);
+  pagespeed::rule_provider::RemoveIncompatibleRules(
+      rules, &incompatible_rule_names, input.EstimateCapabilities());
   if (!incompatible_rule_names.empty()) {
     // We would like to display the rule names using base::JoinString,
     // however including base/string_util.h causes a collision with
@@ -486,7 +487,37 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
 
     formatted_results.set_locale(localizer->GetLocale());
     formatters::ProtoFormatter formatter(localizer.get(), &formatted_results);
-    engine.FormatResults(results, &formatter);
+
+    // Filter the results (matching the code in Page Speed Online).
+    ResponseByteResultFilter result_filter;
+    if (!engine.FormatResults(results, result_filter, &formatter)) {
+      LOG(ERROR) << "error formatting results in locale: " << locale_utf8;
+      return false;
+    }
+
+    // The ResponseByteResultFilter may filter some results. In the
+    // event that all results are filtered from a FormattedRuleResults,
+    // we update its score to 100 and impact to 0, to reflect the fact
+    // that we are not showing any suggestions. Likewise, if we find no
+    // results in any rules, we set the overall score to 100. This is a
+    // hack to work around the fact that scores are computed before we
+    // filter. See
+    // http://code.google.com/p/page-speed/issues/detail?id=476 for the
+    // relevant bug.
+    bool has_any_results = false;
+    for (int i = 0; i < formatted_results.rule_results_size(); ++i) {
+      FormattedRuleResults* rule_results =
+          formatted_results.mutable_rule_results(i);
+      if (rule_results->url_blocks_size() == 0) {
+        rule_results->set_rule_score(100);
+        rule_results->set_rule_impact(0.0);
+      } else {
+        has_any_results = true;
+      }
+    }
+    if (!has_any_results) {
+      formatted_results.set_score(100);
+    }
   }
 
   // Convert the formatted results into JSON:
