@@ -159,8 +159,7 @@ void InputPopulator::PopulateJsCalls(Resource* resource,
         doc_url.length() > 0) {
       resource->AddJavaScriptCall(
           new JavaScriptCallInfo(fn, doc_url, args, line_number));
-    }
-    else {
+    } else {
       INPUT_POPULATOR_ERROR() << "Failed to populate JavaScriptCallInfo.";
       return;
     }
