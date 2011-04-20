@@ -71,13 +71,14 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
   }
 
   if (primary_resource_url.empty()) {
+    LOG(ERROR) << "Primary resource URL was not set";
     return false;
   }
   const Resource* primary_resource =
       input.GetResourceWithUrlOrNull(primary_resource_url);
 
   if (primary_resource == NULL) {
-    LOG(INFO) << "No resource for " << primary_resource_url;
+    LOG(ERROR) << "No resource for " << primary_resource_url;
     return false;
   }
   const RuleInput::RedirectChain* chain =
