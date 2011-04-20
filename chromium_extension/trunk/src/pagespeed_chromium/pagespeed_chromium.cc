@@ -14,7 +14,6 @@
 
 #include "pagespeed_chromium/pagespeed_chromium.h"
 
-#include <algorithm>  // for std::min()
 #include <string>
 #include <vector>
 
@@ -38,6 +37,7 @@
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/filters/ad_filter.h"
+#include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
@@ -45,6 +45,7 @@
 #include "pagespeed/l10n/gettext_localizer.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_chromium/npapi_dom.h"
@@ -79,7 +80,8 @@ bool RunPageSpeedRules(const std::string& locale,
                        pagespeed::ResourceFilter* filter,
                        pagespeed::DomDocument* document,
                        const std::string& har_data,
-                       std::string* output) {
+                       std::string* output,
+                       std::string* error_string) {
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
@@ -90,11 +92,12 @@ bool RunPageSpeedRules(const std::string& locale,
       pagespeed::ParseHttpArchiveWithFilter(har_data, filter));
   if (input.get() == NULL) {
     delete document;
+    *error_string = "could not parse HAR";
     return false;
   }
 
-  // TODO: call input->SetPrimaryResourceUrl() if we can get the URL
-  // from the HAR.
+  // TODO(mdsteele): call input->SetPrimaryResourceUrl() if we can get the URL
+  //   from the HAR.
 
   input->AcquireDomDocument(document); // input takes ownership of document
   input->AcquireImageAttributesFactory(
@@ -109,16 +112,14 @@ bool RunPageSpeedRules(const std::string& locale,
   STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
 
   const bool save_optimized_content = false;
+  pagespeed::rule_provider::AppendPageSpeedRules(
+      save_optimized_content, &rules);
   std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::AppendCompatibleRules(
-      save_optimized_content,
-      &rules,
-      &incompatible_rule_names,
-      input->EstimateCapabilities());
+  pagespeed::rule_provider::RemoveIncompatibleRules(
+      &rules, &incompatible_rule_names, input->EstimateCapabilities());
   if (!incompatible_rule_names.empty()) {
-    std::string incompatible_rule_list =
-        JoinString(incompatible_rule_names, ' ');
-    LOG(INFO) << "Removing incompatible rules: " << incompatible_rule_list;
+    LOG(INFO) << "Removing incompatible rules: "
+              << JoinString(incompatible_rule_names, ' ');
   }
 
   // Ownership of rules is transferred to the Engine instance.
@@ -135,11 +136,51 @@ bool RunPageSpeedRules(const std::string& locale,
 
   // Compute and format results.
   pagespeed::FormattedResults formatted_results;
-  formatted_results.set_locale(localizer->GetLocale());
-  pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
-                                                  &formatted_results);
-  engine.ComputeAndFormatResults(*input, &formatter);
+  {
+    formatted_results.set_locale(localizer->GetLocale());
+    pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
+                                                    &formatted_results);
+    pagespeed::Results results;
+    if (!engine.ComputeResults(*input, &results)) {
+      std::vector<std::string> error_rules;
+      for (int i = 0, size = results.error_rules_size(); i < size; ++i) {
+        error_rules.push_back(results.error_rules(i));
+      }
+      LOG(WARNING) << "Errors during ComputeResults in rules: "
+                   << JoinString(error_rules, ' ');
+    }
+    pagespeed::ResponseByteResultFilter result_filter;
+    if (!engine.FormatResults(results, result_filter, &formatter)) {
+      *error_string = "error during FormatResults";
+      return false;
+    }
+  }
 
+  // The ResponseByteResultFilter may filter some results. In the
+  // event that all results are filtered from a FormattedRuleResults,
+  // we update its score to 100 and impact to 0, to reflect the fact
+  // that we are not showing any suggestions. Likewise, if we find no
+  // results in any rules, we set the overall score to 100. This is a
+  // hack to work around the fact that scores are computed before we
+  // filter. See
+  // http://code.google.com/p/page-speed/issues/detail?id=476 for the
+  // relevant bug.
+  bool has_any_results = false;
+  for (int i = 0; i < formatted_results.rule_results_size(); ++i) {
+    pagespeed::FormattedRuleResults* rule_results =
+        formatted_results.mutable_rule_results(i);
+    if (rule_results->url_blocks_size() == 0) {
+      rule_results->set_rule_score(100);
+      rule_results->set_rule_impact(0.0);
+    } else {
+      has_any_results = true;
+    }
+  }
+  if (!has_any_results) {
+    formatted_results.set_score(100);
+  }
+
+  // Convert the formatted results into JSON.
   pagespeed::proto::FormattedResultsToJsonConverter::Convert(
       formatted_results, output);
 
@@ -212,11 +253,12 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   const std::string locale_string(locale_NPString.UTF8Characters,
                                   locale_NPString.UTF8Length);
 
-  std::string output;
+  std::string output, error_string;
   const bool success = RunPageSpeedRules(
-      locale_string, NewFilter(filter_string), document, har_string, &output);
+      locale_string, NewFilter(filter_string), document, har_string,
+      &output, &error_string);
   if (!success) {
-    return Throw("could not parse HAR");
+    return Throw(error_string);
   }
 
   if (result) {
