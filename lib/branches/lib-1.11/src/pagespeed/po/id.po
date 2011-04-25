@@ -1,3 +1,10 @@
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "$1"  will be replaced
+#  by the document (HTML page, or a iframe) URL; the "$2" will be
+#  replaced by the size of its inline JavaScripts.
+msgid "$1 ($2 of inline JavaScript)"
+msgstr "$1 ($2 JavaScript sebaris)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -67,6 +74,12 @@ msgstr "$1 memiliki CSS di badan dokumen:"
 msgid "$1 has a request size of $2"
 msgstr "$1 memiliki permintaan ukuran $2"
 
+#  Message displayed to indicate that a URL
+#  redirects to another URL, e.g "http://example.com/ is an
+#  uncacheable redirect to http://www.example.com/".
+msgid "$1 is an uncacheable redirect to $2"
+msgstr "$1 adalah pengalihan ke $2 yang tidak dapat disimpan dalam tembolok"
+
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the served size of the image, the final size of the
 #  image, and the amount saved by serving the image in the final size.
@@ -95,6 +108,12 @@ msgstr "$1 diubah ukurannya dalam HTML atau CSS.  Menyajikan gambar yang diperke
 #  be replaced by the resource URL.
 msgid "$1 loads $2 synchronously."
 msgstr "$1 memuat $2 secara sinkron."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "$1 JavaScript diuraikan saat pemuatan awal laman. Tunda penguraian JavaScript untuk mengurangi pencekalan penguraian laman."
 
 #  A sub-heading that contains the URL of the document and
 #  a statement instructing the user to inline certain small resources.
@@ -152,8 +171,9 @@ msgstr "Hindari permintaan yang bermasalah"
 msgid "Avoid document.write"
 msgstr "Hindari document.write"
 
-#  Header at the top of a list of URLs that Page Speed deteced as
-#  having CSS resources in the document body. It describes the problem.
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
 msgid "CSS in the document body adversely impacts rendering performance."
 msgstr "CSS di badan dokumen berpengaruh buruk terhadap kinerja."
 
@@ -217,6 +237,19 @@ msgstr "Kuki: $1"
 msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
 msgstr "Kuki: $1 (perlu diketahui bahwa ini adalah sumber daya statis dan sebaiknya disajikan dari domain tanpa kuki)"
 
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr "Tunda penguraian JavaScript"
+
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr "Aktifkan Keep-Alive"
+
 #  The name of a Page Speed rule that tells webmasters to enable
 #  gzip compression on their servers (i.e. enable compressing the web content
 #  before it is sent to clients).  This appears in a list of rule names
@@ -258,9 +291,9 @@ msgstr "Cekalan skrip sebaris #$1"
 msgid "Leverage browser caching"
 msgstr "Manfaatkan penyimpanan tembolok peramban"
 
-#  Detail of external CSS resources. It tells the user how
-#  to fix the problem by moving the CSS to document head. The "$1" will
-#  be replaced by the CSS resource URL.
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head. The
+#  "$1" will be replaced by the CSS resource URL.
 msgid "Link node $1 should be moved to the document head."
 msgstr "Simpul tautan $1 harus dipindah ke kepala dokumen."
 
@@ -270,6 +303,13 @@ msgstr "Simpul tautan $1 harus dipindah ke kepala dokumen."
 #  replace by the number of percent (e.g. 12).
 msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
 msgstr "Pemampatan nirrugi $1 dapat menghemat $2 (reduksi $3)."
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
+msgstr "Jadikan pengalihan laman landas dapat disimpan dalam tembolok"
 
 #  Name of a Page Speed rule. Here, minify means "remove
 #  whitespace and comments". The goal is to reduce the size of the
@@ -450,10 +490,10 @@ msgstr "Tentukan validator tembolok"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpages include a declaration of the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, early on in the page.
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
 #  This is displayed in a list of rule names that Page Speed generates.
-msgid "Specify a character set early"
-msgstr "Tentukan himpunan karakter sejak awal"
+msgid "Specify a character set"
+msgstr "Tentukan himpunan karakter"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
@@ -501,11 +541,12 @@ msgstr "Style sheet eksternal berikut disertakan dalam $1 menggunakan @import."
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "Gambar berikut tidak mempunyai atribut lebar dan/atau tinggi."
 
-#  A descriptive header at the top of a list of URLs of images
-#  that are resized in HTML or CSS.  It describes the problem to the user.
-#  "$1" is a format token that is replaced with the total savings in bytes
-#  from serving images in their final size (e.g. "32.5KiB").  "$2" is replaced
-#  with the percentage reduction of bytes transferred (e.g. "25").
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  "$1" is a format token that is replaced with the total
+#  savings in bytes from serving images in their final size
+#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
+#  bytes transferred (e.g. "25").
 msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
 msgstr "Gambar berikut diubah ukurannya dalam HTML atau CSS.  Menyajikan gambar yang diperkecil dapat menghemat $1 (reduksi $2)."
 
@@ -529,6 +570,12 @@ msgstr "Gambar berikut yang disajikan dari $1 sebaiknya digabungkan menjadi sese
 #  URL of the HTML page.
 msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
 msgstr "Cekalan skrip sebaris berikut ditemukan di $1 antara berkas CSS eksternal dan sumber daya lainnya.  Agar pengunduhan paralel dapat dilakukan, pindahkan skrip sebaris ke sebelum berkas CSS eksternal, atau setelah sumber daya berikutnya."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgstr "Pengalihan laman landas berikut tidak dapat disimpan dalam tembolok. Jadikan agar dapat disimpan dalam tembolok untuk mempercepat waktu pemuatan laman bagi pengunjung yang kembali berkunjung ke situs Anda."
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -578,14 +625,21 @@ msgid "The following resources have identical contents, but are served from diff
 msgstr "Sumber daya berikut mempunyai konten yang persis, tetapi disajikan dari URL yang berbeda. Sajikan sumber daya dari URL yang konsisten untuk menghemat $1 permintaan dan $2."
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as either not declaring the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, or declaring a
-#  character set but doing so late in the page for a character set other
-#  than what the browser was previously assuming.  It describes the
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
 #  problem to the user, and tells them how to fix it by explicitly
 #  specifying the character set near the beginning of the page.
-msgid "The following resources have no character set specified or have a non-default character set specified late in the document. Specifying a character set early in these documents can speed up browser rendering."
-msgstr "Sumber daya berikut tidak memiliki himpunan karakter yang ditetapkan atau memiliki himpunan karakter selain bawaan yang ditetapkan terakhir di dalam dokumen. Menentukan himpunan karakter di dalam dokumen ini sejak permulaan dapat mempercepat penguraian peramban."
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
+msgstr "Sumber daya berikut belum ditentukan himpunan karakternya di header HTTP-nya. Dengan menentukan himpunan karakter di header HTTP, penguraian peramban dapat lebih cepat."
+
+#  Header at the top of a list of URLs of resources that are
+#  served from a domain that does not have HTTP Keep-Alive enabled.  It
+#  tells the user to enable keep-alive on that domain.  The "$1" is a
+#  format string that will be replaced with the domain in question.
+#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  translated.
+msgid "The host $1 should enable Keep-Alive. It serves the following resources."
+msgstr "Inang $1 harus mengaktifkan Keep-Alive. Domain ini memberikan sumber daya berikut."
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -639,10 +693,3 @@ msgstr "Laman ini mengubah $1 permintaan yang dapat diparalelkan menjadi $2.  Ti
 #  resources to load serially, not in parallel).
 msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
 msgstr "Menggunakan document.write untuk mengambil sumber daya eksternal dapat menyebabkan penundaan serialisasi dalam penguraian laman. Sumber daya berikut menggunakan document.write untuk mengambil sumber daya eksternal:"
-
-#  Header in a list of Page Speed rule results.  $1 is a format
-#  argument that will be replaced by the name of the Page Speed rule (e.g.
-#  "Leverage Browser Caching"; $1 is a format argument that will be replaced
-#  by the rule's Page Speed score (e.g. "93").
-msgid "_$1_ (score=$2)"
-msgstr "_$1_ (skor=$2)"
