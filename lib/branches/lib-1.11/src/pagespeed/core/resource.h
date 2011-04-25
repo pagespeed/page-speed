@@ -51,6 +51,7 @@ enum ImageType {
   JPEG,
   PNG,
   GIF,
+  SVG,
   UNKNOWN_IMAGE_TYPE
 };
 
