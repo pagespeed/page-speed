@@ -1,3 +1,10 @@
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "$1"  will be replaced
+#  by the document (HTML page, or a iframe) URL; the "$2" will be
+#  replaced by the size of its inline JavaScripts.
+msgid "$1 ($2 of inline JavaScript)"
+msgstr "$1 ($2 ของอินไลน์ JavaScript)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -67,6 +74,12 @@ msgstr "$1 มี CSS ในเนื้อหาเอกสาร:"
 msgid "$1 has a request size of $2"
 msgstr "$1 มีขนาดคำขอเท่ากับ $2"
 
+#  Message displayed to indicate that a URL
+#  redirects to another URL, e.g "http://example.com/ is an
+#  uncacheable redirect to http://www.example.com/".
+msgid "$1 is an uncacheable redirect to $2"
+msgstr "$1 เป็นการเปลี่ยนเส้นทางไปยัง $2 ซึ่งไม่สามารถเก็บแคชได้"
+
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the served size of the image, the final size of the
 #  image, and the amount saved by serving the image in the final size.
@@ -95,6 +108,12 @@ msgstr "$1 จะมีการปรับขนาดใน HTML หรือ
 #  be replaced by the resource URL.
 msgid "$1 loads $2 synchronously."
 msgstr "โหลด $1 และ $2 พร้อมกัน"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "$1 ของ JavaScript ได้รับการแยกวิเคราะห์ในระหว่างโหลดหน้าครั้งแรก เลื่อนการแยกวิเคราะห์ JavaScript เพื่อลดการปิดกั้นการแสดงหน้าเว็บ"
 
 #  A sub-heading that contains the URL of the document and
 #  a statement instructing the user to inline certain small resources.
@@ -152,8 +171,9 @@ msgstr "หลีกเลี่ยงการใช้คำขอที่ไ
 msgid "Avoid document.write"
 msgstr "หลีกเลี่ยงการใช้ document.write"
 
-#  Header at the top of a list of URLs that Page Speed deteced as
-#  having CSS resources in the document body. It describes the problem.
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
 msgid "CSS in the document body adversely impacts rendering performance."
 msgstr "CSS ในเนื้อหาเอกสารจะส่งผลเสียต่อประสิทธิภาพการแสดงผล"
 
@@ -217,6 +237,19 @@ msgstr "คุกกี้: $1"
 msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
 msgstr "คุกกี้: $1 (โปรดทราบว่านี่เป็นทรัพยากรแบบคงที่และควรใช้งานจากโดเมนที่ไม่มีคุกกี้)"
 
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr "เลื่อนการแยกวิเคราะห์ JavaScript"
+
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr "เปิดใช้งาน Keep-Alive"
+
 #  The name of a Page Speed rule that tells webmasters to enable
 #  gzip compression on their servers (i.e. enable compressing the web content
 #  before it is sent to clients).  This appears in a list of rule names
@@ -258,9 +291,9 @@ msgstr "บล็อกสคริปต์ในหน้า #$1"
 msgid "Leverage browser caching"
 msgstr "กำหนดการแคชในเบราว์เซอร์"
 
-#  Detail of external CSS resources. It tells the user how
-#  to fix the problem by moving the CSS to document head. The "$1" will
-#  be replaced by the CSS resource URL.
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head. The
+#  "$1" will be replaced by the CSS resource URL.
 msgid "Link node $1 should be moved to the document head."
 msgstr "ควรย้ายโหนดลิงก์ $1 ไปที่ส่วนหัวของเอกสาร"
 
@@ -270,6 +303,13 @@ msgstr "ควรย้ายโหนดลิงก์ $1 ไปที่ส�
 #  replace by the number of percent (e.g. 12).
 msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
 msgstr "การบีบอัด $1 แบบไม่สูญเสียข้อมูลสามารถประหยัดพื้นที่ได้ $2 (ลดลง $3%)"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
+msgstr "ทำให้การเปลี่ยนเส้นทางของหน้าที่เชื่อมโยงไปถึงสามารถเก็บแคชได้"
 
 #  Name of a Page Speed rule. Here, minify means "remove
 #  whitespace and comments". The goal is to reduce the size of the
@@ -450,10 +490,10 @@ msgstr "ระบุเครื่องมือตรวจสอบแคช
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpages include a declaration of the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, early on in the page.
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
 #  This is displayed in a list of rule names that Page Speed generates.
-msgid "Specify a character set early"
-msgstr "ระบุการเข้ารหัสข้อความไว้ในส่วนต้น"
+msgid "Specify a character set"
+msgstr "ระบุการเข้ารหัสข้อความ"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
@@ -501,11 +541,12 @@ msgstr "สไตล์ชีตภายนอกต่อไปนี้ได
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "ภาพต่อไปนี้ไม่มีแอตทริบิวต์ความกว้างและ/หรือความสูง"
 
-#  A descriptive header at the top of a list of URLs of images
-#  that are resized in HTML or CSS.  It describes the problem to the user.
-#  "$1" is a format token that is replaced with the total savings in bytes
-#  from serving images in their final size (e.g. "32.5KiB").  "$2" is replaced
-#  with the percentage reduction of bytes transferred (e.g. "25").
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  "$1" is a format token that is replaced with the total
+#  savings in bytes from serving images in their final size
+#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
+#  bytes transferred (e.g. "25").
 msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
 msgstr "ภาพต่อไปนี้ได้รับการปรับขนาดใน HTML หรือ CSS การใช้ภาพที่ปรับขนาดสามารถลดพื้นที่ลงได้ $1 (ลดลง $2%)"
 
@@ -529,6 +570,12 @@ msgstr "ภาพต่อไปนี้ที่ได้รับจาก $1
 #  URL of the HTML page.
 msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
 msgstr "พบบล็อกสคริปต์ในหน้าต่อไปนี้ใน $1 ระหว่างไฟล์ CSS ภายนอกและทรัพยากรอื่น หากต้องการดาวน์โหลดพร้อมกัน ให้ย้ายสคริปต์ในหน้าก่อนไฟล์ CSS ภายนอกหรือหลังทรัพยากรถัดไป"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgstr "การเปลี่ยนเส้นทางหน้าที่เชื่อมโยงไปถึงต่อไปนี้ไม่สามารถเก็บแคชได้ ให้เปลี่ยนเป็นแบบเก็บแคชได้เพื่อเพิ่มความเร็วในการโหลดหน้าเว็บสำหรับผู้ที่เข้าชมไซต์ของคุณเป็นประจำ"
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -578,14 +625,21 @@ msgid "The following resources have identical contents, but are served from diff
 msgstr "ทรัพยากรต่อไปนี้มีเนื้อหาเหมือนกัน แต่มีให้บริการในหลาย URL ควรใช้ทรัพยากรเหล่านี้จาก URL เดียวกันเพื่อจะได้ประหยัด $1 คำขอและ $2"
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as either not declaring the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, or declaring a
-#  character set but doing so late in the page for a character set other
-#  than what the browser was previously assuming.  It describes the
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
 #  problem to the user, and tells them how to fix it by explicitly
 #  specifying the character set near the beginning of the page.
-msgid "The following resources have no character set specified or have a non-default character set specified late in the document. Specifying a character set early in these documents can speed up browser rendering."
-msgstr "ทรัพยากรต่อไปนี้ไม่ได้ระบุการเข้ารหัสข้อความ หรือมีการเข้ารหัสข้อความที่ไม่ได้เป็นค่าเริ่มต้นระบุไว้ในส่วนท้ายของเอกสาร การระบุการเข้ารหัสข้อความไว้ในส่วนต้นของเอกสารเหล่านี้สามารถช่วยเพิ่มความเร็วในการแสดงผลของเบราว์เซอร์ได้"
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
+msgstr "ทรัพยากรต่อไปนี้ไม่ได้ระบุการเข้ารหัสข้อความในส่วนหัวของ HTTP ไว้ การระบุีการเข้ารหัสข้อความในส่วนหัวของ HTTP จะช่วยเพิ่มความเร็วในการแสดงผลของเบราว์เซอร์"
+
+#  Header at the top of a list of URLs of resources that are
+#  served from a domain that does not have HTTP Keep-Alive enabled.  It
+#  tells the user to enable keep-alive on that domain.  The "$1" is a
+#  format string that will be replaced with the domain in question.
+#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  translated.
+msgid "The host $1 should enable Keep-Alive. It serves the following resources."
+msgstr "โฮสต์ $1 ควรเปิดใช้งาน Keep-Alive ซึ่งเป็นที่เก็บทรัพยากรต่อไปนี้"
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -639,10 +693,3 @@ msgstr "หน้าเว็บนี้สร้างคำขอให้ $1
 #  resources to load serially, not in parallel).
 msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
 msgstr "การใช้ document.write เพื่อดึงข้อมูลทรัพยากรภายนอกอาจทำให้เกิดความล่าช้าในการแสดงหน้าเว็บ ทรัพยากรต่อไปนี้ใช้ document.write เพื่อดึงข้อมูลทรัพยากรภายนอก:"
-
-#  Header in a list of Page Speed rule results.  $1 is a format
-#  argument that will be replaced by the name of the Page Speed rule (e.g.
-#  "Leverage Browser Caching"; $1 is a format argument that will be replaced
-#  by the rule's Page Speed score (e.g. "93").
-msgid "_$1_ (score=$2)"
-msgstr "_$1_ (score=$2)"

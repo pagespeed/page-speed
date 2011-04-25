@@ -1,3 +1,10 @@
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "$1"  will be replaced
+#  by the document (HTML page, or a iframe) URL; the "$2" will be
+#  replaced by the size of its inline JavaScripts.
+msgid "$1 ($2 of inline JavaScript)"
+msgstr "$1（$2 の JavaScript インラインフレーム）"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -67,6 +74,12 @@ msgstr "$1 のドキュメント ボディに以下の CSS があります:"
 msgid "$1 has a request size of $2"
 msgstr "$1 のリクエスト サイズは $2 です"
 
+#  Message displayed to indicate that a URL
+#  redirects to another URL, e.g "http://example.com/ is an
+#  uncacheable redirect to http://www.example.com/".
+msgid "$1 is an uncacheable redirect to $2"
+msgstr "$1 から $2 にキャッシュを利用せずにリダイレクトされています"
+
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the served size of the image, the final size of the
 #  image, and the amount saved by serving the image in the final size.
@@ -95,6 +108,12 @@ msgstr "$1 は HTML または CSS 内でサイズが変更されます。変更�
 #  be replaced by the resource URL.
 msgid "$1 loads $2 synchronously."
 msgstr "$1 は $2 を同期して読み込みます。"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "最初のページの読み込み中に JavaScript の $1 が解析されます。JavaScript の解析を遅延することで、ページ レンダリングの障害が軽減します。"
 
 #  A sub-heading that contains the URL of the document and
 #  a statement instructing the user to inline certain small resources.
@@ -152,8 +171,9 @@ msgstr "誤りのあるリクエストを送信しない"
 msgid "Avoid document.write"
 msgstr "document.write を使用しない"
 
-#  Header at the top of a list of URLs that Page Speed deteced as
-#  having CSS resources in the document body. It describes the problem.
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
 msgid "CSS in the document body adversely impacts rendering performance."
 msgstr "ドキュメント ボディ内に CSS を挿入すると、レンダリングのパフォーマンスが低下します。"
 
@@ -217,6 +237,19 @@ msgstr "Cookie: $1"
 msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
 msgstr "Cookie: $1（これは静的リソースなので、Cookie を使用しないドメインから提供してください）"
 
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr "JavaScript の解析を遅延する"
+
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr "Keep-Alive を有効にする"
+
 #  The name of a Page Speed rule that tells webmasters to enable
 #  gzip compression on their servers (i.e. enable compressing the web content
 #  before it is sent to clients).  This appears in a list of rule names
@@ -258,9 +291,9 @@ msgstr "インライン スクリプト ブロック #$1"
 msgid "Leverage browser caching"
 msgstr "ブラウザのキャッシュを活用する"
 
-#  Detail of external CSS resources. It tells the user how
-#  to fix the problem by moving the CSS to document head. The "$1" will
-#  be replaced by the CSS resource URL.
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head. The
+#  "$1" will be replaced by the CSS resource URL.
 msgid "Link node $1 should be moved to the document head."
 msgstr "リンク ノード $1 はドキュメント ヘッドに移動してください。"
 
@@ -270,6 +303,13 @@ msgstr "リンク ノード $1 はドキュメント ヘッドに移動してく
 #  replace by the number of percent (e.g. 12).
 msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
 msgstr "$1 を可逆圧縮すると $2（$3%）削減できます。"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
+msgstr "リンク先ページのリダイレクトでキャッシュを利用できるようにする"
 
 #  Name of a Page Speed rule. Here, minify means "remove
 #  whitespace and comments". The goal is to reduce the size of the
@@ -450,10 +490,10 @@ msgstr "キャッシュ バリデータを指定する"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpages include a declaration of the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, early on in the page.
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
 #  This is displayed in a list of rule names that Page Speed generates.
-msgid "Specify a character set early"
-msgstr "文字セットを最初に指定する"
+msgid "Specify a character set"
+msgstr "文字セットを指定する"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
@@ -501,11 +541,12 @@ msgstr "以下の外部スタイルシートが、@import を使用して $1 に
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "以下の画像には、幅や高さの属性が指定されていません。"
 
-#  A descriptive header at the top of a list of URLs of images
-#  that are resized in HTML or CSS.  It describes the problem to the user.
-#  "$1" is a format token that is replaced with the total savings in bytes
-#  from serving images in their final size (e.g. "32.5KiB").  "$2" is replaced
-#  with the percentage reduction of bytes transferred (e.g. "25").
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  "$1" is a format token that is replaced with the total
+#  savings in bytes from serving images in their final size
+#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
+#  bytes transferred (e.g. "25").
 msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
 msgstr "以下の画像は HTML または CSS 内でサイズが変更されます。変更後のサイズで画像を提供すると $1（$2%）削減できます。"
 
@@ -529,6 +570,12 @@ msgstr "$1 から提供される以下の画像は、CSS スプライトを使�
 #  URL of the HTML page.
 msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
 msgstr "$1 には、外部 CSS ファイルと他のリソースとの間に以下のインライン スクリプト ブロックがあります。ダウンロードを同時に処理するには、インライン スクリプトを外部 CSS ファイルの前、またはその次のリソースの後に移動してください。"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgstr "次のリンク先ページのリダイレクトでキャッシュを利用できません。サイトの訪問者がページの読み込み時間を短縮できるように、これらのページでキャッシュを利用できるようにしてください。"
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -578,14 +625,21 @@ msgid "The following resources have identical contents, but are served from diff
 msgstr "以下のリソースではコンテンツが重複していますが、別々の URL から提供されています。これらのリソースを 1 つの URL から提供すると、リクエストを $1 件とサイズを $2 減らすことができます。"
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as either not declaring the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, or declaring a
-#  character set but doing so late in the page for a character set other
-#  than what the browser was previously assuming.  It describes the
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
 #  problem to the user, and tells them how to fix it by explicitly
 #  specifying the character set near the beginning of the page.
-msgid "The following resources have no character set specified or have a non-default character set specified late in the document. Specifying a character set early in these documents can speed up browser rendering."
-msgstr "以下のリソースでは、文字セットが指定されていないか、ドキュメントの最後のほうで、デフォルト以外の文字セットが指定されています。ドキュメントの最初に文字セットを指定すると、ブラウザのレンダリング速度を速めることができます。"
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
+msgstr "次のリソースは HTTP ヘッダーに文字セットが指定されていません。HTTP ヘッダーに文字セットを指定するとブラウザの表示が速くなります。"
+
+#  Header at the top of a list of URLs of resources that are
+#  served from a domain that does not have HTTP Keep-Alive enabled.  It
+#  tells the user to enable keep-alive on that domain.  The "$1" is a
+#  format string that will be replaced with the domain in question.
+#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  translated.
+msgid "The host $1 should enable Keep-Alive. It serves the following resources."
+msgstr "ホスト $1 は Keep-Alive を有効にする必要があります。このホストは次のリソースを提供します。"
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -639,10 +693,3 @@ msgstr "このページは、$1 件の同時読み込みリクエストを $2 �
 #  resources to load serially, not in parallel).
 msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
 msgstr "外部リソースの取得に document.write を使用すると、ページ レンダリングでシリアル化遅延が発生する可能性があります。外部リソースの取得に document.write を使用しているリソースは次のとおりです:"
-
-#  Header in a list of Page Speed rule results.  $1 is a format
-#  argument that will be replaced by the name of the Page Speed rule (e.g.
-#  "Leverage Browser Caching"; $1 is a format argument that will be replaced
-#  by the rule's Page Speed score (e.g. "93").
-msgid "_$1_ (score=$2)"
-msgstr "$1（スコア = $2）"
