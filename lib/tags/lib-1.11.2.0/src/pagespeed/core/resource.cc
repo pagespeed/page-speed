@@ -401,6 +401,8 @@ ImageType Resource::GetImageType() const {
     } else if (StringCaseEndsWith(path, ".jpg") ||
                StringCaseEndsWith(path, ".jpeg")) {
       return JPEG;
+    } else if (StringCaseEndsWith(path, ".svg")) {
+      return SVG;
     }
   } else {
     size_t separator_idx = type.find(";");
@@ -415,6 +417,8 @@ ImageType Resource::GetImageType() const {
     } else if (StringCaseEqual(type, "image/jpg") ||
                StringCaseEqual(type, "image/jpeg")) {
       return JPEG;
+    } else if (StringCaseEqual(type, "image/svg+xml")) {
+      return SVG;
     }
   }
 

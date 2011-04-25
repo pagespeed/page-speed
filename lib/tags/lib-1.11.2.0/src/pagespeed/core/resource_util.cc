@@ -154,7 +154,15 @@ bool IsCompressibleResource(const Resource& resource) {
     case CSS:
     case JS:
       return true;
-
+    case IMAGE:
+      switch (resource.GetImageType()) {
+        case SVG:
+          // SVG is XML-based, so it is compressible.
+          // See http://code.google.com/p/page-speed/issues/detail?id=487
+          return true;
+        default:
+          return false;
+      }
     default:
       return false;
   }
@@ -452,6 +460,11 @@ int64 ComputeTotalResponseBytes(const InputInformation& input_info) {
 }
 
 int64 ComputeCompressibleResponseBytes(const InputInformation& input_info) {
+  // TODO(mdsteele): This should include SVG images as well (and maybe other
+  // things), but there's not an easy way to do that.  On the other hand, this
+  // function is only used for computing the rule score of the gzip rule, and
+  // we're phasing out rule scores.  We should just remove this function when
+  // we can.
   return input_info.html_response_bytes() +
       input_info.text_response_bytes() +
       input_info.css_response_bytes() +
