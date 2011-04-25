@@ -1,3 +1,10 @@
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "$1"  will be replaced
+#  by the document (HTML page, or a iframe) URL; the "$2" will be
+#  replaced by the size of its inline JavaScripts.
+msgid "$1 ($2 of inline JavaScript)"
+msgstr "$1 (內嵌 JavaScript 為 $2 )"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -67,6 +74,12 @@ msgstr "$1 的文件內文包含 CSS："
 msgid "$1 has a request size of $2"
 msgstr "$1 含有大小 $2 的要求"
 
+#  Message displayed to indicate that a URL
+#  redirects to another URL, e.g "http://example.com/ is an
+#  uncacheable redirect to http://www.example.com/".
+msgid "$1 is an uncacheable redirect to $2"
+msgstr "$1 無法快取重新導向至 $2"
+
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the served size of the image, the final size of the
 #  image, and the amount saved by serving the image in the final size.
@@ -95,6 +108,12 @@ msgstr "已透過 HTML 或 CSS 調整 $1 的大小，提供大小經過調整的
 #  be replaced by the resource URL.
 msgid "$1 loads $2 synchronously."
 msgstr "$1 同步載入 $2。"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "JavaScript 的 $1 會在初次載入網頁時進行剖析。延後剖析 JavaScript 可以避免系統無法顯示網頁的情形。"
 
 #  A sub-heading that contains the URL of the document and
 #  a statement instructing the user to inline certain small resources.
@@ -152,8 +171,9 @@ msgstr "避免使用無效的要求"
 msgid "Avoid document.write"
 msgstr "避免使用 document.write"
 
-#  Header at the top of a list of URLs that Page Speed deteced as
-#  having CSS resources in the document body. It describes the problem.
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
 msgid "CSS in the document body adversely impacts rendering performance."
 msgstr "將 CSS 放置在文件內文，將無法呈現最佳顯示效果。"
 
@@ -217,6 +237,19 @@ msgstr "Cookie 大小：$1"
 msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
 msgstr "Cookie 大小：$1 (請注意，請透過不含 Cookie 的網域提供此靜態資源)"
 
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr "延後剖析 JavaScript"
+
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr "啟用 Keep-Alive"
+
 #  The name of a Page Speed rule that tells webmasters to enable
 #  gzip compression on their servers (i.e. enable compressing the web content
 #  before it is sent to clients).  This appears in a list of rule names
@@ -258,9 +291,9 @@ msgstr "內嵌指令碼區塊 #$1"
 msgid "Leverage browser caching"
 msgstr "使用瀏覽器快取功能"
 
-#  Detail of external CSS resources. It tells the user how
-#  to fix the problem by moving the CSS to document head. The "$1" will
-#  be replaced by the CSS resource URL.
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head. The
+#  "$1" will be replaced by the CSS resource URL.
 msgid "Link node $1 should be moved to the document head."
 msgstr "請將連結節點 $1 移至文件標頭。"
 
@@ -270,6 +303,13 @@ msgstr "請將連結節點 $1 移至文件標頭。"
 #  replace by the number of percent (e.g. 12).
 msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
 msgstr "在沒有資料耗損的情況下壓縮 $1 可將檔案大小減少 $2 (減少幅度為 $3%)。"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
+msgstr "將到達網頁的重新導向設為可快取"
 
 #  Name of a Page Speed rule. Here, minify means "remove
 #  whitespace and comments". The goal is to reduce the size of the
@@ -450,10 +490,10 @@ msgstr "快取驗證資訊"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpages include a declaration of the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, early on in the page.
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
 #  This is displayed in a list of rule names that Page Speed generates.
-msgid "Specify a character set early"
-msgstr "在前段指定字元集"
+msgid "Specify a character set"
+msgstr "指定字元集"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
@@ -501,11 +541,12 @@ msgstr "下列外部樣式表是透過 @import 加入 $1 中。"
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "下列圖片沒有寬度和/或高度屬性。"
 
-#  A descriptive header at the top of a list of URLs of images
-#  that are resized in HTML or CSS.  It describes the problem to the user.
-#  "$1" is a format token that is replaced with the total savings in bytes
-#  from serving images in their final size (e.g. "32.5KiB").  "$2" is replaced
-#  with the percentage reduction of bytes transferred (e.g. "25").
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  "$1" is a format token that is replaced with the total
+#  savings in bytes from serving images in their final size
+#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
+#  bytes transferred (e.g. "25").
 msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
 msgstr "已透過 HTML 或 CSS 調整下列圖片的大小。提供大小經過調整的圖片可將檔案大小減少 $1 (減少幅度為 $2%)。"
 
@@ -529,6 +570,12 @@ msgstr "請儘可能透過 CSS 合併圖片將 $1 提供的下列圖片加以合
 #  URL of the HTML page.
 msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
 msgstr "系統在外部 CSS 檔案和另一個資源之間的 $1 發現下列內嵌指令碼區塊。如要允許使用平行下載功能，請將內嵌指令碼移至外部 CSS 檔案之前或下一個資源之後。"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgstr "下列到達網頁的重新導向不是可快取。請將重新導向設為可快取以加快重複造訪網站的訪客載入網頁的時間。"
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -578,14 +625,21 @@ msgid "The following resources have identical contents, but are served from diff
 msgstr "下列資源擁有相同內容但來自不同的網址，請從相同的網址提供資源，以減少 $1 個要求和 $2 的檔案大小。"
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as either not declaring the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, or declaring a
-#  character set but doing so late in the page for a character set other
-#  than what the browser was previously assuming.  It describes the
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
 #  problem to the user, and tells them how to fix it by explicitly
 #  specifying the character set near the beginning of the page.
-msgid "The following resources have no character set specified or have a non-default character set specified late in the document. Specifying a character set early in these documents can speed up browser rendering."
-msgstr "未指定下列資源的字元集，或在文件較後段的位置指定非預設字元集。請在這些文件較前段的位置指定字元集，以加快瀏覽器顯示內容的時間。"
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
+msgstr "下列資源的 HTTP 標頭中未指定字元集。在 HTTP 標頭中指定字元集可以加快瀏覽器顯示內容的速度。"
+
+#  Header at the top of a list of URLs of resources that are
+#  served from a domain that does not have HTTP Keep-Alive enabled.  It
+#  tells the user to enable keep-alive on that domain.  The "$1" is a
+#  format string that will be replaced with the domain in question.
+#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  translated.
+msgid "The host $1 should enable Keep-Alive. It serves the following resources."
+msgstr "主機 $1 應啟用 Keep-Alive。主機可以提供下列資源。"
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -639,10 +693,3 @@ msgstr "此網頁向 $2 提出 $1 個可平行處理的要求，請將這些要�
 #  resources to load serially, not in parallel).
 msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
 msgstr "透過 document.write 擷取外部資源可能會導致顯示網頁時發生序列化延遲；使用 document.write 擷取外部資源的資源如下："
-
-#  Header in a list of Page Speed rule results.  $1 is a format
-#  argument that will be replaced by the name of the Page Speed rule (e.g.
-#  "Leverage Browser Caching"; $1 is a format argument that will be replaced
-#  by the rule's Page Speed score (e.g. "93").
-msgid "_$1_ (score=$2)"
-msgstr "_$1_ (評分 = $2)"
