@@ -1,3 +1,10 @@
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "$1"  will be replaced
+#  by the document (HTML page, or a iframe) URL; the "$2" will be
+#  replaced by the size of its inline JavaScripts.
+msgid "$1 ($2 of inline JavaScript)"
+msgstr "$1(인라인 자바스크립트 $2)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -67,6 +74,12 @@ msgstr "$1의 문서 본문에 CSS가 있습니다."
 msgid "$1 has a request size of $2"
 msgstr "$1의 요청 크기는 $2입니다."
 
+#  Message displayed to indicate that a URL
+#  redirects to another URL, e.g "http://example.com/ is an
+#  uncacheable redirect to http://www.example.com/".
+msgid "$1 is an uncacheable redirect to $2"
+msgstr "$1은(는) $2(으)로의 리디렉션이며 캐시할 수 없습니다."
+
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the served size of the image, the final size of the
 #  image, and the amount saved by serving the image in the final size.
@@ -95,6 +108,12 @@ msgstr "HTML 또는 CSS에서 $1의 크기가 조정됩니다. 조정된 이미�
 #  be replaced by the resource URL.
 msgid "$1 loads $2 synchronously."
 msgstr "$1은(는) $2을(를) 동기식으로 로드합니다."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "자바스크립트의 $1이(가) 초기 페이지 로드하는 동안 파싱됩니다. 페이지 렌더링 차단을 줄이려면 자바스크립트 파싱을 지연하세요."
 
 #  A sub-heading that contains the URL of the document and
 #  a statement instructing the user to inline certain small resources.
@@ -152,8 +171,9 @@ msgstr "잘못된 요청 사용 안함"
 msgid "Avoid document.write"
 msgstr "document.write 사용 안함"
 
-#  Header at the top of a list of URLs that Page Speed deteced as
-#  having CSS resources in the document body. It describes the problem.
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
 msgid "CSS in the document body adversely impacts rendering performance."
 msgstr "문서 본문의 CSS는 렌더링 성능에 부정적 영향을 미칩니다."
 
@@ -217,6 +237,19 @@ msgstr "쿠키: $1"
 msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
 msgstr "쿠키: $1(정적 리소스로서 쿠키가 없는 도메인에서 제공되어야 함)"
 
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr "자바스크립트 파싱 지연"
+
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr "Keep-Alive 사용"
+
 #  The name of a Page Speed rule that tells webmasters to enable
 #  gzip compression on their servers (i.e. enable compressing the web content
 #  before it is sent to clients).  This appears in a list of rule names
@@ -258,9 +291,9 @@ msgstr "본문 삽입 스크립트 블록 #$1"
 msgid "Leverage browser caching"
 msgstr "브라우저 캐싱 활용"
 
-#  Detail of external CSS resources. It tells the user how
-#  to fix the problem by moving the CSS to document head. The "$1" will
-#  be replaced by the CSS resource URL.
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head. The
+#  "$1" will be replaced by the CSS resource URL.
 msgid "Link node $1 should be moved to the document head."
 msgstr "링크 노드 $1을(를) 문서 헤드로 이동해야 합니다."
 
@@ -270,6 +303,13 @@ msgstr "링크 노드 $1을(를) 문서 헤드로 이동해야 합니다."
 #  replace by the number of percent (e.g. 12).
 msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
 msgstr "$1을(를) 무손실 압축하면 $2을(를) 줄일 수 있습니다($3% 감소)."
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
+msgstr "방문 페이지 리디렉션에서 캐시를 사용함"
 
 #  Name of a Page Speed rule. Here, minify means "remove
 #  whitespace and comments". The goal is to reduce the size of the
@@ -450,10 +490,10 @@ msgstr "캐시 유효성 검사기 지정"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpages include a declaration of the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, early on in the page.
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
 #  This is displayed in a list of rule names that Page Speed generates.
-msgid "Specify a character set early"
-msgstr "초반부에 문자 집합 지정"
+msgid "Specify a character set"
+msgstr "문자 집합 지정"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
@@ -501,11 +541,12 @@ msgstr "다음 외부 스타일시트는 @import를 사용하는 $1에 포함되
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "다음 이미지에 너비 및/또는 높이 속성이 없습니다."
 
-#  A descriptive header at the top of a list of URLs of images
-#  that are resized in HTML or CSS.  It describes the problem to the user.
-#  "$1" is a format token that is replaced with the total savings in bytes
-#  from serving images in their final size (e.g. "32.5KiB").  "$2" is replaced
-#  with the percentage reduction of bytes transferred (e.g. "25").
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  "$1" is a format token that is replaced with the total
+#  savings in bytes from serving images in their final size
+#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
+#  bytes transferred (e.g. "25").
 msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
 msgstr "다음 이미지는 HTML 또는 CSS에서 크기가 조정됩니다. 조정된 이미지를 제공하면 $1을(를) 줄일 수 있습니다($2% 감소)."
 
@@ -529,6 +570,12 @@ msgstr "$1에서 제공한 다음 이미지는 CSS 스프라이트를 사용하�
 #  URL of the HTML page.
 msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
 msgstr "외부 CSS 파일 및 다른 리소스 사이의 $1에서 다음 본문 삽입 스크립트 블록을 발견했습니다. 병렬 다운로드를 허용하려면 외부 CSS 파일의 앞 또는 다음 리소스의 뒤로 본문 삽입 스크립트를 이동하세요."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgstr "다음 방문 페이지 리디렉션을 캐시할 수 없습니다. 사이트의 반복 방문자에게 페이지가 더 빨리 로드되게 하려면 캐시를 사용하도록 설정하세요."
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -578,14 +625,21 @@ msgid "The following resources have identical contents, but are served from diff
 msgstr "다음 리소스는 동일한 콘텐츠를 갖지만 서로 다른 URL에서 제공되었습니다. 이러한 리소스를 일관된 URL에서 제공하면 요청 $1개와 $2을(를) 감소시킬 수 있습니다."
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as either not declaring the character set (e.g. UTF-8,
-#  Latin-1, or some other text encoding) being used, or declaring a
-#  character set but doing so late in the page for a character set other
-#  than what the browser was previously assuming.  It describes the
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
 #  problem to the user, and tells them how to fix it by explicitly
 #  specifying the character set near the beginning of the page.
-msgid "The following resources have no character set specified or have a non-default character set specified late in the document. Specifying a character set early in these documents can speed up browser rendering."
-msgstr "다음 리소스는 문서에 지정된 문자 집합이 없거나 후반부에 지정된 기본값 이외의 문자 집합이 있습니다. 이러한 문서에 문자 집합을 초반부에 지정하면 브라우저 렌더링 속도를 높일 수 있습니다."
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
+msgstr "다음 리소스는 HTTP 헤더에 문자 집합을 지정하지 않았습니다. 지정하면 브라우저 렌더링 속도를 높일 수 있습니다."
+
+#  Header at the top of a list of URLs of resources that are
+#  served from a domain that does not have HTTP Keep-Alive enabled.  It
+#  tells the user to enable keep-alive on that domain.  The "$1" is a
+#  format string that will be replaced with the domain in question.
+#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  translated.
+msgid "The host $1 should enable Keep-Alive. It serves the following resources."
+msgstr "호스트 $1에서 Keep-Alive를 사용해야 합니다. 제공하는 리소스는 다음과 같습니다."
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -639,10 +693,3 @@ msgstr "이 페이지는 $2에 대한 $1개의 병렬화 요청을 만듭니다.
 #  resources to load serially, not in parallel).
 msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
 msgstr "document.write를 사용하여 외부 리소스를 가져오면 페이지 렌더링에 일련화 지연이 발생할 수 있습니다. document.write를 사용하여 외부 리소스를 가져오는 리소스는 다음과 같습니다."
-
-#  Header in a list of Page Speed rule results.  $1 is a format
-#  argument that will be replaced by the name of the Page Speed rule (e.g.
-#  "Leverage Browser Caching"; $1 is a format argument that will be replaced
-#  by the rule's Page Speed score (e.g. "93").
-msgid "_$1_ (score=$2)"
-msgstr "_$1_ (기록=$2)"
