@@ -106,7 +106,7 @@ pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
 void PrintUsage() {
   fprintf(stderr, "\n");
   std::vector<std::string> matching;
-  google::ShowUsageWithFlagsRestrict(google::GetArgv0(), __FILE__);
+  ::google::ShowUsageWithFlagsRestrict(::google::GetArgv0(), __FILE__);
 }
 
 void PrintLocales() {
@@ -269,8 +269,8 @@ class ScopedShutDown {
  public:
   ~ScopedShutDown() {
     pagespeed::ShutDown();
-    google::protobuf::ShutdownProtobufLibrary();
-    google::ShutDownCommandLineFlags();
+    ::google::protobuf::ShutdownProtobufLibrary();
+    ::google::ShutDownCommandLineFlags();
   }
 };
 
@@ -291,10 +291,10 @@ int main(int argc, char** argv) {
 
   pagespeed::Init();
 
-  google::SetUsageMessage(
+  ::google::SetUsageMessage(
       "Reads a file (such as a HAR) and emits Page Speed results "
       "in one of several formats.");
-  google::ParseCommandLineNonHelpFlags(&argc, &argv, true);
+  ::google::ParseCommandLineNonHelpFlags(&argc, &argv, true);
 
   if (FLAGS_v || FLAGS_version) {
     PrintVersion();

@@ -26,10 +26,10 @@ namespace l10n {
 namespace {
 
 // The locale of the master table (i.e. the locale for which translation is the
-// identity transformation)
+// identity transformation).
 const char* kNativeLocale = "en_US";
 
-} // namespace
+}  // namespace
 
 using std::map;
 using std::string;
