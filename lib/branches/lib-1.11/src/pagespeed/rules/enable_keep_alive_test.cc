@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <string>
+#include <vector>
 
 #include "pagespeed/rules/enable_keep_alive.h"
 #include "pagespeed/testing/pagespeed_test.h"
@@ -109,6 +110,16 @@ TEST_F(EnableKeepAliveTest, OneResourceClose) {
   CheckExpectedViolations(no_violations);
 }
 
+TEST_F(EnableKeepAliveTest, TwoResource) {
+  const std::string url1 = "http://test1.com/image1.png";
+  const std::string url2 = "http://test1.com/image2.png";
+  CreatePngResource(url1, kImgSizeBytes);
+  CreatePngResource(url2, kImgSizeBytes);
+  Freeze();
+  std::vector<Violation> violations;
+  CheckExpectedViolations(violations);
+}
+
 TEST_F(EnableKeepAliveTest, TwoResourceClose) {
   const std::string url1 = "http://test1.com/image1.png";
   const std::string url2 = "http://test1.com/image2.png";
@@ -121,7 +132,7 @@ TEST_F(EnableKeepAliveTest, TwoResourceClose) {
   urls.push_back(url1);
   urls.push_back(url2);
   std::vector<Violation> violations;
-  violations.push_back(Violation(1,"test.com", urls));
+  violations.push_back(Violation(1, "test.com", urls));
   CheckExpectedViolations(violations);
 }
 
@@ -137,7 +148,7 @@ TEST_F(EnableKeepAliveTest, TwoResourceHttp1_0) {
   urls.push_back(url1);
   urls.push_back(url2);
   std::vector<Violation> violations;
-  violations.push_back(Violation(1,"test.com", urls));
+  violations.push_back(Violation(1, "test.com", urls));
   CheckExpectedViolations(violations);
 }
 
@@ -151,7 +162,7 @@ TEST_F(EnableKeepAliveTest, TwoResourceOneClose) {
   std::vector<std::string> urls;
   urls.push_back(url1);
   std::vector<Violation> violations;
-  violations.push_back(Violation(1,"test.com", urls));
+  violations.push_back(Violation(1, "test.com", urls));
   CheckExpectedViolations(violations);
 }
 
