@@ -21,14 +21,31 @@
 
 namespace {
 
+// Javascript's grammar has the appalling property that it cannot be lexed
+// without also being parsed, due to its semicolon insertion rules and the
+// ambiguity between regex literals and the division operator.  We don't want
+// to build a full parser just for the sake of removing whitespace/comments, so
+// this code uses some heuristics to try to guess the relevant parsing details.
+
 const int kEOF = -1;  // represents the end of the input
 
 // A token can either be a character (0-255) or one of these constants:
 const int kStartToken = 256;  // the start of the input
-const int kNameNumberToken = 257;  // a name, keyword, or number
-const int kCCCommentToken = 258;  // a conditional compilation comment
-const int kRegexToken = 259;  // a regular expression literal
-const int kStringToken = 260;  // a string literal
+const int kCCCommentToken = 257;  // a conditional compilation comment
+const int kRegexToken = 258;  // a regular expression literal
+const int kStringToken = 259;  // a string literal
+// We have to differentiate between the return/throw keywords and all other
+// names/keywords, to ensure that we don't treat return or throw as a primary
+// expression (which could mess up linebreak removal or differentiating between
+// division and regexes).
+const int kNameNumberToken = 260; // name, number, or keyword other than return
+const int kReturnThrowToken = 261;  // the return or throw keyword
+// The ++ and -- tokens affect the semicolon insertion rules in Javascript, so
+// we need to track them carefully in order to get whitespace removal right.
+// Other multicharacter operators (such as += or ===) can just be treated as
+// multiple single character operators, and it'll all come out okay.
+const int kPlusPlusToken = 262;  // a ++ token
+const int kMinusMinusToken = 263;  // a -- token
 
 // Is this a character that can appear in identifiers?
 int IsIdentifierChar(int c) {
@@ -37,6 +54,79 @@ int IsIdentifierChar(int c) {
   return ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
           (c >= 'A' && c <= 'Z') || c == '_' || c == '$' || c == '\\' ||
           c >= 127);
+}
+
+// Return true if the given token cannot ever be the first or last token of a
+// statement; that is, a semicolon will never be inserted next to this token.
+// This function is used to help us with linebreak suppression.
+bool CannotBeginOrEndStatement(int token) {
+  switch (token) {
+    case kStartToken:
+    case '=':
+    case '<':
+    case '>':
+    case ';':
+    case ':':
+    case '?':
+    case '|':
+    case '^':
+    case '&':
+    case '*':
+    case '/':
+    case '%':
+    case ',':
+    case '.':
+      return true;
+    default:
+      return false;
+  }
+}
+
+// Return true if the given token signifies that we are at the end of a primary
+// expression (e.g. 42, or foo[0], or func()).  This function is used to help
+// us with linebreak suppression and to tell the difference between regex
+// literals and division operators.
+bool EndsPrimaryExpression(int token) {
+  switch (token) {
+    case kNameNumberToken:
+    case kRegexToken:
+    case kStringToken:
+    case ')':
+    case ']':
+      return true;
+    default:
+      return false;
+  }
+}
+
+// Return true if we can safely remove a linebreak from between the given two
+// tokens (that is, if we're sure that the linebreak will not result in
+// semicolon insertion), or false if we're not sure we can remove it safely.
+bool CanSuppressLinebreak(int prev_token, int next_token) {
+  // We can suppress the linebreak if the previous token can't possibly be
+  // the end of a statement.
+  if (CannotBeginOrEndStatement(prev_token) ||
+      prev_token == '(' || prev_token == '[' || prev_token == '{' ||
+      prev_token == '!' || prev_token == '~' ||
+      prev_token == '+' || prev_token == '-') {
+    return true;
+  }
+  // We can suppress the linebreak if the next token can't possibly be the
+  // beginning of a statement.
+  if (CannotBeginOrEndStatement(next_token) ||
+      next_token == ')' || next_token == ']' ||
+      next_token == '}') {
+    return true;
+  }
+  // We can suppress the linebreak if one-token lookahead tells us that we
+  // could keep parsing without inserting a semicolon.
+  if (EndsPrimaryExpression(prev_token) &&
+      (next_token == '(' || next_token == '[' ||
+       next_token == '+' || next_token == '-')) {
+    return true;
+  }
+  // Otherwise, we should leave the linebreak there, to be safe.
+  return false;
 }
 
 class StringConsumer {
@@ -129,41 +219,9 @@ void Minifier<OutputConsumer>::ChangeToken(int next_token) {
   // insert a linebreak here to avoid running afoul of semicolon insertion
   // (that is, the code may be relying on semicolon insertion here, and
   // removing the linebreak would break it).
-  if (whitespace_ == LINEBREAK) {
-    switch (prev_token_) {
-      // These are tokens immediately after which a semicolon should never be
-      // inserted.
-      case kStartToken:
-      case '=':
-      case '<':
-      case '>':
-      case ';':
-      case ':':
-      case '?':
-      case '|':
-      case '&':
-      case '^':
-      case '*':
-      case '/':
-      case '!':
-      case ',':
-      case '(':
-      case '[':
-      case '{':
-        break;
-      default:
-        switch (next_token) {
-          // These are tokens immediately before which a semicolon should never
-          // be inserted.
-          case ')':
-          case ']':
-          case '}':
-            break;
-          // Otherwise, we should insert a linebreak to be safe.
-          default:
-            output_.push_back('\n');
-        }
-    }
+  if (whitespace_ == LINEBREAK &&
+      !CanSuppressLinebreak(prev_token_, next_token)) {
+    output_.push_back('\n');
   }
   whitespace_ = NO_WHITESPACE;
   prev_token_ = next_token;
@@ -193,6 +251,9 @@ void Minifier<OutputConsumer>::ConsumeBlockComment() {
   DCHECK(input_[index_ + 1] == '*');
   const int begin = index_;
   index_ += 2;
+  // We want to remove comments, but we need to preserve IE conditional
+  // compilation comments to avoid breaking scripts that rely on them.
+  // See http://code.google.com/p/page-speed/issues/detail?id=198
   const bool may_be_ccc = (index_ < input_.size() && input_[index_] == '@');
   while (index_ < input_.size()) {
     if (input_[index_] == '*' && Peek() == '/') {
@@ -222,14 +283,25 @@ void Minifier<OutputConsumer>::ConsumeLineComment() {
 // Consume a keyword, name, or number.
 template<typename OutputConsumer>
 void Minifier<OutputConsumer>::ConsumeNameOrNumber() {
-  if (prev_token_ == kNameNumberToken || prev_token_ == kRegexToken) {
+  if (prev_token_ == kNameNumberToken ||
+      prev_token_ == kReturnThrowToken ||
+      prev_token_ == kRegexToken) {
     InsertSpaceIfNeeded();
   }
-  ChangeToken(kNameNumberToken);
+  std::string token;
   while (index_ < input_.size() && IsIdentifierChar(input_[index_])) {
-    output_.push_back(input_[index_]);
+    token.push_back(input_[index_]);
     ++index_;
   }
+  // For the most part, we can just treat keywords the same as identifiers, and
+  // we'll still minify correctly.  However, the return and throw keywords in
+  // particular must be treated differently, to help us tell the difference
+  // between regex literals and division operators:
+  //   return/ x /g;  // this returns a regex literal; preserve whitespace
+  //   reTurn/ x /g;  // this performs two divisions; remove whitespace
+  ChangeToken(token == "return" || token == "throw" ?
+              kReturnThrowToken : kNameNumberToken);
+  output_.append(token);
 }
 
 template<typename OutputConsumer>
@@ -258,7 +330,8 @@ void Minifier<OutputConsumer>::ConsumeRegex() {
       break;  // error
     }
   }
-  // If we reached EOF without the regex being closed, then this is an error.
+  // If we reached newline or EOF without the regex being closed, then this is
+  // an error.
   error_ = true;
 }
 
@@ -327,11 +400,7 @@ void Minifier<OutputConsumer>::Minify() {
       // (...), or foo[0]), then it's definitely a division operator.  These
       // are previous tokens for which (I think) we can be sure that we're
       // following a primary expression.
-      else if (prev_token_ == kNameNumberToken ||
-               prev_token_ == kRegexToken ||
-               prev_token_ == kStringToken ||
-               prev_token_ == ')' ||
-               prev_token_ == ']') {
+      else if (EndsPrimaryExpression(prev_token_)) {
         ChangeToken('/');
         output_.push_back(ch);
         ++index_;
@@ -357,11 +426,47 @@ void Minifier<OutputConsumer>::Minify() {
              (whitespace_ == LINEBREAK || prev_token_ == kStartToken) &&
              input_.substr(index_).starts_with("-->")) {
       ConsumeLineComment();
+    }
+    // Treat ++ differently than two +'s.  It has different whitespace rules:
+    //   - A statement cannot ever end with +, but it can end with ++.  Thus, a
+    //     linebreak after + can always be removed (no semicolon will be
+    //     inserted), but a linebreak after ++ generally cannot.
+    //   - A + at the start of a line can continue the previous line, but a ++
+    //     cannot (a linebreak is _not_ permitted between i and ++ in an i++
+    //     statement).  Thus, a linebreak just before a + can be removed in
+    //     certain cases (if we can decide that a semicolon would not be
+    //     inserted), but a linebreak just before a ++ never can.
+    else if (ch == '+' && Peek() == '+') {
+      // Careful to leave whitespace so as not to create a +++ or ++++, which
+      // can be ambiguous.
+      if (prev_token_ == '+' || prev_token_ == kPlusPlusToken) {
+        InsertSpaceIfNeeded();
+      }
+      ChangeToken(kPlusPlusToken);
+      output_.append("++");
+      index_ += 2;
+    }
+    // Treat -- differently than two -'s.  It has different whitespace rules,
+    // analogous to those of ++ (see above).
+    else if (ch == '-' && Peek() == '-') {
+      // Careful to leave whitespace so as not to create a --- or ----, which
+      // can be ambiguous.  Also careful of !'s, since we don't want to
+      // accidentally create an SGML line comment.
+      if (prev_token_ == '-' || prev_token_ == kMinusMinusToken ||
+          prev_token_ == '!') {
+        InsertSpaceIfNeeded();
+      }
+      ChangeToken(kMinusMinusToken);
+      output_.append("--");
+      index_ += 2;
     } else {
       // Copy other characters over verbatim, but make sure not to join two +
-      // tokens into ++ or two - tokens into --, and avoid minifying the
-      // sequence of tokens < ! -- into an SGML line comment.
+      // tokens into ++ or two - tokens into --, or to join ++ and + into +++
+      // or -- and - into ---, or to minify the sequence of tokens < ! - - into
+      // an SGML line comment.
       if ((prev_token_ == ch && (ch == '+' || ch == '-')) ||
+          (prev_token_ == kPlusPlusToken && ch == '+') ||
+          (prev_token_ == kMinusMinusToken && ch == '-') ||
           (prev_token_ == '<' && ch == '!') ||
           (prev_token_ == '!' && ch == '-')) {
         InsertSpaceIfNeeded();
