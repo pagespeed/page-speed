@@ -27,6 +27,7 @@
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
       ],
       'sources': [
+        'pagespeed_output_util.cc',
         'proto_resource_utils.cc',
       ],
       'include_dirs': [
