@@ -372,6 +372,16 @@ PAGESPEED.NativeLibrary = {
       return null;
     }
 
+    // Use navigator.language (the browser locale) by default, but
+    // prefer the value from the locale service if available, since it
+    // is the system locale.
+    var locale = navigator.language;
+    var localeService = PAGESPEED.Utils.CCSV(
+        '@mozilla.org/intl/nslocaleservice;1', 'nsILocaleService');
+    if (localeService) {
+      locale = localeService.getLocaleComponentForUserAgent();
+    }
+
     var documentUrl = PAGESPEED.Utils.getDocumentUrl();
     if (opt_doc) {
       documentUrl = PAGESPEED.Utils.stripUriFragment(opt_doc.URL);
@@ -379,7 +389,7 @@ PAGESPEED.NativeLibrary = {
     var input = PAGESPEED.NativeLibrary.constructInputs(
         documentUrl, opt_regexp_url_exclude_filter);
     var resultJSON = pagespeedRules.computeAndFormatResults(
-      navigator.language,
+      locale,
       JSON.stringify(input.har),
       JSON.stringify(input.custom),
       PAGESPEED.Utils.newNsIArray(input.bodyInputStreams),
