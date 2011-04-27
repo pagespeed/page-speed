@@ -136,6 +136,7 @@
         'l10n/gettext_localizer_test.cc',
         'proto/formatted_results_to_json_converter_test.cc',
         'proto/formatted_results_to_text_converter_test.cc',
+        'proto/pagespeed_output_util_test.cc',
         'proto/results_to_json_converter_test.cc',
         'rules/avoid_bad_requests_test.cc',
         'rules/avoid_css_import_test.cc',
