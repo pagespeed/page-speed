@@ -18,10 +18,6 @@
 #include "pagespeed/jsminify/js_minify.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::jsminify::MinifyJs;
-using pagespeed::jsminify::GetMinifiedJsSize;
-using pagespeed::jsminify::MinifyJsAndCollapseStrings;
-using pagespeed::jsminify::GetMinifiedStringCollapsedJsSize;
 namespace {
 
 // This sample code comes from Douglas Crockford's jsmin example.
@@ -71,215 +67,194 @@ const char* kAfterCompilation =
     "is.ie=is.ns=false;is.opera=true;}\n"
     "if(is.ua.indexOf('gecko')>=0){is.ie=is.ns=false;is.gecko=true;}";
 
-TEST(JsMinifyTest, Basic) {
-  std::string output;
-  ASSERT_TRUE(MinifyJs(kBeforeCompilation, &output));
-  ASSERT_EQ(kAfterCompilation, output);
+class JsMinifyTest : public testing::Test {
+ protected:
+  void CheckMinification(const base::StringPiece& before,
+                         const base::StringPiece& after) {
+    std::string output;
+    EXPECT_TRUE(pagespeed::jsminify::MinifyJs(before, &output));
+    EXPECT_EQ(after, output);
 
-  int minimized_size = -1;
-  ASSERT_TRUE(GetMinifiedJsSize(kBeforeCompilation, &minimized_size));
-  ASSERT_EQ(static_cast<int>(strlen(kAfterCompilation)), minimized_size);
+    int output_size = -1;
+    EXPECT_TRUE(pagespeed::jsminify::GetMinifiedJsSize(before, &output_size));
+    EXPECT_EQ(static_cast<int>(after.size()), output_size);
+  }
+  void CheckError(const base::StringPiece& input) {
+    std::string output;
+    EXPECT_FALSE(pagespeed::jsminify::MinifyJs(input, &output));
+    EXPECT_TRUE(output.empty());
+
+    int output_size = -1;
+    EXPECT_FALSE(pagespeed::jsminify::GetMinifiedJsSize(input, &output_size));
+    EXPECT_EQ(-1, output_size);
+  }
+};
+
+TEST_F(JsMinifyTest, Basic) {
+  CheckMinification(kBeforeCompilation, kAfterCompilation);
 }
 
-TEST(JsMinifyTest, AlreadyMinified) {
-  std::string output;
-  ASSERT_TRUE(MinifyJs(kAfterCompilation, &output));
-  ASSERT_EQ(kAfterCompilation, output);
-
-  int minimized_size = -1;
-  ASSERT_TRUE(GetMinifiedJsSize(kAfterCompilation, &minimized_size));
-  ASSERT_EQ(static_cast<int>(strlen(kAfterCompilation)), minimized_size);
+TEST_F(JsMinifyTest, AlreadyMinified) {
+  CheckMinification(kAfterCompilation, kAfterCompilation);
 }
 
-TEST(JsMinifyTest, ErrorUnclosedComment) {
-  std::string input = "/* not valid javascript";
-  std::string output;
-  ASSERT_FALSE(MinifyJs(input, &output));
-  ASSERT_TRUE(output.empty());
-
-  int minimized_size = -1;
-  ASSERT_FALSE(GetMinifiedJsSize(input, &minimized_size));
-  ASSERT_EQ(-1, minimized_size);
+TEST_F(JsMinifyTest, ErrorUnclosedComment) {
+  CheckError("/* not valid javascript");
 }
 
-TEST(JsMinifyTest, ErrorUnclosedString) {
-  std::string input = "\"not valid javascript";
-  std::string output;
-  ASSERT_FALSE(MinifyJs(input, &output));
-  ASSERT_TRUE(output.empty());
-
-  int minimized_size = -1;
-  ASSERT_FALSE(GetMinifiedJsSize(input, &minimized_size));
-  ASSERT_EQ(-1, minimized_size);
+TEST_F(JsMinifyTest, ErrorUnclosedString) {
+  CheckError("\"not valid javascript");
 }
 
-TEST(JsMinifyTest, ErrorUnclosedRegex) {
-  std::string input = "/not_valid_javascript";
-  std::string output;
-  ASSERT_FALSE(MinifyJs(input, &output));
-  ASSERT_TRUE(output.empty());
-
-  int minimized_size = -1;
-  ASSERT_FALSE(GetMinifiedJsSize(input, &minimized_size));
-  ASSERT_EQ(-1, minimized_size);
+TEST_F(JsMinifyTest, ErrorUnclosedRegex) {
+  CheckError("/not_valid_javascript");
 }
 
-TEST(JsMinifyTest, SignedCharDoesntSignExtend) {
+TEST_F(JsMinifyTest, ErrorRegexNewline) {
+  CheckError("/not_valid\njavascript/;");
+}
+
+TEST_F(JsMinifyTest, SignedCharDoesntSignExtend) {
   const unsigned char input[] = { 0xff, 0x00 };
   const char* input_nosign = reinterpret_cast<const char*>(input);
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input_nosign, &output));
-  ASSERT_EQ(input_nosign, output);
-
-  int minimized_size = -1;
-  ASSERT_TRUE(GetMinifiedJsSize(input_nosign, &minimized_size));
-  ASSERT_EQ(1, minimized_size);
+  CheckMinification(input_nosign, input_nosign);
 }
 
-TEST(JsMinifyTest, DealWithCrlf) {
-  std::string input = "var x = 1;\r\nvar y = 2;";
-  std::string expected = "var x=1;var y=2;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, DealWithCrlf) {
+  CheckMinification("var x = 1;\r\nvar y = 2;", "var x=1;var y=2;");
 }
 
-TEST(JsMinifyTest, DealWithTabs) {
-  std::string input = "var x = 1;\n\tvar y = 2;";
-  std::string expected = "var x=1;var y=2;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, DealWithTabs) {
+  CheckMinification("var x = 1;\n\tvar y = 2;", "var x=1;var y=2;");
 }
 
-TEST(JsMinifyTest, EscapedCrlfInStringLiteral) {
-  std::string input = "var x = 'foo\\\r\nbar';";
-  std::string expected = "var x='foo\\\r\nbar';";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, EscapedCrlfInStringLiteral) {
+  CheckMinification("var x = 'foo\\\r\nbar';", "var x='foo\\\r\nbar';");
 }
 
-TEST(JsMinifyTest, EmptyInput) {
-  std::string output;
-  ASSERT_TRUE(MinifyJs("", &output));
-  ASSERT_EQ("", output);
+TEST_F(JsMinifyTest, EmptyInput) {
+  CheckMinification("", "");
 }
 
 // See http://code.google.com/p/page-speed/issues/detail?id=198
-TEST(JsMinifyTest, LeaveIEConditionalCompilationComments) {
-  const std::string input =
+TEST_F(JsMinifyTest, LeaveIEConditionalCompilationComments) {
+  CheckMinification(
       "/*@cc_on\n"
       "  /*@if (@_win32)\n"
       "    document.write('IE');\n"
       "  @else @*/\n"
       "    document.write('other');\n"
       "  /*@end\n"
-      "@*/";
-  const std::string expected =
+      "@*/",
       "/*@cc_on\n"
       "  /*@if (@_win32)\n"
       "    document.write('IE');\n"
       "  @else @*/\n"
       "document.write('other');/*@end\n"
-      "@*/";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+      "@*/");
 }
 
-TEST(JsMinifyTest, DoNotJoinPlusses) {
-  std::string input = "var x = 'date=' + +new Date();";
-  std::string expected = "var x='date='+ +new Date();";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, DoNotJoinPlusses) {
+  CheckMinification("var x = 'date=' + +new Date();",
+                    "var x='date='+ +new Date();");
 }
 
-TEST(JsMinifyTest, DoJoinBangs) {
-  std::string input = "var x = ! ! y;";
-  std::string expected = "var x=!!y;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, DoNotJoinPlusAndPlusPlus) {
+  CheckMinification("var x = y + ++z;", "var x=y+ ++z;");
 }
 
-// See http://code.google.com/p/page-speed/issues/detail?id=242
-TEST(JsMinifyTest, RemoveSurroundingSgmlComment) {
-  std::string input = "<!--\nvar x = 42;\n//-->";
-  std::string expected = "var x=42;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, DoNotJoinPlusPlusAndPlus) {
+  CheckMinification("var x = y++ + z;", "var x=y++ +z;");
 }
 
-TEST(JsMinifyTest, RemoveSurroundingSgmlCommentWithoutSlashSlash) {
-  std::string input = "<!--\nvar x = 42;\n-->\n";
-  std::string expected = "var x=42;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, DoNotJoinMinuses) {
+  CheckMinification("var x = 'date=' - -new Date();",
+                    "var x='date='- -new Date();");
+}
+
+TEST_F(JsMinifyTest, DoNotJoinMinusAndMinusMinus) {
+  CheckMinification("var x = y - --z;", "var x=y- --z;");
+}
+
+TEST_F(JsMinifyTest, DoNotJoinMinusMinusAndMinus) {
+  CheckMinification("var x = y-- - z;", "var x=y-- -z;");
+}
+
+TEST_F(JsMinifyTest, DoJoinBangs) {
+  CheckMinification("var x = ! ! y;", "var x=!!y;");
 }
 
 // See http://code.google.com/p/page-speed/issues/detail?id=242
-TEST(JsMinifyTest, SgmlLineComment) {
-  std::string input = "var x = 42; <!-- comment\nvar y = 17;";
-  std::string expected = "var x=42;var y=17;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, RemoveSurroundingSgmlComment) {
+  CheckMinification("<!--\nvar x = 42;\n//-->", "var x=42;");
 }
 
-TEST(JsMinifyTest, RemoveSgmlCommentCloseOnOwnLine1) {
-  std::string input = "var x = 42;\n    --> \n";
-  std::string expected = "var x=42;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, RemoveSurroundingSgmlCommentWithoutSlashSlash) {
+  CheckMinification("<!--\nvar x = 42;\n-->\n", "var x=42;");
 }
 
-TEST(JsMinifyTest, RemoveSgmlCommentCloseOnOwnLine2) {
-  std::string input = "-->\nvar x = 42;\n";
-  std::string expected = "var x=42;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+// See http://code.google.com/p/page-speed/issues/detail?id=242
+TEST_F(JsMinifyTest, SgmlLineComment) {
+  CheckMinification("var x = 42; <!-- comment\nvar y = 17;",
+                    "var x=42;var y=17;");
 }
 
-TEST(JsMinifyTest, DoNotRemoveSgmlCommentCloseInMidLine) {
-  std::string input = "var x = 42; --> \n";
-  std::string expected = "var x=42;-->";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+TEST_F(JsMinifyTest, RemoveSgmlCommentCloseOnOwnLine1) {
+  CheckMinification("var x = 42;\n    --> \n", "var x=42;");
 }
 
-TEST(JsMinifyTest, DoNotCreateLineComment) {
+TEST_F(JsMinifyTest, RemoveSgmlCommentCloseOnOwnLine2) {
+  CheckMinification("-->\nvar x = 42;\n", "var x=42;");
+}
+
+TEST_F(JsMinifyTest, DoNotRemoveSgmlCommentCloseInMidLine) {
+  CheckMinification("var x = 42; --> \n", "var x=42;-->");
+}
+
+TEST_F(JsMinifyTest, DoNotCreateLineComment) {
   // Yes, this is legal code.  It sets x to NaN.
-  std::string input = "var x = 42 / /foo/;\n";
-  std::string expected = "var x=42/ /foo/;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+  CheckMinification("var x = 42 / /foo/;\n", "var x=42/ /foo/;");
 }
 
-TEST(JsMinifyTest, DoNotCreateSgmlLineComment) {
+TEST_F(JsMinifyTest, DoNotCreateSgmlLineComment1) {
   // Yes, this is legal code.  It tests if x is less than not(decrement y).
-  std::string input = "if (x < ! --y) { x = 0; }\n";
-  std::string expected = "if(x< ! --y){x=0;}";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+  CheckMinification("if (x <! --y) { x = 0; }\n", "if(x<! --y){x=0;}");
 }
 
-TEST(JsMinifyTest, TrickyRegexLiteral) {
+TEST_F(JsMinifyTest, DoNotCreateSgmlLineComment2) {
+  // Yes, this is legal code.  It tests if x is less than not(decrement y).
+  CheckMinification("if (x < !--y) { x = 0; }\n", "if(x< !--y){x=0;}");
+}
+
+TEST_F(JsMinifyTest, TrickyRegexLiteral) {
   // The first assignment is two divisions; the second assignment is a regex
   // literal.  JSMin gets this wrong (it removes whitespace from the regex).
-  std::string input = "var x = a[0] / b /i;\n var y = a[0] + / b /i;";
-  std::string expected = "var x=a[0]/b/i;var y=a[0]+/ b /i;";
-  std::string output;
-  ASSERT_TRUE(MinifyJs(input, &output));
-  ASSERT_EQ(expected, output);
+  CheckMinification("var x = a[0] / b /i;\n var y = a[0] + / b /i;",
+                    "var x=a[0]/b/i;var y=a[0]+/ b /i;");
+}
+
+TEST_F(JsMinifyTest, ReturnRegex1) {
+  // Make sure we understand that this is not division; "return" is not an
+  // identifier!
+  CheckMinification("return / x /g;", "return/ x /g;");
+}
+
+TEST_F(JsMinifyTest, ReturnRegex2) {
+  // This test comes from the real world.  If "return" is incorrectly treated
+  // as an identifier, the second slash will be treated as opening a regex
+  // rather than closing it, and we'll error due to an unclosed regex.
+  CheckMinification("return/#.+/.test(\n'#24' );",
+                    "return/#.+/.test('#24');");
+}
+
+TEST_F(JsMinifyTest, ThrowRegex) {
+  // Make sure we understand that this is not division; "throw" is not an
+  // identifier!  (And yes, in JS you're allowed to throw a regex.)
+  CheckMinification("throw / x /g;", "throw/ x /g;");
+}
+
+TEST_F(JsMinifyTest, ReturnThrowNumber) {
+  CheckMinification("return 1;\nthrow 2;", "return 1;throw 2;");
 }
 
 const char kCrashTestString[] =
@@ -287,14 +262,79 @@ const char kCrashTestString[] =
     "var y /*comment*/ = /regex/\n"
     "var z = \"x =\" + x\n";
 
-TEST(JsMinifyTest, DoNotCrash) {
+TEST_F(JsMinifyTest, DoNotCrash) {
   // Run on all possible prefixes of kCrashTestString.  We don't care about the
   // result; we just want to make sure it doesn't crash.
   for (int i = 0, size = sizeof(kCrashTestString); i <= size; ++i) {
     std::string input(kCrashTestString, i);
     std::string output;
-    MinifyJs(input, &output);
+    pagespeed::jsminify::MinifyJs(input, &output);
   }
+}
+
+// The below tests check for some corner cases of semicolon insertion, to make
+// sure that we are minifying as much as possible (and no more!).
+// See http://inimino.org/~inimino/blog/javascript_semicolons for details.
+
+TEST_F(JsMinifyTest, SemicolonInsertionIncrement) {
+  CheckMinification("a\n++b\nc++\nd", "a\n++b\nc++\nd");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionDecrement) {
+  CheckMinification("a\n--b\nc--\nd", "a\n--b\nc--\nd");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionAddition) {
+  // No semicolons will be inserted, so the linebreaks can be removed.
+  CheckMinification("i\n+\nj", "i+j");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionSubtraction) {
+  // No semicolons will be inserted, so the linebreaks can be removed.
+  CheckMinification("i\n-\nj", "i-j");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionLogicalOr) {
+  // No semicolons will be inserted, so the linebreaks can be removed.
+  CheckMinification("i\n||\nj", "i||j");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionFuncCall) {
+  // No semicolons will be inserted, so the linebreak can be removed.  This is
+  // actually a function call, not two statements.
+  CheckMinification("a = b + c\n(d + e).print()", "a=b+c(d+e).print()");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionRegex) {
+  // No semicolon will be inserted, so the linebreak and spaces can be removed
+  // (this is two divisions, not a regex).
+  CheckMinification("i=0\n/ [a-z] /g.exec(s)", "i=0/[a-z]/g.exec(s)");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionWhileStmt) {
+  // No semicolon will be inserted, so the linebreak can be removed.
+  CheckMinification("while\n(true);", "while(true);");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionReturnStmt) {
+  // A semicolon _will_ be inserted, so the linebreak _cannot_ be removed.
+  CheckMinification("return\n(true);", "return\n(true);");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionThrowStmt) {
+  // This is _not_ legal code; don't accidentally make it legal by removing the
+  // linebreak.  (Eliminating a syntax error would change the semantics!)
+  CheckMinification("throw\n  'error';", "throw\n'error';");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionBreakStmt) {
+  // A semicolon _will_ be inserted, so the linebreak _cannot_ be removed.
+  CheckMinification("break\nlabel;", "break\nlabel;");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionContinueStmt) {
+  // A semicolon _will_ be inserted, so the linebreak _cannot_ be removed.
+  CheckMinification("continue\nlabel;", "continue\nlabel;");
 }
 
 const char kCollapsingStringTestString[] =
@@ -308,15 +348,15 @@ const char kCollapsedTestString[] =
     "var z=\"\"+x";
 
 
-TEST(JsMinifyTest, CollapsingStringTest) {
+TEST_F(JsMinifyTest, CollapsingStringTest) {
     int size = 0;
     std::string output;
-    ASSERT_TRUE(MinifyJsAndCollapseStrings(
+    ASSERT_TRUE(pagespeed::jsminify::MinifyJsAndCollapseStrings(
         kCollapsingStringTestString, &output));
     ASSERT_EQ(strlen(kCollapsedTestString), output.size());
     ASSERT_EQ(kCollapsedTestString, output);
 
-    ASSERT_TRUE(GetMinifiedStringCollapsedJsSize(
+    ASSERT_TRUE(pagespeed::jsminify::GetMinifiedStringCollapsedJsSize(
         kCollapsingStringTestString, &size));
     ASSERT_EQ(static_cast<int>(strlen(kCollapsedTestString)), size);
 }
