@@ -28,8 +28,6 @@ import java.util.List;
 
 public class Pagespeed {
 
-  private static final int IO_BUFFER_SIZE = 4096;
-
   private static Pattern formatArgumentPattern = Pattern.compile("\\$\\d+");
 
   public static void ShowUsageAndExit() {
@@ -46,9 +44,10 @@ public class Pagespeed {
    * HTML markup for presentation in a web UI.
    */
   public static void PresentResults(PagespeedProtoFormatter.FormattedResults results) {
+    System.out.println("Page Speed Score: " + results.getScore() + "\n");
     for (PagespeedProtoFormatter.FormattedRuleResults ruleResults :
              results.getRuleResultsList()) {
-      System.out.println(ruleResults.getLocalizedRuleName());
+      System.out.println(DoPresentRuleName(ruleResults));
       for (PagespeedProtoFormatter.FormattedUrlBlockResults urlBlocks :
                ruleResults.getUrlBlocksList()) {
         if (urlBlocks.hasHeader()) {
@@ -65,6 +64,36 @@ public class Pagespeed {
       }
       System.out.println("");
     }
+  }
+
+  /**
+   * Presents the localized rule name, score, and impact. This is a
+   * very simple proof-of-concept implementation.
+   */
+  public static String DoPresentRuleName(
+      PagespeedProtoFormatter.FormattedRuleResults ruleResults) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(ruleResults.getLocalizedRuleName());
+    boolean hasScore = ruleResults.hasRuleScore();
+    boolean hasImpact = ruleResults.hasRuleImpact();
+    if (hasScore || hasImpact) {
+      sb.append(" (");
+    }
+    if (hasScore) {
+      sb.append("Score: ");
+      sb.append(ruleResults.getRuleScore());
+    }
+    if (hasImpact) {
+      if (hasScore) {
+        sb.append(", ");
+      }
+      sb.append("Impact: ");
+      sb.append(ruleResults.getRuleImpact());
+    }
+    if (hasScore || hasImpact) {
+      sb.append(')');
+    }
+    return sb.toString();
   }
 
   /**
@@ -126,8 +155,11 @@ public class Pagespeed {
     // Construct the command to invoke pagespeed.
     List<String> command = new ArrayList<String>();
     command.add(pathToPagespeedBin);
+    command.add("--output_format");
     command.add("formatted_proto");
+    command.add("--input_format");
     command.add("har");
+    command.add("--input_file");
     // Note: alternatively, can specify a final argument of "-", and
     // then send the input to pagespeed over p.getOutputStream().
     command.add(pathToHarFile);
@@ -161,7 +193,18 @@ public class Pagespeed {
       System.exit(1);
     }
     if (pagespeedBinReturnValue != 0) {
-      System.err.println(pathToPagespeedBin + " exited with non-zero status.");
+      System.err.println(pathToPagespeedBin
+                         + " exited with non-zero status. Standard error:");
+      InputStream es = p.getErrorStream();
+      byte[] buffer = new byte[1024];
+      int len;
+      try {
+        while ((len = es.read(buffer)) != -1) {
+          System.err.write(buffer, 0, len);
+        }
+      } catch (IOException e) {
+        System.err.println("Failed to read standard error stream.");
+      }
       System.exit(1);
     }
 
