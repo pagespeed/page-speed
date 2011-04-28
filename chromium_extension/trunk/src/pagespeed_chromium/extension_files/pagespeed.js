@@ -707,6 +707,15 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
     this.doingReload_ = true;
     webInspector.inspectedWindow.reload();
   } else {
+    // Devtools apparently sets the onLoad timing to NaN if onLoad hasn't
+    // fired yet.  Page Speed will interpret that to mean that the onLoad
+    // timing is unknown, but setting it to -1 will tell Page Speed that it
+    // is known not to have happened yet.
+    har.pages.forEach(function (page) {
+      if (isNaN(page.pageTimings.onLoad)) {
+        page.pageTimings.onLoad = -1;
+      }
+    });
     this.har_ = har;
     this.getNextEntryBody_();
   }

@@ -96,9 +96,9 @@ bool RunPageSpeedRules(const std::string& locale,
     return false;
   }
 
-  // TODO(mdsteele): call input->SetPrimaryResourceUrl() if we can get the URL
-  //   from the HAR.
-
+  if (document != NULL) {
+    input->SetPrimaryResourceUrl(document->GetDocumentUrl());
+  }
   input->AcquireDomDocument(document); // input takes ownership of document
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
@@ -223,7 +223,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
                                    const NPVariant& locale_arg,
                                    NPVariant *result) {
   if (!NPVARIANT_IS_STRING(har_arg)) {
-    return Throw("har argument to runPageSpeed must be a string");
+    return Throw("first argument to runPageSpeed must be a string");
   }
   if (!NPVARIANT_IS_OBJECT(document_arg) && !NPVARIANT_IS_NULL(document_arg)) {
     return Throw("second argument to runPageSpeed must be an object or null");
