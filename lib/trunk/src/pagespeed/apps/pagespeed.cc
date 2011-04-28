@@ -29,6 +29,7 @@
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/pagespeed_input_util.h"
 #include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
@@ -54,6 +55,8 @@ DEFINE_string(output_format, "text",
               "One of 'proto', 'text', 'json', or 'formatted_proto'.");
 DEFINE_string(input_file, "", "Path to the input file. '-' to read from stdin");
 DEFINE_string(locale, "", "Locale to use, if localizing results.");
+DEFINE_string(strategy, "desktop",
+              "The strategy to use. Valid values are 'desktop', 'mobile'.");
 DEFINE_bool(show_locales, false, "List all available locales and exit.");
 DEFINE_bool(v, false, "Show the Page Speed version and exit.");
 
@@ -69,6 +72,11 @@ enum OutputFormat {
   TEXT_OUTPUT,
   JSON_OUTPUT,
   FORMATTED_PROTO_OUTPUT
+};
+
+enum Strategy {
+  DESKTOP,
+  MOBILE,
 };
 
 // UTF-8 byte order mark.
@@ -148,6 +156,17 @@ bool RunPagespeed(const std::string& out_format,
     return false;
   }
 
+  Strategy strategy;
+  if (FLAGS_strategy == "desktop") {
+    strategy = DESKTOP;
+  } else if (FLAGS_strategy == "mobile") {
+    strategy = MOBILE;
+  } else {
+    fprintf(stderr, "Invalid strategy %s\n", FLAGS_strategy.c_str());
+    PrintUsage();
+    return false;
+  }
+
   std::string file_contents;
   if (filename == "-") {
     // Special case: if user specifies input file as '-', read the
@@ -203,6 +222,12 @@ bool RunPagespeed(const std::string& out_format,
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
 
+  if (strategy == MOBILE) {
+    pagespeed::ClientCharacteristics cc;
+    pagespeed::pagespeed_input_util::PopulateMobileClientCharacteristics(&cc);
+    input->SetClientCharacteristics(cc);
+  }
+
   input->Freeze();
 
   std::vector<pagespeed::Rule*> rules;
@@ -215,6 +240,12 @@ bool RunPagespeed(const std::string& out_format,
   const bool save_optimized_content = true;
   pagespeed::rule_provider::AppendPageSpeedRules(save_optimized_content,
                                                  &rules);
+  if (strategy == MOBILE) {
+    pagespeed::rule_provider::AppendRuleSet(
+        save_optimized_content,
+        pagespeed::rule_provider::MOBILE_BROWSER_RULES,
+        &rules);
+  }
   std::vector<std::string> incompatible_rule_names;
   pagespeed::rule_provider::RemoveIncompatibleRules(&rules,
                                                     &incompatible_rule_names,
