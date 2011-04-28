@@ -341,7 +341,11 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  return RunPagespeed(FLAGS_output_format,
-                      FLAGS_input_format,
-                      FLAGS_input_file);
+  if (RunPagespeed(FLAGS_output_format,
+                   FLAGS_input_format,
+                   FLAGS_input_file)) {
+    return EXIT_SUCCESS;
+  } else {
+    return EXIT_FAILURE;
+  }
 }
