@@ -19,10 +19,12 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/json/json_reader.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
+#include "base/values.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "third_party/cJSON/cJSON.h"
 #include "third_party/modp_b64/modp_b64.h"
 
 namespace pagespeed {
@@ -31,7 +33,7 @@ namespace {
 
 class InputPopulator {
  public:
-  static bool Populate(cJSON* har_json, PagespeedInput* input);
+  static bool Populate(const Value& har_json, PagespeedInput* input);
 
  private:
   enum HeaderType { REQUEST_HEADERS, RESPONSE_HEADERS };
@@ -39,12 +41,13 @@ class InputPopulator {
   InputPopulator() : page_started_millis_(-1), error_(false) {}
   ~InputPopulator() {}
 
-  void PopulateInput(cJSON* har_json, PagespeedInput* input);
-  void DeterminePageTimings(cJSON* log_json, PagespeedInput* input);
-  void PopulateResource(cJSON* entry_json, Resource* resource);
-  void PopulateHeaders(cJSON* headers_json, HeaderType htype,
+  void PopulateInput(const Value& har_json, PagespeedInput* input);
+  void DeterminePageTimings(const DictionaryValue& log_json,
+                            PagespeedInput* input);
+  void PopulateResource(const DictionaryValue& entry_json, Resource* resource);
+  void PopulateHeaders(const DictionaryValue& headers_json, HeaderType htype,
                        Resource* resource);
-  const std::string GetString(cJSON *object, const char* key);
+  std::string GetString(const DictionaryValue& object, const std::string& key);
 
   int64 page_started_millis_;
   bool error_;
@@ -52,7 +55,7 @@ class InputPopulator {
   DISALLOW_COPY_AND_ASSIGN(InputPopulator);
 };
 
-bool InputPopulator::Populate(cJSON* har_json, PagespeedInput* input) {
+bool InputPopulator::Populate(const Value& har_json, PagespeedInput* input) {
   InputPopulator populator;
   populator.PopulateInput(har_json, input);
   return !populator.error_;
@@ -61,42 +64,47 @@ bool InputPopulator::Populate(cJSON* har_json, PagespeedInput* input) {
 // Macro to be used only within InputPopulator instance methods:
 #define INPUT_POPULATOR_ERROR() error_ = true; LOG(ERROR)
 
-void InputPopulator::PopulateInput(cJSON* har_json, PagespeedInput* input) {
-  if (har_json->type != cJSON_Object) {
+void InputPopulator::PopulateInput(const Value& har_json,
+                                   PagespeedInput* input) {
+  if (!har_json.IsType(Value::TYPE_DICTIONARY)) {
     INPUT_POPULATOR_ERROR() << "Top-level JSON value must be an object.";
     return;
   }
 
-  cJSON* log_json = cJSON_GetObjectItem(har_json, "log");
-  if (log_json == NULL || log_json->type != cJSON_Object) {
+  DictionaryValue* log_json;
+  if (!static_cast<const DictionaryValue&>(har_json).
+      GetDictionary("log", &log_json)) {
     INPUT_POPULATOR_ERROR() << "\"log\" field must be an object.";
     return;
   }
 
-  DeterminePageTimings(log_json, input);
+  DeterminePageTimings(*log_json, input);
 
-  cJSON* entries_json = cJSON_GetObjectItem(log_json, "entries");
-  if (entries_json == NULL || entries_json->type != cJSON_Array) {
+  ListValue* entries_json;
+  if (!log_json->GetList("entries", &entries_json)) {
     INPUT_POPULATOR_ERROR() << "\"entries\" field must be an array.";
     return;
   }
 
-  for (cJSON* entry_json = entries_json->child;
-       entry_json != NULL; entry_json = entry_json->next) {
-    Resource* resource = new Resource;
-    PopulateResource(entry_json, resource);
-    if (error_) {
-      delete resource;
-    } else {
-      input->AddResource(resource);
+  for (size_t index = 0, size = entries_json->GetSize();
+       index < size; ++index) {
+    DictionaryValue* entry_json;
+    if (!entries_json->GetDictionary(index, &entry_json)) {
+      INPUT_POPULATOR_ERROR() << "Entry item must be an object.";
+      continue;
+    }
+    scoped_ptr<Resource> resource(new Resource);
+    PopulateResource(*entry_json, resource.get());
+    if (!error_) {
+      input->AddResource(resource.release());
     }
   }
 }
 
 void InputPopulator::DeterminePageTimings(
-    cJSON* log_json, PagespeedInput* input) {
-  cJSON* pages_json = cJSON_GetObjectItem(log_json, "pages");
-  if (pages_json == NULL || pages_json->type != cJSON_Array) {
+    const DictionaryValue& log_json, PagespeedInput* input) {
+  ListValue* pages_json;
+  if (!log_json.GetList("pages", &pages_json)) {
     // The "pages" field is optional, so give up without error if it's not
     // there.
     return;
@@ -104,50 +112,40 @@ void InputPopulator::DeterminePageTimings(
 
   // For now, just take the first page (if any), and ignore others.
   // TODO(mdsteele): Behave intelligently in the face of multiple pages.
-  cJSON* page_json = pages_json->child;
-  if (page_json == NULL) {
+  if (pages_json->GetSize() < 1) {
     return;
-  } else if (page_json->type != cJSON_Object) {
+  }
+  DictionaryValue* page_json;
+  if (!pages_json->GetDictionary(0, &page_json)) {
     INPUT_POPULATOR_ERROR() << "Page item must be an object.";
     return;
   }
 
-  const std::string started_datetime = GetString(page_json, "startedDateTime");
+  const std::string started_datetime(GetString(*page_json, "startedDateTime"));
   if (!Iso8601ToEpochMillis(started_datetime, &page_started_millis_)) {
     LOG(DFATAL) << "Failed to parse ISO 8601: " << started_datetime;
   }
 
-  cJSON* timing_json = cJSON_GetObjectItem(page_json, "pageTimings");
-  if (timing_json == NULL || timing_json->type != cJSON_Object) {
-    INPUT_POPULATOR_ERROR() << "\"pageTimings\" field must be an object.";
-    return;
-  }
-
-  cJSON* onload_json = cJSON_GetObjectItem(timing_json, "onLoad");
-  if (onload_json != NULL && onload_json->type == cJSON_Number) {
-    int onload_millis = onload_json->valueint;
+  int onload_millis;
+  if (page_json->GetInteger("pageTimings.onLoad", &onload_millis)) {
     if (onload_millis < 0) {
       // When onLoad is specified but negative, it indicates that
       // onload has not yet fired.
       input->SetOnloadState(PagespeedInput::ONLOAD_NOT_YET_FIRED);
     } else {
-      input->SetOnloadTimeMillis(onload_json->valueint);
+      input->SetOnloadTimeMillis(onload_millis);
     }
   }
 }
 
-void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
-  if (entry_json->type != cJSON_Object) {
-    INPUT_POPULATOR_ERROR() << "Entry item must be an object.";
-    return;
-  }
-
+void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
+                                      Resource* resource) {
   // Determine if the resource was loaded after onload.
   {
-    cJSON* started_json = cJSON_GetObjectItem(entry_json, "startedDateTime");
-    if (started_json != NULL && started_json->type == cJSON_String) {
+    std::string started_datetime;
+    if (entry_json.GetString("startedDateTime", &started_datetime)) {
       int64 started_millis;
-      if (Iso8601ToEpochMillis(started_json->valuestring, &started_millis)) {
+      if (Iso8601ToEpochMillis(started_datetime, &started_millis)) {
         if (page_started_millis_ > 0) {
           int64 request_start_time_millis =
               started_millis - page_started_millis_;
@@ -162,131 +160,104 @@ void InputPopulator::PopulateResource(cJSON* entry_json, Resource* resource) {
               static_cast<int>(request_start_time_millis));
         }
       } else {
-        LOG(DFATAL) << "Failed to parse ISO 8601: "
-                    << started_json->valuestring;
+        LOG(DFATAL) << "Failed to parse ISO 8601: " << started_datetime;
       }
     }
   }
 
   // Get the request information.
   {
-    cJSON* request_json = cJSON_GetObjectItem(entry_json, "request");
-    if (request_json == NULL || request_json->type != cJSON_Object) {
+    DictionaryValue* request_json;
+    if (!entry_json.GetDictionary("request", &request_json)) {
       INPUT_POPULATOR_ERROR() << "\"request\" field must be an object.";
       return;
     }
 
-    resource->SetRequestMethod(GetString(request_json, "method"));
-    resource->SetRequestUrl(GetString(request_json, "url"));
-    PopulateHeaders(cJSON_GetObjectItem(request_json, "headers"),
-                    REQUEST_HEADERS, resource);
+    resource->SetRequestMethod(GetString(*request_json, "method"));
+    resource->SetRequestUrl(GetString(*request_json, "url"));
+    PopulateHeaders(*request_json, REQUEST_HEADERS, resource);
 
     // Check for optional post data.
-    cJSON* post_json = cJSON_GetObjectItem(request_json, "postData");
-    if (post_json != NULL) {
-      if (request_json->type != cJSON_Object) {
-        INPUT_POPULATOR_ERROR() << "\"postData\" field must be an object.";
-      } else {
-        resource->SetRequestBody(GetString(post_json, "text"));
-      }
+    std::string post_data;
+    if (request_json->GetString("postData.text", &post_data)) {
+      resource->SetRequestBody(post_data);
     }
   }
 
   // Get the response information.
   {
-    cJSON* response_json = cJSON_GetObjectItem(entry_json, "response");
-    if (response_json == NULL || response_json->type != cJSON_Object) {
+    DictionaryValue* response_json;
+    if (!entry_json.GetDictionary("response", &response_json)) {
       INPUT_POPULATOR_ERROR() << "\"response\" field must be an object.";
       return;
     }
 
     { // Get the response HTTP version, if it's available.
-      cJSON* status_json = cJSON_GetObjectItem(response_json, "httpVersion");
-      if (status_json != NULL && status_json->type == cJSON_String) {
-        resource->SetResponseProtocol(status_json->valuestring);
+      std::string protocol;
+      if (response_json->GetString("httpVersion", &protocol)) {
+        resource->SetResponseProtocol(protocol);
       }
     }
-
 
     { // Get the response status code, if it's available.
-      cJSON* status_json = cJSON_GetObjectItem(response_json, "status");
-      if (status_json != NULL && status_json->type == cJSON_Number) {
-        resource->SetResponseStatusCode(status_json->valueint);
+      int status;
+      if (response_json->GetInteger("status", &status)) {
+        resource->SetResponseStatusCode(status);
       }
     }
 
-    PopulateHeaders(cJSON_GetObjectItem(response_json, "headers"),
-                    RESPONSE_HEADERS, resource);
+    PopulateHeaders(*response_json, RESPONSE_HEADERS, resource);
 
-    cJSON* content_json = cJSON_GetObjectItem(response_json, "content");
-    if (content_json == NULL || content_json->type != cJSON_Object) {
+    DictionaryValue* content_json;
+    if (!response_json->GetDictionary("content", &content_json)) {
       INPUT_POPULATOR_ERROR() << "\"content\" field must be an object.";
-    } else {
-      cJSON* content_text_json = cJSON_GetObjectItem(content_json, "text");
-      if (content_text_json != NULL) {
-        if (content_text_json->type != cJSON_String) {
-          INPUT_POPULATOR_ERROR() << "\"text\" field must be a string.";
-        } else {
-          cJSON* content_text_encoding =
-              cJSON_GetObjectItem(content_json, "encoding");
-          if (content_text_encoding != NULL) {
-            if (content_text_encoding->type != cJSON_String) {
-              INPUT_POPULATOR_ERROR() << "\"encoding\" field must be a string.";
-            } else {
-              const std::string encoding(content_text_encoding->valuestring);
-              if (encoding == "") {
-                resource->SetResponseBody(content_text_json->valuestring);
-              } else if (encoding != "base64") {
-                INPUT_POPULATOR_ERROR() << "Received unexpected encoding: "
-                                        << content_text_encoding->valuestring;
-              } else {
-                const char* encoded_body = content_text_json->valuestring;
-                const size_t encoded_body_len = strlen(encoded_body);
-                std::string decoded_body;
+      return;
+    }
 
-                // Reserve enough space to decode into.
-                decoded_body.resize(modp_b64_decode_len(encoded_body_len));
-
-                // Decode into the string's buffer.
-                int decoded_size = modp_b64_decode(&(decoded_body[0]),
-                                                   encoded_body,
-                                                   encoded_body_len);
-
-                if (decoded_size >= 0) {
-                  // Resize the buffer to the actual decoded size.
-                  decoded_body.resize(decoded_size);
-                  resource->SetResponseBody(decoded_body);
-                } else {
-                  INPUT_POPULATOR_ERROR()
-                      << "Failed to base64-decode response content.";
-                }
-              }
-            }
-          } else {
-            resource->SetResponseBody(content_text_json->valuestring);
-          }
-        }
+    std::string content_text = GetString(*content_json, "text");
+    std::string encoding;
+    if (!content_json->GetString("encoding", &encoding) || encoding == "") {
+      resource->SetResponseBody(content_text);
+    } else if (encoding == "base64") {
+      std::string decoded_body;
+      // Reserve enough space to decode into.
+      decoded_body.resize(modp_b64_decode_len(content_text.size()));
+      // Decode into the string's buffer.
+      const int decoded_size = modp_b64_decode(&(decoded_body[0]),
+                                               content_text.data(),
+                                               content_text.size());
+      if (decoded_size >= 0) {
+        // Resize the buffer to the actual decoded size.
+        decoded_body.resize(decoded_size);
+        resource->SetResponseBody(decoded_body);
+      } else {
+        INPUT_POPULATOR_ERROR() << "Failed to base64-decode response content.";
       }
+    } else {
+      INPUT_POPULATOR_ERROR() << "Received unexpected encoding: " << encoding;
     }
   }
 }
 
-void InputPopulator::PopulateHeaders(cJSON* headers_json, HeaderType htype,
+void InputPopulator::PopulateHeaders(const DictionaryValue& json,
+                                     HeaderType htype,
                                      Resource* resource) {
-  if (headers_json == NULL || headers_json->type != cJSON_Array) {
+  ListValue* headers_json;
+  if (!json.GetList("headers", &headers_json)) {
     INPUT_POPULATOR_ERROR() << "\"headers\" field must be an array.";
     return;
   }
 
-  for (cJSON* header_json = headers_json->child;
-       header_json != NULL; header_json = header_json->next) {
-    if (header_json->type != cJSON_Object) {
+  for (size_t index = 0, size = headers_json->GetSize();
+       index < size; ++index) {
+    DictionaryValue* header_json;
+    if (!headers_json->GetDictionary(index,  &header_json)) {
       INPUT_POPULATOR_ERROR() << "Header item must be an object.";
       continue;
     }
 
-    const std::string name = GetString(header_json, "name");
-    const std::string value = GetString(header_json, "value");
+    const std::string name = GetString(*header_json, "name");
+    const std::string value = GetString(*header_json, "value");
 
     switch (htype) {
       case REQUEST_HEADERS:
@@ -301,37 +272,32 @@ void InputPopulator::PopulateHeaders(cJSON* headers_json, HeaderType htype,
   }
 }
 
-const std::string InputPopulator::GetString(cJSON* object, const char* key) {
-  DCHECK(object != NULL && object->type == cJSON_Object);
-  cJSON* value = cJSON_GetObjectItem(object, key);
-  if (value != NULL && value->type == cJSON_String) {
-    return value->valuestring;
-  } else {
+std::string InputPopulator::GetString(const DictionaryValue& object,
+                                      const std::string& key) {
+  std::string value;
+  if (!object.GetString(key, &value)) {
     INPUT_POPULATOR_ERROR() << '"' << key << "\" field must be a string.";
-    return "";
   }
+  return value;
 }
 
 }  // namespace
 
 PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
                                            ResourceFilter* resource_filter) {
-  cJSON* har_json = cJSON_Parse(har_data.c_str());
+  scoped_ptr<const Value> har_json(base::JSONReader::Read(
+      har_data,
+      true));  // allow_trailing_comma
   if (har_json == NULL) {
-    delete resource_filter;
     return NULL;
   }
 
-  PagespeedInput* input = (resource_filter == NULL ?
-                           new PagespeedInput() :
-                           new PagespeedInput(resource_filter));
-  const bool ok = InputPopulator::Populate(har_json, input);
-
-  cJSON_Delete(har_json);
-  if (ok) {
-    return input;
+  scoped_ptr<PagespeedInput> input(resource_filter == NULL ?
+                                   new PagespeedInput() :
+                                   new PagespeedInput(resource_filter));
+  if (InputPopulator::Populate(*har_json, input.get())) {
+    return input.release();
   } else {
-    delete input;
     return NULL;
   }
 }
