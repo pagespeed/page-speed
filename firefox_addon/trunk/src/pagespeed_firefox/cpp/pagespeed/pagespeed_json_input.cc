@@ -21,11 +21,13 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/json/json_reader.h"
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
+#include "base/values.h"
 #include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
-#include "third_party/cJSON/cJSON.h"
 
 namespace pagespeed {
 
@@ -37,38 +39,41 @@ class InputPopulator {
  public:
   // Parse the JSON string and use it to populate the input.  If any errors
   // occur, log them and return false, otherwise return true.
-  static bool Populate(PagespeedInput *input, const char *json_data,
-                       const std::vector<std::string> &contents);
+  static bool Populate(PagespeedInput* input, const char* json_data,
+                       const std::vector<std::string>& contents);
 
  private:
-  explicit InputPopulator(const std::vector<std::string> *contents)
+  explicit InputPopulator(const std::vector<std::string>* contents)
       : contents_(contents), error_(false) {}
   ~InputPopulator() {}
 
   // Extract an integer from a JSON value.
-  int ToInt(cJSON *value);
+  int ToInt(const Value& value);
 
   // Extract a string from a JSON value.
-  const std::string ToString(cJSON *value);
+  const std::string ToString(const Value& value);
 
   // Get the contents of the body to which the JSON value refers.
-  const std::string RetrieveBody(cJSON *attribute_json);
+  const std::string RetrieveBody(const Value& attribute_json);
 
   // Given a JSON value representing all JavaScript calls, add those
   // calls to the Resource object.
-  void PopulateJsCalls(Resource* resource, cJSON *attribute_json);
+  void PopulateJsCalls(const Value& attribute_json, Resource* resource);
 
   // Given a JSON value representing one attribute of a resource, set the
   // corresponding attribute on the Resource object.
-  void PopulateAttribute(Resource *resource, cJSON *attribute_json);
+  void PopulateAttribute(const std::string& key,
+                         const Value& attribute_json,
+                         Resource* resource);
 
   // Given a JSON value representing a single resource, populate the Resource
   // object.
-  void PopulateResource(Resource *resource, cJSON *resource_json);
+  void PopulateResource(const DictionaryValue& attribute_json,
+                        Resource* resource);
 
   // Given a JSON value representing a list of resources, populate the
   // PagespeedInput object.
-  void PopulateInput(PagespeedInput *input, cJSON *resources_json);
+  void PopulateInput(const Value& attribute_json, PagespeedInput* input);
 
   const std::vector<std::string> *contents_;
   bool error_;  // true if there's been at least one error, false otherwise
@@ -79,25 +84,27 @@ class InputPopulator {
 // Macro to be used only within InputPopulator instance methods:
 #define INPUT_POPULATOR_ERROR() error_ = true; LOG(DFATAL)
 
-int InputPopulator::ToInt(cJSON *value) {
-  if (value->type == cJSON_Number) {
-    return value->valueint;
+int InputPopulator::ToInt(const Value& value) {
+  int integer;
+  if (value.GetAsInteger(&integer)) {
+    return integer;
   } else {
     INPUT_POPULATOR_ERROR() << "Expected integer value.";
     return 0;
   }
 }
 
-const std::string InputPopulator::ToString(cJSON *value) {
-  if (value->type == cJSON_String) {
-    return value->valuestring;
+const std::string InputPopulator::ToString(const Value& value) {
+  std::string str;
+  if (value.GetAsString(&str)) {
+    return str;
   } else {
     INPUT_POPULATOR_ERROR() << "Expected string value.";
     return "";
   }
 }
 
-const std::string InputPopulator::RetrieveBody(cJSON *attribute_json) {
+const std::string InputPopulator::RetrieveBody(const Value& attribute_json) {
   const int index = ToInt(attribute_json);
   if (0 <= index && index < contents_->size()) {
     return contents_->at(index);
@@ -107,17 +114,18 @@ const std::string InputPopulator::RetrieveBody(cJSON *attribute_json) {
   }
 }
 
-void InputPopulator::PopulateJsCalls(Resource* resource,
-                                     cJSON *calls_json) {
-  if (calls_json->type != cJSON_Array) {
-    INPUT_POPULATOR_ERROR() << "Expected array value for key: "
-                            << calls_json->string;
+void InputPopulator::PopulateJsCalls(const Value& attribute_json,
+                                     Resource* resource) {
+  if (!attribute_json.IsType(Value::TYPE_LIST)) {
+    INPUT_POPULATOR_ERROR() << "Expected array value for key: jsCalls";
     return;
   }
+  const ListValue& calls_json =
+      *static_cast<const ListValue*>(&attribute_json);
 
-  for (cJSON *call_json = calls_json->child;
-       call_json != NULL; call_json = call_json->next) {
-    if (call_json->type != cJSON_Object) {
+  for (size_t index = 0, size = calls_json.GetSize(); index < size; ++index) {
+    DictionaryValue* call_json;
+    if (!calls_json.GetDictionary(index, &call_json)) {
       INPUT_POPULATOR_ERROR() << "Expected object value for js call entry.";
       continue;
     }
@@ -128,25 +136,37 @@ void InputPopulator::PopulateJsCalls(Resource* resource,
     std::vector<std::string> args;
     int line_number = -1;
     std::string doc_url;
-    for (cJSON *call_attribute_json = call_json->child;
-         call_attribute_json != NULL;
-         call_attribute_json = call_attribute_json->next) {
-      const std::string& key = call_attribute_json->string;
+    for (DictionaryValue::key_iterator iter = call_json->begin_keys(),
+             end = call_json->end_keys(); iter != end; ++iter) {
+      const std::string& key = *iter;
+
+      Value* call_attribute_json;
+      if (!call_json->GetWithoutPathExpansion(*iter, &call_attribute_json)) {
+        LOG(DFATAL) << "GetWithoutPathExpansion(*iter, ...) failed; "
+                    << "this should be impossible";
+        continue;
+      }
+
       if (key == "fn") {
-        fn = ToString(call_attribute_json);
+        fn = ToString(*call_attribute_json);
       } else if (key == "args") {
-        if (call_attribute_json->type != cJSON_Array) {
+        if (!call_attribute_json->IsType(Value::TYPE_LIST)) {
           INPUT_POPULATOR_ERROR() << "Expected array value for args.";
           return;
         }
-        for (cJSON *arg_json = call_attribute_json->child;
-             arg_json != NULL; arg_json = arg_json->next) {
-          args.push_back(ToString(arg_json));
+        ListValue* list_json = static_cast<ListValue*>(call_attribute_json);
+        for (size_t index2 = 0, size2 = list_json->GetSize();
+             index2 < size2; ++index2) {
+          std::string arg;
+          if (!list_json->GetString(index2, &arg)) {
+            INPUT_POPULATOR_ERROR() << "Expected string value.";
+          }
+          args.push_back(arg);
         }
       } else if (key == "line_number") {
-        line_number = ToInt(call_attribute_json);
+        line_number = ToInt(*call_attribute_json);
       } else if (key == "doc_url") {
-        doc_url = ToString(call_attribute_json);
+        doc_url = ToString(*call_attribute_json);
       } else {
         INPUT_POPULATOR_ERROR() << "Unexpected call attribute " << key;
         return;
@@ -166,16 +186,16 @@ void InputPopulator::PopulateJsCalls(Resource* resource,
   }
 }
 
-void InputPopulator::PopulateAttribute(Resource *resource,
-                                       cJSON *attribute_json) {
-  const std::string key = attribute_json->string;
-  if (key =="url") {
+void InputPopulator::PopulateAttribute(const std::string& key,
+                                       const Value& attribute_json,
+                                       Resource *resource) {
+  if (key == "url") {
     // Nothing to do. we already validated this field in
     // PopulateResource.
   } else if (key == "cookieString") {
     resource->SetCookies(ToString(attribute_json));
   } else if (key == "jsCalls") {
-    PopulateJsCalls(resource, attribute_json);
+    PopulateJsCalls(attribute_json, resource);
   } else if (key == "bodyIndex") {
     resource->SetResponseBody(RetrieveBody(attribute_json));
   } else {
@@ -183,56 +203,65 @@ void InputPopulator::PopulateAttribute(Resource *resource,
   }
 }
 
-void InputPopulator::PopulateResource(Resource *resource,
-                                      cJSON *resource_json) {
-  if (resource_json->type != cJSON_Object) {
-    INPUT_POPULATOR_ERROR() << "Resource JSON value must be an object.";
-    return;
-  }
-
-  for (cJSON *attribute_json = resource_json->child;
-       attribute_json != NULL; attribute_json = attribute_json->next) {
-    PopulateAttribute(resource, attribute_json);
+void InputPopulator::PopulateResource(const DictionaryValue& resource_json,
+                                      Resource* resource) {
+  for (DictionaryValue::key_iterator iter = resource_json.begin_keys(),
+           end = resource_json.end_keys(); iter != end; ++iter) {
+    Value* attribute_json;
+    if (resource_json.Get(*iter, &attribute_json)) {
+      PopulateAttribute(*iter, *attribute_json, resource);
+    }
   }
 }
 
-void InputPopulator::PopulateInput(PagespeedInput *input,
-                                   cJSON *resources_json) {
-  if (resources_json->type != cJSON_Array) {
+void InputPopulator::PopulateInput(const Value& resources_json,
+                                   PagespeedInput* input) {
+  if (!resources_json.IsType(Value::TYPE_LIST)) {
     INPUT_POPULATOR_ERROR() << "Top-level JSON value must be an array.";
     return;
   }
+  const ListValue& list_json = *static_cast<const ListValue*>(&resources_json);
 
-  int resource_idx = 0;
-  for (cJSON *resource_json = resources_json->child;
-       resource_json != NULL;
-       resource_json = resource_json->next, ++resource_idx) {
-    std::string url = ToString(cJSON_GetObjectItem(resource_json, "url"));
+  for (size_t index = 0, size = list_json.GetSize(); index < size; ++index) {
+    DictionaryValue* resource_json;
+    if (!list_json.GetDictionary(index, &resource_json)) {
+      INPUT_POPULATOR_ERROR() << "Resource JSON value must be an object";
+      continue;
+    }
+
+    std::string url;
+    if (!resource_json->GetStringWithoutPathExpansion("url", &url)) {
+      INPUT_POPULATOR_ERROR() << "\"url\" field must be a string";
+      continue;
+    }
+
     Resource* resource = input->GetMutableResourceWithUrl(url);
     if (resource == NULL) {
       // This can happen if a resource filter was applied.
       continue;
     }
-    PopulateResource(resource, resource_json);
+
+    PopulateResource(*resource_json, resource);
   }
 }
 
 bool InputPopulator::Populate(PagespeedInput *input, const char *json_data,
                               const std::vector<std::string> &contents) {
-  bool ok = true;
-  InputPopulator populator(&contents);
-  cJSON *resources_json = cJSON_Parse(json_data);
+  std::string error_msg_out;
+  scoped_ptr<const Value> resources_json(base::JSONReader::ReadAndReturnError(
+      json_data,
+      true,  // allow_trailing_comma
+      NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+      &error_msg_out));
 
-  if (resources_json != NULL) {
-    populator.PopulateInput(input, resources_json);
-    ok = !populator.error_;
-  } else {
-    LOG(DFATAL) << "Input was not valid JSON.";
-    ok = false;
+  if (resources_json == NULL) {
+    LOG(DFATAL) << "Input was not valid JSON: " << error_msg_out;
+    return false;
   }
 
-  cJSON_Delete(resources_json);
-  return ok;
+  InputPopulator populator(&contents);
+  populator.PopulateInput(*resources_json, input);
+  return !populator.error_;
 }
 
 }  // namespace
