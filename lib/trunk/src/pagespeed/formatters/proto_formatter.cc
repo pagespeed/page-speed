@@ -134,6 +134,9 @@ RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, int score,
   rule_results->set_rule_name(rule.name());
   rule_results->set_rule_score(score);
   rule_results->set_rule_impact(impact);
+  if (rule.IsExperimental()) {
+    rule_results->set_experimental(true);
+  }
 
   if (!MaybeLocalizeString(localizer_,
                            rule.header(),

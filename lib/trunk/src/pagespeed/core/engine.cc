@@ -157,7 +157,7 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
     }
 
     double impact = 0.0;
-    if (rule_results->results_size() > 0) {
+    if (rule_results->results_size() > 0 && !rule->IsExperimental()) {
       impact = rule->ComputeRuleImpact(results->input_info(), *rule_results);
       if (impact < 0.0) {
         LOG(ERROR) << "Impact for " << rule->name() << " out of bounds: "

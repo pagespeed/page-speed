@@ -69,6 +69,7 @@
         'rules/specify_charset_early.cc',
         'rules/specify_image_dimensions.cc',
         'rules/sprite_images.cc',
+        'rules/use_an_application_cache.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -168,6 +169,7 @@
         'rules/specify_charset_early_test.cc',
         'rules/specify_image_dimensions_test.cc',
         'rules/sprite_images_test.cc',
+        'rules/use_an_application_cache_test.cc',
         'testing/fake_dom_test.cc',
         'util/regex_test.cc',
       ],

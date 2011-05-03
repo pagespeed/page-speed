@@ -94,6 +94,12 @@ message FormattedRuleResults {
   // The impact number assigned by Page Speed for this rule.  Like the score,
   // this may be left out if it cannot be calculated.
   optional double rule_impact = 5;
+
+  // The experimental bit indicate if the rule is experimental. Experimental
+  // rules are new rules that we are trying out, which do not impact the
+  // overall score, and are expected to either graduate to non-experimental
+  // rules or else be deleted.
+  optional bool experimental = 6;
 }
 
 // Formatted and localized results proto, mirroring the hiercharchy of results

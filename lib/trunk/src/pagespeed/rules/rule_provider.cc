@@ -46,6 +46,7 @@
 #include "pagespeed/rules/specify_charset_early.h"
 #include "pagespeed/rules/specify_image_dimensions.h"
 #include "pagespeed/rules/sprite_images.h"
+#include "pagespeed/rules/use_an_application_cache.h"
 
 namespace pagespeed {
 
@@ -97,12 +98,8 @@ static const char* kNewBrowserRules[] = {
 static const char* kMobileBrowserRules[] = {
   // NOTE: Page Speed includes several mobile-targeted rules. However
   // the rules are also applicable to desktop, so they are included as
-  // part of the "core" ruleset. Additional rules that are specific to
-  // mobile will be included soon.
-  NULL,
-};
-
-static const char* kExperimentalRules[] = {
+  // part of the "core" ruleset.
+  "useanapplicationcache",
   NULL,
 };
 
@@ -123,9 +120,6 @@ bool AppendRuleSet(bool save_optimized_content, RuleSet ruleset,
       break;
     case NEW_BROWSER_RULES:
       rule_names = kNewBrowserRules;
-      break;
-    case EXPERIMENTAL_RULES:
-      rule_names = kExperimentalRules;
       break;
     case MOBILE_BROWSER_RULES:
       rule_names = kMobileBrowserRules;
@@ -194,6 +188,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("specifycharsetearly", rules::SpecifyCharsetEarly());
   RULE("specifyimagedimensions", rules::SpecifyImageDimensions());
   RULE("spriteimages", rules::SpriteImages());
+  RULE("useanapplicationcache", rules::UseAnApplicationCache());
 
   // No rule name matched.
   return NULL;
