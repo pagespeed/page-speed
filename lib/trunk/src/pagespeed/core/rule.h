@@ -90,6 +90,13 @@ class Rule {
   // Sort the results in their presentation order.
   virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;
 
+  // Show if the rule is experimental. Return false by default. Any experimental
+  // rule must override this method to return true. Experimental rules are new
+  // rules that we are trying out, which do not impact the overall score, and
+  // are expected to either graduate to non-experimental rules or else be
+  // deleted.
+  virtual bool IsExperimental() const;
+
  protected:
   // Compute the impact of a single rule suggestion.  The result should be a
   // nonnegative number, where zero means there is no room for improvement.

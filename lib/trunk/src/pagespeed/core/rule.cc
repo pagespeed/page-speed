@@ -43,14 +43,14 @@ const double kDnsLookupImpact = 1.5 * kRequestImpact;
 // Page reflow penalty derived from the constant used by the JS
 // implementation "Specify Image Dimensions" rule in the Page Speed
 // Firefox extension.
-// TODO Improve reflow scoring algorithm.  Reflow cost depends on the
+// TODO(lsong): Improve reflow scoring algorithm.  Reflow cost depends on the
 // size of the page structure that participates in the reflow
 // operation.  Scoring should probably depend on the total size of the
 // page.
 const double kReflowPenalty = 0.05;
 
 // Penalty for the critical path length being longer then necessary.
-// TODO Improve critical-path-length scoring algorithm.
+// TODO(lsong): Improve critical-path-length scoring algorithm.
 const double kCriticalPathPenalty = 0.15;
 
 // Connections are not reused.
@@ -151,7 +151,7 @@ int Rule::ComputeScore(const InputInformation& input_info,
     }
   }
 
-  // TODO improve this scoring heuristic
+  // TODO(lsong): improve this scoring heuristic
   double normalized_savings = 0;
   if (request_bytes_saved > 0) {
     if (input_info.total_request_bytes() == 0) {
@@ -206,7 +206,7 @@ int Rule::ComputeScore(const InputInformation& input_info,
   }
 
 
-  return std::max(0, (int)(100 * (1.0 - normalized_savings)));
+  return std::max(0, static_cast<int>(100 * (1.0 - normalized_savings)));
 }
 
 void Rule::SortResultsInPresentationOrder(ResultVector* rule_results) const {
@@ -215,6 +215,10 @@ void Rule::SortResultsInPresentationOrder(ResultVector* rule_results) const {
   std::stable_sort(rule_results->begin(),
                    rule_results->end(),
                    CompareResults);
+}
+
+bool Rule::IsExperimental() const {
+  return false;
 }
 
 }  // namespace pagespeed

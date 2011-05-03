@@ -35,8 +35,7 @@ enum RuleSet {
   CORE_RULES = 0,
   OLD_BROWSER_RULES = 1,
   NEW_BROWSER_RULES = 2,
-  EXPERIMENTAL_RULES = 3,
-  MOBILE_BROWSER_RULES = 4,
+  MOBILE_BROWSER_RULES = 3,
 };
 
 // Special values that allow for iteration over the entire RuleSet

@@ -98,6 +98,9 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
   if (rule_results.has_rule_impact()) {
     root->SetReal("rule_impact", rule_results.rule_impact());
   }
+  if (rule_results.has_experimental()) {
+    root->SetBoolean("experimental", rule_results.experimental());
+  }
   root->SetString("localized_rule_name", rule_results.localized_rule_name());
   if (rule_results.url_blocks_size() > 0) {
     ListValue* url_blocks = new ListValue();
