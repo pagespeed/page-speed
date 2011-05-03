@@ -372,16 +372,20 @@ PAGESPEED.NativeLibrary = {
       return null;
     }
 
-    // Use navigator.language (the browser locale) by default, but
-    // prefer the value from the locale service if available, since it
-    // is the system locale.
+    // Use the browser's locale, not the system locale. Some users
+    // have a system locale set up so they can use a different
+    // keyboard layout, but they want content presented in a different
+    // locale. Since the browser locale is the locale used to populate
+    // Accept-Language, it's a strong indicator as to what locale the
+    // user wants to read content in.
     var locale = navigator.language;
-    var localeService = PAGESPEED.Utils.CCSV(
-        '@mozilla.org/intl/nslocaleservice;1', 'nsILocaleService');
-    if (localeService) {
-      locale = localeService.getLocaleComponentForUserAgent();
+    var localePref = PAGESPEED.Utils.getStringPref(
+        'extensions.PageSpeed.locale');
+    if (localePref) {
+      // If the user has specified a locale in the preferences, use it
+      // instead.
+      locale = localePref;
     }
-
     var documentUrl = PAGESPEED.Utils.getDocumentUrl();
     if (opt_doc) {
       documentUrl = PAGESPEED.Utils.stripUriFragment(opt_doc.URL);
