@@ -60,17 +60,21 @@ class UseAnApplicationCacheTest : public
   }
 
   void CheckExpectedViolations(const std::vector<std::string>& expected) {
-    UseAnApplicationCache rule;
-    RuleResults rule_results;
-    ResultProvider provider(rule, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(rule.AppendResults(rule_input, &provider));
-    EXPECT_EQ(expected.size(),
-              static_cast<size_t>(rule_results.results_size()));
-    for (int idx = 0; idx < rule_results.results_size(); idx++) {
-      const Result* result = &rule_results.results(idx);
-      ASSERT_EQ(1, result->resource_urls_size());
-      ASSERT_EQ(expected[idx], result->resource_urls(0));
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(expected.size(), static_cast<size_t>(num_results()));
+
+    for (size_t idx = 0; idx < expected.size(); ++idx) {
+      ASSERT_EQ(expected.size(),
+                static_cast<size_t>(result(idx).resource_urls_size()));
+      for (size_t jdx = 0; jdx < expected.size(); ++jdx) {
+        ASSERT_EQ(1, result(idx).resource_urls_size());
+        ASSERT_EQ(expected[idx], result(idx).resource_urls(0));
+      }
+    }
+
+    if (!expected.empty()) {
+      // If there are violations, make sure we have a non-zero impact.
+      ASSERT_GT(ComputeRuleImpact(), 0.0);
     }
   }
 };
