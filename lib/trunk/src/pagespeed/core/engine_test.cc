@@ -63,7 +63,7 @@ class TestRule : public Rule {
         append_results_return_value_(true),
         append_results_(true),
         score_(100),
-        impact_(0.1) {}
+        impact_(0.25) {}
   virtual ~TestRule() {}
 
   virtual const char* name() const {
@@ -144,7 +144,7 @@ TEST(EngineTest, ComputeResults) {
   ASSERT_EQ(0, results.error_rules_size());
   ASSERT_NE(0, results.version().major());
   ASSERT_NE(0, results.version().minor());
-  ASSERT_EQ(90, results.score());
+  ASSERT_EQ(75, results.score());
 
   const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -169,7 +169,7 @@ TEST(EngineTest, ComputeResultsError) {
   ASSERT_EQ(1, results.error_rules_size());
   ASSERT_EQ(kRuleName, results.error_rules(0));
   ASSERT_TRUE(results.has_score());
-  ASSERT_EQ(90, results.score());
+  ASSERT_EQ(75, results.score());
 
   const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -445,7 +445,7 @@ TEST(EngineTest, ComputeScoresWithExperimentalRule) {
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(90, results.score());
+  ASSERT_EQ(75, results.score());
 }
 
 
