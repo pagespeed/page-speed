@@ -196,7 +196,8 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
 
 bool AppendRulesWithNames(bool save_optimized_content,
                           const std::vector<std::string>& rule_names,
-                          std::vector<pagespeed::Rule*>* rules) {
+                          std::vector<pagespeed::Rule*>* rules,
+                          std::vector<std::string>* nonexistent_rule_names) {
   if (!rules)
     return false;
 
@@ -205,10 +206,14 @@ bool AppendRulesWithNames(bool save_optimized_content,
        it != rule_names.end();
        ++it) {
     Rule* rule = CreateRuleWithName(save_optimized_content, *it);
-    if (rule)
+    if (rule) {
       rules->push_back(rule);
-    else
+    } else {
       success = false;
+      if (nonexistent_rule_names != NULL) {
+        nonexistent_rule_names->push_back(*it);
+      }
+    }
   }
   return success;
 }

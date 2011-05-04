@@ -58,12 +58,15 @@ bool AppendRuleSet(bool save_optimized_content, RuleSet ruleset,
 Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name);
 
 /**
- * Append the rules with the given names to the given vector of Rules.  Return
- * true if all rules were able to be instantiated.
+ * Append the rules with the given names to the given vector of Rules.
+ * Return true if all rules were able to be instantiated. Rule names
+ * that were unable to be instantiated will be added to
+ * nonexistent_rule_names.
  */
 bool AppendRulesWithNames(bool save_optimized_content,
                           const std::vector<std::string>& rule_names,
-                          std::vector<Rule*>* rules);
+                          std::vector<Rule*>* rules,
+                          std::vector<std::string>* nonexistent_rule_names);
 
 /**
  * Remove the rule with the given name from the given vector of Rules (mutating
