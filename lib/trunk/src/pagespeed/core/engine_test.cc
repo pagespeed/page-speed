@@ -50,18 +50,20 @@ using pagespeed::l10n::NullLocalizer;
 namespace {
 
 const char* kRuleName = "TestRule";
+const char* kExperimentalRuleName = "TestExperimentalRule";
 const char* kHeader = "Test Rule";
 const char* kBody1 = "Example format string";
 const char* kBody2 = "Another format string";
 
 class TestRule : public Rule {
  public:
-  TestRule(const char* name = kRuleName)
+  explicit TestRule(const char* name = kRuleName)
       : pagespeed::Rule(pagespeed::InputCapabilities()),
         name_(name),
         append_results_return_value_(true),
         append_results_(true),
-        score_(100) {}
+        score_(100),
+        impact_(0.1) {}
   virtual ~TestRule() {}
 
   virtual const char* name() const {
@@ -92,6 +94,11 @@ class TestRule : public Rule {
     formatter->AddUrlBlock(not_localized(kBody2));
   }
 
+  virtual double ComputeResultImpact(const InputInformation& input_info,
+                                     const Result& result) {
+    return impact_;
+  }
+
   void set_score(int score) { score_ = score; }
 
   virtual int ComputeScore(const InputInformation& input_info,
@@ -104,8 +111,19 @@ class TestRule : public Rule {
   bool append_results_return_value_;
   bool append_results_;
   int score_;
+  double impact_;
 
   DISALLOW_COPY_AND_ASSIGN(TestRule);
+};
+
+class TestExperimentalRule : public TestRule {
+ public:
+  explicit TestExperimentalRule(const char* name = kExperimentalRuleName)
+      : TestRule(name) {}
+  virtual bool IsExperimental() const { return true; }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(TestExperimentalRule);
 };
 
 TEST(EngineTest, ComputeResults) {
@@ -126,7 +144,7 @@ TEST(EngineTest, ComputeResults) {
   ASSERT_EQ(0, results.error_rules_size());
   ASSERT_NE(0, results.version().major());
   ASSERT_NE(0, results.version().minor());
-  ASSERT_EQ(100, results.score());
+  ASSERT_EQ(90, results.score());
 
   const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -151,7 +169,7 @@ TEST(EngineTest, ComputeResultsError) {
   ASSERT_EQ(1, results.error_rules_size());
   ASSERT_EQ(kRuleName, results.error_rules(0));
   ASSERT_TRUE(results.has_score());
-  ASSERT_EQ(100, results.score());
+  ASSERT_EQ(90, results.score());
 
   const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -400,5 +418,35 @@ TEST(EngineTest, ResultIdAssignment) {
   EXPECT_EQ(1, results.rule_results(1).results(0).id());
   EXPECT_EQ(2, results.rule_results(2).results(0).id());
 }
+
+TEST(EngineTest, ComputeScoreOneExperimentalRule) {
+  PagespeedInput input;
+  input.Freeze();
+
+  std::vector<Rule*> rules;
+  rules.push_back(new TestExperimentalRule());
+
+  Engine engine(&rules);
+  engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
+  ASSERT_EQ(100, results.score());
+}
+
+TEST(EngineTest, ComputeScoresWithExperimentalRule) {
+  PagespeedInput input;
+  input.Freeze();
+
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
+  rules.push_back(new TestExperimentalRule());
+
+  Engine engine(&rules);
+  engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
+  ASSERT_EQ(90, results.score());
+}
+
 
 }  // namespace
