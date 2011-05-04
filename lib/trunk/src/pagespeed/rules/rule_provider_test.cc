@@ -149,7 +149,6 @@ TEST(RuleProviderTest, CreateRuleWithName) {
 }
 
 TEST(RuleProviderTest, AppendRulesWithNames) {
-  // Test successful invokation
   std::vector<pagespeed::Rule*> rules;
   std::vector<std::string> names;
   names.push_back("SpriteImages");
@@ -158,33 +157,84 @@ TEST(RuleProviderTest, AppendRulesWithNames) {
 
   STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
   EXPECT_TRUE(
-      pagespeed::rule_provider::AppendRulesWithNames(false, names, &rules));
+      pagespeed::rule_provider::AppendRulesWithNames(
+          false, names, &rules, NULL));
 
   ASSERT_EQ((size_t)3, rules.size());
   EXPECT_STREQ("SpriteImages", rules[0]->name());
   EXPECT_STREQ("MinifyHTML", rules[1]->name());
   EXPECT_STREQ("AvoidBadRequests", rules[2]->name());
+}
 
-  // Test invalid rule names
-  std::vector<pagespeed::Rule*> rules2;
-  names.clear();
+TEST(RuleProviderTest, AppendRulesWithNamesInvalidRule) {
+  std::vector<pagespeed::Rule*> rules;
+  std::vector<std::string> names;
   names.push_back("SpriteImages");
   names.push_back("MinifyHTML");
   names.push_back("bad_rule");
   names.push_back("MinifyCss");
 
-  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter2(&rules2);
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
   EXPECT_FALSE(
-    pagespeed::rule_provider::AppendRulesWithNames(false, names, &rules2));
+      pagespeed::rule_provider::AppendRulesWithNames(
+          false, names, &rules, NULL));
 
-  ASSERT_EQ((size_t)3, rules2.size());
-  EXPECT_STREQ("SpriteImages", rules2[0]->name());
-  EXPECT_STREQ("MinifyHTML", rules2[1]->name());
-  EXPECT_STREQ("MinifyCss", rules2[2]->name());
+  ASSERT_EQ((size_t)3, rules.size());
+  EXPECT_STREQ("SpriteImages", rules[0]->name());
+  EXPECT_STREQ("MinifyHTML", rules[1]->name());
+  EXPECT_STREQ("MinifyCss", rules[2]->name());
+}
 
-  // Test invalid parameters
+TEST(RuleProviderTest, AppendRulesWithNamesNonexistentRuleNames) {
+  std::vector<pagespeed::Rule*> rules;
+  std::vector<std::string> names;
+  names.push_back("MinifyHTML");
+  names.push_back("bad_rule");
+  names.push_back("MinifyCss");
+
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+  std::vector<std::string> nonexistent_rule_names;
   EXPECT_FALSE(
-      pagespeed::rule_provider::AppendRulesWithNames(false, names, NULL));
+      pagespeed::rule_provider::AppendRulesWithNames(
+          false, names, &rules, &nonexistent_rule_names));
+
+  ASSERT_EQ((size_t)2, rules.size());
+  EXPECT_STREQ("MinifyHTML", rules[0]->name());
+  EXPECT_STREQ("MinifyCss", rules[1]->name());
+  ASSERT_EQ((size_t)1, nonexistent_rule_names.size());
+  EXPECT_STREQ("bad_rule", nonexistent_rule_names[0].c_str());
+}
+
+TEST(RuleProviderTest, AppendRulesWithNamesNonexistentRuleNamesNotEmpty) {
+  std::vector<pagespeed::Rule*> rules;
+  std::vector<std::string> names;
+  names.push_back("MinifyHTML");
+  names.push_back("bad_rule");
+  names.push_back("MinifyCss");
+
+  STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
+
+  // Intentionally add a value to nonexistent_rule_names before
+  // invoking, to verify correct error handling behavior.
+  std::vector<std::string> nonexistent_rule_names;
+  nonexistent_rule_names.push_back("not_empty");
+  EXPECT_FALSE(
+      pagespeed::rule_provider::AppendRulesWithNames(
+          false, names, &rules, &nonexistent_rule_names));
+  ASSERT_EQ((size_t)2, rules.size());
+  EXPECT_STREQ("MinifyHTML", rules[0]->name());
+  EXPECT_STREQ("MinifyCss", rules[1]->name());
+  ASSERT_EQ((size_t)2, nonexistent_rule_names.size());
+  EXPECT_STREQ("not_empty", nonexistent_rule_names[0].c_str());
+  EXPECT_STREQ("bad_rule", nonexistent_rule_names[1].c_str());
+}
+
+TEST(RuleProviderTest, AppendRulesWithNamesBadParams) {
+  std::vector<std::string> names;
+  names.push_back("MinifyHTML");
+  EXPECT_FALSE(
+      pagespeed::rule_provider::AppendRulesWithNames(
+          false, names, NULL, NULL));
 }
 
 TEST(RuleProviderTest, RemoveRuleWithName) {
