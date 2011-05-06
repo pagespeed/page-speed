@@ -17,6 +17,33 @@
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
   },
   'targets': [
+    {
+      'target_name': 'pagespeed_json_dom',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+      'sources': [
+        'json_dom.cc',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+    },
+    {
+      'target_name': 'pagespeed_chromium_test',
+      'type': 'executable',
+      'dependencies': [
+        'pagespeed_json_dom',
+        '<(DEPTH)/testing/gtest.gyp:gtest',
+        '<(DEPTH)/testing/gtest.gyp:gtest_main',
+      ],
+      'sources': [
+        'json_dom_test.cc',
+      ],
+    },
     # TODO(mdsteele): Use this build target instead, once we transition back to
     #                 NaCl from NPAPI.
     # {
@@ -60,11 +87,11 @@
         '<(libpagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
         '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
+        'pagespeed_json_dom',
       ],
       'sources': [
         'pagespeed_chromium.cc',
-	'pagespeed_plugin.rc',
-        'npapi_dom.cc',
+        'pagespeed_plugin.rc',
         'npapi/np_entry.cc',
         'npapi/npp_entry.cc',
       ],
