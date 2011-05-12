@@ -70,7 +70,7 @@ TEST_F(CssminTest, AlreadyMinified) {
 
 TEST_F(CssminTest, RunawayComment) {
   CheckMinification("BODY { color: red; } /* unclosed comment...*",
-                    "BODY{color:red;}\n");
+                    "BODY{color:red;}");
 }
 
 TEST_F(CssminTest, RunawayString) {
@@ -123,6 +123,20 @@ TEST_F(CssminTest, SeparateBracketsFromPeriods) {
 TEST_F(CssminTest, DoNotAddSpaceWhereThereWasNone) {
   CheckMinification("body{color:red;}h1{color:blue;}",
                     "body{color:red;}h1{color:blue;}");
+}
+
+// See http://code.google.com/p/page-speed/issues/detail?id=432
+TEST_F(CssminTest, PreserveHackyComments) {
+  CheckMinification("html>/**/body { color: blue; }",
+                    "html>/**/body{color:blue;}");
+}
+
+// See http://code.google.com/p/page-speed/issues/detail?id=511
+TEST_F(CssminTest, DoNotJoinTokensSeparatedByComment1) {
+  CheckMinification(".foo /*comment*/.bar { color: blue; }",
+                    ".foo .bar{color:blue;}");
+  CheckMinification(".foo/*comment*/.bar { color: blue; }",
+                    ".foo .bar{color:blue;}");
 }
 
 }  // namespace

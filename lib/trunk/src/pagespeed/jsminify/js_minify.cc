@@ -261,7 +261,7 @@ void Minifier<OutputConsumer>::ConsumeBlockComment() {
       if (may_be_ccc && input_[index_ - 3] == '@') {
         ChangeToken(kCCCommentToken);
         output_.append(input_.substr(begin, index_ - begin));
-      } else {
+      } else if (whitespace_ == NO_WHITESPACE) {
         whitespace_ = SPACE;
       }
       return;

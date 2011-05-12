@@ -316,9 +316,14 @@ TEST_F(JsMinifyTest, SemicolonInsertionWhileStmt) {
   CheckMinification("while\n(true);", "while(true);");
 }
 
-TEST_F(JsMinifyTest, SemicolonInsertionReturnStmt) {
+TEST_F(JsMinifyTest, SemicolonInsertionReturnStmt1) {
   // A semicolon _will_ be inserted, so the linebreak _cannot_ be removed.
   CheckMinification("return\n(true);", "return\n(true);");
+}
+
+TEST_F(JsMinifyTest, SemicolonInsertionReturnStmt2) {
+  // A semicolon _will_ be inserted, so the linebreak _cannot_ be removed.
+  CheckMinification("return\n/*comment*/(true);", "return\n(true);");
 }
 
 TEST_F(JsMinifyTest, SemicolonInsertionThrowStmt) {
