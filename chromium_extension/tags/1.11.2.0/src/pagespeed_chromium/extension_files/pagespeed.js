@@ -110,7 +110,8 @@ var pagespeed = {
     var link = pagespeed.makeElement('a', null, opt_label || href);
     link.href = 'javascript:null';
     var openUrl = function () {
-      // Tell the background page to open the url in a new tab.
+      // Tell the background page to open the url in a new tab.  It will use
+      // chrome.tabs.create(), which we can't call from here.
       pagespeed.connectionPort.postMessage({kind: 'openUrl', url: href});
     };
     link.addEventListener('click', pagespeed.withErrorHandler(openUrl), false);
@@ -415,26 +416,14 @@ var pagespeed = {
         pagespeed.makeElement('code', null, 'https://'),
         " URLs.  Please try another page."
       ]));
-    } else if (problem === 'frameset') {
-      error_container.appendChild(pagespeed.makeElement('p', null, [
-        'Sorry, Page Speed for Chrome is currently unable to analyze FRAMESET',
-        ' pages.  We\'re hoping to fix this in a future version.  In the',
-        ' meantime, you can analyze this page with ',
-        pagespeed.makeLink('http://pagespeed.googlelabs.com/',
-                           'Page Speed Online'), ' or with ',
-        pagespeed.makeLink(
-          'http://code.google.com/speed/page-speed/docs/using_firefox.html',
-          'Page Speed for Firefox'), '.'
-      ]));
     } else if (problem === 'moduleDidNotLoad') {
       error_container.appendChild(pagespeed.makeElement('p', null, [
         'Unfortunately, the Page Speed plugin was not able to load.',
-        '  The usual reason for this is that you have "Plug-ins" set to',
-        ' "Block all" (or possibly to "Click to play") in the Chrome ',
-        pagespeed.makeLink('chrome://settings/content', 'preferences'),
-        '.  Try setting "Plug-ins" to "Run automatically", reloading this',
-        ' page, and then trying Page Speed again.  If you still get this',
-        ' error message, please ',
+        '  The usual reason for this is that "Page Speed Plugin" is disabled',
+        ' in the ', pagespeed.makeLink('about:plugins'),
+        ' page.  Try enabling "Page Speed Plugin" and then closing and',
+        ' reopening the Chrome Developer Tools window, and try again.  If you',
+        ' still get this error message, please ',
         pagespeed.makeLink('http://code.google.com/p/page-speed/issues/',
                            'file a bug'), '.'
       ]));
@@ -467,8 +456,8 @@ var pagespeed = {
       pagespeed.onPageLoaded();
     } else if (message.kind === 'pageNavigate') {
       pagespeed.onPageNavigate();
-    } else if (message.kind === 'results') {
-      pagespeed.onPageSpeedResults(message.results);
+    } else if (message.kind === 'collectedInput') {
+      pagespeed.onCollectedInput(message);
     } else if (message.kind === 'error') {
       pagespeed.endCurrentRun();
       if (message.reason) {
@@ -509,31 +498,45 @@ var pagespeed = {
   onResourceAccumulatorComplete: function (har) {
     pagespeed.resourceAccumulator = null;
 
-    // Prepare the request.
-    var analyze = document.getElementById('analyze-dropdown').value;
-    var input = {analyze: analyze, har: har};
-    var tab_id = webInspector.inspectedWindow.tabId;
-    var request = {kind: 'runPageSpeed', input: input, tab_id: tab_id};
-
-    // Tell the background page to run the Page Speed rules.
+    // Tell the background page to collect the DOM and missing bits of the HAR.
+    // It will respond with a collectedInput message, which will be handled in
+    // pagespeed.messageHandler().
     pagespeed.setStatusText('Sending request to background page...');
-    pagespeed.connectionPort.postMessage(request);
+    pagespeed.connectionPort.postMessage({
+      kind: 'collectInput',
+      analyze: document.getElementById('analyze-dropdown').value,
+      har: har,
+      tab_id: webInspector.inspectedWindow.tabId
+    });
   },
 
-  // Invoked in response to our background page running Page Speed on
-  // the current page.
-  onPageSpeedResults: function (response) {
-    if (!response) {
-      throw new Error("No response to runPageSpeed request.");
-    } else if (response.error_message) {
-      webInspector.log(response.error_message);
-    } else if (response.results.error_message) {
-      webInspector.log(response.results.error_message);
-    } else {
-      pagespeed.currentResults = response;
+  // Invoked when the background page has finished collecting the page DOM and
+  // any missing parts of the HAR.
+  onCollectedInput: function (input) {
+    pagespeed.setStatusText(chrome.i18n.getMessage('running_rules'));
+    // Wrap this next part in a setTimeout (with zero delay) to give Chrome a
+    // chance to redraw the screen and display the above message.
+    setTimeout(pagespeed.withErrorHandler(function () {
+      var pagespeed_module = document.getElementById('pagespeed-module');
+      // Check if the module has loaded.
+      try {
+        pagespeed_module.ping();
+      } catch (e) {
+        pagespeed.endCurrentRun();
+        pagespeed.showErrorMessage('moduleDidNotLoad');
+        return;
+      }
+      // Run the rules.
+      pagespeed.currentResults = {
+        analyze: input.analyze,
+        results: JSON.parse(pagespeed_module.runPageSpeed(
+          JSON.stringify(input.har), JSON.stringify(input.dom),
+          input.analyze, chrome.i18n.getMessage('@@ui_locale')))
+      };
+      // Display the results.
       pagespeed.showResults();
-    }
-    pagespeed.endCurrentRun();
+      pagespeed.endCurrentRun();
+    }), 0);
   },
 
   // Cancel the current run, if any, and reset the status indicators.
@@ -707,6 +710,15 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
     this.doingReload_ = true;
     webInspector.inspectedWindow.reload();
   } else {
+    // Devtools apparently sets the onLoad timing to NaN if onLoad hasn't
+    // fired yet.  Page Speed will interpret that to mean that the onLoad
+    // timing is unknown, but setting it to -1 will tell Page Speed that it
+    // is known not to have happened yet.
+    har.pages.forEach(function (page) {
+      if (isNaN(page.pageTimings.onLoad)) {
+        page.pageTimings.onLoad = -1;
+      }
+    });
     this.har_ = har;
     this.getNextEntryBody_();
   }
