@@ -26,10 +26,12 @@
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
+#include "base/json/json_reader.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "base/values.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_init.h"
@@ -48,7 +50,7 @@
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/rules/rule_provider.h"
-#include "pagespeed_chromium/npapi_dom.h"
+#include "pagespeed_chromium/json_dom.h"
 
 namespace {
 
@@ -96,9 +98,9 @@ bool RunPageSpeedRules(const std::string& locale,
     return false;
   }
 
-  // TODO(mdsteele): call input->SetPrimaryResourceUrl() if we can get the URL
-  //   from the HAR.
-
+  if (document != NULL) {
+    input->SetPrimaryResourceUrl(document->GetDocumentUrl());
+  }
   input->AcquireDomDocument(document); // input takes ownership of document
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
@@ -223,10 +225,10 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
                                    const NPVariant& locale_arg,
                                    NPVariant *result) {
   if (!NPVARIANT_IS_STRING(har_arg)) {
-    return Throw("har argument to runPageSpeed must be a string");
+    return Throw("first argument to runPageSpeed must be a string");
   }
-  if (!NPVARIANT_IS_OBJECT(document_arg) && !NPVARIANT_IS_NULL(document_arg)) {
-    return Throw("second argument to runPageSpeed must be an object or null");
+  if (!NPVARIANT_IS_STRING(document_arg)) {
+    return Throw("second argument to runPageSpeed must be a string");
   }
   if (!NPVARIANT_IS_STRING(filter_arg)) {
     return Throw("third argument to runPageSpeed must be a string");
@@ -235,15 +237,13 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
     return Throw("fourth argument to runPageSpeed must be a string");
   }
 
-  pagespeed::DomDocument* document = NULL;
-  if (NPVARIANT_IS_OBJECT(document_arg)) {
-    document = pagespeed_chromium::CreateDocument(
-        npp_, NPVARIANT_TO_OBJECT(document_arg));
-  }
-
   const NPString& har_NPString = NPVARIANT_TO_STRING(har_arg);
   const std::string har_string(har_NPString.UTF8Characters,
                                har_NPString.UTF8Length);
+
+  const NPString& document_NPString = NPVARIANT_TO_STRING(document_arg);
+  const std::string document_string(document_NPString.UTF8Characters,
+                                    document_NPString.UTF8Length);
 
   const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
   const std::string filter_string(filter_NPString.UTF8Characters,
@@ -253,7 +253,28 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   const std::string locale_string(locale_NPString.UTF8Characters,
                                   locale_NPString.UTF8Length);
 
+  std::string error_msg_out;
+  scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
+      document_string,
+      true,  // allow_trailing_comma
+      NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+      &error_msg_out));
+  if (document_json == NULL) {
+    return Throw("could not parse DOM: " + error_msg_out);
+  }
+  if (!document_json->IsType(Value::TYPE_DICTIONARY)) {
+    return Throw("DOM must be a JSON dictionary");
+  }
+  // The document does _not_ get ownership of document_json.  The reason for
+  // this design choice is that the Value objects for subdocuments are owned by
+  // their parent Value objects, so in order to avoid a double-free, instances
+  // of the JsonDocument class need to not own the Value objects on which
+  // they're based.
+  pagespeed::DomDocument* document = pagespeed_chromium::CreateDocument(
+      static_cast<const DictionaryValue*>(document_json.get()));
+
   std::string output, error_string;
+  // RunPageSpeedRules will deallocate the filter and the document.
   const bool success = RunPageSpeedRules(
       locale_string, NewFilter(filter_string), document, har_string,
       &output, &error_string);

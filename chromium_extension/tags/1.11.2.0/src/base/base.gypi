@@ -21,7 +21,9 @@
         '<(chromium_root)/base/third_party/dmg_fp/g_fmt.cc',
         '<(chromium_root)/base/third_party/icu/icu_utf.cc',
         '<(chromium_root)/base/third_party/icu/icu_utf.h',
-        'prtime_nacl.cc',
+        # TODO We may find we need this again when we switch back to NaCl.
+        #'prtime_nacl.cc',
+        '<(chromium_root)/base/third_party/nspr/prtime.cc',
         '<(chromium_root)/base/third_party/nspr/prtime.h',
         '<(chromium_root)/base/atomicops.h',
         '<(chromium_root)/base/atomicops_internals_x86_gcc.cc',
@@ -57,7 +59,9 @@
         '<(chromium_root)/base/lock_impl.h',
         '<(chromium_root)/base/lock_impl_posix.cc',
         '<(chromium_root)/base/lock_impl_win.cc',
-        'logging_nacl.cc',
+        # TODO We may find we need this again when we switch back to NaCl.
+        #'logging_nacl.cc',
+        '<(chromium_root)/base/logging.cc',
         '<(chromium_root)/base/logging.h',
         '<(chromium_root)/base/pickle.cc',
         '<(chromium_root)/base/pickle.h',
@@ -124,6 +128,14 @@
                 '<(chromium_root)/base/atomicops_internals_x86_gcc.cc',
               ],
           },],
+          [ 'OS != "linux"', {
+              'sources!': [
+                # Not automatically excluded by the *linux.cc rules.
+                '<(chromium_root)/base/setproctitle_linux.c',
+                '<(chromium_root)/base/setproctitle_linux.h',
+              ],
+            },
+          ],
           [ 'OS == "win"', {
               'sources!': [
                 '<(chromium_root)/base/string16.cc',
@@ -137,6 +149,8 @@
           '<(chromium_root)/base/md5.h',
           '<(chromium_root)/base/string16.cc',
           '<(chromium_root)/base/string16.h',
+          '<(chromium_root)/base/setproctitle_linux.c',
+          '<(chromium_root)/base/setproctitle_linux.h',
         ],
         'conditions': [
           [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
@@ -173,6 +187,18 @@
         ],
       },
       'conditions': [
+        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd"', {
+          'conditions': [
+            [ 'OS == "linux"', {
+              'link_settings': {
+                'libraries': [
+                  # We need rt for clock_gettime().
+                  '-lrt',
+                ],
+              },
+            }],
+          ],
+        },],
         [ 'OS == "mac"', {
             'link_settings': {
               'libraries': [
@@ -187,7 +213,9 @@
         },],
       ],
       'sources': [
-        'dynamic_annotations_nacl.c',
+        # TODO We may find we need this again when we switch back to NaCl.
+        #'dynamic_annotations_nacl.c',
+        '<(chromium_root)/base/third_party/dynamic_annotations/dynamic_annotations.c',
       ],
     },
   ],

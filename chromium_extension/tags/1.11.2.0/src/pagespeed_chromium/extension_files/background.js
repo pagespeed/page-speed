@@ -18,11 +18,10 @@ var pagespeed_bg = {
 
   // Map from inspected tab IDs to client objects.  Each client object has the
   // following fields:
-  //     tab_id: the ID of the inspected tab
-  //     input: an object with the following fields:
-  //         analyze: a string indicating whether to analyze ads/content/etc.
-  //         har: the page HAR, in JSON form
+  //     analyze: a string indicating whether to analyze ads/content/etc.
+  //     har: the page HAR, in JSON form
   //     port: a port object connected to this client's DevTools page
+  //     tab_id: the ID of the inspected tab
   activeClients: {},
 
   // Map from inspected tab IDs to connection ports, to which we send page
@@ -83,13 +82,18 @@ var pagespeed_bg = {
     } else if (request.kind === 'checkTab') {
       chrome.tabs.get(tab_id, pagespeed_bg.withErrorHandler(
         pagespeed_bg.checkTab, port));
-    } else if (request.kind === 'runPageSpeed') {
-      request.port = port;
-      pagespeed_bg.activeClients[tab_id] = request;
+    } else if (request.kind === 'collectInput') {
+      var client = {
+        analyze: request.analyze,
+        har: request.har,
+        port: port,
+        tab_id: tab_id
+      };
+      pagespeed_bg.activeClients[tab_id] = client;
       port.onDisconnect.addListener(pagespeed_bg.withErrorHandler(function () {
         delete pagespeed_bg.activeClients[tab_id];
       }));
-      pagespeed_bg.fetchPartialResources_(request);
+      pagespeed_bg.fetchPartialResources_(client);
     } else if (request.kind === 'cancelRun') {
       delete pagespeed_bg.activeClients[tab_id];
     } else {
@@ -99,23 +103,20 @@ var pagespeed_bg = {
 
   // Handle requests from content scripts.
   requestHandler: function (request, sender, sendResponse) {
-    var response = null;
     try {
       var client = pagespeed_bg.activeClients[sender.tab.id];
       if (client) {
         if (request.kind === 'error') {
           console.log(request.message);
+          client.port.postMessage({kind: 'error', message: request.message});
+        } else if (request.kind == 'dom') {
+          delete pagespeed_bg.activeClients[client.tab_id];
           client.port.postMessage({
-            kind: 'error',
-            message: request.message,
-            reason: request.reason
+            kind: 'collectedInput',
+            analyze: client.analyze,
+            dom: request.dom,
+            har: client.har
           });
-        } else if (request.kind === 'getInput') {
-          response = client.input;
-        } else if (request.kind == 'putResults') {
-          client.port.postMessage({kind: 'results', results: request.results});
-        } else if (request.kind == 'setStatusText') {
-          pagespeed_bg.setStatusText(client, request.message);
         } else {
           throw new Error('Unknown request kind: ' + request.kind);
         }
@@ -123,7 +124,7 @@ var pagespeed_bg = {
     } finally {
       // We should always send a response, even if it's empty.  See:
       //   http://code.google.com/chrome/extensions/messaging.html#simple
-      sendResponse(response);
+      sendResponse(null);
     }
   },
 
@@ -165,7 +166,7 @@ var pagespeed_bg = {
     // Hold on to the current client instance.
     fetchContext.client = client;
 
-    var har = client.input.har.log;
+    var har = client.har.log;
     for (var i = 0, len = har.entries.length; i < len; ++i) {
       var entry = har.entries[i];
 
@@ -271,7 +272,7 @@ var pagespeed_bg = {
     if (pagespeed_bg.isClientStillActive(client)) {
       // Only run the content script if this is part of processing for
       // a client that hasn't been cancelled.
-      pagespeed_bg.setStatusText(client, "Executing content script...");
+      pagespeed_bg.setStatusText(client, "Collecting page DOM...");
       chrome.tabs.executeScript(client.tab_id, {file: "content-script.js"});
     }
   },

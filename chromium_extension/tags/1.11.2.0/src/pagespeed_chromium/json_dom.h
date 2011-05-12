@@ -1,4 +1,4 @@
-// Copyright 2010 Google Inc.
+// Copyright 2011 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_CHROMIUM_NPAPI_DOM_H_
-#define PAGESPEED_CHROMIUM_NPAPI_DOM_H_
-
-#include "third_party/npapi/npapi.h"
-#include "third_party/npapi/npfunctions.h"
+#ifndef PAGESPEED_CHROMIUM_JSON_DOM_H_
+#define PAGESPEED_CHROMIUM_JSON_DOM_H_
 
 #include "pagespeed/core/dom.h"
 
+class DictionaryValue;
+
 namespace pagespeed_chromium {
 
-pagespeed::DomDocument* CreateDocument(NPP npp, NPObject* document);
+pagespeed::DomDocument* CreateDocument(const DictionaryValue* json);
 
 }  // namespace pagespeed_chromium
 
-#endif  // PAGESPEED_CHROMIUM_NPAPI_DOM_H_
+#endif  // PAGESPEED_CHROMIUM_JSON_DOM_H_
