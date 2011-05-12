@@ -18,6 +18,7 @@
     "http://*/*", "https://*/*"
   ],
   "plugins": [
+    { "path": "libpagespeed_plugin_Linux_x86-gcc3.so", "public": true },
     { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true }
   ],
   "version": "1.11.2.0"
