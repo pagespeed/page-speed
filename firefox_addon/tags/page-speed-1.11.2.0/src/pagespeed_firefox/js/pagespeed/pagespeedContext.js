@@ -130,9 +130,7 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
   // results is in there so that zero-impact rules with results come before
   // zero-impact rules with no results.
   lintRules.sort(function (result1, result2) {
-      var res = compare(result1.experimental, result2.experimental);
-      if (res !== 0) return res;
-      res = compare(result2.rule_impact, result1.rule_impact);
+      var res = compare(result2.rule_impact, result1.rule_impact);
       if (res !== 0) return res;
       res = compare((result2.url_blocks || []).length,
                     (result1.url_blocks || []).length);

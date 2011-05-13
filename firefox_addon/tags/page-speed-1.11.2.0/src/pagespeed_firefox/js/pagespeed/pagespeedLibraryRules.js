@@ -150,13 +150,11 @@ var documentationURLs = {
   AvoidDocumentWrite: 'rtt.html#AvoidDocumentWrite',
   CombineExternalCss: 'rtt.html#CombineExternalCss',
   CombineExternalJavaScript: 'rtt.html#CombineExternalJS',
-  DeferParsingJavaScript: 'mobile.html#DeferParsingJS',
   EnableGzipCompression: 'payload.html#GzipCompression',
   EnableKeepAlive: 'rtt.html#EnableKeepAlive',
   InlineSmallCss: 'caching.html#InlineSmallResources',
   InlineSmallJavaScript: 'caching.html#InlineSmallResources',
   LeverageBrowserCaching: 'caching.html#LeverageBrowserCaching',
-  MakeLandingPageRedirectsCacheable: 'mobile.html#CacheLandingPageRedirects',
   MinifyCss: 'payload.html#MinifyCss',
   MinifyHTML: 'payload.html#MinifyHTML',
   MinifyJavaScript: 'payload.html#MinifyJS',
@@ -176,6 +174,16 @@ var documentationURLs = {
   SpecifyCharsetEarly: 'rendering.html#SpecifyCharsetEarly',
   SpecifyImageDimensions: 'rendering.html#SpecifyImageDimensions',
   SpriteImages: 'rtt.html#SpriteImages',
+};
+
+// New rules that haven't been reviewed by the community are marked as
+// experimental. The idea is that rules start as experimental and are
+// refined until they graduate to regular rules.
+var experimentalRules = {
+  AvoidDocumentWrite: true,
+  AvoidCssImport: true,
+  SpriteImages: true,
+  PreferAsyncResources: true,
 };
 
 /**
@@ -456,7 +464,7 @@ PAGESPEED.NativeLibrary = {
                                     full_results.optimized_content),
           information: null,
           getStatistics: function () { return rule_result.stats || {}; },
-          experimental: rule_result.experimental || false,
+          experimental: experimentalRules[rule_result.rule_name] || false,
         });
       }
     }
