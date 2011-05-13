@@ -15,6 +15,10 @@
 #ifndef PAGESPEED_CHROMIUM_PAGESPEED_CHROMIUM_H_
 #define PAGESPEED_CHROMIUM_PAGESPEED_CHROMIUM_H_
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #include "third_party/npapi/npapi.h"
 #include "third_party/npapi/npfunctions.h"
 
