@@ -372,6 +372,7 @@ PAGESPEED.Utils = {  // Begin namespace
    */
   getColorCode: function(rule) {
     if (rule == null ||
+        rule.experimental ||
         isNaN(rule.weight) ||
         rule.weight == 0 ||
         isNaN(rule.score)) {
