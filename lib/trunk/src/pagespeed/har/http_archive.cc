@@ -123,7 +123,8 @@ void InputPopulator::DeterminePageTimings(
 
   const std::string started_datetime(GetString(*page_json, "startedDateTime"));
   if (!Iso8601ToEpochMillis(started_datetime, &page_started_millis_)) {
-    LOG(DFATAL) << "Failed to parse ISO 8601: " << started_datetime;
+    INPUT_POPULATOR_ERROR() << "Malformed pages.startedDateTime: "
+                            << started_datetime;
   }
 
   int onload_millis;
@@ -156,11 +157,18 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
                       << "in the future. Truncating.";
             request_start_time_millis = kint32max;
           }
-          resource->SetRequestStartTimeMillis(
-              static_cast<int>(request_start_time_millis));
+          // Don't SetRequestStartTimeMillis if request_start_time_millis is
+          // negative, as that will result in an error down the line.
+          if (request_start_time_millis < 0) {
+            LOG(WARNING) << "Request starts before page starts.";
+          } else {
+            resource->SetRequestStartTimeMillis(
+                static_cast<int>(request_start_time_millis));
+          }
         }
       } else {
-        LOG(DFATAL) << "Failed to parse ISO 8601: " << started_datetime;
+        INPUT_POPULATOR_ERROR() << "Malformed resource startedDateTime: "
+                                << started_datetime;
       }
     }
   }
@@ -380,7 +388,10 @@ bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
   PRExplodedTime exploded = { microseconds, seconds, minutes, hours,
                               day, month - 1, year, 0, 0,
                               { tz_offset_seconds, 0 } };
-  *output = PR_ImplodeTime(&exploded) / PR_USEC_PER_MSEC;
+  // We need to explicitly cast PR_USEC_PER_MSEC to a signed type here;
+  // otherwise, we will perform unsigned division, yielding a wrong result for
+  // "negative" datetimes (i.e. those before 1970).
+  *output = PR_ImplodeTime(&exploded) / static_cast<int64>(PR_USEC_PER_MSEC);
   return true;
 }
 

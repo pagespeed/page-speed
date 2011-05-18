@@ -220,56 +220,59 @@ TEST(HttpArchiveTest, InvalidHAR) {
   ASSERT_EQ(NULL, input.get());
 }
 
-TEST(HttpArchiveTest, ValidIso8601) {
-  int64 millis = -1;
+class Iso8601Test : public testing::Test {
+ protected:
+  void ExpectValid(const std::string& input, int64 output) {
+    int64 millis = -0xDeadBeef;
+    EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis(input, &millis));
+    EXPECT_EQ(output, millis);
+  }
+  void ExpectInvalid(const std::string& input) {
+    int64 millis = -0xDeadBeef;
+    EXPECT_FALSE(pagespeed::Iso8601ToEpochMillis(input, &millis));
+    EXPECT_EQ(-0xDeadBeef, millis);
+  }
+};
+
+TEST_F(Iso8601Test, ValidIso8601) {
   // Check some simple cases:
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-01T00:00:00Z",
-                                              &millis));
-  EXPECT_EQ(0, millis);
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-01T00:01:31Z",
-                                              &millis));
-  EXPECT_EQ(91000, millis);
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-01T00:01:30.000Z",
-                                              &millis));
-  EXPECT_EQ(90000, millis);
+  ExpectValid("1970-01-01T00:00:00Z", 0);
+  ExpectValid("1970-01-01T00:01:31Z", 91000);
+  ExpectValid("1970-01-01T00:01:30.000Z", 90000);
   // Check several variations on the fractional part:
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-01T00:01:30.123Z",
-                                              &millis));
-  EXPECT_EQ(90123, millis);
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-01T00:01:30.89Z",
-                                              &millis));
-  EXPECT_EQ(90890, millis);
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-01T00:01:30.6Z",
-                                              &millis));
-  EXPECT_EQ(90600, millis);
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-01T00:01:30.56712Z",
-                                              &millis));
-  EXPECT_EQ(90567, millis);
+  ExpectValid("1970-01-01T00:01:30.123Z", 90123);
+  ExpectValid("1970-01-01T00:01:30.89Z", 90890);
+  ExpectValid("1970-01-01T00:01:30.6Z", 90600);
+  ExpectValid("1970-01-01T00:01:30.56712Z", 90567);
   // Try out various timezone offsets:
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-02T00:00:35.8Z",
-                                              &millis));
-  EXPECT_EQ(86435800, millis);
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-02T00:00:35.8+03:00",
-                                              &millis));
-  EXPECT_EQ(75635800, millis);
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("1970-01-02T00:00:35.8-02:41",
-                                              &millis));
-  EXPECT_EQ(96095800, millis);
+  ExpectValid("1970-01-02T00:00:35.8Z", 86435800);
+  ExpectValid("1970-01-02T00:00:35.8+03:00", 75635800);
+  ExpectValid("1970-01-02T00:00:35.8-02:41", 96095800);
   // Now try a nontrivial datetime:
-  EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis("2010-09-07T15:39:50.044-04:00",
-                                              &millis));
-  EXPECT_EQ(1283888390044LL, millis);
+  ExpectValid("2010-09-07T15:39:50.044-04:00", 1283888390044LL);
+  // Make sure we handle "negative" datetimes (i.e. those before 1970):
+  ExpectValid("1969-12-31T23:59:59.000Z", -1000);
+  ExpectValid("1969-12-31T23:00:00Z", -3600000);
 }
 
-TEST(HttpArchiveTest, InvalidIso8601) {
-  int64 millis = 0;
-  EXPECT_FALSE(pagespeed::Iso8601ToEpochMillis("", &millis));
-  EXPECT_FALSE(pagespeed::Iso8601ToEpochMillis("foobar", &millis));
-  EXPECT_FALSE(pagespeed::Iso8601ToEpochMillis("12:35:20", &millis));
-  EXPECT_FALSE(pagespeed::Iso8601ToEpochMillis("1970-01-02 00:00:35.8Z",
-                                               &millis));
-  EXPECT_FALSE(pagespeed::Iso8601ToEpochMillis("1970-01-02T00:00:35.8Q",
-                                               &millis));
+TEST_F(Iso8601Test, InvalidIso8601) {
+  // Malformed datetimes:
+  ExpectInvalid("");
+  ExpectInvalid("foobar");
+  ExpectInvalid("12:35:20");
+  ExpectInvalid("1970-01-02 00:00:35.8Z");
+  ExpectInvalid("1970-01-02T00:00:35.8Q");
+  // Extra characters at the end:
+  ExpectInvalid("1970-01-01T00:00:00Z+");
+  ExpectInvalid("1970-01-02T00:00:35.8+03:000");
+  // Fields out of range:
+  ExpectInvalid("1970-00-01T00:00:00Z");
+  ExpectInvalid("1970-13-01T00:00:00Z");
+  ExpectInvalid("1970-01-00T00:00:00Z");
+  ExpectInvalid("1970-01-40T00:00:00Z");
+  ExpectInvalid("1970-01-01T25:00:00Z");
+  ExpectInvalid("1970-01-01T00:75:00Z");
+  ExpectInvalid("1970-01-01T00:00:77Z");
 }
 
 }  // namespace
