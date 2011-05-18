@@ -223,14 +223,14 @@ TEST(HttpArchiveTest, InvalidHAR) {
 class Iso8601Test : public testing::Test {
  protected:
   void ExpectValid(const std::string& input, int64 output) {
-    int64 millis = -0xDeadBeef;
+    int64 millis = -31337;
     EXPECT_TRUE(pagespeed::Iso8601ToEpochMillis(input, &millis));
     EXPECT_EQ(output, millis);
   }
   void ExpectInvalid(const std::string& input) {
-    int64 millis = -0xDeadBeef;
+    int64 millis = -31337;
     EXPECT_FALSE(pagespeed::Iso8601ToEpochMillis(input, &millis));
-    EXPECT_EQ(-0xDeadBeef, millis);
+    EXPECT_EQ(-31337, millis);
   }
 };
 
