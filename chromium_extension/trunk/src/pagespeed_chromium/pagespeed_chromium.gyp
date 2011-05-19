@@ -258,6 +258,21 @@
             }],
           ],
         },
+        {
+          'action_name': 'touch_plugins',
+          'inputs': [
+            '<(PRODUCT_DIR)/pagespeed',
+          ],
+          'outputs': [
+            # This list should contain exactly the filenames listed under
+            # "plugins" in manifest.json.
+            '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin_WINNT_x86-msvc.dll',
+            '<(PRODUCT_DIR)/pagespeed/libpagespeed_plugin_Linux_x86-gcc3.so',
+            '<(PRODUCT_DIR)/pagespeed/libpagespeed_plugin_Linux_x86_64-gcc3.so',
+            '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
+          ],
+          'action': ['touch', '-a', '<@(_outputs)'],
+        },
       ],
     },
   ],
