@@ -247,9 +247,8 @@ bool RunPagespeed(const std::string& out_format,
         &rules);
   }
   std::vector<std::string> incompatible_rule_names;
-  pagespeed::rule_provider::RemoveIncompatibleRules(&rules,
-                                                    &incompatible_rule_names,
-                                                    input->EstimateCapabilities());
+  pagespeed::rule_provider::RemoveIncompatibleRules(
+      &rules, &incompatible_rule_names, input->EstimateCapabilities());
   if (!incompatible_rule_names.empty()) {
     std::string incompatible_rule_list =
         JoinString(incompatible_rule_names, ' ');
