@@ -30,6 +30,7 @@
         'directive_enumerator.cc',
         'dom.cc',
         'engine.cc',
+        'file_util.cc',
         'formatter.cc',
         'image_attributes.cc',
         'pagespeed_input.cc',
