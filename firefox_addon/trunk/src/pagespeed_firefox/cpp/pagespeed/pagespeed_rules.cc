@@ -43,6 +43,7 @@
 #include "base/values.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/engine.h"
+#include "pagespeed/core/file_util.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
@@ -59,7 +60,6 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/results_to_json_converter.h"
 #include "pagespeed/rules/rule_provider.h"
-#include "pagespeed_firefox/cpp/pagespeed/file_util.h"
 #include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
 #include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
 
