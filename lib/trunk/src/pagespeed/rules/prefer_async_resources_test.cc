@@ -316,9 +316,10 @@ TEST_F(PreferAsyncResourcesTest, SyncFacebookExtendedUrlIsOk) {
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncFacebookWithVersionIsBad) {
-  CreateScriptElement("http://connect.facebook.net/en_US/all.js?v=25.9.51", body());
+  const char* kUrl = "http://connect.facebook.net/en_US/all.js?v=25.9.51";
+  CreateScriptElement(kUrl, body());
   CreateCssElement(body());
-  CheckOneViolation(kRootUrl, "http://connect.facebook.net/en_US/all.js?v=25.9.51");
+  CheckOneViolation(kRootUrl, kUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncFacebookForAnyRegionIsBad) {

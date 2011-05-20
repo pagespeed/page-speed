@@ -123,7 +123,8 @@ TEST(UriUtil, GetUriWithoutFragmentTest) {
       kFragmentUrl, &uri_no_fragment));
   ASSERT_EQ(uri_no_fragment, kFragmentUrlNoFragment);
 
-  ASSERT_FALSE(pagespeed::uri_util::GetUriWithoutFragment("", &uri_no_fragment));
+  ASSERT_FALSE(
+      pagespeed::uri_util::GetUriWithoutFragment("", &uri_no_fragment));
 }
 
 TEST(UriUtil, CanonicalizeUrl) {

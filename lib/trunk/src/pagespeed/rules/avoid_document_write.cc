@@ -131,7 +131,8 @@ bool DocumentContainsUserVisibleResource(const PagespeedInput& input,
 bool DoesBlockRender(const PagespeedInput& input,
                      const std::string& document_url,
                      const std::vector<std::string>& external_resource_urls) {
-  const Resource* parent_resource = input.GetResourceWithUrlOrNull(document_url);
+  const Resource* parent_resource =
+      input.GetResourceWithUrlOrNull(document_url);
   if (parent_resource == NULL) {
     LOG(INFO) << "Unable to find document " << document_url;
     return false;
