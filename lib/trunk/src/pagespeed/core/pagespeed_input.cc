@@ -112,13 +112,8 @@ bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
   }
   std::string canon_url = url;
   uri_util::CanonicalizeUrl(&canon_url);
-
-  std::string canon_url_no_fragment;
-  if (!uri_util::GetUriWithoutFragment(canon_url, &canon_url_no_fragment)) {
-      canon_url_no_fragment = canon_url;
-  }
-  if (!has_resource_with_url(canon_url_no_fragment)) {
-    LOG(INFO) << "No such primary resource " << canon_url_no_fragment;
+  if (!has_resource_with_url(canon_url)) {
+    LOG(INFO) << "No such primary resource " << canon_url;
     return false;
   }
   primary_resource_url_ = canon_url;
@@ -444,7 +439,11 @@ int PagespeedInput::num_resources() const {
 }
 
 bool PagespeedInput::has_resource_with_url(const std::string& url) const {
-  return url_resource_map_.find(url) != url_resource_map_.end();
+  std::string url_canon;
+  if (!uri_util::GetUriWithoutFragment(url, &url_canon)) {
+    url_canon = url;
+  }
+  return url_resource_map_.find(url_canon) != url_resource_map_.end();
 }
 
 const Resource& PagespeedInput::GetResource(int idx) const {

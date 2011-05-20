@@ -138,7 +138,7 @@ class PreferAsyncResourcesRelativeTest : public PreferAsyncResourcesTest {
   }
 };
 
-const char* PreferAsyncResourcesTest::kRootUrl = "http://test.com/";
+const char* PreferAsyncResourcesTest::kRootUrl = "http://test.com/#foo";
 const char* PreferAsyncResourcesTest::kIframeUrl = "http://test.com/iframe.htm";
 const char* PreferAsyncResourcesRelativeTest::kRelativeRootUrl =
     "http://www.google-analytics.com/index.html";
@@ -260,7 +260,7 @@ TEST_F(PreferAsyncResourcesTest, FormatTest) {
   std::string expected =
       "The following resources are loaded synchronously. Load them "
       "asynchronously to reduce blocking of page rendering.\n"
-      "  http://test.com/ loads http://www.google-analytics.com/ga.js "
+      "  http://test.com/#foo loads http://www.google-analytics.com/ga.js "
       "synchronously.\n";
   CreateScriptElement(kGaScriptUrl, body());
   CreateCssElement(body());
