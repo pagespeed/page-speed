@@ -235,15 +235,15 @@ var unusedCssLint = function() {
   var totalCssSize = 0;
   var totalUnusedCssSize = 0;
   var usedWindowRuleIds = PAGESPEED.UnusedCss.getUsedCssRuleIds(
-      FirebugContext.window);
+      Firebug.currentContext.window);
 
   // Iterate through all stylesheets on this page.
   var inlineBlockNum = 1;
 
   // Need to get html panel first, otherwise exception will be generated when
   // getting css panel (inside will access the parentPanel, which is html).
-  FirebugContext.getPanel('html');
-  var cssPanel = FirebugContext.getPanel('css');
+  Firebug.currentContext.getPanel('html');
+  var cssPanel = Firebug.currentContext.getPanel('css');
   var styleSheets = cssPanel.getLocationList();
   if (styleSheets.length == 0) {
     this.score = 'n/a';

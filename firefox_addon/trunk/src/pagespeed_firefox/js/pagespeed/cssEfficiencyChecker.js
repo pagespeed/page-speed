@@ -519,8 +519,8 @@ var inefficientCssLint = function() {
 
   // Need to get html panel first, otherwise exception will be generated when
   // getting css panel (inside will access the parentPanel, which is html).
-  FirebugContext.getPanel('html');
-  var cssPanel = FirebugContext.getPanel('css');
+  Firebug.currentContext.getPanel('html');
+  var cssPanel = Firebug.currentContext.getPanel('css');
 
   // Iterate through all stylesheets on this page.
   var currInlineBlockNum = 1;

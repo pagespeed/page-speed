@@ -98,10 +98,10 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
       // We encountered an error running the native rules so we should
       // show an error page.
       var docUrl = 'current page';
-      if (FirebugContext.window &&
-          FirebugContext.window.document &&
-          FirebugContext.window.document.URL) {
-        docUrl = FirebugContext.window.document.URL;
+      if (Firebug.currentContext.window &&
+          Firebug.currentContext.window.document &&
+          Firebug.currentContext.window.document.URL) {
+        docUrl = Firebug.currentContext.window.document.URL;
       }
       panel.table = panel.errorPageTag.replace(
           {'currentPageUrl': docUrl}, panel.panelNode, panel);
@@ -355,6 +355,10 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   showPanel: function(browser, panel) {
     try {
       var isPageSpeed = panel && 'pagespeed' == panel.name;
+      if (!browser.chrome) {
+        return;
+      }
+
       var pagespeedButtons = browser.chrome.$('fbPageSpeedButtons');
       FBL.collapse(pagespeedButtons, !isPageSpeed);
 
@@ -369,7 +373,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   },
 
   showPerformance: function() {
-    var panel = FirebugContext.getPanel('pagespeed');
+    var panel = Firebug.currentContext.getPanel('pagespeed');
     var browserTab = gBrowser.selectedBrowser;
 
     // Only if we are still displaying the same page as the most
@@ -435,7 +439,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
           'collapsed', true);
 
       PAGESPEED.PageSpeedContext.displayComponents(
-          FirebugContext.getPanel('pagespeed'));
+          Firebug.currentContext.getPanel('pagespeed'));
 
     } catch (e) {
       logException('PageSpeedModule.showComponents()', e);
