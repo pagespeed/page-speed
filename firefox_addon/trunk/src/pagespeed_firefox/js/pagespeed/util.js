@@ -59,7 +59,7 @@ PAGESPEED.DEPENDENCIES = {
   'Firebug': { installedName: 'firebug@software.joehewitt.com',
                namespace: 'FBL',
                minimumVersion: '1.5.0',
-               maximumVersion: '1.7'
+               maximumVersion: '1.8'
   }
 };
 
@@ -1189,7 +1189,7 @@ PAGESPEED.Utils = {  // Begin namespace
    */
   getComponents: function() {
     var components;
-    var win = FirebugContext.window;
+    var win = Firebug.currentContext.window;
     if (win) {
       components = PAGESPEED.Utils.getComponentCollector()
           .getWindowComponents(win);
@@ -1513,9 +1513,15 @@ PAGESPEED.Utils = {  // Begin namespace
     try {
       var em = PAGESPEED.Utils.CCSV(
           '@mozilla.org/extensions/manager;1', 'nsIExtensionManager');
-      var addon = em.getItemForID(extensionName);
-      if (addon)
-        return addon.version;
+      if (em) {
+        var addon = em.getItemForID(extensionName);
+        if (addon) {
+          return addon.version;
+        }
+      } else {
+        // TODO(lsong): use the new AddonManager to get the addons.
+        return null;
+      }
     } catch (e) {
       PS_LOG('getDependencyVersion: ' + e);
     }
@@ -1609,8 +1615,8 @@ PAGESPEED.Utils = {  // Begin namespace
    * Get the currently active context for the pagespeed panel.
    */
   getPageSpeedContext: function() {
-    return FirebugContext && FirebugContext.getPanel('pagespeed') &&
-      FirebugContext.getPanel('pagespeed').context;
+    return Firebug.currentContext && Firebug.currentContext.getPanel('pagespeed') &&
+      Firebug.currentContext.getPanel('pagespeed').context;
   },
 
   /**

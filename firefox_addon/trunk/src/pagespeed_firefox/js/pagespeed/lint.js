@@ -104,7 +104,7 @@ PAGESPEED.LintRulesImpl.prototype.runAsync = function(fn) {
           if (gBrowser.selectedBrowser != self.browserTab_) {
             // The user changed tabs. We need to abort this run.
             self.stop();
-            var panel = FirebugContext.getPanel('pagespeed');
+            var panel = Firebug.currentContext.getPanel('pagespeed');
             panel.initializeNode(panel);
             return;
           }
@@ -127,7 +127,7 @@ PAGESPEED.LintRulesImpl.prototype.onProgress = function(
   var majorProgress = 100 * (rulesCompleted / numRules);
   var overallProgress = Math.round(majorProgress);
 
-  FirebugContext.getPanel('pagespeed').setProgress(
+  Firebug.currentContext.getPanel('pagespeed').setProgress(
     overallProgress, opt_message);
 };
 
@@ -152,7 +152,7 @@ PAGESPEED.LintRulesImpl.prototype.onPartialProgress = function(
   var minorProgress = rulePartialProgress * (100 / numRules);
   var overallProgress = Math.round(majorProgress + minorProgress);
 
-  FirebugContext.getPanel('pagespeed').setProgress(
+  Firebug.currentContext.getPanel('pagespeed').setProgress(
       overallProgress, undefined, opt_message);
 };
 
@@ -189,7 +189,7 @@ PAGESPEED.LintRulesImpl.prototype.ruleCompleted = function() {
     }
 
     PAGESPEED.PageSpeedContext.processResults(
-        FirebugContext.getPanel('pagespeed'),
+        Firebug.currentContext.getPanel('pagespeed'),
         this.browserTab_);
 
     this.browserTab_ = null;
