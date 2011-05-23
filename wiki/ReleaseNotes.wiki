@@ -3,7 +3,7 @@
 
 =Page Speed Version History=
 
-== 1.11 05/23/2010 ==
+== 1.11 05/23/2011 ==
   * Improved Firefox 4 support
   * Improved scoring and suggestion ordering
   * New rules
