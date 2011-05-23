@@ -41,16 +41,16 @@
         {
           'destination': '<(xpi_stage_root)/chrome/pagespeed/content',
           'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-32.png',
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-64.png',
+            # XUL resources
             '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedOverlay.xul',
             '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedUtilOverlay.xul',
+
+            # PNG resources
+            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-32.png',
+            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-64.png',
             '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/scoreIcon.png',
-          ],
-        },
-        {
-          'destination': '<(xpi_stage_root)/chrome/pagespeed/content',
-          'files': [
+
+            # JavaScript files
             '<(DEPTH)/pagespeed_firefox/js/pagespeed/beaconTraits.js',
             '<(DEPTH)/pagespeed_firefox/js/pagespeed/callbackHolder.js',
             '<(DEPTH)/pagespeed_firefox/js/pagespeed/cssEfficiencyChecker.js',
