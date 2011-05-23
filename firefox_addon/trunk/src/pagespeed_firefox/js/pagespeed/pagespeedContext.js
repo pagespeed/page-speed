@@ -355,6 +355,8 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   showPanel: function(browser, panel) {
     try {
       var isPageSpeed = panel && 'pagespeed' == panel.name;
+      // The browser.chrome may not be available when Page Speed is first loaded
+      // in Firefox.
       if (!browser.chrome) {
         return;
       }

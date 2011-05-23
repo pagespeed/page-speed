@@ -1615,7 +1615,8 @@ PAGESPEED.Utils = {  // Begin namespace
    * Get the currently active context for the pagespeed panel.
    */
   getPageSpeedContext: function() {
-    return Firebug.currentContext && Firebug.currentContext.getPanel('pagespeed') &&
+    return Firebug.currentContext &&
+      Firebug.currentContext.getPanel('pagespeed') &&
       Firebug.currentContext.getPanel('pagespeed').context;
   },
 
