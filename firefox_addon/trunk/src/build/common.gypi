@@ -42,6 +42,13 @@
       }],
     ],
 
+    'variables': {
+      # Version of xulrunner SDK we build against.
+      'xulrunner_sdk_version%': '2',
+    },
+
+    'xulrunner_sdk_version%': '<(xulrunner_sdk_version)',
+
     # Make sure we link statically so everything gets linked into a
     # single shared object.
     'library': 'static_library',

@@ -15,7 +15,7 @@
 {
   'variables': {
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
-    'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk',
+    'xulrunner_sdk_root': '<(DEPTH)/third_party/xulrunner-sdk/<(xulrunner_sdk_version)',
     'xulrunner_sdk_os_root': '<(xulrunner_sdk_root)/arch/<(OS)',
     'xulrunner_sdk_arch_root': '<(xulrunner_sdk_os_root)/<(host_arch)',
     'xpidl_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xpidl_out',
