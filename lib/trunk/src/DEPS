@@ -16,8 +16,8 @@ vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@68180",
   "chromium_deps_root": "src/third_party/chromium_deps",
-  "instaweb_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.17.7",
-  "instaweb_revision": "@head",
+  "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.16.9",
+  "instaweb_revision": "@576",
   "icu42_deps_revision": "@69864",
   "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.3.0",
   "protobuf_revision": "@head",
@@ -70,7 +70,7 @@ deps = {
      Var("icu42_deps_revision")),
 
   "src/third_party/instaweb/src/net/instaweb":
-    Var("instaweb_src") + "/src/net/instaweb" + Var("instaweb_revision"),
+    Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
 
   "src/third_party/libjpeg":
     (Var("chromium_trunk") + "/src/third_party/libjpeg" +
