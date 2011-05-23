@@ -3,6 +3,20 @@
 
 =Page Speed Version History=
 
+== 1.11 05/23/2010 ==
+  * Improved Firefox 4 support
+  * Improved scoring and suggestion ordering
+  * New rules
+    * Defer parsing of JavaScript
+    * Enable Keep-Alive
+    * Make landing page redirects cacheable
+  * Improved rules
+    * Avoid bad requests
+    * Inline small resources
+    * Minimize redirects
+    * Specify a character set
+  * Localized rule results
+
 == 1.10 12/16/2010 ==
   * Improved Firefox 4 support
   * Improved Firebug 1.6, 1.7 support
