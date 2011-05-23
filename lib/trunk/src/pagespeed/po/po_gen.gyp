@@ -13,8 +13,14 @@
 # limitations under the License.
 
 # Defines build rules for l10n data files (.po files).
-# To add a set of translations string foo.po, you must add it to the 
-# prod_locales variable below.
+# To add a set of translations string foo.po, you must do two things:
+#   1) add foo.po to pagespeed_genpo['sources'] --- this turns foo.po
+#      into foo.po.cc during the build process
+#   2) add foo.po.cc to pagespeed_all_po['direct_dependent_settings']['sources']
+#      (or another target that exposes a collection of .po files) --- this links
+#      the generated foo.po.cc file in with any targets that depend on
+#      pagespeed_all_po by exporting the "sources" directive (with foo.po.cc) up
+#      the dependency tree.
 
 {
   'variables': {
@@ -22,75 +28,6 @@
     'chromium_code': 1,
     'poc_out_dir': '<(SHARED_INTERMEDIATE_DIR)/poc_out',
     'poc_executable': '<(pagespeed_root)/build/poc/poc',
-    'poc_gyp_helper': '<(pagespeed_root)/build/poc/poc_gyp_helper',
-    # List of all locales to include in "production" builds.  These locales
-    # will be linked into any target depending on the pagespeed_all_po target
-    # below.
-    'prod_locales': [
-      'ar',
-      'bg',
-      'ca',
-      'cs',
-      'da',
-      'de',
-      'de_AT',
-      'de_CH',
-      'el',
-      'en_GB',
-      'en_IE',
-      'en_IN',
-      'en_SG',
-      'en_ZA',
-      'es',
-      'fi',
-      'fil',
-      'fr',
-      'fr_CH',
-      'gsw',
-      'he',
-      'hi',
-      'hr',
-      'hu',
-      'id',
-      'in',
-      'it',
-      'iw',
-      'ja',
-      'ko',
-      'ln',
-      'lt',
-      'lv',
-      'mo',
-      'nl',
-      'no',
-      'pl',
-      'pt',
-      'pt_BR',
-      'pt_PT',
-      'ro',
-      'ru',
-      'sk',
-      'sl',
-      'sr',
-      'sv',
-      'th',
-      'tl',
-      'tr',
-      'uk',
-      'vi',
-      'zh',
-      'zh_CN',
-      'zh_HK',
-      'zh_TW',
-    ],
-
-    # Locales/translations used by test cases.  These locales will be linked 
-    # into all targets depending on the pagespeed_test_po target below.
-    'test_locales': [
-      'test',
-      'test_empty',
-      'test_encoding',
-    ],
   },
   'targets': [
     {
@@ -102,10 +39,66 @@
       'hard_dependency': 1,
       'sources': [
         'pagespeed.pot',
-        # Use poc_gyp_helper to generate .po paths from locale names, e.g.
-        #   zh_CN --> zh_CN.po
-        '<!@(<(poc_gyp_helper) po_files "<@(prod_locales)")',
-        '<!@(<(poc_gyp_helper) po_files "<@(test_locales)")',
+        'ar.po',
+        'bg.po',
+        'ca.po',
+        'cs.po',
+        'da.po',
+        'de.po',
+        'de_AT.po',
+        'de_CH.po',
+        'el.po',
+        'en_GB.po',
+        'en_IE.po',
+        'en_IN.po',
+        'en_SG.po',
+        'en_ZA.po',
+        'es.po',
+        'fi.po',
+        'fil.po',
+        'fr.po',
+        'fr_CH.po',
+        'gsw.po',
+        'he.po',
+        'hi.po',
+        'hr.po',
+        'hu.po',
+        'id.po',
+        'in.po',
+        'it.po',
+        'iw.po',
+        'ja.po',
+        'ko.po',
+        'ln.po',
+        'lt.po',
+        'lv.po',
+        'mo.po',
+        'nl.po',
+        'no.po',
+        'pl.po',
+        'pt.po',
+        'pt_BR.po',
+        'pt_PT.po',
+        'ro.po',
+        'ru.po',
+        'sk.po',
+        'sl.po',
+        'sr.po',
+        'sv.po',
+        'th.po',
+        'tl.po',
+        'tr.po',
+        'uk.po',
+        'vi.po',
+        'zh.po',
+        'zh_CN.po',
+        'zh_HK.po',
+        'zh_TW.po',
+
+        # translations used by test cases
+        'test.po',
+        'test_empty.po',
+        'test_encoding.po',
       ],
       'rules': [
         {
@@ -171,9 +164,63 @@
       'hard_dependency': 1,
       'direct_dependent_settings': {
         'sources': [
-          # Use poc_gyp_helper to generate .cc paths from locale names, e.g.
-          #   zh_CN  -->  <(poc_out_dir)/pagespeed/po/zh_CN.po.cc
-          '<!@(<(poc_gyp_helper) cc_files \'<(poc_out_dir)/pagespeed/po\' "<@(prod_locales)")',
+          # for each desired locale, list the .po.cc file here.  To disable a
+          # locale in a build, simply comment out the appropriate line.
+          '<(poc_out_dir)/pagespeed/po/ar.po.cc',
+          '<(poc_out_dir)/pagespeed/po/bg.po.cc',
+          '<(poc_out_dir)/pagespeed/po/ca.po.cc',
+          '<(poc_out_dir)/pagespeed/po/cs.po.cc',
+          '<(poc_out_dir)/pagespeed/po/da.po.cc',
+          '<(poc_out_dir)/pagespeed/po/de.po.cc',
+          '<(poc_out_dir)/pagespeed/po/de_AT.po.cc',
+          '<(poc_out_dir)/pagespeed/po/de_CH.po.cc',
+          '<(poc_out_dir)/pagespeed/po/el.po.cc',
+          '<(poc_out_dir)/pagespeed/po/en_GB.po.cc',
+          '<(poc_out_dir)/pagespeed/po/en_IE.po.cc',
+          '<(poc_out_dir)/pagespeed/po/en_IN.po.cc',
+          '<(poc_out_dir)/pagespeed/po/en_SG.po.cc',
+          '<(poc_out_dir)/pagespeed/po/en_ZA.po.cc',
+          '<(poc_out_dir)/pagespeed/po/es.po.cc',
+          '<(poc_out_dir)/pagespeed/po/fi.po.cc',
+          '<(poc_out_dir)/pagespeed/po/fil.po.cc',
+          '<(poc_out_dir)/pagespeed/po/fr.po.cc',
+          '<(poc_out_dir)/pagespeed/po/fr_CH.po.cc',
+          '<(poc_out_dir)/pagespeed/po/gsw.po.cc',
+          '<(poc_out_dir)/pagespeed/po/he.po.cc',
+          '<(poc_out_dir)/pagespeed/po/hi.po.cc',
+          '<(poc_out_dir)/pagespeed/po/hr.po.cc',
+          '<(poc_out_dir)/pagespeed/po/hu.po.cc',
+          '<(poc_out_dir)/pagespeed/po/id.po.cc',
+          '<(poc_out_dir)/pagespeed/po/in.po.cc',
+          '<(poc_out_dir)/pagespeed/po/it.po.cc',
+          '<(poc_out_dir)/pagespeed/po/iw.po.cc',
+          '<(poc_out_dir)/pagespeed/po/ja.po.cc',
+          '<(poc_out_dir)/pagespeed/po/ko.po.cc',
+          '<(poc_out_dir)/pagespeed/po/ln.po.cc',
+          '<(poc_out_dir)/pagespeed/po/lt.po.cc',
+          '<(poc_out_dir)/pagespeed/po/lv.po.cc',
+          '<(poc_out_dir)/pagespeed/po/mo.po.cc',
+          '<(poc_out_dir)/pagespeed/po/nl.po.cc',
+          '<(poc_out_dir)/pagespeed/po/no.po.cc',
+          '<(poc_out_dir)/pagespeed/po/pl.po.cc',
+          '<(poc_out_dir)/pagespeed/po/pt.po.cc',
+          '<(poc_out_dir)/pagespeed/po/pt_BR.po.cc',
+          '<(poc_out_dir)/pagespeed/po/pt_PT.po.cc',
+          '<(poc_out_dir)/pagespeed/po/ro.po.cc',
+          '<(poc_out_dir)/pagespeed/po/ru.po.cc',
+          '<(poc_out_dir)/pagespeed/po/sk.po.cc',
+          '<(poc_out_dir)/pagespeed/po/sl.po.cc',
+          '<(poc_out_dir)/pagespeed/po/sr.po.cc',
+          '<(poc_out_dir)/pagespeed/po/sv.po.cc',
+          '<(poc_out_dir)/pagespeed/po/th.po.cc',
+          '<(poc_out_dir)/pagespeed/po/tl.po.cc',
+          '<(poc_out_dir)/pagespeed/po/tr.po.cc',
+          '<(poc_out_dir)/pagespeed/po/uk.po.cc',
+          '<(poc_out_dir)/pagespeed/po/vi.po.cc',
+          '<(poc_out_dir)/pagespeed/po/zh.po.cc',
+          '<(poc_out_dir)/pagespeed/po/zh_CN.po.cc',
+          '<(poc_out_dir)/pagespeed/po/zh_HK.po.cc',
+          '<(poc_out_dir)/pagespeed/po/zh_TW.po.cc',
           '<(poc_out_dir)/pagespeed/po/master.po.cc',
         ],
       },
@@ -190,9 +237,9 @@
       'hard_dependency': 1,
       'direct_dependent_settings': {
         'sources': [
-          # Use poc_gyp_helper to generate .cc paths from locale names, e.g.
-          #   zh_CN  -->  <(poc_out_dir)/pagespeed/po/zh_CN.po.cc
-          '<!@(<(poc_gyp_helper) cc_files \'<(poc_out_dir)/pagespeed/po\' "<@(test_locales)")',
+          '<(poc_out_dir)/pagespeed/po/test.po.cc',
+          '<(poc_out_dir)/pagespeed/po/test_empty.po.cc',
+          '<(poc_out_dir)/pagespeed/po/test_encoding.po.cc',
           '<(poc_out_dir)/pagespeed/po/master.po.cc',
         ],
       },
