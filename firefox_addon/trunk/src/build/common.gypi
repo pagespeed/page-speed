@@ -21,7 +21,25 @@
       }, {
         # However mac x64 requires 10.5 as a minimum.
         'mac_deployment_target': '10.5',
-      }]
+      }],
+      ['OS=="win"', {
+        'xpcom_os': 'WINNT',
+        'xpcom_compiler_abi': 'msvc',
+      }],
+      ['OS=="linux"', {
+        'xpcom_os': 'Linux',
+        'xpcom_compiler_abi': 'gcc3',
+      }],
+      ['OS=="mac"', {
+        'xpcom_os': 'Darwin',
+        'xpcom_compiler_abi': 'gcc3',
+      }],
+      ['target_arch=="ia32"', {
+        'xpcom_cpu_arch': 'x86',
+      }],
+      ['target_arch=="x64"', {
+        'xpcom_cpu_arch': 'x86_64',
+      }],
     ],
 
     # Make sure we link statically so everything gets linked into a
