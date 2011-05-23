@@ -19,6 +19,7 @@
       'type': 'none',
       'xcode_create_dependents_test_runner': 1,
       'dependencies': [
+        'build_xpi.gyp:*',
         '../pagespeed_firefox/pagespeed_firefox.gyp:*',
       ],
     },

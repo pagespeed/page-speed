@@ -25,7 +25,9 @@
       'target_name': 'pagespeed_firefox_genxpt',
       'type': 'none',
       'sources': [
+        'idl/IComponentCollector.idl',
         'idl/IPageSpeedRules.idl',
+        'idl/IStateStorage.idl',
       ],
       'rules': [
         {
@@ -35,14 +37,14 @@
             'rule_input_relpath': 'idl',
           },
           'outputs': [
-            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IPageSpeedRules.xpt',
+            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/<(RULE_INPUT_ROOT).xpt',
           ],
           'action': [
             '<(xulrunner_sdk_arch_root)/bin/xpidl',
             '-m', 'typelib',
             '-w',
             '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IPageSpeedRules.xpt',
+            '-e', '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/<(RULE_INPUT_ROOT).xpt',
             './<(rule_input_relpath)/<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
           ],
           'message': 'Generating xpt components from <(RULE_INPUT_PATH)',
@@ -179,46 +181,18 @@
     },
     {
       # Copies the pagespeed shared object to the appropriate location
-      # in the ant build directory.
-      'target_name': 'pagespeed_firefox_module_copy',
+      # in the build directory.
+      'target_name': 'pagespeed_firefox_module_archive',
+      'suppress_wildcard': 1,
       'type': 'none',
-      'variables': {
-          'conditions': [
-            ['OS=="win"', {
-              'xpcom_os': 'WINNT',
-              'xpcom_compiler_abi': 'msvc',
-            }],
-            ['OS=="linux"', {
-              'xpcom_os': 'Linux',
-              'xpcom_compiler_abi': 'gcc3',
-            }],
-            ['OS=="mac"', {
-              'xpcom_os': 'Darwin',
-              'xpcom_compiler_abi': 'gcc3',
-            }],
-            ['target_arch=="ia32"', {
-              'xpcom_cpu_arch': 'x86',
-            }],
-            ['target_arch=="x64"', {
-              'xpcom_cpu_arch': 'x86_64',
-            }],
-          ],
-      },
       'dependencies': [
         'pagespeed_firefox_module',
-        'pagespeed_firefox_genxpt',
       ],
       'copies': [
         {
           'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
           'files': [
             '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
-          ],
-        },
-        {
-          'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/components',
-          'files': [
-            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IPageSpeedRules.xpt'
           ],
         },
       ],
