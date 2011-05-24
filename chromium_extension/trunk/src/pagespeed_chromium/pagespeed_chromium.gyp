@@ -15,6 +15,26 @@
 {
   'variables': {
     'libpagespeed_root': '<(DEPTH)/third_party/libpagespeed/src',
+    'conditions': [
+      ['OS=="win"', {
+        'os_name': 'WINNT',
+        'compiler_abi': 'msvc',
+      }],
+      ['OS=="linux"', {
+        'os_name': 'Linux',
+        'compiler_abi': 'gcc3',
+      }],
+      ['OS=="mac"', {
+        'os_name': 'Darwin',
+        'compiler_abi': 'gcc3',
+      }],
+      ['target_arch=="ia32"', {
+        'cpu_arch': 'x86',
+      }],
+      ['target_arch=="x64"', {
+        'cpu_arch': 'x86_64',
+      }],
+    ],
   },
   'targets': [
     {
@@ -127,6 +147,16 @@
         'pagespeed_plugin',
         # 'pagespeed.nexe',
       ],
+      'variables': {
+        'so_input_path': '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed_plugin<(SHARED_LIB_SUFFIX)',
+        'conditions': [
+          ['OS=="mac"', {
+            'so_output_path': '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
+          }, {
+            'so_output_path': '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os_name)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
+          }],
+        ],
+      },
       'actions': [
         {
           'action_name': 'make_dir',
@@ -211,50 +241,19 @@
         # },
         {
           'action_name': 'copy_so',
-          'variables': {
-            'input_path': '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed_plugin<(SHARED_LIB_SUFFIX)',
-            'conditions': [
-              ['OS=="win"', {
-                'os': 'WINNT',
-                'compiler_abi': 'msvc',
-              }],
-              ['OS=="linux"', {
-                'os': 'Linux',
-                'compiler_abi': 'gcc3',
-              }],
-              ['OS=="mac"', {
-                'os': 'Darwin',
-                'compiler_abi': 'gcc3',
-              }],
-              ['target_arch=="ia32"', {
-                'cpu_arch': 'x86',
-              }],
-              ['target_arch=="x64"', {
-                'cpu_arch': 'x86_64',
-              }],
-            ],
-          },
           'inputs': [
             '<(PRODUCT_DIR)/pagespeed',
-            '<(input_path)',
+            '<(so_input_path)',
           ],
+          'outputs': ['<(so_output_path)'],
           'conditions': [
             ['OS=="mac"', {
-              'outputs': [
-                '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
-              ],
               'action': [
                 'cp', '-r', '<(PRODUCT_DIR)/pagespeed_plugin.plugin',
                 '<(PRODUCT_DIR)/pagespeed',
               ],
 	    }, {
-              'outputs': [
-                '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
-              ],
-              'action': [
-                'cp', '<(input_path)',
-                 '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
-              ],
+              'action': ['cp', '<(so_input_path)', '<(so_output_path)'],
             }],
           ],
         },
@@ -271,6 +270,8 @@
             '<(PRODUCT_DIR)/pagespeed/libpagespeed_plugin_Linux_x86_64-gcc3.so',
             '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
           ],
+          # Don't touch the actual built plugin; it confuses the build system.
+          'outputs!': ['<(so_output_path)'],
           'action': ['touch', '-a', '<@(_outputs)'],
         },
       ],
