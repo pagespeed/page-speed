@@ -23,6 +23,8 @@
  * @author Bryan McQuade
  */
 
+Components.utils.import("resource://gre/modules/AddonManager.jsm");
+
 /**
  * Logs the given message to the console.
  * @param {string} msg The message to log.
@@ -55,8 +57,10 @@ PAGESPEED.isHealthy = true;
 /**
  * Dependencies on other Firefox extensions
  */
+PAGESPEED.NUM_DEPENDENCIES = 1;
 PAGESPEED.DEPENDENCIES = {
   'Firebug': { installedName: 'firebug@software.joehewitt.com',
+               url: 'http://getfirebug.com/',
                namespace: 'FBL',
                minimumVersion: '1.7.0',
                maximumVersion: '1.8'
@@ -249,29 +253,6 @@ PAGESPEED.Utils = {  // Begin namespace
     if (!sUrl) return '';
     var path = sUrl.match(reExtractPath);
     return (path && path[1]) ? path[1] : '';
-  },
-
-  /**
-   * Returns the directory where an extension is installed expressed as a file:
-   * URL terminated by a slash.
-   * @return {string?}
-   */
-  getExtensionRoot: function() {
-    var mgr = PAGESPEED.Utils.CCSV('@mozilla.org/extensions/manager;1',
-      'nsIExtensionManager');
-    var loc = mgr.getInstallLocation(PAGESPEED_GUID_);
-    if (!loc) {
-      return null;
-    }
-    var file = loc.getItemLocation(PAGESPEED_GUID_);
-    if (!file) {
-      return null;
-    }
-    var fileHandler = PAGESPEED.Utils.CCSV(
-      '@mozilla.org/network/protocol;1?name=file',
-      'nsIFileProtocolHandler');
-    var uri = fileHandler.newFileURI(file);
-    return uri.spec;
   },
 
   /**
@@ -1509,42 +1490,65 @@ PAGESPEED.Utils = {  // Begin namespace
   /**
    * Retrieves the version of an installed extension
    */
-  getDependencyVersion: function(extensionName) {
+  getDependencyVersion: function(extensionName, callback) {
     try {
       var em = PAGESPEED.Utils.CCSV(
           '@mozilla.org/extensions/manager;1', 'nsIExtensionManager');
       if (em) {
         var addon = em.getItemForID(extensionName);
-        if (addon) {
-          return addon.version;
+        if (addon && addon.version) {
+          callback(addon.version);
+        } else {
+          callback(null);
         }
       } else {
-        // TODO(lsong): use the new AddonManager to get the addons.
-        return null;
+        AddonManager.getAddonByID(extensionName, function(addon) {
+            if (addon && addon.version) {
+              callback(addon.version);
+            } else {
+              callback(null);
+            }
+          });
       }
     } catch (e) {
       PS_LOG('getDependencyVersion: ' + e);
     }
-    return null;
+  },
+
+  /**
+   * Fetch the version of Page Speed from the add-on manager.
+   */
+  fetchPageSpeedVersion: function() {
+    PAGESPEED.Utils.getDependencyVersion(PAGESPEED_GUID_, function(version) {
+      PAGESPEED.PAGESPEED_VERSION = version;
+    });
   },
 
   /**
    * Retrieve the version of Page Speed.
    */
   getPageSpeedVersion: function() {
-    return PAGESPEED.Utils.getDependencyVersion(PAGESPEED_GUID_);
+    if (!PAGESPEED.PAGESPEED_VERSION) {
+      PS_LOG('No Page Speed version available.');
+    }
+    return PAGESPEED.PAGESPEED_VERSION;
   },
 
   /**
    * Retrieve the versions of all dependencies.
    */
-  updateDependencyVersions: function() {
+  updateDependencyVersions: function(callback) {
+    var counter = 0;
     for (var addonName in PAGESPEED.DEPENDENCIES) {
       if (!PAGESPEED.DEPENDENCIES.hasOwnProperty(addonName)) continue;
       var version = PAGESPEED.Utils.getDependencyVersion(
-          PAGESPEED.DEPENDENCIES[addonName].installedName);
-      PAGESPEED.DEPENDENCIES[addonName]['installedVersion'] =
-          version || 'Not installed';
+          PAGESPEED.DEPENDENCIES[addonName].installedName, function(version) {
+            PAGESPEED.DEPENDENCIES[addonName]['installedVersion'] = version;
+            counter++;
+            if (counter == PAGESPEED.NUM_DEPENDENCIES) {
+              callback();
+            }
+          });
     }
   },
 

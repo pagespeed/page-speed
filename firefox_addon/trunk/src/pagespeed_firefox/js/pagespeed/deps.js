@@ -20,26 +20,30 @@
 
 (function() {  // Begin closure
 
-PAGESPEED.Utils.updateDependencyVersions();
+PAGESPEED.Utils.fetchPageSpeedVersion();
 
-/**
- * If requried extensions are missing, alert and go unhealthy.
- */
-var missingExtensions = [];
-for (var addonName in PAGESPEED.DEPENDENCIES) {
-  if (!PAGESPEED.DEPENDENCIES[addonName].installedVersion) {
-    PAGESPEED.isHealthy = false;
-    missingExtensions.push(addonName);
+PAGESPEED.Utils.updateDependencyVersions(function() {
+  /**
+   * If requried extensions are missing, alert and go unhealthy.
+   */
+  var missingExtensions = [];
+  for (var addonName in PAGESPEED.DEPENDENCIES) {
+    if (!PAGESPEED.DEPENDENCIES[addonName].installedVersion) {
+      PAGESPEED.isHealthy = false;
+      missingExtensions.push(addonName);
+    }
   }
-}
 
-if (missingExtensions.length > 0) {
-  var message = 'The following extension(s) are required by Page Speed\n ' +
-    'and must be installed before it can run:\n\n';
-  for (var i = 0; i < missingExtensions.length; i++) {
-    message += '\t - ' + missingExtensions[i] + '\n';
+  if (missingExtensions.length > 0) {
+    var message = 'The following extension(s) are required by Page Speed\n ' +
+      'and must be installed before it can run:\n\n';
+    for (var i = 0; i < missingExtensions.length; i++) {
+      var addonName = missingExtensions[i];
+      message += '\t - ' + addonName
+          + ' (' + PAGESPEED.DEPENDENCIES[addonName].url + ')\n';
+    }
+    alert(message);
   }
-  alert(message);
-}
+});
 
 })();  // End closure
