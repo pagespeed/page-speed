@@ -24,6 +24,9 @@
     {
       'target_name': 'pagespeed_firefox_genxpt',
       'type': 'none',
+      'variables': {
+        'xpt_output_path': '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components',
+      },
       'sources': [
         'idl/IComponentCollector.idl',
         'idl/IPageSpeedRules.idl',
@@ -37,14 +40,14 @@
             'rule_input_relpath': 'idl',
           },
           'outputs': [
-            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/<(RULE_INPUT_ROOT).xpt',
+            '<(xpt_output_path)/<(RULE_INPUT_ROOT).xpt',
           ],
           'action': [
             '<(xulrunner_sdk_arch_root)/bin/xpidl',
             '-m', 'typelib',
             '-w',
             '-I', '<(xulrunner_sdk_root)/idl',
-            '-e', '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/<(RULE_INPUT_ROOT).xpt',
+            '-e', '<(xpt_output_path)/<(RULE_INPUT_ROOT).xpt',
             './<(rule_input_relpath)/<(RULE_INPUT_ROOT)<(RULE_INPUT_EXT)',
           ],
           'message': 'Generating xpt components from <(RULE_INPUT_PATH)',
@@ -52,6 +55,16 @@
       ],
       'dependencies': [
         '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
+      ],
+      'copies': [
+        {
+          'destination': '<(xpt_output_path)/<(xulrunner_sdk_version)',
+          'files': [
+            '<(xpt_output_path)/IComponentCollector.xpt',
+            '<(xpt_output_path)/IPageSpeedRules.xpt',
+            '<(xpt_output_path)/IStateStorage.xpt',
+          ],
+        },
       ],
     },
     {
@@ -180,8 +193,27 @@
       ],
     },
     {
+      # Copies the pagespeed shared object to the appropriate
+      # versioned location in the build directory. This can't be done
+      # in the 'pagespeed_firefox_module' target since copies are
+      # executed *before* linking.
+      'target_name': 'pagespeed_firefox_module_copy',
+      'type': 'none',
+      'dependencies': [
+        'pagespeed_firefox_module',
+      ],
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/<(xulrunner_sdk_version)',
+          'files': [
+            '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+          ],
+        },
+      ],
+    },
+    {
       # Copies the pagespeed shared object to the appropriate location
-      # in the build directory.
+      # in the source directory for archiving.
       'target_name': 'pagespeed_firefox_module_archive',
       'suppress_wildcard': 1,
       'type': 'none',
@@ -190,7 +222,7 @@
       ],
       'copies': [
         {
-          'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
+          'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xulrunner_sdk_version)/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
           'files': [
             '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
           ],

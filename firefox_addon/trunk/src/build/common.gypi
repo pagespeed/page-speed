@@ -44,7 +44,7 @@
 
     'variables': {
       # Version of xulrunner SDK we build against.
-      'xulrunner_sdk_version%': '2',
+      'xulrunner_sdk_version%': 2,
     },
 
     'xulrunner_sdk_version%': '<(xulrunner_sdk_version)',

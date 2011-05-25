@@ -14,8 +14,110 @@
 
 {
   'variables': {
-    'xpi_stage_root': '<(SHARED_INTERMEDIATE_DIR)/xpi',
     'xpidl_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xpidl_out',
+    'xpt_output_path': '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/<(xulrunner_sdk_version)',
+    'archive_platform_root': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xulrunner_sdk_version)',
+    'xpi_stage_root': '<(SHARED_INTERMEDIATE_DIR)/xpi',
+
+    # Here we list all of the file bundles that need to be copied to
+    # the XPI staging location. They are listed here so they can be
+    # referenced from multiple rules (once in the 'copies' rule,
+    # another time as 'inputs' of the XPI generator rule). It would be
+    # nice if gyp allowed us to indicate that when these files change
+    # during copies, downstream dependencies should rebuild, but gyp
+    # doesn't work that way.
+    'xpi_files_static_root': [
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome.manifest',
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/icon.png',
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/install.rdf',
+    ],
+    'xpi_files_static_components': [
+      '<(DEPTH)/pagespeed_firefox/js/components/componentCollectorService.js',
+      '<(DEPTH)/pagespeed_firefox/js/components/stateStorageService.js',
+    ],
+    'xpi_files_static_content': [
+      # XUL resources
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedOverlay.xul',
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedUtilOverlay.xul',
+
+      # PNG resources
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-32.png',
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-64.png',
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/scoreIcon.png',
+
+      # JavaScript files
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/beaconTraits.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/callbackHolder.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/cssEfficiencyChecker.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/deps.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/fullResultsBeacon.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/jsCoverageLint.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/lint.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/minimalBeacon.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/pageLoadTimer.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedClientApi.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedContext.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedLibraryRules.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedPanel.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/parallelXhrFlow.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/resultsContainer.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/resultsWriter.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/unusedCssLint.js',
+      '<(DEPTH)/pagespeed_firefox/js/pagespeed/util.js',
+    ],
+    'xpi_files_static_preferences': [
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/defaults/preferences/pagespeed.js',
+    ],
+    'xpi_files_xpt': [
+      '<(xpt_output_path)/IComponentCollector.xpt',
+      '<(xpt_output_path)/IPageSpeedRules.xpt',
+      '<(xpt_output_path)/IStateStorage.xpt',
+    ],
+
+    # Aggregate the files that are common to our XPI building targets,
+    # so we can refer to this common variable instead of repeating the
+    # lists twice.
+    'xpi_files_common': [
+      '<@(xpi_files_static_root)',
+      '<@(xpi_files_static_components)',
+      '<@(xpi_files_static_content)',
+      '<@(xpi_files_static_preferences)',
+      '<@(xpi_files_xpt)',
+    ],
+    'xpi_files_so_target': [
+      '<(PRODUCT_DIR)/<(xulrunner_sdk_version)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+    ],
+    'xpi_files_so_WINNT_x86-msvc': [
+      '<(archive_platform_root)/WINNT_x86-msvc/components/pagespeed.dll',
+    ],
+    'xpi_files_so_Linux_x86-gcc3': [
+      '<(archive_platform_root)/Linux_x86-gcc3/components/libpagespeed.so',
+    ],
+    'xpi_files_so_Linux_x86_64-gcc3': [
+      '<(archive_platform_root)/Linux_x86_64-gcc3/components/libpagespeed.so',
+    ],
+    'xpi_files_so_Darwin_x86-gcc3': [
+      '<(archive_platform_root)/Darwin_x86-gcc3/components/libpagespeed.dylib',
+    ],
+    'xpi_files_so_Darwin_x86_64-gcc3': [
+      '<(archive_platform_root)/Darwin_x86_64-gcc3/components/libpagespeed.dylib',
+    ],
+    'conditions': [
+      [ 'xulrunner_sdk_version==2', {
+        # For xulrunner SDK 2, we store binary components in their
+        # backward-compatible locations so we can load into Firefox
+        # 3.x.
+        'xpi_stage_components_root': '<(xpi_stage_root)/components',
+        'xpi_stage_platform_root': '<(xpi_stage_root)/platform',
+      }, {
+        # For xulrunner SDK >2, we store binary components in a
+        # version-specific location which we load conditionally
+        # depending on the appversion. See chrome.manifest for
+        # details.
+        'xpi_stage_components_root': '<(xpi_stage_root)/components/<(xulrunner_sdk_version)',
+        'xpi_stage_platform_root': '<(xpi_stage_root)/platform/<(xulrunner_sdk_version)',
+      }],
+    ],
   },
   'targets': [
     {
@@ -25,57 +127,19 @@
       'copies': [
         {
           'destination': '<(xpi_stage_root)',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome.manifest',
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/icon.png',
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/install.rdf',
-          ],
+          'files': [ '<@(xpi_files_static_root)' ],
         },
         {
           'destination': '<(xpi_stage_root)/components',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/js/components/componentCollectorService.js',
-            '<(DEPTH)/pagespeed_firefox/js/components/stateStorageService.js',
-          ],
+          'files': [ '<@(xpi_files_static_components)' ],
         },
         {
           'destination': '<(xpi_stage_root)/chrome/pagespeed/content',
-          'files': [
-            # XUL resources
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedOverlay.xul',
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedUtilOverlay.xul',
-
-            # PNG resources
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-32.png',
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-64.png',
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/scoreIcon.png',
-
-            # JavaScript files
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/beaconTraits.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/callbackHolder.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/cssEfficiencyChecker.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/deps.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/fullResultsBeacon.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/jsCoverageLint.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/lint.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/minimalBeacon.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/pageLoadTimer.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedClientApi.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedContext.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedLibraryRules.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/pagespeedPanel.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/parallelXhrFlow.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/resultsContainer.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/resultsWriter.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/unusedCssLint.js',
-            '<(DEPTH)/pagespeed_firefox/js/pagespeed/util.js',
-          ],
+          'files': [ '<@(xpi_files_static_content)' ],
         },
         {
           'destination': '<(xpi_stage_root)/defaults/preferences',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/defaults/preferences/pagespeed.js',
-          ],
+          'files': [ '<@(xpi_files_static_preferences)' ],
         },
       ],
     },
@@ -88,12 +152,8 @@
       ],
       'copies': [
         {
-          'destination': '<(xpi_stage_root)/components',
-          'files': [
-            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IComponentCollector.xpt',
-            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IPageSpeedRules.xpt',
-            '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/IStateStorage.xpt',
-          ],
+          'destination': '<(xpi_stage_components_root)',
+          'files': [ '<@(xpi_files_xpt)' ],
         },
       ],
     },
@@ -105,21 +165,23 @@
       'dependencies': [
         'stage_xpi_static',
         'stage_xpi_xpt',
-        '<(DEPTH)/pagespeed_firefox/pagespeed_firefox.gyp:pagespeed_firefox_module',
+        '<(DEPTH)/pagespeed_firefox/pagespeed_firefox.gyp:pagespeed_firefox_module_copy',
       ],
       'copies': [
         {
-          'destination': '<(xpi_stage_root)/platform/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
-          'files': [
-            '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
-          ],
+          'destination': '<(xpi_stage_platform_root)/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
+          'files': [ '<@(xpi_files_so_target)' ],
         },
       ],
       'actions': [
         {
           'action_name': 'build_xpi',
           'script_name': 'generate_zip.py',
-          'inputs': [ '<@(_script_name)' ],
+          'inputs': [
+            '<@(_script_name)',
+            '<@(xpi_files_common)',
+            '<@(xpi_files_so_target)',
+          ],
           'outputs': [ '<(PRODUCT_DIR)/page-speed.xpi' ],
           'action': [ 'python', '<@(_script_name)', '<@(_outputs)', '<(xpi_stage_root)' ],
         },
@@ -128,7 +190,7 @@
     {
       # Copy the shared object files for all platforms to the staging directory
       # and create the XPI.
-      'target_name': 'build_xpi_all',
+      'target_name': 'build_release_xpi',
       'suppress_wildcard': 1,
       'type': 'none',
       'dependencies': [
@@ -137,41 +199,42 @@
       ],
       'copies': [
         {
-          'destination': '<(xpi_stage_root)/platform/WINNT_x86-msvc/components/',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/WINNT_x86-msvc/components/pagespeed.dll',
-          ],
+          'destination': '<(xpi_stage_platform_root)/WINNT_x86-msvc/components/',
+          'files': [ 'xpi_files_so_WINNT_x86-msvc' ],
         },
         {
-          'destination': '<(xpi_stage_root)/platform/Linux_x86-gcc3/components/',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/Linux_x86-gcc3/components/libpagespeed.so',
-          ],
+          'destination': '<(xpi_stage_platform_root)/Linux_x86-gcc3/components/',
+          'files': [ 'xpi_files_so_Linux_x86-gcc3' ],
         },
         {
-          'destination': '<(xpi_stage_root)/platform/Linux_x86_64-gcc3/components/',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/Linux_x86_64-gcc3/components/libpagespeed.so',
-          ],
+          'destination': '<(xpi_stage_platform_root)/Linux_x86_64-gcc3/components/',
+          'files': [ 'xpi_files_so_Linux_x86_64-gcc3' ],
         },
         {
-          'destination': '<(xpi_stage_root)/platform/Darwin_x86-gcc3/components/',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/Darwin_x86-gcc3/components/libpagespeed.dylib',
-          ],
+          'destination': '<(xpi_stage_platform_root)/Darwin_x86-gcc3/components/',
+          'files': [ 'xpi_files_so_Darwin_x86-gcc3' ],
         },
         {
-          'destination': '<(xpi_stage_root)/platform/Darwin_x86_64-gcc3/components/',
-          'files': [
-            '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/Darwin_x86_64-gcc3/components/libpagespeed.dylib',
-          ],
+          'destination': '<(xpi_stage_platform_root)/Darwin_x86_64-gcc3/components/',
+          'files': [ 'xpi_files_so_Darwin_x86_64-gcc3' ],
         },
       ],
       'actions': [
         {
-          'action_name': 'build_xpi_all',
+          'action_name': 'build_release_xpi',
           'script_name': 'generate_zip.py',
-          'inputs': [ '<@(_script_name)' ],
+          'inputs': [
+# TODO: the gyp make generator is broken and doesn't respect the
+# suppress_wildcard flag for actions. In the meantime these are
+# commented out.
+#            '<@(_script_name)',
+#            '<@(xpi_files_common)',
+#            '<@(xpi_files_so_WINNT_x86-msvc)',
+#            '<@(xpi_files_so_Linux_x86-gcc3)',
+#            '<@(xpi_files_so_Linux_x86_64-gcc3)',
+#            '<@(xpi_files_so_Darwin_x86-gcc3)',
+#            '<@(xpi_files_so_Darwin_x86_64-gcc3)',
+          ],
           'outputs': [ '<(PRODUCT_DIR)/page-speed.xpi' ],
           'action': [ 'python', '<@(_script_name)', '<@(_outputs)', '<(xpi_stage_root)' ],
         },
