@@ -47,6 +47,8 @@
           src="chrome://pagespeed/content/fullResultsBeacon.js"/>
   <script type="application/x-javascript"
           src="chrome://pagespeed/content/pagespeedClientApi.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pagespeedLibraryRules.js"/>
 
   <!--
     Command names exist in a namespace shared by all extensions.  To avoid
