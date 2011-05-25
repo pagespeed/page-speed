@@ -37,6 +37,8 @@ def main(argv):
   output_file = argv[1]
   input_dir = argv[2]
 
+  if os.path.exists(output_file):
+    os.remove(output_file)
   zip_file = zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED)
   os.chdir(input_dir)
   ZipDirectory(zip_file, '.')
