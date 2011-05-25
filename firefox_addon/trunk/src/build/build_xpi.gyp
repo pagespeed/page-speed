@@ -14,10 +14,13 @@
 
 {
   'variables': {
+    'variables': {
+      'xpi_stage_root%': '<(SHARED_INTERMEDIATE_DIR)/xpi',
+    },
+    'xpi_stage_root%': '<(xpi_stage_root)',
     'xpidl_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xpidl_out',
     'xpt_output_path': '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/<(xulrunner_sdk_version)',
     'archive_platform_root': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xulrunner_sdk_version)',
-    'xpi_stage_root': '<(SHARED_INTERMEDIATE_DIR)/xpi',
 
     # Here we list all of the file bundles that need to be copied to
     # the XPI staging location. They are listed here so they can be
