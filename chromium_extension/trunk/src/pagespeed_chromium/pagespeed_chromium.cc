@@ -25,14 +25,20 @@
 #include "third_party/npapi/npfunctions.h"
 
 #include "base/at_exit.h"
+#include "base/base64.h"
 #include "base/basictypes.h"
 #include "base/json/json_reader.h"
+#include "base/json/json_writer.h"
 #include "base/logging.h"
+#include "base/md5.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
+#include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "base/values.h"
+#include "googleurl/src/gurl.h"
 #include "pagespeed/core/engine.h"
+#include "pagespeed/core/file_util.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -74,6 +80,54 @@ pagespeed::ResourceFilter* NewFilter(const std::string& analyze) {
   }
 }
 
+void SerializeOptimizedContent(const pagespeed::Results& results,
+                               DictionaryValue* optimized_content) {
+  for (int i = 0; i < results.rule_results_size(); ++i) {
+    const pagespeed::RuleResults& rule_results = results.rule_results(i);
+    for (int j = 0; j < rule_results.results_size(); ++j) {
+      const pagespeed::Result& result = rule_results.results(j);
+      if (!result.has_optimized_content()) {
+        continue;
+      }
+
+      const std::string key = base::IntToString(result.id());
+      if (optimized_content->HasKey(key)) {
+        LOG(ERROR) << "Duplicate result id: " << key;
+        continue;
+      }
+
+      if (result.resource_urls_size() <= 0) {
+        LOG(ERROR) << "Result id " << key
+                   << " has optimized content, but no resource URLs";
+        continue;
+      }
+
+      const std::string& url = result.resource_urls(0);
+      const GURL gurl(url);
+      if (!gurl.is_valid()) {
+        LOG(ERROR) << "Invalid url: " << url;
+        continue;
+      }
+
+      // TODO(mdsteele): Maybe we shouldn't base64-encode HTML/JS/CSS files?
+      const std::string& content = result.optimized_content();
+      std::string encoded;
+      if (!base::Base64Encode(content, &encoded)) {
+        LOG(ERROR) << "Base64Encode failed for " << url;
+        continue;
+      }
+
+      const std::string& mimetype = result.optimized_content_mime_type();
+      scoped_ptr<DictionaryValue> entry(new DictionaryValue());
+      entry->SetString("filename", pagespeed::ChooseOutputFilename(
+          gurl, mimetype, MD5String(content)));
+      entry->SetString("mimetype", mimetype);
+      entry->SetString("content", encoded);
+      optimized_content->Set(key, entry.release());
+    }
+  }
+}
+
 // Parse the HAR data and run the Page Speed rules, then format the results.
 // Return false if the HAR data could not be parsed, true otherwise.
 // This function will take ownership of the filter and document arguments, and
@@ -82,7 +136,7 @@ bool RunPageSpeedRules(const std::string& locale,
                        pagespeed::ResourceFilter* filter,
                        pagespeed::DomDocument* document,
                        const std::string& har_data,
-                       std::string* output,
+                       std::string* output_string,
                        std::string* error_string) {
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
@@ -113,7 +167,7 @@ bool RunPageSpeedRules(const std::string& locale,
   // that they are not transferred to the Engine.
   STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
 
-  const bool save_optimized_content = false;
+  const bool save_optimized_content = true;
   pagespeed::rule_provider::AppendPageSpeedRules(
       save_optimized_content, &rules);
   std::vector<std::string> incompatible_rule_names;
@@ -128,29 +182,30 @@ bool RunPageSpeedRules(const std::string& locale,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
-  // Create a localizer.
-  scoped_ptr<pagespeed::l10n::Localizer> localizer(
-      pagespeed::l10n::GettextLocalizer::Create(locale));
-  if (localizer.get() == NULL) {
-    LOG(WARNING) << "Could not create GettextLocalizer for locale: " << locale;
-    localizer.reset(new pagespeed::l10n::BasicLocalizer);
+  // Compute results.
+  pagespeed::Results results;
+  if (!engine.ComputeResults(*input, &results)) {
+    std::vector<std::string> error_rules;
+    for (int i = 0, size = results.error_rules_size(); i < size; ++i) {
+      error_rules.push_back(results.error_rules(i));
+    }
+    LOG(WARNING) << "Errors during ComputeResults in rules: "
+                 << JoinString(error_rules, ' ');
   }
 
-  // Compute and format results.
+  // Format results.
   pagespeed::FormattedResults formatted_results;
   {
+    scoped_ptr<pagespeed::l10n::Localizer> localizer(
+        pagespeed::l10n::GettextLocalizer::Create(locale));
+    if (localizer.get() == NULL) {
+      LOG(WARNING) << "Could not create GettextLocalizer for " << locale;
+      localizer.reset(new pagespeed::l10n::BasicLocalizer);
+    }
+
     formatted_results.set_locale(localizer->GetLocale());
     pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
                                                     &formatted_results);
-    pagespeed::Results results;
-    if (!engine.ComputeResults(*input, &results)) {
-      std::vector<std::string> error_rules;
-      for (int i = 0, size = results.error_rules_size(); i < size; ++i) {
-        error_rules.push_back(results.error_rules(i));
-      }
-      LOG(WARNING) << "Errors during ComputeResults in rules: "
-                   << JoinString(error_rules, ' ');
-    }
     pagespeed::ResponseByteResultFilter result_filter;
     if (!engine.FormatResults(results, result_filter, &formatter)) {
       *error_string = "error during FormatResults";
@@ -182,9 +237,26 @@ bool RunPageSpeedRules(const std::string& locale,
     formatted_results.set_score(100);
   }
 
-  // Convert the formatted results into JSON.
-  pagespeed::proto::FormattedResultsToJsonConverter::Convert(
-      formatted_results, output);
+  // Convert the formatted results into JSON:
+  scoped_ptr<Value> json_results(
+      pagespeed::proto::FormattedResultsToJsonConverter::
+      ConvertFormattedResults(formatted_results));
+  if (json_results == NULL) {
+    *error_string = "failed to ConvertFormattedResults";
+    return false;
+  }
+
+  // Put optimized resources into JSON:
+  scoped_ptr<DictionaryValue> optimized_content(new DictionaryValue);
+  SerializeOptimizedContent(results, optimized_content.get());
+
+  // Serialize all the JSON into a string.
+  {
+    scoped_ptr<DictionaryValue> root(new DictionaryValue);
+    root->Set("results", json_results.release());
+    root->Set("optimizedContent", optimized_content.release());
+    base::JSONWriter::Write(root.get(), false, output_string);
+  }
 
   return true;
 }

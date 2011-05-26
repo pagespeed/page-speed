@@ -27,6 +27,9 @@ var pagespeed = {
   // The currently active ResourceAccumulator, if any.
   resourceAccumulator: null,
 
+  // The currently active ContentWriter, if any.
+  contentWriter: null,
+
   // Throw an error (with an optional message) if the condition is false.
   assert: function (condition, opt_message) {
     if (!condition) {
@@ -240,6 +243,17 @@ var pagespeed = {
     return elements;
   },
 
+  formatOptimizedContentIfAny: function (id) {
+    if (typeof(id) !== 'number') {
+      return null;
+    }
+    var entry = pagespeed.currentResults.optimizedContent[id.toString()];
+    if (!entry || !entry.url) {
+      return null;
+    }
+    return ['  See ', pagespeed.makeLink(entry.url, 'optimized version'), '.'];
+  },
+
   // Given a list of objects produced by
   // FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults(),
   // build an array of DOM nodes, suitable to be passed to makeElement().
@@ -247,10 +261,12 @@ var pagespeed = {
     return (url_blocks || []).map(function (url_block) {
       return pagespeed.makeElement('p', null, [
         pagespeed.formatFormatString(url_block.header),
+        pagespeed.formatOptimizedContentIfAny(url_block.associated_result_id),
         (!url_block.urls ? [] :
          pagespeed.makeElement('ul', null, url_block.urls.map(function (url) {
            return pagespeed.makeElement('li', null, [
              pagespeed.formatFormatString(url.result),
+             pagespeed.formatOptimizedContentIfAny(url.associated_result_id),
              (!url.details ? [] :
               pagespeed.makeElement('ul', null, url.details.map(function (dt) {
                 return pagespeed.makeElement(
@@ -527,16 +543,39 @@ var pagespeed = {
         return;
       }
       // Run the rules.
+      // TODO(mdsteele): Add an option to disable saving of optimized content.
+      var saveOptimizedContent = true;
+      var output = JSON.parse(pagespeed_module.runPageSpeed(
+        JSON.stringify(input.har), JSON.stringify(input.dom),
+        input.analyze, chrome.i18n.getMessage('@@ui_locale')));
       pagespeed.currentResults = {
         analyze: input.analyze,
-        results: JSON.parse(pagespeed_module.runPageSpeed(
-          JSON.stringify(input.har), JSON.stringify(input.dom),
-          input.analyze, chrome.i18n.getMessage('@@ui_locale')))
+        optimizedContent: output.optimizedContent,
+        results: output.results
       };
-      // Display the results.
-      pagespeed.showResults();
-      pagespeed.endCurrentRun();
+      // If we need to save optimized content, then start up a ContentWriter
+      // and tell it to show results (that is, call onContentWriterComplete)
+      // when it finishes.  If we're not saving optimized content, skip
+      // straight to showing the results (by calling onContentWriterComplete
+      // immediately).
+      if (saveOptimizedContent) {
+        pagespeed.contentWriter = new pagespeed.ContentWriter(
+          output.optimizedContent,
+          pagespeed.withErrorHandler(pagespeed.onContentWriterComplete));
+        pagespeed.setStatusText("Saving optimized content...");
+        pagespeed.contentWriter.start();
+      } else {
+        pagespeed.onContentWriterComplete();
+      }
     }), 0);
+  },
+
+  // Invoked when the ContentWriter has finished serializing optimized content.
+  // Displays the results and ends the run.
+  onContentWriterComplete: function () {
+    pagespeed.contentWriter = null;
+    pagespeed.showResults();
+    pagespeed.endCurrentRun();
   },
 
   // Cancel the current run, if any, and reset the status indicators.
@@ -544,6 +583,10 @@ var pagespeed = {
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.cancel();
       pagespeed.resourceAccumulator = null;
+    }
+    if (pagespeed.contentWriter) {
+      pagespeed.contentWriter.cancel();
+      pagespeed.contentWriter = null;
     }
     document.getElementById('run-button').disabled = false;
     document.getElementById('spinner-img').style.display = 'none';
@@ -770,6 +813,141 @@ pagespeed.ResourceAccumulator.prototype.onBody_ = function (index, text,
   content.encoding = encoding;
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
+};
+
+// ContentWriter manages the serialization of optimized content to a local
+// filesystem, using the asynchronous filesystem API.  It will call the
+// clientCallback when it finishes.
+pagespeed.ContentWriter = function (optimizedContent, clientCallback) {
+  this.cancelled_ = false;
+  this.clientCallback_ = clientCallback;
+  this.fileSystem_ = null;
+  this.optimizedContent_ = optimizedContent;
+  this.keyQueue_ = [];
+  for (var key in optimizedContent) {
+    if (optimizedContent.hasOwnProperty(key)) {
+      this.keyQueue_.push(key);
+    }
+  }
+};
+
+// Start the content writer.
+pagespeed.ContentWriter.prototype.start = function () {
+  // Create a new temporary filesystem.  On some (but not all) Chrome versions,
+  // this has a "webkit" prefix.
+  var requestFS = (window.requestFileSystem ||
+                   window.webkitRequestFileSystem);
+  // Request 10MB for starters, but we can always exceed this later because we
+  // use the "unlimitedStorage" permission in our manifest.json file.
+  requestFS(window.TEMPORARY, 10 * 1024 * 1024 /*10MB*/,
+            // On success:
+            pagespeed.withErrorHandler(this.onFileSystem_.bind(this)),
+            // On failure:
+            this.makeErrorHandler_("requestFileSystem", this.clientCallback_));
+};
+
+// Cancel the content writer.
+pagespeed.ContentWriter.prototype.cancel = function () {
+  this.cancelled_ = true;
+};
+
+// Callback for when the filesystem is successfully created.
+pagespeed.ContentWriter.prototype.onFileSystem_ = function (fs) {
+  if (this.cancelled_) {
+    return;  // We've been cancelled so ignore the callback.
+  }
+  this.fileSystem_ = fs;
+  this.writeNextFile_();
+};
+
+// Start writing the next file in the queue.
+pagespeed.ContentWriter.prototype.writeNextFile_ = function () {
+  if (this.cancelled_) {
+    return;
+  }
+  // If there are no more keys in the queue, we're done.
+  if (this.keyQueue_.length <= 0) {
+    this.clientCallback_();
+    return;
+  }
+  // Otherwise, create a file for the next key in the queue.  If the file
+  // already exists, we'll overwrite it, which is okay because the filenames we
+  // choose include content hashes.
+  var key = this.keyQueue_.pop();
+  var entry = this.optimizedContent_[key];
+  this.fileSystem_.root.getFile(
+    entry.filename, {create: true},
+    // On success:
+    pagespeed.withErrorHandler(this.onGotFile_.bind(this, entry)),
+    // On failure:
+    this.makeErrorHandler_("getFile", this.writeNextFile_.bind(this)));
+};
+
+// Callback for when a file is successfully created.
+pagespeed.ContentWriter.prototype.onGotFile_ = function (entry, file) {
+  if (this.cancelled_) {
+    return;  // We've been cancelled so ignore the callback.
+  }
+  var writeNext = this.writeNextFile_.bind(this);
+  var onWriterError = this.makeErrorHandler_("write", writeNext);
+  file.createWriter(pagespeed.withErrorHandler(function (writer) {
+    // Provide callbacks for when the writer finishes or errors.
+    writer.onwriteend = pagespeed.withErrorHandler(function () {
+      entry.url = file.toURL(entry.mimetype);
+      writeNext();
+    });
+    writer.onerror = onWriterError;
+
+    // Decode the base64 data into a byte array, which we can then append to a
+    // BlobBuilder.  I don't know of any quicker way to just write base64 data
+    // straight into a Blob, but thanks to V8, the below is still very fast.
+    var decoded = atob(entry.content);
+    delete entry.content;  // free up memory
+    var size = decoded.length;
+    var array = new Uint8Array(size);
+    for (var index = 0; index < size; ++index) {
+      array[index] = decoded.charCodeAt(index);
+    }
+
+    // Use a BlobBuilder to write the file.  In some (but not all) Chrome
+    // versions, this has a "WebKit" prefix.
+    var bb = new (window.BlobBuilder || window.WebKitBlobBuilder)();
+    bb.append(array.buffer);
+    writer.write(bb.getBlob(entry.mimetype));
+  }, this.makeErrorHandler_("createWriter", writeNext)));
+};
+
+// Given a string representing where the error happened, and a callback to call
+// after handling the error, return an error handling function suitable to be
+// passed to one of the filesystem API calls.
+pagespeed.ContentWriter.prototype.makeErrorHandler_ = function (where, next) {
+  return pagespeed.withErrorHandler((function (error) {
+    var msg;
+    switch (error.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'QUOTA_EXCEEDED_ERR';
+      break;
+    case FileError.NOT_FOUND_ERR:
+      msg = 'NOT_FOUND_ERR';
+      break;
+    case FileError.SECURITY_ERR:
+      msg = 'SECURITY_ERR';
+      break;
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'INVALID_MODIFICATION_ERR';
+      break;
+    case FileError.INVALID_STATE_ERR:
+      msg = 'INVALID_STATE_ERR';
+      break;
+    default:
+      msg = 'Unknown Error';
+      break;
+    };
+    webInspector.log("Error during " + where + ": " + msg);
+    if (!this.cancelled_) {
+      next();
+    }
+  }).bind(this));
 };
 
 pagespeed.withErrorHandler(function () {

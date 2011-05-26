@@ -29,6 +29,8 @@
         '<(chromium_root)/base/atomicops_internals_x86_gcc.cc',
         '<(chromium_root)/base/at_exit.cc',
         '<(chromium_root)/base/at_exit.h',
+        '<(chromium_root)/base/base64.cc',
+        '<(chromium_root)/base/base64.h',
         '<(chromium_root)/base/base_switches.cc',
         '<(chromium_root)/base/base_switches.h',
         '<(chromium_root)/base/command_line.cc',
