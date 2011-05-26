@@ -15,6 +15,7 @@
   "permissions": [
     "experimental",
     "tabs",
+    "unlimitedStorage",
     "http://*/*", "https://*/*"
   ],
   "plugins": [
