@@ -543,11 +543,11 @@ var pagespeed = {
         return;
       }
       // Run the rules.
-      // TODO(mdsteele): Add an option to disable saving of optimized content.
-      var saveOptimizedContent = true;
+      var saveOptimizedContent = !localStorage.noOptimizedContent;
       var output = JSON.parse(pagespeed_module.runPageSpeed(
         JSON.stringify(input.har), JSON.stringify(input.dom),
-        input.analyze, chrome.i18n.getMessage('@@ui_locale')));
+        input.analyze, chrome.i18n.getMessage('@@ui_locale'),
+        saveOptimizedContent));
       pagespeed.currentResults = {
         analyze: input.analyze,
         optimizedContent: output.optimizedContent,

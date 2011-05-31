@@ -136,6 +136,7 @@ bool RunPageSpeedRules(const std::string& locale,
                        pagespeed::ResourceFilter* filter,
                        pagespeed::DomDocument* document,
                        const std::string& har_data,
+                       bool save_optimized_content,
                        std::string* output_string,
                        std::string* error_string) {
   // Instantiate an AtExitManager so our Singleton<>s are able to
@@ -167,7 +168,6 @@ bool RunPageSpeedRules(const std::string& locale,
   // that they are not transferred to the Engine.
   STLElementDeleter<std::vector<pagespeed::Rule*> > rule_deleter(&rules);
 
-  const bool save_optimized_content = true;
   pagespeed::rule_provider::AppendPageSpeedRules(
       save_optimized_content, &rules);
   std::vector<std::string> incompatible_rule_names;
@@ -248,7 +248,9 @@ bool RunPageSpeedRules(const std::string& locale,
 
   // Put optimized resources into JSON:
   scoped_ptr<DictionaryValue> optimized_content(new DictionaryValue);
-  SerializeOptimizedContent(results, optimized_content.get());
+  if (save_optimized_content) {
+    SerializeOptimizedContent(results, optimized_content.get());
+  }
 
   // Serialize all the JSON into a string.
   {
@@ -273,6 +275,7 @@ class PageSpeedModule : public NPObject {
                     const NPVariant& dom_document,
                     const NPVariant& filter_name,
                     const NPVariant& locale_string,
+                    const NPVariant& save_optimized_content,
                     NPVariant *result);
 
   // Indicate that a Javascript exception should be thrown, and return a bool
@@ -295,6 +298,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
                                    const NPVariant& document_arg,
                                    const NPVariant& filter_arg,
                                    const NPVariant& locale_arg,
+                                   const NPVariant& save_optimized_content_arg,
                                    NPVariant *result) {
   if (!NPVARIANT_IS_STRING(har_arg)) {
     return Throw("first argument to runPageSpeed must be a string");
@@ -307,6 +311,9 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   }
   if (!NPVARIANT_IS_STRING(locale_arg)) {
     return Throw("fourth argument to runPageSpeed must be a string");
+  }
+  if (!NPVARIANT_IS_BOOLEAN(save_optimized_content_arg)) {
+    return Throw("fifth argument to runPageSpeed must be a boolean");
   }
 
   const NPString& har_NPString = NPVARIANT_TO_STRING(har_arg);
@@ -324,6 +331,9 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   const NPString& locale_NPString = NPVARIANT_TO_STRING(locale_arg);
   const std::string locale_string(locale_NPString.UTF8Characters,
                                   locale_NPString.UTF8Length);
+
+  const bool save_optimized_content =
+      NPVARIANT_TO_BOOLEAN(save_optimized_content_arg);
 
   std::string error_msg_out;
   scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
@@ -349,7 +359,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   // RunPageSpeedRules will deallocate the filter and the document.
   const bool success = RunPageSpeedRules(
       locale_string, NewFilter(filter_string), document, har_string,
-      &output, &error_string);
+      save_optimized_content, &output, &error_string);
   if (!success) {
     return Throw(error_string);
   }
@@ -433,8 +443,9 @@ bool Invoke(NPObject* obj,
       rval = module->Throw("wrong number of arguments to ping");
     }
   } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    if (arg_count == 4) {
-      rval = module->RunPageSpeed(args[0], args[1], args[2], args[3], result);
+    if (arg_count == 5) {
+      rval = module->RunPageSpeed(args[0], args[1], args[2], args[3], args[4],
+                                  result);
     } else {
       rval = module->Throw("wrong number of arguments to runPageSpeed");
     }
