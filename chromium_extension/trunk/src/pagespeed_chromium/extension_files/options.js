@@ -38,10 +38,12 @@ var pagespeed_options = {
 
   save: function () {
     pagespeed_options.saveCheckbox('runAtOnLoad');
+    pagespeed_options.saveCheckbox('noOptimizedContent');
   },
 
   load: function () {
     pagespeed_options.loadCheckbox('runAtOnLoad');
+    pagespeed_options.loadCheckbox('noOptimizedContent');
   },
 
   reset: function () {
