@@ -220,6 +220,40 @@ TEST(HttpArchiveTest, InvalidHAR) {
   ASSERT_EQ(NULL, input.get());
 }
 
+TEST(HttpArchiveTest, MissingText) {
+  const char* kHarMissingResourceBody =
+      "{"
+      "  \"log\":{"
+      "    \"entries\":["
+      "      {"
+      "        \"startedDateTime\": \"2009-04-16T12:07:23.596Z\","
+      "        \"request\":{"
+      "          \"method\":\"GET\","
+      "          \"url\":\"http://www.example.com/index.html\","
+      "          \"httpVersion\":\"HTTP/1.1\","
+      "          \"cookies\":[],"
+      "          \"headers\":["
+      "            {\"name\":\"X-Foo\", \"value\":\"bar\"}"
+      "          ],"
+      "          \"headersSize\":-1,"
+      "          \"bodySize\":0"
+      "        },"
+      "        \"response\":{"
+      "          \"status\":204,"
+      "          \"statusText\":\"OK\","
+      "          \"httpVersion\":\"HTTP/1.1\","
+      "          \"headers\":[],"
+      "          \"content\":{},"
+      "        }"
+      "      }"
+      "    ]"
+      "  }"
+      "}";
+
+  scoped_ptr<PagespeedInput> input(ParseHttpArchive(kHarMissingResourceBody));
+  ASSERT_TRUE(input.get() != NULL);
+}
+
 class Iso8601Test : public testing::Test {
  protected:
   void ExpectValid(const std::string& input, int64 output) {

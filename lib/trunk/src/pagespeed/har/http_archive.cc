@@ -222,27 +222,29 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
       return;
     }
 
-    std::string content_text = GetString(*content_json, "text");
-    std::string encoding;
-    if (!content_json->GetString("encoding", &encoding) || encoding == "") {
-      resource->SetResponseBody(content_text);
-    } else if (encoding == "base64") {
-      std::string decoded_body;
-      // Reserve enough space to decode into.
-      decoded_body.resize(modp_b64_decode_len(content_text.size()));
-      // Decode into the string's buffer.
-      const int decoded_size = modp_b64_decode(&(decoded_body[0]),
-                                               content_text.data(),
-                                               content_text.size());
-      if (decoded_size >= 0) {
-        // Resize the buffer to the actual decoded size.
-        decoded_body.resize(decoded_size);
-        resource->SetResponseBody(decoded_body);
+    std::string content_text;
+    if (content_json->GetString("text", &content_text)) {
+      std::string encoding;
+      if (!content_json->GetString("encoding", &encoding) || encoding == "") {
+        resource->SetResponseBody(content_text);
+      } else if (encoding == "base64") {
+        std::string decoded_body;
+        // Reserve enough space to decode into.
+        decoded_body.resize(modp_b64_decode_len(content_text.size()));
+        // Decode into the string's buffer.
+        const int decoded_size = modp_b64_decode(&(decoded_body[0]),
+                                                 content_text.data(),
+                                                 content_text.size());
+        if (decoded_size >= 0) {
+          // Resize the buffer to the actual decoded size.
+          decoded_body.resize(decoded_size);
+          resource->SetResponseBody(decoded_body);
+        } else {
+          INPUT_POPULATOR_ERROR() << "Failed to base64-decode response content.";
+        }
       } else {
-        INPUT_POPULATOR_ERROR() << "Failed to base64-decode response content.";
+        INPUT_POPULATOR_ERROR() << "Received unexpected encoding: " << encoding;
       }
-    } else {
-      INPUT_POPULATOR_ERROR() << "Received unexpected encoding: " << encoding;
     }
   }
 }
