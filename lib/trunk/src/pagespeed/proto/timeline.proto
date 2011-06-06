@@ -1,0 +1,119 @@
+// Copyright 2009 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Protocol buffers to provide input to the pagespeed library.
+
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+option java_package = "com.googlecode.page_speed";
+
+package pagespeed;
+
+message InstrumentationData {
+  enum RecordType {
+    EventDispatch = 0;
+    Layout = 1;
+    RecalculateStyles = 2;
+    Paint = 3;
+    ParseHTML = 4;
+    TimerInstall = 5;
+    TimerRemove = 6;
+    TimerFire = 7;
+    XHRReadyStateChange = 8;
+    XHRLoad = 9;
+    EvaluateScript = 10;
+    MarkTimeline = 11;
+    ResourceSendRequest = 12;
+    ResourceReceiveResponse = 13;
+    ResourceFinish = 14;
+    FunctionCall = 15;
+    ReceiveResourceData = 16;
+    GCEvent = 17;
+    MarkDOMContent = 18;
+    MarkLoad = 19;
+    ScheduleResourceRequest = 20;
+  }
+
+  message DataDictionary {
+    // ParseHTML
+    optional int32 length = 1;
+    optional int32 startLine = 2;
+    optional int32 endLine = 3;
+    // GCEvent
+    optional int32 usedHeapSizeDelta = 4;
+    // FunctionCall
+    optional string scriptName = 5;
+    // FunctionCall
+    optional int32 scriptLine = 6;
+    // EventDispatch
+    optional string type = 7;
+    // TimerRemove, TimerFire, TimerInstall
+    optional int32 timerId = 8;
+    // TimerInstall
+    optional int32 timeout = 9;
+    // TimerInstall
+    optional bool singleShot = 10;
+    // XHRReadyStateChange, XHRLoad, EvaluateScript, ScheduleResourceRequest,
+    // ResourceSendRequest
+    optional string url = 11;
+    //XHRReadyStateChange
+    optional int32 readyState = 12;
+    // EvaluateScript
+    optional int32 lineNumber = 13;
+    // MarkTimeline
+    optional string message = 14;
+    // ResourceSendRequest, ResourceReceiveResponse, ResourceFinish,
+    // ReceiveResourceData
+    optional int32 identifier = 15;
+    //ResourceSendRequest
+    optional string requestMethod = 16;
+    // ResourceSendRequest
+    optional bool isMainResource = 17;
+    //ResourceReceiveResponse
+    optional int32 statusCode = 18;
+    //ResourceReceiveResponse
+    optional string mimeType = 19;
+    // ResourceReceiveResponse
+    optional int32 expectedContentLength = 20;
+    // ResourceFinish
+    optional bool didFail = 21;
+    // ResourceFinish
+    optional double networkTime = 22;
+    // Paint
+    optional int32 x = 23;
+    // Paint
+    optional int32 y = 24;
+    // Paint
+    optional int32 width = 25;
+    // Paint
+    optional int32 height = 26;
+  }
+
+  message StackFrame {
+    optional string url = 1;
+    optional int32 lineNumber = 2;
+    optional int32 columnNumber = 3;
+    optional string functionName = 4;
+  }
+
+  required RecordType type = 1;
+  repeated InstrumentationData children = 2;
+  repeated StackFrame stackTrace = 3;
+  optional DataDictionary data = 4;
+  optional double startTime = 5;
+  optional double endTime = 6;
+  optional int64 usedHeap = 7;
+  optional int64 totalHeap = 8;
+}
