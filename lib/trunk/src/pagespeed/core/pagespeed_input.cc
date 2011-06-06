@@ -23,6 +23,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/timeline.pb.h"
 
 namespace pagespeed {
 
@@ -56,6 +57,7 @@ PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
 
 PagespeedInput::~PagespeedInput() {
   STLDeleteContainerPointers(resources_.begin(), resources_.end());
+  STLDeleteContainerPointers(timeline_data_.begin(), timeline_data_.end());
 }
 
 bool PagespeedInput::IsValidResource(const Resource* resource) const {
