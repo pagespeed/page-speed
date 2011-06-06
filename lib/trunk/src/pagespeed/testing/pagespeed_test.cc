@@ -205,6 +205,11 @@ bool PagespeedTest::AddFakeImageAttributesFactory(
       new FakeImageAttributesFactory(map));
 }
 
+bool PagespeedTest::AcquireInstrumentationData(
+    pagespeed::InstrumentationDataVector* data) {
+  return pagespeed_input_->AcquireInstrumentationData(data);
+}
+
 void DoFormatResultsAsProto(pagespeed::Rule* rule,
                             const pagespeed::RuleResults& rule_results,
                             pagespeed::FormattedResults* formatted_results) {

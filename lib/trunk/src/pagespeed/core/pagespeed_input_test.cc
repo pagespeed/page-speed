@@ -18,6 +18,7 @@
 #include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -25,6 +26,8 @@ namespace {
 
 using pagespeed::ClientCharacteristics;
 using pagespeed::InputCapabilities;
+using pagespeed::InstrumentationData;
+using pagespeed::InstrumentationDataVector;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed_testing::FakeDomDocument;
@@ -152,6 +155,31 @@ TEST(PagespeedInputTest, SetClientCharacteristics) {
   ASSERT_TRUE(input.SetClientCharacteristics(cc));
   input.Freeze();
   AssertProtoEq(input.input_information()->client_characteristics(), cc);
+}
+
+TEST(PagespeedInputTest, AcquireInstrumentationData) {
+  PagespeedInput input;
+  InstrumentationDataVector data;
+  InstrumentationData *id1 = new InstrumentationData();
+  InstrumentationData *id2 = new InstrumentationData();
+  data.push_back(id1);
+  data.push_back(id2);
+  ASSERT_TRUE(input.AcquireInstrumentationData(&data));
+  ASSERT_EQ(static_cast<size_t>(0), data.size());
+  input.Freeze();
+  ASSERT_EQ(static_cast<size_t>(2), input.instrumentation_data()->size());
+}
+
+TEST(PagespeedInputTest, AcquireInstrumentationDataFailsWhenFrozen) {
+  PagespeedInput input;
+  InstrumentationDataVector data;
+  input.Freeze();
+#ifdef NDEBUG
+  ASSERT_FALSE(input.AcquireInstrumentationData(&data));
+#else
+  ASSERT_DEATH(input.AcquireInstrumentationData(&data),
+               "Can't set InstrumentationDataVector for frozen PagespeedInput.");
+#endif
 }
 
 class UpdateResourceTypesTest : public pagespeed_testing::PagespeedTest {
