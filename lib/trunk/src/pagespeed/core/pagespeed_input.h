@@ -37,6 +37,7 @@ class InstrumentationData;
 typedef std::map<std::string, ResourceSet> HostResourceMap;
 typedef std::vector<const Resource*> ResourceVector;
 typedef std::map<const Resource*, ResourceVector> ParentChildResourceMap;
+typedef std::vector<InstrumentationData*> InstrumentationDataVector;
 
 /**
  * Input set representation
@@ -105,6 +106,11 @@ class PagespeedInput {
 
   bool AcquireImageAttributesFactory(ImageAttributesFactory* factory);
 
+  // Ownership of the InstrumentationData instances is transferred
+  // over to the PagespeedInput object. Ownership of the vector itself
+  // is not transferred.
+  bool AcquireInstrumentationData(InstrumentationDataVector* data);
+
   // Call after populating the PagespeedInput. After calling Freeze(),
   // no additional modifications can be made to the PagespeedInput
   // structure.
@@ -139,6 +145,8 @@ class PagespeedInput {
   const ParentChildResourceMap* GetParentChildResourceMap() const;
   const InputInformation* input_information() const;
   const DomDocument* dom_document() const;
+  const InstrumentationDataVector* instrumentation_data() const;
+
   const std::string& primary_resource_url() const;
   bool is_frozen() const { return frozen_; }
 

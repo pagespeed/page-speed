@@ -51,53 +51,58 @@ message InstrumentationData {
     optional int32 length = 1;
     optional int32 startLine = 2;
     optional int32 endLine = 3;
+
     // GCEvent
     optional int32 usedHeapSizeDelta = 4;
+
     // FunctionCall
     optional string scriptName = 5;
-    // FunctionCall
     optional int32 scriptLine = 6;
+
     // EventDispatch
     optional string type = 7;
+
     // TimerRemove, TimerFire, TimerInstall
     optional int32 timerId = 8;
+
     // TimerInstall
     optional int32 timeout = 9;
-    // TimerInstall
     optional bool singleShot = 10;
+
     // XHRReadyStateChange, XHRLoad, EvaluateScript, ScheduleResourceRequest,
     // ResourceSendRequest
     optional string url = 11;
+
     //XHRReadyStateChange
     optional int32 readyState = 12;
+
     // EvaluateScript
     optional int32 lineNumber = 13;
+
     // MarkTimeline
     optional string message = 14;
+
     // ResourceSendRequest, ResourceReceiveResponse, ResourceFinish,
     // ReceiveResourceData
     optional int32 identifier = 15;
-    //ResourceSendRequest
-    optional string requestMethod = 16;
+
     // ResourceSendRequest
+    optional string requestMethod = 16;
     optional bool isMainResource = 17;
-    //ResourceReceiveResponse
-    optional int32 statusCode = 18;
-    //ResourceReceiveResponse
-    optional string mimeType = 19;
+
     // ResourceReceiveResponse
+    optional int32 statusCode = 18;
+    optional string mimeType = 19;
     optional int32 expectedContentLength = 20;
+
     // ResourceFinish
     optional bool didFail = 21;
-    // ResourceFinish
     optional double networkTime = 22;
+
     // Paint
     optional int32 x = 23;
-    // Paint
     optional int32 y = 24;
-    // Paint
     optional int32 width = 25;
-    // Paint
     optional int32 height = 26;
   }
 

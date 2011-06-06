@@ -174,6 +174,21 @@ bool PagespeedInput::AcquireImageAttributesFactory(
   return true;
 }
 
+bool PagespeedInput::AcquireInstrumentationData(
+    InstrumentationDataVector* data) {
+  if (frozen_) {
+    LOG(DFATAL)
+        << "Can't set InstrumentationDataVector for frozen PagespeedInput.";
+    return false;
+  }
+  if (!timeline_data_.empty()) {
+    LOG(DFATAL) << "Can't set InstrumentationDataVector. Already set.";
+    return false;
+  }
+  timeline_data_.swap(*data);
+  return true;
+}
+
 bool PagespeedInput::Freeze() {
   if (frozen_) {
     LOG(DFATAL) << "Can't Freeze frozen PagespeedInput.";
@@ -490,6 +505,11 @@ const InputInformation* PagespeedInput::input_information() const {
 const DomDocument* PagespeedInput::dom_document() const {
   DCHECK(frozen_);
   return document_.get();
+}
+
+const InstrumentationDataVector* PagespeedInput::instrumentation_data() const {
+  DCHECK(frozen_);
+  return &timeline_data_;
 }
 
 const std::string& PagespeedInput::primary_resource_url() const {
