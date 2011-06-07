@@ -33,7 +33,7 @@ class ProtoPopulator {
   ProtoPopulator() : error_(false) {}
 
   void PopulateToplevel(const ListValue& json,
-                        std::vector<InstrumentationData*>* proto_out);
+                        std::vector<const InstrumentationData*>* proto_out);
   void PopulateInstrumentationData(const DictionaryValue& json,
                                    InstrumentationData* instr);
   void PopulateStackFrame(const DictionaryValue& json,
@@ -52,7 +52,7 @@ class ProtoPopulator {
 
 void ProtoPopulator::PopulateToplevel(
     const ListValue& json,
-    std::vector<InstrumentationData*>* proto_out) {
+    std::vector<const InstrumentationData*>* proto_out) {
   for (ListValue::const_iterator iter = json.begin(), end = json.end();
        iter != end; ++iter) {
     const Value* item = *iter;
@@ -339,7 +339,7 @@ namespace pagespeed {
 
 bool CreateTimelineProtoFromJsonString(
     const std::string& json_string,
-    std::vector<InstrumentationData*>* proto_out) {
+    std::vector<const InstrumentationData*>* proto_out) {
   scoped_ptr<const Value> json(base::JSONReader::Read(
       json_string,
       true));  // allow_trailing_comma
@@ -357,7 +357,7 @@ bool CreateTimelineProtoFromJsonString(
 
 bool CreateTimelineProtoFromJsonValue(
     const ListValue& json,
-    std::vector<InstrumentationData*>* proto_out) {
+    std::vector<const InstrumentationData*>* proto_out) {
   ProtoPopulator populator;
   populator.PopulateToplevel(json, proto_out);
   return !populator.error();

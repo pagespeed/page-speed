@@ -15,9 +15,10 @@
 #ifndef PAGESPEED_TESTING_INSTRUMENTATION_DATA_BUILDER_H_
 #define PAGESPEED_TESTING_INSTRUMENTATION_DATA_BUILDER_H_
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/proto/timeline.pb.h"
 
 namespace pagespeed_testing {
@@ -51,7 +52,7 @@ class InstrumentationDataBuilder {
   void Unwind();
 
   scoped_ptr<pagespeed::InstrumentationData> root_;
-  pagespeed::InstrumentationDataVector working_set_;
+  std::vector<pagespeed::InstrumentationData*> working_set_;
   int current_time_;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentationDataBuilder);

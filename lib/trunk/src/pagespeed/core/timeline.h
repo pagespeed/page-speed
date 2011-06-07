@@ -27,12 +27,12 @@ class InstrumentationData;
 // Return false if there were any errors, true otherwise.
 bool CreateTimelineProtoFromJsonString(
     const std::string& json_string,
-    std::vector<InstrumentationData*>* proto_out);
+    std::vector<const InstrumentationData*>* proto_out);
 
 // Return false if there were any errors, true otherwise.
 bool CreateTimelineProtoFromJsonValue(
     const ListValue& json,
-    std::vector<InstrumentationData*>* proto_out);
+    std::vector<const InstrumentationData*>* proto_out);
 
 }  // namespace pagespeed
 
