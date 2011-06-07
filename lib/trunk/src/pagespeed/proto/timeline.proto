@@ -113,7 +113,10 @@ message InstrumentationData {
     optional string function_name = 4;
   }
 
-  required RecordType type = 1;
+  // The type field is required, but we mark it 'optional' because otherwise
+  // breakage could occur if we have to add new values to the RecordType enum
+  // later on.
+  optional RecordType type = 1;
   repeated InstrumentationData children = 2;
   repeated StackFrame stack_trace = 3;
   optional DataDictionary data = 4;

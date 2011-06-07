@@ -122,6 +122,7 @@
         'core/resource_util_test.cc',
         'core/rule_input_test.cc',
         'core/string_util_test.cc',
+        'core/timeline_test.cc',
         'core/uri_util_test.cc',
         'cssmin/cssmin_test.cc',
         'filters/ad_filter_test.cc',
