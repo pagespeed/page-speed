@@ -37,7 +37,7 @@ class InstrumentationData;
 typedef std::map<std::string, ResourceSet> HostResourceMap;
 typedef std::vector<const Resource*> ResourceVector;
 typedef std::map<const Resource*, ResourceVector> ParentChildResourceMap;
-typedef std::vector<InstrumentationData*> InstrumentationDataVector;
+typedef std::vector<const InstrumentationData*> InstrumentationDataVector;
 
 /**
  * Input set representation
@@ -187,7 +187,7 @@ class PagespeedInput {
   // List of timeline events.  The PagespeedInput object has ownership of these
   // InstrumentationData objects.
   // BEWARE: This field may be going away; we are not sure yet.  (mdsteele)
-  std::vector<InstrumentationData*> timeline_data_;
+  InstrumentationDataVector timeline_data_;
 
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;

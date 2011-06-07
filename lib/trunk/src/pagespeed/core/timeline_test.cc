@@ -77,8 +77,8 @@ const std::string kTimelineJson =
     "}]";
 
 TEST(TimelineTest, Basic) {
-  std::vector<InstrumentationData*> records;
-  STLElementDeleter<std::vector<InstrumentationData*> > deleter(&records);
+  std::vector<const InstrumentationData*> records;
+  STLElementDeleter<std::vector<const InstrumentationData*> > deleter(&records);
   ASSERT_TRUE(CreateTimelineProtoFromJsonString(kTimelineJson, &records));
   ASSERT_EQ(3u, records.size());
 

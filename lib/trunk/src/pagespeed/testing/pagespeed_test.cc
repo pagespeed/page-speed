@@ -237,6 +237,15 @@ std::string DoFormatResultsAsText(pagespeed::Rule* rule,
   return out;
 }
 
+void AssertProtoEq(const ::google::protobuf::MessageLite& a,
+                   const ::google::protobuf::MessageLite& b) {
+  std::string a_str;
+  std::string b_str;
+  ASSERT_TRUE(a.SerializePartialToString(&a_str));
+  ASSERT_TRUE(b.SerializePartialToString(&b_str));
+  ASSERT_EQ(a_str, b_str);
+}
+
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
 const char* PagespeedTest::kUrl2 = "http://www.foo.com/b";
 const char* PagespeedTest::kUrl3 = "http://www.bar.com/c";

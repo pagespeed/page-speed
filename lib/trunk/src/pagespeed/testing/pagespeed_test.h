@@ -37,6 +37,9 @@ class Resource;
 
 namespace pagespeed_testing {
 
+void AssertProtoEq(const ::google::protobuf::MessageLite& a,
+                   const ::google::protobuf::MessageLite& b);
+
 class FakeImageAttributesFactory
     : public pagespeed::ImageAttributesFactory {
  public:

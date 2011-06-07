@@ -20,7 +20,6 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
-#include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
@@ -30,6 +29,7 @@ using pagespeed::InstrumentationData;
 using pagespeed::InstrumentationDataVector;
 using pagespeed::PagespeedInput;
 using pagespeed::Resource;
+using pagespeed_testing::AssertProtoEq;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
 
@@ -44,15 +44,6 @@ Resource* NewResource(const std::string& url, int status_code) {
   resource->SetRequestUrl(url);
   resource->SetResponseStatusCode(status_code);
   return resource;
-}
-
-void AssertProtoEq(const ::google::protobuf::MessageLite& a,
-                   const ::google::protobuf::MessageLite& b) {
-  std::string a_str;
-  std::string b_str;
-  ASSERT_TRUE(a.SerializePartialToString(&a_str));
-  ASSERT_TRUE(b.SerializePartialToString(&b_str));
-  ASSERT_EQ(a_str, b_str);
 }
 
 TEST(PagespeedInputTest, DisallowDuplicates) {
