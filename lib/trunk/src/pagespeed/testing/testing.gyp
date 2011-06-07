@@ -32,6 +32,7 @@
       'sources': [
         'fake_dom.cc',
         'formatted_results_test_converter.cc',
+        'instrumentation_data_builder.cc',
         'pagespeed_test.cc',
       ],
       'include_dirs': [

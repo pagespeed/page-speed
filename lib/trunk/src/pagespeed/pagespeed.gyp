@@ -173,6 +173,7 @@
         'rules/sprite_images_test.cc',
         'rules/use_an_application_cache_test.cc',
         'testing/fake_dom_test.cc',
+        'testing/instrumentation_data_builder_test.cc',
         'util/regex_test.cc',
       ],
     },
