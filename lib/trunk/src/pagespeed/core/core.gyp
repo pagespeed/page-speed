@@ -44,6 +44,7 @@
         'rule.cc',
         'rule_input.cc',
         'string_util.cc',
+        'timeline.cc',
         'uri_util.cc',
       ],
       'include_dirs': [
