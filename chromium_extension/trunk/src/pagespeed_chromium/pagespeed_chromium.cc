@@ -44,6 +44,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/core/timeline.h"
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
@@ -55,6 +56,7 @@
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
+#include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_chromium/json_dom.h"
 
@@ -132,10 +134,11 @@ void SerializeOptimizedContent(const pagespeed::Results& results,
 // Return false if the HAR data could not be parsed, true otherwise.
 // This function will take ownership of the filter and document arguments, and
 // will delete them before returning.
-bool RunPageSpeedRules(const std::string& locale,
-                       pagespeed::ResourceFilter* filter,
+bool RunPageSpeedRules(const std::string& har_data,
                        pagespeed::DomDocument* document,
-                       const std::string& har_data,
+                       pagespeed::InstrumentationDataVector* timeline_events,
+                       pagespeed::ResourceFilter* filter,
+                       const std::string& locale,
                        bool save_optimized_content,
                        std::string* output_string,
                        std::string* error_string) {
@@ -153,10 +156,14 @@ bool RunPageSpeedRules(const std::string& locale,
     return false;
   }
 
+  // Add the DOM document to the PagespeedInput object.
   if (document != NULL) {
     input->SetPrimaryResourceUrl(document->GetDocumentUrl());
   }
   input->AcquireDomDocument(document); // input takes ownership of document
+
+  // Finish up the PagespeedInput object and freeze it.
+  input->AcquireInstrumentationData(timeline_events);
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
   input->Freeze();
@@ -273,6 +280,7 @@ class PageSpeedModule : public NPObject {
   // string) to the Javascript caller.
   bool RunPageSpeed(const NPVariant& har_string,
                     const NPVariant& dom_document,
+                    const NPVariant& timeline_events,
                     const NPVariant& filter_name,
                     const NPVariant& locale_string,
                     const NPVariant& save_optimized_content,
@@ -296,6 +304,7 @@ class PageSpeedModule : public NPObject {
 // the output buffer.
 bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
                                    const NPVariant& document_arg,
+                                   const NPVariant& timeline_arg,
                                    const NPVariant& filter_arg,
                                    const NPVariant& locale_arg,
                                    const NPVariant& save_optimized_content_arg,
@@ -306,14 +315,17 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   if (!NPVARIANT_IS_STRING(document_arg)) {
     return Throw("second argument to runPageSpeed must be a string");
   }
-  if (!NPVARIANT_IS_STRING(filter_arg)) {
+  if (!NPVARIANT_IS_STRING(timeline_arg)) {
     return Throw("third argument to runPageSpeed must be a string");
   }
-  if (!NPVARIANT_IS_STRING(locale_arg)) {
+  if (!NPVARIANT_IS_STRING(filter_arg)) {
     return Throw("fourth argument to runPageSpeed must be a string");
   }
+  if (!NPVARIANT_IS_STRING(locale_arg)) {
+    return Throw("fifth argument to runPageSpeed must be a string");
+  }
   if (!NPVARIANT_IS_BOOLEAN(save_optimized_content_arg)) {
-    return Throw("fifth argument to runPageSpeed must be a boolean");
+    return Throw("sixth argument to runPageSpeed must be a boolean");
   }
 
   const NPString& har_NPString = NPVARIANT_TO_STRING(har_arg);
@@ -323,6 +335,10 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   const NPString& document_NPString = NPVARIANT_TO_STRING(document_arg);
   const std::string document_string(document_NPString.UTF8Characters,
                                     document_NPString.UTF8Length);
+
+  const NPString& timeline_NPString = NPVARIANT_TO_STRING(timeline_arg);
+  const std::string timeline_string(timeline_NPString.UTF8Characters,
+                                    timeline_NPString.UTF8Length);
 
   const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
   const std::string filter_string(filter_NPString.UTF8Characters,
@@ -355,11 +371,19 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   pagespeed::DomDocument* document = pagespeed_chromium::CreateDocument(
       static_cast<const DictionaryValue*>(document_json.get()));
 
+  pagespeed::InstrumentationDataVector timeline_protos;
+  STLElementDeleter<pagespeed::InstrumentationDataVector>
+      timeline_deleter(&timeline_protos);
+  if (!pagespeed::CreateTimelineProtoFromJsonString(
+          timeline_string, &timeline_protos)) {
+    return Throw("error in timeline data");
+  }
+
   std::string output, error_string;
   // RunPageSpeedRules will deallocate the filter and the document.
   const bool success = RunPageSpeedRules(
-      locale_string, NewFilter(filter_string), document, har_string,
-      save_optimized_content, &output, &error_string);
+      har_string, document, &timeline_protos, NewFilter(filter_string),
+      locale_string, save_optimized_content, &output, &error_string);
   if (!success) {
     return Throw(error_string);
   }
@@ -443,9 +467,9 @@ bool Invoke(NPObject* obj,
       rval = module->Throw("wrong number of arguments to ping");
     }
   } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    if (arg_count == 5) {
+    if (arg_count == 6) {
       rval = module->RunPageSpeed(args[0], args[1], args[2], args[3], args[4],
-                                  result);
+                                  args[5], result);
     } else {
       rval = module->Throw("wrong number of arguments to runPageSpeed");
     }

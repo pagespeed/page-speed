@@ -30,6 +30,11 @@ var pagespeed = {
   // The currently active ContentWriter, if any.
   contentWriter: null,
 
+  // All timeline events that have been recorded from when the page started
+  // loading until it finished loading.
+  timelineEvents: [],
+  pageHasLoaded: true,
+
   // Throw an error (with an optional message) if the condition is false.
   assert: function (condition, opt_message) {
     if (!condition) {
@@ -545,8 +550,11 @@ var pagespeed = {
       // Run the rules.
       var saveOptimizedContent = !localStorage.noOptimizedContent;
       var output = JSON.parse(pagespeed_module.runPageSpeed(
-        JSON.stringify(input.har), JSON.stringify(input.dom),
-        input.analyze, chrome.i18n.getMessage('@@ui_locale'),
+        JSON.stringify(input.har),
+        JSON.stringify(input.dom),
+        JSON.stringify(pagespeed.timelineEvents),
+        input.analyze,
+        chrome.i18n.getMessage('@@ui_locale'),
         saveOptimizedContent));
       pagespeed.currentResults = {
         analyze: input.analyze,
@@ -609,6 +617,9 @@ var pagespeed = {
 
   // Callback for when we navigate to a new page.
   onPageNavigate: function () {
+    // Clear the list of timeline events.
+    pagespeed.timelineEvents.length = 0;
+    pagespeed.pageHasLoaded = false;
     // If there's an active ResourceAccumulator, it must be trying to reload
     // the page, so don't do anything.  Otherwise, if there are results
     // showing, they're from another page, so clear them.
@@ -621,6 +632,7 @@ var pagespeed = {
 
   // Callback for when the inspected page loads.
   onPageLoaded: function () {
+    pagespeed.pageHasLoaded = true;
     // If there's an active ResourceAccumulator, it must be trying to reload
     // the page, so let it know that it loaded.
     if (pagespeed.resourceAccumulator) {
@@ -629,6 +641,13 @@ var pagespeed = {
     // Otherwise, if we have run-at-onload enabled, we should start a run now.
     else if (localStorage.runAtOnLoad) {
       pagespeed.runPageSpeed();
+    }
+  },
+
+  // Callback for when a timeline event is recorded (via the timeline API).
+  onTimelineEvent: function (event) {
+    if (!pagespeed.pageHasLoaded) {
+      pagespeed.timelineEvents.push(event);
     }
   },
 
@@ -963,5 +982,17 @@ pagespeed.withErrorHandler(function () {
     kind: 'listen',
     tab_id: webInspector.inspectedWindow.tabId
   });
+
+  // The devtools timeline API was added in Chrome 13-ish.  Until stable
+  // channel reaches M13, we need to check whether the timeline API is present.
+  // If it isn't, then we simply won't collect any timeline data, and will send
+  // an empty list of timeline events to the Page Speed library.  Seeing this,
+  // the library will omit TIMELINE_DATA from its InputCapabilities and not run
+  // rules that rely on timeline data.  So, we'll fail gracefully.
+  if (webInspector.timeline) {
+    // The listener will disconnect when we close the devtools panel.
+    webInspector.timeline.onEventRecorded.addListener(
+      pagespeed.withErrorHandler(pagespeed.onTimelineEvent));
+  }
 
 })();
