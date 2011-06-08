@@ -107,12 +107,12 @@ void ProtoPopulator::PopulateInstrumentationData(
       instr->set_type(InstrumentationData::RESOURCE_SEND_REQUEST);
     } else if (type_string == "ResourceReceiveResponse") {
       instr->set_type(InstrumentationData::RESOURCE_RECEIVE_RESPONSE);
+    } else if (type_string == "ResourceReceivedData") {
+      instr->set_type(InstrumentationData::RESOURCE_RECEIVED_DATA);
     } else if (type_string == "ResourceFinish") {
       instr->set_type(InstrumentationData::RESOURCE_FINISH);
     } else if (type_string == "FunctionCall") {
       instr->set_type(InstrumentationData::FUNCTION_CALL);
-    } else if (type_string == "ReceiveResourceData") {
-      instr->set_type(InstrumentationData::RECEIVE_RESOURCE_DATA);
     } else if (type_string == "GCEvent") {
       instr->set_type(InstrumentationData::GC_EVENT);
     } else if (type_string == "MarkDOMContent") {
@@ -210,8 +210,7 @@ void ProtoPopulator::PopulateInstrumentationData(
     if (json.method(key, &_temp_value)) {                  \
       out->set_##name(_temp_value);                        \
     } else {                                               \
-      LOG(WARNING) << "Missing '" << key << "' field";     \
-      error_ = true;                                       \
+      LOG(INFO) << "Missing '" << key << "' field";        \
     }                                                      \
   } while (false)  // standard trick to require a semicolon when using macro
 
@@ -262,7 +261,7 @@ void ProtoPopulator::PopulateDataDictionary(
       GET_INTEGER_DATA("startLine", start_line);
       GET_INTEGER_DATA("endLine", end_line);
       break;
-    case InstrumentationData::RECEIVE_RESOURCE_DATA:
+    case InstrumentationData::RESOURCE_RECEIVED_DATA:
       GET_INTEGER_DATA("identifier", identifier);
       break;
     case InstrumentationData::RESOURCE_FINISH:

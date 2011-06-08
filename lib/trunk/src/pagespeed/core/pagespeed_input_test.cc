@@ -19,6 +19,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/timeline.pb.h"
+#include "pagespeed/testing/instrumentation_data_builder.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
@@ -489,6 +490,17 @@ TEST_F(EstimateCapabilitiesTest, Dom) {
       InputCapabilities(InputCapabilities::PARENT_CHILD_RESOURCE_MAP |
                         InputCapabilities::DOM).equals(
                             pagespeed_input()->EstimateCapabilities()));
+}
+
+TEST_F(EstimateCapabilitiesTest, TimelineData) {
+  New200Resource("http://www.example.com/foo.png");
+  pagespeed::InstrumentationDataVector timeline;
+  pagespeed_testing::InstrumentationDataBuilder builder;
+  timeline.push_back(builder.Layout().Get());
+  AcquireInstrumentationData(&timeline);
+  Freeze();
+  EXPECT_TRUE(InputCapabilities(InputCapabilities::TIMELINE_DATA).equals(
+      pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, JSCalls) {

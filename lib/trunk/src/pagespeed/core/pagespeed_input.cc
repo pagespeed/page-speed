@@ -588,6 +588,9 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
         InputCapabilities::DOM |
         InputCapabilities::PARENT_CHILD_RESOURCE_MAP);
   }
+  if (!timeline_data_.empty()) {
+    capabilities.add(InputCapabilities::TIMELINE_DATA);
+  }
   if (GetResourcesInRequestOrder() != NULL) {
     capabilities.add(InputCapabilities::REQUEST_START_TIMES);
   }

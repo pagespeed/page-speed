@@ -34,6 +34,7 @@ class InputCapabilities {
     REQUEST_HEADERS            = 1<<4,
     RESPONSE_BODY              = 1<<5,
     REQUEST_START_TIMES        = 1<<6,
+    TIMELINE_DATA              = 1<<7,
     ALL                        = ~0;
 
   InputCapabilities() : capabilities_mask_(NONE) {}

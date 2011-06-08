@@ -108,7 +108,7 @@ class PagespeedInput {
 
   // Ownership of the InstrumentationData instances is transferred
   // over to the PagespeedInput object. Ownership of the vector itself
-  // is not transferred.
+  // is not transferred, but the vector passed will be emptied.
   bool AcquireInstrumentationData(InstrumentationDataVector* data);
 
   // Call after populating the PagespeedInput. After calling Freeze(),
