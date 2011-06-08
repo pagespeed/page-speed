@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "base/basictypes.h"
 #include "base/values.h"
 
 namespace pagespeed {
@@ -33,6 +34,28 @@ bool CreateTimelineProtoFromJsonString(
 bool CreateTimelineProtoFromJsonValue(
     const ListValue& json,
     std::vector<const InstrumentationData*>* proto_out);
+
+class InstrumentationDataVisitor {
+ public:
+  InstrumentationDataVisitor();
+  virtual ~InstrumentationDataVisitor();
+
+  static void Traverse(InstrumentationDataVisitor* visitor,
+                       std::vector<const InstrumentationData*>& data);
+
+  // Invoked for each node in the InstrumentationData instances,
+  // visited in pre-order. The stack parameter contains the stack of
+  // nodes being visited, with the rootmost node at index 0. Return 0
+  // to prevent traversal of children of the InstrumentationData at
+  // the top of the stack.
+  virtual bool Visit(const std::vector<const InstrumentationData*>& stack) = 0;
+
+ private:
+  static void TraverseImpl(InstrumentationDataVisitor* visitor,
+                           std::vector<const InstrumentationData*>* stack);
+
+  DISALLOW_COPY_AND_ASSIGN(InstrumentationDataVisitor);
+};
 
 }  // namespace pagespeed
 
