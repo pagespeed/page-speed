@@ -1,4 +1,4 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
+// Copyright 2011 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -361,6 +361,37 @@ bool CreateTimelineProtoFromJsonValue(
   ProtoPopulator populator;
   populator.PopulateToplevel(json, proto_out);
   return !populator.error();
+}
+
+InstrumentationDataVisitor::InstrumentationDataVisitor() {}
+InstrumentationDataVisitor::~InstrumentationDataVisitor() {}
+
+// static
+void InstrumentationDataVisitor::Traverse(
+    InstrumentationDataVisitor* visitor,
+    std::vector<const InstrumentationData*>& data) {
+  std::vector<const InstrumentationData*> stack;
+  for (std::vector<const InstrumentationData*>::const_iterator
+           it = data.begin(), end = data.end(); it != end; ++it) {
+    DCHECK(stack.empty());
+    stack.push_back(*it);
+    TraverseImpl(visitor, &stack);
+    stack.pop_back();
+  }
+}
+
+// static
+void InstrumentationDataVisitor::TraverseImpl(
+    InstrumentationDataVisitor* visitor,
+    std::vector<const InstrumentationData*>* stack) {
+  const InstrumentationData& data = *stack->back();
+  if (visitor->Visit(*stack)) {
+    for (int i = 0; i < data.children_size(); ++i) {
+      stack->push_back(&data.children(i));
+      TraverseImpl(visitor, stack);
+      stack->pop_back();
+    }
+  }
 }
 
 }  // namespace pagespeed
