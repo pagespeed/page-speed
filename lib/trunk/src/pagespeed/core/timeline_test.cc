@@ -110,13 +110,13 @@ TEST(TimelineTest, Basic) {
   EXPECT_EQ(InstrumentationData::RECALCULATE_STYLES, record2a.type());
   ASSERT_EQ(2, record2a.stack_trace_size());
 
-  const InstrumentationData::StackFrame& frame2a0 = record2a.stack_trace(0);
+  const pagespeed::StackFrame& frame2a0 = record2a.stack_trace(0);
   EXPECT_EQ("triggerReflow", frame2a0.function_name());
   EXPECT_EQ("http://example.com/reflow.html", frame2a0.url());
   EXPECT_EQ(31, frame2a0.line_number());
   EXPECT_EQ(30, frame2a0.column_number());
 
-  const InstrumentationData::StackFrame& frame2a1 = record2a.stack_trace(1);
+  const pagespeed::StackFrame& frame2a1 = record2a.stack_trace(1);
   EXPECT_EQ("", frame2a1.function_name());
   EXPECT_EQ("http://example.com/reflow.html", frame2a1.url());
   EXPECT_EQ(1, frame2a1.line_number());

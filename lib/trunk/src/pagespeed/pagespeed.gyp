@@ -42,6 +42,7 @@
         'rules/avoid_document_write.cc',
         'rules/combine_external_resources.cc',
         'rules/defer_parsing_javascript.cc',
+        'rules/eliminate_unnecessary_reflows.cc',
         'rules/enable_gzip_compression.cc',
         'rules/enable_keep_alive.cc',
         'rules/inline_small_resources.cc',

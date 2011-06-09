@@ -22,6 +22,8 @@ option java_package = "com.googlecode.page_speed";
 
 package pagespeed;
 
+import "timeline.proto";
+
 message Savings {
   // DNS requests that could be saved if page was optimized.
   optional int32 dns_requests_saved = 1;
@@ -258,11 +260,28 @@ message InlineSmallResourcesDetails {
 
 message DeferParsingJavaScriptDetails {
   extend ResultDetails {
+    // NOTE: this is not a correctly generated extension ID (should be
+    // 4482406) however there are already protocol buffers persisted
+    // with this value, so we can't change it.
     optional DeferParsingJavaScriptDetails message_set_extension = 446566;  // 'Def'
   }
 
   required bool is_inline = 1;
   required int32 minified_javascript_size = 2;
+}
+
+message EliminateUnnecessaryReflowsDetails {
+  extend ResultDetails {
+    optional EliminateUnnecessaryReflowsDetails message_set_extension = 4543826;  // 'EUR'
+  }
+
+  message StackTrace {
+    repeated StackFrame frame = 1;
+
+    // Number of instances of this stack trace.
+    optional int32 count = 2;
+  }
+  repeated StackTrace stack_trace = 1;
 }
 
 message Result {

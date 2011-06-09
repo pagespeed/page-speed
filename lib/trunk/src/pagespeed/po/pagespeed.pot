@@ -5,6 +5,14 @@
 msgid "$1 ($2 of inline JavaScript)"
 msgstr ""
 
+#  Shown as part of a list of unnecessary reflows
+#  (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community). Shows a URL
+#  at $1, and the number of unnecessary reflows for that URL
+#  at $2.
+msgid "$1 ($2 reflows)"
+msgstr ""
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -243,6 +251,13 @@ msgstr ""
 msgid "Defer parsing of JavaScript"
 msgstr ""
 
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr ""
+
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
 #  in a list of rule names that Page Speed generates. "Keep-Alive" should not
@@ -279,6 +294,16 @@ msgstr ""
 #  Detail of inline script block. The "$1" will be replace
 #  by the index of the script block (e.g. 3).
 msgid "Inline script block #$1"
+msgstr ""
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
 msgstr ""
 
 #  Rule name. A longer description would be "Specify
@@ -500,6 +525,27 @@ msgstr ""
 #  image that appears in the page.  This is displayed in a list of rule names
 #  that Page Speed generates.
 msgid "Specify image dimensions"
+msgstr ""
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains the number of times the code in this context
+#  executed, and $2 contains JavaScript code that gives
+#  the context of the reflow.
+msgid "The following JavaScript call stack (executed $1 times) caused a reflow: $2"
+msgstr ""
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains JavaScript code that gives the context of the
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow: $1"
 msgstr ""
 
 #  Heading that indicates which resources should
