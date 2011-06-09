@@ -37,6 +37,7 @@ class Argument {
     STRING,
     URL,
     DURATION,
+    PRE_STRING,
   };
 
   Argument(ArgumentType type, int64 value);

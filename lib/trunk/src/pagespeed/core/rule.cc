@@ -76,6 +76,12 @@ bool CompareResults(const Result* result1, const Result* result2) {
   } else if (savings1.response_bytes_saved() !=
              savings2.response_bytes_saved()) {
     return savings1.response_bytes_saved() > savings2.response_bytes_saved();
+  } else if (savings1.connections_saved() !=
+             savings2.connections_saved()) {
+    return savings1.connections_saved() > savings2.connections_saved();
+  } else if (savings1.page_reflows_saved() !=
+             savings2.page_reflows_saved()) {
+    return savings1.page_reflows_saved() > savings2.page_reflows_saved();
   } else if (result1->resource_urls_size() != result2->resource_urls_size()) {
     return result1->resource_urls_size() > result2->resource_urls_size();
   } else if (result1->resource_urls_size() > 0) {

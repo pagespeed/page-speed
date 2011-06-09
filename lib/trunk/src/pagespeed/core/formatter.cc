@@ -37,13 +37,13 @@ Argument::Argument(Argument::ArgumentType type, int64 value)
 Argument::Argument(Argument::ArgumentType type, const char* value)
     : type_(type), int_value_(-1),
       string_value_(value) {
-  DCHECK(type_ == STRING || type_ == URL);
+  DCHECK(type_ == STRING || type_ == URL || type_ == PRE_STRING);
 }
 
 Argument::Argument(Argument::ArgumentType type, const std::string& value)
     : type_(type), int_value_(-1),
       string_value_(value) {
-  DCHECK(type_ == STRING || type_ == URL);
+  DCHECK(type_ == STRING || type_ == URL || type_ == PRE_STRING);
 }
 
 int64 Argument::int_value() const {
@@ -52,7 +52,7 @@ int64 Argument::int_value() const {
 }
 
 const std::string& Argument::string_value() const {
-  DCHECK(type_ == STRING || type_ == URL);
+  DCHECK(type_ == STRING || type_ == URL || type_ == PRE_STRING);
   return string_value_;
 }
 

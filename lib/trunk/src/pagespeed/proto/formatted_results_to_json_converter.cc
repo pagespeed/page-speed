@@ -31,6 +31,7 @@ static const char* kArgumentTypeToNameMap[] = {
   "int",
   "bytes",
   "duration",
+  "pre",
 };
 
 static const char* kInvalidArgumentType = kArgumentTypeToNameMap[0];
