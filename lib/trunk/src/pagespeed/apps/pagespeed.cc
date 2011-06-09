@@ -33,6 +33,7 @@
 #include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/core/timeline.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
@@ -45,6 +46,7 @@
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
+#include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "third_party/google-gflags/src/google/gflags.h"
 
@@ -54,6 +56,8 @@ DEFINE_string(output_format, "text",
               "Format of the output. "
               "One of 'proto', 'text', 'json', or 'formatted_proto'.");
 DEFINE_string(input_file, "", "Path to the input file. '-' to read from stdin");
+DEFINE_string(instrumentation_input_file, "",
+              "Path to the instrumentation data JSON file. Optional.");
 DEFINE_string(locale, "", "Locale to use, if localizing results.");
 DEFINE_string(strategy, "desktop",
               "The strategy to use. Valid values are 'desktop', 'mobile'.");
@@ -140,7 +144,8 @@ void PrintVersion() {
 
 bool RunPagespeed(const std::string& out_format,
                   const std::string& in_format,
-                  const std::string& filename) {
+                  const std::string& filename,
+                  const std::string& instrumentation_filename) {
   OutputFormat output_format;
   if (out_format == "proto") {
     output_format = PROTO_OUTPUT;
@@ -221,6 +226,32 @@ bool RunPagespeed(const std::string& out_format,
 
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
+
+  std::vector<const pagespeed::InstrumentationData*> instrumentation_data;
+  {
+    std::string instrumentation_file_contents;
+    if (!instrumentation_filename.empty()) {
+      if (!ReadFileToString(instrumentation_filename,
+                            &instrumentation_file_contents)) {
+        fprintf(stderr, "Could not read input from %s\n",
+                instrumentation_filename.c_str());
+        PrintUsage();
+        return false;
+      }
+
+      if (!pagespeed::CreateTimelineProtoFromJsonString(
+              instrumentation_file_contents, &instrumentation_data)) {
+        fprintf(stderr, "Failed to parse instrumentation data from %s\n",
+                instrumentation_filename.c_str());
+        PrintUsage();
+        return false;
+      }
+    }
+  }
+
+  if (!instrumentation_data.empty()) {
+    input->AcquireInstrumentationData(&instrumentation_data);
+  }
 
   if (strategy == MOBILE) {
     pagespeed::ClientCharacteristics cc;
@@ -342,7 +373,8 @@ int main(int argc, char** argv) {
 
   if (RunPagespeed(FLAGS_output_format,
                    FLAGS_input_format,
-                   FLAGS_input_file)) {
+                   FLAGS_input_file,
+                   FLAGS_instrumentation_input_file)) {
     return EXIT_SUCCESS;
   } else {
     return EXIT_FAILURE;

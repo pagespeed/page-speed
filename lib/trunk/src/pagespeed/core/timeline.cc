@@ -368,15 +368,20 @@ InstrumentationDataVisitor::~InstrumentationDataVisitor() {}
 // static
 void InstrumentationDataVisitor::Traverse(
     InstrumentationDataVisitor* visitor,
-    std::vector<const InstrumentationData*>& data) {
-  std::vector<const InstrumentationData*> stack;
+    const std::vector<const InstrumentationData*>& data) {
   for (std::vector<const InstrumentationData*>::const_iterator
            it = data.begin(), end = data.end(); it != end; ++it) {
-    DCHECK(stack.empty());
-    stack.push_back(*it);
-    TraverseImpl(visitor, &stack);
-    stack.pop_back();
+    Traverse(visitor, **it);
   }
+}
+
+// static
+void InstrumentationDataVisitor::Traverse(InstrumentationDataVisitor* visitor,
+                                          const InstrumentationData& data) {
+  std::vector<const InstrumentationData*> stack;
+  stack.push_back(&data);
+  TraverseImpl(visitor, &stack);
+  stack.pop_back();
 }
 
 // static

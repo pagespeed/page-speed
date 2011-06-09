@@ -97,6 +97,14 @@ void FillFormatString(const Localizer* loc,
         format_arg->set_string_value(arg->string_value());
         success = loc->LocalizeUrl(arg->string_value(), &localized);
         break;
+      case Argument::PRE_STRING:
+        format_arg->set_type(FormatArgument::PRE_STRING);
+        format_arg->set_string_value(arg->string_value());
+        // Don't localize pre string arguments, since they're
+        // inherently not localizable (usually contain data or code of
+        // some sort).
+        localized = arg->string_value();
+        break;
       default:
         LOG(DFATAL) << "Unknown argument type "
                     << arg->type();

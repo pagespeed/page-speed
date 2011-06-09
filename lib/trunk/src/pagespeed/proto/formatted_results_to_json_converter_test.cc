@@ -196,9 +196,13 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::DURATION));
 
+  ASSERT_STREQ("pre",
+               FormattedResultsToJsonConverter::ConvertFormatArgumentType(
+                   FormatArgument::PRE_STRING));
+
   ASSERT_STREQ("invalid",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
-                   FormatArgument::DURATION + 1));
+                   FormatArgument::PRE_STRING + 1));
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {

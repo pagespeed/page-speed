@@ -37,22 +37,27 @@ bool CreateTimelineProtoFromJsonValue(
 
 class InstrumentationDataVisitor {
  public:
+  typedef std::vector<const InstrumentationData*> InstrumentationDataStack;
+
   InstrumentationDataVisitor();
   virtual ~InstrumentationDataVisitor();
 
   static void Traverse(InstrumentationDataVisitor* visitor,
-                       std::vector<const InstrumentationData*>& data);
+                       const InstrumentationDataStack& data);
+
+  static void Traverse(InstrumentationDataVisitor* visitor,
+                       const InstrumentationData& data);
 
   // Invoked for each node in the InstrumentationData instances,
   // visited in pre-order. The stack parameter contains the stack of
   // nodes being visited, with the rootmost node at index 0. Return 0
   // to prevent traversal of children of the InstrumentationData at
   // the top of the stack.
-  virtual bool Visit(const std::vector<const InstrumentationData*>& stack) = 0;
+  virtual bool Visit(const InstrumentationDataStack& stack) = 0;
 
  private:
   static void TraverseImpl(InstrumentationDataVisitor* visitor,
-                           std::vector<const InstrumentationData*>* stack);
+                           InstrumentationDataStack* stack);
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentationDataVisitor);
 };
