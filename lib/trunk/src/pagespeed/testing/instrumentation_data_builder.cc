@@ -82,8 +82,7 @@ InstrumentationDataBuilder& InstrumentationDataBuilder::EvaluateScript(
 
 InstrumentationDataBuilder& InstrumentationDataBuilder::AddFrame(
     const char* url, int line_number, const char* function_name) {
-  pagespeed::InstrumentationData_StackFrame* frame =
-      Current()->add_stack_trace();
+  pagespeed::StackFrame* frame = Current()->add_stack_trace();
   frame->set_url(url);
   frame->set_line_number(line_number);
   frame->set_function_name(function_name);

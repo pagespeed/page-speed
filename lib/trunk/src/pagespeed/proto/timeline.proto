@@ -21,6 +21,13 @@ option java_package = "com.googlecode.page_speed";
 
 package pagespeed;
 
+message StackFrame {
+  optional string url = 1;
+  optional int32 line_number = 2;
+  optional int32 column_number = 3;
+  optional string function_name = 4;
+}
+
 message InstrumentationData {
   enum RecordType {
     EVENT_DISPATCH = 0;
@@ -104,13 +111,6 @@ message InstrumentationData {
     optional int32 y = 24;
     optional int32 width = 25;
     optional int32 height = 26;
-  }
-
-  message StackFrame {
-    optional string url = 1;
-    optional int32 line_number = 2;
-    optional int32 column_number = 3;
-    optional string function_name = 4;
   }
 
   // The type field is required, but we mark it 'optional' because otherwise

@@ -37,7 +37,7 @@ class ProtoPopulator {
   void PopulateInstrumentationData(const DictionaryValue& json,
                                    InstrumentationData* instr);
   void PopulateStackFrame(const DictionaryValue& json,
-                          InstrumentationData::StackFrame* out);
+                          pagespeed::StackFrame* out);
   void PopulateDataDictionary(InstrumentationData::RecordType type,
                               const DictionaryValue& json,
                               InstrumentationData::DataDictionary* out);
@@ -318,8 +318,7 @@ void ProtoPopulator::PopulateDataDictionary(
 }
 
 void ProtoPopulator::PopulateStackFrame(
-    const DictionaryValue& json,
-    InstrumentationData::StackFrame* out) {
+    const DictionaryValue& json, pagespeed::StackFrame* out) {
   GET_STRING_DATA("url", url);
   GET_INTEGER_DATA("lineNumber", line_number);
   GET_INTEGER_DATA("columnNumber", column_number);

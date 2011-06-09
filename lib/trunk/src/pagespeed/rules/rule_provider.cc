@@ -22,6 +22,7 @@
 #include "pagespeed/rules/avoid_document_write.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/defer_parsing_javascript.h"
+#include "pagespeed/rules/eliminate_unnecessary_reflows.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/enable_keep_alive.h"
 #include "pagespeed/rules/inline_small_resources.h"
@@ -57,6 +58,7 @@ static const char* kCoreRules[] = {
   "avoidbadrequests",
   "avoidcssimport",
   "deferparsingjavascript",
+  "eliminateunnecessaryreflows",
   "enablegzipcompression",
   "enablekeepalive",
   "inlinesmallcss",
@@ -156,6 +158,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("combineexternalcss", rules::CombineExternalCss());
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
   RULE("deferparsingjavascript", rules::DeferParsingJavaScript());
+  RULE("eliminateunnecessaryreflows", rules::EliminateUnnecessaryReflows());
   RULE("enablegzipcompression", rules::EnableGzipCompression(
       new rules::compression_computer::ZlibComputer()));
   RULE("enablekeepalive", rules::EnableKeepAlive());
