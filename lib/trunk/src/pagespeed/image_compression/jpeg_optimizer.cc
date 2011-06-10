@@ -192,21 +192,24 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
   // Read jpeg data into the decompression struct.
   jpeg_read_header(jpeg_decompress, TRUE);
   jvirt_barray_ptr *coefficients = jpeg_read_coefficients(jpeg_decompress);
+  const bool valid_jpeg = (coefficients != NULL);
 
-  // Copy data from the source to the dest.
-  jpeg_copy_critical_parameters(jpeg_decompress, &jpeg_compress_);
+  if (valid_jpeg) {
+    // Copy data from the source to the dest.
+    jpeg_copy_critical_parameters(jpeg_decompress, &jpeg_compress_);
 
-  // Prepare to write to a string.
-  JpegStringWriter(&jpeg_compress_, compressed);
+    // Prepare to write to a string.
+    JpegStringWriter(&jpeg_compress_, compressed);
 
-  // Copy the coefficients into the compression struct.
-  jpeg_write_coefficients(&jpeg_compress_, coefficients);
+    // Copy the coefficients into the compression struct.
+    jpeg_write_coefficients(&jpeg_compress_, coefficients);
+  }
 
   // Finish the compression process.
   jpeg_finish_compress(&jpeg_compress_);
   jpeg_finish_decompress(jpeg_decompress);
 
-  return true;
+  return valid_jpeg;
 }
 
 bool JpegOptimizer::CreateOptimizedJpeg(const std::string &original,
