@@ -130,6 +130,20 @@ DIV.icon-okay {
   width: 16px;
 }
 
+DIV.icon-info {
+  background-image: url(infoBlueDot.png);
+  background-position: 0 -1px;
+  height: 16px;
+  width: 16px;
+}
+
+DIV.icon-na {
+  background-image: url(naGrayDot.png);
+  background-position: 0 -1px;
+  height: 16px;
+  width: 16px;
+}
+
 /***** Score Bar *****/
 
 DIV.score-bar {

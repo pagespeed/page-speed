@@ -127,13 +127,13 @@ var pagespeed = {
   },
 
   // Given a score, return a DOM node for a red/yellow/green icon.
-  makeScoreIcon: function (score) {
+  makeScoreIcon: function (score, opt_hasNoResults, opt_isExperimentalRule) {
     pagespeed.assert(typeof(score) === 'number',
                      'makeScoreIcon: score must be a number');
     pagespeed.assert(isFinite(score), 'makeScoreIcon: score must be finite');
-    var icon = pagespeed.makeElement('div', (score > 80 ? 'icon-okay' :
-                                             score > 60 ? 'icon-warn' :
-                                             'icon-error'));
+    var icon = pagespeed.makeElement('div',
+      (opt_hasNoResults ? 'icon-na' : opt_isExperimentalRule ? 'icon-info' :
+       score > 80 ? 'icon-okay' : score > 60 ? 'icon-warn' : 'icon-error'));
     icon.setAttribute('title', 'Score: ' + score + '/100');
     return icon;
   },
@@ -141,13 +141,13 @@ var pagespeed = {
   // TODO(mdsteele): This is a hack -- impact scores are relative, not
   //   absolute, so we shouldn't be comparing them to constants.  We should
   //   decide on a better way to do this.
-  makeImpactIcon: function (impact) {
+  makeImpactIcon: function (impact, opt_hasNoResults, opt_isExperimentalRule) {
     pagespeed.assert(typeof(impact) === 'number',
                      'makeImpactIcon: score must be a number');
     pagespeed.assert(isFinite(impact), 'makeImpactIcon: score must be finite');
-    var icon = pagespeed.makeElement('div', (impact < 3 ? 'icon-okay' :
-                                             impact < 10 ? 'icon-warn' :
-                                             'icon-error'));
+    var icon = pagespeed.makeElement('div',
+      (opt_hasNoResults ? 'icon-na' : opt_isExperimentalRule ? 'icon-info' :
+       impact < 3 ? 'icon-okay' : impact < 10 ? 'icon-warn' : 'icon-error'));
     return icon;
   },
 
@@ -336,15 +336,21 @@ var pagespeed = {
     var results_container = document.getElementById('results-container');
     pagespeed.removeAllChildren(results_container);
 
-    // Sort the rule results, first by impact (descending), then by number of
-    // results (descending), then by name (ascending).  Sorting by number of
-    // results is in there so that zero-impact rules with results come before
-    // zero-impact rules with no results.
+    // Sort the rule results.  All rules with no results come last, in
+    // alphabetical order by rule name.  Experimental rules that have results
+    // come second-to-last, ordered by impact (descending) and then by rule
+    // name.  Non-experimental rules with results come first, again by impact
+    // and then rule name.
     var rule_results = pagespeed.currentResults.results.rule_results.slice();
     rule_results.sort(function (result1, result2) {
-      return (pagespeed.compare(result2.rule_impact, result1.rule_impact) ||
-              pagespeed.compare((result2.url_blocks || []).length,
-                                (result1.url_blocks || []).length) ||
+      var empty1 = (result1.url_blocks || []).length === 0;
+      var empty2 = (result2.url_blocks || []).length === 0;
+      return (pagespeed.compare(empty1, empty2) ||
+              (empty1 || empty2 ? 0 :
+               (pagespeed.compare(!!result1.experimental,
+                                  !!result2.experimental) ||
+                pagespeed.compare(result2.rule_impact,
+                                  result1.rule_impact)))  ||
               pagespeed.compare(result1.localized_rule_name,
                                 result2.localized_rule_name));
     });
@@ -372,8 +378,13 @@ var pagespeed = {
     rules_container.id = 'rules-container';
     rule_results.forEach(function (rule_result) {
       var header = pagespeed.makeElement('div', 'header', [
-        (localStorage.debug ? pagespeed.makeScoreIcon(rule_result.rule_score) :
-         pagespeed.makeImpactIcon(rule_result.rule_impact)),
+        (localStorage.debug ?
+         pagespeed.makeScoreIcon(rule_result.rule_score,
+                                 (rule_result.url_blocks || []).length === 0,
+                                 rule_result.experimental) :
+         pagespeed.makeImpactIcon(rule_result.rule_impact,
+                                  (rule_result.url_blocks || []).length === 0,
+                                  rule_result.experimental)),
         (localStorage.debug ? '[' + rule_result.rule_impact + '] ' : null),
         rule_result.localized_rule_name
       ]);
