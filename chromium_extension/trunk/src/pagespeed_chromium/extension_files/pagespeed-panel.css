@@ -15,7 +15,7 @@
 
 BODY {
   direction: __MSG_@@bidi_dir__;
-  font-family: Lucida Grande, sans-serif; 
+  font-family: Lucida Grande, sans-serif;
   font-size: 12px;
   margin: 0;
   padding: 0;
@@ -222,7 +222,11 @@ DIV#error-container > P {
   padding: 8px;
 }
 
-DIV#error-container > BUTTON { 
+DIV#error-container > BUTTON {
   font-size: 10px;
   height: 19px;
+}
+
+PRE.result {
+  margin-top: 0;
 }

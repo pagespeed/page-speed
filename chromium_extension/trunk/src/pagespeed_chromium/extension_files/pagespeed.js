@@ -235,6 +235,9 @@ var pagespeed = {
         // If the argument is a URL, create a link.
         elements.push(pagespeed.makeLink(
           arg.string_value, pagespeed.getDisplayUrl(arg.localized_value)));
+      } else if (arg.type === 'pre') {
+        elements.push(
+            pagespeed.makeElement('pre', 'result', arg.localized_value));
       } else {
         // Otherwise, replace the argument with a string.
         elements.push(arg.localized_value);
@@ -646,9 +649,7 @@ var pagespeed = {
 
   // Callback for when a timeline event is recorded (via the timeline API).
   onTimelineEvent: function (event) {
-    if (!pagespeed.pageHasLoaded) {
-      pagespeed.timelineEvents.push(event);
-    }
+    pagespeed.timelineEvents.push(event);
   },
 
   // Called once when we first load pagespeed-panel.html, to initialize the UI,

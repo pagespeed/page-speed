@@ -426,7 +426,8 @@ var pagespeed_bg = {
     if (content && content.encoding) {
       encoding = content.encoding;
     }
-    if (encoding === 'base64' || contentType.substr(0, 6) === 'image/') {
+    if (encoding === 'base64' ||
+        (contentType && contentType.substr(0, 6) === 'image/')) {
       encoding = 'base64';
 
       // TODO: base64-encode. We can't use btoa() since it does not
