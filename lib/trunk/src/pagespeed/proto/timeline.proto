@@ -76,8 +76,8 @@ message InstrumentationData {
     optional int32 timeout = 9;
     optional bool single_shot = 10;
 
-    // XHRReadyStateChange, XHRLoad, EvaluateScript, ScheduleResourceRequest,
-    // ResourceSendRequest, EvaluateScript
+    // EvaluateScript, ResourceSendRequest, ScheduleResourceRequest, XHRLoad,
+    // XHRReadyStateChange
     optional string url = 11;
 
     // XHRReadyStateChange

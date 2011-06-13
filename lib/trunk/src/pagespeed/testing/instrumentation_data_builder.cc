@@ -20,7 +20,7 @@
 namespace pagespeed_testing {
 
 InstrumentationDataBuilder::InstrumentationDataBuilder()
-    : current_time_(0) {
+    : current_time_(0.0) {
 }
 
 void InstrumentationDataBuilder::Push(
@@ -41,11 +41,13 @@ void InstrumentationDataBuilder::Push(
     working_set_.push_back(Current()->add_children());
   }
   Current()->set_type(type);
-  Current()->set_start_time(current_time_++);
+  Current()->set_start_time(current_time_);
+  current_time_ += 1.0;
 }
 
 InstrumentationDataBuilder& InstrumentationDataBuilder::Pop() {
-  Current()->set_end_time(current_time_++);
+  Current()->set_end_time(current_time_);
+  current_time_ += 1.0;
   working_set_.pop_back();
   return *this;
 }
@@ -57,7 +59,7 @@ pagespeed::InstrumentationData* InstrumentationDataBuilder::Current() {
 
 pagespeed::InstrumentationData* InstrumentationDataBuilder::Get() {
   Unwind();
-  current_time_ = 0;
+  current_time_ = 0.0;
   return root_.release();
 }
 
@@ -65,11 +67,6 @@ void InstrumentationDataBuilder::Unwind() {
   while (!working_set_.empty()) {
     Pop();
   }
-}
-
-InstrumentationDataBuilder& InstrumentationDataBuilder::Layout() {
-  Push(pagespeed::InstrumentationData::LAYOUT);
-  return *this;
 }
 
 InstrumentationDataBuilder& InstrumentationDataBuilder::EvaluateScript(
@@ -80,12 +77,30 @@ InstrumentationDataBuilder& InstrumentationDataBuilder::EvaluateScript(
   return *this;
 }
 
+InstrumentationDataBuilder& InstrumentationDataBuilder::FunctionCall(
+    const char* script_name, int script_line) {
+  Push(pagespeed::InstrumentationData::FUNCTION_CALL);
+  Current()->mutable_data()->set_script_name(script_name);
+  Current()->mutable_data()->set_script_line(script_line);
+  return *this;
+}
+
+InstrumentationDataBuilder& InstrumentationDataBuilder::Layout() {
+  Push(pagespeed::InstrumentationData::LAYOUT);
+  return *this;
+}
+
 InstrumentationDataBuilder& InstrumentationDataBuilder::ParseHTML(
     int length, int start_line, int end_line) {
   Push(pagespeed::InstrumentationData::PARSE_HTML);
   Current()->mutable_data()->set_length(length);
   Current()->mutable_data()->set_start_line(start_line);
   Current()->mutable_data()->set_end_line(end_line);
+  return *this;
+}
+
+InstrumentationDataBuilder& InstrumentationDataBuilder::Pause(double millis) {
+  current_time_ += millis;
   return *this;
 }
 
@@ -103,4 +118,3 @@ InstrumentationDataBuilder& InstrumentationDataBuilder::AddFrame(
 }
 
 }  // namespace pagespeed_testing
-
