@@ -32,6 +32,8 @@ class InstrumentationDataBuilder {
   // Methods to construct a new InstrumentationData instance of the
   // specified type. Add other event types as they are needed.
   InstrumentationDataBuilder& EvaluateScript(const char* url, int line_number);
+  InstrumentationDataBuilder& FunctionCall(const char* script_name,
+                                           int script_line);
   InstrumentationDataBuilder& Layout();
   InstrumentationDataBuilder& ParseHTML(
       int length, int start_line, int end_line);
@@ -43,6 +45,13 @@ class InstrumentationDataBuilder {
   // InstrumentationData is transferred to the caller and the internal
   // state of this object is reset, so it can be reused.
   pagespeed::InstrumentationData* Get();
+
+  // Add to the current time.  By default, the builder sets start/end times of
+  // events so that 1 millisecond passes between each push/pop.  You can use
+  // this method to insert additional time into the stream; put it between a
+  // push and a pop to make an event last longer, or put it between a pop and a
+  // push to add time between two events.
+  InstrumentationDataBuilder& Pause(double milliseconds);
 
   // Add a new stack frame to the current InstrumentationData instance.
   InstrumentationDataBuilder& AddFrame(const char* url,
@@ -57,7 +66,7 @@ class InstrumentationDataBuilder {
 
   scoped_ptr<pagespeed::InstrumentationData> root_;
   std::vector<pagespeed::InstrumentationData*> working_set_;
-  int current_time_;
+  double current_time_;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentationDataBuilder);
 };
@@ -65,4 +74,3 @@ class InstrumentationDataBuilder {
 }  // namespace pagespeed_testing
 
 #endif  // PAGESPEED_TESTING_INSTRUMENTATION_DATA_BUILDER_H_
-

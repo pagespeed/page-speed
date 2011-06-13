@@ -1,4 +1,4 @@
-// Copyright 2009 Google Inc. All Rights Reserved.
+// Copyright 2011 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_RULES_AVOID_BAD_REQUESTS_H_
-#define PAGESPEED_RULES_AVOID_BAD_REQUESTS_H_
+#ifndef PAGESPEED_RULES_AVOID_LONG_RUNNING_SCRIPTS_H_
+#define PAGESPEED_RULES_AVOID_LONG_RUNNING_SCRIPTS_H_
 
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
@@ -23,12 +23,11 @@ namespace pagespeed {
 namespace rules {
 
 /**
- * Checks for requests that return a response code of 404; such requests are
- * wasteful.
+ * Checks for scripts that run for a long time, blocking the page from loading.
  */
-class AvoidBadRequests : public Rule {
+class AvoidLongRunningScripts : public Rule {
  public:
-  AvoidBadRequests();
+  AvoidLongRunningScripts();
 
   // Rule interface.
   virtual const char* name() const;
@@ -36,13 +35,14 @@ class AvoidBadRequests : public Rule {
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
+  virtual bool IsExperimental() const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(AvoidBadRequests);
+  DISALLOW_COPY_AND_ASSIGN(AvoidLongRunningScripts);
 };
 
 }  // namespace rules
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_RULES_AVOID_BAD_REQUESTS_H_
+#endif  // PAGESPEED_RULES_AVOID_LONG_RUNNING_SCRIPTS_H_

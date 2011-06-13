@@ -121,6 +121,13 @@ message InputInformation {
 // Base class for result details
 // Ids 1000 and above are reserved for custom result details.  All
 // custom details must have different ids.
+//
+// We generate ids by starting with a three-character string and writing out
+// the ASCII values, big-endian.  For example, starting with 'Img', we get
+// ASCII {0x49, 0x6d, 0x67}, which becomes 0x496d67, which is 4812135.  To
+// easily do this conversion for a given string 'Foo', use this Python
+// one-liner:
+//   (lambda s:reduce(lambda t,c:(t<<8)|ord(c),s,0))('Foo')
 message ResultDetails {
   extensions 1000 to max;
 }
@@ -282,6 +289,14 @@ message EliminateUnnecessaryReflowsDetails {
     optional int32 count = 2;
   }
   repeated StackTrace stack_trace = 1;
+}
+
+message AvoidLongRunningScriptsDetails {
+  extend ResultDetails {
+    optional AvoidLongRunningScriptsDetails message_set_extension = 5001811;  // 'LRS'
+  }
+  optional int32 line_number = 1;
+  optional double duration_millis = 2;
 }
 
 message Result {
