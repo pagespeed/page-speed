@@ -39,6 +39,7 @@ class MakeLandingPageRedirectsCacheable: public Rule {
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(MakeLandingPageRedirectsCacheable);
 };
 

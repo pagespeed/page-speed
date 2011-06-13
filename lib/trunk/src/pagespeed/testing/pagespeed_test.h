@@ -17,6 +17,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "base/at_exit.h"
 #include "base/scoped_ptr.h"
@@ -39,6 +40,11 @@ namespace pagespeed_testing {
 
 void AssertProtoEq(const ::google::protobuf::MessageLite& a,
                    const ::google::protobuf::MessageLite& b);
+
+// Helper method that simply invokes ASSERT_TRUE. Can be used in
+// functions that have a non-void return type (ASSERT_TRUE requires
+// its containing function to have a void return type).
+void AssertTrue(bool condition);
 
 class FakeImageAttributesFactory
     : public pagespeed::ImageAttributesFactory {
@@ -165,7 +171,11 @@ class PagespeedTest : public ::testing::Test {
   bool AddFakeImageAttributesFactory(
       const FakeImageAttributesFactory::ResourceSizeMap& map);
 
-  bool AcquireInstrumentationData(pagespeed::InstrumentationDataVector* data);
+  // Adds an InstrumentationData to the set of InstrumentationData for
+  // the PagespeedInput. Can be called multiple times to add multiple
+  // root InstrumentationData instances. Ownership of the
+  // InstrumentationData instances is transferred to this object.
+  void AddInstrumentationData(pagespeed::InstrumentationData* data);
 
   bool SetOnloadTimeMillis(int onload_millis) {
     return pagespeed_input_->SetOnloadTimeMillis(onload_millis);
@@ -189,6 +199,7 @@ class PagespeedTest : public ::testing::Test {
 
  private:
   base::AtExitManager at_exit_manager_;
+  pagespeed::InstrumentationDataVector instrumentation_data_;
   scoped_ptr<pagespeed::PagespeedInput> pagespeed_input_;
   pagespeed::Resource* primary_resource_;
   FakeDomDocument* document_;
@@ -213,6 +224,12 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
   }
   const std::string& results_rule_name() const {
     return rule_results_.rule_name();
+  }
+  // Get a details instance of the specified type.
+  template <class DETAILS> const DETAILS& details(int i) const {
+    const pagespeed::ResultDetails& details = result(i).details();
+    AssertTrue(details.HasExtension(DETAILS::message_set_extension));
+    return details.GetExtension(DETAILS::message_set_extension);
   }
 
   virtual void SetUp() {

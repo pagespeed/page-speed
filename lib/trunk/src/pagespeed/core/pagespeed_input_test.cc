@@ -494,10 +494,8 @@ TEST_F(EstimateCapabilitiesTest, Dom) {
 
 TEST_F(EstimateCapabilitiesTest, TimelineData) {
   New200Resource("http://www.example.com/foo.png");
-  pagespeed::InstrumentationDataVector timeline;
   pagespeed_testing::InstrumentationDataBuilder builder;
-  timeline.push_back(builder.Layout().Get());
-  AcquireInstrumentationData(&timeline);
+  AddInstrumentationData(builder.Layout().Get());
   Freeze();
   EXPECT_TRUE(InputCapabilities(InputCapabilities::TIMELINE_DATA).equals(
       pagespeed_input()->EstimateCapabilities()));

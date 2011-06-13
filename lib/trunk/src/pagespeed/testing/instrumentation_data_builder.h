@@ -31,8 +31,10 @@ class InstrumentationDataBuilder {
 
   // Methods to construct a new InstrumentationData instance of the
   // specified type. Add other event types as they are needed.
-  InstrumentationDataBuilder& Layout();
   InstrumentationDataBuilder& EvaluateScript(const char* url, int line_number);
+  InstrumentationDataBuilder& Layout();
+  InstrumentationDataBuilder& ParseHTML(
+      int length, int start_line, int end_line);
 
   // Pop to the parent InstrumentationData.
   InstrumentationDataBuilder& Pop();
@@ -43,8 +45,10 @@ class InstrumentationDataBuilder {
   pagespeed::InstrumentationData* Get();
 
   // Add a new stack frame to the current InstrumentationData instance.
-  InstrumentationDataBuilder& AddFrame(
-      const char* url, int line_number, const char* function_name);
+  InstrumentationDataBuilder& AddFrame(const char* url,
+                                       int line_number,
+                                       int column_number,
+                                       const char* function_name);
 
  private:
   void Push(pagespeed::InstrumentationData_RecordType type);

@@ -230,7 +230,6 @@ bool EliminateUnnecessaryReflows::AppendResults(const RuleInput& rule_input,
                                                 ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();
 
-
   // 1. Find all unnecessary reflows, grouped by the URL of the
   // resource that triggered them.
   URLToInstrumentationStackVectorMap m;
@@ -265,7 +264,7 @@ bool EliminateUnnecessaryReflows::AppendResults(const RuleInput& rule_input,
     savings->set_page_reflows_saved(stacks.size());
     result->add_resource_urls(resource->GetRequestUrl());
     ResultDetails* details = result->mutable_details();
-    EliminateUnnecessaryReflowsDetails* arl_details =
+    EliminateUnnecessaryReflowsDetails* eur_details =
         details->MutableExtension(
             EliminateUnnecessaryReflowsDetails::message_set_extension);
 
@@ -276,7 +275,7 @@ bool EliminateUnnecessaryReflows::AppendResults(const RuleInput& rule_input,
       // * duration of event?
       // * before/after DOMContentLoaded?
       // * seconds after load start?
-      arl_details->add_stack_trace()->MergeFrom(**trace_iter);
+      eur_details->add_stack_trace()->MergeFrom(**trace_iter);
     }
   }
   return true;
@@ -320,7 +319,7 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
       continue;
     }
 
-    const EliminateUnnecessaryReflowsDetails& arl_details =
+    const EliminateUnnecessaryReflowsDetails& eur_details =
         details.GetExtension(
             EliminateUnnecessaryReflowsDetails::message_set_extension);
 
@@ -334,8 +333,8 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
         // at $2.
         _("$1 ($2 reflows)"), url, total);
     StackTraceVector traces;
-    for (int i = 0; i < arl_details.stack_trace_size(); ++i) {
-      traces.push_back(&arl_details.stack_trace(i));
+    for (int i = 0; i < eur_details.stack_trace_size(); ++i) {
+      traces.push_back(&eur_details.stack_trace(i));
     }
     std::sort(traces.begin(), traces.end(), SortStackTracesByCounts);
     for (StackTraceVector::const_iterator stack_iter = traces.begin(),
@@ -373,9 +372,8 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
 
 bool EliminateUnnecessaryReflows::IsExperimental() const {
   // TODO(bmcquade): Before graduating from experimental:
-  // 1. write unit tests!
-  // 2. implement ComputeScore
-  // 3. implement ComputeResultImpact
+  // 1. implement ComputeScore
+  // 2. implement ComputeResultImpact
   return true;
 }
 

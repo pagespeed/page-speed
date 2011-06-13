@@ -147,6 +147,7 @@
         'rules/avoid_document_write_test.cc',
         'rules/combine_external_resources_test.cc',
         'rules/defer_parsing_javascript_test.cc',
+        'rules/eliminate_unnecessary_reflows_test.cc',
         'rules/enable_gzip_compression_test.cc',
         'rules/enable_keep_alive_test.cc',
         'rules/inline_small_resources_test.cc',

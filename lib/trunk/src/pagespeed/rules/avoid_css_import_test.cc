@@ -310,12 +310,10 @@ TEST(IsCssImportLineTest, Url) {
 class AvoidCssImportTest
     : public ::pagespeed_testing::PagespeedRuleTest<AvoidCssImport> {
  protected:
-  void AssertTrue(bool statement) { ASSERT_TRUE(statement); }
-
   const pagespeed::AvoidCssImportDetails& details(int result_idx) {
-    AssertTrue(result(result_idx).has_details());
+    pagespeed_testing::AssertTrue(result(result_idx).has_details());
     const pagespeed::ResultDetails& details = result(result_idx).details();
-    AssertTrue(details.HasExtension(
+    pagespeed_testing::AssertTrue(details.HasExtension(
         AvoidCssImportDetails::message_set_extension));
     return details.GetExtension(AvoidCssImportDetails::message_set_extension);
   }

@@ -40,6 +40,7 @@ class MinimizeDnsLookups : public Rule {
   virtual int ComputeScore(const InputInformation& input_info,
                            const RuleResults& results);
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(MinimizeDnsLookups);
 };
 
