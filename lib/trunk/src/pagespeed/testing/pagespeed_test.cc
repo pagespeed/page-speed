@@ -17,10 +17,12 @@
 #include <sstream>
 #include <string>
 
+#include "base/stl_util-inl.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
+#include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/formatted_results_test_converter.h"
 
 namespace {
@@ -50,7 +52,10 @@ pagespeed::ImageAttributes* FakeImageAttributesFactory::NewImageAttributes(
 
 
 PagespeedTest::PagespeedTest() {}
-PagespeedTest::~PagespeedTest() {}
+PagespeedTest::~PagespeedTest() {
+  STLDeleteContainerPointers(instrumentation_data_.begin(),
+                             instrumentation_data_.end());
+}
 
 void PagespeedTest::SetUp() {
   pagespeed_input_.reset(new pagespeed::PagespeedInput());
@@ -76,6 +81,8 @@ void PagespeedTest::DoSetUp() {}
 void PagespeedTest::DoTearDown() {}
 
 void PagespeedTest::Freeze() {
+  ASSERT_TRUE(
+      pagespeed_input_->AcquireInstrumentationData(&instrumentation_data_));
   ASSERT_TRUE(pagespeed_input_->Freeze());
 }
 
@@ -205,9 +212,9 @@ bool PagespeedTest::AddFakeImageAttributesFactory(
       new FakeImageAttributesFactory(map));
 }
 
-bool PagespeedTest::AcquireInstrumentationData(
-    pagespeed::InstrumentationDataVector* data) {
-  return pagespeed_input_->AcquireInstrumentationData(data);
+void PagespeedTest::AddInstrumentationData(
+    pagespeed::InstrumentationData* data) {
+  instrumentation_data_.push_back(data);
 }
 
 void DoFormatResultsAsProto(pagespeed::Rule* rule,
@@ -244,6 +251,10 @@ void AssertProtoEq(const ::google::protobuf::MessageLite& a,
   ASSERT_TRUE(a.SerializePartialToString(&a_str));
   ASSERT_TRUE(b.SerializePartialToString(&b_str));
   ASSERT_EQ(a_str, b_str);
+}
+
+void AssertTrue(bool condition) {
+  ASSERT_TRUE(condition);
 }
 
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";

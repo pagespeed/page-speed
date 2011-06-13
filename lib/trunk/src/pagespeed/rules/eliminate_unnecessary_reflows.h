@@ -34,6 +34,7 @@ class EliminateUnnecessaryReflows : public Rule {
                              RuleFormatter* formatter);
   virtual bool IsExperimental() const;
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(EliminateUnnecessaryReflows);
 };
 

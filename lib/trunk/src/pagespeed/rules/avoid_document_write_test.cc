@@ -43,12 +43,10 @@ class AvoidDocumentWriteTest
     return resource;
   }
 
-  void AssertTrue(bool statement) { ASSERT_TRUE(statement); }
-
   const pagespeed::AvoidDocumentWriteDetails& details(int result_idx) {
-    AssertTrue(result(result_idx).has_details());
+    pagespeed_testing::AssertTrue(result(result_idx).has_details());
     const pagespeed::ResultDetails& details = result(result_idx).details();
-    AssertTrue(details.HasExtension(
+    pagespeed_testing::AssertTrue(details.HasExtension(
         AvoidDocumentWriteDetails::message_set_extension));
     return details.GetExtension(
         AvoidDocumentWriteDetails::message_set_extension);

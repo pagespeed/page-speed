@@ -68,23 +68,36 @@ void InstrumentationDataBuilder::Unwind() {
 }
 
 InstrumentationDataBuilder& InstrumentationDataBuilder::Layout() {
-  Push(pagespeed::InstrumentationData_RecordType_LAYOUT);
+  Push(pagespeed::InstrumentationData::LAYOUT);
   return *this;
 }
 
 InstrumentationDataBuilder& InstrumentationDataBuilder::EvaluateScript(
     const char* url, int line_number) {
-  Push(pagespeed::InstrumentationData_RecordType_EVALUATE_SCRIPT);
+  Push(pagespeed::InstrumentationData::EVALUATE_SCRIPT);
   Current()->mutable_data()->set_url(url);
   Current()->mutable_data()->set_line_number(line_number);
   return *this;
 }
 
+InstrumentationDataBuilder& InstrumentationDataBuilder::ParseHTML(
+    int length, int start_line, int end_line) {
+  Push(pagespeed::InstrumentationData::PARSE_HTML);
+  Current()->mutable_data()->set_length(length);
+  Current()->mutable_data()->set_start_line(start_line);
+  Current()->mutable_data()->set_end_line(end_line);
+  return *this;
+}
+
 InstrumentationDataBuilder& InstrumentationDataBuilder::AddFrame(
-    const char* url, int line_number, const char* function_name) {
+    const char* url,
+    int line_number,
+    int column_number,
+    const char* function_name) {
   pagespeed::StackFrame* frame = Current()->add_stack_trace();
   frame->set_url(url);
   frame->set_line_number(line_number);
+  frame->set_column_number(column_number);
   frame->set_function_name(function_name);
   return *this;
 }

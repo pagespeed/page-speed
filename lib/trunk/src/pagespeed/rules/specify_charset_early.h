@@ -37,6 +37,7 @@ class SpecifyCharsetEarly : public Rule {
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(SpecifyCharsetEarly);
 };
 

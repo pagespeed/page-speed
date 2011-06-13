@@ -24,9 +24,9 @@ TEST(InstrumentationDataBuilderTest, Basic) {
   scoped_ptr<pagespeed::InstrumentationData> d(
       // Create a layout event with a JS stack of 3 frames.
       b.Layout()
-      .AddFrame("http://www.example.com/", 0, "funcName")
-      .AddFrame("http://www.example.com/", 1, "otherFunc")
-      .AddFrame("http://www.example.com/foo.js", 2, "thirdFunc")
+      .AddFrame("http://www.example.com/", 0, 1, "funcName")
+      .AddFrame("http://www.example.com/", 1, 2, "otherFunc")
+      .AddFrame("http://www.example.com/foo.js", 2, 3, "thirdFunc")
 
       // Create an evaluate script event with no JS stack.
       .EvaluateScript("http://www.example.com/", 10)
@@ -38,7 +38,7 @@ TEST(InstrumentationDataBuilderTest, Basic) {
       .EvaluateScript("http://www.example.com/foo.js", 20)
 
       // Create a layout event with a JS stack of 1 frame.
-      .Layout().AddFrame("http://www.example.com/", 5, "lastFunc")
+      .Layout().AddFrame("http://www.example.com/", 5, 6, "lastFunc")
       .Get());
 
   ASSERT_EQ(pagespeed::InstrumentationData_RecordType_LAYOUT, d->type());
@@ -48,12 +48,15 @@ TEST(InstrumentationDataBuilderTest, Basic) {
   ASSERT_EQ(3, d->stack_trace_size());
   ASSERT_EQ("http://www.example.com/", d->stack_trace(0).url());
   ASSERT_EQ(0, d->stack_trace(0).line_number());
+  ASSERT_EQ(1, d->stack_trace(0).column_number());
   ASSERT_EQ("funcName", d->stack_trace(0).function_name());
   ASSERT_EQ("http://www.example.com/", d->stack_trace(1).url());
   ASSERT_EQ(1, d->stack_trace(1).line_number());
+  ASSERT_EQ(2, d->stack_trace(1).column_number());
   ASSERT_EQ("otherFunc", d->stack_trace(1).function_name());
   ASSERT_EQ("http://www.example.com/foo.js", d->stack_trace(2).url());
   ASSERT_EQ(2, d->stack_trace(2).line_number());
+  ASSERT_EQ(3, d->stack_trace(2).column_number());
   ASSERT_EQ("thirdFunc", d->stack_trace(2).function_name());
 
   const pagespeed::InstrumentationData& child1 = d->children(0);
@@ -84,6 +87,7 @@ TEST(InstrumentationDataBuilderTest, Basic) {
   ASSERT_EQ(1, child3.stack_trace_size());
   ASSERT_EQ("http://www.example.com/", child3.stack_trace(0).url());
   ASSERT_EQ(5, child3.stack_trace(0).line_number());
+  ASSERT_EQ(6, child3.stack_trace(0).column_number());
   ASSERT_EQ("lastFunc", child3.stack_trace(0).function_name());
 }
 
