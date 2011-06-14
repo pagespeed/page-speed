@@ -130,11 +130,11 @@ const char* AvoidLongRunningScripts::name() const {
 }
 
 UserFacingString AvoidLongRunningScripts::header() const {
-  // TRANSLATOR: The name of a Page Speed rule that tells users to try and
-  // avoid writing pages with Javascript scripts that run for a long time,
-  // blocking the page from loading.  This is displayed in a list of rule names
-  // that Page Speed generates, telling webmasters which rules they broke in
-  // their website.
+  // TRANSLATOR: The name of a Page Speed rule that tells users to try
+  // and avoid writing pages with Javascript scripts that run for a
+  // long time, which reduces browser responsiveness.  This is
+  // displayed in a list of rule names that Page Speed generates,
+  // telling webmasters which rules they broke in their website.
   return _("Avoid long-running scripts");
 }
 
@@ -159,8 +159,9 @@ void AvoidLongRunningScripts::FormatResults(const ResultVector& results,
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Heading that gives a high-level overview of the
       // reason suggestions are being made.
-      _("The following URLs initiate scripts that run for a long time, "
-        "blocking the page from finishing loading:"));
+      _("The following URLs run JavaScript that blocks the UI for a long "
+        "time. To improve browser responsiveness, optimize the JavaScript "
+        "or split it up using callbacks."));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
