@@ -116,6 +116,18 @@ void UrlFormatter::AddDetail(const UserFacingString& format_str,
   AddDetail(params);
 }
 
+void UrlFormatter::AddDetail(const UserFacingString& format_str,
+                             const Argument& arg1,
+                             const Argument& arg2,
+                             const Argument& arg3) {
+  std::vector<const Argument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  const FormatterParameters params(&format_str, &args);
+  AddDetail(params);
+}
+
 UrlFormatter* UrlBlockFormatter::AddUrl(const std::string& url) {
   const UserFacingString format = not_localized("$1");
   const Argument arg(Argument::URL, url);

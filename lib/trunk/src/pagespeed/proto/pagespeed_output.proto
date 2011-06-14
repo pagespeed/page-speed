@@ -287,6 +287,8 @@ message EliminateUnnecessaryReflowsDetails {
 
     // Number of instances of this stack trace.
     optional int32 count = 2;
+
+    optional double duration_millis = 3;
   }
   repeated StackTrace stack_trace = 1;
 }

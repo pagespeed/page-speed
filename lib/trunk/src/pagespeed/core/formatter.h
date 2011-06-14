@@ -94,6 +94,10 @@ class UrlFormatter {
   void AddDetail(const UserFacingString& format_str,
                  const Argument& arg1,
                  const Argument& arg2);
+  void AddDetail(const UserFacingString& format_str,
+                 const Argument& arg1,
+                 const Argument& arg2,
+                 const Argument& arg3);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(UrlFormatter);
