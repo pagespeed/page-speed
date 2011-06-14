@@ -40,6 +40,7 @@
         'rules/avoid_bad_requests.cc',
         'rules/avoid_css_import.cc',
         'rules/avoid_document_write.cc',
+        'rules/avoid_excess_serialization.cc',
         'rules/avoid_long_running_scripts.cc',
         'rules/combine_external_resources.cc',
         'rules/defer_parsing_javascript.cc',
@@ -146,6 +147,7 @@
         'rules/avoid_bad_requests_test.cc',
         'rules/avoid_css_import_test.cc',
         'rules/avoid_document_write_test.cc',
+        'rules/avoid_excess_serialization_test.cc',
         'rules/avoid_long_running_scripts_test.cc',
         'rules/combine_external_resources_test.cc',
         'rules/defer_parsing_javascript_test.cc',
@@ -179,6 +181,9 @@
         'testing/fake_dom_test.cc',
         'testing/instrumentation_data_builder_test.cc',
         'util/regex_test.cc',
+      ],
+      'defines': [
+        'RULES_TEST_DIR_PATH="pagespeed/rules/testdata/"',
       ],
     },
     {

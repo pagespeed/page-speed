@@ -20,6 +20,7 @@
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_css_import.h"
 #include "pagespeed/rules/avoid_document_write.h"
+#include "pagespeed/rules/avoid_excess_serialization.h"
 #include "pagespeed/rules/avoid_long_running_scripts.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/defer_parsing_javascript.h"
@@ -58,6 +59,7 @@ namespace rule_provider {
 static const char* kCoreRules[] = {
   "avoidbadrequests",
   "avoidcssimport",
+  "avoidexcessserialization",
   "avoidlongrunningscripts",
   "deferparsingjavascript",
   "eliminateunnecessaryreflows",
@@ -157,6 +159,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("avoidbadrequests", rules::AvoidBadRequests());
   RULE("avoidcssimport", rules::AvoidCssImport());
   RULE("avoiddocumentwrite", rules::AvoidDocumentWrite());
+  RULE("avoidexcessserialization", rules::AvoidExcessSerialization());
   RULE("avoidlongrunningscripts", rules::AvoidLongRunningScripts());
   RULE("combineexternalcss", rules::CombineExternalCss());
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());

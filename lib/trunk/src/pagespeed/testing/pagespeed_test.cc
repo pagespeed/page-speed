@@ -213,7 +213,7 @@ bool PagespeedTest::AddFakeImageAttributesFactory(
 }
 
 void PagespeedTest::AddInstrumentationData(
-    pagespeed::InstrumentationData* data) {
+    const pagespeed::InstrumentationData* data) {
   instrumentation_data_.push_back(data);
 }
 
