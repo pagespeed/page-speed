@@ -32,6 +32,7 @@ class EliminateUnnecessaryReflows : public Rule {
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
+  virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;
   virtual bool IsExperimental() const;
 
  private:

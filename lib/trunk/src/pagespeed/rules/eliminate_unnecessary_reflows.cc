@@ -31,6 +31,7 @@
 
 namespace {
 
+using pagespeed::EliminateUnnecessaryReflowsDetails;
 using pagespeed::EliminateUnnecessaryReflowsDetails_StackTrace;
 using pagespeed::InstrumentationData;
 using pagespeed::InstrumentationDataVisitor;
@@ -83,12 +84,44 @@ struct StackTraceLessThan {
   }
 };
 
-// Sort stack traces by the number of times they were executed, in
-// order to present the traces that executed most first in the UI.
-bool SortStackTracesByCounts(
+const EliminateUnnecessaryReflowsDetails* GetDetails(
+    const pagespeed::Result& result) {
+  const pagespeed::ResultDetails& details = result.details();
+  if (!details.HasExtension(
+          EliminateUnnecessaryReflowsDetails::message_set_extension)) {
+    LOG(DFATAL) << "EliminateUnnecessaryReflowsDetails missing.";
+    return NULL;
+  }
+
+  return &details.GetExtension(
+      EliminateUnnecessaryReflowsDetails::message_set_extension);
+}
+
+// Sort stack traces by their runtimes, in order to present the traces
+// that executed most first in the UI.
+bool SortStackTracesByDuration(
     const EliminateUnnecessaryReflowsDetails_StackTrace* lhs,
     const EliminateUnnecessaryReflowsDetails_StackTrace* rhs) {
-  return lhs->count() > rhs->count();
+  return lhs->duration_millis() > rhs->duration_millis();
+}
+
+bool SortRuleResultsByDuration(const pagespeed::Result* lhs,
+                               const pagespeed::Result* rhs) {
+  const pagespeed::EliminateUnnecessaryReflowsDetails* lhs_details =
+      GetDetails(*lhs);
+  double lhs_duration = 0;
+  for (int i = 0; i < lhs_details->stack_trace_size(); ++i) {
+    lhs_duration += lhs_details->stack_trace(i).duration_millis();
+  }
+
+  const pagespeed::EliminateUnnecessaryReflowsDetails* rhs_details =
+      GetDetails(*rhs);
+  double rhs_duration = 0;
+  for (int i = 0; i < rhs_details->stack_trace_size(); ++i) {
+    rhs_duration += rhs_details->stack_trace(i).duration_millis();
+  }
+
+  return lhs_duration > rhs_duration;
 }
 
 // Get the URL of the root resource that triggered the reflow. This
@@ -144,11 +177,30 @@ std::string GetPresentableStackTrace(
 // Find all unique stack traces within the
 // InstrumentationDataStackVector, and compute the number of times
 // that each trace was encountered.
-static void ComputeUniqueStackTraces(
+static int ComputeUniqueStackTraces(
     const InstrumentationDataStackVector& stacks, StackTraceSet* trace_set) {
+  int num_reflows = 0;
   for (InstrumentationDataStackVector::const_iterator
            it = stacks.begin(), end = stacks.end(); it != end; ++it) {
     const InstrumentationData& layout = *it->back();
+
+    // Sometimes, layout nodes cause their parents to perform layouts
+    // as well. We want to find the rootmost layout node that is a
+    // parent of this layout node.
+    const InstrumentationData* root_layout = &layout;
+    for (InstrumentationDataStack::const_reverse_iterator
+             rit = it->rbegin(), rend = it->rend(); rit != rend; ++rit) {
+      const InstrumentationData* candidate = *rit;
+      if (candidate->type() != InstrumentationData::LAYOUT) {
+        break;
+      }
+      root_layout = candidate;
+    }
+    const double duration = root_layout->end_time() - root_layout->start_time();
+    if (duration < 1.0) {
+      // Skip over traces with very short durations.
+      continue;
+    }
     scoped_ptr<EliminateUnnecessaryReflowsDetails_StackTrace> trace(
         new EliminateUnnecessaryReflowsDetails_StackTrace());
     for (int idx = 0; idx < layout.stack_trace_size(); ++idx) {
@@ -160,11 +212,15 @@ static void ComputeUniqueStackTraces(
     if (trace_iter != trace_set->end()) {
       EliminateUnnecessaryReflowsDetails_StackTrace* trace2 = *trace_iter;
       trace2->set_count(trace2->count() + 1);
+      trace2->set_duration_millis(trace2->duration_millis() + duration);
     } else {
       trace->set_count(1);
+      trace->set_duration_millis(duration);
       trace_set->insert(trace.release());
     }
+    ++num_reflows;
   }
+  return num_reflows;
 }
 
 // InstrumentationDataVector that finds call stacks that triggered
@@ -240,7 +296,6 @@ bool EliminateUnnecessaryReflows::AppendResults(const RuleInput& rule_input,
            stack_vector_iter = m.begin(), end = m.end();
        stack_vector_iter != end; ++stack_vector_iter) {
     const std::string& url = stack_vector_iter->first;
-    const InstrumentationDataStackVector& stacks = stack_vector_iter->second;
     const Resource* resource = input.GetResourceWithUrlOrNull(url);
     if (resource == NULL) {
       // Only include results for resources that were included in the
@@ -252,7 +307,11 @@ bool EliminateUnnecessaryReflows::AppendResults(const RuleInput& rule_input,
     // 2. Group the unnecessary reflows by their stack traces.
     StackTraceSet trace_set;
     STLElementDeleter<StackTraceSet> deleter(&trace_set);
-    ComputeUniqueStackTraces(stacks, &trace_set);
+    int num_reflows = ComputeUniqueStackTraces(
+        stack_vector_iter->second, &trace_set);
+    if (num_reflows == 0) {
+      continue;
+    }
 
     // 3. Generate results, one per root resource URL.
     Result* result = provider->NewResult();
@@ -261,7 +320,7 @@ bool EliminateUnnecessaryReflows::AppendResults(const RuleInput& rule_input,
     // there is no indication of the cost of the reflow. Revisit this
     // before graduating this rule from experimental status and
     // compute a more accurate impact for each reflow suggestion.
-    savings->set_page_reflows_saved(stacks.size());
+    savings->set_page_reflows_saved(num_reflows);
     result->add_resource_urls(resource->GetRequestUrl());
     ResultDetails* details = result->mutable_details();
     EliminateUnnecessaryReflowsDetails* eur_details =
@@ -272,7 +331,6 @@ bool EliminateUnnecessaryReflows::AppendResults(const RuleInput& rule_input,
     for (StackTraceSet::const_iterator trace_iter = trace_set.begin(),
              end3 = trace_set.end(); trace_iter != end3; ++trace_iter) {
       // Other interesting statistics to consider including in the future:
-      // * duration of event?
       // * before/after DOMContentLoaded?
       // * seconds after load start?
       eur_details->add_stack_trace()->MergeFrom(**trace_iter);
@@ -312,16 +370,11 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
                   << result.resource_urls_size() << ".";
       continue;
     }
-    const ResultDetails& details = result.details();
-    if (!details.HasExtension(
-            EliminateUnnecessaryReflowsDetails::message_set_extension)) {
-      LOG(DFATAL) << "EliminateUnnecessaryReflowsDetails missing.";
+
+    const EliminateUnnecessaryReflowsDetails* eur_details = GetDetails(result);
+    if (eur_details == NULL) {
       continue;
     }
-
-    const EliminateUnnecessaryReflowsDetails& eur_details =
-        details.GetExtension(
-            EliminateUnnecessaryReflowsDetails::message_set_extension);
 
     Argument url(Argument::URL, result.resource_urls(0));
     Argument total(Argument::INTEGER, result.savings().page_reflows_saved());
@@ -333,13 +386,14 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
         // at $2.
         _("$1 ($2 reflows)"), url, total);
     StackTraceVector traces;
-    for (int i = 0; i < eur_details.stack_trace_size(); ++i) {
-      traces.push_back(&eur_details.stack_trace(i));
+    for (int i = 0; i < eur_details->stack_trace_size(); ++i) {
+      traces.push_back(&eur_details->stack_trace(i));
     }
-    std::sort(traces.begin(), traces.end(), SortStackTracesByCounts);
+    std::sort(traces.begin(), traces.end(), SortStackTracesByDuration);
     for (StackTraceVector::const_iterator stack_iter = traces.begin(),
              end = traces.end(); stack_iter != end; ++stack_iter) {
       const EliminateUnnecessaryReflowsDetails_StackTrace& stack = **stack_iter;
+      Argument duration(Argument::INTEGER, stack.duration_millis());
       Argument trace(Argument::PRE_STRING, GetPresentableStackTrace(stack));
       if (stack.count() == 1) {
         url_formatter->AddDetail(
@@ -350,8 +404,9 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
             // the context that caused an unnecessary reflow.  $1
             // contains JavaScript code that gives the context of the
             // reflow.
-            _("The following JavaScript call stack caused a reflow: $1"),
-            trace);
+            _("The following JavaScript call stack caused a reflow that "
+              "took $1 milliseconds: $2"),
+            duration, trace);
       } else {
         Argument count(Argument::INTEGER, stack.count());
         url_formatter->AddDetail(
@@ -364,10 +419,20 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
             // executed, and $2 contains JavaScript code that gives
             // the context of the reflow.
             _("The following JavaScript call stack (executed $1 times) "
-              "caused a reflow: $2"), count, trace);
+              "caused reflows that took $2 milliseconds: $3"),
+            count, duration, trace);
       }
     }
   }
+}
+
+void EliminateUnnecessaryReflows::SortResultsInPresentationOrder(
+    ResultVector* rule_results) const {
+  // Sort the results in a consistent order so they're always
+  // presented to the user in the same order.
+  std::stable_sort(rule_results->begin(),
+                   rule_results->end(),
+                   SortRuleResultsByDuration);
 }
 
 bool EliminateUnnecessaryReflows::IsExperimental() const {

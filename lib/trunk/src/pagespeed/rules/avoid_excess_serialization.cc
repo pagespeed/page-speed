@@ -202,7 +202,7 @@ bool AvoidExcessSerialization::AppendResults(const RuleInput& rule_input,
     // Check the nesting level of each resource and add the dependency trace
     // to the result if it exceeds the thresholds.
     DependencyTrace trace = request_analyzer.GetDependencyTrace(resource);
-    if (trace.size() > kMinNestingLevel) {
+    if (trace.size() >= kMinNestingLevel) {
       Result* result = provider->NewResult();
       pagespeed::Savings* savings = result->mutable_savings();
       savings->set_critical_path_length_saved(1);

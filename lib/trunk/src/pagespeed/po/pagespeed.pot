@@ -557,7 +557,7 @@ msgstr ""
 #  contains the number of times the code in this context
 #  executed, and $2 contains JavaScript code that gives
 #  the context of the reflow.
-msgid "The following JavaScript call stack (executed $1 times) caused a reflow: $2"
+msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
 msgstr ""
 
 #  Appears as part of the list of URLs that
@@ -567,7 +567,7 @@ msgstr ""
 #  the context that caused an unnecessary reflow.  $1
 #  contains JavaScript code that gives the context of the
 #  reflow.
-msgid "The following JavaScript call stack caused a reflow: $1"
+msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
 msgstr ""
 
 #  Heading that gives a high-level overview of the
