@@ -175,7 +175,7 @@ class PagespeedTest : public ::testing::Test {
   // the PagespeedInput. Can be called multiple times to add multiple
   // root InstrumentationData instances. Ownership of the
   // InstrumentationData instances is transferred to this object.
-  void AddInstrumentationData(pagespeed::InstrumentationData* data);
+  void AddInstrumentationData(const pagespeed::InstrumentationData* data);
 
   bool SetOnloadTimeMillis(int onload_millis) {
     return pagespeed_input_->SetOnloadTimeMillis(onload_millis);
