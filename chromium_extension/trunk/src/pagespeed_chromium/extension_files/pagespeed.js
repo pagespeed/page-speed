@@ -148,6 +148,13 @@ var pagespeed = {
     var icon = pagespeed.makeElement('div',
       (opt_hasNoResults ? 'icon-na' : opt_isExperimentalRule ? 'icon-info' :
        impact < 3 ? 'icon-okay' : impact < 10 ? 'icon-warn' : 'icon-error'));
+    if (opt_hasNoResults) {
+      icon.title = 'No suggestions for this rule. Good job!';
+    } else if (opt_isExperimentalRule) {
+      icon.title =
+          'Experimental rule. Does not yet impact overall score. ' +
+          'Send feedback to page-speed-discuss@googlegroups.com.';
+    }
     return icon;
   },
 
