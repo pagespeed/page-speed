@@ -18,7 +18,7 @@ function collectElement(element, outList) {
   var obj = {tag: element.tagName};
   // If the tag has any attributes, add an attribute map to the output object.
   var attributes = element.attributes;
-  if (attributes.length > 0) {
+  if (attributes && attributes.length > 0) {
     obj.attrs = {};
     for (var i = 0, len = attributes.length; i < len; ++i) {
       var attribute = attributes[i];
@@ -27,7 +27,7 @@ function collectElement(element, outList) {
   }
   // If the tag has any attributes, add children list to the output object.
   var children = element.children;
-  if (children.length > 0) {
+  if (children && children.length > 0) {
     for (var j = 0, len = children.length; j < len; ++j) {
       collectElement(children[j], outList);
     }
