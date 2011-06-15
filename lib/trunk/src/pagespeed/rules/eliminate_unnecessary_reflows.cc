@@ -393,7 +393,8 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
     for (StackTraceVector::const_iterator stack_iter = traces.begin(),
              end = traces.end(); stack_iter != end; ++stack_iter) {
       const EliminateUnnecessaryReflowsDetails_StackTrace& stack = **stack_iter;
-      Argument duration(Argument::INTEGER, stack.duration_millis());
+      Argument duration(Argument::INTEGER,
+                        static_cast<int64>(stack.duration_millis()));
       Argument trace(Argument::PRE_STRING, GetPresentableStackTrace(stack));
       if (stack.count() == 1) {
         url_formatter->AddDetail(
