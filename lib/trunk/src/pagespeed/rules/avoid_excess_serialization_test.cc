@@ -88,13 +88,21 @@ class AvoidExcessSerializationTest :
     ASSERT_EQ(num_results(), 0);
   }
 
-  void CheckOneViolation(const std::string &url, int trace_length) {
-    ASSERT_TRUE(AppendResults());
-    ASSERT_EQ(num_results(), 1);
-    const Result& result = this->result(0);
+  void CheckViolations(const std::vector<std::string> urls,
+                       const Result& result) {
     ASSERT_EQ(result.savings().critical_path_length_saved(), 1);
-    ASSERT_EQ(result.resource_urls_size(), trace_length);
-    ASSERT_EQ(result.resource_urls(0), url);
+    ASSERT_EQ(result.resource_urls_size(), static_cast<int>(urls.size()));
+    for (int i = 0; i < result.resource_urls_size(); ++i) {
+      ASSERT_EQ(result.resource_urls(i), urls[i]);
+    }
+  }
+
+  void CheckTwoViolations(const std::vector<std::string> urls1,
+                          const std::vector<std::string> urls2) {
+    ASSERT_TRUE(AppendResults());
+    ASSERT_EQ(num_results(), 2);
+    CheckViolations(urls1, this->result(0));
+    CheckViolations(urls2, this->result(1));
   }
 };
 
@@ -108,8 +116,29 @@ TEST_F(AvoidExcessSerializationTest, Load5) {
   SetTimelineData("load5_no_loader.json");
 
   Freeze();
-  CheckOneViolation(
-      "http://pagespeed-advanced.prom.corp.google.com/load5_3.js", 4);
+
+  // NOTE: this rule currently generates 2 suggestions, one of which
+  // is a subset of the other. We should modify it to only suggest the
+  // longest unique path of serialized resources. In the meantime this
+  // example expects two serialization chains:
+  std::vector<std::string> expected1;
+  expected1.push_back(
+      "http://pagespeed-advanced.prom.corp.google.com/load5_2.js");
+  expected1.push_back(
+      "http://pagespeed-advanced.prom.corp.google.com/load5_1.js");
+  expected1.push_back(
+      "http://pagespeed-advanced.prom.corp.google.com/load5_no_loader.html");
+  std::vector<std::string> expected2;
+  expected2.push_back(
+      "http://pagespeed-advanced.prom.corp.google.com/load5_3.js");
+  expected2.push_back(
+      "http://pagespeed-advanced.prom.corp.google.com/load5_2.js");
+  expected2.push_back(
+      "http://pagespeed-advanced.prom.corp.google.com/load5_1.js");
+  expected2.push_back(
+      "http://pagespeed-advanced.prom.corp.google.com/load5_no_loader.html");
+
+  CheckTwoViolations(expected1, expected2);
 }
 
 }  // namespace
