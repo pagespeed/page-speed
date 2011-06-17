@@ -18,6 +18,7 @@
 #include <string>
 
 #include "base/stl_util-inl.h"
+#include "build/build_config.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/l10n/localizer.h"
@@ -26,7 +27,7 @@
 #include "pagespeed/testing/formatted_results_test_converter.h"
 #include "third_party/google-gflags/src/google/gflags.h"
 
-DEFINE_string(srcroot, "", "Path to the root of the source tree. "
+DEFINE_string(srcroot, ".", "Path to the root of the source tree. "
               "Needed by tests that use testdata stored in the source tree.");
 
 namespace {
@@ -262,8 +263,12 @@ void AssertTrue(bool condition) {
 }
 
 std::string GetPathRelativeToSrcRoot(const char* relpath) {
-  // TODO: insert a path separator at the end, if needed.
-  return FLAGS_srcroot + relpath;
+#if defined(OS_WIN)
+  const char kPathSep = '\\';
+#else
+  const char kPathSep = '/';
+#endif
+  return FLAGS_srcroot + kPathSep + relpath;
 }
 
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
