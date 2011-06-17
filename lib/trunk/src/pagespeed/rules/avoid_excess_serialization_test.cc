@@ -33,6 +33,7 @@ using pagespeed::Resource;
 using pagespeed::Result;
 using pagespeed::Results;
 using pagespeed::ResultProvider;
+using ::pagespeed_testing::GetPathRelativeToSrcRoot;
 using ::pagespeed_testing::PagespeedRuleTest;
 
 namespace {
@@ -40,7 +41,7 @@ using pagespeed::InstrumentationData;
 
 // The RULES_TEST_DIR_PATH macros are set by the gyp target that builds this
 // file.
-const std::string kTimelineTestDir = RULES_TEST_DIR_PATH;
+const char kTimelineTestDir[] = RULES_TEST_DIR_PATH;
 
 void ReadFileToString(const std::string &path, std::string *dest) {
   std::ifstream file_stream;
@@ -71,7 +72,9 @@ class AvoidExcessSerializationTest :
 
   void SetTimelineData(const std::string& test_file) {
     std::string timeline_json;
-    ReadFileToString(kTimelineTestDir + test_file, &timeline_json);
+    ReadFileToString(
+        GetPathRelativeToSrcRoot(kTimelineTestDir) + test_file,
+        &timeline_json);
 
     InstrumentationDataVector records;
     ASSERT_TRUE(

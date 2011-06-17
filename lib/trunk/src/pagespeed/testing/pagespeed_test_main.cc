@@ -17,17 +17,36 @@
 #include "google/protobuf/stubs/common.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/google-gflags/src/google/gflags.h"
+
+namespace {
+
+// Helper class that will run our exit functions in its destructor.
+class ScopedShutDown {
+ public:
+  ~ScopedShutDown() {
+    pagespeed::ShutDown();
+    ::google::protobuf::ShutdownProtobufLibrary();
+    ::google::ShutDownCommandLineFlags();
+  }
+};
+
+// We need to declare this as a global variable since gflags and other
+// libraries may invoke exit(), so simply declaring a ScopedShutDown
+// in main() would not guarantee that shutdown hooks get run (should
+// gflags invoke exit() to terminate execution early). This is only
+// necessary to make sure that valgrind, etc, don't detect leaks on
+// shutdown.
+ScopedShutDown g_shutdown;
+
+}  // namespace
 
 int main(int argc, char **argv) {
   std::cout << "Running main() from pagespeed_test_main.cc\n";
 
   pagespeed::Init();
-
   testing::InitGoogleTest(&argc, argv);
-  int result = RUN_ALL_TESTS();
-
-  pagespeed::ShutDown();
-  ::google::protobuf::ShutdownProtobufLibrary();
-
-  return result;
+  ::google::SetUsageMessage("Runner for Page Speed tests.");
+  ::google::ParseCommandLineFlags(&argc, &argv, true);
+  return RUN_ALL_TESTS();
 }
