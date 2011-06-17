@@ -46,6 +46,12 @@ void AssertProtoEq(const ::google::protobuf::MessageLite& a,
 // its containing function to have a void return type).
 void AssertTrue(bool condition);
 
+// Get a path, relative to the root of the source tree. If the binary
+// is invoked from a location other than the root of the source tree,
+// the --srcroot flag must be specified in order for this function to
+// return a proper path.
+std::string GetPathRelativeToSrcRoot(const char* relpath);
+
 class FakeImageAttributesFactory
     : public pagespeed::ImageAttributesFactory {
  public:
