@@ -23,10 +23,9 @@
 #include "base/basictypes.h"
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/png_optimizer.h"
+#include "pagespeed/testing/pagespeed_test.h"
 #include "third_party/libpng/png.h"
 #include "third_party/readpng/cpp/readpng.h"
-
-#include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
@@ -41,20 +40,16 @@ const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "gif/";
 const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
 const std::string kPngTestDir = IMAGE_TEST_DIR_PATH "png/";
 
-void ReadFileToString(const std::string& dir,
-                      const char* file_name,
-                      const char* ext,
-                      std::string* dest) {
+void ReadImageToString(const std::string& dir,
+                       const char* file_name,
+                       const char* ext,
+                       std::string* dest) {
   const std::string path = dir + file_name + '.' + ext;
-  std::ifstream file_stream;
-  file_stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
-  dest->assign(std::istreambuf_iterator<char>(file_stream),
-               std::istreambuf_iterator<char>());
-  file_stream.close();
+  pagespeed_testing::ReadFileToString(path, dest);
 }
 
 void ReadPngSuiteFileToString(const char* file_name, std::string* dest) {
-  ReadFileToString(kPngSuiteTestDir, file_name, "png", dest);
+  ReadImageToString(kPngSuiteTestDir, file_name, "png", dest);
 }
 
 // Structure that holds metadata and actual pixel data for a decoded
@@ -378,7 +373,7 @@ TEST(PngOptimizerTest, ValidPngs) {
 TEST(PngOptimizerTest, LargerPng) {
   PngReader reader;
     std::string in, out;
-  ReadFileToString(kPngTestDir, "this_is_a_test", "png", &in);
+  ReadImageToString(kPngTestDir, "this_is_a_test", "png", &in);
   ASSERT_EQ(static_cast<size_t>(20316), in.length());
   ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
 
@@ -422,7 +417,7 @@ TEST(PngOptimizerTest, InvalidPngs) {
 TEST(PngOptimizerTest, FixPngOutOfBoundReadCrash) {
   PngReader reader;
   std::string in, out;
-  ReadFileToString(kPngTestDir, "read_from_stream_crash", "png", &in);
+  ReadImageToString(kPngTestDir, "read_from_stream_crash", "png", &in);
   ASSERT_EQ(static_cast<size_t>(193), in.length());
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 
@@ -439,7 +434,7 @@ TEST(PngOptimizerTest, PartialPng) {
   PngReader reader;
   std::string in, out;
   int width, height, bit_depth, color_type;
-  ReadFileToString(kPngTestDir, "pagespeed-128", "png", &in);
+  ReadImageToString(kPngTestDir, "pagespeed-128", "png", &in);
   ASSERT_NE(static_cast<size_t>(0), in.length());
   // Loop, removing the last byte repeatedly to generate every
   // possible partial version of the animated PNG.
@@ -471,7 +466,7 @@ TEST(PngOptimizerTest, ValidGifs) {
   GifReader reader;
   for (size_t i = 0; i < kValidGifImageCount; i++) {
     std::string in, ref;
-    ReadFileToString(
+    ReadImageToString(
         kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
     ReadPngSuiteFileToString(kValidGifImages[i].filename, &ref);
     AssertMatch(in, ref, &reader, kValidGifImages[i]);
@@ -481,7 +476,7 @@ TEST(PngOptimizerTest, ValidGifs) {
 TEST(PngOptimizerTest, AnimatedGif) {
   GifReader reader;
   std::string in, out;
-  ReadFileToString(kGifTestDir, "animated", "gif", &in);
+  ReadImageToString(kGifTestDir, "animated", "gif", &in);
   ASSERT_NE(static_cast<size_t>(0), in.length());
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
 
@@ -497,7 +492,7 @@ TEST(PngOptimizerTest, AnimatedGif) {
 TEST(PngOptimizerTest, InterlacedGif) {
   GifReader reader;
   std::string in, out;
-  ReadFileToString(kGifTestDir, "interlaced", "gif", &in);
+  ReadImageToString(kGifTestDir, "interlaced", "gif", &in);
   ASSERT_NE(static_cast<size_t>(0), in.length());
   ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
 
@@ -513,7 +508,7 @@ TEST(PngOptimizerTest, InterlacedGif) {
 TEST(PngOptimizerTest, TransparentGif) {
   GifReader reader;
   std::string in, out;
-  ReadFileToString(kGifTestDir, "transparent", "gif", &in);
+  ReadImageToString(kGifTestDir, "transparent", "gif", &in);
   ASSERT_NE(static_cast<size_t>(0), in.length());
   ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
 
@@ -532,7 +527,7 @@ TEST(PngOptimizerTest, PartialAnimatedGif) {
   GifReader reader;
   std::string in, out;
   int width, height, bit_depth, color_type;
-  ReadFileToString(kGifTestDir, "animated", "gif", &in);
+  ReadImageToString(kGifTestDir, "animated", "gif", &in);
   ASSERT_NE(static_cast<size_t>(0), in.length());
   // Loop, removing the last byte repeatedly to generate every
   // possible partial version of the animated gif.
@@ -564,7 +559,7 @@ TEST(PngOptimizerTest, PartialAnimatedGif) {
 TEST(PngOptimizerTest, BadGifNoLeak) {
   GifReader reader;
   std::string in, out;
-  ReadFileToString(kGifTestDir, "bad", "gif", &in);
+  ReadImageToString(kGifTestDir, "bad", "gif", &in);
   ASSERT_NE(static_cast<size_t>(0), in.length());
   ASSERT_FALSE(PngOptimizer::OptimizePng(reader, in, &out));
   int width, height, bit_depth, color_type;

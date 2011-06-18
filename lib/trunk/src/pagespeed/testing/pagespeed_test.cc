@@ -14,7 +14,7 @@
 
 #include "pagespeed/testing/pagespeed_test.h"
 
-#include <sstream>
+#include <fstream>
 #include <string>
 
 #include "base/stl_util-inl.h"
@@ -38,6 +38,15 @@ void AssertNull(const void* value) {
 
 void AssertNotNull(const void* value) {
   ASSERT_TRUE(value != NULL);
+}
+
+std::string GetPathRelativeToSrcRoot(const char* relpath) {
+#if defined(OS_WIN)
+  const char kPathSep = '\\';
+#else
+  const char kPathSep = '/';
+#endif
+  return FLAGS_srcroot + kPathSep + relpath;
 }
 
 }  // namespace
@@ -262,13 +271,17 @@ void AssertTrue(bool condition) {
   ASSERT_TRUE(condition);
 }
 
-std::string GetPathRelativeToSrcRoot(const char* relpath) {
-#if defined(OS_WIN)
-  const char kPathSep = '\\';
-#else
-  const char kPathSep = '/';
-#endif
-  return FLAGS_srcroot + kPathSep + relpath;
+bool ReadFileToString(const std::string& filename, std::string *dest) {
+  std::string path = GetPathRelativeToSrcRoot(filename.c_str());
+  std::ifstream file_stream;
+  file_stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
+  if (!file_stream.is_open()) {
+    return false;
+  }
+  dest->assign(std::istreambuf_iterator<char>(file_stream),
+               std::istreambuf_iterator<char>());
+  file_stream.close();
+  return (dest->size() > 0);
 }
 
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
