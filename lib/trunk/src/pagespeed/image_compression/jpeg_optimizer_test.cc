@@ -22,8 +22,7 @@
 
 #include "base/basictypes.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
-
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
 
@@ -60,13 +59,9 @@ const char *kInvalidFiles[] = {
 // Given one of the above file names, read the contents of the file into the
 // given destination string.
 
-void ReadFileToString(const std::string &file_name, std::string *dest) {
+void ReadJpegToString(const std::string &file_name, std::string *dest) {
   const std::string path = kJpegTestDir + file_name;
-  std::ifstream file_stream;
-  file_stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
-  dest->assign(std::istreambuf_iterator<char>(file_stream),
-               std::istreambuf_iterator<char>());
-  file_stream.close();
+  pagespeed_testing::ReadFileToString(path, dest);
 }
 
 void WriteStringToFile(const std::string &file_name, std::string &src) {
@@ -83,7 +78,7 @@ const size_t kInvalidFileCount = arraysize(kInvalidFiles);
 TEST(JpegOptimizerTest, ValidJpegs) {
   for (size_t i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
-    ReadFileToString(kValidImages[i].filename, &src_data);
+    ReadJpegToString(kValidImages[i].filename, &src_data);
     std::string dest_data;
     ASSERT_TRUE(OptimizeJpeg(src_data, &dest_data));
     EXPECT_EQ(kValidImages[i].original_size, src_data.size())
@@ -103,7 +98,7 @@ TEST(JpegOptimizerTest, ValidJpegs) {
 TEST(JpegOptimizerTest, InvalidJpegs) {
   for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string src_data;
-    ReadFileToString(kInvalidFiles[i], &src_data);
+    ReadJpegToString(kInvalidFiles[i], &src_data);
     std::string dest_data;
     ASSERT_FALSE(OptimizeJpeg(src_data, &dest_data));
   }
@@ -118,7 +113,7 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
   std::vector<std::string> correctly_compressed;
   for (size_t i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
-    ReadFileToString(kValidImages[i].filename, &src_data);
+    ReadJpegToString(kValidImages[i].filename, &src_data);
     correctly_compressed.push_back("");
     std::string &dest_data = correctly_compressed.back();
     ASSERT_TRUE(OptimizeJpeg(src_data, &dest_data));
@@ -131,11 +126,11 @@ TEST(JpegOptimizerTest, CleanupAfterReadingInvalidJpeg) {
 
   for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string invalid_src_data;
-    ReadFileToString(kInvalidFiles[i], &invalid_src_data);
+    ReadJpegToString(kInvalidFiles[i], &invalid_src_data);
     std::string invalid_dest_data;
 
     std::string valid_src_data;
-    ReadFileToString(kValidImages[i].filename, &valid_src_data);
+    ReadJpegToString(kValidImages[i].filename, &valid_src_data);
     std::string valid_dest_data;
 
     ASSERT_FALSE(OptimizeJpeg(invalid_src_data, &invalid_dest_data));

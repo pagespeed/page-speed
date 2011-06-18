@@ -23,8 +23,7 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
-
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 using pagespeed::ImageAttributes;
 using pagespeed::image_compression::ImageAttributesFactory;
@@ -37,34 +36,30 @@ const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "pngsuite/gif/";
 const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
 
-void ReadFileToString(const std::string& dir,
-                      const char* file_name,
-                      std::string* dest) {
+void ReadImageToString(const std::string& dir,
+                       const char* file_name,
+                       std::string* dest) {
   std::string path = dir + file_name;
-  std::ifstream file_stream;
-  file_stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
-  dest->assign(std::istreambuf_iterator<char>(file_stream),
-               std::istreambuf_iterator<char>());
-  file_stream.close();
+  ASSERT_TRUE(pagespeed_testing::ReadFileToString(path, dest));
 }
 
 class ImageAttributesFactoryTest : public ::testing::Test {
  protected:
   Resource* CreateJpegResource(const char* file_name) {
     std::string body;
-    ReadFileToString(kJpegTestDir, file_name, &body);
+    ReadImageToString(kJpegTestDir, file_name, &body);
     return CreateTestResource(file_name, "image/jpeg", body);
   }
 
   Resource* CreatePngResource(const char* file_name) {
     std::string body;
-    ReadFileToString(kPngSuiteTestDir, file_name, &body);
+    ReadImageToString(kPngSuiteTestDir, file_name, &body);
     return CreateTestResource(file_name, "image/png", body);
   }
 
   Resource* CreateGifResource(const char* file_name) {
     std::string body;
-    ReadFileToString(kGifTestDir, file_name, &body);
+    ReadImageToString(kGifTestDir, file_name, &body);
     return CreateTestResource(file_name, "image/gif", body);
   }
 

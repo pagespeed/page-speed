@@ -31,6 +31,7 @@ using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::ResultVector;
 using pagespeed::RuleResults;
+using pagespeed_testing::ReadFileToString;
 
 namespace {
 
@@ -39,22 +40,13 @@ namespace {
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
 const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
 
-void ReadFileToString(const std::string &path, std::string *dest) {
-  std::ifstream file_stream;
-  file_stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
-  dest->assign(std::istreambuf_iterator<char>(file_stream),
-               std::istreambuf_iterator<char>());
-  file_stream.close();
-  ASSERT_GT(dest->size(), static_cast<size_t>(0));
-}
-
 class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
  protected:
   void AddJpegResource(const std::string &url,
                        const std::string &content_type,
                        const std::string &file_name) {
     std::string body;
-    ReadFileToString(kJpegTestDir + file_name, &body);
+    ASSERT_TRUE(ReadFileToString(kJpegTestDir + file_name, &body));
     AddTestResource(url, content_type, body);
   }
 
@@ -62,7 +54,7 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
                       const std::string &content_type,
                       const std::string &file_name) {
     std::string body;
-    ReadFileToString(kPngSuiteTestDir + file_name, &body);
+    ASSERT_TRUE(ReadFileToString(kPngSuiteTestDir + file_name, &body));
     AddTestResource(url, content_type, body);
   }
 
