@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// Testing
-
 #ifndef PAGESPEED_CSSMIN_CSSMIN_H_
 #define PAGESPEED_CSSMIN_CSSMIN_H_
 
