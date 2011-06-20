@@ -952,7 +952,7 @@ pagespeed.ContentWriter.prototype.onGotFile_ = function (entry, file) {
     var bb = new (window.BlobBuilder || window.WebKitBlobBuilder)();
     bb.append(array.buffer);
     writer.write(bb.getBlob(entry.mimetype));
-  }, this.makeErrorHandler_("createWriter", writeNext)));
+  }), this.makeErrorHandler_("createWriter", writeNext));
 };
 
 // Given a string representing where the error happened, and a callback to call
