@@ -28,8 +28,7 @@ namespace pagespeed {
 
 // Parse the JSON string and use it to populate the input.  If any errors
 // occur, log them and return false, otherwise return true.
-bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data,
-                           const std::vector<std::string> &contents);
+bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data);
 
 }  // namespace pagespeed
 
