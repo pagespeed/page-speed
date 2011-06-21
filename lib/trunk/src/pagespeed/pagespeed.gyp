@@ -19,21 +19,6 @@
   },
   'targets': [
     {
-      'target_name': 'pagespeed_json_dom',
-      'type': '<(library)',
-      'dependencies': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
-      ],
-      'sources': [
-        'dom/json_dom.cc',
-      ],
-      'export_dependent_settings': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
-      ],
-    },
-    {
       'target_name': 'pagespeed_library',
       'type': '<(library)',
       'dependencies': [
@@ -108,9 +93,9 @@
       'target_name': 'pagespeed_test',
       'type': 'executable',
       'dependencies': [
-        'pagespeed_json_dom',
         'pagespeed_library',
         '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
+        '<(pagespeed_root)/pagespeed/dom/dom.gyp:pagespeed_json_dom',
         '<(pagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(pagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
