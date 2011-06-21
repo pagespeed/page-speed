@@ -38,7 +38,7 @@ interface IPageSpeedRules : nsISupports {
   AUTF8String computeResults(in AUTF8String harData,
                              in AUTF8String customData,
                              in AUTF8String rootUrl,
-                             in nsIDOMDocument rootDocument,
+                             in AUTF8String rootDocumentJson,
                              in short filterChoice);
 
   // Run all the rules and return the formatted results as a string.
@@ -46,7 +46,7 @@ interface IPageSpeedRules : nsISupports {
                                       in AUTF8String harData,
                                       in AUTF8String customData,
                                       in AUTF8String rootUrl,
-                                      in nsIDOMDocument rootDocument,
+                                      in AUTF8String rootDocumentJson,
                                       in short filterChoice,
                                       in nsILocalFile outputDir);
 };

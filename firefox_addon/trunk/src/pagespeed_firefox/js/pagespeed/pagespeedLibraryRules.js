@@ -413,12 +413,15 @@ PAGESPEED.NativeLibrary = {
     }
     var input = PAGESPEED.NativeLibrary.constructInputs(
         documentUrl, opt_regexp_url_exclude_filter);
+    var serializedDom = JSON.stringify(
+        PAGESPEED.Utils.getDocumentDomJson(opt_doc ? opt_doc :
+            PAGESPEED.Utils.getElementsByType('doc')[0]));
     var resultJSON = pagespeedRules.computeAndFormatResults(
       locale,
       JSON.stringify(input.har),
       JSON.stringify(input.custom),
       documentUrl,
-      opt_doc ? opt_doc : PAGESPEED.Utils.getElementsByType('doc')[0],
+      serializedDom,
       filterChoice(),
       PAGESPEED.Utils.getOutputDir('page-speed'));
     return JSON.parse(resultJSON);
@@ -449,11 +452,14 @@ PAGESPEED.NativeLibrary = {
     }
     var input = PAGESPEED.NativeLibrary.constructInputs(
         documentUrl, opt_regexp_url_exclude_filter);
+    var serializedDom = JSON.stringify(
+        PAGESPEED.Utils.getDocumentDomJson(opt_doc ? opt_doc :
+            PAGESPEED.Utils.getElementsByType('doc')[0]));
     var resultJSON = pagespeedRules.computeResults(
       JSON.stringify(input.har),
       JSON.stringify(input.custom),
       documentUrl,
-      opt_doc ? opt_doc : PAGESPEED.Utils.getElementsByType('doc')[0],
+      serializedDom,
       filterChoice());
     return JSON.parse(resultJSON);
   },
