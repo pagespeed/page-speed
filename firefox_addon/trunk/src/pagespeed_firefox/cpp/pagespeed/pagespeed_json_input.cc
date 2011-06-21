@@ -19,6 +19,7 @@
 #include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/json/json_reader.h"
@@ -39,12 +40,10 @@ class InputPopulator {
  public:
   // Parse the JSON string and use it to populate the input.  If any errors
   // occur, log them and return false, otherwise return true.
-  static bool Populate(PagespeedInput* input, const char* json_data,
-                       const std::vector<std::string>& contents);
+  static bool Populate(PagespeedInput* input, const char* json_data);
 
  private:
-  explicit InputPopulator(const std::vector<std::string>* contents)
-      : contents_(contents), error_(false) {}
+  InputPopulator() : error_(false) {}
   ~InputPopulator() {}
 
   // Extract an integer from a JSON value.
@@ -52,9 +51,6 @@ class InputPopulator {
 
   // Extract a string from a JSON value.
   const std::string ToString(const Value& value);
-
-  // Get the contents of the body to which the JSON value refers.
-  const std::string RetrieveBody(const Value& attribute_json);
 
   // Given a JSON value representing all JavaScript calls, add those
   // calls to the Resource object.
@@ -75,7 +71,6 @@ class InputPopulator {
   // PagespeedInput object.
   void PopulateInput(const Value& attribute_json, PagespeedInput* input);
 
-  const std::vector<std::string> *contents_;
   bool error_;  // true if there's been at least one error, false otherwise
 
   DISALLOW_COPY_AND_ASSIGN(InputPopulator);
@@ -100,16 +95,6 @@ const std::string InputPopulator::ToString(const Value& value) {
     return str;
   } else {
     INPUT_POPULATOR_ERROR() << "Expected string value.";
-    return "";
-  }
-}
-
-const std::string InputPopulator::RetrieveBody(const Value& attribute_json) {
-  const int index = ToInt(attribute_json);
-  if (0 <= index && index < contents_->size()) {
-    return contents_->at(index);
-  } else {
-    INPUT_POPULATOR_ERROR() << "Body index out of range: " << index;
     return "";
   }
 }
@@ -196,8 +181,6 @@ void InputPopulator::PopulateAttribute(const std::string& key,
     resource->SetCookies(ToString(attribute_json));
   } else if (key == "jsCalls") {
     PopulateJsCalls(attribute_json, resource);
-  } else if (key == "bodyIndex") {
-    resource->SetResponseBody(RetrieveBody(attribute_json));
   } else {
     INPUT_POPULATOR_ERROR() << "Unknown attribute key: " << key;
   }
@@ -245,8 +228,7 @@ void InputPopulator::PopulateInput(const Value& resources_json,
   }
 }
 
-bool InputPopulator::Populate(PagespeedInput *input, const char *json_data,
-                              const std::vector<std::string> &contents) {
+bool InputPopulator::Populate(PagespeedInput *input, const char *json_data) {
   std::string error_msg_out;
   scoped_ptr<const Value> resources_json(base::JSONReader::ReadAndReturnError(
       json_data,
@@ -259,16 +241,15 @@ bool InputPopulator::Populate(PagespeedInput *input, const char *json_data,
     return false;
   }
 
-  InputPopulator populator(&contents);
+  InputPopulator populator;
   populator.PopulateInput(*resources_json, input);
   return !populator.error_;
 }
 
 }  // namespace
 
-bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data,
-                           const std::vector<std::string> &contents) {
-  return InputPopulator::Populate(input, json_data, contents);
+bool PopulateInputFromJSON(PagespeedInput *input, const char *json_data) {
+  return InputPopulator::Populate(input, json_data);
 }
 
 }  // namespace pagespeed

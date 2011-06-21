@@ -22,9 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "nsArrayUtils.h"  // for do_QueryElementAt // NOLINT
 #include "nsCOMPtr.h"  // NOLINT
-#include "nsIInputStream.h"  // NOLINT
 #include "nsIIOService.h"  // NOLINT
 #include "nsILocalFile.h"  // NOLINT
 #include "nsIURI.h"  // NOLINT
@@ -261,28 +259,6 @@ bool PluginSerializer::CreateFileForResource(const std::string& content_url,
   return true;
 }
 
-void AppendInputStreamsContents(nsIArray *input_streams,
-                                std::vector<std::string>* contents) {
-  if (input_streams != NULL) {
-    PRUint32 length;
-    input_streams->GetLength(&length);
-    for (PRUint32 i = 0; i < length; ++i) {
-      nsCOMPtr<nsIInputStream> input_stream(
-          do_QueryElementAt(input_streams, i));
-      std::string content;
-      if (input_stream != NULL) {
-        PRUint32 bytes_read = 0;
-        do {
-          char buffer[1024];
-          input_stream->Read(buffer, arraysize(buffer), &bytes_read);
-          content.append(buffer, static_cast<size_t>(bytes_read));
-        } while (bytes_read > 0);
-      }
-      contents->push_back(content);
-    }
-  }
-}
-
 // Convert the filter choice passed to ComputeAndFormatResults to a
 // ResourceFilter.  This routine must be kept in sync with
 // js/pagespeed/pagespeedLibraryRules.js::filterChoice().
@@ -315,7 +291,6 @@ bool GetDataFromCString(const nsACString& in,
 pagespeed::PagespeedInput*
 ConstructPageSpeedInput(const nsACString& har_data,
                         const nsACString& custom_data,
-                        nsIArray* input_streams,
                         const nsACString& root_url,
                         nsIDOMDocument* root_document,
                         PRInt16 filter_choice) {
@@ -329,9 +304,6 @@ ConstructPageSpeedInput(const nsACString& har_data,
     return NULL;
   }
 
-  std::vector<std::string> contents;
-  AppendInputStreamsContents(input_streams, &contents);
-
   scoped_ptr<pagespeed::PagespeedInput> input(
       pagespeed::ParseHttpArchiveWithFilter(
           har_data_utf8, ChoiceToFilter(filter_choice)));
@@ -339,8 +311,7 @@ ConstructPageSpeedInput(const nsACString& har_data,
     return NULL;
   }
 
-  if (!pagespeed::PopulateInputFromJSON(
-          input.get(), custom_data_utf8, contents)) {
+  if (!pagespeed::PopulateInputFromJSON(input.get(), custom_data_utf8)) {
     LOG(ERROR) << "Failed to parse custom JSON.";
     return NULL;
   }
@@ -386,7 +357,6 @@ PageSpeedRules::~PageSpeedRules() {}
 NS_IMETHODIMP
 PageSpeedRules::ComputeResults(const nsACString& har_data,
                                const nsACString& custom_data,
-                               nsIArray* input_streams,
                                const nsACString& root_url,
                                nsIDOMDocument* root_document,
                                PRInt16 filter_choice,
@@ -399,7 +369,6 @@ PageSpeedRules::ComputeResults(const nsACString& har_data,
 
   scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
                                                            custom_data,
-                                                           input_streams,
                                                            root_url,
                                                            root_document,
                                                            filter_choice));
@@ -433,7 +402,6 @@ NS_IMETHODIMP
 PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
                                         const nsACString& har_data,
                                         const nsACString& custom_data,
-                                        nsIArray* input_streams,
                                         const nsACString& root_url,
                                         nsIDOMDocument* root_document,
                                         PRInt16 filter_choice,
@@ -453,7 +421,6 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
 
   scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
                                                            custom_data,
-                                                           input_streams,
                                                            root_url,
                                                            root_document,
                                                            filter_choice));

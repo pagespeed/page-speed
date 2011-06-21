@@ -20,6 +20,8 @@
 
 (function() {  // Begin closure
 
+var MAX_RESPONSE_BODY_SIZE_BYTES = 5 * 1024 * 1024;  // 5MB
+
 /**
  * Create an array representing a list of headers from an object representing
  * those headers.
@@ -202,6 +204,36 @@ function filterChoice() {
   return IPageSpeedRules.RESOURCE_FILTER_ALL;
 }
 
+function readBinaryDataFromInputStream(inputStream) {
+  if (!inputStream) return '';
+  var avail = 0;
+  try {
+    // nsIInputStream.available() will throw if the stream is closed.
+    avail = inputStream.available();
+  } catch (e) {
+    return '';
+  }
+  // If the response body is too big (e.g. it's a video) then don't
+  // bother to read it, since it'll consume too much memory.
+  if (avail > MAX_RESPONSE_BODY_SIZE_BYTES) {
+    PAGESPEED.Utils.tryToCloseStream(inputStream);
+    return '';
+  }
+
+  var bStream = PAGESPEED.Utils.CCIN(
+      '@mozilla.org/binaryinputstream;1', 'nsIBinaryInputStream');
+  bStream.setInputStream(inputStream);
+  var data = '';
+  try {
+    data = bStream.readBytes(bStream.available());
+  } catch (e) {
+    PS_LOG("Failed to readBytes: " + e);
+  }
+  PAGESPEED.Utils.tryToCloseStream(bStream);
+  PAGESPEED.Utils.tryToCloseStream(inputStream);
+  return data;
+}
+
 PAGESPEED.NativeLibrary = {
 
   /**
@@ -268,7 +300,6 @@ PAGESPEED.NativeLibrary = {
     // per-resource data that's not part of the HAR spec.
     var customEntries = [];
 
-    var bodyInputStreams = [];
     var resourceURLs = PAGESPEED.Utils.getResources();
     for (var i = 0; i < resourceURLs.length; ++i) {
       var url = resourceURLs[i];
@@ -278,7 +309,6 @@ PAGESPEED.NativeLibrary = {
         // included in the analysis.
         continue;
       }
-      var res_body_index = bodyInputStreams.length;
       var inputStream;
       try {
         inputStream = PAGESPEED.Utils.getResourceInputStream(url);
@@ -299,7 +329,12 @@ PAGESPEED.NativeLibrary = {
         // cache. Assume GET for backward compatibility.
         requestMethod = 'GET';
       }
-      bodyInputStreams.push(inputStream);
+      // For now, we base64-encode all response bodies. We could try
+      // to be more clever and only base64-encode if the string
+      // contains a non-ASCII byte, but this is simpler at the cost of
+      // slightly increased memory usage.
+      var responseBody = btoa(readBinaryDataFromInputStream(inputStream));
+      var responseBodyEncoding = 'base64';
       var entry = {
         pageref: 'page_0',
         startedDateTime: new Date(requestTime),
@@ -313,12 +348,8 @@ PAGESPEED.NativeLibrary = {
           status: PAGESPEED.Utils.getResponseCode(url),
           headers: translateHeaders(PAGESPEED.Utils.getResponseHeaders(url)),
           content: {
-            // Our HAR parser requires this field. We pass the
-            // contents outside of the HAR so we just provide an empty
-            // body here to make the HAR parser happy. We will
-            // overwrite this data with the actual body contents after
-            // parsing the HAR.
-            text: '',
+            text: responseBody,
+            encoding: responseBodyEncoding,
           },
         },
       };
@@ -331,7 +362,6 @@ PAGESPEED.NativeLibrary = {
       var custom = {
         url: url,
         cookieString: PAGESPEED.Utils.getCookieString(url) || '',
-        bodyIndex: res_body_index,
         jsCalls:
             PAGESPEED.Utils.getResourceProperty(url, 'javaScriptCalls'),
       };
@@ -340,8 +370,7 @@ PAGESPEED.NativeLibrary = {
 
     var har = { log: log };
     var out = { har: har,
-                custom: customEntries,
-                bodyInputStreams: bodyInputStreams };
+                custom: customEntries };
     return out;
   },
 
@@ -388,7 +417,6 @@ PAGESPEED.NativeLibrary = {
       locale,
       JSON.stringify(input.har),
       JSON.stringify(input.custom),
-      PAGESPEED.Utils.newNsIArray(input.bodyInputStreams),
       documentUrl,
       opt_doc ? opt_doc : PAGESPEED.Utils.getElementsByType('doc')[0],
       filterChoice(),
@@ -424,7 +452,6 @@ PAGESPEED.NativeLibrary = {
     var resultJSON = pagespeedRules.computeResults(
       JSON.stringify(input.har),
       JSON.stringify(input.custom),
-      PAGESPEED.Utils.newNsIArray(input.bodyInputStreams),
       documentUrl,
       opt_doc ? opt_doc : PAGESPEED.Utils.getElementsByType('doc')[0],
       filterChoice());
