@@ -38,10 +38,13 @@ bool MinifyHtml(const char* filename, const char* outfilename) {
   in.read(&original[0], length);
   in.close();
 
+  std::string filename_url("file:///");
+  filename_url.append(filename);
+
   std::string minified;
 
   pagespeed::html::HtmlMinifier html_minifier;
-  html_minifier.MinifyHtml(filename, original, &minified);
+  html_minifier.MinifyHtml(filename_url, original, &minified);
 
   std::ofstream out(outfilename, std::ios::out | std::ios::binary);
   if (!out) {
