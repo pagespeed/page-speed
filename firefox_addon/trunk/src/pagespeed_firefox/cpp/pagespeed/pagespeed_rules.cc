@@ -340,7 +340,7 @@ ConstructPageSpeedInput(const nsACString& har_data,
   }
 
   // Transfer the ownership of document_json to document.
-  pagespeed::DomDocument* document = pagespeed_dom::CreateDocument(
+  pagespeed::DomDocument* document = pagespeed::dom::CreateDocument(
       static_cast<const DictionaryValue*>(document_json.release()));
   input->AcquireDomDocument(document);
   input->AcquireImageAttributesFactory(

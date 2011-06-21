@@ -143,7 +143,7 @@
         '<(DEPTH)/third_party/xulrunner-sdk/xulrunner.gyp:xulrunner_sdk',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(libpagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_json_dom',
+        '<(libpagespeed_root)/pagespeed/dom/dom.gyp:pagespeed_json_dom',
         '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
         '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
