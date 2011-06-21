@@ -33,6 +33,7 @@
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
+#include "base/json/json_reader.h"
 #include "base/json/json_writer.h"  // for base::JSONWriter::Write
 #include "base/logging.h"
 #include "base/md5.h"
@@ -45,6 +46,7 @@
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/serializer.h"
+#include "pagespeed/dom/json_dom.h"
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
@@ -292,14 +294,16 @@ pagespeed::PagespeedInput*
 ConstructPageSpeedInput(const nsACString& har_data,
                         const nsACString& custom_data,
                         const nsACString& root_url,
-                        nsIDOMDocument* root_document,
+                        const nsACString& document_string,
                         PRInt16 filter_choice) {
   const char* har_data_utf8;
   const char* custom_data_utf8;
   const char* root_url_utf8;
+  const char* document_string_utf8;
   if (!GetDataFromCString(har_data, &har_data_utf8) ||
       !GetDataFromCString(custom_data, &custom_data_utf8) ||
-      !GetDataFromCString(root_url, &root_url_utf8)) {
+      !GetDataFromCString(root_url, &root_url_utf8) ||
+      !GetDataFromCString(document_string, &document_string_utf8)) {
     LOG(ERROR) << "Failed to convert strings to UTF8.";
     return NULL;
   }
@@ -319,7 +323,26 @@ ConstructPageSpeedInput(const nsACString& har_data,
   if (!root_url_str.empty()) {
     input->SetPrimaryResourceUrl(root_url_str);
   }
-  input->AcquireDomDocument(pagespeed::firefox::CreateDocument(root_document));
+
+  std::string error_msg_out;
+  scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
+      document_string_utf8,
+      true,  // allow_trailing_comma
+      NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+      &error_msg_out));
+  if (document_json == NULL) {
+    LOG(ERROR) << "Failed to parse document JSON." << error_msg_out;
+    return NULL;
+  }
+  if (!document_json->IsType(Value::TYPE_DICTIONARY)) {
+    LOG(ERROR) << "DOM must be a JSON dictionary";
+    return NULL;
+  }
+
+  // Transfer the ownership of document_json to document.
+  pagespeed::DomDocument* document = pagespeed_dom::CreateDocument(
+      static_cast<const DictionaryValue*>(document_json.release()));
+  input->AcquireDomDocument(document);
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
   input->Freeze();
@@ -358,7 +381,7 @@ NS_IMETHODIMP
 PageSpeedRules::ComputeResults(const nsACString& har_data,
                                const nsACString& custom_data,
                                const nsACString& root_url,
-                               nsIDOMDocument* root_document,
+                               const nsACString& document_string,
                                PRInt16 filter_choice,
                                nsACString& _retval NS_OUTPARAM) {
   Initialize();
@@ -370,7 +393,7 @@ PageSpeedRules::ComputeResults(const nsACString& har_data,
   scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
                                                            custom_data,
                                                            root_url,
-                                                           root_document,
+                                                           document_string,
                                                            filter_choice));
 
   if (input == NULL) {
@@ -403,7 +426,7 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
                                         const nsACString& har_data,
                                         const nsACString& custom_data,
                                         const nsACString& root_url,
-                                        nsIDOMDocument* root_document,
+                                        const nsACString& document_string,
                                         PRInt16 filter_choice,
                                         nsILocalFile* output_dir,
                                         nsACString& _retval NS_OUTPARAM) {
@@ -422,7 +445,7 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
   scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
                                                            custom_data,
                                                            root_url,
-                                                           root_document,
+                                                           document_string,
                                                            filter_choice));
 
   if (input == NULL) {

@@ -41,6 +41,47 @@ function PS_LOG(msg) {
   }
 }
 
+// TODO(lsong): Copied from chromium extension. Reduce duplication.
+function collectElement(element, outList) {
+  var obj = {tag: element.tagName};
+  // If the tag has any attributes, add an attribute map to the output object.
+  var attributes = element.attributes;
+  if (attributes && attributes.length > 0) {
+    obj.attrs = {};
+    for (var i = 0, len = attributes.length; i < len; ++i) {
+      var attribute = attributes[i];
+      obj.attrs[attribute.name] = attribute.value;
+    }
+  }
+  // If the tag has any attributes, add children list to the output object.
+  var children = element.children;
+  if (children && children.length > 0) {
+    for (var j = 0, len = children.length; j < len; ++j) {
+      collectElement(children[j], outList);
+    }
+  }
+  // If the tag has a content document, add that to the output object.
+  if (element.contentDocument) {
+    obj.contentDocument = collectDocument(element.contentDocument);
+  }
+  // If this is an IMG tag, record the size to which the image is scaled.
+  if (element.tagName === 'IMG' && element.complete) {
+    obj.width = element.width;
+    obj.height = element.height;
+  }
+  outList.push(obj);
+}
+
+function collectDocument(doc) {
+  var elements = [];
+  collectElement(doc.documentElement, elements);
+  return {
+    documentUrl: doc.URL,
+    baseUrl: doc.baseURI,
+    elements: elements
+  };
+}
+
 // Define a namespace.
 var PAGESPEED = {};
 
@@ -2536,7 +2577,16 @@ PAGESPEED.Utils = {  // Begin namespace
         '@mozilla.org/embedcomp/prompt-service;1',
         'nsIPromptService');
     return promptService.confirm(null, title, message);
-  }
+  },
+
+  /**
+   * Get Dom document in JSON format.
+   * @return {object} JSON format of DOM document.
+   */
+  getDocumentDomJson: function(doc) {
+    return collectDocument(doc);
+  },
+
 };  // End namespace
 
 // Check whether logging is enabled.
