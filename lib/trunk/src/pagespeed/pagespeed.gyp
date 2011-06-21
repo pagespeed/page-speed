@@ -19,6 +19,21 @@
   },
   'targets': [
     {
+      'target_name': 'pagespeed_json_dom',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+      'sources': [
+        'dom/json_dom.cc',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+    },
+    {
       'target_name': 'pagespeed_library',
       'type': '<(library)',
       'dependencies': [
@@ -93,6 +108,7 @@
       'target_name': 'pagespeed_test',
       'type': 'executable',
       'dependencies': [
+        'pagespeed_json_dom',
         'pagespeed_library',
         '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
         '<(pagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
@@ -128,6 +144,7 @@
         'core/timeline_test.cc',
         'core/uri_util_test.cc',
         'cssmin/cssmin_test.cc',
+        'dom/json_dom_test.cc',
         'filters/ad_filter_test.cc',
         'filters/protocol_filter_test.cc',
         'filters/response_byte_result_filter_test.cc',
