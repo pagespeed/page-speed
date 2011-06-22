@@ -44,7 +44,7 @@ For the Page Speed Firefox Add-on shared library:
     # Build output will appear under `src/xcodebuild`.
 
   * Windows
-    # Open src/build/All.vcproj in Visual Studio.
+    # Open src/build/all.sln in Visual Studio.
     # Run "Build Solution" from the "Build" menu.
     # Build output will appear under src/build/Release or src/build/Debug depending on your configuration options.
 
