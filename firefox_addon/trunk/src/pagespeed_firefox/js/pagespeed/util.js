@@ -95,6 +95,15 @@ var MAX_FILEPATH_LENGTH = 255;
 
 PAGESPEED.isHealthy = true;
 
+// Fetch the root path of the Page Speed Add-On from the Add-On
+// manager. Do this at startup and cache it.
+var ADDON_ROOT = null;
+AddonManager.getAddonByID(PAGESPEED_GUID_, function(addon) {
+    if (addon && addon.getResourceURI) {
+      ADDON_ROOT = addon.getResourceURI('.').spec;
+    }
+  });
+
 /**
  * Dependencies on other Firefox extensions
  */
@@ -2580,13 +2589,72 @@ PAGESPEED.Utils = {  // Begin namespace
   },
 
   /**
+   * @return {string} Name of the operating system (e.g. 'WINNT').
+   */
+  getOSName: function() {
+    var xulRuntime = PAGESPEED.Utils.CCSV(
+        '@mozilla.org/xre/app-info;1',
+        'nsIXULRuntime');
+    return xulRuntime.OS;
+  },
+
+  /**
+   * @return {string} Name of the platform (e.g. 'WINNT_x86-msvc').
+   */
+  getPlatformName: function() {
+    var xulRuntime = PAGESPEED.Utils.CCSV(
+        '@mozilla.org/xre/app-info;1',
+        'nsIXULRuntime');
+    return xulRuntime.OS + '_' + xulRuntime.XPCOMABI;
+  },
+
+  /**
+   * @return {nsIFile} Path to the root of the Page Speed add-on.
+   */
+  getExtensionRoot: function() {
+    var fph = PAGESPEED.Utils.getIOService().getProtocolHandler('file')
+        .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+    try {
+      return fph.getFileFromURLSpec(ADDON_ROOT);
+    } catch(e) {
+      return null;
+    }
+  },
+
+  /**
+   * @return {string} Name of the native library file for the current
+   * platform (e.g. libpagespeed.so).
+   */
+  getNativeLibraryName: function() {
+    var os = PAGESPEED.Utils.getOSName().toLowerCase();
+    if (os == 'linux') return 'libpagespeed.so';
+    if (os == 'darwin') return 'libpagespeed.dylib';
+    if (os == 'winnt') return 'pagespeed.dll';
+    return null;
+  },
+
+  /**
+   * @return {string} Path to the native library file for the current
+   * platform.
+   */
+  getNativeLibraryPath: function() {
+    var platformModulePath = PAGESPEED.Utils.getExtensionRoot();
+    var libraryName = PAGESPEED.Utils.getNativeLibraryName();
+    if (!libraryName || !platformModulePath) return null;
+    platformModulePath.append('platform');
+    platformModulePath.append(PAGESPEED.Utils.getPlatformName());
+    platformModulePath.append('components');
+    platformModulePath.append(libraryName);
+    return platformModulePath.path;
+  },
+
+  /**
    * Get Dom document in JSON format.
    * @return {object} JSON format of DOM document.
    */
   getDocumentDomJson: function(doc) {
     return collectDocument(doc);
-  },
-
+  }
 };  // End namespace
 
 // Check whether logging is enabled.

@@ -3,26 +3,8 @@ component {7bc5b600-1302-11dd-bd0b-0800200c9a66} components/componentCollectorSe
 component {7a596ebc-9a29-4f0e-8ad9-58d48eb79369} components/stateStorageService.js
 contract @code.google.com/p/page-speed/ComponentCollectorService;1 {7bc5b600-1302-11dd-bd0b-0800200c9a66}
 contract @code.google.com/p/page-speed/StateStorageService;1 {7a596ebc-9a29-4f0e-8ad9-58d48eb79369}
-
-# Register binary components for runtimes that use xulrunner <5.
-binary-component platform/WINNT_x86-msvc/components/pagespeed.dll ABI=WINNT_x86-msvc appversion<5
-binary-component platform/Linux_x86-gcc3/components/libpagespeed.so ABI=Linux_x86-gcc3 appversion<5
-binary-component platform/Linux_x86_64-gcc3/components/libpagespeed.so ABI=Linux_x86_64-gcc3 appversion<5
-binary-component platform/Darwin_x86-gcc3/components/libpagespeed.dylib ABI=Darwin_x86-gcc3 appversion<5
-binary-component platform/Darwin_x86_64-gcc3/components/libpagespeed.dylib ABI=Darwin_x86_64-gcc3 appversion<5
-interfaces components/IPageSpeedRules.xpt appversion<5
-interfaces components/IComponentCollector.xpt appversion<5
-interfaces components/IStateStorage.xpt appversion<5
-
-# Register binary components for runtimes that use xulrunner >=5.
-binary-component platform/5/WINNT_x86-msvc/components/pagespeed.dll ABI=WINNT_x86-msvc appversion>=5
-binary-component platform/5/Linux_x86-gcc3/components/libpagespeed.so ABI=Linux_x86-gcc3 appversion>=5
-binary-component platform/5/Linux_x86_64-gcc3/components/libpagespeed.so ABI=Linux_x86_64-gcc3 appversion>=5
-binary-component platform/5/Darwin_x86-gcc3/components/libpagespeed.dylib ABI=Darwin_x86-gcc3 appversion>=5
-binary-component platform/5/Darwin_x86_64-gcc3/components/libpagespeed.dylib ABI=Darwin_x86_64-gcc3 appversion>=5
-interfaces components/5/IPageSpeedRules.xpt appversion>=5
-interfaces components/5/IComponentCollector.xpt appversion>=5
-interfaces components/5/IStateStorage.xpt appversion>=5
+interfaces components/IComponentCollector.xpt
+interfaces components/IStateStorage.xpt
 
 # Register the Component Collector service to be instantiated at the
 # earliest possible time, so we can be sure that we capture all

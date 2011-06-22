@@ -19,8 +19,8 @@
     },
     'xpi_stage_root%': '<(xpi_stage_root)',
     'xpidl_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xpidl_out',
-    'xpt_output_path': '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components/<(xulrunner_sdk_version)',
-    'archive_platform_root': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xulrunner_sdk_version)',
+    'xpt_output_path': '<(xpidl_out_dir)/pagespeed_firefox/xpi_resources/components',
+    'archive_platform_root': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform',
 
     # Here we list all of the file bundles that need to be copied to
     # the XPI staging location. They are listed here so they can be
@@ -73,7 +73,6 @@
     ],
     'xpi_files_xpt': [
       '<(xpt_output_path)/IComponentCollector.xpt',
-      '<(xpt_output_path)/IPageSpeedRules.xpt',
       '<(xpt_output_path)/IStateStorage.xpt',
     ],
 
@@ -88,7 +87,7 @@
       '<@(xpi_files_xpt)',
     ],
     'xpi_files_so_target': [
-      '<(PRODUCT_DIR)/<(xulrunner_sdk_version)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+      '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
     ],
     'xpi_files_so_WINNT_x86-msvc': [
       '<(archive_platform_root)/WINNT_x86-msvc/components/pagespeed.dll',
@@ -105,22 +104,8 @@
     'xpi_files_so_Darwin_x86_64-gcc3': [
       '<(archive_platform_root)/Darwin_x86_64-gcc3/components/libpagespeed.dylib',
     ],
-    'conditions': [
-      [ 'xulrunner_sdk_version==2', {
-        # For xulrunner SDK 2, we store binary components in their
-        # backward-compatible locations so we can load into Firefox
-        # 3.x.
-        'xpi_stage_components_root': '<(xpi_stage_root)/components',
-        'xpi_stage_platform_root': '<(xpi_stage_root)/platform',
-      }, {
-        # For xulrunner SDK >2, we store binary components in a
-        # version-specific location which we load conditionally
-        # depending on the appversion. See chrome.manifest for
-        # details.
-        'xpi_stage_components_root': '<(xpi_stage_root)/components/<(xulrunner_sdk_version)',
-        'xpi_stage_platform_root': '<(xpi_stage_root)/platform/<(xulrunner_sdk_version)',
-      }],
-    ],
+    'xpi_stage_components_root': '<(xpi_stage_root)/components',
+    'xpi_stage_platform_root': '<(xpi_stage_root)/platform',
   },
   'targets': [
     {
@@ -168,7 +153,6 @@
       'dependencies': [
         'stage_xpi_static',
         'stage_xpi_xpt',
-        '<(DEPTH)/pagespeed_firefox/pagespeed_firefox.gyp:pagespeed_firefox_module_copy',
       ],
       'copies': [
         {

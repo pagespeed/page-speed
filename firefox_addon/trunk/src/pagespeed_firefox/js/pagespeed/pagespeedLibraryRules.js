@@ -20,6 +20,8 @@
 
 (function() {  // Begin closure
 
+Components.utils.import('resource://gre/modules/ctypes.jsm');
+
 var MAX_RESPONSE_BODY_SIZE_BYTES = 5 * 1024 * 1024;  // 5MB
 
 /**
@@ -186,14 +188,13 @@ var documentationURLs = {
  * @return {number} 0 for filter nothing, 1 for filter non-ads, etc.
  */
 function filterChoice() {
-  var IPageSpeedRules = Components.interfaces['IPageSpeedRules'];
   // This data structure must be kept in sync with
   // cpp/pagespeed/pagespeed_rules.cc::ChoiceToFilter()
   var menuIdToFilterChoice = {
-    'psAnalyzeAll': IPageSpeedRules.RESOURCE_FILTER_ALL,
-    'psAnalyzeAds': IPageSpeedRules.RESOURCE_FILTER_ONLY_ADS,
-    'psAnalyzeTrackers': IPageSpeedRules.RESOURCE_FILTER_ONLY_TRACKERS,
-    'psAnalyzeContent': IPageSpeedRules.RESOURCE_FILTER_ONLY_CONTENT
+    'psAnalyzeAll': 0,
+    'psAnalyzeAds': 1,
+    'psAnalyzeTrackers': 2,
+    'psAnalyzeContent': 3,
   };
   for (menuId in menuIdToFilterChoice) {
     if (document.getElementById(menuId).hasAttribute('selected')) {
@@ -201,7 +202,7 @@ function filterChoice() {
     }
   }
   PS_LOG("No selected items in Filter Results menu");
-  return IPageSpeedRules.RESOURCE_FILTER_ALL;
+  return menuIdToFilterChoice['psAnalyzeAll'];
 }
 
 function readBinaryDataFromInputStream(inputStream) {
@@ -387,9 +388,36 @@ PAGESPEED.NativeLibrary = {
    */
   invokeNativeLibraryAndFormatResults: function(
       opt_doc, opt_regexp_url_exclude_filter) {
-    var pagespeedRules = PAGESPEED.Utils.CCIN(
-      '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
-    if (!pagespeedRules) {
+    // We use js-ctypes to invoke code in our native library. See
+    // https://developer.mozilla.org/en/js-ctypes/Using_js-ctypes for
+    // additional details.
+    var lib;
+    try {
+      lib = ctypes.open(PAGESPEED.Utils.getNativeLibraryPath());
+    } catch (e) {
+      return null;
+    }
+
+    var computeAndFormatResults = lib.declare(
+        'PageSpeed_ComputeAndFormatResults',
+        ctypes.default_abi,
+        ctypes.char.ptr,  // return value
+        ctypes.char.ptr,  // locale
+        ctypes.char.ptr,  // har_data
+        ctypes.char.ptr,  // custom_data
+        ctypes.char.ptr,  // root_url
+        ctypes.char.ptr,  // json_dom
+        ctypes.int,       // filter_choice
+        ctypes.char.ptr   // output_dir
+        );
+    var doFree = lib.declare(
+        'PageSpeed_DoFree',
+        ctypes.default_abi,
+        ctypes.void_t,    // return value
+        ctypes.char.ptr   // mem
+        );
+    if (!computeAndFormatResults || !doFree) {
+      lib.close();
       return null;
     }
 
@@ -413,18 +441,32 @@ PAGESPEED.NativeLibrary = {
     }
     var input = PAGESPEED.NativeLibrary.constructInputs(
         documentUrl, opt_regexp_url_exclude_filter);
+
     var serializedDom = JSON.stringify(
         PAGESPEED.Utils.getDocumentDomJson(opt_doc ? opt_doc :
-            PAGESPEED.Utils.getElementsByType('doc')[0]));
-    var resultJSON = pagespeedRules.computeAndFormatResults(
-      locale,
-      JSON.stringify(input.har),
-      JSON.stringify(input.custom),
-      documentUrl,
-      serializedDom,
-      filterChoice(),
-      PAGESPEED.Utils.getOutputDir('page-speed'));
-    return JSON.parse(resultJSON);
+        PAGESPEED.Utils.getElementsByType('doc')[0]));
+
+    var outputDir = PAGESPEED.Utils.getOutputDir('page-speed');
+
+    var resultJSON = computeAndFormatResults(
+        locale,
+        JSON.stringify(input.har),
+        JSON.stringify(input.custom),
+        documentUrl,
+        serializedDom,
+        filterChoice(),
+        outputDir ? outputDir.path : null);
+
+    var resultJSONStr;
+    if (resultJSON.isNull()) {
+      PS_LOG('resultJSON is null');
+      resultJSONStr = '{}';
+    } else {
+      resultJSONStr = resultJSON.readString();
+    }
+    doFree(resultJSON);
+    lib.close();
+    return JSON.parse(resultJSONStr);
   },
 
   /**
@@ -440,9 +482,34 @@ PAGESPEED.NativeLibrary = {
    */
   invokeNativeLibraryAndComputeResults: function(
       opt_doc, opt_regexp_url_exclude_filter) {
-    var pagespeedRules = PAGESPEED.Utils.CCIN(
-      '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
-    if (!pagespeedRules) {
+    // We use js-ctypes to invoke code in our native library. See
+    // https://developer.mozilla.org/en/js-ctypes/Using_js-ctypes for
+    // additional details.
+    var lib;
+    try {
+      lib = ctypes.open(PAGESPEED.Utils.getNativeLibraryPath());
+    } catch (e) {
+      return null;
+    }
+
+    var computeResults = lib.declare(
+        'PageSpeed_ComputeResults',
+        ctypes.default_abi,
+        ctypes.char.ptr,  // return value
+        ctypes.char.ptr,  // har_data
+        ctypes.char.ptr,  // custom_data
+        ctypes.char.ptr,  // root_url
+        ctypes.char.ptr,  // json_dom
+        ctypes.int        // filter_choice
+        );
+    var doFree = lib.declare(
+        'PageSpeed_DoFree',
+        ctypes.default_abi,
+        ctypes.void_t,    // return value
+        ctypes.char.ptr   // mem
+        );
+    if (!computeResults || !doFree) {
+      lib.close();
       return null;
     }
 
@@ -455,13 +522,23 @@ PAGESPEED.NativeLibrary = {
     var serializedDom = JSON.stringify(
         PAGESPEED.Utils.getDocumentDomJson(opt_doc ? opt_doc :
             PAGESPEED.Utils.getElementsByType('doc')[0]));
-    var resultJSON = pagespeedRules.computeResults(
-      JSON.stringify(input.har),
-      JSON.stringify(input.custom),
-      documentUrl,
-      serializedDom,
-      filterChoice());
-    return JSON.parse(resultJSON);
+    var resultJSON = computeResults(
+        JSON.stringify(input.har),
+        JSON.stringify(input.custom),
+        documentUrl,
+        serializedDom,
+        filterChoice());
+
+    var resultJSONStr;
+    if (resultJSON.isNull()) {
+      PS_LOG('resultJSON is null');
+      resultJSONStr = '{}';
+    } else {
+      resultJSONStr = resultJSON.readString();
+    }
+    doFree(resultJSON);
+    lib.close();
+    return JSON.parse(resultJSONStr);
   },
 
   /**

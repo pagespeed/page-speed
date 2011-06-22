@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Google Inc.
+ * Copyright 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,10 @@
 
 // Author: Matthew Steele
 
-#include "pagespeed_firefox/cpp/pagespeed/pagespeed_rules.h"
-
-#include <sstream>
+#include <stdio.h>
+#include <string.h>
 #include <string>
 #include <vector>
-
-#include "nsCOMPtr.h"  // NOLINT
-#include "nsIIOService.h"  // NOLINT
-#include "nsILocalFile.h"  // NOLINT
-#include "nsIURI.h"  // NOLINT
-#include "nsNetCID.h"  // for NS_IOSERVICE_CONTRACTID  // NOLINT
-#include "nsNetUtil.h"  // for NS_NewLocalFileOutputStream  // NOLINT
-#include "nsServiceManagerUtils.h"  // for do_GetService  // NOLINT
-#include "nsStringAPI.h"  // NOLINT
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
@@ -60,7 +50,6 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/results_to_json_converter.h"
 #include "pagespeed/rules/rule_provider.h"
-#include "pagespeed_firefox/cpp/pagespeed/firefox_dom.h"
 #include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
 
 namespace {
@@ -76,6 +65,9 @@ void Initialize() {
     pagespeed::Init();
   }
 }
+
+#if 0
+// TODO(lsong): reimplement to use FILE*, fopen, etc.
 
 // Compute the URI spec for a given file.
 bool ComputeUriSpec(nsIFile* file, nsCString* out_uri_spec) {
@@ -260,73 +252,59 @@ bool PluginSerializer::CreateFileForResource(const std::string& content_url,
   NS_ADDREF(*out_file);
   return true;
 }
+#endif
+
+// Must be kept in sync with pagespeedLibraryRules.js filterChoice().
+enum ResourceFilterEnum {
+  RESOURCE_FILTER_ALL = 0,
+  RESOURCE_FILTER_ONLY_ADS = 1,
+  RESOURCE_FILTER_ONLY_TRACKERS = 2,
+  RESOURCE_FILTER_ONLY_CONTENT = 3,
+};
 
 // Convert the filter choice passed to ComputeAndFormatResults to a
 // ResourceFilter.  This routine must be kept in sync with
 // js/pagespeed/pagespeedLibraryRules.js::filterChoice().
 pagespeed::ResourceFilter* ChoiceToFilter(int filter_choice) {
   switch (filter_choice) {
-    case IPageSpeedRules::RESOURCE_FILTER_ONLY_ADS:
+    case RESOURCE_FILTER_ONLY_ADS:
       return new pagespeed::NotResourceFilter(new pagespeed::AdFilter());
-    case IPageSpeedRules::RESOURCE_FILTER_ONLY_TRACKERS:
+    case RESOURCE_FILTER_ONLY_TRACKERS:
       return new pagespeed::NotResourceFilter(new pagespeed::TrackerFilter());
-    case IPageSpeedRules::RESOURCE_FILTER_ONLY_CONTENT:
+    case RESOURCE_FILTER_ONLY_CONTENT:
       return new pagespeed::AndResourceFilter(new pagespeed::AdFilter(),
                                               new pagespeed::TrackerFilter());
     default:
       LOG(ERROR) << "Unknown filter chioce " << filter_choice;
       // Intentional fall-through to allow all filter
-    case IPageSpeedRules::RESOURCE_FILTER_ALL:
+    case RESOURCE_FILTER_ALL:
       return new pagespeed::AllowAllResourceFilter();
   }
 }
 
-// Helper that converts from mozilla nsACString to const char*.
-bool GetDataFromCString(const nsACString& in,
-                        const char** out_utf8) {
-  PRBool terminated = PR_FALSE;
-  NS_CStringGetData(in, out_utf8, &terminated);
-  return terminated;
-}
-
-// Creates a PagespeedInput from the specified parameters.
-pagespeed::PagespeedInput*
-ConstructPageSpeedInput(const nsACString& har_data,
-                        const nsACString& custom_data,
-                        const nsACString& root_url,
-                        const nsACString& document_string,
-                        PRInt16 filter_choice) {
-  const char* har_data_utf8;
-  const char* custom_data_utf8;
-  const char* root_url_utf8;
-  const char* document_string_utf8;
-  if (!GetDataFromCString(har_data, &har_data_utf8) ||
-      !GetDataFromCString(custom_data, &custom_data_utf8) ||
-      !GetDataFromCString(root_url, &root_url_utf8) ||
-      !GetDataFromCString(document_string, &document_string_utf8)) {
-    LOG(ERROR) << "Failed to convert strings to UTF8.";
-    return NULL;
-  }
-
+pagespeed::PagespeedInput* ConstructPageSpeedInput(const char* har_data,
+                                                   const char* custom_data,
+                                                   const char* root_url,
+                                                   const char* json_dom,
+                                                   int filter_choice)  {
   scoped_ptr<pagespeed::PagespeedInput> input(
       pagespeed::ParseHttpArchiveWithFilter(
-          har_data_utf8, ChoiceToFilter(filter_choice)));
+          har_data, ChoiceToFilter(filter_choice)));
   if (input == NULL) {
     return NULL;
   }
 
-  if (!pagespeed::PopulateInputFromJSON(input.get(), custom_data_utf8)) {
+  if (!pagespeed::PopulateInputFromJSON(input.get(), custom_data)) {
     LOG(ERROR) << "Failed to parse custom JSON.";
     return NULL;
   }
-  const std::string root_url_str(root_url_utf8);
+  const std::string root_url_str(root_url);
   if (!root_url_str.empty()) {
     input->SetPrimaryResourceUrl(root_url_str);
   }
-
   std::string error_msg_out;
   scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
-      document_string_utf8,
+      json_dom,
       true,  // allow_trailing_comma
       NULL,  // error_code_out (ReadAndReturnError permits NULL here)
       &error_msg_out));
@@ -338,11 +316,8 @@ ConstructPageSpeedInput(const nsACString& har_data,
     LOG(ERROR) << "DOM must be a JSON dictionary";
     return NULL;
   }
-
-  // Transfer the ownership of document_json to document.
-  pagespeed::DomDocument* document = pagespeed::dom::CreateDocument(
-      static_cast<const DictionaryValue*>(document_json.release()));
-  input->AcquireDomDocument(document);
+  input->AcquireDomDocument(pagespeed::dom::CreateDocument(
+      static_cast<const DictionaryValue*>(document_json.release())));
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
   input->Freeze();
@@ -367,122 +342,126 @@ void InstantiatePageSpeedRules(const pagespeed::PagespeedInput& input,
   }
 }
 
+// Copies the contents of a string to a malloc-allocated buffer and
+// returns it. The caller is responsible for freeing returned memory.
+const char* MallocString(const std::string& output_string) {
+  const size_t length = output_string.length();
+  char* buf = static_cast<char*>(malloc(length + 1));
+  buf[length] = 0;
+  memcpy(buf, output_string.c_str(), length);
+  return buf;
+}
+
 }  // namespace
 
-namespace pagespeed {
+extern "C" {
 
-NS_IMPL_ISUPPORTS1(PageSpeedRules, IPageSpeedRules)
+// Export our public functions so Firefox is able to load us.
+// See http://gcc.gnu.org/wiki/Visibility for more information.
+#if defined(__GNUC__)
+#pragma GCC visibility push(default)
+#endif
 
-PageSpeedRules::PageSpeedRules() {}
-
-PageSpeedRules::~PageSpeedRules() {}
-
-NS_IMETHODIMP
-PageSpeedRules::ComputeResults(const nsACString& har_data,
-                               const nsACString& custom_data,
-                               const nsACString& root_url,
-                               const nsACString& document_string,
-                               PRInt16 filter_choice,
-                               nsACString& _retval NS_OUTPARAM) {
+// Caller is responsible for freeing returned memory. JS callers can
+// accomplish this by calling PageSpeed_DoFree.
+const char* PageSpeed_ComputeResults(const char* har_data,
+                                     const char* custom_data,
+                                     const char* root_url,
+                                     const char* json_dom,
+                                     int filter_choice) {
   Initialize();
 
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
 
-  scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
-                                                           custom_data,
-                                                           root_url,
-                                                           document_string,
-                                                           filter_choice));
-
+  scoped_ptr<pagespeed::PagespeedInput> input(
+      ConstructPageSpeedInput(har_data,
+                              custom_data,
+                              root_url,
+                              json_dom,
+                              filter_choice));
   if (input == NULL) {
-    LOG(ERROR) << "Failed to construct PagespeedInput.";
-    return NS_ERROR_FAILURE;
+    return NULL;
   }
 
   std::vector<pagespeed::Rule*> rules;
   InstantiatePageSpeedRules(*input, &rules);
 
-  Engine engine(&rules);  // Ownership of rules is transferred to engine.
+  // Ownership of rules is transferred to engine.
+  pagespeed::Engine engine(&rules);
   engine.Init();
 
-  Results results;
+  pagespeed::Results results;
   engine.ComputeResults(*input, &results);
 
   std::string results_json;
   if (!pagespeed::proto::ResultsToJsonConverter::Convert(
           results, &results_json)) {
     LOG(ERROR) << "Failed to ResultsToJsonConverter::Convert.";
-    return NS_ERROR_FAILURE;
+    return NULL;
   }
 
-  _retval.Assign(results_json.c_str(), results_json.length());
-  return NS_OK;
+  return MallocString(results_json);
 }
 
-NS_IMETHODIMP
-PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
-                                        const nsACString& har_data,
-                                        const nsACString& custom_data,
-                                        const nsACString& root_url,
-                                        const nsACString& document_string,
-                                        PRInt16 filter_choice,
-                                        nsILocalFile* output_dir,
-                                        nsACString& _retval NS_OUTPARAM) {
+// Caller is responsible for freeing returned memory. JS callers can
+// accomplish this by calling PageSpeed_DoFree.
+const char* PageSpeed_ComputeAndFormatResults(const char* locale,
+                                              const char* har_data,
+                                              const char* custom_data,
+                                              const char* root_url,
+                                              const char* json_dom,
+                                              int filter_choice,
+                                              const char* output_dir) {
   Initialize();
 
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
 
-  const char* locale_utf8;
-  if (!GetDataFromCString(locale, &locale_utf8)) {
-    LOG(ERROR) << "Failed to convert locale string to UTF8.";
-    return NS_ERROR_FAILURE;
-  }
-
-  scoped_ptr<PagespeedInput> input(ConstructPageSpeedInput(har_data,
-                                                           custom_data,
-                                                           root_url,
-                                                           document_string,
-                                                           filter_choice));
-
+  scoped_ptr<pagespeed::PagespeedInput> input(
+      ConstructPageSpeedInput(har_data,
+                              custom_data,
+                              root_url,
+                              json_dom,
+                              filter_choice));
   if (input == NULL) {
-    LOG(ERROR) << "Failed to construct PagespeedInput.";
-    return NS_ERROR_FAILURE;
+    return NULL;
   }
 
   // Create a localizer.
   scoped_ptr<pagespeed::l10n::Localizer> localizer(
-      pagespeed::l10n::GettextLocalizer::Create(locale_utf8));
+      pagespeed::l10n::GettextLocalizer::Create(locale));
   if (localizer.get() == NULL) {
     LOG(WARNING) << "Could not create GettextLocalizer for locale: "
-                 << locale_utf8;
+                 << locale;
     localizer.reset(new pagespeed::l10n::BasicLocalizer);
   }
 
   // Compute and format the results.  Keep the Results around so that we can
   // serialize optimized content.
-  Results results;
-  FormattedResults formatted_results;
+  pagespeed::Results results;
+  pagespeed::FormattedResults formatted_results;
   {
     std::vector<pagespeed::Rule*> rules;
     InstantiatePageSpeedRules(*input, &rules);
 
-    Engine engine(&rules);  // Ownership of rules is transferred to engine.
+    // Ownership of rules is transferred to engine.
+    pagespeed::Engine engine(&rules);
     engine.Init();
 
     engine.ComputeResults(*input, &results);
 
     formatted_results.set_locale(localizer->GetLocale());
-    formatters::ProtoFormatter formatter(localizer.get(), &formatted_results);
+    pagespeed::formatters::ProtoFormatter formatter(
+        localizer.get(), &formatted_results);
 
     // Filter the results (matching the code in Page Speed Online).
-    ResponseByteResultFilter result_filter;
+    pagespeed::ResponseByteResultFilter result_filter;
     if (!engine.FormatResults(results, result_filter, &formatter)) {
-      LOG(ERROR) << "error formatting results in locale: " << locale_utf8;
-      return false;
+      LOG(ERROR) << "error formatting results in locale: " << locale;
+      return NULL;
     }
 
     // The ResponseByteResultFilter may filter some results. In the
@@ -496,7 +475,7 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
     // relevant bug.
     bool has_any_results = false;
     for (int i = 0; i < formatted_results.rule_results_size(); ++i) {
-      FormattedRuleResults* rule_results =
+      pagespeed::FormattedRuleResults* rule_results =
           formatted_results.mutable_rule_results(i);
       if (rule_results->url_blocks_size() == 0) {
         rule_results->set_rule_score(100);
@@ -516,16 +495,18 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
       ConvertFormattedResults(formatted_results));
   if (json_results == NULL) {
     LOG(ERROR) << "Failed to ConvertFormattedResults";
-    return NS_ERROR_FAILURE;
+    return NULL;
   }
 
   // Serialize optimized resources to disk:
   scoped_ptr<DictionaryValue> paths(new DictionaryValue);
+#if 0
+// TODO(lsong): re-enable once PluginSerializer uses FILE*
   PluginSerializer serializer(output_dir);
   for (int i = 0; i < results.rule_results_size(); ++i) {
-    const RuleResults& rule_results = results.rule_results(i);
+    const pagespeed::RuleResults& rule_results = results.rule_results(i);
     for (int j = 0; j < rule_results.results_size(); ++j) {
-      const Result& result = rule_results.results(j);
+      const pagespeed::Result& result = rule_results.results(j);
       if (result.has_optimized_content() && result.resource_urls_size() > 0) {
         const std::string key = base::IntToString(result.id());
         if (paths->HasKey(key)) {
@@ -539,6 +520,7 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
       }
     }
   }
+#endif
 
   // Serialize all the JSON into a string.
   std::string output_string;
@@ -549,9 +531,16 @@ PageSpeedRules::ComputeAndFormatResults(const nsACString& locale,
     base::JSONWriter::Write(root.get(), false, &output_string);
   }
 
-  // Send the JSON output back to the front-end:
-  _retval.Assign(output_string.c_str(), output_string.length());
-  return NS_OK;
+  return MallocString(output_string);
 }
 
-}  // namespace pagespeed
+// Helper that exposes the capability to free memory to JS callers.
+void PageSpeed_DoFree(char* mem) {
+  free(mem);
+}
+
+#if defined(__GNUC__)
+#pragma GCC visibility pop
+#endif
+
+}  // extern "C"
