@@ -147,18 +147,27 @@
     },
     {
       # Copy the shared object file for the current target platform to the
-      # staging directory and create the XPI.
-      'target_name': 'build_xpi',
+      # staging directory.
+      'target_name': 'stage_xpi_so_target',
       'type': 'none',
       'dependencies': [
-        'stage_xpi_static',
-        'stage_xpi_xpt',
+        '<(DEPTH)/pagespeed_firefox/pagespeed_firefox.gyp:pagespeed_firefox_module',
       ],
       'copies': [
         {
           'destination': '<(xpi_stage_platform_root)/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
           'files': [ '<@(xpi_files_so_target)' ],
         },
+      ],
+    },
+    {
+      # Create the XPI.
+      'target_name': 'build_xpi',
+      'type': 'none',
+      'dependencies': [
+        'stage_xpi_static',
+        'stage_xpi_xpt',
+        'stage_xpi_so_target',
       ],
       'actions': [
         {
