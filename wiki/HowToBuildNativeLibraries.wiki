@@ -36,7 +36,7 @@ For the Page Speed Firefox Add-on shared library:
 
 = Compile the code =
   * Linux
-    # Run: `cd src; BUILDTYPE=Release make -j4`
+    # Run: `cd src; make -j4 BUILDTYPE=Release`
     # Build output will appear under `out`.
 
   * Max OS X
@@ -51,4 +51,4 @@ For the Page Speed Firefox Add-on shared library:
 = Cross-compiling on Linux =
   * To compile an x86/ia32 binary on an x86_64 system (after the code has already been sync'd):
     # `GYP_DEFINES="target_arch=ia32" gclient runhooks`
-    # `cd src; BUILDTYPE=Release make -j4`
+    # `cd src; make -j4 BUILDTYPE=Release`
