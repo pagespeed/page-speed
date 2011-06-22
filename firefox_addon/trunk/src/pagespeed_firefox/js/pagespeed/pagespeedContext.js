@@ -23,6 +23,8 @@
 
 (function() {  // Begin closure
 
+Components.utils.import("resource://gre/modules/ctypes.jsm");
+
 /**
  * PAGESPEED.PageSpeedContext is a Singleton within each window.
  * A window may contain many tabs, and there is a single PageSpeedContext
@@ -87,11 +89,16 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
   if (PAGESPEED.LintRules.nativeRuleResults.length == 0) {
     // If we failed to generate any native rules, it might be because
     // the user's browser or OS is not compatible with our native
-    // library. If we can't instantiate the IPageSpeedRules instance
+    // library. If we can't instantiate the native library
     // then show them the incompatible browser error message.
-    var pagespeedRules = PAGESPEED.Utils.CCIN(
-      '@code.google.com/p/page-speed/PageSpeedRules;1', 'IPageSpeedRules');
-    if (!pagespeedRules) {
+    var openedNativeLibrary = false;
+    try {
+      var lib = ctypes.open(PAGESPEED.Utils.getNativeLibraryPath());
+      openedNativeLibrary = true;
+      lib.close();
+    } catch (e) {
+    }
+    if (!openedNativeLibrary) {
       panel.table = panel.incompatibleBrowserPageTag.replace(
           {}, panel.panelNode, panel);
     } else {
