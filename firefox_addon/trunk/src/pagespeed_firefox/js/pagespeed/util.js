@@ -2628,7 +2628,7 @@ PAGESPEED.Utils = {  // Begin namespace
   getNativeLibraryName: function() {
     var os = PAGESPEED.Utils.getOSName().toLowerCase();
     if (os == 'linux') return 'libpagespeed.so';
-    if (os == 'darwin') return 'libpagespeed.dylib';
+    if (os == 'darwin') return 'pagespeed.so';
     if (os == 'winnt') return 'pagespeed.dll';
     return null;
   },
