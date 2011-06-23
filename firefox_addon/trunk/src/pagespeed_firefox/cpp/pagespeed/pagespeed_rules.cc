@@ -109,7 +109,7 @@ GURL FilePathToFileURL(const FilePath& path) {
 
 class PluginSerializer : public pagespeed::Serializer {
  public:
-  explicit PluginSerializer(const char* base_dir)
+  explicit PluginSerializer(const std::string& base_dir)
       : base_dir_(base_dir) {}
   virtual ~PluginSerializer() {}
 
@@ -123,7 +123,7 @@ class PluginSerializer : public pagespeed::Serializer {
                              const std::string& body,
                              FilePath* file_path);
 
-  const char* base_dir_;
+  const std::string base_dir_;
 
   DISALLOW_COPY_AND_ASSIGN(PluginSerializer);
 };
@@ -173,7 +173,7 @@ bool PluginSerializer::CreateFileForResource(const std::string& content_url,
                                              const std::string& mime_type,
                                              const std::string& body,
                                              FilePath* file_path) {
-  if (base_dir_ == NULL) {
+  if (base_dir_.empty()) {
     LOG(DFATAL) << "No base directory available.";
     return false;
   }
@@ -450,20 +450,22 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
 
   // Serialize optimized resources to disk:
   scoped_ptr<DictionaryValue> paths(new DictionaryValue);
-  PluginSerializer serializer(output_dir);
-  for (int i = 0; i < results.rule_results_size(); ++i) {
-    const pagespeed::RuleResults& rule_results = results.rule_results(i);
-    for (int j = 0; j < rule_results.results_size(); ++j) {
-      const pagespeed::Result& result = rule_results.results(j);
-      if (result.has_optimized_content() && result.resource_urls_size() > 0) {
-        const std::string key = base::IntToString(result.id());
-        if (paths->HasKey(key)) {
-          LOG(ERROR) << "Duplicate result id " << key;
-        } else {
-          paths->SetString(key, serializer.SerializeToFile(
-              result.resource_urls(0),
-              result.optimized_content_mime_type(),
-              result.optimized_content()));
+  if (output_dir) {
+    PluginSerializer serializer(output_dir);
+    for (int i = 0; i < results.rule_results_size(); ++i) {
+      const pagespeed::RuleResults& rule_results = results.rule_results(i);
+      for (int j = 0; j < rule_results.results_size(); ++j) {
+        const pagespeed::Result& result = rule_results.results(j);
+        if (result.has_optimized_content() && result.resource_urls_size() > 0) {
+          const std::string key = base::IntToString(result.id());
+          if (paths->HasKey(key)) {
+            LOG(ERROR) << "Duplicate result id " << key;
+          } else {
+            paths->SetString(key, serializer.SerializeToFile(
+                result.resource_urls(0),
+                result.optimized_content_mime_type(),
+                result.optimized_content()));
+          }
         }
       }
     }
