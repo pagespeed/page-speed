@@ -159,7 +159,7 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
     return url.spec();
   }
 
-  file = PlatformFOpen(string_path.c_str(), FILE_PATH_LITERAL("w"));
+  file = PlatformFOpen(string_path.c_str(), FILE_PATH_LITERAL("wb"));
   if (file == NULL) {
     LOG(ERROR) << "Unable to create file " << string_path;
     return "";
