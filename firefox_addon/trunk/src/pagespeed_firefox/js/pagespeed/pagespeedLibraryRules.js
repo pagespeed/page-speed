@@ -395,8 +395,8 @@ PAGESPEED.NativeLibrary = {
     try {
       lib = ctypes.open(PAGESPEED.Utils.getNativeLibraryPath());
     } catch (e) {
-      return null;
     }
+    if (!lib) return null;
 
     var computeAndFormatResults = lib.declare(
         'PageSpeed_ComputeAndFormatResults',
@@ -489,8 +489,8 @@ PAGESPEED.NativeLibrary = {
     try {
       lib = ctypes.open(PAGESPEED.Utils.getNativeLibraryPath());
     } catch (e) {
-      return null;
     }
+    if (!lib) return null;
 
     var computeResults = lib.declare(
         'PageSpeed_ComputeResults',
