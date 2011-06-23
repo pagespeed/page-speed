@@ -23,13 +23,16 @@
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"  // for base::JSONWriter::Write
 #include "base/logging.h"
 #include "base/md5.h"
 #include "base/scoped_ptr.h"
 #include "base/string_number_conversions.h"  // for base::IntToString
+#include "base/string_util.h"
 #include "base/values.h"
+#include "build/build_config.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/file_util.h"
@@ -66,81 +69,47 @@ void Initialize() {
   }
 }
 
-#if 0
-// TODO(lsong): reimplement to use FILE*, fopen, etc.
+// Copied from chromium net/base/net_util.cc to avoid pulling too much code from
+// chromium net.
 
-// Compute the URI spec for a given file.
-bool ComputeUriSpec(nsIFile* file, nsCString* out_uri_spec) {
-  nsCOMPtr<nsIIOService> io_service(do_GetService(NS_IOSERVICE_CONTRACTID));
-  if (io_service == NULL) {
-    LOG(ERROR) << "Unable to get nsIIOService";
-    return false;
-  }
-  nsCOMPtr<nsIURI> uri;
-  if (NS_FAILED(io_service->NewFileURI(file, getter_AddRefs(uri))) ||
-      uri == NULL) {
-    LOG(ERROR) << "Unable to get file URI.";
-    return false;
-  }
-  if (NS_FAILED(uri->GetSpec(*out_uri_spec))) {
-    LOG(ERROR) << "Unable to get file spec.";
-    return false;
-  }
+// what we prepend to get a file URL
+static const FilePath::CharType kFileURLPrefix[] =
+    FILE_PATH_LITERAL("file:///");
 
-  return true;
-}
+GURL FilePathToFileURL(const FilePath& path) {
+  // Produce a URL like "file:///C:/foo" for a regular file, or
+  // "file://///server/path" for UNC. The URL canonicalizer will fix up the
+  // latter case to be the canonical UNC form: "file://server/path"
+  FilePath::StringType url_string(kFileURLPrefix);
+  url_string.append(path.value());
 
-// Get the path for the nsIFile as a std::string.
-std::string GetPathForFile(nsIFile* file) {
-  nsString nsString_path;
-  if (NS_FAILED(file->GetPath(nsString_path))) {
-    LOG(ERROR) << "Failed to GetPath.";
-    return "";
-  }
-  const NS_ConvertUTF16toUTF8 utf8_path(nsString_path);
-  return utf8_path.get();
-}
+  // Now do replacement of some characters. Since we assume the input is a
+  // literal filename, anything the URL parser might consider special should
+  // be escaped here.
 
-// Determine if the given file is a writable directory.
-bool IsWritableDirectory(nsIFile* file) {
-  PRBool out_is_directory = PR_FALSE;
-  if (NS_FAILED(file->IsDirectory(&out_is_directory)) ||
-      out_is_directory == PR_FALSE) {
-    return false;
-  }
-  PRBool out_is_directory_writable = PR_FALSE;
-  if (NS_FAILED(file->IsWritable(&out_is_directory_writable)) ||
-      out_is_directory_writable == PR_FALSE) {
-    return false;
-  }
+  // must be the first substitution since others will introduce percents as the
+  // escape character
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+      FILE_PATH_LITERAL("%"), FILE_PATH_LITERAL("%25"));
 
-  return true;
-}
+  // semicolon is supposed to be some kind of separator according to RFC 2396
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+      FILE_PATH_LITERAL(";"), FILE_PATH_LITERAL("%3B"));
 
-// Write the data to the file.
-bool WriteDataToFile(nsIFile* file, const std::string& body) {
-  nsCOMPtr<nsIOutputStream> out;
-  if (NS_FAILED(NS_NewLocalFileOutputStream(getter_AddRefs(out), file))) {
-    LOG(ERROR) << "Failed to create output stream.";
-    return false;
-  }
-  PRUint32 num_written = 0;
-  if (NS_FAILED(out->Write(body.c_str(), body.size(), &num_written)) ||
-      num_written != body.size()) {
-    LOG(ERROR) << "Failed to write to file.";
-    return false;
-  }
-  if (NS_FAILED(out->Close())) {
-    LOG(ERROR) << "Failed to close file.";
-    return false;
-  }
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+      FILE_PATH_LITERAL("#"), FILE_PATH_LITERAL("%23"));
 
-  return true;
+#if defined(OS_POSIX)
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+      FILE_PATH_LITERAL("\\"), FILE_PATH_LITERAL("%5C"));
+#endif
+
+  return GURL(url_string);
 }
 
 class PluginSerializer : public pagespeed::Serializer {
  public:
-  explicit PluginSerializer(nsILocalFile* base_dir)
+  explicit PluginSerializer(const char* base_dir)
       : base_dir_(base_dir) {}
   virtual ~PluginSerializer() {}
 
@@ -152,9 +121,9 @@ class PluginSerializer : public pagespeed::Serializer {
   bool CreateFileForResource(const std::string& content_url,
                              const std::string& mime_type,
                              const std::string& body,
-                             nsIFile** file);
+                             FilePath* file_path);
 
-  nsCOMPtr<nsILocalFile> base_dir_;
+  const char* base_dir_;
 
   DISALLOW_COPY_AND_ASSIGN(PluginSerializer);
 };
@@ -162,69 +131,48 @@ class PluginSerializer : public pagespeed::Serializer {
 std::string PluginSerializer::SerializeToFile(const std::string& content_url,
                                               const std::string& mime_type,
                                               const std::string& body) {
-  nsCOMPtr<nsIFile> file;
+  FilePath file_path;
   if (!CreateFileForResource(
-          content_url, mime_type, body, getter_AddRefs(file)) ||
-      file == NULL) {
+          content_url, mime_type, body, &file_path) ||
+      file_path.empty()) {
     LOG(ERROR) << "Failed to CreateFileForResource for " << content_url;
     return "";
   }
+  GURL url = FilePathToFileURL(file_path);
+  FilePath::StringType string_path = file_path.value();
 
-  // Compute the path to the file as a std::string. Used for debugging
-  // only.
-  std::string string_path(GetPathForFile(file));
-
+  // TODO(lsong): Use file_util to write file if possible.
   // Determine if the file exists.
-  PRBool out_file_exists = PR_FALSE;
-  if (NS_FAILED(file->Exists(&out_file_exists))) {
-    LOG(ERROR) << "Unable to determine if file exists: " << string_path;
-    return "";
-  }
-
-  // Get the file URI for the nsIFile where we stored the data.
-  nsCString uri_spec;
-  if (!ComputeUriSpec(file, &uri_spec)) {
-    LOG(ERROR) << "Unable to ComputeUriSpec for " << string_path;
-    return "";
-  }
-
-  if (out_file_exists == PR_TRUE) {
+  FILE* file = fopen(string_path.c_str(), "r");
+  if (file != NULL) {
+    fclose(file);
     // Already exists. Since the path contains a hash of the contents,
     // assume the file on disk is the same as what we want to write,
     // and return the path of the file.
-    return uri_spec.get();
+    return url.spec();
   }
 
-  if (!IsWritableDirectory(base_dir_)) {
-    LOG(ERROR) << "Unable to write to non-writable directory.";
-    return "";
-  }
-
-  // Attempt to create the file with appropriate permissions.
-  if (NS_FAILED(file->Create(nsIFile::NORMAL_FILE_TYPE, 0600))) {
+  file = fopen(string_path.c_str(), "w");
+  if (file == NULL) {
     LOG(ERROR) << "Unable to create file " << string_path;
     return "";
   }
 
-  PRBool out_is_file_writable = PR_FALSE;
-  if (NS_FAILED(file->IsWritable(&out_is_file_writable)) ||
-      out_is_file_writable == PR_FALSE) {
-    LOG(ERROR) << "Unable to write to non-writable file " << string_path;
+  size_t num_written = fwrite(body.c_str(), 1, body.size(), file);
+  fclose(file);
+  if (num_written != body.size()) {
+    LOG(ERROR) << "Failed to WriteDataToFile for " << string_path
+               << " size=" << body.size() << " written=" << num_written;
     return "";
   }
 
-  if (!WriteDataToFile(file, body)) {
-    LOG(ERROR) << "Failed to WriteDataToFile for " << string_path;
-    return false;
-  }
-
-  return uri_spec.get();
+  return url.spec();
 }
 
 bool PluginSerializer::CreateFileForResource(const std::string& content_url,
                                              const std::string& mime_type,
                                              const std::string& body,
-                                             nsIFile** out_file) {
+                                             FilePath* file_path) {
   if (base_dir_ == NULL) {
     LOG(DFATAL) << "No base directory available.";
     return false;
@@ -235,24 +183,27 @@ bool PluginSerializer::CreateFileForResource(const std::string& content_url,
     LOG(ERROR) << "Invalid url: " << content_url;
     return false;
   }
-  // Make a copy of the base_dir_.
-  nsCOMPtr<nsIFile> file;
-  if (NS_FAILED(base_dir_->Clone(getter_AddRefs(file))) || NULL == file) {
-    LOG(ERROR) << "Unable to clone directory.";
-    return false;
-  }
+
   const std::string filename =
       pagespeed::ChooseOutputFilename(url, mime_type, MD5String(body));
-  if (NS_FAILED(file->Append(NS_ConvertASCIItoUTF16(filename.c_str())))) {
-    LOG(ERROR) << "Failed to nsILocalFile::Append " << filename;
-    return false;
+#if defined(OS_WIN)
+  std::wstring w_base_dir;
+  if (!UTF8ToWide(base_dir_.c_str(), base_dir_.size(), &w_base_dir)) {
+    LOG(WARNING) << "Convert UTF8 to wstring is not 100% valid.";
   }
+  FilePath base_dir(w_base_dir);
+  std::wstring w_filename;
+  if (!UTF8ToWide(filename.c_str(), filename.size(), &w_filename)) {
+    LOG(WARNING) << "Convert UTF8 to wstring is not 100% valid.";
+  }
+  *file_path = base_dir.Append(w_filename);
+#elif defined(OS_POSIX)
+  FilePath base_dir(base_dir_);
+  *file_path = base_dir.Append(filename);
+#endif
 
-  *out_file = file;
-  NS_ADDREF(*out_file);
   return true;
 }
-#endif
 
 // Must be kept in sync with pagespeedLibraryRules.js filterChoice().
 enum ResourceFilterEnum {
@@ -355,7 +306,6 @@ const char* MallocString(const std::string& output_string) {
 }  // namespace
 
 extern "C" {
-
 // Export our public functions so Firefox is able to load us.
 // See http://gcc.gnu.org/wiki/Visibility for more information.
 #if defined(__GNUC__)
@@ -500,8 +450,6 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
 
   // Serialize optimized resources to disk:
   scoped_ptr<DictionaryValue> paths(new DictionaryValue);
-#if 0
-// TODO(lsong): re-enable once PluginSerializer uses FILE*
   PluginSerializer serializer(output_dir);
   for (int i = 0; i < results.rule_results_size(); ++i) {
     const pagespeed::RuleResults& rule_results = results.rule_results(i);
@@ -520,7 +468,6 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
       }
     }
   }
-#endif
 
   // Serialize all the JSON into a string.
   std::string output_string;
@@ -542,5 +489,4 @@ void PageSpeed_DoFree(char* mem) {
 #if defined(__GNUC__)
 #pragma GCC visibility pop
 #endif
-
 }  // extern "C"
