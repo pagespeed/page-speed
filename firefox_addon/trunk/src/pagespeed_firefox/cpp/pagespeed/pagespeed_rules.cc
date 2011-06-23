@@ -165,7 +165,7 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
     return "";
   }
 
-  size_t num_written = fwrite(body.c_str(), 1, body.size(), file);
+  size_t num_written = fwrite(body.data(), 1, body.size(), file);
   fclose(file);
   if (num_written != body.size()) {
     LOG(ERROR) << "Failed to WriteDataToFile for " << string_path
