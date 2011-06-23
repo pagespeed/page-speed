@@ -31,6 +31,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_number_conversions.h"  // for base::IntToString
 #include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "base/values.h"
 #include "build/build_config.h"
 #include "googleurl/src/gurl.h"
@@ -54,6 +55,12 @@
 #include "pagespeed/proto/results_to_json_converter.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed_firefox/cpp/pagespeed/pagespeed_json_input.h"
+
+#if defined(OS_WIN)
+#define PlatformFOpen _wfopen
+#else
+#define PlatformFOpen fopen
+#endif
 
 namespace {
 
@@ -143,7 +150,7 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
 
   // TODO(lsong): Use file_util to write file if possible.
   // Determine if the file exists.
-  FILE* file = fopen(string_path.c_str(), "r");
+  FILE* file = PlatformFOpen(string_path.c_str(), FILE_PATH_LITERAL("r"));
   if (file != NULL) {
     fclose(file);
     // Already exists. Since the path contains a hash of the contents,
@@ -152,7 +159,7 @@ std::string PluginSerializer::SerializeToFile(const std::string& content_url,
     return url.spec();
   }
 
-  file = fopen(string_path.c_str(), "w");
+  file = PlatformFOpen(string_path.c_str(), FILE_PATH_LITERAL("w"));
   if (file == NULL) {
     LOG(ERROR) << "Unable to create file " << string_path;
     return "";
