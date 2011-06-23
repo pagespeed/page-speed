@@ -94,8 +94,10 @@ PAGESPEED.PageSpeedContext.prototype.displayPerformance = function(
     var openedNativeLibrary = false;
     try {
       var lib = ctypes.open(PAGESPEED.Utils.getNativeLibraryPath());
-      openedNativeLibrary = true;
-      lib.close();
+      if (lib) {
+        openedNativeLibrary = true;
+        lib.close();
+      }
     } catch (e) {
     }
     if (!openedNativeLibrary) {
