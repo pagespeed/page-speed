@@ -23,11 +23,6 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#ifdef USE_SYSTEM_ZLIB
-#include "zlib.h"
-#else
-#include "third_party/zlib/zlib.h"
-#endif
 
 namespace {
 
@@ -187,74 +182,14 @@ namespace compression_computer {
 
 bool ZlibComputer::ComputeSavings(const pagespeed::Resource& resource,
                                   pagespeed::Savings* savings) {
-  z_stream c_stream; /* compression stream */
-  c_stream.zalloc = (alloc_func)0;
-  c_stream.zfree = (free_func)0;
-  c_stream.opaque = (voidpf)0;
-
-  int err = deflateInit2(
-      &c_stream,
-      Z_DEFAULT_COMPRESSION,
-      Z_DEFLATED,
-      31,  // window size of 15, plus 16 for gzip
-      8,   // default mem level (no zlib constant exists for this value)
-      Z_DEFAULT_STRATEGY);
-  if (err != Z_OK) {
-    LOG(INFO) << "Failed to deflateInit2: " << err;
-    return false;
-  }
-
-  c_stream.next_in = reinterpret_cast<Bytef*>(
-      const_cast<char*>(resource.GetResponseBody().data()));
-  c_stream.avail_in = resource.GetResponseBody().size();
-
-  int compressed_size = 0;
-  bool result = GetCompressedSize(&c_stream, &compressed_size);
-
-  // clean up.
-  err = deflateEnd(&c_stream);
-  if (err != Z_OK) {
-    LOG(INFO) << "Failed to deflateEnd: " << err;
+  int compressed_size;
+  if (!resource.GetCompressedResponseBodySize(&compressed_size)) {
     return false;
   }
 
   savings->set_response_bytes_saved(
       resource.GetResponseBody().size() - compressed_size);
-  return result;
-}
-
-bool ZlibComputer::GetCompressedSize(z_stream* c_stream, int* compressed_size) {
-  scoped_array<char> buffer(new char[kBufferSize]);
-
-  int err = Z_OK;
-  bool finished = false;
-
-  while (!finished) {
-    c_stream->next_out = reinterpret_cast<Bytef*>(buffer.get());
-    c_stream->avail_out = kBufferSize;
-    err = deflate(c_stream, Z_FINISH);
-
-    switch (err) {
-      case Z_OK:
-        break;
-
-      case Z_STREAM_END:
-        finished = true;
-        break;
-
-      default:
-        LOG(INFO) << "GetCompressedSize encountered error: " << err;
-        return false;
-    }
-
-    *compressed_size += (kBufferSize - c_stream->avail_out);
-  }
-
-  const bool success = (err == Z_STREAM_END);
-  if (!success) {
-    LOG(INFO) << "GetCompressedSize expected Z_STREAM_END, got " << err;
-  }
-  return success;
+  return true;
 }
 
 }  // namespace compression_computer

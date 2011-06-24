@@ -40,6 +40,10 @@ int EstimateResponseBytes(const Resource& resource);
 // Is the resource compressible using gzip?
 bool IsCompressibleResource(const Resource& resource);
 
+// Determine the size of a string after being gzipped.  In case of error,
+// return false and make no change to *output.
+bool GetGzippedSize(const std::string& input, int* output);
+
 // Parse directives from the given HTTP header.
 // For instance, if Cache-Control contains "private, max-age=0" we
 // expect the map to contain two pairs, one with key private and no

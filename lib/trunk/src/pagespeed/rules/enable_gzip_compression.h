@@ -58,10 +58,6 @@ class ZlibComputer : public pagespeed::rules::SavingsComputer {
                               pagespeed::Savings* savings);
 
  private:
-  static const int kBufferSize = 4096;  // compress 4K at a time
-
-  bool GetCompressedSize(z_stream* c_stream, int* compressed_size);
-
   DISALLOW_COPY_AND_ASSIGN(ZlibComputer);
 };
 

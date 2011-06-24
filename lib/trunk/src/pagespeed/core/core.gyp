@@ -26,6 +26,7 @@
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:timeline_pb',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
       ],
       'sources': [
         'directive_enumerator.cc',
