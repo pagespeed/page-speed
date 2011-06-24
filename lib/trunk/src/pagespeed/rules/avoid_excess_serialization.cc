@@ -177,7 +177,8 @@ namespace pagespeed {
 namespace rules {
 
 AvoidExcessSerialization::AvoidExcessSerialization()
-    : pagespeed::Rule(pagespeed::InputCapabilities()) {
+    : pagespeed::Rule(pagespeed::InputCapabilities(
+        pagespeed::InputCapabilities::TIMELINE_DATA)) {
 }
 
 const char* AvoidExcessSerialization::name() const {
