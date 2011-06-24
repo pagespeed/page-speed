@@ -86,8 +86,19 @@
       '<@(xpi_files_static_preferences)',
       '<@(xpi_files_xpt)',
     ],
-    'xpi_files_so_target': [
-      '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+    'conditions': [
+      ['OS=="mac"', {
+        # On Mac, SHARED_LIB_PREFIX/SUFFIX refer to 'lib' and '.dylib'
+        # but these do not match our shared library, so we manually
+        # override here.
+        'xpi_files_so_target': [
+          '<(PRODUCT_DIR)/pagespeed.so',
+        ],
+      }, {
+        'xpi_files_so_target': [
+          '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+        ],
+      }],
     ],
     'xpi_files_so_WINNT_x86-msvc': [
       '<(archive_platform_root)/WINNT_x86-msvc/components/pagespeed.dll',
