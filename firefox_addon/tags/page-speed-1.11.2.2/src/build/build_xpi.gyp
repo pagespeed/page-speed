@@ -99,10 +99,10 @@
       '<(archive_platform_root)/Linux_x86_64-gcc3/components/libpagespeed.so',
     ],
     'xpi_files_so_Darwin_x86-gcc3': [
-      '<(archive_platform_root)/Darwin_x86-gcc3/components/libpagespeed.dylib',
+      '<(archive_platform_root)/Darwin_x86-gcc3/components/pagespeed.so',
     ],
     'xpi_files_so_Darwin_x86_64-gcc3': [
-      '<(archive_platform_root)/Darwin_x86_64-gcc3/components/libpagespeed.dylib',
+      '<(archive_platform_root)/Darwin_x86_64-gcc3/components/pagespeed.so',
     ],
     'xpi_stage_components_root': '<(xpi_stage_root)/components',
     'xpi_stage_platform_root': '<(xpi_stage_root)/platform',
