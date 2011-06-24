@@ -24,6 +24,7 @@
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/uri_util.h"
 
 namespace {
@@ -64,7 +65,8 @@ Resource::Resource()
     : status_code_(-1),
       response_protocol_(UNKNOWN_PROTOCOL),
       type_(OTHER),
-      request_start_time_millis_(-1) {
+      request_start_time_millis_(-1),
+      compressed_response_body_size_(-1) {
 }
 
 Resource::~Resource() {
@@ -244,6 +246,22 @@ const Resource::HeaderMap* Resource::GetResponseHeaders() const {
 
 const std::string& Resource::GetResponseBody() const {
   return response_body_;
+}
+
+bool Resource::GetCompressedResponseBodySize(int* output) const {
+  if (compressed_response_body_size_ < 0) {
+    if (::pagespeed::resource_util::IsCompressibleResource(*this)) {
+      if (!::pagespeed::resource_util::GetGzippedSize(
+              response_body_, &compressed_response_body_size_)) {
+        return false;
+      }
+    } else {
+      compressed_response_body_size_ = response_body_.size();
+    }
+  }
+
+  *output = compressed_response_body_size_;
+  return true;
 }
 
 const std::vector<const JavaScriptCallInfo*>* Resource::GetJavaScriptCalls(

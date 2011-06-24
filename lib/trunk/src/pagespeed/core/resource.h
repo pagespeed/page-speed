@@ -149,6 +149,13 @@ class Resource {
   // content decodings (e.g. post ungzipping the response).
   const std::string& GetResponseBody() const;
 
+  // Determine how many bytes would the response body be if it were gzipped
+  // (whether or not the resource actually was gzipped).  For resources that
+  // aren't compressible (e.g. PNGs), yields the original request body size.
+  // Return true on success, false on error.  This method is memoized, so it is
+  // cheap to call.
+  bool GetCompressedResponseBodySize(int* output) const;
+
   // Get the cookies specified via SetCookies. If SetCookies was
   // unspecified, this will fall back to the Cookie request header. If that
   // header is empty, this method falls back to the Set-Cookie response
@@ -224,6 +231,9 @@ class Resource {
   ResourceType type_;
   JavaScriptCallInfoMap javascript_calls_;
   int request_start_time_millis_;
+
+  // Memoized result for GetCompressedResponseBodySize():
+  mutable int compressed_response_body_size_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
 };

@@ -26,6 +26,12 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#ifdef USE_SYSTEM_ZLIB
+#include "zlib.h"
+#else
+#include "third_party/zlib/zlib.h"
+#endif
+
 
 namespace {
 
@@ -166,6 +172,87 @@ bool IsCompressibleResource(const Resource& resource) {
     default:
       return false;
   }
+}
+
+namespace {
+
+bool GetGzippedSizeFromCStream(z_stream* c_stream, int* output) {
+  const int kBufferSize = 4096;  // compress 4K at a time
+  scoped_array<char> buffer(new char[kBufferSize]);
+
+  int err = Z_OK;
+  bool finished = false;
+  int compressed_size = 0;
+
+  while (!finished) {
+    c_stream->next_out = reinterpret_cast<Bytef*>(buffer.get());
+    c_stream->avail_out = kBufferSize;
+    err = deflate(c_stream, Z_FINISH);
+
+    switch (err) {
+      case Z_OK:
+        break;
+
+      case Z_STREAM_END:
+        finished = true;
+        break;
+
+      default:
+        LOG(INFO) << "GetCompressedSize encountered error: " << err;
+        return false;
+    }
+
+    compressed_size += (kBufferSize - c_stream->avail_out);
+  }
+
+  if (err != Z_STREAM_END) {
+    LOG(INFO) << "GetCompressedSize expected Z_STREAM_END, got " << err;
+    return false;
+  }
+
+  *output = compressed_size;
+  return true;
+}
+
+}  // namespace
+
+bool GetGzippedSize(const std::string& input, int* output) {
+  z_stream c_stream; /* compression stream */
+  c_stream.zalloc = (alloc_func)0;
+  c_stream.zfree = (free_func)0;
+  c_stream.opaque = (voidpf)0;
+
+  int err = deflateInit2(
+      &c_stream,
+      Z_DEFAULT_COMPRESSION,
+      Z_DEFLATED,
+      31,  // window size of 15, plus 16 for gzip
+      8,   // default mem level (no zlib constant exists for this value)
+      Z_DEFAULT_STRATEGY);
+  if (err != Z_OK) {
+    LOG(INFO) << "Failed to deflateInit2: " << err;
+    return false;
+  }
+
+  c_stream.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(input.data()));
+  c_stream.avail_in = input.size();
+
+  int compressed_size = 0;
+  bool ok = GetGzippedSizeFromCStream(&c_stream, &compressed_size);
+
+  // clean up.
+  err = deflateEnd(&c_stream);
+  if (err != Z_OK) {
+    LOG(INFO) << "Failed to deflateEnd: " << err;
+    return false;
+  }
+
+  if (!ok) {
+    return false;
+  }
+
+  *output = compressed_size;
+  return true;
 }
 
 bool GetHeaderDirectives(const std::string& header, DirectiveMap* out) {
