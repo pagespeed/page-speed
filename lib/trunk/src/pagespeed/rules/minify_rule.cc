@@ -58,7 +58,8 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
 
-    scoped_ptr<const MinifierOutput> output(minifier_->Minify(resource));
+    scoped_ptr<const MinifierOutput> output(
+        minifier_->Minify(resource, rule_input));
     if (output == NULL) {
       error = true;
       continue;

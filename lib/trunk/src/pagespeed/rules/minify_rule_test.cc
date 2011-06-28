@@ -18,7 +18,12 @@
 #include "pagespeed/rules/minify_rule.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
+namespace pagespeed {
+class RuleInput;
+}  // namespace pagespeed
+
 using pagespeed::Resource;
+using pagespeed::RuleInput;
 using pagespeed::UserFacingString;
 using pagespeed::rules::MinifierOutput;
 
@@ -42,13 +47,15 @@ class FoobarMinifier : public pagespeed::rules::Minifier {
   virtual UserFacingString child_format() const {
     return not_localized("$1 $2 $3");
   }
-  virtual const MinifierOutput* Minify(const Resource& resource) const;
+  virtual const MinifierOutput* Minify(const Resource& resource,
+                                       const RuleInput& input) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(FoobarMinifier);
 };
 
-const MinifierOutput* FoobarMinifier::Minify(const Resource& resource) const {
+const MinifierOutput* FoobarMinifier::Minify(const Resource& resource,
+                                             const RuleInput& input) const {
   const std::string minified = "foobar";
   const int savings = resource.GetResponseBody().size() - minified.size();
   return new MinifierOutput(savings, minified, "text/plain");

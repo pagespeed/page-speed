@@ -17,6 +17,7 @@
 #include <string>
 
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/rule_input.h"
 
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
@@ -44,7 +45,8 @@ class ImageMinifier : public Minifier {
   virtual UserFacingString header_format() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
-  virtual const MinifierOutput* Minify(const Resource& resource) const;
+  virtual const MinifierOutput* Minify(const Resource& resource,
+                                       const RuleInput& input) const;
 
  private:
   bool save_optimized_content_;
@@ -81,7 +83,8 @@ UserFacingString ImageMinifier::child_format() const {
   return _("Losslessly compressing $1 could save $2 ($3% reduction).");
 }
 
-const MinifierOutput* ImageMinifier::Minify(const Resource& resource) const {
+const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
+                                            const RuleInput& input) const {
   if (resource.GetResourceType() != IMAGE) {
     return new MinifierOutput();
   }
