@@ -21,6 +21,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -42,22 +43,19 @@ namespace {
 
 class GzipMinifier : public Minifier {
  public:
-  explicit GzipMinifier(SavingsComputer* computer) : computer_(computer) {
-    DCHECK(NULL != computer) << "SavingsComputer must be non-null.";
-  }
+  GzipMinifier() {}
 
   // Minifier interface:
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
-  virtual const MinifierOutput* Minify(const Resource& resource) const;
+  virtual const MinifierOutput* Minify(const Resource& resource,
+                                       const RuleInput& input) const;
 
  private:
   bool IsCompressed(const Resource& resource) const;
   bool IsViolation(const Resource& resource) const;
-
-  scoped_ptr<SavingsComputer> computer_;
 
   DISALLOW_COPY_AND_ASSIGN(GzipMinifier);
 };
@@ -100,21 +98,21 @@ UserFacingString GzipMinifier::child_format() const {
   return _("Compressing $1 could save $2 ($3% reduction).");
 }
 
-const MinifierOutput* GzipMinifier::Minify(const Resource& resource) const {
-  if (!computer_.get())
-    return NULL;
-
+const MinifierOutput* GzipMinifier::Minify(const Resource& resource,
+                                           const RuleInput& input) const {
   if (!IsViolation(resource)) {
     return new MinifierOutput();
   }
-  Savings savings;
-  if (computer_->ComputeSavings(resource, &savings)) {
-    return new MinifierOutput(savings.response_bytes_saved());
-  } else {
-    LOG(ERROR) << "ComputeSavings failed for resource: "
+
+  int compressed_size;
+  if (!input.GetCompressedResponseBodySize(resource, &compressed_size)) {
+    LOG(ERROR) << "GetCompressedResponseBodySize failed for resource: "
                << resource.GetRequestUrl();
     return NULL; // error
   }
+
+  return new MinifierOutput(resource.GetResponseBody().size() -
+                            compressed_size);
 }
 
 bool GzipMinifier::IsCompressed(const Resource& resource) const {
@@ -168,8 +166,8 @@ int64 EnableCompressionScoreComputer::ComputeCost() {
 
 }  // namespace
 
-EnableGzipCompression::EnableGzipCompression(SavingsComputer* computer)
-    : MinifyRule(new GzipMinifier(computer)) {}
+EnableGzipCompression::EnableGzipCompression()
+    : MinifyRule(new GzipMinifier()) {}
 
 int EnableGzipCompression::ComputeScore(const InputInformation& input_info,
                                         const RuleResults& results) {
@@ -177,22 +175,6 @@ int EnableGzipCompression::ComputeScore(const InputInformation& input_info,
       &results, resource_util::ComputeCompressibleResponseBytes(input_info));
   return score_computer.ComputeScore();
 }
-
-namespace compression_computer {
-
-bool ZlibComputer::ComputeSavings(const pagespeed::Resource& resource,
-                                  pagespeed::Savings* savings) {
-  int compressed_size;
-  if (!resource.GetCompressedResponseBodySize(&compressed_size)) {
-    return false;
-  }
-
-  savings->set_response_bytes_saved(
-      resource.GetResponseBody().size() - compressed_size);
-  return true;
-}
-
-}  // namespace compression_computer
 
 }  // namespace rules
 

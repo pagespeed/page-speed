@@ -23,7 +23,6 @@
 #include "pagespeed/rules/savings_computer.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
-using pagespeed::rules::compression_computer::ZlibComputer;
 using pagespeed::rules::EnableGzipCompression;
 using pagespeed::rules::SavingsComputer;
 using pagespeed::PagespeedInput;
@@ -110,21 +109,19 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
   }
 
   void CheckOneViolation(int expected_savings, int score) {
-    CheckOneViolationInternal(new ZlibComputer(),
-                              expected_savings,
+    CheckOneViolationInternal(expected_savings,
                               score,
                               true);
   }
 
-  void CheckErrorAndOneViolation(SavingsComputer* computer,
-                                 int expected_savings) {
-    CheckOneViolationInternal(computer, expected_savings, -1, false);
+  void CheckErrorAndOneViolation(int expected_savings) {
+    CheckOneViolationInternal(expected_savings, -1, false);
   }
 
   void CheckTwoViolations(int first_expected_savings,
                           int second_expected_savings,
                           int score) {
-    EnableGzipCompression gzip_rule(new ZlibComputer());
+    EnableGzipCompression gzip_rule;
 
     RuleResults rule_results;
     ResultProvider provider(gzip_rule, &rule_results, 0);
@@ -150,7 +147,7 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
 
  private:
   void CheckNoViolationsInternal(bool expect_success) {
-    EnableGzipCompression gzip_rule(new ZlibComputer());
+    EnableGzipCompression gzip_rule;
 
     RuleResults rule_results;
     ResultProvider provider(gzip_rule, &rule_results, 0);
@@ -159,11 +156,10 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     ASSERT_EQ(rule_results.results_size(), 0);
   }
 
-  void CheckOneViolationInternal(SavingsComputer* computer,
-                                 int expected_savings,
+  void CheckOneViolationInternal(int expected_savings,
                                  int score,
                                  bool expect_success) {
-    EnableGzipCompression gzip_rule(computer);
+    EnableGzipCompression gzip_rule;
 
     RuleResults rule_results;
     ResultProvider provider(gzip_rule, &rule_results, 0);
@@ -270,14 +266,6 @@ TEST_F(EnableGzipCompressionTest, TwoViolationsTwoHtmlNoGzip) {
   CheckTwoViolations(8956, 4460, 0);
 }
 
-// The DCHECK will only trigger in debug builds.
-#ifndef NDEBUG
-TEST_F(EnableGzipCompressionTest, NullComputer) {
-  ASSERT_DEATH(new EnableGzipCompression(NULL),
-               "SavingsComputer must be non-null.");
-}
-#endif
-
 TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
   std::string body;
   body.append(9000, ' ');
@@ -285,39 +273,6 @@ TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
   AddTestResource("http://www.test.com/", "text/html", NULL, body);
   Freeze();
   CheckOneViolation(8955, 0);
-}
-
-class FailAtSpecifiedIndexComputer : public SavingsComputer {
- public:
-  explicit FailAtSpecifiedIndexComputer(int index)
-      : index_(index),
-        counter_(0) {}
-  ~FailAtSpecifiedIndexComputer() {}
-
-  virtual bool ComputeSavings(const Resource& resource, Savings* savings) {
-    savings->set_response_bytes_saved(10);
-    return (counter_++ != index_);
-  }
-
- private:
-  const int index_;
-  int counter_;
-};
-
-TEST_F(EnableGzipCompressionTest, FailedComputationsNotAddedToResults) {
-  AddFirstLargeHtmlResource(false);
-  AddSecondLargeHtmlResource(false);
-  Freeze();
-
-  CheckErrorAndOneViolation(new FailAtSpecifiedIndexComputer(1), 10);
-}
-
-TEST_F(EnableGzipCompressionTest, FailedComputationsNotAddedToResults2) {
-  AddSecondLargeHtmlResource(false);
-  AddFirstLargeHtmlResource(false);
-  Freeze();
-
-  CheckErrorAndOneViolation(new FailAtSpecifiedIndexComputer(0), 10);
 }
 
 }  // namespace

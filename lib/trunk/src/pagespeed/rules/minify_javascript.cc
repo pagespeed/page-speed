@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/rule_input.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/jsminify/js_minify.h"
@@ -42,7 +43,8 @@ class JsMinifier : public Minifier {
   virtual UserFacingString header_format() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
-  virtual const MinifierOutput* Minify(const Resource& resource) const;
+  virtual const MinifierOutput* Minify(const Resource& resource,
+                                       const RuleInput& input) const;
 
  private:
   bool save_optimized_content_;
@@ -79,7 +81,8 @@ UserFacingString JsMinifier::child_format() const {
   return _("Minifying $1 could save $2 ($3% reduction).");
 }
 
-const MinifierOutput* JsMinifier::Minify(const Resource& resource) const {
+const MinifierOutput* JsMinifier::Minify(const Resource& resource,
+                                         const RuleInput& rule_input) const {
   if (resource.GetResourceType() != JS) {
     return new MinifierOutput();
   }

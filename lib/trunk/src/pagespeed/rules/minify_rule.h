@@ -99,7 +99,8 @@ class Minifier {
   virtual UserFacingString header_format() const = 0;
   virtual UserFacingString body_format() const = 0;
   virtual UserFacingString child_format() const = 0;
-  virtual const MinifierOutput* Minify(const Resource& resource) const = 0;
+  virtual const MinifierOutput* Minify(const Resource& resource,
+                                       const RuleInput& input) const = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Minifier);

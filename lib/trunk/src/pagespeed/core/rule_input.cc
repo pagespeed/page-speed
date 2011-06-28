@@ -205,4 +205,33 @@ const Resource* RuleInput::GetFinalRedirectTarget(
   return chain ? chain->back() : resource;
 }
 
+bool RuleInput::GetCompressedResponseBodySize(const Resource& resource,
+                                              int* output) const {
+  // If the compressed size for this resource is already in the map, return
+  // that memoized value.
+  const std::map<const Resource*, int>::const_iterator iter =
+      compressed_response_body_sizes_.find(&resource);
+  if (iter != compressed_response_body_sizes_.end()) {
+    *output = iter->second;
+    return true;
+  }
+
+  // Compute the compressed size of the resource (or original size if the
+  // resource is not compressible).
+  int compressed_size;
+  if (::pagespeed::resource_util::IsCompressibleResource(resource)) {
+    if (!::pagespeed::resource_util::GetGzippedSize(
+            resource.GetResponseBody(), &compressed_size)) {
+      return false;
+    }
+  } else {
+    compressed_size = resource.GetResponseBody().size();
+  }
+
+  // Memoize and return the compressed size.
+  compressed_response_body_sizes_[&resource] = compressed_size;
+  *output = compressed_size;
+  return true;
+}
+
 }  // namespace pagespeed

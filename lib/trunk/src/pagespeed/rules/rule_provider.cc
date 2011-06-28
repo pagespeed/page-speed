@@ -165,8 +165,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
   RULE("deferparsingjavascript", rules::DeferParsingJavaScript());
   RULE("eliminateunnecessaryreflows", rules::EliminateUnnecessaryReflows());
-  RULE("enablegzipcompression", rules::EnableGzipCompression(
-      new rules::compression_computer::ZlibComputer()));
+  RULE("enablegzipcompression", rules::EnableGzipCompression());
   RULE("enablekeepalive", rules::EnableKeepAlive());
   RULE("inlinesmallcss", rules::InlineSmallCss());
   RULE("inlinesmalljavascript", rules::InlineSmallJavaScript());

@@ -38,30 +38,13 @@ class EnableGzipCompression : public MinifyRule {
  public:
   // @param computer Object responsible for computing the compressed
   // size of the resource.
-  explicit EnableGzipCompression(SavingsComputer* computer);
+  EnableGzipCompression();
   virtual int ComputeScore(const InputInformation& input_info,
                            const RuleResults& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(EnableGzipCompression);
 };
-
-namespace compression_computer {
-
-// Uses zlib to compute the exact savings from using gzip compression.
-class ZlibComputer : public pagespeed::rules::SavingsComputer {
- public:
-  ZlibComputer() {}
-  virtual ~ZlibComputer() {}
-
-  virtual bool ComputeSavings(const pagespeed::Resource& resource,
-                              pagespeed::Savings* savings);
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(ZlibComputer);
-};
-
-}  // namespace compression_computer
 
 }  // namespace rules
 
