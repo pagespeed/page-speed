@@ -295,10 +295,14 @@ std::string InputPopulator::GetString(const DictionaryValue& object,
 
 PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
                                            ResourceFilter* resource_filter) {
-  scoped_ptr<const Value> har_json(base::JSONReader::Read(
+  std::string error_msg_out;
+  scoped_ptr<Value> har_json(base::JSONReader::ReadAndReturnError(
       har_data,
-      true));  // allow_trailing_comma
+      true,  // allow_trailing_comma
+      NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+      &error_msg_out));
   if (har_json == NULL) {
+    LOG(ERROR) << "Failed to parse JSON: " << error_msg_out;
     return NULL;
   }
 
