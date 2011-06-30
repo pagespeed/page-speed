@@ -9,7 +9,7 @@
   },
   "devtools_page": "devtools-page.html",
   "homepage_url": "http://code.google.com/speed/page-speed/docs/extension.html",
-  "minimum_chrome_version": "10.0",
+  "minimum_chrome_version": "12.0",
   "name": "Page Speed",
   "options_page": "options.html",
   "permissions": [
@@ -24,5 +24,5 @@
     { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true },
     { "path": "pagespeed_plugin.plugin", "public": true }
   ],
-  "version": "1.11.2.0"
+  "version": "1.11.6.0"
 }
