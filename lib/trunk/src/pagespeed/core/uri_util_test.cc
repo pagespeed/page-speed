@@ -20,6 +20,7 @@ namespace {
 
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
+using pagespeed::uri_util::GetDomainAndRegistry;
 
 class ResolveUriForDocumentWithUrlTest
     : public ::pagespeed_testing::PagespeedTest {
@@ -133,6 +134,22 @@ TEST(UriUtil, CanonicalizeUrl) {
   ASSERT_EQ("http://www.foo.com/", url);
   pagespeed::uri_util::CanonicalizeUrl(&url);
   ASSERT_EQ("http://www.foo.com/", url);
+}
+
+TEST(UriUtil, GetDomainAndRegistry) {
+  EXPECT_EQ("google.com",
+            GetDomainAndRegistry("http://www.google.com/file.html"));
+  EXPECT_EQ("google.com",
+            GetDomainAndRegistry("http://..google.com/file.html"));
+  EXPECT_EQ("google.com.",
+            GetDomainAndRegistry("http://google.com./file.html"));
+  EXPECT_EQ("b.co.uk", GetDomainAndRegistry("http://a.b.co.uk/file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("file:///C:/bar.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://foo.com../file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://192.168.0.1/file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://bar/file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://co.uk/file.html"));
+  EXPECT_EQ("foo.bar", GetDomainAndRegistry("http://foo.bar/file.html"));
 }
 
 }  // namespace

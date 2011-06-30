@@ -21,7 +21,6 @@
 #include "base/logging.h"
 #include "build/build_config.h"
 #include "googleurl/src/gurl.h"
-#include "net/base/registry_controlled_domain.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -55,15 +54,15 @@ void PopulateDomainHostResourceMap(
       continue;
     }
 
-    GURL gurl(resource.GetRequestUrl());
     std::string domain =
-        net::RegistryControlledDomainService::GetDomainAndRegistry(gurl);
+        pagespeed::uri_util::GetDomainAndRegistry(resource.GetRequestUrl());
     if (domain.empty()) {
       LOG(INFO) << "Got empty domain for " << resource.GetRequestUrl();
       continue;
     }
 
     // Add the resource to the map.
+    GURL gurl(resource.GetRequestUrl());
     (*domain_host_resouce_map)[domain][gurl.host()].insert(&resource);
   }
 }

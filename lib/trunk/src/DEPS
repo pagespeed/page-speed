@@ -23,6 +23,8 @@ vars = {
   "protobuf_revision": "@head",
   "gflags_src": "http://google-gflags.googlecode.com/svn/tags/gflags-1.5",
   "gflags_revision": "@head",
+  "drp_src": "http://domain-registry-provider.googlecode.com/svn/trunk",
+  "drp_revision": "@19",
 }
 
 deps = {
@@ -40,9 +42,6 @@ deps = {
   "src/third_party/chromium/src/base":
     Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
 
-  "src/third_party/chromium/src/net/base":
-    Var("chromium_trunk") + "/src/net/base" + Var("chromium_revision"),
-
   "src/build/linux":
     Var("chromium_trunk") + "/src/build/linux" + Var("chromium_revision"),
   "src/build/mac":
@@ -53,6 +52,9 @@ deps = {
     Var("chromium_trunk") + "/src/build/util" + Var("chromium_revision"),
   "src/build/internal":
     Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
+
+  "src/third_party/domain-registry/src":
+    Var("drp_src") + "/src" + Var("drp_revision"),
 
   "src/third_party/google-gflags/src":
     Var("gflags_src") + "/src" + Var("gflags_revision"),

@@ -20,6 +20,7 @@
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "pagespeed/core/dom.h"
+#include "third_party/domain-registry/src/domain_registry/domain_registry.h"
 
 namespace {
 
@@ -82,6 +83,35 @@ GURL GetUriWithoutFragmentInternal(const GURL& url) {
   url_canon::Replacements<char> clear_fragment;
   clear_fragment.ClearRef();
   return url.ReplaceComponents(clear_fragment);
+}
+
+// Code based on Chromium's
+// RegistryControlledDomainService::GetDomainAndRegistryImpl.
+std::string GetDomainAndRegistryImpl(const std::string& host) {
+  DCHECK(!host.empty());
+
+  // Find the length of the registry for this host.
+  const size_t registry_length =
+      GetRegistryLengthAllowUnknownRegistries(host.c_str());
+  if (registry_length == 0)
+    return std::string();  // No registry.
+  // The "2" in this next line is 1 for the dot, plus a 1-char minimum preceding
+  // subcomponent length.
+  DCHECK(host.length() >= 2);
+  if (registry_length > (host.length() - 2)) {
+    LOG(DFATAL) <<
+        "Host does not have at least one subcomponent before registry!";
+    return std::string();
+  }
+
+  // Move past the dot preceding the registry, and search for the next previous
+  // dot.  Return the host from after that dot, or the whole host when there is
+  // no dot.
+  const size_t registry_dot = host.length() - (registry_length + 1);
+  const size_t start = host.rfind('.', registry_dot - 1);
+  if (start == std::string::npos)
+    return host;
+  return host.substr(start + 1);
 }
 
 }  // namespace
@@ -171,6 +201,18 @@ bool IsExternalResourceUrl(const std::string& url) {
   }
 
   return !gurl.SchemeIs("data");
+}
+
+// Code based on Chromium's
+// RegistryControlledDomainService::GetDomainAndRegistry.
+std::string GetDomainAndRegistry(const std::string& url) {
+  GURL gurl(url);
+  const url_parse::Component host =
+      gurl.parsed_for_possibly_invalid_spec().host;
+  if ((host.len <= 0) || gurl.HostIsIPAddress())
+    return std::string();
+  return GetDomainAndRegistryImpl(std::string(
+      gurl.possibly_invalid_spec().data() + host.begin, host.len));
 }
 
 }  // namespace uri_util
