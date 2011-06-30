@@ -49,9 +49,6 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/build/temp_gyp" +
      Var("libpagespeed_revision")),
 
-  "src/net":
-    Var("libpagespeed_trunk") + "/src/net" + Var("libpagespeed_revision"),
-
   "src/googleurl_noconv":
     (Var("libpagespeed_trunk") + "/src/googleurl_noconv" +
      Var("libpagespeed_revision")),
