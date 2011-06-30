@@ -24,7 +24,7 @@ vars = {
   "gflags_src": "http://google-gflags.googlecode.com/svn/tags/gflags-1.5",
   "gflags_revision": "@head",
   "drp_src": "http://domain-registry-provider.googlecode.com/svn/trunk",
-  "drp_revision": "@19",
+  "drp_revision": "@20",
 }
 
 deps = {
