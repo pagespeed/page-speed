@@ -56,6 +56,28 @@ bool ResolveUriForDocumentWithUrl(
 // resource like a data URI?
 bool IsExternalResourceUrl(const std::string& uri);
 
+// Returns the registered, organization-identifying host and all its registry
+// information, but no subdomains, from the given url. Returns an empty
+// string if the url is invalid, has no host (e.g. a file: URL), has multiple
+// trailing dots, is an IP address, has only one subcomponent (i.e. no dots
+// other than leading/trailing ones), or is itself a recognized registry
+// identifier. If no matching rule is found in the effective-TLD data (or in
+// the default data, if the resource failed to load), the last subcomponent of
+// the host is assumed to be the registry.
+//
+// Examples:
+//   http://www.google.com/file.html -> "google.com"  (com)
+//   http://..google.com/file.html   -> "google.com"  (com)
+//   http://google.com./file.html    -> "google.com." (com)
+//   http://a.b.co.uk/file.html      -> "b.co.uk"     (co.uk)
+//   file:///C:/bar.html             -> ""            (no host)
+//   http://foo.com../file.html      -> ""            (multiple trailing dots)
+//   http://192.168.0.1/file.html    -> ""            (IP address)
+//   http://bar/file.html            -> ""            (no subcomponents)
+//   http://co.uk/file.html          -> ""            (host is a registry)
+//   http://foo.bar/file.html        -> "foo.bar"     (no rule; assume bar)
+std::string GetDomainAndRegistry(const std::string& url);
+
 }  // namespace uri_util
 
 }  // namespace pagespeed

@@ -23,7 +23,6 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/net/net.gyp:net_base',
         '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',

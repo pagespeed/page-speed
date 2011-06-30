@@ -17,6 +17,7 @@
 #include "googleurl/src/url_util.h"
 #include "net/instaweb/htmlparse/public/html_keywords.h"
 #include "pagespeed/l10n/register_locale.h"
+#include "third_party/domain-registry/src/domain_registry/domain_registry.h"
 
 namespace pagespeed {
 
@@ -24,6 +25,7 @@ void Init() {
   url_util::Initialize();
   net_instaweb::HtmlKeywords::Init();
   l10n::RegisterLocale::Freeze();
+  InitializeDomainRegistry();
 }
 
 void ShutDown() {

@@ -19,7 +19,6 @@
 #include "base/logging.h"
 #include "build/build_config.h"
 #include "googleurl/src/gurl.h"
-#include "net/base/registry_controlled_domain.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -27,6 +26,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -115,9 +115,8 @@ bool SpriteImages::AppendResults(const RuleInput& rule_input,
       continue;
     }
 
-    GURL gurl(resource.GetRequestUrl());
     std::string domain =
-        net::RegistryControlledDomainService::GetDomainAndRegistry(gurl);
+        uri_util::GetDomainAndRegistry(resource.GetRequestUrl());
     if (domain.empty()) {
       LOG(INFO) << "Got empty domain for " << resource.GetRequestUrl();
       continue;
@@ -177,9 +176,8 @@ void SpriteImages::FormatResults(const ResultVector& results,
        iter != end;
        ++iter) {
     const Result& result = **iter;
-    GURL gurl(result.resource_urls(0));
     std::string domain =
-        net::RegistryControlledDomainService::GetDomainAndRegistry(gurl);
+        uri_util::GetDomainAndRegistry(result.resource_urls(0));
     Argument host(Argument::STRING, domain);
     UrlBlockFormatter* body = formatter->AddUrlBlock(body_tmpl, host);
 

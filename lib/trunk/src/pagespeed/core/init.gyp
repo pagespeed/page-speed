@@ -24,6 +24,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+        '<(DEPTH)/third_party/domain-registry/src/domain_registry/domain_registry.gyp:init_registry_tables_lib',
         '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
         '<(pagespeed_root)/pagespeed/l10n/l10n.gyp:pagespeed_l10n',
       ],

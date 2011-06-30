@@ -15,8 +15,6 @@
 #include "pagespeed/rules/inline_small_resources.h"
 
 #include "base/logging.h"
-#include "googleurl/src/gurl.h"
-#include "net/base/registry_controlled_domain.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "net/instaweb/util/public/google_message_handler.h"
@@ -26,6 +24,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/cssmin/cssmin.h"
 #include "pagespeed/html/external_resource_filter.h"
 #include "pagespeed/l10n/l10n.h"
@@ -90,10 +89,8 @@ bool InlineSmallResources::AppendResults(const RuleInput& rule_input,
       continue;
     }
 
-    GURL resource_gurl(resource.GetRequestUrl());
     std::string resource_domain =
-        net::RegistryControlledDomainService::GetDomainAndRegistry(
-            resource_gurl);
+        uri_util::GetDomainAndRegistry(resource.GetRequestUrl());
     if (resource_domain.empty()) {
       LOG(INFO) << "Got empty domain for " << resource.GetRequestUrl();
       continue;
@@ -183,10 +180,8 @@ bool InlineSmallResources::IsInlineCandidate(const Resource* resource,
     return false;
   }
 
-  GURL resource_gurl(resource->GetRequestUrl());
   std::string resource_domain =
-      net::RegistryControlledDomainService::GetDomainAndRegistry(
-          resource_gurl);
+      uri_util::GetDomainAndRegistry(resource->GetRequestUrl());
   if (resource_domain.empty()) {
     LOG(INFO) << "Got empty domain for "
               << resource->GetRequestUrl();
