@@ -113,6 +113,11 @@
         }],
       ],
     },
+  ],
+
+  'conditions': [
+  ['OS!="win"', {
+  'targets': [
     {
       'target_name': 'pagespeed_extension_make_dirs',
       'type': 'none',
@@ -223,4 +228,7 @@
       ],
     },
   ],
+
+  }],  # 'OS!="win"'
+  ],   # end condition block
 }
