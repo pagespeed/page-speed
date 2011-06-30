@@ -81,6 +81,7 @@ deps = {
   "src/build/util": From(Var("libpagespeed_deps_root")),
   "src/build/internal": From(Var("libpagespeed_deps_root")),
   "src/testing": From(Var("libpagespeed_deps_root")),
+  "src/third_party/domain-registry/src": From(Var("libpagespeed_deps_root")),
   "src/third_party/icu/public": From(Var("libpagespeed_deps_root")),
   "src/third_party/icu/source/common": From(Var("libpagespeed_deps_root")),
   "src/third_party/icu/source/i18n": From(Var("libpagespeed_deps_root")),
@@ -93,7 +94,6 @@ deps = {
   "src/third_party/zlib": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/base": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/build": From(Var("libpagespeed_deps_root")),
-  "src/third_party/chromium/src/net/base": From(Var("libpagespeed_deps_root")),
   "src/tools/data_pack": From(Var("libpagespeed_deps_root")),
   "src/tools/grit": From(Var("libpagespeed_deps_root")),
 
