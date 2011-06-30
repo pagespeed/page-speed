@@ -240,6 +240,10 @@ var pagespeed_bg = {
           xhr, entry, fetchContext, timeoutCallbackId);
       try {
         xhr.open("GET", url, true);
+        // Request to get the response data in the form of an ArrayBuffer.  If
+        // we don't do this, the XHR tends to try to interpret binary data as
+        // UTF8-encoded text, which doesn't work out very well.
+        xhr.responseType = 'arraybuffer';
         xhr.send();
       } catch (e) {
         console.log('Failed to request resource ' + url);
@@ -420,30 +424,28 @@ var pagespeed_bg = {
       return;
     }
 
-    var body = xhr.responseText;
-    var contentType = xhr.getResponseHeader('Content-Type');
-    var encoding;
-    if (content && content.encoding) {
-      encoding = content.encoding;
+    // Get the content as raw binary data.  Since we set xhr.responseType to
+    // 'arraybuffer', xhr.response will be an ArrayBuffer object (except that
+    // it may be null for empty responses, in which case we create an empty
+    // Uint8Array).
+    var bodyBytes = (xhr.response === null ? new Uint8Array() :
+                     new Uint8Array(xhr.response));
+    var bodySize = bodyBytes.length;
+    // Encode the binary content into base64.  For now, the following mess is
+    // the easiest way I know how to do this.  Hopefully someday there will be
+    // an easier way.
+    var bodyCharacters = [];
+    for (var index = 0; index < bodySize; ++index) {
+      bodyCharacters.push(String.fromCharCode(bodyBytes[index]));
     }
-    if (encoding === 'base64' ||
-        (contentType && contentType.substr(0, 6) === 'image/')) {
-      encoding = 'base64';
+    var bodyEncoded = btoa(bodyCharacters.join(''));
 
-      // TODO: base64-encode. We can't use btoa() since it does not
-      // work on binary data. We likely need to call a native method
-      // on our NPAPI plugin for this.
-
-      // For now, abort since we can't properly encode this response.
-      return;
-    }
-
-    // Update the content fields with the new data.
-    content.text = body;
-    content.size = body.length;
-    if (encoding) {
-      content.encoding = encoding;
-    }
+    // Update the content fields with the new data.  Note that we encode _all_
+    // resources with base64, even ASCII-only resources, simply because that's
+    // simpler than being smart about it.  We can change that later, though.
+    content.text = bodyEncoded;
+    content.size = bodySize;
+    content.encoding = 'base64';
   },
 
   // Callback for when a user navigates a tab elsewhere.
