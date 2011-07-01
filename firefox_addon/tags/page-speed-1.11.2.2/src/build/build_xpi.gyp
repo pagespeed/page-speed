@@ -207,23 +207,23 @@
       'copies': [
         {
           'destination': '<(xpi_stage_platform_root)/WINNT_x86-msvc/components/',
-          'files': [ 'xpi_files_so_WINNT_x86-msvc' ],
+          'files': [ '<@(xpi_files_so_WINNT_x86-msvc)' ],
         },
         {
           'destination': '<(xpi_stage_platform_root)/Linux_x86-gcc3/components/',
-          'files': [ 'xpi_files_so_Linux_x86-gcc3' ],
+          'files': [ '<@(xpi_files_so_Linux_x86-gcc3)' ],
         },
         {
           'destination': '<(xpi_stage_platform_root)/Linux_x86_64-gcc3/components/',
-          'files': [ 'xpi_files_so_Linux_x86_64-gcc3' ],
+          'files': [ '<@(xpi_files_so_Linux_x86_64-gcc3)' ],
         },
         {
           'destination': '<(xpi_stage_platform_root)/Darwin_x86-gcc3/components/',
-          'files': [ 'xpi_files_so_Darwin_x86-gcc3' ],
+          'files': [ '<@(xpi_files_so_Darwin_x86-gcc3)' ],
         },
         {
           'destination': '<(xpi_stage_platform_root)/Darwin_x86_64-gcc3/components/',
-          'files': [ 'xpi_files_so_Darwin_x86_64-gcc3' ],
+          'files': [ '<@(xpi_files_so_Darwin_x86_64-gcc3)' ],
         },
       ],
       'actions': [
@@ -242,7 +242,7 @@
 #            '<@(xpi_files_so_Darwin_x86-gcc3)',
 #            '<@(xpi_files_so_Darwin_x86_64-gcc3)',
           ],
-          'outputs': [ '<(PRODUCT_DIR)/page-speed.xpi' ],
+          'outputs': [ '<(PRODUCT_DIR)/page-speed-release.xpi' ],
           'action': [ 'python', '<@(_script_name)', '<@(_outputs)', '<(xpi_stage_root)' ],
         },
       ],
