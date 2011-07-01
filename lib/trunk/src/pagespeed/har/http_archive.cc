@@ -296,7 +296,7 @@ std::string InputPopulator::GetString(const DictionaryValue& object,
 PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
                                            ResourceFilter* resource_filter) {
   std::string error_msg_out;
-  scoped_ptr<Value> har_json(base::JSONReader::ReadAndReturnError(
+  scoped_ptr<const Value> har_json(base::JSONReader::ReadAndReturnError(
       har_data,
       true,  // allow_trailing_comma
       NULL,  // error_code_out (ReadAndReturnError permits NULL here)

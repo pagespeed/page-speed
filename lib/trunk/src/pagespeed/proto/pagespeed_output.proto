@@ -301,6 +301,16 @@ message AvoidLongRunningScriptsDetails {
   optional double duration_millis = 2;
 }
 
+message MinificationDetails {
+  extend ResultDetails {
+    optional MinificationDetails message_set_extension = 5073262;  // 'Min'
+  }
+
+  // True if the response_bytes_saved refers to post-gzip savings; false if it
+  // refers to savings on the uncompressed content.
+  optional bool savings_are_post_gzip = 1;
+}
+
 message Result {
   // Identifier of rule that produced this result. DEPRECATED (rule name is
   // stored in RuleResults)

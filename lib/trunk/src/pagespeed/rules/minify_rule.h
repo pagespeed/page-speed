@@ -64,28 +64,66 @@ class WeightedCostBasedScoreComputer : public CostBasedScoreComputer {
 
 struct MinifierOutput {
  public:
-  MinifierOutput() : bytes_saved_(0) {}
+  // Indicate an error in the rule.
+  static MinifierOutput* Error() { return NULL; }
 
-  explicit MinifierOutput(int bytes_saved) : bytes_saved_(bytes_saved) {}
+  // No error, but this resource is not eligible for minification by this rule.
+  static MinifierOutput* CannotBeMinified();
 
-  MinifierOutput(int bytes_saved, const std::string& optimized_content,
-                 const std::string& optimized_content_mime_type)
-      : bytes_saved_(bytes_saved),
-        optimized_content_(new std::string(optimized_content)),
-        optimized_content_mime_type_(optimized_content_mime_type) {}
+  // Provide the minified size, but not the minified content.  This is only
+  // valid for resources that were _not_ served compressed.
+  static MinifierOutput* PlainMinifiedSize(int plain_minified_size);
 
-  int bytes_saved() const { return bytes_saved_; }
-  const std::string* optimized_content() const {
-    return optimized_content_.get();
+  // Successfully minified content, but should not be saved to disk.
+  static MinifierOutput* DoNotSaveMinifiedContent(
+      const std::string& minified_content);
+
+  // Minified content, to be saved to disk (assuming the savings is positive).
+  // The minified_content_mime_type argument must be non-empty.
+  static MinifierOutput* SaveMinifiedContent(
+      const std::string& minified_content,
+      const std::string& minified_content_mime_type);
+
+  // False if the resource was not eligible for minification (even if this
+  // returns true, however, the savings may be non-positive).
+  bool can_be_minified() const { return can_be_minified_; }
+
+  // The size of the resource after minification, without additional
+  // compression.
+  int plain_minified_size() const { return plain_minified_size_; }
+
+  // True if the minified content should be saved.
+  bool should_save_minified_content() const {
+    return !minified_content_mime_type_.empty();
   }
-  const std::string& optimized_content_mime_type() const {
-    return optimized_content_mime_type_;
+
+  // The minified content; this is only guaranteed to be non-NULL if
+  // should_save_minified_content() returns true.
+  const std::string* minified_content() const {
+    return minified_content_.get();
   }
+
+  // The MIME type of the minified content (possibly different than the MIME
+  // type of the original resource).  This is guaranteed to be non-empty only
+  // if should_save_minified_content() returns true.
+  const std::string& minified_content_mime_type() const {
+    return minified_content_mime_type_;
+  }
+
+  // Get the size of the minified resource after also being compressed.  Return
+  // true on success, false on failure.
+  bool GetCompressedMinifiedSize(int* output) const;
 
  private:
-  int bytes_saved_;
-  scoped_ptr<std::string> optimized_content_;
-  std::string optimized_content_mime_type_;
+  MinifierOutput(bool can_be_minified,
+                 int plain_minified_size,
+                 const std::string* minified_content,
+                 const std::string& minified_content_mime_type);
+
+  const bool can_be_minified_;
+  const int plain_minified_size_;
+  scoped_ptr<const std::string> minified_content_;
+  const std::string minified_content_mime_type_;
 
   DISALLOW_COPY_AND_ASSIGN(MinifierOutput);
 };
@@ -99,6 +137,7 @@ class Minifier {
   virtual UserFacingString header_format() const = 0;
   virtual UserFacingString body_format() const = 0;
   virtual UserFacingString child_format() const = 0;
+  virtual UserFacingString child_format_post_gzip() const = 0;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const = 0;
 

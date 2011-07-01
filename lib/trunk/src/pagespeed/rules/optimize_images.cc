@@ -45,6 +45,7 @@ class ImageMinifier : public Minifier {
   virtual UserFacingString header_format() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
+  virtual UserFacingString child_format_post_gzip() const;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
 
@@ -83,10 +84,18 @@ UserFacingString ImageMinifier::child_format() const {
   return _("Losslessly compressing $1 could save $2 ($3% reduction).");
 }
 
+UserFacingString ImageMinifier::child_format_post_gzip() const {
+  // None of the image types this rule currently handles are compressible
+  // (although there are a few other image types that are, such as SVG), so
+  // let's not bother translating a custom string for this thing that shouldn't
+  // be happening.
+  return child_format();
+}
+
 const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
                                             const RuleInput& input) const {
   if (resource.GetResourceType() != IMAGE) {
-    return new MinifierOutput();
+    return MinifierOutput::CannotBeMinified();
   }
 
   const ImageType type = resource.GetImageType();
@@ -98,7 +107,7 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
     if (!image_compression::OptimizeJpeg(original, &compressed)) {
       LOG(ERROR) << "OptimizeJpeg failed for resource: "
                  << resource.GetRequestUrl();
-      return NULL; // error
+      return MinifierOutput::Error();
     }
     output_mime_type = "image/jpeg";
   } else if (type == PNG) {
@@ -108,7 +117,7 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
                                                       &compressed)) {
       LOG(ERROR) << "OptimizePng(PngReader) failed for resource: "
                  << resource.GetRequestUrl();
-      return NULL; // error
+      return MinifierOutput::Error();
     }
     output_mime_type = "image/png";
   } else if (type == GIF) {
@@ -118,18 +127,17 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
                                                       &compressed)) {
       LOG(ERROR) << "OptimizePng(GifReader) failed for resource: "
                  << resource.GetRequestUrl();
-      return NULL; // error
+      return MinifierOutput::Error();
     }
     output_mime_type = "image/png";
   } else {
-    return new MinifierOutput();
+    return MinifierOutput::CannotBeMinified();
   }
 
-  const int bytes_saved = original.size() - compressed.size();
   if (save_optimized_content_) {
-    return new MinifierOutput(bytes_saved, compressed, output_mime_type);
+    return MinifierOutput::SaveMinifiedContent(compressed, output_mime_type);
   } else {
-    return new MinifierOutput(bytes_saved);
+    return MinifierOutput::DoNotSaveMinifiedContent(compressed);
   }
 }
 
