@@ -50,11 +50,11 @@ class GzipMinifier : public Minifier {
   virtual UserFacingString header_format() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
+  virtual UserFacingString child_format_post_gzip() const;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
 
  private:
-  bool IsCompressed(const Resource& resource) const;
   bool IsViolation(const Resource& resource) const;
 
   DISALLOW_COPY_AND_ASSIGN(GzipMinifier);
@@ -98,37 +98,32 @@ UserFacingString GzipMinifier::child_format() const {
   return _("Compressing $1 could save $2 ($3% reduction).");
 }
 
+UserFacingString GzipMinifier::child_format_post_gzip() const {
+  // This method should never be called for this rule -- it is only called for
+  // resources that were served compressed, and if the resource were
+  // compressed, this rule wouldn't be giving a violation!
+  DCHECK(false);
+  return not_localized("$1 $2 $3");
+}
+
 const MinifierOutput* GzipMinifier::Minify(const Resource& resource,
                                            const RuleInput& input) const {
   if (!IsViolation(resource)) {
-    return new MinifierOutput();
+    return MinifierOutput::CannotBeMinified();
   }
 
   int compressed_size;
   if (!input.GetCompressedResponseBodySize(resource, &compressed_size)) {
     LOG(ERROR) << "GetCompressedResponseBodySize failed for resource: "
                << resource.GetRequestUrl();
-    return NULL; // error
+    return MinifierOutput::Error();
   }
 
-  return new MinifierOutput(resource.GetResponseBody().size() -
-                            compressed_size);
-}
-
-bool GzipMinifier::IsCompressed(const Resource& resource) const {
-  const std::string& encoding = resource.GetResponseHeader("Content-Encoding");
-
-  // HTTP allows Content-Encodings to be "stacked" in which case they
-  // are comma-separated. Instead of splitting on commas and checking
-  // each token, we just see if a valid known encoding appears in the
-  // header, and if so, assume that encoding was applied to the
-  // response.
-  return encoding.find("gzip") != std::string::npos ||
-      encoding.find("deflate") != std::string::npos;
+  return MinifierOutput::PlainMinifiedSize(compressed_size);
 }
 
 bool GzipMinifier::IsViolation(const Resource& resource) const {
-  return (!IsCompressed(resource) &&
+  return (!resource_util::IsCompressedResource(resource) &&
           resource_util::IsCompressibleResource(resource) &&
           resource.GetResponseBody().size() >= kMinGzipSize);
 }

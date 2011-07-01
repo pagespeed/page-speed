@@ -40,6 +40,9 @@ int EstimateResponseBytes(const Resource& resource);
 // Is the resource compressible using gzip?
 bool IsCompressibleResource(const Resource& resource);
 
+// Was the resource served with compression enabled?
+bool IsCompressedResource(const Resource& resource);
+
 // Determine the size of a string after being gzipped.  In case of error,
 // return false and make no change to *output.
 bool GetGzippedSize(const std::string& input, int* output);

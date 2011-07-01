@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/cssmin/cssmin.h"
 #include "pagespeed/l10n/l10n.h"
@@ -43,6 +44,7 @@ class CssMinifier : public Minifier {
   virtual UserFacingString header_format() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
+  virtual UserFacingString child_format_post_gzip() const;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
 
@@ -81,30 +83,43 @@ UserFacingString CssMinifier::child_format() const {
   return _("Minifying $1 could save $2 ($3% reduction).");
 }
 
+UserFacingString CssMinifier::child_format_post_gzip() const {
+  // TRANSLATOR: Subheading that describes the post-compression network savings
+  // possible from minifying a single resource. "$1" is a format token that
+  // will be replaced by the URL of the resource. "$2" will be replaced bythe
+  // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+  // "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50").
+  return _("Minifying $1 could save $2 ($3% reduction) after compression.");
+}
+
 const MinifierOutput* CssMinifier::Minify(const Resource& resource,
                                           const RuleInput& rule_input) const {
   if (resource.GetResourceType() != CSS) {
-    return new MinifierOutput();
+    return MinifierOutput::CannotBeMinified();
   }
 
   const std::string& input = resource.GetResponseBody();
-  if (save_optimized_content_) {
+  if (save_optimized_content_ ||
+      resource_util::IsCompressedResource(resource)) {
     std::string minified_css;
     if (!cssmin::MinifyCss(input, &minified_css)) {
       LOG(ERROR) << "MinifyCss failed for resource: "
                  << resource.GetRequestUrl();
-      return NULL; // error
+      return MinifierOutput::Error();
     }
-    return new MinifierOutput(input.size() - minified_css.size(),
-                              minified_css, "text/css");
+    if (save_optimized_content_) {
+      return MinifierOutput::SaveMinifiedContent(minified_css, "text/css");
+    } else {
+      return MinifierOutput::DoNotSaveMinifiedContent(minified_css);
+    }
   } else {
     int minified_css_size = 0;
     if (!cssmin::GetMinifiedCssSize(input, &minified_css_size)) {
       LOG(ERROR) << "GetMinifiedCssSize failed for resource: "
                  << resource.GetRequestUrl();
-      return NULL; // error
+      return MinifierOutput::Error();
     }
-    return new MinifierOutput(input.size() - minified_css_size);
+    return MinifierOutput::PlainMinifiedSize(minified_css_size);
   }
 };
 

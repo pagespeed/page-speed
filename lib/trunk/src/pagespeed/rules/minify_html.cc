@@ -43,6 +43,7 @@ class HtmlMinifier : public Minifier {
   virtual UserFacingString header_format() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
+  virtual UserFacingString child_format_post_gzip() const;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
 
@@ -81,10 +82,19 @@ UserFacingString HtmlMinifier::child_format() const {
   return _("Minifying $1 could save $2 ($3% reduction).");
 }
 
+UserFacingString HtmlMinifier::child_format_post_gzip() const {
+  // TRANSLATOR: Subheading that describes the post-compression network savings
+  // possible from minifying a single resource. "$1" is a format token that
+  // will be replaced by the URL of the resource. "$2" will be replaced bythe
+  // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+  // "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50").
+  return _("Minifying $1 could save $2 ($3% reduction) after compression.");
+}
+
 const MinifierOutput* HtmlMinifier::Minify(const Resource& resource,
                                            const RuleInput& rule_input) const {
   if (resource.GetResourceType() != HTML) {
-    return new MinifierOutput();
+    return MinifierOutput::CannotBeMinified();
   }
 
   const std::string& input = resource.GetResponseBody();
@@ -94,14 +104,13 @@ const MinifierOutput* HtmlMinifier::Minify(const Resource& resource,
                                 input, &minified_html)) {
     LOG(ERROR) << "MinifyHtml failed for resource: "
                << resource.GetRequestUrl();
-    return NULL;  // error
+    return MinifierOutput::Error();
   }
 
   if (save_optimized_content_) {
-    return new MinifierOutput(input.size() - minified_html.size(),
-                              minified_html, "text/html");
+    return MinifierOutput::SaveMinifiedContent(minified_html, "text/html");
   } else {
-    return new MinifierOutput(input.size() - minified_html.size());
+    return MinifierOutput::DoNotSaveMinifiedContent(minified_html);
   }
 };
 

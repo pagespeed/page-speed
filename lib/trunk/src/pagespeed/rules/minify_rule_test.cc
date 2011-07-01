@@ -42,10 +42,13 @@ class FoobarMinifier : public pagespeed::rules::Minifier {
     return not_localized("Test rule");
   }
   virtual UserFacingString body_format() const {
-    return not_localized("$1 $2");
+    return not_localized("You could save $1 ($2%)");
   }
   virtual UserFacingString child_format() const {
-    return not_localized("$1 $2 $3");
+    return not_localized("$1 $2 ($3%)");
+  }
+  virtual UserFacingString child_format_post_gzip() const {
+    return not_localized("$1 $2 ($3%) after compression");
   }
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
@@ -57,8 +60,7 @@ class FoobarMinifier : public pagespeed::rules::Minifier {
 const MinifierOutput* FoobarMinifier::Minify(const Resource& resource,
                                              const RuleInput& input) const {
   const std::string minified = "foobar";
-  const int savings = resource.GetResponseBody().size() - minified.size();
-  return new MinifierOutput(savings, minified, "text/plain");
+  return MinifierOutput::SaveMinifiedContent(minified, "text/plain");
 }
 
 class FoobarRule : public pagespeed::rules::MinifyRule {
@@ -73,11 +75,20 @@ class MinifyTest : public pagespeed_testing::PagespeedRuleTest<FoobarRule> {
  protected:
   void AddTestResource(const std::string &url,
                        const std::string &body) {
+    AddTestResourceWithCompression(url, body, false);
+  }
+
+  void AddTestResourceWithCompression(const std::string &url,
+                                      const std::string &body,
+                                      bool compressed) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
     resource->SetResponseBody(body);
+    if (compressed) {
+      resource->AddResponseHeader("Content-Encoding", "gzip");
+    }
     AddResource(resource);
   }
 };
@@ -119,6 +130,24 @@ TEST_F(MinifyTest, TwoResources) {
       formatted_results.rule_results(0).url_blocks(0).urls(1);
   ASSERT_NE(url_result1.associated_result_id(),
             url_result2.associated_result_id());
+}
+
+TEST_F(MinifyTest, FormatViolationWithoutCompression) {
+  AddTestResourceWithCompression("http://www.example.com/foo.txt",
+                                 "alkcvmslkvmlsakejflaskjvlaksmvlwekm", false);
+  CheckOneUrlViolation("http://www.example.com/foo.txt");
+  ASSERT_EQ("You could save 29B (82%)\n"
+            "  http://www.example.com/foo.txt 29B (82%)\n",
+            FormatResults());
+}
+
+TEST_F(MinifyTest, FormatViolationWithCompression) {
+  AddTestResourceWithCompression("http://www.example.com/foo.txt",
+                                 "alkcvmslkvmlsakejflaskjvlaksmvlwekm", true);
+  CheckOneUrlViolation("http://www.example.com/foo.txt");
+  ASSERT_EQ("You could save 9B (25%)\n"
+            "  http://www.example.com/foo.txt 9B (25%) after compression\n",
+            FormatResults());
 }
 
 }  // namespace

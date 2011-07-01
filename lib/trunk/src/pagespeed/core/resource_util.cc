@@ -174,6 +174,18 @@ bool IsCompressibleResource(const Resource& resource) {
   }
 }
 
+bool IsCompressedResource(const Resource& resource) {
+  const std::string& encoding = resource.GetResponseHeader("Content-Encoding");
+
+  // HTTP allows Content-Encodings to be "stacked" in which case they
+  // are comma-separated. Instead of splitting on commas and checking
+  // each token, we just see if a valid known encoding appears in the
+  // header, and if so, assume that encoding was applied to the
+  // response.
+  return encoding.find("gzip") != std::string::npos ||
+      encoding.find("deflate") != std::string::npos;
+}
+
 namespace {
 
 bool GetGzippedSizeFromCStream(z_stream* c_stream, int* output) {

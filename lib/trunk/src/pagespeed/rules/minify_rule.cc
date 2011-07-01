@@ -23,6 +23,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/l10n/l10n.h"
@@ -31,6 +32,49 @@
 namespace pagespeed {
 
 namespace rules {
+
+MinifierOutput::MinifierOutput(bool can_be_minified,
+                               int plain_minified_size,
+                               const std::string* minified_content,
+                               const std::string& minified_content_mime_type)
+    : can_be_minified_(can_be_minified),
+      plain_minified_size_(plain_minified_size),
+      minified_content_(minified_content),
+      minified_content_mime_type_(minified_content_mime_type) {}
+
+// static
+MinifierOutput* MinifierOutput::CannotBeMinified() {
+  return new MinifierOutput(false, -1, NULL, "");
+}
+
+// static
+MinifierOutput* MinifierOutput::PlainMinifiedSize(int plain_minified_size) {
+  return new MinifierOutput(true, plain_minified_size, NULL, "");
+}
+
+// static
+MinifierOutput* MinifierOutput::DoNotSaveMinifiedContent(
+    const std::string& minified_content) {
+  return new MinifierOutput(true, minified_content.size(),
+                            new std::string(minified_content), "");
+}
+
+// static
+MinifierOutput* MinifierOutput::SaveMinifiedContent(
+    const std::string& minified_content,
+    const std::string& minified_content_mime_type) {
+  DCHECK(!minified_content_mime_type.empty());
+  return new MinifierOutput(true, minified_content.size(),
+                            new std::string(minified_content),
+                            minified_content_mime_type);
+}
+
+bool MinifierOutput::GetCompressedMinifiedSize(int* output) const {
+  if (minified_content_ == NULL) {
+    return false;
+  }
+  return resource_util::GetGzippedSize(*minified_content_, output);
+}
 
 Minifier::Minifier() {}
 
@@ -63,8 +107,30 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
     if (output == NULL) {
       error = true;
       continue;
+    } else if (!output->can_be_minified()) {
+      continue;
     }
-    if (output->bytes_saved() <= 0) {
+
+    int bytes_saved = 0;
+    bool is_post_gzip = false;
+    if (resource_util::IsCompressedResource(resource)) {
+      int old_size, new_size;
+      if (rule_input.GetCompressedResponseBodySize(resource, &old_size) &&
+          output->GetCompressedMinifiedSize(&new_size)) {
+        bytes_saved = old_size - new_size;
+        is_post_gzip = true;
+      } else {
+        LOG(ERROR) << "Unable to compare compressed sizes for "
+                   << resource.GetRequestUrl();
+        error = true;
+        continue;
+      }
+    } else {
+      bytes_saved = (resource.GetResponseBody().size() -
+                     output->plain_minified_size());
+    }
+
+    if (bytes_saved <= 0) {
       continue;
     }
 
@@ -73,13 +139,17 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
     result->add_resource_urls(resource.GetRequestUrl());
 
     Savings* savings = result->mutable_savings();
-    savings->set_response_bytes_saved(output->bytes_saved());
+    savings->set_response_bytes_saved(bytes_saved);
 
-    const std::string* optimized_content = output->optimized_content();
-    if (optimized_content != NULL) {
-      result->set_optimized_content(*optimized_content);
+    MinificationDetails* min_details =
+      result->mutable_details()->MutableExtension(
+          MinificationDetails::message_set_extension);
+    min_details->set_savings_are_post_gzip(is_post_gzip);
+
+    if (output->should_save_minified_content()) {
+      result->set_optimized_content(*output->minified_content());
       result->set_optimized_content_mime_type(
-          output->optimized_content_mime_type());
+          output->minified_content_mime_type());
     }
   }
 
@@ -123,6 +193,15 @@ void MinifyRule::FormatResults(const ResultVector& results,
       continue;
     }
 
+    const ResultDetails& details = result.details();
+    if (!details.HasExtension(
+            MinificationDetails::message_set_extension)) {
+      LOG(DFATAL) << "MinificationDetails missing.";
+      continue;
+    }
+    const MinificationDetails& min_details =
+        details.GetExtension(MinificationDetails::message_set_extension);
+
     const int bytes_saved = result.savings().response_bytes_saved();
     const int original_size = result.original_response_bytes();
     Argument url_arg(Argument::URL, result.resource_urls(0));
@@ -132,7 +211,10 @@ void MinifyRule::FormatResults(const ResultVector& results,
                           (100 * bytes_saved) / original_size));
 
     UrlFormatter* url_result = body->AddUrlResult(
-        minifier_->child_format(), url_arg, size_arg, percent_arg);
+        min_details.savings_are_post_gzip() ?
+        minifier_->child_format_post_gzip() :
+        minifier_->child_format(),
+        url_arg, size_arg, percent_arg);
     if (result.has_id() && result.has_optimized_content()) {
       url_result->SetAssociatedResultId(result.id());
     }
@@ -163,10 +245,10 @@ int CostBasedScoreComputer::ComputeScore() {
 WeightedCostBasedScoreComputer::WeightedCostBasedScoreComputer(
     const RuleResults* results,
     int64 max_possible_cost,
-    double cost_weight) :
-    CostBasedScoreComputer(max_possible_cost),
-    results_(results),
-    cost_weight_(cost_weight) {
+    double cost_weight)
+    : CostBasedScoreComputer(max_possible_cost),
+      results_(results),
+      cost_weight_(cost_weight) {
 }
 
 int64 WeightedCostBasedScoreComputer::ComputeCost() {
