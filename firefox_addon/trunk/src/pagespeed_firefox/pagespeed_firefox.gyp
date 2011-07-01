@@ -125,8 +125,19 @@
       'copies': [
         {
           'destination': '<(DEPTH)/pagespeed_firefox/xpi_resources/platform/<(xpcom_os)_<(xpcom_cpu_arch)-<(xpcom_compiler_abi)/components',
-          'files': [
-            '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+          'conditions': [
+            ['OS=="mac"', {
+              # On Mac, SHARED_LIB_PREFIX/SUFFIX refer to 'lib' and '.dylib'
+              # but these do not match our shared library, so we manually
+              # override here.
+              'files': [
+                '<(PRODUCT_DIR)/pagespeed.so',
+              ],
+            }, {
+              'files': [
+                '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed<(SHARED_LIB_SUFFIX)',
+              ],
+            }],
           ],
         },
       ],
