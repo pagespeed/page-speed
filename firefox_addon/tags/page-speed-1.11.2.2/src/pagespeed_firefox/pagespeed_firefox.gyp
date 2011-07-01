@@ -129,7 +129,7 @@
             ['OS=="mac"', {
               # On Mac, SHARED_LIB_PREFIX/SUFFIX refer to 'lib' and '.dylib'
               # but these do not match our shared library, so we manually
-              # override here.  
+              # override here.
               'files': [
                 '<(PRODUCT_DIR)/pagespeed.so',
               ],
