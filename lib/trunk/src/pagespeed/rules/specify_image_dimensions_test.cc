@@ -90,6 +90,16 @@ TEST_F(SpecifyImageDimensionsTest, NoDimensions) {
   CheckOneUrlViolation(kImgUrl);
 }
 
+// See http://code.google.com/p/page-speed/issues/detail?id=459
+TEST_F(SpecifyImageDimensionsTest, DataUrl) {
+  // Create a data URL image tag, with no additional dimensions attributes.
+  const std::string url =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAA"
+      "AHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
+  FakeDomElement::NewImg(body(), url);
+  CheckNoViolations();
+}
+
 // Same test as above, only no resource URL specified. Now we expect
 // no violation since a resource URL is required in order to trigger a
 // violation.
