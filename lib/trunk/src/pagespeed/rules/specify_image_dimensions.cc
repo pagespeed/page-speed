@@ -69,7 +69,13 @@ void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
         if (!node.GetAttributeByName("src", &src)) {
           return;
         }
-        std::string uri = document_->ResolveUri(src);
+        const std::string uri = document_->ResolveUri(src);
+
+        // Don't complain about image tags with data URIs, because the browser
+        // already knows the image dimensions once it has the image data.
+        if (uri.substr(0, 5) == "data:") {
+          return;
+        }
 
         pagespeed::Result* result = provider_->NewResult();
         result->add_resource_urls(uri);
