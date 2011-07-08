@@ -29,6 +29,14 @@ extern "C" {
 #endif
 }  // extern "C"
 
+#if PNG_LIBPNG_VER >= 10400
+// Including setjmp in older versions of libpng triggers an error
+// (since libpng already includes setjmp in those versions). However
+// newer versions of libpng no longer include setjmp directly, so we
+// must include it conditionally based on the libpng version.
+#include <setjmp.h>
+#endif
+
 #include "pagespeed/core/resource.h"
 
 #include "pagespeed/image_compression/gif_reader.h"
