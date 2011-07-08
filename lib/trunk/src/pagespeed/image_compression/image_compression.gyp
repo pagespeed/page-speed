@@ -113,6 +113,8 @@
       ],
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
       ],
     },
   ],
