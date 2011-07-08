@@ -14,6 +14,8 @@
 
 #include "pagespeed/rules/eliminate_unnecessary_reflows.h"
 
+#include <algorithm>
+
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/stringprintf.h"

@@ -14,6 +14,7 @@
 
 #include "pagespeed/rules/make_landing_page_redirects_cacheable.h"
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>

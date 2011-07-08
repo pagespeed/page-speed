@@ -14,6 +14,8 @@
 
 #include "pagespeed/core/pagespeed_input.h"
 
+#include <algorithm>
+
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"

@@ -34,6 +34,9 @@
           '<(pagespeed_root)',
         ],
       },
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+      ],
     },
   ],
 }
