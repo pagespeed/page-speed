@@ -21,15 +21,15 @@
 
 #include <string>
 
+extern "C" {
+#ifdef USE_SYSTEM_LIBPNG
+#include "png.h"  // NOLINT
+#else
+#include "third_party/libpng/png.h"
+#endif
+}  // extern "C"
+
 #include "base/basictypes.h"
-
-struct png_struct_def;
-typedef struct png_struct_def png_struct;
-typedef png_struct* png_structp;
-
-struct png_info_struct;
-typedef struct png_info_struct png_info;
-typedef png_info* png_infop;
 
 namespace pagespeed {
 

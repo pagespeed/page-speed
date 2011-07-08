@@ -56,7 +56,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "png.h"        /* libpng header; includes zlib.h */
+extern "C" {
+#include "png.h"        /* libpng header */
+#include "zlib.h"
+}
 #include "readpng.h"    /* typedefs, common macros, public prototypes */
 
 namespace {
@@ -64,7 +67,7 @@ namespace {
 void ReadPngFromStream(
     png_structp read_ptr, png_bytep data, png_size_t length) {
   std::istringstream& response_body =
-      *reinterpret_cast<std::istringstream*>(read_ptr->io_ptr);
+      *reinterpret_cast<std::istringstream*>(png_get_io_ptr(read_ptr));
   response_body.read(reinterpret_cast<char*>(data), length);
 }
 

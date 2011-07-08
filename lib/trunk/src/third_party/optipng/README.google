@@ -1,5 +1,5 @@
 URL: http://optipng.sourceforge.net/
-Version: 0.6.4
+Version: 0.6.5
 License: zlib/libpng
 License File: LICENSE.txt
 
@@ -16,6 +16,3 @@ Local Modifications:
 
 1. opngreduc has been modified to conditionally include support for
    ancillary chunks.
-
-2. a call to png_get_image_height has been inlined since not all
-   versions of libpng provide this function.
