@@ -57,6 +57,7 @@
       'type': 'executable',
       'dependencies': [
         'googleurl',
+        '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
       ],

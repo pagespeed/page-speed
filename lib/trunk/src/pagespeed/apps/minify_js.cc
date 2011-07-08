@@ -15,6 +15,7 @@
 // Command line utility to minify Javascript using jsminify.
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <fstream>
 #include <string>
