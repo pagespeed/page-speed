@@ -74,14 +74,6 @@ deps = {
   "src/third_party/instaweb/src/net/instaweb":
     Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
 
-  "src/third_party/libjpeg":
-    (Var("chromium_trunk") + "/src/third_party/libjpeg" +
-     Var("chromium_revision")),
-
-  "src/third_party/libpng":
-    (Var("chromium_trunk") + "/src/third_party/libpng" +
-     Var("chromium_revision")),
-
   "src/third_party/modp_b64":
     Var("chromium_trunk") + "/src/third_party/modp_b64" +
       Var("chromium_revision"),
@@ -97,9 +89,6 @@ deps = {
   "src/third_party/protobuf/java/descriptor":
     File(Var("protobuf_trunk") + "/src/google/protobuf/descriptor.proto" +
      Var("protobuf_revision")),
-
-  "src/third_party/zlib":
-    Var("chromium_trunk") + "/src/third_party/zlib" + Var("chromium_revision"),
 
   "src/tools/data_pack":
     Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
