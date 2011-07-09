@@ -108,6 +108,15 @@
       # By default, component is set to whatever library is set to and
       # it can be overriden by the GYP command line or by ~/.gyp/include.gypi.
       'component%': '<(library)',
+
+      'conditions': [
+        # A flag for POSIX platforms
+        ['OS=="win"', {
+          'os_posix%': 0,
+        }, {
+          'os_posix%': 1,
+        }],
+      ],
     },
 
     # Define target_arch on the basis of their settings within the

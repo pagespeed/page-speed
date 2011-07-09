@@ -68,7 +68,7 @@
       'dependencies': [
         'pagespeed_jpeg_reader',
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/third_party/libjpeg_trans/libjpeg_trans.gyp:libjpeg_trans',
+        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
       ],
       'sources': [
         'jpeg_optimizer.cc',
