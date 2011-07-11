@@ -555,10 +555,14 @@ var getScriptFiles = function(context) {
     throw {message: 'Please make sure script panel is enabled in Firebug.'};
   }
 
-  if (scriptPanel.updateScriptFiles) {
+  if (Firebug.Debugger && Firebug.Debugger.updateScriptFiles) {
+    Firebug.Debugger.updateScriptFiles(context);
+  } else if (scriptPanel.updateScriptFiles) {
     scriptPanel.updateScriptFiles(context);
-  } else {
+  } else if(FBL.updateScriptFiles) {
     FBL.updateScriptFiles(context);
+  } else {
+    throw {message: 'Cannot update script files in Firebug.'};
   }
 
   // Sanity check the component map and remove any non-HTTP
@@ -638,9 +642,16 @@ var clearCachedResult = function(context) {
 };
 
 var isFirebugApiAvailable = function() {
-  // In FB 1.5, updateScriptFiles is a method on the ScriptPanel.
   var updateScriptFilesAvailable = false;
+  // In FB 1.7, updateScriptFiles is a method on the Debugger.
   if (Firebug &&
+      Firebug.Debugger &&
+      Firebug.Debugger.updateScriptFiles) {
+    updateScriptFilesAvailable = true;
+  }
+  // In FB 1.5, updateScriptFiles is a method on the ScriptPanel.
+  if (!updateScriptFilesAvailable &&
+      Firebug &&
       Firebug.ScriptPanel &&
       Firebug.ScriptPanel.prototype &&
       Firebug.ScriptPanel.prototype.updateScriptFiles) {
