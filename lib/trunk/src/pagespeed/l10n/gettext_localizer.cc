@@ -35,7 +35,7 @@ namespace {
 const int kBytesPerKiB = 1 << 10;
 const int kBytesPerMiB = 1 << 20;
 
-} // namespace
+}  // namespace
 
 void ParseLocaleString(const std::string& locale, std::string* language_out,
                        std::string* country_out, std::string* encoding_out) {
@@ -240,11 +240,24 @@ bool GettextLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
   return false;
 }
 
+bool GettextLocalizer::LocalizePercentage(int64 p, std::string* out) const {
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+
+  // TODO(aoates): localize percentages
+  ClearOstream();
+  ostream_ << p << "%";
+  *out = ostream_.str();
+  return false;
+}
+
 void GettextLocalizer::ClearOstream() const {
   ostream_.clear();
   ostream_.str("");
 }
 
-} // namespace l10n
+}  // namespace l10n
 
-} // namespace pagespeed
+}  // namespace pagespeed

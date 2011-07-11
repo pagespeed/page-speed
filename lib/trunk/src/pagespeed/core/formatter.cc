@@ -31,7 +31,8 @@ namespace pagespeed {
 Argument::Argument(Argument::ArgumentType type, int64 value)
     : type_(type),
       int_value_(value) {
-  DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION);
+  DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION ||
+         type_ == PERCENTAGE);
 }
 
 Argument::Argument(Argument::ArgumentType type, const char* value)
@@ -47,7 +48,8 @@ Argument::Argument(Argument::ArgumentType type, const std::string& value)
 }
 
 int64 Argument::int_value() const {
-  DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION);
+  DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION ||
+         type_ == PERCENTAGE);
   return int_value_;
 }
 
