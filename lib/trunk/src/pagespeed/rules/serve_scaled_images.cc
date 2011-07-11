@@ -341,7 +341,7 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       Argument actual_w(Argument::INTEGER, image_details.actual_width());
       Argument actual_h(Argument::INTEGER, image_details.actual_height());
 
-      UserFacingString format_str =
+      body->AddUrlResult(
       // TRANSLATOR: Describes a single URL of an image that is resized in HTML
       // or CSS.  It gives the served size of the image, the final size of the
       // image, and the amount saved by serving the image in the final size.
@@ -354,18 +354,9 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       // "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
       // "25%").
           _("$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
-            "Serving a scaled image could save $6 ($7 reduction).");
-      std::vector<const Argument*> args;
-      args.push_back(&url_arg);
-      args.push_back(&expected_w);
-      args.push_back(&expected_h);
-      args.push_back(&actual_w);
-      args.push_back(&actual_h);
-      args.push_back(&size_arg);
-      args.push_back(&percent_arg);
-
-      FormatterParameters formatter_args(&format_str, &args);
-      body->AddUrlResult(formatter_args);
+            "Serving a scaled image could save $6 ($7 reduction)."),
+          url_arg, expected_w, expected_h, actual_w, actual_h, size_arg,
+          percent_arg);
     } else {
       // TRANSLATOR: Describes a single URL of an image that is resized in HTML
       // or CSS.  It gives the amount saved by serving the image in its final

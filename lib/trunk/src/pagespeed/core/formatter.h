@@ -57,34 +57,14 @@ class Argument {
   DISALLOW_COPY_AND_ASSIGN(Argument);
 };
 
-/**
- * Formatter format string, arguments and additional information wrapper.
- * Additional information should be interpreted directly or ignored by
- * specific formatter subclasses.
- * Note: This class does not own the pointers it refers to.
- */
-class FormatterParameters {
- public:
-  explicit FormatterParameters(const UserFacingString* format_str);
-  FormatterParameters(const UserFacingString* format_str,
-                      const std::vector<const Argument*>* arguments);
-
-  const UserFacingString& format_str() const;
-  const std::vector<const Argument*>& arguments() const;
-
- private:
-  const UserFacingString* format_str_;
-  const std::vector<const Argument*>* arguments_;
-
-  DISALLOW_COPY_AND_ASSIGN(FormatterParameters);
-};
-
 class UrlFormatter {
  public:
   UrlFormatter() {}
   virtual ~UrlFormatter() {}
 
-  virtual void AddDetail(const FormatterParameters& params) = 0;
+  virtual void AddDetail(
+      const UserFacingString& format_str,
+      const std::vector<const Argument*>& arguments) = 0;
 
   virtual void SetAssociatedResultId(int id) = 0;
 
@@ -111,7 +91,9 @@ class UrlBlockFormatter {
 
   // Create, add, and return a new UrlFormatter.  The returned object has the
   // same lifetime as the parent.
-  virtual UrlFormatter* AddUrlResult(const FormatterParameters& params) = 0;
+  virtual UrlFormatter* AddUrlResult(
+      const UserFacingString& format_str,
+      const std::vector<const Argument*>& arguments) = 0;
 
   // Convenience methods:
   UrlFormatter* AddUrl(const std::string& url);
@@ -130,6 +112,14 @@ class UrlBlockFormatter {
                              const Argument& arg2,
                              const Argument& arg3,
                              const Argument& arg4);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str,
+                             const Argument& arg1,
+                             const Argument& arg2,
+                             const Argument& arg3,
+                             const Argument& arg4,
+                             const Argument& arg5,
+                             const Argument& arg6,
+                             const Argument& arg7);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(UrlBlockFormatter);
@@ -143,7 +133,8 @@ class RuleFormatter {
   // Create, add, and return a new UrlBlockFormatter.  The returned object has
   // the same lifetime as the parent.
   virtual UrlBlockFormatter* AddUrlBlock(
-      const FormatterParameters& params) = 0;
+      const UserFacingString& format_str,
+      const std::vector<const Argument*>& arguments) = 0;
 
   // Convenience methods:
   UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str);
