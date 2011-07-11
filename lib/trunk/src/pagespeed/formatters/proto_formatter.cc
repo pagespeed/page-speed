@@ -55,16 +55,17 @@ bool MaybeLocalizeString(const Localizer* loc,
   }
 }
 
-// Fills in a FormatString proto from a FormatterParameters object
+// Fills in a FormatString proto from a format string and arguments.
 // TODO(aoates): move this functionality into the Argument and FormatterParams
 // classes, to provide l10n for all formatters that want it.
 void FillFormatString(const Localizer* loc,
-                      const FormatterParameters& params,
+                      const UserFacingString& format_str,
+                      const std::vector<const Argument*>& arguments,
                       FormatString* out) {
-  MaybeLocalizeString(loc, params.format_str(), out->mutable_format());
+  MaybeLocalizeString(loc, format_str, out->mutable_format());
 
-  for (unsigned int i = 0; i < params.arguments().size(); ++i) {
-    const Argument* arg = params.arguments()[i];
+  for (unsigned int i = 0; i < arguments.size(); ++i) {
+    const Argument* arg = arguments[i];
     bool success = true;
     std::string localized;
 
@@ -121,7 +122,7 @@ void FillFormatString(const Localizer* loc,
     if (!success) {
       LOG(WARNING) << "warning: unable to localize argument $" << (i+1)
                    << " (" << localized << ") in format string '"
-                   << params.format_str();
+                   << format_str;
     }
     format_arg->set_localized_value(localized);
   }
@@ -203,10 +204,12 @@ ProtoRuleFormatter::~ProtoRuleFormatter() {
 }
 
 UrlBlockFormatter* ProtoRuleFormatter::AddUrlBlock(
-    const FormatterParameters& params) {
+    const UserFacingString& format_str,
+    const std::vector<const Argument*>& arguments) {
   FormattedUrlBlockResults* url_block_results =
       rule_results_->add_url_blocks();
-  FillFormatString(localizer_, params, url_block_results->mutable_header());
+  FillFormatString(localizer_, format_str, arguments,
+                   url_block_results->mutable_header());
   UrlBlockFormatter* url_block_formatter =
       new ProtoUrlBlockFormatter(localizer_, url_block_results);
   url_block_formatters_.push_back(url_block_formatter);
@@ -227,9 +230,11 @@ ProtoUrlBlockFormatter::~ProtoUrlBlockFormatter() {
 }
 
 UrlFormatter* ProtoUrlBlockFormatter::AddUrlResult(
-    const FormatterParameters& params) {
+    const UserFacingString& format_str,
+    const std::vector<const Argument*>& arguments) {
   FormattedUrlResult* url_result = url_block_results_->add_urls();
-  FillFormatString(localizer_, params, url_result->mutable_result());
+  FillFormatString(localizer_, format_str, arguments,
+                   url_result->mutable_result());
   UrlFormatter* url_formatter =
       new ProtoUrlFormatter(localizer_, url_result);
   url_formatters_.push_back(url_formatter);
@@ -243,8 +248,11 @@ ProtoUrlFormatter::ProtoUrlFormatter(const Localizer* localizer,
   DCHECK(url_result_);
 }
 
-void ProtoUrlFormatter::AddDetail(const FormatterParameters& params) {
-  FillFormatString(localizer_, params, url_result_->add_details());
+void ProtoUrlFormatter::AddDetail(
+    const UserFacingString& format_str,
+    const std::vector<const Argument*>& arguments) {
+  FillFormatString(localizer_, format_str, arguments,
+                   url_result_->add_details());
 }
 
 void ProtoUrlFormatter::SetAssociatedResultId(int id) {

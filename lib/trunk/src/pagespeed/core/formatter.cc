@@ -62,50 +62,16 @@ Argument::ArgumentType Argument::type() const {
   return type_;
 }
 
-FormatterParameters::FormatterParameters(const UserFacingString* format_str)
-    : format_str_(format_str),
-      arguments_(&kEmptyParameterList) {
-  DCHECK_NE(format_str, static_cast<const UserFacingString*>(NULL));
-}
-
-FormatterParameters::FormatterParameters(
-    const UserFacingString* format_str,
-    const std::vector<const Argument*>* arguments)
-    : format_str_(format_str),
-      arguments_(arguments) {
-  DCHECK_NE(format_str, static_cast<const UserFacingString*>(NULL));
-  DCHECK_NE(arguments,
-            static_cast<std::vector<const pagespeed::Argument*>*>(NULL));
-}
-
-const UserFacingString& FormatterParameters::format_str() const {
-  if (format_str_ != NULL) {
-    return *format_str_;
-  } else {
-    return kLocalizableEmptyString;
-  }
-}
-
-const std::vector<const Argument*>& FormatterParameters::arguments() const {
-  if (arguments_ != NULL) {
-    return *arguments_;
-  } else {
-    return kEmptyParameterList;
-  }
-}
-
 void UrlFormatter::AddDetail(const UserFacingString& format_str) {
   std::vector<const Argument*> args;
-  const FormatterParameters params(&format_str, &args);
-  AddDetail(params);
+  AddDetail(format_str, args);
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str,
                              const Argument& arg1) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
-  const FormatterParameters params(&format_str, &args);
-  AddDetail(params);
+  AddDetail(format_str, args);
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str,
@@ -114,8 +80,7 @@ void UrlFormatter::AddDetail(const UserFacingString& format_str,
   std::vector<const Argument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
-  const FormatterParameters params(&format_str, &args);
-  AddDetail(params);
+  AddDetail(format_str, args);
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str,
@@ -126,8 +91,7 @@ void UrlFormatter::AddDetail(const UserFacingString& format_str,
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
-  const FormatterParameters params(&format_str, &args);
-  AddDetail(params);
+  AddDetail(format_str, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrl(const std::string& url) {
@@ -135,15 +99,13 @@ UrlFormatter* UrlBlockFormatter::AddUrl(const std::string& url) {
   const Argument arg(Argument::URL, url);
   std::vector<const Argument*> args;
   args.push_back(&arg);
-  const FormatterParameters params(&format, &args);
-  return AddUrlResult(params);
+  return AddUrlResult(format, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str) {
   std::vector<const Argument*> args;
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlResult(params);
+  return AddUrlResult(format_str, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
@@ -151,8 +113,7 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const Argument& arg1) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlResult(params);
+  return AddUrlResult(format_str, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
@@ -162,8 +123,7 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
   std::vector<const Argument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlResult(params);
+  return AddUrlResult(format_str, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
@@ -175,8 +135,7 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlResult(params);
+  return AddUrlResult(format_str, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
@@ -190,15 +149,33 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
   args.push_back(&arg2);
   args.push_back(&arg3);
   args.push_back(&arg4);
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlResult(params);
+  return AddUrlResult(format_str, args);
+}
+
+UrlFormatter* UrlBlockFormatter::AddUrlResult(
+    const UserFacingString& format_str,
+    const Argument& arg1,
+    const Argument& arg2,
+    const Argument& arg3,
+    const Argument& arg4,
+    const Argument& arg5,
+    const Argument& arg6,
+    const Argument& arg7) {
+  std::vector<const Argument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  args.push_back(&arg4);
+  args.push_back(&arg5);
+  args.push_back(&arg6);
+  args.push_back(&arg7);
+  return AddUrlResult(format_str, args);
 }
 
 UrlBlockFormatter* RuleFormatter::AddUrlBlock(
     const UserFacingString& format_str) {
   std::vector<const Argument*> args;
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlBlock(params);
+  return AddUrlBlock(format_str, args);
 }
 
 UrlBlockFormatter* RuleFormatter::AddUrlBlock(
@@ -206,8 +183,7 @@ UrlBlockFormatter* RuleFormatter::AddUrlBlock(
     const Argument& arg1) {
   std::vector<const Argument*> args;
   args.push_back(&arg1);
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlBlock(params);
+  return AddUrlBlock(format_str, args);
 }
 
 UrlBlockFormatter* RuleFormatter::AddUrlBlock(
@@ -217,8 +193,7 @@ UrlBlockFormatter* RuleFormatter::AddUrlBlock(
   std::vector<const Argument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
-  const FormatterParameters params(&format_str, &args);
-  return AddUrlBlock(params);
+  return AddUrlBlock(format_str, args);
 }
 
 }  // namespace pagespeed

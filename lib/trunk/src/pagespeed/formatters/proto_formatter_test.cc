@@ -31,7 +31,6 @@
 using pagespeed::Argument;
 using pagespeed::FormatArgument;
 using pagespeed::FormatString;
-using pagespeed::FormatterParameters;
 using pagespeed::FormattedResults;
 using pagespeed::FormattedRuleResults;
 using pagespeed::RuleFormatter;
@@ -223,14 +222,12 @@ TEST(ProtoFormatterTest, LocalizerTest) {
 
   // Test a localized format string.
   UserFacingString format_str("text $1 $2 $3 $4 $5 $6", true);
-  FormatterParameters formatter_params(&format_str, &args);
-  body->AddUrlBlock(formatter_params);
+  body->AddUrlBlock(format_str, args);
 
   // Test a non-localized format string.
   std::vector<const Argument*> args2;
   UserFacingString format_str2("not localized", false);
-  FormatterParameters formatter_params2(&format_str2, &args2);
-  body->AddUrlBlock(formatter_params2);
+  body->AddUrlBlock(format_str2, args2);
 
   // Test a non-localized rule header.
   formatter.AddRule(rule2, 100, 0);
