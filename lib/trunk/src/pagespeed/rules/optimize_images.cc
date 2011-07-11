@@ -71,17 +71,17 @@ UserFacingString ImageMinifier::body_format() const {
   // as can be optimized by using better compression. It describes the problem
   // to the user that the size of the images can be reduced. The "$1" will be
   // replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-  // the number of percent (e.g. 25).
+  // the percentage (e.g. 25%).
   return _("Optimizing the following images could reduce their size "
-           "by $1 ($2% reduction).");
+           "by $1 ($2 reduction).");
 }
 
 UserFacingString ImageMinifier::child_format() const {
   // TRANSLATOR: Detail info for one image URL. It tells the user how much can
   // be save for one image. The "$1" will be replace the the image URL; "$2"
   // will be replace by the number of bytes (e.g. 27B); the "$3" will be
-  // replace by the number of percent (e.g. 12).
-  return _("Losslessly compressing $1 could save $2 ($3% reduction).");
+  // replace by the percentage (e.g. 12%).
+  return _("Losslessly compressing $1 could save $2 ($3 reduction).");
 }
 
 UserFacingString ImageMinifier::child_format_post_gzip() const {

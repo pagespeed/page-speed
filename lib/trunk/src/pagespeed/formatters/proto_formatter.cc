@@ -105,6 +105,11 @@ void FillFormatString(const Localizer* loc,
         // some sort).
         localized = arg->string_value();
         break;
+      case Argument::PERCENTAGE:
+        format_arg->set_type(FormatArgument::PERCENTAGE);
+        format_arg->set_int_value(arg->int_value());
+        success = loc->LocalizePercentage(arg->int_value(), &localized);
+        break;
       default:
         LOG(DFATAL) << "Unknown argument type "
                     << arg->type();

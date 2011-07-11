@@ -35,6 +35,7 @@ message FormatArgument {
     BYTES = 4;
     DURATION = 5;
     PRE_STRING = 6;
+    PERCENTAGE = 7;
   }
 
   required ArgumentType type = 1;

@@ -173,36 +173,40 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
-  ASSERT_STREQ("invalid",
+  EXPECT_STREQ("invalid",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(0));
 
-  ASSERT_STREQ("url",
+  EXPECT_STREQ("url",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::URL));
 
-  ASSERT_STREQ("string",
+  EXPECT_STREQ("string",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::STRING_LITERAL));
 
-  ASSERT_STREQ("int",
+  EXPECT_STREQ("int",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::INT_LITERAL));
 
-  ASSERT_STREQ("bytes",
+  EXPECT_STREQ("bytes",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::BYTES));
 
-  ASSERT_STREQ("duration",
+  EXPECT_STREQ("duration",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::DURATION));
 
-  ASSERT_STREQ("pre",
+  EXPECT_STREQ("pre",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::PRE_STRING));
 
-  ASSERT_STREQ("invalid",
+  EXPECT_STREQ("percent",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
-                   FormatArgument::PRE_STRING + 1));
+                   FormatArgument::PERCENTAGE));
+
+  EXPECT_STREQ("invalid",
+               FormattedResultsToJsonConverter::ConvertFormatArgumentType(
+                   FormatArgument::PERCENTAGE + 1));
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {

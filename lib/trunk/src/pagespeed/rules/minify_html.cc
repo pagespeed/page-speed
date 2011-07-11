@@ -68,9 +68,9 @@ UserFacingString HtmlMinifier::body_format() const {
   // TRANSLATOR: Heading that describes the savings possible from
   // minifying resources. "$1" is a format token that will be replaced by the
   // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-  // "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
+  // "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
   return _("Minifying the following HTML resources could "
-           "reduce their size by $1 ($2% reduction).");
+           "reduce their size by $1 ($2 reduction).");
 }
 
 UserFacingString HtmlMinifier::child_format() const {
@@ -78,8 +78,8 @@ UserFacingString HtmlMinifier::child_format() const {
   // single resource. "$1" is a format token that will be replaced by the URL of
   // the resource. "$2" will be replaced bythe absolute number of bytes or
   // kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-  // replaced by the percent savings (e.g. "50").
-  return _("Minifying $1 could save $2 ($3% reduction).");
+  // replaced by the percent savings (e.g. "50%").
+  return _("Minifying $1 could save $2 ($3 reduction).");
 }
 
 UserFacingString HtmlMinifier::child_format_post_gzip() const {
@@ -87,8 +87,8 @@ UserFacingString HtmlMinifier::child_format_post_gzip() const {
   // possible from minifying a single resource. "$1" is a format token that
   // will be replaced by the URL of the resource. "$2" will be replaced bythe
   // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-  // "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50").
-  return _("Minifying $1 could save $2 ($3% reduction) after compression.");
+  // "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
+  return _("Minifying $1 could save $2 ($3 reduction) after compression.");
 }
 
 const MinifierOutput* HtmlMinifier::Minify(const Resource& resource,

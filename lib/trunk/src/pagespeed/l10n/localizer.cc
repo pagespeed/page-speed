@@ -86,6 +86,17 @@ bool BasicLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
   return true;
 }
 
+bool BasicLocalizer::LocalizePercentage(int64 p, std::string* out) const {
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+  std::ostringstream ss;
+  ss << p << "%";
+  *out = ss.str();
+  return true;
+}
+
 
 const char* NullLocalizer::GetLocale() const {
   return kNativeLocale;
@@ -140,6 +151,17 @@ bool NullLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
   }
   std::ostringstream ss;
   ss << ms;
+  *out = ss.str();
+  return true;
+}
+
+bool NullLocalizer::LocalizePercentage(int64 p, std::string* out) const {
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+  std::ostringstream ss;
+  ss << p;
   *out = ss.str();
   return true;
 }

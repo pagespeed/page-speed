@@ -38,6 +38,7 @@ class Argument {
     URL,
     DURATION,
     PRE_STRING,
+    PERCENTAGE,
   };
 
   Argument(ArgumentType type, int64 value);
