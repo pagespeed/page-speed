@@ -196,11 +196,11 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::DURATION));
 
-  EXPECT_STREQ("pre",
+  EXPECT_STREQ("verbatim",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
-                   FormatArgument::PRE_STRING));
+                   FormatArgument::VERBATIM_STRING));
 
-  EXPECT_STREQ("percent",
+  EXPECT_STREQ("percentage",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::PERCENTAGE));
 

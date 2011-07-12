@@ -397,7 +397,8 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
       const EliminateUnnecessaryReflowsDetails_StackTrace& stack = **stack_iter;
       Argument duration(Argument::INTEGER,
                         static_cast<int64>(stack.duration_millis()));
-      Argument trace(Argument::PRE_STRING, GetPresentableStackTrace(stack));
+      Argument trace(Argument::VERBATIM_STRING,
+                     GetPresentableStackTrace(stack));
       if (stack.count() == 1) {
         url_formatter->AddDetail(
             // TRANSLATOR: Appears as part of the list of URLs that

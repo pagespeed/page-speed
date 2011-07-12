@@ -37,7 +37,8 @@ class Argument {
     STRING,
     URL,
     DURATION,
-    PRE_STRING,
+    // Used for pre-formatted strings such as code blocks or stack traces.
+    VERBATIM_STRING,
     PERCENTAGE,
   };
 
