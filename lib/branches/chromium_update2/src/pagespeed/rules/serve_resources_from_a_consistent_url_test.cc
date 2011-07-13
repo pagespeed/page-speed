@@ -219,6 +219,8 @@ TEST_F(ServeResourcesFromAConsistentUrlTest, SkipTrackingPixels) {
   pagespeed::Resource* b = NewPngResource(kResponseUrls[0][1]);
   a->SetResponseBody(kBody);
   b->SetResponseBody(kBody);
+  a->AddResponseHeader("Cache-Control", "no-cache");
+  b->AddResponseHeader("Cache-Control", "no-cache");
   pagespeed_testing::FakeImageAttributesFactory::ResourceSizeMap size_map;
   size_map[a] = std::make_pair(1, 1);
   size_map[b] = std::make_pair(1, 1);

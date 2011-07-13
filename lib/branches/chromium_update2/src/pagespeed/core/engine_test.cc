@@ -28,7 +28,6 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
-using pagespeed::Argument;
 using pagespeed::Engine;
 using pagespeed::FormatArgument;
 using pagespeed::Formatter;

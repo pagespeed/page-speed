@@ -328,7 +328,6 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
           ResourceOrderingDetails::message_set_extension);
 
       if (ordering_details.out_of_order_inline_scripts_size() > 0) {
-        Argument html_url(Argument::URL, result.resource_urls(0));
         UrlBlockFormatter* body = formatter->AddUrlBlock(
             // TRANSLATOR: Header at the top of a list of inline javascript
             // blocks that Page Speed detected as preventing parallel
@@ -339,20 +338,19 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
             _("The following inline script blocks were found in $1 between an "
               "external CSS file and another resource.  To allow parallel "
               "downloading, move the inline script before the external CSS "
-              "file, or after the next resource."), html_url);
+              "file, or after the next resource."),
+            UrlArgument(result.resource_urls(0)));
         for (int i = 0,
                  size = ordering_details.out_of_order_inline_scripts_size();
              i < size; ++i) {
-          Argument index(Argument::INTEGER,
-                         ordering_details.out_of_order_inline_scripts(i));
           // TRANSLATOR: Detail of inline script block. The "$1" will be replace
           // by the index of the script block (e.g. 3).
-          body->AddUrlResult(_("Inline script block #$1"), index);
+          body->AddUrlResult(_("Inline script block #$1"), IntArgument(
+              ordering_details.out_of_order_inline_scripts(i)));
         }
       }
 
       if (ordering_details.out_of_order_external_css_size() > 0) {
-        Argument html_url(Argument::URL, result.resource_urls(0));
         UrlBlockFormatter* body = formatter->AddUrlBlock(
             // TRANSLATOR: Header at the top of a list of CSS URLs that Page
             // Speed detected as not able to be downloaded in parallel. It
@@ -362,7 +360,7 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
             _("The following external CSS files were included after an "
               "external JavaScript file in $1.  To ensure CSS files are "
               "downloaded in parallel, always include external CSS before "
-              " external JavaScript."), html_url);
+              " external JavaScript."), UrlArgument(result.resource_urls(0)));
         for (int i = 0,
                  size = ordering_details.out_of_order_external_css_size();
              i < size; ++i) {

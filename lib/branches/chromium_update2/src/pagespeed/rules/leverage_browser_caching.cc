@@ -261,17 +261,16 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
       LOG(DFATAL) << "Details structure is missing fields.";
     }
 
-    Argument url(Argument::URL, result.resource_urls(0));
     if (caching_details.has_freshness_lifetime_millis()) {
-      Argument freshness_lifetime(
-          Argument::DURATION,
-          caching_details.freshness_lifetime_millis());
-      body->AddUrlResult(not_localized("$1 ($2)"), url, freshness_lifetime);
+      body->AddUrlResult(
+          not_localized("$1 ($2)"), UrlArgument(result.resource_urls(0)),
+          DurationArgument(caching_details.freshness_lifetime_millis()));
     } else {
       // TRANSLATOR: Item describing a single URL that violates the
       // LeverageBrowserCaching rule by not having a cache expiration.
       // "$1" is a format string that will be replaced by the URL.
-      body->AddUrlResult(_("$1 (expiration not specified)"), url);
+      body->AddUrlResult(_("$1 (expiration not specified)"),
+                         UrlArgument(result.resource_urls(0)));
     }
   }
 }

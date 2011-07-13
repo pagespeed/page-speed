@@ -175,12 +175,9 @@ void MinifyRule::FormatResults(const ResultVector& results,
     return;
   }
 
-  Argument size_arg(Argument::BYTES, total_bytes_saved);
-  Argument percent_arg(Argument::PERCENTAGE,
-                       (total_original_size == 0 ? 0 :
-                        (100 * total_bytes_saved) / total_original_size));
   UrlBlockFormatter* body = formatter->AddUrlBlock(
-      minifier_->body_format(), size_arg, percent_arg);
+      minifier_->body_format(), BytesArgument(total_bytes_saved),
+      PercentageArgument(total_bytes_saved, total_original_size));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -204,17 +201,13 @@ void MinifyRule::FormatResults(const ResultVector& results,
 
     const int bytes_saved = result.savings().response_bytes_saved();
     const int original_size = result.original_response_bytes();
-    Argument url_arg(Argument::URL, result.resource_urls(0));
-    Argument size_arg(Argument::BYTES, bytes_saved);
-    Argument percent_arg(Argument::PERCENTAGE,
-                         (original_size == 0 ? 0 :
-                          (100 * bytes_saved) / original_size));
 
     UrlFormatter* url_result = body->AddUrlResult(
         min_details.savings_are_post_gzip() ?
         minifier_->child_format_post_gzip() :
         minifier_->child_format(),
-        url_arg, size_arg, percent_arg);
+        UrlArgument(result.resource_urls(0)), BytesArgument(bytes_saved),
+        PercentageArgument(bytes_saved, original_size));
     if (result.has_id() && result.has_optimized_content()) {
       url_result->SetAssociatedResultId(result.id());
     }

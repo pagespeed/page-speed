@@ -234,13 +234,12 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
       const PreferAsyncResourcesDetails& async_details = details.GetExtension(
           PreferAsyncResourcesDetails::message_set_extension);
 
-      Argument document_url(Argument::URL, result.resource_urls(0));
-      Argument resource_url(Argument::URL, async_details.resource_url());
       // TRANSLATOR: Detail for resource that loads synchronously. The "$1" will
       // be replaced by the document (HTML page, or a iframe) URL; the "$2" will
       // be replaced by the resource URL.
       body->AddUrlResult(_("$1 loads $2 synchronously."),
-                         document_url, resource_url);
+                         UrlArgument(result.resource_urls(0)),
+                         UrlArgument(async_details.resource_url()));
     } else {
       LOG(DFATAL) << "Async details missing.";
     }

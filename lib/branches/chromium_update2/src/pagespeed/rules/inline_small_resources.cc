@@ -237,7 +237,6 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
       const InlineSmallResourcesDetails& isr_details = details.GetExtension(
           InlineSmallResourcesDetails::message_set_extension);
 
-      Argument document_url(Argument::URL, result.resource_urls(0));
       UrlBlockFormatter* body = formatter->AddUrlBlock(
           // TRANSLATOR: A sub-heading that contains the URL of the document and
           // a statement instructing the user to inline certain small resources.
@@ -245,7 +244,7 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
           // document that contains the resources that can be inserted directly
           // into the HTML document.
           _("$1 should inline the following small resources:"),
-          document_url);
+          UrlArgument(result.resource_urls(0)));
       for (int i = 0; i < isr_details.inline_candidates_size(); ++i) {
         body->AddUrl(isr_details.inline_candidates(i));
       }
