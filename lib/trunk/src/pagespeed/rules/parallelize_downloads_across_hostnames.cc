@@ -179,8 +179,6 @@ FormatResults(const ResultVector& results, RuleFormatter* formatter) {
           ParallelizableHostDetails::message_set_extension);
 
       const int num_resources = result.resource_urls_size();
-      Argument num_resources_arg(Argument::INTEGER, num_resources);
-      Argument host_arg(Argument::STRING, host_details.host());
       UrlBlockFormatter* body = formatter->AddUrlBlock(
           // TRANSLATOR: Header at the top of a list of URLs that Page Speed
           // detected as from one host. It describes the problem to the user,
@@ -190,7 +188,8 @@ FormatResults(const ResultVector& results, RuleFormatter* formatter) {
           // google.com).
           _("This page makes $1 parallelizable requests to $2.  Increase "
             "download parallelization by distributing these requests across "
-            "multiple hostnames:"), num_resources_arg, host_arg);
+            "multiple hostnames:"), IntArgument(num_resources),
+          StringArgument(host_details.host()));
 
       for (int index = 0; index < num_resources; ++index) {
         body->AddUrl(result.resource_urls(index));

@@ -185,16 +185,15 @@ void AvoidLongRunningScripts::FormatResults(const ResultVector& results,
         details.GetExtension(
             AvoidLongRunningScriptsDetails::message_set_extension);
 
-    Argument url(Argument::URL, result.resource_urls(0));
-    Argument line_number(Argument::INTEGER, lrs_details.line_number());
-    Argument duration(Argument::DURATION,
-                      static_cast<int64>(lrs_details.duration_millis()));
     body->AddUrlResult(
         // TRANSLATOR: Shown as part of a list of URLs that initiate JavaScript
         // scripts that run for a long time.  Shows a URL at $1, the line
         // number (of the file at that URL that triggers the script URL) at $2,
         // and the length of time the scripts runs for at $3.
-        _("$1 line $2 ($3)"), url, line_number, duration);
+        _("$1 line $2 ($3)"),
+        UrlArgument(result.resource_urls(0)),
+        IntArgument(lrs_details.line_number()),
+        DurationArgument(lrs_details.duration_millis()));
   }
 }
 

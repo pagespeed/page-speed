@@ -193,12 +193,7 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
     if (details.HasExtension(ImageDimensionDetails::message_set_extension)) {
       const ImageDimensionDetails& image_details = details.GetExtension(
           ImageDimensionDetails::message_set_extension);
-
-      Argument url(Argument::URL, result.resource_urls(0));
-      Argument width(Argument::INTEGER, image_details.expected_width());
-      Argument height(Argument::INTEGER, image_details.expected_height());
       if ( count > 1 ) {
-        Argument instances(Argument::INTEGER, count);
         // TRANSLATOR: A format string for one item in a list of images that
         // Page Speed detected as not having both width and height explicitly
         // specified in the page in which the image appears; each list item
@@ -212,7 +207,10 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
         // token that will be replaced with the number of times this image
         // appears in the page (e.g. "3").
         body->AddUrlResult(_("$1 (Dimensions: $2 x $3) ($4 uses)"),
-                           url, width, height, instances);
+                           UrlArgument(result.resource_urls(0)),
+                           IntArgument(image_details.expected_width()),
+                           IntArgument(image_details.expected_height()),
+                           IntArgument(count));
       } else {
         // TRANSLATOR: A format string for one item in a list of images that
         // Page Speed detected as not having both width and height explicitly
@@ -225,7 +223,9 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
         // (e.g. "320"); the $3 is a format token that will be replaced with
         // the height of the image, in pixels (e.g. "240").
         body->AddUrlResult(_("$1 (Dimensions: $2 x $3)"),
-                           url, width, height);
+                           UrlArgument(result.resource_urls(0)),
+                           IntArgument(image_details.expected_width()),
+                           IntArgument(image_details.expected_height()));
       }
     } else {
       body->AddUrl(result.resource_urls(0));

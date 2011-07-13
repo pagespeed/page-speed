@@ -92,7 +92,6 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
     return;
   }
 
-  Argument size_threshold(Argument::BYTES, kMaximumRequestSize);
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as having large requests. It describes the problem to the
@@ -112,8 +111,6 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
       continue;
     }
 
-    Argument url(Argument::URL, result.resource_urls(0));
-    Argument size(Argument::BYTES, result.original_request_bytes());
     // TRANSLATOR: Item describing a URL that violates the MinimzeRequestSize
     // rule by having a large request size. The "$1" in the format string will
     // be replaced by the URL; the "$2" will be replaced by the number of bytes
@@ -121,20 +118,20 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
     // each element of the request is.
     //
     UrlFormatter* entry = body->AddUrlResult(_("$1 has a request size of $2"),
-                                             url, size);
+        UrlArgument(result.resource_urls(0)),
+        BytesArgument(result.original_request_bytes()));
 
     const ResultDetails& details_container = result.details();
     if (details_container.HasExtension(RequestDetails::message_set_extension)) {
       const RequestDetails& details = details_container.GetExtension(
           RequestDetails::message_set_extension);
 
-      Argument url_size(Argument::BYTES, details.url_length());
       // TRANSLATOR: Item showing how large the URL is in a request that
       // violates the MinimizeRequestSizeRule by being large. The "$1" will be
       // replace by the size of the request URL in bytes (e.g. "5.3KiB").
-      entry->AddDetail(_("Request URL: $1"), url_size);
+      entry->AddDetail(_("Request URL: $1"),
+                       BytesArgument(details.url_length()));
 
-      Argument cookie_size(Argument::BYTES, details.cookie_length());
       if (details.is_static() && details.cookie_length() > 0) {
         // TRANSLATOR: Item showing how large the cookie is in a request that
         // violates the MinimizeRequestSizeRule by being large. It also tell the
@@ -143,30 +140,30 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
         // cookies in bytes (e.g. "5.3KiB").
         entry->AddDetail(_("Cookies: $1 (note that this is a static resource, "
                            "and should be served from a cookieless domain)"),
-                         cookie_size);
+                         BytesArgument(details.cookie_length()));
       } else {
         // TRANSLATOR: Item showing how large the cookie is in a request that
         // violates the MinimizeRequestSizeRule by being large. The "$1" will be
         // replace by the size of the cookies in bytes (e.g. "5.3KiB").
-        entry->AddDetail(_("Cookies: $1"), cookie_size);
+        entry->AddDetail(_("Cookies: $1"),
+                         BytesArgument(details.cookie_length()));
       }
 
-      Argument referer_size(Argument::BYTES, details.referer_length());
       // TRANSLATOR: Item showing how large the referrer URL is in a request
       // that violates the MinimizeRequestSizeRule by being large. The "$1" will
       // be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-      entry->AddDetail(_("Referer Url: $1"), referer_size);
+      entry->AddDetail(_("Referer Url: $1"),
+                       BytesArgument(details.referer_length()));
 
-      Argument other_size(Argument::BYTES,
-                          result.original_request_bytes() -
-                          details.url_length() -
-                          details.cookie_length() -
-                          details.referer_length());
       // TRANSLATOR: Item showing how large the other request components is in a
       // request that violates the MinimizeRequestSizeRule by being large. The
       // "$1" will be replace by the total size of other components of the
       // request in bytes (e.g. "5.3KiB").
-      entry->AddDetail(_("Other: $1"), other_size);
+      entry->AddDetail(_("Other: $1"),
+                       BytesArgument(result.original_request_bytes() -
+                                     details.url_length() -
+                                     details.cookie_length() -
+                                     details.referer_length()));
     }
   }
 }

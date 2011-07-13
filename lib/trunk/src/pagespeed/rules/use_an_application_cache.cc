@@ -186,14 +186,14 @@ void UseAnApplicationCache::FormatResults(const ResultVector& results,
       continue;
     }
 
-    Argument url_arg(Argument::URL, result.resource_urls(0));
-    body->AddUrlResult(not_localized("$1"), url_arg);
+    body->AddUrl(result.resource_urls(0));
   }
 }
 
 bool UseAnApplicationCache::IsExperimental() const {
   return true;
 }
+
 }  // namespace rules
 
 }  // namespace pagespeed
