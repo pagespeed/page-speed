@@ -37,7 +37,7 @@
       'type': 'executable',
       'sources': [
         '<(chromium_root)/base/string_piece_unittest.cc',
-        '<(chromium_root)/base/win_util_unittest.cc',
+        '<(chromium_root)/base/win/win_util_unittest.cc',
       ],
       'dependencies': [
         'base',

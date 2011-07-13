@@ -98,10 +98,10 @@
         '<(chromium_root)/base/vlog.h',
         '<(chromium_root)/base/win/registry.cc',
         '<(chromium_root)/base/win/registry.h',
+        '<(chromium_root)/base/win/win_util.cc',
+        '<(chromium_root)/base/win/win_util.h',
         '<(chromium_root)/base/win/windows_version.cc',
         '<(chromium_root)/base/win/windows_version.h',
-        '<(chromium_root)/base/win_util.cc',
-        '<(chromium_root)/base/win_util.h',
         ],
         'include_dirs': [
           '<(chromium_root)',
