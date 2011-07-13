@@ -177,6 +177,32 @@
         # Figure out the python architecture to decide if we build pyauto.
         'python_arch%': '<!(<(DEPTH)/build/linux/python_arch.sh <(sysroot)/usr/lib/libpython<(python_ver).so.1.0)',
       }],  # os_posix==1 and OS!="mac"
+
+      # Whether to use multiple cores to compile with visual studio. This is
+      # optional because it sometimes causes corruption on VS 2005.
+      # It is on by default on VS 2008 and off on VS 2005.
+      ['OS=="win"', {
+        'conditions': [
+          ['MSVS_VERSION=="2005"', {
+            'msvs_multi_core_compile%': 0,
+          },{
+            'msvs_multi_core_compile%': 1,
+          }],
+          # Don't do incremental linking for large modules on 32-bit.
+          ['MSVS_OS_BITS==32', {
+            'msvs_large_module_debug_link_mode%': '1',  # No
+          },{
+            'msvs_large_module_debug_link_mode%': '2',  # Yes
+          }],
+          ['MSVS_VERSION=="2010e" or MSVS_VERSION=="2008e" or MSVS_VERSION=="2005e"', {
+            'msvs_express%': 1,
+            'secure_atl%': 0,
+          },{
+            'msvs_express%': 0,
+            'secure_atl%': 1,
+          }],
+        ],
+      }],
     ],
   },
   'target_defaults': {
