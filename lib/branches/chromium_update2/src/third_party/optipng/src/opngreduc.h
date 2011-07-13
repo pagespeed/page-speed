@@ -1,13 +1,23 @@
 /*
  * opngreduc.h - libpng extension: lossless image reductions.
  *
- * Copyright (C) 2003-2008 Cosmin Truta.
+ * Copyright (C) 2003-2010 Cosmin Truta.
  * This software is distributed under the same licensing and warranty terms
  * as libpng.
  *
  * This code is functional, although it is still work in progress.
  * Upon completion, it will be submitted for incorporation into libpng.
  */
+
+#ifndef OPNGREDUC_H
+#define OPNGREDUC_H
+
+#include "png.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /*****************************************************************************
@@ -18,24 +28,6 @@
 #  define OPNG_IMAGE_REDUCTIONS_SUPPORTED
 #  define PNG_INFO_IMAGE_SUPPORTED
 #endif
-
-/*
- * OPNG_ASSERT
- * Vanilla version, based on assert().
- */
-#ifndef OPNG_ASSERT
-#define DEBUG
-#if (!defined(PNG_DEBUG) || !PNG_DEBUG) && !defined(DEBUG)
-#define NDEBUG
-#endif
-#include <assert.h>
-#define OPNG_ASSERT(cond) assert(cond)
-#define OPNG_ASSERT_MSG(cond, msg) assert(cond)
-#endif
-/*
- * FIXME: avoid the modification of NDEBUG.
- * TODO: add a specialized version for MS Visual C++, based on <crtdbg.h>.
- */
 
 
 /*****************************************************************************
@@ -48,8 +40,7 @@
  * Indicate whether the image information is valid, i.e.
  * all the required critical information is present in the png structures.
  */
-extern PNG_EXPORT(int,opng_validate_image)
-   PNGARG((png_structp png_ptr, png_infop info_ptr));
+int PNGAPI opng_validate_image(png_structp png_ptr, png_infop info_ptr);
 
 #endif /* PNG_INFO_IMAGE_SUPPORTED */
 
@@ -60,8 +51,8 @@ extern PNG_EXPORT(int,opng_validate_image)
  * losing any information.  The image data must be present
  * (e.g. after calling png_set_rows(), or after loading IDAT).
  */
-extern PNG_EXPORT(png_uint_32,opng_reduce_image)
-   PNGARG((png_structp png_ptr, png_infop info_ptr, png_uint_32 reductions));
+png_uint_32 PNGAPI opng_reduce_image(png_structp png_ptr, png_infop info_ptr,
+   png_uint_32 reductions);
 
 /*
  * PNG reduction flags.
@@ -97,3 +88,11 @@ extern PNG_EXPORT(png_uint_32,opng_reduce_image)
     OPNG_REDUCE_PALETTE_ALL | OPNG_REDUCE_ANCILLARY)
 
 #endif /* OPNG_IMAGE_REDUCTIONS_SUPPORTED */
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+#endif /* OPNGREDUC_H */

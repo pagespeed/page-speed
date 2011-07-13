@@ -31,7 +31,6 @@
 using pagespeed::Argument;
 using pagespeed::FormatArgument;
 using pagespeed::FormatString;
-using pagespeed::FormatterParameters;
 using pagespeed::FormattedResults;
 using pagespeed::FormattedRuleResults;
 using pagespeed::RuleFormatter;
@@ -75,6 +74,11 @@ class TestLocalizer : public Localizer {
 
   bool LocalizeTimeDuration(int64 ms, std::string* out) const {
     *out = "***";
+    return true;
+  }
+
+  bool LocalizePercentage(int64 percent, std::string* out) const {
+    *out = "****";
     return true;
   }
 
@@ -213,18 +217,17 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   args.push_back(new Argument(Argument::INTEGER, 100));
   args.push_back(new Argument(Argument::BYTES, 150));
   args.push_back(new Argument(Argument::DURATION, 200));
+  args.push_back(new Argument(Argument::PERCENTAGE, 37));
   STLElementDeleter<std::vector<const Argument*> > arg_deleter(&args);
 
   // Test a localized format string.
-  UserFacingString format_str("text $1 $2 $3 $4 $5", true);
-  FormatterParameters formatter_params(&format_str, &args);
-  body->AddUrlBlock(formatter_params);
+  UserFacingString format_str("text $1 $2 $3 $4 $5 $6", true);
+  body->AddUrlBlock(format_str, args);
 
   // Test a non-localized format string.
   std::vector<const Argument*> args2;
   UserFacingString format_str2("not localized", false);
-  FormatterParameters formatter_params2(&format_str2, &args2);
-  body->AddUrlBlock(formatter_params2);
+  body->AddUrlBlock(format_str2, args2);
 
   // Test a non-localized rule header.
   formatter.AddRule(rule2, 100, 0);
@@ -239,8 +242,8 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   ASSERT_EQ(2, r1.url_blocks_size());
 
   const FormatString& header = r1.url_blocks(0).header();
-  EXPECT_EQ("*******************", header.format());
-  ASSERT_EQ(5, header.args_size());
+  EXPECT_EQ("**********************", header.format());
+  ASSERT_EQ(6, header.args_size());
 
   EXPECT_EQ(FormatArgument::URL, header.args(0).type());
   EXPECT_FALSE(header.args(0).has_int_value());
@@ -267,6 +270,11 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   EXPECT_FALSE(header.args(4).has_string_value());
   EXPECT_EQ(200, header.args(4).int_value());
   EXPECT_EQ("***", header.args(4).localized_value());
+
+  EXPECT_EQ(FormatArgument::PERCENTAGE, header.args(5).type());
+  EXPECT_FALSE(header.args(5).has_string_value());
+  EXPECT_EQ(37, header.args(5).int_value());
+  EXPECT_EQ("****", header.args(5).localized_value());
 
   // Test non-localized format string.
   const FormatString& header2 = r1.url_blocks(1).header();

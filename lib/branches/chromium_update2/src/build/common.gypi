@@ -18,6 +18,8 @@
 # Please don't directly include this file if you are building via gyp_chromium,
 # since gyp_chromium is automatically forcing its inclusion.
 {
+  # Variables expected to be overriden on the GYP command line (-D) or by
+  # ~/.gyp/include.gypi.
   'variables': {
     # Chromium uses system shared libraries on Linux by default
     # (Chromium already has transitive dependencies on these libraries
@@ -33,21 +35,38 @@
     'protobuf_gyp_path%': 'third_party/protobuf/protobuf.gyp',
     'protobuf_src_root%': 'third_party/protobuf/src',
 
-    # .gyp files or targets should set chromium_code to 1 if they build
-    # Chromium-specific code, as opposed to external code.  This variable is
-    # used to control such things as the set of warnings to enable, and
-    # whether warnings are treated as errors.
-    'chromium_code%': 0,
-
-    # Variables expected to be overriden on the GYP command line (-D) or by
-    # ~/.gyp/include.gypi.
-
     # Putting a variables dict inside another variables dict looks kind of
-    # weird.  This is done so that "branding" and "buildtype" are defined as
+    # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
     # variables within the outer variables dict here.  This is necessary
     # to get these variables defined for the conditions within this variables
-    # dict that operate on these variables.
+    # dict that operate on these variables (e.g., for setting 'toolkit_views',
+    # we need to have 'chromeos' already set).
     'variables': {
+      'variables': {
+        # Compute the architecture that we're building on.
+        'conditions': [
+          [ 'OS=="win" or OS=="mac"', {
+            'host_arch%': 'ia32',
+          }, {
+            # This handles the Unix platforms for which there is some support.
+            # Anything else gets passed through, which probably won't work very
+            # well; such hosts should pass an explicit target_arch to gyp.
+            'host_arch%':
+              '<!(uname -m | sed -e "s/i.86/ia32/;s/x86_64/x64/;s/amd64/x64/;s/arm.*/arm/;s/i86pc/ia32/")',
+          }],
+        ],
+      },
+
+      # Copy conditionally-set variables out one scope.
+      'host_arch%': '<(host_arch)',
+
+      # We used to provide a variable for changing how libraries were built.
+      # This variable remains until we can clean up all the users.
+      # This needs to be one nested variables dict in so that dependent
+      # gyp files can make use of it in their outer variables.  (Yikes!)
+      # http://code.google.com/p/chromium/issues/detail?id=83308
+      'library%': 'static_library',
+
       # Override buildtype to select the desired build flavor.
       # Dev - everyday build for development/testing
       # Official - release build (generally implies additional processing)
@@ -58,41 +77,12 @@
       # builds).
       'buildtype%': 'Dev',
 
-      'variables': {
-        # Compute the architecture that we're building on.
-        'conditions': [
-          [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
-            # This handles the Linux platforms we generally deal with. Anything
-            # else gets passed through, which probably won't work very well; such
-            # hosts should pass an explicit target_arch to gyp.
-            'host_arch%':
-              '<!(uname -m | sed -e "s/i.86/ia32/;s/x86_64/x64/;s/amd64/x64/;s/arm.*/arm/")',
-          }, {  # OS!="linux"
-            'host_arch%': 'ia32',
-          }],
-        ],
-
-        # To do a shared build on linux we need to be able to choose between
-        # type static_library and shared_library. We default to doing a static
-        # build but you can override this with "gyp -Dlibrary=shared_library"
-        # or you can add the following line (without the #) to
-        # ~/.gyp/include.gypi {'variables': {'library': 'shared_library'}}
-        # to compile as shared by default
-        'library%': 'static_library',
-      },
-
-      # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
-      # libraries on linux x86-64 and arm.
-      'linux_fpic%': 0,
-
-      'host_arch%': '<(host_arch)',
-
       # Default architecture we're building for is the architecture we're
       # building on.
       'target_arch%': '<(host_arch)',
 
       # Python version.
-      'python_ver%': '2.5',
+      'python_ver%': '2.6',
 
       # The system root for cross-compiles. Default: none.
       'sysroot%': '',
@@ -100,26 +90,50 @@
       # On Linux, we build without sse2.
       'disable_sse2%': 1,
 
-      'library%': '<(library)',
-
       # Variable 'component' is for cases where we would like to build some
       # components as dynamic shared libraries but still need variable
       # 'library' for static libraries.
       # By default, component is set to whatever library is set to and
       # it can be overriden by the GYP command line or by ~/.gyp/include.gypi.
-      'component%': '<(library)',
+      'component%': 'static_library',
+
+      'conditions': [
+        # A flag for POSIX platforms
+        ['OS=="win"', {
+          'os_posix%': 0,
+        }, {
+          'os_posix%': 1,
+        }],
+
+        # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
+        # libraries on linux x86-64 and arm.
+        ['host_arch=="ia32"', {
+          'linux_fpic%': 0,
+        }, {
+          'linux_fpic%': 1,
+        }],
+      ],
+
+      'conditions': [
+        # A flag for POSIX platforms
+        ['OS=="win"', {
+          'os_posix%': 0,
+        }, {
+          'os_posix%': 1,
+        }],
+      ],
     },
 
-    # Define target_arch on the basis of their settings within the
-    # variables sub-dict above, unless overridden.
+    # Copy conditionally-set variables out one scope.
     'buildtype%': '<(buildtype)',
     'target_arch%': '<(target_arch)',
     'host_arch%': '<(host_arch)',
+    'library%': 'static_library',
+    'os_posix%': '<(os_posix)',
     'linux_fpic%': '<(linux_fpic)',
     'python_ver%': '<(python_ver)',
     'sysroot%': '<(sysroot)',
     'disable_sse2%': '<(disable_sse2)',
-    'library%': '<(library)',
     'component%': '<(component)',
 
     # Mac OS X SDK and deployment target support.
@@ -150,27 +164,29 @@
     # Yes(1) means set use the common linker options.
     'msvs_use_common_linker_extras%': 1,
 
-    # TODO(sgk): eliminate this if possible.
-    # It would be nicer to support this via a setting in 'target_defaults'
-    # in chrome/app/locales/locales.gypi overriding the setting in the
-    # 'Debug' configuration in the 'target_defaults' dict below,
-    # but that doesn't work as we'd like.
-    'msvs_debug_link_incremental%': '2',
-
     # Set this to true when building with Clang.
     # See http://code.google.com/p/chromium/wiki/Clang for details.
     # TODO: eventually clang should behave identically to gcc, and this
     # won't be necessary.
     'clang%': 0,
 
+    # .gyp files or targets should set chromium_code to 1 if they build
+    # Chromium-specific code, as opposed to external code.  This variable is
+    # used to control such things as the set of warnings to enable, and
+    # whether warnings are treated as errors.
+    'chromium_code%': 0,
+
+    # Point to ICU directory.
+    'icu_src_dir': '../third_party/icu',
+
     'conditions': [
-      ['OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+      ['os_posix==1 and OS!="mac"', {
         # This will set gcc_version to XY if you are running gcc X.Y.*.
         # This is used to tweak build flags for gcc 4.4.
         'gcc_version%': '<!(python <(DEPTH)/build/compiler_version.py)',
         # Figure out the python architecture to decide if we build pyauto.
         'python_arch%': '<!(<(DEPTH)/build/linux/python_arch.sh <(sysroot)/usr/lib/libpython<(python_ver).so.1.0)',
-      }],  # OS=="linux" or OS=="freebsd" or OS=="openbsd"
+      }],  # os_posix==1 and OS!="mac"
     ],
   },
   'target_defaults': {
@@ -206,6 +222,7 @@
 
       'release_extra_cflags%': '',
       'debug_extra_cflags%': '',
+      'release_valgrind_build%': 0,
 
       'conditions': [
         ['OS=="win" and component=="shared_library"', {
@@ -219,21 +236,23 @@
         }],
       ],
     },
-    # Make sure our shadow view of chromium source is available to
-    # targets that don't explicitly declare their dependencies and
-    # assume chromium source headers are available from the root
-    # (third_party/modp_b64 is one such target).
-    'include_dirs': [
-      '<(DEPTH)/third_party/chromium/src',
-    ],
     'target_conditions': [
       ['chromium_code==0', {
         'conditions': [
-          [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          [ 'os_posix==1 and OS!="mac"', {
+            # We don't want to get warnings from third-party code,
+            # so remove any existing warning-enabling flags like -Wall.
             'cflags!': [
               '-Wall',
               '-Wextra',
               '-Werror',
+            ],
+            'cflags': [
+              # Don't warn about hash_map in third-party code.
+              '-Wno-deprecated',
+              # Don't warn about printf format problems.
+              # This is off by default in gcc but on in Ubuntu's gcc(!).
+              '-Wno-format',
             ],
           }],
           [ 'OS=="win"', {
@@ -246,7 +265,8 @@
             'msvs_disabled_warnings': [4800],
             'msvs_settings': {
               'VCCLCompilerTool': {
-                'WarnAsError': 'false',
+                'WarningLevel': '3',
+                'WarnAsError': 'false', # TODO(maruel): Enable it.
                 'Detect64BitPortabilityProblems': 'false',
               },
             },
@@ -274,13 +294,6 @@
             'sources/': [ ['exclude', '_(cocoa|mac)(_unittest)?\\.(h|cc)$'],
                           ['exclude', '(^|/)(cocoa|mac)/'],
                           ['exclude', '\\.mm?$' ] ],
-          }],
-          ['OS!="linux" and OS!="freebsd" and OS!="openbsd"', {
-            'sources/': [
-              ['exclude', '_(chromeos|gtk|x|x11|xdg)(_unittest)?\\.(h|cc)$'],
-              ['exclude', '(^|/)gtk/'],
-              ['exclude', '(^|/)(gtk|x11)_[^/]*\\.(h|cc)$'],
-            ],
           }],
           ['OS!="linux"', {
             'sources/': [
@@ -339,7 +352,10 @@
       },
       'Debug_Base': {
         'abstract': 1,
-        'defines': ['DYNAMIC_ANNOTATIONS_ENABLED=1'],
+        'defines': [
+          'DYNAMIC_ANNOTATIONS_ENABLED=1',
+          'WTF_USE_DYNAMIC_ANNOTATIONS=1',
+        ],
         'xcode_settings': {
           'COPY_PHASE_STRIP': 'NO',
           'GCC_OPTIMIZATION_LEVEL': '<(mac_debug_optimization)',
@@ -366,9 +382,6 @@
                 'PreprocessorDefinitions': ['_HAS_ITERATOR_DEBUGGING=0'],
               }],
             ],
-          },
-          'VCLinkerTool': {
-            'LinkIncremental': '<(msvs_debug_link_incremental)',
           },
           'VCResourceCompilerTool': {
             'PreprocessorDefinitions': ['_DEBUG'],
@@ -435,24 +448,33 @@
           }],
         ]
       },
+      'conditions': [
+        [ 'OS=="win"', {
+          # TODO(bradnelson): add a gyp mechanism to make this more graceful.
+          'Debug_x64': {
+            'inherit_from': ['Common_Base', 'x64_Base', 'Debug_Base'],
+          },
+          'Release_x64': {
+            'inherit_from': ['Common_Base', 'x64_Base', 'Release_Base'],
+          },
+        }],
+      ],
     },
   },
   'conditions': [
-    ['OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris"', {
+    ['os_posix==1 and OS!="mac"', {
       'target_defaults': {
         # Enable -Werror by default, but put it in a variable so it can
         # be disabled in ~/.gyp/include.gypi on the valgrind builders.
         'variables': {
-          # Use -fno-strict-aliasing by default since gcc 4.4 has periodic
-          # issues that slip through the cracks. We could do this just for
-          # gcc 4.4 but it makes more sense to be consistent on all
-          # compilers in use. TODO(Craig): turn this off again when
-          # there is some 4.4 test infrastructure in place and existing
-          # aliasing issues have been fixed.
+          # Use -fno-strict-aliasing, see http://crbug.com/32204
           'no_strict_aliasing%': 1,
-          'conditions': [['OS=="linux"', {'werror%': '-Werror',}],
-                         ['OS=="freebsd"', {'werror%': '',}],
-                         ['OS=="openbsd"', {'werror%': '',}],
+          'conditions': [
+            ['OS=="linux"', {
+              'werror%': '-Werror',
+              }, { # turn off -Werror on other Unices
+              'werror%': '',
+            }],
           ],
         },
         'cflags': [
@@ -473,7 +495,7 @@
           '-pipe',
         ],
         'cflags_cc': [
-          '-fno-rtti',
+          #'-fno-rtti',
           '-fno-threadsafe-statics',
           # Make inline functions have hidden visiblity by default.
           # Surprisingly, not covered by -fvisibility=hidden.
@@ -533,6 +555,22 @@
                   '-fno-ident',
                 ],
               }],
+              # At gyp time, we test the linker for ICF support; this flag
+              # is then provided to us by gyp.  (Currently only gold supports
+              # an --icf flag.)
+              # There seems to be a conflict of --icf and -pie in gold which
+              # can generate crashy binaries. As a security measure, -pie
+              # takes precendence for now.
+              ['LINKER_SUPPORTS_ICF==1', {
+                'target_conditions': [
+                  ['_toolset=="target"', {
+                    'ldflags': [
+                      #'-Wl,--icf=safe',
+                      '-Wl,--icf=none',
+                    ]
+                  }]
+                ]
+              }],
             ]
           },
         },
@@ -575,10 +613,6 @@
                   '-msse2',
                   '-mfpmath=sse',
                 ],
-              }, { # else: sse2 disabled
-                'cflags': [
-                  '-march=i686',
-                ],
               }],
               # Install packages have started cropping up with
               # different headers between the 32-bit and 64-bit
@@ -618,40 +652,28 @@
               }]]
           }],
           ['clang==1', {
-            'cflags': [
-              # Don't warn about unused variables, due to a common pattern:
-              #   scoped_deleter unused_variable(&thing_to_delete);
-              '-Wno-unused-variable',
-              # Clang spots more unused functions.
-              '-Wno-unused-function',
-              # gtest confuses clang.
-              '-Wno-bool-conversions',
-              # Don't die on dtoa code that uses a char as an array index.
-              '-Wno-char-subscripts',
-              # Survive EXPECT_EQ(unnamed_enum, unsigned int) -- see
-              # http://code.google.com/p/googletest/source/detail?r=446 .
-              # TODO(thakis): Use -isystem instead (http://crbug.com/58751 ).
-              '-Wno-unnamed-type-template-args',
-            ],
-            'cflags!': [
-              # Clang doesn't seem to know know this flag.
-              '-mfpmath=sse',
-            ],
+            'target_conditions': [
+              ['_toolset=="target"', {
+                'cflags': [
+                  '-Wheader-hygiene',
+                  # Clang spots more unused functions.
+                  '-Wno-unused-function',
+                  # Don't die on dtoa code that uses a char as an array index.
+                  '-Wno-char-subscripts',
+                  # Survive EXPECT_EQ(unnamed_enum, unsigned int) -- see
+                  # http://code.google.com/p/googletest/source/detail?r=446 .
+                  # TODO(thakis): Use -isystem instead (http://crbug.com/58751 )
+                  '-Wno-unnamed-type-template-args',
+                ],
+                'cflags!': [
+                  # Clang doesn't seem to know know this flag.
+                  '-mfpmath=sse',
+                ],
+              }]],
           }],
           ['no_strict_aliasing==1', {
             'cflags': [
               '-fno-strict-aliasing',
-            ],
-          }],
-          ['library=="shared_library"', {
-            # When building with shared libraries, remove the visiblity-hiding
-            # flag.
-            'cflags!': [ '-fvisibility=hidden' ],
-            'conditions': [
-              ['target_arch=="x64" or target_arch=="arm"', {
-                # Shared libraries need -fPIC on x86-64 and arm
-                'cflags': ['-fPIC']
-              }]
             ],
           }],
         ],
@@ -660,9 +682,10 @@
     ['OS=="mac"', {
       'target_defaults': {
         'variables': {
-          # This should be 'mac_real_dsym%', but there seems to be a bug
-          # with % in variables that are intended to be set to different
-          # values in different targets, like this one.
+          # These should be 'mac_real_dsym%' and 'mac_strip%', but there
+          # seems to be a bug with % in variables that are intended to be
+          # set to different values in different targets, like these two.
+          'mac_strip': 1,      # Strip debugging symbols from the target.
           'mac_real_dsym': 0,  # Fake .dSYMs are fine in most cases.
         },
         'mac_bundle': 0,
@@ -687,6 +710,9 @@
           'MACOSX_DEPLOYMENT_TARGET': '<(mac_deployment_target)',
           'PREBINDING': 'NO',                       # No -Wl,-prebind
           'USE_HEADERMAP': 'NO',
+          'OTHER_CFLAGS': [
+            '-fno-strict-aliasing',  # See http://crbug.com/32204
+          ],
           'WARNING_CFLAGS': [
             '-Wall',
             '-Wendif-labels',
@@ -700,6 +726,7 @@
           'conditions': [
             ['clang==1', {
               'WARNING_CFLAGS': [
+                '-Wheader-hygiene',
                 # Don't die on dtoa code that uses a char as an array index.
                 # This is required solely for base/third_party/dmg_fp/dtoa.cc.
                 '-Wno-char-subscripts',
@@ -709,6 +736,13 @@
                 # http://code.google.com/p/googletest/source/detail?r=446 .
                 # TODO(thakis): Use -isystem instead (http://crbug.com/58751 ).
                 '-Wno-unnamed-type-template-args',
+                # TODO(thakis): Reenable once the one instance this warns on
+                # is fixed.
+                '-Wno-parentheses',
+              ],
+              'OTHER_CFLAGS': [
+                # TODO(thakis): Causes many warnings - http://crbug.com/75001
+                '-fobjc-exceptions',
               ],
             }],
           ],
@@ -720,7 +754,8 @@
           ['_mac_bundle', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
           }],
-          ['_type=="executable" or _type=="shared_library" or _type=="loadable_module"', {
+          ['(_type=="executable" or _type=="shared_library" or \
+             _type=="loadable_module") and mac_strip!=0', {
             'target_conditions': [
               ['mac_real_dsym == 1', {
                 # To get a real .dSYM bundle produced by dsymutil, set the
@@ -756,7 +791,7 @@
                       # Define strip_from_xcode in a variable ending in _path
                       # so that gyp understands it's a path and performs proper
                       # relativization during dict merging.
-                      'strip_from_xcode_path': '<(DEPTH)/build/mac/strip_from_xcode',
+                      'strip_from_xcode_path': 'mac/strip_from_xcode',
                     },
                     'postbuild_name': 'Strip If Needed',
                     'action': ['<(strip_from_xcode_path)'],
@@ -764,7 +799,8 @@
                 ],  # postbuilds
               }],  # mac_real_dsym
             ],  # target_conditions
-          }],  # _type=="executable" or _type=="shared_library" or _type=="loadable_module"
+          }],  # (_type=="executable" or _type=="shared_library" or
+               #  _type=="loadable_module") and mac_strip!=0
         ],  # target_conditions
       },  # target_defaults
     }],  # OS=="mac"
@@ -779,33 +815,63 @@
           '_CRT_RAND_S',
           'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
           'WIN32_LEAN_AND_MEAN',
-          '_SECURE_ATL',
           '_ATL_NO_OPENGL',
+          '_HAS_TR1=0',
         ],
-
+        'conditions': [
+          ['component=="static_library"', {
+            'defines': [
+              '_HAS_EXCEPTIONS=0',
+            ],
+          }],
+          ['secure_atl', {
+            'defines': [
+              '_SECURE_ATL',
+            ],
+          }],
+        ],
         'msvs_system_include_dirs': [
+          # TODO(bmcquade): is this needed?
           '$(VSInstallDir)/VC/atlmfc/include',
         ],
         'msvs_cygwin_dirs': ['<(DEPTH)/third_party/cygwin'],
-        'msvs_disabled_warnings': [4351, 4396, 4503, 4819],
+        'msvs_disabled_warnings': [4351, 4396, 4503, 4819,
+          # TODO(maruel): These warnings are level 4. They will be slowly
+          # removed as code is fixed.
+          4100, 4121, 4125, 4127, 4130, 4131, 4189, 4201, 4238, 4244, 4245,
+          4310, 4355, 4428, 4481, 4505, 4510, 4512, 4530, 4610, 4611, 4701,
+          4702, 4706,
+        ],
         'msvs_settings': {
           'VCCLCompilerTool': {
             'MinimalRebuild': 'false',
             'BufferSecurityCheck': 'true',
             'EnableFunctionLevelLinking': 'true',
             'RuntimeTypeInfo': 'false',
-            'WarningLevel': '3',
+            'WarningLevel': '4',
             'WarnAsError': 'true',
             'DebugInformationFormat': '3',
-            'ExceptionHandling': '1',  # /EHsc
+            'conditions': [
+              ['msvs_multi_core_compile', {
+                'AdditionalOptions': ['/MP'],
+              }],
+              ['MSVS_VERSION=="2005e"', {
+                'AdditionalOptions': ['/w44068'], # Unknown pragma to 4 (ATL)
+              }],
+              ['component=="shared_library"', {
+                'ExceptionHandling': '1',  # /EHsc
+              }, {
+                'ExceptionHandling': '0',
+              }],
+            ],
           },
           'VCLibrarianTool': {
             'AdditionalOptions': ['/ignore:4221'],
           },
           'VCLinkerTool': {
             'AdditionalDependencies': [
-              'dbghelp.lib',
               'ws2_32.lib',
+              'dbghelp.lib',
             ],
             'GenerateDebugInformation': 'true',
             'MapFileName': '$(OutDir)\\$(TargetName).map',
@@ -840,6 +906,13 @@
     }],
     ['OS=="win" and msvs_use_common_linker_extras', {
       'target_defaults': {
+        'msvs_settings': {
+          'VCLinkerTool': {
+            'DelayLoadDLLs': [
+              'dbghelp.dll',
+            ],
+          },
+        },
         'configurations': {
           'x86_Base': {
             'msvs_settings': {

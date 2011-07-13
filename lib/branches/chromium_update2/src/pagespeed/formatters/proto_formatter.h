@@ -62,7 +62,9 @@ class ProtoRuleFormatter : public RuleFormatter {
   ~ProtoRuleFormatter();
 
   // RuleFormatter interface.
-  virtual UrlBlockFormatter* AddUrlBlock(const FormatterParameters& params);
+  virtual UrlBlockFormatter* AddUrlBlock(
+      const UserFacingString& format_str,
+      const std::vector<const Argument*>& arguments);
 
  private:
   const pagespeed::l10n::Localizer* localizer_;
@@ -79,7 +81,9 @@ class ProtoUrlBlockFormatter : public UrlBlockFormatter {
   ~ProtoUrlBlockFormatter();
 
   // UrlBlockFormatter interface.
-  virtual UrlFormatter* AddUrlResult(const FormatterParameters& params);
+  virtual UrlFormatter* AddUrlResult(
+      const UserFacingString& format_str,
+      const std::vector<const Argument*>& arguments);
 
  private:
   const pagespeed::l10n::Localizer* localizer_;
@@ -95,7 +99,9 @@ class ProtoUrlFormatter : public UrlFormatter {
                     FormattedUrlResult* url_result);
 
   // UrlFormatter interface.
-  virtual void AddDetail(const FormatterParameters& params);
+  virtual void AddDetail(
+      const UserFacingString& format_str,
+      const std::vector<const Argument*>& arguments);
   virtual void SetAssociatedResultId(int id);
 
  private:

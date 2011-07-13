@@ -29,12 +29,6 @@ extern "C" {
 #include "third_party/zlib/zlib.h"
 #endif
 
-#ifdef USE_SYSTEM_LIBPNG
-#include "png.h"  // NOLINT
-#else
-#include "third_party/libpng/png.h"
-#endif
-
 #include "third_party/optipng/src/opngreduc.h"
 }
 
@@ -48,7 +42,7 @@ struct PngInput {
 void ReadPngFromStream(png_structp read_ptr,
                        png_bytep data,
                        png_size_t length) {
-  PngInput* input = reinterpret_cast<PngInput*>(read_ptr->io_ptr);
+  PngInput* input = reinterpret_cast<PngInput*>(png_get_io_ptr(read_ptr));
   size_t copied = input->data_->copy(reinterpret_cast<char*>(data), length,
                                      input->offset_);
   input->offset_ += copied;
@@ -56,14 +50,19 @@ void ReadPngFromStream(png_structp read_ptr,
     LOG(INFO) << "ReadPngFromStream: Unexpected EOF.";
 
     // We weren't able to satisfy the read, so abort.
+#if PNG_LIBPNG_VER >= 10400
+    png_longjmp(read_ptr, 1);
+#else
     longjmp(read_ptr->jmpbuf, 1);
+#endif
   }
 }
 
 void WritePngToString(png_structp write_ptr,
                       png_bytep data,
                       png_size_t length) {
-  std::string& buffer = *reinterpret_cast<std::string*>(write_ptr->io_ptr);
+  std::string& buffer =
+      *reinterpret_cast<std::string*>(png_get_io_ptr(write_ptr));
   buffer.append(reinterpret_cast<char*>(data), length);
 }
 
@@ -72,7 +71,11 @@ void PngErrorFn(png_structp png_ptr, png_const_charp msg) {
 
   // Invoking the error function indicates a terminal failure, which
   // means we must longjmp to abort the libpng invocation.
+#if PNG_LIBPNG_VER >= 10400
+  png_longjmp(png_ptr, 1);
+#else
   longjmp(png_ptr->jmpbuf, 1);
+#endif
 }
 
 void PngWarningFn(png_structp png_ptr, png_const_charp msg) {
@@ -159,11 +162,11 @@ bool PngOptimizer::CreateOptimizedPng(PngReaderInterface& reader,
   out->clear();
 
   // Configure error handlers.
-  if (setjmp(read_.png_ptr()->jmpbuf)) {
+  if (setjmp(png_jmpbuf(read_.png_ptr()))) {
     return false;
   }
 
-  if (setjmp(write_.png_ptr()->jmpbuf)) {
+  if (setjmp(png_jmpbuf(write_.png_ptr()))) {
     return false;
   }
 

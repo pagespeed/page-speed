@@ -300,7 +300,7 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
   }
 
   Argument size_arg(Argument::BYTES, total_bytes_saved);
-  Argument percent_arg(Argument::INTEGER,
+  Argument percent_arg(Argument::PERCENTAGE,
                        (total_original_size == 0 ? 0 :
                         (100 * total_bytes_saved) / total_original_size));
   UrlBlockFormatter* body = formatter->AddUrlBlock(
@@ -309,9 +309,9 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       // the user.  "$1" is a format token that is replaced with the total
       // savings in bytes from serving images in their final size
       // (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-      // bytes transferred (e.g. "25").
+      // bytes transferred (e.g. "25%").
       _("The following images are resized in HTML or CSS.  Serving scaled "
-        "images could save $1 ($2% reduction)."), size_arg, percent_arg);
+        "images could save $1 ($2 reduction)."), size_arg, percent_arg);
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -328,7 +328,7 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
     const int original_size = result.original_response_bytes();
     Argument url_arg(Argument::URL, result.resource_urls(0));
     Argument size_arg(Argument::BYTES, bytes_saved);
-    Argument percent_arg(Argument::INTEGER,
+    Argument percent_arg(Argument::PERCENTAGE,
                          (original_size == 0 ? 0 :
                           (100 * bytes_saved) / original_size));
 
@@ -341,7 +341,7 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       Argument actual_w(Argument::INTEGER, image_details.actual_width());
       Argument actual_h(Argument::INTEGER, image_details.actual_height());
 
-      UserFacingString format_str =
+      body->AddUrlResult(
       // TRANSLATOR: Describes a single URL of an image that is resized in HTML
       // or CSS.  It gives the served size of the image, the final size of the
       // image, and the amount saved by serving the image in the final size.
@@ -352,29 +352,20 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       // (respectively) of the image resource.  "$6" will be replaced with the
       // amount saved (in bytes) by serving the image correctly size (e.g.
       // "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-      // "25").
+      // "25%").
           _("$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
-            "Serving a scaled image could save $6 ($7% reduction).");
-      std::vector<const Argument*> args;
-      args.push_back(&url_arg);
-      args.push_back(&expected_w);
-      args.push_back(&expected_h);
-      args.push_back(&actual_w);
-      args.push_back(&actual_h);
-      args.push_back(&size_arg);
-      args.push_back(&percent_arg);
-
-      FormatterParameters formatter_args(&format_str, &args);
-      body->AddUrlResult(formatter_args);
+            "Serving a scaled image could save $6 ($7 reduction)."),
+          url_arg, expected_w, expected_h, actual_w, actual_h, size_arg,
+          percent_arg);
     } else {
       // TRANSLATOR: Describes a single URL of an image that is resized in HTML
       // or CSS.  It gives the amount saved by serving the image in its final
       // size.  "$1" is a format token that will be replaced with the URL of the
       // image resource.  "$2" will be replaced with the amount saved (in bytes)
       // by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-      // replaced with the percentage saved (e.g. "25").
+      // replaced with the percentage saved (e.g. "25%").
       body->AddUrlResult(_("$1 is resized in HTML or CSS.  Serving a "
-                           "scaled image could save $2 ($3% reduction)."),
+                           "scaled image could save $2 ($3 reduction)."),
                          url_arg, size_arg, percent_arg);
     }
   }

@@ -48,3 +48,14 @@
    fun:_ZN6google28ParseCommandLineFlagsEPiPPPcb
    ...
 }
+{
+   gflags_new_string
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   ...
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN3fLS25dont_pass0toDEFINE_stringEPcPKc
+   fun:_Z41__static_initialization_and_destruction_0ii
+   ...
+}

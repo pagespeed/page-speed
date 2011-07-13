@@ -39,6 +39,10 @@ namespace {
 class LeverageBrowserCachingTest
     : public PagespeedRuleTest<LeverageBrowserCaching> {
  protected:
+  void DoSetUp() {
+    NewPrimaryResource("http://www.example.com/primary.html");
+  }
+
   void AddTestResource(const char* url,
                        const char* cache_control_header) {
     Resource* resource = new Resource;
@@ -84,35 +88,35 @@ class LeverageBrowserCachingTest
 TEST_F(LeverageBrowserCachingTest, ShortFreshnessLifetime) {
   AddTestResource("http://www.example.com/", "max-age=500");
   Freeze();
-  ASSERT_EQ(1, pagespeed_input()->num_resources());
+  ASSERT_EQ(2, pagespeed_input()->num_resources());
   CheckOneViolation("http://www.example.com/", 500000, 0);
 }
 
 TEST_F(LeverageBrowserCachingTest, LongFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", "max-age=31536000");
   Freeze();
-  ASSERT_EQ(1, pagespeed_input()->num_resources());
+  ASSERT_EQ(2, pagespeed_input()->num_resources());
   CheckNoViolations();
 }
 
 TEST_F(LeverageBrowserCachingTest, NotCacheable) {
   AddTestResource("http://www.example.com/1", "no-cache");
   Freeze();
-  ASSERT_EQ(1, pagespeed_input()->num_resources());
+  ASSERT_EQ(2, pagespeed_input()->num_resources());
   CheckNoViolations();
 }
 
 TEST_F(LeverageBrowserCachingTest, BadFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", "max-age=foo");
   Freeze();
-  ASSERT_EQ(1, pagespeed_input()->num_resources());
+  ASSERT_EQ(2, pagespeed_input()->num_resources());
   CheckOneViolation("http://www.example.com/1", 0, 0);
 }
 
 TEST_F(LeverageBrowserCachingTest, NoFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", NULL);
   Freeze();
-  ASSERT_EQ(1, pagespeed_input()->num_resources());
+  ASSERT_EQ(2, pagespeed_input()->num_resources());
   CheckOneViolation("http://www.example.com/1", 0, 0);
 }
 
@@ -120,8 +124,21 @@ TEST_F(LeverageBrowserCachingTest, OneShortOneLongLifetime) {
   AddTestResource("http://www.example.com/a", "max-age=302400");
   AddTestResource("http://www.example.com/1", "max-age=31536000");
   Freeze();
-  ASSERT_EQ(2, pagespeed_input()->num_resources());
+  ASSERT_EQ(3, pagespeed_input()->num_resources());
   CheckOneViolation("http://www.example.com/a", 302400000, 75);
+}
+
+// Content served from third-party domains is harder to have long
+// cache lifetimes for, since these resources tend to have fixed URLs
+// and thus it's not possible to include a fingerprint of the
+// resource's contents in the URL. For these resources we expect a
+// cache lifetime of one day instead of one week.
+TEST_F(LeverageBrowserCachingTest, ShorterExpectedLifetimeThirdPartyContent) {
+  AddTestResource("http://www.example2.com/a", "max-age=86400");
+  AddTestResource("http://www.example2.com/b", "max-age=86399");
+  Freeze();
+  ASSERT_EQ(3, pagespeed_input()->num_resources());
+  CheckOneViolation("http://www.example2.com/b", 86399000, 57);
 }
 
 }  // namespace
