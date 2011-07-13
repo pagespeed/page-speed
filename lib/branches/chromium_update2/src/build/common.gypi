@@ -113,15 +113,6 @@
           'linux_fpic%': 1,
         }],
       ],
-
-      'conditions': [
-        # A flag for POSIX platforms
-        ['OS=="win"', {
-          'os_posix%': 0,
-        }, {
-          'os_posix%': 1,
-        }],
-      ],
     },
 
     # Copy conditionally-set variables out one scope.
