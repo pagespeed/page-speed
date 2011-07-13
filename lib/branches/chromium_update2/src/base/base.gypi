@@ -142,6 +142,7 @@
       },
       'dependencies': [
         'base_static',
+        '<(DEPTH)/third_party/modp_b64/modp_b64.gyp:modp_b64',
         '<(chromium_root)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
       ],
       # TODO(gregoryd): direct_dependent_settings should be shared with the
@@ -179,6 +180,8 @@
         },],
       ],
       'sources': [
+        '<(chromium_root)/base/base64.cc',
+        '<(chromium_root)/base/base64.h',
         '<(chromium_root)/base/md5.cc',
         '<(chromium_root)/base/md5.h',
         '<(chromium_root)/base/string16.cc',
