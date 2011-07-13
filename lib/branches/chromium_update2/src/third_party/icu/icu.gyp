@@ -65,14 +65,15 @@
           ],
           'conditions': [
             [ 'OS == "win"', {
-              'type': 'none',
-              'copies': [
-                {
-                  'destination': '<(PRODUCT_DIR)',
-                  'files': [
-                    'windows/icudt.dll',
-                  ],
-                },
+              'link_settings': {
+                'libraries': [
+                  '<(DEPTH)/third_party/icu/icudt46.lib',
+                ],
+              },
+              'sources': [
+                # In order to pass our icudt46.lib dependency on to dependent
+                # targets, we need to have at least one source file.
+                'empty.c',
               ],
             }],
             [ 'OS == "win" or OS == "mac"', {
