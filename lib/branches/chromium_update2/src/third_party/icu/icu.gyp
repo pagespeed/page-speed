@@ -17,7 +17,6 @@
 {
   'variables': {
     'use_system_icu%': 0,
-    'icu_use_data_file_flag%': 0,
   },
   'target_defaults': {
     'direct_dependent_settings': {
@@ -81,29 +80,6 @@
             }],
             [ 'OS != "mac"', {
               'sources!': ['mac/icudt46l_dat.S'],
-            }],
-            [ 'OS != "win" and icu_use_data_file_flag', {
-              # Remove any assembly data file.
-              'sources/': [['exclude', 'icudt46l_dat']],
-              # Compile in the stub data symbol.
-              'sources': ['source/stubdata/stubdata.c'],
-              # Make sure any binary depending on this gets the data file.
-              'link_settings': {
-                'target_conditions': [
-                  ['OS == "mac" and _mac_bundle', {
-                    'mac_bundle_resources': [
-                      'source/data/in/icudt46l.dat',
-                    ],
-                  }, {
-                    'copies': [{
-                      'destination': '<(PRODUCT_DIR)',
-                      'files': [
-                        'source/data/in/icudt46l.dat',
-                      ],
-                    }],
-                  }],
-                ],  # target_conditions
-              },  # link_settings
             }],
             [ 'library != "shared_library"', {
               'defines': [
@@ -295,11 +271,6 @@
             ],
           },
           'conditions': [
-            [ 'OS == "win"', {
-              'sources': [
-                'source/stubdata/stubdata.c',
-              ],
-            }],
             [ 'os_posix == 1 and OS != "mac"', {
               'cflags': [
                 # Since ICU wants to internally use its own deprecated APIs,
