@@ -53,7 +53,6 @@
         '<(chromium_root)/base/logging_win.h',
         '<(chromium_root)/base/pickle.cc',
         '<(chromium_root)/base/pickle.h',
-        'process_util_stub.cc',  # TODO: still needed?
         '<(chromium_root)/base/process_util.h',
         '<(chromium_root)/base/safe_strerror_posix.cc',
         '<(chromium_root)/base/safe_strerror_posix.h',
