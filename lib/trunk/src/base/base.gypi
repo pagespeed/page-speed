@@ -141,6 +141,8 @@
       }],
       ['base_extra_target==1', {
         'sources': [
+          '<(chromium_root)/base/base64.cc',
+          '<(chromium_root)/base/base64.h',
           '<(chromium_root)/base/md5.cc',
           '<(chromium_root)/base/md5.h',
           '<(chromium_root)/base/string16.cc',
