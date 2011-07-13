@@ -842,14 +842,8 @@
           'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
           'WIN32_LEAN_AND_MEAN',
           '_ATL_NO_OPENGL',
-          '_HAS_TR1=0',
         ],
         'conditions': [
-          ['component=="static_library"', {
-            'defines': [
-              '_HAS_EXCEPTIONS=0',
-            ],
-          }],
           ['secure_atl', {
             'defines': [
               '_SECURE_ATL',
@@ -877,17 +871,13 @@
             'WarningLevel': '4',
             'WarnAsError': 'true',
             'DebugInformationFormat': '3',
+            'ExceptionHandling': '1',  # /EHsc
             'conditions': [
               ['msvs_multi_core_compile', {
                 'AdditionalOptions': ['/MP'],
               }],
               ['MSVS_VERSION=="2005e"', {
                 'AdditionalOptions': ['/w44068'], # Unknown pragma to 4 (ATL)
-              }],
-              ['component=="shared_library"', {
-                'ExceptionHandling': '1',  # /EHsc
-              }, {
-                'ExceptionHandling': '0',
               }],
             ],
           },
