@@ -36,11 +36,10 @@
     'protobuf_src_root%': 'third_party/protobuf/src',
 
     # Putting a variables dict inside another variables dict looks kind of
-    # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
+    # weird.  This is done so that "branding" and "buildtype" are defined as
     # variables within the outer variables dict here.  This is necessary
     # to get these variables defined for the conditions within this variables
-    # dict that operate on these variables (e.g., for setting 'toolkit_views',
-    # we need to have 'chromeos' already set).
+    # dict that operate on these variables.
     'variables': {
       'variables': {
         # Compute the architecture that we're building on.
@@ -213,7 +212,6 @@
 
       'release_extra_cflags%': '',
       'debug_extra_cflags%': '',
-      'release_valgrind_build%': 0,
 
       'conditions': [
         ['OS=="win" and component=="shared_library"', {
@@ -227,6 +225,13 @@
         }],
       ],
     },
+    # Make sure our shadow view of chromium source is available to
+    # targets that don't explicitly declare their dependencies and
+    # assume chromium source headers are available from the root
+    # (third_party/modp_b64 is one such target).
+    'include_dirs': [
+      '<(DEPTH)/third_party/chromium/src',
+    ],
     'target_conditions': [
       ['chromium_code==0', {
         'conditions': [
@@ -486,7 +491,7 @@
           '-pipe',
         ],
         'cflags_cc': [
-          #'-fno-rtti',
+          '-fno-rtti',
           '-fno-threadsafe-statics',
           # Make inline functions have hidden visiblity by default.
           # Surprisingly, not covered by -fvisibility=hidden.
@@ -603,6 +608,10 @@
                   '-march=pentium4',
                   '-msse2',
                   '-mfpmath=sse',
+                ],
+              }, { # else: sse2 disabled
+                'cflags': [
+                  '-march=i686',
                 ],
               }],
               # Install packages have started cropping up with
@@ -782,7 +791,7 @@
                       # Define strip_from_xcode in a variable ending in _path
                       # so that gyp understands it's a path and performs proper
                       # relativization during dict merging.
-                      'strip_from_xcode_path': 'mac/strip_from_xcode',
+                      'strip_from_xcode_path': '<(DEPTH)/build/mac/strip_from_xcode',
                     },
                     'postbuild_name': 'Strip If Needed',
                     'action': ['<(strip_from_xcode_path)'],

@@ -2,6 +2,9 @@
 	.section .note.GNU-stack,"",%progbits
 	.section .rodata
 	.align 8
+#ifndef PUBLIC_SYMBOL
+	.hidden icudt46_dat
+#endif
 	.type icudt46_dat,%object
 icudt46_dat:
 
