@@ -193,7 +193,7 @@ void AvoidLongRunningScripts::FormatResults(const ResultVector& results,
         _("$1 line $2 ($3)"),
         UrlArgument(result.resource_urls(0)),
         IntArgument(lrs_details.line_number()),
-        DurationArgument(lrs_details.duration_millis()));
+        DurationArgument(static_cast<int64>(lrs_details.duration_millis())));
   }
 }
 
