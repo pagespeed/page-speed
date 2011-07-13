@@ -142,10 +142,10 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
        ++iter) {
     const Result& result = **iter;
 
-    Argument count(Argument::INTEGER, result.resource_urls_size());
     GURL url(result.resource_urls(0));
-    Argument host(Argument::STRING, url.host());
-    UrlBlockFormatter* body = formatter->AddUrlBlock(body_tmpl, count, host);
+    UrlBlockFormatter* body = formatter->AddUrlBlock(
+        body_tmpl, IntArgument(result.resource_urls_size()),
+        StringArgument(url.host()));
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       body->AddUrl(result.resource_urls(idx));

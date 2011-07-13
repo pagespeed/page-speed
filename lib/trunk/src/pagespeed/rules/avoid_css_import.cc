@@ -152,7 +152,6 @@ void AvoidCssImport::FormatResults(const ResultVector& results,
       const AvoidCssImportDetails& import_details = details.GetExtension(
           AvoidCssImportDetails::message_set_extension);
       if (import_details.imported_stylesheets_size() > 0) {
-        Argument css_url(Argument::URL, result.resource_urls(0));
         UrlBlockFormatter* body = formatter->AddUrlBlock(
             // TRANSLATOR: Descriptive header at the top of a list of URLs that
             // are imported by a style sheet using the @import rule ("@import"
@@ -162,7 +161,7 @@ void AvoidCssImport::FormatResults(const ResultVector& results,
             // will be listed below it.  "$1" is a format token that will be
             // replaced with the URL of the style sheet that uses @import.
             _("The following external stylesheets were included in $1 "
-              "using @import."), css_url);
+              "using @import."), UrlArgument(result.resource_urls(0)));
         for (int i = 0, size = import_details.imported_stylesheets_size();
              i < size; ++i) {
           body->AddUrl(import_details.imported_stylesheets(i));

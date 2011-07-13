@@ -28,7 +28,6 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using pagespeed::Argument;
 using pagespeed::FormatArgument;
 using pagespeed::FormatString;
 using pagespeed::FormattedResults;
@@ -175,9 +174,8 @@ TEST(ProtoFormatterTest, FormattingTest) {
   DummyTestRule rule1(_N("rule1"));
 
   RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
-  Argument arg1(Argument::INTEGER, 50);
-  Argument arg2(Argument::BYTES, 100);
-  body->AddUrlBlock(_N("url block 1, $1 urls $2"), arg1, arg2);
+  body->AddUrlBlock(_N("url block 1, $1 urls $2"),
+                    pagespeed::IntArgument(50), pagespeed::BytesArgument(100));
 
   ASSERT_TRUE(results.IsInitialized());
 
@@ -211,23 +209,21 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   DummyTestRule rule2(UserFacingString("rule2", false));
 
   RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
-  std::vector<const Argument*> args;
-  args.push_back(new Argument(Argument::URL, "http://www.google.com"));
-  args.push_back(new Argument(Argument::STRING, "abcd"));
-  args.push_back(new Argument(Argument::INTEGER, 100));
-  args.push_back(new Argument(Argument::BYTES, 150));
-  args.push_back(new Argument(Argument::DURATION, 200));
-  args.push_back(new Argument(Argument::PERCENTAGE, 37));
-  STLElementDeleter<std::vector<const Argument*> > arg_deleter(&args);
 
   // Test a localized format string.
-  UserFacingString format_str("text $1 $2 $3 $4 $5 $6", true);
-  body->AddUrlBlock(format_str, args);
+  UserFacingString format_str("text $1 $2 $3 $4 $5 $6 $7", true);
+  body->AddUrlBlock(format_str,
+                    pagespeed::UrlArgument("http://www.google.com"),
+                    pagespeed::StringArgument("abcd"),
+                    pagespeed::IntArgument(100),
+                    pagespeed::BytesArgument(150),
+                    pagespeed::DurationArgument(200),
+                    pagespeed::VerbatimStringArgument("foobar"),
+                    pagespeed::PercentageArgument(37, 100));
 
   // Test a non-localized format string.
-  std::vector<const Argument*> args2;
   UserFacingString format_str2("not localized", false);
-  body->AddUrlBlock(format_str2, args2);
+  body->AddUrlBlock(format_str2);
 
   // Test a non-localized rule header.
   formatter.AddRule(rule2, 100, 0);
@@ -242,8 +238,8 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   ASSERT_EQ(2, r1.url_blocks_size());
 
   const FormatString& header = r1.url_blocks(0).header();
-  EXPECT_EQ("**********************", header.format());
-  ASSERT_EQ(6, header.args_size());
+  EXPECT_EQ("*************************", header.format());
+  ASSERT_EQ(7, header.args_size());
 
   EXPECT_EQ(FormatArgument::URL, header.args(0).type());
   EXPECT_FALSE(header.args(0).has_int_value());
@@ -271,10 +267,15 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   EXPECT_EQ(200, header.args(4).int_value());
   EXPECT_EQ("***", header.args(4).localized_value());
 
-  EXPECT_EQ(FormatArgument::PERCENTAGE, header.args(5).type());
-  EXPECT_FALSE(header.args(5).has_string_value());
-  EXPECT_EQ(37, header.args(5).int_value());
-  EXPECT_EQ("****", header.args(5).localized_value());
+  EXPECT_EQ(FormatArgument::VERBATIM_STRING, header.args(5).type());
+  EXPECT_FALSE(header.args(5).has_int_value());
+  EXPECT_EQ("foobar", header.args(5).string_value());
+  EXPECT_EQ("foobar", header.args(5).localized_value());
+
+  EXPECT_EQ(FormatArgument::PERCENTAGE, header.args(6).type());
+  EXPECT_FALSE(header.args(6).has_string_value());
+  EXPECT_EQ(37, header.args(6).int_value());
+  EXPECT_EQ("****", header.args(6).localized_value());
 
   // Test non-localized format string.
   const FormatString& header2 = r1.url_blocks(1).header();

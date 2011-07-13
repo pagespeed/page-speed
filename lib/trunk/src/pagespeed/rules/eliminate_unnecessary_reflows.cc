@@ -378,15 +378,14 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
       continue;
     }
 
-    Argument url(Argument::URL, result.resource_urls(0));
-    Argument total(Argument::INTEGER, result.savings().page_reflows_saved());
     UrlFormatter* url_formatter = body->AddUrlResult(
         // TRANSLATOR: Shown as part of a list of unnecessary reflows
         // (or "layouts", which is used interchangeably with the word
         // "reflows" in the web performance community). Shows a URL
         // at $1, and the number of unnecessary reflows for that URL
         // at $2.
-        _("$1 ($2 reflows)"), url, total);
+        _("$1 ($2 reflows)"), UrlArgument(result.resource_urls(0)),
+        IntArgument(result.savings().page_reflows_saved()));
     StackTraceVector traces;
     for (int i = 0; i < eur_details->stack_trace_size(); ++i) {
       traces.push_back(&eur_details->stack_trace(i));
@@ -394,11 +393,8 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
     std::sort(traces.begin(), traces.end(), SortStackTracesByDuration);
     for (StackTraceVector::const_iterator stack_iter = traces.begin(),
              end = traces.end(); stack_iter != end; ++stack_iter) {
-      const EliminateUnnecessaryReflowsDetails_StackTrace& stack = **stack_iter;
-      Argument duration(Argument::INTEGER,
-                        static_cast<int64>(stack.duration_millis()));
-      Argument trace(Argument::VERBATIM_STRING,
-                     GetPresentableStackTrace(stack));
+      const EliminateUnnecessaryReflowsDetails::StackTrace& stack =
+          **stack_iter;
       if (stack.count() == 1) {
         url_formatter->AddDetail(
             // TRANSLATOR: Appears as part of the list of URLs that
@@ -410,9 +406,9 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
             // reflow.
             _("The following JavaScript call stack caused a reflow that "
               "took $1 milliseconds: $2"),
-            duration, trace);
+            IntArgument(stack.duration_millis()),
+            VerbatimStringArgument(GetPresentableStackTrace(stack)));
       } else {
-        Argument count(Argument::INTEGER, stack.count());
         url_formatter->AddDetail(
             // TRANSLATOR: Appears as part of the list of URLs that
             // triggered unnecessary reflows (or "layouts", which is
@@ -424,7 +420,9 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
             // the context of the reflow.
             _("The following JavaScript call stack (executed $1 times) "
               "caused reflows that took $2 milliseconds: $3"),
-            count, duration, trace);
+            IntArgument(stack.count()),
+            IntArgument(stack.duration_millis()),
+            VerbatimStringArgument(GetPresentableStackTrace(stack)));
       }
     }
   }

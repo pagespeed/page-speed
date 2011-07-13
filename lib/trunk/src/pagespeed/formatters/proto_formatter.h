@@ -25,6 +25,7 @@
 
 namespace pagespeed {
 
+class FormatArgument;
 class FormattedResults;
 class FormattedRuleResults;
 class FormattedUrlBlockResults;
@@ -64,7 +65,7 @@ class ProtoRuleFormatter : public RuleFormatter {
   // RuleFormatter interface.
   virtual UrlBlockFormatter* AddUrlBlock(
       const UserFacingString& format_str,
-      const std::vector<const Argument*>& arguments);
+      const std::vector<const FormatArgument*>& arguments);
 
  private:
   const pagespeed::l10n::Localizer* localizer_;
@@ -83,7 +84,7 @@ class ProtoUrlBlockFormatter : public UrlBlockFormatter {
   // UrlBlockFormatter interface.
   virtual UrlFormatter* AddUrlResult(
       const UserFacingString& format_str,
-      const std::vector<const Argument*>& arguments);
+      const std::vector<const FormatArgument*>& arguments);
 
  private:
   const pagespeed::l10n::Localizer* localizer_;
@@ -101,7 +102,7 @@ class ProtoUrlFormatter : public UrlFormatter {
   // UrlFormatter interface.
   virtual void AddDetail(
       const UserFacingString& format_str,
-      const std::vector<const Argument*>& arguments);
+      const std::vector<const FormatArgument*>& arguments);
   virtual void SetAssociatedResultId(int id);
 
  private:
