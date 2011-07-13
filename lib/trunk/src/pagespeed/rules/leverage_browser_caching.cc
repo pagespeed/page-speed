@@ -23,12 +23,14 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace {
 
-const int64 kMillisInAWeek = 1000 * 60 * 60 * 24 * 7;
+const int64 kMillisInADay = 1000 * 60 * 60 * 24;
+const int64 kMillisInAWeek = kMillisInADay * 7;
 
 // Extract the freshness lifetime from the result object.
 int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
@@ -102,6 +104,35 @@ struct SortByFreshnessLifetime {
   }
 };
 
+// Resources served from third-party domains tend to have fixed URLs
+// and thus it's not possible to include a fingerprint of the
+// resource's contents in the URL. For these resources we expect a
+// cache lifetime of one day instead of one week. Note that we will
+// fail to detect cases where a completely separate cookieless domain
+// is being used (e.g. foo.com and foostatic.com, and will instead
+// suggest caching for just 1 day in those cases).
+int64 GetExpectedFreshnessLifetimeForResource(
+    const pagespeed::PagespeedInput& input,
+    const pagespeed::Resource& resource) {
+  if (input.primary_resource_url().empty()) {
+    // If the primary resource URL wasn't specified, we can't be sure
+    // whether the resource is on the same or a different domain. For
+    // backward compatibility, we default to a freshness lifetime of a
+    // week.
+    return kMillisInAWeek;
+  }
+
+  const std::string primary_resource_domain =
+      pagespeed::uri_util::GetDomainAndRegistry(input.primary_resource_url());
+  const std::string resource_domain =
+      pagespeed::uri_util::GetDomainAndRegistry(resource.GetRequestUrl());
+  if (primary_resource_domain == resource_domain) {
+    return kMillisInAWeek;
+  } else {
+    return kMillisInADay;
+  }
+}
+
 }  // namespace
 
 namespace pagespeed {
@@ -157,7 +188,10 @@ bool LeverageBrowserCaching::AppendResults(const RuleInput& rule_input,
         continue;
       }
 
-      if (freshness_lifetime_millis >= kMillisInAWeek) {
+      const int64 target_freshness_lifetime_millis =
+          GetExpectedFreshnessLifetimeForResource(input, resource);
+
+      if (freshness_lifetime_millis >= target_freshness_lifetime_millis) {
         continue;
       }
     }
