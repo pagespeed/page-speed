@@ -144,10 +144,6 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
        iter != end;
        ++iter) {
     const Result& result = **iter;
-    Argument num_resources_arg(
-        Argument::INTEGER, result.savings().requests_saved());
-    Argument num_bytes_arg(
-        Argument::BYTES, result.savings().response_bytes_saved());
     UrlBlockFormatter* body = formatter->AddUrlBlock(
         // TRANSLATOR: Header at the top of a list of URLs that Page Speed
         // detected as being identical yet served multiple times from different
@@ -160,8 +156,8 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
         _("The following resources have identical contents, but are served "
           "from different URLs.  Serve these resources from a consistent URL "
           "to save $1 request(s) and $2."),
-        num_resources_arg,
-        num_bytes_arg);
+        IntArgument(result.savings().requests_saved()),
+        BytesArgument(result.savings().response_bytes_saved()));
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
       body->AddUrl(result.resource_urls(url_idx));
     }

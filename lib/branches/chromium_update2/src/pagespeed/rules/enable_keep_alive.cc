@@ -164,8 +164,8 @@ void EnableKeepAlive::FormatResults(const ResultVector& results,
     const Result& result = **iter;
     std::string domain =
         uri_util::GetDomainAndRegistry(result.resource_urls(0));
-    Argument host(Argument::STRING, domain);
-    UrlBlockFormatter* body = formatter->AddUrlBlock(body_tmpl, host);
+    UrlBlockFormatter* body = formatter->AddUrlBlock(
+        body_tmpl, StringArgument(domain));
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       body->AddUrl(result.resource_urls(idx));

@@ -321,9 +321,6 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
       const AvoidDocumentWriteDetails& adw_details = details.GetExtension(
           AvoidDocumentWriteDetails::message_set_extension);
       if (adw_details.urls_size() > 0) {
-        Argument res_url(Argument::URL, result.resource_urls(0));
-        Argument line_number(Argument::INTEGER, adw_details.line_number());
-
         UrlBlockFormatter* body =
             formatter->AddUrlBlock(
                 // TRANSLATOR: Describes a single resource that violates the
@@ -338,7 +335,8 @@ void AvoidDocumentWrite::FormatResults(const ResultVector& results,
                 // replaced with the line number of the call to "document.write"
                 // in that resource.
                 _("$1 calls document.write on line $2 to fetch:"),
-                res_url, line_number);
+                UrlArgument(result.resource_urls(0)),
+                IntArgument(adw_details.line_number()));
         for (int i = 0, size = adw_details.urls_size(); i < size; ++i) {
           body->AddUrl(adw_details.urls(i));
         }

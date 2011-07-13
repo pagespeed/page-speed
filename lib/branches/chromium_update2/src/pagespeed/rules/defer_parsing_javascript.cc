@@ -308,13 +308,13 @@ void DeferParsingJavaScript::FormatResults(const ResultVector& results,
     return;
   }
 
-  Argument size_arg(Argument::BYTES, total_javascript_size);
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected to have JavaScript code. It describes the problem and tells
       // the user how to fix by defering parsing the JavaScript code.
       _("$1 of JavaScript is parsed during initial page load. Defer parsing "
-        "JavaScript to reduce blocking of page rendering."), size_arg);
+        "JavaScript to reduce blocking of page rendering."),
+      BytesArgument(total_javascript_size));
 
   // CheckDocument adds the results in post-order.
 
@@ -333,19 +333,19 @@ void DeferParsingJavaScript::FormatResults(const ResultVector& results,
       const DeferParsingJavaScriptDetails& defer_details = details.GetExtension(
           DeferParsingJavaScriptDetails::message_set_extension);
 
-      Argument resource_url(Argument::URL, result.resource_urls(0));
-      Argument size(Argument::BYTES, defer_details.minified_javascript_size());
-      bool is_inline = defer_details.is_inline();
-      if (is_inline) {
+      UserFacingString format_str;
+      if (defer_details.is_inline()) {
         // TRANSLATOR: Page Speed result for a single resource that should
         // defer parsing its inline JavaScript. The "$1"  will be replaced
         // by the document (HTML page, or a iframe) URL; the "$2" will be
         // replaced by the size of its inline JavaScripts.
-        body->AddUrlResult(_("$1 ($2 of inline JavaScript)"),
-                           resource_url, size);
+        format_str = _("$1 ($2 of inline JavaScript)");
       } else {
-        body->AddUrlResult(not_localized("$1 ($2)"), resource_url, size);
+        format_str = not_localized("$1 ($2)");
       }
+      body->AddUrlResult(
+          format_str, UrlArgument(result.resource_urls(0)),
+          BytesArgument(defer_details.minified_javascript_size()));
     } else {
       LOG(DFATAL) << "Defer parsing details missing.";
     }

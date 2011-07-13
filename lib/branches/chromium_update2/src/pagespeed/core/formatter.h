@@ -21,42 +21,26 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/l10n/user_facing_string.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 namespace pagespeed {
 
 class Rule;
 
-/**
- * Typed format argument representation.
- */
-class Argument {
- public:
-  enum ArgumentType {
-    BYTES,
-    INTEGER,
-    STRING,
-    URL,
-    DURATION,
-    // Used for pre-formatted strings such as code blocks or stack traces.
-    VERBATIM_STRING,
-    PERCENTAGE,
-  };
+FormatArgument BytesArgument(int64 bytes);
 
-  Argument(ArgumentType type, int64 value);
-  Argument(ArgumentType type, const char* value);
-  Argument(ArgumentType type, const std::string& value);
+FormatArgument DurationArgument(int64 milliseconds);
 
-  int64 int_value() const;
-  const std::string& string_value() const;
-  ArgumentType type() const;
+FormatArgument IntArgument(int64 value);
 
- private:
-  ArgumentType type_;
-  int64 int_value_;
-  std::string string_value_;
+FormatArgument PercentageArgument(int64 numerator, int64 denominator);
 
-  DISALLOW_COPY_AND_ASSIGN(Argument);
-};
+// Used for pre-formatted strings such as code blocks or stack traces.
+FormatArgument VerbatimStringArgument(const std::string& value);
+
+FormatArgument StringArgument(const std::string& value);
+
+FormatArgument UrlArgument(const std::string& url);
 
 class UrlFormatter {
  public:
@@ -65,21 +49,21 @@ class UrlFormatter {
 
   virtual void AddDetail(
       const UserFacingString& format_str,
-      const std::vector<const Argument*>& arguments) = 0;
+      const std::vector<const FormatArgument*>& arguments) = 0;
 
   virtual void SetAssociatedResultId(int id) = 0;
 
   // Convenience methods:
   void AddDetail(const UserFacingString& format_str);
   void AddDetail(const UserFacingString& format_str,
-                 const Argument& arg1);
+                 const FormatArgument& arg1);
   void AddDetail(const UserFacingString& format_str,
-                 const Argument& arg1,
-                 const Argument& arg2);
+                 const FormatArgument& arg1,
+                 const FormatArgument& arg2);
   void AddDetail(const UserFacingString& format_str,
-                 const Argument& arg1,
-                 const Argument& arg2,
-                 const Argument& arg3);
+                 const FormatArgument& arg1,
+                 const FormatArgument& arg2,
+                 const FormatArgument& arg3);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(UrlFormatter);
@@ -94,33 +78,33 @@ class UrlBlockFormatter {
   // same lifetime as the parent.
   virtual UrlFormatter* AddUrlResult(
       const UserFacingString& format_str,
-      const std::vector<const Argument*>& arguments) = 0;
+      const std::vector<const FormatArgument*>& arguments) = 0;
 
   // Convenience methods:
   UrlFormatter* AddUrl(const std::string& url);
   UrlFormatter* AddUrlResult(const UserFacingString& format_str);
   UrlFormatter* AddUrlResult(const UserFacingString& format_str,
-                             const Argument& arg1);
+                             const FormatArgument& arg1);
   UrlFormatter* AddUrlResult(const UserFacingString& format_str,
-                             const Argument& arg1,
-                             const Argument& arg2);
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2);
   UrlFormatter* AddUrlResult(const UserFacingString& format_str,
-                             const Argument& arg1,
-                             const Argument& arg2,
-                             const Argument& arg3);
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2,
+                             const FormatArgument& arg3);
   UrlFormatter* AddUrlResult(const UserFacingString& format_str,
-                             const Argument& arg1,
-                             const Argument& arg2,
-                             const Argument& arg3,
-                             const Argument& arg4);
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2,
+                             const FormatArgument& arg3,
+                             const FormatArgument& arg4);
   UrlFormatter* AddUrlResult(const UserFacingString& format_str,
-                             const Argument& arg1,
-                             const Argument& arg2,
-                             const Argument& arg3,
-                             const Argument& arg4,
-                             const Argument& arg5,
-                             const Argument& arg6,
-                             const Argument& arg7);
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2,
+                             const FormatArgument& arg3,
+                             const FormatArgument& arg4,
+                             const FormatArgument& arg5,
+                             const FormatArgument& arg6,
+                             const FormatArgument& arg7);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(UrlBlockFormatter);
@@ -135,15 +119,23 @@ class RuleFormatter {
   // the same lifetime as the parent.
   virtual UrlBlockFormatter* AddUrlBlock(
       const UserFacingString& format_str,
-      const std::vector<const Argument*>& arguments) = 0;
+      const std::vector<const FormatArgument*>& arguments) = 0;
 
   // Convenience methods:
   UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str);
   UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
-                                 const Argument& arg1);
+                                 const FormatArgument& arg1);
   UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
-                                 const Argument& arg1,
-                                 const Argument& arg2);
+                                 const FormatArgument& arg1,
+                                 const FormatArgument& arg2);
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
+                                 const FormatArgument& arg1,
+                                 const FormatArgument& arg2,
+                                 const FormatArgument& arg3,
+                                 const FormatArgument& arg4,
+                                 const FormatArgument& arg5,
+                                 const FormatArgument& arg6,
+                                 const FormatArgument& arg7);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RuleFormatter);

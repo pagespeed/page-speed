@@ -17,77 +17,86 @@
 #include "base/logging.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/l10n.h"  // for not_localized()
-
-namespace {
-
-const std::string kEmptyString;
-const pagespeed::UserFacingString kLocalizableEmptyString;
-const std::vector<const pagespeed::Argument*> kEmptyParameterList;
-
-}  // namespace
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 namespace pagespeed {
 
-Argument::Argument(Argument::ArgumentType type, int64 value)
-    : type_(type),
-      int_value_(value) {
-  DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION ||
-         type_ == PERCENTAGE);
+FormatArgument BytesArgument(int64 bytes) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::BYTES);
+  argument.set_int_value(bytes);
+  return argument;
 }
 
-Argument::Argument(Argument::ArgumentType type, const char* value)
-    : type_(type), int_value_(-1),
-      string_value_(value) {
-  DCHECK(type_ == STRING || type_ == URL || type_ == VERBATIM_STRING);
+FormatArgument DurationArgument(int64 milliseconds) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::DURATION);
+  argument.set_int_value(milliseconds);
+  return argument;
 }
 
-Argument::Argument(Argument::ArgumentType type, const std::string& value)
-    : type_(type), int_value_(-1),
-      string_value_(value) {
-  DCHECK(type_ == STRING || type_ == URL || type_ == VERBATIM_STRING);
+FormatArgument IntArgument(int64 value) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::INT_LITERAL);
+  argument.set_int_value(value);
+  return argument;
 }
 
-int64 Argument::int_value() const {
-  DCHECK(type_ == INTEGER || type_ == BYTES || type_ == DURATION ||
-         type_ == PERCENTAGE);
-  return int_value_;
+FormatArgument PercentageArgument(int64 numerator, int64 denominator) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::PERCENTAGE);
+  argument.set_int_value((denominator == 0 ? 0 :
+                          (100 * numerator) / denominator));
+  return argument;
 }
 
-const std::string& Argument::string_value() const {
-  DCHECK(type_ == STRING || type_ == URL || type_ == VERBATIM_STRING);
-  return string_value_;
+FormatArgument VerbatimStringArgument(const std::string& value) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::VERBATIM_STRING);
+  argument.set_string_value(value);
+  return argument;
 }
 
-Argument::ArgumentType Argument::type() const {
-  return type_;
+FormatArgument StringArgument(const std::string& value) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::STRING_LITERAL);
+  argument.set_string_value(value);
+  return argument;
+}
+
+FormatArgument UrlArgument(const std::string& value) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::URL);
+  argument.set_string_value(value);
+  return argument;
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str) {
-  std::vector<const Argument*> args;
+  std::vector<const FormatArgument*> args;
   AddDetail(format_str, args);
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str,
-                             const Argument& arg1) {
-  std::vector<const Argument*> args;
+                             const FormatArgument& arg1) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   AddDetail(format_str, args);
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str,
-                             const Argument& arg1,
-                             const Argument& arg2) {
-  std::vector<const Argument*> args;
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   AddDetail(format_str, args);
 }
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str,
-                             const Argument& arg1,
-                             const Argument& arg2,
-                             const Argument& arg3) {
-  std::vector<const Argument*> args;
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2,
+                             const FormatArgument& arg3) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
@@ -95,32 +104,28 @@ void UrlFormatter::AddDetail(const UserFacingString& format_str,
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrl(const std::string& url) {
-  const UserFacingString format = not_localized("$1");
-  const Argument arg(Argument::URL, url);
-  std::vector<const Argument*> args;
-  args.push_back(&arg);
-  return AddUrlResult(format, args);
+  return AddUrlResult(not_localized("$1"), UrlArgument(url));
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str) {
-  std::vector<const Argument*> args;
+  std::vector<const FormatArgument*> args;
   return AddUrlResult(format_str, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str,
-    const Argument& arg1) {
-  std::vector<const Argument*> args;
+    const FormatArgument& arg1) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   return AddUrlResult(format_str, args);
 }
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str,
-    const Argument& arg1,
-    const Argument& arg2) {
-  std::vector<const Argument*> args;
+    const FormatArgument& arg1,
+    const FormatArgument& arg2) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   return AddUrlResult(format_str, args);
@@ -128,10 +133,10 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str,
-    const Argument& arg1,
-    const Argument& arg2,
-    const Argument& arg3) {
-  std::vector<const Argument*> args;
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
@@ -140,11 +145,11 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str,
-    const Argument& arg1,
-    const Argument& arg2,
-    const Argument& arg3,
-    const Argument& arg4) {
-  std::vector<const Argument*> args;
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3,
+    const FormatArgument& arg4) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
@@ -154,14 +159,14 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
 
 UrlFormatter* UrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str,
-    const Argument& arg1,
-    const Argument& arg2,
-    const Argument& arg3,
-    const Argument& arg4,
-    const Argument& arg5,
-    const Argument& arg6,
-    const Argument& arg7) {
-  std::vector<const Argument*> args;
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3,
+    const FormatArgument& arg4,
+    const FormatArgument& arg5,
+    const FormatArgument& arg6,
+    const FormatArgument& arg7) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
   args.push_back(&arg3);
@@ -174,25 +179,45 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
 
 UrlBlockFormatter* RuleFormatter::AddUrlBlock(
     const UserFacingString& format_str) {
-  std::vector<const Argument*> args;
+  std::vector<const FormatArgument*> args;
   return AddUrlBlock(format_str, args);
 }
 
 UrlBlockFormatter* RuleFormatter::AddUrlBlock(
     const UserFacingString& format_str,
-    const Argument& arg1) {
-  std::vector<const Argument*> args;
+    const FormatArgument& arg1) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   return AddUrlBlock(format_str, args);
 }
 
 UrlBlockFormatter* RuleFormatter::AddUrlBlock(
     const UserFacingString& format_str,
-    const Argument& arg1,
-    const Argument& arg2) {
-  std::vector<const Argument*> args;
+    const FormatArgument& arg1,
+    const FormatArgument& arg2) {
+  std::vector<const FormatArgument*> args;
   args.push_back(&arg1);
   args.push_back(&arg2);
+  return AddUrlBlock(format_str, args);
+}
+
+UrlBlockFormatter* RuleFormatter::AddUrlBlock(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3,
+    const FormatArgument& arg4,
+    const FormatArgument& arg5,
+    const FormatArgument& arg6,
+    const FormatArgument& arg7) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  args.push_back(&arg4);
+  args.push_back(&arg5);
+  args.push_back(&arg6);
+  args.push_back(&arg7);
   return AddUrlBlock(format_str, args);
 }
 

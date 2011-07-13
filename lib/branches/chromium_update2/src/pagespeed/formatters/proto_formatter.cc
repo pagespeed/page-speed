@@ -60,67 +60,54 @@ bool MaybeLocalizeString(const Localizer* loc,
 // classes, to provide l10n for all formatters that want it.
 void FillFormatString(const Localizer* loc,
                       const UserFacingString& format_str,
-                      const std::vector<const Argument*>& arguments,
+                      const std::vector<const FormatArgument*>& arguments,
                       FormatString* out) {
   MaybeLocalizeString(loc, format_str, out->mutable_format());
 
-  for (unsigned int i = 0; i < arguments.size(); ++i) {
-    const Argument* arg = arguments[i];
+  for (int index = 0, limit = arguments.size(); index < limit; ++index) {
     bool success = true;
     std::string localized;
 
     FormatArgument* format_arg = out->add_args();
-    switch (arg->type()) {
-      case Argument::INTEGER:
-        format_arg->set_type(FormatArgument::INT_LITERAL);
-        format_arg->set_int_value(arg->int_value());
-        success = loc->LocalizeInt(arg->int_value(), &localized);
+    *format_arg = *arguments[index];
+
+    switch (format_arg->type()) {
+      case FormatArgument::INT_LITERAL:
+        success = loc->LocalizeInt(format_arg->int_value(), &localized);
         break;
-      case Argument::BYTES:
-        format_arg->set_type(FormatArgument::BYTES);
-        format_arg->set_int_value(arg->int_value());
-        success = loc->LocalizeBytes(arg->int_value(), &localized);
+      case FormatArgument::BYTES:
+        success = loc->LocalizeBytes(format_arg->int_value(), &localized);
         break;
-      case Argument::DURATION:
-        format_arg->set_type(FormatArgument::DURATION);
-        format_arg->set_int_value(arg->int_value());
-        success = loc->LocalizeTimeDuration(arg->int_value(), &localized);
+      case FormatArgument::DURATION:
+        success = loc->LocalizeTimeDuration(format_arg->int_value(),
+                                            &localized);
         break;
-      case Argument::STRING:
-        format_arg->set_type(FormatArgument::STRING_LITERAL);
-        format_arg->set_string_value(arg->string_value());
+      case FormatArgument::STRING_LITERAL:
         // Don't localize string arguments, since they're used for
         // "user-generated" content (such as hostnames and domains).
-        localized = arg->string_value();
+        localized = format_arg->string_value();
         break;
-      case Argument::URL:
-        format_arg->set_type(FormatArgument::URL);
-        format_arg->set_string_value(arg->string_value());
-        success = loc->LocalizeUrl(arg->string_value(), &localized);
+      case FormatArgument::URL:
+        success = loc->LocalizeUrl(format_arg->string_value(), &localized);
         break;
-      case Argument::VERBATIM_STRING:
-        format_arg->set_type(FormatArgument::VERBATIM_STRING);
-        format_arg->set_string_value(arg->string_value());
+      case FormatArgument::VERBATIM_STRING:
         // Don't localize pre string arguments, since they're
         // inherently not localizable (usually contain data or code of
         // some sort).
-        localized = arg->string_value();
+        localized = format_arg->string_value();
         break;
-      case Argument::PERCENTAGE:
-        format_arg->set_type(FormatArgument::PERCENTAGE);
-        format_arg->set_int_value(arg->int_value());
-        success = loc->LocalizePercentage(arg->int_value(), &localized);
+      case FormatArgument::PERCENTAGE:
+        success = loc->LocalizePercentage(format_arg->int_value(), &localized);
         break;
       default:
-        LOG(DFATAL) << "Unknown argument type "
-                    << arg->type();
+        LOG(DFATAL) << "Unknown argument type " << format_arg->type();
         format_arg->set_type(FormatArgument::STRING_LITERAL);
         format_arg->set_string_value("?");
         localized = "?";
         break;
     }
     if (!success) {
-      LOG(WARNING) << "warning: unable to localize argument $" << (i+1)
+      LOG(WARNING) << "warning: unable to localize argument $" << (index + 1)
                    << " (" << localized << ") in format string '"
                    << format_str;
     }
@@ -205,7 +192,7 @@ ProtoRuleFormatter::~ProtoRuleFormatter() {
 
 UrlBlockFormatter* ProtoRuleFormatter::AddUrlBlock(
     const UserFacingString& format_str,
-    const std::vector<const Argument*>& arguments) {
+    const std::vector<const FormatArgument*>& arguments) {
   FormattedUrlBlockResults* url_block_results =
       rule_results_->add_url_blocks();
   FillFormatString(localizer_, format_str, arguments,
@@ -231,7 +218,7 @@ ProtoUrlBlockFormatter::~ProtoUrlBlockFormatter() {
 
 UrlFormatter* ProtoUrlBlockFormatter::AddUrlResult(
     const UserFacingString& format_str,
-    const std::vector<const Argument*>& arguments) {
+    const std::vector<const FormatArgument*>& arguments) {
   FormattedUrlResult* url_result = url_block_results_->add_urls();
   FillFormatString(localizer_, format_str, arguments,
                    url_result->mutable_result());
@@ -250,7 +237,7 @@ ProtoUrlFormatter::ProtoUrlFormatter(const Localizer* localizer,
 
 void ProtoUrlFormatter::AddDetail(
     const UserFacingString& format_str,
-    const std::vector<const Argument*>& arguments) {
+    const std::vector<const FormatArgument*>& arguments) {
   FillFormatString(localizer_, format_str, arguments,
                    url_result_->add_details());
 }

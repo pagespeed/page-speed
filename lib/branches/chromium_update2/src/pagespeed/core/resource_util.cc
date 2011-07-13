@@ -636,6 +636,11 @@ bool IsLikelyTrackingPixel(const PagespeedInput& input,
     return false;
   }
 
+  if (IsCacheableResource(resource)) {
+    // Tracking pixels are never cacheable.
+    return false;
+  }
+
   if (resource.GetResponseBody().length() == 0) {
     // An image resource with no body is almost certainly being used
     // for tracking.
