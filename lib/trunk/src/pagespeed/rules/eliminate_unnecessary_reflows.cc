@@ -406,7 +406,7 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
             // reflow.
             _("The following JavaScript call stack caused a reflow that "
               "took $1 milliseconds: $2"),
-            IntArgument(stack.duration_millis()),
+            IntArgument(static_cast<int64>(stack.duration_millis())),
             VerbatimStringArgument(GetPresentableStackTrace(stack)));
       } else {
         url_formatter->AddDetail(
@@ -421,7 +421,7 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
             _("The following JavaScript call stack (executed $1 times) "
               "caused reflows that took $2 milliseconds: $3"),
             IntArgument(stack.count()),
-            IntArgument(stack.duration_millis()),
+            IntArgument(static_cast<int64>(stack.duration_millis())),
             VerbatimStringArgument(GetPresentableStackTrace(stack)));
       }
     }
