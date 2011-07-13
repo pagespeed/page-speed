@@ -152,10 +152,10 @@ void ProtoPopulator::PopulateInstrumentationData(
 
   {
     double time;
-    if (json.GetReal("startTime", &time)) {
+    if (json.GetDouble("startTime", &time)) {
       instr->set_start_time(time);
     }
-    if (json.GetReal("endTime", &time)) {
+    if (json.GetDouble("endTime", &time)) {
       instr->set_end_time(time);
     }
     int heap;
@@ -222,7 +222,7 @@ void ProtoPopulator::PopulateInstrumentationData(
 #define GET_BOOLEAN_DATA(key, name) \
   GET_DATA_OF_TYPE(key, name, bool, GetBoolean)
 #define GET_DOUBLE_DATA(key, name) \
-  GET_DATA_OF_TYPE(key, name, double, GetReal)
+  GET_DATA_OF_TYPE(key, name, double, GetDouble)
 #define GET_INTEGER_DATA(key, name) \
   GET_DATA_OF_TYPE(key, name, int, GetInteger)
 #define GET_STRING_DATA(key, name) \

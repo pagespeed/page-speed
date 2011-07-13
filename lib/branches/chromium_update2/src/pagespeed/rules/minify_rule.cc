@@ -176,7 +176,7 @@ void MinifyRule::FormatResults(const ResultVector& results,
   }
 
   Argument size_arg(Argument::BYTES, total_bytes_saved);
-  Argument percent_arg(Argument::INTEGER,
+  Argument percent_arg(Argument::PERCENTAGE,
                        (total_original_size == 0 ? 0 :
                         (100 * total_bytes_saved) / total_original_size));
   UrlBlockFormatter* body = formatter->AddUrlBlock(
@@ -206,7 +206,7 @@ void MinifyRule::FormatResults(const ResultVector& results,
     const int original_size = result.original_response_bytes();
     Argument url_arg(Argument::URL, result.resource_urls(0));
     Argument size_arg(Argument::BYTES, bytes_saved);
-    Argument percent_arg(Argument::INTEGER,
+    Argument percent_arg(Argument::PERCENTAGE,
                          (original_size == 0 ? 0 :
                           (100 * bytes_saved) / original_size));
 

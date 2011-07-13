@@ -23,6 +23,15 @@ extern "C" {
 #include "png.h"  // NOLINT
 #else
 #include "third_party/libpng/png.h"
+
+// gif_reader currently inspects "private" fields of the png_info
+// structure. Thus we need to include pnginfo.h. Eventually we should
+// fix the callsites to use the public API only, and remove this
+// include.
+#if PNG_LIBPNG_VER >= 10400
+#include "third_party/libpng/pnginfo.h"
+#endif
+
 #endif
 
 #include "third_party/giflib/lib/gif_lib.h"
@@ -64,7 +73,7 @@ void AddTransparencyChunk(png_structp png_ptr,
   // the head of the palette.
   png_byte trans[256];
   // First, set all palette indices to fully opaque.
-  png_memset(trans, 0xff, num_trans);
+  memset(trans, 0xff, num_trans);
   // Set the one transparent index to fully transparent.
   trans[transparent_palette_index] = 0;
   png_set_tRNS(png_ptr, info_ptr, trans, num_trans, NULL);
@@ -236,7 +245,7 @@ bool ReadGifToPng(GifFileType* gif_file,
         info_ptr->height * png_sizeof(png_bytep);
     info_ptr->row_pointers = static_cast<png_bytepp>(
         png_malloc(png_ptr, row_pointers_size));
-    png_memset(info_ptr->row_pointers, 0, row_pointers_size);
+    memset(info_ptr->row_pointers, 0, row_pointers_size);
 #ifdef PNG_FREE_ME_SUPPORTED
     info_ptr->free_me |= PNG_FREE_ROWS;
 #endif
@@ -249,11 +258,11 @@ bool ReadGifToPng(GifFileType* gif_file,
   }
 
   // Fill the rows with the background color.
-  png_memset(info_ptr->row_pointers[0], gif_file->SBackGroundColor, row_size);
+  memset(info_ptr->row_pointers[0], gif_file->SBackGroundColor, row_size);
   for (png_uint_32 row = 1; row < info_ptr->height; ++row) {
-    png_memcpy(info_ptr->row_pointers[row],
-               info_ptr->row_pointers[0],
-               row_size);
+    memcpy(info_ptr->row_pointers[row],
+           info_ptr->row_pointers[0],
+           row_size);
   }
 
   int transparent_palette_index = -1;

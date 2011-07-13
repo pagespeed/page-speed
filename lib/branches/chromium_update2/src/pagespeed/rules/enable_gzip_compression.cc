@@ -81,9 +81,9 @@ UserFacingString GzipMinifier::body_format() const {
   // list of uncompressed resource URLs.  "$1" is a format token that will be
   // replaced by the amount of data transferred saved by compressing (in bytes)
   // (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-  // compressing (e.g. "25").
+  // compressing (e.g. "25%").
   return _("Compressing the following resources with gzip could reduce their "
-           "transfer size by $1 ($2% reduction).");
+           "transfer size by $1 ($2 reduction).");
 }
 
 UserFacingString GzipMinifier::child_format() const {
@@ -95,7 +95,7 @@ UserFacingString GzipMinifier::child_format() const {
   // resource in question.  "$2" will be replaced with the amount of data
   // transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
   // replaced with the percentage of data transferred saved by compressing.
-  return _("Compressing $1 could save $2 ($3% reduction).");
+  return _("Compressing $1 could save $2 ($3 reduction).");
 }
 
 UserFacingString GzipMinifier::child_format_post_gzip() const {

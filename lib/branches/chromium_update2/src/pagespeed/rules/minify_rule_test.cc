@@ -42,13 +42,13 @@ class FoobarMinifier : public pagespeed::rules::Minifier {
     return not_localized("Test rule");
   }
   virtual UserFacingString body_format() const {
-    return not_localized("You could save $1 ($2%)");
+    return not_localized("You could save $1 ($2)");
   }
   virtual UserFacingString child_format() const {
-    return not_localized("$1 $2 ($3%)");
+    return not_localized("$1 $2 ($3)");
   }
   virtual UserFacingString child_format_post_gzip() const {
-    return not_localized("$1 $2 ($3%) after compression");
+    return not_localized("$1 $2 ($3) after compression");
   }
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
