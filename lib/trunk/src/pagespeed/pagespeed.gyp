@@ -117,6 +117,7 @@
       'sources': [
         'core/engine_test.cc',
         'core/file_util_test.cc',
+        'core/formatter_test.cc',
         'core/input_capabilities_test.cc',
         'core/pagespeed_input_test.cc',
         'core/resource_test.cc',

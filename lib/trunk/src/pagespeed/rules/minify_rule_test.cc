@@ -145,8 +145,8 @@ TEST_F(MinifyTest, FormatViolationWithCompression) {
   AddTestResourceWithCompression("http://www.example.com/foo.txt",
                                  "alkcvmslkvmlsakejflaskjvlaksmvlwekm", true);
   CheckOneUrlViolation("http://www.example.com/foo.txt");
-  ASSERT_EQ("You could save 9B (25%)\n"
-            "  http://www.example.com/foo.txt 9B (25%) after compression\n",
+  ASSERT_EQ("You could save 9B (26%)\n"
+            "  http://www.example.com/foo.txt 9B (26%) after compression\n",
             FormatResults());
 }
 

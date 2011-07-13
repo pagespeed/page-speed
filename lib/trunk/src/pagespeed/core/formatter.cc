@@ -45,8 +45,15 @@ FormatArgument IntArgument(int64 value) {
 FormatArgument PercentageArgument(int64 numerator, int64 denominator) {
   FormatArgument argument;
   argument.set_type(FormatArgument::PERCENTAGE);
-  argument.set_int_value((denominator == 0 ? 0 :
-                          (100 * numerator) / denominator));
+  // Calculate 100 * numerator / denominator using integer division.  We want
+  // to round towards 50%, so that 99.5% rounds to 99% but 0.5% rounds to 1%.
+  // So, if numerator is more than half of denominator, do floor division,
+  // otherwise do ceiling division.  Finally, if the denominator is zero, just
+  // call it 0%.
+  argument.set_int_value(denominator == 0 ? 0 :
+                         numerator * 2 >= denominator ?
+                         (100 * numerator) / denominator :
+                         (100 * numerator + denominator - 1) / denominator);
   return argument;
 }
 
