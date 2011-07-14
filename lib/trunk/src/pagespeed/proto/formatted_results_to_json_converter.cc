@@ -98,7 +98,7 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
     root->SetInteger("rule_score", rule_results.rule_score());
   }
   if (rule_results.has_rule_impact()) {
-    root->SetReal("rule_impact", rule_results.rule_impact());
+    root->SetDouble("rule_impact", rule_results.rule_impact());
   }
   if (rule_results.has_experimental()) {
     root->SetBoolean("experimental", rule_results.experimental());

@@ -42,7 +42,7 @@ bool RE::Init(const char *pattern) {
                   std::tr1::regex_constants::extended |
                   std::tr1::regex_constants::nosubs);
     is_valid_ = true;
-  } catch (std::tr1::regex_error ex) {
+  } catch (const std::tr1::regex_error&) {
     is_valid_ = false;
   }
 #else

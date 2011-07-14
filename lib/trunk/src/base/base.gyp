@@ -18,15 +18,30 @@
   ],
   'targets': [
     {
+      # This is the subset of files from base that should not be used with a
+      # dynamic library. Note that this library cannot depend on base because
+      # base depends on base_static.
+      'target_name': 'base_static',
+      'type': 'static_library',
+      'sources': [
+        '<(chromium_root)/base/base_switches.cc',
+        '<(chromium_root)/base/base_switches.h',
+      ],
+      'include_dirs': [
+        '<(chromium_root)',
+        '<(DEPTH)',
+      ],
+    },
+    {
       'target_name': 'base_unittests',
       'type': 'executable',
-      'msvs_guid': '27A30967-4BBA-48D1-8522-CDE95F7B1CEC',
       'sources': [
         '<(chromium_root)/base/string_piece_unittest.cc',
-        '<(chromium_root)/base/win_util_unittest.cc',
+        '<(chromium_root)/base/win/win_util_unittest.cc',
       ],
       'dependencies': [
         'base',
+        'base_static',
         '<(DEPTH)/testing/gmock.gyp:gmock',
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/testing/gtest.gyp:gtest_main',
