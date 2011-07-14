@@ -21,7 +21,7 @@ vars = {
   # TODO: remove these once gclient is able to correctly process the
   # commented-out line below.
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@68180",
+  "chromium_revision": "@90205",
 
   "naclsdk_trunk": "http://src.chromium.org/native_client/trunk/src/native_client",
   "naclsdk_revision": "@4444",
