@@ -33,12 +33,12 @@ make build-local
 echo "rfc3491.spp" > out/tmp/icudata.lst
 make packagedata
 
-The resulting .s file is at out/tmp/icudt42l_dat.s and should be
-copied to third_party/icu/linux/icudt42l_dat.S
+The resulting .s file is at out/tmp/icudt46l_dat.s and should be
+copied to third_party/icu/linux/icudt46l_dat.S
 
 In order to prevent exporting the ICU data as a public symbol, we add
 #ifndef PUBLIC_SYMBOL
-	.hidden icudt42_dat
+	.hidden icudt46_dat
 #endif
 
 near the head of the .S file. See the existing Linux .S file for an example.
@@ -51,7 +51,7 @@ should instead be:
 ./runConfigureICU MacOSX
 
 In order to prevent exporting the ICU data as a public symbol, we add
-	.private_extern _icudt42_dat
+	.private_extern _icudt46_dat
 
 near the head of the .s file. See the existing mac .s file for an example.
 
@@ -68,13 +68,13 @@ edit source\data\out\tmp\icudata.lst to contain one one line: "rfc3491.spp"
 
 Open a Visual Studio Command Prompt (from the 'Tools' menu) and run:
 
-> cd c:\src\icu\source\data\out\build\icudt42l
+> cd c:\src\icu\source\data\out\build\icudt46l
 
-> c:\src\icu\bin\pkgdata.exe -f -e icudt42 -v -m static -c -p icudt42l -T c:\src\icu\source\data\out\tmp -L icudt42 -d c:\src\icu\source\data\out\build\icudt42l -s . c:\src\icu\source\data\out\tmp\icudata.lst
+> c:\src\icu\bin\pkgdata.exe -f -e icudt46 -v -m static -c -p icudt46l -T c:\src\icu\source\data\out\tmp -L icudt46 -d c:\src\icu\source\data\out\build\icudt46l -s . c:\src\icu\source\data\out\tmp\icudata.lst
 
-This will generate icudt42.lib in source\data\out\tmp, which you can copy to third_party\icu and check in.
+This will generate icudt46.lib in source\data\out\tmp, which you can copy to third_party\icu and check in.
 
-> c:\src\icu\bin\pkgdata.exe -f -e icudt42 -v -m dll -c -p icudt42l -T c:\src\icu\source\data\out\tmp -L icudt42 -d c:\src\icu\source\data\out\build\icudt42l -s . c:\src\icu\source\data\out\tmp\icudata.lst
+> c:\src\icu\bin\pkgdata.exe -f -e icudt46 -v -m dll -c -p icudt46l -T c:\src\icu\source\data\out\tmp -L icudt46 -d c:\src\icu\source\data\out\build\icudt46l -s . c:\src\icu\source\data\out\tmp\icudata.lst
 
-This will generate icudt42.dll in the current directory, which you can copy to third_party\icu and check in.
+This will generate icudt46.dll in the current directory, which you can copy to third_party\icu and check in.
 

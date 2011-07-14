@@ -14,12 +14,12 @@
 
 vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@68180",
+  "chromium_revision": "@90205",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.16.9",
-  "instaweb_revision": "@576",
-  "icu42_deps_revision": "@69864",
-  "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.3.0",
+  "instaweb_revision": "@head",
+  "icu46_deps_revision": "@88321",
+  "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.4.1",
   "protobuf_revision": "@head",
   "gflags_src": "http://google-gflags.googlecode.com/svn/tags/gflags-1.5",
   "gflags_revision": "@head",
@@ -60,16 +60,16 @@ deps = {
     Var("gflags_src") + "/src" + Var("gflags_revision"),
 
   "src/third_party/icu/public":
-    (Var("chromium_trunk") + "/deps/third_party/icu42/public" +
-     Var("icu42_deps_revision")),
+    (Var("chromium_trunk") + "/deps/third_party/icu46/public" +
+     Var("icu46_deps_revision")),
 
   "src/third_party/icu/source/common":
-    (Var("chromium_trunk") + "/deps/third_party/icu42/source/common" +
-     Var("icu42_deps_revision")),
+    (Var("chromium_trunk") + "/deps/third_party/icu46/source/common" +
+     Var("icu46_deps_revision")),
 
   "src/third_party/icu/source/i18n":
-    (Var("chromium_trunk") + "/deps/third_party/icu42/source/i18n" +
-     Var("icu42_deps_revision")),
+    (Var("chromium_trunk") + "/deps/third_party/icu46/source/i18n" +
+     Var("icu46_deps_revision")),
 
   "src/third_party/instaweb/src/net/instaweb":
     Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
@@ -97,6 +97,7 @@ deps = {
     Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
 
   "src/googleurl": From(Var("chromium_deps_root")),
+  "src/testing/gmock": From(Var("chromium_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 }
