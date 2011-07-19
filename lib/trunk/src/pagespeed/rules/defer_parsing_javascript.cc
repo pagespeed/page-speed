@@ -14,6 +14,7 @@
 
 #include "pagespeed/rules/defer_parsing_javascript.h"
 
+#include <algorithm>
 #include <string>
 #include <map>
 #include <utility>
