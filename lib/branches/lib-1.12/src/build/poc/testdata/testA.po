@@ -1,0 +1,8 @@
+msgid "string_no_original"
+msgstr "string_no_original translated"
+
+msgid "string2"
+msgstr "string2 translated"
+
+msgid "string1"
+msgstr "string1 translated"
