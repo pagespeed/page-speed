@@ -6,8 +6,8 @@ If you see the "Your browser or operating system may not be supported." message 
 
 Mac OS X
   * version 10.5 or higher
-  * x86 only (PPC is not supported)
-  * 32-bit Firefox (64-bit Firefox is not supported)
+  * x86 and x86_64 (PPC is not supported)
+  * 32-bit or 64-bit Firefox
 
 Linux
   * GLib 2.7 or higher
