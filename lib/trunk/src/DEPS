@@ -16,7 +16,7 @@ vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@90205",
   "chromium_deps_root": "src/third_party/chromium_deps",
-  "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.16.9",
+  "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.18.1",
   "instaweb_revision": "@head",
   "icu46_deps_revision": "@88321",
   "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.4.1",
