@@ -26,7 +26,7 @@
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:timeline_pb',
-        '<(DEPTH)/third_party/domain-registry/src/domain_registry/domain_registry.gyp:domain_registry_lib',
+        '<(DEPTH)/third_party/domain_registry_provider/src/domain_registry/domain_registry.gyp:domain_registry_lib',
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
       ],
       'sources': [
