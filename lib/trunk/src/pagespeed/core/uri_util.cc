@@ -20,7 +20,7 @@
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "pagespeed/core/dom.h"
-#include "third_party/domain-registry/src/domain_registry/domain_registry.h"
+#include "third_party/domain_registry_provider/src/domain_registry/domain_registry.h"
 
 namespace {
 

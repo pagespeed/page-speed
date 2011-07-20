@@ -24,7 +24,7 @@ vars = {
   "gflags_src": "http://google-gflags.googlecode.com/svn/tags/gflags-1.5",
   "gflags_revision": "@head",
   "drp_src": "http://domain-registry-provider.googlecode.com/svn/trunk",
-  "drp_revision": "@20",
+  "drp_revision": "@22",
 }
 
 deps = {
@@ -53,7 +53,7 @@ deps = {
   "src/build/internal":
     Var("chromium_trunk") + "/src/build/internal" + Var("chromium_revision"),
 
-  "src/third_party/domain-registry/src":
+  "src/third_party/domain_registry_provider/src":
     Var("drp_src") + "/src" + Var("drp_revision"),
 
   "src/third_party/google-gflags/src":
