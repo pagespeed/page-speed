@@ -17,7 +17,7 @@
 #include "googleurl/src/url_util.h"
 #include "net/instaweb/htmlparse/public/html_keywords.h"
 #include "pagespeed/l10n/register_locale.h"
-#include "third_party/domain-registry/src/domain_registry/domain_registry.h"
+#include "third_party/domain_registry_provider/src/domain_registry/domain_registry.h"
 
 namespace pagespeed {
 
