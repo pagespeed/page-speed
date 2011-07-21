@@ -33,7 +33,6 @@
 #include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/core/timeline.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
@@ -48,6 +47,7 @@
 #include "pagespeed/proto/proto_resource_utils.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/rule_provider.h"
+#include "pagespeed/timeline/json_importer.h"
 #include "third_party/google-gflags/src/google/gflags.h"
 
 DEFINE_string(input_format, "har",
@@ -239,7 +239,7 @@ bool RunPagespeed(const std::string& out_format,
         return false;
       }
 
-      if (!pagespeed::CreateTimelineProtoFromJsonString(
+      if (!pagespeed::timeline::CreateTimelineProtoFromJsonString(
               instrumentation_file_contents, &instrumentation_data)) {
         fprintf(stderr, "Failed to parse instrumentation data from %s\n",
                 instrumentation_filename.c_str());
