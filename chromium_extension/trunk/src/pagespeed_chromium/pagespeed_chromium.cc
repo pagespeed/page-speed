@@ -44,7 +44,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
-#include "pagespeed/core/timeline.h"
+#include "pagespeed/timeline/json_importer.h"
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
@@ -374,7 +374,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   pagespeed::InstrumentationDataVector timeline_protos;
   STLElementDeleter<pagespeed::InstrumentationDataVector>
       timeline_deleter(&timeline_protos);
-  if (!pagespeed::CreateTimelineProtoFromJsonString(
+  if (!pagespeed::timeline::CreateTimelineProtoFromJsonString(
           timeline_string, &timeline_protos)) {
     return Throw("error in timeline data");
   }

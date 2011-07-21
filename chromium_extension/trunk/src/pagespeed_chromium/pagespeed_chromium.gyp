@@ -80,6 +80,7 @@
         '<(libpagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
         '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
+        '<(libpagespeed_root)/pagespeed/timeline/timeline.gyp:pagespeed_timeline',
         'pagespeed_json_dom',
       ],
       'sources': [
