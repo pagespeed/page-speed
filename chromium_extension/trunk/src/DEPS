@@ -100,7 +100,7 @@ deps = {
   "src/build/util": From(Var("libpagespeed_deps_root")),
   "src/build/internal": From(Var("libpagespeed_deps_root")),
   "src/testing": From(Var("libpagespeed_deps_root")),
-  "src/third_party/domain-registry/src": From(Var("libpagespeed_deps_root")),
+  "src/third_party/domain_registry_provider/src": From(Var("libpagespeed_deps_root")),
   "src/third_party/icu/public": From(Var("libpagespeed_deps_root")),
   "src/third_party/icu/source/common": From(Var("libpagespeed_deps_root")),
   "src/third_party/icu/source/i18n": From(Var("libpagespeed_deps_root")),
