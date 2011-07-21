@@ -17,14 +17,15 @@
 
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
-#include "pagespeed/core/timeline.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
+#include "pagespeed/timeline/json_importer.h"
 
 using pagespeed::InstrumentationData;
-using pagespeed_testing::AssertProtoEq;
 
 namespace {
+
+using pagespeed::timeline::CreateTimelineProtoFromJsonString;
 
 const std::string kTimelineJson =
     "[{"
@@ -125,70 +126,6 @@ TEST(TimelineTest, Basic) {
   const InstrumentationData& record2b = record2.children(1);
   EXPECT_EQ(InstrumentationData::LAYOUT, record2b.type());
   ASSERT_EQ(2, record2b.stack_trace_size());
-}
-
-// Simple visitor implementation that copies each node into a
-// destination vector of nodes. Used to verify correctness of the
-// visitor traversal implementation.
-class CopyVisitor : public pagespeed::InstrumentationDataVisitor {
- public:
-  // data is the vector that copied nodes should be stored in. The
-  // caller is responsible for freeing the nodes in the vector.
-  CopyVisitor(std::vector<const InstrumentationData*>* data) : data_(data) {}
-  virtual bool Visit(const std::vector<const InstrumentationData*>& stack);
-
- private:
-  std::vector<const InstrumentationData*>* data_;
-  std::vector<InstrumentationData*> working_set_;
-};
-
-bool CopyVisitor::Visit(const std::vector<const InstrumentationData*>& stack) {
-  if (stack.size() <= working_set_.size()) {
-    // If the passed in stack is more shallow than our stack, it
-    // indicates that we've traversed up at least one parent node
-    // since the last invocation. Thus we need to trim our stack to
-    // match.
-    working_set_.resize(stack.size());
-
-    // Trim one more node from our working set, in order to make room
-    // for the newly visited node.
-    working_set_.pop_back();
-  }
-
-  InstrumentationData* child;
-  if (working_set_.empty()) {
-    child = new InstrumentationData();
-    data_->push_back(child);
-  } else {
-    child = working_set_.back()->add_children();
-  }
-  child->MergeFrom(*stack.back());
-
-  // We visit each child as part of the traversal. We need to manually
-  // clear the merged children here so we merge them when they are
-  // visited.
-  child->clear_children();
-  working_set_.push_back(child);
-  return true;
-}
-
-TEST(TimelineTest, InstrumentationDataVisitor) {
-  std::vector<const InstrumentationData*> records;
-  STLElementDeleter<std::vector<const InstrumentationData*> > deleter(&records);
-  ASSERT_TRUE(CreateTimelineProtoFromJsonString(kTimelineJson, &records));
-
-  std::vector<const InstrumentationData*> records_copy;
-  STLElementDeleter<std::vector<const InstrumentationData*> > deleter2(
-      &records_copy);
-
-  CopyVisitor visitor(&records_copy);
-  pagespeed::InstrumentationDataVisitor::Traverse(&visitor, records);
-
-  // Verify that the copied records match the original records.
-  ASSERT_EQ(records.size(), records_copy.size());
-  for (size_t i = 0; i < records.size(); ++i) {
-    AssertProtoEq(*records[i], *records_copy[i]);
-  }
 }
 
 }  // namespace

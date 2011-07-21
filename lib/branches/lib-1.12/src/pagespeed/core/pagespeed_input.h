@@ -22,6 +22,7 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/input_capabilities.h"
+#include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_filter.h"
 
@@ -37,7 +38,6 @@ class InstrumentationData;
 typedef std::map<std::string, ResourceSet> HostResourceMap;
 typedef std::vector<const Resource*> ResourceVector;
 typedef std::map<const Resource*, ResourceVector> ParentChildResourceMap;
-typedef std::vector<const InstrumentationData*> InstrumentationDataVector;
 
 /**
  * Input set representation

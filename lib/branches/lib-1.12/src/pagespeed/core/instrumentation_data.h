@@ -12,33 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_CORE_TIMELINE_H_
-#define PAGESPEED_CORE_TIMELINE_H_
+#ifndef PAGESPEED_CORE_INSTRUMENTATION_DATA_H_
+#define PAGESPEED_CORE_INSTRUMENTATION_DATA_H_
 
-#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/values.h"
 
 namespace pagespeed {
 
 class InstrumentationData;
 
-// Return false if there were any errors, true otherwise.
-bool CreateTimelineProtoFromJsonString(
-    const std::string& json_string,
-    std::vector<const InstrumentationData*>* proto_out);
-
-// Return false if there were any errors, true otherwise.
-bool CreateTimelineProtoFromJsonValue(
-    const ListValue& json,
-    std::vector<const InstrumentationData*>* proto_out);
+typedef std::vector<const InstrumentationData*> InstrumentationDataVector;
+typedef InstrumentationDataVector InstrumentationDataStack;
+typedef std::vector<InstrumentationDataStack> InstrumentationDataStackVector;
 
 class InstrumentationDataVisitor {
  public:
-  typedef std::vector<const InstrumentationData*> InstrumentationDataStack;
-
   InstrumentationDataVisitor();
   virtual ~InstrumentationDataVisitor();
 
@@ -64,4 +54,4 @@ class InstrumentationDataVisitor {
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_CORE_TIMELINE_H_
+#endif  // PAGESPEED_CORE_INSTRUMENTATION_DATA_H_
