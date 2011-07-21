@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/core/timeline.h"
+#include "pagespeed/timeline/json_importer.h"
 
 #include <string>
 #include <vector>
@@ -335,6 +335,8 @@ void ProtoPopulator::PopulateStackFrame(
 
 namespace pagespeed {
 
+namespace timeline {
+
 bool CreateTimelineProtoFromJsonString(
     const std::string& json_string,
     std::vector<const InstrumentationData*>* proto_out) {
@@ -361,40 +363,6 @@ bool CreateTimelineProtoFromJsonValue(
   return !populator.error();
 }
 
-InstrumentationDataVisitor::InstrumentationDataVisitor() {}
-InstrumentationDataVisitor::~InstrumentationDataVisitor() {}
-
-// static
-void InstrumentationDataVisitor::Traverse(
-    InstrumentationDataVisitor* visitor,
-    const std::vector<const InstrumentationData*>& data) {
-  for (std::vector<const InstrumentationData*>::const_iterator
-           it = data.begin(), end = data.end(); it != end; ++it) {
-    Traverse(visitor, **it);
-  }
-}
-
-// static
-void InstrumentationDataVisitor::Traverse(InstrumentationDataVisitor* visitor,
-                                          const InstrumentationData& data) {
-  std::vector<const InstrumentationData*> stack;
-  stack.push_back(&data);
-  TraverseImpl(visitor, &stack);
-  stack.pop_back();
-}
-
-// static
-void InstrumentationDataVisitor::TraverseImpl(
-    InstrumentationDataVisitor* visitor,
-    std::vector<const InstrumentationData*>* stack) {
-  const InstrumentationData& data = *stack->back();
-  if (visitor->Visit(*stack)) {
-    for (int i = 0; i < data.children_size(); ++i) {
-      stack->push_back(&data.children(i));
-      TraverseImpl(visitor, stack);
-      stack->pop_back();
-    }
-  }
-}
+}  // namespace timeline
 
 }  // namespace pagespeed

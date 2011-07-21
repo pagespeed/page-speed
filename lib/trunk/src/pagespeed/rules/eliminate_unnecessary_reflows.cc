@@ -22,11 +22,11 @@
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
-#include "pagespeed/core/timeline.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
@@ -36,13 +36,11 @@ namespace {
 using pagespeed::EliminateUnnecessaryReflowsDetails;
 using pagespeed::EliminateUnnecessaryReflowsDetails_StackTrace;
 using pagespeed::InstrumentationData;
+using pagespeed::InstrumentationDataStack;
+using pagespeed::InstrumentationDataStackVector;
 using pagespeed::InstrumentationDataVisitor;
 
 struct StackTraceLessThan;
-typedef pagespeed::InstrumentationDataVisitor::InstrumentationDataStack
-    InstrumentationDataStack;
-typedef InstrumentationDataStack InstrumentationDataVector;
-typedef std::vector<InstrumentationDataStack> InstrumentationDataStackVector;
 typedef std::map<std::string,  InstrumentationDataStackVector>
     URLToInstrumentationStackVectorMap;
 typedef std::set<EliminateUnnecessaryReflowsDetails_StackTrace*,
@@ -225,7 +223,7 @@ static int ComputeUniqueStackTraces(
   return num_reflows;
 }
 
-// InstrumentationDataVector that finds call stacks that triggered
+// InstrumentationDataVisitor that finds call stacks that triggered
 // unnecessary reflows.
 class UnnecessaryReflowDiscoverer : public InstrumentationDataVisitor {
  public:

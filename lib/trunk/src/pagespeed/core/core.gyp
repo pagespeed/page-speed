@@ -36,6 +36,7 @@
         'file_util.cc',
         'formatter.cc',
         'image_attributes.cc',
+        'instrumentation_data.cc',
         'pagespeed_input.cc',
         'pagespeed_input_util.cc',
         'pagespeed_version.cc',
@@ -46,7 +47,6 @@
         'rule.cc',
         'rule_input.cc',
         'string_util.cc',
-        'timeline.cc',
         'uri_util.cc',
       ],
       'include_dirs': [

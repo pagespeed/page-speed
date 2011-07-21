@@ -20,11 +20,11 @@
 
 #include "base/logging.h"
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
-#include "pagespeed/core/timeline.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
