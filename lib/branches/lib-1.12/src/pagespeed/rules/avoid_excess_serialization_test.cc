@@ -17,14 +17,15 @@
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
+#include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
-#include "pagespeed/core/timeline.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/avoid_excess_serialization.h"
 #include "pagespeed/testing/pagespeed_test.h"
+#include "pagespeed/timeline/json_importer.h"
 
 using pagespeed::InstrumentationDataVector;
 using pagespeed::rules::AvoidExcessSerialization;
@@ -67,7 +68,8 @@ class AvoidExcessSerializationTest :
 
     InstrumentationDataVector records;
     ASSERT_TRUE(
-        pagespeed::CreateTimelineProtoFromJsonString(timeline_json, &records));
+        pagespeed::timeline::CreateTimelineProtoFromJsonString(
+            timeline_json, &records));
 
     for (InstrumentationDataVector::const_iterator iter = records.begin();
         iter != records.end(); iter++) {
