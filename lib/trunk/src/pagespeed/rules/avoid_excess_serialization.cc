@@ -37,7 +37,7 @@ using pagespeed::Resource;
 
 namespace {
 
-using google::protobuf::RepeatedPtrField;
+using ::google::protobuf::RepeatedPtrField;
 using pagespeed::InstrumentationDataVector;
 using pagespeed::InstrumentationDataVisitor;
 
