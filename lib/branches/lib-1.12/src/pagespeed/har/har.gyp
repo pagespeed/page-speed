@@ -24,6 +24,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/modp_b64/modp_b64.gyp:modp_b64',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
       'sources': [
         'http_archive.cc',
