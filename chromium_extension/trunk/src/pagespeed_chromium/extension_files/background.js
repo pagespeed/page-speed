@@ -202,8 +202,9 @@ var pagespeed_bg = {
       var is304Response = (entry.response.status === 304);
       var hasNoResponseHeaders =
           !entry.response.headers || entry.response.headers.length == 0;
+      var content = entry.response.content;
       var isMissingResponseBody =
-          (!entry.response.text || entry.response.text.length == 0) &&
+          (!content || !content.text || content.text.length == 0) &&
           entry.response.bodySize !== 0;
 
       if (!hasNoResponseHeaders && !is304Response && !isMissingResponseBody) {
