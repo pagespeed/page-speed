@@ -5,6 +5,14 @@
 msgid "$1 ($2 of inline JavaScript)"
 msgstr "$1 ($2 satır içi JavaScript kodu)"
 
+#  Shown as part of a list of unnecessary reflows
+#  (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community). Shows a URL
+#  at $1, and the number of unnecessary reflows for that URL
+#  at $2.
+msgid "$1 ($2 reflows)"
+msgstr "$1 ($2 yeniden akış)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -90,18 +98,25 @@ msgstr "$1 adresi $2 adresine önbelleğe alınamayan yönlendirme yapıyor"
 #  (respectively) of the image resource.  "$6" will be replaced with the
 #  amount saved (in bytes) by serving the image correctly size (e.g.
 #  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7% reduction)."
-msgstr "$1, HTML'de veya CSS'de yeniden boyutlandırıldı ve boyutu $2x$3 pikselden $4x$5 piksele değiştirildi. Ölçeklenmiş resim sunmak, $6 tasarruf sağlayabilir (%$7 azalma)."
+#  "25%").
+msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
+msgstr "$1, HTML'de veya CSS'de yeniden boyutlandırıldı ve boyutu $2x$3 pikselden $4x$5 piksele değiştirildi. Ölçeklenmiş resim sunmak, $6 tasarruf sağlayabilir ($7 azalma)."
 
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the amount saved by serving the image in its final
 #  size.  "$1" is a format token that will be replaced with the URL of the
 #  image resource.  "$2" will be replaced with the amount saved (in bytes)
 #  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3% reduction)."
-msgstr "$1, HTML veya CSS'de yeniden boyutlandırıldı. Ölçeklenmiş resim sunmak, $2 tasarruf sağlayabilir (%$3 azalma)."
+#  replaced with the percentage saved (e.g. "25%").
+msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
+msgstr "$1, HTML veya CSS'de yeniden boyutlandırıldı. Ölçeklenmiş resim sunmak, $2 tasarruf sağlayabilir ($3 azalma)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL at $1, the line
+#  number (of the file at that URL that triggers the script URL) at $2,
+#  and the length of time the scripts runs for at $3.
+msgid "$1 line $2 ($3)"
+msgstr "$1, $2. satır ($3)"
 
 #  Detail for resource that loads synchronously. The "$1" will
 #  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
@@ -171,6 +186,14 @@ msgstr "Bozuk isteklerden kaçının"
 msgid "Avoid document.write"
 msgstr "document.write işlevini kullanmaktan kaçının"
 
+#  The name of a Page Speed rule that tells users to try
+#  and avoid writing pages with Javascript scripts that run for a
+#  long time, which reduces browser responsiveness.  This is
+#  displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Avoid long-running scripts"
+msgstr "Çalışması uzun süren kodlardan kaçının"
+
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
 #  problem.
@@ -209,8 +232,8 @@ msgstr "Resimleri CSS sprite görseller içinde birleştirin"
 #  resource in question.  "$2" will be replaced with the amount of data
 #  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
 #  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3% reduction)."
-msgstr "$1 adresindeki kaynağı sıkıştırmak, $2 tasarruf sağlayabilir (%$3 azalma)."
+msgid "Compressing $1 could save $2 ($3 reduction)."
+msgstr "$1 adresindeki kaynağı sıkıştırmak, $2 tasarruf sağlayabilir ($3 azalma)."
 
 #  Descriptive header for a list of URLs that were served
 #  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
@@ -219,8 +242,8 @@ msgstr "$1 adresindeki kaynağı sıkıştırmak, $2 tasarruf sağlayabilir (%$3
 #  list of uncompressed resource URLs.  "$1" is a format token that will be
 #  replaced by the amount of data transferred saved by compressing (in bytes)
 #  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2% reduction)."
+#  compressing (e.g. "25%").
+msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
 msgstr "Aşağıdaki kaynakları gzip ile sıkıştırmak, aktarım boyutunu $1 kadar azaltabilir ($2 azalma)."
 
 #  Item showing how large the cookie is in a request that
@@ -242,6 +265,13 @@ msgstr "Çerezler: $1 (bunun statik bir kaynak olduğuna ve çerezsiz bir alanda
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "JavaScript kodlarını ayrıştırmayı sonraya bırakın"
+
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr "Gereksiz yeniden akışlardan kurtulun"
 
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
@@ -281,6 +311,16 @@ msgstr "Küçük JavaScript'leri Satır İçi Kullanın"
 msgid "Inline script block #$1"
 msgstr "$1 numaralı komut satırı bloğunu satır içi yapın"
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
+msgstr "Aşağıdaki kaynaklarda çalıştırılan JavaScript kodları gereksiz yeniden akışlara neden oldu. Sayfanın görüntülenme süresini düşürmek için, JavaScript'i, yeniden akışlara neden olmayacak şekilde değiştirin:"
+
 #  Rule name. A longer description would be "Specify
 #  proper caching expirations for the resources on the web
 #  page". Caching expirations are attached to each file on a web
@@ -300,9 +340,9 @@ msgstr "Bağlantı düğümü $1, doküman başlığına taşınmalı."
 #  Detail info for one image URL. It tells the user how much can
 #  be save for one image. The "$1" will be replace the the image URL; "$2"
 #  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the number of percent (e.g. 12).
-msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
-msgstr "$1 adresindeki resmi kayıpsız sıkıştırmak, $2 tasarruf sağlayabilir (%$3 azalma)."
+#  replace by the percentage (e.g. 12%).
+msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
+msgstr "$1 adresindeki resmi kayıpsız sıkıştırmak, $2 tasarruf sağlayabilir ($3 azalma)."
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -329,34 +369,42 @@ msgstr "HTML'yi küçültün"
 msgid "Minify JavaScript"
 msgstr "JavaScript'i küçültün"
 
+#  Subheading that describes the post-compression network savings
+#  possible from minifying a single resource. "$1" is a format token that
+#  will be replaced by the URL of the resource. "$2" will be replaced bythe
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction) after compression."
+msgstr "$1 adresindeki kaynağı küçültmek, sıkıştırma sonrasında $2 tasarruf sağlayabilir."
+
 #  Subheading that describes the savings possible from minifying a
 #  single resource. "$1" is a format token that will be replaced by the URL of
 #  the resource. "$2" will be replaced bythe absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying $1 could save $2 ($3% reduction)."
-msgstr "$1 adresini küçültmek, $2 tasarruf sağlayabilir (%$3 azalma)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction)."
+msgstr "$1 adresindeki kaynağı küçültmek, $2 tasarruf sağlayabilir ($3 azalma)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2% reduction)."
-msgstr "Aşağıdaki CSS kaynaklarını küçültmek, boyutlarını $1 azaltabilir (%$2 azalma)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
+msgstr "Aşağıdaki CSS kaynaklarını küçültmek, boyutlarını $1 azaltabilir ($2 azalma)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2% reduction)."
-msgstr "Aşağıdaki HTML kaynaklarını küçültmek, boyutlarını $1 azaltabilir (%$2 azalma)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
+msgstr "Aşağıdaki HTML kaynaklarını küçültmek, boyutlarını $1 azaltabilir ($2 azalma)."
 
 #  Heading that describes the savings possible from minifying
 #  resources.  "$1" will be replaced by the absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2% reduction)."
-msgstr "Aşağıdaki JavaScript kaynaklarını küçültmek, boyutlarını $1 azaltabilir (%$2 azalma)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
+msgstr "Aşağıdaki JavaScript kaynaklarını küçültmek, boyutlarını $1 azaltabilir ($2 azalma)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -393,9 +441,9 @@ msgstr "Stillerin ve komut satırlarının sırasını optimize edin"
 #  as can be optimized by using better compression. It describes the problem
 #  to the user that the size of the images can be reduced. The "$1" will be
 #  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the number of percent (e.g. 25).
-msgid "Optimizing the following images could reduce their size by $1 ($2% reduction)."
-msgstr "Aşağıdaki resimleri optimize etmek boyutlarını $1 azaltabilir (%$2 azalma)."
+#  the percentage (e.g. 25%).
+msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
+msgstr "Aşağıdaki resimleri optimize etmek, boyutlarını $1 azaltabilir ($2 azalma)."
 
 #  Item showing how large the other request components is in a
 #  request that violates the MinimizeRequestSizeRule by being large. The
@@ -421,6 +469,13 @@ msgstr "Senkronize olmayan kaynakları tercih edin"
 #  rule names that Page Speed generates.
 msgid "Put CSS in the document head"
 msgstr "CSS'yi doküman başlığına koyun"
+
+#  The name of a Page Speed rule that tells users to try to avoid
+#  serializing requests too excessively but rather try to parallelize them.
+#  This is displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Reduce request serialization"
+msgstr "İstek serileştirmeyi azaltın"
 
 #  Item showing how large the referrer URL is in a request
 #  that violates the MinimizeRequestSizeRule by being large. The "$1" will
@@ -502,6 +557,32 @@ msgstr "Bir karakter kümesi belirtin"
 msgid "Specify image dimensions"
 msgstr "Resim boyutlarını belirtin"
 
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains the number of times the code in this context
+#  executed, and $2 contains JavaScript code that gives
+#  the context of the reflow.
+msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
+msgstr "Aşağıdaki JavaScript çağırma yığını ($1 kez çalıştırıldı), $2 milisaniye süren yeniden akışlara neden oldu: $3"
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains JavaScript code that gives the context of the
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
+msgstr "Aşağıdaki JavaScript çağırma yığını, $1 milisaniye süren yeniden akışlara neden oldu: $2"
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
+msgstr "Aşağıdaki URL'ler, arayüzü uzun süre engelleyen JavaScript kodları çalışıtırıyor. Tarayıcının yanıt verme hızını iyileştirmek için JavaScript'i optimize edin veya geri çağırma (callback) fonksiyonları kullanarak kodu ayırın."
+
 #  Heading that indicates which resources should
 #  have a longer cache freshness lifetime. Here "freshness
 #  lifetime" means the length of the period of time that the
@@ -546,9 +627,9 @@ msgstr "Aşağıdaki resimlerde genişlik ve/veya yükseklik özellikleri eksik.
 #  the user.  "$1" is a format token that is replaced with the total
 #  savings in bytes from serving images in their final size
 #  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
-msgstr "Aşağıdaki resimler HTML'de veya CSS'de yeniden boyutlandırıldı. Ölçeklenmiş resimler sunmak, $1 tasarruf sağlayabilir (%$2 azalma)."
+#  bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
+msgstr "Aşağıdaki resimler HTML'de veya CSS'de yeniden boyutlandırıldı. Ölçeklenmiş resimler sunmak, $1 tasarruf sağlayabilir ($2 azalma)."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
@@ -575,7 +656,7 @@ msgstr "$1 adresindeki sayfada, aşağıdaki satır içi komut blokları, harici
 #  detected as a chain of HTTP redirections. It tells the user to fix
 #  the problem by removing the URLs that redirect to others.
 msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
-msgstr "Aşağıdaki açılış sayfası yönlendirmeleri önbelleğe alınabilir durumda değil. Sitenize tekrar gelen ziyaretçiler için sayfa yükleme sürelerini hızlandırmak üzere bunları önbelleğe alınabilir yapın."
+msgstr "Aşağıdaki açılış sayfası yönlendirmeleri önbelleğe alınabilir durumda değil. Sitenize tekrar gelen ziyaretçiler için sayfa yükleme sürelerini kısaltmak üzere bunları önbelleğe alınabilir yapın."
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -595,6 +676,12 @@ msgstr "Genel olarak önbelleğe alınabilir, sıkıştırılabilir aşağıdaki
 #  it by eliminating the bad requests.
 msgid "The following requests are returning 404/410 responses.  Either fix the broken links, or remove the references to the non-existent resources."
 msgstr "Aşağıdaki istekler 404/410 yanıtları döndürüyor. Hatalı bağlantıları düzeltin veya var olmayan kaynaklara yapılan başvuruları kaldırın."
+
+#  Header at the top of a list of URLs when Page Speed
+#  detected that a resource depends on all the resources shown in the
+#  list.
+msgid "The following requests are serialized. Try to break up the dependencies to make them load in parallel."
+msgstr "Aşağıdaki istekler serileştirildi. Bunları paralel yüklemek için bağımlılıkları ayırmayı deneyin."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as loaded synchronously. It describes the problem and tells
@@ -685,6 +772,19 @@ msgstr "$2 adresinden sunulan $1 JavaScript dosyası var. Bunların, mümkün ol
 #  google.com).
 msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "Bu sayfa $2 ana bilgisayarına, paralel yapılabilir $1 istekte bulunuyor. Bu istekleri birden fazla ana bilgisayar adına dağıtarak paralel indirmeyi artırın."
+
+#  The name of a Page Speed rule that tells users to make use
+#  of the application cache to achieve faster startup times. This is displayed
+#  in a list of rule names that Page Speed generates. "Application Cache"
+#  should not be translated since it is the name of an HTML 5 feature.
+msgid "Use an Application Cache"
+msgstr "Uygulama Önbelleği kullanın"
+
+#  Header at the top of a list of URLs that Page Speed detected
+#  that HTML5 application cache should be used. It tells the user to fix the
+#  problem by using application cache in the HTML documents.
+msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr "Uygulama önbelleği kullanmak, sayfanın anında görüntülenmesine olanak sağlar. Aşağıdaki HTML dokümanları, kullanıcıların sayfayla etkileşime girebilmeleri için gereken süreyi azaltmak üzere uygulama önbelleği kullanabilir."
 
 #  This appears as a header before a list of URLs of resources
 #  that use the JavaScript command "document.write" ("document.write" is
