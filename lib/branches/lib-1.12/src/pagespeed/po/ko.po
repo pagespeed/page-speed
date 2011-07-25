@@ -5,6 +5,14 @@
 msgid "$1 ($2 of inline JavaScript)"
 msgstr "$1(인라인 자바스크립트 $2)"
 
+#  Shown as part of a list of unnecessary reflows
+#  (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community). Shows a URL
+#  at $1, and the number of unnecessary reflows for that URL
+#  at $2.
+msgid "$1 ($2 reflows)"
+msgstr "$1($2개 리플로우)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -90,18 +98,25 @@ msgstr "$1은(는) $2(으)로의 리디렉션이며 캐시할 수 없습니다."
 #  (respectively) of the image resource.  "$6" will be replaced with the
 #  amount saved (in bytes) by serving the image correctly size (e.g.
 #  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7% reduction)."
-msgstr "HTML 또는 CSS에서 $1 크기가 $2x$3에서 $4x$5(으)로 조정됩니다. 조정된 이미지를 제공하면 $6을(를) 줄일 수 있습니다($7% 감소)."
+#  "25%").
+msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
+msgstr "HTML 또는 CSS에서 $1의 크기가 $2x$3에서 $4x$5(으)로 조정됩니다. 조정된 이미지를 제공하면 $6을(를) 줄일 수 있습니다($7 감소)."
 
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the amount saved by serving the image in its final
 #  size.  "$1" is a format token that will be replaced with the URL of the
 #  image resource.  "$2" will be replaced with the amount saved (in bytes)
 #  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3% reduction)."
-msgstr "HTML 또는 CSS에서 $1의 크기가 조정됩니다. 조정된 이미지를 제공하면 $2을(를) 줄일 수 있습니다($3% 감소)."
+#  replaced with the percentage saved (e.g. "25%").
+msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
+msgstr "HTML 또는 CSS에서 $1의 크기가 조정됩니다. 조정된 이미지를 제공하면 $2을(를) 줄일 수 있습니다($3 감소)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL at $1, the line
+#  number (of the file at that URL that triggers the script URL) at $2,
+#  and the length of time the scripts runs for at $3.
+msgid "$1 line $2 ($3)"
+msgstr "$1($2행, 길이: $3)"
 
 #  Detail for resource that loads synchronously. The "$1" will
 #  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
@@ -171,6 +186,14 @@ msgstr "잘못된 요청 사용 안함"
 msgid "Avoid document.write"
 msgstr "document.write 사용 안함"
 
+#  The name of a Page Speed rule that tells users to try
+#  and avoid writing pages with Javascript scripts that run for a
+#  long time, which reduces browser responsiveness.  This is
+#  displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Avoid long-running scripts"
+msgstr "장시간 실행 스크립트 방지"
+
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
 #  problem.
@@ -209,8 +232,8 @@ msgstr "CSS 스프라이트로 이미지 통합"
 #  resource in question.  "$2" will be replaced with the amount of data
 #  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
 #  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3% reduction)."
-msgstr "$1을(를) 압축하면 $2을(를) 줄일 수 있습니다($3% 감소)."
+msgid "Compressing $1 could save $2 ($3 reduction)."
+msgstr "$1을(를) 압축하면 $2을(를) 줄일 수 있습니다($3 감소)."
 
 #  Descriptive header for a list of URLs that were served
 #  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
@@ -219,9 +242,9 @@ msgstr "$1을(를) 압축하면 $2을(를) 줄일 수 있습니다($3% 감소)."
 #  list of uncompressed resource URLs.  "$1" is a format token that will be
 #  replaced by the amount of data transferred saved by compressing (in bytes)
 #  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2% reduction)."
-msgstr "다음 리소스를 gzip으로 압축하면 전송 크기를 $1만큼 줄일 수 있습니다($2% 감소)."
+#  compressing (e.g. "25%").
+msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
+msgstr "다음 리소스를 gzip으로 압축하면 전송 크기를 $1만큼 줄일 수 있습니다($2 감소)."
 
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The "$1" will be
@@ -242,6 +265,13 @@ msgstr "쿠키: $1(정적 리소스로서 쿠키가 없는 도메인에서 제�
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "자바스크립트 파싱 지연"
+
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr "불필요한 리플로우 없애기"
 
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
@@ -281,6 +311,16 @@ msgstr "본문에 작은 JavaScript 삽입"
 msgid "Inline script block #$1"
 msgstr "본문 삽입 스크립트 블록 #$1"
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
+msgstr "다음 리소스에서 실행한 자바스크립트가 불필요한 리플로우를 발생시켰습니다. 페이지 렌더링 시간을 줄이려면 다음 리플로우가 발생하지 않도록 자바스크립트를 수정하세요."
+
 #  Rule name. A longer description would be "Specify
 #  proper caching expirations for the resources on the web
 #  page". Caching expirations are attached to each file on a web
@@ -300,9 +340,9 @@ msgstr "링크 노드 $1을(를) 문서 헤드로 이동해야 합니다."
 #  Detail info for one image URL. It tells the user how much can
 #  be save for one image. The "$1" will be replace the the image URL; "$2"
 #  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the number of percent (e.g. 12).
-msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
-msgstr "$1을(를) 무손실 압축하면 $2을(를) 줄일 수 있습니다($3% 감소)."
+#  replace by the percentage (e.g. 12%).
+msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
+msgstr "$1을(를) 무손실 압축하면 $2을(를) 줄일 수 있습니다($3 감소)."
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -329,34 +369,42 @@ msgstr "HTML 축소"
 msgid "Minify JavaScript"
 msgstr "자바스크립트 축소"
 
+#  Subheading that describes the post-compression network savings
+#  possible from minifying a single resource. "$1" is a format token that
+#  will be replaced by the URL of the resource. "$2" will be replaced bythe
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction) after compression."
+msgstr "압축 후 $1을(를) 축소하면 $2을(를) 줄일 수 있습니다($3 감소)."
+
 #  Subheading that describes the savings possible from minifying a
 #  single resource. "$1" is a format token that will be replaced by the URL of
 #  the resource. "$2" will be replaced bythe absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying $1 could save $2 ($3% reduction)."
-msgstr "$1을(를) 축소하면 $2을(를) 줄일 수 있습니다($3% 감소)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction)."
+msgstr "$1을(를) 축소하면 $2을(를) 줄일 수 있습니다($3 감소)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2% reduction)."
-msgstr "다음 CSS 리소스를 축소하면 $1만큼 크기를 줄일 수 있습니다($2% 감소)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
+msgstr "다음 CSS 리소스를 축소하면 $1만큼 크기를 줄일 수 있습니다($2 감소)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2% reduction)."
-msgstr "다음 HTML 리소스를 축소하면 $1만큼 크기를 줄일 수 있습니다($2% 감소)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
+msgstr "다음 HTML 리소스를 축소하면 $1만큼 크기를 줄일 수 있습니다($2 감소)."
 
 #  Heading that describes the savings possible from minifying
 #  resources.  "$1" will be replaced by the absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2% reduction)."
-msgstr "다음 자바스크립트 리소스를 축소하면 $1만큼 크기를 줄일 수 있습니다($2% 감소)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
+msgstr "다음 자바스크립트 리소스를 축소하면 $1만큼 크기를 줄일 수 있습니다($2 감소)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -393,9 +441,9 @@ msgstr "스타일 및 스크립트 순서 최적화"
 #  as can be optimized by using better compression. It describes the problem
 #  to the user that the size of the images can be reduced. The "$1" will be
 #  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the number of percent (e.g. 25).
-msgid "Optimizing the following images could reduce their size by $1 ($2% reduction)."
-msgstr "다음 이미지를 최적화하면 크기를 $1만큼 줄일 수 있습니다($2% 감소)."
+#  the percentage (e.g. 25%).
+msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
+msgstr "다음 이미지를 최적화하면 크기를 $1만큼 줄일 수 있습니다($2 감소)."
 
 #  Item showing how large the other request components is in a
 #  request that violates the MinimizeRequestSizeRule by being large. The
@@ -421,6 +469,13 @@ msgstr "비동기 리소스 선호"
 #  rule names that Page Speed generates.
 msgid "Put CSS in the document head"
 msgstr "문서 헤드에 CSS 삽입"
+
+#  The name of a Page Speed rule that tells users to try to avoid
+#  serializing requests too excessively but rather try to parallelize them.
+#  This is displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Reduce request serialization"
+msgstr "요청 직렬화 줄이기"
 
 #  Item showing how large the referrer URL is in a request
 #  that violates the MinimizeRequestSizeRule by being large. The "$1" will
@@ -502,6 +557,32 @@ msgstr "문자 집합 지정"
 msgid "Specify image dimensions"
 msgstr "이미지 크기 지정"
 
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains the number of times the code in this context
+#  executed, and $2 contains JavaScript code that gives
+#  the context of the reflow.
+msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
+msgstr "다음 자바스크립트 호출 스택($1회 실행)이 $2밀리초가 소요된 리플로우를 발생시켰습니다. $3"
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains JavaScript code that gives the context of the
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
+msgstr "다음 자바스크립트 호출 스택이 $1밀리초가 소요된 리플로우를 발생시켰습니다. $2"
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
+msgstr "다음 URL에서 UI를 오랫동안 차단하는 자바스크립트를 실행하고 있습니다. 브라우저 응답 속도를 개선하려면 자바스크립트를 최적화하거나 콜백을 이용하여 분할하세요."
+
 #  Heading that indicates which resources should
 #  have a longer cache freshness lifetime. Here "freshness
 #  lifetime" means the length of the period of time that the
@@ -546,9 +627,9 @@ msgstr "다음 이미지에 너비 및/또는 높이 속성이 없습니다."
 #  the user.  "$1" is a format token that is replaced with the total
 #  savings in bytes from serving images in their final size
 #  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
-msgstr "다음 이미지는 HTML 또는 CSS에서 크기가 조정됩니다. 조정된 이미지를 제공하면 $1을(를) 줄일 수 있습니다($2% 감소)."
+#  bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
+msgstr "다음 이미지는 HTML 또는 CSS에서 크기가 조정됩니다. 조정된 이미지를 제공하면 $1을(를) 줄일 수 있습니다($2 감소)."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
@@ -595,6 +676,12 @@ msgstr "공개적으로 캐시 가능하고 압축할 수 있는 다음 리소�
 #  it by eliminating the bad requests.
 msgid "The following requests are returning 404/410 responses.  Either fix the broken links, or remove the references to the non-existent resources."
 msgstr "다음 요청이 404/410 응답을 반환하고 있습니다. 깨진 링크를 수정하거나 존재하지 않는 리소스에 대한 참조를 삭제하세요."
+
+#  Header at the top of a list of URLs when Page Speed
+#  detected that a resource depends on all the resources shown in the
+#  list.
+msgid "The following requests are serialized. Try to break up the dependencies to make them load in parallel."
+msgstr "다음 요청이 직렬화되어 있습니다. 종속성을 해제하여 병렬 로드하세요."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as loaded synchronously. It describes the problem and tells
@@ -685,6 +772,19 @@ msgstr "$2에서 제공한 자바스크립트 파일이 $1개 있습니다. 이�
 #  google.com).
 msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "이 페이지는 $2에 대한 $1개의 병렬화 요청을 만듭니다. 여러 호스트 이름에 걸쳐 이러한 요청을 배포하여 다운로드 병렬화를 늘려보세요."
+
+#  The name of a Page Speed rule that tells users to make use
+#  of the application cache to achieve faster startup times. This is displayed
+#  in a list of rule names that Page Speed generates. "Application Cache"
+#  should not be translated since it is the name of an HTML 5 feature.
+msgid "Use an Application Cache"
+msgstr "애플리케이션 캐시 사용"
+
+#  Header at the top of a list of URLs that Page Speed detected
+#  that HTML5 application cache should be used. It tells the user to fix the
+#  problem by using application cache in the HTML documents.
+msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr "애플리케이션 캐시를 사용하면 페이지를 즉시 표시할 수 있습니다. 다음 HTML 문서는 애플리케이션 캐시를 사용하여 사용자가 더 빠른 속도로 페이지와 상호 작용할 수 있도록 해 줍니다."
 
 #  This appears as a header before a list of URLs of resources
 #  that use the JavaScript command "document.write" ("document.write" is

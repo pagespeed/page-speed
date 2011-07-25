@@ -5,6 +5,14 @@
 msgid "$1 ($2 of inline JavaScript)"
 msgstr "$1 (इनलाइन JavaScript का $2)"
 
+#  Shown as part of a list of unnecessary reflows
+#  (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community). Shows a URL
+#  at $1, and the number of unnecessary reflows for that URL
+#  at $2.
+msgid "$1 ($2 reflows)"
+msgstr "$1 ($2 रीफ़्लो)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -90,18 +98,25 @@ msgstr "$1, $2 के लिए कैश न करने योग्य र�
 #  (respectively) of the image resource.  "$6" will be replaced with the
 #  amount saved (in bytes) by serving the image correctly size (e.g.
 #  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7% reduction)."
-msgstr "$1 का आकार HTML या CSS में $2x$3 से $4x$5 किया गया है.  किसी आकार बदली गई छवि को सर्व करना $6 की बचत कर सकता है ($7% की कमी)."
+#  "25%").
+msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
+msgstr "HTML या CSS में $1 का आकार $2x$3 से बदलकर $4x$5 कर दिया गया है. किसी आकार बदली गई छवि को सर्व करने से $6 की बचत हो सकती है ($7 की कमी)."
 
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the amount saved by serving the image in its final
 #  size.  "$1" is a format token that will be replaced with the URL of the
 #  image resource.  "$2" will be replaced with the amount saved (in bytes)
 #  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3% reduction)."
-msgstr "HTML या CSS में $1 का आकार बदला गया है.  किसी आकार बदली गई छवि को सर्व करना $2 की बचत कर सकता है ($3% की कमी)."
+#  replaced with the percentage saved (e.g. "25%").
+msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
+msgstr "HTML या CSS में $1 का आकार बदला गया है. किसी आकार बदली गई छवि को सर्व करने से $2 की बचत हो सकती है ($3 की कमी)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL at $1, the line
+#  number (of the file at that URL that triggers the script URL) at $2,
+#  and the length of time the scripts runs for at $3.
+msgid "$1 line $2 ($3)"
+msgstr "$1 पंक्ति $2 ($3)"
 
 #  Detail for resource that loads synchronously. The "$1" will
 #  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
@@ -171,6 +186,14 @@ msgstr "ग़लत अनुरोधों से बचें"
 msgid "Avoid document.write"
 msgstr "document.write से बचें"
 
+#  The name of a Page Speed rule that tells users to try
+#  and avoid writing pages with Javascript scripts that run for a
+#  long time, which reduces browser responsiveness.  This is
+#  displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Avoid long-running scripts"
+msgstr "लंबे समय तक चलने वाली स्क्रिप्ट से बचें"
+
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
 #  problem.
@@ -209,8 +232,8 @@ msgstr "छवियों को CSS स्‍प्राइट में स�
 #  resource in question.  "$2" will be replaced with the amount of data
 #  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
 #  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3% reduction)."
-msgstr "$1 को संपीड़ित करना $2 की बचत कर सकता है ($3% की कमी)."
+msgid "Compressing $1 could save $2 ($3 reduction)."
+msgstr "$1 को संपीड़ित करने से $2 की बचत हो सकती है ($3% की कमी)."
 
 #  Descriptive header for a list of URLs that were served
 #  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
@@ -219,9 +242,9 @@ msgstr "$1 को संपीड़ित करना $2 की बचत क�
 #  list of uncompressed resource URLs.  "$1" is a format token that will be
 #  replaced by the amount of data transferred saved by compressing (in bytes)
 #  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2% reduction)."
-msgstr "निम्न संसाधनों को gzip के साथ संपीड़ित करने से उनका स्थानांतरण आकार $1 ($2% की कमी) तक कम हो सकता है:"
+#  compressing (e.g. "25%").
+msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
+msgstr "निम्न संसाधनों को gzip के साथ संपीड़ित करने से उनका स्थानांतरण आकार $1 तक कम हो सकता है ($2 की कमी)."
 
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The "$1" will be
@@ -242,6 +265,13 @@ msgstr "कुकी: $1 (ध्‍यान रखें कि यह एक �
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "JavaScript को पार्स करना स्‍थगित करें"
+
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr "अनावश्यक रीफ़्लो निकाल दें"
 
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
@@ -281,6 +311,16 @@ msgstr "इनलाइन छोटी JavaScript"
 msgid "Inline script block #$1"
 msgstr "इनलाइन स्‍क्रिप्‍ट अवरोध #$1"
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
+msgstr "JavaScript को निम्न संसाधनों में निष्पादित करने से अनावश्यक रीफ़्लो हुए. पृष्‍ठ रेंडर समय को कम करने के लिए, JavaScript संशोधित करें ताकि इससे कोई रीफ़्लो नहीं हो:"
+
 #  Rule name. A longer description would be "Specify
 #  proper caching expirations for the resources on the web
 #  page". Caching expirations are attached to each file on a web
@@ -300,9 +340,9 @@ msgstr "लिंक नोड $1 को दस्‍तावेज़ के �
 #  Detail info for one image URL. It tells the user how much can
 #  be save for one image. The "$1" will be replace the the image URL; "$2"
 #  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the number of percent (e.g. 12).
-msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
-msgstr "$1 को हानिरहित संपीड़ित करना $2 की बचत कर सकता है ($3% की कमी)."
+#  replace by the percentage (e.g. 12%).
+msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
+msgstr "$1 को हानिरहित संपीड़ित करने से $2 की बचत हो सकती है ($3 की कमी)."
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -329,34 +369,42 @@ msgstr "HTML कम करें"
 msgid "Minify JavaScript"
 msgstr "JavaScript कम करें"
 
+#  Subheading that describes the post-compression network savings
+#  possible from minifying a single resource. "$1" is a format token that
+#  will be replaced by the URL of the resource. "$2" will be replaced bythe
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction) after compression."
+msgstr "संपीड़न के बाद $1 को कम करने से $2 की बचत हो सकती है ($3% की कमी)."
+
 #  Subheading that describes the savings possible from minifying a
 #  single resource. "$1" is a format token that will be replaced by the URL of
 #  the resource. "$2" will be replaced bythe absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying $1 could save $2 ($3% reduction)."
-msgstr "$1 को कम करना $2 की बचत कर सकता है ($3% की कमी)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction)."
+msgstr "$1 को कम करने से $2 की बचत हो सकती है ($3% की कमी)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2% reduction)."
-msgstr "निम्‍न CSS संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2% की कमी)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
+msgstr "निम्‍न CSS संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2% reduction)."
-msgstr "निम्‍न HTML संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2% की कमी)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
+msgstr "निम्‍न HTML संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
 
 #  Heading that describes the savings possible from minifying
 #  resources.  "$1" will be replaced by the absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2% reduction)."
-msgstr "निम्‍न JavaScript संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2% की कमी)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
+msgstr "निम्‍न JavaScript संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -393,9 +441,9 @@ msgstr "शैलियों और स्‍क्रिप्‍ट के �
 #  as can be optimized by using better compression. It describes the problem
 #  to the user that the size of the images can be reduced. The "$1" will be
 #  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the number of percent (e.g. 25).
-msgid "Optimizing the following images could reduce their size by $1 ($2% reduction)."
-msgstr "निम्‍न छवियों को अनुकूलित करना उनके आकार को $1 तक कम कर सकता है ($2% की कमी)."
+#  the percentage (e.g. 25%).
+msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
+msgstr "निम्‍न छवियों को ऑप्टिमाइज़ करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
 
 #  Item showing how large the other request components is in a
 #  request that violates the MinimizeRequestSizeRule by being large. The
@@ -421,6 +469,13 @@ msgstr "एसिंक्रोनस संसाधनों को प्र
 #  rule names that Page Speed generates.
 msgid "Put CSS in the document head"
 msgstr "CSS को दस्‍तावेज़ के शीर्ष भाग में रखें"
+
+#  The name of a Page Speed rule that tells users to try to avoid
+#  serializing requests too excessively but rather try to parallelize them.
+#  This is displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Reduce request serialization"
+msgstr "अनुरोध क्रमांकन कम करें"
 
 #  Item showing how large the referrer URL is in a request
 #  that violates the MinimizeRequestSizeRule by being large. The "$1" will
@@ -502,6 +557,32 @@ msgstr "कोई वर्ण सेट निर्दिष्ट करे�
 msgid "Specify image dimensions"
 msgstr "छवि आयामों को निर्दिष्ट करें"
 
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains the number of times the code in this context
+#  executed, and $2 contains JavaScript code that gives
+#  the context of the reflow.
+msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
+msgstr "निम्‍न JavaScript कॉल स्‍टैक ($1 बार निष्‍पादित) से रीफ़्लो हुए जिन्होंने $2 मिलीसेकंड लिए: $3"
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains JavaScript code that gives the context of the
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
+msgstr "निम्‍न JavaScript कॉल स्‍टैक से रीफ़्लो हुए जिन्होंने $1 मिलीसेकंड लिए: $2"
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
+msgstr "निम्‍न URL ऐसी JavaScript चलाते हैं जो लंबे समय के लिए UI को अवरुद्ध करती है. ब्राउज़र के प्रतिसाद देने को बेहतर बनाने के लिए, JavaScript ऑप्‍टिमाइज़ करें या कॉलबैक का उपयोग करके उसे विभाजित करें."
+
 #  Heading that indicates which resources should
 #  have a longer cache freshness lifetime. Here "freshness
 #  lifetime" means the length of the period of time that the
@@ -546,9 +627,9 @@ msgstr "निम्‍न छवि (छवियों) में चौड़
 #  the user.  "$1" is a format token that is replaced with the total
 #  savings in bytes from serving images in their final size
 #  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
-msgstr "निम्‍न छवियों का आकार HTML या CSS में बदला गया है.  आकार बदली गई छवियों को सर्व करना $1 की बचत कर सकता है ($2% की कमी)."
+#  bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
+msgstr "निम्‍न छवियों का आकार HTML या CSS में बदल दिया गया है. आकार बदली गई छवियों को सर्व करने से $1 की बचत हो सकती है ($2 की कमी)."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
@@ -595,6 +676,12 @@ msgstr "निम्‍न सार्वजनिक रूप से कै�
 #  it by eliminating the bad requests.
 msgid "The following requests are returning 404/410 responses.  Either fix the broken links, or remove the references to the non-existent resources."
 msgstr "निम्‍न अनुरोध 404/410 प्रतिसाद दे रहे हैं.  या तो टूटी हुई लिंक सुधारें, या ग़ैर-मौजूद संसाधनों के संदर्भ निकालें."
+
+#  Header at the top of a list of URLs when Page Speed
+#  detected that a resource depends on all the resources shown in the
+#  list.
+msgid "The following requests are serialized. Try to break up the dependencies to make them load in parallel."
+msgstr "निम्‍न अनुरोध क्रमांकित हैं. इन्‍हें समानांतर रूप से लोड करने के लिए उनकी निर्भरता को हटाने का प्रयास करें."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as loaded synchronously. It describes the problem and tells
@@ -685,6 +772,19 @@ msgstr "$2 द्वारा सर्व की गई $1 JavaScript फाइ
 #  google.com).
 msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "यह पृष्ठ $1 को $2 पर साथ में चलाने योग्‍य अनुरोध बनाता है.  इन अनुरोधों को एकाधिक होस्‍टनामों में वितरित करके डाउनलोड को साथ में चलाना तेज़ बनाएं:"
+
+#  The name of a Page Speed rule that tells users to make use
+#  of the application cache to achieve faster startup times. This is displayed
+#  in a list of rule names that Page Speed generates. "Application Cache"
+#  should not be translated since it is the name of an HTML 5 feature.
+msgid "Use an Application Cache"
+msgstr "एप्‍लिकेशन संचय का उपयोग करें"
+
+#  Header at the top of a list of URLs that Page Speed detected
+#  that HTML5 application cache should be used. It tells the user to fix the
+#  problem by using application cache in the HTML documents.
+msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr "एप्‍लिकेशन संचय का उपयोग करने से पृष्‍ठ तुरंत दिखाई देता है. उपयोगकर्ताओं द्वारा पृष्‍ठ से सहभागिता कर सकने में लगने वाले समय को कम करने के लिए निम्‍न HTML दस्‍तावेज़, एप्‍लिकेशन संचय का उपयोग कर सकते हैं:"
 
 #  This appears as a header before a list of URLs of resources
 #  that use the JavaScript command "document.write" ("document.write" is

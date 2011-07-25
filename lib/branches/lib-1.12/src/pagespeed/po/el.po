@@ -5,6 +5,14 @@
 msgid "$1 ($2 of inline JavaScript)"
 msgstr "$1 (ενσωμάτωση JavaScript  $2)"
 
+#  Shown as part of a list of unnecessary reflows
+#  (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community). Shows a URL
+#  at $1, and the number of unnecessary reflows for that URL
+#  at $2.
+msgid "$1 ($2 reflows)"
+msgstr "$1 ($2 αναδιατάξεις)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -90,18 +98,25 @@ msgstr "Η διεύθυνση $1 αποτελεί μια ανακατεύθυν�
 #  (respectively) of the image resource.  "$6" will be replaced with the
 #  amount saved (in bytes) by serving the image correctly size (e.g.
 #  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7% reduction)."
-msgstr "Το μέγεθος του $1 έχει αλλάξει στο HTML ή στο CSS από $2x$3 σε $4x$5.  Η εμφάνιση μιας εικόνας σε κλίμακα μπορεί να εξοικονομήσει $6 (μείωση $7%)."
+#  "25%").
+msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
+msgstr "Το μέγεθος του $1 έχει αλλάξει στο HTML ή στο CSS από $2x$3 σε $4x$5. Η εμφάνιση μιας εικόνας σε κλίμακα μπορεί να εξοικονομήσει $6 (μείωση $7)."
 
 #  Describes a single URL of an image that is resized in HTML
 #  or CSS.  It gives the amount saved by serving the image in its final
 #  size.  "$1" is a format token that will be replaced with the URL of the
 #  image resource.  "$2" will be replaced with the amount saved (in bytes)
 #  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3% reduction)."
-msgstr "Το μέγεθος της εικόνας $1 έχει αλλάξει στο HTML ή στο CSS.  Η εμφάνιση μιας εικόνας σε κλίμακα μπορεί να εξοικονομήσει $2 (μείωση $3%)."
+#  replaced with the percentage saved (e.g. "25%").
+msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
+msgstr "Το μέγεθος της εικόνας $1 έχει αλλάξει στο HTML ή στο CSS. Η εμφάνιση μιας εικόνας σε κλίμακα μπορεί να εξοικονομήσει $2 (μείωση $3)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL at $1, the line
+#  number (of the file at that URL that triggers the script URL) at $2,
+#  and the length of time the scripts runs for at $3.
+msgid "$1 line $2 ($3)"
+msgstr "$1, γραμμή $2 ($3)"
 
 #  Detail for resource that loads synchronously. The "$1" will
 #  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
@@ -171,6 +186,14 @@ msgstr "Αποφεύγετε εσφαλμένα αιτήματα"
 msgid "Avoid document.write"
 msgstr "Αποφεύγετε το στοιχείο document.write"
 
+#  The name of a Page Speed rule that tells users to try
+#  and avoid writing pages with Javascript scripts that run for a
+#  long time, which reduces browser responsiveness.  This is
+#  displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Avoid long-running scripts"
+msgstr "Αποφύγετε τα σενάρια μεγάλης διάρκειας"
+
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
 #  problem.
@@ -209,8 +232,8 @@ msgstr "Συνδυασμός εικόνων σε CSS sprites"
 #  resource in question.  "$2" will be replaced with the amount of data
 #  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
 #  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3% reduction)."
-msgstr "Η συμπίεση του $1 μπορεί να εξοικονομήσει $2 (μείωση $3%)."
+msgid "Compressing $1 could save $2 ($3 reduction)."
+msgstr "Η συμπίεση του $1 μπορεί να εξοικονομήσει $2 (μείωση $3)."
 
 #  Descriptive header for a list of URLs that were served
 #  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
@@ -219,9 +242,9 @@ msgstr "Η συμπίεση του $1 μπορεί να εξοικονομήσε
 #  list of uncompressed resource URLs.  "$1" is a format token that will be
 #  replaced by the amount of data transferred saved by compressing (in bytes)
 #  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2% reduction)."
-msgstr "Η συμπίεση των ακόλουθων πόρων με το gzip μπορεί να μειώσει το μέγεθος μεταφοράς τους κατά $1 (μείωση $2%)."
+#  compressing (e.g. "25%").
+msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
+msgstr "Η συμπίεση των ακόλουθων πόρων με το gzip μπορεί να μειώσει το μέγεθος μεταφοράς τους κατά $1 (μείωση $2)."
 
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The "$1" will be
@@ -242,6 +265,13 @@ msgstr "Cookie: $1 (έχετε υπόψη σας ότι αυτός είναι έ
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "Αναβολή ανάλυσης του JavaScript"
+
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr "Εξάλειψη ανεπιθύμητων αναδιατάξεων"
 
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
@@ -281,6 +311,16 @@ msgstr "Ενσωμάτωση μικρού JavaScript"
 msgid "Inline script block #$1"
 msgstr "Ενσωματωμένο τμήμα σεναρίου #$1"
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
+msgstr "Η JavaScript που εκτελείται στους ακόλουθους πόρους προκάλεσε ανεπιθύμητες αναδιατάξεις. Για να μειώσετε το χρόνο απόδοσης της σελίδας, τροποποιήστε τη JavaScript, ώστε να μην προκαλείται αναδιάταξη:"
+
 #  Rule name. A longer description would be "Specify
 #  proper caching expirations for the resources on the web
 #  page". Caching expirations are attached to each file on a web
@@ -300,9 +340,9 @@ msgstr "Ο κόμβος συνδέσμου $1 θα πρέπει να μεταφ�
 #  Detail info for one image URL. It tells the user how much can
 #  be save for one image. The "$1" will be replace the the image URL; "$2"
 #  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the number of percent (e.g. 12).
-msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
-msgstr "Η συμπίεση χωρίς απώλεια του $1 μπορεί να εξοικονομήσει $2 (μείωση $3%)."
+#  replace by the percentage (e.g. 12%).
+msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
+msgstr "Η συμπίεση χωρίς απώλεια του $1 μπορεί να εξοικονομήσει $2 (μείωση $3)."
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -329,34 +369,42 @@ msgstr "Ελαχιστοποίηση HTML"
 msgid "Minify JavaScript"
 msgstr "Ελαχιστοποίηση JavaScript"
 
+#  Subheading that describes the post-compression network savings
+#  possible from minifying a single resource. "$1" is a format token that
+#  will be replaced by the URL of the resource. "$2" will be replaced bythe
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction) after compression."
+msgstr "Η ελαχιστοποίηση του $1 μπορεί να εξοικονομήσει $2 (μείωση $3) μετά από τη συμπίεση."
+
 #  Subheading that describes the savings possible from minifying a
 #  single resource. "$1" is a format token that will be replaced by the URL of
 #  the resource. "$2" will be replaced bythe absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying $1 could save $2 ($3% reduction)."
-msgstr "Η ελαχιστοποίηση του $1 μπορεί να εξοικονομήσει $2 (μείωση $3%)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction)."
+msgstr "Η ελαχιστοποίηση του $1 μπορεί να εξοικονομήσει $2 (μείωση $3)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2% reduction)."
-msgstr "Η ελαχιστοποίηση των παρακάτω πόρων CSS μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2%)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
+msgstr "Η ελαχιστοποίηση των παρακάτω πόρων CSS μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2% reduction)."
-msgstr "Η ελαχιστοποίηση των παρακάτω πόρων HTML μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2%)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
+msgstr "Η ελαχιστοποίηση των παρακάτω πόρων HTML μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2)."
 
 #  Heading that describes the savings possible from minifying
 #  resources.  "$1" will be replaced by the absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2% reduction)."
-msgstr "Η ελαχιστοποίηση των παρακάτω πόρων JavaScript μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2%)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
+msgstr "Η ελαχιστοποίηση των παρακάτω πόρων JavaScript μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -393,9 +441,9 @@ msgstr "Βελτιστοποίηση της σειράς των στυλ και 
 #  as can be optimized by using better compression. It describes the problem
 #  to the user that the size of the images can be reduced. The "$1" will be
 #  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the number of percent (e.g. 25).
-msgid "Optimizing the following images could reduce their size by $1 ($2% reduction)."
-msgstr "Η βελτιστοποίηση των παρακάτω εικόνων μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2%)."
+#  the percentage (e.g. 25%).
+msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
+msgstr "Η βελτιστοποίηση των παρακάτω εικόνων μπορεί να μειώσει το μέγεθός τους κατά $1 (μείωση $2)."
 
 #  Item showing how large the other request components is in a
 #  request that violates the MinimizeRequestSizeRule by being large. The
@@ -421,6 +469,13 @@ msgstr "Προτιμάτε ασύγχρονους πόρους"
 #  rule names that Page Speed generates.
 msgid "Put CSS in the document head"
 msgstr "Τοποθέτηση CSS στην ενότητα \"head\" του εγγράφου"
+
+#  The name of a Page Speed rule that tells users to try to avoid
+#  serializing requests too excessively but rather try to parallelize them.
+#  This is displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Reduce request serialization"
+msgstr "Μείωση σειριοποίησης αιτημάτων"
 
 #  Item showing how large the referrer URL is in a request
 #  that violates the MinimizeRequestSizeRule by being large. The "$1" will
@@ -502,6 +557,32 @@ msgstr "Καθορίστε ένα σύνολο χαρακτήρων"
 msgid "Specify image dimensions"
 msgstr "Καθορισμός των διαστάσεων της εικόνας"
 
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains the number of times the code in this context
+#  executed, and $2 contains JavaScript code that gives
+#  the context of the reflow.
+msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
+msgstr "Η ακόλουθη στοίβα κλήσης JavaScript (που εκτελέστηκε $1 φορές) προκάλεσε αναδιατάξεις που διήρκεσαν $2 χιλιοστά του δευτερολέπτου: $3"
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains JavaScript code that gives the context of the
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
+msgstr "Η ακόλουθη στοίβα κλήσης JavaScript προκάλεσε μια αναδιάταξη που διήρκεσε $1 χιλιοστά του δευτερολέπτου: $2"
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
+msgstr "Οι ακόλουθες διευθύνσεις URL εκτελούν JavaScript που αποκλείουν το UI για μεγάλο χρονικό διάστημα. Για τη βελτίωση της απόκρισης του προγράμματος περιήγησης, βελτιστοποιήστε τη JavaScript ή διαχωρίστε τη με τη χρήση επιστροφών κλήσης."
+
 #  Heading that indicates which resources should
 #  have a longer cache freshness lifetime. Here "freshness
 #  lifetime" means the length of the period of time that the
@@ -546,9 +627,9 @@ msgstr "Οι παρακάτω εικόνες δεν περιέχουν χαρα�
 #  the user.  "$1" is a format token that is replaced with the total
 #  savings in bytes from serving images in their final size
 #  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
-msgstr "Το μέγεθος των παρακάτω εικόνων στο HTML ή το CSS έχει αλλάξει.  Η εμφάνιση εικόνων σε κλίμακα μπορεί να εξοικονομήσει $1 (μείωση $2%)."
+#  bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
+msgstr "Το μέγεθος των παρακάτω εικόνων στο HTML ή το CSS έχει αλλάξει. Η εμφάνιση εικόνων σε κλίμακα μπορεί να εξοικονομήσει $1 (μείωση $2)."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
@@ -595,6 +676,12 @@ msgstr "Οι παρακάτω πόροι με δυνατότητα δημόσι�
 #  it by eliminating the bad requests.
 msgid "The following requests are returning 404/410 responses.  Either fix the broken links, or remove the references to the non-existent resources."
 msgstr "Τα παρακάτω αιτήματα επιστρέφουν απαντήσεις 404/410.  Διορθώστε τους κατεστραμμένους συνδέσμους ή καταργήστε τις αναφορές σε πόρους που δεν υπάρχουν."
+
+#  Header at the top of a list of URLs when Page Speed
+#  detected that a resource depends on all the resources shown in the
+#  list.
+msgid "The following requests are serialized. Try to break up the dependencies to make them load in parallel."
+msgstr "Τα ακόλουθα αιτήματα είναι σειριοποιημένα. Προσπαθήστε να διαχωρίσετε τις εξαρτήσεις, ώστε να φορτώνονται παράλληλα."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as loaded synchronously. It describes the problem and tells
@@ -685,6 +772,19 @@ msgstr "Υπάρχουν $1 αρχεία JavaScript, τα οποία εμφαν�
 #  google.com).
 msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "Αυτή η σελίδα πραγματοποιεί $1 παραλληλοποιήσιμα αιτήματα στο $2. Αυξήστε την παραλληλοποίηση λήψης κατανέμοντας αυτά τα αιτήματα μεταξύ πολλών ονομάτων κεντρικού υπολογιστή:"
+
+#  The name of a Page Speed rule that tells users to make use
+#  of the application cache to achieve faster startup times. This is displayed
+#  in a list of rule names that Page Speed generates. "Application Cache"
+#  should not be translated since it is the name of an HTML 5 feature.
+msgid "Use an Application Cache"
+msgstr "Χρήση Application Cache"
+
+#  Header at the top of a list of URLs that Page Speed detected
+#  that HTML5 application cache should be used. It tells the user to fix the
+#  problem by using application cache in the HTML documents.
+msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr "Με τη χρήση μιας προσωρινής μνήμης εφαρμογής, υπάρχει η δυνατότητα άμεσης εμφάνισης μιας σελίδας. Τα ακόλουθα έγγραφα HTML μπορούν να χρησιμοποιήσουν μια προσωρινή μνήμη εφαρμογής για τη μείωση του χρόνου που απαιτείται, ώστε οι χρήστες να μπορούν να αλληλεπιδράσουν με τη σελίδα:"
 
 #  This appears as a header before a list of URLs of resources
 #  that use the JavaScript command "document.write" ("document.write" is

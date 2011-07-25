@@ -5,6 +5,14 @@
 msgid "$1 ($2 of inline JavaScript)"
 msgstr "$1 ($2 de JavaScript in-line)"
 
+#  Shown as part of a list of unnecessary reflows
+#  (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community). Shows a URL
+#  at $1, and the number of unnecessary reflows for that URL
+#  at $2.
+msgid "$1 ($2 reflows)"
+msgstr "$1 (ajuste de $2)"
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -90,8 +98,8 @@ msgstr "$1 é um redirecionamento não passível de colocação em cache para $2
 #  (respectively) of the image resource.  "$6" will be replaced with the
 #  amount saved (in bytes) by serving the image correctly size (e.g.
 #  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7% reduction)."
+#  "25%").
+msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
 msgstr "$1 foi redimensionado para HTML ou CSS de $2 x $3 para $4 x $5. Se publicar uma imagem à escala, pode poupar $6 (redução de $7%)."
 
 #  Describes a single URL of an image that is resized in HTML
@@ -99,9 +107,16 @@ msgstr "$1 foi redimensionado para HTML ou CSS de $2 x $3 para $4 x $5. Se publi
 #  size.  "$1" is a format token that will be replaced with the URL of the
 #  image resource.  "$2" will be replaced with the amount saved (in bytes)
 #  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3% reduction)."
+#  replaced with the percentage saved (e.g. "25%").
+msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
 msgstr "$1 foi redimensionado para HTML ou CSS. Se publicar uma imagem à escala, pode poupar $2 (redução de $3%)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL at $1, the line
+#  number (of the file at that URL that triggers the script URL) at $2,
+#  and the length of time the scripts runs for at $3.
+msgid "$1 line $2 ($3)"
+msgstr "1$, linha $2 ($3)"
 
 #  Detail for resource that loads synchronously. The "$1" will
 #  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
@@ -171,6 +186,14 @@ msgstr "Evitar pedidos inválidos"
 msgid "Avoid document.write"
 msgstr "Evitar document.write"
 
+#  The name of a Page Speed rule that tells users to try
+#  and avoid writing pages with Javascript scripts that run for a
+#  long time, which reduces browser responsiveness.  This is
+#  displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Avoid long-running scripts"
+msgstr "Evite scripts de execução longa"
+
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
 #  problem.
@@ -209,7 +232,7 @@ msgstr "Combinar imagens em CSS sprites"
 #  resource in question.  "$2" will be replaced with the amount of data
 #  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
 #  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3% reduction)."
+msgid "Compressing $1 could save $2 ($3 reduction)."
 msgstr "Se comprimir $1, pode poupar $2 (redução de $3%)."
 
 #  Descriptive header for a list of URLs that were served
@@ -219,9 +242,9 @@ msgstr "Se comprimir $1, pode poupar $2 (redução de $3%)."
 #  list of uncompressed resource URLs.  "$1" is a format token that will be
 #  replaced by the amount of data transferred saved by compressing (in bytes)
 #  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2% reduction)."
-msgstr "Se comprimir os seguintes recursos com gzip, pode reduzir o respectivo tamanho de transferência em $1 (redução de $2%)."
+#  compressing (e.g. "25%").
+msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
+msgstr "Se comprimir os seguintes recursos com gzip, pode reduzir o respetivo tamanho de transferência em $1 (redução de $2%)."
 
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The "$1" will be
@@ -242,6 +265,13 @@ msgstr "Cookies: $1 (note que se trata de um recurso estático e que deve ser pu
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "Adiar a análise de JavaScript"
+
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr "Eliminar ajustes desnecessários"
 
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
@@ -281,6 +311,16 @@ msgstr "Colocar JavaScript pequeno in-line"
 msgid "Inline script block #$1"
 msgstr "Bloqueio de scripts in-line #$1"
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
+msgstr "O JavaScript que executou nos seguintes recursos provocou ajustes desnecessários. Para reduzir o tempo de conversão da página, modifique o JavaScript para que não provoque ajustes:"
+
 #  Rule name. A longer description would be "Specify
 #  proper caching expirations for the resources on the web
 #  page". Caching expirations are attached to each file on a web
@@ -300,8 +340,8 @@ msgstr "O nó do link $1 deve ser movido para o cabeçalho do documento."
 #  Detail info for one image URL. It tells the user how much can
 #  be save for one image. The "$1" will be replace the the image URL; "$2"
 #  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the number of percent (e.g. 12).
-msgid "Losslessly compressing $1 could save $2 ($3% reduction)."
+#  replace by the percentage (e.g. 12%).
+msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
 msgstr "A compressão sem perdas de $1 permite poupar $2 (redução de $3%)."
 
 #  The name of a Page Speed rule that tells users to avoid
@@ -329,34 +369,42 @@ msgstr "Reduzir HTML"
 msgid "Minify JavaScript"
 msgstr "Reduzir JavaScript"
 
+#  Subheading that describes the post-compression network savings
+#  possible from minifying a single resource. "$1" is a format token that
+#  will be replaced by the URL of the resource. "$2" will be replaced bythe
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction) after compression."
+msgstr "Se reduzir $1, pode poupar $2 (redução de $3) após a compressão."
+
 #  Subheading that describes the savings possible from minifying a
 #  single resource. "$1" is a format token that will be replaced by the URL of
 #  the resource. "$2" will be replaced bythe absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying $1 could save $2 ($3% reduction)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction)."
 msgstr "Se reduzir $1, pode poupar $2 (redução de $3%)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2% reduction)."
-msgstr "Se reduzir os seguintes recursos de CSS, pode reduzir o tamanho dos mesmos em $1 (redução de $2%)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
+msgstr "Se reduzir os seguintes recursos de CSS, pode reduzir o respetivo tamanho em $1 (redução de $2%)."
 
 #  Heading that describes the savings possible from
 #  minifying resources. "$1" is a format token that will be replaced by the
 #  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2% reduction)."
-msgstr "Se reduzir os seguintes recursos de HTML, pode reduzir o tamanho dos mesmos em $1 (redução de $2%)."
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
+msgstr "Se reduzir os seguintes recursos de HTML, pode reduzir o respetivo tamanho em $1 (redução de $2%)."
 
 #  Heading that describes the savings possible from minifying
 #  resources.  "$1" will be replaced by the absolute number of bytes or
 #  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2% reduction)."
-msgstr "Se reduzir os seguintes recursos de JavaScript, pode reduzir o tamanho dos mesmos em $1 (redução de $2%)."
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
+msgstr "Se reduzir os seguintes recursos de JavaScript, pode reduzir o respetivo tamanho em $1 (redução de $2%)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -393,9 +441,9 @@ msgstr "Optimizar a ordem de estilos e scripts"
 #  as can be optimized by using better compression. It describes the problem
 #  to the user that the size of the images can be reduced. The "$1" will be
 #  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the number of percent (e.g. 25).
-msgid "Optimizing the following images could reduce their size by $1 ($2% reduction)."
-msgstr "Se optimizar as imagens seguintes, pode reduzir o tamanho das mesmas em $1 (redução de $2%)."
+#  the percentage (e.g. 25%).
+msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
+msgstr "Se otimizar as imagens seguintes, pode reduzir o respetivo tamanho em $1 (redução de $2%)."
 
 #  Item showing how large the other request components is in a
 #  request that violates the MinimizeRequestSizeRule by being large. The
@@ -421,6 +469,13 @@ msgstr "Preferir recursos assíncronos"
 #  rule names that Page Speed generates.
 msgid "Put CSS in the document head"
 msgstr "Colocar CSS no cabeçalho do documento"
+
+#  The name of a Page Speed rule that tells users to try to avoid
+#  serializing requests too excessively but rather try to parallelize them.
+#  This is displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Reduce request serialization"
+msgstr "Reduzir serialização de pedidos"
 
 #  Item showing how large the referrer URL is in a request
 #  that violates the MinimizeRequestSizeRule by being large. The "$1" will
@@ -502,6 +557,32 @@ msgstr "Especificar um conjunto de caracteres"
 msgid "Specify image dimensions"
 msgstr "Especificar dimensões da imagem"
 
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains the number of times the code in this context
+#  executed, and $2 contains JavaScript code that gives
+#  the context of the reflow.
+msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
+msgstr "A seguinte pilha de chamadas JavaScript (executada $1 vezes) provocou ajustes que demoraram $2 milissegundos: $3"
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains JavaScript code that gives the context of the
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
+msgstr "A seguinte pilha de chamadas JavaScript provocou um ajuste que demorou $1 milissegundos: $2"
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
+msgstr "Os URLs seguintes executam JavaScript que bloqueia a interface do utilizador durante muito tempo. Para melhorar a resposta do navegador, otimize o JavaScript ou divida-o utilizando chamadas de retorno."
+
 #  Heading that indicates which resources should
 #  have a longer cache freshness lifetime. Here "freshness
 #  lifetime" means the length of the period of time that the
@@ -546,8 +627,8 @@ msgstr "Nas imagens seguintes faltam os atributos largura e/ou altura."
 #  the user.  "$1" is a format token that is replaced with the total
 #  savings in bytes from serving images in their final size
 #  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2% reduction)."
+#  bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
 msgstr "As imagens seguintes foram redimensionadas para HTML ou CSS. Se publicar imagens à escala, pode poupar $1 (redução de $2%)."
 
 #  Header at the top of a list of URLs that Page Speed
@@ -595,6 +676,12 @@ msgstr "Os recursos comprimíveis e passíveis de colocação em cache que se se
 #  it by eliminating the bad requests.
 msgid "The following requests are returning 404/410 responses.  Either fix the broken links, or remove the references to the non-existent resources."
 msgstr "Os pedidos seguintes estão a devolver respostas 404/410. Corrija os links danificados ou remova as referências aos recursos não existentes."
+
+#  Header at the top of a list of URLs when Page Speed
+#  detected that a resource depends on all the resources shown in the
+#  list.
+msgid "The following requests are serialized. Try to break up the dependencies to make them load in parallel."
+msgstr "Os pedidos seguintes estão serializados. Tente quebrar as dependências para forçá-los a carregar em paralelo."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as loaded synchronously. It describes the problem and tells
@@ -685,6 +772,19 @@ msgstr "Existem $1 ficheiros JavaScript publicados a partir de $2. Devem ser com
 #  google.com).
 msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "Esta página transforma $1 de pedidos paralelizáveis em $2. Aumente a paralelização de transferências distribuindo os pedidos por vários nomes de anfitrião:"
+
+#  The name of a Page Speed rule that tells users to make use
+#  of the application cache to achieve faster startup times. This is displayed
+#  in a list of rule names that Page Speed generates. "Application Cache"
+#  should not be translated since it is the name of an HTML 5 feature.
+msgid "Use an Application Cache"
+msgstr "Utilize uma Application Cache"
+
+#  Header at the top of a list of URLs that Page Speed detected
+#  that HTML5 application cache should be used. It tells the user to fix the
+#  problem by using application cache in the HTML documents.
+msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr "Utilizar uma cache da aplicação permite a apresentação imediata de uma página. Os seguintes documentos HTML podem utilizar uma cache da aplicação para reduzir o tempo de interação dos utilizadores com a página:"
 
 #  This appears as a header before a list of URLs of resources
 #  that use the JavaScript command "document.write" ("document.write" is
