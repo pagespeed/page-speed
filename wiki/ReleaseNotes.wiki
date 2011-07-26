@@ -3,6 +3,18 @@
 
 =Page Speed Version History=
 
+== 1.12 (07/26/2011) ==
+  * New rules
+    * Avoid excess serialization
+    * Avoid long-running scripts
+    * Eliminate unnecessary reflows
+  * More accurate minification savings computation for gzip-compressible resources
+  * Ignore data URIs in "Specify image dimensions"
+  * Fixed JavaScript profiling issue
+  * Only expect 24h cache lifetime for third-party resources
+  * Improved tracking pixel detection
+  * Improved percentage computations (no longer say "you can reduce this file's size by 0%")
+
 == 1.11 05/23/2011 ==
   * Improved Firefox 4 support
   * Improved scoring and suggestion ordering
