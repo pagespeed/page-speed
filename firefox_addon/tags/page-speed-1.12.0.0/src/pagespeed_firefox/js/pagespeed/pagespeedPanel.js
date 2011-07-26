@@ -153,9 +153,9 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                  'style': 'margin-top:8px;margin-left:10px;margin-bottom:10px;' +
                  'padding: 2px 0',
                  'onclick': '$analyzePerformance'}),
-          H3("What's new in Page Speed 1.11?"),
+          H3("What's new in Page Speed 1.12?"),
 
-          UL(B(LI('New: ',
+          UL(B(LI('New rules (',
                 A({'href': 'http://code.google.com/' +
                            'speed/page-speed/docs/using_chrome.html',
                    'onclick': '$openLink'},
@@ -164,18 +164,14 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                 A({'href': 'http://pagespeed.googlelabs.com/',
                    'onclick': '$openLink'},
                   'Page Speed Online'
-                  ))),
-             LI(B('Improved Firefox 4 support')),
-             LI(B('Improved scoring and suggestion ordering')),
-             LI(B('New rules')),
-             OL(LI(B('Defer parsing of JavaScript')),
-                LI(B('Enable Keep-Alive')),
-                LI(B('Make landing page redirects cacheable'))),
-             LI(B('Improved rules')),
-             OL(LI(B('Avoid bad requests')),
-                LI(B('Inline small resources')),
-                LI(B('Minimize redirects')),
-                LI(B('Specify a character set')))
+                  ), ' only):')),
+             OL(LI(B('Avoid excess serialization')),
+                LI(B('Avoid long-running scripts')),
+                LI(B('Eliminate unnecessary reflows'))),
+             LI(B('More accurate minification savings computation for gzip-compressible resources')),
+             LI(B('Ignore data URIs in Specify image dimensions')),
+             LI(B('Improved tracking pixel detection')),
+             LI(B('Improved percentage computations'))
             ),
           P({'style': 'padding-top:5px'},
             'See the ',
