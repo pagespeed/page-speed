@@ -3,7 +3,7 @@
 
 =Page Speed Version History=
 
-== 1.12 (07/26/2011) ==
+== 1.12 (07/27/2011) ==
   * New rules
     * Avoid excess serialization
     * Avoid long-running scripts
