@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>pagespeed_plugin</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.googlecode.page_speed</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Page Speed</string>
+	<key>CFBundlePackageType</key>
+	<string>BRPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>CFPlugInDynamicRegisterFunction</key>
+	<string></string>
+	<key>CFPlugInDynamicRegistration</key>
+	<string>NO</string>
+	<key>WebPluginDescription</key>
+	<string>Page Speed NPAPI plugin for Chrome.</string>
+	<key>WebPluginMIMETypes</key>
+	<dict>
+		<key>application/x-page-speed</key>
+		<dict>
+			<key>WebPluginExtensions</key>
+			<array>
+				<string>pagespeed_plugin</string>
+			</array>
+			<key>WebPluginTypeDescription</key>
+			<string>Page Speed extension plugin</string>
+		</dict>
+	</dict>
+	<key>WebPluginName</key>
+	<string>Page Speed Plugin</string>
+</dict>
+</plist>
