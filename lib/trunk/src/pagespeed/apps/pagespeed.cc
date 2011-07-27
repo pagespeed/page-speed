@@ -45,6 +45,7 @@
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
+#include "pagespeed/proto/results_to_json_converter.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed/timeline/json_importer.h"
@@ -54,7 +55,8 @@ DEFINE_string(input_format, "har",
               "Format of input_file. One of 'har' or 'proto'.");
 DEFINE_string(output_format, "text",
               "Format of the output. "
-              "One of 'proto', 'text', 'json', or 'formatted_proto'.");
+              "One of 'proto', 'text', 'unformatted_json', "
+              "'formatted_json', or 'formatted_proto'.");
 DEFINE_string(input_file, "", "Path to the input file. '-' to read from stdin");
 DEFINE_string(instrumentation_input_file, "",
               "Path to the instrumentation data JSON file. Optional.");
@@ -75,6 +77,7 @@ enum OutputFormat {
   PROTO_OUTPUT,
   TEXT_OUTPUT,
   JSON_OUTPUT,
+  FORMATTED_JSON_OUTPUT,
   FORMATTED_PROTO_OUTPUT
 };
 
@@ -151,8 +154,14 @@ bool RunPagespeed(const std::string& out_format,
     output_format = PROTO_OUTPUT;
   } else if (out_format == "text") {
     output_format = TEXT_OUTPUT;
-  } else if (out_format == "json") {
+  } else if (out_format == "unformatted_json") {
     output_format = JSON_OUTPUT;
+  } else if (out_format == "formatted_json") {
+    output_format = FORMATTED_JSON_OUTPUT;
+  } else if (out_format == "json") {
+    LOG(WARNING) << "'--output_format json' is deprecated. "
+                 << "Please use '--output_format formatted_json' instead.";
+    output_format = FORMATTED_JSON_OUTPUT;
   } else if (out_format == "formatted_proto") {
     output_format = FORMATTED_PROTO_OUTPUT;
   } else {
@@ -290,27 +299,31 @@ bool RunPagespeed(const std::string& out_format,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
+  pagespeed::Results results;
+  engine.ComputeResults(*input, &results);
+
   // If the output format is "proto", print the raw results proto; otherwise,
   // use an appropriate converter.
   std::string out;
   if (output_format == PROTO_OUTPUT) {
-    pagespeed::Results results;
-    engine.ComputeResults(*input, &results);
     ::google::protobuf::io::StringOutputStream out_stream(&out);
     results.SerializeToZeroCopyStream(&out_stream);
+  } else if (output_format == JSON_OUTPUT) {
+      pagespeed::proto::ResultsToJsonConverter::Convert(
+          results, &out);
   } else {
-    // Compute and format results.
+    // Format the results.
     pagespeed::FormattedResults formatted_results;
     formatted_results.set_locale(localizer->GetLocale());
     pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
                                                     &formatted_results);
-    engine.ComputeAndFormatResults(*input, &formatter);
+    engine.FormatResults(results, &formatter);
 
     // Convert the FormattedResults into text/json.
     if (output_format == TEXT_OUTPUT) {
       pagespeed::proto::FormattedResultsToTextConverter::Convert(
           formatted_results, &out);
-    } else if (output_format == JSON_OUTPUT) {
+    } else if (output_format == FORMATTED_JSON_OUTPUT) {
       pagespeed::proto::FormattedResultsToJsonConverter::Convert(
           formatted_results, &out);
     } else if (output_format == FORMATTED_PROTO_OUTPUT) {
