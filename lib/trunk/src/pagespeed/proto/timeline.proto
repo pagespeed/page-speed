@@ -51,6 +51,7 @@ message InstrumentationData {
     MARK_DOM_CONTENT = 18;
     MARK_LOAD = 19;
     SCHEDULE_RESOURCE_REQUEST = 20;
+    TIME_STAMP = 21;
   }
 
   message DataDictionary {
