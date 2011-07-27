@@ -704,16 +704,21 @@ var pagespeed = {
       ]));
     }
     whatsnew.appendChild(pagespeed.makeElement(
-      'h2', null, "What's new in Page Speed 1.11 beta?"));
+      'h2', null, "What's new in Page Speed 1.12 beta?"));
     whatsnew.appendChild(pagespeed.makeElement('ul', null, [
-      pagespeed.makeElement('li', null, "It's in Chrome!"),
-      pagespeed.makeElement('li', null, "Localized rule results"),
-      pagespeed.makeElement('li', null, "Improved scoring and suggestion ordering"),
+      pagespeed.makeElement('li', null, "More accurate minification savings " +
+                            "computation for gzip-compressible resources"),
+      pagespeed.makeElement('li', null, 'Ignore data URIs in "Specify image ' +
+                            'dimensions"'),
+      pagespeed.makeElement('li', null, "Only expect 24h cache lifetime for "+
+                            "third-party resources"),
+      pagespeed.makeElement('li', null, "Improved tracking pixel detection"),
+      pagespeed.makeElement('li', null, "Improved percentage computations"),
       pagespeed.makeElement('li', null, [ "New rules",
         pagespeed.makeElement('ul', null, [
-          pagespeed.makeElement('li', null, "Defer parsing of JavaScript"),
-          pagespeed.makeElement('li', null, "Enable Keep-Alive"),
-          pagespeed.makeElement('li', null, "Make landing page redirects cacheable")
+          pagespeed.makeElement('li', null, "Avoid excess serialization"),
+          pagespeed.makeElement('li', null, "Avoid long-running scripts"),
+          pagespeed.makeElement('li', null, "Eliminate unnecessary reflows")
         ])
       ])
     ]));
@@ -785,8 +790,22 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   // reload the page; when the page finishes loading, our callback will call
   // the onPageLoaded() method of this ResourceAccumulator, and we can try
   // again.
-  if (har.entries.length === 0 ||
-      har.entries[0].request.url !== har.entries[0].pageref) {
+
+  var need_reload = false;
+  if (har.entries.length === 0) {
+    need_reload = true;
+  } else {
+    var pageref_no_fragments = har.entries[0].pageref;
+    var fragment_pos = pageref_no_fragments.indexOf('#');
+    if (fragment_pos > 0) {
+      pageref_no_fragments = pageref_no_fragments.substr(0, fragment_pos);
+    }
+    if (har.entries[0].request.url !== pageref_no_fragments) {
+      need_reload = true;
+    }
+  }
+
+  if (need_reload) {
     pagespeed.setStatusText(chrome.i18n.getMessage('reloading_page'));
     this.doingReload_ = true;
     webInspector.inspectedWindow.reload();
