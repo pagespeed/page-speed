@@ -65,6 +65,7 @@
         '<(pagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_results_converter',
         '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_proto',
         '<(pagespeed_root)/pagespeed/timeline/timeline.gyp:pagespeed_timeline',
       ],
