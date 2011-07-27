@@ -121,9 +121,12 @@ void ProtoPopulator::PopulateInstrumentationData(
       instr->set_type(InstrumentationData::MARK_LOAD);
     } else if (type_string == "ScheduleResourceRequest") {
       instr->set_type(InstrumentationData::SCHEDULE_RESOURCE_REQUEST);
+    } else if (type_string == "TimeStamp") {
+      instr->set_type(InstrumentationData::TIME_STAMP);
     } else {
-      LOG(WARNING) << "Unknown record type: " << type_string;
-      error_ = true;
+      LOG(DFATAL) << "Unknown record type: " << type_string;
+      // Don't treat this as an error since new types may be added as
+      // the format evolves.
       return;
     }
   }
@@ -306,13 +309,15 @@ void ProtoPopulator::PopulateDataDictionary(
     case InstrumentationData::MARK_DOM_CONTENT:
     case InstrumentationData::MARK_LOAD:
     case InstrumentationData::RECALCULATE_STYLES:
+    case InstrumentationData::TIME_STAMP:
       // These types have no data payload.
       break;
 
     default:
-      DCHECK(false) << "Missing DataDictionary population implementation for "
-                    << "type = " << type;
-      error_ = true;
+      LOG(DFATAL) << "Missing DataDictionary population implementation for "
+                  << "type = " << type;
+      // Don't treat this as an error since new types may be added as
+      // the format evolves.
       break;
   }
 }
