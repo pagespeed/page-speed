@@ -71,6 +71,9 @@ Value* ResultsToJsonConverter::ConvertSavings(
     root->SetInteger("critical_path_length_saved",
                      savings.critical_path_length_saved());
   }
+  if (savings.has_connections_saved()) {
+    root->SetInteger("connections_saved", savings.connections_saved());
+  }
   return root;
 }
 
@@ -106,6 +109,9 @@ Value* ResultsToJsonConverter::ConvertRuleResult(
   root->SetString("rule_name", rule_results.rule_name());
   if (rule_results.has_rule_score()) {
     root->SetInteger("rule_score", rule_results.rule_score());
+  }
+  if (rule_results.has_rule_impact()) {
+    root->SetDouble("rule_impact", rule_results.rule_impact());
   }
   if (rule_results.results_size() > 0) {
     ListValue* results = new ListValue();
