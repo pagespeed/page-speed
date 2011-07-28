@@ -20,12 +20,15 @@
 #include <iostream>  // for std::cin and std::cout
 
 #include "base/at_exit.h"
+#include "base/json/json_reader.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "base/values.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "google/protobuf/stubs/common.h"
+#include "pagespeed/core/dom.h"
 #include "pagespeed/core/engine.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -33,6 +36,7 @@
 #include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/dom/json_dom.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
@@ -60,6 +64,7 @@ DEFINE_string(output_format, "text",
 DEFINE_string(input_file, "", "Path to the input file. '-' to read from stdin");
 DEFINE_string(instrumentation_input_file, "",
               "Path to the instrumentation data JSON file. Optional.");
+DEFINE_string(dom_input_file, "", "Path to the DOM JSON file. Optional.");
 DEFINE_string(locale, "", "Locale to use, if localizing results.");
 DEFINE_string(strategy, "desktop",
               "The strategy to use. Valid values are 'desktop', 'mobile'.");
@@ -148,6 +153,7 @@ void PrintVersion() {
 bool RunPagespeed(const std::string& out_format,
                   const std::string& in_format,
                   const std::string& filename,
+                  const std::string& dom_filename,
                   const std::string& instrumentation_filename) {
   OutputFormat output_format;
   if (out_format == "proto") {
@@ -165,7 +171,7 @@ bool RunPagespeed(const std::string& out_format,
   } else if (out_format == "formatted_proto") {
     output_format = FORMATTED_PROTO_OUTPUT;
   } else {
-    fprintf(stderr, "Invalid output format %s\n", out_format.c_str());
+    fprintf(stderr, "Invalid output format %s.\n", out_format.c_str());
     PrintUsage();
     return false;
   }
@@ -176,7 +182,7 @@ bool RunPagespeed(const std::string& out_format,
   } else if (FLAGS_strategy == "mobile") {
     strategy = MOBILE;
   } else {
-    fprintf(stderr, "Invalid strategy %s\n", FLAGS_strategy.c_str());
+    fprintf(stderr, "Invalid strategy %s.\n", FLAGS_strategy.c_str());
     PrintUsage();
     return false;
   }
@@ -188,7 +194,7 @@ bool RunPagespeed(const std::string& out_format,
     file_contents.assign(std::istreambuf_iterator<char>(std::cin),
                          std::istreambuf_iterator<char>());
   } else if (!ReadFileToString(filename, &file_contents)) {
-    fprintf(stderr, "Could not read input from %s\n", filename.c_str());
+    fprintf(stderr, "Could not read input from %s.\n", filename.c_str());
     PrintUsage();
     return false;
   }
@@ -219,7 +225,7 @@ bool RunPagespeed(const std::string& out_format,
   } else if (in_format == "proto") {
     input.reset(ParseProtoInput(file_contents));
   } else {
-    fprintf(stderr, "Invalid input format %s\n", in_format.c_str());
+    fprintf(stderr, "Invalid input format %s.\n", in_format.c_str());
     PrintUsage();
     return false;
   }
@@ -238,11 +244,11 @@ bool RunPagespeed(const std::string& out_format,
 
   std::vector<const pagespeed::InstrumentationData*> instrumentation_data;
   {
-    std::string instrumentation_file_contents;
     if (!instrumentation_filename.empty()) {
+      std::string instrumentation_file_contents;
       if (!ReadFileToString(instrumentation_filename,
                             &instrumentation_file_contents)) {
-        fprintf(stderr, "Could not read input from %s\n",
+        fprintf(stderr, "Could not read input from %s.\n",
                 instrumentation_filename.c_str());
         PrintUsage();
         return false;
@@ -250,7 +256,7 @@ bool RunPagespeed(const std::string& out_format,
 
       if (!pagespeed::timeline::CreateTimelineProtoFromJsonString(
               instrumentation_file_contents, &instrumentation_data)) {
-        fprintf(stderr, "Failed to parse instrumentation data from %s\n",
+        fprintf(stderr, "Failed to parse instrumentation data from %s.\n",
                 instrumentation_filename.c_str());
         PrintUsage();
         return false;
@@ -260,6 +266,51 @@ bool RunPagespeed(const std::string& out_format,
 
   if (!instrumentation_data.empty()) {
     input->AcquireInstrumentationData(&instrumentation_data);
+  }
+
+  scoped_ptr<pagespeed::DomDocument> document;
+  {
+    if (!dom_filename.empty()) {
+      std::string dom_file_contents;
+      if (!ReadFileToString(dom_filename, &dom_file_contents)) {
+        fprintf(stderr, "Could not read input from %s.\n",
+                dom_filename.c_str());
+        PrintUsage();
+        return false;
+      }
+
+      std::string error_msg_out;
+      scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
+          dom_file_contents,
+          true,  // allow_trailing_comma
+          NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+          &error_msg_out));
+      if (document_json == NULL) {
+        fprintf(stderr, "Could not parse DOM: %s.\n", error_msg_out.c_str());
+        PrintUsage();
+        return false;
+      }
+      if (document_json->IsType(Value::TYPE_DICTIONARY)) {
+        // The document does _not_ get ownership of document_json.
+        // The reason for this design choice is that the Value objects
+        // for subdocuments are owned by their parent Value objects,
+        // so in order to avoid a double-free, instances of the
+        // JsonDocument class need to not own the Value objects on
+        // which they're based.
+        document.reset(pagespeed::dom::CreateDocument(
+            static_cast<const DictionaryValue*>(document_json.get())));
+      }
+      if (document == NULL) {
+        fprintf(stderr, "Failed to parse DOM from %s.\n",
+                dom_filename.c_str());
+        PrintUsage();
+        return false;
+      }
+    }
+  }
+
+  if (document != NULL) {
+    input->AcquireDomDocument(document.release());
   }
 
   if (strategy == MOBILE) {
@@ -387,6 +438,7 @@ int main(int argc, char** argv) {
   if (RunPagespeed(FLAGS_output_format,
                    FLAGS_input_format,
                    FLAGS_input_file,
+                   FLAGS_dom_input_file,
                    FLAGS_instrumentation_input_file)) {
     return EXIT_SUCCESS;
   } else {
