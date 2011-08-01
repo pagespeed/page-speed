@@ -945,6 +945,25 @@ pagespeed.ContentWriter.prototype.onGotFile_ = function (entry, file) {
   if (this.cancelled_) {
     return;  // We've been cancelled so ignore the callback.
   }
+  // Decode the base64 data into a byte array, which we can then append to a
+  // BlobBuilder.  I don't know of any quicker way to just write base64 data
+  // straight into a Blob, but thanks to V8, the below is still very fast.
+  var decoded = atob(entry.content);
+  delete entry.content;  // free up memory
+  var size = decoded.length;
+  var array = new Uint8Array(size);
+  for (var index = 0; index < size; ++index) {
+    array[index] = decoded.charCodeAt(index);
+  }
+
+  if (array.buffer.byteLength <= 0) {
+    // Do not write this file, because it may crash WebKit's FileWriter on
+    // 0-sized write. Keep the url and move to the next one.
+    entry.url = file.toURL(entry.mimetype);
+    this.writeNextFile_();
+    return;
+  }
+
   var writeNext = this.writeNextFile_.bind(this);
   var onWriterError = this.makeErrorHandler_("write", writeNext);
   file.createWriter(pagespeed.withErrorHandler(function (writer) {
@@ -954,17 +973,6 @@ pagespeed.ContentWriter.prototype.onGotFile_ = function (entry, file) {
       writeNext();
     });
     writer.onerror = onWriterError;
-
-    // Decode the base64 data into a byte array, which we can then append to a
-    // BlobBuilder.  I don't know of any quicker way to just write base64 data
-    // straight into a Blob, but thanks to V8, the below is still very fast.
-    var decoded = atob(entry.content);
-    delete entry.content;  // free up memory
-    var size = decoded.length;
-    var array = new Uint8Array(size);
-    for (var index = 0; index < size; ++index) {
-      array[index] = decoded.charCodeAt(index);
-    }
 
     // Use a BlobBuilder to write the file.  In some (but not all) Chrome
     // versions, this has a "WebKit" prefix.
