@@ -51,6 +51,8 @@
         '<(chromium_root)/base/logging.h',
         '<(chromium_root)/base/logging_win.cc',
         '<(chromium_root)/base/logging_win.h',
+        '<(chromium_root)/base/mac/foundation_util.h',
+        '<(chromium_root)/base/mac/foundation_util.mm',
         '<(chromium_root)/base/pickle.cc',
         '<(chromium_root)/base/pickle.h',
         '<(chromium_root)/base/process_util.h',
