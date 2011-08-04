@@ -195,4 +195,28 @@ TEST(HtmlMinifierTest, SgmlCommentInScriptWholeLine) {
   ASSERT_EQ(kExpected, output);
 }
 
+TEST(HtmlMinifierTest, RemoveQuotesFromHtml5) {
+  const char* kInput =
+      "<!DOCTYPE html><div  class=\"foo\" >foobar</div>";
+  const char* kExpected =
+      "<!DOCTYPE html><div class=foo>foobar</div>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtmlWithType(kTestUrl, "text/html",
+                                          kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
+TEST(HtmlMinifierTest, DoNotRemoveQuotesFromXhtml5) {
+  const char* kInput =
+      "<!DOCTYPE html><div  class=\"foo\" >foobar</div>";
+  const char* kExpected =
+      "<!DOCTYPE html><div class=\"foo\">foobar</div>";
+  std::string output;
+  HtmlMinifier minifier;
+  ASSERT_TRUE(minifier.MinifyHtmlWithType(kTestUrl, "application/xhtml+xml",
+                                          kInput, &output));
+  ASSERT_EQ(kExpected, output);
+}
+
 }  // namespace
