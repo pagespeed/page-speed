@@ -310,22 +310,31 @@ void Minifier<OutputConsumer>::ConsumeRegex() {
   DCHECK(input_[index_] == '/');
   const int begin = index_;
   ++index_;
+  bool within_brackets = false;
   while (index_ < input_.size()) {
     const char ch = input_[index_];
     ++index_;
     if (ch == '\\') {
       // If we see a backslash, don't check the next character (this is mainly
       // relevant if the next character is a slash that would otherwise close
-      // the regex literal).
+      // the regex literal, or a closing bracket when we are within brackets).
       ++index_;
     } else if (ch == '/') {
-      // Don't accidentally create a line comment.
-      if (prev_token_ == '/') {
-        InsertSpaceIfNeeded();
+      // Slashes within brackets are implicitly escaped.
+      if (!within_brackets) {
+        // Don't accidentally create a line comment.
+        if (prev_token_ == '/') {
+          InsertSpaceIfNeeded();
+        }
+        ChangeToken(kRegexToken);
+        output_.append(input_.substr(begin, index_ - begin));
+        return;
       }
-      ChangeToken(kRegexToken);
-      output_.append(input_.substr(begin, index_ - begin));
-      return;
+    } else if (ch == '[') {
+      // Regex brackets don't nest, so we don't need a stack -- just a bool.
+      within_brackets = true;
+    } else if (ch == ']') {
+      within_brackets = false;
     } else if (ch == '\n') {
       break;  // error
     }
