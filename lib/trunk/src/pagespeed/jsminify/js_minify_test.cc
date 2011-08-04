@@ -79,6 +79,7 @@ class JsMinifyTest : public testing::Test {
     EXPECT_TRUE(pagespeed::jsminify::GetMinifiedJsSize(before, &output_size));
     EXPECT_EQ(static_cast<int>(after.size()), output_size);
   }
+
   void CheckError(const base::StringPiece& input) {
     std::string output;
     EXPECT_FALSE(pagespeed::jsminify::MinifyJs(input, &output));
@@ -231,6 +232,21 @@ TEST_F(JsMinifyTest, TrickyRegexLiteral) {
   // literal.  JSMin gets this wrong (it removes whitespace from the regex).
   CheckMinification("var x = a[0] / b /i;\n var y = a[0] + / b /i;",
                     "var x=a[0]/b/i;var y=a[0]+/ b /i;");
+}
+
+// See http://code.google.com/p/modpagespeed/issues/detail?id=327
+TEST_F(JsMinifyTest, RegexLiteralWithBrackets1) {
+  // The / in [^/] doesn't end the regex, so the // is not a comment.
+  CheckMinification("var x = /http:\\/\\/[^/]+\\//, y = 3;",
+                    "var x=/http:\\/\\/[^/]+\\//,y=3;");
+}
+
+TEST_F(JsMinifyTest, RegexLiteralWithBrackets2) {
+  // The first ] is escaped and doesn't close the [, so the following / doesn't
+  // close the regex, so the following space is still in the regex and must be
+  // preserved.
+  CheckMinification("var x = /z[\\]/ ]/, y = 3;",
+                    "var x=/z[\\]/ ]/,y=3;");
 }
 
 TEST_F(JsMinifyTest, ReturnRegex1) {
