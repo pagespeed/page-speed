@@ -280,25 +280,20 @@ bool RunPagespeed(const std::string& out_format,
       }
 
       std::string error_msg_out;
-      scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
-          dom_file_contents,
-          true,  // allow_trailing_comma
-          NULL,  // error_code_out (ReadAndReturnError permits NULL here)
-          &error_msg_out));
+      scoped_ptr<const Value> document_json(
+          base::JSONReader::ReadAndReturnError(
+              dom_file_contents,
+              true,  // allow_trailing_comma
+              NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+              &error_msg_out));
       if (document_json == NULL) {
         fprintf(stderr, "Could not parse DOM: %s.\n", error_msg_out.c_str());
         PrintUsage();
         return false;
       }
       if (document_json->IsType(Value::TYPE_DICTIONARY)) {
-        // The document does _not_ get ownership of document_json.
-        // The reason for this design choice is that the Value objects
-        // for subdocuments are owned by their parent Value objects,
-        // so in order to avoid a double-free, instances of the
-        // JsonDocument class need to not own the Value objects on
-        // which they're based.
         document.reset(pagespeed::dom::CreateDocument(
-            static_cast<const DictionaryValue*>(document_json.get())));
+            static_cast<const DictionaryValue*>(document_json.release())));
       }
       if (document == NULL) {
         fprintf(stderr, "Failed to parse DOM from %s.\n",
