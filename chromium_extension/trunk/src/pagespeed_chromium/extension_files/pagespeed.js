@@ -790,17 +790,22 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   // reload the page; when the page finishes loading, our callback will call
   // the onPageLoaded() method of this ResourceAccumulator, and we can try
   // again.
+  function removeFragments(url) {
+    var url_no_fragments = url;
+    var fragment_pos = url_no_fragments.indexOf('#');
+    if (fragment_pos > 0) {
+      url_no_fragments = url_no_fragments.substr(0, fragment_pos);
+    }
+    return url_no_fragments;
+  }
 
   var need_reload = false;
   if (har.entries.length === 0) {
     need_reload = true;
   } else {
-    var pageref_no_fragments = har.entries[0].pageref;
-    var fragment_pos = pageref_no_fragments.indexOf('#');
-    if (fragment_pos > 0) {
-      pageref_no_fragments = pageref_no_fragments.substr(0, fragment_pos);
-    }
-    if (har.entries[0].request.url !== pageref_no_fragments) {
+    var pageref_no_fragments = removeFragments(har.entries[0].pageref);
+    var url_no_fragments = removeFragments(har.entries[0].request.url);
+    if (url_no_fragments !== pageref_no_fragments) {
       need_reload = true;
     }
   }
