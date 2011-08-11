@@ -1,0 +1,91 @@
+{
+  "analyze_ads_only": {
+    "message": "Analyze ads only",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should only analyze advertisements on the webpage (as opposed to the rest of the content)."
+  },
+  "analyze_content_only": {
+    "message": "Analyze content only",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should only analyze the content of the webpage (as opposed to e.g. advertisements)."
+  },
+  "analyze_entire_page": {
+    "message": "Analyze entire page",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should analyze the whole webpage (as opposed to e.g. just the advertisements)."
+  },
+  "analyze_trackers_only": {
+    "message": "Analyze trackers only",
+    "description": "Label for a dropdown menu option that indicates that Page Speed should only analyze tracking scripts on the webpage (as opposed to the rest of the content)."
+  },
+  "clear_results": {
+    "message": "Clear Results",
+    "description": "Label for a button that the user can click to clear away the currently displayed results."
+  },
+  "collapse_all": {
+    "message": "Collapse All",
+    "description": "Label for a button that the user can click to un-expand all the disclosure tabs in the list of results, thus hiding the details for every item."
+  },
+  "expand_all": {
+    "message": "Expand All",
+    "description": "Label for a button that the user can click to expand all the disclosure tabs in the list of results, thus displaying the details for every item."
+  },
+  "extension_description": {
+    "message": "Analyze the performance of your webpages and get specific suggestions on how to optimize them.",
+    "description": "A short description of the purpose of the extension."
+  },
+  "fetching_content": {
+    "message": "Fetching content for [$n$/$max$] $url$",
+    "description": "Status message indicating that the extension is getting content for the Nth (of out MAX) resource of the page, located at the given URL.  This is displayed once for each resource.",
+    "placeholders": {
+      "n": { "content": "$1", "example": "3" },
+      "max": { "content": "$2", "example": "10" },
+      "url": { "content": "$3", "example": "http://www.example.com/foo.png" }
+    }
+  },
+  "fetching_har": {
+    "message": "Fetching page HAR...",
+    "description": "Status message indicating that the extension is currently fetching the Http ARchive (HAR) representing the content of the webpage."
+  },
+  "more_information": {
+    "message": "More information",
+    "description": "Text for a hyperlink that shows more information/documentation about the current rule."
+  },
+  "no_rule_violations": {
+    "message": "There were no violations of this rule.",
+    "description": "Indicates that the inspected page completely obeys the current rule."
+  },
+  "overall_score_ads": {
+    "message": "Page Speed Score (ads only): $score$/100",
+    "description": "Gives a 0-100 numeric score for the Page Speed rules, scoring only advertisements on the webpage (as opposed to the rest of the content), with 100 being the best.",
+    "placeholders": { "score": { "content": "$1", "example": "84" } }
+  },
+  "overall_score_all": {
+    "message": "Page Speed Score: $score$/100",
+    "description": "Gives a 0-100 numeric score for the Page Speed rules, with 100 being the best.",
+    "placeholders": { "score": { "content": "$1", "example": "84" } }
+  },
+  "overall_score_content": {
+    "message": "Page Speed Score (content only): $score$/100",
+    "description": "Gives a 0-100 numeric score for the Page Speed rules, scoring only content on the webpage (as opposed to e.g. advertisements), with 100 being the best.",
+    "placeholders": { "score": { "content": "$1", "example": "84" } }
+  },
+  "overall_score_trackers": {
+    "message": "Page Speed Score (trackers only): $score$/100",
+    "description": "Gives a 0-100 numeric score for the Page Speed rules, scoring only tracking scripts on the webpage (as opposed to the rest of the content), with 100 being the best.",
+    "placeholders": { "score": { "content": "$1", "example": "84" } }
+  },
+  "refresh_results": {
+    "message": "Refresh Results",
+    "description": "Label for a button that the user can click to re-run the Page Speed rules on the webpage, updating the current results."
+  },
+  "reloading_page": {
+    "message": "Reloading page...",
+    "description": "Status message indicating that the extension is currently reloading the webpage."
+  },
+  "run_page_speed": {
+    "message": "Run Page Speed",
+    "description": "Label for a button that the user can click to run the Page Speed rules on the webpage."
+  },
+  "running_rules": {
+    "message": "Running Page Speed rules...",
+    "description": "Status message indicating that the extension is currently running the Page Speed performance rules on the webpage."
+  }
+}
