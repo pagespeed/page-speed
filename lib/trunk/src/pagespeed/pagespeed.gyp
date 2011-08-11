@@ -26,6 +26,7 @@
         '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_cssmin',
+        '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_css_external_resource_finder',
         '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_html',
         '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_external_resource_filter',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_jpeg_optimizer',
@@ -93,6 +94,7 @@
       'dependencies': [
         'pagespeed_library',
         '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_cssmin',
+        '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_css_external_resource_finder',
         '<(pagespeed_root)/pagespeed/dom/dom.gyp:pagespeed_json_dom',
         '<(pagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
@@ -129,6 +131,7 @@
         'core/string_util_test.cc',
         'core/uri_util_test.cc',
         'css/cssmin_test.cc',
+        'css/external_resource_finder_test.cc',
         'dom/json_dom_test.cc',
         'filters/ad_filter_test.cc',
         'filters/protocol_filter_test.cc',
