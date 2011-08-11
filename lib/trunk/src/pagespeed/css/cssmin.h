@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef PAGESPEED_CSSMIN_CSSMIN_H_
-#define PAGESPEED_CSSMIN_CSSMIN_H_
+#ifndef PAGESPEED_CSS_CSSMIN_H_
+#define PAGESPEED_CSS_CSSMIN_H_
 
 #include <string>
 
 namespace pagespeed {
 
-namespace cssmin {
+namespace css {
 
 // Minifies CSS by removing comments and whitespaces.
 bool MinifyCss(const std::string& input, std::string* out);
@@ -30,8 +30,8 @@ bool MinifyCss(const std::string& input, std::string* out);
 // output.
 bool GetMinifiedCssSize(const std::string& input, int* minified_size);
 
-}  // namespace cssmin
+}  // namespace css
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_CSSMIN_CSSMIN_H_
+#endif  // PAGESPEED_CSS_CSSMIN_H_

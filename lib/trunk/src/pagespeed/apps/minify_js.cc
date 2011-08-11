@@ -20,7 +20,7 @@
 #include <fstream>
 #include <string>
 
-#include "pagespeed/jsminify/js_minify.h"
+#include "pagespeed/js/js_minify.h"
 
 bool Minify(const char* filename, const char* outfilename) {
   std::ifstream in(filename, std::ios::in | std::ios::binary);
@@ -40,7 +40,7 @@ bool Minify(const char* filename, const char* outfilename) {
 
   std::string minified;
 
-  pagespeed::jsminify::MinifyJs(original, &minified);
+  pagespeed::js::MinifyJs(original, &minified);
 
   std::ofstream out(outfilename, std::ios::out | std::ios::binary);
   if (!out) {
