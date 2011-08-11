@@ -190,20 +190,29 @@ void MinifyRule::FormatResults(const ResultVector& results,
       continue;
     }
 
-    const ResultDetails& details = result.details();
-    if (!details.HasExtension(
-            MinificationDetails::message_set_extension)) {
-      LOG(DFATAL) << "MinificationDetails missing.";
-      continue;
+    // Support for computing savings after gzip compression was added
+    // in Page Speed 1.12. Page Speed results computed from older
+    // versions of Page Speed did not compute savings after gzip
+    // compression. Thus the absence of a details field indicates that
+    // the computed savings are not post gzip.
+    bool savings_are_post_gzip = false;
+    if (result.has_details()) {
+      const ResultDetails& details = result.details();
+      if (!details.HasExtension(
+              MinificationDetails::message_set_extension)) {
+        LOG(DFATAL) << "MinificationDetails missing.";
+        continue;
+      }
+      const MinificationDetails& min_details =
+          details.GetExtension(MinificationDetails::message_set_extension);
+      savings_are_post_gzip = min_details.savings_are_post_gzip();
     }
-    const MinificationDetails& min_details =
-        details.GetExtension(MinificationDetails::message_set_extension);
 
     const int bytes_saved = result.savings().response_bytes_saved();
     const int original_size = result.original_response_bytes();
 
     UrlFormatter* url_result = body->AddUrlResult(
-        min_details.savings_are_post_gzip() ?
+        savings_are_post_gzip ?
         minifier_->child_format_post_gzip() :
         minifier_->child_format(),
         UrlArgument(result.resource_urls(0)), BytesArgument(bytes_saved),
