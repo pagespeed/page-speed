@@ -25,8 +25,8 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
         '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
-        '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
-        '<(pagespeed_root)/pagespeed/jsminify/js_minify.gyp:pagespeed_jsminify',
+        '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_cssmin',
+        '<(pagespeed_root)/pagespeed/js/js.gyp:pagespeed_jsminify',
       ],
       'sources': [
         'html_minifier.cc',

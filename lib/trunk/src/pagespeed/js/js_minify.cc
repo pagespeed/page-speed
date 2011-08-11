@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/jsminify/js_minify.h"
+#include "pagespeed/js/js_minify.h"
 
 #include <string>
 
@@ -500,7 +500,7 @@ OutputConsumer* Minifier<OutputConsumer>::GetOutput() {
 
 namespace pagespeed {
 
-namespace jsminify {
+namespace js {
 
 bool MinifyJs(const base::StringPiece& input, std::string* out) {
   Minifier<StringConsumer> minifier(input, out);
@@ -538,6 +538,6 @@ bool GetMinifiedStringCollapsedJsSize(const base::StringPiece& input,
   }
 }
 
-}  // namespace jsminify
+}  // namespace js
 
 }  // namespace pagespeed

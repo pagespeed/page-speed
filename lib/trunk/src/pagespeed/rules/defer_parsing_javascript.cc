@@ -32,7 +32,7 @@
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
-#include "pagespeed/jsminify/js_minify.h"
+#include "pagespeed/js/js_minify.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -102,8 +102,8 @@ void JavaScriptFilter::AddJavascriptBlock(
     const std::string& url, const std::string& content, bool is_inline) {
   std::string minified;
   int size = 0;
-  bool did_minify = jsminify::GetMinifiedStringCollapsedJsSize(content,
-                                                               &size);
+  bool did_minify = js::GetMinifiedStringCollapsedJsSize(content,
+                                                         &size);
   if (!did_minify) {
     LOG(INFO) << "Minify JS failed. Original size is used.";
     size = content.size();

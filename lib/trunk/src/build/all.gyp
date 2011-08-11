@@ -24,7 +24,7 @@
         '../build/temp_gyp/protobuf_java.gyp:*',
         '../pagespeed/apps/apps.gyp:*',
         '../pagespeed/core/core.gyp:*',
-        '../pagespeed/cssmin/cssmin.gyp:*',
+        '../pagespeed/css/css.gyp:*',
         '../pagespeed/filters/filters.gyp:*',
         '../pagespeed/formatters/formatters.gyp:*',
         '../pagespeed/har/har.gyp:*',

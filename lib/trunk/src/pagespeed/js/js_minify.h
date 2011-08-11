@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_JSMINIFY_JS_MINIFY_H_
-#define PAGESPEED_JSMINIFY_JS_MINIFY_H_
+#ifndef PAGESPEED_JS_JS_MINIFY_H_
+#define PAGESPEED_JS_JS_MINIFY_H_
 
 #include <string>
 
@@ -21,7 +21,7 @@
 
 namespace pagespeed {
 
-namespace jsminify {
+namespace js {
 
 // Return true if minification was successful, false otherwise.
 bool MinifyJs(const base::StringPiece& input, std::string* out);
@@ -39,8 +39,8 @@ bool MinifyJsAndCollapseStrings(const base::StringPiece& input,
 bool GetMinifiedStringCollapsedJsSize(const base::StringPiece& input,
                                       int* minimized_size);
 
-}  // namespace jsminify
+}  // namespace js
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_JSMINIFY_JS_MINIFY_H_
+#endif  // PAGESPEED_JS_JS_MINIFY_H_

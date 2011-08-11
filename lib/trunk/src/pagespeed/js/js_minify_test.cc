@@ -15,7 +15,7 @@
 #include <string>
 
 #include "base/string_piece.h"
-#include "pagespeed/jsminify/js_minify.h"
+#include "pagespeed/js/js_minify.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -72,21 +72,21 @@ class JsMinifyTest : public testing::Test {
   void CheckMinification(const base::StringPiece& before,
                          const base::StringPiece& after) {
     std::string output;
-    EXPECT_TRUE(pagespeed::jsminify::MinifyJs(before, &output));
+    EXPECT_TRUE(pagespeed::js::MinifyJs(before, &output));
     EXPECT_EQ(after, output);
 
     int output_size = -1;
-    EXPECT_TRUE(pagespeed::jsminify::GetMinifiedJsSize(before, &output_size));
+    EXPECT_TRUE(pagespeed::js::GetMinifiedJsSize(before, &output_size));
     EXPECT_EQ(static_cast<int>(after.size()), output_size);
   }
 
   void CheckError(const base::StringPiece& input) {
     std::string output;
-    EXPECT_FALSE(pagespeed::jsminify::MinifyJs(input, &output));
+    EXPECT_FALSE(pagespeed::js::MinifyJs(input, &output));
     EXPECT_TRUE(output.empty());
 
     int output_size = -1;
-    EXPECT_FALSE(pagespeed::jsminify::GetMinifiedJsSize(input, &output_size));
+    EXPECT_FALSE(pagespeed::js::GetMinifiedJsSize(input, &output_size));
     EXPECT_EQ(-1, output_size);
   }
 };
@@ -284,7 +284,7 @@ TEST_F(JsMinifyTest, DoNotCrash) {
   for (int i = 0, size = sizeof(kCrashTestString); i <= size; ++i) {
     std::string input(kCrashTestString, i);
     std::string output;
-    pagespeed::jsminify::MinifyJs(input, &output);
+    pagespeed::js::MinifyJs(input, &output);
   }
 }
 
@@ -372,12 +372,12 @@ const char kCollapsedTestString[] =
 TEST_F(JsMinifyTest, CollapsingStringTest) {
     int size = 0;
     std::string output;
-    ASSERT_TRUE(pagespeed::jsminify::MinifyJsAndCollapseStrings(
+    ASSERT_TRUE(pagespeed::js::MinifyJsAndCollapseStrings(
         kCollapsingStringTestString, &output));
     ASSERT_EQ(strlen(kCollapsedTestString), output.size());
     ASSERT_EQ(kCollapsedTestString, output);
 
-    ASSERT_TRUE(pagespeed::jsminify::GetMinifiedStringCollapsedJsSize(
+    ASSERT_TRUE(pagespeed::js::GetMinifiedStringCollapsedJsSize(
         kCollapsingStringTestString, &size));
     ASSERT_EQ(static_cast<int>(strlen(kCollapsedTestString)), size);
 }

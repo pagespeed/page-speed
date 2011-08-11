@@ -20,7 +20,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/rule_input.h"
-#include "pagespeed/cssmin/cssmin.h"
+#include "pagespeed/css/cssmin.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -102,7 +102,7 @@ const MinifierOutput* CssMinifier::Minify(const Resource& resource,
   if (save_optimized_content_ ||
       resource_util::IsCompressedResource(resource)) {
     std::string minified_css;
-    if (!cssmin::MinifyCss(input, &minified_css)) {
+    if (!css::MinifyCss(input, &minified_css)) {
       LOG(ERROR) << "MinifyCss failed for resource: "
                  << resource.GetRequestUrl();
       return MinifierOutput::Error();
@@ -114,7 +114,7 @@ const MinifierOutput* CssMinifier::Minify(const Resource& resource,
     }
   } else {
     int minified_css_size = 0;
-    if (!cssmin::GetMinifiedCssSize(input, &minified_css_size)) {
+    if (!css::GetMinifiedCssSize(input, &minified_css_size)) {
       LOG(ERROR) << "GetMinifiedCssSize failed for resource: "
                  << resource.GetRequestUrl();
       return MinifierOutput::Error();

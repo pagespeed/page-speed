@@ -25,10 +25,10 @@
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/core/uri_util.h"
-#include "pagespeed/cssmin/cssmin.h"
+#include "pagespeed/css/cssmin.h"
 #include "pagespeed/html/external_resource_filter.h"
 #include "pagespeed/l10n/l10n.h"
-#include "pagespeed/jsminify/js_minify.h"
+#include "pagespeed/js/js_minify.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
@@ -312,7 +312,7 @@ UserFacingString InlineSmallCss::header() const {
 
 bool InlineSmallCss::ComputeMinifiedSize(
     const std::string& body, int* out_minified_size) const {
-  return cssmin::GetMinifiedCssSize(body, out_minified_size);
+  return css::GetMinifiedCssSize(body, out_minified_size);
 }
 
 int InlineSmallCss::GetTotalResourcesOfSameType(
@@ -337,7 +337,7 @@ UserFacingString InlineSmallJavaScript::header() const {
 
 bool InlineSmallJavaScript::ComputeMinifiedSize(
     const std::string& body, int* out_minified_size) const {
-  return jsminify::GetMinifiedJsSize(body, out_minified_size);
+  return js::GetMinifiedJsSize(body, out_minified_size);
 }
 
 int InlineSmallJavaScript::GetTotalResourcesOfSameType(
