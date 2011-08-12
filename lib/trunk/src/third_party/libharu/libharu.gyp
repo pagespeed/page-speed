@@ -86,11 +86,11 @@
       'conditions': [
         ['OS=="win"', {
           'include_dirs': [
-            'libharu/win32/include',
+            'gen/arch/win/ia32/include',
           ],
           'direct_dependent_settings': {
             'include_dirs': [
-              'libharu/win32/include',
+              'gen/arch/win/ia32/include',
             ],
           },
         }, { # else
