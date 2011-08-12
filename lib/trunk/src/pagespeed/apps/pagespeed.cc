@@ -43,6 +43,7 @@
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/l10n/gettext_localizer.h"
 #include "pagespeed/l10n/register_locale.h"
+#include "pagespeed/pdf/generate_pdf_report.h"
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 #include "pagespeed/proto/formatted_results_to_text_converter.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
@@ -60,8 +61,10 @@ DEFINE_string(input_format, "har",
 DEFINE_string(output_format, "text",
               "Format of the output. "
               "One of 'proto', 'text', 'unformatted_json', "
-              "'formatted_json', or 'formatted_proto'.");
+              "'formatted_json', 'formatted_proto', or 'pdf'.");
 DEFINE_string(input_file, "", "Path to the input file. '-' to read from stdin");
+DEFINE_string(output_file, "-",
+              "Path to the output file. '-' to write to stdout (the default)");
 DEFINE_string(instrumentation_input_file, "",
               "Path to the instrumentation data JSON file. Optional.");
 DEFINE_string(dom_input_file, "", "Path to the DOM JSON file. Optional.");
@@ -83,7 +86,8 @@ enum OutputFormat {
   TEXT_OUTPUT,
   JSON_OUTPUT,
   FORMATTED_JSON_OUTPUT,
-  FORMATTED_PROTO_OUTPUT
+  FORMATTED_PROTO_OUTPUT,
+  PDF_OUTPUT
 };
 
 enum Strategy {
@@ -152,9 +156,10 @@ void PrintVersion() {
 
 bool RunPagespeed(const std::string& out_format,
                   const std::string& in_format,
-                  const std::string& filename,
+                  const std::string& in_filename,
                   const std::string& dom_filename,
-                  const std::string& instrumentation_filename) {
+                  const std::string& instrumentation_filename,
+                  const std::string& out_filename) {
   OutputFormat output_format;
   if (out_format == "proto") {
     output_format = PROTO_OUTPUT;
@@ -170,6 +175,8 @@ bool RunPagespeed(const std::string& out_format,
     output_format = FORMATTED_JSON_OUTPUT;
   } else if (out_format == "formatted_proto") {
     output_format = FORMATTED_PROTO_OUTPUT;
+  } else if (out_format == "pdf") {
+    output_format = PDF_OUTPUT;
   } else {
     fprintf(stderr, "Invalid output format %s.\n", out_format.c_str());
     PrintUsage();
@@ -188,13 +195,13 @@ bool RunPagespeed(const std::string& out_format,
   }
 
   std::string file_contents;
-  if (filename == "-") {
+  if (in_filename == "-") {
     // Special case: if user specifies input file as '-', read the
     // input from stdin.
     file_contents.assign(std::istreambuf_iterator<char>(std::cin),
                          std::istreambuf_iterator<char>());
-  } else if (!ReadFileToString(filename, &file_contents)) {
-    fprintf(stderr, "Could not read input from %s.\n", filename.c_str());
+  } else if (!ReadFileToString(in_filename, &file_contents)) {
+    fprintf(stderr, "Could not read input from %s.\n", in_filename.c_str());
     PrintUsage();
     return false;
   }
@@ -375,11 +382,29 @@ bool RunPagespeed(const std::string& out_format,
     } else if (output_format == FORMATTED_PROTO_OUTPUT) {
       ::google::protobuf::io::StringOutputStream out_stream(&out);
       formatted_results.SerializeToZeroCopyStream(&out_stream);
+    } else if (output_format == PDF_OUTPUT) {
+      // We only over write PDF output to a file (enforced in main()).
+      DCHECK(out_filename != "-");
+      return GeneratePdfReportToFile(formatted_results, out_filename);
     } else {
       LOG(DFATAL) << "unexpected output_format value: " << output_format;
     }
   }
-  std::cout << out;
+
+  if (out_filename == "-") {
+    // Special case: if user specifies output file as '-', write the output to
+    // stdout.
+    std::cout << out;
+  } else {
+    std::ofstream out_stream(out_filename.c_str(),
+                             std::ios::out | std::ios::binary);
+    if (!out_stream) {
+      fprintf(stderr, "Could not write output to %s.\n", out_filename.c_str());
+      return false;
+    }
+    out_stream << out;
+    out_stream.close();
+  }
 
   return true;
 }
@@ -430,11 +455,18 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  if (FLAGS_output_format == "pdf" && FLAGS_output_file == "-") {
+    fprintf(stderr, "Must specify --output_file for --output_format=pdf.\n");
+    PrintUsage();
+    return 1;
+  }
+
   if (RunPagespeed(FLAGS_output_format,
                    FLAGS_input_format,
                    FLAGS_input_file,
                    FLAGS_dom_input_file,
-                   FLAGS_instrumentation_input_file)) {
+                   FLAGS_instrumentation_input_file,
+                   FLAGS_output_file)) {
     return EXIT_SUCCESS;
   } else {
     return EXIT_FAILURE;
