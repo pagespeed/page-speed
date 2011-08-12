@@ -63,6 +63,7 @@
         '<(pagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
         '<(pagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
+        '<(pagespeed_root)/pagespeed/pdf/pdf.gyp:pagespeed_pdf',
         '<(pagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
