@@ -83,6 +83,27 @@
           'include',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'include_dirs': [
+            'libharu/win32/include',
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              'libharu/win32/include',
+            ],
+          },
+        }, { # else
+          'include_dirs': [
+            'gen/posix/include',
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              'gen/posix/include',
+            ],
+          },
+        }],
+      ],
     },
   ],
 }
