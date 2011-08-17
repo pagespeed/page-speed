@@ -28,6 +28,7 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
+using pagespeed::AlwaysAcceptResultFilter;
 using pagespeed::Engine;
 using pagespeed::FormatArgument;
 using pagespeed::Formatter;
@@ -445,6 +446,46 @@ TEST(EngineTest, ComputeScoresWithExperimentalRule) {
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
   ASSERT_EQ(75, results.score());
+}
+
+TEST(EngineTest, FilterResults) {
+  PagespeedInput input;
+  input.Freeze();
+
+  std::vector<Rule*> rules;
+  rules.push_back(new TestRule());
+
+  Engine engine(&rules);
+  engine.Init();
+  Results results;
+  ASSERT_TRUE(engine.ComputeResults(input, &results));
+  results.set_score(50);
+  RuleResults* rule_results = results.mutable_rule_results(0);
+  rule_results->set_rule_score(50);
+  rule_results->set_rule_impact(5.0);
+
+  Results filtered_results;
+  NeverAcceptResultFilter filter;
+  engine.FilterResults(results, filter, &filtered_results);
+
+  ASSERT_EQ(100, filtered_results.score());
+  ASSERT_EQ(1, filtered_results.rule_results_size());
+  const RuleResults& filtered_rule_results =
+      filtered_results.rule_results(0);
+  ASSERT_EQ(0, filtered_rule_results.results_size());
+  ASSERT_EQ(100, filtered_rule_results.rule_score());
+  ASSERT_EQ(0, filtered_rule_results.rule_impact());
+
+  // Try another filter.
+  AlwaysAcceptResultFilter filter2;
+  engine.FilterResults(results, filter2, &filtered_results);
+  ASSERT_EQ(75, filtered_results.score());
+  ASSERT_EQ(1, filtered_results.rule_results_size());
+  const RuleResults& filtered_rule_results2 =
+      filtered_results.rule_results(0);
+  ASSERT_EQ(1, filtered_rule_results2.results_size());
+  ASSERT_EQ(100, filtered_rule_results2.rule_score());
+  ASSERT_EQ(0.25, filtered_rule_results2.rule_impact());
 }
 
 
