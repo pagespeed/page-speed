@@ -22,7 +22,7 @@ window.pagespeed.computeFormattedResults(doc, exclusionRegex);
 
 Each function takes two arguments: a document that is the document of the root HTML page to be analyzed, as well as regular expression that can be used to filter resources on the page from being included in Page Speed analysis. The latter parameter is optional. If it is omitted, all resources will be included in the analysis. The two parameters can be used together in order to constrain analysis to the contents of a specific frame on the page.
 
-For instance if you use a test harness that hosts content in an iframe such as [http://code.google.com/p/puppeteer/ puppet], you can run Page Speed as part of your puppet tests by passing in the document associated with puppet's test iframe and specifying an exclusionRegex that filters out the puppet resources that aren't part of the page being tested.
+For instance if you use a test harness that hosts content in an iframe such as [http://code.google.com/p/puppeteer/ Web Puppeteer] (formerly puppet), you can run Page Speed as part of your Puppeteer tests by passing in the document associated with Puppeteer's test iframe and specifying an exclusionRegex that filters out the Puppeteer resources that aren't part of the page being tested.
 
 So, for instance, to analyze the contents of an iframe, you might do the following:
 
