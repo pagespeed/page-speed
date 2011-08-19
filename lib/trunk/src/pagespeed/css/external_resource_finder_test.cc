@@ -20,7 +20,13 @@
 
 namespace {
 
+using pagespeed::css::CssTokenizer;
 using pagespeed::css::ExternalResourceFinder;
+
+struct CssToken {
+  CssTokenizer::CssTokenType type;
+  const char* token;
+};
 
 static const char* kCssUrl = "http://www.example.com/foo.css";
 static const char* kImportUrl1 = "http://www.example.com/import1.css";
@@ -31,12 +37,46 @@ static const char* kNoImportBody =
     "color: purple;\n"
     "background-color: #d8da3d }";
 
+static const CssToken kNoImportBodyTokens[] = {
+  { CssTokenizer::IDENT, "body" },
+  { CssTokenizer::SEPARATOR, "{" },
+  { CssTokenizer::IDENT, "color" },
+  { CssTokenizer::SEPARATOR, ":" },
+  { CssTokenizer::IDENT, "purple" },
+  { CssTokenizer::SEPARATOR, ";" },
+  { CssTokenizer::IDENT, "background-color" },
+  { CssTokenizer::SEPARATOR, ":" },
+  { CssTokenizer::IDENT, "#d8da3d" },
+  { CssTokenizer::SEPARATOR, "}" },
+};
+
+static const size_t kNoImportBodyTokensLen =
+    sizeof(kNoImportBodyTokens) / sizeof(kNoImportBodyTokens[0]);
+
 static const char* kBasicImportBody =
     "@import \" http://www.example.com/import1.css \"";
+
+static const CssToken kBasicImportBodyTokens[] = {
+  { CssTokenizer::IDENT, "@import" },
+  { CssTokenizer::STRING, " http://www.example.com/import1.css " },
+};
+
+static const size_t kBasicImportBodyTokensLen =
+    sizeof(kBasicImportBodyTokens) / sizeof(kBasicImportBodyTokens[0]);
 
 static const char* kTwoBasicImportsBody =
     "@import url(\"http://www.example.com/import1.css\")\n"
     "@import url(\"http://www.example.com/import2.css\")";
+
+static const CssToken kTwoBasicImportsBodyTokens[] = {
+  { CssTokenizer::IDENT, "@import" },
+  { CssTokenizer::URL, "http://www.example.com/import1.css" },
+  { CssTokenizer::IDENT, "@import" },
+  { CssTokenizer::URL, "http://www.example.com/import2.css" },
+};
+
+static const size_t kTwoBasicImportsBodyTokensLen =
+    sizeof(kTwoBasicImportsBodyTokens) / sizeof(kTwoBasicImportsBodyTokens[0]);
 
 static const char* kTwoRelativeImportsBody =
     "@import url(\" /import1.css \")\n"
@@ -194,122 +234,262 @@ TEST(RemoveCssCommentsTest, NestedComment) {
   ASSERT_EQ(css, "here  is  content  comment */");
 }
 
-TEST(IsCssImportLineTest, String) {
-  std::string url;
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("foo {};", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT \"", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT '", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT \"\"", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT ''", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT '\"", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT \"'", &url));
-
-  // Should not match if end quote is missing.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine(
-      "@iMpOrT 'http://www.example.com/foo.css", &url));
-
-  // Mismatched quotes for URL should not match.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine(
-      "@iMpOrT 'http://www.example.com/foo.css\"", &url));
-
-  // Test with single quotes.
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine(
-      "@iMpOrT 'http://www.example.com/foo.css'", &url));
-  ASSERT_EQ("http://www.example.com/foo.css", url);
-
-  // Test with double quotes.
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine(
-      "@iMpOrT \"http://www.example.com/foo.css\"", &url));
-  ASSERT_EQ("http://www.example.com/foo.css", url);
-
-  // Relative URL
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT 'foo.css'", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // Relative URL
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT 'foo.css'", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // No space
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT'foo.css'", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // Many spaces
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT   'foo.css'", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // Whitespace at ends of URL spaces (we do not trim).
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT   ' foo.css '", &url));
-  ASSERT_EQ(" foo.css ", url);
+TEST(CssTokenizerTest, Empty) {
+  CssTokenizer tokenizer("");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
 }
 
-TEST(IsCssImportLineTest, Url) {
-  std::string url;
-
-  // No URL.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL('", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(''", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL('\"", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL()", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(')", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(\")", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL('')", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(\"\")", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL('\")", &url));
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(\"')", &url));
-
-  // No space, non-terminated parenthesis.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrTUrL('foo.css'", &url));
-
-  // One space, non-terminated parenthesis.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL('foo.css'", &url));
-
-  // Multi spaces, non-terminated parenthesis.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT  UrL('foo.css'", &url));
-
-  // One space, non-terminated parenthesis, no quotes.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(foo.css", &url));
-
-  // Mismatched quotes for URL should not match.
-  ASSERT_FALSE(ExternalResourceFinder::IsCssImportLine(
-      "@iMpOrT uRl('http://www.example.com/foo.css\")", &url));
-
-  // No space.
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrTUrL('foo.css')", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // One space.
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL('foo.css')", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // Multi spaces.
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT  UrL('foo.css')", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // Extra spaces.
-  ASSERT_TRUE(
-      ExternalResourceFinder::IsCssImportLine("@iMpOrT  UrL(' foo.css ')", &url));
-  ASSERT_EQ(" foo.css ", url);
-
-  // No quotes.
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(foo.css)", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // Extra spaces.
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL( foo.css )", &url));
-  ASSERT_EQ("foo.css", url);
-
-  // Short
-  ASSERT_TRUE(ExternalResourceFinder::IsCssImportLine("@iMpOrT UrL(a)", &url));
-  ASSERT_EQ("a", url);
+TEST(CssTokenizerTest, Whitespace) {
+  CssTokenizer tokenizer("   \n  \t  ");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
 }
 
-class ExternalResourceFinderTest : public pagespeed_testing::PagespeedTest {
-};
+TEST(CssTokenizerTest, OneIdentToken) {
+  CssTokenizer tokenizer("   a   ");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("a", token.c_str());
+  ASSERT_EQ(CssTokenizer::IDENT, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlToken) {
+  CssTokenizer tokenizer("url('foo.bar')");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("foo.bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::URL, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlTokenUnterminated) {
+  CssTokenizer tokenizer("url('foo.bar'");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("url('foo.bar'", token.c_str());
+  ASSERT_EQ(CssTokenizer::INVALID, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlTokenMissingClosingBrace) {
+  CssTokenizer tokenizer("url('foo.bar'}");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("url('foo.bar'}", token.c_str());
+  ASSERT_EQ(CssTokenizer::INVALID, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, UrlTokenMisplacedCloseParen) {
+  CssTokenizer tokenizer("url('foo.bar'} div { foo: bar })  'string'");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("url('foo.bar'} div { foo: bar })", token.c_str());
+  ASSERT_EQ(CssTokenizer::INVALID, type);
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("string", token.c_str());
+  ASSERT_EQ(CssTokenizer::STRING, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlTokenCloseParenInUrl) {
+  CssTokenizer tokenizer("url('foo).bar')");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("foo).bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::URL, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlTokenEscapedQuote) {
+  CssTokenizer tokenizer("url('foo\\'.bar')");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("foo'.bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::URL, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlTokenNoQuotes) {
+  CssTokenizer tokenizer("url(foo.bar)");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("foo.bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::URL, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlTokenNoQuotesSpaces) {
+  CssTokenizer tokenizer("url(  foo.bar\n  )");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("foo.bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::URL, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneUrlTokenSpaces) {
+  CssTokenizer tokenizer("  url(   \n  'foo.bar'   \r\t  \n )  ");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("foo.bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::URL, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, UnterminatedUrlToken) {
+  CssTokenizer tokenizer("  url(   \n  'foo.bar");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("url(   \n  'foo.bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::INVALID, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneStringToken) {
+  CssTokenizer tokenizer("   ' here is a string'  ");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ(" here is a string", token.c_str());
+  ASSERT_EQ(CssTokenizer::STRING, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+void ExpectOneStringToken(const char* input, const char* expected) {
+  CssTokenizer tokenizer(input);
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ(expected, token.c_str());
+  ASSERT_EQ(CssTokenizer::STRING, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, OneEscapedStringToken) {
+  ExpectOneStringToken("   ' here \\\r\nis a \\' \\\r string \\\n \\\\'  ",
+                       " here is a '  string  \\");
+  ExpectOneStringToken("   ' here is a \\\\ string'  ",
+                       " here is a \\ string");
+  ExpectOneStringToken("   ' here is a \\\r string'  ",
+                       " here is a  string");
+  ExpectOneStringToken("   ' here is a \\\r\n string'  ",
+                       " here is a  string");
+  ExpectOneStringToken("   ' here is a \\\n string'  ",
+                       " here is a  string");
+  ExpectOneStringToken("   ' here is a \\\" string'  ",
+                       " here is a \" string");
+  ExpectOneStringToken("   \" here is a \\\" string\"  ",
+                       " here is a \" string");
+  ExpectOneStringToken("   \" here is a \\\' string\"  ",
+                       " here is a \' string");
+}
+
+TEST(CssTokenizerTest, UnterminatedString) {
+  CssTokenizer tokenizer("   ' here is a string  ");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ(" here is a string  ", token.c_str());
+  ASSERT_EQ(CssTokenizer::STRING, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, UnterminatedString2) {
+  CssTokenizer tokenizer("   ' here is a string  \nfoo 'bar'");
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ(" here is a string  ", token.c_str());
+  ASSERT_EQ(CssTokenizer::STRING, type);
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("foo", token.c_str());
+  ASSERT_EQ(CssTokenizer::IDENT, type);
+  ASSERT_TRUE(tokenizer.GetNextToken(&token, &type));
+  ASSERT_STREQ("bar", token.c_str());
+  ASSERT_EQ(CssTokenizer::STRING, type);
+  ASSERT_FALSE(tokenizer.GetNextToken(&token, &type));
+}
+
+TEST(CssTokenizerTest, NoImportTokens) {
+  CssTokenizer tokenizer(kNoImportBody);
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  const CssToken* expected = kNoImportBodyTokens;
+  while (tokenizer.GetNextToken(&token, &type)) {
+    ASSERT_STREQ(expected->token, token.c_str());
+    ASSERT_EQ(expected->type, type);
+    ++expected;
+  }
+  ASSERT_EQ(kNoImportBodyTokensLen,
+            static_cast<size_t>(expected - kNoImportBodyTokens));
+}
+
+TEST(CssTokenizerTest, BasicImportTokens) {
+  CssTokenizer tokenizer(kBasicImportBody);
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  const CssToken* expected = kBasicImportBodyTokens;
+  while (tokenizer.GetNextToken(&token, &type)) {
+    ASSERT_STREQ(expected->token, token.c_str());
+    ASSERT_EQ(expected->type, type);
+    ++expected;
+  }
+  ASSERT_EQ(kBasicImportBodyTokensLen,
+            static_cast<size_t>(expected - kBasicImportBodyTokens));
+}
+
+TEST(CssTokenizerTest, TwoBasicImportsTokens) {
+  CssTokenizer tokenizer(kTwoBasicImportsBody);
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  const CssToken* expected = kTwoBasicImportsBodyTokens;
+  while (tokenizer.GetNextToken(&token, &type)) {
+    ASSERT_STREQ(expected->token, token.c_str());
+    ASSERT_EQ(expected->type, type);
+    ++expected;
+  }
+  ASSERT_EQ(kTwoBasicImportsBodyTokensLen,
+            static_cast<size_t>(expected - kTwoBasicImportsBodyTokens));
+}
+
+// Helper method that inserts all substrings of a given body starting
+// at the first character, to make sure the tokenizer doesn't have
+// trouble parsing incomplete tokens. Here we are not testing for
+// token correctness but rather making sure that partial inputs don't
+// cause crashes.
+void StressCssTokenizer(const std::string& body) {
+  std::string token;
+  CssTokenizer::CssTokenType type;
+  for (size_t i = 0; i < body.length(); ++i) {
+    CssTokenizer tokenizer(body.substr(0, i));
+    while (tokenizer.GetNextToken(&token, &type)) {}
+  }
+}
+
+TEST(CssTokenizerTest, Stress) {
+  StressCssTokenizer(kNoImportBody);
+  StressCssTokenizer(kBasicImportBody);
+  StressCssTokenizer(kTwoBasicImportsBody);
+  StressCssTokenizer(kTwoRelativeImportsBody);
+}
+
+class ExternalResourceFinderTest : public pagespeed_testing::PagespeedTest {};
 
 TEST_F(ExternalResourceFinderTest, EmptyBody) {
   pagespeed::Resource* r = NewCssResource(kCssUrl);
