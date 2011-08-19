@@ -2,17 +2,9 @@
 
 == Getting started ==
 
-Here is a suggested procedure for getting started with the Page Speed codebase:
-
-  # [http://code.google.com/speed/page-speed/download.html Install Page Speed].
-  # [http://code.google.com/speed/page-speed/docs/using.html Run Page Speed] on a few websites, and see what the tool recommends.
-  # [http://code.google.com/speed/page-speed/docs/rules_intro.html Read the documentation] on the rules for which a page gets a bad score, and see if you can figure out how to improve the page.
-  # [http://code.google.com/p/page-speed/wiki/HowToBuildXpi Check out] a copy of the source.
-  # Look at the code for a rule. A simple rule is implemented in the file [http://code.google.com/p/page-speed/source/browse/firefox_addon/trunk/src/pagespeed_firefox/js/pagespeed/cssExpressionLint.js cssExpressionLint.js]. Read this file, and figure out what the call to `PAGESPEED.LintRules.registerLintRule()` does by looking in [http://code.google.com/p/page-speed/source/browse/firefox_addon/trunk/src/pagespeed_firefox/js/pagespeed/lint.js lint.js].
-  # To debug Page Speed, use the function `PS_LOG`, which prints log messages. To see the messages, you also need to set two Firefox preferences: see https://developer.mozilla.org/en/DOM/window.dump, and follow the instructions to enable `dump()`. Also set the preference `extensions.PageSpeed.enable_dump_logging` to True. The first few lines of [http://code.google.com/p/page-speed/source/browse/firefox_addon/trunk/src/pagespeed_firefox/js/pagespeed/util.js util.js] define `PS_LOG`, and the last few read the preference you just set.
-  # Take any issue from our [http://code.google.com/p/page-speed/issues bug tracker] to get a good introduction to the codebase.
-  # Build the code, as described in [http://code.google.com/p/page-speed/wiki/HowToBuildXpi How to Build XPI].
-  # Submit your changes for code review, as described in [CodeReviewHelp Code Review Help].
+Most content in this document was out of date and has been deleted. Please see other wiki pages for information:
+  # HowToBuildNativeLibraries
+  # CodeReviewHelp
   # Sign a license agreement, as described below.
 
 == Making a larger contribution ==
