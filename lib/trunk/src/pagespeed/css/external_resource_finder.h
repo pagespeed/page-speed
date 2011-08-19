@@ -39,15 +39,45 @@ class ExternalResourceFinder {
   // These methods are exposed only for unittesting. They should not
   // be called by non-test code.
   static void RemoveComments(const std::string& in, std::string* out);
-  static bool IsCssImportLine(const std::string& line, std::string* out_url);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ExternalResourceFinder);
 };
 
+// Simple CSS tokenizer. Generates a stream of tokens along with the
+// token type. Exposed in the header only for testing.
+class CssTokenizer {
+ public:
+  enum CssTokenType {
+    URL,
+    IDENT,
+    STRING,
+    SEPARATOR,
+    INVALID,
+  };
+
+  CssTokenizer(const std::string& css_body);
+
+  // Generates the next token in the token stream as well as its
+  // type. Returns true if a valid token was generated, false
+  // otherwise (due to i.e. EOF).
+  bool GetNextToken(std::string* out_token, CssTokenType* out_type);
+
+ private:
+  bool TakeUrl(std::string* out_token);
+  bool TakeString(std::string* out_token);
+  bool TakeIdent(std::string* out_token);
+  size_t ConsumeEscape(size_t next_token, std::string* out_token);
+
+  bool TakeString(std::string* out_token, size_t *inout_index);
+
+  const std::string css_body_;
+  size_t index_;
+
+  DISALLOW_COPY_AND_ASSIGN(CssTokenizer);
+};
+
 }  // namespace css
 }  // namespace pagespeed
-
-
 
 #endif  // PAGESPEED_CSS_EXTERNAL_RESOURCE_FINDER_H_
