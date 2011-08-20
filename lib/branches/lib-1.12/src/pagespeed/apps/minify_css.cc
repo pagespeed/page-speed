@@ -21,7 +21,7 @@
 #include <string>
 
 #include "pagespeed/core/pagespeed_init.h"
-#include "pagespeed/cssmin/cssmin.h"
+#include "pagespeed/css/cssmin.h"
 
 bool MinifyCss(const char* filename, const char* outfilename) {
   std::ifstream in(filename, std::ios::in | std::ios::binary);
@@ -41,7 +41,7 @@ bool MinifyCss(const char* filename, const char* outfilename) {
 
   std::string minified;
 
-  pagespeed::cssmin::MinifyCss(original, &minified);
+  pagespeed::css::MinifyCss(original, &minified);
 
   std::ofstream out(outfilename, std::ios::out | std::ios::binary);
   if (!out) {

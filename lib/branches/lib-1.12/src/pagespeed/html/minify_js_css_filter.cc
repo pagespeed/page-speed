@@ -20,8 +20,8 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
-#include "pagespeed/cssmin/cssmin.h"
-#include "pagespeed/jsminify/js_minify.h"
+#include "pagespeed/css/cssmin.h"
+#include "pagespeed/js/js_minify.h"
 
 namespace pagespeed {
 
@@ -39,7 +39,7 @@ void MinifyJsCssFilter::Characters(
     bool did_minify = false;
     std::string minified;
     if (keyword == net_instaweb::HtmlName::kScript) {
-      did_minify = jsminify::MinifyJs(characters->contents(), &minified);
+      did_minify = js::MinifyJs(characters->contents(), &minified);
       if (!did_minify) {
         LOG(INFO) << "Inline JS minification failed.";
       }
@@ -47,7 +47,7 @@ void MinifyJsCssFilter::Characters(
       // We do not currently strip SGML comments from CSS since CSS
       // parsing behavior within CSS comments is inconsistent between
       // browsers.
-      did_minify = cssmin::MinifyCss(characters->contents(), &minified);
+      did_minify = css::MinifyCss(characters->contents(), &minified);
       if (!did_minify) {
         LOG(INFO) << "Inline CSS minification failed.";
       }

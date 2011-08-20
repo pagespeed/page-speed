@@ -35,7 +35,7 @@
       'dependencies': [
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
-        '<(pagespeed_root)/pagespeed/cssmin/cssmin.gyp:pagespeed_cssmin',
+        '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_cssmin',
       ],
       'sources': [
         'minify_css.cc',
@@ -45,7 +45,7 @@
       'target_name': 'minify_js_bin',
       'type': 'executable',
       'dependencies': [
-        '<(pagespeed_root)/pagespeed/jsminify/js_minify.gyp:pagespeed_jsminify',
+        '<(pagespeed_root)/pagespeed/js/js.gyp:pagespeed_jsminify',
       ],
       'sources': [
         'minify_js.cc',
@@ -63,9 +63,11 @@
         '<(pagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
         '<(pagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
+        '<(pagespeed_root)/pagespeed/pdf/pdf.gyp:pagespeed_pdf',
         '<(pagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_results_converter',
         '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_proto',
         '<(pagespeed_root)/pagespeed/timeline/timeline.gyp:pagespeed_timeline',
       ],

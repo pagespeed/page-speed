@@ -19,6 +19,8 @@ vars = {
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.18.1",
   "instaweb_revision": "@head",
   "icu46_deps_revision": "@88321",
+  "libharu_trunk": "git://github.com/tony2001/libharu.git",
+  "libharu_revision": "@RELEASE_2_2_0",
   "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.4.1",
   "protobuf_revision": "@head",
   "gflags_src": "http://google-gflags.googlecode.com/svn/tags/gflags-1.5",
@@ -73,6 +75,9 @@ deps = {
 
   "src/third_party/instaweb/src/net/instaweb":
     Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
+
+  "src/third_party/libharu/libharu":
+    Var("libharu_trunk") + Var("libharu_revision"),
 
   "src/third_party/modp_b64":
     Var("chromium_trunk") + "/src/third_party/modp_b64" +

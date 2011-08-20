@@ -14,8 +14,7 @@
 
 #include "pagespeed/html/html_minifier.h"
 
-#include <stdio.h>  // for stderr
-
+#include "net/instaweb/http/public/content_type.h"
 #include "net/instaweb/util/public/google_message_handler.h"
 #include "net/instaweb/util/public/string_writer.h"
 
@@ -51,10 +50,24 @@ HtmlMinifier::~HtmlMinifier() {}
 bool HtmlMinifier::MinifyHtml(const std::string& input_name,
                               const std::string& input,
                               std::string* output) {
+  return MinifyHtmlWithType(input_name, "text/html", input, output);
+}
+
+bool HtmlMinifier::MinifyHtmlWithType(const std::string& input_name,
+                                      const std::string& input_content_type,
+                                      const std::string& input,
+                                      std::string* output) {
   net_instaweb::StringWriter string_writer(output);
   html_writer_filter_.set_writer(&string_writer);
 
-  html_parse_.StartParse(input_name.c_str());
+  // Get the ContentType object for the Content-Type header we were given.
+  // Note that we are not to delete this object.
+  const net_instaweb::ContentType* content_type =
+      net_instaweb::MimeTypeToContentType(input_content_type);
+
+  html_parse_.StartParseWithType(input_name,
+                                 (content_type != NULL ? *content_type :
+                                  net_instaweb::kContentTypeHtml));
   html_parse_.ParseText(input.data(), input.size());
   html_parse_.FinishParse();
 

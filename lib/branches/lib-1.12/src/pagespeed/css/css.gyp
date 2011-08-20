@@ -31,5 +31,19 @@
         '<(pagespeed_root)',
       ],
     },
+    {
+      'target_name': 'pagespeed_css_external_resource_finder',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+      'sources': [
+        'external_resource_finder.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+      ],
+    },
   ],
 }

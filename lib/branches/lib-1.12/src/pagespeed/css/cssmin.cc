@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "pagespeed/cssmin/cssmin.h"
+#include "pagespeed/css/cssmin.h"
 
 #include "base/basictypes.h"
 #include "base/logging.h"
@@ -274,7 +274,7 @@ void Minifier<OutputConsumer>::Minify() {
 
 namespace pagespeed {
 
-namespace cssmin {
+namespace css {
 
 bool MinifyCss(const std::string& input, std::string* out) {
   Minifier<StringConsumer> minifier(input, out);
@@ -292,6 +292,6 @@ bool GetMinifiedCssSize(const std::string& input, int* minified_size) {
   }
 }
 
-}  // namespace cssmin
+}  // namespace css
 
 }  // namespace pagespeed
