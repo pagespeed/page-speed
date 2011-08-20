@@ -43,12 +43,14 @@
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/l10n/gettext_localizer.h"
 #include "pagespeed/l10n/register_locale.h"
+#include "pagespeed/pdf/generate_pdf_report.h"
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 #include "pagespeed/proto/formatted_results_to_text_converter.h"
 #include "pagespeed/proto/pagespeed_input.pb.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/proto_resource_utils.h"
+#include "pagespeed/proto/results_to_json_converter.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed/timeline/json_importer.h"
@@ -58,8 +60,11 @@ DEFINE_string(input_format, "har",
               "Format of input_file. One of 'har' or 'proto'.");
 DEFINE_string(output_format, "text",
               "Format of the output. "
-              "One of 'proto', 'text', 'json', or 'formatted_proto'.");
+              "One of 'proto', 'text', 'unformatted_json', "
+              "'formatted_json', 'formatted_proto', or 'pdf'.");
 DEFINE_string(input_file, "", "Path to the input file. '-' to read from stdin");
+DEFINE_string(output_file, "-",
+              "Path to the output file. '-' to write to stdout (the default)");
 DEFINE_string(instrumentation_input_file, "",
               "Path to the instrumentation data JSON file. Optional.");
 DEFINE_string(dom_input_file, "", "Path to the DOM JSON file. Optional.");
@@ -80,7 +85,9 @@ enum OutputFormat {
   PROTO_OUTPUT,
   TEXT_OUTPUT,
   JSON_OUTPUT,
-  FORMATTED_PROTO_OUTPUT
+  FORMATTED_JSON_OUTPUT,
+  FORMATTED_PROTO_OUTPUT,
+  PDF_OUTPUT
 };
 
 enum Strategy {
@@ -149,18 +156,27 @@ void PrintVersion() {
 
 bool RunPagespeed(const std::string& out_format,
                   const std::string& in_format,
-                  const std::string& filename,
+                  const std::string& in_filename,
                   const std::string& dom_filename,
-                  const std::string& instrumentation_filename) {
+                  const std::string& instrumentation_filename,
+                  const std::string& out_filename) {
   OutputFormat output_format;
   if (out_format == "proto") {
     output_format = PROTO_OUTPUT;
   } else if (out_format == "text") {
     output_format = TEXT_OUTPUT;
-  } else if (out_format == "json") {
+  } else if (out_format == "unformatted_json") {
     output_format = JSON_OUTPUT;
+  } else if (out_format == "formatted_json") {
+    output_format = FORMATTED_JSON_OUTPUT;
+  } else if (out_format == "json") {
+    LOG(WARNING) << "'--output_format json' is deprecated. "
+                 << "Please use '--output_format formatted_json' instead.";
+    output_format = FORMATTED_JSON_OUTPUT;
   } else if (out_format == "formatted_proto") {
     output_format = FORMATTED_PROTO_OUTPUT;
+  } else if (out_format == "pdf") {
+    output_format = PDF_OUTPUT;
   } else {
     fprintf(stderr, "Invalid output format %s.\n", out_format.c_str());
     PrintUsage();
@@ -179,13 +195,13 @@ bool RunPagespeed(const std::string& out_format,
   }
 
   std::string file_contents;
-  if (filename == "-") {
+  if (in_filename == "-") {
     // Special case: if user specifies input file as '-', read the
     // input from stdin.
     file_contents.assign(std::istreambuf_iterator<char>(std::cin),
                          std::istreambuf_iterator<char>());
-  } else if (!ReadFileToString(filename, &file_contents)) {
-    fprintf(stderr, "Could not read input from %s.\n", filename.c_str());
+  } else if (!ReadFileToString(in_filename, &file_contents)) {
+    fprintf(stderr, "Could not read input from %s.\n", in_filename.c_str());
     PrintUsage();
     return false;
   }
@@ -271,25 +287,20 @@ bool RunPagespeed(const std::string& out_format,
       }
 
       std::string error_msg_out;
-      scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
-          dom_file_contents,
-          true,  // allow_trailing_comma
-          NULL,  // error_code_out (ReadAndReturnError permits NULL here)
-          &error_msg_out));
+      scoped_ptr<const Value> document_json(
+          base::JSONReader::ReadAndReturnError(
+              dom_file_contents,
+              true,  // allow_trailing_comma
+              NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+              &error_msg_out));
       if (document_json == NULL) {
         fprintf(stderr, "Could not parse DOM: %s.\n", error_msg_out.c_str());
         PrintUsage();
         return false;
       }
       if (document_json->IsType(Value::TYPE_DICTIONARY)) {
-        // The document does _not_ get ownership of document_json.
-        // The reason for this design choice is that the Value objects
-        // for subdocuments are owned by their parent Value objects,
-        // so in order to avoid a double-free, instances of the
-        // JsonDocument class need to not own the Value objects on
-        // which they're based.
         document.reset(pagespeed::dom::CreateDocument(
-            static_cast<const DictionaryValue*>(document_json.get())));
+            static_cast<const DictionaryValue*>(document_json.release())));
       }
       if (document == NULL) {
         fprintf(stderr, "Failed to parse DOM from %s.\n",
@@ -341,37 +352,59 @@ bool RunPagespeed(const std::string& out_format,
   pagespeed::Engine engine(&rules);
   engine.Init();
 
+  pagespeed::Results results;
+  engine.ComputeResults(*input, &results);
+
   // If the output format is "proto", print the raw results proto; otherwise,
   // use an appropriate converter.
   std::string out;
   if (output_format == PROTO_OUTPUT) {
-    pagespeed::Results results;
-    engine.ComputeResults(*input, &results);
     ::google::protobuf::io::StringOutputStream out_stream(&out);
     results.SerializeToZeroCopyStream(&out_stream);
+  } else if (output_format == JSON_OUTPUT) {
+      pagespeed::proto::ResultsToJsonConverter::Convert(
+          results, &out);
   } else {
-    // Compute and format results.
+    // Format the results.
     pagespeed::FormattedResults formatted_results;
     formatted_results.set_locale(localizer->GetLocale());
     pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
                                                     &formatted_results);
-    engine.ComputeAndFormatResults(*input, &formatter);
+    engine.FormatResults(results, &formatter);
 
     // Convert the FormattedResults into text/json.
     if (output_format == TEXT_OUTPUT) {
       pagespeed::proto::FormattedResultsToTextConverter::Convert(
           formatted_results, &out);
-    } else if (output_format == JSON_OUTPUT) {
+    } else if (output_format == FORMATTED_JSON_OUTPUT) {
       pagespeed::proto::FormattedResultsToJsonConverter::Convert(
           formatted_results, &out);
     } else if (output_format == FORMATTED_PROTO_OUTPUT) {
       ::google::protobuf::io::StringOutputStream out_stream(&out);
       formatted_results.SerializeToZeroCopyStream(&out_stream);
+    } else if (output_format == PDF_OUTPUT) {
+      // We only over write PDF output to a file (enforced in main()).
+      DCHECK(out_filename != "-");
+      return GeneratePdfReportToFile(formatted_results, out_filename);
     } else {
       LOG(DFATAL) << "unexpected output_format value: " << output_format;
     }
   }
-  std::cout << out;
+
+  if (out_filename == "-") {
+    // Special case: if user specifies output file as '-', write the output to
+    // stdout.
+    std::cout << out;
+  } else {
+    std::ofstream out_stream(out_filename.c_str(),
+                             std::ios::out | std::ios::binary);
+    if (!out_stream) {
+      fprintf(stderr, "Could not write output to %s.\n", out_filename.c_str());
+      return false;
+    }
+    out_stream << out;
+    out_stream.close();
+  }
 
   return true;
 }
@@ -422,11 +455,18 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  if (FLAGS_output_format == "pdf" && FLAGS_output_file == "-") {
+    fprintf(stderr, "Must specify --output_file for --output_format=pdf.\n");
+    PrintUsage();
+    return 1;
+  }
+
   if (RunPagespeed(FLAGS_output_format,
                    FLAGS_input_format,
                    FLAGS_input_file,
                    FLAGS_dom_input_file,
-                   FLAGS_instrumentation_input_file)) {
+                   FLAGS_instrumentation_input_file,
+                   FLAGS_output_file)) {
     return EXIT_SUCCESS;
   } else {
     return EXIT_FAILURE;

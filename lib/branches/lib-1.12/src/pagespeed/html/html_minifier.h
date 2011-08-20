@@ -45,6 +45,12 @@ class HtmlMinifier {
   bool MinifyHtml(const std::string& input_name,
                   const std::string& input,
                   std::string* output);
+  // Same as above, but accept an explicit Content-Type header, which may be
+  // used to disambiguate between HTML and XHTML.
+  bool MinifyHtmlWithType(const std::string& input_name,
+                          const std::string& input_content_type,
+                          const std::string& input,
+                          std::string* output);
 
  private:
   scoped_ptr<net_instaweb::MessageHandler> message_handler_;

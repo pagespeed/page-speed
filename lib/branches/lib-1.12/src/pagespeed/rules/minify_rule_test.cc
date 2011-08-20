@@ -148,6 +148,20 @@ TEST_F(MinifyTest, FormatViolationWithCompression) {
   ASSERT_EQ("You could save 9B (26%)\n"
             "  http://www.example.com/foo.txt 9B (26%) after compression\n",
             FormatResults());
+
+  // We also want to make sure that the formatter does the right thing
+  // with results generated from older versions of the library that
+  // don't have a details structure. To generate what looks like an
+  // old version of the results for this rule, we remove the details
+  // object. Without a details object we expect FormatResults() to
+  // generate the old style of message, not referring to gzip
+  // compression.
+  const pagespeed::Result& res = result(0);
+  ASSERT_TRUE(res.has_details());
+  const_cast<pagespeed::Result&>(res).clear_details();
+  ASSERT_EQ("You could save 9B (26%)\n"
+            "  http://www.example.com/foo.txt 9B (26%)\n",
+            FormatResults());
 }
 
 }  // namespace

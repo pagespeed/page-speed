@@ -22,7 +22,7 @@
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/jsminify/js_minify.h"
+#include "pagespeed/js/js_minify.h"
 
 namespace pagespeed {
 
@@ -102,7 +102,7 @@ const MinifierOutput* JsMinifier::Minify(const Resource& resource,
   if (save_optimized_content_ ||
       resource_util::IsCompressedResource(resource)) {
     std::string minified_js;
-    if (!jsminify::MinifyJs(input, &minified_js)) {
+    if (!js::MinifyJs(input, &minified_js)) {
       LOG(ERROR) << "MinifyJs failed for resource: "
                  << resource.GetRequestUrl();
       return MinifierOutput::Error();
@@ -115,7 +115,7 @@ const MinifierOutput* JsMinifier::Minify(const Resource& resource,
     }
   } else {
     int minified_js_size = 0;
-    if (!jsminify::GetMinifiedJsSize(input, &minified_js_size)) {
+    if (!js::GetMinifiedJsSize(input, &minified_js_size)) {
       LOG(ERROR) << "GetMinifiedJsSize failed for resource: "
                  << resource.GetRequestUrl();
       return MinifierOutput::Error();

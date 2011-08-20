@@ -134,8 +134,6 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
 
   RuleInput rule_input(pagespeed_input);
   rule_input.Init();
-  double total_impact = 0.0;
-  bool any_rules_succeeded = false;
   int num_results_so_far = 0;
 
   bool success = true;
@@ -155,6 +153,94 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
       results->add_error_rules(rule->name());
       success = false;
     }
+  }
+
+  if (!ComputeScoreAndImpact(results)) {
+    success = false;
+  }
+
+  if (!results->IsInitialized()) {
+    LOG(DFATAL) << "Failed to fully initialize results object.";
+    return false;
+  }
+
+  return success;
+}
+
+bool Engine::FormatResults(const Results& results,
+                           const ResultFilter& filter,
+                           Formatter* formatter) const {
+  CHECK(init_has_been_called_);
+
+  if (!results.IsInitialized()) {
+    LOG(ERROR) << "Results instance not fully initialized.";
+    return false;
+  }
+
+  bool success = true;
+  for (int idx = 0, end = results.rule_results_size(); idx < end; ++idx) {
+    const RuleResults& rule_results = results.rule_results(idx);
+    const std::string& rule_name = rule_results.rule_name();
+    NameToRuleMap::const_iterator rule_iter = name_to_rule_map_.find(rule_name);
+    if (rule_iter == name_to_rule_map_.end()) {
+      // No rule registered to handle the given rule name. This could
+      // happen if the Results object was generated with a different
+      // version of the Page Speed library, so we do not want to CHECK
+      // that the Rule is non-null here.
+      LOG(WARNING) << "Unable to find rule instance with name " << rule_name;
+      success = false;
+      continue;
+    }
+
+    Rule* rule = rule_iter->second;
+    FormatRuleResults(rule_results, results.input_info(), rule, filter,
+                      formatter);
+  }
+
+  if (results.has_score()) {
+    formatter->SetOverallScore(results.score());
+  }
+  formatter->Finalize();
+
+  return success;
+}
+
+bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
+                                     const ResultFilter& filter,
+                                     Formatter* formatter) const {
+  CHECK(init_has_been_called_);
+
+  Results results;
+  bool success = ComputeResults(input, &results);
+  success = FormatResults(results, filter, formatter) && success;
+  return success;
+}
+
+bool Engine::ComputeScoreAndImpact(Results* results) const {
+  CHECK(init_has_been_called_);
+
+  double total_impact = 0.0;
+  bool any_rules_succeeded = false;
+
+  bool success = true;
+  for (int i = 0; i < results->rule_results_size(); ++i) {
+    RuleResults* rule_results = results->mutable_rule_results(i);
+    rule_results->clear_rule_score();
+    rule_results->clear_rule_impact();
+
+    const std::string& rule_name = rule_results->rule_name();
+    NameToRuleMap::const_iterator rule_iter = name_to_rule_map_.find(rule_name);
+    if (rule_iter == name_to_rule_map_.end()) {
+      // No rule registered to handle the given rule name. This could
+      // happen if the Results object was generated with a different
+      // version of the Page Speed library, so we do not want to CHECK
+      // that the Rule is non-null here.
+      LOG(WARNING) << "Unable to find rule instance with name " << rule_name;
+      success = false;
+      continue;
+    }
+
+    Rule* rule = rule_iter->second;
 
     double impact = 0.0;
     if (rule_results->results_size() > 0) {
@@ -224,61 +310,40 @@ bool Engine::ComputeResults(const PagespeedInput& pagespeed_input,
     }
   }
 
-  if (!results->IsInitialized()) {
-    LOG(DFATAL) << "Failed to fully initialize results object.";
-    return false;
-  }
-
   return success;
 }
 
-bool Engine::FormatResults(const Results& results,
+void Engine::FilterResults(const Results& results,
                            const ResultFilter& filter,
-                           Formatter* formatter) const {
+                           Results* filtered_results_out) const {
   CHECK(init_has_been_called_);
 
-  if (!results.IsInitialized()) {
-    LOG(ERROR) << "Results instance not fully initialized.";
-    return false;
-  }
+  filtered_results_out->CopyFrom(results);
 
-  bool success = true;
-  for (int idx = 0, end = results.rule_results_size(); idx < end; ++idx) {
-    const RuleResults& rule_results = results.rule_results(idx);
-    const std::string& rule_name = rule_results.rule_name();
-    NameToRuleMap::const_iterator rule_iter = name_to_rule_map_.find(rule_name);
-    if (rule_iter == name_to_rule_map_.end()) {
-      // No rule registered to handle the given rule name. This could
-      // happen if the Results object was generated with a different
-      // version of the Page Speed library, so we do not want to CHECK
-      // that the Rule is non-null here.
-      LOG(WARNING) << "Unable to find rule instance with name " << rule_name;
-      success = false;
-      continue;
+  for (int rule_idx = 0;
+       rule_idx < filtered_results_out->rule_results_size();
+       ++rule_idx) {
+    RuleResults* rule_results =
+        filtered_results_out->mutable_rule_results(rule_idx);
+    RuleResults new_rule_results;
+
+    // Copy any non-filtered results into new_rule_results;
+    for (int result_idx = 0;
+         result_idx < rule_results->results_size();
+         ++result_idx) {
+      const Result& result = rule_results->results(result_idx);
+
+      if (filter.IsAccepted(result)) {
+        new_rule_results.add_results()->CopyFrom(result);
+      }
     }
 
-    Rule* rule = rule_iter->second;
-    FormatRuleResults(rule_results, results.input_info(), rule, filter,
-                      formatter);
+    // Clear out the old results and copy back in the filtered set.
+    rule_results->clear_results();
+    rule_results->MergeFrom(new_rule_results);
   }
 
-  if (results.has_score()) {
-    formatter->SetOverallScore(results.score());
-  }
-  formatter->Finalize();
-
-  return success;
-}
-
-bool Engine::ComputeAndFormatResults(const PagespeedInput& input,
-                                     const ResultFilter& filter,
-                                     Formatter* formatter) const {
-  CHECK(init_has_been_called_);
-
-  Results results;
-  bool success = ComputeResults(input, &results);
-  success = FormatResults(results, filter, formatter) && success;
-  return success;
+  ComputeScoreAndImpact(filtered_results_out);
 }
 
 ResultFilter::ResultFilter() {}
@@ -291,4 +356,4 @@ bool AlwaysAcceptResultFilter::IsAccepted(const Result& result) const {
   return true;
 }
 
-}  // namespace pagespeed
+}

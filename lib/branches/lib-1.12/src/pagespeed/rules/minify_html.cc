@@ -97,18 +97,19 @@ const MinifierOutput* HtmlMinifier::Minify(const Resource& resource,
     return MinifierOutput::CannotBeMinified();
   }
 
+  const std::string& content_type = resource.GetResponseHeader("Content-Type");
   const std::string& input = resource.GetResponseBody();
   std::string minified_html;
   ::pagespeed::html::HtmlMinifier html_minifier;
-  if (!html_minifier.MinifyHtml(resource.GetRequestUrl(),
-                                input, &minified_html)) {
+  if (!html_minifier.MinifyHtmlWithType(resource.GetRequestUrl(), content_type,
+                                        input, &minified_html)) {
     LOG(ERROR) << "MinifyHtml failed for resource: "
                << resource.GetRequestUrl();
     return MinifierOutput::Error();
   }
 
   if (save_optimized_content_) {
-    return MinifierOutput::SaveMinifiedContent(minified_html, "text/html");
+    return MinifierOutput::SaveMinifiedContent(minified_html, content_type);
   } else {
     return MinifierOutput::DoNotSaveMinifiedContent(minified_html);
   }

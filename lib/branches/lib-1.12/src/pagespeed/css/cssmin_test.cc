@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "pagespeed/cssmin/cssmin.h"
+#include "pagespeed/css/cssmin.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -51,11 +51,11 @@ class CssminTest : public testing::Test {
  protected:
   void CheckMinification(const std::string& before, const std::string& after) {
     std::string output;
-    ASSERT_TRUE(pagespeed::cssmin::MinifyCss(before, &output));
+    ASSERT_TRUE(pagespeed::css::MinifyCss(before, &output));
     ASSERT_EQ(after, output);
 
     int minified_size = -1;
-    ASSERT_TRUE(pagespeed::cssmin::GetMinifiedCssSize(before, &minified_size));
+    ASSERT_TRUE(pagespeed::css::GetMinifiedCssSize(before, &minified_size));
     ASSERT_EQ(static_cast<int>(after.size()), minified_size);
   }
 };

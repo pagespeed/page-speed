@@ -19,6 +19,7 @@
 #include <string>
 
 #include "googleurl/src/gurl.h"
+#include "net/instaweb/http/public/content_type.h"
 #include "pagespeed/core/file_util.h"
 
 namespace {
@@ -46,19 +47,9 @@ std::string SanitizeFilename(const std::string& str) {
 }
 
 std::string ChooseFileExtension(const std::string& mime_type) {
-  if (mime_type == "text/html") {
-    return ".html";
-  } else if (mime_type == "text/css") {
-    return ".css";
-  } else if (mime_type == "text/javascript") {
-    return ".js";
-  } else if (mime_type == "image/png") {
-    return ".png";
-  } else if (mime_type == "image/jpeg" || mime_type == "image/jpg") {
-    return ".jpeg";
-  } else {
-    return "";
-  }
+  const net_instaweb::ContentType* content_type =
+      net_instaweb::MimeTypeToContentType(mime_type);
+  return (content_type == NULL ? "" : content_type->file_extension());
 }
 
 }  // namespace
