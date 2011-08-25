@@ -27,6 +27,9 @@ var pagespeed = {
   // The currently active ResourceAccumulator, if any.
   resourceAccumulator: null,
 
+  // The currently active DomCollector, if any.
+  domCollector: null,
+
   // The currently active ContentWriter, if any.
   contentWriter: null,
 
@@ -439,19 +442,7 @@ var pagespeed = {
     var error_container = pagespeed.makeElement('div');
     error_container.id = 'error-container';
     // TODO(mdsteele): Localize these error messages.
-    if (problem === 'incognito') {
-      // TODO(mdsteele): It'd be nice if "loading this page in a regular
-      //   browser window" were a link that would do just that.
-      error_container.appendChild(pagespeed.makeElement('p', null, [
-        "Oops, looks like you're trying to run Page Speed in an incognito ",
-        "window, but you haven't enabled the Page Speed extension in ",
-        "incognito windows.  Try either loading this page in a regular ",
-        "browser window, or else going to the ",
-        pagespeed.makeLink('chrome://extensions', 'extensions page'),
-        " and checking the \"Allow in incognito\" box next to the ",
-        "Page Speed extension."
-      ]));
-    } else if (problem === 'url') {
+    if (problem === 'url') {
       error_container.appendChild(pagespeed.makeElement('p', null, [
         "Sorry, Page Speed can only analyze pages at ",
         pagespeed.makeElement('code', null, 'http://'), " or ",
@@ -485,26 +476,14 @@ var pagespeed = {
 
   // Handle messages from the background page (coming over the connectionPort).
   messageHandler: function (message) {
-    if (message.kind === 'approveTab') {
-      if (pagespeed.resourceAccumulator) {
-        pagespeed.resourceAccumulator.start();
-      }
-    } else if (message.kind === 'rejectTab') {
-      pagespeed.endCurrentRun();
-      pagespeed.showErrorMessage(message.reason);
-    } else if (message.kind === 'setStatusText') {
-      pagespeed.setStatusText(message.message);
-    } else if (message.kind === 'pageLoaded') {
-      pagespeed.onPageLoaded();
-    } else if (message.kind === 'pageNavigate') {
-      pagespeed.onPageNavigate();
-    } else if (message.kind === 'collectedInput') {
-      pagespeed.onCollectedInput(message);
-    } else if (message.kind === 'error') {
-      pagespeed.endCurrentRun();
-      if (message.reason) {
-        pagespeed.showErrorMessage(message.reason);
-      }
+    if (message.kind === 'partialResourcesFetched') {
+      pagespeed.domCollector = new pagespeed.DomCollector(
+        pagespeed.withErrorHandler(function (dom) {
+          message.dom = dom;
+          pagespeed.onCollectedInput(message);
+      }));
+      pagespeed.setStatusText("Collecting page DOM...");
+      pagespeed.domCollector.start();
     } else {
       throw new Error('Unknown message kind: ' + message.kind);
     }
@@ -522,17 +501,21 @@ var pagespeed = {
     // message comes back, we know we're ready to run.
     pagespeed.resourceAccumulator = new pagespeed.ResourceAccumulator(
       pagespeed.withErrorHandler(pagespeed.onResourceAccumulatorComplete));
-    // Before we start, we need to determine if we'll be able to run our
-    // content script on this tab.  However, to determine this we need to call
-    // chrome.tab.get(), which we can't do from here.  Thus, we ask the
-    // background page to do it for us.  It will reply with either an
-    // approveTab or rejectTab message, which will be handled in
-    // pagespeed.messageHandler().
+
+    // Check that the inspected window has an http[s] url.
     pagespeed.setStatusText('Checking tab...');
-    pagespeed.connectionPort.postMessage({
-      kind: 'checkTab',
-      tab_id: webInspector.inspectedWindow.tabId
-    });
+    webInspector.inspectedWindow.eval("location.href.match(/^http/)",
+      pagespeed.withErrorHandler(function (tabOk) {
+        if (tabOk) {
+          // Make sure the run has not been canceled.
+          if (pagespeed.resourceAccumulator) {
+            pagespeed.resourceAccumulator.start();
+          }
+        } else {
+          pagespeed.endCurrentRun();
+          pagespeed.showErrorMessage("url");
+        }
+    }));
   },
 
   // Invoked when the ResourceAccumulator has finished collecting data
@@ -540,20 +523,19 @@ var pagespeed = {
   onResourceAccumulatorComplete: function (har) {
     pagespeed.resourceAccumulator = null;
 
-    // Tell the background page to collect the DOM and missing bits of the HAR.
-    // It will respond with a collectedInput message, which will be handled in
-    // pagespeed.messageHandler().
-    pagespeed.setStatusText('Sending request to background page...');
+    // Tell the background page to collect the missing bits of the
+    // HAR.  It will respond with a partialResourcesFetched message,
+    // which will be handled in pagespeed.messageHandler().
+    pagespeed.setStatusText("Fetching partial resources...");
     pagespeed.connectionPort.postMessage({
-      kind: 'collectInput',
+      kind: 'fetchPartialResources',
       analyze: document.getElementById('analyze-dropdown').value,
       har: har,
-      tab_id: webInspector.inspectedWindow.tabId
     });
   },
 
-  // Invoked when the background page has finished collecting the page DOM and
-  // any missing parts of the HAR.
+  // Invoked when the background page has finished collecting any
+  // missing parts of the HAR and the DOM has been retrieved.
   onCollectedInput: function (input) {
     pagespeed.setStatusText(chrome.i18n.getMessage('running_rules'));
     // Wrap this next part in a setTimeout (with zero delay) to give Chrome a
@@ -609,6 +591,10 @@ var pagespeed = {
 
   // Cancel the current run, if any, and reset the status indicators.
   endCurrentRun: function () {
+    if (pagespeed.domCollector) {
+      pagespeed.domCollector.cancel();
+      pagespeed.domCollector = null;
+    }
     if (pagespeed.resourceAccumulator) {
       pagespeed.resourceAccumulator.cancel();
       pagespeed.resourceAccumulator = null;
@@ -622,7 +608,6 @@ var pagespeed = {
     pagespeed.setStatusText(null);
     pagespeed.connectionPort.postMessage({
       kind: 'cancelRun',
-      tab_id: webInspector.inspectedWindow.tabId
     });
   },
 
@@ -668,13 +653,28 @@ var pagespeed = {
   // Callback for when a timeline event is recorded (via the timeline API).
   onTimelineEvent: function (event) {
     pagespeed.timelineEvents.push(event);
+    if (event.type === "MarkLoad") {
+      pagespeed.onPageLoaded();
+    }
   },
 
   // Called once when we first load pagespeed-panel.html, to initialize the UI,
   // with localization.
   initializeUI: function () {
+    // The content_security_policy does not allow us to inline event
+    // handlers or style settings... initialize these settings here.
+    var logo = document.getElementById('logo-img');
+    logo.style.float = "left";
+
+    var whats_new_container = document.getElementById('whats-new-container');
+    whats_new_container.style.float = "left";
+
+    var run_button = document.getElementById('run-button');
+    run_button.onclick = pagespeed.runPageSpeed;
+
     // Initialize the "analyze" dropdown menu.
     var analyze = document.getElementById('analyze-dropdown');
+    analyze.onchange = pagespeed.onAnalyzeDropdownChange;
     [['all', chrome.i18n.getMessage('analyze_entire_page')],
      ['ads', chrome.i18n.getMessage('analyze_ads_only')],
      ['trackers', chrome.i18n.getMessage('analyze_trackers_only')],
@@ -732,8 +732,111 @@ var pagespeed = {
       'p', null, 'Page Speed Copyright \xA9 2011 Google Inc.'));
     // Refresh the run button, etc.
     pagespeed.clearResults();
+  },
+
+};
+
+// DomCollector manages the asynchronous callback from the inspected
+// page which contains the DOM.
+pagespeed.DomCollector = function (clientCallback) {
+  this.clientCallback_ = clientCallback;
+  this.cancelled_ = false;
+};
+
+pagespeed.DomCollector.prototype.start = function () {
+  // The collector function will be evaluated in the inspected window.
+  // It will be to stringed, so should make no reference to its
+  // current definition context.
+  var collector = function () {
+
+    function collectElement(element, outList) {
+      // TODO(mhillyard): this ensures we don't include our injected
+      // iframe element in the elements list.
+      if (element === frameElement) return;
+
+      var obj = {tag: element.tagName};
+      // If the tag has any attributes, add an attribute map to the
+      // output object.
+      var attributes = element.attributes;
+      if (attributes && attributes.length > 0) {
+        obj.attrs = {};
+        for (var i = 0, len = attributes.length; i < len; ++i) {
+          var attribute = attributes[i];
+          obj.attrs[attribute.name] = attribute.value;
+        }
+      }
+      // If the tag has any attributes, add children list to the
+      // output object.
+      var children = element.children;
+      if (children && children.length > 0) {
+        for (var j = 0, len = children.length; j < len; ++j) {
+          collectElement(children[j], outList);
+        }
+      }
+      // If the tag has a content document, add that to the output
+      // object.
+      if (element.contentDocument) {
+        obj.contentDocument = collectDocument(element.contentDocument);
+      }
+      // If this is an IMG tag, record the size to which the image is
+      // scaled.
+      if (element.tagName === 'IMG' && element.complete) {
+        obj.width = element.width;
+        obj.height = element.height;
+      }
+      outList.push(obj);
+    }
+
+    function collectDocument(document) {
+      var elements = [];
+      collectElement(document.documentElement, elements);
+      return {
+        documentUrl: document.URL,
+        baseUrl: document.baseURI,
+        elements: elements
+      };
+    }
+
+    // Collect the page DOM and send it back to the devtools panel.
+    // TODO(mhillyard): for now, the devtools eval implementation is
+    // not sandboxed properly... it might grab a JSON.stringify
+    // implementation that is provided by the inspected page.  Most
+    // JSON implemntations will correctly handle strings, so let's
+    // pre-stringify the DOM, and then de-stringify it on the client
+    // side.  To get access to the default JSON object provided by
+    // Chrome, create an iframe and then access the contentWindow.
+    // Furthermore, to make sure that we don't use non-standard
+    // toJSON, toString, and valueOf implementations, execute the
+    // collectElement and collectDocument functions within the iframe
+    // as well.  This Web Inspector bug is filed here:
+    // https://bugs.webkit.org/show_bug.cgi?id=63083
+    var iframe = document.createElement("iframe");
+    document.documentElement.appendChild(iframe);
+    iframe.contentWindow.eval(collectElement.toString());
+    iframe.contentWindow.eval(collectDocument.toString());
+    var domObj = iframe.contentWindow.collectDocument(document);
+    var domStr = iframe.contentWindow.JSON.stringify(domObj);
+    document.documentElement.removeChild(iframe);
+    return domStr;
   }
 
+  // Evaluate the collector function in the inspected page
+  var this_ = this;
+  webInspector.inspectedWindow.eval(
+    "(" + collector.toString() + ")();",
+    pagespeed.withErrorHandler(function (domString) {
+      this_.onDomCollected_(JSON.parse(domString));
+  }));
+};
+
+pagespeed.DomCollector.prototype.cancel = function () {
+  this.cancelled_ = true;
+};
+
+pagespeed.DomCollector.prototype.onDomCollected_ = function (dom) {
+  if (!this.cancelled_) {
+    this.clientCallback_(dom);
+  }
 };
 
 // ResourceAccumulator manages a flow of asynchronous callbacks from
@@ -1020,30 +1123,22 @@ pagespeed.ContentWriter.prototype.makeErrorHandler_ = function (where, next) {
   }).bind(this));
 };
 
-pagespeed.withErrorHandler(function () {
+fetchDevToolsAPI(function () {
+  pagespeed.withErrorHandler(function () {
 
-  // Connect to the extension background page.
-  pagespeed.connectionPort = chrome.extension.connect();
-  pagespeed.connectionPort.onMessage.addListener(
-    pagespeed.withErrorHandler(pagespeed.messageHandler));
+    // Connect to the extension background page.
+    pagespeed.connectionPort = chrome.extension.connect();
+    pagespeed.connectionPort.onMessage.addListener(
+      pagespeed.withErrorHandler(pagespeed.messageHandler));
 
-  // Tell the background page to listen for page load events (we apparently
-  // can't do it from here).
-  pagespeed.connectionPort.postMessage({
-    kind: 'listen',
-    tab_id: webInspector.inspectedWindow.tabId
-  });
+    // Register for navigation events from the inspected window.
+    webInspector.resources.onNavigated.addListener(
+      pagespeed.withErrorHandler(pagespeed.onPageNavigate));
 
-  // The devtools timeline API was added in Chrome 13-ish.  Until stable
-  // channel reaches M13, we need to check whether the timeline API is present.
-  // If it isn't, then we simply won't collect any timeline data, and will send
-  // an empty list of timeline events to the Page Speed library.  Seeing this,
-  // the library will omit TIMELINE_DATA from its InputCapabilities and not run
-  // rules that rely on timeline data.  So, we'll fail gracefully.
-  if (webInspector.timeline) {
     // The listener will disconnect when we close the devtools panel.
     webInspector.timeline.onEventRecorded.addListener(
       pagespeed.withErrorHandler(pagespeed.onTimelineEvent));
-  }
 
-})();
+    pagespeed.initializeUI();
+  })();
+});
