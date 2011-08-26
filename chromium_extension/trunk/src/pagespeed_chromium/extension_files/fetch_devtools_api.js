@@ -23,9 +23,10 @@ function fetchDevToolsAPI (callback) {
       var script = document.createElement("script");
       script.async = false;
 
-      // 4. Once ExtensionAPI.js has been injected into the page,
-      // WebInspector.injectedExtensionAPI() will be available.  Inject
-      // init_devtools_api to call the API initialization function.
+      // Once ExtensionAPI.js has been injected into the page,
+      // WebInspector.injectedExtensionAPI() will be available.
+      // Inject init_devtools_api to call the API initialization
+      // function.
       script.onload = script.onerror = function () {
         if (WebInspector.injectedExtensionAPI) {
           // Fetch successfull... call init function and callback.
