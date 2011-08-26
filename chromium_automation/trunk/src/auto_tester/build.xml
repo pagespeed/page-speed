@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project name="PageSpeedURLTester" basedir="." default="jar">
+  <property name="src" value="src"/>
+  <property name="libs" value="lib"/>
+  <property name="res" value="res"/>
+  <property name="output" value="bin"/>
+  <property name="dist" value="dist"/>
+  <property name="main-class"
+    value="com.googlecode.page_speed.autotester.PageSpeedChromeRunner"/>
+  <property name="jar-name" value="PageSpeedChromeRunner.jar"/>
+  <property name="built-by" value="Page Speed Team"/>
+
+  <path id="classpath">
+    <fileset dir="${libs}" includes="**/*.jar"/>
+  </path>
+
+  <target name="compile" depends="create">
+    <javac srcdir="${src}" destdir="${output}"
+      classpathref="classpath" includeantruntime="false"/>
+  </target>
+
+  <target name="jar" depends="compile">
+    <mkdir dir="${dist}"/>
+
+    <jar destfile="${dist}/${jar-name}" compress="true">
+      <fileset dir="${output}"/>
+      <fileset dir="${res}" includes="**/*.*"/>
+
+      <zipfileset includes="**/*.*" src="${libs}/json_simple-1.1.jar"/>
+      <zipfileset includes="**/*.*" src="${libs}/lib.org.chromium.sdk.jar"/>
+
+      <manifest>
+        <attribute name="Main-Class" value="${main-class}"/>
+        <attribute name="Class-Path" value="." />
+        <attribute name="Built-By" value="${built-by}"/>
+        <attribute name="Created-By" value="Magic"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="run">
+    <java jar="${jar-name}" fork="true">
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="clean">
+    <delete dir="${output}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+  <target name="create" depends="clean">
+    <mkdir dir="${output}"/>
+  </target>
+</project>
