@@ -1,0 +1,83 @@
+html {overflow-y: scroll;}
+html,body {
+  margin:0;padding:0;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+#header {
+  background: #F5F5F5;
+  border-width: 1px 0;
+  border-color: gray;
+  border-style: solid;
+  color: #DD4B39;
+  font-size: 16px;
+  padding: 0 20px;
+  border-bottom: 1px solid gray;
+}
+
+
+#content {
+  padding: 30px;
+}
+
+#result_upload_form {
+  text-align:center;
+  margin-top: 3em;
+}
+
+#result_file_input {
+  border: 1px solid black;
+}
+
+#simple_inputs input {
+  font-size: 1.6em;
+  display: inline;
+}
+#advanced_inputs {
+  display:none;
+}
+
+a, a:link {color: #15c;}
+a:visited {color: #61c;}
+a:active {color: #d14836;}
+
+h2 {
+  border-top: 1px solid #ebebeb;
+  margin-top: 30px;
+  padding-top: 10px;
+}
+
+h3 {
+  border-bottom: 1px solid #ebebeb;
+}
+
+label {
+  display: block;
+  padding: 10px 0;
+  clear:both;
+}
+
+label span {
+  display: block;
+  font-weight: bold;
+  float: left;
+  width: 400px;
+}
+
+label span span.help {
+  font-weight: 0;
+  font-size: 0.7em;
+  color: blue;
+  display: block;
+}
+
+input, select {
+  padding: 2px;
+  font-size: 1.1em;
+}
+input[type="submit"] {
+  display: block;
+  margin-top: 10px;
+  padding: 4px;
+}

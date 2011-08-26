@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Choose Report Options{% endblock %}
+{% block body %}
+
+
+<h2>Statistics</h2>
+<table>
+  <tr><th>Tests</th><td>{{ tests|length }}</td></tr>
+  <tr><th>Variations</th><td>{{ variations|length }}</td></tr>
+  <tr><th>Metrics</th><td>{{ allmetrics|length }}</td></tr>
+  <tr><th>Runs</th><td>{{ runs }}</td></tr>
+</table>
+
+<form method="GET" action="/results/data">
+<h2>View Data</h2>
+<p>This report is allows you to view the (almost) raw data.</p>
+<div>
+  <label title="The metrics that you want to view.">
+    <span>Metrics: <span class="help">The metrics that you want to view.</span></span>
+    <select name="metrics" multiple="multiple">
+    {% for metric in allmetrics %}
+      <option value="{{ metric }}">{{ metric }}</option>
+    {% endfor %}
+    </select>
+  </label>
+</div>
+  
+<div>
+  <label title="The statistic used to generate a value from multiple runs.">
+    <span>Representative Statistic: <span class="help">The statistic used to generate a value from multiple runs.</span></span>
+    <select name="reprstat">
+    {% for stat in reprstats %}
+      <option value="{{ stat }}">{{ stat }}</option>
+    {% endfor %}
+    </select>
+  </label>
+
+  <input type="hidden" name="id" value="{{ id }}" />
+  <input type="submit" value="View Data!" />
+</div>
+
+</form>
+
+<form method="GET" action="/results/basic">
+<h2>Basic Report</h2>
+<p>This report is used to compare a metric between different sites and variations.</p>
+<div>
+  <label title="The test data set to display.">
+    <span>Test: <span class="help">The test data set to display.</span></span>
+    <select name="test">
+      <option value="__all">All</option>
+      <option value="__aggregate">Aggregate All</option>
+    {% for test in tests %}
+      <option value="{{ test }}">{{ test }}</option>
+    {% endfor %}
+    </select>
+  </label>
+  
+  <label title="Subtracts the selected variation from the results. Allows you to compare results directly to this variation.">
+    <span>Delta Function: <span class="help">Subtracts the selected variation from the results. Allows you to compare results directly to this variation.</span></span>
+    <select name="delta_func">
+    <option value="||">None</option>
+    {% for variation in variations %}
+      <option value="absolute||{{ variation }}">{{ variation }} Absolute</option>
+      <option value="percent||{{ variation }}">{{ variation }} Percent</option>
+    {% endfor %}
+    </select>
+  </label>
+</div>
+
+<div>
+  <label title="The metric to compare.">
+    <span>Metric: <span class="help">The metric to compare.</span></span>
+    <select name="metric">
+    {% for metric in metrics %}
+      <option value="{{ metric }}">{{ metric }}</option>
+    {% endfor %}
+    </select>
+  </label>
+</div>
+
+<div>
+  <label title="The statistic used to generate a value from multiple runs.">
+    <span>Representative Statistic: <span class="help">The statistic used to generate a value from multiple runs.</span></span>
+    <select name="reprstat">
+    {% for stat in reprstats %}
+      <option value="{{ stat }}">{{ stat }}</option>
+    {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Filter: <span class="help"></span></span>
+    <select name="filtervalues">
+      <option value="basic">Basic (Remove Outliers)</option>
+      <option value="">None</option>
+    </select>
+  </label>
+
+  <input type="hidden" name="id" value="{{ id }}" />
+  <input type="submit" value="Generate Report!" />
+</div>
+
+</form>
+
+{% if tests|length > 2 %}
+<form method="GET" action="/results/correlation">
+<h2>Metric Correlation Report</h2>
+<p>This report is used to find patterns and correlations between metrics and variations.</p>
+<div>
+  
+  <label title="The metric on the x-axis.">
+    <span>Independant Metric: <span class="help">The metric on the x-axis.</span></span>
+    <select name="imetric">
+    {% for metric in metrics %}
+      <option value="{{ metric }}">{{ metric }}</option>
+    {% endfor %}
+    </select>
+  </label>
+  <label title="The function used on x-axis values.">
+    <span>Independent Delta Function: <span class="help">The function used on x-axis values.</span></span>
+    <select name="idelta">
+    {% for delta_func in delta_functions %}
+      <option value="{{ delta_func.0 }}">{{ delta_func.1 }}</option>
+    {% endfor %}
+    </select>
+  </label>
+</div>
+  
+<div>
+  <label title="The metric on the x-axis.">
+    <span>Dependant Metrics: <span class="help">The metric on the x-axis.</span></span>
+    <select name="dmetrics" multiple="multiple">
+    {% for metric in metrics %}
+      <option value="{{ metric }}">{{ metric }}</option>
+    {% endfor %}
+    </select>
+  </label>
+  <label title="The function used on y-axis values.">
+    <span>Dependent Delta Function: <span class="help">The function used on y-axis values.</span></span>
+    <select name="ddelta">
+    {% for delta_func in delta_functions %}
+      <option value="{{ delta_func.0 }}">{{ delta_func.1 }}</option>
+    {% endfor %}
+    </select>
+  </label>
+</div>
+
+<div>
+  <label title="The statistic used to generate a value from multiple runs.">
+    <span>Representative Statistic: <span class="help">The statistic used to generate a value from multiple runs.</span></span>
+    <select name="reprstat">
+    {% for stat in reprstats %}
+      <option value="{{ stat }}">{{ stat }}</option>
+    {% endfor %}
+    </select>
+  </label>
+  <label title="The filter used to remove invalid run results.">
+    <span>Filter: <span class="help">The filter used to remove invalid run results.</span></span>
+    <select name="filtervalues">
+      <option value="basic">Basic (Remove Outliers)</option>
+      <option value="">None</option>
+    </select>
+  </label>
+
+  <input type="hidden" name="id" value="{{ id }}" />
+  <input type="submit" value="Generate Report!" />
+</div>
+
+</form>
+{% endif %}
+
+{% if runs > 2 %}
+<form method="GET" action="/results/significance">
+<h2>Statistical Significance Report</h2>
+<p>This report is used to determine the accuracy of results and whether there is a statistically significant change between variations.</p>
+<div>
+  <label>
+    <span>Metrics: <span class="help"></span></span>
+    <select name="metrics" multiple="multiple">
+    {% for metric in metrics %}
+      <option value="{{ metric }}">{{ metric }}</option>
+    {% endfor %}
+    </select>
+  </label>
+</div>
+  
+<div>
+  <label>
+    <span>Base Variation: <span class="help"></span></span>
+    <select name="basevariation">
+    {% for variation in variations %}
+      <option value="{{ variation }}">{{ variation }}</option>
+    {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Main Variation: <span class="help"></span></span>
+    <select name="mainvariation">
+    {% for variation in variations %}
+      <option value="{{ variation }}">{{ variation }}</option>
+    {% endfor %}
+    </select>
+  </label>
+</div>
+
+<div>
+  <label title="The statistic used to generate a value from multiple runs.">
+    <span>Representative Statistic: <span class="help">The statistic used to generate a value from multiple runs.</span></span> <div>mean</div>
+  </label>
+  <label>
+    <span>Confidence Interval: <span class="help"></span></span> <div>95%</div>
+  </label>
+  <label>
+    <span>Filter: <span class="help"></span></span>
+    <select name="filtervalues">
+      <option value="basic">Basic (Remove Outliers)</option>
+      <option value="">None</option>
+    </select>
+  </label>
+
+  <input type="hidden" name="id" value="{{ id }}" />
+  <input type="submit" value="Generate Report!" />
+</div>
+
+</form>
+
+
+<form method="GET" action="/results/runs">
+<h2>Change Between Runs Report</h2>
+<p>This report is used to see the change in metrics between runs. This report can help determine if caching (mod_pagespeed rewriter cache, etc) has an effect on results.</p>
+<div>
+  <label title="The metric to track across runs.">
+    <span>Metric: <span class="help">The metric to track across runs.</span></span>
+    <select name="metric">
+    {% for metric in metrics %}
+      <option value="{{ metric }}">{{ metric }}</option>
+    {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Filter: <span class="help"></span></span>
+    <select name="filtervalues">
+      <option value="basic">Basic (Remove Outliers)</option>
+      <option value="">None</option>
+    </select>
+  </label>
+
+  <input type="hidden" name="id" value="{{ id }}" />
+  <input type="submit" value="Generate Report!" />
+</div>
+
+</form>
+{% endif %}
+
+<h2>Other</h2>
+<p>
+<a href="/export/csv?id={{ id }}">Export CSV</a>
+
+
+
+</p>
+
+{% endblock %}

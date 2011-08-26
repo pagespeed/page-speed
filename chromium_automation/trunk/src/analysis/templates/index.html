@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}WebPageTest Variation Analyzer{% endblock %}
+{% block body %}
+
+<form action="/upload/results" method="POST" enctype="multipart/form-data" id="result_upload_form">
+
+<div id="simple_inputs">
+  <input type="file" name="result_file" id="result_file_input" />
+  <input type="submit" value="Analyze!" />
+</div>
+
+</form>
+
+{% endblock %}

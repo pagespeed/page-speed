@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}View Result Data{% endblock %}
+
+{% block head %}
+{% autoescape off %}
+
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+
+<script type='text/javascript'>
+  google.load('visualization', '1', {packages:['table']});
+  google.setOnLoadCallback(drawTable);
+  function drawTable() {
+    var data = [];
+{% for test in tests.items %}
+    var d0 = new google.visualization.DataTable();
+    var d1 = new google.visualization.DataTable();
+    d0.table_name = "table_div_{{ forloop.counter0 }}_0"
+    d1.table_name = "table_div_{{ forloop.counter0 }}_1"
+    try {
+      {% for column in columns %}
+      d0.addColumn("{{ column.0 }}", "{{ column.1 }}")
+      d1.addColumn("{{ column.0 }}", "{{ column.1 }}")
+      {% endfor %}
+      d0.addRows({{ test.1.0|jsonify }})
+      d1.addRows({{ test.1.1|jsonify }})
+      
+      data.push(d0)
+      data.push(d1)
+    } catch (e) {}
+{% endfor %}
+
+    var len = data.length;
+    for (var x = 0; x < len; x++) {
+      try {
+        var div = document.getElementById(data[x].table_name);
+        var table = new google.visualization.Table(div);
+        table.draw(data[x], {showRowNumber: true, width: "100%"});
+       } catch (e) {}
+    }
+  }
+</script>
+<style>
+body {
+  font-size: x-small;
+}
+</style>
+{% endautoescape %}
+{% endblock %}
+
+{% block body %}
+
+{% for test in tests.items %}
+<div>
+  <h2>{{ test.0 }}</h2>
+  <h3>First Run</h3>
+  <div id='table_div_{{ forloop.counter0 }}_0'></div>
+  <div style="height:200px; overflow-y: auto;">
+  <table style="width:99%;">
+  {% for metric in test.1.2 %}
+      <tr><td>{{ metric.0 }}</td><td>{{ metric.1 }}</td><td><input type="test" value="{{ metric.2 }}" style="width:100%;" /></td></tr>
+  {% endfor %}
+  </table>
+  </div>
+
+  <h3>Repeat View</h3>
+  <div id='table_div_{{ forloop.counter0 }}_1'></div>
+  <div style="height:200px; overflow-y: auto;">
+  <table style="width:99%;">
+  {% for metric in test.1.3 %}
+      <tr><td>{{ metric.0 }}</td><td>{{ metric.1 }}</td><td><input type="test" value="{{ metric.2 }}" style="width:100%;" /></td></tr>
+  {% endfor %}
+  </table>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}

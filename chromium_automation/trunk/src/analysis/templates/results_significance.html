@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ metrics|join:", " }} Significance ({{ variations.0 }} vs {{ variations.1 }}){% endblock %}
+
+{% block head %}
+{% autoescape off %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart", "table"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = [];
+    data.push(new google.visualization.DataTable());
+    data.push(new google.visualization.DataTable());
+    
+    {% for column in columns %}
+    data[0].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    data[1].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    {% endfor %}
+    data[0].addRows({{ chart.0|jsonify }});
+    data[1].addRows({{ chart.1|jsonify }});
+    
+    for (var x = 0; x < data.length; x++) {
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div_' + x));
+      chart.draw(data[x], {width: "100%", height: 600, title: 'Confidence Intervals',
+                          hAxis: {title: 'Test'},
+                          colors: ['red', 'red', 'orange', 'orange', 'yellow', 'yellow',
+                          'green', 'green', 'blue', 'blue', 'purple', 'purple',
+                          'brown', 'brown', 'black', 'black', 'pink', 'pink']
+                         });
+    }
+  }
+</script>
+{% endautoescape %}
+{% endblock %}
+
+
+{% block body %}
+
+<h2>First View</h2>
+<div id="chart_div_0"></div>
+<table>
+<tr><td>Metric</td><td>Test</td><td>{{ variations.0 }}</td><td>{{ variations.1 }}</td></tr>
+{% for stat in data.0.items %}
+{% for row in stat.1 %}
+<tr>
+  <td>{{ stat.0 }}</td>
+  <td>{{ row.0 }}</td>
+  <td>({{ row.1.0|floatformat:3 }}, {{ row.1.1|floatformat:3 }}, {{ row.1.2|floatformat:3 }})</td>
+  <td>({{ row.2.0|floatformat:3 }}, {{ row.2.1|floatformat:3 }}, {{ row.2.2|floatformat:3 }})</td>
+</tr>
+{% endfor %}
+{% endfor %}
+</table>
+
+<h2>Repeat view</h2>
+<div id="chart_div_1"></div>
+<table>
+<tr><td>Metric</td><td>Test</td><td>{{ variations.0 }}</td><td>{{ variations.1 }}</td></tr>
+{% for stat in data.0.items %}
+{% for row in stat.1 %}
+<tr>
+  <td>{{ stat.0 }}</td>
+  <td>{{ row.0 }}</td>
+  <td>({{ row.1.0|floatformat:3 }}, {{ row.1.1|floatformat:3 }}, {{ row.1.2|floatformat:3 }})</td>
+  <td>({{ row.2.0|floatformat:3 }}, {{ row.2.1|floatformat:3 }}, {{ row.2.2|floatformat:3 }})</td>
+</tr>
+{% endfor %}
+{% endfor %}
+</table>
+
+{% endblock %}
