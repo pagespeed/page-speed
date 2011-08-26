@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ metrics.0 }} vs. {{ metrics.1 }} with ({{ variations.0 }} - {{ variations.1 }}){% endblock %}
+
+{% block head %}
+{% autoescape off %}
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart", "table"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = [];
+    data.push(new google.visualization.DataTable());
+    data.push(new google.visualization.DataTable());
+    
+    {% for column in columns %}
+    data[0].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    data[1].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    {% endfor %}
+    data[0].addRows({{ data.0|jsonify }});
+    data[1].addRows({{ data.1|jsonify }});
+    
+    var tdata = [];
+    tdata.push(new google.visualization.DataTable());
+    tdata.push(new google.visualization.DataTable());
+    
+    {% for column in tcolumns %}
+    tdata[0].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    tdata[1].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    {% endfor %}
+    tdata[0].addRows({{ tdata.0|jsonify }});
+    tdata[1].addRows({{ tdata.1|jsonify }});
+    
+    for (var x = 0; x < data.length; x++) {
+      var chart = new google.visualization.ScatterChart(document.getElementById('chart_div_' + x));
+      chart.draw(data[x], {width: "100%", height: 600,
+                        title: '{{ imetric }} vs. ({{ dmetrics|join:", " }}) with x=({{ variations.0.0 }} {{ variations.0.1 }} vs {{ variations.0.2 }}) and y=({{ variations.1.0 }} {{ variations.1.1 }} vs {{ variations.1.2 }})',
+                        hAxis: {title: '{{ imetric }}'},
+                        vAxis: {title: '{{ dmetrics|join:", " }}'},
+                        legend: 'none'
+                       });
+      var table = new google.visualization
+        .Table(document.getElementById('table_div_' + x));
+      table.draw(tdata[x], {showRowNumber: true});
+    }
+  }
+</script>
+{% endautoescape %}
+{% endblock %}
+
+
+
+
+{% block body %}
+
+<h2>First View</h2>
+<div id="chart_div_0"></div>
+<div id="table_div_0"></div>
+<table>
+<tr><th>Independent</th><th>Dependent</th><th>r</th></tr>
+{% for metric in correlation.0.items %}
+<tr><td>{{ imetric }}</td><td>{{ metric.0 }}</td><td>{{ metric.1 }}</td></tr>
+{% endfor %}
+</table>
+
+<h2>Repeat View</h2>
+<div id="chart_div_1"></div>
+<div id="table_div_1"></div>
+<table>
+<tr><th>Independent</th><th>Dependent</th><th>r</th></tr>
+{% for metric in correlation.1.items %}
+<tr><td>{{ imetric }}</td><td>{{ metric.0 }}</td><td>{{ metric.1 }}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}

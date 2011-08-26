@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Basic Statistics on {{ metric }}{% endblock %}
+
+{% block head %}
+{% autoescape off %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart", "table"]});
+  google.setOnLoadCallback(drawChart);
+  google.setOnLoadCallback(drawCandleChart);
+  function drawChart() {
+    var data = [];
+    data.push(new google.visualization.DataTable());
+    data.push(new google.visualization.DataTable());
+    
+    {% for column in columns %}
+    data[0].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    data[1].addColumn("{{ column.0 }}", "{{ column.1 }}");
+    {% endfor %}
+    data[0].addRows(data0 = {{ data.0|jsonify }});
+    data[1].addRows({{ data.1|jsonify }});
+    
+    for (var x = 0; x < data.length; x++) {
+      var chart = new google.visualization
+        .BarChart(document.getElementById('bar_chart_div_' + x));
+      chart.draw(data[x], {height: Math.max(500, data0.length * 80), title: 'Metric: {{ metric }}',
+        vAxis: {title: 'URL', titleTextStyle: {color: 'red'}}, hAxis: {baseline: 0}, chartArea: {top: 0}});
+        
+      var table = new google.visualization
+        .Table(document.getElementById('table_div_' + x));
+      table.draw(data[x], {showRowNumber: true, chartArea: {top: 0}});
+    }
+  }
+  function drawCandleChart() {
+    var data = [];
+    {% for quartile in quartiles.items %}
+    data.push([
+      google.visualization.arrayToDataTable({{ quartile.1.0|jsonify }}, true),
+      google.visualization.arrayToDataTable({{ quartile.1.1|jsonify }}, true)
+    ]);
+    {% endfor %}
+    
+    for (var x = 0; x < data.length; x++) {
+      var candle = new google.visualization
+        .CandlestickChart(document.getElementById('box_chart_div_' + x + '_0'));
+      candle.draw(data[x][0], {legend:'none', height: 400, chartArea: {top: 0}});
+      
+      var candle = new google.visualization
+        .CandlestickChart(document.getElementById('box_chart_div_' + x + '_1'));
+      candle.draw(data[x][1], {legend:'none', height: 400, chartArea: {top: 0}});
+    }
+  }
+</script>
+{% endautoescape %}
+{% endblock %}
+
+
+{% block body %}
+
+<h2>First View</h2>
+<div id="bar_chart_div_0"></div>
+<div id="table_div_0"></div>
+
+<h2>Repeat View</h2>
+<div id="bar_chart_div_1"></div>
+<div id="table_div_1"></div>
+
+<h1>Test Variation Data</h1>
+
+{% for test in quartiles.items %}
+<h2>{{ test.0 }}</h2>
+
+<h3>First View</h3>
+<div id="box_chart_div_{{ forloop.counter0 }}_0"></div>
+
+<h3>Repeat View</h3>
+<div id="box_chart_div_{{ forloop.counter0 }}_1"></div>
+{% endfor %}
+
+{% endblock %}
