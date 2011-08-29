@@ -123,12 +123,18 @@ void PdfGenerator::GenerateRuleSummary(const FormattedRuleResults& results) {
   NewPage();
 
   // Make the page header.
-  HPDF_Page_SetRGBFill(page_, 0.895, 0.922, 0.973);
+  HPDF_Page_SetRGBFill(page_,
+                       static_cast<HPDF_REAL>(0.895),
+                       static_cast<HPDF_REAL>(0.922),
+                       static_cast<HPDF_REAL>(0.973));
   HPDF_Page_Rectangle(page_, kLeft, kTop - 0.5 * kInch,
                       kWidth, 0.5 * kInch);
   HPDF_Page_Fill(page_);
 
-  HPDF_Page_SetRGBStroke(page_, 0.199, 0.398, 0.797);
+  HPDF_Page_SetRGBStroke(page_,
+                         static_cast<HPDF_REAL>(0.199),
+                         static_cast<HPDF_REAL>(0.398),
+                         static_cast<HPDF_REAL>(0.797));
   HPDF_Page_SetLineWidth(page_, 1.0);
   HPDF_Page_MoveTo(page_, kLeft, kTop);
   HPDF_Page_LineTo(page_, kRight, kTop);
