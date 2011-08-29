@@ -356,7 +356,7 @@ bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
       ++index;
     }
   }
-  const int microseconds = PR_USEC_PER_MSEC * milliseconds;
+  const PRInt32 microseconds = PR_USEC_PER_MSEC * milliseconds;
 
   // Now, index is pointing at the beginning of the timezone spec.  The
   // timezone should be "Z" for UTC, or something like e.g. "-05:00" for EST.
@@ -391,9 +391,18 @@ bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
 
   // Finally, use the prtime library to calculate the milliseconds since the
   // epoch UTC for this datetime.
-  PRExplodedTime exploded = { microseconds, seconds, minutes, hours,
-                              day, month - 1, year, 0, 0,
-                              { tz_offset_seconds, 0 } };
+  PRExplodedTime exploded = {
+    microseconds,
+    static_cast<PRInt32>(seconds),
+    static_cast<PRInt32>(minutes),
+    static_cast<PRInt32>(hours),
+    static_cast<PRInt32>(day),
+    static_cast<PRInt32>(month - 1),
+    static_cast<PRInt16>(year),
+    0,
+    0,
+    { static_cast<PRInt32>(tz_offset_seconds), 0 }
+  };
   // We need to explicitly cast PR_USEC_PER_MSEC to a signed type here;
   // otherwise, we will perform unsigned division, yielding a wrong result for
   // "negative" datetimes (i.e. those before 1970).
