@@ -199,7 +199,7 @@ void PdfGenerator::FormatParagraph(const FormatString& format_string,
           buffer.clear();
         }
         HPDF_Page_GSave(page_);
-        HPDF_Page_SetGrayFill(page_, 0.4);
+        HPDF_Page_SetGrayFill(page_, static_cast<HPDF_REAL>(0.4));
         WrapUrl(argument.string_value(), left, right, &cursor_x, baseline);
         HPDF_Page_GRestore(page_);
       } else {
