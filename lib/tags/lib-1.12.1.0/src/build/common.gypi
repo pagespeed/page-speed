@@ -268,6 +268,7 @@
               '-Wall',
               '-Wextra',
               '-Werror',
+              '-std=gnu++0x',
             ],
             'cflags': [
               # Don't warn about hash_map in third-party code.
@@ -705,6 +706,17 @@
           }],
         ],
       },
+      'conditions': [
+        ['gcc_version>=43', {
+          'target_defaults': {
+            'cflags': [
+              # Page Speed customization to enable stricter checking in
+              # preparation for transition to C++0x.
+              '-std=gnu++0x',
+            ]
+          },
+        }]
+      ],
     }],
     ['OS=="mac"', {
       'target_defaults': {

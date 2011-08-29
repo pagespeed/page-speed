@@ -123,12 +123,18 @@ void PdfGenerator::GenerateRuleSummary(const FormattedRuleResults& results) {
   NewPage();
 
   // Make the page header.
-  HPDF_Page_SetRGBFill(page_, 0.895, 0.922, 0.973);
+  HPDF_Page_SetRGBFill(page_,
+                       static_cast<HPDF_REAL>(0.895),
+                       static_cast<HPDF_REAL>(0.922),
+                       static_cast<HPDF_REAL>(0.973));
   HPDF_Page_Rectangle(page_, kLeft, kTop - 0.5 * kInch,
                       kWidth, 0.5 * kInch);
   HPDF_Page_Fill(page_);
 
-  HPDF_Page_SetRGBStroke(page_, 0.199, 0.398, 0.797);
+  HPDF_Page_SetRGBStroke(page_,
+                         static_cast<HPDF_REAL>(0.199),
+                         static_cast<HPDF_REAL>(0.398),
+                         static_cast<HPDF_REAL>(0.797));
   HPDF_Page_SetLineWidth(page_, 1.0);
   HPDF_Page_MoveTo(page_, kLeft, kTop);
   HPDF_Page_LineTo(page_, kRight, kTop);
@@ -193,7 +199,7 @@ void PdfGenerator::FormatParagraph(const FormatString& format_string,
           buffer.clear();
         }
         HPDF_Page_GSave(page_);
-        HPDF_Page_SetGrayFill(page_, 0.4);
+        HPDF_Page_SetGrayFill(page_, static_cast<HPDF_REAL>(0.4));
         WrapUrl(argument.string_value(), left, right, &cursor_x, baseline);
         HPDF_Page_GRestore(page_);
       } else {
@@ -282,8 +288,12 @@ void PdfGenerator::WrapUrl(const std::string& url,
   HPDF_Page_BeginText(page_);
   HPDF_Page_TextOut(page_, *cursor_x, *baseline, url_text.c_str());
   HPDF_Page_EndText(page_);
-  const HPDF_Rect rect = {*cursor_x, *baseline, *cursor_x + text_width,
-                          *baseline + kTextFontSize};
+  const HPDF_Rect rect = {
+    static_cast<HPDF_REAL>(*cursor_x),
+    static_cast<HPDF_REAL>(*baseline),
+    static_cast<HPDF_REAL>(*cursor_x + text_width),
+    static_cast<HPDF_REAL>(*baseline + kTextFontSize)
+  };
   HPDF_Page_CreateURILinkAnnot(page_, rect, url.c_str());
   *cursor_x += text_width;
 }
