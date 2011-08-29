@@ -282,8 +282,12 @@ void PdfGenerator::WrapUrl(const std::string& url,
   HPDF_Page_BeginText(page_);
   HPDF_Page_TextOut(page_, *cursor_x, *baseline, url_text.c_str());
   HPDF_Page_EndText(page_);
-  const HPDF_Rect rect = {*cursor_x, *baseline, *cursor_x + text_width,
-                          *baseline + kTextFontSize};
+  const HPDF_Rect rect = {
+    static_cast<HPDF_REAL>(*cursor_x),
+    static_cast<HPDF_REAL>(*baseline),
+    static_cast<HPDF_REAL>(*cursor_x + text_width),
+    static_cast<HPDF_REAL>(*baseline + kTextFontSize)
+  };
   HPDF_Page_CreateURILinkAnnot(page_, rect, url.c_str());
   *cursor_x += text_width;
 }
