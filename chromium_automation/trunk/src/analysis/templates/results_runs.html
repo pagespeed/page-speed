@@ -10,31 +10,31 @@
   google.setOnLoadCallback(drawChart);
   function drawChart() {
     var data = [];
-    
+
     {% for test in chart.0.items %}
     var d0 = new google.visualization.DataTable();
     d0.div_name = "chart_div_{{ forloop.counter0 }}_0"
-        
+
     {% for column in columns %}
     d0.addColumn("{{ column.0 }}", "{{ column.1 }}")
     {% endfor %}
     d0.addRows({{ test.1|jsonify }})
-    
+
     data.push(d0)
     {% endfor %}
-    
+
     {% for test in chart.1.items %}
     var d1 = new google.visualization.DataTable();
     d1.div_name = "chart_div_{{ forloop.counter0 }}_1"
-        
+
     {% for column in columns %}
     d1.addColumn("{{ column.0 }}", "{{ column.1 }}")
     {% endfor %}
     d1.addRows({{ test.1|jsonify }})
-    
+
     data.push(d1)
     {% endfor %}
-    
+
     for (var x = 0; x < data.length; x++) {
       var chart = new google.visualization.LineChart(document.getElementById(data[x].div_name));
       chart.draw(data[x], {width: "100%", height: 500,

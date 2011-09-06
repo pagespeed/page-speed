@@ -13,9 +13,9 @@ import java.net.InetSocketAddress;
 
 /**
  * Runs tests and then converts the data to a format suitable for analysis.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class PageSpeedChromeRunner {
 
@@ -71,7 +71,7 @@ public class PageSpeedChromeRunner {
           String.format("Not using %s because it has more than one tab.", server));
       }
     }
-    
+
     // Result Handler
     OutputGenerator results = new OutputGenerator(psr,
       Flags.getStr("results"), tests.getTotalTests());

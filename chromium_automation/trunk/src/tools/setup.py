@@ -58,7 +58,7 @@ class Flags(object):
     print "Usage:"
     for name in self.params:
       print "--%s\t%s (Current: %s)" % (name, self.params[name][1], self.params[name][0])
-  
+
   def get(self, name):
     return self.params[name][0]
 

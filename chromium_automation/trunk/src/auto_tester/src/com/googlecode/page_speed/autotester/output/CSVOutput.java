@@ -16,9 +16,9 @@ import java.util.List;
 
 /**
  * Generates a CSV of test metrics and Page Speed results.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class CSVOutput implements OutputBuilder {
 
@@ -89,7 +89,7 @@ public class CSVOutput implements OutputBuilder {
   /**
    * Joins a list into a string. Opposite of split(). Also escapes " with \ in
    * all values.
-   * 
+   *
    * @param s List of elements.
    * @param delimiter The delimiter to join on.
    * @return A delimiter separated string of s.

@@ -9,14 +9,14 @@ import java.util.List;
 
 /**
  * Class that can be observed for test status updates.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */
 public class TestObservable {
 
   private List<TestObserver> observers = new ArrayList<TestObserver>();
-  
+
   public void addObserver(TestObserver obs) {
     if (obs == null) {
         throw new IllegalArgumentException();
@@ -26,7 +26,7 @@ public class TestObservable {
     }
     observers.add(obs);
   }
-  
+
   public void notifyTestCompleted(TestResult result) {
     for (TestObserver obs : observers) {
       try {
@@ -46,5 +46,5 @@ public class TestObservable {
       }
     }
   }
-  
+
 }

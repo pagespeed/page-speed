@@ -61,14 +61,14 @@ class MetricIterator(object):
     """
     if tests is None:
       tests = util.GetTests(self.data)
-    
+
     if metric_names is None:
       metric_names = util.GetMetrics(self.data)
     self.metrics = metric_names
 
     if variation_names is None:
       variation_names = util.GetVariations(self.data)
-      
+
     if view_list is None:
       view_list = (0, 1)
 
@@ -92,7 +92,7 @@ class MetricIterator(object):
           self.PostCached(cached, var_name, test_name)
         self.PostVariation(var_name, test_name)
       self.PostTest(test_name)
-      
+
     self.metrics = None
     return self.GetData()
 
@@ -120,7 +120,7 @@ class AggregateIterator(MetricIterator):
 
   def GetData(self):
     """Returns the aggregate data set.
-    
+
     The data set is equivalent to the original except the only test is
     "Aggregate"
     """
@@ -199,10 +199,10 @@ class BasicStatIterator(MetricIterator):
 
   def GetData(self):
     """Returns bar chart and quartile data.
-    
+
     Bar Chart Data:
       list[0=fv,1=rv] = list of [test_name, *variation values]
-    
+
     Quartile Data:
       dict[test_name][cached] = list of [*quartiles]
     """
@@ -245,10 +245,10 @@ class CorrelationIterator(MetricIterator):
   def GetData(self):
     """
     Returns scatter plot and correlation data.
-    
+
     Scatter Plot Data:
       list[0=fv,1=rv] = list of [dependant metric, *independant metrics]
-    
+
     Correlation Data:
       list[0=fv,1=rv][metric name] = (correlation coefficient (r))
     """
@@ -286,10 +286,10 @@ class SignificanceIterator(MetricIterator):
   def GetData(self):
     """
     Returns a set of confidence intervals.
-    
+
     Table Data:
       list[0=fv,1=rv][metric] = list of (test, base ci, main ci)
-    
+
     Chart Data:
       list[0=fv,1=rv] = list of [test, *|lowerbound, upperbound|]
     """

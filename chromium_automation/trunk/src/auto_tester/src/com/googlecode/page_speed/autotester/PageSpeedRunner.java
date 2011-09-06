@@ -14,9 +14,9 @@ import java.util.List;
 
 /**
  * Converts HAR, DOM and Instrumentation data into PageSpeed results.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class PageSpeedRunner {
 
@@ -25,7 +25,7 @@ public class PageSpeedRunner {
 
   /**
    * Creates a new Page Speed result creator.
-   * 
+   *
    * @param aPathToPageSpeedBin The path to a runnable pagespeed_bin
    */
   public PageSpeedRunner(String aPathToPageSpeedBin) {
@@ -35,7 +35,7 @@ public class PageSpeedRunner {
 
   /**
    * Gets the scoring strategy to be used by pagespeed.
-   * 
+   *
    * @return the scoring strategy to use
    */
   public String getStrategy() {
@@ -44,7 +44,7 @@ public class PageSpeedRunner {
 
   /**
    * Sets the scoring strategy (desktop, mobile)
-   * 
+   *
    * @param strategy the scoring strategy to use
    */
   public void setStrategy(String strategy) {
@@ -57,7 +57,7 @@ public class PageSpeedRunner {
 
   /**
    * Converts HAR, DOM and Instrumentation data into PageSpeed results.
-   * 
+   *
    * @param aPathToHarFile Path to a readable HTTP Archive
    * @param aPathToInstrumentationFile Path to readable timeline data
    * @param aPathToDomFile Path to readable DOM data
@@ -102,7 +102,7 @@ public class PageSpeedRunner {
 
     stderr.start();
     stdout.start();
-    
+
     try {
       // Wait for process to end
       process.waitFor();

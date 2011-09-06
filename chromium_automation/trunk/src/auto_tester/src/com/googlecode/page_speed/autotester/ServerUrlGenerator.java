@@ -19,13 +19,13 @@ import java.util.List;
 
 /**
  * Generates a list of servers/tabs.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */
 public class ServerUrlGenerator {
   private List<InetSocketAddress> servers;
-  
+
   /**
    * Create a new configuration for the test runner.
    * @param serversFilename The filename of the server list.
@@ -42,7 +42,7 @@ public class ServerUrlGenerator {
       }
     }
   }
-  
+
   /**
    * Get the list of server addresses.
    * @return a List of server InetSocketAddress objects.
@@ -50,10 +50,10 @@ public class ServerUrlGenerator {
   public List<InetSocketAddress> getServers() {
     return servers;
   }
-  
+
   /**
    * Gets a list of debuggable tabs in a Chrome instance.
-   * 
+   *
    * @param server The InetSocketAddress of the debuggable Chrome instance.
    * @return A JSONArray of JSONObjects describing the tabs.
    */

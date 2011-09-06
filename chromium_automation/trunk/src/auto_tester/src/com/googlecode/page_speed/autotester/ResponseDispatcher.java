@@ -8,16 +8,16 @@ import java.util.HashMap;
 
 /**
  * A class that delegates asynchronous responses to ResponseHandlers.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  * @param <KT> The key type.
  * @param <DT> The data type.
  */
 public class ResponseDispatcher<KT, DT> {
-  
+
   private HashMap<KT, ResponseHandler<DT>> handlers;
-  
+
   public ResponseDispatcher() {
     handlers = new HashMap<KT, ResponseHandler<DT>>();
   }
@@ -31,7 +31,7 @@ public class ResponseDispatcher<KT, DT> {
   public ResponseHandler<DT> put(KT key, ResponseHandler<DT> value) {
     return handlers.put(key, value);
   }
-  
+
   /**
    * Checks whether any more responses are expected.
    * @return True if no more handlers exist, false otherwise.
@@ -39,14 +39,14 @@ public class ResponseDispatcher<KT, DT> {
   public boolean isEmpty() {
     return handlers.isEmpty();
   }
-  
+
   /**
    * Deletes all handlers.
    */
   public void clear() {
     handlers.clear();
   }
-  
+
   /**
    * Handles a response with an id and data.
    * @param id The id of the response.
@@ -64,5 +64,5 @@ public class ResponseDispatcher<KT, DT> {
     }
     return false;
   }
-  
+
 }

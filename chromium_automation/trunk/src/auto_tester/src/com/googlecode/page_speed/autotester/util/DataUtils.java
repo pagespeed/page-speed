@@ -9,21 +9,21 @@ import java.util.HashMap;
 
 /**
  * Various utility methods for dealing with JSON data.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class DataUtils {
   public static final String ID_KEY = "identifier";  //"requestId";
 
   private static HashMap<String, String> identifierPaths = null;
-  
+
   /**
    * Gets a sub-object of a JSON object by traversing down the object by key.
    * All objects that are traversed must be JSONObjects. The purpose of this
    * method is to avoid the ugly code caused by having to cast to JSONObject
    * after each call to get().
-   * 
+   *
    * @param obj The root object.
    * @param path A period delimited list of keys.
    * @return The object at obj.get(key[0]).get(key[1]).get(key[...])
@@ -47,7 +47,7 @@ public class DataUtils {
   }
 
   /**
-   * Gets the id from an object. 
+   * Gets the id from an object.
    * @param obj The json object response to get the id from
    * @return The id object.
    */
@@ -78,7 +78,7 @@ public class DataUtils {
     }
     return ""; // This will never match anything and is better than returning null.
   }
-  
+
   /**
    * Checks whether a json object response is of a certain method type.
    * @param obj The JSON object response
@@ -88,5 +88,5 @@ public class DataUtils {
   public static boolean isMethod(JSONObject obj, String method) {
     return obj != null && obj.containsKey("method") && obj.get("method").equals(method);
   }
-  
+
 }
