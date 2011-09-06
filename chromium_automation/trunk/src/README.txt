@@ -38,7 +38,7 @@ Run "chrome-wrapper --remote-debugging-port=[port to listen on] --user-data-dir=
 Advanced (with IPFW, Linux only):
 Extract chrome to chrome_stack/chrome-linux/
 Download "Source code and tools" from http://info.iet.unipi.it/~luigi/dummynet/
-Put the zip in the chrome_stack directory. Make sure it is called 20*.tar
+Put the zip in the chrome_stack directory. Make sure it is called 20*.tgz
 Run `install-ipfw.sh` to add IPFW to the kernel.
 Run "NET=[dsl|dialup|fios] DNS=[test server] PORT=[port to listen on] ./start-chrome.sh"
 

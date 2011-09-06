@@ -109,7 +109,7 @@
 <div>
   
   <label title="The metric on the x-axis.">
-    <span>Independant Metric: <span class="help">The metric on the x-axis.</span></span>
+    <span>Independent Metric: <span class="help">The metric on the x-axis.</span></span>
     <select name="imetric">
     {% for metric in metrics %}
       <option value="{{ metric }}">{{ metric }}</option>
@@ -128,7 +128,7 @@
   
 <div>
   <label title="The metric on the x-axis.">
-    <span>Dependant Metrics: <span class="help">The metric on the x-axis.</span></span>
+    <span>Dependent Metrics: <span class="help">The metric(s) on the y-axis.</span></span>
     <select name="dmetrics" multiple="multiple">
     {% for metric in metrics %}
       <option value="{{ metric }}">{{ metric }}</option>
