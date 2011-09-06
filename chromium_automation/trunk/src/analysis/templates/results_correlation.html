@@ -12,25 +12,25 @@
     var data = [];
     data.push(new google.visualization.DataTable());
     data.push(new google.visualization.DataTable());
-    
+
     {% for column in columns %}
     data[0].addColumn("{{ column.0 }}", "{{ column.1 }}");
     data[1].addColumn("{{ column.0 }}", "{{ column.1 }}");
     {% endfor %}
     data[0].addRows({{ data.0|jsonify }});
     data[1].addRows({{ data.1|jsonify }});
-    
+
     var tdata = [];
     tdata.push(new google.visualization.DataTable());
     tdata.push(new google.visualization.DataTable());
-    
+
     {% for column in tcolumns %}
     tdata[0].addColumn("{{ column.0 }}", "{{ column.1 }}");
     tdata[1].addColumn("{{ column.0 }}", "{{ column.1 }}");
     {% endfor %}
     tdata[0].addRows({{ tdata.0|jsonify }});
     tdata[1].addRows({{ tdata.1|jsonify }});
-    
+
     for (var x = 0; x < data.length; x++) {
       var chart = new google.visualization.ScatterChart(document.getElementById('chart_div_' + x));
       chart.draw(data[x], {width: "100%", height: 600,

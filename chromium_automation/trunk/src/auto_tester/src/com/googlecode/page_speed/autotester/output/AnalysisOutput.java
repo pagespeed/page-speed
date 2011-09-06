@@ -12,9 +12,9 @@ import java.util.Map.Entry;
 
 /**
  * Generates a json file of test metrics and Page Speed results.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class AnalysisOutput implements OutputBuilder {
 
@@ -26,7 +26,7 @@ public class AnalysisOutput implements OutputBuilder {
 
   /**
    * Adds a single test run to the output json data structure.
-   * 
+   *
    * @param run The test run to fetch data from.
    * @param metrics The non-pagespeed metrics map name->value
    * @param pagespeed The pagespeed unformatted json output.
@@ -71,7 +71,7 @@ public class AnalysisOutput implements OutputBuilder {
 
   /**
    * Adds a single run value to the array of values for a metric.
-   * 
+   *
    * @param parentObj Parent object that holds metrics.
    * @param key The metric name
    * @param value The metric value.

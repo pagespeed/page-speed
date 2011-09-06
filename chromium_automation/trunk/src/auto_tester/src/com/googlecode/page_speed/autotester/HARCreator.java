@@ -22,21 +22,21 @@ import java.util.Map;
  * Generates a HAR file from network data gathered from Chrome Debugger Tools.
  * The produced HAR is valid and good enough for use with Page Speed, but could
  * be improved to be more accurate and complete.
- * 
+ *
  * See WebKit/Source/WebCore/inspector/front-end/HAREntry.js
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 class HARCreator {
-  
+
   private static final String HAR_VERSION = "1.2";
   private TestResult result;
 
   /**
    * Create a new HAR builder object.
-   * 
+   *
    * @param aResult the test result object to generate a har for.
    */
   public HARCreator(TestResult aResult) {
@@ -45,7 +45,7 @@ class HARCreator {
 
   /**
    * Build the HAR.
-   * 
+   *
    * @return The JSON HAR object.
    */
   public JSONObject build() {
@@ -99,7 +99,7 @@ class HARCreator {
   /**
    * Generates the list of pages loaded.
    * Currently only generates the main page.
-   * 
+   *
    * @param startTime The time the page started loading in ISO8601.
    * @return an array of loaded pages.
    */
@@ -114,7 +114,7 @@ class HARCreator {
     arr.add(mainPage);
     return arr;
   }
-  
+
   /**
    * Generates the pageTimings object.
    * This uses getMetrics() in TestResult.
@@ -180,7 +180,7 @@ class HARCreator {
         }
         resource.setResponse(params);
         resource.setCached();
-        
+
         // We never get a request notification, so lets make one.
         JSONObject requestRequest = new JSONObject();
         requestRequest.put("headers", new JSONObject());
@@ -193,15 +193,15 @@ class HARCreator {
         request.put("request", requestRequest);
         request.put("requestId", params.get("requestId"));
         request.put("timestamp", params.get("timestamp"));
-        
+
         resource.addRequest(request);
       }
     }
-    
+
     for (Resource res : resources.values()) {
       processResource(arr, res);
     }
-    
+
     // HAR Viewer wants these in order.
     // http://www.softwareishard.com/har/viewer/
     Collections.sort(arr, new Comparator<JSONObject>() {
@@ -211,10 +211,10 @@ class HARCreator {
             .compareTo(((String) o2.get("startedDateTime")));
       }
     });
-    
+
     return arr;
   }
-  
+
   /**
    * Process a resource and generate an entry for it.
    * @param entries The list of entries to add it to.
@@ -273,7 +273,7 @@ class HARCreator {
 
   /**
    * Generates an entry from resource requests and responses.
-   * 
+   *
    * @param request The ResourceRequest object (from dev tools).
    * @param response The ResourceResponse object (from dev tools).
    * @param res The resource object.
@@ -285,7 +285,7 @@ class HARCreator {
       Resource res, JSONObject rawRequest, JSONObject rawResponse) {
     JSONObject timing = (JSONObject) response.get("timing");
     JSONObject timings;
-    
+
     // Handle cached resources.
     // We might get back cached timings and headers, so we will use the best guess
     // we have, which is the timestamp of the notification.
@@ -304,8 +304,8 @@ class HARCreator {
       }
     } else {
       timings = generateTimings(request, response, timing, res);
-    }    
-    
+    }
+
     JSONObject obj = new JSONObject();
     obj.put("pageref", "main_page");
     obj.put("startedDateTime", generateStartedDateTime(timing));
@@ -473,7 +473,7 @@ class HARCreator {
 
   /**
    * Generates a query string object from a path.
-   * 
+   *
    * @param path The path with the query string.
    * @return A JSONArray of HAR formatted name value pairs.
    */
@@ -502,13 +502,13 @@ class HARCreator {
 
   /**
    * Generates posted data info.
-   * 
+   *
    * @param postData The content body of the post request.
    * @return A postData object.
    */
   protected JSONObject generatePostData(String postData) {
     JSONObject post = new JSONObject();
-    
+
     String[] params = postData.split("&");
     JSONObject map = new JSONObject();
     for (String param : params) {
@@ -517,14 +517,14 @@ class HARCreator {
       String value = pair.length > 1 ? pair[1] : "";
       map.put(name, value);
     }
-    
+
     post.put("mimeType", "multipart/form-data");
     post.put("params", parseNVPairs(map));
     post.put("text", postData);
     // post.put("comment", "");
     return post;
   }
-  
+
   /**
    * Generates the request header array from the request header JSON object.
    * @param headers the JSONObject with a mapping of header names to values.
@@ -665,7 +665,7 @@ class HARCreator {
 
   /**
    * Parses a list of cookies from Cookie and Set-Cookie headers.
-   * 
+   *
    * @param cookieList A list of raw cookies.
    * @return A JSONArray of HAR formatted cookie objects.
    */
@@ -722,7 +722,7 @@ class HARCreator {
 
   /**
    * Parses name to value maps into a list of HAR formatted name value objects.
-   * 
+   *
    * @param obj A name->value Map/JSONObject.
    * @return A JSONArray of HAR formatted name value objects.
    */
@@ -742,10 +742,10 @@ class HARCreator {
     }
     return pairs;
   }
-  
+
   /**
    * Gets the difference between Doubles a and b.
-   * 
+   *
    * @param a Double value Start time
    * @param b Double value End time
    * @param mult Multiplier for the final value
@@ -769,7 +769,7 @@ class HARCreator {
 
   /**
    * Convert a data object to a ISO 8601 formatted string.
-   * 
+   *
    * @param date The date to convert.
    * @return `date` as an ISO 8601 formatted string.
    */
@@ -780,7 +780,7 @@ class HARCreator {
     result = result.substring(0, length - 2) + ":" + result.substring(length - 2);
     return result;
   }
-  
+
   /**
    * Represents a single resource;
    */
@@ -792,7 +792,7 @@ class HARCreator {
     private JSONObject dataComplete = null;
     private JSONObject content = null;
     private boolean cached = false;
-    
+
     public Resource(Object aId) {
       id = aId;
       requestChain = new ArrayList<JSONObject>();
@@ -807,7 +807,7 @@ class HARCreator {
         //System.err.println("Response: " + response);
       }
     }
-    
+
     public void setResponse(JSONObject obj) {
       printError(response != null, "Duplicate response.");
       response = obj;
@@ -834,7 +834,7 @@ class HARCreator {
      * Returns the list of requests that led up to receiving the content.
      * This includes length - 1 redirects. The last (and possibly first) request
      * is the request for the final content (not a redirect).
-     * 
+     *
      * @return a list of requests made for this resource.
      */
     public List<JSONObject> getRequests() {
@@ -857,7 +857,7 @@ class HARCreator {
       }
       return null;
     }
-    
+
     public JSONObject getFinalResponse() {
       // printError(response == null, "No final response.");
       return response;
@@ -870,7 +870,7 @@ class HARCreator {
       }
       return 0L;
     }
-    
+
     public Long getDataSize(String type) {
       // Type = dataLength, encodedDataLength
       Long total = 0L;
@@ -897,17 +897,17 @@ class HARCreator {
       }
       return DataUtils.getByPath(dataComplete, "timestamp");
     }
-    
+
     public JSONObject getContent() {
       // We can't get plugin resource content.
       // printError(content == null, "No content.");
       return content;
     }
-    
+
     public boolean isCached() {
       return cached;
     }
-    
+
   }
 
 }

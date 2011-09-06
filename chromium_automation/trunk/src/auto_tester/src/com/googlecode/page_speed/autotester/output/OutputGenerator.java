@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * Generates output files from test results.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */
@@ -53,7 +53,7 @@ public class OutputGenerator implements TestObserver {
 
   /**
    * Set the name of the test data set.
-   * 
+   *
    * @param aName The new name of the test data set.
    */
   public void setName(String aName) {
@@ -70,7 +70,7 @@ public class OutputGenerator implements TestObserver {
       savedFiles.add(fileType);
     }
   }
-  
+
   /**
    * Adds a list of builders from a comma delimited list.
    * @param list A comma delimited list of builder names.
@@ -87,10 +87,10 @@ public class OutputGenerator implements TestObserver {
       }
     }
   }
-  
+
   /**
    * Add an output builder.
-   * 
+   *
    * @param aBuilder An instance of an OutputBuilder.
    */
   public void addOutput(OutputBuilder aBuilder) {
@@ -99,17 +99,17 @@ public class OutputGenerator implements TestObserver {
 
   /**
    * Gets the file object representing a file in the result directory.
-   * 
+   *
    * @param file The path to the file under the result directory.
    * @return The file object of a file in the results directory.
    */
   public File newResultFile(String file) {
     return new File(resultsDir, file);
   }
-  
+
   /**
    * Returns a temporary file object.
-   * 
+   *
    * @param prefix The prefix of the file.
    * @param suffix the suffix of the file name.
    * @return The file object of a temp file.
@@ -158,7 +158,7 @@ public class OutputGenerator implements TestObserver {
         domFile = null;
       } else {
         System.out.print("DOM...");
-        FileUtils.setContents(domFile, dom.toJSONString());        
+        FileUtils.setContents(domFile, dom.toJSONString());
       }
       System.out.println();
 

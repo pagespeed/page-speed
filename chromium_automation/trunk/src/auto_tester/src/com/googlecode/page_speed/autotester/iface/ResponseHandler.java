@@ -4,7 +4,7 @@ package com.googlecode.page_speed.autotester.iface;
 
 /**
  * Interface for a response handler.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  * @param <DT> The datatype of the object passed to the handler.

@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 
 /**
  * Generates a list of tests to perform.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */
@@ -22,10 +22,10 @@ public class TestRequestGenerator {
 
   private List<String> urls;
   private Map<String, String> variations;
-  
+
   private int runs = 1;
   private boolean repeat = true;
-  
+
   /**
    * Create a new configuration for the test runner.
    * @param urlFilename The filename of the URL list.
@@ -33,10 +33,10 @@ public class TestRequestGenerator {
    */
   public TestRequestGenerator(String urlFilename,
                     String variationFilename) {
-    
+
     urls = FileUtils.getLines(new File(urlFilename));
     urls.removeAll(Arrays.asList(""));
-    
+
     variations = new HashMap<String, String>();
     if (variationFilename != null) {
       for (String variation : FileUtils.getLines(new File(variationFilename))) {
@@ -58,7 +58,7 @@ public class TestRequestGenerator {
   public int getRuns() {
     return runs;
   }
-  
+
   /**
    * Sets the number of runs per test URL.
    * @param newRuns The new number of runs per test URL.
@@ -71,7 +71,7 @@ public class TestRequestGenerator {
     }
     runs = newRuns;
   }
-  
+
   /**
    * Gets whether repeat views are tested.
    * @return True if repeat views are tested, false otherwise.
@@ -79,7 +79,7 @@ public class TestRequestGenerator {
   public boolean getRepeat() {
     return repeat;
   }
-  
+
   /**
    * Sets whether repeat views are tested.
    * @param newRepeat True if repeat views should be tested, false otherwise.
@@ -87,7 +87,7 @@ public class TestRequestGenerator {
   public void setRepeat(boolean newRepeat) {
     repeat = newRepeat;
   }
-  
+
   /**
    * Gets a list of iterables of TestRun storage objects.
    * Tests are grouped by base URL.
@@ -111,7 +111,7 @@ public class TestRequestGenerator {
     }
     return testLists;
   }
-  
+
   /**
    * Calculates the total number of tests that will be run.
    * @return the total number of tests that will be run.

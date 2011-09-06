@@ -22,9 +22,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Coordinates running of tests and loading of URLs across multiple tabs.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class URLTester extends TestObservable implements TestObserver {
 
@@ -41,7 +41,7 @@ public class URLTester extends TestObservable implements TestObserver {
 
   /**
    * Creates a new URLTester object.
-   * 
+   *
    * @param aTests An iterator over TestRuns.
    */
   public URLTester(List<List<TestRequest>> aTests) {
@@ -54,7 +54,7 @@ public class URLTester extends TestObservable implements TestObserver {
 
   /**
    * Adds a tab to be used for testing.
-   * 
+   *
    * @param tabInfo The JSON tab description from getTabList()
    * @param aTimeoutConnect How long to wait to connect to the tab before
    *        aborting.
@@ -100,7 +100,7 @@ public class URLTester extends TestObservable implements TestObserver {
   public void setRetriesOnFailure(int retriesOnFailure) {
     this.retriesOnFailure = retriesOnFailure;
   }
-  
+
   /**
    * Starts loading and testing URLs. Attempts to load repeat views directly
    * after first views on the same server.

@@ -29,7 +29,7 @@ class UploadResult(webapp.RequestHandler):
         result.user = users.get_current_user()
       result.put()
       result_id = result.key().id()
-      
+
       self.redirect("/results?%s" % urllib.urlencode({"id": result_id}))
     except (db.BadValueError):
       self.response.out.write("Invalid Data")

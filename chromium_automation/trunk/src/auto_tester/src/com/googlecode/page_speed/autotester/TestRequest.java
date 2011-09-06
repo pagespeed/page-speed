@@ -7,7 +7,7 @@ import java.net.URISyntaxException;
 
 /**
  * Represents the state of a single test (page load).
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */
@@ -21,7 +21,7 @@ public class TestRequest {
 
   /**
    * Creates a new test run storage object.
-   * 
+   *
    * @param aURL The base url to load (without variation)
    * @param aVN The variation name used in this test.
    * @param aVQS The variation query string.
@@ -39,7 +39,7 @@ public class TestRequest {
 
   /**
    * Get the full URL of the test (with variation).
-   * 
+   *
    * @return A string of the full URL to load.
    */
   public String getFullURL() {
@@ -70,5 +70,5 @@ public class TestRequest {
     }
     return url;
   }
-  
+
 }

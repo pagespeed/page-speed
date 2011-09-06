@@ -10,9 +10,9 @@ import java.util.Map.Entry;
 
 /**
  * Defines and parses command line flags.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class Flags {
 
@@ -22,7 +22,7 @@ public class Flags {
 
   /**
    * Parse command line flags out of the command line arguments.
-   * 
+   *
    * @param args command-line arguments
    */
   public static void init(String[] args) {
@@ -64,7 +64,7 @@ public class Flags {
 
   /**
    * Returns whether all the required flags are specified.
-   * 
+   *
    * @return true if all required fields are specified, false otherwise.
    */
   public static boolean isValid() {
@@ -81,7 +81,7 @@ public class Flags {
 
   /**
    * Defines a new flag.
-   * 
+   *
    * @param name The flag name.
    * @param desc A description of what the flag is for.
    * @param def The default value if it is not specified.
@@ -106,7 +106,7 @@ public class Flags {
 
   /**
    * Gets a flag value as a boolean.
-   * 
+   *
    * @param name The flag name.
    * @return The flag value as a boolean.
    */
@@ -116,7 +116,7 @@ public class Flags {
 
   /**
    * Gets a flag value as an integer.
-   * 
+   *
    * @param name The flag name.
    * @return The flag value as a integer.
    */
@@ -126,7 +126,7 @@ public class Flags {
 
   /**
    * Gets a flag value as a string.
-   * 
+   *
    * @param name The flag name.
    * @return The flag value as a string.
    */

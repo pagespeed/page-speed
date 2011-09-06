@@ -13,26 +13,26 @@ import java.util.List;
 
 /**
  * Holds result data for a single test.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */
 public class TestResult {
-  
+
   public final TestRequest request; // The request for this result.
 
   private Date startTime = null;
   private Date endTime = null;
   private boolean error = false;
-  
+
   private List<JSONObject> data = null;
-  
+
   public TestResult(TestRequest aRequest) {
     request = aRequest;
     startTime = new Date();
     data = new ArrayList<JSONObject>();
   }
-  
+
   /**
    * Adds response data to the result.
    * @param value
@@ -40,7 +40,7 @@ public class TestResult {
   public void addData(JSONObject value) {
     data.add(value);
   }
-  
+
   /**
    * Gets all the response data.
    * @return A List of JSON response data.
@@ -48,7 +48,7 @@ public class TestResult {
   public List<JSONObject> getData() {
     return data;
   }
-  
+
   /**
    * Clears all the response data to expedite GC.
    */
@@ -62,7 +62,7 @@ public class TestResult {
   public void setEnd() {
     endTime = new Date();
   }
-  
+
   /**
    * Returns whether the test has been completed.
    * @return True is the test is complete, false otherwise.
@@ -70,7 +70,7 @@ public class TestResult {
   public boolean isCompleted() {
     return endTime != null;
   }
-  
+
   /**
    * Returns whether the test failed.
    * @return whether the test failed.
@@ -78,7 +78,7 @@ public class TestResult {
   public boolean failed() {
     return error;
   }
-  
+
   /**
    * Marks the test as failed.
    */
@@ -86,7 +86,7 @@ public class TestResult {
     clearData();
     error = true;
   }
-  
+
   /**
    * Calculates how long the test took to run.
    * @return The length of the test (in seconds) if completed, time since test start otherwise.
@@ -100,7 +100,7 @@ public class TestResult {
 
   /**
    * Generates metrics based on the raw data collected from chrome.
-   * 
+   *
    * @return A metric->value JSONObject
    */
   @SuppressWarnings("unchecked")
@@ -137,7 +137,7 @@ public class TestResult {
 
   /**
    * Get the timeline instrumentation JSON used by pagespeed.
-   * 
+   *
    * @return A JSONArray of timeline event objects.
    */
   @SuppressWarnings("unchecked")
@@ -156,7 +156,7 @@ public class TestResult {
 
   /**
    * Get the DOM JSON used by pagespeed.
-   * 
+   *
    * @return A json representation of the DOM.
    */
   public JSONObject getDOM() {
@@ -173,7 +173,7 @@ public class TestResult {
 
   /**
    * Get the HAR (HTTP Archive) used by pagespeed.
-   * 
+   *
    * @return The HTTP Archive JSONObject based on data collected from chrome.
    */
   public JSONObject getHAR() {
@@ -182,5 +182,5 @@ public class TestResult {
     }
     return new HARCreator(this).build();
   }
-  
+
 }

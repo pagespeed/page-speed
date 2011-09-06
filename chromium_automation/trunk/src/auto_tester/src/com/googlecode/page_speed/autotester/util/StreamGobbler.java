@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 
 /**
  * Reads an InputStream in a new thread.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */

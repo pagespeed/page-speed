@@ -16,9 +16,9 @@ import java.io.IOException;
 
 /**
  * Loads a URL into a tab and requests all needed data (DOM, Timeline).
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 public class TabController extends TestObservable implements WsConnection.Listener {
@@ -27,16 +27,16 @@ public class TabController extends TestObservable implements WsConnection.Listen
    * We need to make sure the observer isn't notified of a test completion
    * until at least after page load. This is a dummy id used to add a handler
    * that is removed after onload.
-   * 
+   *
    * The value is arbitrary and can be any negative number. Any negative
    * value can be used since real IDs can go up to 9,223,372,036,854,775,807
    * before they overflow back to -9,223,372,036,854,775,808
    */
   private static final Long PAGE_LOAD = -31337L;
-  
+
   private Long testCompleteTimeout;
   private Thread watchDog = null;
-  
+
   // This will contain the JS injected into pages to collect the DOM.
   // TODO(azlatin): Need a better DOM solution using
   // http://code.google.com/chrome/devtools/docs/protocol/dom.html
@@ -53,7 +53,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
   /**
    * Creates a new controller for a web socket connection to a tab.
-   * 
+   *
    * @param aTab The WebSocket connection to a debuggable tab.
    * @param aTimeout How long to wait for test completion before aborting.
    */
@@ -76,7 +76,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
   /**
    * Sets the next URL to load.
-   * 
+   *
    * @param aResult The result to save responses to.
    */
   public void setTest(TestResult aResult) {
@@ -84,7 +84,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
     result = aResult;
     if (nextURL != null) {
       responseHandlers.clear();
-      
+
       JSONObject params;
       params = new JSONObject();
       params.put("newWindow", false);
@@ -104,7 +104,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
   /**
    * Gets the tab connection.
-   * 
+   *
    * @return The websocket connection to the tab.
    */
   public WsConnection getTab() {
@@ -113,13 +113,13 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
   /**
    * Gets the next method call id.
-   * 
+   *
    * @return The next method call id.
    */
   public synchronized Long getNextId() {
     return nextId++;
   }
-  
+
   /**
    * Call a method over the debugging socket with no parameters.
    * @param method  The method to call.
@@ -128,10 +128,10 @@ public class TabController extends TestObservable implements WsConnection.Listen
   protected Long sendMessage(String method) {
     return sendMessage(method, new JSONObject());
   }
-  
+
   /**
    * Call a method over the debugging socket.
-   * 
+   *
    * @param method The method to call.
    * @param params The parameters to the method call.
    * @return The id of the method call.
@@ -164,7 +164,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
     if (obj.containsKey("method")) {
       String method = (String) obj.get("method");
-      
+
       if (nextURL != null) {
         /*
          * nextURL is set to the next URL to be loaded.
@@ -175,7 +175,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
         processAboutBlank(method, obj);
         return;
       }
-      
+
       result.addData(obj);
       processMethod(method, obj);
     } else if (obj.containsKey("id")) {
@@ -199,7 +199,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
   /**
    * Processes a method call from the server.
-   * 
+   *
    * @param method The name of the method that was called.
    * @param obj The object sent by the server.
    */
@@ -222,7 +222,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
   /**
    * Processes a response from a method call. If there are no more outstanding
    * responses, listeners are notified.
-   * 
+   *
    * @param id The id of the call/result.
    * @param obj The result of the method call.
    */
@@ -233,7 +233,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
       }
     }
   }
-  
+
   /**
    * Ends the test.
    */
@@ -249,10 +249,10 @@ public class TabController extends TestObservable implements WsConnection.Listen
     setTest(null);
     notifyTestCompleted(lastResult);
   }
-  
+
   /**
    * Processes any methods from the pre-test about:blank page load.
-   * 
+   *
    * @param method The name of the method that was called.
    * @param obj The object sent by the server.
    */
@@ -277,7 +277,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
       params.put("newWindow", false);
       params.put("url", nextURL);
       sendMessage("Page.open", params);
-      
+
       responseHandlers.put(PAGE_LOAD, null);
     } else if (method.equals("Timeline.started")) {
       /*
@@ -291,7 +291,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
   /**
    * Handles a response object containing the DOM of the document.
-   * 
+   *
    */
   private class HandleDomResponse implements ResponseHandler<JSONObject> {
     @Override
@@ -320,7 +320,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
 
   /**
    * Handles a response object containing resource data.
-   * 
+   *
    */
   private class HandleResourceContent implements ResponseHandler<JSONObject> {
     private Object identifier;
@@ -337,7 +337,7 @@ public class TabController extends TestObservable implements WsConnection.Listen
       result.addData(obj);
     }
   }
-  
+
   /**
    * Ends the test after a specified amount of time.
    * This prevents a few bad tests from blocking the remaining tests.

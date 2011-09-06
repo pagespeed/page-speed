@@ -17,15 +17,15 @@ import java.util.Scanner;
 
 /**
  * Various utility methods for dealing with files.
- * 
+ *
  * @author azlatin@google.com (Alexander Zlatin)
- * 
+ *
  */
 public class FileUtils {
 
   /**
    * Converts a URL into a valid filesystem filename.
-   * 
+   *
    * @param s URL string
    * @return URL with any invalid filesystem characters removed.
    */
@@ -45,7 +45,7 @@ public class FileUtils {
   /**
    * Fetch the entire contents of a text file, and return it in a String. This
    * style of implementation does not throw Exceptions to the caller.
-   * 
+   *
    * @param aFile is a file which already exists and can be read.
    */
   public static String getContents(File aFile) {
@@ -70,7 +70,7 @@ public class FileUtils {
   /**
    * Fetch the entire contents of a stream, and return it in a String.
    * http://stackoverflow.com/questions/309424/#5445161
-   * 
+   *
    * @param aStream is a stream that can be read.
    */
   public static String getContents(InputStream aStream) {
@@ -79,7 +79,7 @@ public class FileUtils {
 
   /**
    * Reads a file into a list of lines.
-   * 
+   *
    * @param aFile is a file which already exists and can be read.
    */
   public static List<String> getLines(File aFile) {
@@ -103,9 +103,9 @@ public class FileUtils {
   /**
    * Change the contents of text file in its entirety, overwriting any existing
    * text.
-   * 
+   *
    * This style of implementation throws all exceptions to the caller.
-   * 
+   *
    * @param aFile is an existing file which can be written to.
    * @param aContents the contents to write to the file.
    * @throws IOException if problem encountered during write.
