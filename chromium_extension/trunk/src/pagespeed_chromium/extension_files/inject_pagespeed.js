@@ -23,11 +23,20 @@
 
 (function () {
 
-  // addExtension will be toStringed and injected into and run directly
-  // in the developer tools page.  There, we will have access to the
-  // WebInspector object.
-  function addExtension(url)
+  // addExtensionWrapper will be toStringed and injected into and run directly
+  // in the developer tools page. There, for Chrome 16 or newer, use
+  // addExtension to insert our extension into the remote devtools page, or for
+  // compatibility, access to the WebInspector object directly.
+
+  // TODO (lsong): remove the code using WebInspector directly for compatibility
+  // of Chrome 15 or earlier (comment cannot put inside the function).
+  function addExtensionWrapper(url)
   {
+    if (typeof addExtension === "function") {
+      addExtension(url);
+      return;
+    }
+
     if (typeof WebInspector === "object" &&
         typeof WebInspector.ElementsPanel === "function" &&
         typeof WebInspector.addExtensions === "function" &&
@@ -52,7 +61,7 @@
   var pagespeedURL = escape(chrome.extension.getURL("devtools-page.html"));
 
   var script = document.createElement("script");
-  script.innerText = ("(" + addExtension.toString() +
+  script.innerText = ("(" + addExtensionWrapper.toString() +
                       ")(unescape('" + pagespeedURL + "'));");
   document.body.appendChild(script);
 
