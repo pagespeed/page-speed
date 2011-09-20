@@ -23,11 +23,20 @@ function fetchDevToolsAPI (callback) {
       var script = document.createElement("script");
       script.async = false;
 
-      // Once ExtensionAPI.js has been injected into the page,
-      // WebInspector.injectedExtensionAPI() will be available.
-      // Inject init_devtools_api to call the API initialization
-      // function.
       script.onload = script.onerror = function () {
+        // For Chrome 16 or newer, check if devtools is available.
+        if ("devtools" in chrome.experimental) {
+          delete window.WebInspector;
+          callback();
+          return;
+        }
+
+        // For Chrome 15 or ealier:
+        // Once Extension API has been injected into the page,
+        // WebInspector.injectedExtensionAPI() will be available.
+        // Inject init_devtools_api to call the API initialization
+        // function.
+
         if (WebInspector.injectedExtensionAPI) {
           // Fetch successfull... call init function and callback.
           WebInspector.injectedExtensionAPI(null, null, "pagespeed");
@@ -59,16 +68,22 @@ function fetchDevToolsAPI (callback) {
 
     // Try fetching from several different URLs:
     loadExtensionAPI([
-      // A. document.referrer should be the URL of the remote
-      //    devtools.  ExtensionAPI.js should reside at the same
-      //    location.
-      document.referrer.replace(/devtools.html?.*$/, "ExtensionAPI.js"),
-
-      // B. DevTools.js includes ExtensionAPI plus a bunch of stuff we
+      // A. DevTools.js includes ExtensionAPI plus a bunch of stuff we
       //    don't need.
       document.referrer.replace(/devtools.html?.*$/, "DevTools.js"),
 
-      // C. Fall back on fetching the most recent version from trac.
+      // B. document.referrer should be the URL of the remote
+      //    devtools.  For Chrome 16 or newer, devtools_extension_api.js should
+      //    reside at the same location.
+      document.referrer.replace(/devtools.html?.*$/,
+                                "devtools_extension_api.js"),
+
+      // C. document.referrer should be the URL of the remote
+      //    devtools.  ExtensionAPI.js should reside at the same
+      //    location for Chrome 15 or earlier.
+      document.referrer.replace(/devtools.html?.*$/, "ExtensionAPI.js"),
+
+      // D. Fall back on fetching the most recent version from trac.
       "http://trac.webkit.org/browser/trunk/Source/WebCore/inspector/" +
       "front-end/ExtensionAPI.js?format=txt",
     ]);

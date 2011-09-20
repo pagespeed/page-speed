@@ -704,8 +704,10 @@ var pagespeed = {
       ]));
     }
     whatsnew.appendChild(pagespeed.makeElement(
-      'h2', null, "What's new in Page Speed 1.12 beta?"));
+      'h2', null, "What's new in Page Speed 1.12 beta (with remote support)?"));
     whatsnew.appendChild(pagespeed.makeElement('ul', null, [
+      pagespeed.makeElement('li', null, "Support for running Page Speed " +
+                            "remotely"),
       pagespeed.makeElement('li', null, "More accurate minification savings " +
                             "computation for gzip-compressible resources"),
       pagespeed.makeElement('li', null, 'Ignore data URIs in "Specify image ' +
