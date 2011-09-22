@@ -144,10 +144,12 @@
           'files': [
             'extension_files/background.html',
             'extension_files/background.js',
-            'extension_files/content-script.js',
             'extension_files/devtools-page.html',
+            'extension_files/devtools-page.js',
             'extension_files/errorRedDot.png',
+            'extension_files/fetch_devtools_api.js',
             'extension_files/infoBlueDot.png',
+            'extension_files/inject_pagespeed.js',
             'extension_files/manifest.json',
             'extension_files/naGrayDot.png',
             'extension_files/options.css',

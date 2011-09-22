@@ -59,3 +59,8 @@ var pagespeed_options = {
   }
 
 };
+
+pagespeed_options.init();
+
+var resetButton = document.getElementById("reset-button");
+resetButton.onclick = pagespeed_options.reset;
