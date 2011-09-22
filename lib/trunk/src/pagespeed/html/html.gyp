@@ -23,8 +23,8 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_htmlparse_core',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_rewriter_html',
         '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_cssmin',
         '<(pagespeed_root)/pagespeed/js/js.gyp:pagespeed_jsminify',
       ],
@@ -42,8 +42,8 @@
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_htmlparse_core',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_rewriter_html',
       ],
     },
     {
@@ -51,8 +51,8 @@
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_htmlparse_core',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_rewriter_html',
       ],
       'sources': [
         'external_resource_filter.cc',
@@ -67,8 +67,8 @@
       },
       'export_dependent_settings': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_htmlparse_core',
-        '<(DEPTH)/third_party/instaweb/src/net/instaweb/instaweb_core.gyp:instaweb_rewriter_html',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_htmlparse_core',
+        '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_rewriter_html',
       ],
     },
   ],
