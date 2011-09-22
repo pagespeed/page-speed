@@ -35,6 +35,10 @@
     'protobuf_gyp_path%': 'third_party/protobuf/protobuf.gyp',
     'protobuf_src_root%': 'third_party/protobuf/src',
 
+    # Projects that depend on us may map instaweb to a different path,
+    # so we need to make the instaweb src root path overridable.
+    'instaweb_src_root%': 'third_party/instaweb/src/net/instaweb',
+
     # Putting a variables dict inside another variables dict looks kind of
     # weird.  This is done so that "branding" and "buildtype" are defined as
     # variables within the outer variables dict here.  This is necessary
