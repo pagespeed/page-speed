@@ -16,19 +16,12 @@
 
 var pagespeed_bg = {
 
-  // Map from inspected tab IDs to client objects.  Each client object has the
+  // Map from DevTools tab IDs to client objects.  Each client object has the
   // following fields:
   //     analyze: a string indicating whether to analyze ads/content/etc.
   //     har: the page HAR, in JSON form
   //     port: a port object connected to this client's DevTools page
-  //     tab_id: the ID of the inspected tab
   activeClients: {},
-
-  // Map from inspected tab IDs to connection ports, to which we send page
-  // load/navigate events.  The port is removed from the map when it
-  // disconnects (i.e. when that instance of the Page Speed Devtools panel is
-  // closed).
-  listenTargets: {},
 
   // Wrap a function with an error handler.  Given a function, return a new
   // function that behaves the same but catches and logs errors thrown by the
@@ -51,16 +44,10 @@ var pagespeed_bg = {
     };
   },
 
-  // Given a client object and a message, set a status message in the client's
-  // DevTools panel.
-  setStatusText: function (client, message) {
-    client.port.postMessage({kind: 'setStatusText', message: message});
-  },
-
   // Given a client object, return true if it is still active, or false if it
   // has been cancelled.
   isClientStillActive: function (client) {
-    return client === pagespeed_bg.activeClients[client.tab_id];
+    return (client.port.sender.tab.id in pagespeed_bg.activeClients);
   },
 
   // Handle connections from DevTools panels.
@@ -71,23 +58,14 @@ var pagespeed_bg = {
 
   // Handle messages from DevTools panels.
   messageHandler: function (port, request) {
-    var tab_id = request.tab_id;
+    var tab_id = port.sender.tab.id;
     if (request.kind === 'openUrl') {
       chrome.tabs.create({url: request.url});
-    } else if (request.kind === 'listen') {
-      pagespeed_bg.listenTargets[tab_id] = port;
-      port.onDisconnect.addListener(pagespeed_bg.withErrorHandler(function () {
-        delete pagespeed_bg.listenTargets[tab_id];
-      }));
-    } else if (request.kind === 'checkTab') {
-      chrome.tabs.get(tab_id, pagespeed_bg.withErrorHandler(
-        pagespeed_bg.checkTab, port));
-    } else if (request.kind === 'collectInput') {
+    } else if (request.kind === 'fetchPartialResources') {
       var client = {
         analyze: request.analyze,
         har: request.har,
         port: port,
-        tab_id: tab_id
       };
       pagespeed_bg.activeClients[tab_id] = client;
       port.onDisconnect.addListener(pagespeed_bg.withErrorHandler(function () {
@@ -98,57 +76,6 @@ var pagespeed_bg = {
       delete pagespeed_bg.activeClients[tab_id];
     } else {
       throw new Error('Unknown message kind:' + request.kind);
-    }
-  },
-
-  // Handle requests from content scripts.
-  requestHandler: function (request, sender, sendResponse) {
-    try {
-      var client = pagespeed_bg.activeClients[sender.tab.id];
-      if (client) {
-        if (request.kind === 'error') {
-          console.log(request.message);
-          client.port.postMessage({kind: 'error', message: request.message});
-        } else if (request.kind == 'dom') {
-          delete pagespeed_bg.activeClients[client.tab_id];
-          client.port.postMessage({
-            kind: 'collectedInput',
-            analyze: client.analyze,
-            dom: request.dom,
-            har: client.har
-          });
-        } else {
-          throw new Error('Unknown request kind: ' + request.kind);
-        }
-      }
-    } finally {
-      // We should always send a response, even if it's empty.  See:
-      //   http://code.google.com/chrome/extensions/messaging.html#simple
-      sendResponse(null);
-    }
-  },
-
-  // Determine whether we will be able to run on a particular Chrome tab, and
-  // post a message to the given port indicating whether we accept or reject
-  // the tab.
-  checkTab: function (port, tab) {
-    // If tab comes back as null/undefined, it means that we're in an incognito
-    // window, but our extension hasn't been enabled for incognito use by the
-    // user.  Attempting to run our content script will fail in that case, so
-    // we reply with 'rejectTab'.
-    if (!tab) {
-      port.postMessage({kind: 'rejectTab', reason: 'incognito'});
-    }
-    // We can only inject our content script into http/https URLs; in
-    // particular, we can't run on chrome:// URLs like the extensions page or
-    // the new tab page.
-    else if (!tab.url.match(/^http/)) {
-      port.postMessage({kind: 'rejectTab', reason: 'url'});
-    }
-    // Otherwise, we expect the content script to work, so tell our DevTools
-    // panel to go ahead.
-    else {
-      port.postMessage({kind: 'approveTab'});
     }
   },
 
@@ -257,9 +184,7 @@ var pagespeed_bg = {
       // We have no outstanding resources being fetched, so move on to
       // the next stage of processing.
       delete fetchContext.client;
-      pagespeed_bg.executeContentScript(client);
-    } else {
-      pagespeed_bg.setStatusText(client, "Fetching partial resources...");
+      pagespeed_bg.sendCollectedInputMsg(client);
     }
   },
 
@@ -273,12 +198,15 @@ var pagespeed_bg = {
     xhr.abort();
   },
 
-  executeContentScript: function (client) {
+  sendCollectedInputMsg: function (client) {
     if (pagespeed_bg.isClientStillActive(client)) {
-      // Only run the content script if this is part of processing for
-      // a client that hasn't been cancelled.
-      pagespeed_bg.setStatusText(client, "Collecting page DOM...");
-      chrome.tabs.executeScript(client.tab_id, {file: "content-script.js"});
+      // Only send the fetch complete message if this is part of
+      // processing for a client that hasn't been cancelled.
+      client.port.postMessage({
+        kind: 'partialResourcesFetched',
+        analyze: client.analyze,
+        har: client.har
+      });
     }
   },
 
@@ -316,7 +244,7 @@ var pagespeed_bg = {
       // next phase of processing.
       var client = fetchContext.client;
       delete fetchContext.client;
-      pagespeed_bg.executeContentScript(client);
+      pagespeed_bg.sendCollectedInputMsg(client);
     }
   },
 
@@ -447,22 +375,6 @@ var pagespeed_bg = {
     content.text = bodyEncoded;
     content.size = bodySize;
     content.encoding = 'base64';
-  },
-
-  // Callback for when a user navigates a tab elsewhere.
-  onBeforeNavigate: function (details) {
-    var port = pagespeed_bg.listenTargets[details.tabId];
-    if (port) {
-      port.postMessage({kind: 'pageNavigate'});
-    }
-  },
-
-  // Callback for when a page completes loading.
-  onCompleted: function (details) {
-    var port = pagespeed_bg.listenTargets[details.tabId];
-    if (port) {
-      port.postMessage({kind: 'pageLoaded'});
-    }
   }
 
 };
@@ -472,17 +384,5 @@ pagespeed_bg.withErrorHandler(function () {
   // Listen for connections from DevTools panels:
   chrome.extension.onConnect.addListener(
     pagespeed_bg.withErrorHandler(pagespeed_bg.connectHandler));
-
-  // Listen for requests from content scripts:
-  chrome.extension.onRequest.addListener(
-    pagespeed_bg.withErrorHandler(pagespeed_bg.requestHandler));
-
-  // Listen for when navigation is happening:
-  chrome.experimental.webNavigation.onBeforeNavigate.addListener(
-    pagespeed_bg.withErrorHandler(pagespeed_bg.onBeforeNavigate));
-
-  // Listen for when a page completely loads:
-  chrome.experimental.webNavigation.onCompleted.addListener(
-    pagespeed_bg.withErrorHandler(pagespeed_bg.onCompleted));
 
 })();
