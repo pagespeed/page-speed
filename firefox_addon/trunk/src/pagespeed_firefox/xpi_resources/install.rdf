@@ -38,7 +38,7 @@
       <Description>
         <em:id>toolkit@mozilla.org</em:id>
         <em:minVersion>2</em:minVersion>
-        <em:maxVersion>6.*</em:maxVersion>
+        <em:maxVersion>*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
