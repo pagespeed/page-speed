@@ -1,0 +1,28 @@
+# Register JavaScript service implementations.
+component {7bc5b600-1302-11dd-bd0b-0800200c9a66} components/componentCollectorService.js
+component {7a596ebc-9a29-4f0e-8ad9-58d48eb79369} components/stateStorageService.js
+contract @code.google.com/p/page-speed/ComponentCollectorService;1 {7bc5b600-1302-11dd-bd0b-0800200c9a66}
+contract @code.google.com/p/page-speed/StateStorageService;1 {7a596ebc-9a29-4f0e-8ad9-58d48eb79369}
+interfaces components/IComponentCollector.xpt
+interfaces components/IStateStorage.xpt
+
+# Register the Component Collector service to be instantiated at the
+# earliest possible time, so we can be sure that we capture all
+# resource events.
+category profile-after-change ComponentCollectorService @code.google.com/p/page-speed/ComponentCollectorService;1
+
+# Register the Component Collector service as a content policy handler.
+category content-policy ComponentCollectorService @code.google.com/p/page-speed/ComponentCollectorService;1
+
+
+content pagespeed chrome/pagespeed/content/
+content third_party chrome/third_party/content/
+
+# for Firefox support.
+overlay chrome://browser/content/browser.xul         chrome://pagespeed/content/pagespeedUtilOverlay.xul
+
+# for SeaMonkey support.
+# See https://groups.google.com/group/mozilla.dev.tech.xul/browse_thread/thread/4754108136a47e88/26fd226569276f68?pli=1
+overlay chrome://navigator/content/navigator.xul     chrome://pagespeed/content/pagespeedUtilOverlay.xul
+
+overlay chrome://firebug/content/firebugOverlay.xul         chrome://pagespeed/content/pagespeedOverlay.xul
