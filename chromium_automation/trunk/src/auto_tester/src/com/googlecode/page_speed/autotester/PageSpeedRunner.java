@@ -16,21 +16,28 @@ import java.util.List;
  * Converts HAR, DOM and Instrumentation data into PageSpeed results.
  *
  * @author azlatin@google.com (Alexander Zlatin)
- *
  */
 public class PageSpeedRunner {
 
-  private String pathToPageSpeedBin;
-  private String strategy;
+  private final String pathToPageSpeedBin;
+  private final String strategy;
 
   /**
    * Creates a new Page Speed result creator.
    *
-   * @param aPathToPageSpeedBin The path to a runnable pagespeed_bin
+   * @param pathToPageSpeedBin The path to a pagespeed_bin executable
+   * @param strategy The scoring strategy to use; must be "desktop" or "mobile"
    */
-  public PageSpeedRunner(String aPathToPageSpeedBin) {
-    pathToPageSpeedBin = aPathToPageSpeedBin;
-    strategy = "desktop";
+  public PageSpeedRunner(String pathToPageSpeedBin,
+                         String strategy) {
+    this.pathToPageSpeedBin = pathToPageSpeedBin;
+
+    if (strategy == null || !(strategy.equalsIgnoreCase("desktop") ||
+                              strategy.equalsIgnoreCase("mobile"))) {
+      throw new IllegalArgumentException(
+          "strategy must be \"desktop\" or \"mobile\"");
+    }
+    this.strategy = strategy.toLowerCase();
   }
 
   /**
@@ -40,19 +47,6 @@ public class PageSpeedRunner {
    */
   public String getStrategy() {
     return strategy;
-  }
-
-  /**
-   * Sets the scoring strategy (desktop, mobile)
-   *
-   * @param strategy the scoring strategy to use
-   */
-  public void setStrategy(String strategy) {
-    strategy = strategy.toLowerCase();
-    if (!strategy.equals("desktop") && !strategy.equals("mobile")) {
-      return;
-    }
-    this.strategy = strategy;
   }
 
   /**

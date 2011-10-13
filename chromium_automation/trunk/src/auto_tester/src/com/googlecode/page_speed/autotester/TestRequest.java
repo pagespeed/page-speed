@@ -16,8 +16,8 @@ public class TestRequest {
   public final String url;
   public final String varName;
   public final String varQS;
-  public final Integer run;
-  public final Integer first;
+  public final int run;
+  public final int first;
 
   /**
    * Creates a new test run storage object.
@@ -28,8 +28,8 @@ public class TestRequest {
    * @param aRun The run # of this test.
    * @param aView 0 for first view, 1 for repeat view
    */
-  public TestRequest(String aURL, String aVN, String aVQS, Integer aRun,
-      Integer aView) {
+  public TestRequest(String aURL, String aVN, String aVQS, int aRun,
+                     int aView) {
     url = aURL;
     varName = aVN;
     varQS = aVQS;
@@ -52,8 +52,10 @@ public class TestRequest {
         } else {
           qs = varQS;
         }
-        return new URI(urlParts.getScheme(), urlParts.getUserInfo(), urlParts.getAuthority(),
-          urlParts.getPort(), urlParts.getPath(), qs, urlParts.getFragment()).toString();
+        return new URI(urlParts.getScheme(), urlParts.getUserInfo(),
+                       urlParts.getAuthority(), urlParts.getPort(),
+                       urlParts.getPath(), qs,
+                       urlParts.getFragment()).toString();
       } catch (URISyntaxException e) {
         // Fallback
         System.err.println("Failed parsing URL: " + url);

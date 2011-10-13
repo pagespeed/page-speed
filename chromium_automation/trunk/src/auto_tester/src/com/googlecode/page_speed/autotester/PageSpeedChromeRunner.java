@@ -15,9 +15,12 @@ import java.net.InetSocketAddress;
  * Runs tests and then converts the data to a format suitable for analysis.
  *
  * @author azlatin@google.com (Alexander Zlatin)
- *
  */
-public class PageSpeedChromeRunner {
+public final class PageSpeedChromeRunner {
+
+  private PageSpeedChromeRunner() {
+    throw new AssertionError();  // uninstantiable class
+  }
 
   /**
    * @param args command line arguments.
@@ -29,7 +32,7 @@ public class PageSpeedChromeRunner {
     Flags.define("variations", "Variation list file", null, false);
     Flags.define("results", "Directory to store test results", null, false);
     Flags.define("repeat", "Test repeat view", null, false);
-    Flags.define("runs", "Runs per URL", null, false);
+    Flags.define("runs", "Runs per URL", "1", false);
     Flags.define("test_timeout", "Seconds to wait until aborting test", "120", false);
     Flags.define("output", "Output format [analysis,csv]", "csv", false);
     Flags.define("save", "What files to save [har,dom,tl]", "", false);
@@ -48,18 +51,18 @@ public class PageSpeedChromeRunner {
 
     // Tests
     TestRequestGenerator tests =
-        new TestRequestGenerator(Flags.getStr("urls"), Flags.getStr("variations"));
-    tests.setRepeat(Flags.getBool("repeat"));
-    if (Flags.getBool("runs")) {
-      tests.setRuns(Flags.getInt("runs"));
-    }
+        new TestRequestGenerator(Flags.getStr("urls"),
+                                 Flags.getStr("variations"),
+                                 Flags.getBool("repeat"),
+                                 Flags.getInt("runs"));
 
     // Page Speed
-    PageSpeedRunner psr = new PageSpeedRunner(Flags.getStr("ps_bin"));
-    psr.setStrategy(Flags.getStr("strategy"));
+    PageSpeedRunner psr = new PageSpeedRunner(Flags.getStr("ps_bin"),
+                                              Flags.getStr("strategy"));
 
     // Test Runner
-    ServerUrlGenerator servers = new ServerUrlGenerator(Flags.getStr("servers"));
+    ServerUrlGenerator servers =
+        new ServerUrlGenerator(Flags.getStr("servers"));
     URLTester tester = new URLTester(tests.getTestIterable());
     for (InetSocketAddress server : servers.getServers()) {
       JSONArray tabs = servers.getTabList(server);
@@ -68,7 +71,8 @@ public class PageSpeedChromeRunner {
           10000, (long) Flags.getInt("test_timeout") * 1000);
       } else if (tabs.size() > 1) {
         System.err.println(
-          String.format("Not using %s because it has more than one tab.", server));
+          String.format("Not using %s because it has more than one tab.",
+                        server));
       }
     }
 
