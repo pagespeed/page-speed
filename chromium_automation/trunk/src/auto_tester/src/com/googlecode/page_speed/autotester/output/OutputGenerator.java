@@ -15,7 +15,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Generates output files from test results.
@@ -25,15 +27,15 @@ import java.util.List;
  */
 public class OutputGenerator implements TestObserver {
 
-  private String name = null;
-  private List<String> savedFiles = null;
-  private PageSpeedRunner psr = null;
+  private final String name;
+  private final Set<String> savedFiles = new HashSet<String>();
+  private final PageSpeedRunner psr;
 
-  private String resultsDir = null;
+  private final String resultsDir;
 
-  private Long completedTests = null;
-  private Long totalTests = null;
-  private List<OutputBuilder> outputs = null;
+  private long completedTests = 0L;
+  private final long totalTests;
+  private final List<OutputBuilder> outputs = new ArrayList<OutputBuilder>();
 
   /**
    * Creates a new test generator.
@@ -41,23 +43,14 @@ public class OutputGenerator implements TestObserver {
    * @param aResultsDir Where to save results.
    * @param aTotalTests The total number of tests to be run.
    */
-  public OutputGenerator(PageSpeedRunner aPSR, String aResultsDir, Long aTotalTests) {
-    name = new Date().toString().replace(" ", "_") + "_" + String.valueOf(this.hashCode());
-    savedFiles = new ArrayList<String>();
-    psr = aPSR;
-    outputs = new ArrayList<OutputBuilder>();
-    resultsDir = aResultsDir;
-    completedTests = 0L;
-    totalTests = aTotalTests;
-  }
-
-  /**
-   * Set the name of the test data set.
-   *
-   * @param aName The new name of the test data set.
-   */
-  public void setName(String aName) {
-    name = aName;
+  public OutputGenerator(PageSpeedRunner aPSR,
+                         String aResultsDir,
+                         long aTotalTests) {
+    this.name = new Date().toString().replace(" ", "_") + "_" +
+        String.valueOf(this.hashCode());
+    this.psr = aPSR;
+    this.resultsDir = aResultsDir;
+    this.totalTests = aTotalTests;
   }
 
   /**
@@ -103,7 +96,7 @@ public class OutputGenerator implements TestObserver {
    * @param file The path to the file under the result directory.
    * @return The file object of a file in the results directory.
    */
-  public File newResultFile(String file) {
+  private File newResultFile(String file) {
     return new File(resultsDir, file);
   }
 
@@ -114,7 +107,7 @@ public class OutputGenerator implements TestObserver {
    * @param suffix the suffix of the file name.
    * @return The file object of a temp file.
    */
-  public File newTempFile(String prefix, String suffix) {
+  private File newTempFile(String prefix, String suffix) {
     File tempFile = new File(System.getProperty("java.io.tmpdir"), prefix + suffix);
     tempFile.deleteOnExit();
     return tempFile;

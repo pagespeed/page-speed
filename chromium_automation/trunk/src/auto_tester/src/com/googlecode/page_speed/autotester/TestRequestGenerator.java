@@ -20,35 +20,51 @@ import java.util.Map.Entry;
  */
 public class TestRequestGenerator {
 
-  private List<String> urls;
-  private Map<String, String> variations;
+  private final List<String> urls;
+  private final Map<String, String> variations;
 
-  private int runs = 1;
-  private boolean repeat = true;
+  private final int runs;
+  private final boolean repeat;
 
   /**
    * Create a new configuration for the test runner.
    * @param urlFilename The filename of the URL list.
-   * @param variationFilename The filename of the variation list.
+   * @param variationFilename The filename of the variation list.  If null, or
+   *   if the file is empty, the TestRequestGenerator will instead use a
+   *   single, default variation.
+   * @param doRepeat Whether to do a repeat view (in addition to first view).
+   * @param numRuns How many runs to do for each URL/variation/view combination
    */
   public TestRequestGenerator(String urlFilename,
-                    String variationFilename) {
+                              String variationFilename,
+                              boolean doRepeat,
+                              int numRuns) {
+    if (numRuns < 1) {
+      throw new IllegalArgumentException("numRuns must be positive");
+    }
+    this.runs = numRuns;
+    this.repeat = doRepeat;
 
-    urls = FileUtils.getLines(new File(urlFilename));
-    urls.removeAll(Arrays.asList(""));
+    this.urls = FileUtils.getLines(new File(urlFilename));
+    this.urls.removeAll(Arrays.asList(""));
 
-    variations = new HashMap<String, String>();
+    // Read the list of variations from the variations file, if any.
+    this.variations = new HashMap<String, String>();
     if (variationFilename != null) {
       for (String variation : FileUtils.getLines(new File(variationFilename))) {
         String[] pair = variation.split("=", 2);
         if (pair.length == 2) {
-          variations.put(pair[0], pair[1]);
+          this.variations.put(pair[0], pair[1]);
         } else {
-          variations.put(pair[0], pair[0]);
+          this.variations.put(pair[0], pair[0]);
         }
       }
     }
-    variations.put("Default", "");
+    // If we weren't given a variations file (or if the file didn't specify any
+    // variations at all), then use a single, default variation.
+    if (this.variations.size() < 1) {
+      this.variations.put("Default", "");
+    }
   }
 
   /**
@@ -60,19 +76,6 @@ public class TestRequestGenerator {
   }
 
   /**
-   * Sets the number of runs per test URL.
-   * @param newRuns The new number of runs per test URL.
-   */
-  public void setRuns(int newRuns) {
-    if (runs <= 0) {
-      System.err.println(String.format(
-        "Warning: Ignoring non-positive runs %d.", newRuns));
-      return;
-    }
-    runs = newRuns;
-  }
-
-  /**
    * Gets whether repeat views are tested.
    * @return True if repeat views are tested, false otherwise.
    */
@@ -81,20 +84,13 @@ public class TestRequestGenerator {
   }
 
   /**
-   * Sets whether repeat views are tested.
-   * @param newRepeat True if repeat views should be tested, false otherwise.
-   */
-  public void setRepeat(boolean newRepeat) {
-    repeat = newRepeat;
-  }
-
-  /**
    * Gets a list of iterables of TestRun storage objects.
    * Tests are grouped by base URL.
    * @return A list of lists of all TestRuns to perform.
    */
   public List<List<TestRequest>> getTestIterable() {
-    List<List<TestRequest>> testLists = new ArrayList<List<TestRequest>>(urls.size());
+    List<List<TestRequest>> testLists =
+        new ArrayList<List<TestRequest>>(urls.size());
     for (String url : urls) {
       List<TestRequest> testList = new ArrayList<TestRequest>(
           runs * variations.size() * (repeat ? 2 : 1)
@@ -116,7 +112,8 @@ public class TestRequestGenerator {
    * Calculates the total number of tests that will be run.
    * @return the total number of tests that will be run.
    */
-  public Long getTotalTests() {
-    return (long) (urls.size() * runs * variations.size() * (repeat ? 2 : 1));
+  public long getTotalTests() {
+    return ((long)urls.size() * (long)runs * (long)variations.size() *
+            (repeat ? 2L : 1L));
   }
 }

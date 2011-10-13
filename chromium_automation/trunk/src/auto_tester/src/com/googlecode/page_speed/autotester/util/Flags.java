@@ -12,13 +12,15 @@ import java.util.Map.Entry;
  * Defines and parses command line flags.
  *
  * @author azlatin@google.com (Alexander Zlatin)
- *
  */
-public class Flags {
+public final class Flags {
 
-  private static Map<String, String[]> flagSet = new HashMap<String, String[]>();
+  private static Map<String, String[]> flagSet =
+      new HashMap<String, String[]>();
   private static Map<String, String> flags = new HashMap<String, String>();
   private static List<String> required = new ArrayList<String>();
+
+  private Flags() { throw new AssertionError(); }  // uninstantiable class
 
   /**
    * Parse command line flags out of the command line arguments.
