@@ -18,7 +18,8 @@
       'target_name': 'adblockrules',
       'type': '<(library)',
       'sources': [
-        'adblockrules.cc',
+        'adblockrules_ads.cc',
+        'adblockrules_trackers.cc',
       ],
     },
   ],
