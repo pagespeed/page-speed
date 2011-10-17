@@ -42,6 +42,9 @@ TEST(AdFilterTest, AdFilter) {
 
   resource.SetRequestUrl("http://some.random.domain.com/ad.php");
   EXPECT_FALSE(ad_filter.IsAccepted(resource));
+
+  resource.SetRequestUrl("http://wildcard.eert.net/bar");
+  EXPECT_FALSE(ad_filter.IsAccepted(resource));
 }
 
 }  // namespace pagespeed
