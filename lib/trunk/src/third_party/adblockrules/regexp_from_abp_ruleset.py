@@ -112,8 +112,8 @@ def PrintRegexpFile(variable_name, rules, beginning_comments):
   print ''
   print ('const char* ' +
          variable_name +
-         ' =\n    "(' +
-         '"\n    "|'.join(rules) +
+         ' =\n      "(' +
+         '"\n      "|'.join(rules) +
          ')";')
   print FILE_FOOTER
 
