@@ -4,16 +4,63 @@ package com.googlecode.page_speed.autotester;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Represents the state of a single test (page load).
+ * Represents a single test (page load) that we want to perform.
  *
  * @author azlatin@google.com (Alexander Zlatin)
- *
  */
 public class TestRequest {
 
-  public final String url;
+  /**
+   * Generates a list of lists of TestRequest objects from a specification of
+   * the set of tests to be performed.  Tests are grouped by base URL; that is,
+   * each element of the return value is a list of tests whose base URL is the
+   * same.
+   *
+   * @param urls The list of URLs to be tested.
+   * @param variations A map from variation names to variation query strings.
+   * @param doRepeatView Whether to test repeat views in addition to first
+   *   views of each URL/variation combination.
+   * @param numberOfRuns How many repetitions of each URL/variation/repeat
+   *   combiation to perform.
+   * @return A list of lists of all TestReqests to perform.
+   */
+  public static List<List<TestRequest>> generateRequests(
+      List<URL> urls,
+      Map<String,String> variations,
+      boolean doRepeatView,
+      int numberOfRuns) {
+    List<List<TestRequest>> testLists = new ArrayList<List<TestRequest>>(urls.size());
+
+    for (URL url : urls) {
+      List<TestRequest> testList = new ArrayList<TestRequest>(
+          numberOfRuns * variations.size() * (doRepeatView ? 2 : 1));
+
+      for (int run = 0; run < numberOfRuns; ++run) {
+        for (Map.Entry<String,String> variation : variations.entrySet()) {
+          testList.add(new TestRequest(url, variation.getKey(),
+                                       variation.getValue(), run, 0));
+          if (doRepeatView) {
+            testList.add(new TestRequest(url, variation.getKey(),
+                                         variation.getValue(), run, 1));
+          }
+        }
+      }
+
+      testLists.add(testList);
+    }
+
+    return testLists;
+  }
+
+  // TODO(mdsteele): Choose nicer names for these fields; possibly make them
+  //   private and provide accessors.
+  public final String url;  // TODO(mdsteele): s/String/URL/
   public final String varName;
   public final String varQS;
   public final int run;
@@ -28,13 +75,13 @@ public class TestRequest {
    * @param aRun The run # of this test.
    * @param aView 0 for first view, 1 for repeat view
    */
-  public TestRequest(String aURL, String aVN, String aVQS, int aRun,
+  public TestRequest(URL aURL, String aVN, String aVQS, int aRun,
                      int aView) {
-    url = aURL;
-    varName = aVN;
-    varQS = aVQS;
-    run = aRun;
-    first = aView == 0 ? 0 : 1;
+    this.url = aURL.toString();
+    this.varName = aVN;
+    this.varQS = aVQS;
+    this.run = aRun;
+    this.first = aView == 0 ? 0 : 1;
   }
 
   /**

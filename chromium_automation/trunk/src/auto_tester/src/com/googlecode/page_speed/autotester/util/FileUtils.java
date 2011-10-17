@@ -24,6 +24,34 @@ import java.util.Scanner;
 public class FileUtils {
 
   /**
+   * Represents a line of text from a file.  Includes the name of the file, the
+   * line number, and the text of the line.
+   */
+  public static class Line {
+    public final String filename;
+    public final int number;
+    public final String text;
+
+    public Line(String filename, int number, String text) {
+      this.filename = filename;
+      this.number = number;
+      this.text = text;
+    }
+
+    /**
+     * Print an error message to System.err indicating a problem with this line
+     * of the file.  The error message will include the file name and line
+     * number.
+     *
+     * @param message The error message to print in addition to the file name
+     *   and line number.
+     */
+    public void printError(String message) {
+      System.err.println(this.filename + ":" + this.number + ": " + message);
+    }
+  }
+
+  /**
    * Converts a URL into a valid filesystem filename.
    *
    * @param s URL string
@@ -78,24 +106,27 @@ public class FileUtils {
   }
 
   /**
-   * Reads a file into a list of lines.
+   * Reads a file into a list of lines.  Trims whitespace from each line, and
+   * does not include blank lines (but included lines still have correct line
+   * numbers).
    *
-   * @param aFile is a file which already exists and can be read.
+   * @param path The path to the file to be read.
    */
-  public static List<String> getLines(File aFile) {
-    ArrayList<String> contents = new ArrayList<String>();
+  public static List<Line> getTrimmedLines(String path) throws IOException {
+    ArrayList<Line> contents = new ArrayList<Line>();
+    BufferedReader input = new BufferedReader(new FileReader(new File(path)));
     try {
-      BufferedReader input = new BufferedReader(new FileReader(aFile));
-      try {
-        String line = null;
-        while ((line = input.readLine()) != null) {
-          contents.add(line);
+      int lineNumber = 1;
+      String line = null;
+      while ((line = input.readLine()) != null) {
+        String trimmed = line.trim();
+        if (!trimmed.isEmpty()) {
+          contents.add(new Line(path, lineNumber, trimmed));
         }
-      } finally {
-        input.close();
+        ++lineNumber;
       }
-    } catch (IOException ex) {
-      ex.printStackTrace();
+    } finally {
+      input.close();
     }
     return contents;
   }

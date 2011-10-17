@@ -32,6 +32,7 @@ public class URLTester extends TestObservable implements TestObserver {
   private ListIterator<List<TestRequest>> pendingTests;
   private Map<TabController, ListIterator<TestRequest>> assignedTests;
   private Map<TestResult, TabController> currentTests; // In progress
+  private final int totalNumberOfTests;
 
   private Map<String, Integer> failedUrls;
   private int maxFailsBeforeAbort = 4;
@@ -45,6 +46,12 @@ public class URLTester extends TestObservable implements TestObserver {
    * @param aTests An iterator over TestRuns.
    */
   public URLTester(List<List<TestRequest>> aTests) {
+    int numTests = 0;
+    for (List<TestRequest> testList : aTests) {
+      numTests += testList.size();
+    }
+    this.totalNumberOfTests = numTests;
+
     this.pendingTests = aTests.listIterator();
     this.assignedTests = new HashMap<TabController, ListIterator<TestRequest>>();
     this.currentTests = new HashMap<TestResult, TabController>();
@@ -53,36 +60,34 @@ public class URLTester extends TestObservable implements TestObserver {
   }
 
   /**
+   * Return the total number of tests that the URLTester will execute.
+   */
+  public int getTotalNumberOfTests() {
+    return this.totalNumberOfTests;
+  }
+
+  /**
    * Adds a tab to be used for testing.
    *
-   * @param tabInfo The JSON tab description from getTabList()
+   * @param tab The Chrome tab to connect to.
    * @param aTimeoutConnect How long to wait to connect to the tab before
    *        aborting.
    * @param aTimeoutTest How long to wait for test completion before aborting.
-   * @return True on success, false on failure.
+   * @throws IOException if there is a problem connecting.
    */
-  public boolean addTabConnection(JSONObject tabInfo, int aTimeoutConnect, Long aTimeoutTest) {
-    if (tabInfo.containsKey("webSocketDebuggerUrl")) {
-      try {
-        URI uri = new URI((String) tabInfo.get("webSocketDebuggerUrl"));
-        InetSocketAddress addr = new InetSocketAddress(uri.getHost(), uri.getPort());
+  public void addTabConnection(ChromeTab tab, int aTimeoutConnect,
+                               long aTimeoutTest) throws IOException {
+    URI uri = tab.getURI();
+    InetSocketAddress addr = new InetSocketAddress(uri.getHost(),
+                                                   uri.getPort());
 
-        WsConnection tab = WsConnection.connect(addr, aTimeoutConnect, uri.getPath(), "none", null);
+    WsConnection conn = WsConnection.connect(addr, aTimeoutConnect,
+                                             uri.getPath(), "none", null);
 
-        TabController socketListener = new TabController(tab, aTimeoutTest);
-        socketListener.addObserver(this);
-        tab.startListening(socketListener);
-        tabQueue.add(socketListener);
-        return true;
-      } catch (URISyntaxException e) {
-        System.err.println("Chrome returned an invalid URL.");
-      } catch (IOException e) {
-        System.err.println("Failed connecting to " + tabInfo.get("webSocketDebuggerUrl"));
-      }
-    } else {
-      System.err.println("Tab is not debuggable. Another client is likely already debugging it.");
-    }
-    return false;
+    TabController socketListener = new TabController(conn, aTimeoutTest);
+    socketListener.addObserver(this);
+    conn.startListening(socketListener);
+    tabQueue.add(socketListener);
   }
 
   /**
