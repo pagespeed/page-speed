@@ -143,6 +143,7 @@ TEST(UriUtil, GetDomainAndRegistry) {
             GetDomainAndRegistry("http://..google.com/file.html"));
   EXPECT_EQ("google.com.",
             GetDomainAndRegistry("http://google.com./file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://google.com../file.html"));
   EXPECT_EQ("b.co.uk", GetDomainAndRegistry("http://a.b.co.uk/file.html"));
   EXPECT_EQ("", GetDomainAndRegistry("file:///C:/bar.html"));
   EXPECT_EQ("", GetDomainAndRegistry("http://foo.com../file.html"));
@@ -150,6 +151,25 @@ TEST(UriUtil, GetDomainAndRegistry) {
   EXPECT_EQ("", GetDomainAndRegistry("http://bar/file.html"));
   EXPECT_EQ("", GetDomainAndRegistry("http://co.uk/file.html"));
   EXPECT_EQ("foo.bar", GetDomainAndRegistry("http://foo.bar/file.html"));
+
+  EXPECT_EQ("", GetDomainAndRegistry("http://./file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://../file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://.a/file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://a./file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://.a./file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://.a../file.html"));
+  EXPECT_EQ("", GetDomainAndRegistry("http://a../file.html"));
+
+  EXPECT_EQ("", GetDomainAndRegistry("http://"));
+  EXPECT_EQ("", GetDomainAndRegistry("http:// "));
+  EXPECT_EQ("", GetDomainAndRegistry("http://  "));
+  EXPECT_EQ("", GetDomainAndRegistry("http://."));
+  EXPECT_EQ("", GetDomainAndRegistry("http://.."));
+  EXPECT_EQ("", GetDomainAndRegistry("http://..."));
+  EXPECT_EQ("", GetDomainAndRegistry("http://. ."));
+  EXPECT_EQ("", GetDomainAndRegistry("http://. . "));
+  EXPECT_EQ("", GetDomainAndRegistry("http:// ."));
+  EXPECT_EQ("", GetDomainAndRegistry("http:// . "));
 }
 
 }  // namespace
