@@ -90,10 +90,16 @@ GURL GetUriWithoutFragmentInternal(const GURL& url) {
 std::string GetDomainAndRegistryImpl(const std::string& host) {
   DCHECK(!host.empty());
 
+  // Skip leading dots.
+  const size_t host_check_begin = host.find_first_not_of('.');
+  if (host_check_begin == std::string::npos)
+    return std::string();  // Host is only dots.
+  const size_t trimmed_host_len = host.length() - host_check_begin;
+
   // Find the length of the registry for this host.
   const size_t registry_length =
       GetRegistryLengthAllowUnknownRegistries(host.c_str());
-  if (registry_length == 0)
+  if (registry_length == 0 || registry_length >= trimmed_host_len)
     return std::string();  // No registry.
   // The "2" in this next line is 1 for the dot, plus a 1-char minimum preceding
   // subcomponent length.
