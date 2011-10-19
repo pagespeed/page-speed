@@ -16,7 +16,9 @@
 
   <target name="compile" depends="create">
     <javac srcdir="${src}" destdir="${output}"
-      classpathref="classpath" includeantruntime="false"/>
+           classpathref="classpath" includeantruntime="false">
+      <compilerarg value="-Xlint"/>
+    </javac>
   </target>
 
   <target name="jar" depends="compile">
@@ -38,12 +40,25 @@
     </jar>
   </target>
 
-  <target name="run">
-    <java jar="${jar-name}" fork="true">
+  <target name="run" depends="jar">
+    <java jar="${dist}/${jar-name}" fork="true">
       <classpath>
         <path refid="classpath"/>
       </classpath>
     </java>
+  </target>
+
+  <target name="test" depends="compile">
+    <junit fork="true" haltonfailure="true">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement location="${output}"/>
+      </classpath>
+      <formatter type="plain" usefile="false"/>
+      <batchtest>
+        <fileset dir="${output}" includes="**/*Test.class"/>
+      </batchtest>
+    </junit>
   </target>
 
   <target name="clean">
@@ -51,7 +66,7 @@
     <delete dir="${dist}"/>
   </target>
 
-  <target name="create" depends="clean">
+  <target name="create">
     <mkdir dir="${output}"/>
   </target>
 </project>
