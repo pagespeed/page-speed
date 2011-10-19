@@ -1,5 +1,7 @@
 package com.googlecode.page_speed.autotester;
 
+import com.googlecode.page_speed.autotester.chrome.ChromeInstance;
+import com.googlecode.page_speed.autotester.chrome.ChromeTab;
 import com.googlecode.page_speed.autotester.output.OutputGenerator;
 import com.googlecode.page_speed.autotester.util.FileUtils;
 import com.googlecode.page_speed.autotester.util.Flags;

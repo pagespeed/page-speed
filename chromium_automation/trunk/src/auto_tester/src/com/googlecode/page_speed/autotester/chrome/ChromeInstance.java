@@ -1,8 +1,6 @@
 // Copyright 2011 Google Inc. All Rights Reserved.
 
-package com.googlecode.page_speed.autotester;
-
-import com.googlecode.page_speed.autotester.ChromeTab;
+package com.googlecode.page_speed.autotester.chrome;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

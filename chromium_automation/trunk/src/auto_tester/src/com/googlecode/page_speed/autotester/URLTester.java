@@ -1,5 +1,6 @@
 package com.googlecode.page_speed.autotester;
 
+import com.googlecode.page_speed.autotester.chrome.ChromeTab;
 import com.googlecode.page_speed.autotester.iface.TestObserver;
 
 import org.chromium.sdk.internal.websocket.WsConnection;
