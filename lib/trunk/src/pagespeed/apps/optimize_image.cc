@@ -21,12 +21,14 @@
 #include <iterator>
 #include <string>
 
+#include "base/string_number_conversions.h"
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
 using pagespeed::image_compression::GifReader;
 using pagespeed::image_compression::OptimizeJpeg;
+using pagespeed::image_compression::OptimizeJpegLossy;
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 
@@ -39,7 +41,10 @@ enum ImageType {
   GIF,
 };
 
-const char *kUsage = "Usage: optimize_image <input> <output>\n";
+const char *kUsage = "Usage: optimize_image <input> <output> [quality]\n"
+    "quality is optional, and applies only to lossy formats (e.g. JPEG). "
+    "If specified, should be in the range 1-100. "
+    "If unspecified, lossless compression will be performed.\n";
 
 // use file extension to determine what optimizer should be used.
 ImageType DetermineImageType(const std::string& filename) {
@@ -60,7 +65,7 @@ ImageType DetermineImageType(const std::string& filename) {
   return NOT_SUPPORTED;
 }
 
-bool OptimizeImage(const char* infile, const char* outfile) {
+bool OptimizeImage(const char* infile, const char* outfile, int opt_quality) {
   std::string filename(infile);
   std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
   if (!in) {
@@ -84,7 +89,11 @@ bool OptimizeImage(const char* infile, const char* outfile) {
 
   bool success = false;
   if (type == JPEG) {
-    success = OptimizeJpeg(file_contents, &compressed);
+    if (opt_quality > 0) {
+      success = OptimizeJpegLossy(file_contents, &compressed, opt_quality);
+    } else {
+      success = OptimizeJpeg(file_contents, &compressed);
+    }
   } else if (type == PNG) {
     PngReader reader;
     success = PngOptimizer::OptimizePngBestCompression(reader,
@@ -142,17 +151,26 @@ int main(int argc, char** argv) {
   // files.
   if (strcmp("--batch", argv[1]) == 0) {
     for (int i = 2; i < argc; ++i) {
-      OptimizeImage(argv[i], NULL);
+      OptimizeImage(argv[i], NULL, 0);
     }
     return EXIT_SUCCESS;
   }
 
   // Otherwise we are running in normal mode, where the arguments are
   // <infile> <outfile>.
-  if (argc != 3) {
+  if (argc != 3 && argc != 4) {
     fprintf(stderr, "%s", kUsage);
     return EXIT_FAILURE;
   }
 
-  return OptimizeImage(argv[1], argv[2]) ? EXIT_SUCCESS : EXIT_FAILURE;
+  int quality = 0;
+  if (argc == 4) {
+    if (!base::StringToInt(argv[3], &quality) ||
+        quality < 0 || quality > 100) {
+      fprintf(stderr, "%s", kUsage);
+      return EXIT_FAILURE;
+    }
+  }
+
+  return OptimizeImage(argv[1], argv[2], quality) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
