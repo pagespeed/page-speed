@@ -9,8 +9,7 @@ package com.googlecode.page_speed.autotester;
  * server specified by the user could not be connected to.  The intended
  * pattern in the face of such problems is to print one or more user-friendly
  * error messages to System.err and then throw a ConfigException.
- *
- * @author mdsteele@google.com (Matthew D. Steele)
  */
+@SuppressWarnings("serial")  // don't bother us about missing serialVersionUID
 public class ConfigException extends Exception {
 }

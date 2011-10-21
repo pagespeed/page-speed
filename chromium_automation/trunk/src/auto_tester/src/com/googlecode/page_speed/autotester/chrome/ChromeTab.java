@@ -2,6 +2,9 @@
 
 package com.googlecode.page_speed.autotester.chrome;
 
+import com.googlecode.page_speed.autotester.util.Json;
+import com.googlecode.page_speed.autotester.util.JsonException;
+
 import org.chromium.sdk.internal.websocket.WsConnection;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -79,14 +82,14 @@ public class ChromeTab {
         return;
       }
 
-      final Long id = Long.valueOf(this.newMethodId());
+      final long id = this.newMethodId();
       if (callback != null) {
         this.callbacks.put(id, callback);
       }
       JSONObject obj = new JSONObject();
-      obj.put("id", id);
-      obj.put("method", methodName);
-      obj.put("params", params);
+      Json.put(obj, "id", id);
+      Json.put(obj, "method", methodName);
+      Json.put(obj, "params", params);
       try {
         this.webSocket.sendTextualMessage(obj.toJSONString());
       } catch (IOException e) {
@@ -124,25 +127,27 @@ public class ChromeTab {
         return;
       }
 
-      // TODO(mdsteele): Deal with all these casts in a safer way, just in case Chrome sends us
-      //   back malformed data for some reason (e.g. because we're using an incompatible version).
+      try {
+        JSONObject obj = Json.parseObject(text);
+        if (obj.containsKey("id")) {
+          long id = Json.getLong(obj, "id");
+          AsyncCallback callback = this.callbacks.remove(id);
 
-      JSONObject obj = (JSONObject)JSONValue.parse(text);
-
-      if (obj.containsKey("id")) {
-        Long id = (Long)obj.get("id");
-        AsyncCallback callback = this.callbacks.remove(id);
-
-        String error = (String)obj.get("error");
-        if (error == null) {
-          callback.onSuccess((JSONObject)obj.get("result"));
-        } else {
-          callback.onError(error);
+          String error = Json.getString(obj, "error");
+          if (error == null) {
+            callback.onSuccess(Json.getObject(obj, "result"));
+          } else {
+            callback.onError(error);
+          }
+        } else if (this.listener != null) {
+          String method = Json.getString(obj, "method");
+          JSONObject params = Json.getObject(obj, "params");
+          this.listener.handleNotification(method, params);
         }
-      } else if (this.listener != null) {
-        String method = (String)obj.get("method");
-        JSONObject params = (JSONObject)obj.get("params");
-        this.listener.handleNotification(method, params);
+      } catch (JsonException e) {
+        // TODO(mdsteele): Maybe we should add a method to NotificationListener
+        //   to handle protocol errors like this one.
+        System.out.println("Bad JSON message from Chrome: " + e.getMessage());
       }
     }
 
