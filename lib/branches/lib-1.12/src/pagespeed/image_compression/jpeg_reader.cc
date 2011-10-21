@@ -23,6 +23,8 @@
 #include <stdlib.h>
 #include <string.h>  // for memset
 
+#include "base/logging.h"
+
 extern "C" {
 #ifdef USE_SYSTEM_LIBJPEG
 #include "jpeglib.h"
@@ -99,7 +101,7 @@ void OutputMessage(j_common_ptr jpeg_decompress) {
   /*
   char buf[JMSG_LENGTH_MAX];
   (*jpeg_decompress->err->format_message)(jpeg_decompress, buf);
-  cerr << "JPEG Reader Error: " << buf << endl;
+  LOG(INFO) << "JPEG Reader Error: " << buf;
   */
 }
 

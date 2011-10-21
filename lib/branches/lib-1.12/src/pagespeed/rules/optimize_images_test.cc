@@ -135,7 +135,7 @@ TEST_F(OptimizeImagesTest, BasicJpg) {
                   "image/jpg",
                   "test420.jpg");
   Freeze();
-  CheckOneViolation("http://www.example.com/foo.jpg", 13);
+  CheckOneViolation("http://www.example.com/foo.jpg", 0);
 }
 
 TEST_F(OptimizeImagesTest, BasicJpeg) {
@@ -143,7 +143,7 @@ TEST_F(OptimizeImagesTest, BasicJpeg) {
                   "image/jpeg",
                   "test411.jpg");
   Freeze();
-  CheckOneViolation("http://www.example.com/foo.jpeg", 10);
+  CheckOneViolation("http://www.example.com/foo.jpeg", 0);
 }
 
 TEST_F(OptimizeImagesTest, BasicPng) {
