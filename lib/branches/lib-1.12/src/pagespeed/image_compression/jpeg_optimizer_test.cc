@@ -27,6 +27,7 @@
 namespace {
 
 using pagespeed::image_compression::OptimizeJpeg;
+using pagespeed::image_compression::OptimizeJpegLossy;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
@@ -35,18 +36,19 @@ struct ImageCompressionInfo {
   const char* filename;
   size_t original_size;
   size_t compressed_size;
+  size_t lossy_compressed_size;
 };
 
 ImageCompressionInfo kValidImages[] = {
-  { "sjpeg1.jpg", 1552, 1972 },
-  { "sjpeg2.jpg", 3612, 3612 },
-  { "sjpeg3.jpg", 44084, 44084 },
-  { "sjpeg4.jpg", 168895, 181631 },
-  { "sjpeg6.jpg", 149600, 215677 },
-  { "test411.jpg", 6883, 4819 },
-  { "test420.jpg", 6173, 4385 },
-  { "test422.jpg", 6501, 4452 },
-  { "testgray.jpg", 5014, 3331 },
+  { "sjpeg1.jpg", 1552, 1536, 1165 },
+  { "sjpeg2.jpg", 3612, 3283, 3630 },
+  { "sjpeg3.jpg", 44084, 41664, 26924 },
+  { "sjpeg4.jpg", 168895, 168240, 51389 },
+  { "sjpeg6.jpg", 149600, 147163, 89671 },
+  { "test411.jpg", 6883, 4367, 3709 },
+  { "test420.jpg", 6173, 3657, 3653 },
+  { "test422.jpg", 6501, 3985, 3712 },
+  { "testgray.jpg", 5014, 3072, 3060 },
 };
 
 const char *kInvalidFiles[] = {
@@ -87,11 +89,26 @@ TEST(JpegOptimizerTest, ValidJpegs) {
         << kValidImages[i].filename;
 
     // Uncomment this next line for debugging:
-    //WriteStringToFile(std::string("z") + kValidImages[i], dest_data);
+    //WriteStringToFile(std::string("z") + kValidImages[i].filename, dest_data);
 
-    // You'd think we'd want this next line, but it's not always true.  At
-    // some point we should look into why libjpeg sometimes makes it bigger.
-    //ASSERT_LE(dest_data.size(), src_data.size());
+    ASSERT_LE(dest_data.size(), src_data.size());
+  }
+}
+
+TEST(JpegOptimizerTest, ValidJpegsLossy) {
+  for (size_t i = 0; i < kValidImageCount; ++i) {
+    std::string src_data;
+    ReadJpegToString(kValidImages[i].filename, &src_data);
+    std::string dest_data;
+    ASSERT_TRUE(OptimizeJpegLossy(src_data, &dest_data, 85))
+        << kValidImages[i].filename;
+    EXPECT_EQ(kValidImages[i].original_size, src_data.size())
+        << kValidImages[i].filename;
+    EXPECT_EQ(kValidImages[i].lossy_compressed_size, dest_data.size())
+        << kValidImages[i].filename;
+
+    // Uncomment this next line for debugging:
+    //WriteStringToFile(std::string("l") + kValidImages[i].filename, dest_data);
   }
 }
 
@@ -101,6 +118,15 @@ TEST(JpegOptimizerTest, InvalidJpegs) {
     ReadJpegToString(kInvalidFiles[i], &src_data);
     std::string dest_data;
     ASSERT_FALSE(OptimizeJpeg(src_data, &dest_data));
+  }
+}
+
+TEST(JpegOptimizerTest, InvalidJpegsLossy) {
+  for (size_t i = 0; i < kInvalidFileCount; ++i) {
+    std::string src_data;
+    ReadJpegToString(kInvalidFiles[i], &src_data);
+    std::string dest_data;
+    ASSERT_FALSE(OptimizeJpegLossy(src_data, &dest_data, 85));
   }
 }
 
