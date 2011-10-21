@@ -2,6 +2,9 @@
 
 package com.googlecode.page_speed.autotester.chrome;
 
+import com.googlecode.page_speed.autotester.util.Json;
+import com.googlecode.page_speed.autotester.util.JsonException;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -75,32 +78,31 @@ public class ChromeInstance {
   public List<ChromeTab> getTabList() throws IOException {
     URL url = new URL("http", address.getHostName(), address.getPort(),
                       "/json");
-    BufferedReader in =
-        new BufferedReader(new InputStreamReader(url.openStream()));
 
-    // TODO(mdsteele): Catch potential errors from these casts, which could
-    //   happen if Chrome returns an different JSON value than what we expect.
-    JSONArray list = (JSONArray)JSONValue.parse(in);
-    in.close();
+    try {
+      BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+      JSONArray list = Json.parseArray(in);
+      in.close();
 
-    List<ChromeTab> tabs = new ArrayList<ChromeTab>();
-    for (Object item : list) {
-      JSONObject tabInfo = (JSONObject)item;
-      String tabUrl = (String)tabInfo.get("webSocketDebuggerUrl");
+      List<ChromeTab> tabs = new ArrayList<ChromeTab>();
+      for (JSONObject tabInfo : Json.iterateObjects(list)) {
+        if (!tabInfo.containsKey("webSocketDebuggerUrl")) {
+          // This tab is not debuggable, possibly because another client is
+          // already debugging it.
+          continue;
+        }
 
-      if (tabUrl == null) {
-        // This tab is not debuggable, possibly because another client is
-        // already debugging it.
-        continue;
+        String tabUrl = Json.getString(tabInfo, "webSocketDebuggerUrl");
+        try {
+          tabs.add(new ChromeTab(new URI(tabUrl)));
+        } catch (URISyntaxException e) {
+          throw new IOException("Chrome returned an invalid tab URL: " + tabUrl);
+        }
       }
-
-      try {
-        tabs.add(new ChromeTab(new URI(tabUrl)));
-      } catch (URISyntaxException e) {
-        throw new IOException("Chrome returned an invalid tab URL: " + tabUrl);
-      }
+      return tabs;
+    } catch (JsonException e) {
+      throw new IOException("Bad JSON from Chrome: " + e.getMessage());
     }
-    return tabs;
   }
 
   @Override
