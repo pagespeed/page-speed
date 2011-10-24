@@ -60,8 +60,6 @@ public final class TestRunner implements NotificationListener {
 
   private static final String REQUEST_ID_KEY = "requestId";
 
-  public static String w00t() { return DOM_COLLECTOR_SCRIPT; }
-
   private static final String DOM_COLLECTOR_SCRIPT;
   static {
     // We're trying to load a static resource file (domCollector.js).  First, try getting it using
@@ -82,7 +80,12 @@ public final class TestRunner implements NotificationListener {
   private final TestData testData;
   private final Listener listener;
   private final Timer watchDogTimer = new Timer(true);  // true -> uses a daemon thread
+
   private Phase phase = Phase.ABOUT_BLANK;
+  private String mainRequestId = null;  // requestId for the primary URL
+  // The timestamp (in milliseconds) when we started the main page request (NaN is used as a
+  // sentinel value until we fill this in):
+  private double startTimestampMillis = Double.NaN;
 
   private TestRunner(TabConnection connection, TestRequest testRequest, Listener listener) {
     this.tab = connection;
@@ -112,15 +115,41 @@ public final class TestRunner implements NotificationListener {
         if (method.equals("Page.loadEventFired")) {
           this.beginLoadingPage();
         }
-      } else if (method.equals("Page.loadEventFired")) {
-        this.fetchDomTree();
+      } else if (method.equals("Network.requestWillBeSent")) {
+        if (this.mainRequestId == null) {
+          this.mainRequestId = Json.getString(params, REQUEST_ID_KEY);
+        }
+        this.testData.addDataForHar(method, params);
       } else if (method.equals("Network.loadingFinished") ||
                  method.equals("Network.resourceLoadedFromMemoryCache")) {
         this.fetchResourceContent(Json.getString(params, REQUEST_ID_KEY));
+      } else if (method.equals("Network.responseReceived")) {
+        if (this.mainRequestId != null &&
+            this.mainRequestId.equals(Json.getString(params, REQUEST_ID_KEY))) {
+          this.startTimestampMillis = 1000.0 * Json.getDouble(Json.getObject(Json.getObject(
+              params, "response"), "timing"), "requestTime");
+          this.testData.setTimeToFirstByteMillis(
+              1000.0 * Json.getDouble(params, "timestamp") - this.startTimestampMillis);
+        }
+      } else if (method.equals("Page.domContentEventFired")) {
+        if (!Double.isNaN(this.startTimestampMillis)) {
+          this.testData.setTimeToBasePageCompleteMillis(
+              1000.0 * Json.getDouble(params, "timestamp") - this.startTimestampMillis);
+        } else {
+          this.abortTest("Saw Page.domContentEventFired before receiving main response");
+        }
+      } else if (method.equals("Page.loadEventFired")) {
+        if (!Double.isNaN(this.startTimestampMillis)) {
+          this.testData.setLoadTimeMillis(
+              1000.0 * Json.getDouble(params, "timestamp") - this.startTimestampMillis);
+          this.fetchDomTree();
+        } else {
+          this.abortTest("Saw Page.loadEventFired before receiving main response");
+        }
       } else if (method.equals("Timeline.eventRecorded")) {
         this.testData.addTimelineEvent(Json.getObject(params, "record"));
       } else {
-        // TODO(mdsteele): Record other relevant notifications needed for generating HAR data.
+        this.testData.addDataForHar(method, params);
       }
     } catch (JsonException e) {
       this.abortTest("Bad JSON from Chrome: " + e.getMessage());

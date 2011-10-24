@@ -133,11 +133,10 @@ public class ChromeTab {
           long id = Json.getLong(obj, "id");
           AsyncCallback callback = this.callbacks.remove(id);
 
-          String error = Json.getString(obj, "error");
-          if (error == null) {
+          if (!obj.containsKey("error")) {
             callback.onSuccess(Json.getObject(obj, "result"));
           } else {
-            callback.onError(error);
+            callback.onError(Json.getString(Json.getObject(obj, "error"), "message"));
           }
         } else if (this.listener != null) {
           String method = Json.getString(obj, "method");

@@ -64,6 +64,14 @@ public final class Json {
   }
 
   /**
+   * Gets a double (or integral) field value from a JSONObject.
+   * @throws JsonException if there's no such field or if the stored value is not a number.
+   */
+  public static double getDouble(JSONObject obj, String key) throws JsonException {
+    return asDouble(obj.get(key));
+  }
+
+  /**
    * Gets an integral field value from a JSONObject.
    * @throws JsonException if there's no such field or if the stored value is not an integer.
    */
@@ -101,6 +109,14 @@ public final class Json {
   @SuppressWarnings("unchecked")  // safe by specification of JSONObject
   public static void put(JSONObject obj, String key, boolean value) {
     obj.put(key, Boolean.valueOf(value));
+  }
+
+  /**
+   * Inserts a double value into a JSON object.
+   */
+  @SuppressWarnings("unchecked")  // safe by specification of JSONObject
+  public static void put(JSONObject obj, String key, double value) {
+    obj.put(key, Double.valueOf(value));
   }
 
   /**
@@ -170,6 +186,14 @@ public final class Json {
       throw new JsonException("not a Boolean: " + JSONValue.toJSONString(value));
     } else {
       return ((Boolean)value).booleanValue();
+    }
+  }
+
+  private static double asDouble(Object value) throws JsonException {
+    if (value == null || !(value instanceof Number)) {
+      throw new JsonException("not a Number: " + JSONValue.toJSONString(value));
+    } else {
+      return ((Number)value).doubleValue();
     }
   }
 
