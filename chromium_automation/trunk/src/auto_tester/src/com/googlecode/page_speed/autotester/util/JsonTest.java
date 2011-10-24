@@ -10,6 +10,11 @@ import org.json.simple.JSONObject;
  */
 public class JsonTest extends TestCase {
 
+  public void testGetBoolean() throws JsonException {
+    assertEquals(false, Json.getBoolean(Json.parseObject("{\"foo\":false}"), "foo"));
+    assertEquals(true, Json.getBoolean(Json.parseObject("{\"baz\":true}"), "baz"));
+  }
+
   public void testGetLong() throws JsonException {
     assertEquals(0L, Json.getLong(Json.parseObject("{\"foo\":0}"), "foo"));
     assertEquals(14L, Json.getLong(Json.parseObject("{\"foo\":14}"), "foo"));

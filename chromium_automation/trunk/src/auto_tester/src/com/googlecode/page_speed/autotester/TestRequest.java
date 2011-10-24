@@ -84,6 +84,10 @@ public class TestRequest {
     this.first = aView == 0 ? 0 : 1;
   }
 
+  public boolean isRepeatView() {
+    return this.first != 0;
+  }
+
   /**
    * Get the full URL of the test (with variation).
    *

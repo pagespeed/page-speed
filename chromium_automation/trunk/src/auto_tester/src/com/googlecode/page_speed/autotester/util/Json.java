@@ -56,6 +56,14 @@ public final class Json {
   }
 
   /**
+   * Gets a boolean field value from a JSONObject.
+   * @throws JsonException if there's no such field or if the stored value is not an integer.
+   */
+  public static boolean getBoolean(JSONObject obj, String key) throws JsonException {
+    return asBoolean(obj.get(key));
+  }
+
+  /**
    * Gets an integral field value from a JSONObject.
    * @throws JsonException if there's no such field or if the stored value is not an integer.
    */
@@ -88,6 +96,14 @@ public final class Json {
   }
 
   /**
+   * Inserts a boolean value into a JSON object.
+   */
+  @SuppressWarnings("unchecked")  // safe by specification of JSONObject
+  public static void put(JSONObject obj, String key, boolean value) {
+    obj.put(key, Boolean.valueOf(value));
+  }
+
+  /**
    * Inserts an object value into a JSON object.
    */
   @SuppressWarnings("unchecked")  // safe by specification of JSONObject
@@ -100,7 +116,7 @@ public final class Json {
    */
   @SuppressWarnings("unchecked")  // safe by specification of JSONObject
   public static void put(JSONObject obj, String key, long value) {
-    obj.put(key, value);
+    obj.put(key, Long.valueOf(value));
   }
 
   /**
@@ -146,6 +162,14 @@ public final class Json {
       throw new JsonException("not a JSONArray: " + JSONValue.toJSONString(value));
     } else {
       return (JSONArray)value;
+    }
+  }
+
+  private static boolean asBoolean(Object value) throws JsonException {
+    if (value == null || !(value instanceof Boolean)) {
+      throw new JsonException("not a Boolean: " + JSONValue.toJSONString(value));
+    } else {
+      return ((Boolean)value).booleanValue();
     }
   }
 
