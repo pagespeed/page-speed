@@ -3,8 +3,10 @@
 package com.googlecode.page_speed.autotester;
 
 import com.googlecode.page_speed.autotester.chrome.MockTabConnection;
+import com.googlecode.page_speed.autotester.util.Json;
 
 import junit.framework.TestCase;
+import org.json.simple.JSONObject;
 
 import java.net.URL;
 
@@ -38,23 +40,33 @@ public class TestRunnerTest extends TestCase {
                     "{\"expression\":\"window.location.href=\\\""+
                     "http:\\\\\\/\\\\\\/www.example.com\\\\\\/\\\"\"," +
                     "\"returnByValue\":true}")
+        .willNotify("Network.requestWillBeSent", "{\"requestId\":\"mainpage\"}")
+        .willNotify("Network.responseReceived",
+                    "{\"requestId\":\"mainpage\",\"timestamp\":1.75," +
+                    "\"response\":{\"timing\":{\"requestTime\":1.0}}}")
         .willNotify("Timeline.eventRecorded", "{\"record\":{\"timeline\":true}}")
         .willRespond("{}")
-        .willNotify("Page.loadEventFired")
+        .willNotify("Page.domContentEventFired", "{\"timestamp\":2.0}")
+        .willNotify("Page.loadEventFired", "{\"timestamp\":2.125}")
         .expectCall("Runtime.evaluate")  // fetching DOM
         .willNotify("Timeline.eventRecorded", "{\"record\":{\"answer\":42}}")
         .willRespond("{\"result\":{\"description\":\"{\\\"dom\\\":true}\"}}");
 
     TestRunner.startTest(connection, testRequest, 5000, listener);
-    connection.doneMakingCalls();
 
     assertNotNull("Test data not recorded", listener.testData);
-    assertTrue(listener.testData.isCompleted());
     if (listener.testData.isFailure()) {
       fail("testData is failure: " + listener.testData.getFailureMessage());
     }
+    connection.doneMakingCalls();
+    assertTrue(listener.testData.isCompleted());
     assertEquals("{\"dom\":true}", listener.testData.getDomString());
     assertEquals("[{\"timeline\":true},{\"answer\":42}]", listener.testData.getTimelineString());
+
+    JSONObject metrics = listener.testData.getMetrics();
+    assertEquals(750.0, Json.getDouble(metrics, "time_to_first_byte_ms"));
+    assertEquals(1000.0, Json.getDouble(metrics, "time_to_base_page_complete_ms"));
+    assertEquals(1125.0, Json.getDouble(metrics, "load_time_ms"));
   }
 
   public void testFailure() throws Exception {
@@ -73,7 +85,12 @@ public class TestRunnerTest extends TestCase {
                     "{\"expression\":\"window.location.href=\\\""+
                     "http:\\\\\\/\\\\\\/www.example.com\\\\\\/\\\"\"," +
                     "\"returnByValue\":true}").willRespond("{}")
-        .willNotify("Page.loadEventFired")
+        .willNotify("Network.requestWillBeSent", "{\"requestId\":\"mainpage\"}")
+        .willNotify("Network.responseReceived",
+                    "{\"requestId\":\"mainpage\",\"timestamp\":1.75," +
+                    "\"response\":{\"timing\":{\"requestTime\":1.0}}}")
+        .willNotify("Page.domContentEventFired", "{\"timestamp\":2.0}")
+        .willNotify("Page.loadEventFired", "{\"timestamp\":2.125}")
         .expectCall("Runtime.evaluate")  // fetching DOM
         .willError("No DOM for you!");
 

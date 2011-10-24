@@ -7,7 +7,9 @@ import com.googlecode.page_speed.autotester.util.Json;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Holds data collected for a single test, before that data has been run through Page Speed to
@@ -24,10 +26,18 @@ public class TestData {
 
   private String domString = null;
   private JSONArray timelineData = new JSONArray();
+  private List<JSONObject> dataForHar = new ArrayList<JSONObject>();
+  private double timeToFirstByteMillis = Double.POSITIVE_INFINITY;
+  private double timeToBasePageCompleteMillis = Double.POSITIVE_INFINITY;
+  private double loadTimeMillis = Double.POSITIVE_INFINITY;
 
   public TestData(TestRequest testRequest) {
     this.testRequest = testRequest;
     this.startTime = new Date();
+  }
+
+  public TestRequest getTestRequest() {
+    return this.testRequest;
   }
 
   ////// TEST STATUS /////
@@ -84,6 +94,29 @@ public class TestData {
     this.failureMessage = message;
   }
 
+  ///// METRICS /////
+
+  // TODO(mdsteele): Make a cleaner API than this (will need to change some other classes).
+  public JSONObject getMetrics() {
+    JSONObject obj = new JSONObject();
+    Json.put(obj, "time_to_first_byte_ms", this.timeToFirstByteMillis);
+    Json.put(obj, "time_to_base_page_complete_ms", this.timeToBasePageCompleteMillis);
+    Json.put(obj, "load_time_ms", this.loadTimeMillis);
+    return obj;
+  }
+
+  public void setTimeToFirstByteMillis(double millis) {
+    this.timeToFirstByteMillis = millis;
+  }
+
+  public void setTimeToBasePageCompleteMillis(double millis) {
+    this.timeToBasePageCompleteMillis = millis;
+  }
+
+  public void setLoadTimeMillis(double millis) {
+    this.loadTimeMillis = millis;
+  }
+
   ///// DOM /////
 
   public void setDomString(String domString) {
@@ -115,11 +148,31 @@ public class TestData {
 
   ///// HAR /////
 
-  public void addResourceContent(String requestId, String body, boolean isBase64Encoded) {
-    // TODO(mdsteele): Implement this.
+  public String getHarString() {
+    return new HarGenerator(this).build().toJSONString();
   }
 
-  // TODO(mdsteele): Add methods for recording other relevant network events needed for generating
-  //   HAR data.
+  // TODO(mdsteele): Make a cleaner API than this (will need to change HARCreator).
+  public List<JSONObject> getDataForHar() {
+    return this.dataForHar;
+  }
+
+  // TODO(mdsteele): Make a cleaner API than this (will need to change TestRunner).
+  public void addDataForHar(String methodName, JSONObject params) {
+    JSONObject obj = new JSONObject();
+    Json.put(obj, "method", methodName);
+    Json.put(obj, "params", params);
+    this.dataForHar.add(obj);
+  }
+
+  public void addResourceContent(String requestId, String body, boolean isBase64Encoded) {
+    JSONObject result = new JSONObject();
+    Json.put(result, "content", body);
+    Json.put(result, "base64encoded", isBase64Encoded);
+    JSONObject obj = new JSONObject();
+    Json.put(obj, "method", "__Internal.resourceContent");
+    Json.put(obj, "result", result);
+    this.dataForHar.add(obj);
+  }
 
 }

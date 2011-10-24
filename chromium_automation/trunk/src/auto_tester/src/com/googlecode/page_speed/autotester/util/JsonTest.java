@@ -15,10 +15,23 @@ public class JsonTest extends TestCase {
     assertEquals(true, Json.getBoolean(Json.parseObject("{\"baz\":true}"), "baz"));
   }
 
+  public void testGetDouble() throws JsonException {
+    assertEquals(0.625, Json.getDouble(Json.parseObject("{\"foo\":0.625}"), "foo"));
+    assertEquals(-31.0, Json.getDouble(Json.parseObject("{\"baz\":-31.0}"), "baz"));
+    // getDouble should work for integral values too:
+    assertEquals(17.0, Json.getDouble(Json.parseObject("{\"bar\":17}"), "bar"));
+  }
+
   public void testGetLong() throws JsonException {
     assertEquals(0L, Json.getLong(Json.parseObject("{\"foo\":0}"), "foo"));
     assertEquals(14L, Json.getLong(Json.parseObject("{\"foo\":14}"), "foo"));
     assertEquals(-283L, Json.getLong(Json.parseObject("{\"foo\":-283}"), "foo"));
+  }
+
+  public void testPutDouble() throws JsonException {
+    JSONObject obj = new JSONObject();
+    Json.put(obj, "bar", 19.5);
+    assertEquals(19.5, Json.getDouble(obj, "bar"));
   }
 
   public void testPutLong() throws JsonException {

@@ -84,6 +84,15 @@ public class TestRequest {
     this.first = aView == 0 ? 0 : 1;
   }
 
+  public String getDescription() {
+    return String.format("%s - %s %s #%d", this.url, this.varName,
+                         (this.isRepeatView() ? "Repeat" : "First"), this.run);
+  }
+
+  public int getRunNumber() {
+    return this.run;
+  }
+
   public boolean isRepeatView() {
     return this.first != 0;
   }
