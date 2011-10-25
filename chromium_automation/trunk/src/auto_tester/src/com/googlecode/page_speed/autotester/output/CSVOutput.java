@@ -2,8 +2,8 @@
 
 package com.googlecode.page_speed.autotester.output;
 
+import com.googlecode.page_speed.autotester.TestData;
 import com.googlecode.page_speed.autotester.TestRequest;
-import com.googlecode.page_speed.autotester.iface.OutputBuilder;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -29,7 +29,10 @@ public class CSVOutput implements OutputBuilder {
   }
 
   @Override
-  public void buildPart(TestRequest run, JSONObject metrics, JSONObject pagespeed) {
+  public void addTestResult(TestData testData, JSONObject pagespeed) {
+    final TestRequest run = testData.getTestRequest();
+    final JSONObject metrics = testData.getMetrics();
+
     List<String> line = new ArrayList<String>();
     if (output.length() == 0) {
       line = new ArrayList<String>();
@@ -94,7 +97,7 @@ public class CSVOutput implements OutputBuilder {
    * @param delimiter The delimiter to join on.
    * @return A delimiter separated string of s.
    */
-  public static String join(List<String> s, String delimiter) {
+  private static String join(List<String> s, String delimiter) {
     if (s == null || s.isEmpty()) {
       return "";
     }

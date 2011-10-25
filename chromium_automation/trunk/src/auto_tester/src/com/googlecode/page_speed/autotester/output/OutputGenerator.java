@@ -4,10 +4,9 @@ package com.googlecode.page_speed.autotester.output;
 
 import com.googlecode.page_speed.autotester.PageSpeedException;
 import com.googlecode.page_speed.autotester.PageSpeedRunner;
+import com.googlecode.page_speed.autotester.TestController;
+import com.googlecode.page_speed.autotester.TestData;
 import com.googlecode.page_speed.autotester.TestRequest;
-import com.googlecode.page_speed.autotester.TestResult;
-import com.googlecode.page_speed.autotester.iface.OutputBuilder;
-import com.googlecode.page_speed.autotester.iface.TestObserver;
 import com.googlecode.page_speed.autotester.util.FileUtils;
 
 import org.json.simple.JSONObject;
@@ -26,7 +25,7 @@ import java.util.Set;
  * @author azlatin@google.com (Alexander Zlatin)
  *
  */
-public class OutputGenerator implements TestObserver {
+public class OutputGenerator implements TestController.Listener {
 
   private final String name;
   private final Set<String> savedFiles = new HashSet<String>();
@@ -114,77 +113,69 @@ public class OutputGenerator implements TestObserver {
     return tempFile;
   }
 
-  /**
-   * Called when all tests are finished.
-   */
   @Override
-  public void onTestCompleted(TestResult result) {
-    TestRequest request = result.request;
-    completedTests++;
-    System.out.println(String.format("Test %d/%d Completed: %dms (%s - %s #%d-%d)",
-      completedTests, totalTests, result.getTestDuration(),
-      request.url, request.varName, request.run, request.first));
-
-    if (resultsDir == null || result.failed()) {
-      // If resultsDir is null, don't calculate results. Just load the pages.
-      // This is useful if you just want to slurp or warm mod_pagespeed caches.
-      return;
-    }
-
-    try {
-      String hash = String.valueOf(Thread.currentThread().hashCode());
-      String urlRunView = "_" + request.run + "_" + request.first;
-      String urlFileName = FileUtils.encodeURLToFile(request.getFullURL()) + urlRunView;
-      File harFile = savedFiles.contains("har")
-          ? newResultFile(urlFileName + ".har") : newTempFile(hash, ".har.tmp");
-      File tlFile = savedFiles.contains("tl")
-          ? newResultFile(urlFileName + ".tl") : newTempFile(hash, ".tl.tmp");
-      File domFile = savedFiles.contains("dom")
-          ? newResultFile(urlFileName + ".dom") : newTempFile(hash, ".dom.tmp");
-
-      System.out.print("Writing ");
-      System.out.print("HAR...");
-      FileUtils.setContents(harFile, result.getHAR().toJSONString());
-      System.out.print("Timeline...");
-      FileUtils.setContents(tlFile, result.getTimeline().toJSONString());
-      JSONObject dom = result.getDOM();
-      if (dom == null || dom.isEmpty()) {
-        domFile = null;
-      } else {
-        System.out.print("DOM...");
-        FileUtils.setContents(domFile, dom.toJSONString());
-      }
-      System.out.println();
-
-      System.out.println("Running Pagespeed...");
-      final JSONObject pagespeed;
-      try {
-        pagespeed = psr.generatePageSpeedResults(harFile, tlFile, domFile);
-      } catch (PageSpeedException e) {
-        System.err.println("Pagespeed Error. Ignoring Test.");
-        return;
-      }
-
-      System.out.println("Adding Data to Output...");
-      for (OutputBuilder builder : outputs) {
-        synchronized (builder) {
-          builder.buildPart(request, result.getMetrics(), pagespeed);
-        }
-      }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      // TestRun objects are very memory hungry
-      // Java's GC will already schedule this for collection,
-      // but this will hopefully expedite it.
-      result.clearData();
+  public synchronized void onTestCompletedOnce(TestData testData) {
+    if (testData.isFailure()) {
+      System.out.println(String.format("Test [%s] failed after %dms: %s",
+                                       testData.getTestRequest().getDescription(),
+                                       testData.getTestDurationMillis(),
+                                       testData.getFailureMessage()));
+    } else {
+      System.out.println(String.format("Test [%s] completed after %dms",
+                                       testData.getTestRequest().getDescription(),
+                                       testData.getTestDurationMillis()));
     }
   }
 
-  /**
-   * Called when all tests are finished.
-   */
+  @Override
+  public synchronized void onTestTotallyDone(TestData testData) {
+    final TestRequest testRequest = testData.getTestRequest();
+
+    final String description = testRequest.getDescription();
+    if (testData.isFailure()) {
+      System.out.println(String.format("Test [%s] FAILED", description));
+      return;
+    } else if (this.resultsDir == null) {
+      // If resultsDir is null, don't calculate results. Just load the pages.
+      // This is useful if you just want to slurp or warm mod_pagespeed caches.
+      System.out.println(String.format("Test [%s] COMPLETED", description));
+      return;
+    }
+
+    System.out.println(String.format("Test [%s] COMPLETED; running Page Speed...", description));
+
+    String hash = String.valueOf(Thread.currentThread().hashCode());
+    String urlFileName = FileUtils.encodeURLToFile(testRequest.getFullURL()) +
+        "_" + testRequest.getRunNumber() + "_" + (testRequest.isRepeatView() ? "R" : "F");
+    File harFile = savedFiles.contains("har")
+        ? newResultFile(urlFileName + ".har") : newTempFile(hash, ".har.tmp");
+    File tlFile = savedFiles.contains("tl")
+        ? newResultFile(urlFileName + ".tl") : newTempFile(hash, ".tl.tmp");
+    File domFile = savedFiles.contains("dom")
+        ? newResultFile(urlFileName + ".dom") : newTempFile(hash, ".dom.tmp");
+
+    try {
+      FileUtils.setContents(harFile, testData.getHarString());
+      FileUtils.setContents(tlFile, testData.getTimelineString());
+      FileUtils.setContents(domFile, testData.getDomString());
+    } catch (IOException e) {
+      System.out.println(String.format("  I/O error: %s", e.getMessage()));
+      return;
+    }
+
+    final JSONObject pagespeedResults;
+    try {
+      pagespeedResults = this.psr.generatePageSpeedResults(harFile, tlFile, domFile);
+    } catch (PageSpeedException e) {
+      System.out.println(String.format("  Page Speed error: %s", e.getMessage()));
+      return;
+    }
+
+    for (OutputBuilder builder : this.outputs) {
+      builder.addTestResult(testData, pagespeedResults);
+    }
+  }
+
   @Override
   public void onAllTestsCompleted() {
     System.out.println("All Tests Completed.");
