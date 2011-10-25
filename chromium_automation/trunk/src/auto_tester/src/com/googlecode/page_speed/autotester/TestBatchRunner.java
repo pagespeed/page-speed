@@ -4,8 +4,8 @@ package com.googlecode.page_speed.autotester;
 
 import com.googlecode.page_speed.autotester.chrome.TabConnection;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import com.google.common.collect.Lists;
+
 import java.util.List;
 import java.util.Queue;
 
@@ -19,7 +19,8 @@ import java.util.Queue;
 public abstract class TestBatchRunner {
 
   /**
-   * A callback interface for reporting on the TestBatchRunner's progress.
+   * A callback interface for reporting on the TestBatchRunner's progress.  Implementations are
+   * expected to be thread-safe.
    */
   public static interface Listener {
     /**
@@ -38,18 +39,25 @@ public abstract class TestBatchRunner {
   }
 
   /**
-   * Get a concrete instance of a TestBatchRunner.
+   * Get a concrete instance of a TestBatchRunner that uses a standard TestRunner for running
+   * individual tests.
    */
-  public static TestBatchRunner getInstance() {
-    // TODO(mdsteele): Allow the caller to supply a custom implementation of TestRunner, so that we
-    //   can mock it out and test the TestBatchRunner class.
+  public static TestBatchRunner newInstance() {
+    return TestBatchRunner.newInstance(TestRunner.newInstance());
+  }
+
+  /**
+   * Get a concrete instance of a TestBatchRunner that uses the given TestRunner for running
+   * individual tests.
+   */
+  public static TestBatchRunner newInstance(final TestRunner testRunner) {
     return new TestBatchRunner() {
       public void startBatch(TabConnection connection,
                              List<TestRequest> batchRequests,
                              int maxBatchRetries,
                              long testTimeoutMillis,
                              Listener listener) {
-        RunnerImpl runner = new RunnerImpl(connection, batchRequests, maxBatchRetries,
+        RunnerImpl runner = new RunnerImpl(testRunner, connection, batchRequests, maxBatchRetries,
                                            testTimeoutMillis, listener);
         runner.startNextTest();
       }
@@ -73,26 +81,30 @@ public abstract class TestBatchRunner {
 
   private static class RunnerImpl implements TestRunner.Listener {
 
+    private final TestRunner testRunner;
     private final TabConnection connection;
     private final List<TestRequest> batchRequests;
     private final int maxBatchRetries;
     private final long testTimeoutMillis;
     private final Listener listener;
 
-    private final List<TestData> batchData = new ArrayList<TestData>();
-    private Queue<TestRequest> requestQueue = new LinkedList<TestRequest>();
+    private final List<TestData> batchData = Lists.newArrayList();
+    private final Queue<TestRequest> requestQueue;
     private int numBatchFailures = 0;
 
-    private RunnerImpl(TabConnection connection,
+    private RunnerImpl(TestRunner testRunner,
+                       TabConnection connection,
                        List<TestRequest> batchRequests,
                        int maxBatchRetries,
                        long testTimeoutMillis,
                        Listener listener) {
+      this.testRunner = testRunner;
       this.connection = connection;
-      this.batchRequests = new ArrayList<TestRequest>(batchRequests);
+      this.batchRequests = Lists.newArrayList(batchRequests);
       this.maxBatchRetries = maxBatchRetries;
       this.testTimeoutMillis = testTimeoutMillis;
       this.listener = listener;
+      this.requestQueue = Lists.newLinkedList(this.batchRequests);
     }
 
     // Start the next test in the batch; or, if we've done them all, then declare ourselves done.
@@ -101,7 +113,7 @@ public abstract class TestBatchRunner {
         this.done();
       } else {
         TestRequest testRequest = this.requestQueue.remove();
-        TestRunner.startTest(this.connection, testRequest, this.testTimeoutMillis, this);
+        this.testRunner.startTest(this.connection, testRequest, this.testTimeoutMillis, this);
       }
     }
 

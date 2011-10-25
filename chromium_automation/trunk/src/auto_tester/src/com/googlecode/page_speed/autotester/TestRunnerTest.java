@@ -52,7 +52,7 @@ public class TestRunnerTest extends TestCase {
         .willNotify("Timeline.eventRecorded", "{\"record\":{\"answer\":42}}")
         .willRespond("{\"result\":{\"description\":\"{\\\"dom\\\":true}\"}}");
 
-    TestRunner.startTest(connection, testRequest, 5000, listener);
+    TestRunner.newInstance().startTest(connection, testRequest, 5000, listener);
 
     assertNotNull("Test data not recorded", listener.testData);
     if (listener.testData.isFailure()) {
@@ -94,7 +94,7 @@ public class TestRunnerTest extends TestCase {
         .expectCall("Runtime.evaluate")  // fetching DOM
         .willError("No DOM for you!");
 
-    TestRunner.startTest(connection, testRequest, 5000, listener);
+    TestRunner.newInstance().startTest(connection, testRequest, 5000, listener);
     connection.doneMakingCalls();
 
     assertNotNull("Test data not recorded", listener.testData);
