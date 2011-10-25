@@ -2,6 +2,7 @@ package com.googlecode.page_speed.autotester;
 
 import com.googlecode.page_speed.autotester.chrome.ChromeInstance;
 import com.googlecode.page_speed.autotester.chrome.ChromeTab;
+import com.googlecode.page_speed.autotester.chrome.TabConnection;
 import com.googlecode.page_speed.autotester.output.OutputGenerator;
 import com.googlecode.page_speed.autotester.util.FileUtils;
 import com.googlecode.page_speed.autotester.util.Flags;
@@ -29,6 +30,7 @@ import java.util.Map;
 public final class PageSpeedChromeRunner {
 
   private static final int WEBSOCKET_CONNECTION_TIMEOUT_MILLIS = 10000;
+  private static final int MAX_TEST_BATCH_RETRIES = 4;
 
   private PageSpeedChromeRunner() {
     throw new AssertionError();  // uninstantiable class
@@ -154,11 +156,11 @@ public final class PageSpeedChromeRunner {
    * @throws ConfigException if any of the connections to the Chrome instances
    *   fail.
    */
-  private static List<ChromeTab> getChromeTabs(List<ChromeInstance> servers)
+  private static List<TabConnection> getTabConnections(List<ChromeInstance> servers)
       throws ConfigException {
     boolean error = false;
-    List<ChromeTab> tabs = new ArrayList<ChromeTab>();
 
+    List<ChromeTab> tabs = new ArrayList<ChromeTab>();
     for (ChromeInstance instance : servers) {
       List<ChromeTab> serverTabs;
       try {
@@ -178,33 +180,10 @@ public final class PageSpeedChromeRunner {
       }
     }
 
-    if (error) {
-      throw new ConfigException();
-    }
-
-    return tabs;
-  }
-
-  /**
-   * Create a new URLTester and connect it to the given Chrome tabs.
-   *
-   * @throws ConfigException if any of the connectionsto the Chrome tabs fail.
-   */
-  private static URLTester createUrlTester(
-      List<URL> urls,
-      Map<String,String> variations,
-      boolean doRepeatView,
-      int numberOfRuns,
-      List<ChromeTab> tabs,
-      long testTimeoutMillis) throws ConfigException {
-    boolean error = false;
-    URLTester tester = new URLTester(TestRequest.generateRequests(
-        urls, variations, doRepeatView, numberOfRuns));
-
+    List<TabConnection> connections = new ArrayList<TabConnection>();
     for (ChromeTab tab : tabs) {
       try {
-        tester.addTabConnection(tab, WEBSOCKET_CONNECTION_TIMEOUT_MILLIS,
-                                testTimeoutMillis);
+        connections.add(tab.connect(WEBSOCKET_CONNECTION_TIMEOUT_MILLIS));
       } catch (IOException e) {
         System.err.println("FATAL: Could not connect to Chrome tab at " + tab +
                            ": " + e.getMessage());
@@ -216,7 +195,7 @@ public final class PageSpeedChromeRunner {
       throw new ConfigException();
     }
 
-    return tester;
+    return connections;
   }
 
   /**
@@ -248,7 +227,8 @@ public final class PageSpeedChromeRunner {
 
     final long testTimeoutMillis = Flags.getInt("test_timeout") * 1000L;
 
-    final URLTester tester;
+    final List<List<TestRequest>> testBatches;
+    final List<TabConnection> connections;
     try {
       // Parse the configuration data.  These methods will print error messages
       // and exit if anything is wrong with the user's input.
@@ -256,13 +236,11 @@ public final class PageSpeedChromeRunner {
       Map<String,String> variations = parseVariationsFile(Flags.getStr("variations"));
       List<ChromeInstance> servers = parseServersFile(Flags.getStr("servers"));
 
-      // Get the list of Chrome tabs we will connect to.
-      List<ChromeTab> tabs = getChromeTabs(servers);
+      testBatches = TestRequest.generateRequests(urls, variations, Flags.getBool("repeat"),
+                                                 Flags.getInt("runs"));
 
-      // Create the URL tester and connect to the Chrome tabs.
-      tester = createUrlTester(
-          urls, variations, Flags.getBool("repeat"), Flags.getInt("runs"),
-          tabs, testTimeoutMillis);
+      // Connect to the Chrome tabs we will be using.
+      connections = getTabConnections(servers);
     } catch (ConfigException e) {
       // An error message has already been printed to the user.
       System.exit(1);
@@ -270,18 +248,27 @@ public final class PageSpeedChromeRunner {
     }
 
     // Page Speed
-    PageSpeedRunner psr = new PageSpeedRunner(Flags.getStr("ps_bin"),
-                                              Flags.getStr("strategy"));
+    PageSpeedRunner psr = new PageSpeedRunner(Flags.getStr("ps_bin"), Flags.getStr("strategy"));
 
     // Result Handler
-    OutputGenerator results = new OutputGenerator(psr,
-      Flags.getStr("results"), tester.getTotalNumberOfTests());
-    results.addOutputsByString(Flags.getStr("output"));
-    results.setSavedContentByString(Flags.getStr("save"));
+    int totalNumberOfTests = 0;
+    for (List<TestRequest> testBatch : testBatches) {
+      totalNumberOfTests += testBatches.size();
+    }
+    OutputGenerator output = new OutputGenerator(
+        psr, Flags.getStr("results"), totalNumberOfTests);
+    output.addOutputsByString(Flags.getStr("output"));
+    output.setSavedContentByString(Flags.getStr("save"));
 
-    // Start the tests
-    tester.addObserver(results);
-    tester.start();
+    // Run the tests
+    TestController testController = TestController.newInstance();
+    try {
+      testController.runTests(connections, testBatches, MAX_TEST_BATCH_RETRIES,
+                              testTimeoutMillis, output);
+    } catch (InterruptedException e) {
+      System.err.println("Interrupted.");
+      System.exit(1);
+    }
   }
 
 }

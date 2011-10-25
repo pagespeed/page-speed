@@ -2,8 +2,8 @@
 
 package com.googlecode.page_speed.autotester.output;
 
+import com.googlecode.page_speed.autotester.TestData;
 import com.googlecode.page_speed.autotester.TestRequest;
-import com.googlecode.page_speed.autotester.iface.OutputBuilder;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -33,7 +33,10 @@ public class AnalysisOutput implements OutputBuilder {
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void buildPart(TestRequest run, JSONObject metrics, JSONObject pagespeed) {
+  public void addTestResult(TestData testData, JSONObject pagespeed) {
+    final TestRequest run = testData.getTestRequest();
+    final JSONObject metrics = testData.getMetrics();
+
     JSONObject rootObj = output;
 
     if (!rootObj.containsKey(run.url)) {
