@@ -59,6 +59,14 @@ public abstract class TestController {
                                 Listener listener) throws InterruptedException;
 
   /**
+   * Get a concrete instance of a TestController that uses a standard TestBatchRunner for running
+   * test batches.
+   */
+  public static TestController newInstance() {
+    return TestController.newInstance(TestBatchRunner.newInstance());
+  }
+
+  /**
    * Get a concrete instance of a TestController that uses the given TestBatchRunner for running
    * test batches.
    */
