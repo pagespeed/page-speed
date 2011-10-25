@@ -2,6 +2,7 @@
 
 package com.googlecode.page_speed.autotester.output;
 
+import com.googlecode.page_speed.autotester.PageSpeedException;
 import com.googlecode.page_speed.autotester.PageSpeedRunner;
 import com.googlecode.page_speed.autotester.TestRequest;
 import com.googlecode.page_speed.autotester.TestResult;
@@ -156,17 +157,19 @@ public class OutputGenerator implements TestObserver {
       System.out.println();
 
       System.out.println("Running Pagespeed...");
-      JSONObject pagespeed = psr.generatePageSpeedResults(harFile, tlFile, domFile);
-
-      if (pagespeed != null) {
-        System.out.println("Adding Data to Output...");
-        for (OutputBuilder builder : outputs) {
-          synchronized (builder) {
-            builder.buildPart(request, result.getMetrics(), pagespeed);
-          }
-        }
-      } else {
+      final JSONObject pagespeed;
+      try {
+        pagespeed = psr.generatePageSpeedResults(harFile, tlFile, domFile);
+      } catch (PageSpeedException e) {
         System.err.println("Pagespeed Error. Ignoring Test.");
+        return;
+      }
+
+      System.out.println("Adding Data to Output...");
+      for (OutputBuilder builder : outputs) {
+        synchronized (builder) {
+          builder.buildPart(request, result.getMetrics(), pagespeed);
+        }
       }
 
     } catch (IOException e) {

@@ -1,9 +1,10 @@
 package com.googlecode.page_speed.autotester;
 
+import com.googlecode.page_speed.autotester.util.Json;
+import com.googlecode.page_speed.autotester.util.JsonException;
 import com.googlecode.page_speed.autotester.util.StreamGobbler;
 
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,10 +56,11 @@ public class PageSpeedRunner {
    * @param aPathToHarFile Path to a readable HTTP Archive
    * @param aPathToInstrumentationFile Path to readable timeline data
    * @param aPathToDomFile Path to readable DOM data
-   * @return A JSONObject containing Page Speed results
+   * @returns A JSONObject containing Page Speed results
+   * @throws PageSpeedException if the subprocess can't be started or suffers an internal error.
    */
   public JSONObject generatePageSpeedResults(File aPathToHarFile,
-      File aPathToInstrumentationFile, File aPathToDomFile) {
+      File aPathToInstrumentationFile, File aPathToDomFile) throws PageSpeedException {
     // Construct the command to invoke Page Speed.
     List<String> command = new ArrayList<String>();
     command.add(pathToPageSpeedBin);
@@ -86,8 +88,7 @@ public class PageSpeedRunner {
     try {
       process = builder.start();
     } catch (IOException e) {
-      System.err.println(e);
-      return null;
+      throw new PageSpeedException("Error starting Page Speed process: " + e.getMessage(), e);
     }
 
     //TODO(azlatin): Use a thread pool.
@@ -104,13 +105,22 @@ public class PageSpeedRunner {
       stderr.join();
       stdout.join();
     } catch (InterruptedException e) {
-      System.err.println(e);
+      process.destroy();
+      throw new PageSpeedException("Interrupted", e);
+    }
+
+    // Make sure we completed successfully.
+    final int exitCode = process.exitValue();
+    if (exitCode != 0) {
+      throw new PageSpeedException("Page Speed returned nonzero exit code: " + exitCode);
     }
 
     // Parse results
-    JSONObject jsonResults = (JSONObject) JSONValue.parse(stdout.getOutput());
-
-    return jsonResults;
+    try {
+      return Json.parseObject(stdout.getOutput());
+    } catch (JsonException e) {
+      throw new PageSpeedException("Bad JSON from Page Speed: " + e.getMessage());
+    }
   }
 
 }

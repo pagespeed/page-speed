@@ -28,6 +28,7 @@
       <fileset dir="${output}"/>
       <fileset dir="${res}" includes="**/*.*"/>
 
+      <zipfileset includes="**/*.*" src="${libs}/guava-10.0.1.jar"/>
       <zipfileset includes="**/*.*" src="${libs}/json_simple-1.1.jar"/>
       <zipfileset includes="**/*.*" src="${libs}/lib.org.chromium.sdk.jar"/>
 
