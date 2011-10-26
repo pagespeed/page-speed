@@ -25,6 +25,9 @@ public class TestBatchRunnerTest extends TestCase {
     public List<TestData> batchData = null;
 
     @Override
+    public synchronized void onTestBeginning(TestRequest testRequest) {}
+
+    @Override
     public synchronized void onTestCompleted(TestData testData) {
       if (this.batchWasCompleted) {
         throw new RuntimeException("Batch was already completed");

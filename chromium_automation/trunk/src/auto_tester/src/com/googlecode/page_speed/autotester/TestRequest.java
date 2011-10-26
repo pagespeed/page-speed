@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a single test (page load) that we want to perform.
+ * Represents a single test (page load) that we want to perform.  This class is immutable, and
+ * therefore thread-safe.
  *
  * @author azlatin@google.com (Alexander Zlatin)
  */

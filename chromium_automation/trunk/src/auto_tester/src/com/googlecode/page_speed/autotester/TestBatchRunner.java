@@ -24,6 +24,13 @@ public abstract class TestBatchRunner {
    */
   public static interface Listener {
     /**
+     * Called each time an individual test is about to start.  Note that this may be called
+     * multiple times for a given test if the test fails and must be retried.
+     * @param testRequest the test request that is about to be run
+     */
+    void onTestBeginning(TestRequest testRequest);
+
+    /**
      * Called each time an individual test completes.  Note that this may be called multiple times
      * for a given test if the test fails and must be retried.
      * @param testData the data collected from this run of the test
@@ -113,6 +120,7 @@ public abstract class TestBatchRunner {
         this.done();
       } else {
         TestRequest testRequest = this.requestQueue.remove();
+        this.listener.onTestBeginning(testRequest);
         this.testRunner.startTest(this.connection, testRequest, this.testTimeoutMillis, this);
       }
     }
