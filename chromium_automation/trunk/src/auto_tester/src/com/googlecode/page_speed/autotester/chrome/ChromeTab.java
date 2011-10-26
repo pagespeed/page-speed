@@ -71,7 +71,11 @@ public class ChromeTab {
 
     @Override
     public synchronized void setNotificationListener(NotificationListener listener) {
-      this.listener = listener;
+      if (!this.isClosed) {
+        this.listener = listener;
+      } else {
+        assert this.listener == null;
+      }
     }
 
     @Override
@@ -144,22 +148,25 @@ public class ChromeTab {
           this.listener.handleNotification(method, params);
         }
       } catch (JsonException e) {
-        // TODO(mdsteele): Maybe we should add a method to NotificationListener
-        //   to handle protocol errors like this one.
-        System.out.println("Bad JSON message from Chrome: " + e.getMessage());
+        if (this.listener != null) {
+          this.listener.onConnectionError("Bad JSON message from Chrome: " + e.getMessage());
+        }
       }
     }
 
     @Override
-    public synchronized void errorMessage(Exception ex) {
-      // TODO(mdsteele): Decide a better way to respond to this.
-      System.err.println("WebSocket protocol error");
+    public synchronized void errorMessage(Exception e) {
+      if (this.listener != null) {
+        this.listener.onConnectionError("Websocket protocol error: " + e.getMessage());
+      }
     }
 
     @Override
     public synchronized void eofMessage() {
-      // TODO(mdsteele): Decide a better way to respond to this.
-      System.err.println("WebSocket EOF");
+      if (this.listener != null) {
+        this.listener.onConnectionError("Websocket EOF");
+      }
+      this.close();
     }
 
   }

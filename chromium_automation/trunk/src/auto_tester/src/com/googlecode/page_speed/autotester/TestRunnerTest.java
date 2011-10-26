@@ -103,4 +103,31 @@ public class TestRunnerTest extends TestCase {
     assertEquals("No DOM for you!", listener.testData.getFailureMessage());
   }
 
+  public void testConnectionError() throws Exception {
+    TestRequest testRequest = new TestRequest(new URL("http://www.example.com/"),
+                                              "Default", "", 0, 1);
+    Listener listener = new Listener();
+
+    MockTabConnection connection = new MockTabConnection()
+        .expectCall("Runtime.evaluate",
+                    "{\"expression\":\"window.location.href=\\\"about:blank\\\"\"," +
+                    "\"returnByValue\":true}").willRespond("{}")
+        .willNotify("Page.loadEventFired")
+        .expectCall("Timeline.start").willRespond("{}")
+        .expectCall("Network.enable").willRespond("{}")
+        .expectCall("Runtime.evaluate",
+                    "{\"expression\":\"window.location.href=\\\""+
+                    "http:\\\\\\/\\\\\\/www.example.com\\\\\\/\\\"\"," +
+                    "\"returnByValue\":true}")
+        .willConnectionError("Websocket EOF");
+
+    TestRunner.newInstance().startTest(connection, testRequest, 1000, listener);
+    connection.doneMakingCalls();
+
+    assertNotNull("Test data not recorded", listener.testData);
+    assertTrue(listener.testData.isCompleted());
+    assertTrue(listener.testData.isFailure());
+    assertEquals("Tab connection error: Websocket EOF", listener.testData.getFailureMessage());
+  }
+
 }
