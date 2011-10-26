@@ -23,6 +23,13 @@ public abstract class TestController {
    */
   public static interface Listener {
     /**
+     * Called each time an individual test is about to start.  Note that this may be called
+     * multiple times for a given test if the test fails and must be retried.
+     * @param testRequest the test request that is about to be run
+     */
+    void onTestBeginning(TestRequest testRequest);
+
+    /**
      * Called each time an individual test completes.  Note that this may be called multiple times
      * for a given test if the test fails and must be retried.
      * @param testData the data collected from this run of the test
@@ -129,6 +136,11 @@ public abstract class TestController {
 
       // And, we're done!
       this.listener.onAllTestsCompleted();
+    }
+
+    @Override
+    public void onTestBeginning(TestRequest testRequest) {
+      this.listener.onTestBeginning(testRequest);
     }
 
     @Override

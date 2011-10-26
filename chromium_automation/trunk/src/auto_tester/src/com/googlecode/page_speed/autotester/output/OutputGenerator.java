@@ -114,6 +114,11 @@ public class OutputGenerator implements TestController.Listener {
   }
 
   @Override
+  public synchronized void onTestBeginning(TestRequest testRequest) {
+    System.out.println(String.format("Starting test [%s]", testRequest.getDescription()));
+  }
+
+  @Override
   public synchronized void onTestCompletedOnce(TestData testData) {
     if (testData.isFailure()) {
       System.out.println(String.format("Test [%s] failed after %dms: %s",

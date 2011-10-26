@@ -18,10 +18,14 @@ import java.util.List;
 public class TestControllerTest extends TestCase {
 
   // Simple listener that counts how many times each method is called.
-  private static class Listener implements TestController.Listener {
+  private static class MockListener implements TestController.Listener {
+    public int testBeginning = 0;
     public int testCompletedOnce = 0;
     public int testTotallyDone = 0;
     public int allTestsCompleted = 0;
+    public synchronized void onTestBeginning(TestRequest testRequest) {
+      ++this.testBeginning;
+    }
     public synchronized void onTestCompletedOnce(TestData testData) {
       ++this.testCompletedOnce;
     }
@@ -50,7 +54,9 @@ public class TestControllerTest extends TestCase {
           public void run() {
             // If failFirst is set, simulate failing the first test of the batch.
             if (MockBatchRunner.this.failFirst) {
-              TestData testData = new TestData(batchRequests.get(0));
+              TestRequest testRequest = batchRequests.get(0);
+              listener.onTestBeginning(testRequest);
+              TestData testData = new TestData(testRequest);
               try { Thread.sleep(100); } catch (InterruptedException e) { return; }
               testData.setFailure("Oh no!");
               testData.setCompleted();
@@ -60,6 +66,7 @@ public class TestControllerTest extends TestCase {
             // Now simulate a successful run through the batch.
             List<TestData> results = Lists.newArrayList();
             for (TestRequest testRequest : batchRequests) {
+              listener.onTestBeginning(testRequest);
               TestData testData = new TestData(testRequest);
               try { Thread.sleep(100); } catch (InterruptedException e) { return; }
               testData.setCompleted();
@@ -86,11 +93,12 @@ public class TestControllerTest extends TestCase {
         new TestRequest(new URL("http://www.example.org/"), "Default", "", 0, 0));
     List<List<TestRequest>> testBatches = ImmutableList.of(batch1, batch2, batch3);
 
-    Listener listener = new Listener();
+    MockListener listener = new MockListener();
     controller.runTests(connections, testBatches, 1, 1000, listener);
     assertEquals(1, listener.allTestsCompleted);
     assertEquals(4, listener.testTotallyDone);
     assertEquals(4, listener.testCompletedOnce);
+    assertEquals(4, listener.testBeginning);
   }
 
   public void testBatchFailures() throws Exception {
@@ -107,11 +115,12 @@ public class TestControllerTest extends TestCase {
         new TestRequest(new URL("http://www.example.org/"), "Default", "", 0, 0));
     List<List<TestRequest>> testBatches = ImmutableList.of(batch1, batch2, batch3);
 
-    Listener listener = new Listener();
+    MockListener listener = new MockListener();
     controller.runTests(connections, testBatches, 1, 1000, listener);
     assertEquals(1, listener.allTestsCompleted);
     assertEquals(4, listener.testTotallyDone);
     assertEquals(7, listener.testCompletedOnce);  // 3 tests had to be redone (one per batch)
+    assertEquals(7, listener.testBeginning);
   }
 
   // TODO(mdsteele): Add more tests:

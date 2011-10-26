@@ -16,6 +16,7 @@
 
   <target name="compile" depends="create">
     <javac srcdir="${src}" destdir="${output}"
+           debug="true" debuglevel="lines,source"
            classpathref="classpath" includeantruntime="false">
       <compilerarg value="-Xlint"/>
     </javac>

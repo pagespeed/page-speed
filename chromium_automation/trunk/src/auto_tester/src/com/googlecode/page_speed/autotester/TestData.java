@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Holds data collected for a single test, before that data has been run through Page Speed to
- * produce results.
+ * produce results.  This class is thread-safe.
  *
  * @author mdsteele@google.com (Matthew D. Steele)
  */
@@ -36,7 +36,7 @@ public class TestData {
     this.startTime = new Date();
   }
 
-  public TestRequest getTestRequest() {
+  public synchronized TestRequest getTestRequest() {
     return this.testRequest;
   }
 
@@ -45,14 +45,14 @@ public class TestData {
   /**
    * Return true if this test has been completed (whether successful or not).
    */
-  public boolean isCompleted() {
+  public synchronized boolean isCompleted() {
     return this.endTime != null;
   }
 
   /**
    * Mark the test as having been completed.
    */
-  public void setCompleted() {
+  public synchronized void setCompleted() {
     if (this.endTime != null) {
       throw new RuntimeException("must not call setCompleted() more than once");
     }
@@ -63,8 +63,8 @@ public class TestData {
    * Get the time taken, in milliseconds, to run this test.  The test must be marked completed
    * before calling this method.
    */
-  public long getTestDurationMillis() {
-    if (this.endTime != null) {
+  public synchronized long getTestDurationMillis() {
+    if (this.endTime == null) {
       throw new RuntimeException("setCompleted() has not yet been called");
     }
     return this.endTime.getTime() - this.startTime.getTime();
@@ -74,14 +74,14 @@ public class TestData {
    * Return whether the test failed.
    * @return true if the test failed, false if it was successful or is not done yet.
    */
-  public boolean isFailure() {
+  public synchronized boolean isFailure() {
     return this.failureMessage != null;
   }
 
   /**
    * Get the message explaining why the test failed, or null if the test hasn't failed.
    */
-  public String getFailureMessage() {
+  public synchronized String getFailureMessage() {
     return this.failureMessage;
   }
 
@@ -90,14 +90,14 @@ public class TestData {
    * that, call <code>setCompleted()</code>.
    * @param message the error message to use
    */
-  public void setFailure(String message) {
+  public synchronized void setFailure(String message) {
     this.failureMessage = message;
   }
 
   ///// METRICS /////
 
   // TODO(mdsteele): Make a cleaner API than this (will need to change some other classes).
-  public JSONObject getMetrics() {
+  public synchronized JSONObject getMetrics() {
     JSONObject obj = new JSONObject();
     Json.put(obj, "time_to_first_byte_ms", this.timeToFirstByteMillis);
     Json.put(obj, "time_to_base_page_complete_ms", this.timeToBasePageCompleteMillis);
@@ -105,28 +105,28 @@ public class TestData {
     return obj;
   }
 
-  public void setTimeToFirstByteMillis(double millis) {
+  public synchronized void setTimeToFirstByteMillis(double millis) {
     this.timeToFirstByteMillis = millis;
   }
 
-  public void setTimeToBasePageCompleteMillis(double millis) {
+  public synchronized void setTimeToBasePageCompleteMillis(double millis) {
     this.timeToBasePageCompleteMillis = millis;
   }
 
-  public void setLoadTimeMillis(double millis) {
+  public synchronized void setLoadTimeMillis(double millis) {
     this.loadTimeMillis = millis;
   }
 
   ///// DOM /////
 
-  public void setDomString(String domString) {
+  public synchronized void setDomString(String domString) {
     this.domString = domString;
   }
 
   /**
    * Get the DOM data as a string, ready to be written to a file and passed into Page Speed.
    */
-  public String getDomString() {
+  public synchronized String getDomString() {
     return this.domString;
   }
 
@@ -135,37 +135,38 @@ public class TestData {
   /**
    * Append a single event record to the timeline data.
    */
-  public void addTimelineEvent(JSONObject record) {
+  public synchronized void addTimelineEvent(JSONObject record) {
     Json.add(this.timelineData, record);
   }
 
   /**
    * Get the timeline data as a string, ready to be written to a file and passed into Page Speed.
    */
-  public String getTimelineString() {
+  public synchronized String getTimelineString() {
     return this.timelineData.toJSONString();
   }
 
   ///// HAR /////
 
-  public String getHarString() {
+  public synchronized String getHarString() {
     return new HarGenerator(this).build().toJSONString();
   }
 
   // TODO(mdsteele): Make a cleaner API than this (will need to change HARCreator).
-  public List<JSONObject> getDataForHar() {
+  public synchronized List<JSONObject> getDataForHar() {
     return this.dataForHar;
   }
 
   // TODO(mdsteele): Make a cleaner API than this (will need to change TestRunner).
-  public void addDataForHar(String methodName, JSONObject params) {
+  public synchronized void addDataForHar(String methodName, JSONObject params) {
     JSONObject obj = new JSONObject();
     Json.put(obj, "method", methodName);
     Json.put(obj, "params", params);
     this.dataForHar.add(obj);
   }
 
-  public void addResourceContent(String requestId, String body, boolean isBase64Encoded) {
+  public synchronized void addResourceContent(String requestId, String body,
+                                              boolean isBase64Encoded) {
     JSONObject result = new JSONObject();
     Json.put(result, "content", body);
     Json.put(result, "base64encoded", isBase64Encoded);
