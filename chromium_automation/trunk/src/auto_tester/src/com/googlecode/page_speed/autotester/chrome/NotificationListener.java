@@ -20,4 +20,12 @@ public interface NotificationListener {
    */
   void handleNotification(String method, JSONObject params);
 
+  /**
+   * Called if something goes wrong with the connection to the Chrome tab, such as Chrome sending
+   * back malformed JSON or closing the socket unexpectedly.
+   *
+   * @param message an error message indicating what went wrong
+   */
+  void onConnectionError(String message);
+
 }

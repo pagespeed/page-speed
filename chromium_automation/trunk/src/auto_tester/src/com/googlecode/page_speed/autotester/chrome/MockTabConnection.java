@@ -120,6 +120,19 @@ public class MockTabConnection extends TabConnection {
   }
 
   /**
+   * Send a connection error to the notification listener.
+   */
+  public MockTabConnection willConnectionError(final String message) {
+    return this.addAction(new Action() {
+        public void perform(NotificationListener listener, AsyncCallback callback) {
+          if (listener != null) {
+            listener.onConnectionError(message);
+          }
+        }
+      });
+  }
+
+  /**
    * Respond to the asyncCall with a successful result.
    */
   public MockTabConnection willRespond(final String result) {

@@ -166,6 +166,11 @@ public abstract class TestRunner {
       }
     }
 
+    @Override
+    public void onConnectionError(String message) {
+      this.abortTest("Tab connection error: " + message);
+    }
+
     // Ask the tab to load the given URL.
     private synchronized void startLoadingUrl(String url) {
       // A previous version of Chrome had a "Page.load" method, but that has since been removed (at
