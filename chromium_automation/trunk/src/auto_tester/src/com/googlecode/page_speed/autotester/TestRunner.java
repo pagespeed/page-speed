@@ -3,7 +3,6 @@
 package com.googlecode.page_speed.autotester;
 
 import com.googlecode.page_speed.autotester.chrome.AsyncCallback;
-import com.googlecode.page_speed.autotester.chrome.CallFailureException;
 import com.googlecode.page_speed.autotester.chrome.NotificationListener;
 import com.googlecode.page_speed.autotester.chrome.TabConnection;
 import com.googlecode.page_speed.autotester.util.FileUtils;
@@ -59,12 +58,19 @@ public abstract class TestRunner {
 
   private static class RunnerImpl implements NotificationListener {
 
+    // An AsyncCallback that aborts the test if the async call fails.
+    private abstract class Callback implements AsyncCallback {
+      public void onError(String message) {
+        RunnerImpl.this.abortTest(message);
+      }
+    }
+
     // Internal enum type for tracking the progress of the test.
     private static enum Phase {
       ABOUT_BLANK,   // 1) initializing by loading about:blank
-          LOADING_PAGE,  // 2) loading page to be tested
-          FETCHING_DOM,  // 3) page is loaded; fetching DOM tree
-          FINISHING;     // 4) received DOM tree; waiting for remaining resources to be collected
+      LOADING_PAGE,  // 2) loading page to be tested
+      FETCHING_DOM,  // 3) page is loaded; fetching DOM tree
+      FINISHING;     // 4) received DOM tree; waiting for remaining resources to be collected
     }
 
     private static final String REQUEST_ID_KEY = "requestId";
@@ -123,7 +129,7 @@ public abstract class TestRunner {
         if (this.phase == Phase.ABOUT_BLANK) {
           // Once we've loaded about:blank, we can begin the real test.
           if (method.equals("Page.loadEventFired")) {
-            this.beginLoadingPage();
+            this.resetBrowserAndBeginLoadingPage();
           }
         } else if (method.equals("Network.requestWillBeSent")) {
           if (this.mainRequestId == null) {
@@ -179,32 +185,42 @@ public abstract class TestRunner {
       JSONObject params = new JSONObject();
       Json.put(params, "expression", "window.location.href=" + JSONValue.toJSONString(url));
       Json.put(params, "returnByValue", true);
-      this.tab.asyncCall("Runtime.evaluate", params, new AsyncCallback() {
+      this.tab.asyncCall("Runtime.evaluate", params, new Callback() {
           public void onSuccess(JSONObject result) {}
-          public void onError(String message) {
-            RunnerImpl.this.abortTest(message);
-          }
         });
     }
 
-    // Enter the LOADING_PAGE phase; reset the state of the tab, and ask it to load the test URL.
+    // Reset the state of the tab (if necessary) and then begin loading the page.
+    private void resetBrowserAndBeginLoadingPage() {
+      if (this.testRequest.isRepeatView()) {
+        this.beginLoadingPage();
+      } else {
+        this.tab.asyncCall("Network.clearBrowserCache", new Callback() {
+            public void onSuccess(JSONObject result) {
+              RunnerImpl.this.tab.asyncCall("Network.clearBrowserCookies", new Callback() {
+                  public void onSuccess(JSONObject result) {
+                    RunnerImpl.this.beginLoadingPage();
+                  }
+                });
+            }
+          });
+      }
+    }
+
+    // Enter the LOADING_PAGE phase; ask the tab to load the test URL.
     private synchronized void beginLoadingPage() {
       assert this.phase == Phase.ABOUT_BLANK;
       this.phase = Phase.LOADING_PAGE;
 
-      try {
-        if (!this.testRequest.isRepeatView()) {
-          this.tab.syncCall("Network.clearBrowserCache");
-          this.tab.syncCall("Network.clearBrowserCookies");
-        }
-        this.tab.syncCall("Timeline.start");
-        this.tab.syncCall("Network.enable");
-      } catch (CallFailureException e) {
-        this.abortTest(e.getMessage());
-        return;
-      }
-
-      this.startLoadingUrl(this.testRequest.getFullURL());
+      this.tab.asyncCall("Timeline.start", new Callback() {
+          public void onSuccess(JSONObject result) {
+            RunnerImpl.this.tab.asyncCall("Network.enable", new Callback() {
+                public void onSuccess(JSONObject result) {
+                  RunnerImpl.this.startLoadingUrl(RunnerImpl.this.testRequest.getFullURL());
+                }
+              });
+          }
+        });
     }
 
     // Ask the Chrome tab to retrieve the contents of the specified resource.  The requestId object
@@ -212,12 +228,9 @@ public abstract class TestRunner {
     private synchronized void fetchResourceContent(final String requestId) {
       JSONObject params = new JSONObject();
       Json.put(params, REQUEST_ID_KEY, requestId);
-      this.tab.asyncCall("Network.getResourceContent", params, new AsyncCallback() {
+      this.tab.asyncCall("Network.getResourceContent", params, new Callback() {
           public void onSuccess(JSONObject response) {
             RunnerImpl.this.handleResourceContent(requestId, response);
-          }
-          public void onError(String message) {
-            RunnerImpl.this.abortTest(message);
           }
         });
     }
@@ -242,12 +255,9 @@ public abstract class TestRunner {
       Json.put(params, "expression", DOM_COLLECTOR_SCRIPT);
       Json.put(params, "returnByValue", true);
 
-      this.tab.asyncCall("Runtime.evaluate", params, new AsyncCallback() {
+      this.tab.asyncCall("Runtime.evaluate", params, new Callback() {
           public void onSuccess(JSONObject response) {
             RunnerImpl.this.handleDomTree(response);
-          }
-          public void onError(String message) {
-            RunnerImpl.this.abortTest(message);
           }
         });
     }
