@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  */
 public class DataUtils {
-  public static final String ID_KEY = "identifier";  //"requestId";
+  public static final String ID_KEY = "requestId";
 
   private static HashMap<String, String> identifierPaths = null;
 
