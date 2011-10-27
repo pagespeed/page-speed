@@ -28,6 +28,7 @@ public class TestRunnerTest extends TestCase {
     Listener listener = new Listener();
 
     MockTabConnection connection = new MockTabConnection()
+        .expectCall("Page.enable").willRespond("{}")
         .expectCall("Runtime.evaluate",
                     "{\"expression\":\"window.location.href=\\\"about:blank\\\"\"," +
                     "\"returnByValue\":true}").willRespond("{}")
@@ -50,7 +51,7 @@ public class TestRunnerTest extends TestCase {
         .willNotify("Page.loadEventFired", "{\"timestamp\":2.125}")
         .expectCall("Runtime.evaluate")  // fetching DOM
         .willNotify("Timeline.eventRecorded", "{\"record\":{\"answer\":42}}")
-        .willRespond("{\"result\":{\"description\":\"{\\\"dom\\\":true}\"}}");
+        .willRespond("{\"result\":{\"value\":\"{\\\"dom\\\":true}\"}}");
 
     TestRunner.newInstance().startTest(connection, testRequest, 5000, listener);
 
@@ -75,6 +76,7 @@ public class TestRunnerTest extends TestCase {
     Listener listener = new Listener();
 
     MockTabConnection connection = new MockTabConnection()
+        .expectCall("Page.enable").willRespond("{}")
         .expectCall("Runtime.evaluate",
                     "{\"expression\":\"window.location.href=\\\"about:blank\\\"\"," +
                     "\"returnByValue\":true}").willRespond("{}")
@@ -109,6 +111,7 @@ public class TestRunnerTest extends TestCase {
     Listener listener = new Listener();
 
     MockTabConnection connection = new MockTabConnection()
+        .expectCall("Page.enable").willRespond("{}")
         .expectCall("Runtime.evaluate",
                     "{\"expression\":\"window.location.href=\\\"about:blank\\\"\"," +
                     "\"returnByValue\":true}").willRespond("{}")
