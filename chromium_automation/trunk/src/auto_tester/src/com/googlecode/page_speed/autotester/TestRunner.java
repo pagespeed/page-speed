@@ -118,13 +118,19 @@ public abstract class TestRunner {
           }
         }, testTimeoutMillis);
       // We start by loading about:blank, just to be sure we load the test URL in a predictable
-      // way.
-      this.startLoadingUrl("about:blank");
+      // way.  We need to enable Page notifications first, however, so that we'll know when
+      // about:blank has finished loading.
+      this.tab.asyncCall("Page.enable", new Callback() {
+          public void onSuccess(JSONObject result) {
+            RunnerImpl.this.startLoadingUrl("about:blank");
+          }
+        });
     }
 
     // Receive a notification message from the Chrome tab.
     @Override
     public synchronized void handleNotification(String method, JSONObject params) {
+      this.testData.addDataForHar(method, params);
       try {
         if (this.phase == Phase.ABOUT_BLANK) {
           // Once we've loaded about:blank, we can begin the real test.
@@ -135,7 +141,6 @@ public abstract class TestRunner {
           if (this.mainRequestId == null) {
             this.mainRequestId = Json.getString(params, REQUEST_ID_KEY);
           }
-          this.testData.addDataForHar(method, params);
         } else if (method.equals("Network.loadingFinished") ||
                    method.equals("Network.resourceLoadedFromMemoryCache")) {
           this.fetchResourceContent(Json.getString(params, REQUEST_ID_KEY));
@@ -164,8 +169,6 @@ public abstract class TestRunner {
           }
         } else if (method.equals("Timeline.eventRecorded")) {
           this.testData.addTimelineEvent(Json.getObject(params, "record"));
-        } else {
-          this.testData.addDataForHar(method, params);
         }
       } catch (JsonException e) {
         this.abortTest("Bad JSON from Chrome: " + e.getMessage());
@@ -228,9 +231,16 @@ public abstract class TestRunner {
     private synchronized void fetchResourceContent(final String requestId) {
       JSONObject params = new JSONObject();
       Json.put(params, REQUEST_ID_KEY, requestId);
-      this.tab.asyncCall("Network.getResourceContent", params, new Callback() {
+      this.tab.asyncCall("Network.getResponseBody", params, new AsyncCallback() {
           public void onSuccess(JSONObject response) {
             RunnerImpl.this.handleResourceContent(requestId, response);
+          }
+          public void onError(String message) {
+            // Some resources just don't have data; that's okay, so if that's the error we got,
+            // ignore it.
+            if (!message.equals("No data found for resource with given identifier")) {
+              RunnerImpl.this.abortTest(message);
+            }
           }
         });
     }
@@ -268,7 +278,7 @@ public abstract class TestRunner {
       this.phase = Phase.FINISHING;
       try {
         this.testData.setDomString(
-            Json.getString(Json.getObject(result, "result"), "description"));
+            Json.getString(Json.getObject(result, "result"), "value"));
         this.checkIfDone();
       } catch (JsonException e) {
         this.abortTest("Bad JSON from Chrome: " + e.getMessage());
@@ -284,7 +294,9 @@ public abstract class TestRunner {
 
     // End this test as a failure, with the given error message.
     private synchronized void abortTest(String message) {
-      this.testData.setFailure(message);
+      if (!this.testData.isFailure()) {
+        this.testData.setFailure(message);
+      }
       this.endTest();
     }
 
@@ -292,8 +304,12 @@ public abstract class TestRunner {
     private synchronized void endTest() {
       this.watchDogTimer.cancel();
       this.tab.setNotificationListener(null);
-      this.testData.setCompleted();
-      this.listener.onTestCompleted(this.testData);
+      // This method can sometimes get called more than once (e.g. if two async calls fail (and
+      // call abortTest) simultaneously), hence the if-statement here.
+      if (!this.testData.isCompleted()) {
+        this.testData.setCompleted();
+        this.listener.onTestCompleted(this.testData);
+      }
     }
 
     // Called by the watchdog timer task if we fail to complete the test before reaching the

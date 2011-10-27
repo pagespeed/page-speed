@@ -144,7 +144,8 @@ public class ChromeTab {
           }
         } else if (this.listener != null) {
           String method = Json.getString(obj, "method");
-          JSONObject params = Json.getObject(obj, "params");
+          JSONObject params =
+              obj.containsKey("params") ? Json.getObject(obj, "params") : new JSONObject();
           this.listener.handleNotification(method, params);
         }
       } catch (JsonException e) {
