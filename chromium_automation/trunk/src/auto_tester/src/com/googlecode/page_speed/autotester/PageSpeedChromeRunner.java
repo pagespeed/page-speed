@@ -198,6 +198,29 @@ public final class PageSpeedChromeRunner {
     return connections;
   }
 
+  private static PageSpeedRunner newPageSpeedRunner(String pathToPageSpeedBin, String strategyName,
+                                                    String pathToLogFile) throws ConfigException {
+    final PageSpeedRunner.Strategy strategy;
+    if (strategyName.equalsIgnoreCase("desktop")) {
+      strategy = PageSpeedRunner.Strategy.DESKTOP;
+    } else if (strategyName.equalsIgnoreCase("mobile")) {
+      strategy = PageSpeedRunner.Strategy.MOBILE;
+    } else {
+      System.err.println("Invalid strategy name: " + strategyName);
+      throw new ConfigException();
+    }
+
+    try {
+      return new PageSpeedRunner(pathToPageSpeedBin, strategy, pathToLogFile);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      throw new ConfigException();
+    } catch (InterruptedException e) {
+      System.err.println("Interrupted.");
+      throw new ConfigException();
+    }
+  }
+
   /**
    * @param args command line arguments.
    */
@@ -216,6 +239,7 @@ public final class PageSpeedChromeRunner {
     Flags.define("ps_bin", "Path to pagespeed_bin",
         "./pagespeed_bin" + (System.getProperty("os.name").startsWith("Windows") ? ".exe" : ""),
         false);
+    Flags.define("ps_log", "Path to logfile to write pagespeed_bin error output", null, false);
 
     // Usage
     Flags.init(args);
@@ -229,6 +253,7 @@ public final class PageSpeedChromeRunner {
 
     final List<List<TestRequest>> testBatches;
     final List<TabConnection> connections;
+    final PageSpeedRunner psr;
     try {
       // Parse the configuration data.  These methods will print error messages
       // and exit if anything is wrong with the user's input.
@@ -241,28 +266,28 @@ public final class PageSpeedChromeRunner {
 
       // Connect to the Chrome tabs we will be using.
       connections = getTabConnections(servers);
+
+      psr = newPageSpeedRunner(Flags.getStr("ps_bin"), Flags.getStr("strategy"),
+                               Flags.getStr("ps_log"));
     } catch (ConfigException e) {
       // An error message has already been printed to the user.
       System.exit(1);
       throw new AssertionError("unreachable");
     }
 
-    // Page Speed
-    PageSpeedRunner psr = new PageSpeedRunner(Flags.getStr("ps_bin"), Flags.getStr("strategy"));
-
-    // Result Handler
-    int totalNumberOfTests = 0;
-    for (List<TestRequest> testBatch : testBatches) {
-      totalNumberOfTests += testBatches.size();
-    }
-    OutputGenerator output = new OutputGenerator(
-        psr, Flags.getStr("results"), totalNumberOfTests);
-    output.addOutputsByString(Flags.getStr("output"));
-    output.setSavedContentByString(Flags.getStr("save"));
-
-    // Run the tests
-    TestController testController = TestController.newInstance();
     try {
+      // Result Handler
+      int totalNumberOfTests = 0;
+      for (List<TestRequest> testBatch : testBatches) {
+        totalNumberOfTests += testBatches.size();
+      }
+      OutputGenerator output = new OutputGenerator(
+          psr, Flags.getStr("results"), totalNumberOfTests);
+      output.addOutputsByString(Flags.getStr("output"));
+      output.setSavedContentByString(Flags.getStr("save"));
+
+      // Run the tests
+      TestController testController = TestController.newInstance();
       testController.runTests(connections, testBatches, MAX_TEST_BATCH_RETRIES,
                               testTimeoutMillis, output);
     } catch (InterruptedException e) {
