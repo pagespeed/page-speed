@@ -170,7 +170,7 @@ public class OutputGenerator implements TestController.Listener {
 
     final JSONObject pagespeedResults;
     try {
-      pagespeedResults = this.psr.generatePageSpeedResults(harFile, tlFile, domFile);
+      pagespeedResults = this.psr.generatePageSpeedResults(description, harFile, tlFile, domFile);
     } catch (PageSpeedException e) {
       System.out.println(String.format("  Page Speed error: %s", e.getMessage()));
       return;
