@@ -123,6 +123,12 @@ void ProtoPopulator::PopulateInstrumentationData(
       instr->set_type(InstrumentationData::SCHEDULE_RESOURCE_REQUEST);
     } else if (type_string == "TimeStamp") {
       instr->set_type(InstrumentationData::TIME_STAMP);
+    } else if (type_string == "RegisterAnimationFrameCallback") {
+      instr->set_type(InstrumentationData::REGISTER_ANIMATION_FRAME_CALLBACK);
+    } else if (type_string == "CancelAnimationFrameCallback") {
+      instr->set_type(InstrumentationData::CANCEL_ANIMATION_FRAME_CALLBACK);
+    } else if (type_string == "FireAnimationFrameEvent") {
+      instr->set_type(InstrumentationData::FIRE_ANIMATION_FRAME_EVENT);
     } else {
       LOG(DFATAL) << "Unknown record type: " << type_string;
       // Don't treat this as an error since new types may be added as
@@ -265,24 +271,22 @@ void ProtoPopulator::PopulateDataDictionary(
       GET_INTEGER_DATA("endLine", end_line);
       break;
     case InstrumentationData::RESOURCE_RECEIVED_DATA:
-      GET_INTEGER_DATA("identifier", identifier);
+      GET_STRING_DATA("requestId", request_id);
       break;
     case InstrumentationData::RESOURCE_FINISH:
       GET_BOOLEAN_DATA("didFail", did_fail);
-      GET_INTEGER_DATA("identifier", identifier);
+      GET_STRING_DATA("requestId", request_id);
       GET_DOUBLE_DATA("networkTime", network_time);
       break;
     case InstrumentationData::RESOURCE_RECEIVE_RESPONSE:
-      GET_INTEGER_DATA("identifier", identifier);
+      GET_STRING_DATA("requestId", request_id);
       GET_INTEGER_DATA("statusCode", status_code);
       GET_STRING_DATA("mimeType", mime_type);
-      GET_INTEGER_DATA("expectedContentLength", expected_content_length);
       break;
     case InstrumentationData::RESOURCE_SEND_REQUEST:
-      GET_INTEGER_DATA("identifier", identifier);
+      GET_STRING_DATA("requestId", request_id);
       GET_STRING_DATA("requestMethod", request_method);
       GET_STRING_DATA("url", url);
-      GET_BOOLEAN_DATA("isMainResource", is_main_resource);
       break;
     case InstrumentationData::SCHEDULE_RESOURCE_REQUEST:
       GET_STRING_DATA("url", url);
@@ -311,6 +315,12 @@ void ProtoPopulator::PopulateDataDictionary(
     case InstrumentationData::RECALCULATE_STYLES:
     case InstrumentationData::TIME_STAMP:
       // These types have no data payload.
+      break;
+
+    case InstrumentationData::REGISTER_ANIMATION_FRAME_CALLBACK:
+    case InstrumentationData::CANCEL_ANIMATION_FRAME_CALLBACK:
+    case InstrumentationData::FIRE_ANIMATION_FRAME_EVENT:
+      GET_INTEGER_DATA("id", id);
       break;
 
     default:

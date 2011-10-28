@@ -52,6 +52,9 @@ message InstrumentationData {
     MARK_LOAD = 19;
     SCHEDULE_RESOURCE_REQUEST = 20;
     TIME_STAMP = 21;
+    REGISTER_ANIMATION_FRAME_CALLBACK= 22;
+    CANCEL_ANIMATION_FRAME_CALLBACK= 23;
+    FIRE_ANIMATION_FRAME_EVENT= 24;
   }
 
   message DataDictionary {
@@ -92,16 +95,16 @@ message InstrumentationData {
 
     // ResourceSendRequest, ResourceReceiveResponse, ResourceFinish,
     // ReceiveResourceData
-    optional int32 identifier = 15;
+    optional int32 identifier = 15 [deprecated=true];
 
     // ResourceSendRequest
     optional string request_method = 16;
-    optional bool is_main_resource = 17;
+    optional bool is_main_resource = 17 [deprecated=true];
 
     // ResourceReceiveResponse
     optional int32 status_code = 18;
     optional string mime_type = 19;
-    optional int32 expected_content_length = 20;
+    optional int32 expected_content_length = 20 [deprecated=true];
 
     // ResourceFinish
     optional bool did_fail = 21;
@@ -112,6 +115,13 @@ message InstrumentationData {
     optional int32 y = 24;
     optional int32 width = 25;
     optional int32 height = 26;
+
+    // ResourceSendRequest, ResourceReceiveResponse, ResourceFinish,
+    // ReceiveResourceData
+    optional string request_id = 27;
+
+    // Animation frame events
+    optional int32 id = 28;
   }
 
   // The type field is required, but we mark it 'optional' because otherwise
