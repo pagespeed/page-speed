@@ -99,6 +99,21 @@ InstrumentationDataBuilder& InstrumentationDataBuilder::ParseHTML(
   return *this;
 }
 
+InstrumentationDataBuilder& InstrumentationDataBuilder::TimerInstall(
+    int timer_id, bool single_shot, int timeout) {
+  Push(pagespeed::InstrumentationData::TIMER_INSTALL);
+  Current()->mutable_data()->set_timer_id(timer_id);
+  Current()->mutable_data()->set_single_shot(single_shot);
+  Current()->mutable_data()->set_timeout(timeout);
+  return *this;
+}
+
+InstrumentationDataBuilder& InstrumentationDataBuilder::TimerFire(int timer_id) {
+  Push(pagespeed::InstrumentationData::TIMER_FIRE);
+  Current()->mutable_data()->set_timer_id(timer_id);
+  return *this;
+}
+
 InstrumentationDataBuilder& InstrumentationDataBuilder::Pause(double millis) {
   current_time_ += millis;
   return *this;

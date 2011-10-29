@@ -37,6 +37,9 @@ class InstrumentationDataBuilder {
   InstrumentationDataBuilder& Layout();
   InstrumentationDataBuilder& ParseHTML(
       int length, int start_line, int end_line);
+  InstrumentationDataBuilder& TimerInstall(
+      int timer_id, bool single_shot, int timeout);
+  InstrumentationDataBuilder& TimerFire(int timer_id);
 
   // Pop to the parent InstrumentationData.
   InstrumentationDataBuilder& Pop();
