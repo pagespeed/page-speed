@@ -66,7 +66,9 @@ void ExternalResourceFilter::StartDocument() {
 
 void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
   net_instaweb::HtmlName::Keyword keyword = element->keyword();
-  if (keyword == net_instaweb::HtmlName::kScript) {
+  if (keyword == net_instaweb::HtmlName::kScript ||
+      keyword == net_instaweb::HtmlName::kIframe ||
+      keyword == net_instaweb::HtmlName::kImg) {
     const char* src = element->AttributeValue(net_instaweb::HtmlName::kSrc);
     if (src != NULL) {
       external_resource_urls_.push_back(src);
@@ -97,7 +99,15 @@ bool ExternalResourceFilter::GetExternalResourceUrls(
   std::vector<std::string> tmp(external_resource_urls_);
   ResolveExternalResourceUrls(
       &tmp, document, document_url);
-  std::set<std::string> unique(tmp.begin(), tmp.end());
+  std::set<std::string> unique;
+  for (std::vector<std::string>::const_iterator it = tmp.begin(),
+           end = tmp.end(); it != end; ++it) {
+    // Only include URLs for external resources (e.g. do not include
+    // data: URLs).
+    if (pagespeed::uri_util::IsExternalResourceUrl(*it)) {
+      unique.insert(*it);
+    }
+  }
   out->assign(unique.begin(), unique.end());
   return !out->empty();
 }

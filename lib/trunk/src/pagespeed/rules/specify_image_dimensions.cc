@@ -26,6 +26,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -71,9 +72,10 @@ void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
         }
         const std::string uri = document_->ResolveUri(src);
 
-        // Don't complain about image tags with data URIs, because the browser
-        // already knows the image dimensions once it has the image data.
-        if (uri.substr(0, 5) == "data:") {
+        // Don't complain about image tags with non-external resource
+        // URIs (e.g. data URIs), because the browser already knows
+        // the image dimensions once it has the image data.
+        if (!pagespeed::uri_util::IsExternalResourceUrl(uri)) {
           return;
         }
 

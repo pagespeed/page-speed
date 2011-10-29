@@ -38,6 +38,13 @@ static const char* kHtmlNoRelNoSrc =
     "<link href='http://www.example.com/foo.css'>"
     "</body></html>";
 
+static const char* kImgHtml =
+    "<html><body>"
+    "<img src='http://www.example.com/foo.png'>"
+    "<img src='bar.png'>"
+    "<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...'>"
+    "</body></html>";
+
 class ExternalResourceFilterTest : public pagespeed_testing::PagespeedTest {
  public:
   virtual void DoSetUp() {
@@ -63,6 +70,26 @@ TEST_F(ExternalResourceFilterTest, Basic) {
   ASSERT_EQ(2U, external_resource_urls.size());
   ASSERT_EQ("http://www.example.com/foo.css", external_resource_urls[0]);
   ASSERT_EQ("http://www.example.com/foo.js", external_resource_urls[1]);
+}
+
+TEST_F(ExternalResourceFilterTest, Img) {
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  pagespeed::html::ExternalResourceFilter filter(&html_parse);
+  html_parse.AddFilter(&filter);
+
+  html_parse.StartParse(kRootUrl);
+  html_parse.ParseText(kImgHtml, strlen(kImgHtml));
+  html_parse.FinishParse();
+
+  std::vector<std::string> external_resource_urls;
+  ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
+                                             document(),
+                                             kRootUrl));
+
+  ASSERT_EQ(2U, external_resource_urls.size());
+  ASSERT_EQ("http://www.example.com/bar.png", external_resource_urls[0]);
+  ASSERT_EQ("http://www.example.com/foo.png", external_resource_urls[1]);
 }
 
 TEST_F(ExternalResourceFilterTest, NoRelShouldNotCrash) {
