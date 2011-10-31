@@ -135,4 +135,6 @@ message InstrumentationData {
   optional double end_time = 6;
   optional int64 used_heap_size = 7;
   optional int64 total_heap_size = 8;
+  optional int64 start_tick = 9;
+  optional int64 end_tick = 10;
 }
