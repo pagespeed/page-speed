@@ -7,6 +7,8 @@ import com.googlecode.page_speed.autotester.output.OutputGenerator;
 import com.googlecode.page_speed.autotester.util.FileUtils;
 import com.googlecode.page_speed.autotester.util.Flags;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -14,8 +16,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,18 +37,25 @@ public final class PageSpeedChromeRunner {
   }
 
   /**
-   * Get lines of text from a config file.
+   * Get lines of text from a config file, ignoring blank lines or lines that begin with a #.
    *
    * @throws ConfigException if the file can't be read.
    */
   private static List<FileUtils.Line> getConfigLines(String path)
       throws ConfigException {
+    List<FileUtils.Line> lines = Lists.newArrayList();
     try {
-      return FileUtils.getTrimmedLines(path);
+      for (FileUtils.Line line : FileUtils.getTrimmedLines(path)) {
+        // Ignore lines starting with a # (so that we can comment out lines).
+        if (!line.text.startsWith("#")) {
+          lines.add(line);
+        }
+      }
     } catch (IOException e) {
       System.err.println("Error reading from " + path + ": " + e.getMessage());
       throw new ConfigException();
     }
+    return lines;
   }
 
   /**
@@ -59,7 +66,7 @@ public final class PageSpeedChromeRunner {
   private static List<URL> parseUrlFile(String filepath)
       throws ConfigException {
     boolean error = false;
-    List<URL> urls = new ArrayList<URL>();
+    List<URL> urls = Lists.newArrayList();
 
     for (FileUtils.Line line : getConfigLines(filepath)) {
       try {
@@ -78,14 +85,16 @@ public final class PageSpeedChromeRunner {
   }
 
   /**
-   * Parse the specified variations file and return a mapping from variation
-   * names to variation query strings.
+   * Parse the specified variations file and return a mapping from variation names to variation
+   * query strings.
    *
    * @throws ConfigException if the file can't be read or is malformed.
    */
   private static Map<String,String> parseVariationsFile(String filepath)
       throws ConfigException {
-    Map<String,String> variations = new HashMap<String,String>();
+    // We use a LinkedHashMap here so that the iteration order of the returned map will be the same
+    // order in which the entries appear in the variations file.
+    Map<String,String> variations = Maps.newLinkedHashMap();
 
     if (filepath != null && !filepath.isEmpty()) {
       boolean error = false;
@@ -128,7 +137,7 @@ public final class PageSpeedChromeRunner {
   private static List<ChromeInstance> parseServersFile(String filepath)
       throws ConfigException {
     boolean error = false;
-    List<ChromeInstance> instances = new ArrayList<ChromeInstance>();
+    List<ChromeInstance> instances = Lists.newArrayList();
 
     for (FileUtils.Line line : getConfigLines(filepath)) {
       ChromeInstance instance;
@@ -160,7 +169,7 @@ public final class PageSpeedChromeRunner {
       throws ConfigException {
     boolean error = false;
 
-    List<ChromeTab> tabs = new ArrayList<ChromeTab>();
+    List<ChromeTab> tabs = Lists.newArrayList();
     for (ChromeInstance instance : servers) {
       List<ChromeTab> serverTabs;
       try {
@@ -180,7 +189,7 @@ public final class PageSpeedChromeRunner {
       }
     }
 
-    List<TabConnection> connections = new ArrayList<TabConnection>();
+    List<TabConnection> connections = Lists.newArrayList();
     for (ChromeTab tab : tabs) {
       try {
         connections.add(tab.connect(WEBSOCKET_CONNECTION_TIMEOUT_MILLIS));
