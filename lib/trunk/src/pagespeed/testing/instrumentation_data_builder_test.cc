@@ -114,10 +114,10 @@ TEST(InstrumentationDataBuilderTest, Reuse) {
 
   d.reset(b.Layout().Get());
   ASSERT_EQ(pagespeed::InstrumentationData_RecordType_LAYOUT, d->type());
-  ASSERT_EQ(0, d->start_time());
-  ASSERT_EQ(1, d->end_time());
-  ASSERT_EQ(0, d->start_tick());
-  ASSERT_EQ(1, d->end_tick());
+  ASSERT_EQ(2, d->start_time());
+  ASSERT_EQ(3, d->end_time());
+  ASSERT_EQ(2, d->start_tick());
+  ASSERT_EQ(3, d->end_tick());
 
   ASSERT_EQ(NULL, b.Get());
 }
