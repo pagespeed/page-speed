@@ -63,8 +63,6 @@ pagespeed::InstrumentationData* InstrumentationDataBuilder::Current() {
 
 pagespeed::InstrumentationData* InstrumentationDataBuilder::Get() {
   Unwind();
-  current_time_ = 0.0;
-  current_tick_ = 0;
   return root_.release();
 }
 

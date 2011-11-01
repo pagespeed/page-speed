@@ -45,8 +45,7 @@ class InstrumentationDataBuilder {
   InstrumentationDataBuilder& Pop();
 
   // Get the built InstrumentationData instance. Ownership of the
-  // InstrumentationData is transferred to the caller and the internal
-  // state of this object is reset, so it can be reused.
+  // InstrumentationData is transferred to the caller.
   pagespeed::InstrumentationData* Get();
 
   // Add to the current time.  By default, the builder sets start/end times of
