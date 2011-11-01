@@ -70,6 +70,7 @@ class InstrumentationDataBuilder {
   scoped_ptr<pagespeed::InstrumentationData> root_;
   std::vector<pagespeed::InstrumentationData*> working_set_;
   double current_time_;
+  int64 current_tick_;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentationDataBuilder);
 };
