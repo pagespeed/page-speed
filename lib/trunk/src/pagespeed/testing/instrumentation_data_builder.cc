@@ -20,7 +20,7 @@
 namespace pagespeed_testing {
 
 InstrumentationDataBuilder::InstrumentationDataBuilder()
-    : current_time_(0.0) {
+    : current_time_(0.0), current_tick_(0) {
 }
 
 void InstrumentationDataBuilder::Push(
@@ -42,12 +42,16 @@ void InstrumentationDataBuilder::Push(
   }
   Current()->set_type(type);
   Current()->set_start_time(current_time_);
+  Current()->set_start_tick(current_tick_);
   current_time_ += 1.0;
+  ++current_tick_;
 }
 
 InstrumentationDataBuilder& InstrumentationDataBuilder::Pop() {
   Current()->set_end_time(current_time_);
+  Current()->set_end_tick(current_tick_);
   current_time_ += 1.0;
+  ++current_tick_;
   working_set_.pop_back();
   return *this;
 }
@@ -60,6 +64,7 @@ pagespeed::InstrumentationData* InstrumentationDataBuilder::Current() {
 pagespeed::InstrumentationData* InstrumentationDataBuilder::Get() {
   Unwind();
   current_time_ = 0.0;
+  current_tick_ = 0;
   return root_.release();
 }
 

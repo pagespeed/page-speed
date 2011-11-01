@@ -44,6 +44,8 @@ TEST(InstrumentationDataBuilderTest, Basic) {
   ASSERT_EQ(pagespeed::InstrumentationData_RecordType_LAYOUT, d->type());
   ASSERT_EQ(0, d->start_time());
   ASSERT_EQ(7, d->end_time());
+  ASSERT_EQ(0, d->start_tick());
+  ASSERT_EQ(7, d->end_tick());
   ASSERT_EQ(2, d->children_size());
   ASSERT_EQ(3, d->stack_trace_size());
   ASSERT_EQ("http://www.example.com/", d->stack_trace(0).url());
@@ -64,6 +66,8 @@ TEST(InstrumentationDataBuilderTest, Basic) {
             child1.type());
   ASSERT_EQ(1, child1.start_time());
   ASSERT_EQ(2, child1.end_time());
+  ASSERT_EQ(1, child1.start_tick());
+  ASSERT_EQ(2, child1.end_tick());
   ASSERT_EQ(0, child1.children_size());
   ASSERT_EQ(0, child1.stack_trace_size());
   ASSERT_EQ("http://www.example.com/", child1.data().url());
@@ -74,6 +78,8 @@ TEST(InstrumentationDataBuilderTest, Basic) {
             child2.type());
   ASSERT_EQ(3, child2.start_time());
   ASSERT_EQ(6, child2.end_time());
+  ASSERT_EQ(3, child2.start_tick());
+  ASSERT_EQ(6, child2.end_tick());
   ASSERT_EQ(1, child2.children_size());
   ASSERT_EQ(0, child2.stack_trace_size());
   ASSERT_EQ("http://www.example.com/foo.js", child2.data().url());
@@ -83,6 +89,8 @@ TEST(InstrumentationDataBuilderTest, Basic) {
   ASSERT_EQ(pagespeed::InstrumentationData_RecordType_LAYOUT, child3.type());
   ASSERT_EQ(4, child3.start_time());
   ASSERT_EQ(5, child3.end_time());
+  ASSERT_EQ(4, child3.start_tick());
+  ASSERT_EQ(5, child3.end_tick());
   ASSERT_EQ(0, child3.children_size());
   ASSERT_EQ(1, child3.stack_trace_size());
   ASSERT_EQ("http://www.example.com/", child3.stack_trace(0).url());
@@ -99,6 +107,8 @@ TEST(InstrumentationDataBuilderTest, Reuse) {
   ASSERT_EQ(pagespeed::InstrumentationData_RecordType_LAYOUT, d->type());
   ASSERT_EQ(0, d->start_time());
   ASSERT_EQ(1, d->end_time());
+  ASSERT_EQ(0, d->start_tick());
+  ASSERT_EQ(1, d->end_tick());
 
   ASSERT_EQ(NULL, b.Get());
 
@@ -106,6 +116,8 @@ TEST(InstrumentationDataBuilderTest, Reuse) {
   ASSERT_EQ(pagespeed::InstrumentationData_RecordType_LAYOUT, d->type());
   ASSERT_EQ(0, d->start_time());
   ASSERT_EQ(1, d->end_time());
+  ASSERT_EQ(0, d->start_tick());
+  ASSERT_EQ(1, d->end_tick());
 
   ASSERT_EQ(NULL, b.Get());
 }
