@@ -68,4 +68,14 @@ TEST(InputCapabilitiesTest, SizeOf) {
   ASSERT_EQ(4U, sizeof(InputCapabilities));
 }
 
+TEST(InputCapabilitiesTest, DebugString) {
+  InputCapabilities a(InputCapabilities::DOM |
+                      InputCapabilities::ONLOAD |
+                      InputCapabilities::REQUEST_START_TIMES);
+  ASSERT_EQ("(Has: DOM ONLOAD REQUEST_START_TIMES ** Lacks: "
+            "JS_CALLS_DOCUMENT_WRITE PARENT_CHILD_RESOURCE_MAP "
+            "REQUEST_HEADERS RESPONSE_BODY TIMELINE_DATA)",
+            a.DebugString());
+}
+
 }  // namespace

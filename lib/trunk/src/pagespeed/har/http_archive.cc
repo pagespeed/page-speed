@@ -127,14 +127,14 @@ void InputPopulator::DeterminePageTimings(
                             << started_datetime;
   }
 
-  int onload_millis;
-  if (page_json->GetInteger("pageTimings.onLoad", &onload_millis)) {
+  double onload_millis;
+  if (page_json->GetDouble("pageTimings.onLoad", &onload_millis)) {
     if (onload_millis < 0) {
       // When onLoad is specified but negative, it indicates that
       // onload has not yet fired.
       input->SetOnloadState(PagespeedInput::ONLOAD_NOT_YET_FIRED);
     } else {
-      input->SetOnloadTimeMillis(onload_millis);
+      input->SetOnloadTimeMillis(static_cast<int>(onload_millis));
     }
   }
 }

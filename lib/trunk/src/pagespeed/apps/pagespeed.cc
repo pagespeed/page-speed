@@ -30,6 +30,7 @@
 #include "google/protobuf/stubs/common.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/engine.h"
+#include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_input_util.h"
@@ -339,13 +340,15 @@ bool RunPagespeed(const std::string& out_format,
         pagespeed::rule_provider::MOBILE_BROWSER_RULES,
         &rules);
   }
+  pagespeed::InputCapabilities capabilities = input->EstimateCapabilities();
   std::vector<std::string> incompatible_rule_names;
   pagespeed::rule_provider::RemoveIncompatibleRules(
-      &rules, &incompatible_rule_names, input->EstimateCapabilities());
+      &rules, &incompatible_rule_names, capabilities);
   if (!incompatible_rule_names.empty()) {
     std::string incompatible_rule_list =
         JoinString(incompatible_rule_names, ' ');
-    LOG(INFO) << "Removing incompatible rules: " << incompatible_rule_list;
+    LOG(INFO) << "Removing incompatible rules: " << incompatible_rule_list
+              << "; Capabilities: " << capabilities.DebugString();
   }
 
   // Ownership of rules is transferred to the Engine instance.
