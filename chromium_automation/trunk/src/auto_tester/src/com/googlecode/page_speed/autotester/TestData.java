@@ -169,9 +169,10 @@ public class TestData {
                                               boolean isBase64Encoded) {
     JSONObject result = new JSONObject();
     Json.put(result, "content", body);
-    Json.put(result, "base64encoded", isBase64Encoded);
+    Json.put(result, "base64Encoded", isBase64Encoded);
     JSONObject obj = new JSONObject();
     Json.put(obj, "method", "__Internal.resourceContent");
+    Json.put(obj, "requestId", requestId);
     Json.put(obj, "result", result);
     this.dataForHar.add(obj);
   }
