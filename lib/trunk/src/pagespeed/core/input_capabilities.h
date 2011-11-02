@@ -15,6 +15,8 @@
 #ifndef PAGESPEED_CORE_INPUT_CAPABILITIES_H_
 #define PAGESPEED_CORE_INPUT_CAPABILITIES_H_
 
+#include <string>
+
 #include "base/basictypes.h"
 
 namespace pagespeed {
@@ -60,6 +62,9 @@ class InputCapabilities {
   bool equals(const InputCapabilities& other) const {
     return capabilities_mask_ == other.capabilities_mask_;
   }
+
+  // Create a human-readable string describing this InputCapabilities in detail.
+  std::string DebugString() const;
 
  private:
   // NOTE: this class provides a public default copy constructor since

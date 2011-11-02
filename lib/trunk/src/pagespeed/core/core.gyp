@@ -37,6 +37,7 @@
         'file_util.cc',
         'formatter.cc',
         'image_attributes.cc',
+        'input_capabilities.cc',
         'instrumentation_data.cc',
         'pagespeed_input.cc',
         'pagespeed_input_util.cc',
