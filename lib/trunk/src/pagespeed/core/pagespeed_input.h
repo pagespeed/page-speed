@@ -56,6 +56,8 @@ class PagespeedInputFreezeParticipant {
 // Additional information on the tag a resource was loaded from.
 // TODO(michschn): Make this a protocol buffer and get rid of the struct.
 struct ResourceTagInfo {
+  ResourceTagInfo() : is_async(false), is_defer(false) {}
+
   bool is_async;
   bool is_defer;
   std::string media_type;
