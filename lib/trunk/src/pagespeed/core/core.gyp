@@ -25,6 +25,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_resource_constraints_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:timeline_pb',
         '<(DEPTH)/third_party/domain_registry_provider/src/domain_registry/domain_registry.gyp:domain_registry_lib',
         '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_htmlparse_core',

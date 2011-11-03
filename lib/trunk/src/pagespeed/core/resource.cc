@@ -64,7 +64,11 @@ Resource::Resource()
     : status_code_(-1),
       response_protocol_(UNKNOWN_PROTOCOL),
       type_(OTHER),
-      request_start_time_millis_(-1) {
+      request_start_time_millis_(-1),
+      load_start_sequence_(-1),
+      load_finish_sequence_(-1),
+      eval_start_sequence_(-1),
+      eval_finish_sequence_(-1) {
 }
 
 Resource::~Resource() {
@@ -438,6 +442,16 @@ bool Resource::IsRequestStartTimeLessThan(const Resource& other) const {
 bool ResourceUrlLessThan::operator()(
     const Resource* lhs, const Resource* rhs) const {
   return lhs->GetRequestUrl() < rhs->GetRequestUrl();
+}
+
+void Resource::SetLoadSequence(int64 start, int64 finish) {
+  load_start_sequence_ = start;
+  load_finish_sequence_ = finish;
+}
+
+void Resource::SetEvaluationSequence(int64 start, int64 finish) {
+  eval_start_sequence_ = start;
+  eval_finish_sequence_ = finish;
 }
 
 }  // namespace pagespeed
