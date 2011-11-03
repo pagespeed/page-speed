@@ -29,6 +29,7 @@ using pagespeed::InputCapabilities;
 using pagespeed::InstrumentationData;
 using pagespeed::InstrumentationDataVector;
 using pagespeed::PagespeedInput;
+using pagespeed::PagespeedInputFreezeParticipant;
 using pagespeed::Resource;
 using pagespeed_testing::AssertProtoEq;
 using pagespeed_testing::FakeDomDocument;
@@ -169,9 +170,38 @@ TEST(PagespeedInputTest, AcquireInstrumentationDataFailsWhenFrozen) {
 #ifdef NDEBUG
   ASSERT_FALSE(input.AcquireInstrumentationData(&data));
 #else
-  ASSERT_DEATH(input.AcquireInstrumentationData(&data),
-               "Can't set InstrumentationDataVector for frozen PagespeedInput.");
+  ASSERT_DEATH(
+      input.AcquireInstrumentationData(&data),
+      "Can't set InstrumentationDataVector for frozen PagespeedInput.");
 #endif
+}
+
+class TestFreezeParticipant : public PagespeedInputFreezeParticipant {
+ public:
+  virtual void OnFreeze(PagespeedInput* pagespeed_input) {
+    // We must be able to access mutable resources as well as to invoke getters
+    // that would only work while frozen.
+    ASSERT_EQ(pagespeed_input->num_resources(), 2);
+    EXPECT_EQ(pagespeed_input->GetMutableResource(0)->GetRequestUrl(), kURL1);
+    EXPECT_EQ(
+        pagespeed_input->GetMutableResourceWithUrl(kURL1)->GetRequestUrl(),
+        kURL1);
+    ASSERT_EQ(pagespeed_input->instrumentation_data()->size(), 1U);
+  }
+};
+
+TEST(PagespeedInputTest, FreezeParticipant) {
+  PagespeedInput input;
+  EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
+  EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
+
+  pagespeed_testing::InstrumentationDataBuilder builder;
+  InstrumentationDataVector records;
+  records.push_back(builder.Layout().Get());
+  input.AcquireInstrumentationData(&records);
+
+  TestFreezeParticipant participant;
+  input.Freeze(&participant);
 }
 
 class UpdateResourceTypesTest : public pagespeed_testing::PagespeedTest {
@@ -274,6 +304,86 @@ TEST_F(UpdateResourceTypesTest, DifferentTypesSameUrl) {
   // Verify that the chosen type matches the first node type:
   // stylesheet.
   ASSERT_EQ(pagespeed::CSS, resource->GetResourceType());
+}
+
+class CollectTagInfoTest : public pagespeed_testing::PagespeedTest {
+ protected:
+  static const char* kRootUrl;
+
+  virtual void DoSetUp() {
+    NewPrimaryResource(kRootUrl);
+    CreateHtmlHeadBodyElements();
+  }
+};
+
+const char* CollectTagInfoTest::kRootUrl = "http://example.com/";
+
+TEST_F(CollectTagInfoTest, TestNoInfo) {
+  Resource* png_resource =
+      NewPngResource("http://example.com/foo.png", body());
+  Resource* script_resource =
+      NewScriptResource("http://example.com/foo.js", body());
+  Resource* css_resource =
+      NewCssResource("http://example.com/foo.css", body());
+  Freeze();
+
+  const pagespeed::ResourceTagInfo* tag_info;
+  ASSERT_FALSE(
+      pagespeed_input()->GetTagInfoForResource(*png_resource, &tag_info));
+
+  ASSERT_FALSE(
+      pagespeed_input()->GetTagInfoForResource(*script_resource, &tag_info));
+
+  ASSERT_FALSE(
+      pagespeed_input()->GetTagInfoForResource(*css_resource, &tag_info));
+}
+
+TEST_F(CollectTagInfoTest, TestAsyncScript) {
+  FakeDomElement* script_element;
+  Resource* resource =
+      NewScriptResource("http://example.com/foo.js", body(), &script_element);
+  script_element->AddAttribute("async", "async");
+  Freeze();
+
+  const pagespeed::ResourceTagInfo* tag_info;
+  ASSERT_TRUE(
+      pagespeed_input()->GetTagInfoForResource(*resource, &tag_info));
+  ASSERT_TRUE(tag_info != NULL);
+  ASSERT_EQ(true, tag_info->is_async);
+  ASSERT_EQ(false, tag_info->is_defer);
+  ASSERT_EQ("", tag_info->media_type);
+}
+
+TEST_F(CollectTagInfoTest, TestDeferScript) {
+  FakeDomElement* script_element;
+  Resource* resource =
+      NewScriptResource("http://example.com/foo.js", body(), &script_element);
+  script_element->AddAttribute("defer", "defer");
+  Freeze();
+
+  const pagespeed::ResourceTagInfo* tag_info;
+  ASSERT_TRUE(
+      pagespeed_input()->GetTagInfoForResource(*resource, &tag_info));
+  ASSERT_TRUE(tag_info != NULL);
+  ASSERT_EQ(false, tag_info->is_async);
+  ASSERT_EQ(true, tag_info->is_defer);
+  ASSERT_EQ("", tag_info->media_type);
+}
+
+TEST_F(CollectTagInfoTest, TestCssMediaType) {
+  FakeDomElement* css_element;
+  Resource* resource =
+      NewCssResource("http://example.com/foo.css", body(), &css_element);
+  css_element->AddAttribute("media", "mobile");
+  Freeze();
+
+  const pagespeed::ResourceTagInfo* tag_info;
+  ASSERT_TRUE(
+      pagespeed_input()->GetTagInfoForResource(*resource, &tag_info));
+  ASSERT_TRUE(tag_info != NULL);
+  ASSERT_EQ(false, tag_info->is_async);
+  ASSERT_EQ(false, tag_info->is_defer);
+  ASSERT_EQ("mobile", tag_info->media_type);
 }
 
 class ParentChildResourceMapTest : public pagespeed_testing::PagespeedTest {
@@ -426,8 +536,9 @@ TEST_F(ParentChildResourceMapTest, EmbedTag) {
   ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
 }
 
-class ResourcesInRequestOrderTest :
-      public ::pagespeed_testing::PagespeedTest {};
+class ResourcesInRequestOrderTest
+    : public ::pagespeed_testing::PagespeedTest {
+};
 
 TEST_F(ResourcesInRequestOrderTest, NoResourcesWithStartTimes) {
   New200Resource(kURL1);

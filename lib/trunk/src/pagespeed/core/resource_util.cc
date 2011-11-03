@@ -26,6 +26,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/resource_constraints.pb.h"
 #ifdef USE_SYSTEM_ZLIB
 #include "zlib.h"
 #else
@@ -148,7 +149,7 @@ int EstimateResponseBytes(const Resource& resource) {
   // but it's not clear that it's necessarily the right thing to use
   // the gzip-compressed size.
   response_bytes += resource.GetResponseBody().size();
-  response_bytes += 8; // "HTTP/1.1"
+  response_bytes += 8;  // "HTTP/1.1"
   response_bytes += EstimateHeadersBytes(*resource.GetResponseHeaders());
   return response_bytes;
 }
@@ -630,6 +631,48 @@ const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
   }
 }
 
+const Resource* GetMainCssResource(const PagespeedInput& input,
+                                   const Resource& start) {
+  std::set<const Resource*> visited;
+  if (start.GetResourceType() != CSS) {
+    return NULL;
+  }
+
+  const Resource* resource = &start;
+  while (true) {
+    if (visited.find(resource) != visited.end()) {
+      LOG(INFO) << "Encountered circular CSS inclusion.";
+      return NULL;
+    }
+    visited.insert(resource);
+
+    ResourceLoadConstraintVector constraints;
+    if (!input.GetLoadConstraintsForResource(*resource, &constraints)) {
+      // No constraints for this resource. We don't have the data that
+      // we need to determine the main CSS resource, however if some
+      // other CSS resource specified a dependency on this resource we
+      // would like to do our best and return the rootmost CSS
+      // resource that we found.
+      break;
+    }
+
+    // If there are multiple load constraints, we choose the first one
+    // since it is the primary load constraint.
+    const Resource* candidate_parent_css = input.GetResourceWithUrlOrNull(
+        constraints.at(0)->requestor_url());
+    if (candidate_parent_css == NULL ||
+        candidate_parent_css->GetResourceType() != CSS) {
+      // Found a non-CSS parent, which means the current resource is
+      // the main CSS resource.
+      break;
+    }
+
+    resource = candidate_parent_css;
+  }
+
+  return resource != &start ? resource : NULL;
+}
+
 bool IsLikelyTrackingPixel(const PagespeedInput& input,
                            const Resource& resource) {
   if (resource.GetResourceType() != IMAGE) {
@@ -661,6 +704,57 @@ bool IsLikelyTrackingPixel(const PagespeedInput& input,
   return
       (attributes->GetImageWidth() == 0 || attributes->GetImageWidth() == 1) &&
       (attributes->GetImageHeight() == 0 || attributes->GetImageHeight() == 1);
+}
+
+bool IsAsyncScript(const PagespeedInput& input, const Resource& resource) {
+  if (resource.GetResourceType() != JS)
+    return false;
+
+  const ResourceTagInfo* tag_info;
+  if (input.GetTagInfoForResource(resource, &tag_info)) {
+    return tag_info->is_async;
+  }
+  return false;
+}
+
+bool IsDeferScript(const PagespeedInput& input, const Resource& resource) {
+  if (resource.GetResourceType() != JS)
+    return false;
+
+  const ResourceTagInfo* tag_info;
+  if (input.GetTagInfoForResource(resource, &tag_info)) {
+    return tag_info->is_defer;
+  }
+  return false;
+}
+
+bool IsParserInserted(const PagespeedInput& input, const Resource& resource) {
+  ResourceLoadConstraintVector constraints;
+  if (!input.GetLoadConstraintsForResource(resource, &constraints)) {
+    return false;
+  }
+
+  for (ResourceLoadConstraintVector::const_iterator it = constraints.begin();
+       it != constraints.begin(); ++it) {
+    if  ((*it)->type() == ResourceLoadConstraint::PARSER ||
+         (*it)->type() == ResourceLoadConstraint::DOCUMENT_WRITE) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool IsCssMediaTypeMatching(const PagespeedInput& input,
+                            const Resource& resource) {
+  if (resource.GetResourceType() != CSS)
+    return false;
+
+  // TODO(michschn): Replace with data from timeline
+  const ResourceTagInfo* tag_info;
+  if (input.GetTagInfoForResource(resource, &tag_info)) {
+    return tag_info->media_type.find("screen");
+  }
+  return true;
 }
 
 }  // namespace resource_util

@@ -15,6 +15,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 
 #include <algorithm>
+#include <map>
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
@@ -25,6 +26,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/resource_constraints.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
 
 namespace pagespeed {
@@ -38,6 +40,14 @@ struct ResourceRequestStartTimeLessThan {
   }
 };
 
+template<class ConstraintMap>
+void DeleteConstraintPointers(ConstraintMap* constraint_map) {
+  for (typename ConstraintMap::iterator it = constraint_map->begin();
+      it != constraint_map->end(); ++it) {
+    STLDeleteContainerPointers(it->second.begin(), it->second.end());
+  }
+}
+
 }  // namespace
 
 PagespeedInput::PagespeedInput()
@@ -45,7 +55,7 @@ PagespeedInput::PagespeedInput()
       resource_filter_(new AllowAllResourceFilter),
       onload_state_(UNKNOWN),
       onload_millis_(-1),
-      frozen_(false) {
+      initialization_state_(INIT) {
 }
 
 PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
@@ -53,13 +63,16 @@ PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
       resource_filter_(resource_filter),
       onload_state_(UNKNOWN),
       onload_millis_(-1),
-      frozen_(false) {
+      initialization_state_(INIT) {
   DCHECK_NE(resource_filter, static_cast<ResourceFilter*>(NULL));
 }
 
 PagespeedInput::~PagespeedInput() {
   STLDeleteContainerPointers(resources_.begin(), resources_.end());
   STLDeleteContainerPointers(timeline_data_.begin(), timeline_data_.end());
+
+  DeleteConstraintPointers(&resource_load_constraints_);
+  DeleteConstraintPointers(&resource_exec_constraints_);
 }
 
 bool PagespeedInput::IsValidResource(const Resource* resource) const {
@@ -90,7 +103,7 @@ bool PagespeedInput::IsValidResource(const Resource* resource) const {
 }
 
 bool PagespeedInput::AddResource(Resource* resource) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Can't add resource " << resource->GetRequestUrl()
                 << " to frozen PagespeedInput.";
     delete resource;  // Resource is owned by PagespeedInput.
@@ -109,7 +122,7 @@ bool PagespeedInput::AddResource(Resource* resource) {
 }
 
 bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Can't set primary resource " << url
                 << " to frozen PagespeedInput.";
     return false;
@@ -125,7 +138,7 @@ bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
 }
 
 bool PagespeedInput::SetOnloadState(OnloadState state) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Can't set onload state for frozen PagespeedInput.";
     return false;
   }
@@ -134,7 +147,7 @@ bool PagespeedInput::SetOnloadState(OnloadState state) {
 }
 
 bool PagespeedInput::SetOnloadTimeMillis(int onload_millis) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Can't set onload time for frozen PagespeedInput.";
     return false;
   }
@@ -148,7 +161,7 @@ bool PagespeedInput::SetOnloadTimeMillis(int onload_millis) {
 }
 
 bool PagespeedInput::SetClientCharacteristics(const ClientCharacteristics& cc) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Can't set ClientCharacteristics for frozen PagespeedInput.";
     return false;
   }
@@ -157,7 +170,7 @@ bool PagespeedInput::SetClientCharacteristics(const ClientCharacteristics& cc) {
 }
 
 bool PagespeedInput::AcquireDomDocument(DomDocument* document) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Can't set DomDocument for frozen PagespeedInput.";
     return false;
   }
@@ -167,7 +180,7 @@ bool PagespeedInput::AcquireDomDocument(DomDocument* document) {
 
 bool PagespeedInput::AcquireImageAttributesFactory(
     ImageAttributesFactory *factory) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL)
         << "Can't set ImageAttributesFactory for frozen PagespeedInput.";
     return false;
@@ -178,7 +191,7 @@ bool PagespeedInput::AcquireImageAttributesFactory(
 
 bool PagespeedInput::AcquireInstrumentationData(
     InstrumentationDataVector* data) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL)
         << "Can't set InstrumentationDataVector for frozen PagespeedInput.";
     return false;
@@ -191,15 +204,28 @@ bool PagespeedInput::AcquireInstrumentationData(
   return true;
 }
 
-bool PagespeedInput::Freeze() {
-  if (frozen_) {
+bool PagespeedInput::AddLoadConstraintForResource(
+    const Resource& resource, ResourceLoadConstraint* constraint) {
+  resource_load_constraints_[&resource].push_back(constraint);
+  return true;
+}
+
+bool PagespeedInput::AddExecConstraintForResource(
+    const Resource& resource, ResourceExecConstraint* constraint) {
+  resource_exec_constraints_[&resource].push_back(constraint);
+  return true;
+}
+
+bool PagespeedInput::Freeze(
+    PagespeedInputFreezeParticipant* freezeParticipant) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Can't Freeze frozen PagespeedInput.";
     return false;
   }
-  frozen_ = true;
+  initialization_state_ = FINALIZE;
   std::map<const Resource*, ResourceType> resource_type_map;
   PopulateResourceInformationFromDom(
-      &resource_type_map, &parent_child_resource_map_);
+      &resource_type_map, &resource_tag_info_map_, &parent_child_resource_map_);
   UpdateResourceTypes(resource_type_map);
   PopulateInputInformation();
   bool have_start_times_for_all_resources = true;
@@ -216,6 +242,12 @@ bool PagespeedInput::Freeze() {
                      request_order_vector_.end(),
                      ResourceRequestStartTimeLessThan());
   }
+
+  if (freezeParticipant != NULL) {
+    freezeParticipant->OnFreeze(this);
+  }
+
+  initialization_state_ = FROZEN;
   return true;
 }
 
@@ -285,10 +317,12 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
       const pagespeed::PagespeedInput* pagespeed_input,
       const pagespeed::DomDocument* document,
       std::map<const Resource*, ResourceType>* resource_type_map,
+      std::map<const Resource*, ResourceTagInfo>* resource_tag_info_map,
       ParentChildResourceMap* parent_child_resource_map)
       : pagespeed_input_(pagespeed_input),
         document_(document),
         resource_type_map_(resource_type_map),
+        resource_tag_info_map_(resource_tag_info_map),
         parent_child_resource_map_(parent_child_resource_map) {
     SetUp();
   }
@@ -298,11 +332,14 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
  private:
   void SetUp();
 
-  void ProcessUri(const std::string& relative_uri, ResourceType type);
+  void ProcessUri(const std::string& relative_uri,
+                  ResourceType type,
+                  ResourceTagInfo* tag_info);
 
   const pagespeed::PagespeedInput* pagespeed_input_;
   const pagespeed::DomDocument* document_;
   std::map<const Resource*, ResourceType>* resource_type_map_;
+  std::map<const Resource*, ResourceTagInfo>* resource_tag_info_map_;
   ParentChildResourceMap* parent_child_resource_map_;
   ResourceSet visited_resources_;
 
@@ -310,7 +347,8 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
 };
 
 void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
-                                             ResourceType type) {
+                                             ResourceType type,
+                                             ResourceTagInfo* tag_info) {
   if (relative_uri.empty()) {
     // An empty URI gets resolved to the URI of its parent document,
     // which will cause us to change the type of the parent
@@ -335,6 +373,15 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
         *pagespeed_input_, *resource);
     if (resource == NULL) {
       return;
+    }
+  }
+
+  if (tag_info != NULL) {
+    if (resource_tag_info_map_->find(resource)
+        == resource_tag_info_map_->end()) {
+      (*resource_tag_info_map_)[resource]= *tag_info;
+    } else {
+      LOG(INFO) << "Resource was referenced from multiple tags " << uri;
     }
   }
 
@@ -386,11 +433,20 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
     // ParentChildResourceMap structure.
     std::string src;
     if (node.GetAttributeByName("src", &src)) {
+      scoped_ptr<ResourceTagInfo> tag_info;
       ResourceType type;
       if (node.GetTagName() == "IMG") {
         type = IMAGE;
       } else if (node.GetTagName() == "SCRIPT") {
         type = JS;
+        std::string value;
+        bool is_async = node.GetAttributeByName("async", &value);
+        bool is_defer = node.GetAttributeByName("defer", &value);
+        if (is_async || is_defer) {
+          tag_info.reset(new ResourceTagInfo());
+          tag_info->is_async = is_async;
+          tag_info->is_defer = is_defer;
+        }
       } else if (node.GetTagName() == "IFRAME") {
         type = HTML;
       } else if (node.GetTagName() == "EMBED") {
@@ -403,7 +459,7 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
         LOG(DFATAL) << "Unexpected type " << node.GetTagName();
         type = OTHER;
       }
-      ProcessUri(src, type);
+      ProcessUri(src, type, tag_info.get());
     }
   } else if (node.GetTagName() == "LINK") {
     std::string rel;
@@ -411,7 +467,13 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
         LowerCaseEqualsASCII(rel, "stylesheet")) {
       std::string href;
       if (node.GetAttributeByName("href", &href)) {
-        ProcessUri(href, CSS);
+        scoped_ptr<ResourceTagInfo> tag_info(NULL);
+        std::string media;
+        if (node.GetAttributeByName("media", &media)) {
+          tag_info.reset(new ResourceTagInfo());
+          tag_info->media_type = media;
+        }
+        ProcessUri(href, CSS, tag_info.get());
       }
     }
   }
@@ -423,6 +485,7 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
       ExternalResourceNodeVisitor visitor(pagespeed_input_,
                                           child_doc.get(),
                                           resource_type_map_,
+                                          resource_tag_info_map_,
                                           parent_child_resource_map_);
       child_doc->Traverse(&visitor);
     }
@@ -431,11 +494,13 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
 
 void PagespeedInput::PopulateResourceInformationFromDom(
     std::map<const Resource*, ResourceType>* resource_type_map,
+    ResourceTagInfoMap* resource_tag_info_map,
     ParentChildResourceMap* parent_child_resource_map) {
   if (dom_document() != NULL) {
     ExternalResourceNodeVisitor visitor(this,
                                         dom_document(),
                                         resource_type_map,
+                                        resource_tag_info_map,
                                         parent_child_resource_map);
     dom_document()->Traverse(&visitor);
   }
@@ -472,7 +537,7 @@ const Resource& PagespeedInput::GetResource(int idx) const {
 
 ImageAttributes* PagespeedInput::NewImageAttributes(
     const Resource* resource) const {
-  DCHECK(frozen_);
+  DCHECK(initialization_state_ != INIT);
   if (image_attributes_factory_ == NULL) {
     return NULL;
   }
@@ -480,13 +545,13 @@ ImageAttributes* PagespeedInput::NewImageAttributes(
 }
 
 const HostResourceMap* PagespeedInput::GetHostResourceMap() const {
-  DCHECK(frozen_);
+  DCHECK(initialization_state_ != INIT);
   return &host_resource_map_;
 }
 
 const ResourceVector*
 PagespeedInput::GetResourcesInRequestOrder() const {
-  DCHECK(frozen_);
+  DCHECK(initialization_state_ != INIT);
   if (request_order_vector_.empty()) return NULL;
   DCHECK(request_order_vector_.size() == resources_.size());
   return &request_order_vector_;
@@ -494,28 +559,32 @@ PagespeedInput::GetResourcesInRequestOrder() const {
 
 const ParentChildResourceMap*
 PagespeedInput::GetParentChildResourceMap() const {
-  DCHECK(frozen_);
+  DCHECK(initialization_state_ != INIT);
   return &parent_child_resource_map_;
 }
 
 
 const InputInformation* PagespeedInput::input_information() const {
-  DCHECK(frozen_);
+  DCHECK(initialization_state_ != INIT);
   return input_info_.get();
 }
 
 const DomDocument* PagespeedInput::dom_document() const {
-  DCHECK(frozen_);
+  DCHECK(initialization_state_ != INIT);
   return document_.get();
 }
 
 const InstrumentationDataVector* PagespeedInput::instrumentation_data() const {
-  DCHECK(frozen_);
+  DCHECK(initialization_state_ != INIT);
   return &timeline_data_;
 }
 
 const std::string& PagespeedInput::primary_resource_url() const {
   return primary_resource_url_;
+}
+
+bool PagespeedInput::is_frozen() const {
+  return initialization_state_ == FROZEN;
 }
 
 bool PagespeedInput::IsResourceLoadedAfterOnload(
@@ -556,7 +625,7 @@ const Resource* PagespeedInput::GetResourceWithUrlOrNull(
 }
 
 Resource* PagespeedInput::GetMutableResource(int idx) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Unable to get mutable resource after freezing.";
     return NULL;
   }
@@ -565,7 +634,7 @@ Resource* PagespeedInput::GetMutableResource(int idx) {
 
 Resource* PagespeedInput::GetMutableResourceWithUrl(
     const std::string& url) {
-  if (frozen_) {
+  if (is_frozen()) {
     LOG(DFATAL) << "Unable to get mutable resource after freezing.";
     return NULL;
   }
@@ -616,7 +685,47 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
       capabilities.add(InputCapabilities::REQUEST_HEADERS);
     }
   }
+  if (!resource_load_constraints_.empty() ||
+      !resource_exec_constraints_.empty()) {
+      capabilities.add(InputCapabilities::DEPENDENCY_DATA);
+  }
   return capabilities;
+}
+
+bool PagespeedInput::GetLoadConstraintsForResource(
+    const Resource& resource, ResourceLoadConstraintVector* constraints) const {
+  DCHECK(initialization_state_ != INIT);
+  LoadConstraintMap::const_iterator it =
+      resource_load_constraints_.find(&resource);
+  if (it != resource_load_constraints_.end()) {
+    constraints->assign(it->second.begin(), it->second.end());
+    return true;
+  }
+  return false;
+}
+
+bool PagespeedInput::GetExecConstraintsForResource(
+    const Resource& resource, ResourceExecConstraintVector* constraints) const {
+  DCHECK(initialization_state_ != INIT);
+  ExecConstraintMap::const_iterator it =
+      resource_exec_constraints_.find(&resource);
+  if (it != resource_exec_constraints_.end()) {
+    constraints->assign(it->second.begin(), it->second.end());
+    return true;
+  }
+  return false;
+}
+
+bool PagespeedInput::GetTagInfoForResource(
+    const Resource& resource, const ResourceTagInfo** tag_info) const {
+  DCHECK(initialization_state_ != INIT);
+  ResourceTagInfoMap::const_iterator it =
+      resource_tag_info_map_.find(&resource);
+  if (it != resource_tag_info_map_.end()) {
+    (*tag_info) = &it->second;
+    return true;
+  }
+  return false;
 }
 
 }  // namespace pagespeed

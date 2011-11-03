@@ -126,6 +126,26 @@ const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
 bool IsLikelyTrackingPixel(const PagespeedInput& input,
                            const Resource& resource);
 
+// Returns true if the script resource was discovered in a script tag with the
+// async option set.
+bool IsAsyncScript(const PagespeedInput& input, const Resource& resource);
+
+// Returns true if the script resource was discovered in a script tag with the
+// defer option set.
+bool IsDeferScript(const PagespeedInput& input, const Resource& resource);
+
+// Returns true if the script tag was inserted by the parser, that is either was
+// included in the HTML document or written using document.write().
+bool IsParserInserted(const PagespeedInput& input, const Resource& resource);
+
+// Returns true if the media type of the resource matched.
+bool IsCssMediaTypeMatching(const PagespeedInput& input,
+                            const Resource& resource);
+
+// Returns the topmost CSS resource that was not loaded via an @import rule.
+const Resource* GetMainCssResource(const PagespeedInput& input,
+                                   const Resource& start);
+
 }  // namespace resource_util
 
 }  // namespace pagespeed

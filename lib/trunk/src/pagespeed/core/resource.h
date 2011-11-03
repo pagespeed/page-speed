@@ -120,6 +120,16 @@ class Resource {
   // request's start time will be 0.
   void SetRequestStartTimeMillis(int start_millis);
 
+  // Sets sequences value that describes the order of the load start/finish
+  // events, relative to other load and/or eval events. The numbers only
+  // describe the sequence, but no absolute start time or duration.
+  void SetLoadSequence(int64 start, int64 finish);
+
+  // Sets sequences value that describes the order of the eval start/finish
+  // events, relative to other eval and/or load events. The numbers only
+  // describe the sequence, but no absolute start time or duration.
+  void SetEvaluationSequence(int64 start, int64 finish);
+
   // Accessor methods
   const std::string& GetRequestUrl() const;
 
@@ -201,6 +211,38 @@ class Resource {
   ResourceType GetResourceType() const;
   ImageType GetImageType() const;
 
+  // Gets the load sequence value that describes the order of the load start
+  // event, relative to other load and/or eval events. The number does not
+  // represent the absolute start time. This value is only available with
+  // InputCapabilities::DEPENDENCY_DATA.
+  int64 GetLoadStartSequence() const {
+    return load_start_sequence_;
+  }
+
+  // Gets the load sequence value that describes the order of the load finish
+  // event, relative to other load and/or eval events. The number does not
+  // represent the absolute finish time. This value is only available with
+  // InputCapabilities::DEPENDENCY_DATA.
+  int64 GetLoadFinishSequence() const {
+    return load_finish_sequence_;
+  }
+
+  // Gets the eval sequence value that describes the order of the eval start
+  // event, relative to other eval and/or load events. The number does not
+  // represent the absolute start time. This value is only available with
+  // InputCapabilities::DEPENDENCY_DATA.
+  int64 GetEvalStartSequence() const {
+    return eval_start_sequence_;
+  }
+
+  // Gets the eval sequence value that describes the order of the eval finish
+  // event, relative to other eval and/or load events. The number does not
+  // represent the absolute finish time. This value is only available with
+  // InputCapabilities::DEPENDENCY_DATA.
+  int64 GetEvalFinishSequence() const {
+    return eval_finish_sequence_;
+  }
+
  private:
   // We let PagespeedInput access our private data in order to inspect
   // the request_start_time_millis_ field. We do not want to expose
@@ -224,6 +266,9 @@ class Resource {
   ResourceType type_;
   JavaScriptCallInfoMap javascript_calls_;
   int request_start_time_millis_;
+
+  int64 load_start_sequence_, load_finish_sequence_;
+  int64 eval_start_sequence_, eval_finish_sequence_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
 };
