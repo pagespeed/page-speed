@@ -19,6 +19,7 @@
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
 #include "base/string_number_conversions.h"
+#include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "pagespeed/core/directive_enumerator.h"
 #include "pagespeed/core/image_attributes.h"
@@ -752,7 +753,12 @@ bool IsCssMediaTypeMatching(const PagespeedInput& input,
   // TODO(michschn): Replace with data from timeline
   const ResourceTagInfo* tag_info;
   if (input.GetTagInfoForResource(resource, &tag_info)) {
-    return tag_info->media_type.find("screen");
+    std::string screen("screen");
+    std::string::const_iterator it =
+        std::search(tag_info->media_type.begin(), tag_info->media_type.end(),
+                    screen.begin(), screen.end(),
+                    base::CaseInsensitiveCompareASCII<const char>());
+    return it != tag_info->media_type.end();
   }
   return true;
 }
