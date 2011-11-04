@@ -736,7 +736,7 @@ bool IsParserInserted(const PagespeedInput& input, const Resource& resource) {
   }
 
   for (ResourceLoadConstraintVector::const_iterator it = constraints.begin();
-       it != constraints.begin(); ++it) {
+       it != constraints.end(); ++it) {
     if  ((*it)->type() == ResourceLoadConstraint::PARSER ||
          (*it)->type() == ResourceLoadConstraint::DOCUMENT_WRITE) {
       return true;
