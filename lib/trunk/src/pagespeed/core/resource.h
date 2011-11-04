@@ -25,7 +25,6 @@
 
 namespace pagespeed {
 
-class JavaScriptCallInfo;
 class PagespeedInput;
 class Resource;
 
@@ -107,14 +106,6 @@ class Resource {
   // even if SetResourceType() has been explicitly called.
   void SetResourceType(ResourceType type);
 
-  // Add a JavaScriptCallInfo for this resource. JavaScriptCallInfos
-  // are used to track "interesting" JavaScript calls. Interesting
-  // calls include document.write and others that are known to have
-  // adverse latency impacts. JavaScriptCallInfos should be added in
-  // the order they were invoked. Ownership of the JavaScriptCallInfo is
-  // transferred to the resource.
-  void AddJavaScriptCall(const JavaScriptCallInfo* call_info);
-
   // Set the time that this resource was requested, in milliseconds,
   // relative to the request time of the first request. Thus the first
   // request's start time will be 0.
@@ -164,11 +155,6 @@ class Resource {
   // header is empty, this method falls back to the Set-Cookie response
   // header.
   const std::string& GetCookies() const;
-
-  // Get all JavaScriptCallInfos for the given identifier/function
-  // name.
-  const std::vector<const JavaScriptCallInfo*>* GetJavaScriptCalls(
-      const std::string& id) const;
 
   // Do we have a request start time for this resource? Note that we
   // do not provide a getter for the request start time, because we do not
@@ -251,9 +237,6 @@ class Resource {
   // lead to nondeterminism in results.
   friend class PagespeedInput;
 
-  typedef std::map<std::string, std::vector<const JavaScriptCallInfo*> >
-      JavaScriptCallInfoMap;
-
   std::string request_url_;
   std::string request_method_;
   HeaderMap request_headers_;
@@ -264,7 +247,6 @@ class Resource {
   std::string response_body_;
   std::string cookies_;
   ResourceType type_;
-  JavaScriptCallInfoMap javascript_calls_;
   int request_start_time_millis_;
 
   int64 load_start_sequence_, load_finish_sequence_;

@@ -15,7 +15,6 @@
 #include <string>
 
 #include "pagespeed/core/input_capabilities.h"
-#include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/proto/timeline.pb.h"
@@ -306,236 +305,6 @@ TEST_F(UpdateResourceTypesTest, DifferentTypesSameUrl) {
   ASSERT_EQ(pagespeed::CSS, resource->GetResourceType());
 }
 
-class CollectTagInfoTest : public pagespeed_testing::PagespeedTest {
- protected:
-  static const char* kRootUrl;
-
-  virtual void DoSetUp() {
-    NewPrimaryResource(kRootUrl);
-    CreateHtmlHeadBodyElements();
-  }
-};
-
-const char* CollectTagInfoTest::kRootUrl = "http://example.com/";
-
-TEST_F(CollectTagInfoTest, TestNoInfo) {
-  Resource* png_resource =
-      NewPngResource("http://example.com/foo.png", body());
-  Resource* script_resource =
-      NewScriptResource("http://example.com/foo.js", body());
-  Resource* css_resource =
-      NewCssResource("http://example.com/foo.css", body());
-  Freeze();
-
-  const pagespeed::ResourceTagInfo* tag_info;
-  ASSERT_FALSE(
-      pagespeed_input()->GetTagInfoForResource(*png_resource, &tag_info));
-
-  ASSERT_FALSE(
-      pagespeed_input()->GetTagInfoForResource(*script_resource, &tag_info));
-
-  ASSERT_FALSE(
-      pagespeed_input()->GetTagInfoForResource(*css_resource, &tag_info));
-}
-
-TEST_F(CollectTagInfoTest, TestAsyncScript) {
-  FakeDomElement* script_element;
-  Resource* resource =
-      NewScriptResource("http://example.com/foo.js", body(), &script_element);
-  script_element->AddAttribute("async", "async");
-  Freeze();
-
-  const pagespeed::ResourceTagInfo* tag_info;
-  ASSERT_TRUE(
-      pagespeed_input()->GetTagInfoForResource(*resource, &tag_info));
-  ASSERT_TRUE(tag_info != NULL);
-  ASSERT_EQ(true, tag_info->is_async);
-  ASSERT_EQ(false, tag_info->is_defer);
-  ASSERT_EQ("", tag_info->media_type);
-}
-
-TEST_F(CollectTagInfoTest, TestDeferScript) {
-  FakeDomElement* script_element;
-  Resource* resource =
-      NewScriptResource("http://example.com/foo.js", body(), &script_element);
-  script_element->AddAttribute("defer", "defer");
-  Freeze();
-
-  const pagespeed::ResourceTagInfo* tag_info;
-  ASSERT_TRUE(
-      pagespeed_input()->GetTagInfoForResource(*resource, &tag_info));
-  ASSERT_TRUE(tag_info != NULL);
-  ASSERT_EQ(false, tag_info->is_async);
-  ASSERT_EQ(true, tag_info->is_defer);
-  ASSERT_EQ("", tag_info->media_type);
-}
-
-TEST_F(CollectTagInfoTest, TestCssMediaType) {
-  FakeDomElement* css_element;
-  Resource* resource =
-      NewCssResource("http://example.com/foo.css", body(), &css_element);
-  css_element->AddAttribute("media", "mobile");
-  Freeze();
-
-  const pagespeed::ResourceTagInfo* tag_info;
-  ASSERT_TRUE(
-      pagespeed_input()->GetTagInfoForResource(*resource, &tag_info));
-  ASSERT_TRUE(tag_info != NULL);
-  ASSERT_EQ(false, tag_info->is_async);
-  ASSERT_EQ(false, tag_info->is_defer);
-  ASSERT_EQ("mobile", tag_info->media_type);
-}
-
-class ParentChildResourceMapTest : public pagespeed_testing::PagespeedTest {
- protected:
-  static const char* kRootUrl;
-
-  virtual void DoSetUp() {
-    NewPrimaryResource(kRootUrl);
-    CreateHtmlHeadBodyElements();
-  }
-};
-
-const char* ParentChildResourceMapTest::kRootUrl = "http://example.com/";
-
-// TESTS: basic, iframe, some missing
-
-TEST_F(ParentChildResourceMapTest, Basic) {
-  Resource* css =
-      NewCssResource("http://example.com/css.css", body());
-  Resource* js1 =
-      NewScriptResource("http://example.com/script1.js", body());
-  Resource* js2 =
-      NewScriptResource("http://example.com/script2.js", body());
-  Freeze();
-
-  // Validate that the parent child resource map was populated with
-  // the expected contents.
-  pagespeed::ParentChildResourceMap expected;
-  expected[primary_resource()].push_back(css);
-  expected[primary_resource()].push_back(js1);
-  expected[primary_resource()].push_back(js2);
-  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
-}
-
-TEST_F(ParentChildResourceMapTest, Iframes) {
-  Resource* js =
-      NewScriptResource("http://example.com/script.js", body());
-  FakeDomElement* iframe1 = FakeDomElement::NewIframe(body());
-  FakeDomDocument* iframe1_doc;
-  Resource* iframe1_resource =
-      NewDocumentResource("http://example.com/iframe.html",
-                          iframe1, &iframe1_doc);
-  FakeDomElement* iframe1_root = FakeDomElement::NewRoot(iframe1_doc, "html");
-  Resource* css =
-      NewCssResource("http://example.com/css.css", iframe1_root);
-  FakeDomElement::NewScript(iframe1_root, "http://example.com/script.js");
-  FakeDomElement::NewScript(iframe1_root, "http://example.com/script.js");
-
-  FakeDomElement* iframe2 = FakeDomElement::NewIframe(body());
-  FakeDomDocument* iframe2_doc;
-  Resource* iframe2_resource =
-      NewDocumentResource("http://example.com/iframe2.html",
-                          iframe2, &iframe2_doc);
-  FakeDomElement* iframe2_root = FakeDomElement::NewRoot(iframe2_doc, "html");
-  FakeDomElement::NewLinkStylesheet(iframe2_root, "http://example.com/css.css");
-  FakeDomElement::NewScript(iframe2_root, "http://example.com/script.js");
-
-  FakeDomElement* iframe3 = FakeDomElement::NewIframe(iframe2_root);
-  FakeDomDocument* iframe3_doc;
-  Resource* iframe3_resource =
-      NewDocumentResource("http://example.com/iframe3.html",
-                          iframe3, &iframe3_doc);
-  FakeDomElement* iframe3_root = FakeDomElement::NewRoot(iframe3_doc, "html");
-  FakeDomElement::NewLinkStylesheet(iframe3_root, "http://example.com/css.css");
-  Resource* css2 =
-      NewCssResource("http://example.com/css2.css", iframe3_root);
-  Freeze();
-  ASSERT_EQ(7, pagespeed_input()->num_resources());
-
-  // Validate that the parent child resource map was populated with
-  // the expected contents.
-  pagespeed::ParentChildResourceMap expected;
-  expected[primary_resource()].push_back(js);
-  expected[primary_resource()].push_back(iframe1_resource);
-  expected[iframe1_resource].push_back(css);
-  expected[iframe1_resource].push_back(js);
-  expected[primary_resource()].push_back(iframe2_resource);
-  expected[iframe2_resource].push_back(css);
-  expected[iframe2_resource].push_back(js);
-  expected[iframe2_resource].push_back(iframe3_resource);
-  expected[iframe3_resource].push_back(css);
-  expected[iframe3_resource].push_back(css2);
-  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
-}
-
-TEST_F(ParentChildResourceMapTest, MissingResource) {
-  FakeDomElement* iframe1 = FakeDomElement::NewIframe(body());
-  FakeDomDocument* iframe1_doc;
-  Resource* iframe1_resource =
-      NewDocumentResource("http://example.com/iframe.html",
-                          iframe1, &iframe1_doc);
-  FakeDomElement* iframe1_root = FakeDomElement::NewRoot(iframe1_doc, "html");
-  Resource* css =
-      NewCssResource("http://example.com/css.css", iframe1_root);
-  Resource* js =
-      NewScriptResource("http://example.com/script.js", iframe1_root);
-
-  FakeDomElement* iframe2 = FakeDomElement::NewIframe(body());
-
-  // Create a document element inside the iframe, but do not create a
-  // corresponding Resource for that document element. We expect that
-  // the parent->child mapper will fail to find this frame or any of
-  // its resources, since the document's resource is missing.
-  FakeDomDocument* iframe2_doc =
-      FakeDomDocument::New(iframe2, "http://example.com/iframe2.html");
-  FakeDomElement* iframe2_root = FakeDomElement::NewRoot(iframe2_doc, "html");
-  FakeDomElement::NewLinkStylesheet(iframe2_root, "http://example.com/css.css");
-  FakeDomElement::NewScript(iframe2_root, "http://example.com/script.js");
-
-  // This frame and one of its children should be found, since there
-  // is a corresponding Resource for the document node.
-  FakeDomElement* iframe3 = FakeDomElement::NewIframe(iframe2_root);
-  FakeDomDocument* iframe3_doc;
-  Resource* iframe3_resource =
-      NewDocumentResource("http://example.com/iframe3.html",
-                          iframe3, &iframe3_doc);
-  FakeDomElement* iframe3_root = FakeDomElement::NewRoot(iframe3_doc, "html");
-  FakeDomElement::NewLinkStylesheet(iframe3_root, "http://example.com/css.css");
-
-  // Create a link element for which there is no corresponding
-  // Resource. We do not expect a resource for this node to show up in
-  // the map.
-  FakeDomElement::NewLinkStylesheet(
-      iframe3_root, "http://example.com/css2.css");
-
-  Freeze();
-  ASSERT_EQ(5, pagespeed_input()->num_resources());
-
-  // Validate that the parent child resource map was populated with
-  // the expected contents.
-  pagespeed::ParentChildResourceMap expected;
-  expected[primary_resource()].push_back(iframe1_resource);
-  expected[iframe1_resource].push_back(css);
-  expected[iframe1_resource].push_back(js);
-  expected[iframe3_resource].push_back(css);
-  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
-}
-
-TEST_F(ParentChildResourceMapTest, EmbedTag) {
-  const char* kFlashUrl = "http://example.com/foo.swf";
-  Resource* resource = New200Resource(kFlashUrl);
-  resource->AddResponseHeader("Content-Type", "application/x-shockwave-flash");
-  FakeDomElement::New(body(), "embed")->AddAttribute("src", kFlashUrl);
-  Freeze();
-
-  // Validate that the parent child resource map was populated with
-  // the expected contents.
-  pagespeed::ParentChildResourceMap expected;
-  expected[primary_resource()].push_back(resource);
-  ASSERT_TRUE(expected == *pagespeed_input()->GetParentChildResourceMap());
-}
-
 class ResourcesInRequestOrderTest
     : public ::pagespeed_testing::PagespeedTest {
 };
@@ -598,9 +367,8 @@ TEST_F(EstimateCapabilitiesTest, Dom) {
   NewPrimaryResource("http://www.example.com/");
   Freeze();
   ASSERT_TRUE(
-      InputCapabilities(InputCapabilities::PARENT_CHILD_RESOURCE_MAP |
-                        InputCapabilities::DOM).equals(
-                            pagespeed_input()->EstimateCapabilities()));
+      InputCapabilities(InputCapabilities::DOM).equals(
+          pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, TimelineData) {
@@ -610,19 +378,6 @@ TEST_F(EstimateCapabilitiesTest, TimelineData) {
   Freeze();
   EXPECT_TRUE(InputCapabilities(InputCapabilities::TIMELINE_DATA).equals(
       pagespeed_input()->EstimateCapabilities()));
-}
-
-TEST_F(EstimateCapabilitiesTest, JSCalls) {
-  std::vector<std::string> args;
-  New200Resource("http://www.example.com/")->AddJavaScriptCall(
-      new pagespeed::JavaScriptCallInfo("document.write",
-                                        "http://www.example.com/",
-                                        args,
-                                        1));
-  Freeze();
-  ASSERT_TRUE(
-      InputCapabilities(InputCapabilities::JS_CALLS_DOCUMENT_WRITE).equals(
-          pagespeed_input()->EstimateCapabilities()));
 }
 
 TEST_F(EstimateCapabilitiesTest, OnLoad) {

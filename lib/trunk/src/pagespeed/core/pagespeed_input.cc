@@ -225,7 +225,7 @@ bool PagespeedInput::Freeze(
   initialization_state_ = FINALIZE;
   std::map<const Resource*, ResourceType> resource_type_map;
   PopulateResourceInformationFromDom(
-      &resource_type_map, &resource_tag_info_map_, &parent_child_resource_map_);
+      &resource_type_map, &resource_tag_info_map_);
   UpdateResourceTypes(resource_type_map);
   PopulateInputInformation();
   bool have_start_times_for_all_resources = true;
@@ -317,13 +317,11 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
       const pagespeed::PagespeedInput* pagespeed_input,
       const pagespeed::DomDocument* document,
       std::map<const Resource*, ResourceType>* resource_type_map,
-      std::map<const Resource*, ResourceTagInfo>* resource_tag_info_map,
-      ParentChildResourceMap* parent_child_resource_map)
+      std::map<const Resource*, ResourceTagInfo>* resource_tag_info_map)
       : pagespeed_input_(pagespeed_input),
         document_(document),
         resource_type_map_(resource_type_map),
-        resource_tag_info_map_(resource_tag_info_map),
-        parent_child_resource_map_(parent_child_resource_map) {
+        resource_tag_info_map_(resource_tag_info_map) {
     SetUp();
   }
 
@@ -340,7 +338,6 @@ class ExternalResourceNodeVisitor : public pagespeed::DomElementVisitor {
   const pagespeed::DomDocument* document_;
   std::map<const Resource*, ResourceType>* resource_type_map_;
   std::map<const Resource*, ResourceTagInfo>* resource_tag_info_map_;
-  ParentChildResourceMap* parent_child_resource_map_;
   ResourceSet visited_resources_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalResourceNodeVisitor);
@@ -398,28 +395,9 @@ void ExternalResourceNodeVisitor::ProcessUri(const std::string& relative_uri,
       (*resource_type_map_)[resource] = type;
     }
   }
-
-  // Update the Parent->Child resource map.
-  const Resource* document_resource =
-      pagespeed_input_->GetResourceWithUrlOrNull(document_->GetDocumentUrl());
-  if (document_resource != NULL) {
-    if (visited_resources_.count(resource) == 0) {
-      // Only insert the resource into the vector once.
-      visited_resources_.insert(resource);
-      (*parent_child_resource_map_)[document_resource].push_back(resource);
-    }
-  } else {
-    LOG(INFO) << "Unable to find resource for " << document_->GetDocumentUrl();
-  }
 }
 
 void ExternalResourceNodeVisitor::SetUp() {
-  const Resource* document_resource =
-      pagespeed_input_->GetResourceWithUrlOrNull(document_->GetDocumentUrl());
-  if (document_resource != NULL) {
-    // Create an initial entry in the parent_child_resource_map.
-    (*parent_child_resource_map_)[document_resource];
-  }
 }
 
 void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
@@ -427,10 +405,6 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
       node.GetTagName() == "SCRIPT" ||
       node.GetTagName() == "IFRAME" ||
       node.GetTagName() == "EMBED") {
-    // NOTE: an iframe created/manipulated via JS may not have a "src"
-    // attribute but can still have children. We should handle this
-    // case. This most likely requires redefining the
-    // ParentChildResourceMap structure.
     std::string src;
     if (node.GetAttributeByName("src", &src)) {
       scoped_ptr<ResourceTagInfo> tag_info;
@@ -452,8 +426,8 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
       } else if (node.GetTagName() == "EMBED") {
         // TODO: in some cases this resource may be flash, but not
         // always. Thus we set type to OTHER. ProcessUri ignores type
-        // OTHER but will update the ParentChildResourceMap, which is
-        // what we want.
+        // OTHER but will update the document child resource map,
+        // which is what we want.
         type = OTHER;
       } else {
         LOG(DFATAL) << "Unexpected type " << node.GetTagName();
@@ -485,8 +459,7 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
       ExternalResourceNodeVisitor visitor(pagespeed_input_,
                                           child_doc.get(),
                                           resource_type_map_,
-                                          resource_tag_info_map_,
-                                          parent_child_resource_map_);
+                                          resource_tag_info_map_);
       child_doc->Traverse(&visitor);
     }
   }
@@ -494,14 +467,12 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
 
 void PagespeedInput::PopulateResourceInformationFromDom(
     std::map<const Resource*, ResourceType>* resource_type_map,
-    ResourceTagInfoMap* resource_tag_info_map,
-    ParentChildResourceMap* parent_child_resource_map) {
+    ResourceTagInfoMap* resource_tag_info_map) {
   if (dom_document() != NULL) {
     ExternalResourceNodeVisitor visitor(this,
                                         dom_document(),
                                         resource_type_map,
-                                        resource_tag_info_map,
-                                        parent_child_resource_map);
+                                        resource_tag_info_map);
     dom_document()->Traverse(&visitor);
   }
 }
@@ -556,13 +527,6 @@ PagespeedInput::GetResourcesInRequestOrder() const {
   DCHECK(request_order_vector_.size() == resources_.size());
   return &request_order_vector_;
 }
-
-const ParentChildResourceMap*
-PagespeedInput::GetParentChildResourceMap() const {
-  DCHECK(initialization_state_ != INIT);
-  return &parent_child_resource_map_;
-}
-
 
 const InputInformation* PagespeedInput::input_information() const {
   DCHECK(initialization_state_ != INIT);
@@ -655,9 +619,7 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
   }
 
   if (dom_document() != NULL) {
-    capabilities.add(
-        InputCapabilities::DOM |
-        InputCapabilities::PARENT_CHILD_RESOURCE_MAP);
+    capabilities.add(InputCapabilities::DOM);
   }
   if (!timeline_data_.empty()) {
     capabilities.add(InputCapabilities::TIMELINE_DATA);
@@ -670,9 +632,6 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
   }
   for (int i = 0, num = num_resources(); i < num; ++i) {
     const Resource& resource = GetResource(i);
-    if (resource.GetJavaScriptCalls("document.write") != NULL) {
-      capabilities.add(InputCapabilities::JS_CALLS_DOCUMENT_WRITE);
-    }
     if (!resource.GetResponseBody().empty()) {
       capabilities.add(InputCapabilities::RESPONSE_BODY);
     }

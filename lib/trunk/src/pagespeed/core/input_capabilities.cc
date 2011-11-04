@@ -23,11 +23,7 @@ std::string InputCapabilities::DebugString() const {
   std::string lacks;
 
   (capabilities_mask_ & DOM ? &has : &lacks)->append(" DOM");
-  (capabilities_mask_ & JS_CALLS_DOCUMENT_WRITE ?
-   &has : &lacks)->append(" JS_CALLS_DOCUMENT_WRITE");
   (capabilities_mask_ & ONLOAD ? &has : &lacks)->append(" ONLOAD");
-  (capabilities_mask_ & PARENT_CHILD_RESOURCE_MAP ?
-   &has : &lacks)->append(" PARENT_CHILD_RESOURCE_MAP");
   (capabilities_mask_ & REQUEST_HEADERS ?
    &has : &lacks)->append(" REQUEST_HEADERS");
   (capabilities_mask_ & RESPONSE_BODY ?

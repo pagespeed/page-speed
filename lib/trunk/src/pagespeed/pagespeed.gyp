@@ -38,7 +38,6 @@
       'sources': [
         'rules/avoid_bad_requests.cc',
         'rules/avoid_css_import.cc',
-        'rules/avoid_document_write.cc',
         'rules/avoid_excess_serialization.cc',
         'rules/avoid_long_running_scripts.cc',
         'rules/combine_external_resources.cc',
@@ -151,7 +150,6 @@
         'proto/results_to_json_converter_test.cc',
         'rules/avoid_bad_requests_test.cc',
         'rules/avoid_css_import_test.cc',
-        'rules/avoid_document_write_test.cc',
         'rules/avoid_excess_serialization_test.cc',
         'rules/avoid_long_running_scripts_test.cc',
         'rules/combine_external_resources_test.cc',
