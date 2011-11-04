@@ -40,7 +40,6 @@ class ResourceLoadConstraint;
 
 typedef std::map<std::string, ResourceSet> HostResourceMap;
 typedef std::vector<const Resource*> ResourceVector;
-typedef std::map<const Resource*, ResourceVector> ParentChildResourceMap;
 typedef std::vector<const ResourceLoadConstraint*> ResourceLoadConstraintVector;
 typedef std::vector<const ResourceExecConstraint*> ResourceExecConstraintVector;
 
@@ -179,12 +178,6 @@ class PagespeedInput {
   // time.
   const ResourceVector* GetResourcesInRequestOrder() const;
 
-  // Get the map from a parent (e.g. document) to all of its child
-  // resources. The children are the immediate children, e.g. the
-  // children of an iframe will not be considered children of the main
-  // document as well. The children in the vector are in the order
-  // they appear in the document's DOM.
-  const ParentChildResourceMap* GetParentChildResourceMap() const;
   const InputInformation* input_information() const;
   const DomDocument* dom_document() const;
   const InstrumentationDataVector* instrumentation_data() const;
@@ -234,8 +227,7 @@ class PagespeedInput {
   // the time the PagespeedInput is frozen.
   void PopulateInputInformation();
   void PopulateResourceInformationFromDom(
-      std::map<const Resource*, ResourceType>*,
-      ResourceTagInfoMap*, ParentChildResourceMap*);
+      std::map<const Resource*, ResourceType>*, ResourceTagInfoMap*);
   void UpdateResourceTypes(const std::map<const Resource*, ResourceType>&);
 
   std::vector<Resource*> resources_;
@@ -247,8 +239,6 @@ class PagespeedInput {
   // Map from hostname to Resources on that hostname. The resources_
   // vector, above, owns the Resource instances in this map.
   HostResourceMap host_resource_map_;
-
-  ParentChildResourceMap parent_child_resource_map_;
 
   ResourceVector request_order_vector_;
   // List of timeline events.  The PagespeedInput object has ownership of these

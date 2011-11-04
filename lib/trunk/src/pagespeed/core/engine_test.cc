@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "pagespeed/core/engine.h"
-#include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule.h"

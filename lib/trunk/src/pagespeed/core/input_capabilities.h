@@ -30,9 +30,9 @@ class InputCapabilities {
   static const uint32
     NONE                       = 0,
     DOM                        = 1<<0,
-    JS_CALLS_DOCUMENT_WRITE    = 1<<1,
+    // JS_CALLS_DOCUMENT_WRITE    = 1<<1,  // deprecated
     ONLOAD                     = 1<<2,
-    PARENT_CHILD_RESOURCE_MAP  = 1<<3,
+    // PARENT_CHILD_RESOURCE_MAP  = 1<<3,  // deprecated
     REQUEST_HEADERS            = 1<<4,
     RESPONSE_BODY              = 1<<5,
     REQUEST_START_TIMES        = 1<<6,

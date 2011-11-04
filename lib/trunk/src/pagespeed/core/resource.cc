@@ -22,7 +22,6 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
-#include "pagespeed/core/javascript_call_info.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/uri_util.h"
 
@@ -72,13 +71,6 @@ Resource::Resource()
 }
 
 Resource::~Resource() {
-  for (JavaScriptCallInfoMap::const_iterator
-           it = javascript_calls_.begin(), end = javascript_calls_.end();
-       it != end;
-       ++it) {
-    const std::vector<const JavaScriptCallInfo*>& calls = it->second;
-    STLDeleteContainerPointers(calls.begin(), calls.end());
-  }
 }
 
 void Resource::SetRequestUrl(const std::string& value) {
@@ -212,10 +204,6 @@ void Resource::SetResourceType(ResourceType type) {
   type_ = type;
 }
 
-void Resource::AddJavaScriptCall(const JavaScriptCallInfo* call_info) {
-  javascript_calls_[call_info->id()].push_back(call_info);
-}
-
 const std::string& Resource::GetRequestUrl() const {
   return request_url_;
 }
@@ -248,15 +236,6 @@ const Resource::HeaderMap* Resource::GetResponseHeaders() const {
 
 const std::string& Resource::GetResponseBody() const {
   return response_body_;
-}
-
-const std::vector<const JavaScriptCallInfo*>* Resource::GetJavaScriptCalls(
-    const std::string& id) const {
-  JavaScriptCallInfoMap::const_iterator it = javascript_calls_.find(id);
-  if (it == javascript_calls_.end()) {
-    return NULL;
-  }
-  return &it->second;
 }
 
 const std::string& Resource::GetCookies() const {

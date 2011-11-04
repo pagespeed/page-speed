@@ -21,7 +21,6 @@
 
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_css_import.h"
-#include "pagespeed/rules/avoid_document_write.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/enable_keep_alive.h"
@@ -108,7 +107,6 @@ TEST(RuleProviderTest, CreateRuleWithName) {
   // Test that each rule type is recognized correctly.
   TestNamedRule("AvoidBadRequests");
   TestNamedRule("AvoidCssImport");
-  TestNamedRule("AvoidDocumentWrite");
   TestNamedRule("CombineExternalCss");
   TestNamedRule("CombineExternalJavaScript");
   TestNamedRule("EnableGzipCompression");

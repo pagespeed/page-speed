@@ -73,7 +73,6 @@ TEST(InputCapabilitiesTest, DebugString) {
                       InputCapabilities::ONLOAD |
                       InputCapabilities::REQUEST_START_TIMES);
   ASSERT_EQ("(Has: DOM ONLOAD REQUEST_START_TIMES ** Lacks: "
-            "JS_CALLS_DOCUMENT_WRITE PARENT_CHILD_RESOURCE_MAP "
             "REQUEST_HEADERS RESPONSE_BODY TIMELINE_DATA)",
             a.DebugString());
 }
