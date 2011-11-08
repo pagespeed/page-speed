@@ -152,6 +152,35 @@ class DomElementVisitor {
   DISALLOW_COPY_AND_ASSIGN(DomElementVisitor);
 };
 
+// A filtered visitor that only vists nodes that reference external
+// resources. Also provides the fully qualified URL of the external
+// resource.
+class ExternalResourceDomElementVisitor {
+ public:
+  ExternalResourceDomElementVisitor();
+  virtual ~ExternalResourceDomElementVisitor();
+  virtual void Visit(const DomElement& node, const std::string& url) = 0;
+
+  // Called on each visit to a child DomDocument. This will be called
+  // immediately after Visit() above is called for the parent frame node of
+  // the document. Implementers may choose to further traverse the
+  // child documents with an ExternalResourceDomElementVisitor to discover
+  // resources referenced in those child documents.
+  virtual void Visit(const DomDocument& document) {}
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ExternalResourceDomElementVisitor);
+};
+
+// Instantiates a DomElementVisitor that wraps the given
+// ExternalResourceDomElementVisitor. Ownership of the
+// ExternalResourceDomElementVisitor is NOT transferred to this
+// object. Ownership of the returned DomElementVisitor is transferred
+// to the caller.
+DomElementVisitor* MakeDomElementVisitorForDocument(
+    const DomDocument* document,
+    ExternalResourceDomElementVisitor* visitor);
+
 }  // namespace pagespeed
 
 #endif  // PAGESPEED_CORE_DOM_H_
