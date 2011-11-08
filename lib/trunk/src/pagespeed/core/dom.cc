@@ -17,6 +17,8 @@
 #include "dom.h"
 
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "pagespeed/core/uri_util.h"
 
 #define NOT_IMPLEMENTED() do {                          \
@@ -24,6 +26,60 @@
   } while (false)
 
 namespace pagespeed {
+
+namespace {
+
+class ExternalResourceVisitorAdaptor : public DomElementVisitor {
+ public:
+  ExternalResourceVisitorAdaptor(
+      ExternalResourceDomElementVisitor* inner, const DomDocument* document);
+
+  virtual void Visit(const DomElement& node);
+
+ private:
+  ExternalResourceDomElementVisitor* inner_;
+  const DomDocument* document_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExternalResourceVisitorAdaptor);
+};
+
+ExternalResourceVisitorAdaptor::ExternalResourceVisitorAdaptor(
+    ExternalResourceDomElementVisitor* inner, const DomDocument* document)
+    : inner_(inner), document_(document) {
+}
+
+void ExternalResourceVisitorAdaptor::Visit(const DomElement& node) {
+  bool found_uri = false;
+  std::string relative_uri;
+  if (node.GetTagName() == "IMG" ||
+      node.GetTagName() == "SCRIPT" ||
+      node.GetTagName() == "IFRAME" ||
+      node.GetTagName() == "EMBED") {
+    found_uri = node.GetAttributeByName("src", &relative_uri);
+  } else if (node.GetTagName() == "LINK") {
+    std::string rel;
+    if (node.GetAttributeByName("rel", &rel) &&
+        LowerCaseEqualsASCII(rel, "stylesheet")) {
+      found_uri = node.GetAttributeByName("href", &relative_uri);
+    }
+  }
+  if (found_uri && !relative_uri.empty()) {
+    std::string resolved_uri =
+        pagespeed::uri_util::ResolveUri(relative_uri, document_->GetBaseUrl());
+    if (uri_util::IsExternalResourceUrl(resolved_uri)) {
+      inner_->Visit(node, resolved_uri);
+    }
+  }
+
+  if (node.GetTagName() == "IFRAME") {
+    scoped_ptr<DomDocument> document(node.GetContentDocument());
+    if (document != NULL) {
+      inner_->Visit(*document.get());
+    }
+  }
+}
+
+}  // namespace
 
 DomDocument::DomDocument() {}
 
@@ -62,5 +118,14 @@ DomElement::Status DomElement::HasHeightSpecified(
 DomElementVisitor::DomElementVisitor() {}
 
 DomElementVisitor::~DomElementVisitor() {}
+
+ExternalResourceDomElementVisitor::ExternalResourceDomElementVisitor() {}
+ExternalResourceDomElementVisitor::~ExternalResourceDomElementVisitor() {}
+
+DomElementVisitor* MakeDomElementVisitorForDocument(
+    const DomDocument* document,
+    ExternalResourceDomElementVisitor* visitor) {
+  return new ExternalResourceVisitorAdaptor(visitor, document);
+}
 
 }  // namespace pagespeed
