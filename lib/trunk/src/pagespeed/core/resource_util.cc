@@ -735,6 +735,32 @@ bool IsParserInserted(const PagespeedInput& input, const Resource& resource) {
     return false;
   }
 
+  // TODO(michschn) For now, we walk to the initial resource to see if
+  // it was parser-inserted. In the future, we should make sure that
+  // we propagate this information to the last resource in the
+  // redirect chain.
+  std::set<const Resource*> visited;
+  while (!constraints.empty() &&
+         constraints.at(0)->type() == ResourceLoadConstraint::REDIRECT) {
+    const Resource* candidate_resource = input.GetResourceWithUrlOrNull(
+        constraints.at(0)->requestor_url());
+    if (candidate_resource == NULL) {
+      return false;
+    }
+
+    if (visited.find(candidate_resource) != visited.end()) {
+      LOG(INFO) << "Encountered redirect loop.";
+      return false;
+    }
+    visited.insert(candidate_resource);
+
+    constraints.clear();
+    if (!input.GetLoadConstraintsForResource(*candidate_resource,
+                                             &constraints)) {
+      return false;
+    }
+  }
+
   for (ResourceLoadConstraintVector::const_iterator it = constraints.begin();
        it != constraints.end(); ++it) {
     if  ((*it)->type() == ResourceLoadConstraint::PARSER ||
