@@ -206,12 +206,22 @@ bool PagespeedInput::AcquireInstrumentationData(
 
 bool PagespeedInput::AddLoadConstraintForResource(
     const Resource& resource, ResourceLoadConstraint* constraint) {
+  if (is_frozen()) {
+    LOG(DFATAL)
+        << "Can't add constraint object for frozen PagespeedInput.";
+    return false;
+  }
   resource_load_constraints_[&resource].push_back(constraint);
   return true;
 }
 
 bool PagespeedInput::AddExecConstraintForResource(
     const Resource& resource, ResourceExecConstraint* constraint) {
+  if (is_frozen()) {
+    LOG(DFATAL)
+        << "Can't add constraint object for frozen PagespeedInput.";
+    return false;
+  }
   resource_exec_constraints_[&resource].push_back(constraint);
   return true;
 }
@@ -656,6 +666,22 @@ bool PagespeedInput::GetLoadConstraintsForResource(
   DCHECK(initialization_state_ != INIT);
   LoadConstraintMap::const_iterator it =
       resource_load_constraints_.find(&resource);
+  if (it != resource_load_constraints_.end()) {
+    constraints->assign(it->second.begin(), it->second.end());
+    return true;
+  }
+  return false;
+}
+
+bool PagespeedInput::GetMutableLoadConstraintsForResource(
+    const Resource& resource,
+    std::vector<ResourceLoadConstraint*>* constraints) const {
+  if (is_frozen()) {
+    LOG(DFATAL) << "Unable to get mutable load constraints after freezing.";
+    return false;
+  }
+  LoadConstraintMap::const_iterator it = resource_load_constraints_.find(
+      &resource);
   if (it != resource_load_constraints_.end()) {
     constraints->assign(it->second.begin(), it->second.end());
     return true;

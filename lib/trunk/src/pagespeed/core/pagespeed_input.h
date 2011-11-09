@@ -201,6 +201,11 @@ class PagespeedInput {
       const Resource& resource,
       ResourceLoadConstraintVector* constraints) const;
 
+  // Get the mutable load constraints recorded for the specified resource.
+  bool GetMutableLoadConstraintsForResource(
+      const Resource& resource,
+      std::vector<ResourceLoadConstraint*>* constraints) const;
+
   // Get the execution constraints recorded for the specified resource.
   bool GetExecConstraintsForResource(
       const Resource& resource,
