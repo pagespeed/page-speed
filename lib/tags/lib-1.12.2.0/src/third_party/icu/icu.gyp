@@ -306,6 +306,9 @@
             'defines': [
               'USE_SYSTEM_ICU',
             ],
+            'cflags+': [
+              '<!@(icu-config --cppflags-searchpath)'
+            ],
           },
           'link_settings': {
             'ldflags': [
