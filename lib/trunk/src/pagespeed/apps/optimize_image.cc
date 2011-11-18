@@ -28,7 +28,7 @@
 
 using pagespeed::image_compression::GifReader;
 using pagespeed::image_compression::OptimizeJpeg;
-using pagespeed::image_compression::OptimizeJpegLossy;
+using pagespeed::image_compression::OptimizeJpegWithOptions;
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 
@@ -41,10 +41,14 @@ enum ImageType {
   GIF,
 };
 
-const char *kUsage = "Usage: optimize_image <input> <output> [quality]\n"
-    "quality is optional, and applies only to lossy formats (e.g. JPEG). "
-    "If specified, should be in the range 1-100. "
-    "If unspecified, lossless compression will be performed.\n";
+const char *kUsage = "Usage: optimize_image <input> <output> [quality] "
+    "[progressive] \n"
+    "quality and progressive are optional, and apply only to lossy formats "
+    "(e.g. JPEG). \n"
+    "If quality is specified, it should be in the range 1-100. "
+    "If unspecified, lossless compression will be performed. \n"
+    "If progressive is specified, it should be either 0 or 1. "
+    "If unspecified, progressive jpeg is not applied. \n" ;
 
 // use file extension to determine what optimizer should be used.
 ImageType DetermineImageType(const std::string& filename) {
@@ -65,7 +69,8 @@ ImageType DetermineImageType(const std::string& filename) {
   return NOT_SUPPORTED;
 }
 
-bool OptimizeImage(const char* infile, const char* outfile, int opt_quality) {
+bool OptimizeImage(const char* infile, const char* outfile, int opt_quality,
+                   bool progressive) {
   std::string filename(infile);
   std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
   if (!in) {
@@ -89,11 +94,13 @@ bool OptimizeImage(const char* infile, const char* outfile, int opt_quality) {
 
   bool success = false;
   if (type == JPEG) {
+    pagespeed::image_compression::JpegCompressionOptions options;
     if (opt_quality > 0) {
-      success = OptimizeJpegLossy(file_contents, &compressed, opt_quality);
-    } else {
-      success = OptimizeJpeg(file_contents, &compressed);
+      options.lossy = true;
+      options.quality = opt_quality;
     }
+    options.progressive = progressive;
+    success = OptimizeJpegWithOptions(file_contents, &compressed, &options);
   } else if (type == PNG) {
     PngReader reader;
     success = PngOptimizer::OptimizePngBestCompression(reader,
@@ -151,20 +158,20 @@ int main(int argc, char** argv) {
   // files.
   if (strcmp("--batch", argv[1]) == 0) {
     for (int i = 2; i < argc; ++i) {
-      OptimizeImage(argv[i], NULL, 0);
+      OptimizeImage(argv[i], NULL, 0, false);
     }
     return EXIT_SUCCESS;
   }
 
   // Otherwise we are running in normal mode, where the arguments are
   // <infile> <outfile>.
-  if (argc != 3 && argc != 4) {
+  if (argc < 3 && argc > 5) {
     fprintf(stderr, "%s", kUsage);
     return EXIT_FAILURE;
   }
 
   int quality = 0;
-  if (argc == 4) {
+  if (argc >= 4) {
     if (!base::StringToInt(argv[3], &quality) ||
         quality < 0 || quality > 100) {
       fprintf(stderr, "%s", kUsage);
@@ -172,5 +179,18 @@ int main(int argc, char** argv) {
     }
   }
 
-  return OptimizeImage(argv[1], argv[2], quality) ? EXIT_SUCCESS : EXIT_FAILURE;
+  bool progressive = false;
+  if (argc == 5) {
+    int progressive_int = -1;
+    if (!base::StringToInt(argv[4], &progressive_int) ||
+        (progressive_int != 0 && progressive_int != 1)) {
+      fprintf(stderr, "%s", kUsage);
+      return EXIT_FAILURE;
+    } else if (progressive_int == 1) {
+      progressive = true;
+    }
+  }
+
+  return OptimizeImage(argv[1], argv[2], quality, progressive) ?
+      EXIT_SUCCESS : EXIT_FAILURE;
 }

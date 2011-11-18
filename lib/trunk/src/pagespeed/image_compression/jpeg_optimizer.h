@@ -25,21 +25,32 @@ namespace pagespeed {
 
 namespace image_compression {
 
+struct JpegCompressionOptions {
+ JpegCompressionOptions() : lossy(false), quality(85), progressive(false) {}
+
+ // Whether or not to perform lossy compression. If true, then the quality
+ // parameter is used to determine how much quality to retain.
+ bool lossy;
+
+ // jpeg_quality - Can take values in the range [1,100].
+ // For web images, the preferred value for quality is 85.
+ // For smaller images like thumbnails, the preferred value for quality is 75.
+ // Setting it to values below 50 is generally not preferable.
+ int quality;
+
+ // Whether or not to produce a progressive JPEG.
+ bool progressive;
+};
+
 // Performs lossless optimization, that is, the output image will be
 // pixel-for-pixel identical to the input image.
 bool OptimizeJpeg(const std::string &original,
                   std::string *compressed);
 
-// Performs lossy optimization of a JPEG. Converts JPEGs to
-// 4:2:0. Retains color space of input file.
-//
-// jpeg_quality - Can take values in the range [1,100].
-//   For web images the preferred value for quality is 85.
-//   For smaller images like thumbnails the preferred value for quality is 75.
-//   Setting it to values below 50 is generally not preferable.
-bool OptimizeJpegLossy(const std::string &original,
-                       std::string *compressed,
-                       int jpeg_quality);
+// Performs JPEG optimizations with the provided options.
+bool OptimizeJpegWithOptions(const std::string &original,
+                             std::string *compressed,
+                             const JpegCompressionOptions *options);
 
 }  // namespace image_compression
 

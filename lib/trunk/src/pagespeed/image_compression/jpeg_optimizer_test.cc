@@ -27,7 +27,7 @@
 namespace {
 
 using pagespeed::image_compression::OptimizeJpeg;
-using pagespeed::image_compression::OptimizeJpegLossy;
+using pagespeed::image_compression::OptimizeJpegWithOptions;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
@@ -37,18 +37,20 @@ struct ImageCompressionInfo {
   size_t original_size;
   size_t compressed_size;
   size_t lossy_compressed_size;
+  size_t progressive_size;
+  size_t progressive_and_lossy_compressed_size;
 };
 
 ImageCompressionInfo kValidImages[] = {
-  { "sjpeg1.jpg", 1552, 1536, 1165 },
-  { "sjpeg2.jpg", 3612, 3283, 3630 },
-  { "sjpeg3.jpg", 44084, 41664, 26924 },
-  { "sjpeg4.jpg", 168895, 168240, 51389 },
-  { "sjpeg6.jpg", 149600, 147163, 89671 },
-  { "test411.jpg", 6883, 4367, 3709 },
-  { "test420.jpg", 6173, 3657, 3653 },
-  { "test422.jpg", 6501, 3985, 3712 },
-  { "testgray.jpg", 5014, 3072, 3060 },
+  { "sjpeg1.jpg", 1552, 1536, 1165, 1774, 1410 },
+  { "sjpeg2.jpg", 3612, 3283, 3630, 3475, 3798 },
+  { "sjpeg3.jpg", 44084, 41664, 26924, 40997, 25814 },
+  { "sjpeg4.jpg", 168895, 168240, 51389, 162867, 49186 },
+  { "sjpeg6.jpg", 149600, 147163, 89671, 146038, 84641 },
+  { "test411.jpg", 6883, 4367, 3709, 4540, 3854 },
+  { "test420.jpg", 6173, 3657, 3653, 3796, 3793 },
+  { "test422.jpg", 6501, 3985, 3712, 4152, 3849 },
+  { "testgray.jpg", 5014, 3072, 3060, 3094, 3078 },
 };
 
 const char *kInvalidFiles[] = {
@@ -99,8 +101,11 @@ TEST(JpegOptimizerTest, ValidJpegsLossy) {
   for (size_t i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
     ReadJpegToString(kValidImages[i].filename, &src_data);
+    pagespeed::image_compression::JpegCompressionOptions options;
+    options.lossy = true;
+    options.quality = 85;
     std::string dest_data;
-    ASSERT_TRUE(OptimizeJpegLossy(src_data, &dest_data, 85))
+    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options))
         << kValidImages[i].filename;
     EXPECT_EQ(kValidImages[i].original_size, src_data.size())
         << kValidImages[i].filename;
@@ -109,6 +114,46 @@ TEST(JpegOptimizerTest, ValidJpegsLossy) {
 
     // Uncomment this next line for debugging:
     //WriteStringToFile(std::string("l") + kValidImages[i].filename, dest_data);
+  }
+}
+
+TEST(JpegOptimizerTest, ValidJpegsProgressive) {
+  for (size_t i = 0; i < kValidImageCount; ++i) {
+    std::string src_data;
+    ReadJpegToString(kValidImages[i].filename, &src_data);
+    pagespeed::image_compression::JpegCompressionOptions options;
+    options.progressive = true;
+    std::string dest_data;
+    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options))
+        << kValidImages[i].filename;
+    EXPECT_EQ(kValidImages[i].original_size, src_data.size())
+        << kValidImages[i].filename;
+    EXPECT_EQ(kValidImages[i].progressive_size, dest_data.size())
+        << kValidImages[i].filename;
+
+    // Uncomment this next line for debugging:
+    //WriteStringToFile(std::string("p") + kValidImages[i].filename, dest_data);
+  }
+}
+
+TEST(JpegOptimizerTest, ValidJpegsProgressiveAndLossy) {
+  for (size_t i = 0; i < kValidImageCount; ++i) {
+    std::string src_data;
+    ReadJpegToString(kValidImages[i].filename, &src_data);
+    pagespeed::image_compression::JpegCompressionOptions options;
+    options.lossy = true;
+    options.quality = 85;
+    options.progressive = true;
+    std::string dest_data;
+    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options))
+        << kValidImages[i].filename;
+    EXPECT_EQ(kValidImages[i].original_size, src_data.size())
+        << kValidImages[i].filename;
+    EXPECT_EQ(kValidImages[i].progressive_and_lossy_compressed_size,
+              dest_data.size()) << kValidImages[i].filename;
+
+    // Uncomment this next line for debugging:
+    //WriteStringToFile(std::string("b") + kValidImages[i].filename, dest_data);
   }
 }
 
@@ -125,8 +170,35 @@ TEST(JpegOptimizerTest, InvalidJpegsLossy) {
   for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string src_data;
     ReadJpegToString(kInvalidFiles[i], &src_data);
+    pagespeed::image_compression::JpegCompressionOptions options;
+    options.lossy = true;
+    options.quality = 85;
     std::string dest_data;
-    ASSERT_FALSE(OptimizeJpegLossy(src_data, &dest_data, 85));
+    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
+  }
+}
+
+TEST(JpegOptimizerTest, InvalidJpegsProgressive) {
+  for (size_t i = 0; i < kInvalidFileCount; ++i) {
+    std::string src_data;
+    ReadJpegToString(kInvalidFiles[i], &src_data);
+    pagespeed::image_compression::JpegCompressionOptions options;
+    options.progressive = true;
+    std::string dest_data;
+    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
+  }
+}
+
+TEST(JpegOptimizerTest, InvalidJpegsProgressiveAndLossy) {
+  for (size_t i = 0; i < kInvalidFileCount; ++i) {
+    std::string src_data;
+    ReadJpegToString(kInvalidFiles[i], &src_data);
+    pagespeed::image_compression::JpegCompressionOptions options;
+    options.lossy = true;
+    options.quality = 85;
+    options.progressive = true;
+    std::string dest_data;
+    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
   }
 }
 
