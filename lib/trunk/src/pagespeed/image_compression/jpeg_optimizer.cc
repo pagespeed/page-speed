@@ -130,34 +130,37 @@ class JpegOptimizer {
   JpegOptimizer();
   ~JpegOptimizer();
 
-  // Take the given input file and losslessly compress it by removing
-  // all unnecessary chunks.  If this function fails (returns false),
-  // it can be called again.
+  // Take the given input file and compress it, either losslessly or lossily,
+  // depending on the passed in options.  Note that the options parameter can be
+  // null, in which case the default options are used.
+  // If this function fails (returns false), it can be called again.
   // @return true on success, false on failure.
-  bool CreateOptimizedJpeg(const std::string &original,
-                           std::string *compressed);
-
-  void set_jpeg_quality(const int jpeg_quality);
+  bool CreateOptimizedJpeg(
+      const std::string &original,
+      std::string *compressed,
+      const pagespeed::image_compression::JpegCompressionOptions *options);
 
  private:
-  bool DoCreateOptimizedJpeg(const std::string &original,
-                             jpeg_decompress_struct *jpeg_decompress,
-                             std::string *compressed);
+  bool DoCreateOptimizedJpeg(
+      const std::string &original,
+      jpeg_decompress_struct *jpeg_decompress,
+      std::string *compressed,
+      const pagespeed::image_compression::JpegCompressionOptions *options);
 
   bool OptimizeLossless(jpeg_decompress_struct *jpeg_decompress,
-                        std::string *compressed);
+                        std::string *compressed,
+                        bool progressive);
 
   bool OptimizeLossy(jpeg_decompress_struct *jpeg_decompress,
-                     std::string *compressed);
+                     std::string *compressed,
+                     int jpeg_quality,
+                     bool progressive);
 
   pagespeed::image_compression::JpegReader reader_;
 
   // Structures for jpeg compression.
   jpeg_compress_struct jpeg_compress_;
   jpeg_error_mgr compress_error_;
-
-  // Quality parameters for lossy compression
-  int jpeg_quality_;
 
   DISALLOW_COPY_AND_ASSIGN(JpegOptimizer);
 };
@@ -170,7 +173,6 @@ JpegOptimizer::JpegOptimizer() {
   compress_error_.error_exit = &ErrorExit;
   compress_error_.output_message = &OutputMessage;
   jpeg_create_compress(&jpeg_compress_);
-  jpeg_quality_ = -1;
 }
 
 JpegOptimizer::~JpegOptimizer() {
@@ -179,7 +181,9 @@ JpegOptimizer::~JpegOptimizer() {
 
 bool JpegOptimizer::OptimizeLossy(
     jpeg_decompress_struct *jpeg_decompress,
-    std::string *compressed) {
+    std::string *compressed,
+    int jpeg_quality,
+    bool progressive) {
   // Copy data from the source to the dest.
   jpeg_compress_.image_width = jpeg_decompress->image_width;
   jpeg_compress_.image_height = jpeg_decompress->image_height;
@@ -195,9 +199,13 @@ bool JpegOptimizer::OptimizeLossy(
   // Set optimize huffman to true.
   jpeg_compress_.optimize_coding = TRUE;
 
-  // Set the compression parameters if set, else use the defaults.
-  if (jpeg_quality_ > 0) {
-    jpeg_set_quality(&jpeg_compress_, jpeg_quality_, 1);
+  if (jpeg_quality > 0) {
+    // Set the compression parameters if set and lossy compression is enabled,
+    // else use the defaults.
+    jpeg_set_quality(&jpeg_compress_, jpeg_quality, 1);
+  }
+  if (progressive) {
+    jpeg_simple_progression(&jpeg_compress_);
   }
 
   // Prepare to write to a string.
@@ -238,13 +246,19 @@ bool JpegOptimizer::OptimizeLossy(
 
 bool JpegOptimizer::OptimizeLossless(
     jpeg_decompress_struct *jpeg_decompress,
-    std::string *compressed) {
+    std::string *compressed,
+    bool progressive) {
   jvirt_barray_ptr *coefficients = jpeg_read_coefficients(jpeg_decompress);
   bool valid_jpeg = (coefficients != NULL);
 
   if (valid_jpeg) {
     // Copy data from the source to the dest.
     jpeg_copy_critical_parameters(jpeg_decompress, &jpeg_compress_);
+
+  if (progressive) {
+    // Enable progressive jpeg if specified in the options.
+    jpeg_simple_progression(&jpeg_compress_);
+  }
 
     // Set optimize huffman to true.
     jpeg_compress_.optimize_coding = TRUE;
@@ -264,7 +278,8 @@ bool JpegOptimizer::OptimizeLossless(
 bool JpegOptimizer::DoCreateOptimizedJpeg(
     const std::string &original,
     jpeg_decompress_struct *jpeg_decompress,
-    std::string *compressed) {
+    std::string *compressed,
+    const pagespeed::image_compression::JpegCompressionOptions *options) {
   // libjpeg's error handling mechanism requires that longjmp be used
   // to get control after an error.
   jmp_buf env;
@@ -286,10 +301,12 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
   jpeg_read_header(jpeg_decompress, TRUE);
 
   bool valid_jpeg = false;
-  if (jpeg_quality_ < 0) {
-    valid_jpeg = OptimizeLossless(jpeg_decompress, compressed);
+  if (options != NULL && options->lossy) {
+    valid_jpeg = OptimizeLossy(jpeg_decompress, compressed, options->quality,
+                               options->progressive);
   } else {
-    valid_jpeg = OptimizeLossy(jpeg_decompress, compressed);
+    valid_jpeg = OptimizeLossless(jpeg_decompress, compressed,
+                                  options != NULL && options->progressive);
   }
 
   // Finish the compression process.
@@ -299,11 +316,14 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
   return valid_jpeg;
 }
 
-bool JpegOptimizer::CreateOptimizedJpeg(const std::string &original,
-                                        std::string *compressed) {
+bool JpegOptimizer::CreateOptimizedJpeg(
+    const std::string &original,
+    std::string *compressed,
+    const pagespeed::image_compression::JpegCompressionOptions *options) {
   jpeg_decompress_struct* jpeg_decompress = reader_.decompress_struct();
 
-  bool result = DoCreateOptimizedJpeg(original, jpeg_decompress, compressed);
+  bool result = DoCreateOptimizedJpeg(original, jpeg_decompress, compressed,
+                                      options);
 
   jpeg_decompress->client_data = NULL;
   jpeg_compress_.client_data = NULL;
@@ -319,10 +339,6 @@ bool JpegOptimizer::CreateOptimizedJpeg(const std::string &original,
   return result;
 }
 
-void JpegOptimizer::set_jpeg_quality(const int jpeg_quality) {
-  jpeg_quality_ = jpeg_quality;
-}
-
 }  // namespace
 
 namespace pagespeed {
@@ -332,15 +348,14 @@ namespace image_compression {
 bool OptimizeJpeg(const std::string &original,
                   std::string *compressed) {
   JpegOptimizer optimizer;
-  return optimizer.CreateOptimizedJpeg(original, compressed);
+  return optimizer.CreateOptimizedJpeg(original, compressed, NULL);
 }
 
-bool OptimizeJpegLossy(const std::string &original,
-                       std::string *compressed,
-                       int jpeg_quality) {
+bool OptimizeJpegWithOptions(const std::string &original,
+                             std::string *compressed,
+                             const JpegCompressionOptions *options) {
   JpegOptimizer optimizer;
-  optimizer.set_jpeg_quality(jpeg_quality);
-  return optimizer.CreateOptimizedJpeg(original, compressed);
+  return optimizer.CreateOptimizedJpeg(original, compressed, options);
 }
 
 }  // namespace image_compression
