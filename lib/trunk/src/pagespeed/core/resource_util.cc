@@ -25,6 +25,7 @@
 #include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_cache_computer.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/resource_constraints.pb.h"
@@ -44,63 +45,6 @@ const int kHeaderOverhead = 3;
 // Maximum number of redirects we follow before giving up (to prevent
 // infinite redirect loops).
 const int kMaxRedirects = 100;
-
-bool IsHeuristicallyCacheable(const pagespeed::Resource& resource) {
-  if (pagespeed::resource_util::HasExplicitFreshnessLifetime(resource)) {
-    // If the response has an explicit freshness lifetime then it's
-    // not heuristically cacheable. This method only expects to be
-    // called if the resource does *not* have an explicit freshness
-    // lifetime.
-    LOG(DFATAL) << "IsHeuristicallyCacheable received a resource with "
-                << "explicit freshness lifetime.";
-    return false;
-  }
-
-  pagespeed::resource_util::DirectiveMap cache_directives;
-  if (!pagespeed::resource_util::GetHeaderDirectives(
-          resource.GetResponseHeader("Cache-Control"),
-          &cache_directives)) {
-    LOG(INFO) << "Failed to parse cache control directives for "
-              << resource.GetRequestUrl();
-    return false;
-  }
-
-  if (cache_directives.find("must-revalidate") != cache_directives.end()) {
-    // must-revalidate indicates that a non-fresh response should not
-    // be used in response to requests without validating at the
-    // origin. Such a resource is not heuristically cacheable.
-    return false;
-  }
-
-  const std::string& url = resource.GetRequestUrl();
-  if (url.find_first_of('?') != url.npos) {
-    // The HTTP RFC says:
-    //
-    // ...since some applications have traditionally used GETs and
-    // HEADs with query URLs (those containing a "?" in the rel_path
-    // part) to perform operations with significant side effects,
-    // caches MUST NOT treat responses to such URIs as fresh unless
-    // the server provides an explicit expiration time.
-    //
-    // So if we find a '?' in the URL, the resource is not
-    // heuristically cacheable.
-    //
-    // In practice most browsers do not implement this policy. For
-    // instance, Chrome and IE8 do not look for the query string,
-    // while Firefox (as of version 3.6) does. For the time being we
-    // implement the RFC but it might make sense to revisit this
-    // decision in the future, given that major browser
-    // implementations do not match.
-    return false;
-  }
-
-  if (!pagespeed::resource_util::IsCacheableResourceStatusCode(
-          resource.GetResponseStatusCode())) {
-    return false;
-  }
-
-  return true;
-}
 
 }  // namespace
 
@@ -293,57 +237,6 @@ bool GetHeaderDirectives(const std::string& header, DirectiveMap* out) {
   return true;
 }
 
-bool HasExplicitNoCacheDirective(const Resource& resource) {
-  DirectiveMap cache_directives;
-  if (!GetHeaderDirectives(resource.GetResponseHeader("Cache-Control"),
-                           &cache_directives)) {
-    LOG(INFO) << "Failed to parse cache control directives for "
-              << resource.GetRequestUrl();
-    return true;
-  }
-
-  if (cache_directives.find("no-cache") != cache_directives.end()) {
-    return true;
-  }
-  if (cache_directives.find("no-store") != cache_directives.end()) {
-    return true;
-  }
-  DirectiveMap::const_iterator it = cache_directives.find("max-age");
-  if (it != cache_directives.end()) {
-    int64 max_age_value = 0;
-    if (base::StringToInt64(it->second, &max_age_value) &&
-        max_age_value == 0) {
-      // Cache-Control: max-age=0 means do not cache.
-      return true;
-    }
-  }
-
-  const std::string& expires = resource.GetResponseHeader("Expires");
-  int64 expires_value = 0;
-  if (!expires.empty() &&
-      !ParseTimeValuedHeader(expires.c_str(), &expires_value)) {
-    // An invalid Expires header (e.g. Expires: 0) means do not cache.
-    return true;
-  }
-
-  const std::string& pragma = resource.GetResponseHeader("Pragma");
-  if (pragma.find("no-cache") != pragma.npos) {
-    return true;
-  }
-
-  const std::string& vary = resource.GetResponseHeader("Vary");
-  if (vary.find("*") != vary.npos) {
-    return true;
-  }
-
-  return false;
-}
-
-bool HasExplicitFreshnessLifetime(const Resource& resource) {
-  int64 freshness_lifetime = 0;
-  return GetFreshnessLifetimeMillis(resource, &freshness_lifetime);
-}
-
 bool IsCacheableResourceStatusCode(int status_code) {
   switch (status_code) {
     // HTTP/1.1 RFC lists these response codes as heuristically
@@ -411,121 +304,6 @@ bool ParseTimeValuedHeader(const char* time_str, int64 *out_epoch_millis) {
   }
 
   *out_epoch_millis = result_time / 1000;
-  return true;
-}
-
-bool GetFreshnessLifetimeMillis(const Resource& resource,
-                                int64 *out_freshness_lifetime_millis) {
-  // Initialize the output param to the default value. We do this in
-  // case clients use the out value without checking the return value
-  // of the function.
-  *out_freshness_lifetime_millis = 0;
-
-  if (HasExplicitNoCacheDirective(resource)) {
-    // If there's an explicit no cache directive then the resource is
-    // never fresh.
-    return true;
-  }
-
-  // First, look for Cache-Control: max-age. The HTTP/1.1 RFC
-  // indicates that CC: max-age takes precedence to Expires.
-  const std::string& cache_control =
-      resource.GetResponseHeader("Cache-Control");
-  DirectiveMap cache_directives;
-  if (!GetHeaderDirectives(cache_control, &cache_directives)) {
-    LOG(INFO) << "Failed to parse cache control directives for "
-              << resource.GetRequestUrl();
-  } else {
-    DirectiveMap::const_iterator it = cache_directives.find("max-age");
-    if (it != cache_directives.end()) {
-      int64 max_age_value = 0;
-      if (base::StringToInt64(it->second, &max_age_value)) {
-        *out_freshness_lifetime_millis = max_age_value * 1000;
-        return true;
-      }
-    }
-  }
-
-  // Next look for Expires.
-  const std::string& expires = resource.GetResponseHeader("Expires");
-  if (expires.empty()) {
-    // If there's no expires header and we previously determined there
-    // was no Cache-Control: max-age, then the resource doesn't have
-    // an explicit freshness lifetime.
-    return false;
-  }
-
-  // We've determined that there is an Expires header. Thus, the
-  // resource has a freshness lifetime. Even if the Expires header
-  // doesn't contain a valid date, it should be considered stale. From
-  // HTTP/1.1 RFC 14.21: "HTTP/1.1 clients and caches MUST treat other
-  // invalid date formats, especially including the value "0", as in
-  // the past (i.e., "already expired")."
-
-  const std::string& date = resource.GetResponseHeader("Date");
-  int64 date_value = 0;
-  if (date.empty() || !ParseTimeValuedHeader(date.c_str(), &date_value)) {
-    LOG(INFO) << "Missing or invalid date header: '" << date << "'. "
-              << "Assuming resource " << resource.GetRequestUrl()
-              << " is not cacheable.";
-    // We have an Expires header, but no Date header to reference
-    // from. Thus we assume that the resource is heuristically
-    // cacheable, but not explicitly cacheable.
-    return false;
-  }
-
-  int64 expires_value = 0;
-  if (!ParseTimeValuedHeader(expires.c_str(), &expires_value)) {
-    // If we can't parse the Expires header, then treat the resource as
-    // stale.
-    return true;
-  }
-
-  int64 freshness_lifetime_millis = expires_value - date_value;
-  if (freshness_lifetime_millis < 0) {
-    freshness_lifetime_millis = 0;
-  }
-  *out_freshness_lifetime_millis = freshness_lifetime_millis;
-  return true;
-}
-
-bool IsCacheableResource(const Resource& resource) {
-  int64 freshness_lifetime = 0;
-  if (GetFreshnessLifetimeMillis(resource, &freshness_lifetime)) {
-    if (freshness_lifetime <= 0) {
-      // The resource is explicitly not fresh, so we don't consider it
-      // to be a static resource.
-      return false;
-    }
-
-    // If there's an explicit freshness lifetime and it's greater than
-    // zero, then the resource is cacheable.
-    return true;
-  }
-
-  // If we've made it this far, we've got a resource that doesn't have
-  // explicit caching headers. At this point we use heuristics
-  // specified in the HTTP RFC and implemented in many
-  // browsers/proxies to determine if this resource is typically
-  // cached.
-  return IsHeuristicallyCacheable(resource);
-}
-
-bool IsProxyCacheableResource(const Resource& resource) {
-  if (!IsCacheableResource(resource)) {
-    return false;
-  }
-
-  DirectiveMap directive_map;
-  if (!GetHeaderDirectives(resource.GetResponseHeader("Cache-Control"),
-                           &directive_map)) {
-    return false;
-  }
-
-  if (directive_map.count("private")) {
-    return false;
-  }
-
   return true;
 }
 
@@ -787,6 +565,34 @@ bool IsCssMediaTypeMatching(const PagespeedInput& input,
     return it != tag_info->media_type.end();
   }
   return true;
+}
+
+// Deprecated functions
+
+bool HasExplicitNoCacheDirective(const Resource& resource) {
+  ResourceCacheComputer comp(&resource);
+  return comp.HasExplicitNoCacheDirective();
+}
+
+bool GetFreshnessLifetimeMillis(const Resource& resource,
+                                int64 *out_freshness_lifetime_millis) {
+  ResourceCacheComputer comp(&resource);
+  return comp.GetFreshnessLifetimeMillis(out_freshness_lifetime_millis);
+}
+
+bool HasExplicitFreshnessLifetime(const Resource& resource) {
+  ResourceCacheComputer comp(&resource);
+  return comp.HasExplicitFreshnessLifetime();
+}
+
+bool IsCacheableResource(const Resource& resource) {
+  ResourceCacheComputer comp(&resource);
+  return comp.IsCacheable();
+}
+
+bool IsProxyCacheableResource(const Resource& resource) {
+  ResourceCacheComputer comp(&resource);
+  return comp.IsProxyCacheable();
 }
 
 }  // namespace resource_util

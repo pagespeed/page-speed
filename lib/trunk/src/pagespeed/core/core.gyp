@@ -44,6 +44,7 @@
         'pagespeed_input_util.cc',
         'pagespeed_version.cc',
         'resource.cc',
+        'resource_cache_computer.cc',
         'resource_filter.cc',
         'resource_util.cc',
         'result_provider.cc',
