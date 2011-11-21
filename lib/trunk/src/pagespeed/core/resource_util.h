@@ -55,9 +55,8 @@ bool GetGzippedSize(const std::string& input, int* output);
 // semicolon (; e.g. Content-Type) as the directive separator.
 bool GetHeaderDirectives(const std::string& header, DirectiveMap* out);
 
-// Does the resource have an explicit HTTP header directive that
-// indicates it's not cacheable? For instance, Cache-Control: no-cache or
-// Pragma: no-cache.
+// DEPRECATED: Use ResourceCacheComputer::HasExplicitNoCacheDirective().
+// TODO(sligocki): Remove.
 bool HasExplicitNoCacheDirective(const Resource& resource);
 
 // Take a time-valued header like Date, and convert it to number of
@@ -66,22 +65,17 @@ bool HasExplicitNoCacheDirective(const Resource& resource);
 // returns true.
 bool ParseTimeValuedHeader(const char* time_str, int64 *out_epoch_millis);
 
-// Get the freshness lifetime of hte given resource, using the
-// algorithm described in the HTTP/1.1 RFC. Returns true if the
-// resource has an explicit freshness lifetime, false otherwise.
-// The out parameter is only valid when this function returns true.
+// DEPRECATED: Use ResourceCacheComputer::GetFreshnessLifetimeMillis().
+// TODO(sligocki): Remove.
 bool GetFreshnessLifetimeMillis(const Resource& resource,
                                 int64 *out_freshness_lifetime_millis);
 
-// Does the resource have an explicit freshness lifetime? This is just
-// a wrapper around GetFreshnessLifetimeMillis().
+// DEPRECATED: Use ResourceCacheComputer::HasExplicitFreshnessLifetime().
+// TODO(sligocki): Remove.
 bool HasExplicitFreshnessLifetime(const Resource& resource);
 
-// Is the resource cachable, either by explicit caching headers or
-// using common caching heuristics? If you want to know if the
-// resource is explicitly marked as cacheable, use
-// GetFreshnessLifetimeMillis() and test to see that the output
-// parameter it positive.
+// DEPRECATED: Use ResourceCacheComputer::IsCacheable().
+// TODO(sligocki): Remove.
 bool IsCacheableResource(const Resource& resource);
 
 // Is the given status code known to be associated with
@@ -92,7 +86,8 @@ bool IsCacheableResourceStatusCode(int status_code);
 // Is the given status code an error code (i.e. 4xx or 5xx)?
 bool IsErrorResourceStatusCode(int status_code);
 
-// Is the resource likely to be cached by proxies?
+// DEPRECATED: Use ResourceCacheComputer::IsProxyCacheable().
+// TODO(sligocki): Remove.
 bool IsProxyCacheableResource(const Resource& resource);
 
 // Is the given resource type usually associated wiht static resources?
