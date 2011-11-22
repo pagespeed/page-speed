@@ -12,15 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/filters/tracker_filter.h"
+#ifndef PAGESPEED_FILTERS_URL_REGEX_FILTER_H_
+#define PAGESPEED_FILTERS_URL_REGEX_FILTER_H_
 
-#include "third_party/adblockrules/adblockrules.h"
+#include "base/basictypes.h"
+#include "pagespeed/core/resource_filter.h"
+#include "pagespeed/util/regex.h"
 
 namespace pagespeed {
 
-TrackerFilter::TrackerFilter()
-    : UrlRegexFilter(adblockrules::kTrackerRegExpString) {}
+/**
+ * A ResourceFilter that filters URLs based on a regular expression. A
+ * URL that matches the regular expression is NOT accepted.
+ */
+class UrlRegexFilter : public ResourceFilter {
+ public:
+  explicit UrlRegexFilter(const char* url_regex);
+  virtual ~UrlRegexFilter();
 
-TrackerFilter::~TrackerFilter() {}
+  virtual bool IsAccepted(const Resource& resource) const;
+
+ private:
+  RE url_regex_;
+
+  DISALLOW_COPY_AND_ASSIGN(UrlRegexFilter);
+};
 
 }  // namespace pagespeed
+
+#endif  // PAGESPEED_FILTERS_URL_REGEX_FILTER_H_

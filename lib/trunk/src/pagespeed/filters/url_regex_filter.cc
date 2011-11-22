@@ -12,15 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/filters/tracker_filter.h"
-
-#include "third_party/adblockrules/adblockrules.h"
+#include "pagespeed/filters/url_regex_filter.h"
 
 namespace pagespeed {
 
-TrackerFilter::TrackerFilter()
-    : UrlRegexFilter(adblockrules::kTrackerRegExpString) {}
+UrlRegexFilter::UrlRegexFilter(const char* url_regex) {
+  url_regex_.Init(url_regex);
+}
 
-TrackerFilter::~TrackerFilter() {}
+UrlRegexFilter::~UrlRegexFilter() {}
+
+bool UrlRegexFilter::IsAccepted(const Resource& resource) const {
+  if (!url_regex_.is_valid()) {
+    return false;
+  }
+  std::string url = resource.GetRequestUrl();
+  return !url_regex_.PartialMatch(url.c_str());
+}
 
 }  // namespace pagespeed

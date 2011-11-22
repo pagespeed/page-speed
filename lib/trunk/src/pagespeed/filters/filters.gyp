@@ -32,6 +32,7 @@
         'protocol_filter.cc',
         'response_byte_result_filter.cc',
         'tracker_filter.cc',
+        'url_regex_filter.cc',
       ],
       'include_dirs': [
         '<(pagespeed_root)',

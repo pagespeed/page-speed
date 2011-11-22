@@ -18,18 +18,7 @@
 
 namespace pagespeed {
 
-AdFilter::AdFilter() {
-  url_regex_.Init(adblockrules::kAdRegExpString);
-}
-
+AdFilter::AdFilter() : UrlRegexFilter(adblockrules::kAdRegExpString) {}
 AdFilter::~AdFilter() {}
-
-bool AdFilter::IsAccepted(const Resource& resource) const {
-  if (!url_regex_.is_valid()) {
-    return false;
-  }
-  std::string url = resource.GetRequestUrl();
-  return !url_regex_.PartialMatch(url.c_str());
-}
 
 }  // namespace pagespeed

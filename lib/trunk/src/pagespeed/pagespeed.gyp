@@ -136,6 +136,7 @@
         'filters/protocol_filter_test.cc',
         'filters/response_byte_result_filter_test.cc',
         'filters/tracker_filter_test.cc',
+        'filters/url_regex_filter_test.cc',
         'formatters/formatter_util_test.cc',
         'formatters/proto_formatter_test.cc',
         'har/http_archive_test.cc',

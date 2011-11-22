@@ -15,25 +15,21 @@
 #ifndef PAGESPEED_FILTERS_TRACKER_FILTER_H_
 #define PAGESPEED_FILTERS_TRACKER_FILTER_H_
 
-#include <vector>
 #include "base/basictypes.h"
-#include "pagespeed/core/resource_filter.h"
-#include "pagespeed/util/regex.h"
+#include "pagespeed/filters/url_regex_filter.h"
 
 namespace pagespeed {
 
 /**
  * A ResourceFilter that filters out trackers.
  */
-class TrackerFilter : public ResourceFilter {
+class TrackerFilter : public UrlRegexFilter {
  public:
   TrackerFilter();
   virtual ~TrackerFilter();
 
-  virtual bool IsAccepted(const Resource& resource) const;
-
  private:
-  RE url_regex_;
+  DISALLOW_COPY_AND_ASSIGN(TrackerFilter);
 };
 
 }  // namespace pagespeed
