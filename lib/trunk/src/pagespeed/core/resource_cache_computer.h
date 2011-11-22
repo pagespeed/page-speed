@@ -100,7 +100,7 @@ class ResourceCacheComputer {
   template<class T> class Optional {
    public:
     Optional() : has_value_(false) {}
-    virtual ~Optional();
+    ~Optional();
 
     bool has_value() const { return has_value_; }
 
