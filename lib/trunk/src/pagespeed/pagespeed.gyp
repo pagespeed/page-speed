@@ -197,6 +197,7 @@
       'dependencies': [
         'pagespeed_library',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+        '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_converter',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_proto',
@@ -212,6 +213,7 @@
         '<(pagespeed_root)',
       ],
       'sources': [
+        'image_compression/image_converter_test.cc',
         'image_compression/image_attributes_factory_test.cc',
         'image_compression/jpeg_optimizer_test.cc',
         'image_compression/png_optimizer_test.cc',
