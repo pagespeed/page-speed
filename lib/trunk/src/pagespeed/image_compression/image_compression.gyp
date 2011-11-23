@@ -117,5 +117,26 @@
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
       ],
     },
+    {
+      'target_name': 'pagespeed_image_converter',
+      'type': '<(library)',
+      'dependencies': [
+        'pagespeed_jpeg_optimizer',
+        'pagespeed_png_optimizer',
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        'image_converter.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
   ],
 }
