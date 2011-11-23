@@ -41,7 +41,7 @@ struct ImageCompressionInfo {
   bool is_png;
 };
 
-ImageCompressionInfo kValidImages[] {
+ImageCompressionInfo kValidImages[] = {
   { "basi0g01", 217, 217, 1},
   { "basi0g02", 154, 154, 1},
   { "basi0g04", 247, 247, 1},
