@@ -38,7 +38,6 @@ extern "C" {
 #include "pagespeed/image_compression/jpeg_reader.h"
 
 namespace {
-
 // Unfortunately, libjpeg normally only supports writing images to C FILE
 // pointers, wheras we want to write to a C++ string.  Fortunately, libjpeg
 // also provides an extension mechanism.  Below, we define a new kind of
@@ -125,6 +124,17 @@ void OutputMessage(j_common_ptr jpeg_decompress) {
   */
 }
 
+// Initializes the jpeg compress struct.
+void InitJpegCompress(j_compress_ptr cinfo, jpeg_error_mgr* compress_error) {
+  memset(cinfo, 0, sizeof(jpeg_compress_struct));
+  memset(compress_error, 0, sizeof(jpeg_error_mgr));
+
+  cinfo->err = jpeg_std_error(compress_error);
+  compress_error->error_exit = &ErrorExit;
+  compress_error->output_message = &OutputMessage;
+  jpeg_create_compress(cinfo);
+}
+
 class JpegOptimizer {
  public:
   JpegOptimizer();
@@ -166,13 +176,7 @@ class JpegOptimizer {
 };
 
 JpegOptimizer::JpegOptimizer() {
-  memset(&jpeg_compress_, 0, sizeof(jpeg_compress_struct));
-  memset(&compress_error_, 0, sizeof(jpeg_error_mgr));
-
-  jpeg_compress_.err = jpeg_std_error(&compress_error_);
-  compress_error_.error_exit = &ErrorExit;
-  compress_error_.output_message = &OutputMessage;
-  jpeg_create_compress(&jpeg_compress_);
+  InitJpegCompress(&jpeg_compress_, &compress_error_);
 }
 
 JpegOptimizer::~JpegOptimizer() {
@@ -344,6 +348,71 @@ bool JpegOptimizer::CreateOptimizedJpeg(
 namespace pagespeed {
 
 namespace image_compression {
+
+JpegScanlineWriter::JpegScanlineWriter() {
+  InitJpegCompress(&jpeg_compress_, &compress_error_);
+}
+
+JpegScanlineWriter::~JpegScanlineWriter() {
+  jpeg_destroy_compress(&jpeg_compress_);
+}
+
+void JpegScanlineWriter::SetJmpBufEnv(jmp_buf* env) {
+  jpeg_compress_.client_data = static_cast<void *>(env);
+}
+
+bool JpegScanlineWriter::Init(const size_t width, const size_t height,
+                              PixelFormat pixel_format) {
+  jpeg_compress_.image_width = width;
+  jpeg_compress_.image_height = height;
+
+  if (pixel_format == RGB_888) {
+    jpeg_compress_.input_components = 3;
+    jpeg_compress_.in_color_space = JCS_RGB;
+  } else if (pixel_format == GRAY_8) {
+    jpeg_compress_.input_components = 1;
+    jpeg_compress_.in_color_space = JCS_GRAYSCALE;
+  } else {
+    LOG(INFO) << "Invalid pixel format " << pixel_format;
+    return false;
+  }
+
+  // Set the default options.
+  jpeg_set_defaults(&jpeg_compress_);
+
+  // Set optimize huffman to true.
+  jpeg_compress_.optimize_coding = TRUE;
+
+  return true;
+}
+
+void JpegScanlineWriter::SetJpegCompressParams(const int quality) {
+  // Set the compression parameters if set, else use the defaults.
+  if (quality > 0) {
+    jpeg_set_quality(&jpeg_compress_, quality, 1);
+  }
+}
+
+bool JpegScanlineWriter::InitializeWrite(std::string *compressed) {
+  JpegStringWriter(&jpeg_compress_, compressed);
+  jpeg_start_compress(&jpeg_compress_, TRUE);
+  return true;
+}
+
+bool JpegScanlineWriter::WriteNextScanline(void *scanline_bytes) {
+  JSAMPROW row_pointer[1] = { static_cast<JSAMPLE*>(scanline_bytes) };
+  return jpeg_write_scanlines(&jpeg_compress_, row_pointer, 1) == 1;
+}
+
+bool JpegScanlineWriter::FinalizeWrite() {
+  jpeg_finish_compress(&jpeg_compress_);
+  return true;
+}
+
+void JpegScanlineWriter::AbortWrite() {
+  jpeg_compress_.client_data = NULL;
+  jpeg_abort_compress(&jpeg_compress_);
+}
 
 bool OptimizeJpeg(const std::string &original,
                   std::string *compressed) {
