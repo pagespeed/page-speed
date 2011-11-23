@@ -36,7 +36,8 @@ class GifReader : public PngReaderInterface {
 
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
-                       png_infop info_ptr);
+                       png_infop info_ptr,
+                       int transforms);
 
   virtual bool GetAttributes(const std::string& body,
                              int* out_width,

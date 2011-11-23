@@ -170,7 +170,8 @@ bool PngOptimizer::CreateOptimizedPng(PngReaderInterface& reader,
     return false;
   }
 
-  if (!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr())) {
+  if (!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(),
+                      PNG_TRANSFORM_IDENTITY)) {
     return false;
   }
 
@@ -223,7 +224,8 @@ PngReader::~PngReader() {
 
 bool PngReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
-                        png_infop info_ptr) {
+                        png_infop info_ptr,
+                        int transforms) {
   // Wrap the resource's response body in a structure that keeps a
   // pointer to the body and a read offset, and pass a pointer to this
   // object as the user data to be received by the PNG read function.
@@ -231,8 +233,7 @@ bool PngReader::ReadPng(const std::string& body,
   input.data_ = &body;
   input.offset_ = 0;
   png_set_read_fn(png_ptr, &input, &ReadPngFromStream);
-  png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-
+  png_read_png(png_ptr, info_ptr, transforms , NULL);
   return true;
 }
 
@@ -395,6 +396,75 @@ void PngOptimizer::CopyReadToWrite() {
 
   // Do not copy bkgd, hist or sbit sections, since they are not
   // supported in most browsers.
+}
+
+PngScanlineReader::PngScanlineReader()
+    : read_(ScopedPngStruct::READ),
+      current_scanline_(0),
+      transform_(PNG_TRANSFORM_IDENTITY) {
+}
+
+jmp_buf* PngScanlineReader::GetJmpBuf() {
+  return & (png_jmpbuf(read_.png_ptr()));
+}
+
+bool PngScanlineReader::InitializeRead(PngReaderInterface& reader,
+                                       const std::string& in) {
+  if (!read_.valid()) {
+    LOG(DFATAL) << "Invalid ScopedPngStruct r: " << read_.valid();
+    return false;
+  }
+
+  return reader.ReadPng(in, read_.png_ptr(),
+                        read_.info_ptr(), transform_);
+}
+
+PngScanlineReader::~PngScanlineReader() {
+}
+
+size_t PngScanlineReader::GetBytesPerScanline() {
+  return png_get_rowbytes(read_.png_ptr(), read_.info_ptr());
+}
+
+bool PngScanlineReader::HasMoreScanLines() {
+  size_t height = png_get_image_height(read_.png_ptr(), read_.info_ptr());
+  return current_scanline_ < height;
+}
+
+bool PngScanlineReader::ReadNextScanline(void** out_scanline_bytes) {
+  if (!HasMoreScanLines()) {
+    LOG(DFATAL) << "Read past last scanline.";
+    return false;
+  }
+
+  png_bytepp row_pointers = png_get_rows(read_.png_ptr(), read_.info_ptr());
+  *out_scanline_bytes = static_cast<void*>(*(row_pointers + current_scanline_));
+  current_scanline_++;
+  return true;
+}
+
+void PngScanlineReader::set_transform(int transform) {
+  transform_ = transform;
+}
+
+size_t PngScanlineReader::GetImageHeight() {
+  return png_get_image_height(read_.png_ptr(), read_.info_ptr());
+}
+
+size_t PngScanlineReader::GetImageWidth() {
+  return png_get_image_width(read_.png_ptr(), read_.info_ptr());
+}
+
+PixelFormat PngScanlineReader::GetPixelFormat() {
+  int bit_depth = png_get_bit_depth(read_.png_ptr(), read_.info_ptr());
+  int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
+  if (bit_depth == 8 && color_type == 0) {
+    return GRAY_8;
+  } else if (bit_depth == 8 && color_type == 2) {
+    return RGB_888;
+  }
+
+  return UNSUPPORTED;
 }
 
 }  // namespace image_compression

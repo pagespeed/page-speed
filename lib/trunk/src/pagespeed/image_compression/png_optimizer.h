@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-// Author: Bryan McQuade
+// Author: Bryan McQuade, Satyanarayana Manyam
 
 #ifndef PNG_OPTIMIZER_H_
 #define PNG_OPTIMIZER_H_
 
 #include <string>
+#include <setjmp.h>
 
 extern "C" {
 #ifdef USE_SYSTEM_LIBPNG
@@ -30,6 +31,8 @@ extern "C" {
 }  // extern "C"
 
 #include "base/basictypes.h"
+
+#include "pagespeed/image_compression/scanline_interface.h"
 
 namespace pagespeed {
 
@@ -69,7 +72,8 @@ class PngReaderInterface {
   // success, false on failure.
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
-                       png_infop info_ptr) = 0;
+                       png_infop info_ptr,
+                       int transforms) = 0;
 
   // Get just the attributes of the given image. out_bit_depth is the
   // number of bits per channel. out_color_type is one of the
@@ -83,6 +87,49 @@ class PngReaderInterface {
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PngReaderInterface);
+};
+
+// Reader for PNG-encoded data.
+// This is sample code on how someone can use the scaneline reader
+// interface.
+// bool func() {
+//   if (setjmp(*GetJmpBuf())) {
+//     return false;
+//   }
+//
+//   InitializeRead(...)
+//   while (HasMoreScalines()) {
+//     Scanline line;
+//     ReadNextScanline(line);
+//     ....
+//     ....
+//   }
+// }
+class PngScanlineReader : public ScanlineReaderInterface {
+ public:
+  PngScanlineReader();
+  virtual ~PngScanlineReader();
+
+  jmp_buf* GetJmpBuf();
+
+  // Initializes the read structures with the given input.
+  bool InitializeRead(PngReaderInterface& reader, const std::string& in);
+
+  virtual size_t GetBytesPerScanline();
+  virtual bool HasMoreScanLines();
+  virtual bool ReadNextScanline(void** out_scanline_bytes);
+  virtual size_t GetImageHeight();
+  virtual size_t GetImageWidth();
+  virtual PixelFormat GetPixelFormat();
+
+  void set_transform(int transform);
+
+private:
+  ScopedPngStruct read_;
+  size_t current_scanline_;
+  int transform_;
+
+  DISALLOW_COPY_AND_ASSIGN(PngScanlineReader);
 };
 
 class PngOptimizer {
@@ -127,13 +174,15 @@ class PngReader : public PngReaderInterface {
   virtual ~PngReader();
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
-                       png_infop info_ptr);
+                       png_infop info_ptr,
+                       int transforms);
 
   virtual bool GetAttributes(const std::string& body,
                              int* out_width,
                              int* out_height,
                              int* out_bit_depth,
                              int* out_color_type);
+
 
 private:
   DISALLOW_COPY_AND_ASSIGN(PngReader);

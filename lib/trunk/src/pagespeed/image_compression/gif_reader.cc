@@ -322,7 +322,12 @@ GifReader::~GifReader() {
 
 bool GifReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
-                        png_infop info_ptr) {
+                        png_infop info_ptr,
+                        int transforms) {
+  if (transforms != PNG_TRANSFORM_IDENTITY) {
+    LOG(DFATAL) << "Unsupported transform " << transforms;
+    return false;
+  }
   // Wrap the resource's response body in a structure that keeps a
   // pointer to the body and a read offset, and pass a pointer to this
   // object as the user data to be received by the GIF read function.
