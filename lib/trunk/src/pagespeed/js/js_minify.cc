@@ -274,7 +274,8 @@ void Minifier<OutputConsumer>::ConsumeBlockComment() {
 
 template<typename OutputConsumer>
 void Minifier<OutputConsumer>::ConsumeLineComment() {
-  while (index_ < input_.size() && input_[index_] != '\n') {
+  while (index_ < input_.size() && input_[index_] != '\n' &&
+         input_[index_] != '\r') {
     ++index_;
   }
   whitespace_ = LINEBREAK;

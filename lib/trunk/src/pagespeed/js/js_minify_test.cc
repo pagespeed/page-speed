@@ -137,6 +137,15 @@ TEST_F(JsMinifyTest, EmptyInput) {
   CheckMinification("", "");
 }
 
+TEST_F(JsMinifyTest, TreatCarriageReturnAsLinebreak) {
+  CheckMinification("x = 1\ry = 2", "x=1\ny=2");
+}
+
+// See http://code.google.com/p/page-speed/issues/detail?id=607
+TEST_F(JsMinifyTest, CarriageReturnEndsLineComment) {
+  CheckMinification("x = 1 // foobar\ry = 2", "x=1\ny=2");
+}
+
 // See http://code.google.com/p/page-speed/issues/detail?id=198
 TEST_F(JsMinifyTest, LeaveIEConditionalCompilationComments) {
   CheckMinification(
