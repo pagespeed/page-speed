@@ -1747,35 +1747,6 @@ var FunctionUtils = {
   },
 };
 
-function DocumentWritePatcher(componentCollector, win) {
-  this.componentCollector_ = componentCollector;
-  this.win_ = win;
-};
-
-DocumentWritePatcher.prototype.writeCallback = function(html) {
-  // Find the top frame.
-  var frame = Components.stack;
-  while (frame != null && frame.caller != null) {
-    frame = frame.caller;
-  }
-
-  // TODO: The document.write() spec supports contatenating multiple
-  // arguments. We should test in browsers and see if they do so, and
-  // if so, concatenate all arguments.
-  var documentWriteInfo = {
-    fn: 'document.write',
-    args: [ String(html) ],
-    line_number: frame.lineNumber,
-    doc_url: getURIForWindow(this.win_),
-  };
-  var srcObject = {
-    javaScriptCalls: [ documentWriteInfo ]
-  };
-
-  this.componentCollector_.bindToPendingDocumentOrComponent(
-      srcObject, this.win_, frame.filename);
-};
-
 function ProgressListenerHookInstaller(componentCollector) {
   this.componentCollector_ = componentCollector;
 }
