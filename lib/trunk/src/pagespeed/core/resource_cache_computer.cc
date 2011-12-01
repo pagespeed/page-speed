@@ -191,6 +191,10 @@ bool ResourceCacheComputer::ComputeIsHeuristicallyCacheable() {
     return false;
   }
 
+  if (!IsLikelyStaticResourceType()) {
+    return false;
+  }
+
   return true;
 }
 
