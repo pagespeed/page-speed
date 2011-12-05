@@ -18,8 +18,11 @@ category content-policy ComponentCollectorService @code.google.com/p/page-speed/
 content pagespeed chrome/pagespeed/content/
 content third_party chrome/third_party/content/
 
-# for Firefox support.
+# Checking if firebug is installed in FireFox.
 overlay chrome://browser/content/browser.xul         chrome://pagespeed/content/pagespeedUtilOverlay.xul
+# For firebug 1.9 and later, overlay the Page Speed util functions on firebugOverlay.xul. It may double
+# check the dependencies of firebug on earlier versions of firebug.
+overlay chrome://firebug/content/firebugOverlay.xul         chrome://pagespeed/content/pagespeedUtilOverlay.xul
 
 # for SeaMonkey support.
 # See https://groups.google.com/group/mozilla.dev.tech.xul/browse_thread/thread/4754108136a47e88/26fd226569276f68?pli=1
