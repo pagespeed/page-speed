@@ -24,6 +24,14 @@
 
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 
+namespace {
+// In some cases, converting a PNG to JPEG results in a smaller file. This is at
+// the cost of switching from lossless to lossy, so we require that the savings are
+// substantial before in order to do the conversion. We choose 80% size reduction
+// as the minimum before we switch a PNG to JPEG.
+const float kMinJpegSavingsRatio = 0.8;
+}  // namespace
+
 namespace pagespeed {
 
 namespace image_compression {
@@ -50,7 +58,7 @@ bool ImageConverter::ConvertImage(
 
 bool ImageConverter::OptimizePngOrConvertToJpeg(
     PngReaderInterface& png_struct_reader, const std::string& in,
-    std::string* out, bool* is_out_png) {
+    const JpegCompressionOptions& options, std::string* out, bool* is_out_png) {
   DCHECK(out->empty());
   out->clear();
 
@@ -92,7 +100,7 @@ bool ImageConverter::OptimizePngOrConvertToJpeg(
     } else {
       jpeg_writer.SetJmpBufEnv(&env);
       if (jpeg_writer.Init(width, height, format)) {
-        jpeg_writer.SetJpegCompressParams(85);
+        jpeg_writer.SetJpegCompressParams(options);
         jpeg_writer.InitializeWrite(out);
         jpeg_success = ConvertImage(png_reader, jpeg_writer);
       }
@@ -106,8 +114,10 @@ bool ImageConverter::OptimizePngOrConvertToJpeg(
   bool png_success = PngOptimizer::OptimizePngBestCompression(
       png_struct_reader, in, &optimized_png_out);
 
+  // Consider using jpeg's only if it gives substantial amount of byte savings.
   if (png_success &&
-      (!jpeg_success || out->size() > optimized_png_out.size())) {
+      (!jpeg_success || 
+       out->size() > kMinJpegSavingsRatio * optimized_png_out.size())) {
     out->clear();
     out->assign(optimized_png_out);
     *is_out_png = true;

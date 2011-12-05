@@ -93,7 +93,9 @@ class JpegScanlineWriter : public ScanlineWriterInterface {
   // cleaning up the jpeg structs.
   void AbortWrite();
 
-  void SetJpegCompressParams(const int quality);
+  // Since writer only supports lossy encoding, it is an error to pass 
+  // in a compression options that has lossy field set to false.
+  void SetJpegCompressParams(const JpegCompressionOptions& options);
   bool InitializeWrite(std::string *compressed);
 
   virtual bool Init(const size_t width, const size_t height,

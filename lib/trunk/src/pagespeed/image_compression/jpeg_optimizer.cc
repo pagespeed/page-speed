@@ -386,10 +386,21 @@ bool JpegScanlineWriter::Init(const size_t width, const size_t height,
   return true;
 }
 
-void JpegScanlineWriter::SetJpegCompressParams(const int quality) {
+void JpegScanlineWriter::SetJpegCompressParams(
+    const JpegCompressionOptions& options) {
   // Set the compression parameters if set, else use the defaults.
-  if (quality > 0) {
-    jpeg_set_quality(&jpeg_compress_, quality, 1);
+  if (!options.lossy) {
+    LOG(DFATAL) << "Unable to perform lossless encoding in JpegScanlineWriter."
+                << "Using default lossy encoding quality.";
+  } else if (options.quality > 0 && options.quality <= 100) {
+    jpeg_set_quality(&jpeg_compress_, options.quality, 1);
+  } else {
+    LOG(DFATAL) << "Invalid jpeg quality: " << options.quality
+                << ". Jpeg quality should be in range [1,100]";
+  }
+
+  if (options.progressive) {
+    jpeg_simple_progression(&jpeg_compress_);
   }
 }
 
