@@ -122,6 +122,29 @@ ScopedPngStruct::ScopedPngStruct(Type type)
   png_set_error_fn(png_ptr_, NULL, &PngErrorFn, &PngWarningFn);
 }
 
+void ScopedPngStruct::reset() {
+  switch (type_) {
+    case READ:
+      png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
+      png_ptr_ = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+                                        NULL, NULL, NULL);
+      break;
+    case WRITE:
+      png_destroy_write_struct(&png_ptr_, &info_ptr_);
+      png_ptr_ = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+                                         NULL, NULL, NULL);
+      break;
+    default:
+      LOG(DFATAL) << "Invalid Type " << type_;
+      break;
+  }
+  if (png_ptr_ != NULL) {
+    info_ptr_ = png_create_info_struct(png_ptr_);
+  }
+
+  png_set_error_fn(png_ptr_, NULL, &PngErrorFn, &PngWarningFn);
+}
+
 ScopedPngStruct::~ScopedPngStruct() {
   switch (type_) {
     case READ:
@@ -398,6 +421,72 @@ void PngOptimizer::CopyReadToWrite() {
   // supported in most browsers.
 }
 
+bool PngReader::IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
+  png_uint_32 height;
+  png_uint_32 width;
+  int bit_depth;
+  int color_type;
+
+  png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+               NULL, NULL, NULL);
+
+  if ((color_type & PNG_COLOR_MASK_ALPHA) == 0) {
+    // Image doesn't have alpha.
+    LOG(DFATAL) << "You shouldn't call this functions for image that doesn't"
+                << "have alpha channel";
+    return false;
+  }
+
+  int channels = png_get_channels(png_ptr, info_ptr);
+
+  if (color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
+    if (channels != 4) {
+      LOG(DFATAL) << "Encountered unexpected number of channels for RGBA"
+                  << " image: " << channels;
+      return false;
+    }
+  } else if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+    if (channels != 2) {
+      LOG(DFATAL) << "Encountered unexpected number of channels for "
+                  << "Gray + Alpha image: " << channels;
+      return false;
+    }
+  } else {
+    LOG(DFATAL) << "Encountered alpha image of unknown type :" << color_type;
+    return false;
+  }
+
+  // We currently detect aplha only for 8/16 bit Gray/TrueColor with Alpha
+  // channel. Only 8 or 16 bit depths are supports for these modes.
+  if (bit_depth % 8 != 0) {
+    LOG(DFATAL) << "Received unexpected bit_depth: " << bit_depth;
+    return false;
+  }
+
+  int bytes_per_channel = bit_depth / 8;
+  int bytes_per_pixel = channels * bytes_per_channel;
+  png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+
+  // Alpha channel is always the last channel.
+  png_uint_32 alpha_byte_offset = (channels - 1) * bytes_per_channel;
+  for (png_uint_32 row = 0; row < height; ++row) {
+    unsigned char* row_bytes = 
+        static_cast<unsigned char*>(*(row_pointers + row));
+    for (png_uint_32 pixel = 0; pixel < width * bytes_per_pixel;
+         pixel += bytes_per_pixel) {
+      for (int alpha_byte = 0; alpha_byte < bytes_per_channel;
+           ++alpha_byte) {
+        if ((row_bytes[pixel + alpha_byte_offset + alpha_byte] & 0xff) !=
+            0xff) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 PngScanlineReader::PngScanlineReader()
     : read_(ScopedPngStruct::READ),
       current_scanline_(0),
@@ -415,8 +504,20 @@ bool PngScanlineReader::InitializeRead(PngReaderInterface& reader,
     return false;
   }
 
-  return reader.ReadPng(in, read_.png_ptr(),
-                        read_.info_ptr(), transform_);
+  if(!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(), transform_)) {
+    return false;
+  }
+
+  int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
+  if (((color_type & PNG_COLOR_MASK_ALPHA) != 0) &&
+      reader.IsAlphaChannelOpaque(read_.png_ptr(), read_.info_ptr())) {
+    // Clear the read pointers.
+    read_.reset();
+    return reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(),
+                          transform_ | PNG_TRANSFORM_STRIP_ALPHA);
+  }
+
+  return true;
 }
 
 PngScanlineReader::~PngScanlineReader() {
@@ -453,6 +554,10 @@ size_t PngScanlineReader::GetImageHeight() {
 
 size_t PngScanlineReader::GetImageWidth() {
   return png_get_image_width(read_.png_ptr(), read_.info_ptr());
+}
+
+int PngScanlineReader::GetColorType() {
+  return png_get_color_type(read_.png_ptr(), read_.info_ptr());
 }
 
 PixelFormat PngScanlineReader::GetPixelFormat() {
