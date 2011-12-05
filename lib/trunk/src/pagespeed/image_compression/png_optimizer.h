@@ -50,6 +50,7 @@ class ScopedPngStruct {
   ~ScopedPngStruct();
 
   bool valid() const { return png_ptr_ != NULL && info_ptr_ != NULL; }
+  void reset();
 
   png_structp png_ptr() { return png_ptr_; }
   png_infop info_ptr() { return info_ptr_; }
@@ -84,6 +85,13 @@ class PngReaderInterface {
                              int* out_height,
                              int* out_bit_depth,
                              int* out_color_type) = 0;
+
+  // Returns true if the alpha channel is actually a opaque. Returns 
+  // false otherwise. It is an error to call this method for an image
+  // that does not have an alpha channel.
+  virtual bool IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
+    return false;
+  }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PngReaderInterface);
@@ -123,6 +131,7 @@ class PngScanlineReader : public ScanlineReaderInterface {
   virtual PixelFormat GetPixelFormat();
 
   void set_transform(int transform);
+  int GetColorType();
 
 private:
   ScopedPngStruct read_;
@@ -183,6 +192,7 @@ class PngReader : public PngReaderInterface {
                              int* out_bit_depth,
                              int* out_color_type);
 
+  virtual bool IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(PngReader);

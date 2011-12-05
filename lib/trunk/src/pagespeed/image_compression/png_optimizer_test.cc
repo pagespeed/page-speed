@@ -33,6 +33,7 @@ using pagespeed::image_compression::GifReader;
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 using pagespeed::image_compression::PngReaderInterface;
+using pagespeed::image_compression::PngScanlineReader;
 using pagespeed::image_compression::ScopedPngStruct;
 
 // The *_TEST_DIR_PATH macros are set by the gyp target that builds this file.
@@ -321,6 +322,30 @@ const char* kInvalidFiles[] = {
   "xlfn0g04",
 };
 
+struct OpaqueImageInfo {
+  const char* filename;
+  bool is_opaque;
+  int in_color_type;
+  int out_color_type;
+};
+
+OpaqueImageInfo kOpaqueImagesWithAlpha[] = {
+  { "rgba_opaque", 1, 6, 2 },
+  { "grey_alpha_opaque", 1, 4, 0 },
+  { "bgai4a16", 0, 4, 4 }
+};
+
+#define WRITE_OPTIMIZED_IMAGES 0
+void WriteStringToFile(const std::string &file_name, std::string &src) {
+#if WRITE_OPTIMIZED_IMAGES
+  const std::string path = kPngTestDir + file_name;
+  std::ofstream stream;
+  stream.open(path.c_str(), std::ofstream::out | std::ofstream::binary);
+  stream.write(src.c_str(), src.size());
+  stream.close();
+#endif
+}
+
 void AssertMatch(const std::string& in,
                  const std::string& ref,
                  PngReaderInterface* reader,
@@ -355,11 +380,13 @@ void AssertMatch(const std::string& in,
       out, &width, &height, &bit_depth, &color_type)) << info.filename;
   EXPECT_EQ(info.compressed_bit_depth, bit_depth) << info.filename;
   EXPECT_EQ(info.compressed_color_type, color_type) << info.filename;
+  WriteStringToFile(std::string("z") + info.filename, out);
 }
 
 const size_t kValidImageCount = arraysize(kValidImages);
 const size_t kValidGifImageCount = arraysize(kValidGifImages);
 const size_t kInvalidFileCount = arraysize(kInvalidFiles);
+const size_t kOpaqueImagesWithAlphaCount = arraysize(kOpaqueImagesWithAlpha);
 
 TEST(PngOptimizerTest, ValidPngs) {
   PngReader reader;
@@ -370,9 +397,64 @@ TEST(PngOptimizerTest, ValidPngs) {
   }
 }
 
+TEST(PngScanlineReaderTest, InitializeRead_validPngs) {
+  for (size_t i = 0; i < kValidImageCount; i++) {
+    std::string in, out;
+    ReadPngSuiteFileToString(kValidImages[i].filename, &in);
+    PngReader png_reader;
+
+    int width, height, bit_depth, color_type;
+    ASSERT_TRUE(png_reader.GetAttributes(
+        in, &width, &height, &bit_depth, &color_type));
+    
+    EXPECT_EQ(kValidImages[i].original_color_type, color_type);
+    PngScanlineReader scanline_reader;
+    if (setjmp(*scanline_reader.GetJmpBuf())) {
+      ASSERT_FALSE(true) << "Execution should never reach here"; 
+    }
+
+    ASSERT_TRUE(scanline_reader.InitializeRead(png_reader, in));
+    EXPECT_EQ(kValidImages[i].original_color_type,
+              scanline_reader.GetColorType());
+  }
+  
+  for (size_t i = 0; i < kOpaqueImagesWithAlphaCount; i++) {
+    std::string in, out;
+    ReadPngSuiteFileToString(kOpaqueImagesWithAlpha[i].filename, &in);
+    PngReader png_reader;
+    int width, height, bit_depth, color_type;
+    ASSERT_TRUE(png_reader.GetAttributes(
+        in, &width, &height, &bit_depth, &color_type));
+
+    EXPECT_EQ(kOpaqueImagesWithAlpha[i].in_color_type, color_type);
+    PngScanlineReader scanline_reader;
+    if (setjmp(*scanline_reader.GetJmpBuf())) {
+      ASSERT_FALSE(true) << "Execution should never reach here"; 
+    }
+
+    ASSERT_TRUE(scanline_reader.InitializeRead(png_reader, in));
+    EXPECT_EQ(kOpaqueImagesWithAlpha[i].out_color_type,
+              scanline_reader.GetColorType());
+  }
+}
+ 
+TEST(PngOptimizerTest, ValidPngs_isOpaque) {
+  ScopedPngStruct read(ScopedPngStruct::READ);
+
+  for (size_t i = 0; i < kOpaqueImagesWithAlphaCount; i++) {
+    std::string in, out;
+    ReadPngSuiteFileToString(kOpaqueImagesWithAlpha[i].filename, &in);
+    PngReader png_reader;
+    ASSERT_TRUE(png_reader.ReadPng(in, read.png_ptr(), read.info_ptr(), 0));
+    EXPECT_EQ(kOpaqueImagesWithAlpha[i].is_opaque, 
+        png_reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
+    read.reset();
+  }
+}
+
 TEST(PngOptimizerTest, LargerPng) {
   PngReader reader;
-    std::string in, out;
+  std::string in, out;
   ReadImageToString(kPngTestDir, "this_is_a_test", "png", &in);
   ASSERT_EQ(static_cast<size_t>(20316), in.length());
   ASSERT_TRUE(PngOptimizer::OptimizePng(reader, in, &out));
