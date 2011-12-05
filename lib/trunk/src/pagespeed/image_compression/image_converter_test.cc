@@ -82,10 +82,10 @@ ImageCompressionInfo kValidImages[] = {
   { "bgyn6a16", 3453, 4190, 1},
   { "ccwn2c08", 1514, 764, 0},
   { "ccwn3p08", 1554, 779, 0},
-  { "cdfn2c08", 404, 491, 0},
+  { "cdfn2c08", 404, 532, 1},
   { "cdhn2c08", 344, 491, 1},
   { "cdsn2c08", 232, 258, 1},
-  { "cdun2c08", 724, 864, 0},
+  { "cdun2c08", 724, 942, 1},
   { "ch1n3p04", 258, 201, 1},
   { "ch2n3p08", 1810, 565, 0},
   { "cm0n0g04", 292, 274, 1},
@@ -231,23 +231,28 @@ void WriteStringToFile(const std::string &file_name, std::string &src) {
 
 TEST(ImageConverterTest, OptimizePngOrConvertToJpeg_invalidPngs) {
   PngReader png_struct_reader;
+  pagespeed::image_compression::JpegCompressionOptions options;
   for (size_t i = 0; i < kInvalidFileCount; i++) {
     std::string in, out;
     bool is_out_png;
     ReadPngSuiteFileToString(kInvalidFiles[i], &in);
     ASSERT_FALSE(ImageConverter::OptimizePngOrConvertToJpeg(
-        png_struct_reader, in, &out, &is_out_png));
+        png_struct_reader, in, options, &out, &is_out_png));
   }
 }
 
 TEST(ImageConverterTest, OptimizePngOrConvertToJpeg) {
   PngReader png_struct_reader;
+  pagespeed::image_compression::JpegCompressionOptions options;
+  options.lossy = true;
+  options.quality = 85;
+  options.progressive = false;
   for (size_t i = 0; i < kValidImageCount; i++) {
     std::string in, out;
     bool is_out_png;
     ReadPngSuiteFileToString(kValidImages[i].filename, &in);
     ASSERT_TRUE(ImageConverter::OptimizePngOrConvertToJpeg(
-        png_struct_reader, in, &out, &is_out_png));
+        png_struct_reader, in, options, &out, &is_out_png));
     // Verify that the size matches.
     EXPECT_EQ(out.size(), kValidImages[i].compressed_size)
         << "size mismatch for " << kValidImages[i].filename;

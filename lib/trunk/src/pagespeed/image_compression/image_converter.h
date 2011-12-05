@@ -22,6 +22,7 @@
 #include <string>
 
 #include "pagespeed/image_compression/scanline_interface.h"
+#include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
 namespace pagespeed {
@@ -40,6 +41,7 @@ class ImageConverter {
   static bool OptimizePngOrConvertToJpeg(
       PngReaderInterface& png_struct_reader,
       const std::string& in,
+      const JpegCompressionOptions& options,
       std::string* out,
       bool *is_out_png);
 
