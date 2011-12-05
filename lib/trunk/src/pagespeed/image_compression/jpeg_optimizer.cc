@@ -394,7 +394,8 @@ void JpegScanlineWriter::SetJpegCompressParams(
                 << "Using default lossy encoding quality.";
   } else if (options.quality > 0 && options.quality <= 100) {
     jpeg_set_quality(&jpeg_compress_, options.quality, 1);
-  } else {
+  } else if (options.quality != -1) {
+    // -1 indicates default quality. Otherwise the valid is invalid.
     LOG(DFATAL) << "Invalid jpeg quality: " << options.quality
                 << ". Jpeg quality should be in range [1,100]";
   }
