@@ -34,6 +34,14 @@ class DomElementVisitor;
  */
 class DomDocument {
  public:
+  // All of DomDocument's optional methods return a Status value.
+  // Status indicates whether or not the runtime was able to perform
+  // the requested operation.
+  enum Status {
+    SUCCESS,
+    FAILURE,
+  };
+
   DomDocument();
   virtual ~DomDocument();
 
@@ -48,6 +56,12 @@ class DomDocument {
   // Visit the elements within this document in pre-order (that is, always
   // visit a parent before visiting its children).
   virtual void Traverse(DomElementVisitor* visitor) const = 0;
+
+  // Get the width of the document.
+  virtual Status GetWidth(int* out_width) const;
+
+  // Get the height of the document.
+  virtual Status GetHeight(int* out_height) const;
 
   // Resolve a possibly-relative URI using this document's base URL.
   std::string ResolveUri(const std::string& uri) const;
@@ -103,6 +117,20 @@ class DomElement {
   // the runtime is unable to compute the result for a given method, that
   // method should return Status::FAILURE. Otherwise, the method should
   // return Status::SUCCESS.
+
+  // Get the X coordinate of the element within its parent document,
+  // if available.
+  // @param out_x output parameter to hold the x coordinate, in CSS pixels.
+  // @return SUCCESS if the runtime is able to compute the x
+  // coordinate of the node.
+  virtual Status GetX(int* out_x) const;
+
+  // Get the Y coordinate of the element within its parent document,
+  // if available.
+  // @param out_y output parameter to hold the y coordinate, in CSS pixels.
+  // @return SUCCESS if the runtime is able to compute the y
+  // coordinate of the node.
+  virtual Status GetY(int* out_y) const;
 
   // Get the actual width of the element, in CSS pixels. This should
   // return the computed width of the element on screen (e.g. the

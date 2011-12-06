@@ -138,6 +138,8 @@ FakeDomElement::FakeDomElement(const FakeDomElement* parent,
     : tag_name_(tag_name),
       parent_(parent),
       document_(NULL),
+      x_(-1),
+      y_(-1),
       actual_width_(-1),
       actual_height_(-1) {
   StringToUpperASCII(&tag_name_);
@@ -183,6 +185,11 @@ void FakeDomElement::AddAttribute(const std::string& key,
 
 void FakeDomElement::RemoveAttribute(const std::string& key) {
   attributes_.erase(key);
+}
+
+void FakeDomElement::SetCoordinates(int x, int y) {
+  x_ = x;
+  y_ = y;
 }
 
 void FakeDomElement::SetActualWidthAndHeight(int width, int height) {
@@ -250,6 +257,8 @@ FakeDomDocument* FakeDomDocument::New(FakeDomElement* iframe,
 
 FakeDomDocument::FakeDomDocument(const std::string& document_url)
     : url_(document_url),
+      width_(-1),
+      height_(-1),
       document_element_(NULL),
       is_clone_(false) {
 }
@@ -281,6 +290,41 @@ void FakeDomDocument::Traverse(pagespeed::DomElementVisitor* visitor) const {
         traverser.CurrentElement();
     visitor->Visit(*element);
   } while (traverser.NextElement());
+}
+
+pagespeed::DomDocument::Status FakeDomDocument::GetWidth(int* out_width) const {
+  if (width_ >= 0) {
+    *out_width = width_;
+    return SUCCESS;
+  }
+  return FAILURE;
+}
+
+pagespeed::DomDocument::Status FakeDomDocument::GetHeight(
+    int* out_height) const {
+  if (height_ >= 0) {
+    *out_height = height_;
+    return SUCCESS;
+  }
+  return FAILURE;
+}
+
+pagespeed::DomElement::Status FakeDomElement::GetX(int* out_x) const {
+  if (x_ >= 0) {
+    *out_x = x_;
+    return SUCCESS;
+  }
+
+  return FAILURE;
+}
+
+pagespeed::DomElement::Status FakeDomElement::GetY(int* out_y) const {
+  if (y_ >= 0) {
+    *out_y = y_;
+    return SUCCESS;
+  }
+
+  return FAILURE;
 }
 
 pagespeed::DomElement::Status FakeDomElement::GetActualWidth(
