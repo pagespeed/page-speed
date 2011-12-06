@@ -349,39 +349,52 @@ namespace pagespeed {
 
 namespace image_compression {
 
-JpegScanlineWriter::JpegScanlineWriter() {
-  InitJpegCompress(&jpeg_compress_, &compress_error_);
+struct JpegScanlineWriter::Data {
+  Data() {
+    InitJpegCompress(&jpeg_compress_, &compress_error_);
+  }
+
+  ~Data() {
+    jpeg_destroy_compress(&jpeg_compress_);
+  }
+
+  // Structures for jpeg compression.
+  jpeg_compress_struct jpeg_compress_;
+  jpeg_error_mgr compress_error_;
+};
+
+JpegScanlineWriter::JpegScanlineWriter() : data_(new Data()) {
 }
 
 JpegScanlineWriter::~JpegScanlineWriter() {
-  jpeg_destroy_compress(&jpeg_compress_);
+  delete data_;
 }
 
 void JpegScanlineWriter::SetJmpBufEnv(jmp_buf* env) {
-  jpeg_compress_.client_data = static_cast<void *>(env);
+  data_->jpeg_compress_.client_data = static_cast<void *>(env);
 }
 
 bool JpegScanlineWriter::Init(const size_t width, const size_t height,
                               PixelFormat pixel_format) {
-  jpeg_compress_.image_width = width;
-  jpeg_compress_.image_height = height;
+  data_->jpeg_compress_.image_width = width;
+  data_->jpeg_compress_.image_height = height;
 
   if (pixel_format == RGB_888) {
-    jpeg_compress_.input_components = 3;
-    jpeg_compress_.in_color_space = JCS_RGB;
+    data_->jpeg_compress_.input_components = 3;
+    data_->jpeg_compress_.in_color_space = JCS_RGB;
   } else if (pixel_format == GRAY_8) {
-    jpeg_compress_.input_components = 1;
-    jpeg_compress_.in_color_space = JCS_GRAYSCALE;
+    data_->jpeg_compress_.input_components = 1;
+    data_->jpeg_compress_.in_color_space = JCS_GRAYSCALE;
   } else {
     LOG(INFO) << "Invalid pixel format " << pixel_format;
     return false;
   }
 
   // Set the default options.
-  jpeg_set_defaults(&jpeg_compress_);
+  jpeg_set_defaults(&data_->jpeg_compress_);
 
   // Set optimize huffman to true.
-  jpeg_compress_.optimize_coding = TRUE;
+  data_->jpeg_compress_.optimize_coding = TRUE;
 
   return true;
 }
@@ -393,7 +406,7 @@ void JpegScanlineWriter::SetJpegCompressParams(
     LOG(DFATAL) << "Unable to perform lossless encoding in JpegScanlineWriter."
                 << "Using default lossy encoding quality.";
   } else if (options.quality > 0 && options.quality <= 100) {
-    jpeg_set_quality(&jpeg_compress_, options.quality, 1);
+    jpeg_set_quality(&data_->jpeg_compress_, options.quality, 1);
   } else if (options.quality != -1) {
     // -1 indicates default quality. Otherwise the valid is invalid.
     LOG(DFATAL) << "Invalid jpeg quality: " << options.quality
@@ -401,29 +414,29 @@ void JpegScanlineWriter::SetJpegCompressParams(
   }
 
   if (options.progressive) {
-    jpeg_simple_progression(&jpeg_compress_);
+    jpeg_simple_progression(&data_->jpeg_compress_);
   }
 }
 
 bool JpegScanlineWriter::InitializeWrite(std::string *compressed) {
-  JpegStringWriter(&jpeg_compress_, compressed);
-  jpeg_start_compress(&jpeg_compress_, TRUE);
+  JpegStringWriter(&data_->jpeg_compress_, compressed);
+  jpeg_start_compress(&data_->jpeg_compress_, TRUE);
   return true;
 }
 
 bool JpegScanlineWriter::WriteNextScanline(void *scanline_bytes) {
   JSAMPROW row_pointer[1] = { static_cast<JSAMPLE*>(scanline_bytes) };
-  return jpeg_write_scanlines(&jpeg_compress_, row_pointer, 1) == 1;
+  return jpeg_write_scanlines(&data_->jpeg_compress_, row_pointer, 1) == 1;
 }
 
 bool JpegScanlineWriter::FinalizeWrite() {
-  jpeg_finish_compress(&jpeg_compress_);
+  jpeg_finish_compress(&data_->jpeg_compress_);
   return true;
 }
 
 void JpegScanlineWriter::AbortWrite() {
-  jpeg_compress_.client_data = NULL;
-  jpeg_abort_compress(&jpeg_compress_);
+  data_->jpeg_compress_.client_data = NULL;
+  jpeg_abort_compress(&data_->jpeg_compress_);
 }
 
 bool OptimizeJpeg(const std::string &original,

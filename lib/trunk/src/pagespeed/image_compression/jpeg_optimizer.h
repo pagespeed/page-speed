@@ -22,14 +22,6 @@
 #include <string>
 #include <setjmp.h>
 
-extern "C" {
-#ifdef USE_SYSTEM_LIBJPEG
-#include "jpeglib.h"
-#else
-#include "third_party/libjpeg/jpeglib.h"
-#endif
-}
-
 #include "pagespeed/image_compression/scanline_interface.h"
 
 namespace pagespeed {
@@ -93,7 +85,7 @@ class JpegScanlineWriter : public ScanlineWriterInterface {
   // cleaning up the jpeg structs.
   void AbortWrite();
 
-  // Since writer only supports lossy encoding, it is an error to pass 
+  // Since writer only supports lossy encoding, it is an error to pass
   // in a compression options that has lossy field set to false.
   void SetJpegCompressParams(const JpegCompressionOptions& options);
   bool InitializeWrite(std::string *compressed);
@@ -104,13 +96,13 @@ class JpegScanlineWriter : public ScanlineWriterInterface {
   virtual bool FinalizeWrite();
 
  private:
-  // Structures for jpeg compression.
-  jpeg_compress_struct jpeg_compress_;
-  jpeg_error_mgr compress_error_;
+  // Opaque struct that is defined in the cc file and contains our
+  // JPEG-compressor-specific structures.
+  struct Data;
+  Data* const data_;
 
   DISALLOW_COPY_AND_ASSIGN(JpegScanlineWriter);
 };
-
 
 }  // namespace image_compression
 
