@@ -494,7 +494,8 @@ PngScanlineReader::PngScanlineReader()
 }
 
 jmp_buf* PngScanlineReader::GetJmpBuf() {
-  return &(png_jmpbuf(read_.png_ptr()));
+  jmp_buf& buf = png_jmpbuf(read_.png_ptr());
+  return &buf;
 }
 
 bool PngScanlineReader::InitializeRead(PngReaderInterface& reader,
