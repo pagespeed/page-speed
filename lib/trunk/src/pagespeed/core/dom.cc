@@ -85,6 +85,16 @@ DomDocument::DomDocument() {}
 
 DomDocument::~DomDocument() {}
 
+DomDocument::Status DomDocument::GetWidth(int* out_width) const {
+  NOT_IMPLEMENTED();
+  return FAILURE;
+}
+
+DomDocument::Status DomDocument::GetHeight(int* out_height) const {
+  NOT_IMPLEMENTED();
+  return FAILURE;
+}
+
 std::string DomDocument::ResolveUri(const std::string& uri) const {
   return pagespeed::uri_util::ResolveUri(uri, GetBaseUrl());
 }
@@ -92,6 +102,16 @@ std::string DomDocument::ResolveUri(const std::string& uri) const {
 DomElement::DomElement() {}
 
 DomElement::~DomElement() {}
+
+DomElement::Status DomElement::GetX(int* out_x) const {
+  NOT_IMPLEMENTED();
+  return FAILURE;
+}
+
+DomElement::Status DomElement::GetY(int* out_y) const {
+  NOT_IMPLEMENTED();
+  return FAILURE;
+}
 
 DomElement::Status DomElement::GetActualWidth(int* out_width) const {
   NOT_IMPLEMENTED();

@@ -48,6 +48,8 @@ class FakeDomElement : public pagespeed::DomElement {
   virtual std::string GetTagName() const;
   virtual bool GetAttributeByName(const std::string& name,
                                   std::string* attr_value) const;
+  virtual Status GetX(int* out_x) const;
+  virtual Status GetY(int* out_y) const;
   virtual Status GetActualWidth(int* out_width) const;
   virtual Status GetActualHeight(int* out_height) const;
   virtual Status HasHeightSpecified(bool *out) const;
@@ -57,6 +59,7 @@ class FakeDomElement : public pagespeed::DomElement {
   // Adds an attribute to the element.
   void AddAttribute(const std::string& key, const std::string& value);
   void RemoveAttribute(const std::string& key);
+  void SetCoordinates(int x, int y);
   void SetActualWidthAndHeight(int width, int height);
 
   // Helpers for tree traversal.
@@ -79,6 +82,8 @@ class FakeDomElement : public pagespeed::DomElement {
   StringStringMap attributes_;
   // The document, if this is a frame/iframe element.
   const FakeDomDocument* document_;
+  int x_;
+  int y_;
   int actual_width_;
   int actual_height_;
 };
@@ -96,6 +101,8 @@ class FakeDomDocument : public pagespeed::DomDocument {
   virtual std::string GetDocumentUrl() const;
   virtual std::string GetBaseUrl() const;
   virtual void Traverse(pagespeed::DomElementVisitor* visitor) const;
+  virtual Status GetWidth(int* out_width) const;
+  virtual Status GetHeight(int* out_height) const;
 
   void SetBaseUrl(const std::string& base_url) { base_url_ = base_url; }
 
@@ -112,6 +119,8 @@ class FakeDomDocument : public pagespeed::DomDocument {
 
   std::string url_;
   std::string base_url_;
+  int width_;
+  int height_;
   const FakeDomElement* document_element_;
   bool is_clone_;
 };
