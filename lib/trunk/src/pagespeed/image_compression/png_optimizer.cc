@@ -470,7 +470,7 @@ bool PngReader::IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
   // Alpha channel is always the last channel.
   png_uint_32 alpha_byte_offset = (channels - 1) * bytes_per_channel;
   for (png_uint_32 row = 0; row < height; ++row) {
-    unsigned char* row_bytes = 
+    unsigned char* row_bytes =
         static_cast<unsigned char*>(*(row_pointers + row));
     for (png_uint_32 pixel = 0; pixel < width * bytes_per_pixel;
          pixel += bytes_per_pixel) {
@@ -494,7 +494,7 @@ PngScanlineReader::PngScanlineReader()
 }
 
 jmp_buf* PngScanlineReader::GetJmpBuf() {
-  return & (png_jmpbuf(read_.png_ptr()));
+  return &(png_jmpbuf(read_.png_ptr()));
 }
 
 bool PngScanlineReader::InitializeRead(PngReaderInterface& reader,

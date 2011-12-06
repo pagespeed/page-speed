@@ -29,7 +29,7 @@ namespace {
 // the cost of switching from lossless to lossy, so we require that the savings are
 // substantial before in order to do the conversion. We choose 80% size reduction
 // as the minimum before we switch a PNG to JPEG.
-const float kMinJpegSavingsRatio = 0.8;
+const double kMinJpegSavingsRatio = 0.8;
 }  // namespace
 
 namespace pagespeed {
@@ -116,7 +116,7 @@ bool ImageConverter::OptimizePngOrConvertToJpeg(
 
   // Consider using jpeg's only if it gives substantial amount of byte savings.
   if (png_success &&
-      (!jpeg_success || 
+      (!jpeg_success ||
        out->size() > kMinJpegSavingsRatio * optimized_png_out.size())) {
     out->clear();
     out->assign(optimized_png_out);
