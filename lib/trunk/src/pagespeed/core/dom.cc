@@ -67,14 +67,14 @@ void ExternalResourceVisitorAdaptor::Visit(const DomElement& node) {
     std::string resolved_uri =
         pagespeed::uri_util::ResolveUri(relative_uri, document_->GetBaseUrl());
     if (uri_util::IsExternalResourceUrl(resolved_uri)) {
-      inner_->Visit(node, resolved_uri);
+      inner_->VisitUrl(node, resolved_uri);
     }
   }
 
   if (node.GetTagName() == "IFRAME") {
     scoped_ptr<DomDocument> document(node.GetContentDocument());
     if (document != NULL) {
-      inner_->Visit(*document.get());
+      inner_->VisitDocument(node, *document.get());
     }
   }
 }

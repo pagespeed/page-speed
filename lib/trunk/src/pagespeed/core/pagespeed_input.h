@@ -215,6 +215,11 @@ class PagespeedInput {
   bool GetTagInfoForResource(const Resource& resource,
                               const ResourceTagInfo** tag_info) const;
 
+  int viewport_width() const { return viewport_width_; }
+  int viewport_height() const { return viewport_height_; }
+
+  bool SetViewportWidthAndHeight(int width, int height);
+
  private:
   // The right-hand side is an instance rather than a pointer to the instance
   // for now. In case ResourceTagInfo becomes considerably bigger, consider
@@ -269,6 +274,9 @@ class PagespeedInput {
   ExecConstraintMap resource_exec_constraints_;
 
   ResourceTagInfoMap resource_tag_info_map_;
+
+  int viewport_width_;
+  int viewport_height_;
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };
