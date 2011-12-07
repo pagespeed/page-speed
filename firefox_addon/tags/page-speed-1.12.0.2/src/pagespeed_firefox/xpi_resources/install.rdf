@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<!--
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+  <Description about="urn:mozilla:install-manifest">
+    <!-- This GUID is hard-coded into util.js.  If it is ever changed, util.js needs to be updated. -->
+    <em:id>{e3f6c2cc-d8db-498c-af6c-499fb211db97}</em:id>
+    <em:name>Page Speed</em:name>
+    <em:version>1.12.0.1</em:version>
+    <em:description>Speed up your web pages with this performance diagnostics tool. Requires Firebug.</em:description>
+    <em:creator>Google Inc.</em:creator>
+    <em:homepageURL>http://code.google.com/speed/page-speed/</em:homepageURL>
+    <em:updateURL><![CDATA[https://tools.google.com/service/update2/ff?guid=%ITEM_ID%&version=%ITEM_VERSION%&application=%APP_ID%&appversion=%APP_VERSION%]]></em:updateURL>
+    <em:type>2</em:type> <!-- type=extension -->
+    <em:iconURL>chrome://pagespeed/content/pagespeed-32.png</em:iconURL>
+    <em:icon64URL>chrome://pagespeed/content/pagespeed-64.png</em:icon64URL>
+    <em:unpack>true</em:unpack>
+
+   <!-- Any suitably modern toolkit application -->
+    <em:targetApplication>
+      <Description>
+        <em:id>toolkit@mozilla.org</em:id>
+        <em:minVersion>2</em:minVersion>
+        <em:maxVersion>*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+  </Description>
+</RDF>
