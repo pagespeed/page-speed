@@ -23,6 +23,9 @@
  * @author Bryan McQuade
  */
 
+// Initialize PAGESPEED only once.
+if (typeof PAGESPEED === "undefined") {
+
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
 /**
@@ -113,7 +116,7 @@ PAGESPEED.DEPENDENCIES = {
                url: 'http://getfirebug.com/',
                namespace: 'FBL',
                minimumVersion: '1.7.0',
-               maximumVersion: '1.8'
+               maximumVersion: '1.9'
   }
 };
 
@@ -2444,6 +2447,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * @param {string} url The url to open.
    */
   openLink: function(url) {
+    var gBrowser = PAGESPEED.Utils.getGBrowser();
     if (PAGESPEED.Utils.getIntPref('browser.link.open_newwindow', 3) == 3) {
       gBrowser.selectedTab = gBrowser.addTab(url);
     } else {
@@ -2654,6 +2658,14 @@ PAGESPEED.Utils = {  // Begin namespace
    */
   getDocumentDomJson: function(doc) {
     return collectDocument(doc);
+  },
+
+  /**
+   * Get gBrowser of the top level window.
+   * @return {object} gBrowser
+   */
+  getGBrowser: function() {
+    return window.top.gBrowser;
   }
 };  // End namespace
 
@@ -2675,3 +2687,5 @@ try {
 }
 
 })();  // End closure
+
+} // End of typeof PAGESPEED === undefined

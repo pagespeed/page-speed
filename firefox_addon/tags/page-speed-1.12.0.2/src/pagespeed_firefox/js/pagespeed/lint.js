@@ -101,7 +101,7 @@ PAGESPEED.LintRulesImpl.prototype.runAsync = function(fn) {
       function(f, self) {
         return function() {
           self.timeoutId_ = undefined;
-          if (gBrowser.selectedBrowser != self.browserTab_) {
+          if (PAGESPEED.Utils.getGBrowser().selectedBrowser != self.browserTab_) {
             // The user changed tabs. We need to abort this run.
             self.stop();
             var panel = Firebug.currentContext.getPanel('pagespeed');

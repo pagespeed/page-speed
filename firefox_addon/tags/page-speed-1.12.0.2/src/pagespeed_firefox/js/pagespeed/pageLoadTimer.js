@@ -216,6 +216,7 @@ function removePageLoadTimerOnTab(event) {
  * tabs that already exist.
  */
 function installTabListeners() {
+  var gBrowser = PAGESPEED.Utils.getGBrowser();
   var container = gBrowser.tabContainer;
   container.addEventListener('TabOpen', installPageLoadTimerOnTab, false);
   container.addEventListener('TabClose', removePageLoadTimerOnTab, false);
@@ -235,6 +236,7 @@ function installTabListeners() {
  * in that window, so tabClose events are faked for all open tabs.
  */
 function removeTabListeners() {
+  var gBrowser = PAGESPEED.Utils.getGBrowser();
   var container = gBrowser.tabContainer;
   container.removeEventListener('TabOpen', installPageLoadTimerOnTab, false);
   container.removeEventListener('TabClose', removePageLoadTimerOnTab, false);

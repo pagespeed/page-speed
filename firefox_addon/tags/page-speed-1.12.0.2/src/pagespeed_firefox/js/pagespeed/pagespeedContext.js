@@ -375,7 +375,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
 
       if (isPageSpeed) {
         PAGESPEED.PageSpeedContext.callbacks.showPageSpeed.execCallbacks({
-           browserTab: gBrowser.selectedBrowser
+           browserTab: PAGESPEED.Utils.getGBrowser().selectedBrowser
         });
       }
     } catch (e) {
@@ -385,7 +385,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
 
   showPerformance: function() {
     var panel = Firebug.currentContext.getPanel('pagespeed');
-    var browserTab = gBrowser.selectedBrowser;
+    var browserTab = PAGESPEED.Utils.getGBrowser().selectedBrowser;
 
     // Only if we are still displaying the same page as the most
     // recently computed rules will we redisplay the panel.  Otherwise
@@ -410,7 +410,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
       PAGESPEED.LintRules.stop();
 
       // Get the object that represents the current tab.
-      var browserOfCurrentTab = gBrowser.selectedBrowser;
+      var browserOfCurrentTab = PAGESPEED.Utils.getGBrowser().selectedBrowser;
 
       // Keep track of the number of outstanding callbacks. Once the
       // number goes to zero, we can start the scoring process.
@@ -460,7 +460,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   exportMenuItemChosen: function(menuItem) {
     try {
       // Get the object that represents the current tab.
-      var browserOfCurrentTab = gBrowser.selectedBrowser;
+      var browserOfCurrentTab = PAGESPEED.Utils.getGBrowser().selectedBrowser;
       var resultsContainer =
           PAGESPEED.ResultsContainer.getResultsContainerByTab(
               browserOfCurrentTab);
@@ -507,7 +507,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
 
   openJsonExportDialog: function() {
     // Get the object that represents the current tab.
-    var browserOfCurrentTab = gBrowser.selectedBrowser;
+    var browserOfCurrentTab = PAGESPEED.Utils.getGBrowser().selectedBrowser;
 
     PAGESPEED.ResultsWriter.openJsonExportDialog(browserOfCurrentTab);
   },
@@ -617,7 +617,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
         PAGESPEED.PageSpeedContext.callbacks.unwatchWindow.execCallbacks(
           {
             window: win,
-            browserTab: gBrowser.selectedBrowser
+            browserTab: PAGESPEED.Utils.getGBrowser().selectedBrowser
           });
       }
     } catch (e) {

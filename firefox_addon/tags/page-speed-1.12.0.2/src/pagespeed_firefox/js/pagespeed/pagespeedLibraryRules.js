@@ -363,8 +363,6 @@ PAGESPEED.NativeLibrary = {
       var custom = {
         url: url,
         cookieString: PAGESPEED.Utils.getCookieString(url) || '',
-        jsCalls:
-            PAGESPEED.Utils.getResourceProperty(url, 'javaScriptCalls'),
       };
       customEntries.push(custom);
     }
