@@ -187,14 +187,17 @@ class ExternalResourceDomElementVisitor {
  public:
   ExternalResourceDomElementVisitor();
   virtual ~ExternalResourceDomElementVisitor();
-  virtual void Visit(const DomElement& node, const std::string& url) = 0;
+  virtual void VisitUrl(const DomElement& node, const std::string& url) = 0;
 
-  // Called on each visit to a child DomDocument. This will be called
-  // immediately after Visit() above is called for the parent frame node of
-  // the document. Implementers may choose to further traverse the
-  // child documents with an ExternalResourceDomElementVisitor to discover
-  // resources referenced in those child documents.
-  virtual void Visit(const DomDocument& document) {}
+  // Called on each visit to a child DomDocument. The element will be
+  // the HTML element that hosts the document (e.g. an iframe). This
+  // will be called immediately after Visit() above is called for the
+  // parent frame node of the document. Implementers may choose to
+  // further traverse the child documents with an
+  // ExternalResourceDomElementVisitor to discover resources
+  // referenced in those child documents.
+  virtual void VisitDocument(const DomElement& element,
+                             const DomDocument& document) {}
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ExternalResourceDomElementVisitor);

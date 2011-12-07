@@ -36,12 +36,13 @@ class FakeDomElementVisitor : public pagespeed::DomElementVisitor {
 class FakeDomExternalResourceVisitor
     : public pagespeed::ExternalResourceDomElementVisitor {
  public:
-  virtual void Visit(
+  virtual void VisitUrl(
       const pagespeed::DomElement& node, const std::string& url) {
     urls_.push_back(url);
   }
 
-  virtual void Visit(const pagespeed::DomDocument& document) {
+  virtual void VisitDocument(const pagespeed::DomElement& element,
+                             const pagespeed::DomDocument& document) {
     scoped_ptr<pagespeed::DomElementVisitor> visitor(
         pagespeed::MakeDomElementVisitorForDocument(&document, this));
     document.Traverse(visitor.get());

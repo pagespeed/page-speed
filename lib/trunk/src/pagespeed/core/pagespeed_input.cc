@@ -55,7 +55,9 @@ PagespeedInput::PagespeedInput()
       resource_filter_(new AllowAllResourceFilter),
       onload_state_(UNKNOWN),
       onload_millis_(-1),
-      initialization_state_(INIT) {
+      initialization_state_(INIT),
+      viewport_width_(-1),
+      viewport_height_(-1) {
 }
 
 PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
@@ -166,6 +168,16 @@ bool PagespeedInput::SetClientCharacteristics(const ClientCharacteristics& cc) {
     return false;
   }
   input_info_->mutable_client_characteristics()->CopyFrom(cc);
+  return true;
+}
+
+bool PagespeedInput::SetViewportWidthAndHeight(int width, int height) {
+  if (is_frozen()) {
+    LOG(DFATAL) << "Can't set viewport for frozen PagespeedInput.";
+    return false;
+  }
+  viewport_width_ = width;
+  viewport_height_ = height;
   return true;
 }
 
