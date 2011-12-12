@@ -186,6 +186,10 @@ class PagespeedTest : public ::testing::Test {
     return pagespeed_input_->SetOnloadTimeMillis(onload_millis);
   }
 
+  bool SetViewportWidthAndHeight(int width, int height) {
+    return pagespeed_input_->SetViewportWidthAndHeight(width, height);
+  }
+
   const pagespeed::PagespeedInput* pagespeed_input() {
     return pagespeed_input_.get();
   }

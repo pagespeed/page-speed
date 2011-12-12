@@ -148,4 +148,14 @@ DomElementVisitor* MakeDomElementVisitorForDocument(
   return new ExternalResourceVisitorAdaptor(visitor, document);
 }
 
+DomRect DomRect::Intersection(const DomRect& other) const {
+  int left = std::max(x(), other.x());
+  int top = std::max(y(), other.y());
+  int right = std::min(x() + width(), other.x() + other.width());
+  int bottom = std::min(y() + height(), other.y() + other.height());
+  int width = std::max(0, right - left);
+  int height = std::max(0, bottom - top);
+  return DomRect(left, top, width, height);
+}
+
 }  // namespace pagespeed
