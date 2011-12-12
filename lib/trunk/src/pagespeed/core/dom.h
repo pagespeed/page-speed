@@ -19,15 +19,41 @@
 #ifndef PAGESPEED_CORE_DOM_H_
 #define PAGESPEED_CORE_DOM_H_
 
-#include "base/basictypes.h"
-
+#include <algorithm>
 #include <string>
+
+#include "base/basictypes.h"
 
 namespace pagespeed {
 
 class DomDocument;
 class DomElement;
 class DomElementVisitor;
+
+// Represents a rectangle with x, y, width, height coordinates.
+class DomRect {
+ public:
+  DomRect(int x, int y, int width, int height)
+      : x_(x),
+        y_(y),
+        width_(std::max(0, width)),
+        height_(std::max(0, height)) {}
+  int x() const { return x_; }
+  int y() const { return y_; }
+  int width() const { return width_; }
+  int height() const { return height_; }
+
+  bool IsEmpty() const { return width_ <= 0 || height_ <= 0; }
+
+  // Get the intersection of this rect and the other rect.
+  DomRect Intersection(const DomRect& other) const;
+
+ private:
+  int x_;
+  int y_;
+  int width_;
+  int height_;
+};
 
 /**
  * Document interface.

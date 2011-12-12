@@ -117,6 +117,7 @@
         '<(pagespeed_root)',
       ],
       'sources': [
+        'core/dom_test.cc',
         'core/engine_test.cc',
         'core/file_util_test.cc',
         'core/formatter_test.cc',
