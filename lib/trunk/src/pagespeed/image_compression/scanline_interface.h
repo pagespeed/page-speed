@@ -36,6 +36,9 @@ class ScanlineReaderInterface {
   ScanlineReaderInterface() {}
   virtual ~ScanlineReaderInterface() {}
 
+  // Reset the scanline reader to its initial state.
+  virtual void Reset() = 0;
+
   // Returns number of bytes that required to store a scanline.
   virtual size_t GetBytesPerScanline() = 0;
 

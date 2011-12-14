@@ -498,6 +498,12 @@ jmp_buf* PngScanlineReader::GetJmpBuf() {
   return &buf;
 }
 
+void PngScanlineReader::Reset() {
+  read_.reset();
+  current_scanline_ = 0;
+  transform_ = PNG_TRANSFORM_IDENTITY;
+}
+
 bool PngScanlineReader::InitializeRead(PngReaderInterface& reader,
                                        const std::string& in) {
   if (!read_.valid()) {
