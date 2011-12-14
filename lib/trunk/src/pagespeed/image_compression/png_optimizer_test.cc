@@ -398,46 +398,43 @@ TEST(PngOptimizerTest, ValidPngs) {
 }
 
 TEST(PngScanlineReaderTest, InitializeRead_validPngs) {
+  PngScanlineReader scanline_reader;
+  if (setjmp(*scanline_reader.GetJmpBuf())) {
+    ASSERT_FALSE(true) << "Execution should never reach here";
+  }
   for (size_t i = 0; i < kValidImageCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kValidImages[i].filename, &in);
     PngReader png_reader;
+    scanline_reader.Reset();
 
     int width, height, bit_depth, color_type;
     ASSERT_TRUE(png_reader.GetAttributes(
         in, &width, &height, &bit_depth, &color_type));
-    
-    EXPECT_EQ(kValidImages[i].original_color_type, color_type);
-    PngScanlineReader scanline_reader;
-    if (setjmp(*scanline_reader.GetJmpBuf())) {
-      ASSERT_FALSE(true) << "Execution should never reach here"; 
-    }
 
+    EXPECT_EQ(kValidImages[i].original_color_type, color_type);
     ASSERT_TRUE(scanline_reader.InitializeRead(png_reader, in));
     EXPECT_EQ(kValidImages[i].original_color_type,
               scanline_reader.GetColorType());
   }
-  
+
   for (size_t i = 0; i < kOpaqueImagesWithAlphaCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kOpaqueImagesWithAlpha[i].filename, &in);
     PngReader png_reader;
+    scanline_reader.Reset();
+
     int width, height, bit_depth, color_type;
     ASSERT_TRUE(png_reader.GetAttributes(
         in, &width, &height, &bit_depth, &color_type));
 
     EXPECT_EQ(kOpaqueImagesWithAlpha[i].in_color_type, color_type);
-    PngScanlineReader scanline_reader;
-    if (setjmp(*scanline_reader.GetJmpBuf())) {
-      ASSERT_FALSE(true) << "Execution should never reach here"; 
-    }
-
     ASSERT_TRUE(scanline_reader.InitializeRead(png_reader, in));
     EXPECT_EQ(kOpaqueImagesWithAlpha[i].out_color_type,
               scanline_reader.GetColorType());
   }
 }
- 
+
 TEST(PngOptimizerTest, ValidPngs_isOpaque) {
   ScopedPngStruct read(ScopedPngStruct::READ);
 
@@ -446,7 +443,7 @@ TEST(PngOptimizerTest, ValidPngs_isOpaque) {
     ReadPngSuiteFileToString(kOpaqueImagesWithAlpha[i].filename, &in);
     PngReader png_reader;
     ASSERT_TRUE(png_reader.ReadPng(in, read.png_ptr(), read.info_ptr(), 0));
-    EXPECT_EQ(kOpaqueImagesWithAlpha[i].is_opaque, 
+    EXPECT_EQ(kOpaqueImagesWithAlpha[i].is_opaque,
         png_reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
     read.reset();
   }

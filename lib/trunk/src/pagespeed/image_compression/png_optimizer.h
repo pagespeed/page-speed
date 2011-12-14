@@ -86,7 +86,7 @@ class PngReaderInterface {
                              int* out_bit_depth,
                              int* out_color_type) = 0;
 
-  // Returns true if the alpha channel is actually a opaque. Returns 
+  // Returns true if the alpha channel is actually a opaque. Returns
   // false otherwise. It is an error to call this method for an image
   // that does not have an alpha channel.
   virtual bool IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
@@ -119,6 +119,8 @@ class PngScanlineReader : public ScanlineReaderInterface {
   virtual ~PngScanlineReader();
 
   jmp_buf* GetJmpBuf();
+
+  virtual void Reset();
 
   // Initializes the read structures with the given input.
   bool InitializeRead(PngReaderInterface& reader, const std::string& in);
