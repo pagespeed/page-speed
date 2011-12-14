@@ -209,6 +209,11 @@ bool LoadVisibleImagesFirst::AppendResults(const RuleInput& rule_input,
     return true;
   }
 
+  // Make sure the results are sorted in a consistent order, to
+  // guarantee deterministic outputs for tests, etc.
+  std::sort(not_initially_visible_resources.begin(),
+            not_initially_visible_resources.end());
+
   for (std::vector<const pagespeed::Resource*>::const_iterator it =
            not_initially_visible_resources.begin(),
            end = not_initially_visible_resources.end(); it != end; ++it) {
