@@ -23,10 +23,12 @@
 
 #include "base/string_number_conversions.h"
 #include "pagespeed/image_compression/gif_reader.h"
+#include "pagespeed/image_compression/image_converter.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
 using pagespeed::image_compression::GifReader;
+using pagespeed::image_compression::ImageConverter;
 using pagespeed::image_compression::OptimizeJpeg;
 using pagespeed::image_compression::OptimizeJpegWithOptions;
 using pagespeed::image_compression::PngOptimizer;
@@ -103,9 +105,17 @@ bool OptimizeImage(const char* infile, const char* outfile, int opt_quality,
     success = OptimizeJpegWithOptions(file_contents, &compressed, &options);
   } else if (type == PNG) {
     PngReader reader;
-    success = PngOptimizer::OptimizePngBestCompression(reader,
-                                                       file_contents,
-                                                       &compressed);
+    if (opt_quality > 0) {
+      pagespeed::image_compression::JpegCompressionOptions options;
+      options.lossy = true;
+      options.quality = opt_quality;
+      bool is_png;
+      success = ImageConverter::OptimizePngOrConvertToJpeg(
+          reader, file_contents, options, &compressed, &is_png);
+    } else  {
+      success = PngOptimizer::OptimizePngBestCompression(
+          reader, file_contents, &compressed);
+    }
   } else if (type == GIF) {
     GifReader reader;
     success = PngOptimizer::OptimizePngBestCompression(reader,
