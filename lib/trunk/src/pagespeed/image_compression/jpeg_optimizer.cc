@@ -210,16 +210,18 @@ bool JpegOptimizer::OptimizeLossy(
     jpeg_set_quality(&jpeg_compress_, options.quality, 1);
   }
 
-  if (options.color_sampling != ColorSampling::RETAIN) {
-    // Set the color sampling. 
+  if (options.color_sampling != pagespeed::image_compression::RETAIN) {
+    // Set the color sampling.
     if (jpeg_compress_.jpeg_color_space == JCS_YCbCr) {
-      if (options.color_sampling == ColorSampling::YUV444) {
+      if (options.color_sampling == pagespeed::image_compression::YUV444) {
         jpeg_compress_.comp_info[0].h_samp_factor = 1;
         jpeg_compress_.comp_info[0].v_samp_factor = 1;
-      } else if (options.color_sampling == ColorSampling::YUV422) {
+      } else if (options.color_sampling ==
+                 pagespeed::image_compression::YUV422) {
         jpeg_compress_.comp_info[0].h_samp_factor = 2;
         jpeg_compress_.comp_info[0].v_samp_factor = 1;
-      } else if (options.color_sampling == ColorSampling::YUV420) {
+      } else if (options.color_sampling ==
+                 pagespeed::image_compression::YUV420) {
         jpeg_compress_.comp_info[0].h_samp_factor = 2;
         jpeg_compress_.comp_info[0].v_samp_factor = 2;
       } else {
@@ -229,9 +231,9 @@ bool JpegOptimizer::OptimizeLossy(
   } else {
     // Retain the input.
     for (int idx = 0; idx < jpeg_compress_.num_components; ++idx) {
-      jpeg_compress_.comp_info[idx].h_samp_factor = 
+      jpeg_compress_.comp_info[idx].h_samp_factor =
           jpeg_decompress->comp_info[idx].h_samp_factor;
-      jpeg_compress_.comp_info[idx].v_samp_factor = 
+      jpeg_compress_.comp_info[idx].v_samp_factor =
           jpeg_decompress->comp_info[idx].v_samp_factor;
     }
   }

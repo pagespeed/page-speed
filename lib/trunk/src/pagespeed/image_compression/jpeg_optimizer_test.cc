@@ -184,23 +184,23 @@ TEST(JpegOptimizerTest, ValidJpegLossyAndColorSampling) {
 
   // Calling optimize with ColorSampling::YUV420 will give samping as 420.
   AssertJpegOptimizeWithSampling(src_data, &dest_data,
-                                 ColorSampling::YUV420, 2, 2);
+                                 pagespeed::image_compression::YUV420, 2, 2);
   EXPECT_EQ(lossy_420_size, dest_data.size()) << src_filename;
 
   // Calling optimize with ColorSampling::RETAIN will leave samping as 422.
   AssertJpegOptimizeWithSampling(src_data, &dest_data,
-                                 ColorSampling::RETAIN, 2, 1);
+                                 pagespeed::image_compression::RETAIN, 2, 1);
   size_t lossy_retain_size = dest_data.size();
   EXPECT_GT(lossy_retain_size, lossy_420_size) << src_filename;
 
   // Calling optimize with ColorSampling::YUV422 will give samping as 422.
   AssertJpegOptimizeWithSampling(src_data, &dest_data,
-                                 ColorSampling::YUV422, 2, 1);
+                                 pagespeed::image_compression::YUV422, 2, 1);
   EXPECT_EQ(lossy_retain_size, dest_data.size()) << src_filename;
 
   // Calling optimize with ColorSampling::YUV444 will give samping as 444.
   AssertJpegOptimizeWithSampling(src_data, &dest_data,
-                                 ColorSampling::YUV444, 1, 1);
+                                 pagespeed::image_compression::YUV444, 1, 1);
   EXPECT_LT(lossy_retain_size, dest_data.size()) << src_filename;
 }
 
