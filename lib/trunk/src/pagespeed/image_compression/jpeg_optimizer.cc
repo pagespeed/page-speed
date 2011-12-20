@@ -37,6 +37,9 @@ extern "C" {
 
 #include "pagespeed/image_compression/jpeg_reader.h"
 
+using pagespeed::image_compression::ColorSampling;
+using pagespeed::image_compression::JpegCompressionOptions;
+
 namespace {
 // Unfortunately, libjpeg normally only supports writing images to C FILE
 // pointers, wheras we want to write to a C++ string.  Fortunately, libjpeg
@@ -148,14 +151,14 @@ class JpegOptimizer {
   bool CreateOptimizedJpeg(
       const std::string &original,
       std::string *compressed,
-      const pagespeed::image_compression::JpegCompressionOptions *options);
+      const JpegCompressionOptions *options);
 
  private:
   bool DoCreateOptimizedJpeg(
       const std::string &original,
       jpeg_decompress_struct *jpeg_decompress,
       std::string *compressed,
-      const pagespeed::image_compression::JpegCompressionOptions *options);
+      const JpegCompressionOptions *options);
 
   bool OptimizeLossless(jpeg_decompress_struct *jpeg_decompress,
                         std::string *compressed,
@@ -163,8 +166,7 @@ class JpegOptimizer {
 
   bool OptimizeLossy(jpeg_decompress_struct *jpeg_decompress,
                      std::string *compressed,
-                     int jpeg_quality,
-                     bool progressive);
+                     const JpegCompressionOptions& options);
 
   pagespeed::image_compression::JpegReader reader_;
 
@@ -186,8 +188,7 @@ JpegOptimizer::~JpegOptimizer() {
 bool JpegOptimizer::OptimizeLossy(
     jpeg_decompress_struct *jpeg_decompress,
     std::string *compressed,
-    int jpeg_quality,
-    bool progressive) {
+    const JpegCompressionOptions& options) {
   // Copy data from the source to the dest.
   jpeg_compress_.image_width = jpeg_decompress->image_width;
   jpeg_compress_.image_height = jpeg_decompress->image_height;
@@ -203,12 +204,39 @@ bool JpegOptimizer::OptimizeLossy(
   // Set optimize huffman to true.
   jpeg_compress_.optimize_coding = TRUE;
 
-  if (jpeg_quality > 0) {
+  if (options.quality > 0) {
     // Set the compression parameters if set and lossy compression is enabled,
     // else use the defaults.
-    jpeg_set_quality(&jpeg_compress_, jpeg_quality, 1);
+    jpeg_set_quality(&jpeg_compress_, options.quality, 1);
   }
-  if (progressive) {
+
+  if (options.color_sampling != ColorSampling::RETAIN) {
+    // Set the color sampling. 
+    if (jpeg_compress_.jpeg_color_space == JCS_YCbCr) {
+      if (options.color_sampling == ColorSampling::YUV444) {
+        jpeg_compress_.comp_info[0].h_samp_factor = 1;
+        jpeg_compress_.comp_info[0].v_samp_factor = 1;
+      } else if (options.color_sampling == ColorSampling::YUV422) {
+        jpeg_compress_.comp_info[0].h_samp_factor = 2;
+        jpeg_compress_.comp_info[0].v_samp_factor = 1;
+      } else if (options.color_sampling == ColorSampling::YUV420) {
+        jpeg_compress_.comp_info[0].h_samp_factor = 2;
+        jpeg_compress_.comp_info[0].v_samp_factor = 2;
+      } else {
+        // Use defaults.
+      }
+    }
+  } else {
+    // Retain the input.
+    for (int idx = 0; idx < jpeg_compress_.num_components; ++idx) {
+      jpeg_compress_.comp_info[idx].h_samp_factor = 
+          jpeg_decompress->comp_info[idx].h_samp_factor;
+      jpeg_compress_.comp_info[idx].v_samp_factor = 
+          jpeg_decompress->comp_info[idx].v_samp_factor;
+    }
+  }
+
+  if (options.progressive) {
     jpeg_simple_progression(&jpeg_compress_);
   }
 
@@ -306,8 +334,7 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
 
   bool valid_jpeg = false;
   if (options != NULL && options->lossy) {
-    valid_jpeg = OptimizeLossy(jpeg_decompress, compressed, options->quality,
-                               options->progressive);
+    valid_jpeg = OptimizeLossy(jpeg_decompress, compressed, *options);
   } else {
     valid_jpeg = OptimizeLossless(jpeg_decompress, compressed,
                                   options != NULL && options->progressive);
