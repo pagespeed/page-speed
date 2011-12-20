@@ -36,8 +36,8 @@ enum ColorSampling {
 };
 
 struct JpegCompressionOptions {
- JpegCompressionOptions() : lossy(false), quality(85), progressive(false),
-                            color_sampling(ColorSampling::YUV420) {}
+ JpegCompressionOptions()
+     : lossy(false), quality(85), progressive(false), color_sampling(YUV420) {}
 
  // Whether or not to perform lossy compression. If true, then the quality
  // parameter is used to determine how much quality to retain.
