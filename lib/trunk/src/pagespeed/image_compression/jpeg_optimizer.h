@@ -28,8 +28,16 @@ namespace pagespeed {
 
 namespace image_compression {
 
+enum ColorSampling {
+  RETAIN,
+  YUV420,
+  YUV422,
+  YUV444
+};
+
 struct JpegCompressionOptions {
- JpegCompressionOptions() : lossy(false), quality(85), progressive(false) {}
+ JpegCompressionOptions() : lossy(false), quality(85), progressive(false),
+                            color_sampling(ColorSampling::YUV420) {}
 
  // Whether or not to perform lossy compression. If true, then the quality
  // parameter is used to determine how much quality to retain.
@@ -41,8 +49,13 @@ struct JpegCompressionOptions {
  // Setting it to values below 50 is generally not preferable.
  int quality;
 
- // Whether or not to produce a progressive JPEG.
+ // Whether or not to produce a progressive JPEG. This parameter will only be
+ // applied for images with YCbCr colorspace, and it is ignored for other
+ // colorspaces.
  bool progressive;
+
+ // Only applicable when lossy is set to true.
+ ColorSampling color_sampling;
 };
 
 // Performs lossless optimization, that is, the output image will be

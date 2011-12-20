@@ -21,11 +21,24 @@
 #include <vector>
 
 #include "base/basictypes.h"
+extern "C" {
+#ifdef USE_SYSTEM_LIBJPEG
+#include "jpeglib.h"
+#include "jerror.h"
+#else
+#include "third_party/libjpeg/jpeglib.h"
+#include "third_party/libjpeg/jerror.h"
+#endif
+}
+
 #include "pagespeed/image_compression/jpeg_optimizer.h"
+#include "pagespeed/image_compression/jpeg_reader.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
 
+using pagespeed::image_compression::ColorSampling;
+using pagespeed::image_compression::JpegReader;
 using pagespeed::image_compression::OptimizeJpeg;
 using pagespeed::image_compression::OptimizeJpegWithOptions;
 
@@ -79,6 +92,40 @@ void WriteStringToFile(const std::string &file_name, std::string &src) {
 const size_t kValidImageCount = arraysize(kValidImages);
 const size_t kInvalidFileCount = arraysize(kInvalidFiles);
 
+void AssertColorSampling(const std::string& data, int h_sampling_factor,
+                         int v_sampling_factor) {
+  JpegReader reader;
+  jpeg_decompress_struct* jpeg_decompress = reader.decompress_struct();
+
+  jmp_buf env;
+  if (setjmp(env)) {
+    return;
+  }
+
+  // Need to install env so that it will be longjmp()ed to on error.
+  jpeg_decompress->client_data = static_cast<void *>(&env);
+
+  reader.PrepareForRead(data);
+  jpeg_read_header(jpeg_decompress, TRUE);
+  ASSERT_LE(1, jpeg_decompress->num_components);
+  ASSERT_EQ(h_sampling_factor, jpeg_decompress->comp_info[0].h_samp_factor);
+  ASSERT_EQ(v_sampling_factor, jpeg_decompress->comp_info[0].v_samp_factor);
+}
+
+void AssertJpegOptimizeWithSampling(
+    const std::string &src_data, std::string* dest_data,
+    ColorSampling color_sampling, int h_sampling_factor,
+    int v_sampling_factor) {
+  dest_data->clear();
+  pagespeed::image_compression::JpegCompressionOptions options;
+  options.lossy = true;
+  options.quality = 85;
+  options.color_sampling = color_sampling;
+
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, dest_data, &options));
+  AssertColorSampling(*dest_data, h_sampling_factor, v_sampling_factor);
+}
+
 TEST(JpegOptimizerTest, ValidJpegs) {
   for (size_t i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
@@ -115,6 +162,46 @@ TEST(JpegOptimizerTest, ValidJpegsLossy) {
     // Uncomment this next line for debugging:
     //WriteStringToFile(std::string("l") + kValidImages[i].filename, dest_data);
   }
+}
+
+TEST(JpegOptimizerTest, ValidJpegLossyAndColorSampling) {
+  int test_422_file_idx = 7;
+  std::string src_data;
+  std::string src_filename = kValidImages[test_422_file_idx].filename;
+  ReadJpegToString(src_filename, &src_data);
+
+  pagespeed::image_compression::JpegCompressionOptions options;
+  options.lossy = true;
+  options.quality = 85;
+
+  std::string dest_data;
+  // Calling optimize will use default color sampling which is 420.
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
+  size_t lossy_420_size =
+      kValidImages[test_422_file_idx].lossy_compressed_size;
+  EXPECT_EQ(lossy_420_size, dest_data.size()) << src_filename;
+  AssertColorSampling(dest_data, 2, 2);
+
+  // Calling optimize with ColorSampling::YUV420 will give samping as 420.
+  AssertJpegOptimizeWithSampling(src_data, &dest_data,
+                                 ColorSampling::YUV420, 2, 2);
+  EXPECT_EQ(lossy_420_size, dest_data.size()) << src_filename;
+
+  // Calling optimize with ColorSampling::RETAIN will leave samping as 422.
+  AssertJpegOptimizeWithSampling(src_data, &dest_data,
+                                 ColorSampling::RETAIN, 2, 1);
+  size_t lossy_retain_size = dest_data.size();
+  EXPECT_GT(lossy_retain_size, lossy_420_size) << src_filename;
+
+  // Calling optimize with ColorSampling::YUV422 will give samping as 422.
+  AssertJpegOptimizeWithSampling(src_data, &dest_data,
+                                 ColorSampling::YUV422, 2, 1);
+  EXPECT_EQ(lossy_retain_size, dest_data.size()) << src_filename;
+
+  // Calling optimize with ColorSampling::YUV444 will give samping as 444.
+  AssertJpegOptimizeWithSampling(src_data, &dest_data,
+                                 ColorSampling::YUV444, 1, 1);
+  EXPECT_LT(lossy_retain_size, dest_data.size()) << src_filename;
 }
 
 TEST(JpegOptimizerTest, ValidJpegsProgressive) {
