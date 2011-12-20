@@ -1,0 +1,13 @@
+URL: http://libpng.org/
+Version: 1.5.4
+License: zlib/libpng
+License File: LICENSE
+
+Description:
+libpng is the official PNG reference library. It supports almost all
+PNG features, is extensible, and has been extensively tested for over
+15 years.
+
+Local Modifications:
+1. Modified pnglibconf.h to disable reading of PLTE chunks when they
+   are optional.
