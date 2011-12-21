@@ -38,6 +38,28 @@ namespace pagespeed {
 
 namespace image_compression {
 
+struct PngCompressParams {
+  PngCompressParams(int level, int strategy);
+
+  // Indicates what png filter type to be used while compressing the image.
+  // Valid values for this are
+  //   PNG_FILTER_NONE
+  //   PNG_FILTER_SUB
+  //   PNG_FILTER_UP
+  //   PNG_FILTER_AVG
+  //   PNG_FILTER_PAETH
+  //   PNG_ALL_FILTERS
+  int filter_level;
+  // Indicates which compression strategry to use while compressing the image.
+  // Valid values for this are
+  //   Z_FILTERED
+  //   Z_HUFFMAN_ONLY
+  //   Z_RLE
+  //   Z_FIXED
+  //   Z_DEFAULT_COMPRESSION
+  int compression_strategy;
+};
+
 // Helper that manages the lifetime of the png_ptr and info_ptr.
 class ScopedPngStruct {
  public:
@@ -168,9 +190,17 @@ class PngOptimizer {
   // smaller files.
   void EnableBestCompression() { best_compression_ = true; }
 
-  bool WritePng(std::string* buffer);
+  bool WritePng(ScopedPngStruct* write, std::string* buffer);
   void CopyReadToWrite();
-
+  // The 'from' object is conceptually const, but libpng doesn't accept const
+  // pointers in the read functions.
+  void CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to);
+  bool CreateBestOptimizedPngForParams(const PngCompressParams* param_list,
+                                       size_t param_list_size,
+                                       std::string* out);
+  bool CreateOptimizedPngWithParams(ScopedPngStruct* write,
+                                    const PngCompressParams& params,
+                                    std::string* out);
   ScopedPngStruct read_;
   ScopedPngStruct write_;
   bool best_compression_;
