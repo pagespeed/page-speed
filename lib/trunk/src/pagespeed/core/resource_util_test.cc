@@ -383,6 +383,60 @@ TEST_F(ResourceUtilTest, ErrorStatusCodes) {
   ASSERT_TRUE(resource_util::IsErrorResourceStatusCode(503));
 }
 
+TEST_F(ResourceUtilTest, EstimateRequestBytesHost) {
+  const char* kExpectedRequestHeaders =
+      "GET / HTTP/1.1\r\nHost:www.example.com\r\n\r\n";
+  const size_t kExpectedRequestHeadersLength = strlen(kExpectedRequestHeaders);
+
+  // Verify that there is no host header, but that
+  // EstimateRequestBytes synthesizes a host header based on the
+  // request URL.
+  ASSERT_TRUE(r_.GetRequestHeader("host").empty());
+  ASSERT_EQ(static_cast<int>(kExpectedRequestHeadersLength),
+            resource_util::EstimateRequestBytes(r_));
+}
+
+TEST_F(ResourceUtilTest, EstimateRequestBytesCookies) {
+  r_.AddRequestHeader("Host", "www.example.com");
+
+  const char* kCookie1 = "chocolate-chip";
+  const char* kCookie2 = "oatmeal";
+
+  const char* kExpectedRequestHeaders =
+      "GET / HTTP/1.1\r\nHost:www.example.com\r\n\r\n";
+  const size_t kExpectedRequestHeadersLength = strlen(kExpectedRequestHeaders);
+  const size_t kExpectedRequestHeadersLengthWithCookie1 =
+      kExpectedRequestHeadersLength +
+      strlen(kCookie1) + strlen("Cookie") + 3;
+  const size_t kExpectedRequestHeadersLengthWithCookie1AndCookie2 =
+      kExpectedRequestHeadersLengthWithCookie1 + 1 + strlen(kCookie2);
+
+  ASSERT_EQ(static_cast<int>(kExpectedRequestHeadersLength),
+            resource_util::EstimateRequestBytes(r_));
+  r_.SetCookies(kCookie1);
+  ASSERT_EQ(static_cast<int>(kExpectedRequestHeadersLengthWithCookie1),
+            resource_util::EstimateRequestBytes(r_));
+
+  r_.AddRequestHeader("Cookie", kCookie1);
+  ASSERT_EQ(static_cast<int>(kExpectedRequestHeadersLengthWithCookie1),
+            resource_util::EstimateRequestBytes(r_));
+
+  r_.AddRequestHeader("Cookie", kCookie2);
+  ASSERT_EQ(
+      static_cast<int>(kExpectedRequestHeadersLengthWithCookie1AndCookie2),
+      resource_util::EstimateRequestBytes(r_));
+
+  r_.SetCookies(r_.GetRequestHeader("Cookie"));
+  ASSERT_EQ(
+      static_cast<int>(kExpectedRequestHeadersLengthWithCookie1AndCookie2),
+      resource_util::EstimateRequestBytes(r_));
+
+  r_.SetCookies(r_.GetCookies() + "abc");
+  ASSERT_EQ(
+      static_cast<int>(kExpectedRequestHeadersLengthWithCookie1AndCookie2 + 3),
+      resource_util::EstimateRequestBytes(r_));
+}
+
 class GetFreshnessLifetimeTest : public ResourceUtilTest {
  protected:
   virtual void SetUp() {

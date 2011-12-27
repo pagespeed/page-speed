@@ -46,6 +46,9 @@ const int kHeaderOverhead = 3;
 // infinite redirect loops).
 const int kMaxRedirects = 100;
 
+const char* kCookieHeaderName = "cookie";
+const char* kHostHeaderName = "host";
+
 }  // namespace
 
 namespace pagespeed {
@@ -67,7 +70,8 @@ int EstimateHeadersBytes(const Resource::HeaderMap& headers) {
     total_size += EstimateHeaderBytes(iter->first, iter->second);
   }
 
-  return total_size;
+  // Include size of trailing empty \r\n line.
+  return total_size + 2;
 }
 
 int EstimateRequestBytes(const Resource& resource) {
@@ -75,11 +79,38 @@ int EstimateRequestBytes(const Resource& resource) {
 
   // Request line
   request_bytes += resource.GetRequestMethod().size() + 1 /* space */ +
-      resource.GetRequestUrl().size()  + 1 /* space */ +
+      uri_util::GetPath(resource.GetRequestUrl()).size() + 1 /* space */ +
       8 /* "HTTP/1.1" */ + 2 /* \r\n */;
 
   request_bytes += EstimateHeadersBytes(*resource.GetRequestHeaders());
   request_bytes += resource.GetRequestBody().size();
+
+  // We're able to get cookies either from request headers or via the
+  // explicit SetCookies() method. When computing estimated request
+  // bytes, take the larger of the two values.
+  const int cookie_header_size =
+      resource.GetRequestHeader(kCookieHeaderName).empty() ? 0 :
+      EstimateHeaderBytes(kCookieHeaderName,
+                          resource.GetRequestHeader(kCookieHeaderName));
+  const int cookies_size =
+      resource.GetCookies().empty() ? 0 :
+      EstimateHeaderBytes(kCookieHeaderName, resource.GetCookies());
+  if (cookies_size > cookie_header_size) {
+    // cookie_header_size was already included in request_bytes during
+    // the call to EstimateHeaderBytes, so we need to include any
+    // additional bytes provided via SetCookies here.
+    request_bytes += cookies_size - cookie_header_size;
+  }
+
+  if (resource.GetRequestHeader(kHostHeaderName).empty()) {
+    // If the request headers were missing a host header, then it
+    // likely indicates that we were given an incomplete set of
+    // request headers. Thus we use the request URL to include the
+    // size of the expected host header.
+    request_bytes +=
+        EstimateHeaderBytes(kHostHeaderName,
+                            uri_util::GetHost(resource.GetRequestUrl()));
+  }
 
   return request_bytes;
 }

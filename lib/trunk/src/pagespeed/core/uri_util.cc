@@ -221,6 +221,17 @@ std::string GetDomainAndRegistry(const std::string& url) {
       gurl.possibly_invalid_spec().data() + host.begin, host.len));
 }
 
+std::string GetHost(const std::string& url) {
+  GURL gurl(url);
+  return gurl.host();
+}
+
+std::string GetPath(const std::string& url) {
+  GURL gurl(url);
+  if (!gurl.has_path()) return std::string();
+  return gurl.PathForRequest();
+}
+
 }  // namespace uri_util
 
 }  // namespace pagespeed
