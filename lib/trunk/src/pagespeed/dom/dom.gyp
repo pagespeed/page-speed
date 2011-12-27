@@ -33,5 +33,20 @@
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
       ],
     },
+    {
+      'target_name': 'pagespeed_resource_coordinate_finder',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+      'sources': [
+        'resource_coordinate_finder.cc',
+      ],
+      'export_dependent_settings': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+    },
   ],
 }
