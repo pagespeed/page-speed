@@ -284,6 +284,14 @@ msgstr ""
 msgid "Inline Small JavaScript"
 msgstr ""
 
+#  Rule name. This rule recommends serving a low quality
+#  version of the images that appear inside of the visible scroll
+#  region of the browser (i.e. the part of the page that the user
+#  can see without having to scroll down) inlined in the HTML
+#  response.
+msgid "Inline previews of visible images"
+msgstr ""
+
 #  Detail of inline script block. The "$1" will be replace
 #  by the index of the script block (e.g. 3).
 msgid "Inline script block #$1"
@@ -611,6 +619,11 @@ msgstr ""
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made.
 msgid "The following images are displayed outside of the initially visible region of the screen. Defer loading of these images to allow the initially visible region of the page to load faster."
+msgstr ""
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed within the initially visible region of the screen. To speed up rendering of the initially visible region of the page, inline a preview of these images and delay loading the full images until after page load is complete."
 msgstr ""
 
 #  A descriptive header at the top of a list of URLs of
