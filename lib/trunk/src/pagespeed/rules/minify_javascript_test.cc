@@ -131,7 +131,7 @@ TEST_F(MinifyJavaScriptTest, Basic) {
                   kUnminified);
   Freeze();
 
-  CheckOneViolation(79);
+  CheckOneViolation(80);
 }
 
 TEST_F(MinifyJavaScriptTest, WrongContentTypeDoesNotGetMinified) {

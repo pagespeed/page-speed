@@ -130,7 +130,7 @@ TEST_F(MinifyCssTest, Basic) {
                   kUnminified);
   Freeze();
 
-  CheckOneViolation(28);
+  CheckOneViolation(31);
 }
 
 TEST_F(MinifyCssTest, WrongContentTypeDoesNotGetMinified) {

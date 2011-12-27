@@ -78,6 +78,17 @@ bool IsExternalResourceUrl(const std::string& uri);
 //   http://foo.bar/file.html        -> "foo.bar"     (no rule; assume bar)
 std::string GetDomainAndRegistry(const std::string& url);
 
+// Get the hostname for this URL, or empty string of the URL is not
+// well formed. For instance if URL is "http://www.example.com/foo.html"
+// this method will return "www.example.com".
+std::string GetHost(const std::string& url);
+
+// Get the path for this URL, including query string if present, or
+// empty string if URL is not well formed. For instance if URL is
+// "http://www.example.com/foo.html?bar=baz" this method will return
+// "/foo.html?bar=baz".
+std::string GetPath(const std::string& url);
+
 }  // namespace uri_util
 
 }  // namespace pagespeed

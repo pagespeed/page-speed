@@ -21,6 +21,8 @@ namespace {
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
 using pagespeed::uri_util::GetDomainAndRegistry;
+using pagespeed::uri_util::GetHost;
+using pagespeed::uri_util::GetPath;
 
 class ResolveUriForDocumentWithUrlTest
     : public ::pagespeed_testing::PagespeedTest {
@@ -92,7 +94,7 @@ TEST_F(ResolveUriForDocumentWithUrlTest, Iframe) {
   ASSERT_EQ("http://testing.com/foo/iframe/foo", out);
 }
 
-TEST(UriUtil, IsExternalResourceUrl) {
+TEST(UriUtilTest, IsExternalResourceUrl) {
   ASSERT_FALSE(pagespeed::uri_util::IsExternalResourceUrl(
       "data:image/png;base64,iVBORw0KGgoAA"));
   ASSERT_TRUE(pagespeed::uri_util::IsExternalResourceUrl(
@@ -103,7 +105,7 @@ TEST(UriUtil, IsExternalResourceUrl) {
 
 // Basic test to make sure we properly process UTF8 characters in
 // URLs.
-TEST(UriUtil, Utf8) {
+TEST(UriUtilTest, Utf8) {
   const char *kUtf8Url = "http://www.example.com/Résumé.html?q=Résumé";
   GURL gurl(kUtf8Url);
   ASSERT_TRUE(gurl.is_valid());
@@ -111,7 +113,7 @@ TEST(UriUtil, Utf8) {
             gurl.spec());
 }
 
-TEST(UriUtil, GetUriWithoutFragmentTest) {
+TEST(UriUtilTest, GetUriWithoutFragmentTest) {
   static const char* kNoFragmentUrl = "http://www.example.com/foo";
   static const char* kFragmentUrl = "http://www.example.com/foo#fragment";
   static const char* kFragmentUrlNoFragment = "http://www.example.com/foo";
@@ -128,7 +130,7 @@ TEST(UriUtil, GetUriWithoutFragmentTest) {
       pagespeed::uri_util::GetUriWithoutFragment("", &uri_no_fragment));
 }
 
-TEST(UriUtil, CanonicalizeUrl) {
+TEST(UriUtilTest, CanonicalizeUrl) {
   std::string url = "http://www.foo.com";
   pagespeed::uri_util::CanonicalizeUrl(&url);
   ASSERT_EQ("http://www.foo.com/", url);
@@ -136,7 +138,7 @@ TEST(UriUtil, CanonicalizeUrl) {
   ASSERT_EQ("http://www.foo.com/", url);
 }
 
-TEST(UriUtil, GetDomainAndRegistry) {
+TEST(UriUtilTest, GetDomainAndRegistry) {
   EXPECT_EQ("google.com",
             GetDomainAndRegistry("http://www.google.com/file.html"));
   EXPECT_EQ("google.com",
@@ -170,6 +172,20 @@ TEST(UriUtil, GetDomainAndRegistry) {
   EXPECT_EQ("", GetDomainAndRegistry("http://. . "));
   EXPECT_EQ("", GetDomainAndRegistry("http:// ."));
   EXPECT_EQ("", GetDomainAndRegistry("http:// . "));
+}
+
+TEST(UriUtilTest, GetHost) {
+  EXPECT_EQ("", GetHost(""));
+  EXPECT_EQ("", GetHost("www.example.com"));
+  EXPECT_EQ("", GetHost("/abc?def"));
+  EXPECT_EQ("www.example.com", GetHost("http://www.example.com/abc?def"));
+  EXPECT_EQ("www.example.com", GetHost("http://www.example.com"));
+}
+
+TEST(UriUtilTest, GetPath) {
+  EXPECT_EQ("", GetPath(""));
+  EXPECT_EQ("", GetPath("/abc?def"));
+  EXPECT_EQ("/abc?def", GetPath("http://www.example.com/abc?def"));
 }
 
 }  // namespace

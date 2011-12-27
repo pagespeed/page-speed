@@ -113,12 +113,12 @@ TEST_F(MinimizeRequestSizeTest, LongCookieTest) {
       "    * Cookies: 1.4KiB (note that this is a static resource, and should "
       "be served from a cookieless domain)\n"
       "    * Referer Url: 20B\n"
-      "    * Other: 34B\n"
+      "    * Other: 36B\n"
       "  http://www.test.com/foo.html has a request size of 1.5KiB\n"
       "    * Request URL: 28B\n"
       "    * Cookies: 1.4KiB\n"
       "    * Referer Url: 20B\n"
-      "    * Other: 34B\n";
+      "    * Other: 36B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Cookie"] = std::string(1450, 'a');
@@ -140,7 +140,7 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTest) {
       "    * Request URL: 28B\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 1.4KiB\n"
-      "    * Other: 25B\n";
+      "    * Other: 27B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/" + std::string(1450, 'a');
@@ -158,7 +158,7 @@ TEST_F(MinimizeRequestSizeTest, LongUrlTest) {
       "    * Request URL: 1.4KiB\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 20B\n"
-      "    * Other: 25B\n";
+      "    * Other: 27B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/";
@@ -174,12 +174,12 @@ TEST_F(MinimizeRequestSizeTest, LongRefererTwoViolationTest) {
       "    * Request URL: 28B\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 1.4KiB\n"
-      "    * Other: 25B\n"
+      "    * Other: 27B\n"
       "  http://www.test.com/index.html has a request size of 1.5KiB\n"
       "    * Request URL: 30B\n"
       "    * Cookies: 0B\n"
       "    * Referer Url: 1.4KiB\n"
-      "    * Other: 25B\n";
+      "    * Other: 27B\n";
 
   std::map<std::string, std::string> request_headers;
   request_headers["Referer"] = "http://www.test.com/" + std::string(1450, 'a');

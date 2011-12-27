@@ -149,7 +149,7 @@ TEST_F(MinifyHtmlTest, Basic) {
                   "text/html",
                   kUnminified);
   Freeze();
-  CheckOneViolation(68);
+  CheckOneViolation(69);
 }
 
 TEST_F(MinifyHtmlTest, WrongContentTypeDoesNotGetMinified) {

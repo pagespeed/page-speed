@@ -14,6 +14,7 @@
 
 #include "pagespeed/rules/minimize_request_size.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -77,7 +79,9 @@ bool MinimizeRequestSize::AppendResults(const RuleInput& rule_input,
           details_container->MutableExtension(
               pagespeed::RequestDetails::message_set_extension);
       details->set_url_length(resource.GetRequestUrl().size());
-      details->set_cookie_length(resource.GetCookies().size());
+      details->set_cookie_length(
+          std::max(resource.GetRequestHeader("cookie").size(),
+                   resource.GetCookies().size()));
       details->set_referer_length(resource.GetRequestHeader("referer").size());
       details->set_is_static(resource_util::IsLikelyStaticResource(resource));
     }
