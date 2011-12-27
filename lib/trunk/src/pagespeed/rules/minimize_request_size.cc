@@ -44,8 +44,13 @@ namespace pagespeed {
 namespace rules {
 
 MinimizeRequestSize::MinimizeRequestSize()
-    : pagespeed::Rule(pagespeed::InputCapabilities(
-        pagespeed::InputCapabilities::REQUEST_HEADERS)) {
+    : pagespeed::Rule(
+        // This rule does need request headers, however it is still
+        // useful in the absence of request headers since it can also
+        // use URL length and cookie size (cookies may be provided
+        // even if headers are not, via SetCookies()). Thus, we do not
+        // require request headers in the capabilities list here.
+        pagespeed::InputCapabilities()) {
 }
 
 const char* MinimizeRequestSize::name() const {
