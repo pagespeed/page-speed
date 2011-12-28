@@ -45,10 +45,10 @@ struct PngInput {
 // different parameters and this combination of 4 seems to work best for a large
 // set of PNGs from the web.
 const PngCompressParams kPngCompressionParams[] = {
-  {PNG_ALL_FILTERS, Z_DEFAULT_STRATEGY},
-  {PNG_ALL_FILTERS, Z_FILTERED},
-  {PNG_FILTER_NONE, Z_DEFAULT_STRATEGY},
-  {PNG_FILTER_NONE, Z_FILTERED}
+  PngCompressParams(PNG_ALL_FILTERS, Z_DEFAULT_STRATEGY),
+  PngCompressParams(PNG_ALL_FILTERS, Z_FILTERED),
+  PngCompressParams(PNG_FILTER_NONE, Z_DEFAULT_STRATEGY),
+  PngCompressParams(PNG_FILTER_NONE, Z_FILTERED)
 };
 
 const size_t kParamCount = arraysize(kPngCompressionParams);
