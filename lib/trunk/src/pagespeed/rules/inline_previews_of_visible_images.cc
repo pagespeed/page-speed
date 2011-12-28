@@ -70,6 +70,12 @@ bool InlinePreviewsOfVisibleImages::AppendResults(const RuleInput& rule_input,
     if (input.IsResourceLoadedAfterOnload(candidate)) {
       continue;
     }
+    // TODO(bmcquade): look at the optimized image size here. If it
+    // can be minified to under the threshold we should do that
+    // instead.
+    if (candidate.GetResponseBody().size() < kMinimumInlineThresholdBytes) {
+      continue;
+    }
 
     // TODO(bmcquade): what other data should we store here?
     Result* result = provider->NewResult();
@@ -113,6 +119,11 @@ bool InlinePreviewsOfVisibleImages::IsExperimental() const {
   // 2. implement ComputeResultImpact
   return true;
 }
+
+// We only suggest inlining previews if the original image is greater
+// than 20kB in size.
+const size_t InlinePreviewsOfVisibleImages::kMinimumInlineThresholdBytes =
+    20 * 1024;
 
 }  // namespace rules
 
