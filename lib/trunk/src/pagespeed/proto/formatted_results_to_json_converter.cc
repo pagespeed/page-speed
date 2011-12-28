@@ -25,14 +25,14 @@ namespace {
 // This table must be kept in sync with the enum in
 // pagespeed_proto_formatter.proto.
 static const char* kArgumentTypeToNameMap[] = {
-  "invalid",
-  "url",
-  "string",
-  "int",
-  "bytes",
-  "duration",
-  "verbatim",
-  "percentage",
+  "INVALID",
+  "URL",
+  "STRING_LITERAL",
+  "INT_LITERAL",
+  "BYTES",
+  "DURATION",
+  "VERBATIM_STRING",
+  "PERCENTAGE",
 };
 
 static const char* kInvalidArgumentType = kArgumentTypeToNameMap[0];

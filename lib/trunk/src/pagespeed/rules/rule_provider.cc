@@ -15,6 +15,7 @@
 #include "pagespeed/rules/rule_provider.h"
 
 #include <algorithm>
+#include <iterator>
 
 #include "base/string_util.h"
 #include "pagespeed/rules/avoid_bad_requests.h"

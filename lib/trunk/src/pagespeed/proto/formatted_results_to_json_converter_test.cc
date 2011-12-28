@@ -103,7 +103,7 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
       "\\u0442.\\u0440\\u0444/\?\\u003C\\u003E\",");
 
   arg->set_type(FormatArgument::URL);
-  expected.append("\"type\":\"url\"");
+  expected.append("\"type\":\"URL\"");
 
   arg = format_string->add_args();
   expected.append("},{");
@@ -115,7 +115,7 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
   expected.append("\"localized_value\":\"123\",");
 
   arg->set_type(FormatArgument::INT_LITERAL);
-  expected.append("\"type\":\"int\"");
+  expected.append("\"type\":\"INT_LITERAL\"");
 
   expected.append("}],");
 
@@ -173,38 +173,38 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
-  EXPECT_STREQ("invalid",
+  EXPECT_STREQ("INVALID",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(0));
 
-  EXPECT_STREQ("url",
+  EXPECT_STREQ("URL",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::URL));
 
-  EXPECT_STREQ("string",
+  EXPECT_STREQ("STRING_LITERAL",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::STRING_LITERAL));
 
-  EXPECT_STREQ("int",
+  EXPECT_STREQ("INT_LITERAL",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::INT_LITERAL));
 
-  EXPECT_STREQ("bytes",
+  EXPECT_STREQ("BYTES",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::BYTES));
 
-  EXPECT_STREQ("duration",
+  EXPECT_STREQ("DURATION",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::DURATION));
 
-  EXPECT_STREQ("verbatim",
+  EXPECT_STREQ("VERBATIM_STRING",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::VERBATIM_STRING));
 
-  EXPECT_STREQ("percentage",
+  EXPECT_STREQ("PERCENTAGE",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::PERCENTAGE));
 
-  EXPECT_STREQ("invalid",
+  EXPECT_STREQ("INVALID",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::PERCENTAGE + 1));
 }
@@ -229,7 +229,7 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {
   std::string out;
   base::JSONWriter::Write(value.get(), false, &out);
   ASSERT_EQ("{\"int_value\":1,\"localized_value\":\"1\","
-            "\"string_value\":\"hello\",\"type\":\"int\"}", out);
+            "\"string_value\":\"hello\",\"type\":\"INT_LITERAL\"}", out);
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatString) {
@@ -307,7 +307,7 @@ TEST(FormattedResultsToJsonConverterTest, InvalidUtf8) {
   base::JSONWriter::Write(value.get(), false, &out);
   ASSERT_EQ("{\"localized_value\":\"localized foo\","
             "\"string_value\":"
-            "\"hello\\uFFFD \\u00A1\\uFFFD hello\",\"type\":\"string\"}", out);
+            "\"hello\\uFFFD \\u00A1\\uFFFD hello\",\"type\":\"STRING_LITERAL\"}", out);
 #endif
 }
 
