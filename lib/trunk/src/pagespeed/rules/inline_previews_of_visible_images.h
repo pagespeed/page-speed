@@ -37,6 +37,11 @@ class InlinePreviewsOfVisibleImages : public Rule {
                              RuleFormatter* formatter);
   virtual bool IsExperimental() const;
 
+  // Image size must be greater than or equal to this value in order
+  // to be a candidate for inlining a preview. Part of the public
+  // interface so tests can reference this value directly.
+  static const size_t kMinimumInlineThresholdBytes;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(InlinePreviewsOfVisibleImages);
 };

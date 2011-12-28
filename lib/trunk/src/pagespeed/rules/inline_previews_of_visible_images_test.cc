@@ -45,23 +45,29 @@ class InlinePreviewsOfVisibleImagesTest
     SetOnloadTimeMillis(kOnloadMillis);
   }
 
-  void AddImage(const char* url, FakeDomElement* parent,
-                int x, int y, int width, int height,
-                int request_start_time_millis) {
+  pagespeed::Resource* AddImage(const char* url, FakeDomElement* parent,
+                                int x, int y, int width, int height,
+                                int request_start_time_millis) {
     FakeDomElement* img = NULL;
-    NewPngResource(url, parent, &img)->SetRequestStartTimeMillis(
-        request_start_time_millis);
+    pagespeed::Resource* r = NewPngResource(url, parent, &img);
+    r->SetRequestStartTimeMillis(request_start_time_millis);
+    std::string fake_body(
+        InlinePreviewsOfVisibleImages::kMinimumInlineThresholdBytes, 'a');
+    r->SetResponseBody(fake_body);
     img->SetCoordinates(x, y);
     img->SetActualWidthAndHeight(width, height);
+    return r;
   }
 
-  void AddImage(const char* url, int x, int y, int width, int height,
-                int request_start_time_millis) {
-    AddImage(url, body(), x, y, width, height, request_start_time_millis);
+  pagespeed::Resource* AddImage(const char* url, int x, int y,
+                                int width, int height,
+                                int request_start_time_millis) {
+    return AddImage(url, body(), x, y,
+                    width, height, request_start_time_millis);
   }
 
-  void AddVisibleImage(int request_start_time_millis) {
-    AddImage(kAboveTheFoldUrl, 5, 5, 10, 10, request_start_time_millis);
+  pagespeed::Resource* AddVisibleImage(int request_start_time_millis) {
+    return AddImage(kAboveTheFoldUrl, 5, 5, 10, 10, request_start_time_millis);
   }
 };
 
@@ -90,6 +96,17 @@ TEST_F(InlinePreviewsOfVisibleImagesTest, ImageMissingDimensions) {
 TEST_F(InlinePreviewsOfVisibleImagesTest, ImageAboveTheFold) {
   AddImage(kImg1Url, 0, 0, 10, 10, kEarlyResourceLoadTimeMillis);
   CheckOneUrlViolation(kImg1Url);
+}
+
+TEST_F(InlinePreviewsOfVisibleImagesTest, DontInlineSmallImage) {
+  pagespeed::Resource* r =
+      AddImage(kImg1Url, 0, 0, 10, 10, kEarlyResourceLoadTimeMillis);
+  // We no longer suggest inlining for this image, since the response
+  // body is below the size treshold.
+  std::string fake_body(
+      InlinePreviewsOfVisibleImages::kMinimumInlineThresholdBytes - 1, 'a');
+  r->SetResponseBody(fake_body);
+  CheckNoViolations();
 }
 
 TEST_F(InlinePreviewsOfVisibleImagesTest, ImageAboveTheFoldNoWidth) {
@@ -136,9 +153,11 @@ TEST_F(InlinePreviewsOfVisibleImagesTest, ImageBelowTheFoldAfterOnload) {
 
 TEST_F(InlinePreviewsOfVisibleImagesTest, RedirectedImage) {
   FakeDomElement* img1 = NULL;
-  NewRedirectedPngResource(
-      kImg1Url, kImg2Url, body(), &img1)->SetRequestStartTimeMillis(
-          kEarlyResourceLoadTimeMillis);
+  pagespeed::Resource* r = NewRedirectedPngResource(
+      kImg1Url, kImg2Url, body(), &img1);
+  r->SetRequestStartTimeMillis(kEarlyResourceLoadTimeMillis);
+  std::string fake_body((1024 * 20) + 1, 'a');
+  r->SetResponseBody(fake_body);
   img1->SetCoordinates(100, 100);
   img1->SetActualWidthAndHeight(10, 10);
   CheckOneUrlViolation(kImg2Url);
