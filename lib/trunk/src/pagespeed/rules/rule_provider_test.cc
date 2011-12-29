@@ -111,9 +111,11 @@ TEST(RuleProviderTest, CreateRuleWithName) {
   TestNamedRule("CombineExternalJavaScript");
   TestNamedRule("EnableGzipCompression");
   TestNamedRule("EnableKeepAlive");
+  TestNamedRule("InlinePreviewsOfVisibleImages");
   TestNamedRule("InlineSmallCss");
   TestNamedRule("InlineSmallJavaScript");
   TestNamedRule("LeverageBrowserCaching");
+  TestNamedRule("LoadVisibleImagesFirst");
   TestNamedRule("MinifyCss");
   TestNamedRule("MinifyHTML");
   TestNamedRule("MinifyJavaScript");
