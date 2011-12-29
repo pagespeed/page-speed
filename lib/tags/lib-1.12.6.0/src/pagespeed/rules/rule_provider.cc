@@ -27,8 +27,10 @@
 #include "pagespeed/rules/eliminate_unnecessary_reflows.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/enable_keep_alive.h"
+#include "pagespeed/rules/inline_previews_of_visible_images.h"
 #include "pagespeed/rules/inline_small_resources.h"
 #include "pagespeed/rules/leverage_browser_caching.h"
+#include "pagespeed/rules/load_visible_images_first.h"
 #include "pagespeed/rules/make_landing_page_redirects_cacheable.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
@@ -166,9 +168,11 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("eliminateunnecessaryreflows", rules::EliminateUnnecessaryReflows());
   RULE("enablegzipcompression", rules::EnableGzipCompression());
   RULE("enablekeepalive", rules::EnableKeepAlive());
+  RULE("inlinepreviewsofvisibleimages", rules::InlinePreviewsOfVisibleImages());
   RULE("inlinesmallcss", rules::InlineSmallCss());
   RULE("inlinesmalljavascript", rules::InlineSmallJavaScript());
   RULE("leveragebrowsercaching", rules::LeverageBrowserCaching());
+  RULE("loadvisibleimagesfirst", rules::LoadVisibleImagesFirst());
   RULE("makelandingpageredirectscacheable",
        rules::MakeLandingPageRedirectsCacheable());
   RULE("minifycss", rules::MinifyCss(save_optimized_content));
