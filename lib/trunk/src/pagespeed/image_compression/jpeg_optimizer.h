@@ -24,6 +24,9 @@
 
 #include "pagespeed/image_compression/scanline_interface.h"
 
+// DO NOT INCLUDE LIBJPEG HEADERS HERE. Doing so causes build errors
+// on Windows.
+
 namespace pagespeed {
 
 namespace image_compression {

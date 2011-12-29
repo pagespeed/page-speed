@@ -223,6 +223,7 @@
         'image_compression/image_converter_test.cc',
         'image_compression/image_attributes_factory_test.cc',
         'image_compression/jpeg_optimizer_test.cc',
+        'image_compression/jpeg_optimizer_test_helper.cc',
         'image_compression/png_optimizer_test.cc',
         'rules/optimize_images_test.cc',
       ],
