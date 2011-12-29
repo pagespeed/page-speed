@@ -21,26 +21,20 @@
 #include <vector>
 
 #include "base/basictypes.h"
-extern "C" {
-#ifdef USE_SYSTEM_LIBJPEG
-#include "jpeglib.h"
-#include "jerror.h"
-#else
-#include "third_party/libjpeg/jpeglib.h"
-#include "third_party/libjpeg/jerror.h"
-#endif
-}
-
 #include "pagespeed/image_compression/jpeg_optimizer.h"
-#include "pagespeed/image_compression/jpeg_reader.h"
+#include "pagespeed/image_compression/jpeg_optimizer_test_helper.h"
 #include "pagespeed/testing/pagespeed_test.h"
+
+// DO NOT INCLUDE LIBJPEG HEADERS HERE. Doing so causes build errors
+// on Windows. If you need to call out to libjpeg, please add helper
+// methods in jpeg_optimizer_test_helper.h.
 
 namespace {
 
 using pagespeed::image_compression::ColorSampling;
-using pagespeed::image_compression::JpegReader;
 using pagespeed::image_compression::OptimizeJpeg;
 using pagespeed::image_compression::OptimizeJpegWithOptions;
+using pagespeed_testing::image_compression::GetJpegNumComponentsAndSamplingFactors;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
@@ -92,24 +86,17 @@ void WriteStringToFile(const std::string &file_name, std::string &src) {
 const size_t kValidImageCount = arraysize(kValidImages);
 const size_t kInvalidFileCount = arraysize(kInvalidFiles);
 
-void AssertColorSampling(const std::string& data, int h_sampling_factor,
-                         int v_sampling_factor) {
-  JpegReader reader;
-  jpeg_decompress_struct* jpeg_decompress = reader.decompress_struct();
-
-  jmp_buf env;
-  if (setjmp(env)) {
-    return;
-  }
-
-  // Need to install env so that it will be longjmp()ed to on error.
-  jpeg_decompress->client_data = static_cast<void *>(&env);
-
-  reader.PrepareForRead(data);
-  jpeg_read_header(jpeg_decompress, TRUE);
-  ASSERT_LE(1, jpeg_decompress->num_components);
-  ASSERT_EQ(h_sampling_factor, jpeg_decompress->comp_info[0].h_samp_factor);
-  ASSERT_EQ(v_sampling_factor, jpeg_decompress->comp_info[0].v_samp_factor);
+void AssertColorSampling(const std::string& data,
+                         int expected_h_sampling_factor,
+                         int expected_v_sampling_factor) {
+  int num_components, h_sampling_factor, v_sampling_factor;
+  ASSERT_TRUE(GetJpegNumComponentsAndSamplingFactors(data,
+                                                     &num_components,
+                                                     &h_sampling_factor,
+                                                     &v_sampling_factor));
+  ASSERT_LE(1, num_components);
+  ASSERT_EQ(expected_h_sampling_factor, h_sampling_factor);
+  ASSERT_EQ(expected_v_sampling_factor, v_sampling_factor);
 }
 
 void AssertJpegOptimizeWithSampling(
