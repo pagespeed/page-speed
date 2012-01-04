@@ -4,9 +4,7 @@
     "js": [ "inject_pagespeed.js" ],
     "matches": [ "http://*/*/devtools.html?*" ]
   } ],
-  // Self-resources only except for scripts: ExtensionAPI.js is loaded
-  // from localhost.  If not available from localhost, fetch from trac.
-  "content_security_policy": "default-src 'self'; script-src 'self' http://localhost:* http://*.appspot.com:*; connect-src http: https:",
+  "content_security_policy": "default-src 'self'; connect-src http: https:",
   "default_locale": "en",
   "description": "__MSG_extension_description__",
   "devtools_page": "devtools-page.html",
