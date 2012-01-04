@@ -6,7 +6,7 @@
   } ],
   // Self-resources only except for scripts: ExtensionAPI.js is loaded
   // from localhost.  If not available from localhost, fetch from trac.
-  "content_security_policy": "default-src 'self'; script-src 'self' http://localhost:* http://*.appspot.com:* http://trac.webkit.org:*",
+  "content_security_policy": "default-src 'self'; script-src 'self' http://localhost:* http://*.appspot.com:*; connect-src http: https:",
   "default_locale": "en",
   "description": "__MSG_extension_description__",
   "devtools_page": "devtools-page.html",
@@ -31,5 +31,5 @@
     { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true },
     { "path": "pagespeed_plugin.plugin", "public": true }
   ],
-  "version": "1.12.0.2"
+  "version": "1.12.0.3"
 }
