@@ -12,82 +12,85 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function fetchDevToolsAPI (callback) {
-  // Attempt to load the extension API from each source file in order,
-  // until one succeeds.  On success, invoke the callback.
-  var loadExtensionAPI = function (srcArray) {
-    // ExtensionAPI.js expects WebInspector to be an object.
-    window.WebInspector = { };
-
-    if (srcArray && srcArray.length > 0) {
-      var script = document.createElement("script");
-      script.async = false;
-
-      script.onload = script.onerror = function () {
-        // For Chrome 16 or newer, check if devtools is available.
-        if ("devtools" in chrome.experimental) {
-          delete window.WebInspector;
-          callback();
-          return;
-        }
-
-        // For Chrome 15 or ealier:
-        // Once Extension API has been injected into the page,
-        // WebInspector.injectedExtensionAPI() will be available.
-        // Inject init_devtools_api to call the API initialization
-        // function.
-
-        if (WebInspector.injectedExtensionAPI) {
-          // Fetch successfull... call init function and callback.
-          WebInspector.injectedExtensionAPI(null, null, "pagespeed");
-          delete window.WebInspector;
-          callback();
-        } else {
-          // Fetch failed... try next URL.
-          loadExtensionAPI(srcArray.slice(1));
-        }
-      };
-      script.src = srcArray[0];
-      document.head.appendChild(script);
-    } else {
-      alert("Whoops, it looks like the DevTools Extensions API is " +
-            "unavailable from the remote browser.\n\n" +
-            "ExtensionsAPI.js must be be available under Chrome/" +
-            "Application/<version>/Resources/Inspector/devTools.css, " +
-            "which is currently only the case for local builds that " +
-            "have 'debug_devtools': 1 set in GYP config.  If you " +
-            "want to play with it, copy the file from " +
-            "http://trac.webkit.org/browser/trunk/Source/WebCore/" +
-            "inspector/front-end/ExtensionAPI.js");
-      delete window.WebInspector;
+function fetchDevToolsAPI (real_callback) {
+  // Install chrome devtools alias. If the devtools is not
+  // immediately available, we will return false.
+  var installDevToolsAlias = function () {
+    if (!window.chrome) {
+      return false;
     }
+
+    // Prefer webInspector for now, since old version of chrome does not like to
+    // use chrome.devtools.
+    if (window.webInspector) {
+      console.log("Using webInspector instead of chrome.devtools.");
+      window.chromeDevTools = window.webInspector;
+      return true;
+    }
+
+    var has_experimental_devtools = "devtools" in chrome.experimental &&
+          "panels" in chrome.experimental.devtools;
+    if (has_experimental_devtools) {
+      console.log("Using chrome.experimental.devtools.");
+      window.chromeDevTools = chrome.experimental.devtools;
+      return true;
+    }
+
+    var has_devtools = false;
+    try {
+      has_devtools = "devtools" in chrome && "panels" in chrome.devtools;
+    } catch (e) {
+      // Chrome 15 or earlier will throw exception for accessing
+      // chrome.devtools. chrome.devtools can only be used in extension
+      // processes.
+      has_devtools = false;
+    }
+
+    if (has_devtools) {
+      console.log("Using chrome.devtools.");
+      window.chromeDevTools = chrome.devtools;
+      return true;
+    }
+
+    return false;
   }
 
-  // If the webInspector API is unavailable, then we need to fetch it.
-  if (!window.webInspector) {
+  // Attempt to load the extension API from src url. On success, invoke the
+  // callback.
+  var loadExtensionAPI = function (src) {
+    var script = document.createElement("script");
+    script.async = false;
+    script.onerror = function () {
+      console.log("ERROR: failed to fetch devtools_extension_api from " + src);
+      alert("ERROR, failed to fetch devtools_extension_api.js.");
+    };
 
-    // Try fetching from several different URLs:
-    loadExtensionAPI([
-      // A. DevTools.js includes ExtensionAPI plus a bunch of stuff we
-      //    don't need.
-      document.referrer.replace(/devtools.html?.*$/, "DevTools.js"),
+    script.onload = function () {
+      if (installDevToolsAlias() ) {
+        // Invoke the  callback after a timeout. Otherwise, we may be trying to
+        // create our Page Speed panel before the DevTools panels are
+        // initialized. Note, we hard coded 100 milliseconds. If we are
+        // experiencing problems, we need to increase the timeout value.
+        window.setTimeout(real_callback, 100);
+      } else {
+        console.log("ERROR: devtools_extension_api not available from " + src);
+        alert("ERROR: devtools extension API is not available.");
+      }
+    };
+    script.src = src;
+    document.head.appendChild(script);
+  }
 
-      // B. document.referrer should be the URL of the remote
-      //    devtools.  For Chrome 16 or newer, devtools_extension_api.js should
-      //    reside at the same location.
-      document.referrer.replace(/devtools.html?.*$/,
-                                "devtools_extension_api.js"),
 
-      // C. document.referrer should be the URL of the remote
-      //    devtools.  ExtensionAPI.js should reside at the same
-      //    location for Chrome 15 or earlier.
-      document.referrer.replace(/devtools.html?.*$/, "ExtensionAPI.js"),
-
-      // D. Fall back on fetching the most recent version from trac.
-      "http://trac.webkit.org/browser/trunk/Source/WebCore/inspector/" +
-      "front-end/ExtensionAPI.js?format=txt",
-    ]);
+  // If we do not need to load the extension APIs, use the real callback
+  // function without delay.
+  if (installDevToolsAlias()) {
+    real_callback();
   } else {
-    callback();
+    loadExtensionAPI(
+      //  document.referrer should be the URL of the remote devtools.
+      document.referrer.replace(/devtools.html?.*$/,
+                                "devtools_extension_api.js")
+    );
   }
 }
