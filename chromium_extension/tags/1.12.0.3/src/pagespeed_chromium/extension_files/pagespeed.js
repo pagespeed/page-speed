@@ -58,7 +58,6 @@ var pagespeed = {
         var message = 'Error in Page Speed panel:\n ' + e.stack;
         alert(message + '\n\nPlease file a bug at\n' +
               'http://code.google.com/p/page-speed/issues/');
-        webInspector.log(message);
         pagespeed.endCurrentRun();
         pagespeed.setStatusText('ERROR');
       }
@@ -504,7 +503,7 @@ var pagespeed = {
 
     // Check that the inspected window has an http[s] url.
     pagespeed.setStatusText('Checking tab...');
-    webInspector.inspectedWindow.eval("location.href.match(/^http/)",
+    chromeDevTools.inspectedWindow.eval("location.href.match(/^http/)",
       pagespeed.withErrorHandler(function (tabOk) {
         if (tabOk) {
           // Make sure the run has not been canceled.
@@ -824,7 +823,7 @@ pagespeed.DomCollector.prototype.start = function () {
 
   // Evaluate the collector function in the inspected page
   var this_ = this;
-  webInspector.inspectedWindow.eval(
+  chromeDevTools.inspectedWindow.eval(
     "(" + collector.toString() + ")();",
     pagespeed.withErrorHandler(function (domString) {
       this_.onDomCollected_(JSON.parse(domString));
@@ -860,7 +859,7 @@ pagespeed.ResourceAccumulator.prototype.start = function () {
     return;  // We've been cancelled so ignore the callback.
   }
   pagespeed.setStatusText(chrome.i18n.getMessage('fetching_har'));
-  webInspector.resources.getHAR(
+  chromeDevTools.network.getHAR(
     pagespeed.withErrorHandler(this.onHAR_.bind(this)));
 };
 
@@ -918,7 +917,7 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   if (need_reload) {
     pagespeed.setStatusText(chrome.i18n.getMessage('reloading_page'));
     this.doingReload_ = true;
-    webInspector.inspectedWindow.reload();
+    chromeDevTools.inspectedWindow.reload();
   } else {
     // Devtools apparently sets the onLoad timing to NaN if onLoad hasn't
     // fired yet.  Page Speed will interpret that to mean that the onLoad
@@ -927,6 +926,13 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
     har.pages.forEach(function (page) {
       if (isNaN(page.pageTimings.onLoad)) {
         page.pageTimings.onLoad = -1;
+      }
+      // Devtools introduced a new bug that makes a invalid date for page
+      // startedDateTime. https://bugs.webkit.org/show_bug.cgi?id=74188
+      // The bug is fixed in Chrome trunk, but before it pushes to release, we
+      // need to the following hack to get around of it.
+      if (isNaN(page.startedDateTime.getTime())) {
+        page.startedDateTime = har.entries[0].startedDateTime;
       }
     });
     this.har_ = har;
@@ -957,9 +963,6 @@ pagespeed.ResourceAccumulator.prototype.timeOut_ = function (index) {
   if (this.cancelled_ || index !== this.nextEntryIndex_) {
     return;  // We've been cancelled so ignore the callback.
   }
-  webInspector.log("Timed out while fetching [" + index + "/" +
-                   this.har_.entries.length + "] " +
-                   this.har_.entries[index].request.url);
   this.timeoutId_ = null;
   ++this.nextEntryIndex_;
   this.getNextEntryBody_();
@@ -1118,7 +1121,6 @@ pagespeed.ContentWriter.prototype.makeErrorHandler_ = function (where, next) {
       msg = 'Unknown Error';
       break;
     };
-    webInspector.log("Error during " + where + ": " + msg);
     if (!this.cancelled_) {
       next();
     }
@@ -1134,11 +1136,16 @@ fetchDevToolsAPI(function () {
       pagespeed.withErrorHandler(pagespeed.messageHandler));
 
     // Register for navigation events from the inspected window.
-    webInspector.resources.onNavigated.addListener(
+    chromeDevTools.network.onNavigated.addListener(
       pagespeed.withErrorHandler(pagespeed.onPageNavigate));
 
     // The listener will disconnect when we close the devtools panel.
-    webInspector.timeline.onEventRecorded.addListener(
+    // The timeline api is still experimental.
+    var timeline = chromeDevTools.timeline;
+    if (!timeline) {
+      timeline = chrome.experimental.devtools.timeline;
+    }
+    timeline.onEventRecorded.addListener(
       pagespeed.withErrorHandler(pagespeed.onTimelineEvent));
 
     pagespeed.initializeUI();
