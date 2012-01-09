@@ -28,5 +28,17 @@ bool GetJpegNumComponentsAndSamplingFactors(
     int* out_h_samp_factor,
     int* out_v_samp_factor);
 
+// Helper function to check present of given segment.
+bool IsJpegSegmentPresent(const std::string& data, int segment);
+
+// Helper function that returns num of progessive scans for the image.
+int GetNumScansInJpeg(const std::string& data);
+
+// Helper function to return the color profile segment marker.
+int GetColorProfileMarker();
+
+// Helper function to return the exif data segment marker.
+int GetExifDataMarker();
+
 }  // namespace image_compression
 }  // namespace pagespeed_testing
