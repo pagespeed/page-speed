@@ -175,7 +175,8 @@ int main(int argc, char** argv) {
   // files.
   if (strcmp("--batch", argv[1]) == 0) {
     for (int i = 2; i < argc; ++i) {
-      OptimizeImage(argv[i], NULL, 0, false, -1, ColorSampling::YUV420);
+      OptimizeImage(argv[i], NULL, 0, false, -1,
+                    pagespeed::image_compression::YUV420);
     }
     return EXIT_SUCCESS;
   }
@@ -220,7 +221,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  ColorSampling color_sampling = ColorSampling::YUV420;
+  ColorSampling color_sampling = pagespeed::image_compression::YUV420;
   if (argc == 7) {
     int color_sampling_int = -1;
      if (!base::StringToInt(argv[6], &color_sampling_int) ||

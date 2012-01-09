@@ -22,18 +22,7 @@
 
 #include "base/basictypes.h"
 
-extern "C" {
-#ifdef USE_SYSTEM_LIBJPEG
-#include "jpeglib.h"
-#include "jerror.h"
-#else
-#include "third_party/libjpeg/jpeglib.h"
-#include "third_party/libjpeg/jerror.h"
-#endif
-}
-
 #include "pagespeed/image_compression/jpeg_optimizer.h"
-#include "pagespeed/image_compression/jpeg_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer_test_helper.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
@@ -46,19 +35,16 @@ namespace {
 using pagespeed::image_compression::ColorSampling;
 using pagespeed::image_compression::JpegCompressionOptions;
 using pagespeed::image_compression::JpegLossyOptions;
-using pagespeed::image_compression::JpegReader;
 using pagespeed::image_compression::OptimizeJpeg;
 using pagespeed::image_compression::OptimizeJpegWithOptions;
 using pagespeed_testing::image_compression::GetJpegNumComponentsAndSamplingFactors;
+using pagespeed_testing::image_compression::GetNumScansInJpeg;
+using pagespeed_testing::image_compression::IsJpegSegmentPresent;
+using pagespeed_testing::image_compression::GetColorProfileMarker;
+using pagespeed_testing::image_compression::GetExifDataMarker;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
-// Marker for APPN segment can obtained by adding N to JPEG_APP0. There is no
-// direct constant to refer them. The offsets here are part of jpeg codex, for
-// example JPEG_APP0 + 2 refers to APP2 which should always correspond to color
-// profile information.
-const int kColorProfileMarker = JPEG_APP0 + 2;
-const int kExifDataMarker = JPEG_APP0 + 1;
 const char* kAppSegmentsJpegFile = "app_segments.jpg";
 
 struct ImageCompressionInfo {
@@ -119,62 +105,6 @@ void AssertColorSampling(const std::string& data,
   ASSERT_LE(1, num_components);
   ASSERT_EQ(expected_h_sampling_factor, h_sampling_factor);
   ASSERT_EQ(expected_v_sampling_factor, v_sampling_factor);
-}
-
-bool IsJpegSegmentPresent(const std::string& data, int segment) {
-  JpegReader reader;
-  jpeg_decompress_struct* jpeg_decompress = reader.decompress_struct();
-
-  jmp_buf env;
-  if (setjmp(env)) {
-    return false;
-  }
-
-  // Need to install env so that it will be longjmp()ed to on error.
-  jpeg_decompress->client_data = static_cast<void *>(&env);
-
-  reader.PrepareForRead(data);
-  jpeg_save_markers(jpeg_decompress, segment, 0xFFFF);
-  jpeg_read_header(jpeg_decompress, TRUE);
-
-  bool is_marker_present = false;
-  for (jpeg_saved_marker_ptr marker = jpeg_decompress->marker_list;
-       marker != NULL; marker = marker->next) {
-    if (marker->marker == segment) {
-      is_marker_present = true;
-      break;
-    }
-  }
-
-  return is_marker_present;
-}
-
-int GetNumScansInJpeg(const std::string& data) {
-  JpegReader reader;
-  jpeg_decompress_struct* jpeg_decompress = reader.decompress_struct();
-
-  jmp_buf env;
-  if (setjmp(env)) {
-    return false;
-  }
-
-  // Need to install env so that it will be longjmp()ed to on error.
-  jpeg_decompress->client_data = static_cast<void *>(&env);
-
-  reader.PrepareForRead(data);
-  jpeg_read_header(jpeg_decompress, TRUE);
-
-  jpeg_decompress->buffered_image = true;
-  jpeg_start_decompress(jpeg_decompress);
-
-  int num_scans = 0;
-  while (!jpeg_input_complete(jpeg_decompress)) {
-   if (jpeg_consume_input(jpeg_decompress) == JPEG_SCAN_COMPLETED) {
-     num_scans++;
-   }
-  }
-
-  return num_scans;
 }
 
 void AssertJpegOptimizeWithSampling(
@@ -276,26 +206,26 @@ TEST(JpegOptimizerTest, ValidJpegRetainColorProfile) {
   JpegCompressionOptions options;
   options.retain_color_profile = true;
 
-  ASSERT_TRUE(IsJpegSegmentPresent(src_data, kColorProfileMarker));
+  ASSERT_TRUE(IsJpegSegmentPresent(src_data, GetColorProfileMarker()));
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, GetColorProfileMarker()));
 
   options.retain_color_profile = false;
   dest_data.clear();
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, GetColorProfileMarker()));
 
   // Testing lossy flow.
   options.lossy = true;
   options.retain_color_profile = true;
   dest_data.clear();
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, GetColorProfileMarker()));
 
   options.retain_color_profile = false;
   dest_data.clear();
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, GetColorProfileMarker()));
 }
 
 TEST(JpegOptimizerTest, ValidJpegRetainExifData) {
@@ -308,26 +238,26 @@ TEST(JpegOptimizerTest, ValidJpegRetainExifData) {
   JpegCompressionOptions options;
   options.retain_exif_data = true;
 
-  ASSERT_TRUE(IsJpegSegmentPresent(src_data, kExifDataMarker));
+  ASSERT_TRUE(IsJpegSegmentPresent(src_data, GetExifDataMarker()));
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, GetExifDataMarker()));
 
   options.retain_exif_data = false;
   dest_data.clear();
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, GetExifDataMarker()));
 
   // Testing lossy flow.
   options.lossy = true;
   options.retain_exif_data = true;
   dest_data.clear();
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, GetExifDataMarker()));
 
   options.retain_exif_data = false;
   dest_data.clear();
   ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
-  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, GetExifDataMarker()));
 }
 
 TEST(JpegOptimizerTest, ValidJpegLossyWithNProgressiveScans) {
