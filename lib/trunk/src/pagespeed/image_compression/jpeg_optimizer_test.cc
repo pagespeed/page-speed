@@ -21,7 +21,19 @@
 #include <vector>
 
 #include "base/basictypes.h"
+
+extern "C" {
+#ifdef USE_SYSTEM_LIBJPEG
+#include "jpeglib.h"
+#include "jerror.h"
+#else
+#include "third_party/libjpeg/jpeglib.h"
+#include "third_party/libjpeg/jerror.h"
+#endif
+}
+
 #include "pagespeed/image_compression/jpeg_optimizer.h"
+#include "pagespeed/image_compression/jpeg_reader.h"
 #include "pagespeed/image_compression/jpeg_optimizer_test_helper.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
@@ -32,12 +44,22 @@
 namespace {
 
 using pagespeed::image_compression::ColorSampling;
+using pagespeed::image_compression::JpegCompressionOptions;
+using pagespeed::image_compression::JpegLossyOptions;
+using pagespeed::image_compression::JpegReader;
 using pagespeed::image_compression::OptimizeJpeg;
 using pagespeed::image_compression::OptimizeJpegWithOptions;
 using pagespeed_testing::image_compression::GetJpegNumComponentsAndSamplingFactors;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
+// Marker for APPN segment can obtained by adding N to JPEG_APP0. There is no
+// direct constant to refer them. The offsets here are part of jpeg codex, for
+// example JPEG_APP0 + 2 refers to APP2 which should always correspond to color
+// profile information.
+const int kColorProfileMarker = JPEG_APP0 + 2;
+const int kExifDataMarker = JPEG_APP0 + 1;
+const char* kAppSegmentsJpegFile = "app_segments.jpg";
 
 struct ImageCompressionInfo {
   const char* filename;
@@ -99,17 +121,72 @@ void AssertColorSampling(const std::string& data,
   ASSERT_EQ(expected_v_sampling_factor, v_sampling_factor);
 }
 
+bool IsJpegSegmentPresent(const std::string& data, int segment) {
+  JpegReader reader;
+  jpeg_decompress_struct* jpeg_decompress = reader.decompress_struct();
+
+  jmp_buf env;
+  if (setjmp(env)) {
+    return false;
+  }
+
+  // Need to install env so that it will be longjmp()ed to on error.
+  jpeg_decompress->client_data = static_cast<void *>(&env);
+
+  reader.PrepareForRead(data);
+  jpeg_save_markers(jpeg_decompress, segment, 0xFFFF);
+  jpeg_read_header(jpeg_decompress, TRUE);
+
+  bool is_marker_present = false;
+  for (jpeg_saved_marker_ptr marker = jpeg_decompress->marker_list;
+       marker != NULL; marker = marker->next) {
+    if (marker->marker == segment) {
+      is_marker_present = true;
+      break;
+    }
+  }
+
+  return is_marker_present;
+}
+
+int GetNumScansInJpeg(const std::string& data) {
+  JpegReader reader;
+  jpeg_decompress_struct* jpeg_decompress = reader.decompress_struct();
+
+  jmp_buf env;
+  if (setjmp(env)) {
+    return false;
+  }
+
+  // Need to install env so that it will be longjmp()ed to on error.
+  jpeg_decompress->client_data = static_cast<void *>(&env);
+
+  reader.PrepareForRead(data);
+  jpeg_read_header(jpeg_decompress, TRUE);
+
+  jpeg_decompress->buffered_image = true;
+  jpeg_start_decompress(jpeg_decompress);
+
+  int num_scans = 0;
+  while (!jpeg_input_complete(jpeg_decompress)) {
+   if (jpeg_consume_input(jpeg_decompress) == JPEG_SCAN_COMPLETED) {
+     num_scans++;
+   }
+  }
+
+  return num_scans;
+}
+
 void AssertJpegOptimizeWithSampling(
     const std::string &src_data, std::string* dest_data,
     ColorSampling color_sampling, int h_sampling_factor,
     int v_sampling_factor) {
   dest_data->clear();
-  pagespeed::image_compression::JpegCompressionOptions options;
+  JpegCompressionOptions options;
   options.lossy = true;
-  options.quality = 85;
-  options.color_sampling = color_sampling;
+  options.lossy_options.color_sampling = color_sampling;
 
-  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, dest_data, &options));
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, dest_data, options));
   AssertColorSampling(*dest_data, h_sampling_factor, v_sampling_factor);
 }
 
@@ -137,9 +214,8 @@ TEST(JpegOptimizerTest, ValidJpegsLossy) {
     ReadJpegToString(kValidImages[i].filename, &src_data);
     pagespeed::image_compression::JpegCompressionOptions options;
     options.lossy = true;
-    options.quality = 85;
     std::string dest_data;
-    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options))
+    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options))
         << kValidImages[i].filename;
     EXPECT_EQ(kValidImages[i].original_size, src_data.size())
         << kValidImages[i].filename;
@@ -157,13 +233,12 @@ TEST(JpegOptimizerTest, ValidJpegLossyAndColorSampling) {
   std::string src_filename = kValidImages[test_422_file_idx].filename;
   ReadJpegToString(src_filename, &src_data);
 
-  pagespeed::image_compression::JpegCompressionOptions options;
+  JpegCompressionOptions options;
   options.lossy = true;
-  options.quality = 85;
 
   std::string dest_data;
   // Calling optimize will use default color sampling which is 420.
-  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
   size_t lossy_420_size =
       kValidImages[test_422_file_idx].lossy_compressed_size;
   EXPECT_EQ(lossy_420_size, dest_data.size()) << src_filename;
@@ -191,6 +266,100 @@ TEST(JpegOptimizerTest, ValidJpegLossyAndColorSampling) {
   EXPECT_LT(lossy_retain_size, dest_data.size()) << src_filename;
 }
 
+TEST(JpegOptimizerTest, ValidJpegRetainColorProfile) {
+  std::string src_data;
+  ReadJpegToString(kAppSegmentsJpegFile, &src_data);
+
+  std::string dest_data;
+
+  // Testing lossless flow.
+  JpegCompressionOptions options;
+  options.retain_color_profile = true;
+
+  ASSERT_TRUE(IsJpegSegmentPresent(src_data, kColorProfileMarker));
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+
+  options.retain_color_profile = false;
+  dest_data.clear();
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+
+  // Testing lossy flow.
+  options.lossy = true;
+  options.retain_color_profile = true;
+  dest_data.clear();
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+
+  options.retain_color_profile = false;
+  dest_data.clear();
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kColorProfileMarker));
+}
+
+TEST(JpegOptimizerTest, ValidJpegRetainExifData) {
+  std::string src_data;
+  ReadJpegToString(kAppSegmentsJpegFile, &src_data);
+
+  std::string dest_data;
+
+  // Testing lossless flow.
+  JpegCompressionOptions options;
+  options.retain_exif_data = true;
+
+  ASSERT_TRUE(IsJpegSegmentPresent(src_data, kExifDataMarker));
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+
+  options.retain_exif_data = false;
+  dest_data.clear();
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+
+  // Testing lossy flow.
+  options.lossy = true;
+  options.retain_exif_data = true;
+  dest_data.clear();
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_TRUE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+
+  options.retain_exif_data = false;
+  dest_data.clear();
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  ASSERT_FALSE(IsJpegSegmentPresent(dest_data, kExifDataMarker));
+}
+
+TEST(JpegOptimizerTest, ValidJpegLossyWithNProgressiveScans) {
+  std::string src_data;
+  ReadJpegToString(kAppSegmentsJpegFile, &src_data);
+
+  std::string dest_data;
+
+  // Testing lossless flow.
+  JpegCompressionOptions options;
+  options.progressive = true;
+
+  EXPECT_EQ(1, GetNumScansInJpeg(src_data));
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  int num_scans = GetNumScansInJpeg(dest_data);
+  EXPECT_LT(1, num_scans);
+
+  dest_data.clear();
+  options.lossy = true;
+  options.lossy_options.num_scans = 3;
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  EXPECT_EQ(3, GetNumScansInJpeg(dest_data));
+
+  dest_data.clear();
+  // jpeg has max scan limit based on image color spaces, So trying to set
+  // num scans to a large value should be handled gracefully and default to
+  // jpeg scan limit if the specified value is greater.
+  options.lossy_options.num_scans = 1000;
+  ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options));
+  EXPECT_EQ(num_scans, GetNumScansInJpeg(dest_data));
+}
+
 TEST(JpegOptimizerTest, ValidJpegsProgressive) {
   for (size_t i = 0; i < kValidImageCount; ++i) {
     std::string src_data;
@@ -198,7 +367,7 @@ TEST(JpegOptimizerTest, ValidJpegsProgressive) {
     pagespeed::image_compression::JpegCompressionOptions options;
     options.progressive = true;
     std::string dest_data;
-    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options))
+    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options))
         << kValidImages[i].filename;
     EXPECT_EQ(kValidImages[i].original_size, src_data.size())
         << kValidImages[i].filename;
@@ -216,10 +385,9 @@ TEST(JpegOptimizerTest, ValidJpegsProgressiveAndLossy) {
     ReadJpegToString(kValidImages[i].filename, &src_data);
     pagespeed::image_compression::JpegCompressionOptions options;
     options.lossy = true;
-    options.quality = 85;
     options.progressive = true;
     std::string dest_data;
-    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, &options))
+    ASSERT_TRUE(OptimizeJpegWithOptions(src_data, &dest_data, options))
         << kValidImages[i].filename;
     EXPECT_EQ(kValidImages[i].original_size, src_data.size())
         << kValidImages[i].filename;
@@ -244,11 +412,10 @@ TEST(JpegOptimizerTest, InvalidJpegsLossy) {
   for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string src_data;
     ReadJpegToString(kInvalidFiles[i], &src_data);
-    pagespeed::image_compression::JpegCompressionOptions options;
+    JpegCompressionOptions options;
     options.lossy = true;
-    options.quality = 85;
     std::string dest_data;
-    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
+    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, options));
   }
 }
 
@@ -256,10 +423,10 @@ TEST(JpegOptimizerTest, InvalidJpegsProgressive) {
   for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string src_data;
     ReadJpegToString(kInvalidFiles[i], &src_data);
-    pagespeed::image_compression::JpegCompressionOptions options;
+    JpegCompressionOptions options;
     options.progressive = true;
     std::string dest_data;
-    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
+    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, options));
   }
 }
 
@@ -267,12 +434,11 @@ TEST(JpegOptimizerTest, InvalidJpegsProgressiveAndLossy) {
   for (size_t i = 0; i < kInvalidFileCount; ++i) {
     std::string src_data;
     ReadJpegToString(kInvalidFiles[i], &src_data);
-    pagespeed::image_compression::JpegCompressionOptions options;
+    JpegCompressionOptions options;
     options.lossy = true;
-    options.quality = 85;
     options.progressive = true;
     std::string dest_data;
-    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, &options));
+    ASSERT_FALSE(OptimizeJpegWithOptions(src_data, &dest_data, options));
   }
 }
 

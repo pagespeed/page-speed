@@ -29,6 +29,7 @@
 namespace {
 
 using pagespeed::image_compression::ImageConverter;
+using pagespeed::image_compression::JpegLossyOptions;
 using pagespeed::image_compression::PngReader;
 
 // The *_TEST_DIR_PATH macro is set by the gyp target that builds this file.
@@ -244,8 +245,8 @@ TEST(ImageConverterTest, OptimizePngOrConvertToJpeg_invalidPngs) {
 TEST(ImageConverterTest, OptimizePngOrConvertToJpeg) {
   PngReader png_struct_reader;
   pagespeed::image_compression::JpegCompressionOptions options;
+  // We are using default lossy options for conversion.
   options.lossy = true;
-  options.quality = 85;
   options.progressive = false;
   for (size_t i = 0; i < kValidImageCount; i++) {
     std::string in, out;

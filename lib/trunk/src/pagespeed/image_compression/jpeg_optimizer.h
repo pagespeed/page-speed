@@ -38,27 +38,43 @@ enum ColorSampling {
   YUV444
 };
 
-struct JpegCompressionOptions {
- JpegCompressionOptions()
-     : lossy(false), quality(85), progressive(false), color_sampling(YUV420) {}
-
- // Whether or not to perform lossy compression. If true, then the quality
- // parameter is used to determine how much quality to retain.
- bool lossy;
-
+struct JpegLossyOptions {
+ JpegLossyOptions() : quality(85), num_scans(-1), color_sampling(YUV420) {}
  // jpeg_quality - Can take values in the range [1,100].
  // For web images, the preferred value for quality is 85.
  // For smaller images like thumbnails, the preferred value for quality is 75.
  // Setting it to values below 50 is generally not preferable.
  int quality;
 
+ // No. of progressive scan that needs to be included in the final output.
+ // -1 indicates to use all scans that are present.
+ int num_scans;
+
+ // Color sampling that needs to be used while recompressing the image.
+ ColorSampling color_sampling;
+};
+
+struct JpegCompressionOptions {
+ JpegCompressionOptions()
+     : progressive(false), retain_color_profile(false),
+       retain_exif_data(false), lossy(false) {}
+
  // Whether or not to produce a progressive JPEG. This parameter will only be
  // applied for images with YCbCr colorspace, and it is ignored for other
  // colorspaces.
  bool progressive;
 
- // Only applicable when lossy is set to true.
- ColorSampling color_sampling;
+ // If set to 'true' any color profile information is retained.
+ bool retain_color_profile;
+
+ // If set to 'true' any exif information is retained.
+ bool retain_exif_data;
+
+ // Whether or not to use lossy compression.
+ bool lossy;
+
+ // Lossy compression options. Only applicable if lossy (above) is set to true.
+ JpegLossyOptions lossy_options;
 };
 
 // Performs lossless optimization, that is, the output image will be
@@ -69,7 +85,7 @@ bool OptimizeJpeg(const std::string &original,
 // Performs JPEG optimizations with the provided options.
 bool OptimizeJpegWithOptions(const std::string &original,
                              std::string *compressed,
-                             const JpegCompressionOptions *options);
+                             const JpegCompressionOptions &options);
 
 // User of this class must call this functions in the following sequence
 // func () {
