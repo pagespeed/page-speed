@@ -27,6 +27,7 @@
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
 
+using pagespeed::image_compression::ColorSampling;
 using pagespeed::image_compression::GifReader;
 using pagespeed::image_compression::ImageConverter;
 using pagespeed::image_compression::OptimizeJpeg;
@@ -44,13 +45,16 @@ enum ImageType {
 };
 
 const char *kUsage = "Usage: optimize_image <input> <output> [quality] "
-    "[progressive] \n"
+    "[progressive] [num_scans] [color_sampling] \n"
     "quality and progressive are optional, and apply only to lossy formats "
     "(e.g. JPEG). \n"
     "If quality is specified, it should be in the range 1-100. "
     "If unspecified, lossless compression will be performed. \n"
     "If progressive is specified, it should be either 0 or 1. "
-    "If unspecified, progressive jpeg is not applied. \n" ;
+    "If unspecified, progressive jpeg is not applied. \n"
+    "If num_scans is specified with progressive, we will only output those. \n"
+    "If color_sampling is specified, should 0, 1, 2 or 3. "
+    "If unspecified, YUV420 is used. only applicable for lossy jpegs. \n";
 
 // use file extension to determine what optimizer should be used.
 ImageType DetermineImageType(const std::string& filename) {
@@ -72,7 +76,7 @@ ImageType DetermineImageType(const std::string& filename) {
 }
 
 bool OptimizeImage(const char* infile, const char* outfile, int opt_quality,
-                   bool progressive) {
+                   bool progressive, int num_scans, ColorSampling color_sampling) {
   std::string filename(infile);
   std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
   if (!in) {
@@ -99,16 +103,19 @@ bool OptimizeImage(const char* infile, const char* outfile, int opt_quality,
     pagespeed::image_compression::JpegCompressionOptions options;
     if (opt_quality > 0) {
       options.lossy = true;
-      options.quality = opt_quality;
+      options.lossy_options.quality = opt_quality;
+      options.lossy_options.color_sampling = color_sampling;
+      options.lossy_options.num_scans = num_scans;
     }
     options.progressive = progressive;
-    success = OptimizeJpegWithOptions(file_contents, &compressed, &options);
+    success = OptimizeJpegWithOptions(file_contents, &compressed, options);
   } else if (type == PNG) {
     PngReader reader;
     if (opt_quality > 0) {
       pagespeed::image_compression::JpegCompressionOptions options;
       options.lossy = true;
-      options.quality = opt_quality;
+      options.lossy_options.quality = opt_quality;
+      options.lossy_options.num_scans = num_scans;
       bool is_png;
       success = ImageConverter::OptimizePngOrConvertToJpeg(
           reader, file_contents, options, &compressed, &is_png);
@@ -168,14 +175,14 @@ int main(int argc, char** argv) {
   // files.
   if (strcmp("--batch", argv[1]) == 0) {
     for (int i = 2; i < argc; ++i) {
-      OptimizeImage(argv[i], NULL, 0, false);
+      OptimizeImage(argv[i], NULL, 0, false, -1, ColorSampling::YUV420);
     }
     return EXIT_SUCCESS;
   }
 
   // Otherwise we are running in normal mode, where the arguments are
   // <infile> <outfile>.
-  if (argc < 3 && argc > 5) {
+  if (argc < 3 && argc > 7) {
     fprintf(stderr, "%s", kUsage);
     return EXIT_FAILURE;
   }
@@ -190,7 +197,7 @@ int main(int argc, char** argv) {
   }
 
   bool progressive = false;
-  if (argc == 5) {
+  if (argc >= 5) {
     int progressive_int = -1;
     if (!base::StringToInt(argv[4], &progressive_int) ||
         (progressive_int != 0 && progressive_int != 1)) {
@@ -201,6 +208,30 @@ int main(int argc, char** argv) {
     }
   }
 
-  return OptimizeImage(argv[1], argv[2], quality, progressive) ?
-      EXIT_SUCCESS : EXIT_FAILURE;
+  int num_scans = -1;
+  if (argc >= 6) {
+    int num_scans_int = -1;
+    if (!base::StringToInt(argv[5], &num_scans_int) ||
+        num_scans_int < 0) {
+      fprintf(stderr, "%s", kUsage);
+      return EXIT_FAILURE;
+    } else {
+      num_scans = num_scans_int;
+    }
+  }
+
+  ColorSampling color_sampling = ColorSampling::YUV420;
+  if (argc == 7) {
+    int color_sampling_int = -1;
+     if (!base::StringToInt(argv[6], &color_sampling_int) ||
+         color_sampling_int < 0 || color_sampling_int > 3) {
+       fprintf(stderr, "%s", kUsage);
+       return EXIT_FAILURE;
+     } else {
+       color_sampling = static_cast<ColorSampling>(color_sampling_int);
+     }
+  }
+
+  return OptimizeImage(argv[1], argv[2], quality, progressive, num_scans,
+                       color_sampling) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

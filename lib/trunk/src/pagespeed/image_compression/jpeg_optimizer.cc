@@ -39,6 +39,11 @@ extern "C" {
 
 using pagespeed::image_compression::ColorSampling;
 using pagespeed::image_compression::JpegCompressionOptions;
+using pagespeed::image_compression::JpegLossyOptions;
+using pagespeed::image_compression::RETAIN;
+using pagespeed::image_compression::YUV420;
+using pagespeed::image_compression::YUV422;
+using pagespeed::image_compression::YUV444;
 
 namespace {
 // Unfortunately, libjpeg normally only supports writing images to C FILE
@@ -127,6 +132,13 @@ void OutputMessage(j_common_ptr jpeg_decompress) {
   */
 }
 
+// Marker for APPN segment is obtained by adding N to JPEG_APP0.
+const int kColorProfileMarker = JPEG_APP0 + 2;
+const int kExifDataMarker = JPEG_APP0 + 1;
+// Signifies max bytes that needs to read, while reading jpeg segments like exif
+// data, color profiles and etc.
+const int kMaxSegmentSize = 0xFFFF;
+
 // Initializes the jpeg compress struct.
 void InitJpegCompress(j_compress_ptr cinfo, jpeg_error_mgr* compress_error) {
   memset(cinfo, 0, sizeof(jpeg_compress_struct));
@@ -136,6 +148,73 @@ void InitJpegCompress(j_compress_ptr cinfo, jpeg_error_mgr* compress_error) {
   compress_error->error_exit = &ErrorExit;
   compress_error->output_message = &OutputMessage;
   jpeg_create_compress(cinfo);
+}
+
+void SetJpegCompressBeforeStartCompress(const JpegCompressionOptions& options,
+    const jpeg_decompress_struct* jpeg_decompress,
+    jpeg_compress_struct* jpeg_compress) {
+  if (options.lossy) {
+    const JpegLossyOptions& lossy_options = options.lossy_options;
+    // Set the compression parameters if set and lossy compression is enabled,
+    // else use the defaults. Last parameter to jpeg_set_quality resticts the
+    // jpeg quantizer values in 8 bit values, even though jpeg support 12 bit
+    // quantizer values, it is not supported widely.
+    jpeg_set_quality(jpeg_compress, lossy_options.quality, 1);
+
+    // Set the color subsampling if applicable.
+    if (jpeg_compress->jpeg_color_space == JCS_YCbCr) {
+      // Set the color sampling.
+      if (lossy_options.color_sampling == YUV444) {
+        jpeg_compress->comp_info[0].h_samp_factor = 1;
+        jpeg_compress->comp_info[0].v_samp_factor = 1;
+      } else if (lossy_options.color_sampling == YUV422) {
+        jpeg_compress->comp_info[0].h_samp_factor = 2;
+        jpeg_compress->comp_info[0].v_samp_factor = 1;
+      } else if (lossy_options.color_sampling == YUV420) {
+        jpeg_compress->comp_info[0].h_samp_factor = 2;
+        jpeg_compress->comp_info[0].v_samp_factor = 2;
+      } else if (lossy_options.color_sampling == RETAIN &&
+                 jpeg_decompress != NULL) {
+        // Retain the input.
+        for (int idx = 0; idx < jpeg_compress->num_components; ++idx) {
+          jpeg_compress->comp_info[idx].h_samp_factor =
+              jpeg_decompress->comp_info[idx].h_samp_factor;
+          jpeg_compress->comp_info[idx].v_samp_factor =
+              jpeg_decompress->comp_info[idx].v_samp_factor;
+        }
+      }
+    }
+  }
+
+  if (options.progressive) {
+    jpeg_simple_progression(jpeg_compress);
+
+    if (options.lossy && options.lossy_options.num_scans > 0) {
+      // We can honour the num scans only if the number of scans we want is less
+      // than or equals to total number of scans defined for this image, else
+      // compress will fail.
+      jpeg_compress->num_scans = std::min(jpeg_compress->num_scans,
+                                          options.lossy_options.num_scans);
+    }
+  }
+}
+
+void SetJpegCompressAfterStartCompress(const JpegCompressionOptions& options,
+    const jpeg_decompress_struct& jpeg_decompress,
+    jpeg_compress_struct* jpeg_compress) {
+  if (options.retain_color_profile || options.retain_exif_data) {
+    jpeg_saved_marker_ptr marker;
+    for (marker = jpeg_decompress.marker_list; marker != NULL;
+         marker = marker->next) {
+      // We only copy these headers if present in the decompress struct.
+      if ((marker->marker == kExifDataMarker && options.retain_exif_data) ||
+          (marker->marker == kColorProfileMarker &&
+           options.retain_color_profile)) {
+        jpeg_write_marker(jpeg_compress, marker->marker, marker->data,
+                          marker->data_length);
+      }
+    }
+  }
 }
 
 class JpegOptimizer {
@@ -148,21 +227,19 @@ class JpegOptimizer {
   // null, in which case the default options are used.
   // If this function fails (returns false), it can be called again.
   // @return true on success, false on failure.
-  bool CreateOptimizedJpeg(
-      const std::string &original,
-      std::string *compressed,
-      const JpegCompressionOptions *options);
+  bool CreateOptimizedJpeg(const std::string &original,
+                           std::string *compressed,
+                           const JpegCompressionOptions& options);
 
  private:
-  bool DoCreateOptimizedJpeg(
-      const std::string &original,
-      jpeg_decompress_struct *jpeg_decompress,
-      std::string *compressed,
-      const JpegCompressionOptions *options);
+  bool DoCreateOptimizedJpeg(const std::string &original,
+                             jpeg_decompress_struct *jpeg_decompress,
+                             std::string *compressed,
+                             const JpegCompressionOptions& options);
 
   bool OptimizeLossless(jpeg_decompress_struct *jpeg_decompress,
                         std::string *compressed,
-                        bool progressive);
+                        const JpegCompressionOptions& options);
 
   bool OptimizeLossy(jpeg_decompress_struct *jpeg_decompress,
                      std::string *compressed,
@@ -189,6 +266,11 @@ bool JpegOptimizer::OptimizeLossy(
     jpeg_decompress_struct *jpeg_decompress,
     std::string *compressed,
     const JpegCompressionOptions& options) {
+  if (!options.lossy) {
+    LOG(DFATAL) << "lossy is not set in options for lossy jpeg compression";
+    return false;
+  }
+
   // Copy data from the source to the dest.
   jpeg_compress_.image_width = jpeg_decompress->image_width;
   jpeg_compress_.image_height = jpeg_decompress->image_height;
@@ -204,49 +286,16 @@ bool JpegOptimizer::OptimizeLossy(
   // Set optimize huffman to true.
   jpeg_compress_.optimize_coding = TRUE;
 
-  if (options.quality > 0) {
-    // Set the compression parameters if set and lossy compression is enabled,
-    // else use the defaults.
-    jpeg_set_quality(&jpeg_compress_, options.quality, 1);
-  }
-
-  if (options.color_sampling != pagespeed::image_compression::RETAIN) {
-    // Set the color sampling.
-    if (jpeg_compress_.jpeg_color_space == JCS_YCbCr) {
-      if (options.color_sampling == pagespeed::image_compression::YUV444) {
-        jpeg_compress_.comp_info[0].h_samp_factor = 1;
-        jpeg_compress_.comp_info[0].v_samp_factor = 1;
-      } else if (options.color_sampling ==
-                 pagespeed::image_compression::YUV422) {
-        jpeg_compress_.comp_info[0].h_samp_factor = 2;
-        jpeg_compress_.comp_info[0].v_samp_factor = 1;
-      } else if (options.color_sampling ==
-                 pagespeed::image_compression::YUV420) {
-        jpeg_compress_.comp_info[0].h_samp_factor = 2;
-        jpeg_compress_.comp_info[0].v_samp_factor = 2;
-      } else {
-        // Use defaults.
-      }
-    }
-  } else {
-    // Retain the input.
-    for (int idx = 0; idx < jpeg_compress_.num_components; ++idx) {
-      jpeg_compress_.comp_info[idx].h_samp_factor =
-          jpeg_decompress->comp_info[idx].h_samp_factor;
-      jpeg_compress_.comp_info[idx].v_samp_factor =
-          jpeg_decompress->comp_info[idx].v_samp_factor;
-    }
-  }
-
-  if (options.progressive) {
-    jpeg_simple_progression(&jpeg_compress_);
-  }
+  SetJpegCompressBeforeStartCompress(options, jpeg_decompress, &jpeg_compress_);
 
   // Prepare to write to a string.
   JpegStringWriter(&jpeg_compress_, compressed);
 
   jpeg_start_compress(&jpeg_compress_, TRUE);
   jpeg_start_decompress(jpeg_decompress);
+
+  // Write any markers if needed.
+  SetJpegCompressAfterStartCompress(options, *jpeg_decompress, &jpeg_compress_);
 
   // Make sure input/output parameters are configured correctly.
   DCHECK(jpeg_compress_.image_width == jpeg_decompress->output_width);
@@ -278,10 +327,13 @@ bool JpegOptimizer::OptimizeLossy(
   return valid_jpeg;
 }
 
-bool JpegOptimizer::OptimizeLossless(
-    jpeg_decompress_struct *jpeg_decompress,
-    std::string *compressed,
-    bool progressive) {
+bool JpegOptimizer::OptimizeLossless(jpeg_decompress_struct *jpeg_decompress,
+    std::string *compressed, const JpegCompressionOptions& options) {
+  if (options.lossy) {
+    LOG(DFATAL) << "Lossy options are not allowed in lossless compression.";
+    return false;
+  }
+
   jvirt_barray_ptr *coefficients = jpeg_read_coefficients(jpeg_decompress);
   bool valid_jpeg = (coefficients != NULL);
 
@@ -289,10 +341,8 @@ bool JpegOptimizer::OptimizeLossless(
     // Copy data from the source to the dest.
     jpeg_copy_critical_parameters(jpeg_decompress, &jpeg_compress_);
 
-  if (progressive) {
-    // Enable progressive jpeg if specified in the options.
-    jpeg_simple_progression(&jpeg_compress_);
-  }
+    SetJpegCompressBeforeStartCompress(options, jpeg_decompress,
+                                       &jpeg_compress_);
 
     // Set optimize huffman to true.
     jpeg_compress_.optimize_coding = TRUE;
@@ -302,6 +352,10 @@ bool JpegOptimizer::OptimizeLossless(
 
     // Copy the coefficients into the compression struct.
     jpeg_write_coefficients(&jpeg_compress_, coefficients);
+
+    // Write any markers if needed.
+    SetJpegCompressAfterStartCompress(options, *jpeg_decompress,
+                                      &jpeg_compress_);
   }
 
   return valid_jpeg;
@@ -313,7 +367,7 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
     const std::string &original,
     jpeg_decompress_struct *jpeg_decompress,
     std::string *compressed,
-    const pagespeed::image_compression::JpegCompressionOptions *options) {
+    const pagespeed::image_compression::JpegCompressionOptions& options) {
   // libjpeg's error handling mechanism requires that longjmp be used
   // to get control after an error.
   jmp_buf env;
@@ -331,15 +385,22 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
 
   reader_.PrepareForRead(original);
 
+  if (options.retain_color_profile) {
+    jpeg_save_markers(jpeg_decompress, kColorProfileMarker, kMaxSegmentSize);
+  }
+
+  if (options.retain_exif_data) {
+    jpeg_save_markers(jpeg_decompress, kExifDataMarker, kMaxSegmentSize);
+  }
+
   // Read jpeg data into the decompression struct.
   jpeg_read_header(jpeg_decompress, TRUE);
 
   bool valid_jpeg = false;
-  if (options != NULL && options->lossy) {
-    valid_jpeg = OptimizeLossy(jpeg_decompress, compressed, *options);
+  if (options.lossy) {
+    valid_jpeg = OptimizeLossy(jpeg_decompress, compressed, options);
   } else {
-    valid_jpeg = OptimizeLossless(jpeg_decompress, compressed,
-                                  options != NULL && options->progressive);
+    valid_jpeg = OptimizeLossless(jpeg_decompress, compressed, options);
   }
 
   // Finish the compression process.
@@ -349,10 +410,8 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
   return valid_jpeg;
 }
 
-bool JpegOptimizer::CreateOptimizedJpeg(
-    const std::string &original,
-    std::string *compressed,
-    const pagespeed::image_compression::JpegCompressionOptions *options) {
+bool JpegOptimizer::CreateOptimizedJpeg(const std::string &original,
+    std::string *compressed, const JpegCompressionOptions& options) {
   jpeg_decompress_struct* jpeg_decompress = reader_.decompress_struct();
 
   bool result = DoCreateOptimizedJpeg(original, jpeg_decompress, compressed,
@@ -430,21 +489,11 @@ bool JpegScanlineWriter::Init(const size_t width, const size_t height,
 
 void JpegScanlineWriter::SetJpegCompressParams(
     const JpegCompressionOptions& options) {
-  // Set the compression parameters if set, else use the defaults.
   if (!options.lossy) {
     LOG(DFATAL) << "Unable to perform lossless encoding in JpegScanlineWriter."
-                << "Using default lossy encoding quality.";
-  } else if (options.quality > 0 && options.quality <= 100) {
-    jpeg_set_quality(&data_->jpeg_compress_, options.quality, 1);
-  } else if (options.quality != -1) {
-    // -1 indicates default quality. Otherwise the valid is invalid.
-    LOG(DFATAL) << "Invalid jpeg quality: " << options.quality
-                << ". Jpeg quality should be in range [1,100]";
+                << "Using jpeg default lossy encoding options.";
   }
-
-  if (options.progressive) {
-    jpeg_simple_progression(&data_->jpeg_compress_);
-  }
+  SetJpegCompressBeforeStartCompress(options, NULL, &data_->jpeg_compress_);
 }
 
 bool JpegScanlineWriter::InitializeWrite(std::string *compressed) {
@@ -471,12 +520,13 @@ void JpegScanlineWriter::AbortWrite() {
 bool OptimizeJpeg(const std::string &original,
                   std::string *compressed) {
   JpegOptimizer optimizer;
-  return optimizer.CreateOptimizedJpeg(original, compressed, NULL);
+  JpegCompressionOptions options;
+  return optimizer.CreateOptimizedJpeg(original, compressed, options);
 }
 
 bool OptimizeJpegWithOptions(const std::string &original,
                              std::string *compressed,
-                             const JpegCompressionOptions *options) {
+                             const JpegCompressionOptions &options) {
   JpegOptimizer optimizer;
   return optimizer.CreateOptimizedJpeg(original, compressed, options);
 }
