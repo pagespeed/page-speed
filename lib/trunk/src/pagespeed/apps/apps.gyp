@@ -82,6 +82,7 @@
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_converter',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_jpeg_optimizer',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_png_optimizer',
+        '<(pagespeed_root)/third_party/google-gflags/google-gflags.gyp:google-gflags',
       ],
       'sources': [
         'optimize_image.cc',
