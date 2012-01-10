@@ -21,6 +21,7 @@
 #include <setjmp.h>  // for setjmp/longjmp
 #include <stdio.h>  // provides FILE for jpeglib (needed for certain builds)
 #include <string.h>  // for memset
+#include <algorithm>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
