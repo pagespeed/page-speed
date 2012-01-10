@@ -129,8 +129,6 @@ pagespeed::PagespeedInput* ParseProtoInput(const std::string& file_contents) {
 }
 
 void PrintUsage() {
-  fprintf(stderr, "\n");
-  std::vector<std::string> matching;
   ::google::ShowUsageWithFlagsRestrict(::google::GetArgv0(), __FILE__);
 }
 
