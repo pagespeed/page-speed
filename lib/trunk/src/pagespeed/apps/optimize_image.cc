@@ -214,7 +214,8 @@ int main(int argc, char** argv) {
            static_cast<int>(savings),
            percent_savings);
   }
-  std::ofstream out(FLAGS_output_file, std::ios::out | std::ios::binary);
+  std::ofstream out(FLAGS_output_file.c_str(),
+                    std::ios::out | std::ios::binary);
   if (!out) {
     fprintf(stderr, "Error opening %s for write.\n",
             FLAGS_output_file.c_str());
