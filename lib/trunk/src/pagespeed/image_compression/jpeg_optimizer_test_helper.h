@@ -16,6 +16,9 @@
 // in jpeg_optimizer_test.cc, since doing so causes symbol collisions on
 // Windows.
 
+#ifndef PAGESPEED_IMAGE_COMPRESSION_JPEG_OPTIMIZER_TEST_HELPER_H_
+#define PAGESPEED_IMAGE_COMPRESSION_JPEG_OPTIMIZER_TEST_HELPER_H_
+
 #include <string>
 
 namespace pagespeed_testing {
@@ -42,3 +45,5 @@ int GetExifDataMarker();
 
 }  // namespace image_compression
 }  // namespace pagespeed_testing
+
+#endif  // PAGESPEED_IMAGE_COMPRESSION_JPEG_OPTIMIZER_TEST_HELPER_H_
