@@ -23,6 +23,7 @@
             '../zlib/zlib.gyp:zlib',
           ],
           'sources': [
+            'pnglibconf.h',
             'src/png.c',
             'src/png.h',
             'src/pngconf.h',
@@ -46,11 +47,13 @@
             'src/pngwutil.c',
           ],
           'include_dirs': [
+            '<(DEPTH)',
             '.',
             'src',
           ],
           'direct_dependent_settings': {
             'include_dirs': [
+              '<(DEPTH)',
               '.',
               'src',
             ],
