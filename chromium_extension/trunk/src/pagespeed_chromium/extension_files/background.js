@@ -177,6 +177,7 @@ var pagespeed_bg = {
         console.log('Failed to request resource ' + url);
         delete fetchContext.xhrs[url];
         fetchContext.numOutstandingResources--;
+        clearTimeout(timeoutCallbackId);
       }
     }
 
