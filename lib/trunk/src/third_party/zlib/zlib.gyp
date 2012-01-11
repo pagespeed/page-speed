@@ -45,10 +45,12 @@
             'src/zutil.h',
           ],
           'include_dirs': [
+            '<(DEPTH)',
             'src',
           ],
           'direct_dependent_settings': {
             'include_dirs': [
+              '<(DEPTH)',
               'src',
             ],
           },

@@ -20,6 +20,7 @@
           'target_name': 'libjpeg',
           'type': 'static_library',
           'sources': [
+            'jconfig.h',
             'src/jaricom.c',
             'src/jcapimin.c',
             'src/jcapistd.c',
@@ -75,8 +76,15 @@
             'src/jutils.c',
             'src/jversion.h',
           ],
+          'include_dirs': [
+            '<(DEPTH)',
+            '.',
+            'src',
+          ],
           'direct_dependent_settings': {
             'include_dirs': [
+              '<(DEPTH)',
+              '.',
               'src',
             ],
           },
