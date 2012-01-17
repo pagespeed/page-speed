@@ -106,6 +106,7 @@ TEST(RuleProviderTest, AppendRuleSet) {
 TEST(RuleProviderTest, CreateRuleWithName) {
   // Test that each rule type is recognized correctly.
   TestNamedRule("AvoidBadRequests");
+  TestNamedRule("AvoidCharsetInMetaTag");
   TestNamedRule("AvoidCssImport");
   TestNamedRule("CombineExternalCss");
   TestNamedRule("CombineExternalJavaScript");
