@@ -19,6 +19,7 @@
 
 #include "base/string_util.h"
 #include "pagespeed/rules/avoid_bad_requests.h"
+#include "pagespeed/rules/avoid_charset_in_meta_tag.h"
 #include "pagespeed/rules/avoid_css_import.h"
 #include "pagespeed/rules/avoid_excess_serialization.h"
 #include "pagespeed/rules/avoid_long_running_scripts.h"
@@ -159,6 +160,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   } \
 }
   RULE("avoidbadrequests", rules::AvoidBadRequests());
+  RULE("avoidcharsetinmetatag", rules::AvoidCharsetInMetaTag());
   RULE("avoidcssimport", rules::AvoidCssImport());
   RULE("avoidexcessserialization", rules::AvoidExcessSerialization());
   RULE("avoidlongrunningscripts", rules::AvoidLongRunningScripts());
