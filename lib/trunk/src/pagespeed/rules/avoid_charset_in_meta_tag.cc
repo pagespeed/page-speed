@@ -36,6 +36,8 @@ const char* kContentTypeHeaderName = "content-type";
 // In IE8 this is the default character set.
 const char* kDefaultCharset = "iso-8859-1";
 
+const char* kCharset = "charset";
+
 bool GetCharsetFromHeader(const std::string& header, std::string* out_charset) {
   pagespeed::resource_util::DirectiveMap directives;
   if (!pagespeed::resource_util::GetHeaderDirectives(header, &directives)) {
@@ -43,7 +45,7 @@ bool GetCharsetFromHeader(const std::string& header, std::string* out_charset) {
   }
 
   pagespeed::resource_util::DirectiveMap::const_iterator charset_it =
-      directives.find("charset");
+      directives.find(kCharset);
   if (charset_it == directives.end()) {
     return false;
   }
@@ -96,6 +98,22 @@ void MetaCharsetFilter::StartElement(net_instaweb::HtmlElement* element) {
     return;
   }
 
+  // HTML5 allows the charset to be specified like so: <meta
+  // charset="UTF-8" />.
+  //
+  // TODO(bmcquade): switch to element->AttributeValue() once HtmlName
+  // includes a "charset" keyword.
+  for (int i = 0; i < element->attribute_size(); ++i) {
+    const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
+    if (base::strcasecmp(kCharset, attr.name_str()) == 0) {
+      meta_charset_content_ = attr.value();
+      meta_charset_begin_line_number_ = element->begin_line_number();
+      return;
+    }
+  }
+
+  // Traditionally charset was specified via http-equiv, so check for
+  // that case next.
   const char* equiv_header_name =
       element->AttributeValue(net_instaweb::HtmlName::kHttpEquiv);
   if (equiv_header_name == NULL) {
