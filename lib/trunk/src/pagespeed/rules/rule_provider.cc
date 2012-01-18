@@ -61,6 +61,7 @@ namespace rule_provider {
 // The names of the Rules in each RuleSet.  Each list must be NULL-terminated
 static const char* kCoreRules[] = {
   "avoidbadrequests",
+  "avoidcharsetinmetatag",
   "avoidcssimport",
   "avoidexcessserialization",
   "avoidlongrunningscripts",
