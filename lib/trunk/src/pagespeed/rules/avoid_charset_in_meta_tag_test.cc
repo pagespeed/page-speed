@@ -74,6 +74,8 @@ const char* kHtmlMetaContentTypeCharsetTwice =
     "chARseT=UTF-8' /><meta hTtP-eQuiV='cOnTeNt-tYpE' content='text/html; "
     "chARseT=UTF-16' /></html>";
 
+const char* kHtml5MetaCharset = "<html><meta charset='UTF-8' /></html>";
+
 TEST_F(AvoidCharsetInMetaTagTest, HasMetaCharsetTag) {
   std::string meta_charset_content;
   int meta_charset_begin_line_number;
@@ -149,6 +151,11 @@ TEST_F(AvoidCharsetInMetaTagTest, NonDefaultCharsetNotHtmlContentType) {
                   "text/plain",
                   kHtmlMetaContentTypeNonDefaultCharset);
   CheckNoViolations();
+}
+
+TEST_F(AvoidCharsetInMetaTagTest, Html5MetaCharset) {
+  AddTestResource(kUrl1, kHtml5MetaCharset);
+  CheckOneUrlViolation(kUrl1);
 }
 
 }  // namespace
