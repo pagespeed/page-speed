@@ -219,7 +219,8 @@ bool RuleInput::GetCompressedResponseBodySize(const Resource& resource,
   // Compute the compressed size of the resource (or original size if the
   // resource is not compressible).
   int compressed_size;
-  if (::pagespeed::resource_util::IsCompressibleResource(resource)) {
+  if (::pagespeed::resource_util::IsCompressibleResource(resource) ||
+      ::pagespeed::resource_util::IsCompressedResource(resource)) {
     if (!::pagespeed::resource_util::GetGzippedSize(
             resource.GetResponseBody(), &compressed_size)) {
       return false;
