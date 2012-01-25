@@ -888,30 +888,14 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
   // The HAR will only include resources that were loaded while the DevTools
   // panel was open, but we need all the resources.  Our trick is this: if (and
   // only if) the DevTools panel was open when the page started loading, then
-  // the first resource entry will be the main document resource (I think).
-  // So, we check to see if the URL of the first resource matches the URL of
-  // the page.  If so, we assume we have everything, and continue.  If not, we
-  // reload the page; when the page finishes loading, our callback will call
-  // the onPageLoaded() method of this ResourceAccumulator, and we can try
-  // again.
-  function removeFragments(url) {
-    var url_no_fragments = url;
-    var fragment_pos = url_no_fragments.indexOf('#');
-    if (fragment_pos > 0) {
-      url_no_fragments = url_no_fragments.substr(0, fragment_pos);
-    }
-    return url_no_fragments;
-  }
+  // the pages field of HAR is not empty.  So, we check to see if the pages
+  // exist. If so, we assume we have everything, and continue.  If not, we
+  // reload the page; when the page finishes loading, our callback will call the
+  // onPageLoaded() method of this ResourceAccumulator, and we can try again.
 
   var need_reload = false;
-  if (har.entries.length === 0) {
+  if (har.entries.length === 0 || har.pages.length == 0) {
     need_reload = true;
-  } else {
-    var pageref_no_fragments = removeFragments(har.entries[0].pageref);
-    var url_no_fragments = removeFragments(har.entries[0].request.url);
-    if (url_no_fragments !== pageref_no_fragments) {
-      need_reload = true;
-    }
   }
 
   if (need_reload) {
