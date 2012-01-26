@@ -1,0 +1,14 @@
+{
+  "bundles": [
+    {
+      "name": "sdk_tools",
+      "description": "Native Client SDK Tools, revision 1.10",
+      "stability": "stable",
+      "recommended": "yes",
+      "version": 1,
+      "archives": [],
+      "revision": 10
+    }
+  ],
+  "manifest_version": 1
+}
