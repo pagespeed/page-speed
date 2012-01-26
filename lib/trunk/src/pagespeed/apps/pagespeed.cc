@@ -55,7 +55,7 @@
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "pagespeed/timeline/json_importer.h"
-#include "third_party/google-gflags/src/google/gflags.h"
+#include "third_party/gflags/src/google/gflags.h"
 
 DEFINE_string(input_format, "har",
               "Format of input_file. One of 'har' or 'proto'.");

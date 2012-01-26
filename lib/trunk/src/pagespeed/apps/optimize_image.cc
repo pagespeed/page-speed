@@ -27,7 +27,7 @@
 #include "pagespeed/image_compression/image_converter.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
-#include "third_party/google-gflags/src/google/gflags.h"
+#include "third_party/gflags/src/google/gflags.h"
 
 DEFINE_string(input_file, "", "Path to input file. '-' to read from stdin.");
 DEFINE_string(output_file, "", "Path to output file.");

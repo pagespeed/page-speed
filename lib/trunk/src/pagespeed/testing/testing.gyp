@@ -28,7 +28,7 @@
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
-        '<(pagespeed_root)/third_party/google-gflags/google-gflags.gyp:google-gflags',
+        '<(pagespeed_root)/third_party/gflags/gflags.gyp:gflags',
       ],
       'sources': [
         'fake_dom.cc',
@@ -52,7 +52,7 @@
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
         '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
-        '<(pagespeed_root)/third_party/google-gflags/google-gflags.gyp:google-gflags',
+        '<(pagespeed_root)/third_party/gflags/gflags.gyp:gflags',
       ],
       'sources': [
         'pagespeed_test_main.cc',

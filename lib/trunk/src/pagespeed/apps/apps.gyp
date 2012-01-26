@@ -56,7 +56,7 @@
       'type': 'executable',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(pagespeed_root)/third_party/google-gflags/google-gflags.gyp:google-gflags',
+        '<(pagespeed_root)/third_party/gflags/gflags.gyp:gflags',
         '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(pagespeed_root)/pagespeed/dom/dom.gyp:pagespeed_json_dom',
         '<(pagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
@@ -82,7 +82,7 @@
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_converter',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_jpeg_optimizer',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_png_optimizer',
-        '<(pagespeed_root)/third_party/google-gflags/google-gflags.gyp:google-gflags',
+        '<(pagespeed_root)/third_party/gflags/gflags.gyp:gflags',
       ],
       'sources': [
         'optimize_image.cc',

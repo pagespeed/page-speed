@@ -17,7 +17,7 @@
 #include "google/protobuf/stubs/common.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "third_party/google-gflags/src/google/gflags.h"
+#include "third_party/gflags/src/google/gflags.h"
 
 namespace {
 

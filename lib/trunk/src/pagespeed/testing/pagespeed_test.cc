@@ -25,7 +25,7 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/formatted_results_test_converter.h"
-#include "third_party/google-gflags/src/google/gflags.h"
+#include "third_party/gflags/src/google/gflags.h"
 
 DEFINE_string(srcroot, ".", "Path to the root of the source tree. "
               "Needed by tests that use testdata stored in the source tree.");
