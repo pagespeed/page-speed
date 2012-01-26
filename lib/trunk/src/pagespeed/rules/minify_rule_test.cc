@@ -145,8 +145,8 @@ TEST_F(MinifyTest, FormatViolationWithCompression) {
   AddTestResourceWithCompression("http://www.example.com/foo.txt",
                                  "alkcvmslkvmlsakejflaskjvlaksmvlwekm", true);
   CheckOneUrlViolation("http://www.example.com/foo.txt");
-  ASSERT_EQ("You could save 9B (26%)\n"
-            "  http://www.example.com/foo.txt 9B (26%) after compression\n",
+  ASSERT_EQ("You could save 26B (74%)\n"
+            "  http://www.example.com/foo.txt 26B (74%) after compression\n",
             FormatResults());
 
   // We also want to make sure that the formatter does the right thing
@@ -159,8 +159,8 @@ TEST_F(MinifyTest, FormatViolationWithCompression) {
   const pagespeed::Result& res = result(0);
   ASSERT_TRUE(res.has_details());
   const_cast<pagespeed::Result&>(res).clear_details();
-  ASSERT_EQ("You could save 9B (26%)\n"
-            "  http://www.example.com/foo.txt 9B (26%)\n",
+  ASSERT_EQ("You could save 26B (74%)\n"
+            "  http://www.example.com/foo.txt 26B (74%)\n",
             FormatResults());
 }
 
