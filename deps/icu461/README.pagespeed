@@ -1,0 +1,80 @@
+Name: ICU
+URL: http://site.icu-project.org/
+License: X License (old version). For license pedigree see the
+         ICU FAQ at http://icu-project.org/userguide/icufaq.html
+License File: license.html
+
+Description:
+This directory contains the source code of ICU 4.6.1 for C/C++. Based
+on ICU code from Chromium's repository. See Chromium's ICU
+README.chromium file for details on Chromium modifications to the ICU
+library.
+
+Page Speed uses ICU to enable IDN
+(http://en.wikipedia.org/wiki/Internationalized_domain_name) support
+in googleurl. Thus we can remove all parts of the ICU data file
+(http://userguide.icu-project.org/icudata), except for the IDN
+stringprep profile "nameprep" (http://tools.ietf.org/html/rfc3491),
+which is required for IDN. To do this we generate a custom ICU data
+file. Our process for generating a custom ICU data file is:
+
+On Linux:
+Download an ICU source tarball for the version of ICU being used, from
+http://site.icu-project.org/download. untar that file, cd into the
+'icu' directory, and follow these steps:
+
+cd source
+./runConfigureICU Linux
+make  # This builds the entire ICU package
+
+cd data
+make clean
+make build-local
+echo "rfc3491.spp" > out/tmp/icudata.lst
+make packagedata
+
+The resulting .s file is at out/tmp/icudt46l_dat.s and should be
+copied to genfiles/arch/linux/common/icudata/icudt46l_dat.S
+
+In order to prevent exporting the ICU data as a public symbol, we add
+#ifndef PUBLIC_SYMBOL
+	.hidden icudt46_dat
+#endif
+
+near the head of the .S file. See the existing Linux .S file for an example.
+
+
+
+On Mac:
+Same process as Linux, except for the runConfigureICU step, which
+should instead be:
+./runConfigureICU MacOSX
+
+In order to prevent exporting the ICU data as a public symbol, we add
+	.private_extern _icudt46_dat
+
+near the head of the .s file. See the existing mac .s file for an example.
+
+
+
+On Windows:
+Download an ICU source zip for the version of ICU being used, from
+http://site.icu-project.org/download. unzip that file, open the
+'icu->source->allinone' directory, and open allinone.sln in Visual
+Studio. Change to a release build and build the 'makedata'
+project. Once that completes:
+
+edit source\data\out\tmp\icudata.lst to contain one one line: "rfc3491.spp"
+
+Open a Visual Studio Command Prompt (from the 'Tools' menu) and run:
+
+> cd c:\src\icu\source\data\out\build\icudt46l
+
+> c:\src\icu\bin\pkgdata.exe -f -e icudt46 -v -m static -c -p icudt46l -T c:\src\icu\source\data\out\tmp -L icudt46 -d c:\src\icu\source\data\out\build\icudt46l -s . c:\src\icu\source\data\out\tmp\icudata.lst
+
+This will generate icudt46.lib in source\data\out\tmp, which you can copy to genfiles\arch\win\ia32\icudata and check in.
+
+> c:\src\icu\bin\pkgdata.exe -f -e icudt46 -v -m dll -c -p icudt46l -T c:\src\icu\source\data\out\tmp -L icudt46 -d c:\src\icu\source\data\out\build\icudt46l -s . c:\src\icu\source\data\out\tmp\icudata.lst
+
+This will generate icudt46.dll in the current directory, which you can copy to genfiles\arch\win\ia32\icudata and check in.
+
