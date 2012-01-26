@@ -55,27 +55,27 @@
              # version is an identical copy of the (mac) icudt46l_dat.S file,
              # modulo removal of the .private_extern and .const directives and
              # with no leading underscore on the icudt46_dat symbol.
-             'gen/arch/linux/common/icudata/icudt46l_dat.S',
-             'gen/arch/mac/common/icudata/icudt46l_dat.s',
+             'genfiles/arch/linux/common/icudata/icudt46l_dat.S',
+             'genfiles/arch/mac/common/icudata/icudt46l_dat.s',
           ],
           'conditions': [
             [ 'OS == "win"', {
               'link_settings': {
                 'libraries': [
-                  '<(DEPTH)/third_party/icu/gen/arch/win/ia32/icudata/icudt46.lib',
+                  '<(DEPTH)/third_party/icu/genfiles/arch/win/ia32/icudata/icudt46.lib',
                 ],
               },
               'sources': [
                 # In order to pass our icudt46.lib dependency on to dependent
                 # targets, we need to have at least one source file.
-                'gen/arch/win/ia32/icudata/empty.c',
+                'genfiles/arch/win/ia32/icudata/empty.c',
               ],
             }],
             [ 'OS == "win" or OS == "mac"', {
-              'sources!': ['gen/arch/linux/common/icudata/icudt46l_dat.S'],
+              'sources!': ['genfiles/arch/linux/common/icudata/icudt46l_dat.S'],
             }],
             [ 'OS != "mac"', {
-              'sources!': ['gen/arch/mac/common/icudata/icudt46l_dat.s'],
+              'sources!': ['genfiles/arch/mac/common/icudata/icudt46l_dat.s'],
             }],
             [ 'library != "shared_library"', {
               'defines': [
@@ -251,6 +251,7 @@
           'direct_dependent_settings': {
             'include_dirs': [
               'source/common',
+              'genfiles/arch/<(OS)/common/include',
             ],
             'conditions': [
               [ 'component=="static_library"', {
