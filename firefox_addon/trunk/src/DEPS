@@ -105,9 +105,10 @@ deps = {
   "src/testing/gtest": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 
-  "src/third_party/zlib/src": "/deps/zlib-1.2.5",
-  "src/third_party/libpng/src": "/deps/libpng-1.5.4",
+  "src/third_party/gflags": "/deps/gflags-2.0",
   "src/third_party/libjpeg/src": "/deps/jpeg-8c",
+  "src/third_party/libpng/src": "/deps/libpng-1.5.4",
+  "src/third_party/zlib/src": "/deps/zlib-1.2.5",
 }
 
 
