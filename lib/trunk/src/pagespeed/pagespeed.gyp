@@ -115,7 +115,6 @@
         '<(pagespeed_root)/pagespeed/timeline/timeline.gyp:pagespeed_timeline',
         '<(pagespeed_root)/pagespeed/util/util.gyp:pagespeed_util',
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
       ],
       'include_dirs': [
         '<(pagespeed_root)',
@@ -213,7 +212,6 @@
         '<(pagespeed_root)/pagespeed/testing/testing.gyp:pagespeed_testing',
         '<(pagespeed_root)/pagespeed/testing/testing.gyp:pagespeed_test_main',
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
         '<(pagespeed_root)/third_party/readpng/readpng.gyp:readpng',
