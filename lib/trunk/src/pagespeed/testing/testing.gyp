@@ -62,6 +62,7 @@
         'pagespeed_test_main.cc',
       ],
       'include_dirs': [
+        '<(DEPTH)',
         '<(pagespeed_root)',
       ],
     },
