@@ -1,0 +1,48 @@
+{
+  "bundles": [
+    {
+      "name": "sdk_tools",
+      "description": "Native Client SDK Tools, revision 1.10",
+      "stability": "stable",
+      "recommended": "yes",
+      "version": 1,
+      "archives": [],
+      "revision": 10
+    },
+    {
+      "name": "pepper_17",
+      "description": "Chrome 17 bundle, revision 112997",
+      "stability": "dev",
+      "recommended": "no",
+      "version": 17,
+      "archives": [
+        {
+          "url": "https://commondatastorage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/trunk.112997/naclsdk_mac.tgz",
+          "checksum": {
+            "sha1": "ca8f1462d273405d87de857cad82c9964285c3a8"
+          },
+          "host_os": "mac",
+          "size": 143931310
+        },
+        {
+          "url": "https://commondatastorage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/trunk.112997/naclsdk_linux.tgz",
+          "checksum": {
+            "sha1": "610200cb6c64556099936aaa4ac660b782a8c170"
+          },
+          "host_os": "linux",
+          "size": 142672469
+        },
+        {
+          "url": "https://commondatastorage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/trunk.112997/naclsdk_win.exe",
+          "checksum": {
+            "sha1": "6690ad707fe22ea7709d7411af2815ab35036e86"
+          },
+          "host_os": "win",
+          "size": 55142078
+        }
+      ],
+      "revision": 112997
+    }
+  ],
+  "manifest_version": 1
+}
