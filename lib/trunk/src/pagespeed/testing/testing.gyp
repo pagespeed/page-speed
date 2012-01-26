@@ -44,6 +44,9 @@
           '<(pagespeed_root)',
         ],
       },
+      'export_dependent_settings': [
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+      ],
     },
     {
       'target_name': 'pagespeed_test_main',
