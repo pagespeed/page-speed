@@ -23,8 +23,6 @@ vars = {
   "libharu_revision": "@RELEASE_2_2_0",
   "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.4.1",
   "protobuf_revision": "@head",
-  "gflags_src": "http://google-gflags.googlecode.com/svn/tags/gflags-1.5",
-  "gflags_revision": "@head",
   "drp_src": "http://domain-registry-provider.googlecode.com/svn/trunk",
   "drp_revision": "@29",
 }
@@ -57,9 +55,6 @@ deps = {
 
   "src/third_party/domain_registry_provider/src":
     Var("drp_src") + "/src" + Var("drp_revision"),
-
-  "src/third_party/google-gflags/src":
-    Var("gflags_src") + "/src" + Var("gflags_revision"),
 
   "src/third_party/icu/public":
     (Var("chromium_trunk") + "/deps/third_party/icu46/public" +
@@ -106,6 +101,7 @@ deps = {
   "src/testing/gtest": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 
+  "src/third_party/gflags": "/deps/gflags-2.0",
   "src/third_party/zlib/src": "/deps/zlib-1.2.5",
   "src/third_party/libpng/src": "/deps/libpng-1.5.4",
   "src/third_party/libjpeg/src": "/deps/jpeg-8c",
