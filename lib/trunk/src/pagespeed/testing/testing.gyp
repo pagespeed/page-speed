@@ -45,6 +45,7 @@
         ],
       },
       'export_dependent_settings': [
+        '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
       ],
     },
