@@ -293,8 +293,10 @@ std::string InputPopulator::GetString(const DictionaryValue& object,
 
 }  // namespace
 
+// NOTE: takes ownership of the filter instance.
 PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
-                                           ResourceFilter* resource_filter) {
+                                           ResourceFilter* filter) {
+  scoped_ptr<ResourceFilter> resource_filter(filter);
   std::string error_msg_out;
   scoped_ptr<const Value> har_json(base::JSONReader::ReadAndReturnError(
       har_data,
@@ -306,9 +308,10 @@ PagespeedInput* ParseHttpArchiveWithFilter(const std::string& har_data,
     return NULL;
   }
 
-  scoped_ptr<PagespeedInput> input(resource_filter == NULL ?
-                                   new PagespeedInput() :
-                                   new PagespeedInput(resource_filter));
+  scoped_ptr<PagespeedInput> input(
+      resource_filter == NULL ?
+      new PagespeedInput() :
+      new PagespeedInput(resource_filter.release()));
   if (InputPopulator::Populate(*har_json, input.get())) {
     return input.release();
   } else {

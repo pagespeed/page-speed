@@ -17,11 +17,14 @@
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_filter.h"
 #include "pagespeed/har/http_archive.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using pagespeed::AllowAllResourceFilter;
 using pagespeed::PagespeedInput;
 using pagespeed::ParseHttpArchive;
+using pagespeed::ParseHttpArchiveWithFilter;
 using pagespeed::Resource;
 
 namespace {
@@ -212,6 +215,12 @@ TEST(HttpArchiveTest, ValidInputBase64) {
 
 TEST(HttpArchiveTest, InvalidJSON) {
   scoped_ptr<PagespeedInput> input(ParseHttpArchive("{\"log\":}"));
+  ASSERT_EQ(NULL, input.get());
+}
+
+TEST(HttpArchiveTest, InvalidJSONWithFilter) {
+  scoped_ptr<PagespeedInput> input(
+      ParseHttpArchiveWithFilter("{\"log\":}", new AllowAllResourceFilter()));
   ASSERT_EQ(NULL, input.get());
 }
 
