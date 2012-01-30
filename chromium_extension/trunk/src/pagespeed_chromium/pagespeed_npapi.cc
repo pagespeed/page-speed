@@ -24,6 +24,7 @@
 #include "third_party/npapi/npapi.h"
 #include "third_party/npapi/npfunctions.h"
 
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_number_conversions.h"
@@ -76,6 +77,10 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
                                    const NPVariant& locale_arg,
                                    const NPVariant& save_optimized_content_arg,
                                    NPVariant *result) {
+  // Instantiate an AtExitManager so our Singleton<>s are able to
+  // schedule themselves for destruction.
+  base::AtExitManager at_exit_manager;
+
   if (!NPVARIANT_IS_STRING(har_arg)) {
     return Throw("first argument to runPageSpeed must be a string");
   }

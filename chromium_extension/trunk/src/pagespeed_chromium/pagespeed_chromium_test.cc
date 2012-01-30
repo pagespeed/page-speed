@@ -20,6 +20,8 @@
 
 namespace {
 
+class PagespeedChromiumTest : public ::pagespeed_testing::PagespeedTest {};
+
 const char* kBasicHar =
     "{"
     "  \"log\":{"
@@ -178,7 +180,7 @@ const char* kBasicTimeline =
 const char* kFilterName = "all";
 const char* kLocale = "en";
 
-TEST(PagespeedChromiumTest, EmptyInput) {
+TEST_F(PagespeedChromiumTest, EmptyInput) {
   std::string out, err;
   ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
       "", "", "", kFilterName, "", false, &out, &err));
@@ -186,7 +188,7 @@ TEST(PagespeedChromiumTest, EmptyInput) {
   ASSERT_EQ("could not parse HAR", err);
 }
 
-TEST(PagespeedChromiumTest, Basic) {
+TEST_F(PagespeedChromiumTest, Basic) {
   std::string out, err;
   ASSERT_TRUE(pagespeed_chromium::RunPageSpeedRules(kBasicHar,
                                                     kBasicDocument,
