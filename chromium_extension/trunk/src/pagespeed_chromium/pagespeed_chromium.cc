@@ -17,13 +17,6 @@
 #include <string>
 #include <vector>
 
-#ifdef _WINDOWS
-#include <windows.h>
-#endif
-
-#include "third_party/npapi/npapi.h"
-#include "third_party/npapi/npfunctions.h"
-
 #include "base/at_exit.h"
 #include "base/base64.h"
 #include "base/basictypes.h"
@@ -44,6 +37,7 @@
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/dom/json_dom.h"
 #include "pagespeed/timeline/json_importer.h"
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/response_byte_result_filter.h"
@@ -58,13 +52,8 @@
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/rules/rule_provider.h"
-#include "pagespeed_chromium/json_dom.h"
 
 namespace {
-
-// These are the method names as JavaScript sees them:
-const char* kPingMethodId = "ping";
-const char* kRunPageSpeedMethodId = "runPageSpeed";
 
 pagespeed::ResourceFilter* NewFilter(const std::string& analyze) {
   if (analyze == "ads") {
@@ -130,14 +119,18 @@ void SerializeOptimizedContent(const pagespeed::Results& results,
   }
 }
 
+}  // namespace
+
+namespace pagespeed_chromium {
+
 // Parse the HAR data and run the Page Speed rules, then format the results.
 // Return false if the HAR data could not be parsed, true otherwise.
 // This function will take ownership of the filter and document arguments, and
 // will delete them before returning.
 bool RunPageSpeedRules(const std::string& har_data,
-                       pagespeed::DomDocument* document,
-                       pagespeed::InstrumentationDataVector* timeline_events,
-                       pagespeed::ResourceFilter* filter,
+                       const std::string& document_data,
+                       const std::string& timeline_data,
+                       const std::string& resource_filter_name,
                        const std::string& locale,
                        bool save_optimized_content,
                        std::string* output_string,
@@ -149,12 +142,41 @@ bool RunPageSpeedRules(const std::string& har_data,
   // Parse the HAR into a PagespeedInput object.  ParseHttpArchiveWithFilter
   // will ensure that filter gets deleted.
   scoped_ptr<pagespeed::PagespeedInput> input(
-      pagespeed::ParseHttpArchiveWithFilter(har_data, filter));
+      pagespeed::ParseHttpArchiveWithFilter(
+          har_data, NewFilter(resource_filter_name)));
   if (input.get() == NULL) {
-    delete document;
     *error_string = "could not parse HAR";
     return false;
   }
+
+  pagespeed::InstrumentationDataVector timeline_protos;
+  STLElementDeleter<pagespeed::InstrumentationDataVector>
+      timeline_deleter(&timeline_protos);
+  if (!pagespeed::timeline::CreateTimelineProtoFromJsonString(
+          timeline_data, &timeline_protos)) {
+    *error_string = "error in timeline data";
+    return false;
+  }
+
+  std::string error_msg_out;
+  scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
+      document_data,
+      true,  // allow_trailing_comma
+      NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+      &error_msg_out));
+  if (document_json == NULL) {
+    *error_string = "could not parse DOM: " + error_msg_out;
+    return false;
+  }
+  if (!document_json->IsType(Value::TYPE_DICTIONARY)) {
+    *error_string = "DOM must be a JSON dictionary";
+    return false;
+  }
+
+  // Ownership of the document_json is transferred to the returned
+  // DomDocument instance.
+  pagespeed::DomDocument* document = pagespeed::dom::CreateDocument(
+      static_cast<const DictionaryValue*>(document_json.release()));
 
   // Add the DOM document to the PagespeedInput object.
   if (document != NULL) {
@@ -163,7 +185,7 @@ bool RunPageSpeedRules(const std::string& har_data,
   input->AcquireDomDocument(document); // input takes ownership of document
 
   // Finish up the PagespeedInput object and freeze it.
-  input->AcquireInstrumentationData(timeline_events);
+  input->AcquireInstrumentationData(&timeline_protos);
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
   input->Freeze();
@@ -270,247 +292,4 @@ bool RunPageSpeedRules(const std::string& har_data,
   return true;
 }
 
-class PageSpeedModule : public NPObject {
- public:
-  explicit PageSpeedModule(NPP npp) : npp_(npp) {}
-
-  // Run the Page Speed library, given a Javascript reference to the DOM
-  // document (or null) and a Javascript string indicating what filter to use
-  // ("ads", "trackers", "content", or "all").  Returns JSON results (as a
-  // string) to the Javascript caller.
-  bool RunPageSpeed(const NPVariant& har_string,
-                    const NPVariant& dom_document,
-                    const NPVariant& timeline_events,
-                    const NPVariant& filter_name,
-                    const NPVariant& locale_string,
-                    const NPVariant& save_optimized_content,
-                    NPVariant *result);
-
-  // Indicate that a Javascript exception should be thrown, and return a bool
-  // that can be used as a return value for Invoke().
-  bool Throw(const std::string& message);
-
- private:
-  // An NPP is a handle to an NPAPI plugin, and we need it to be able to call
-  // out to Javascript via functions like NPN_GetProperty().  We keep it here
-  // so we can pass it to ChromiumDocument objects we create, so that those
-  // objects can call out to Javascript to inspect the DOM.
-  const NPP npp_;
-
-  DISALLOW_COPY_AND_ASSIGN(PageSpeedModule);
-};
-
-// Run Page Speed on the contents of the input buffer, and put the results into
-// the output buffer.
-bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
-                                   const NPVariant& document_arg,
-                                   const NPVariant& timeline_arg,
-                                   const NPVariant& filter_arg,
-                                   const NPVariant& locale_arg,
-                                   const NPVariant& save_optimized_content_arg,
-                                   NPVariant *result) {
-  if (!NPVARIANT_IS_STRING(har_arg)) {
-    return Throw("first argument to runPageSpeed must be a string");
-  }
-  if (!NPVARIANT_IS_STRING(document_arg)) {
-    return Throw("second argument to runPageSpeed must be a string");
-  }
-  if (!NPVARIANT_IS_STRING(timeline_arg)) {
-    return Throw("third argument to runPageSpeed must be a string");
-  }
-  if (!NPVARIANT_IS_STRING(filter_arg)) {
-    return Throw("fourth argument to runPageSpeed must be a string");
-  }
-  if (!NPVARIANT_IS_STRING(locale_arg)) {
-    return Throw("fifth argument to runPageSpeed must be a string");
-  }
-  if (!NPVARIANT_IS_BOOLEAN(save_optimized_content_arg)) {
-    return Throw("sixth argument to runPageSpeed must be a boolean");
-  }
-
-  const NPString& har_NPString = NPVARIANT_TO_STRING(har_arg);
-  const std::string har_string(har_NPString.UTF8Characters,
-                               har_NPString.UTF8Length);
-
-  const NPString& document_NPString = NPVARIANT_TO_STRING(document_arg);
-  const std::string document_string(document_NPString.UTF8Characters,
-                                    document_NPString.UTF8Length);
-
-  const NPString& timeline_NPString = NPVARIANT_TO_STRING(timeline_arg);
-  const std::string timeline_string(timeline_NPString.UTF8Characters,
-                                    timeline_NPString.UTF8Length);
-
-  const NPString& filter_NPString = NPVARIANT_TO_STRING(filter_arg);
-  const std::string filter_string(filter_NPString.UTF8Characters,
-                                  filter_NPString.UTF8Length);
-
-  const NPString& locale_NPString = NPVARIANT_TO_STRING(locale_arg);
-  const std::string locale_string(locale_NPString.UTF8Characters,
-                                  locale_NPString.UTF8Length);
-
-  const bool save_optimized_content =
-      NPVARIANT_TO_BOOLEAN(save_optimized_content_arg);
-
-  std::string error_msg_out;
-  scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
-      document_string,
-      true,  // allow_trailing_comma
-      NULL,  // error_code_out (ReadAndReturnError permits NULL here)
-      &error_msg_out));
-  if (document_json == NULL) {
-    return Throw("could not parse DOM: " + error_msg_out);
-  }
-  if (!document_json->IsType(Value::TYPE_DICTIONARY)) {
-    return Throw("DOM must be a JSON dictionary");
-  }
-  // The document does _not_ get ownership of document_json.  The reason for
-  // this design choice is that the Value objects for subdocuments are owned by
-  // their parent Value objects, so in order to avoid a double-free, instances
-  // of the JsonDocument class need to not own the Value objects on which
-  // they're based.
-  pagespeed::DomDocument* document = pagespeed_chromium::CreateDocument(
-      static_cast<const DictionaryValue*>(document_json.get()));
-
-  pagespeed::InstrumentationDataVector timeline_protos;
-  STLElementDeleter<pagespeed::InstrumentationDataVector>
-      timeline_deleter(&timeline_protos);
-  if (!pagespeed::timeline::CreateTimelineProtoFromJsonString(
-          timeline_string, &timeline_protos)) {
-    return Throw("error in timeline data");
-  }
-
-  std::string output, error_string;
-  // RunPageSpeedRules will deallocate the filter and the document.
-  const bool success = RunPageSpeedRules(
-      har_string, document, &timeline_protos, NewFilter(filter_string),
-      locale_string, save_optimized_content, &output, &error_string);
-  if (!success) {
-    return Throw(error_string);
-  }
-
-  if (result) {
-    const size_t data_length = output.size();
-    char* data_copy = static_cast<char*>(npnfuncs->memalloc(data_length));
-    memcpy(data_copy, output.data(), data_length);
-    STRINGN_TO_NPVARIANT(data_copy, data_length, *result);
-  }
-  return true;
-}
-
-bool PageSpeedModule::Throw(const std::string& message) {
-  LOG(ERROR) << "PageSpeedModule::Throw " << message;
-  npnfuncs->setexception(this, message.c_str());
-  // You'd think we'd want to return false, to indicate an error.  If we do
-  // that, then Chrome will still throw a JS error, but it will use a generic
-  // error message instead of the one given here.  Using true seems to work.
-  return true;
-}
-
-NPObject* Allocate(NPP npp, NPClass* npclass) {
-  return new PageSpeedModule(npp);
-}
-
-void Deallocate(NPObject* object) {
-  delete object;
-}
-
-// Return true if method_name is a recognized method.
-bool HasMethod(NPObject* obj, NPIdentifier method_name) {
-  char *name = npnfuncs->utf8fromidentifier(method_name);
-  bool has_method = false;
-  if (!strcmp(name, kPingMethodId)) {
-    has_method = true;
-  } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    has_method = true;
-  }
-  npnfuncs->memfree(name);
-  return has_method;
-}
-
-// Called by the browser to invoke the default method on an NPObject.
-// Returns null.
-// Apparently the plugin won't load properly if we simply
-// tell the browser we don't have this method.
-// Called by NPN_InvokeDefault, declared in npruntime.h
-// Documentation URL: https://developer.mozilla.org/en/NPClass
-bool InvokeDefault(NPObject *obj, const NPVariant *args,
-                   uint32_t argCount, NPVariant *result) {
-  if (result) {
-    NULL_TO_NPVARIANT(*result);
-  }
-  return true;
-}
-
-// Invoke() is called by the browser to invoke a function object whose name
-// is method_name.
-bool Invoke(NPObject* obj,
-            NPIdentifier method_name,
-            const NPVariant *args,
-            uint32_t arg_count,
-            NPVariant *result) {
-  NULL_TO_NPVARIANT(*result);
-  char *name = npnfuncs->utf8fromidentifier(method_name);
-  if (name == NULL) {
-    return false;
-  }
-  bool rval = false;
-  PageSpeedModule* module = static_cast<PageSpeedModule*>(obj);
-  // Map the method name to a function call.  |result| is filled in by the
-  // called function, then gets returned to the browser when Invoke() returns.
-  if (!strcmp(name, kPingMethodId)) {
-    if (arg_count == 0) {
-      if (result) {
-        NULL_TO_NPVARIANT(*result);
-      }
-      rval = true;
-    } else {
-      rval = module->Throw("wrong number of arguments to ping");
-    }
-  } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    if (arg_count == 6) {
-      rval = module->RunPageSpeed(args[0], args[1], args[2], args[3], args[4],
-                                  args[5], result);
-    } else {
-      rval = module->Throw("wrong number of arguments to runPageSpeed");
-    }
-  }
-  // Since name was allocated above by npnfuncs->utf8fromidentifier,
-  // it needs to be freed here.
-  npnfuncs->memfree(name);
-  return rval;
-}
-
-// The class structure that gets passed back to the browser.  This structure
-// provides funtion pointers that the browser calls.
-NPClass kPageSpeedClass = {
-  NP_CLASS_STRUCT_VERSION,
-  Allocate,
-  Deallocate,
-  NULL,  // Invalidate is not implemented
-  HasMethod,
-  Invoke,
-  InvokeDefault,
-  NULL,  // HasProperty is not implemented
-  NULL,  // GetProperty is not implemented
-  NULL,  // SetProperty is not implemented
-};
-
-}  // namespace
-
-NPNetscapeFuncs* npnfuncs;
-
-NPClass* GetNPSimpleClass() {
-  return &kPageSpeedClass;
-}
-
-void InitializePageSpeedPlugin() {
-#ifdef NDEBUG
-  // In release builds, don't display INFO logs.
-  logging::SetMinLogLevel(logging::LOG_WARNING);
-#endif
-  pagespeed::Init();
-}
-
-void ShutDownPageSpeedPlugin() {
-  pagespeed::ShutDown();
-}
+}  // namespace pagespeed_chromium

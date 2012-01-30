@@ -37,7 +37,7 @@
 #include "third_party/npapi/npfunctions.h"
 #include "third_party/npapi/npruntime.h"
 
-#include "pagespeed_chromium/pagespeed_chromium.h"
+#include "pagespeed_chromium/pagespeed_npapi.h"
 
 namespace {
 

@@ -38,30 +38,41 @@
   },
   'targets': [
     {
-      'target_name': 'pagespeed_json_dom',
+      'target_name': 'pagespeed_chromium',
       'type': '<(library)',
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        '<(libpagespeed_root)/pagespeed/dom/dom.gyp:pagespeed_json_dom',
+        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
+        '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
+        '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
+        '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
+        '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
+        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
+        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
+        '<(libpagespeed_root)/pagespeed/timeline/timeline.gyp:pagespeed_timeline',
       ],
       'sources': [
-        'json_dom.cc',
+        'pagespeed_chromium.cc',
       ],
-      'export_dependent_settings': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      'include_dirs': [
+        '<(DEPTH)',
       ],
     },
     {
       'target_name': 'pagespeed_chromium_test',
       'type': 'executable',
       'dependencies': [
-        'pagespeed_json_dom',
-        '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/testing/gtest.gyp:gtest_main',
+        'pagespeed_chromium',
+        '<(libpagespeed_root)/pagespeed/testing/testing.gyp:pagespeed_testing',
+        '<(libpagespeed_root)/pagespeed/testing/testing.gyp:pagespeed_test_main',
       ],
       'sources': [
-        'json_dom_test.cc',
+        'pagespeed_chromium_test.cc',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
       ],
     },
     {
@@ -69,22 +80,13 @@
       'type': 'loadable_module',
       'mac_bundle': 1,
       'dependencies': [
+        'pagespeed_chromium',
         '<(DEPTH)/base/base.gyp:base',
-        '<(libpagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
         '<(libpagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
-        '<(libpagespeed_root)/pagespeed/pagespeed.gyp:pagespeed_library',
-        '<(libpagespeed_root)/pagespeed/filters/filters.gyp:pagespeed_filters',
-        '<(libpagespeed_root)/pagespeed/formatters/formatters.gyp:pagespeed_formatters',
-        '<(libpagespeed_root)/pagespeed/har/har.gyp:pagespeed_har',
-        '<(libpagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
         '<(libpagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
-        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
-        '<(libpagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_proto_formatted_results_converter',
-        '<(libpagespeed_root)/pagespeed/timeline/timeline.gyp:pagespeed_timeline',
-        'pagespeed_json_dom',
       ],
       'sources': [
-        'pagespeed_chromium.cc',
+        'pagespeed_npapi.cc',
         'pagespeed_plugin.rc',
         'npapi/np_entry.cc',
         'npapi/npp_entry.cc',
