@@ -122,6 +122,57 @@ void SerializeOptimizedContent(const pagespeed::Results& results,
 
 namespace pagespeed_chromium {
 
+bool RunPageSpeedRules(const std::string& data,
+                       std::string* output_string,
+                       std::string* error_string) {
+  // NOTE: this could be made more efficient by representing the
+  // sub-values as JSON objects rather than strings, and by having a
+  // common RunPageSpeedRules method that takes Value objects. This is
+  // complicated by the fact that some of the values (i.e. the
+  // document value) have ownership transferred to their JSON parser
+  // (e.g. pagespeed::dom::CreateDocument). For now, we take the less
+  // efficient but simpler approach of encoding the sub-values as
+  // strings.
+  scoped_ptr<const Value> data_json(base::JSONReader::ReadAndReturnError(
+      data,
+      true,  // allow_trailing_comma
+      NULL,  // error_code_out (ReadAndReturnError permits NULL here)
+      error_string));
+  if (data_json == NULL) {
+    return false;
+  }
+
+  if (!data_json->IsType(Value::TYPE_DICTIONARY)) {
+    *error_string = "Input is not a JSON dictionary.";
+    return false;
+  }
+
+  const DictionaryValue* root =
+      static_cast<const DictionaryValue*>(data_json.get());
+  std::string har_data, document_data, timeline_data,
+      resource_filter_name, locale;
+  bool save_optimized_content;
+  if (!root->GetString("har", &har_data) ||
+      !root->GetString("document", &document_data) ||
+      !root->GetString("timeline", &timeline_data) ||
+      !root->GetString("resource_filter", &resource_filter_name) ||
+      !root->GetString("locale", &locale) ||
+      !root->GetBoolean("save_optimized_content", &save_optimized_content)) {
+    *error_string = "Failed to extract required field(s) from input JSON.";
+    return false;
+  }
+
+  return RunPageSpeedRules(har_data,
+                           document_data,
+                           timeline_data,
+                           resource_filter_name,
+                           locale,
+                           save_optimized_content,
+                           output_string,
+                           error_string);
+}
+
+
 // Parse the HAR data and run the Page Speed rules, then format the results.
 // Return false if the HAR data could not be parsed, true otherwise.
 // This function will take ownership of the filter and document arguments, and

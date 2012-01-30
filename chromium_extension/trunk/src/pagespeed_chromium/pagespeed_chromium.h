@@ -19,6 +19,28 @@
 
 namespace pagespeed_chromium {
 
+// Runs Page Speed analysis on the given input data.
+// "data" is a serialized JSON object that contains a serialized
+// representation of the har, document, timeline, resource filter,
+// locale, and whether to save optimized content. The field names and
+// types are:
+//  'har': string
+//  'document': string
+//  'timeline': string
+//  'resource_filter': string
+//  'locale': string
+//  'save_optimized_content': boolean
+// Returns true on success, false otherwise. If true, output_string
+// will contain the result. If false, error_string will contain a
+// human-readable error message.
+bool RunPageSpeedRules(const std::string& data,
+                       std::string* output_string,
+                       std::string* error_string);
+
+// Runs Page Speed analysis on the given input values.
+// Returns true on success, false otherwise. If true, output_string
+// will contain the result. If false, error_string will contain a
+// human-readable error message.
 bool RunPageSpeedRules(const std::string& har_data,
                        const std::string& document_data,
                        const std::string& timeline_data,

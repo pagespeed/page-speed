@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "base/json/json_reader.h"
+#include "base/json/json_writer.h"
 #include "base/scoped_ptr.h"
 #include "base/values.h"
 #include "pagespeed_chromium/pagespeed_chromium.h"
@@ -180,24 +181,7 @@ const char* kBasicTimeline =
 const char* kFilterName = "all";
 const char* kLocale = "en";
 
-TEST_F(PagespeedChromiumTest, EmptyInput) {
-  std::string out, err;
-  ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
-      "", "", "", kFilterName, "", false, &out, &err));
-  ASSERT_TRUE(out.empty());
-  ASSERT_EQ("could not parse HAR", err);
-}
-
-TEST_F(PagespeedChromiumTest, Basic) {
-  std::string out, err;
-  ASSERT_TRUE(pagespeed_chromium::RunPageSpeedRules(kBasicHar,
-                                                    kBasicDocument,
-                                                    kBasicTimeline,
-                                                    kFilterName,
-                                                    kLocale,
-                                                    false,
-                                                    &out,
-                                                    &err));
+void AssertValidResponse(const std::string& out, const std::string& err) {
   ASSERT_TRUE(err.empty());
   std::string error_msg_out;
   scoped_ptr<const Value> response_json(base::JSONReader::ReadAndReturnError(
@@ -237,6 +221,62 @@ TEST_F(PagespeedChromiumTest, Basic) {
   double rule_impact = -1.0;
   ASSERT_TRUE(cache_validator_result->GetDouble("rule_impact", &rule_impact));
   ASSERT_EQ(0.25, rule_impact);
+}
+
+TEST_F(PagespeedChromiumTest, EmptyInput) {
+  std::string out, err;
+  ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules("", &out, &err));
+  ASSERT_TRUE(out.empty());
+  ASSERT_EQ("Line: 1, column: 1, Root value must be an array or object.", err);
+
+  ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
+      "", "", "", kFilterName, "", false, &out, &err));
+  ASSERT_TRUE(out.empty());
+  ASSERT_EQ("could not parse HAR", err);
+}
+
+TEST_F(PagespeedChromiumTest, EmptyJsonInput) {
+  std::string out, err;
+  ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules("{}", &out, &err));
+  ASSERT_TRUE(out.empty());
+  ASSERT_EQ("Failed to extract required field(s) from input JSON.", err);
+
+  ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
+      "{}", "{}", "{}", kFilterName, "", false, &out, &err));
+  ASSERT_TRUE(out.empty());
+  ASSERT_EQ("could not parse HAR", err);
+}
+
+TEST_F(PagespeedChromiumTest, Basic) {
+  std::string out, err;
+  ASSERT_TRUE(pagespeed_chromium::RunPageSpeedRules(kBasicHar,
+                                                    kBasicDocument,
+                                                    kBasicTimeline,
+                                                    kFilterName,
+                                                    kLocale,
+                                                    false,
+                                                    &out,
+                                                    &err));
+  AssertValidResponse(out, err);
+}
+
+TEST_F(PagespeedChromiumTest, BasicSingleArgument) {
+  std::string data;
+  {
+    scoped_ptr<DictionaryValue> root(new DictionaryValue);
+    root->SetString("har", kBasicHar);
+    root->SetString("document", kBasicDocument);
+    root->SetString("timeline", kBasicTimeline);
+    root->SetString("resource_filter", kFilterName);
+    root->SetString("locale", kLocale);
+    root->SetBoolean("save_optimized_content", false);
+    base::JSONWriter::Write(root.get(), false, &data);
+  }
+  std::string out, err;
+  ASSERT_TRUE(pagespeed_chromium::RunPageSpeedRules(data,
+                                                    &out,
+                                                    &err));
+  AssertValidResponse(out, err);
 }
 
 }  // namespace
