@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "base/at_exit.h"
 #include "base/base64.h"
 #include "base/basictypes.h"
 #include "base/json/json_reader.h"
@@ -135,10 +134,6 @@ bool RunPageSpeedRules(const std::string& har_data,
                        bool save_optimized_content,
                        std::string* output_string,
                        std::string* error_string) {
-  // Instantiate an AtExitManager so our Singleton<>s are able to
-  // schedule themselves for destruction.
-  base::AtExitManager at_exit_manager;
-
   // Parse the HAR into a PagespeedInput object.  ParseHttpArchiveWithFilter
   // will ensure that filter gets deleted.
   scoped_ptr<pagespeed::PagespeedInput> input(
