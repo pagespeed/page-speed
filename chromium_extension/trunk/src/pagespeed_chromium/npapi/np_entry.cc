@@ -48,7 +48,7 @@
 #include "third_party/npapi/npapi.h"
 #include "third_party/npapi/npfunctions.h"
 
-#include "pagespeed_chromium/pagespeed_chromium.h"
+#include "pagespeed_chromium/pagespeed_npapi.h"
 
 extern "C" {
 

@@ -15,24 +15,19 @@
 #ifndef PAGESPEED_CHROMIUM_PAGESPEED_CHROMIUM_H_
 #define PAGESPEED_CHROMIUM_PAGESPEED_CHROMIUM_H_
 
-#ifdef _WINDOWS
-#include <windows.h>
-#endif
+#include <string>
 
-#include "third_party/npapi/npapi.h"
-#include "third_party/npapi/npfunctions.h"
+namespace pagespeed_chromium {
 
-// Global pointer to NPN functions.  Initialized on plugin startup, before
-// InitializePageSpeedPlugin() is called.
-extern NPNetscapeFuncs* npnfuncs;
+bool RunPageSpeedRules(const std::string& har_data,
+                       const std::string& document_data,
+                       const std::string& timeline_data,
+                       const std::string& resource_filter_name,
+                       const std::string& locale,
+                       bool save_optimized_content,
+                       std::string* output_string,
+                       std::string* error_string);
 
-// Get the NPClass for the plugin object.
-NPClass* GetNPSimpleClass();
-
-// Perform per-process global plugin initialization.
-void InitializePageSpeedPlugin();
-
-// Perform per-process global plugin shut-down.
-void ShutDownPageSpeedPlugin();
+}  // namespace pagespeed_chromium
 
 #endif  // PAGESPEED_CHROMIUM_PAGESPEED_CHROMIUM_H_
