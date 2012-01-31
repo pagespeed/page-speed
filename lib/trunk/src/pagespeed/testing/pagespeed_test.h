@@ -34,6 +34,7 @@
 
 namespace pagespeed {
 class Resource;
+class TopLevelBrowsingContext;
 }  // namespace pagespeed
 
 namespace pagespeed_testing {
@@ -164,6 +165,10 @@ class PagespeedTest : public ::testing::Test {
   pagespeed::Resource* NewCssResource(const std::string& url,
                                       FakeDomElement* parent = NULL,
                                       FakeDomElement** out = NULL);
+
+  // Create a new TopLevelBrowsingContext with the specified document.
+  pagespeed::TopLevelBrowsingContext* NewTopLevelBrowsingContext(
+      const pagespeed::Resource* document_resource);
 
   // Construct default html, head, and body DOM elements under the
   // document. NewPrimaryResource() must be called prior to calling

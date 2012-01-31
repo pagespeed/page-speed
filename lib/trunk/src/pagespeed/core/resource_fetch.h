@@ -78,7 +78,7 @@ class ResourceFetch {
   }
 
   // Returns the URI uniquely identifying this fetch.
-  const std::string& GetUri() const {
+  const std::string& GetResourceFetchUri() const {
     return data_->uri();
   }
 
@@ -131,11 +131,11 @@ class ResourceFetch {
   // A convenience accessor for GetDownload()->GetRequestor().
   const ResourceEvaluation* GetRequestor() const;
 
-  // A convenience accessor for GetDownload()->GetStartSequence().
-  int64 GetStartSequence() const;
+  // A convenience accessor for GetDownload()->GetStartTick().
+  int64 GetStartTick() const;
 
-  // A convenience accessor for GetDownload()->GetFinishSequence().
-  int64 GetFinishSequence() const;
+  // A convenience accessor for GetDownload()->GetFinishTick().
+  int64 GetFinishTick() const;
 
   // Serializes this ResourceFetch and all the ResourceFetchDelays to the
   // specified ResourceFetchData message.
@@ -178,24 +178,24 @@ class ResourceFetchDownload {
   // ResourceFetchDownload had before calling this method is lost. If
   // keep_finish_time is true, the finish time of the specified download wont
   // be copied, marking this download as running from
-  // download.GetStartSequence() to this->GetFinishSequence(). In this case, the
+  // download.GetStartTick() to this->GetFinishTick(). In this case, the
   // caller must ensure that the download start time is before this finish time.
   bool CopyFrom(const ResourceFetchDownload& download, bool keep_finish_time);
 
   // Returns the ResourceEvaluationData that caused this resource download.
   const ResourceEvaluation* GetRequestor() const;
 
-  // Gets the sequence value that describes the order of this load start
+  // Gets the tick value that describes the order of this load start
   // event, relative to other load and/or eval events. The number does not
   // represent the absolute start time.
-  int64 GetStartSequence() const {
+  int64 GetStartTick() const {
     return data_->start().tick();
   }
 
-  // Gets the sequence value that describes the order of this load finish
+  // Gets the tick value that describes the order of this load finish
   // event, relative to other load and/or eval events. The number does not
   // represent the absolute finish time.
-  int64 GetFinishSequence() const {
+  int64 GetFinishTick() const {
     return data_->finish().tick();
   }
 

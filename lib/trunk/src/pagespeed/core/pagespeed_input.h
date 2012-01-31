@@ -21,6 +21,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "pagespeed/core/dom.h"
 #include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/resource.h"
@@ -30,7 +31,6 @@ namespace pagespeed {
 
 class BrowsingContext;
 class ClientCharacteristics;
-class DomDocument;
 class ImageAttributes;
 class ImageAttributesFactory;
 class InputInformation;
@@ -234,6 +234,31 @@ class PagespeedInput {
 
   DISALLOW_COPY_AND_ASSIGN(PagespeedInput);
 };
+
+namespace internal {
+
+// This class is internal and is exposed for testing purposes only.
+class BrowsingContextFactory : public ExternalResourceDomElementVisitor {
+ public:
+  explicit BrowsingContextFactory(PagespeedInput* pagespeed_input);
+
+  void Init(const DomDocument& document, const Resource* primary_resource);
+  virtual void VisitUrl(const DomElement& node,
+                        const std::string& url);
+
+  virtual void VisitDocument(const DomElement& element,
+                             const DomDocument& document);
+
+  // Returns the root document and transfers ownership to the caller.
+  TopLevelBrowsingContext* ReleaseTopLevelBrowsingContext();
+
+ private:
+  PagespeedInput* pagespeed_input_;
+  scoped_ptr<TopLevelBrowsingContext> top_level_context_;
+  BrowsingContext* current_context_;
+};
+
+}  // namespace internal
 
 }  // namespace pagespeed
 

@@ -50,7 +50,7 @@ ResourceEvaluation::~ResourceEvaluation() {
 ResourceEvaluationConstraint* ResourceEvaluation::AddConstraint() {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   ResourceEvaluationConstraint* result = new ResourceEvaluationConstraint(
       pagespeed_input_);
@@ -61,9 +61,9 @@ ResourceEvaluationConstraint* ResourceEvaluation::AddConstraint() {
 bool ResourceEvaluation::SetFetch(const ResourceFetch& fetch) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
-  data_->set_fetch_uri(fetch.GetUri());
+  data_->set_fetch_uri(fetch.GetResourceFetchUri());
   return true;
 }
 
@@ -71,7 +71,7 @@ void ResourceEvaluation::SetTiming(int64 start_tick, int64 start_time_msec,
                                    int64 finish_tick, int64 finish_time_msec) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   data_->mutable_start()->set_tick(start_tick);
   data_->mutable_start()->set_msec(start_time_msec);
@@ -83,7 +83,7 @@ void ResourceEvaluation::SetTiming(int64 start_tick, int64 start_time_msec,
 void ResourceEvaluation::SetIsMatchingMediaType(bool is_matching_media_type) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   data_->set_is_matching_media_type(is_matching_media_type);
 }
@@ -91,7 +91,7 @@ void ResourceEvaluation::SetIsMatchingMediaType(bool is_matching_media_type) {
 void ResourceEvaluation::SetIsAsync(bool is_async) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   data_->set_is_async(is_async);
 }
@@ -99,7 +99,7 @@ void ResourceEvaluation::SetIsAsync(bool is_async) {
 void ResourceEvaluation::SetIsDefer(bool is_defer) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   data_->set_is_defer(is_defer);
 }
@@ -107,7 +107,7 @@ void ResourceEvaluation::SetIsDefer(bool is_defer) {
 void ResourceEvaluation::SetEvaluationLines(int32 start_line, int32 end_line) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   data_->set_block_start_line(start_line);
   data_->set_block_end_line(end_line);
@@ -116,7 +116,7 @@ void ResourceEvaluation::SetEvaluationLines(int32 start_line, int32 end_line) {
 void ResourceEvaluation::SetEvaluationType(EvaluationType type) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   data_->set_type(type);
 }
@@ -124,7 +124,7 @@ void ResourceEvaluation::SetEvaluationType(EvaluationType type) {
 bool ResourceEvaluation::Finalize() {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to finalized ResourceEvaluation twice "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
 
   finalized_ = true;
@@ -147,6 +147,7 @@ const ResourceFetch* ResourceEvaluation::GetFetch() const {
 
 bool ResourceEvaluation::GetConstraints(
     EvaluationConstraintVector* constraints) const {
+  DCHECK(constraints->empty());
   constraints->assign(constraints_.begin(), constraints_.end());
   return !constraints->empty();
 }
@@ -166,7 +167,7 @@ ResourceEvaluationConstraint* ResourceEvaluation::GetMutableConstraint(
     int index) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized ResourceEvaluation "
-                << GetUri();
+                << GetResourceEvaluationUri();
   }
   return const_cast<ResourceEvaluationConstraint*>(&GetConstraint(index));
 }
@@ -193,7 +194,7 @@ ResourceEvaluationConstraint::~ResourceEvaluationConstraint() {
 
 bool ResourceEvaluationConstraint::SetPredecessor(
     const ResourceEvaluation* predecessor) {
-  data_->set_predecessor_uri(predecessor->GetUri());
+  data_->set_predecessor_uri(predecessor->GetResourceEvaluationUri());
   return true;
 }
 

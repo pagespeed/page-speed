@@ -86,7 +86,7 @@ class ResourceEvaluation {
   }
 
   // Returns the URI uniquely identifying this evaluation.
-  const std::string& GetUri() const {
+  const std::string& GetResourceEvaluationUri() const {
     return data_->uri();
   }
 
@@ -139,17 +139,17 @@ class ResourceEvaluation {
     return data_->block_end_line();
   }
 
-  // Gets the sequence value that describes the order of this evaluation start
+  // Gets the tick value that describes the order of this evaluation start
   // event, relative to other load and/or eval events. The number does not
   // represent the absolute start time.
-  int64 GetStartSequence() const {
+  int64 GetStartTick() const {
     return data_->start().tick();
   }
 
-  // Gets the sequence value that describes the order of this evaluation finish
+  // Gets the tick value that describes the order of this evaluation finish
   // event, relative to other load and/or eval events. The number does not
   // represent the absolute finish time.
-  int64 GetFinishSequence() const {
+  int64 GetFinishTick() const {
     return data_->finish().tick();
   }
 

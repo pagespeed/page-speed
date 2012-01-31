@@ -50,20 +50,20 @@ class BrowsingContext {
   // the HTML resource of an iframe. Can be NULL if the nested browsing context
   // was created using scripting only.
   // The ownership remains at this BrowsingContext.
-  BrowsingContext* CreateNestedBrowsingContext(const Resource* resource);
+  BrowsingContext* AddNestedBrowsingContext(const Resource* resource);
 
   // Creates a resource fetch descriptor and returns a modifiable pointer to it.
   // Resources must have be added to the PagespeedInput before.
   // The ownership remains at this BrowsingContext.
-  ResourceFetch* CreateResourceFetch(const Resource* resource);
+  ResourceFetch* AddResourceFetch(const Resource* resource);
 
   // Creates a resource evaluation descriptor and returns a modifiable pointer
   // to it. Resources must have be added to the PagespeedInput before.
   // The ownership remains at this BrowsingContext.
   // For HTML resources, the first evaluation must be of the type PARSE_HTML.
-  ResourceEvaluation* CreateResourceEvaluation(const Resource* resource);
+  ResourceEvaluation* AddResourceEvaluation(const Resource* resource);
 
-  // Registers a resource that is referenced in the DOM of this browsing
+  // Registers a resource that is referenced in this browsing
   // context. The resource must belong to the same PagespeedInput this
   // BrowsingContext belongs to. Calling this method multiple times with the
   // same resource has no effect. If the specified resource redirect to another,
@@ -71,11 +71,13 @@ class BrowsingContext {
   bool RegisterResource(const Resource* child_resource);
 
   // Sets the time information of when the DOMContent event for this browsing
-  // context was triggered.
+  // context was triggered. Note that only the ticks are used by pagespeed,
+  // whereas the milliseconds are used for visualization purposes only.
   void SetEventDomContentTiming(int64 tick, int64 time_msec);
 
   // Sets the time information of when the onLoad event for this browsing
-  // context was triggered.
+  // context was triggered. Note that only the ticks are used by pagespeed,
+  // whereas the milliseconds are used for visualization purposes only.
   void SetEventLoadTiming(int64 tick, int64 time_msec);
 
   // Sets the DOM document for this browsing context. Ownership of the
@@ -84,6 +86,8 @@ class BrowsingContext {
 
   // Finalizes this and all nested BrowsingContexts and makes them immutable.
   // Non-const methods cannot be called after calling Finalize.
+  // Not yet finalized ResourceEvaluations and ResourceFetches are finalized as
+  // well, but ignored otherwise.
   bool Finalize();
 
   // Returns true if this BrowsingContext is finalized.
@@ -99,7 +103,7 @@ class BrowsingContext {
   // Returns an URI uniquely identifying this BrowsingContext within the
   // pagespeed input. This URI is not equal to the HTTP(S) URL of the document
   // resource, but is a legal URI that uses a PageSpeed specific protocol.
-  const std::string& GetUri() const;
+  const std::string& GetBrowsingContextUri() const;
 
   // Returns the DOM document associated with this browsing context, or NULL if
   // it has not been set.
@@ -131,7 +135,7 @@ class BrowsingContext {
   // Assigns all ResourceFetches registered for the specified Resource at this
   // BrowsingContext to the fetches vector. Returns true if one or more
   // ResourceFetch is being returned.
-  // For most resources, there will be only one ResourceFetch on file per
+  // For most resources, there may be only one ResourceFetch on file per
   // BrowsingContext. However, in the case of non-cachable resources, there will
   // be multiple ResourceFetches.
   bool GetResourceFetches(const Resource& resource,
@@ -174,13 +178,13 @@ class BrowsingContext {
       const Resource& resource, int index);
 
 
-  // Returns the sequence id when the document finished parsing.
-  int64 GetEventDomContentSequence() const {
+  // Returns the tick when the document finished parsing.
+  int64 GetDomContentTick() const {
     return event_dom_content_tick_;
   }
 
-  // Returns the sequence id when the onLoad event fired.
-  int64 GetEventLoadSequence() const {
+  // Returns the tick when the onLoad event fired.
+  int64 GetLoadTick() const {
     return event_load_tick_;
   }
 
@@ -212,8 +216,9 @@ class BrowsingContext {
   // context->GetUri() -> context mapping.
   virtual bool RegisterResourceEvaluation(const ResourceEvaluation* eval);
 
-  // This is owned by the TopLevelBrowsingContext.
-  ActionUriGenerator* action_uri_generator_;
+  ActionUriGenerator* action_uri_generator() const {
+    return action_uri_generator_;
+  }
 
  private:
   typedef std::map<const Resource*, std::vector<ResourceFetch*> >
@@ -221,11 +226,14 @@ class BrowsingContext {
   typedef std::map<const Resource*, std::vector<ResourceEvaluation*> >
       ResourceEvalMap;
 
-  const PagespeedInput* pagespeed_input_;
+  const PagespeedInput* const pagespeed_input_;
+
+  // This is owned by the TopLevelBrowsingContext.
+  ActionUriGenerator* const action_uri_generator_;
 
   bool finalized_;
 
-  TopLevelBrowsingContext* top_level_context_;
+  TopLevelBrowsingContext* const top_level_context_;
 
   std::string uri_;
 

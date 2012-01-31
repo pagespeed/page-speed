@@ -47,8 +47,8 @@ namespace pagespeed {
 // pairs.
 class ActionUriGenerator {
  public:
-  bool Create(uri_util::UriType type, const std::string& url,
-              std::string* action_uri) {
+  bool GenerateUniqueUri(uri_util::UriType type, const std::string& url,
+                         std::string* action_uri) {
     int sequence_number = 1;
     std::map<std::string, int>::const_iterator it = sequence_[type].find(url);
     if (it != sequence_[type].end()) {
@@ -69,8 +69,8 @@ BrowsingContext::BrowsingContext(
     TopLevelBrowsingContext* top_level_context,
     ActionUriGenerator* action_uri_generator,
     const PagespeedInput* pagespeed_input)
-    : action_uri_generator_(action_uri_generator),
-      pagespeed_input_(pagespeed_input),
+    : pagespeed_input_(pagespeed_input),
+      action_uri_generator_(action_uri_generator),
       finalized_(false),
       top_level_context_(top_level_context),
       parent_context_(parent_context),
@@ -80,24 +80,28 @@ BrowsingContext::BrowsingContext(
       event_dom_content_tick_(-1),
       event_load_msec_(-1),
       event_load_tick_(-1) {
-  const BrowsingContext* candidate_context = this;
-  while (candidate_context != NULL &&
-      candidate_context->GetDocumentResourceOrNull() == NULL) {
-    candidate_context = candidate_context->GetParentContext();
-  }
-
   if (document_resource != NULL) {
     RegisterResource(document_resource);
   }
 
-  std::string context_document_url;
-  if (candidate_context != NULL &&
-      candidate_context->GetDocumentResourceOrNull() != NULL) {
-    context_document_url = candidate_context->GetDocumentResourceOrNull()
-        ->GetRequestUrl();
+  // Walk up the browsing context chain to find the next context with a document
+  // resource associated. This applies ie for frames that were created by
+  // JavaScript but without supplying a resource url.
+  // We use the resource URL found to generate the URI of this browsing context.
+  const BrowsingContext* document_context = this;
+  while (document_context != NULL &&
+      document_context->GetDocumentResourceOrNull() == NULL) {
+    document_context = document_context->GetParentContext();
+  }
 
-    action_uri_generator_->Create(uri_util::BROWSING_CONTEXT,
-                                  context_document_url, &uri_);
+  std::string context_document_url;
+  if (document_context != NULL &&
+      document_context->GetDocumentResourceOrNull() != NULL) {
+    context_document_url =
+        document_context->GetDocumentResourceOrNull()->GetRequestUrl();
+
+    action_uri_generator_->GenerateUniqueUri(uri_util::BROWSING_CONTEXT,
+                                             context_document_url, &uri_);
   } else {
     // The public constructor for top-level contexts checks for a non-NULL
     // document resource, thus we must always find a non-NULL document resource
@@ -113,11 +117,11 @@ BrowsingContext::~BrowsingContext() {
   DeleteResourceDataPointers(&resource_evaluation_map_);
 }
 
-BrowsingContext* BrowsingContext::CreateNestedBrowsingContext(
+BrowsingContext* BrowsingContext::AddNestedBrowsingContext(
     const Resource* resource) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   BrowsingContext* nested_context = new BrowsingContext(resource, this,
@@ -129,18 +133,19 @@ BrowsingContext* BrowsingContext::CreateNestedBrowsingContext(
   return nested_context;
 }
 
-ResourceFetch* BrowsingContext::CreateResourceFetch(const Resource* resource) {
+ResourceFetch* BrowsingContext::AddResourceFetch(const Resource* resource) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   if (!RegisterResource(resource)) {
     return NULL;
   }
   std::string fetch_uri;
-  action_uri_generator_->Create(uri_util::FETCH, resource->GetRequestUrl(),
-                                &fetch_uri);
+  action_uri_generator_->GenerateUniqueUri(uri_util::FETCH,
+                                           resource->GetRequestUrl(),
+                                           &fetch_uri);
 
   ResourceFetch* result = new ResourceFetch(fetch_uri, this, resource,
                                             pagespeed_input_);
@@ -149,19 +154,20 @@ ResourceFetch* BrowsingContext::CreateResourceFetch(const Resource* resource) {
   return result;
 }
 
-ResourceEvaluation* BrowsingContext::CreateResourceEvaluation(
+ResourceEvaluation* BrowsingContext::AddResourceEvaluation(
     const Resource* resource) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   if (!RegisterResource(resource)) {
     return NULL;
   }
   std::string eval_uri;
-  action_uri_generator_->Create(uri_util::EVAL, resource->GetRequestUrl(),
-                                &eval_uri);
+  action_uri_generator_->GenerateUniqueUri(uri_util::EVAL,
+                                           resource->GetRequestUrl(),
+                                           &eval_uri);
 
   ResourceEvaluation* result = new ResourceEvaluation(eval_uri, this, resource,
                                                       pagespeed_input_);
@@ -173,7 +179,7 @@ ResourceEvaluation* BrowsingContext::CreateResourceEvaluation(
 void BrowsingContext::SetEventDomContentTiming(int64 tick, int64 time_msec) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   event_dom_content_tick_ = tick;
@@ -183,7 +189,7 @@ void BrowsingContext::SetEventDomContentTiming(int64 tick, int64 time_msec) {
 void BrowsingContext::SetEventLoadTiming(int64 tick, int64 time_msec) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   event_load_tick_ = tick;
@@ -193,7 +199,7 @@ void BrowsingContext::SetEventLoadTiming(int64 tick, int64 time_msec) {
 void BrowsingContext::AcquireDomDocument(DomDocument* document) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   document_.reset(document);
@@ -201,7 +207,8 @@ void BrowsingContext::AcquireDomDocument(DomDocument* document) {
 
 bool BrowsingContext::Finalize() {
   if (finalized_) {
-    LOG(DFATAL) << "Attempting to finalize BrowsingContext twice " << GetUri();
+    LOG(DFATAL) << "Attempting to finalize BrowsingContext twice "
+                << GetBrowsingContextUri();
   }
 
   // Ensure that all ResourceFetches and ResourceEvals are finalized at this
@@ -243,7 +250,7 @@ const Resource* BrowsingContext::GetDocumentResourceOrNull() const {
   return document_resource_;
 }
 
-const std::string& BrowsingContext::GetUri() const {
+const std::string& BrowsingContext::GetBrowsingContextUri() const {
   return uri_;
 }
 
@@ -256,6 +263,7 @@ const BrowsingContext* BrowsingContext::GetParentContext() const {
 }
 
 bool BrowsingContext::GetNestedContexts(BrowsingContextVector* contexts) const {
+  DCHECK(contexts->empty());
   contexts->assign(nested_contexts_.begin(), nested_contexts_.end());
   return !contexts->empty();
 }
@@ -274,19 +282,21 @@ const BrowsingContext& BrowsingContext::GetNestedContext(int index) const {
 BrowsingContext* BrowsingContext::GetMutableNestedContext(int index) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   return const_cast<BrowsingContext*>(&GetNestedContext(index));
 }
 
 bool BrowsingContext::GetResources(ResourceVector* resources) const {
+  DCHECK(resources->empty());
   resources->assign(resources_.begin(), resources_.end());
   return !resources->empty();
 }
 
 bool BrowsingContext::GetResourceFetches(const Resource& resource,
                                          ResourceFetchVector* requests) const {
+  DCHECK(requests->empty());
   ResourceFetchMap::const_iterator it = resource_fetch_map_.find(&resource);
   if (it == resource_fetch_map_.end()) {
     return false;
@@ -323,7 +333,7 @@ ResourceFetch* BrowsingContext::GetMutableResourceFetch(
     const Resource& resource, int index) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   return const_cast<ResourceFetch*>(&GetResourceFetch(resource, index));
@@ -332,6 +342,7 @@ ResourceFetch* BrowsingContext::GetMutableResourceFetch(
 bool BrowsingContext::GetResourceEvaluations(
     const Resource& resource, ResourceEvaluationVector* evaluations) const {
   ResourceEvalMap::const_iterator it = resource_evaluation_map_.find(&resource);
+  DCHECK(evaluations->empty());
   if (it == resource_evaluation_map_.end()) {
     return false;
   }
@@ -368,7 +379,7 @@ ResourceEvaluation* BrowsingContext::GetMutableResourceEvaluation(
     const Resource& resource, int index) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   return const_cast<ResourceEvaluation*>(&GetResourceEvaluation(resource,
@@ -397,7 +408,7 @@ bool BrowsingContext::RegisterResourceEvaluation(
 bool BrowsingContext::RegisterResource(const Resource* child_resource) {
   if (finalized_) {
     LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
-                << GetUri();
+                << GetBrowsingContextUri();
   }
 
   if (pagespeed_input_->GetResourceWithUrlOrNull(
@@ -494,7 +505,7 @@ TopLevelBrowsingContext::TopLevelBrowsingContext(
 }
 
 TopLevelBrowsingContext::~TopLevelBrowsingContext() {
-  delete action_uri_generator_;
+  delete action_uri_generator();
 }
 
 const BrowsingContext* TopLevelBrowsingContext::FindBrowsingContext(
@@ -523,19 +534,19 @@ const ResourceEvaluation* TopLevelBrowsingContext::FindResourceEvaluation(
 
 bool TopLevelBrowsingContext::RegisterBrowsingContext(
     const BrowsingContext* context) {
-  uri_browsing_context_map_[context->GetUri()] = context;
+  uri_browsing_context_map_[context->GetBrowsingContextUri()] = context;
   return true;
 }
 
 bool TopLevelBrowsingContext::RegisterResourceFetch(
     const ResourceFetch* fetch) {
-  uri_resource_fetch_map_[fetch->GetUri()] = fetch;
+  uri_resource_fetch_map_[fetch->GetResourceFetchUri()] = fetch;
   return true;
 }
 
 bool TopLevelBrowsingContext::RegisterResourceEvaluation(
     const ResourceEvaluation* eval) {
-  uri_resource_eval_map_[eval->GetUri()] = eval;
+  uri_resource_eval_map_[eval->GetResourceEvaluationUri()] = eval;
   return true;
 }
 

@@ -50,7 +50,8 @@ ResourceFetch::~ResourceFetch() {
 
 ResourceFetchDelay* ResourceFetch::AddFetchDelay() {
   if (finalized_) {
-    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch " << GetUri();
+    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch "
+                << GetResourceFetchUri();
   }
   ResourceFetchDelay* result = new ResourceFetchDelay();
   delays_.push_back(result);
@@ -59,14 +60,16 @@ ResourceFetchDelay* ResourceFetch::AddFetchDelay() {
 
 ResourceFetchDownload* ResourceFetch::GetMutableDownload() {
   if (finalized_) {
-    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch " << GetUri();
+    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch "
+                << GetResourceFetchUri();
   }
   return logical_download_.get();
 }
 
 void ResourceFetch::SetDiscoveryType(ResourceDiscoveryType discovery_type) {
   if (finalized_) {
-    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch " << GetUri();
+    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch "
+                << GetResourceFetchUri();
   }
   data_->set_type(discovery_type);
 }
@@ -74,7 +77,8 @@ void ResourceFetch::SetDiscoveryType(ResourceDiscoveryType discovery_type) {
 bool ResourceFetch::AcquireCodeLocation(
     std::vector<CodeLocation*>* location_stack) {
   if (finalized_) {
-    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch " << GetUri();
+    LOG(DFATAL) << "Attempting to modify finalized ResourceFetch "
+                << GetResourceFetchUri();
   }
   data_->clear_location();
   for (std::vector<CodeLocation*>::const_iterator it = location_stack->begin();
@@ -89,7 +93,8 @@ bool ResourceFetch::AcquireCodeLocation(
 
 bool ResourceFetch::Finalize() {
   if (finalized_) {
-    LOG(DFATAL) << "Attempting to finalize ResourceFetch twice " << GetUri();
+    LOG(DFATAL) << "Attempting to finalize ResourceFetch twice "
+                << GetResourceFetchUri();
   }
 
   if (data_->type() == UNKNOWN_DISCOVERY_TYPE) {
@@ -155,12 +160,12 @@ const ResourceEvaluation* ResourceFetch::GetRequestor() const {
   return logical_download_->GetRequestor();
 }
 
-int64 ResourceFetch::GetStartSequence() const {
-  return logical_download_->GetStartSequence();
+int64 ResourceFetch::GetStartTick() const {
+  return logical_download_->GetStartTick();
 }
 
-int64 ResourceFetch::GetFinishSequence() const {
-  return logical_download_->GetFinishSequence();
+int64 ResourceFetch::GetFinishTick() const {
+  return logical_download_->GetFinishTick();
 }
 
 bool ResourceFetch::GetCodeLocation(
@@ -221,7 +226,7 @@ ResourceFetchDownload::~ResourceFetchDownload() {
 
 bool ResourceFetchDownload::SetRequestor(const ResourceEvaluation* requestor) {
   if (requestor != NULL) {
-    data_->set_requestor_uri(requestor->GetUri());
+    data_->set_requestor_uri(requestor->GetResourceEvaluationUri());
   } else {
     data_->clear_requestor_uri();
   }
