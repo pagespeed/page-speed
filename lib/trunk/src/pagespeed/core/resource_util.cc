@@ -21,14 +21,17 @@
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
+#include "pagespeed/core/browsing_context.h"
 #include "pagespeed/core/directive_enumerator.h"
 #include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_cache_computer.h"
+#include "pagespeed/core/resource_evaluation.h"
+#include "pagespeed/core/resource_fetch.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
-#include "pagespeed/proto/resource_constraints.pb.h"
+#include "pagespeed/proto/resource.pb.h"
 #ifdef USE_SYSTEM_ZLIB
 #include "zlib.h"
 #else
@@ -441,24 +444,23 @@ const Resource* GetLastResourceInRedirectChain(const PagespeedInput& input,
   }
 }
 
-const Resource* GetMainCssResource(const PagespeedInput& input,
-                                   const Resource& start) {
-  std::set<const Resource*> visited;
-  if (start.GetResourceType() != CSS) {
+const Resource* GetMainCssResource(const ResourceFetch& start) {
+  std::set<const ResourceFetch*> visited;
+  if (start.GetResource().GetResourceType() != CSS) {
     return NULL;
   }
 
-  const Resource* resource = &start;
+  const ResourceFetch* fetch = &start;
   while (true) {
-    if (visited.find(resource) != visited.end()) {
+    if (visited.find(fetch) != visited.end()) {
       LOG(INFO) << "Encountered circular CSS inclusion.";
       return NULL;
     }
-    visited.insert(resource);
+    visited.insert(fetch);
 
-    ResourceLoadConstraintVector constraints;
-    if (!input.GetLoadConstraintsForResource(*resource, &constraints)) {
-      // No constraints for this resource. We don't have the data that
+    const ResourceEvaluation* requestor = start.GetRequestor();
+    if (requestor == NULL) {
+      // No requestor for this resource. We don't have the data that
       // we need to determine the main CSS resource, however if some
       // other CSS resource specified a dependency on this resource we
       // would like to do our best and return the rootmost CSS
@@ -466,21 +468,26 @@ const Resource* GetMainCssResource(const PagespeedInput& input,
       break;
     }
 
-    // If there are multiple load constraints, we choose the first one
-    // since it is the primary load constraint.
-    const Resource* candidate_parent_css = input.GetResourceWithUrlOrNull(
-        constraints.at(0)->requestor_url());
-    if (candidate_parent_css == NULL ||
-        candidate_parent_css->GetResourceType() != CSS) {
+    const ResourceFetch* candidate_parent_fetch = requestor->GetFetch();
+    if (candidate_parent_fetch == NULL) {
+      // No fetch was recorded for this resource. We don't have the data that
+      // we need to determine the main CSS resource, however if some
+      // other CSS resource specified a dependency on this resource we
+      // would like to do our best and return the rootmost CSS
+      // resource that we found.
+      break;
+    }
+
+    if (candidate_parent_fetch->GetResource().GetResourceType() != CSS) {
       // Found a non-CSS parent, which means the current resource is
       // the main CSS resource.
       break;
     }
 
-    resource = candidate_parent_css;
+    fetch = candidate_parent_fetch;
   }
 
-  return resource != &start ? resource : NULL;
+  return fetch != &start ? &fetch->GetResource() : NULL;
 }
 
 bool IsLikelyTrackingPixel(const PagespeedInput& input,
@@ -516,87 +523,16 @@ bool IsLikelyTrackingPixel(const PagespeedInput& input,
       (attributes->GetImageHeight() == 0 || attributes->GetImageHeight() == 1);
 }
 
-bool IsAsyncScript(const PagespeedInput& input, const Resource& resource) {
-  if (resource.GetResourceType() != JS)
-    return false;
-
-  const ResourceTagInfo* tag_info;
-  if (input.GetTagInfoForResource(resource, &tag_info)) {
-    return tag_info->is_async;
-  }
-  return false;
-}
-
-bool IsDeferScript(const PagespeedInput& input, const Resource& resource) {
-  if (resource.GetResourceType() != JS)
-    return false;
-
-  const ResourceTagInfo* tag_info;
-  if (input.GetTagInfoForResource(resource, &tag_info)) {
-    return tag_info->is_defer;
-  }
-  return false;
-}
-
-bool IsParserInserted(const PagespeedInput& input, const Resource& resource) {
-  ResourceLoadConstraintVector constraints;
-  if (!input.GetLoadConstraintsForResource(resource, &constraints)) {
+bool IsParserInserted(const ResourceEvaluation& evaluation) {
+  const ResourceFetch* fetch = evaluation.GetFetch();
+  if (fetch == NULL) {
     return false;
   }
 
-  // TODO(michschn) For now, we walk to the initial resource to see if
-  // it was parser-inserted. In the future, we should make sure that
-  // we propagate this information to the last resource in the
-  // redirect chain.
-  std::set<const Resource*> visited;
-  while (!constraints.empty() &&
-         constraints.at(0)->type() == ResourceLoadConstraint::REDIRECT) {
-    const Resource* candidate_resource = input.GetResourceWithUrlOrNull(
-        constraints.at(0)->requestor_url());
-    if (candidate_resource == NULL) {
-      return false;
-    }
-
-    if (visited.find(candidate_resource) != visited.end()) {
-      LOG(INFO) << "Encountered redirect loop.";
-      return false;
-    }
-    visited.insert(candidate_resource);
-
-    constraints.clear();
-    if (!input.GetLoadConstraintsForResource(*candidate_resource,
-                                             &constraints)) {
-      return false;
-    }
-  }
-
-  for (ResourceLoadConstraintVector::const_iterator it = constraints.begin();
-       it != constraints.end(); ++it) {
-    if  ((*it)->type() == ResourceLoadConstraint::PARSER ||
-         (*it)->type() == ResourceLoadConstraint::DOCUMENT_WRITE) {
-      return true;
-    }
-  }
-  return false;
+  return fetch->GetDiscoveryType() == pagespeed::PARSER ||
+         fetch->GetDiscoveryType() == pagespeed::DOCUMENT_WRITE;
 }
 
-bool IsCssMediaTypeMatching(const PagespeedInput& input,
-                            const Resource& resource) {
-  if (resource.GetResourceType() != CSS)
-    return false;
-
-  // TODO(michschn): Replace with data from timeline
-  const ResourceTagInfo* tag_info;
-  if (input.GetTagInfoForResource(resource, &tag_info)) {
-    std::string screen("screen");
-    std::string::const_iterator it =
-        std::search(tag_info->media_type.begin(), tag_info->media_type.end(),
-                    screen.begin(), screen.end(),
-                    base::CaseInsensitiveCompareASCII<const char>());
-    return it != tag_info->media_type.end();
-  }
-  return true;
-}
 
 // Deprecated functions
 

@@ -29,7 +29,7 @@
         'pagespeed_input.proto',
         'pagespeed_output.proto',
         'pagespeed_proto_formatter.proto',
-        'resource_constraints.proto',
+        'resource.proto',
         'timeline.proto',
       ],
       'rules': [
@@ -116,7 +116,7 @@
       ]
     },
     {
-      'target_name': 'pagespeed_resource_constraints_pb',
+      'target_name': 'pagespeed_resource_pb',
       'type': '<(library)',
       'hard_dependency': 1,
       'dependencies': [
@@ -124,7 +124,7 @@
         '<(DEPTH)/<(protobuf_gyp_path):protobuf_lite',
        ],
       'sources': [
-        '<(protoc_out_dir)/pagespeed/proto/resource_constraints.pb.cc',
+        '<(protoc_out_dir)/pagespeed/proto/resource.pb.cc',
       ],
       'export_dependent_settings': [
         'pagespeed_genproto',

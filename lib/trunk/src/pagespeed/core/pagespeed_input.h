@@ -28,6 +28,7 @@
 
 namespace pagespeed {
 
+class BrowsingContext;
 class ClientCharacteristics;
 class DomDocument;
 class ImageAttributes;
@@ -35,13 +36,10 @@ class ImageAttributesFactory;
 class InputInformation;
 class InstrumentationData;
 class PagespeedInput;
-class ResourceExecConstraint;
-class ResourceLoadConstraint;
+class TopLevelBrowsingContext;
 
 typedef std::map<std::string, ResourceSet> HostResourceMap;
 typedef std::vector<const Resource*> ResourceVector;
-typedef std::vector<const ResourceLoadConstraint*> ResourceLoadConstraintVector;
-typedef std::vector<const ResourceExecConstraint*> ResourceExecConstraintVector;
 
 // Implementations of this class can participate in the PagespeedInput::Freeze.
 class PagespeedInputFreezeParticipant {
@@ -50,16 +48,6 @@ class PagespeedInputFreezeParticipant {
   virtual ~PagespeedInputFreezeParticipant() {}
 
   virtual void OnFreeze(PagespeedInput* pagespeed_input) = 0;
-};
-
-// Additional information on the tag a resource was loaded from.
-// TODO(michschn): Make this a protocol buffer and get rid of the struct.
-struct ResourceTagInfo {
-  ResourceTagInfo() : is_async(false), is_defer(false) {}
-
-  bool is_async;
-  bool is_defer;
-  std::string media_type;
 };
 
 /**
@@ -134,15 +122,11 @@ class PagespeedInput {
   // is not transferred, but the vector passed will be emptied.
   bool AcquireInstrumentationData(InstrumentationDataVector* data);
 
-  // Adds a load constraint for the resource. Ownership of the constraint object
-  // is transfered over to the PagespeedInput object.
-  bool AddLoadConstraintForResource(const Resource& resource,
-                                    ResourceLoadConstraint* constraint);
-
-  // Adds an execution constraint for the resource. Ownership of the constraint
-  // object is transfered over to the PagespeedInput object.
-  bool AddExecConstraintForResource(const Resource& resource,
-                                    ResourceExecConstraint* constraint);
+  // Sets the top level browsing context. If no top level browsing context is
+  // set before Freeze(), it is constructed out of the DomDocument, if
+  // available. Ownership of the context is transfered over to the
+  // PagespeedInput object.
+  bool AcquireTopLevelBrowsingContext(TopLevelBrowsingContext* context);
 
   // Call after populating the PagespeedInput. After calling Freeze(),
   // no additional modifications can be made to the PagespeedInput
@@ -170,6 +154,9 @@ class PagespeedInput {
 
   ImageAttributes* NewImageAttributes(const Resource* resource) const;
 
+  const TopLevelBrowsingContext* GetTopLevelBrowsingContext() const;
+  TopLevelBrowsingContext* GetMutableTopLevelBrowsingContext();
+
   // Get the map from hostname to all resources on that hostname.
   const HostResourceMap* GetHostResourceMap() const;
 
@@ -196,48 +183,19 @@ class PagespeedInput {
   // provide.
   InputCapabilities EstimateCapabilities() const;
 
-  // Get the load constraints recorded for the specified resource.
-  bool GetLoadConstraintsForResource(
-      const Resource& resource,
-      ResourceLoadConstraintVector* constraints) const;
-
-  // Get the mutable load constraints recorded for the specified resource.
-  bool GetMutableLoadConstraintsForResource(
-      const Resource& resource,
-      std::vector<ResourceLoadConstraint*>* constraints) const;
-
-  // Get the execution constraints recorded for the specified resource.
-  bool GetExecConstraintsForResource(
-      const Resource& resource,
-      ResourceExecConstraintVector* constraints) const;
-
-  // Get additional informations about the tag the resource was discovered at.
-  bool GetTagInfoForResource(const Resource& resource,
-                              const ResourceTagInfo** tag_info) const;
-
   int viewport_width() const { return viewport_width_; }
   int viewport_height() const { return viewport_height_; }
 
   bool SetViewportWidthAndHeight(int width, int height);
 
  private:
-  // The right-hand side is an instance rather than a pointer to the instance
-  // for now. In case ResourceTagInfo becomes considerably bigger, consider
-  // refactoring the right-hand side to a pointer.
-  typedef std::map<const Resource*, ResourceTagInfo> ResourceTagInfoMap;
-
-  typedef std::map<const Resource*, std::vector<ResourceLoadConstraint*> >
-      LoadConstraintMap;
-  typedef std::map<const Resource*, std::vector<ResourceExecConstraint*> >
-      ExecConstraintMap;
-
   bool IsValidResource(const Resource* resource) const;
 
   // Compute information about the set of resources. Called once at
   // the time the PagespeedInput is frozen.
   void PopulateInputInformation();
   void PopulateResourceInformationFromDom(
-      std::map<const Resource*, ResourceType>*, ResourceTagInfoMap*);
+      std::map<const Resource*, ResourceType>*);
   void UpdateResourceTypes(const std::map<const Resource*, ResourceType>&);
 
   std::vector<Resource*> resources_;
@@ -258,6 +216,7 @@ class PagespeedInput {
 
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
+  scoped_ptr<TopLevelBrowsingContext> top_level_browsing_context_;
   scoped_ptr<ResourceFilter> resource_filter_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
@@ -269,11 +228,6 @@ class PagespeedInput {
   };
 
   InitializationState initialization_state_;
-
-  LoadConstraintMap resource_load_constraints_;
-  ExecConstraintMap resource_exec_constraints_;
-
-  ResourceTagInfoMap resource_tag_info_map_;
 
   int viewport_width_;
   int viewport_height_;

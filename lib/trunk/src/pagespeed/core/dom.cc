@@ -99,6 +99,12 @@ std::string DomDocument::ResolveUri(const std::string& uri) const {
   return pagespeed::uri_util::ResolveUri(uri, GetBaseUrl());
 }
 
+DomDocument* DomDocument::Clone() const {
+  NOT_IMPLEMENTED();
+  return NULL;
+}
+
+
 DomElement::DomElement() {}
 
 DomElement::~DomElement() {}
