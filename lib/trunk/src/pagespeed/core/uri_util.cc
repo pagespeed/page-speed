@@ -15,8 +15,11 @@
 #include "pagespeed/core/uri_util.h"
 
 #include <string>
+
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
+#include "base/stringprintf.h"
+#include "base/string_number_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "pagespeed/core/dom.h"
@@ -219,6 +222,122 @@ std::string GetDomainAndRegistry(const std::string& url) {
     return std::string();
   return GetDomainAndRegistryImpl(std::string(
       gurl.possibly_invalid_spec().data() + host.begin, host.len));
+}
+
+const char kFetchType[] = "fetch";
+const char kEvalType[] = "eval";
+const char kBrowsingContextType[] = "context";
+
+bool GetActionUriFromResourceUrl(UriType type, const std::string& url,
+                                 int32 sequence, std::string* action_uri) {
+  GURL gurl(url);
+  if (!gurl.is_valid()) {
+    return false;
+  }
+
+  if (type == FETCH) {
+    *action_uri = kFetchType;
+  } else if (type == EVAL) {
+    *action_uri = kEvalType;
+  } else if (type == BROWSING_CONTEXT) {
+    *action_uri = kBrowsingContextType;
+  } else {
+    return false;
+  }
+
+  action_uri->append("://");
+  action_uri->append(gurl.scheme());
+  action_uri->append("/");
+
+  if (gurl.has_username()) {
+    action_uri->append(gurl.username());
+    if (gurl.has_password()) {
+      action_uri->append(":");
+      action_uri->append(gurl.password());
+    }
+    action_uri->append("@");
+  }
+
+  action_uri->append(gurl.host());
+  if (gurl.has_port()) {
+    action_uri->append(":");
+    action_uri->append(gurl.port());
+  }
+  action_uri->append(gurl.PathForRequest());
+  action_uri->append("#");
+  action_uri->append(StringPrintf("%d", sequence));
+  return true;
+}
+
+bool GetResourceUrlFromActionUri(const std::string& action_uri,
+                                 std::string* uri_out, UriType* type_out,
+                                 int32* sequence_out) {
+  size_t type_end = action_uri.find("://");
+  if (type_end == std::string::npos) {
+    return false;
+  }
+
+  std::string type_string = action_uri.substr(0, type_end);
+  UriType type;
+  if (type_string == kFetchType) {
+    type = FETCH;
+  } else if (type_string == kEvalType) {
+    type = EVAL;
+  } else if (type_string == kBrowsingContextType) {
+    type = BROWSING_CONTEXT;
+  } else {
+    return false;
+  }
+
+  size_t protocol_end = action_uri.find('/', type_end + 3);
+  if (protocol_end == std::string::npos) {
+    return false;
+  }
+  std::string protocol_string = action_uri.substr(type_end + 3,
+                                             protocol_end - type_end - 3);
+
+  size_t host_end = action_uri.find('/', protocol_end + 1);
+  if (host_end == std::string::npos) {
+    return false;
+  }
+  std::string host_string = action_uri.substr(protocol_end + 1,
+                                         host_end - protocol_end - 1);
+
+  size_t path_end = action_uri.find('#', host_end + 1);
+  if (path_end == std::string::npos || path_end >= action_uri.length() - 1) {
+    return false;
+  }
+  std::string path_string = action_uri.substr(host_end, path_end - host_end);
+
+  int sequence = 0;
+  base::StringToInt(
+      action_uri.substr(path_end + 1, action_uri.length() - path_end - 1),
+      &sequence);
+
+  std::string unparsed_url;
+  unparsed_url.append(protocol_string);
+  unparsed_url.append("://");
+  unparsed_url.append(host_string);
+  unparsed_url.append(path_string);
+
+  GURL parsed_url(unparsed_url);
+  if (!parsed_url.is_valid()) {
+    return false;
+  }
+
+  if (uri_out != NULL) {
+    (*uri_out) = parsed_url.spec();
+  }
+
+  if (type_out != NULL) {
+    (*type_out) = type;
+  }
+
+  if (sequence_out != NULL) {
+    (*sequence_out) = sequence;
+  }
+
+  return true;
 }
 
 std::string GetHost(const std::string& url) {

@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "base/basictypes.h"
+
 namespace pagespeed {
 
 class DomDocument;
@@ -77,6 +79,22 @@ bool IsExternalResourceUrl(const std::string& uri);
 //   http://co.uk/file.html          -> ""            (host is a registry)
 //   http://foo.bar/file.html        -> "foo.bar"     (no rule; assume bar)
 std::string GetDomainAndRegistry(const std::string& url);
+
+enum UriType {
+  FETCH, EVAL, BROWSING_CONTEXT
+};
+
+// Creates an URI to identify an ResourceFetch, ResourceEvaluation or
+// BrowsingContext based on a resource URL. The resource URL can be extracted
+// from the returned URI by using GetResourceUrlFromActionUri
+bool GetActionUriFromResourceUrl(UriType type, const std::string& url,
+                                 int32 sequence, std::string* action_uri);
+
+// Extracts the resource URL from an  ResourceFetch, ResourceEvaluation or
+// BrowsingContext URI. type and sequence might be NULL.
+bool GetResourceUrlFromActionUri(const std::string& action_uri,
+                                 std::string* uri, UriType* type,
+                                 int32* sequence);
 
 // Get the hostname for this URL, or empty string of the URL is not
 // well formed. For instance if URL is "http://www.example.com/foo.html"

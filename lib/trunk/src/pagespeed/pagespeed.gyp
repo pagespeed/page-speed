@@ -120,6 +120,7 @@
         '<(pagespeed_root)',
       ],
       'sources': [
+        'core/browsing_context_test.cc',
         'core/dom_test.cc',
         'core/engine_test.cc',
         'core/file_util_test.cc',
@@ -128,6 +129,8 @@
         'core/instrumentation_data_test.cc',
         'core/pagespeed_input_test.cc',
         'core/resource_test.cc',
+        'core/resource_evaluation_test.cc',
+        'core/resource_fetch_test.cc',
         'core/resource_filter_test.cc',
         'core/resource_util_test.cc',
         'core/rule_input_test.cc',

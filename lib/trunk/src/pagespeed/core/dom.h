@@ -92,6 +92,11 @@ class DomDocument {
   // Resolve a possibly-relative URI using this document's base URL.
   std::string ResolveUri(const std::string& uri) const;
 
+  // Returns a copy of this DomDocument, where the ownership is transferred to
+  // the caller. CAUTION: If the backing DOM is deleted, the behavior of this
+  // DomDocument is undefined. Returns NULL if not implemented.
+  virtual DomDocument* Clone() const;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(DomDocument);
 };

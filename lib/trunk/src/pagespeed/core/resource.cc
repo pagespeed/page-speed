@@ -63,11 +63,7 @@ Resource::Resource()
     : status_code_(-1),
       response_protocol_(UNKNOWN_PROTOCOL),
       type_(OTHER),
-      request_start_time_millis_(-1),
-      load_start_sequence_(-1),
-      load_finish_sequence_(-1),
-      eval_start_sequence_(-1),
-      eval_finish_sequence_(-1) {
+      request_start_time_millis_(-1) {
 }
 
 Resource::~Resource() {
@@ -423,14 +419,37 @@ bool ResourceUrlLessThan::operator()(
   return lhs->GetRequestUrl() < rhs->GetRequestUrl();
 }
 
-void Resource::SetLoadSequence(int64 start, int64 finish) {
-  load_start_sequence_ = start;
-  load_finish_sequence_ = finish;
-}
+bool Resource::SerializeData(const PagespeedInput& pagespeed_input,
+                             ResourceData* data) const {
+  data->set_request_url(GetRequestUrl());
+  data->set_request_method(GetRequestMethod());
+  for (HeaderMap::const_iterator it = request_headers_.begin();
+      it != request_headers_.end(); ++it) {
+    HeaderData* header = data->add_request_headers();
+    header->set_name(it->first);
+    header->set_value(it->second);
+  }
 
-void Resource::SetEvaluationSequence(int64 start, int64 finish) {
-  eval_start_sequence_ = start;
-  eval_finish_sequence_ = finish;
+  if (!GetRequestBody().empty()) {
+    data->set_request_body_size(GetRequestBody().size());
+  }
+  data->set_status_code(GetResponseStatusCode());
+  data->set_response_protocol(GetResponseProtocol());
+  for (HeaderMap::const_iterator it = response_headers_.begin();
+      it != response_headers_.end(); ++it) {
+    HeaderData* header = data->add_response_headers();
+    header->set_name(it->first);
+    header->set_value(it->second);
+  }
+  data->set_response_body_size(GetResponseBody().size());
+
+  data->set_resource_type(GetResourceType());
+  std::string mime_type = GetResponseHeader("Content-Type");
+  if (!mime_type.empty()) {
+    data->set_mime_type(mime_type);
+  }
+
+  return true;
 }
 
 }  // namespace pagespeed

@@ -20,9 +20,12 @@ namespace {
 
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
+using pagespeed::uri_util::GetActionUriFromResourceUrl;
 using pagespeed::uri_util::GetDomainAndRegistry;
 using pagespeed::uri_util::GetHost;
 using pagespeed::uri_util::GetPath;
+using pagespeed::uri_util::GetResourceUrlFromActionUri;
+using pagespeed::uri_util::UriType;
 
 class ResolveUriForDocumentWithUrlTest
     : public ::pagespeed_testing::PagespeedTest {
@@ -172,6 +175,90 @@ TEST(UriUtilTest, GetDomainAndRegistry) {
   EXPECT_EQ("", GetDomainAndRegistry("http://. . "));
   EXPECT_EQ("", GetDomainAndRegistry("http:// ."));
   EXPECT_EQ("", GetDomainAndRegistry("http:// . "));
+}
+
+TEST(UriUtil, CreateActionUri) {
+  std::string action_uri;
+  GetActionUriFromResourceUrl(pagespeed::uri_util::BROWSING_CONTEXT,
+                              "http://foo.bar/", 1, &action_uri);
+  ASSERT_EQ("context://http/foo.bar/#1", action_uri);
+
+  GetActionUriFromResourceUrl(pagespeed::uri_util::EVAL,
+                              "http://foo.bar/", 1, &action_uri);
+  ASSERT_EQ("eval://http/foo.bar/#1", action_uri);
+
+  GetActionUriFromResourceUrl(pagespeed::uri_util::FETCH,
+                              "http://foo.bar/", 1, &action_uri);
+  ASSERT_EQ("fetch://http/foo.bar/#1", action_uri);
+
+  GetActionUriFromResourceUrl(pagespeed::uri_util::EVAL,
+                              "http://foo.bar:8080/", 1, &action_uri);
+  ASSERT_EQ("eval://http/foo.bar:8080/#1", action_uri);
+
+  GetActionUriFromResourceUrl(pagespeed::uri_util::EVAL,
+                              "https://foo.bar/", 1, &action_uri);
+  ASSERT_EQ("eval://https/foo.bar/#1", action_uri);
+
+  GetActionUriFromResourceUrl(pagespeed::uri_util::EVAL,
+                              "https://foo.bar/?a=query", 1, &action_uri);
+  ASSERT_EQ("eval://https/foo.bar/?a=query#1", action_uri);
+
+  GetActionUriFromResourceUrl(pagespeed::uri_util::EVAL,
+                              "https://foo.bar/some/path.html", 1, &action_uri);
+  ASSERT_EQ("eval://https/foo.bar/some/path.html#1", action_uri);
+
+  GetActionUriFromResourceUrl(pagespeed::uri_util::EVAL,
+                              "https://foo.bar/some/path.html#a-fragment", 1,
+                              &action_uri);
+  ASSERT_EQ("eval://https/foo.bar/some/path.html#1", action_uri);
+}
+
+TEST(UriUtil, ParseActionUri) {
+  std::string resource_url;
+  UriType type;
+  int32 sequence;
+
+  GetResourceUrlFromActionUri("context://http/foo.bar/#1",
+                              &resource_url, &type, &sequence);
+  ASSERT_EQ("http://foo.bar/", resource_url);
+  ASSERT_EQ(pagespeed::uri_util::BROWSING_CONTEXT, type);
+  ASSERT_EQ(1, sequence);
+
+  GetResourceUrlFromActionUri("eval://http/foo.bar/#1",
+                              &resource_url, &type, &sequence);
+  ASSERT_EQ("http://foo.bar/", resource_url);
+  ASSERT_EQ(pagespeed::uri_util::EVAL, type);
+  ASSERT_EQ(1, sequence);
+
+  GetResourceUrlFromActionUri("fetch://http/foo.bar/#1",
+                              &resource_url, &type, &sequence);
+  ASSERT_EQ("http://foo.bar/", resource_url);
+  ASSERT_EQ(pagespeed::uri_util::FETCH, type);
+  ASSERT_EQ(1, sequence);
+
+  GetResourceUrlFromActionUri("eval://http/foo.bar:8080/#1",
+                              &resource_url, &type, &sequence);
+  ASSERT_EQ("http://foo.bar:8080/", resource_url);
+  ASSERT_EQ(pagespeed::uri_util::EVAL, type);
+  ASSERT_EQ(1, sequence);
+
+  GetResourceUrlFromActionUri("eval://https/foo.bar/#1",
+                              &resource_url, &type, &sequence);
+  ASSERT_EQ("https://foo.bar/", resource_url);
+  ASSERT_EQ(pagespeed::uri_util::EVAL, type);
+  ASSERT_EQ(1, sequence);
+
+  GetResourceUrlFromActionUri("eval://https/foo.bar/?a=query#1",
+                              &resource_url, &type, &sequence);
+  ASSERT_EQ("https://foo.bar/?a=query", resource_url);
+  ASSERT_EQ(pagespeed::uri_util::EVAL, type);
+  ASSERT_EQ(1, sequence);
+
+  GetResourceUrlFromActionUri("eval://https/foo.bar/some/path.html#1",
+                              &resource_url, &type, &sequence);
+  ASSERT_EQ("https://foo.bar/some/path.html", resource_url);
+  ASSERT_EQ(pagespeed::uri_util::EVAL, type);
+  ASSERT_EQ(1, sequence);
 }
 
 TEST(UriUtilTest, GetHost) {

@@ -22,6 +22,7 @@
 
 #include "base/basictypes.h"
 #include "pagespeed/core/string_util.h"
+#include "pagespeed/proto/resource.pb.h"
 
 namespace pagespeed {
 
@@ -34,31 +35,6 @@ struct ResourceUrlLessThan {
 };
 
 typedef std::set<const Resource*, ResourceUrlLessThan> ResourceSet;
-
-enum ResourceType {
-  OTHER,
-  HTML,
-  TEXT,
-  CSS,
-  IMAGE,
-  JS,
-  REDIRECT,
-  FLASH,
-};
-
-enum ImageType {
-  JPEG,
-  PNG,
-  GIF,
-  SVG,
-  UNKNOWN_IMAGE_TYPE
-};
-
-enum Protocol {
-  HTTP_10,
-  HTTP_11,
-  UNKNOWN_PROTOCOL
-};
 
 /**
  * Represents an individual input resource.
@@ -110,16 +86,6 @@ class Resource {
   // relative to the request time of the first request. Thus the first
   // request's start time will be 0.
   void SetRequestStartTimeMillis(int start_millis);
-
-  // Sets sequences value that describes the order of the load start/finish
-  // events, relative to other load and/or eval events. The numbers only
-  // describe the sequence, but no absolute start time or duration.
-  void SetLoadSequence(int64 start, int64 finish);
-
-  // Sets sequences value that describes the order of the eval start/finish
-  // events, relative to other eval and/or load events. The numbers only
-  // describe the sequence, but no absolute start time or duration.
-  void SetEvaluationSequence(int64 start, int64 finish);
 
   // Accessor methods
   const std::string& GetRequestUrl() const;
@@ -197,37 +163,8 @@ class Resource {
   ResourceType GetResourceType() const;
   ImageType GetImageType() const;
 
-  // Gets the load sequence value that describes the order of the load start
-  // event, relative to other load and/or eval events. The number does not
-  // represent the absolute start time. This value is only available with
-  // InputCapabilities::DEPENDENCY_DATA.
-  int64 GetLoadStartSequence() const {
-    return load_start_sequence_;
-  }
-
-  // Gets the load sequence value that describes the order of the load finish
-  // event, relative to other load and/or eval events. The number does not
-  // represent the absolute finish time. This value is only available with
-  // InputCapabilities::DEPENDENCY_DATA.
-  int64 GetLoadFinishSequence() const {
-    return load_finish_sequence_;
-  }
-
-  // Gets the eval sequence value that describes the order of the eval start
-  // event, relative to other eval and/or load events. The number does not
-  // represent the absolute start time. This value is only available with
-  // InputCapabilities::DEPENDENCY_DATA.
-  int64 GetEvalStartSequence() const {
-    return eval_start_sequence_;
-  }
-
-  // Gets the eval sequence value that describes the order of the eval finish
-  // event, relative to other eval and/or load events. The number does not
-  // represent the absolute finish time. This value is only available with
-  // InputCapabilities::DEPENDENCY_DATA.
-  int64 GetEvalFinishSequence() const {
-    return eval_finish_sequence_;
-  }
+  bool SerializeData(const PagespeedInput& pagespeed_input,
+                     ResourceData* data) const;
 
  private:
   // We let PagespeedInput access our private data in order to inspect
@@ -248,9 +185,6 @@ class Resource {
   std::string cookies_;
   ResourceType type_;
   int request_start_time_millis_;
-
-  int64 load_start_sequence_, load_finish_sequence_;
-  int64 eval_start_sequence_, eval_finish_sequence_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
 };
