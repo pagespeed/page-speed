@@ -12,3 +12,15 @@ SConstruct
 /third_party/protobuf2/src
 /third_party/scons
 /tools
+*.pyc
+.cproject
+.project
+/build
+/third_party/chromium/
+/third_party/chromium_deps/
+/third_party/domain-registry/
+/third_party/google-gflags/src/
+/third_party/instaweb/
+/third_party/modp_b64/
+/third_party/protobuf/
+
