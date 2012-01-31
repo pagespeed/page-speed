@@ -22,6 +22,7 @@
 #include "pagespeed/core/browsing_context.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/uri_util.h"
+#include "pagespeed/testing/pagespeed_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::BrowsingContext;
@@ -44,19 +45,7 @@ static const char* kURL1 = "http://www.foo.com/";
 static const char* kURL2 = "http://www.foo.com/script1.js";
 static const char* kURL3 = "http://www.foo.com/script2.js";
 
-Resource* NewResource(const std::string& url, int status_code) {
-  Resource* resource = new Resource;
-  resource->SetRequestUrl(url);
-  resource->SetResponseStatusCode(status_code);
-  return resource;
-}
-
-Resource* New302Resource(const std::string& source,
-                         const std::string& destination) {
-  Resource* resource = NewResource(source, 302);
-  resource->AddResponseHeader("Location", destination);
-  return resource;
-}
+class ResourceFetchTest : public ::pagespeed_testing::PagespeedTest {};
 
 void AssertUri(const std::string& uri, const std::string& expected_base_url,
                UriType expected_uri_type) {
@@ -79,25 +68,22 @@ void CreateFakeLocation(std::vector<CodeLocation*>* location_list) {
   location_list->push_back(location);
 }
 
-TEST(ResourceFetchTest, Simple) {
-  PagespeedInput input;
+TEST_F(ResourceFetchTest, Simple) {
   Resource* main = NewResource(kURL1, 200);
-  input.AddResource(main);
   Resource* script = NewResource(kURL2, 200);
-  input.AddResource(script);
 
-  TopLevelBrowsingContext* context= new TopLevelBrowsingContext(main, &input);
-  input.AcquireTopLevelBrowsingContext(context);
+  TopLevelBrowsingContext* context = NewTopLevelBrowsingContext(main);
 
-  ResourceFetch* main_fetch = context->CreateResourceFetch(main);
-  AssertUri(main_fetch->GetUri(), kURL1, pagespeed::uri_util::FETCH);
-  ResourceEvaluation* main_eval = context->CreateResourceEvaluation(main);
+  ResourceFetch* main_fetch = context->AddResourceFetch(main);
+  AssertUri(main_fetch->GetResourceFetchUri(),
+            kURL1, pagespeed::uri_util::FETCH);
+  ResourceEvaluation* main_eval = context->AddResourceEvaluation(main);
   main_eval->SetFetch(*main_fetch);
 
   ASSERT_EQ(main, &main_fetch->GetResource());
   ASSERT_TRUE(main_fetch->GetRequestor() == NULL);
 
-  ResourceFetch* script_fetch = context->CreateResourceFetch(script);
+  ResourceFetch* script_fetch = context->AddResourceFetch(script);
   ASSERT_EQ(script, &script_fetch->GetResource());
 
   ASSERT_TRUE(script_fetch->GetMutableDownload()->SetRequestor(main_eval));
@@ -105,8 +91,8 @@ TEST(ResourceFetchTest, Simple) {
 
   script_fetch->GetMutableDownload()->SetLoadTiming(10, 100, 20, 200);
 
-  ASSERT_EQ(10, script_fetch->GetStartSequence());
-  ASSERT_EQ(20, script_fetch->GetFinishSequence());
+  ASSERT_EQ(10, script_fetch->GetStartTick());
+  ASSERT_EQ(20, script_fetch->GetFinishTick());
 
   std::vector<CodeLocation*> location;
   CreateFakeLocation(&location);
@@ -142,23 +128,18 @@ TEST(ResourceFetchTest, Simple) {
   ASSERT_EQ(delay_event, &script_fetch->GetFetchDelay(1));
 }
 
-TEST(ResourceFetchTest, Propagate) {
-  PagespeedInput input;
+TEST_F(ResourceFetchTest, Propagate) {
   Resource* main = NewResource(kURL1, 200);
-  input.AddResource(main);
   Resource* redirect = New302Resource(kURL2, kURL3);
-  input.AddResource(redirect);
   Resource* script = NewResource(kURL3, 200);
-  input.AddResource(script);
 
-  TopLevelBrowsingContext* context= new TopLevelBrowsingContext(main, &input);
-  input.AcquireTopLevelBrowsingContext(context);
+  TopLevelBrowsingContext* context = NewTopLevelBrowsingContext(main);
 
-  ResourceFetch* main_fetch = context->CreateResourceFetch(main);
-  ResourceEvaluation* main_eval = context->CreateResourceEvaluation(main);
+  ResourceFetch* main_fetch = context->AddResourceFetch(main);
+  ResourceEvaluation* main_eval = context->AddResourceEvaluation(main);
   main_eval->SetFetch(*main_fetch);
-  ResourceFetch* redirect_fetch = context->CreateResourceFetch(redirect);
-  ResourceEvaluation* redirect_eval = context->CreateResourceEvaluation(
+  ResourceFetch* redirect_fetch = context->AddResourceFetch(redirect);
+  ResourceEvaluation* redirect_eval = context->AddResourceEvaluation(
       redirect);
   redirect_eval->SetFetch(*redirect_fetch);
   redirect_fetch->GetMutableDownload()->SetRequestor(main_eval);
@@ -172,12 +153,12 @@ TEST(ResourceFetchTest, Propagate) {
   CreateFakeLocation(&location);
   delay_timeout->AcquireCodeLocation(&location);
 
-  ResourceFetch* script_fetch = context->CreateResourceFetch(script);
+  ResourceFetch* script_fetch = context->AddResourceFetch(script);
   script_fetch->GetMutableDownload()->SetRequestor(redirect_eval);
   script_fetch->GetMutableDownload()->SetLoadTiming(21, 200, 31, 300);
 
-  const std::string& script_fetch_uri = script_fetch->GetUri();
-  const std::string& redirect_fetch_uri = redirect_fetch->GetUri();
+  const std::string& script_fetch_uri = script_fetch->GetResourceFetchUri();
+  const std::string& redirect_fetch_uri = redirect_fetch->GetResourceFetchUri();
 
   ASSERT_EQ(1, context->GetResourceFetchCount(*script));
   ASSERT_TRUE(script_fetch->Finalize());
@@ -191,36 +172,32 @@ TEST(ResourceFetchTest, Propagate) {
 
   const ResourceFetchDownload& logical_download = script_fetch->GetDownload();
   ASSERT_EQ(main_eval, logical_download.GetRequestor());
-  ASSERT_EQ(10, logical_download.GetStartSequence());
-  ASSERT_EQ(31, logical_download.GetFinishSequence());
+  ASSERT_EQ(10, logical_download.GetStartTick());
+  ASSERT_EQ(31, logical_download.GetFinishTick());
 
   ASSERT_EQ(main_eval, script_fetch->GetRequestor());
-  ASSERT_EQ(10, script_fetch->GetStartSequence());
-  ASSERT_EQ(31, script_fetch->GetFinishSequence());
+  ASSERT_EQ(10, script_fetch->GetStartTick());
+  ASSERT_EQ(31, script_fetch->GetFinishTick());
 
   const ResourceFetchDownload* redirect_download =
       script_fetch->GetRedirectDownload();
   ASSERT_TRUE(redirect_download != NULL);
 
   ASSERT_EQ(redirect_eval, redirect_download->GetRequestor());
-  ASSERT_EQ(21, redirect_download->GetStartSequence());
-  ASSERT_EQ(31, redirect_download->GetFinishSequence());
+  ASSERT_EQ(21, redirect_download->GetStartTick());
+  ASSERT_EQ(31, redirect_download->GetFinishTick());
 }
 
-TEST(ResourceFetchTest, Serialize) {
-  PagespeedInput input;
+TEST_F(ResourceFetchTest, Serialize) {
   Resource* main = NewResource(kURL1, 200);
-  input.AddResource(main);
   Resource* script = NewResource(kURL2, 200);
-  input.AddResource(script);
 
-  TopLevelBrowsingContext* context= new TopLevelBrowsingContext(main, &input);
-  input.AcquireTopLevelBrowsingContext(context);
+  TopLevelBrowsingContext* context = NewTopLevelBrowsingContext(main);
 
-  ResourceFetch* main_fetch = context->CreateResourceFetch(main);
-  ResourceEvaluation* main_eval = context->CreateResourceEvaluation(main);
+  ResourceFetch* main_fetch = context->AddResourceFetch(main);
+  ResourceEvaluation* main_eval = context->AddResourceEvaluation(main);
   main_eval->SetFetch(*main_fetch);
-  ResourceFetch* script_fetch = context->CreateResourceFetch(script);
+  ResourceFetch* script_fetch = context->AddResourceFetch(script);
   script_fetch->GetMutableDownload()->SetRequestor(main_eval);
   script_fetch->SetDiscoveryType(pagespeed::DOCUMENT_WRITE);
   script_fetch->GetMutableDownload()->SetLoadTiming(10, 100, 20, 200);
@@ -238,10 +215,11 @@ TEST(ResourceFetchTest, Serialize) {
 
   ASSERT_TRUE(script_fetch->SerializeData(&data));
 
-  ASSERT_EQ(script_fetch->GetUri(), data.uri());
+  ASSERT_EQ(script_fetch->GetResourceFetchUri(), data.uri());
   ASSERT_EQ(script->GetRequestUrl(), data.resource_url());
   ASSERT_EQ(pagespeed::DOCUMENT_WRITE, data.type());
-  ASSERT_EQ(main_eval->GetUri(), data.download().requestor_uri());
+  ASSERT_EQ(main_eval->GetResourceEvaluationUri(),
+            data.download().requestor_uri());
   ASSERT_EQ(2, data.location_size());
   ASSERT_EQ(kURL1, data.location(0).url());
   ASSERT_EQ(20, data.location(1).line());

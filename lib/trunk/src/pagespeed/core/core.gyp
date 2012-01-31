@@ -24,6 +24,7 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
+        # TODO(bmcquade): move pagespeed_external_resource_filter to core 
         '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_external_resource_filter',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_resource_pb',
@@ -69,6 +70,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_htmlparse_core',
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_resource_pb',
       ]
     },

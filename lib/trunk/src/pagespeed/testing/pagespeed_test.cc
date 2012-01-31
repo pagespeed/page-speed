@@ -20,6 +20,7 @@
 #include "base/stl_util-inl.h"
 #include "build/build_config.h"
 #include "pagespeed/core/pagespeed_init.h"
+#include "pagespeed/core/browsing_context.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
@@ -204,6 +205,15 @@ pagespeed::Resource* PagespeedTest::NewCssResource(const std::string& url,
     }
   }
   return resource;
+}
+
+pagespeed::TopLevelBrowsingContext* PagespeedTest::NewTopLevelBrowsingContext(
+    const pagespeed::Resource* document_resource) {
+  pagespeed::TopLevelBrowsingContext* context =
+      new pagespeed::TopLevelBrowsingContext(document_resource,
+                                             pagespeed_input_.get());
+  pagespeed_input_->AcquireTopLevelBrowsingContext(context);
+  return context;
 }
 
 void PagespeedTest::CreateHtmlHeadBodyElements() {
