@@ -58,10 +58,13 @@
               '<!(uname -m | sed -e "s/i.86/ia32/;s/x86_64/x64/;s/amd64/x64/;s/arm.*/arm/;s/i86pc/ia32/")',
           }],
         ],
+        # Whether or not we are building for native client.
+        'build_nacl%': 0,
       },
 
       # Copy conditionally-set variables out one scope.
       'host_arch%': '<(host_arch)',
+      'build_nacl%': '<(build_nacl)',
 
       # We used to provide a variable for changing how libraries were built.
       # This variable remains until we can clean up all the users.
@@ -109,8 +112,8 @@
         }],
 
         # Set to 1 compile with -fPIC cflag on linux. This is a must for shared
-        # libraries on linux x86-64 and arm.
-        ['host_arch=="ia32"', {
+        # libraries on linux x86-64 and arm. It is not needed for native client.
+        ['host_arch=="ia32" or build_nacl==1', {
           'linux_fpic%': 0,
         }, {
           'linux_fpic%': 1,
@@ -120,6 +123,7 @@
 
     # Copy conditionally-set variables out one scope.
     'buildtype%': '<(buildtype)',
+    'build_nacl%': '<(build_nacl)',
     'target_arch%': '<(target_arch)',
     'host_arch%': '<(host_arch)',
     'library%': 'static_library',

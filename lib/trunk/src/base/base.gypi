@@ -7,6 +7,15 @@
     'variables': {
       'base_target': 0,
       'chromium_root': '<(DEPTH)/third_party/chromium/src',
+      'conditions': [
+        # The default stack_trace_posix.cc is not compatible with NaCL newlib
+        # toolchain, so we provide a stubbed version when building for NaCL.
+        [ 'build_nacl==1', {
+          'stack_trace_posix_cc': 'nacl_stubs/stack_trace_posix.cc',
+        }, {
+          'stack_trace_posix_cc': '<(chromium_root)/base/debug/stack_trace_posix.cc',
+        }],
+      ],
     },
     'target_conditions': [
       # This part is shared between the targets defined below. Only files and
@@ -35,7 +44,7 @@
         '<(chromium_root)/base/debug/debugger_win.cc',
         '<(chromium_root)/base/debug/stack_trace.cc',
         '<(chromium_root)/base/debug/stack_trace.h',
-        '<(chromium_root)/base/debug/stack_trace_posix.cc',
+        '<(stack_trace_posix_cc)',
         '<(chromium_root)/base/debug/stack_trace_win.cc',
         '<(chromium_root)/base/file_path.cc',
         '<(chromium_root)/base/file_path.h',
@@ -161,12 +170,17 @@
             '-Wno-write-strings',
             '-Wno-error',
           ],
-          'link_settings': {
-            'libraries': [
-              # We need rt for clock_gettime().
-              '-lrt',
-            ],
-          },
+          'conditions': [
+            [ 'build_nacl==0', {
+              # We do not need clock_gettime() when building for NaCL newlib.
+              'link_settings': {
+                'libraries': [
+                  # We need rt for clock_gettime().
+                  '-lrt',
+                ],
+              },
+            }],
+          ],
         }],
         [ 'OS == "mac"', {
             'link_settings': {
@@ -180,6 +194,18 @@
               ],
             },
         },],
+        [ 'build_nacl==1', {
+          'defines': [
+            # A super-hack. prtime.cc (and possibly other sources) call
+            # timegm, which is a non-standard function that's
+            # unavailable when compiling using NaCl newlib. mktime is
+            # essentially a drop-in replacement for timegm, modulo time
+            # zone issues, however NaCL will default to UTC which is the
+            # expected behavior for timegm, so the two should behave
+            # identically.
+            'timegm=mktime',
+          ],
+        }],
       ],
       'sources': [
         '<(chromium_root)/base/base64.cc',
