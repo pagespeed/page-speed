@@ -21,10 +21,17 @@
     {
       'target_name': 'pagespeed_core',
       'type': '<(library)',
+      # We include various proto libraries in
+      # export_dependent_settings however their hard_dependency does
+      # not get propagated. Thus we temporarily mark this target as a
+      # hard_dependency. See
+      # http://code.google.com/p/gyp/issues/detail?id=248 for the bug
+      # that tracks this issue.
+      'hard_dependency': 1,
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        # TODO(bmcquade): move pagespeed_external_resource_filter to core 
+        # TODO(bmcquade): move pagespeed_external_resource_filter to core
         '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_external_resource_filter',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_resource_pb',

@@ -14,6 +14,8 @@
 
 #include "pagespeed/filters/protocol_filter.h"
 
+#include "pagespeed/core/resource.h"
+
 namespace pagespeed {
 
 ProtocolFilter::ProtocolFilter(std::vector<std::string> *allowed_protocols) {

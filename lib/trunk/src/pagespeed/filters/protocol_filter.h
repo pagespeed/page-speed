@@ -15,6 +15,7 @@
 #ifndef PAGESPEED_FILTERS_PROTOCOL_FILTER_H_
 #define PAGESPEED_FILTERS_PROTOCOL_FILTER_H_
 
+#include <string>
 #include <vector>
 #include "base/basictypes.h"
 #include "pagespeed/core/resource_filter.h"

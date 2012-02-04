@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "pagespeed/core/resource.h"
 #include "pagespeed/filters/protocol_filter.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
