@@ -28,6 +28,13 @@
         '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
         '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+        # We inherit this dependency via an export_dependent_settings
+        # from pagespeed_core, however gyp does not currently
+        # propagate hard_dependency to export_dependent_settings, so
+        # we must declare this dependency directly here. See
+        # http://code.google.com/p/gyp/issues/detail?id=248 for the bug
+        # that tracks this issue.
+        '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_genproto',
       ],
       'sources': [
         'image_attributes_factory.cc',
