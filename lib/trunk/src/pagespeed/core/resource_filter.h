@@ -18,9 +18,10 @@
 #include <vector>
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "pagespeed/core/resource.h"
 
 namespace pagespeed {
+
+class Resource;
 
 /**
  * Abstract base class for objects providing an IsAccepted predicate.

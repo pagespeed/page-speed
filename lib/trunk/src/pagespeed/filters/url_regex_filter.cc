@@ -14,6 +14,9 @@
 
 #include "pagespeed/filters/url_regex_filter.h"
 
+#include <string>
+#include "pagespeed/core/resource.h"
+
 namespace pagespeed {
 
 UrlRegexFilter::UrlRegexFilter(const char* url_regex) {
