@@ -6,6 +6,10 @@
 // stack_trace_posix.cc. So we provide this stubbed out version for
 // use when building for NaCL.
 
+#ifndef __native_client__
+#error This file should only be used when compiling for Native Client.
+#endif
+
 #include "base/debug/stack_trace.h"
 
 namespace base {
