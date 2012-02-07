@@ -1,0 +1,33 @@
+{
+  "background_page": "background.html",
+  "content_scripts": [ {
+    "js": [ "inject_pagespeed.js" ],
+    "matches": [ "http://*/*/devtools.html?*" ]
+  } ],
+  "content_security_policy": "default-src 'self'; connect-src http: https:",
+  "default_locale": "en",
+  "description": "__MSG_extension_description__",
+  "devtools_page": "devtools-page.html",
+  "homepage_url": "http://code.google.com/speed/page-speed/docs/extension.html",
+  "icons": {
+    "32": "pagespeed-32.png",
+    "64": "pagespeed-64.png",
+    "128": "pagespeed-128.png"
+  },
+  "minimum_chrome_version": "13.0",
+  "name": "Page Speed",
+  "options_page": "options.html",
+  "permissions": [
+    "experimental",
+    "tabs",
+    "unlimitedStorage",
+    "http://*/*", "https://*/*"
+  ],
+  "plugins": [
+    { "path": "pagespeed_plugin_WINNT_x86-msvc.dll", "public": true },
+    { "path": "libpagespeed_plugin_Linux_x86-gcc3.so", "public": true },
+    { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true },
+    { "path": "pagespeed_plugin.plugin", "public": true }
+  ],
+  "version": "1.12.0.4"
+}
