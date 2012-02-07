@@ -14,7 +14,6 @@
 
 #include <string>
 
-#include "pagespeed/core/browsing_context.h"
 #include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -24,7 +23,6 @@
 
 namespace {
 
-using pagespeed::BrowsingContext;
 using pagespeed::ClientCharacteristics;
 using pagespeed::InputCapabilities;
 using pagespeed::InstrumentationData;
@@ -33,8 +31,6 @@ using pagespeed::PagespeedInput;
 using pagespeed::PagespeedInputFreezeParticipant;
 using pagespeed::Resource;
 using pagespeed::ResourceVector;
-using pagespeed::TopLevelBrowsingContext;
-using pagespeed::internal::BrowsingContextFactory;
 using pagespeed_testing::AssertProtoEq;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
@@ -339,8 +335,7 @@ TEST_F(ResourcesInRequestOrderTest, ResourcesWithStartTimes) {
   New200Resource(kUrl1)->SetRequestStartTimeMillis(2);
   New200Resource(kUrl2)->SetRequestStartTimeMillis(1);
   Freeze();
-  const pagespeed::ResourceVector& rv(
-      *pagespeed_input()->GetResourcesInRequestOrder());
+  const ResourceVector& rv(*pagespeed_input()->GetResourcesInRequestOrder());
   ASSERT_EQ(4U, rv.size());
   ASSERT_EQ(kUrl4, rv[0]->GetRequestUrl());
   ASSERT_EQ(kUrl2, rv[1]->GetRequestUrl());
@@ -428,40 +423,5 @@ TEST_F(EstimateCapabilitiesTest, ResponseBody) {
       InputCapabilities(InputCapabilities::RESPONSE_BODY).equals(
           pagespeed_input()->EstimateCapabilities()));
 }
-
-
-class BrowsingContextFactoryTest : public ::pagespeed_testing::PagespeedTest {};
-
-TEST_F(BrowsingContextFactoryTest, FindResources) {
-  Resource* primary = NewPrimaryResource("http://www.example.com/");
-  CreateHtmlHeadBodyElements();
-
-  NewScriptResource("http://www.example.com/script.js", head(), NULL);
-
-  FakeDomElement* iframe = FakeDomElement::NewIframe(body());
-  FakeDomDocument* iframe_document = NULL;
-  NewDocumentResource(
-      "http://www.example.com/iframe.html", iframe, &iframe_document);
-
-  BrowsingContextFactory context_factory(
-      const_cast<PagespeedInput*>(pagespeed_input()));
-
-  context_factory.Init(*document(), primary);
-  scoped_ptr<TopLevelBrowsingContext> top_level_context(
-      context_factory.ReleaseTopLevelBrowsingContext());
-
-  ResourceVector top_level_resources;
-  top_level_context->GetResources(&top_level_resources);
-  ASSERT_EQ(static_cast<size_t>(3), top_level_resources.size());
-
-  ASSERT_EQ(1, top_level_context->GetNestedContextCount());
-
-  const BrowsingContext& nested = top_level_context->GetNestedContext(0);
-
-  ResourceVector nested_resources;
-  nested.GetResources(&nested_resources);
-  ASSERT_EQ(static_cast<size_t>(1), nested_resources.size());
-}
-
 
 }  // namespace

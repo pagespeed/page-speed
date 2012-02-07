@@ -21,6 +21,13 @@
     {
       'target_name': 'pagespeed_testing',
       'type': '<(library)',
+      # We include various proto libraries in
+      # export_dependent_settings however their hard_dependency does
+      # not get propagated. Thus we temporarily mark this target as a
+      # hard_dependency. See
+      # http://code.google.com/p/gyp/issues/detail?id=248 for the bug
+      # that tracks this issue.
+      'hard_dependency': 1,
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/testing/gtest.gyp:gtest',
