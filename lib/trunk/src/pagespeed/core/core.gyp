@@ -31,8 +31,6 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        # TODO(bmcquade): move pagespeed_external_resource_filter to core
-        '<(pagespeed_root)/pagespeed/html/html.gyp:pagespeed_external_resource_filter',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_resource_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:timeline_pb',

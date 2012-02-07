@@ -207,13 +207,20 @@ pagespeed::Resource* PagespeedTest::NewCssResource(const std::string& url,
   return resource;
 }
 
+bool PagespeedTest::SetTopLevelBrowsingContext(
+    pagespeed::TopLevelBrowsingContext* context) {
+  return pagespeed_input_->AcquireTopLevelBrowsingContext(context);
+}
+
 pagespeed::TopLevelBrowsingContext* PagespeedTest::NewTopLevelBrowsingContext(
     const pagespeed::Resource* document_resource) {
-  pagespeed::TopLevelBrowsingContext* context =
+  scoped_ptr<pagespeed::TopLevelBrowsingContext> context(
       new pagespeed::TopLevelBrowsingContext(document_resource,
-                                             pagespeed_input_.get());
-  pagespeed_input_->AcquireTopLevelBrowsingContext(context);
-  return context;
+                                             pagespeed_input_.get()));
+  if (!SetTopLevelBrowsingContext(context.get())) {
+    return NULL;
+  }
+  return context.release();
 }
 
 void PagespeedTest::CreateHtmlHeadBodyElements() {

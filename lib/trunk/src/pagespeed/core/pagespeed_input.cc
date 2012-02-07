@@ -20,17 +20,12 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
-#include "net/instaweb/htmlparse/public/html_parse.h"
-#include "net/instaweb/util/public/google_message_handler.h"
-#include "net/instaweb/util/public/message_handler.h"
 #include "pagespeed/core/browsing_context.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/uri_util.h"
-#include "pagespeed/css/external_resource_finder.h"
-#include "pagespeed/html/external_resource_filter.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/resource.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
@@ -47,97 +42,6 @@ struct ResourceRequestStartTimeLessThan {
 };
 
 }  // namespace
-
-namespace internal {
-
-BrowsingContextFactory::BrowsingContextFactory(PagespeedInput* pagespeed_input)
-    : pagespeed_input_(pagespeed_input) {
-}
-
-void BrowsingContextFactory::Init(const DomDocument& document,
-                                  const Resource* primary_resource) {
-  top_level_context_.reset(
-      new TopLevelBrowsingContext(primary_resource, pagespeed_input_));
-  current_context_ = top_level_context_.get();
-  top_level_context_->AcquireDomDocument(document.Clone());
-
-  scoped_ptr<pagespeed::DomElementVisitor> visitor(
-      MakeDomElementVisitorForDocument(&document, this));
-  document.Traverse(visitor.get());
-}
-
-void BrowsingContextFactory::VisitUrl(const pagespeed::DomElement& node,
-                                      const std::string& url) {
-  const Resource* resource = pagespeed_input_->GetResourceWithUrlOrNull(url);
-  if (resource != NULL) {
-    current_context_->RegisterResource(resource);
-
-    if (resource->GetResourceType() == pagespeed::CSS) {
-      pagespeed::css::ExternalResourceFinder css_resource_finder;
-      std::set<std::string> resource_urls;
-      css_resource_finder.FindExternalResources(*resource, &resource_urls);
-      for (std::set<std::string>::const_iterator it = resource_urls.begin();
-          it != resource_urls.end(); ++it) {
-        const Resource* resource = pagespeed_input_->GetResourceWithUrlOrNull(
-            *it);
-        if (resource != NULL) {
-          current_context_->RegisterResource(resource);
-        }
-      }
-    } else if (resource->GetResourceType() == pagespeed::HTML) {
-      net_instaweb::GoogleMessageHandler message_handler;
-      message_handler.set_min_message_type(net_instaweb::kError);
-
-      net_instaweb::HtmlParse html_parse(&message_handler);
-      html::ExternalResourceFilter html_resource_filter(&html_parse);
-      html_parse.AddFilter(&html_resource_filter);
-      html_parse.StartParse(resource->GetRequestUrl());
-      html_parse.ParseText(resource->GetResponseBody().data(),
-                           resource->GetResponseBody().length());
-      html_parse.FinishParse();
-
-      std::vector<std::string> url_list;
-      html_resource_filter.GetExternalResourceUrls(
-          &url_list, current_context_->GetDomDocument(),
-          resource->GetRequestUrl());
-      for (std::vector<std::string>::const_iterator it = url_list.begin();
-          it != url_list.end(); ++it) {
-        const Resource* resource =
-            pagespeed_input_->GetResourceWithUrlOrNull(*it);
-        if (resource != NULL) {
-          current_context_->RegisterResource(resource);
-        }
-      }
-    }
-  }
-}
-
-void BrowsingContextFactory::VisitDocument(
-    const DomElement& element, const pagespeed::DomDocument& document) {
-  std::string document_url = document.GetDocumentUrl();
-  const Resource* document_resource = NULL;
-  if (!document_url.empty()) {
-    document_resource = pagespeed_input_->GetResourceWithUrlOrNull(
-        document_url);
-  }
-  BrowsingContext* parent_context = current_context_;
-  current_context_ =
-      parent_context->AddNestedBrowsingContext(document_resource);
-  current_context_->AcquireDomDocument(document.Clone());
-
-  scoped_ptr<pagespeed::DomElementVisitor> visitor(
-      pagespeed::MakeDomElementVisitorForDocument(&document, this));
-  document.Traverse(visitor.get());
-
-  current_context_ = parent_context;
-}
-
-TopLevelBrowsingContext* BrowsingContextFactory::ReleaseTopLevelBrowsingContext() {
-  return top_level_context_.release();
-  current_context_ = NULL;
-}
-
-}  // namespace internal
 
 PagespeedInput::PagespeedInput()
     : input_info_(new InputInformation),
@@ -337,23 +241,6 @@ bool PagespeedInput::Freeze(
     std::stable_sort(request_order_vector_.begin(),
                      request_order_vector_.end(),
                      ResourceRequestStartTimeLessThan());
-  }
-
-  if (top_level_browsing_context_ == NULL && document_ != NULL) {
-    // The browsing context were not added manually - try to discover the
-    // BrowsingContext objects from the DOM document.
-
-    const Resource* primary_resource = GetResourceWithUrlOrNull(
-        primary_resource_url());
-    if (primary_resource != NULL) {
-      internal::BrowsingContextFactory document_factory(this);
-      document_factory.Init(*document_, primary_resource);
-      AcquireTopLevelBrowsingContext(
-          document_factory.ReleaseTopLevelBrowsingContext());
-    } else {
-      LOG(WARNING) << "No primary resource is available. Won't initialize the "
-          "BrowsingContexts.";
-    }
   }
 
   if (freezeParticipant != NULL) {

@@ -96,6 +96,7 @@
       'type': 'executable',
       'dependencies': [
         'pagespeed_library',
+        '<(pagespeed_root)/pagespeed/browsing_context/browsing_context.gyp:pagespeed_browsing_context_factory',
         '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_cssmin',
         '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_css_external_resource_finder',
         '<(pagespeed_root)/pagespeed/dom/dom.gyp:pagespeed_json_dom',
@@ -120,6 +121,7 @@
         '<(pagespeed_root)',
       ],
       'sources': [
+        'browsing_context/browsing_context_factory_test.cc',
         'core/browsing_context_test.cc',
         'core/dom_test.cc',
         'core/engine_test.cc',

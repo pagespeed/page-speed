@@ -166,7 +166,13 @@ class PagespeedTest : public ::testing::Test {
                                       FakeDomElement* parent = NULL,
                                       FakeDomElement** out = NULL);
 
-  // Create a new TopLevelBrowsingContext with the specified document.
+  // Set the top-level browsing context.
+  bool SetTopLevelBrowsingContext(pagespeed::TopLevelBrowsingContext* context);
+
+  // Create a new TopLevelBrowsingContext with the specified document,
+  // and transfer its ownership to the PagespeedInput. If you call
+  // this method, SetTopLevelBrowsingContext() is called for you
+  // internally for the returned context.
   pagespeed::TopLevelBrowsingContext* NewTopLevelBrowsingContext(
       const pagespeed::Resource* document_resource);
 
