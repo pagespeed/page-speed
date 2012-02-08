@@ -22,6 +22,16 @@
 
 #include "base/logging.h"
 
+#ifdef __native_client__
+// For some reason that is not yet clear, invoking png_longjmp on
+// native client causes a crash. Invoking longjmp on the jump buffer
+// directly does not crash. The jump buffer is defined in the
+// following libpng private header, so we include it here. See
+// http://code.google.com/p/page-speed/issues/detail?id=644 for more
+// information.
+#include "third_party/libpng/src/pngstruct.h"
+#endif
+
 extern "C" {
 #ifdef USE_SYSTEM_ZLIB
 #include "zlib.h"  // NOLINT
@@ -65,7 +75,16 @@ void ReadPngFromStream(png_structp read_ptr,
 
     // We weren't able to satisfy the read, so abort.
 #if PNG_LIBPNG_VER >= 10400
+  #ifndef __native_client__
     png_longjmp(read_ptr, 1);
+  #else
+    // On native client, invoking png_longjmp as above causes a
+    // crash. Invoking longjmp directly, however, works fine.  For the
+    // time being we use this workaround for native client builds. See
+    // http://code.google.com/p/page-speed/issues/detail?id=644 for
+    // more information.
+    longjmp(read_ptr->longjmp_buffer, 1);
+  #endif
 #else
     longjmp(read_ptr->jmpbuf, 1);
 #endif
