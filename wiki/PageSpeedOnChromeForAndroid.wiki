@@ -12,7 +12,10 @@ Requirements:
 
 Steps
   # Connect your mobile device to the host using a USB wire.
-  # On your android, open *Settings > Under the hood > Developer tools* and check the *Enable USB Web debugging*
+  # In Android System settings: open *Developer options* and check *USB debugging*
+  # In the Google Chrome for Android application:
+    * On your Android tablet: open *Settings > Under the hood > Developer tools* and check *Enable USB Web debugging*
+    * On your Android phone: open *Settings > Developer tools* and check *Enable USB Web debugging*
   # In the console on your host machine to enable port forwarding: `adb forward tcp:9222 localabstract:chrome_devtools_remote`
   # Open desktop Chrome and navigate to localhost:9222.
 
