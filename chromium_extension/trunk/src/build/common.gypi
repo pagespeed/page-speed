@@ -17,22 +17,23 @@
     # Make sure we link statically so everything gets linked into a
     # single shared object.
     'library': 'static_library',
-
-    # The nacl toolchain fails to build valid nexes when we enable gc
-    # sections, at least on 64 bit builds. TODO: revisit this to see
-    # if a newer nacl toolchain supports it.
-    'no_gc_sections': 1,
-
-    # We're building a shared library, so everything needs to be built
-    # with Position-Independent Code.
-    'linux_fpic': 1,
   },
   'includes': [
     '../third_party/libpagespeed/src/build/common.gypi',
   ],
-  # 'target_defaults': {
-  #   'include_dirs': [
-  #     '<(DEPTH)/build/nacl_header_stubs',
-  #   ],
-  # },
+  'conditions': [
+    ['build_nacl==1', {
+      'target_defaults': {
+        'defines': [
+          # NaCL newlib's libpthread.a provides the
+          # GetRunningOnValgrind symbol already, so we should not
+          # provide it.
+          'DYNAMIC_ANNOTATIONS_PROVIDE_RUNNING_ON_VALGRIND=0',
+        ],
+        'include_dirs': [
+          '<(DEPTH)/build/nacl_header_stubs',
+        ],
+      },
+    }],
+  ],
 }

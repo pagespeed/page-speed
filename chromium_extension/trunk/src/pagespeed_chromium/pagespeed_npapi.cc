@@ -38,6 +38,9 @@ namespace {
 const char* kPingMethodId = "ping";
 const char* kRunPageSpeedMethodId = "runPageSpeed";
 
+// NPAPI doesn't need ID tracking, so we just use a dummy value.
+const char* kDummyId = "";
+
 class PageSpeedModule : public NPObject {
  public:
   explicit PageSpeedModule(NPP npp) : npp_(npp) {}
@@ -126,7 +129,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   std::string output, error_string;
   // RunPageSpeedRules will deallocate the filter and the document.
   const bool success = pagespeed_chromium::RunPageSpeedRules(
-      har_string, document_string, timeline_string, filter_string,
+      kDummyId, har_string, document_string, timeline_string, filter_string,
       locale_string, save_optimized_content, &output, &error_string);
   if (!success) {
     return Throw(error_string);

@@ -24,6 +24,7 @@ namespace pagespeed_chromium {
 // representation of the har, document, timeline, resource filter,
 // locale, and whether to save optimized content. The field names and
 // types are:
+//  'id': string
 //  'har': string
 //  'document': string
 //  'timeline': string
@@ -41,7 +42,8 @@ bool RunPageSpeedRules(const std::string& data,
 // Returns true on success, false otherwise. If true, output_string
 // will contain the result. If false, error_string will contain a
 // human-readable error message.
-bool RunPageSpeedRules(const std::string& har_data,
+bool RunPageSpeedRules(const std::string& id,
+                       const std::string& har_data,
                        const std::string& document_data,
                        const std::string& timeline_data,
                        const std::string& resource_filter_name,
