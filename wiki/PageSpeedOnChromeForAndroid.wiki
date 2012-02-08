@@ -1,0 +1,17 @@
+#summary How to run Page Speed on Chrome for Android
+
+With Chrome for Android [http://www.google.com/url?q=http%3A%2F%2Fcode.google.com%2Fchrome%2Fmobile%2Fdocs%2Fdebugging.html Remote Debugging] enabled, you can start debugging and profiling mobile content in the Developer Tools on your desktop, as well as run Page Speed analysis on the mobile content from your desktop.
+
+Follow the steps on [http://www.google.com/url?q=http%3A%2F%2Fcode.google.com%2Fchrome%2Fmobile%2Fdocs%2Fdebugging.html Remote Debugging] to navigate to the devtool page, if you have the latest Page Speed installed, you will see Page Speed on the remote devtools panel.
+
+==Steps for quick reference==
+Requirements:
+  * Android Debug Bridge (adb) from [http://developer.android.com/sdk/index.html Android SDK]
+  * Chrome on your desktop or laptop
+  * Android running Chrome for Android
+
+Steps
+  # Connect your mobile device to the host using a USB wire.
+  # On your android, open *Settings > Under the hood > Developer tools* and check the *Enable USB Web debugging*
+  # In the console on your host machine to enable port forwarding: `adb forward tcp:9222 localabstract:chrome_devtools_remote`
+  # Open desktop Chrome and navigate to localhost:9222.
