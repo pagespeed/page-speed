@@ -23,6 +23,8 @@ namespace {
 
 class PagespeedChromiumTest : public ::pagespeed_testing::PagespeedTest {};
 
+const char* kBasicId = "id";
+
 const char* kBasicHar =
     "{"
     "  \"log\":{"
@@ -230,7 +232,7 @@ TEST_F(PagespeedChromiumTest, EmptyInput) {
   ASSERT_EQ("Line: 1, column: 1, Root value must be an array or object.", err);
 
   ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
-      "", "", "", kFilterName, "", false, &out, &err));
+      "", "", "", "", kFilterName, "", false, &out, &err));
   ASSERT_TRUE(out.empty());
   ASSERT_EQ("could not parse HAR", err);
 }
@@ -242,14 +244,15 @@ TEST_F(PagespeedChromiumTest, EmptyJsonInput) {
   ASSERT_EQ("Failed to extract required field(s) from input JSON.", err);
 
   ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
-      "{}", "{}", "{}", kFilterName, "", false, &out, &err));
+      "", "{}", "{}", "{}", kFilterName, "", false, &out, &err));
   ASSERT_TRUE(out.empty());
   ASSERT_EQ("could not parse HAR", err);
 }
 
 TEST_F(PagespeedChromiumTest, Basic) {
   std::string out, err;
-  ASSERT_TRUE(pagespeed_chromium::RunPageSpeedRules(kBasicHar,
+  ASSERT_TRUE(pagespeed_chromium::RunPageSpeedRules(kBasicId,
+                                                    kBasicHar,
                                                     kBasicDocument,
                                                     kBasicTimeline,
                                                     kFilterName,
@@ -264,6 +267,7 @@ TEST_F(PagespeedChromiumTest, BasicSingleArgument) {
   std::string data;
   {
     scoped_ptr<DictionaryValue> root(new DictionaryValue);
+    root->SetString("id", kBasicId);
     root->SetString("har", kBasicHar);
     root->SetString("document", kBasicDocument);
     root->SetString("timeline", kBasicTimeline);

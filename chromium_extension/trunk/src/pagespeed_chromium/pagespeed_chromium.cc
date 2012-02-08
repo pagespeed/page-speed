@@ -149,10 +149,11 @@ bool RunPageSpeedRules(const std::string& data,
 
   const DictionaryValue* root =
       static_cast<const DictionaryValue*>(data_json.get());
-  std::string har_data, document_data, timeline_data,
+  std::string id, har_data, document_data, timeline_data,
       resource_filter_name, locale;
   bool save_optimized_content;
-  if (!root->GetString("har", &har_data) ||
+  if (!root->GetString("id", &id) ||
+      !root->GetString("har", &har_data) ||
       !root->GetString("document", &document_data) ||
       !root->GetString("timeline", &timeline_data) ||
       !root->GetString("resource_filter", &resource_filter_name) ||
@@ -162,7 +163,8 @@ bool RunPageSpeedRules(const std::string& data,
     return false;
   }
 
-  return RunPageSpeedRules(har_data,
+  return RunPageSpeedRules(id,
+                           har_data,
                            document_data,
                            timeline_data,
                            resource_filter_name,
@@ -177,7 +179,8 @@ bool RunPageSpeedRules(const std::string& data,
 // Return false if the HAR data could not be parsed, true otherwise.
 // This function will take ownership of the filter and document arguments, and
 // will delete them before returning.
-bool RunPageSpeedRules(const std::string& har_data,
+bool RunPageSpeedRules(const std::string& id,
+                       const std::string& har_data,
                        const std::string& document_data,
                        const std::string& timeline_data,
                        const std::string& resource_filter_name,
@@ -330,6 +333,9 @@ bool RunPageSpeedRules(const std::string& har_data,
   // Serialize all the JSON into a string.
   {
     scoped_ptr<DictionaryValue> root(new DictionaryValue);
+    root->SetString("id", id);
+    root->SetString("resourceFilterName", resource_filter_name);
+    root->SetString("locale", locale);
     root->Set("results", json_results.release());
     root->Set("optimizedContent", optimized_content.release());
     base::JSONWriter::Write(root.get(), false, output_string);

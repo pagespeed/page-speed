@@ -157,6 +157,7 @@
             'extension_files/options.css',
             'extension_files/options.html',
             'extension_files/options.js',
+            'extension_files/pagespeed.nmf',
             'extension_files/pagespeed-32.png',
             'extension_files/pagespeed-64.png',
             'extension_files/pagespeed-128.png',
@@ -178,30 +179,30 @@
       ]
     },
     {
-      'target_name': 'pagespeed_extension_copy_so',
+      'target_name': 'pagespeed_extension_npapi',
       'type': 'none',
       'dependencies': [
         'pagespeed_plugin',
-        'pagespeed_extension_make_dirs',
+        'pagespeed_extension_copy_files',
       ],
       'variables': {
-        'so_input_path': '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed_plugin<(SHARED_LIB_SUFFIX)',
+        'npapi_input_path': '<(PRODUCT_DIR)/<(SHARED_LIB_PREFIX)pagespeed_plugin<(SHARED_LIB_SUFFIX)',
         'conditions': [
           ['OS=="mac"', {
-            'so_output_path': '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
+            'npapi_output_path': '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
           }, {
-            'so_output_path': '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os_name)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
+            'npapi_output_path': '<(PRODUCT_DIR)/pagespeed/<(SHARED_LIB_PREFIX)pagespeed_plugin_<(os_name)_<(cpu_arch)-<(compiler_abi)<(SHARED_LIB_SUFFIX)',
           }],
         ],
       },
       'actions': [
         {
-          'action_name': 'copy_so',
+          'action_name': 'copy_npapi',
           'inputs': [
             '<(PRODUCT_DIR)/pagespeed',
-            '<(so_input_path)',
+            '<(npapi_input_path)',
           ],
-          'outputs': ['<(so_output_path)'],
+          'outputs': ['<(npapi_output_path)'],
           'conditions': [
             ['OS=="mac"', {
               'action': [
@@ -209,7 +210,7 @@
                 '<(PRODUCT_DIR)/pagespeed',
               ],
 	    }, {
-              'action': ['cp', '<(so_input_path)', '<(so_output_path)'],
+              'action': ['cp', '<(npapi_input_path)', '<(npapi_output_path)'],
             }],
           ],
         },
@@ -227,8 +228,64 @@
             '<(PRODUCT_DIR)/pagespeed/pagespeed_plugin.plugin',
           ],
           # Don't touch the actual built plugin; it confuses the build system.
-          'outputs!': ['<(so_output_path)'],
+          'outputs!': ['<(npapi_output_path)'],
           'action': ['touch', '-a', '<@(_outputs)'],
+        },
+      ],
+    },
+    {
+      'target_name': 'pagespeed.nexe',
+      'type': 'executable',
+      'suppress_wildcard': 1,
+      'dependencies': [
+        'pagespeed_chromium',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(libpagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
+        '<(libpagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_all_po',
+      ],
+      'sources': [
+        'pagespeed_nacl.cc',
+      ],
+      'include_dirs': [
+        '<(DEPTH)',
+      ],
+      'link_settings': {
+        'libraries': [
+          '-lppapi',
+          '-lppapi_cpp',
+        ]
+      },
+    },
+    {
+      'target_name': 'pagespeed_extension_nexe',
+      'type': 'none',
+      'suppress_wildcard': 1,
+      'dependencies': [
+        'pagespeed.nexe',
+        'pagespeed_extension_copy_files',
+      ],
+      'variables': {
+        'nexe_input_path': '<(PRODUCT_DIR)/pagespeed.nexe',
+        'nexe_output_path': '<(PRODUCT_DIR)/pagespeed/pagespeed_<(cpu_arch).nexe',
+      },
+      'actions': [
+        {
+          'action_name': 'copy_nexe',
+          'inputs': [
+            '<(PRODUCT_DIR)/pagespeed',
+            '<(nexe_input_path)',
+          ],
+          'outputs': ['<(nexe_output_path)'],
+          'conditions': [
+            ['OS=="mac"', {
+              'action': [
+                'cp', '-r', '<(PRODUCT_DIR)/pagespeed_plugin.plugin',
+                '<(PRODUCT_DIR)/pagespeed',
+              ],
+	    }, {
+              'action': ['cp', '<(nexe_input_path)', '<(nexe_output_path)'],
+            }],
+          ],
         },
       ],
     },
