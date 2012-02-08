@@ -18,17 +18,24 @@ var pagespeed_bg = {
 
   // Map from DevTools tab IDs to client objects.  Each client object has the
   // following fields:
-  //     analyze: a string indicating whether to analyze ads/content/etc.
   //     har: the page HAR, in JSON form
+  //     document: the page document, in JSON form
+  //     timeline: array of timeline records, in JSON form
+  //     resource_filter: a string indicating which resource filter to use.
+  //     locale: locale string
+  //     save_optimized_content: boolean indicating whether or not we
+  //         should generate and save optimized content.
   //     port: a port object connected to this client's DevTools page
   activeClients: {},
 
-  // Wrap a function with an error handler.  Given a function, return a new
-  // function that behaves the same but catches and logs errors thrown by the
-  // wrapped function.
-  withErrorHandler: function (func) {
+  // Wrap a function with an error handler.  Given a function, return
+  // a new function that behaves the same but catches and logs errors
+  // thrown by the wrapped function. If 'client' is specified, the
+  // message is sent to that client only. If 'client' is null, the
+  // message is broadcast to all active clients.
+  withErrorHandler: function (client, func) {
     // Remove the first arg.
-    var boundArgs = Array.prototype.slice.call(arguments, 1);
+    var boundArgs = Array.prototype.slice.call(arguments, 2);
     return function (/*arguments*/) {
       try {
         // Prepend boundArgs to the new args.
@@ -36,12 +43,43 @@ var pagespeed_bg = {
         Array.prototype.unshift.apply(newArgs, boundArgs);
         return func.apply(this, newArgs);
       } catch (e) {
-        var message = 'Error in Page Speed background page:\n ' + e.stack;
-        alert(message + '\n\nPlease file a bug at\n' +
-              'http://code.google.com/p/page-speed/issues/');
-        console.log(message);
+        pagespeed_bg.displayErrorAndEndCurrentRun('ERROR', e, client);
       }
     };
+  },
+
+  // Display the given error message or stack trace by popping up an
+  // alert and broadcasting the message to interested clients.
+  displayErrorAndEndCurrentRun: function (msg, e, client) {
+    if (client) {
+      pagespeed_bg.endCurrentRun(client);
+      pagespeed_bg.setStatusText(client, msg);
+    } else {
+      pagespeed_bg.cancelAllActiveClients(msg);
+    }
+    // Prefer the stack trace if available, otherwise use the message.
+    var message = e ? e.stack : msg;
+    alert('Error in Page Speed background page:\n' +
+          message + '\n\nPlease file a bug at\n' +
+          'http://code.google.com/p/page-speed/issues/');
+    console.log(message);
+  },
+
+  cancelAllActiveClients: function (msg) {
+    // First, make a local copy of the collection of clients, since
+    // invoking endCurrentRun modifies pagespeed_bg.activeClients
+    // (most likely via an async callback, but we make the local copy
+    // just in case).
+    var clients = [];
+    for (var clientId in pagespeed_bg.activeClients) {
+      clients.push(pagespeed_bg.activeClients[clientId]);
+    }
+
+    for (var i = 0, len = clients.length; i < len; ++i) {
+      var client = clients[i];
+      pagespeed_bg.endCurrentRun(client);
+      pagespeed_bg.setStatusText(client, msg);
+    }
   },
 
   // Given a client object, return true if it is still active, or false if it
@@ -53,7 +91,7 @@ var pagespeed_bg = {
   // Handle connections from DevTools panels.
   connectHandler: function (port) {
     port.onMessage.addListener(pagespeed_bg.withErrorHandler(
-      pagespeed_bg.messageHandler, port));
+        null, pagespeed_bg.messageHandler, port));
   },
 
   // Handle messages from DevTools panels.
@@ -61,16 +99,23 @@ var pagespeed_bg = {
     var tab_id = port.sender.tab.id;
     if (request.kind === 'openUrl') {
       chrome.tabs.create({url: request.url});
-    } else if (request.kind === 'fetchPartialResources') {
+    } else if (request.kind === 'runPageSpeed') {
       var client = {
-        analyze: request.analyze,
         har: request.har,
+        document: request.document,
+        timeline: request.timeline,
+        resource_filter: request.resource_filter,
+        locale: request.locale,
+        save_optimized_content: request.save_optimized_content,
         port: port,
       };
       pagespeed_bg.activeClients[tab_id] = client;
-      port.onDisconnect.addListener(pagespeed_bg.withErrorHandler(function () {
+      port.onDisconnect.addListener(pagespeed_bg.withErrorHandler(client,
+                                                                  function () {
         delete pagespeed_bg.activeClients[tab_id];
       }));
+      // Before we can run Page Speed analysis, we need to make sure
+      // that the data in the HAR is complete first.
       pagespeed_bg.fetchPartialResources_(client);
     } else if (request.kind === 'cancelRun') {
       delete pagespeed_bg.activeClients[tab_id];
@@ -80,6 +125,8 @@ var pagespeed_bg = {
   },
 
   fetchPartialResources_: function (client) {
+    pagespeed_bg.setStatusText(client, "Fetching partial resources...");
+
     var fetchContext = {}
 
     // We track in-progress requests in a map, so we know when there
@@ -159,11 +206,12 @@ var pagespeed_bg = {
       // Abort any requests that take longer than 5 seconds, since
       // some requests are "hanging GETs" that never return.
       var timeoutCallbackId = setTimeout(
-          pagespeed_bg.withErrorHandler(pagespeed_bg.abortXmlHttpRequest_,
-                                        xhr, url),
+          pagespeed_bg.withErrorHandler(
+              client, pagespeed_bg.abortXmlHttpRequest_, xhr, url),
           5000);
 
       xhr.onreadystatechange = pagespeed_bg.withErrorHandler(
+          client,
           pagespeed_bg.onReadyStateChange,
           xhr, entry, fetchContext, timeoutCallbackId);
       try {
@@ -185,7 +233,7 @@ var pagespeed_bg = {
       // We have no outstanding resources being fetched, so move on to
       // the next stage of processing.
       delete fetchContext.client;
-      pagespeed_bg.sendCollectedInputMsg(client);
+      pagespeed_bg.runPageSpeed(client);
     }
   },
 
@@ -197,18 +245,6 @@ var pagespeed_bg = {
     // in the future, so we need to watch for that and update the code
     // if necessary.
     xhr.abort();
-  },
-
-  sendCollectedInputMsg: function (client) {
-    if (pagespeed_bg.isClientStillActive(client)) {
-      // Only send the fetch complete message if this is part of
-      // processing for a client that hasn't been cancelled.
-      client.port.postMessage({
-        kind: 'partialResourcesFetched',
-        analyze: client.analyze,
-        har: client.har
-      });
-    }
   },
 
   onReadyStateChange: function (xhr, entry, fetchContext, timeoutCallbackId) {
@@ -237,7 +273,7 @@ var pagespeed_bg = {
     // finish the next stage of processing, even if one of our XHR
     // responses doesn't process correctly.
     var wrappedResponseHandler = pagespeed_bg.withErrorHandler(
-        pagespeed_bg.onXhrResponse);
+        fetchContext.client, pagespeed_bg.onXhrResponse);
     wrappedResponseHandler(xhr, entry);
 
     if (fetchContext.numOutstandingResources == 0) {
@@ -245,7 +281,7 @@ var pagespeed_bg = {
       // next phase of processing.
       var client = fetchContext.client;
       delete fetchContext.client;
-      pagespeed_bg.sendCollectedInputMsg(client);
+      pagespeed_bg.runPageSpeed(client);
     }
   },
 
@@ -376,14 +412,125 @@ var pagespeed_bg = {
     content.text = bodyEncoded;
     content.size = bodySize;
     content.encoding = 'base64';
-  }
+  },
+
+  runPageSpeed: function (client) {
+    pagespeed_bg.setStatusText(client, chrome.i18n.getMessage('running_rules'));
+
+    // Before we can actually invoke page speed, we need to make sure
+    // the native client module has been loaded. If it hasn't been
+    // loaded, we'll be notified via this async callback when it's
+    // available.
+    var callback = pagespeed_bg.runPageSpeedImpl.bind(null, client);
+    var pagespeed_module = document.getElementById('pagespeed-module');
+    if (!pagespeed_module) {
+      pagespeed_bg.loadNaclModule(
+          pagespeed_bg.withErrorHandler(null, callback));
+    } else {
+      callback();
+    }
+  },
+
+  loadNaclModule: function (callback) {
+    // Create an embed element to load our NaCL module. We do this on
+    // demand the first time it's needed, rather than declaring it in
+    // background.html, to avoid incurring module load time as part of
+    // Chrome startup time.
+    var pagespeed_module = document.createElement('embed');
+    pagespeed_module.id = 'pagespeed-module';
+    pagespeed_module.src = 'pagespeed.nmf';
+    pagespeed_module.type = 'application/x-nacl';
+    // The 'message' callback is the callback by which messages posted
+    // from the NaCL module are delivered to us.
+    pagespeed_module.addEventListener(
+        'message',
+        pagespeed_bg.withErrorHandler(null, pagespeed_bg.onNaclResponse));
+
+    // Set up a callback to be notified both if the module loads
+    // successfully as well as if it fails to load.
+    pagespeed_module.addEventListener('loadend', callback);
+
+    // Set up a callback to be invoked if the NaCL module crashes
+    // while executing.
+    pagespeed_module.addEventListener(
+        'crash',
+        function() {
+          pagespeed_bg.displayErrorAndEndCurrentRun(pagespeed_module.lastError);
+          // Once the module has crashed, it must be removed from the
+          // DOM (and a new one added) before we can run it again.
+          document.body.removeChild(pagespeed_module);
+        });
+
+    // Append the module to the DOM. The module will begin loading
+    // once it has been added to the DOM.
+    document.body.appendChild(pagespeed_module);
+  },
+
+  runPageSpeedImpl: function (client) {
+    if (!pagespeed_bg.isClientStillActive(client)) {
+      // We're processing a callback for an old client. Ignore it.
+      return;
+    }
+    var pagespeed_module = document.getElementById('pagespeed-module');
+    if (pagespeed_module.lastError) {
+      pagespeed_bg.displayErrorAndEndCurrentRun(pagespeed_module.lastError);
+      document.body.removeChild(pagespeed_module);
+      return;
+    }
+    if (pagespeed_module.readyState != 4) {
+      pagespeed_bg.displayErrorAndEndCurrentRun(
+          'Native client module not ready: ' + pagespeed_module.readyState);
+      return;
+    }
+    var msg = {
+      id: String(client.port.sender.tab.id),
+      har: JSON.stringify(client.har),
+      document: JSON.stringify(client.document),
+      timeline: JSON.stringify(client.timeline),
+      resource_filter: client.resource_filter,
+      locale: client.locale,
+      save_optimized_content: client.save_optimized_content,
+    };
+    pagespeed_module.postMessage(JSON.stringify(msg));
+  },
+
+  // Invoked when the NaCL module sends a message to us.
+  onNaclResponse: function (responseMsg) {
+    var result = JSON.parse(responseMsg.data);
+    if (result.error) {
+      pagespeed_bg.displayErrorAndEndCurrentRun(result.error);
+      return;
+    }
+    var clientId = parseInt(result.id);
+    var client = pagespeed_bg.activeClients[clientId];
+    if (client) {
+      pagespeed_bg.postMessage(client, 'onRunPageSpeedComplete', result);
+    }
+  },
+
+  setStatusText: function (client, msg) {
+    pagespeed_bg.postMessage(client, 'status', msg);
+  },
+
+  endCurrentRun: function (client) {
+    pagespeed_bg.postMessage(client, 'endCurrentRun', '');
+  },
+
+  postMessage: function(client, kind, value) {
+    if (pagespeed_bg.isClientStillActive(client)) {
+      client.port.postMessage({
+        kind: kind,
+        value: value,
+      });
+    }
+  },
 
 };
 
-pagespeed_bg.withErrorHandler(function () {
+pagespeed_bg.withErrorHandler(null, function () {
 
   // Listen for connections from DevTools panels:
   chrome.extension.onConnect.addListener(
-    pagespeed_bg.withErrorHandler(pagespeed_bg.connectHandler));
+      pagespeed_bg.withErrorHandler(null, pagespeed_bg.connectHandler));
 
 })();

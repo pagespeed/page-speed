@@ -15,7 +15,7 @@
     "64": "pagespeed-64.png",
     "128": "pagespeed-128.png"
   },
-  "minimum_chrome_version": "13.0",
+  "minimum_chrome_version": "16.0",
   "name": "Page Speed",
   "options_page": "options.html",
   "permissions": [
@@ -24,11 +24,5 @@
     "unlimitedStorage",
     "http://*/*", "https://*/*"
   ],
-  "plugins": [
-    { "path": "pagespeed_plugin_WINNT_x86-msvc.dll", "public": true },
-    { "path": "libpagespeed_plugin_Linux_x86-gcc3.so", "public": true },
-    { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true },
-    { "path": "pagespeed_plugin.plugin", "public": true }
-  ],
-  "version": "1.12.0.5"
+  "version": "1.12.7"
 }
