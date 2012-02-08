@@ -475,14 +475,12 @@ var pagespeed = {
 
   // Handle messages from the background page (coming over the connectionPort).
   messageHandler: function (message) {
-    if (message.kind === 'partialResourcesFetched') {
-      pagespeed.domCollector = new pagespeed.DomCollector(
-        pagespeed.withErrorHandler(function (dom) {
-          message.dom = dom;
-          pagespeed.onCollectedInput(message);
-      }));
-      pagespeed.setStatusText("Collecting page DOM...");
-      pagespeed.domCollector.start();
+    if (message.kind === 'onRunPageSpeedComplete') {
+      pagespeed.onRunPageSpeedComplete(message.value);
+    } else if (message.kind === 'status') {
+      pagespeed.setStatusText(message.value);
+    } else if (message.kind === 'endCurrentRun') {
+      pagespeed.endCurrentRun();
     } else {
       throw new Error('Unknown message kind: ' + message.kind);
     }
@@ -522,62 +520,78 @@ var pagespeed = {
   onResourceAccumulatorComplete: function (har) {
     pagespeed.resourceAccumulator = null;
 
-    // Tell the background page to collect the missing bits of the
-    // HAR.  It will respond with a partialResourcesFetched message,
-    // which will be handled in pagespeed.messageHandler().
-    pagespeed.setStatusText("Fetching partial resources...");
+    pagespeed.domCollector = new pagespeed.DomCollector(
+      pagespeed.withErrorHandler(function (dom) {
+        pagespeed.domCollector = null;
+        var message = {
+          har: har,
+          dom: dom,
+        };
+        pagespeed.onDomComplete(message);
+      })
+    );
+    pagespeed.setStatusText("Collecting page DOM...");
+    pagespeed.domCollector.start();
+  },
+
+  onDomComplete: function (message) {
+    // Tell the background page to collect the missing bits of the HAR
+    // and run Page Speed.  It will respond with a onRunPageSpeedComplete
+    // message, which will be handled in pagespeed.messageHandler().
+    //
+    // TODO(bmcquade): If there is an existing in-flight call it needs
+    // to be cancelled first or ignored when the result comes
+    // back. This should not happen since we disable the analyze
+    // button when a request is in flight. However if we find we do
+    // need to track in-flight requests we should add an 'id' field to
+    // the posted message and propagate it through the callbacks so we
+    // can track each request (and remember the ID of the most recent
+    // outstanding request).
     pagespeed.connectionPort.postMessage({
-      kind: 'fetchPartialResources',
-      analyze: document.getElementById('analyze-dropdown').value,
-      har: har,
+      kind: 'runPageSpeed',
+      har: message.har,
+      document: message.dom,
+      timeline: pagespeed.timelineEvents,
+      resource_filter: document.getElementById('analyze-dropdown').value,
+      locale: chrome.i18n.getMessage('@@ui_locale'),
+      save_optimized_content: !localStorage.noOptimizedContent,
     });
   },
 
-  // Invoked when the background page has finished collecting any
-  // missing parts of the HAR and the DOM has been retrieved.
-  onCollectedInput: function (input) {
-    pagespeed.setStatusText(chrome.i18n.getMessage('running_rules'));
-    // Wrap this next part in a setTimeout (with zero delay) to give Chrome a
-    // chance to redraw the screen and display the above message.
-    setTimeout(pagespeed.withErrorHandler(function () {
-      var pagespeed_module = document.getElementById('pagespeed-module');
-      // Check if the module has loaded.
-      try {
-        pagespeed_module.ping();
-      } catch (e) {
-        pagespeed.endCurrentRun();
-        pagespeed.showErrorMessage('moduleDidNotLoad');
-        return;
+  // Handler for responses from our native module.
+  onRunPageSpeedComplete: function (output) {
+    pagespeed.currentResults = {
+      analyze: output.resourceFilterName,
+      optimizedContent: output.optimizedContent,
+      results: output.results
+    };
+    // If we need to save optimized content, then start up a
+    // ContentWriter and tell it to show results (that is, call
+    // onContentWriterComplete) when it finishes.  If we're not saving
+    // optimized content, skip straight to showing the results (by
+    // calling onContentWriterComplete immediately). Note that we
+    // could test localStorage.noOptimizedContent here however it may
+    // be the case that the localStorage value changed between the
+    // time the request started and now. We'd like to honor the value
+    // at the time the request started, which is why we inspect the
+    // optimizedContent bundle to determine if there is any optimized
+    // content to save.
+    var saveOptimizedContent = false;
+    for(var i in output.optimizedContent) {
+      if (output.optimizedContent.hasOwnProperty(i)) {
+        saveOptimizedContent = true;
+        break;
       }
-      // Run the rules.
-      var saveOptimizedContent = !localStorage.noOptimizedContent;
-      var output = JSON.parse(pagespeed_module.runPageSpeed(
-        JSON.stringify(input.har),
-        JSON.stringify(input.dom),
-        JSON.stringify(pagespeed.timelineEvents),
-        input.analyze,
-        chrome.i18n.getMessage('@@ui_locale'),
-        saveOptimizedContent));
-      pagespeed.currentResults = {
-        analyze: input.analyze,
-        optimizedContent: output.optimizedContent,
-        results: output.results
-      };
-      // If we need to save optimized content, then start up a ContentWriter
-      // and tell it to show results (that is, call onContentWriterComplete)
-      // when it finishes.  If we're not saving optimized content, skip
-      // straight to showing the results (by calling onContentWriterComplete
-      // immediately).
-      if (saveOptimizedContent) {
-        pagespeed.contentWriter = new pagespeed.ContentWriter(
-          output.optimizedContent,
-          pagespeed.withErrorHandler(pagespeed.onContentWriterComplete));
-        pagespeed.setStatusText("Saving optimized content...");
-        pagespeed.contentWriter.start();
-      } else {
-        pagespeed.onContentWriterComplete();
-      }
-    }), 0);
+    }
+    if (saveOptimizedContent) {
+      pagespeed.contentWriter = new pagespeed.ContentWriter(
+        output.optimizedContent,
+        pagespeed.withErrorHandler(pagespeed.onContentWriterComplete));
+      pagespeed.setStatusText("Saving optimized content...");
+      pagespeed.contentWriter.start();
+    } else {
+      pagespeed.onContentWriterComplete();
+    }
   },
 
   // Invoked when the ContentWriter has finished serializing optimized content.
