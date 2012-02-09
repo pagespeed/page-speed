@@ -138,5 +138,26 @@
         ],
       },
     },
+    {
+      'target_name': 'pagespeed_image_test_util',
+      'type': '<(library)',
+      'dependencies': [
+        'pagespeed_jpeg_reader',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
+      ],
+      'sources': [
+        'jpeg_optimizer_test_helper.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
   ],
 }
