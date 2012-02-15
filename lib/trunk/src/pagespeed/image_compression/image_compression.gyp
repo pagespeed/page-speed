@@ -63,6 +63,27 @@
       },
     },
     {
+      'target_name': 'pagespeed_jpeg_utils',
+      'type': '<(library)',
+      'dependencies': [
+        'pagespeed_jpeg_reader',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
+      ],
+      'sources': [
+        'jpeg_utils.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
+    {
       'target_name': 'pagespeed_jpeg_optimizer',
       'type': '<(library)',
       'dependencies': [
