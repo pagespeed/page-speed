@@ -1,0 +1,11 @@
+URL: http://www.ijg.org/
+Version: 8c
+License File: LICENSE
+
+Description:
+This is the ubiquituous libjpeg made by Thomas Lane and his
+Independent JPEG Group. http://www.ijg.org/ contains more information
+and the most recent distribution of libjpeg.
+
+Local Modifications:
+none

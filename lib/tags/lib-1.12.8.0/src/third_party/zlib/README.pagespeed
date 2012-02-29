@@ -1,0 +1,10 @@
+URL: http://zlib.net/
+Version: 1.2.5
+License: zlib/libpng
+License File: LICENSE
+
+Description:
+General purpose compression library
+
+Local Modifications:
+none
