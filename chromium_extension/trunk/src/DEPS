@@ -67,16 +67,6 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
-  "src/third_party/libjpeg":
-    (Var("libpagespeed_trunk") + "/src/third_party/libjpeg" +
-     Var("libpagespeed_revision")),
-  "src/third_party/libpng":
-    (Var("libpagespeed_trunk") + "/src/third_party/libpng" +
-     Var("libpagespeed_revision")),
-  "src/third_party/zlib":
-    (Var("libpagespeed_trunk") + "/src/third_party/zlib" +
-     Var("libpagespeed_revision")),
-
   "src/build/linux": From(Var("libpagespeed_deps_root")),
   "src/build/mac": From(Var("libpagespeed_deps_root")),
   "src/build/win": From(Var("libpagespeed_deps_root")),
@@ -101,10 +91,10 @@ deps = {
 
   "src/third_party/gflags": "/deps/gflags-2.0",
   "src/third_party/icu": "/deps/icu461",
-  "src/third_party/libjpeg/src": "/deps/jpeg-8c",
-  "src/third_party/libpng/src": "/deps/libpng-1.5.4",
+  "src/third_party/libjpeg": "/deps/jpeg-8c",
+  "src/third_party/libpng": "/deps/libpng-1.5.4",
   "src/third_party/nacl_sdk": "/deps/nacl_sdk",
-  "src/third_party/zlib/src": "/deps/zlib-1.2.5",
+  "src/third_party/zlib": "/deps/zlib-1.2.5",
 }
 
 
