@@ -38,6 +38,9 @@ var pagespeed = {
   timelineEvents: [],
   pageHasLoaded: true,
 
+  // Check the HAR request headers to see if we are running in mobile.
+  isMobile: undefined,
+
   // Throw an error (with an optional message) if the condition is false.
   assert: function (condition, opt_message) {
     if (!condition) {
@@ -557,7 +560,8 @@ var pagespeed = {
         JSON.stringify(pagespeed.timelineEvents),
         input.analyze,
         chrome.i18n.getMessage('@@ui_locale'),
-        saveOptimizedContent));
+        saveOptimizedContent,
+        pagespeed.isMobile));
       pagespeed.currentResults = {
         analyze: input.analyze,
         optimizedContent: output.optimizedContent,
@@ -651,6 +655,11 @@ var pagespeed = {
 
   // Callback for when a timeline event is recorded (via the timeline API).
   onTimelineEvent: function (event) {
+    if (event.type === "FunctionCall" && event.data &&
+        event.data.scriptName === "InjectedScript") {
+      // Ignore InjectedScript events. This will be our own content scripts.
+      return;
+    }
     pagespeed.timelineEvents.push(event);
     if (event.type === "MarkLoad") {
       pagespeed.onPageLoaded();
@@ -917,6 +926,21 @@ pagespeed.ResourceAccumulator.prototype.onHAR_ = function (har) {
         page.startedDateTime = har.entries[0].startedDateTime;
       }
     });
+
+    // Check if pagespeed is running mobile resources.
+    // Note(lsong): Chrome for Android is the only browser for now, so we look
+    // the request headers for the user agent string that has 'Android'.
+    if (typeof pagespeed.isMobile === 'undefined') {
+      pagespeed.isMobile = false;
+      var request_headers = har.entries[0].request.headers;
+      for (var idx=0; idx<request_headers.length; ++idx) {
+        var regex = /^Mozilla\/5.0 \(Linux; U; Android /;
+        if (request_headers[idx].name == 'User-Agent' &&
+            request_headers[idx].value.match(regex)) {
+          pagespeed.isMobile = true;
+        }
+      }
+    }
     this.har_ = har;
     this.getNextEntryBody_();
   }
@@ -1127,8 +1151,10 @@ fetchDevToolsAPI(function () {
     if (!timeline) {
       timeline = chrome.experimental.devtools.timeline;
     }
-    timeline.onEventRecorded.addListener(
-      pagespeed.withErrorHandler(pagespeed.onTimelineEvent));
+    if (timeline) {
+      timeline.onEventRecorded.addListener(
+        pagespeed.withErrorHandler(pagespeed.onTimelineEvent));
+    }
 
     pagespeed.initializeUI();
   })();

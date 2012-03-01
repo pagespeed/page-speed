@@ -20,20 +20,14 @@ function fetchDevToolsAPI (real_callback) {
       return false;
     }
 
-    // Prefer webInspector for now, since old version of chrome does not like to
-    // use chrome.devtools.
-    if (window.webInspector) {
-      console.log("Using webInspector instead of chrome.devtools.");
-      window.chromeDevTools = window.webInspector;
-      return true;
-    }
-
-    var has_experimental_devtools = "devtools" in chrome.experimental &&
-          "panels" in chrome.experimental.devtools;
-    if (has_experimental_devtools) {
-      console.log("Using chrome.experimental.devtools.");
-      window.chromeDevTools = chrome.experimental.devtools;
-      return true;
+    if ('experimental' in chrome) {
+      var has_experimental_devtools = "devtools" in chrome.experimental &&
+            "panels" in chrome.experimental.devtools;
+      if (has_experimental_devtools) {
+        console.log("Using chrome.experimental.devtools.");
+        window.chromeDevTools = chrome.experimental.devtools;
+        return true;
+      }
     }
 
     var has_devtools = false;
