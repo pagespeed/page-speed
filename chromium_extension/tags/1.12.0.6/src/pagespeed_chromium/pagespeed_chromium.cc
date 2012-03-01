@@ -42,6 +42,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/pagespeed_input_util.h"
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/timeline/json_importer.h"
@@ -140,6 +141,7 @@ bool RunPageSpeedRules(const std::string& har_data,
                        pagespeed::ResourceFilter* filter,
                        const std::string& locale,
                        bool save_optimized_content,
+                       bool is_mobile,
                        std::string* output_string,
                        std::string* error_string) {
   // Instantiate an AtExitManager so our Singleton<>s are able to
@@ -162,6 +164,12 @@ bool RunPageSpeedRules(const std::string& har_data,
   }
   input->AcquireDomDocument(document); // input takes ownership of document
 
+  if (is_mobile) {
+    pagespeed::ClientCharacteristics cc;
+    pagespeed::pagespeed_input_util::PopulateMobileClientCharacteristics(&cc);
+    input->SetClientCharacteristics(cc);
+  }
+
   // Finish up the PagespeedInput object and freeze it.
   input->AcquireInstrumentationData(timeline_events);
   input->AcquireImageAttributesFactory(
@@ -177,6 +185,12 @@ bool RunPageSpeedRules(const std::string& har_data,
 
   pagespeed::rule_provider::AppendPageSpeedRules(
       save_optimized_content, &rules);
+  if (is_mobile) {
+    pagespeed::rule_provider::AppendRuleSet(
+        save_optimized_content,
+        pagespeed::rule_provider::MOBILE_BROWSER_RULES,
+        &rules);
+  }
   std::vector<std::string> incompatible_rule_names;
   pagespeed::rule_provider::RemoveIncompatibleRules(
       &rules, &incompatible_rule_names, input->EstimateCapabilities());
@@ -284,6 +298,7 @@ class PageSpeedModule : public NPObject {
                     const NPVariant& filter_name,
                     const NPVariant& locale_string,
                     const NPVariant& save_optimized_content,
+                    const NPVariant& is_mobile,
                     NPVariant *result);
 
   // Indicate that a Javascript exception should be thrown, and return a bool
@@ -308,6 +323,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
                                    const NPVariant& filter_arg,
                                    const NPVariant& locale_arg,
                                    const NPVariant& save_optimized_content_arg,
+                                   const NPVariant& is_mobile_arg,
                                    NPVariant *result) {
   if (!NPVARIANT_IS_STRING(har_arg)) {
     return Throw("first argument to runPageSpeed must be a string");
@@ -326,6 +342,9 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   }
   if (!NPVARIANT_IS_BOOLEAN(save_optimized_content_arg)) {
     return Throw("sixth argument to runPageSpeed must be a boolean");
+  }
+  if (!NPVARIANT_IS_BOOLEAN(is_mobile_arg)) {
+    return Throw("seventh argument to runPageSpeed must be a boolean");
   }
 
   const NPString& har_NPString = NPVARIANT_TO_STRING(har_arg);
@@ -350,6 +369,8 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
 
   const bool save_optimized_content =
       NPVARIANT_TO_BOOLEAN(save_optimized_content_arg);
+
+  const bool is_mobile = NPVARIANT_TO_BOOLEAN(is_mobile_arg);
 
   std::string error_msg_out;
   scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
@@ -383,7 +404,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   // RunPageSpeedRules will deallocate the filter and the document.
   const bool success = RunPageSpeedRules(
       har_string, document, &timeline_protos, NewFilter(filter_string),
-      locale_string, save_optimized_content, &output, &error_string);
+      locale_string, save_optimized_content, is_mobile, &output, &error_string);
   if (!success) {
     return Throw(error_string);
   }
@@ -467,9 +488,9 @@ bool Invoke(NPObject* obj,
       rval = module->Throw("wrong number of arguments to ping");
     }
   } else if (!strcmp(name, kRunPageSpeedMethodId)) {
-    if (arg_count == 6) {
+    if (arg_count == 7) {
       rval = module->RunPageSpeed(args[0], args[1], args[2], args[3], args[4],
-                                  args[5], result);
+                                  args[5], args[6], result);
     } else {
       rval = module->Throw("wrong number of arguments to runPageSpeed");
     }
