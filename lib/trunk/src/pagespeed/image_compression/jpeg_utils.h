@@ -16,8 +16,8 @@
 
 // Author: Satyanarayana Manyam
 
-#ifndef JPEG_UTILS_H_
-#define JPEG_UTILS_H_
+#ifndef PAGESPEED_IMAGE_COMPRESSION_JPEG_UTILS_H_ 
+#define PAGESPEED_IMAGE_COMPRESSION_JPEG_UTILS_H_
 
 #include <string>
 
@@ -49,4 +49,4 @@ class JpegUtils {
 
 }  // namespace pagespeed
 
-#endif  // JPEG_UTILS_H_
+#endif  // PAGESPEED_IMAGE_COMPRESSION_JPEG_UTILS_H_

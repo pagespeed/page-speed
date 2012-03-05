@@ -32,10 +32,11 @@ namespace {
 using pagespeed::image_compression::JpegUtils;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
-const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
+const char* kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
 const char* kColorJpegFile = "sjpeg2.jpg";
 const char* kGreyScaleJpegFile = "testgray.jpg";
 const char* kEmptyJpegFile = "emptyfile.jpg";
+const char* kQuality100JpegFile = "quality100.jpg";
 
 // Given one of the above file names, read the contents of the file into the
 // given destination string.
@@ -57,6 +58,10 @@ TEST(JpegUtilsTest, GetImageQualityFromImage) {
   src_data.clear();
   ReadJpegToString(kEmptyJpegFile, &src_data);
   EXPECT_EQ(-1, JpegUtils::GetImageQualityFromImage(src_data));
+
+  src_data.clear();
+  ReadJpegToString(kQuality100JpegFile, &src_data);
+  EXPECT_EQ(100, JpegUtils::GetImageQualityFromImage(src_data));
 }
 
 }  // namespace
