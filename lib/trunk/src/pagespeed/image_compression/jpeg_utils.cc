@@ -37,7 +37,7 @@ extern "C" {
 }
 
 namespace {
-static double ComputeQualityEntriesSum(JQUANT_TBL* qualization_table,
+static double ComputeQualityEntriesSum(JQUANT_TBL* quantization_table,
                                        const unsigned int* std_table) {
   double quality_entries_sum = 0;
 
@@ -52,16 +52,22 @@ static double ComputeQualityEntriesSum(JQUANT_TBL* qualization_table,
   // close to the standard table defined by JPEG. Hence, we apply inverse
   // function of the above to using standard table and compute the input image
   // jpeg quality.
-  for(int i = 0; i < DCTSIZE2; i++) {
-    double scale_factor =
-        static_cast<double>(qualization_table->quantval[i]) / std_table[i];
-    quality_entries_sum += (scale_factor > 1.0 ?
-                            (0.5/scale_factor) : ((2.0 - scale_factor)/2.0));
+  for (int i = 0; i < DCTSIZE2; i++) {
+    if (quantization_table->quantval[i] == 1) {
+      // 1 is the minimum denominator allowed for any value in the quantization
+      // matrix and it implies that quality is set 100.
+      quality_entries_sum += 1;
+    } else {
+      double scale_factor =
+          static_cast<double>(quantization_table->quantval[i]) / std_table[i];
+      quality_entries_sum += (scale_factor > 1.0 ?
+                              (0.5/scale_factor) : ((2.0 - scale_factor)/2.0));
+    }
   }
 
   return quality_entries_sum;
 }
-}
+}  // namespace
 
 namespace pagespeed {
 
