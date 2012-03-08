@@ -17,14 +17,13 @@
 
 #include <map>
 #include <string>
-#include <vector>
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/resource.h"
-#include "pagespeed/core/resource_filter.h"
+#include "pagespeed/core/resource_collection.h"
 
 namespace pagespeed {
 
@@ -33,12 +32,9 @@ class DomDocument;
 class ImageAttributes;
 class ImageAttributesFactory;
 class InputInformation;
-class InstrumentationData;
 class PagespeedInput;
+class ResourceFilter;
 class TopLevelBrowsingContext;
-
-typedef std::map<std::string, ResourceSet> HostResourceMap;
-typedef std::vector<const Resource*> ResourceVector;
 
 // Implementations of this class can participate in the PagespeedInput::Freeze.
 class PagespeedInputFreezeParticipant {
@@ -141,6 +137,7 @@ class PagespeedInput {
   bool Freeze(PagespeedInputFreezeParticipant* freezeParticipant);
 
   // Resource access.
+  const ResourceCollection& GetResourceCollection() const;
   int num_resources() const;
   bool has_resource_with_url(const std::string& url) const;
   const Resource& GetResource(int idx) const;
@@ -149,7 +146,7 @@ class PagespeedInput {
   // Get a non-const pointer to a resource. It is an error to call
   // these methods after this object has been frozen.
   Resource* GetMutableResource(int idx);
-  Resource* GetMutableResourceWithUrl(const std::string& url);
+  Resource* GetMutableResourceWithUrlOrNull(const std::string& url);
 
   ImageAttributes* NewImageAttributes(const Resource* resource) const;
 
@@ -188,8 +185,6 @@ class PagespeedInput {
   bool SetViewportWidthAndHeight(int width, int height);
 
  private:
-  bool IsValidResource(const Resource* resource) const;
-
   // Compute information about the set of resources. Called once at
   // the time the PagespeedInput is frozen.
   void PopulateInputInformation();
@@ -197,17 +192,8 @@ class PagespeedInput {
       std::map<const Resource*, ResourceType>*);
   void UpdateResourceTypes(const std::map<const Resource*, ResourceType>&);
 
-  std::vector<Resource*> resources_;
+  ResourceCollection resources_;
 
-  // Map from URL to Resource. The resources_ vector, above, owns the
-  // Resource instances in this map.
-  std::map<std::string, const Resource*> url_resource_map_;
-
-  // Map from hostname to Resources on that hostname. The resources_
-  // vector, above, owns the Resource instances in this map.
-  HostResourceMap host_resource_map_;
-
-  ResourceVector request_order_vector_;
   // List of timeline events.  The PagespeedInput object has ownership of these
   // InstrumentationData objects.
   // BEWARE: This field may be going away; we are not sure yet.  (mdsteele)
@@ -216,7 +202,6 @@ class PagespeedInput {
   scoped_ptr<InputInformation> input_info_;
   scoped_ptr<DomDocument> document_;
   scoped_ptr<TopLevelBrowsingContext> top_level_browsing_context_;
-  scoped_ptr<ResourceFilter> resource_filter_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
   std::string primary_resource_url_;
   OnloadState onload_state_;

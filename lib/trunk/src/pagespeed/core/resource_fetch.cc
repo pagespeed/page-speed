@@ -14,9 +14,8 @@
 
 #include "pagespeed/core/resource_fetch.h"
 
-#include <algorithm>
-#include <iterator>
 #include <map>
+#include <set>
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"

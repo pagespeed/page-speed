@@ -45,7 +45,6 @@ struct ResourceRequestStartTimeLessThan {
 
 PagespeedInput::PagespeedInput()
     : input_info_(new InputInformation),
-      resource_filter_(new AllowAllResourceFilter),
       onload_state_(UNKNOWN),
       onload_millis_(-1),
       initialization_state_(INIT),
@@ -54,63 +53,19 @@ PagespeedInput::PagespeedInput()
 }
 
 PagespeedInput::PagespeedInput(ResourceFilter* resource_filter)
-    : input_info_(new InputInformation),
-      resource_filter_(resource_filter),
+    : resources_(resource_filter),
+      input_info_(new InputInformation),
       onload_state_(UNKNOWN),
       onload_millis_(-1),
       initialization_state_(INIT) {
-  DCHECK_NE(resource_filter, static_cast<ResourceFilter*>(NULL));
 }
 
 PagespeedInput::~PagespeedInput() {
-  STLDeleteContainerPointers(resources_.begin(), resources_.end());
   STLDeleteContainerPointers(timeline_data_.begin(), timeline_data_.end());
 }
 
-bool PagespeedInput::IsValidResource(const Resource* resource) const {
-  const std::string& url = resource->GetRequestUrl();
-  if (url.empty()) {
-    LOG(WARNING) << "Refusing Resource with empty URL.";
-    return false;
-  }
-  if (has_resource_with_url(url)) {
-    LOG(INFO) << "Ignoring duplicate AddResource for resource at \""
-              << url << "\".";
-    return false;
-  }
-  if (resource->GetResponseStatusCode() <= 0) {
-    LOG(WARNING) << "Refusing Resource with invalid status code "
-                 << resource->GetResponseStatusCode() << ": " << url;
-    return false;
-  }
-
-  if (resource_filter_.get() && !resource_filter_->IsAccepted(*resource)) {
-    return false;
-  }
-
-  // TODO: consider adding some basic validation for request/response
-  // headers.
-
-  return true;
-}
-
 bool PagespeedInput::AddResource(Resource* resource) {
-  if (is_frozen()) {
-    LOG(DFATAL) << "Can't add resource " << resource->GetRequestUrl()
-                << " to frozen PagespeedInput.";
-    delete resource;  // Resource is owned by PagespeedInput.
-    return false;
-  }
-  if (!IsValidResource(resource)) {
-    delete resource;  // Resource is owned by PagespeedInput.
-    return false;
-  }
-  const std::string& url = resource->GetRequestUrl();
-
-  resources_.push_back(resource);
-  url_resource_map_[url] = resource;
-  host_resource_map_[resource->GetHost()].insert(resource);
-  return true;
+  return resources_.AddResource(resource);
 }
 
 bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
@@ -227,25 +182,13 @@ bool PagespeedInput::Freeze(
   std::map<const Resource*, ResourceType> resource_type_map;
   PopulateResourceInformationFromDom(&resource_type_map);
   UpdateResourceTypes(resource_type_map);
-  PopulateInputInformation();
-  bool have_start_times_for_all_resources = true;
-  for (int idx = 0, num = num_resources(); idx < num; ++idx) {
-    const Resource& resource = GetResource(idx);
-    if (!resource.has_request_start_time_millis()) {
-      have_start_times_for_all_resources = false;
-      break;
-    }
-  }
-  if (have_start_times_for_all_resources) {
-    request_order_vector_.assign(resources_.begin(), resources_.end());
-    std::stable_sort(request_order_vector_.begin(),
-                     request_order_vector_.end(),
-                     ResourceRequestStartTimeLessThan());
-  }
 
   if (freezeParticipant != NULL) {
     freezeParticipant->OnFreeze(this);
   }
+
+  resources_.Freeze();
+  PopulateInputInformation();
 
   if (top_level_browsing_context_ != NULL) {
     if (!top_level_browsing_context_->Finalize()) {
@@ -410,10 +353,10 @@ void ExternalResourceNodeVisitor::Visit(const pagespeed::DomElement& node) {
       } else if (node.GetTagName() == "IFRAME") {
         type = HTML;
       } else if (node.GetTagName() == "EMBED") {
-        // TODO: in some cases this resource may be flash, but not
-        // always. Thus we set type to OTHER. ProcessUri ignores type
-        // OTHER but will update the document child resource map,
-        // which is what we want.
+        // TODO(bmcquade): in some cases this resource may be flash,
+        // but not always. Thus we set type to OTHER. ProcessUri
+        // ignores type OTHER but will update the document child
+        // resource map, which is what we want.
         type = OTHER;
       } else {
         LOG(DFATAL) << "Unexpected type " << node.GetTagName();
@@ -457,7 +400,7 @@ void PagespeedInput::PopulateResourceInformationFromDom(
 void PagespeedInput::UpdateResourceTypes(
     const std::map<const Resource*, ResourceType>& resource_type_map) {
   for (int idx = 0, num = num_resources(); idx < num; ++idx) {
-    Resource* resource = resources_[idx];
+    Resource* resource = resources_.GetMutableResource(idx);
     std::map<const Resource*, ResourceType>::const_iterator it =
         resource_type_map.find(resource);
     if (it != resource_type_map.end()) {
@@ -466,21 +409,20 @@ void PagespeedInput::UpdateResourceTypes(
   }
 }
 
+const ResourceCollection& PagespeedInput::GetResourceCollection() const {
+  return resources_;
+}
+
 int PagespeedInput::num_resources() const {
-  return resources_.size();
+  return resources_.num_resources();
 }
 
 bool PagespeedInput::has_resource_with_url(const std::string& url) const {
-  std::string url_canon;
-  if (!uri_util::GetUriWithoutFragment(url, &url_canon)) {
-    url_canon = url;
-  }
-  return url_resource_map_.find(url_canon) != url_resource_map_.end();
+  return resources_.has_resource_with_url(url);
 }
 
 const Resource& PagespeedInput::GetResource(int idx) const {
-  DCHECK(idx >= 0 && static_cast<size_t>(idx) < resources_.size());
-  return *resources_[idx];
+  return resources_.GetResource(idx);
 }
 
 ImageAttributes* PagespeedInput::NewImageAttributes(
@@ -508,16 +450,12 @@ PagespeedInput::GetMutableTopLevelBrowsingContext() {
 }
 
 const HostResourceMap* PagespeedInput::GetHostResourceMap() const {
-  DCHECK(initialization_state_ != INIT);
-  return &host_resource_map_;
+  return resources_.GetHostResourceMap();
 }
 
 const ResourceVector*
 PagespeedInput::GetResourcesInRequestOrder() const {
-  DCHECK(initialization_state_ != INIT);
-  if (request_order_vector_.empty()) return NULL;
-  DCHECK(request_order_vector_.size() == resources_.size());
-  return &request_order_vector_;
+  return resources_.GetResourcesInRequestOrder();
 }
 
 const InputInformation* PagespeedInput::input_information() const {
@@ -564,37 +502,16 @@ bool PagespeedInput::IsResourceLoadedAfterOnload(
 
 const Resource* PagespeedInput::GetResourceWithUrlOrNull(
     const std::string& url) const {
-  std::string url_canon;
-  if (!uri_util::GetUriWithoutFragment(url, &url_canon)) {
-    url_canon = url;
-  }
-  std::map<std::string, const Resource*>::const_iterator it =
-      url_resource_map_.find(url_canon);
-  if (it == url_resource_map_.end()) {
-    return NULL;
-  }
-  if (url_canon != url) {
-    LOG(INFO) << "GetResourceWithUrlOrNull(\"" << url
-              << "\"): Returning resource with URL " << url_canon;
-  }
-  return it->second;
+  return resources_.GetResourceWithUrlOrNull(url);
 }
 
 Resource* PagespeedInput::GetMutableResource(int idx) {
-  if (is_frozen()) {
-    LOG(DFATAL) << "Unable to get mutable resource after freezing.";
-    return NULL;
-  }
-  return const_cast<Resource*>(&GetResource(idx));
+  return resources_.GetMutableResource(idx);
 }
 
-Resource* PagespeedInput::GetMutableResourceWithUrl(
+Resource* PagespeedInput::GetMutableResourceWithUrlOrNull(
     const std::string& url) {
-  if (is_frozen()) {
-    LOG(DFATAL) << "Unable to get mutable resource after freezing.";
-    return NULL;
-  }
-  return const_cast<Resource*>(GetResourceWithUrlOrNull(url));
+  return resources_.GetMutableResourceWithUrlOrNull(url);
 }
 
 InputCapabilities PagespeedInput::EstimateCapabilities() const {
@@ -604,7 +521,7 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
     return capabilities;
   }
 
-  if (resources_.empty()) {
+  if (resources_.num_resources() == 0) {
     // No resources means we have nothing with which to compute
     // capabilities.
     return capabilities;

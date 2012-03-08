@@ -43,8 +43,8 @@ class ResourceFilter {
  */
 class AllowAllResourceFilter : public ResourceFilter {
  public:
-  AllowAllResourceFilter() {};
-  virtual ~AllowAllResourceFilter() {};
+  AllowAllResourceFilter() {}
+  virtual ~AllowAllResourceFilter() {}
 
   virtual bool IsAccepted(const Resource& resource) const { return true; }
 };
@@ -55,9 +55,9 @@ class AllowAllResourceFilter : public ResourceFilter {
 class NotResourceFilter : public ResourceFilter {
  public:
   // NotResourceFilter takes ownership of the passed filter.
-  NotResourceFilter(ResourceFilter *base_filter)
-      : base_filter_(base_filter) {};
-  virtual ~NotResourceFilter() {};
+  explicit NotResourceFilter(ResourceFilter *base_filter)
+      : base_filter_(base_filter) {}
+  virtual ~NotResourceFilter() {}
 
   virtual bool IsAccepted(const Resource& resource) const {
     return !base_filter_->IsAccepted(resource);
@@ -74,8 +74,8 @@ class AndResourceFilter : public ResourceFilter {
  public:
   // AndResourceFilter takes ownership of the passed filters.
   AndResourceFilter(ResourceFilter *filter1, ResourceFilter *filter2)
-      : filter1_(filter1), filter2_(filter2) {};
-  virtual ~AndResourceFilter() {};
+      : filter1_(filter1), filter2_(filter2) {}
+  virtual ~AndResourceFilter() {}
 
   virtual bool IsAccepted(const Resource& resource) const;
 
@@ -86,4 +86,4 @@ class AndResourceFilter : public ResourceFilter {
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_CORE_RESOURCE_H_
+#endif  // PAGESPEED_CORE_RESOURCE_FILTER_H_

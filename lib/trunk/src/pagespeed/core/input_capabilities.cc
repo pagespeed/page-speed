@@ -25,13 +25,13 @@ std::string InputCapabilities::DebugString() const {
   (capabilities_mask_ & DOM ? &has : &lacks)->append(" DOM");
   (capabilities_mask_ & ONLOAD ? &has : &lacks)->append(" ONLOAD");
   (capabilities_mask_ & REQUEST_HEADERS ?
-   &has : &lacks)->append(" REQUEST_HEADERS");
+    &has : &lacks)->append(" REQUEST_HEADERS");
   (capabilities_mask_ & RESPONSE_BODY ?
-   &has : &lacks)->append(" RESPONSE_BODY");
+    &has : &lacks)->append(" RESPONSE_BODY");
   (capabilities_mask_ & REQUEST_START_TIMES ?
-   &has : &lacks)->append(" REQUEST_START_TIMES");
+    &has : &lacks)->append(" REQUEST_START_TIMES");
   (capabilities_mask_ & TIMELINE_DATA ?
-   &has : &lacks)->append(" TIMELINE_DATA");
+    &has : &lacks)->append(" TIMELINE_DATA");
 
   return "(Has:" + has + " ** Lacks:" + lacks + ")";
 }

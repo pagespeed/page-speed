@@ -65,7 +65,7 @@ std::string ChooseOutputFilename(const GURL& url,
   const size_t start = (last_slash == std::string::npos ? 0 : last_slash + 1);
   if (last_dot == std::string::npos || last_dot < start) {
     return SanitizeFilename(url_path.substr(start)) + "_" + hash +
-        ChooseFileExtension(mime_type);;
+        ChooseFileExtension(mime_type);
   } else {
     const std::string base = url_path.substr(start, last_dot - start);
     return SanitizeFilename(base) + "_" + hash +

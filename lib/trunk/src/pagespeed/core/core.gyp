@@ -53,6 +53,7 @@
         'pagespeed_version.cc',
         'resource.cc',
         'resource_cache_computer.cc',
+        'resource_collection.cc',
         'resource_evaluation.cc',
         'resource_fetch.cc',
         'resource_filter.cc',

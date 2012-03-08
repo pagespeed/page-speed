@@ -14,9 +14,8 @@
 
 #include "pagespeed/core/browsing_context.h"
 
-#include <algorithm>
-#include <iterator>
 #include <map>
+#include <set>
 #include <string>
 
 #include "base/logging.h"

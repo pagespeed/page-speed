@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "dom.h"
+#include "pagespeed/core/dom.h"
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
