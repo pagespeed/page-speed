@@ -37,7 +37,7 @@ class ResultProvider {
   // rule. Ownership is *not* transferred to the caller.
   Result* NewResult();
 
-private:
+ private:
   const Rule& rule_;
   RuleResults* const rule_results_;
 

@@ -17,6 +17,8 @@
 
 #include "pagespeed/core/resource_cache_computer.h"
 
+#include <string>
+
 #include "base/logging.h"
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"

@@ -37,7 +37,8 @@ class CopyVisitor : public pagespeed::InstrumentationDataVisitor {
  public:
   // data is the vector that copied nodes should be stored in. The
   // caller is responsible for freeing the nodes in the vector.
-  CopyVisitor(std::vector<const InstrumentationData*>* data) : data_(data) {}
+  explicit CopyVisitor(std::vector<const InstrumentationData*>* data)
+      : data_(data) {}
   virtual bool Visit(const std::vector<const InstrumentationData*>& stack);
 
  private:

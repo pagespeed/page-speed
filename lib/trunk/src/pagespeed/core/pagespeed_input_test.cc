@@ -17,6 +17,7 @@
 #include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_filter.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/instrumentation_data_builder.h"
 #include "pagespeed/testing/pagespeed_test.h"
@@ -39,62 +40,12 @@ static const char* kURL1 = "http://www.foo.com/";
 static const char* kURL2 = "http://www.bar.com/";
 static const char* kNonCanonUrl = "http://example.com";
 static const char* kCanonicalizedUrl = "http://example.com/";
-static const char* kNonCanonUrlFragment = "http://example.com#foo";
 
 Resource* NewResource(const std::string& url, int status_code) {
   Resource* resource = new Resource;
   resource->SetRequestUrl(url);
   resource->SetResponseStatusCode(status_code);
   return resource;
-}
-
-TEST(PagespeedInputTest, DisallowDuplicates) {
-  PagespeedInput input;
-
-  EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
-  EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
-  EXPECT_FALSE(input.AddResource(NewResource(kURL2, 200)));
-  ASSERT_TRUE(input.Freeze());
-  ASSERT_EQ(input.num_resources(), 2);
-  EXPECT_EQ(input.GetResource(0).GetRequestUrl(), kURL1);
-  EXPECT_EQ(input.GetResource(1).GetRequestUrl(), kURL2);
-}
-
-TEST(PagespeedInputTest, GetMutableResource) {
-  PagespeedInput input;
-
-  EXPECT_TRUE(input.AddResource(NewResource(kURL1, 200)));
-  EXPECT_TRUE(input.AddResource(NewResource(kURL2, 200)));
-  EXPECT_FALSE(input.AddResource(NewResource(kURL2, 200)));
-  ASSERT_EQ(input.num_resources(), 2);
-  EXPECT_EQ(input.GetMutableResource(0)->GetRequestUrl(), kURL1);
-  EXPECT_EQ(input.GetMutableResource(1)->GetRequestUrl(), kURL2);
-  EXPECT_EQ(input.GetMutableResourceWithUrl(kURL1)->GetRequestUrl(), kURL1);
-  EXPECT_EQ(input.GetMutableResourceWithUrl(kURL2)->GetRequestUrl(), kURL2);
-
-  ASSERT_TRUE(input.Freeze());
-#ifdef NDEBUG
-  ASSERT_EQ(NULL, input.GetMutableResource(0));
-#else
-  ASSERT_DEATH(input.GetMutableResource(0),
-               "Unable to get mutable resource after freezing.");
-#endif
-}
-
-TEST(PagespeedInputTest, FilterBadResources) {
-  PagespeedInput input;
-  EXPECT_FALSE(input.AddResource(NewResource("", 0)));
-  EXPECT_FALSE(input.AddResource(NewResource("", 200)));
-  EXPECT_FALSE(input.AddResource(NewResource(kURL1, 0)));
-  EXPECT_FALSE(input.AddResource(NewResource(kURL1, -1)));
-  ASSERT_TRUE(input.Freeze());
-}
-
-TEST(PagespeedInputTest, FilterResources) {
-  PagespeedInput input(
-      new pagespeed::NotResourceFilter(new pagespeed::AllowAllResourceFilter));
-  EXPECT_FALSE(input.AddResource(NewResource(kURL1, 200)));
-  ASSERT_TRUE(input.Freeze());
 }
 
 // Make sure SetPrimaryResourceUrl canonicalizes its input.
@@ -105,24 +56,6 @@ TEST(PagespeedInputTest, SetPrimaryResourceUrl) {
   ASSERT_TRUE(input.Freeze());
 
   EXPECT_EQ(kCanonicalizedUrl, input.primary_resource_url());
-}
-
-// Make sure SetPrimaryResourceUrl canonicalizes its input.
-TEST(PagespeedInputTest, GetResourceWithUrlOrNull) {
-  PagespeedInput input;
-  EXPECT_TRUE(input.AddResource(NewResource(kNonCanonUrl, 200)));
-  ASSERT_TRUE(input.Freeze());
-
-  const Resource* r1 = input.GetResourceWithUrlOrNull(kNonCanonUrl);
-  const Resource* r2 = input.GetResourceWithUrlOrNull(kCanonicalizedUrl);
-  ASSERT_TRUE(input.has_resource_with_url(kNonCanonUrlFragment));
-  ASSERT_TRUE(r1 != NULL);
-  ASSERT_TRUE(r2 != NULL);
-  ASSERT_EQ(r1, r2);
-  ASSERT_NE(kNonCanonUrl, r1->GetRequestUrl());
-  ASSERT_EQ(kCanonicalizedUrl, r1->GetRequestUrl());
-  ASSERT_NE(kNonCanonUrl, r2->GetRequestUrl());
-  ASSERT_EQ(kCanonicalizedUrl, r2->GetRequestUrl());
 }
 
 TEST(PagespeedInputTest, SetClientCharacteristicsFailsWhenFrozen) {
@@ -184,7 +117,8 @@ class TestFreezeParticipant : public PagespeedInputFreezeParticipant {
     ASSERT_EQ(pagespeed_input->num_resources(), 2);
     EXPECT_EQ(pagespeed_input->GetMutableResource(0)->GetRequestUrl(), kURL1);
     EXPECT_EQ(
-        pagespeed_input->GetMutableResourceWithUrl(kURL1)->GetRequestUrl(),
+        pagespeed_input->GetMutableResourceWithUrlOrNull(
+            kURL1)->GetRequestUrl(),
         kURL1);
     ASSERT_EQ(pagespeed_input->instrumentation_data()->size(), 1U);
   }
@@ -304,43 +238,6 @@ TEST_F(UpdateResourceTypesTest, DifferentTypesSameUrl) {
   // Verify that the chosen type matches the first node type:
   // stylesheet.
   ASSERT_EQ(pagespeed::CSS, resource->GetResourceType());
-}
-
-class ResourcesInRequestOrderTest
-    : public ::pagespeed_testing::PagespeedTest {
-};
-
-TEST_F(ResourcesInRequestOrderTest, NoResourcesWithStartTimes) {
-  New200Resource(kURL1);
-  New200Resource(kURL2);
-  Freeze();
-  ASSERT_EQ(NULL, pagespeed_input()->GetResourcesInRequestOrder());
-}
-
-TEST_F(ResourcesInRequestOrderTest, SomeResourcesWithStartTimes) {
-  New200Resource(kUrl1)->SetRequestStartTimeMillis(0);
-  New200Resource(kUrl2)->SetRequestStartTimeMillis(1);
-  New200Resource(kUrl3);
-  Freeze();
-  ASSERT_EQ(NULL, pagespeed_input()->GetResourcesInRequestOrder());
-}
-
-TEST_F(ResourcesInRequestOrderTest, ResourcesWithStartTimes) {
-  // We intentionally use the same time for two resources here, to
-  // make sure we don't accidentally filter out duplicates (e.g. if we
-  // used a set<>). PagespeedInput uses stable_sort so we should
-  // expect the sort order to be stable even with duplicate values.
-  New200Resource(kUrl4)->SetRequestStartTimeMillis(0);
-  New200Resource(kUrl3)->SetRequestStartTimeMillis(2);
-  New200Resource(kUrl1)->SetRequestStartTimeMillis(2);
-  New200Resource(kUrl2)->SetRequestStartTimeMillis(1);
-  Freeze();
-  const ResourceVector& rv(*pagespeed_input()->GetResourcesInRequestOrder());
-  ASSERT_EQ(4U, rv.size());
-  ASSERT_EQ(kUrl4, rv[0]->GetRequestUrl());
-  ASSERT_EQ(kUrl2, rv[1]->GetRequestUrl());
-  ASSERT_EQ(kUrl3, rv[2]->GetRequestUrl());
-  ASSERT_EQ(kUrl1, rv[3]->GetRequestUrl());
 }
 
 class EstimateCapabilitiesTest : public ::pagespeed_testing::PagespeedTest {};

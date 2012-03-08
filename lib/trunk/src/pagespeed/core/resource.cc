@@ -22,7 +22,6 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
-#include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/uri_util.h"
 
 namespace {
@@ -106,7 +105,7 @@ void Resource::AddRequestHeader(const std::string& name,
     // allowed by the http 1.1 RFC.
     //
     // http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
-    // TODO change to preserve header structure if we need to.
+    // TODO(bmcquade): change to preserve header structure if we need to.
     header += ",";
   }
   header += value;
@@ -154,7 +153,7 @@ void Resource::AddResponseHeader(const std::string& name,
     // allowed by the http 1.1 RFC.
     //
     // http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
-    // TODO change to preserve header structure if we need to.
+    // TODO(bmcquade): change to preserve header structure if we need to.
     header += ",";
   }
   header += value;
@@ -414,13 +413,7 @@ bool Resource::IsRequestStartTimeLessThan(const Resource& other) const {
   return request_start_time_millis_ < other.request_start_time_millis_;
 }
 
-bool ResourceUrlLessThan::operator()(
-    const Resource* lhs, const Resource* rhs) const {
-  return lhs->GetRequestUrl() < rhs->GetRequestUrl();
-}
-
-bool Resource::SerializeData(const PagespeedInput& pagespeed_input,
-                             ResourceData* data) const {
+bool Resource::SerializeData(ResourceData* data) const {
   data->set_request_url(GetRequestUrl());
   data->set_request_method(GetRequestMethod());
   for (HeaderMap::const_iterator it = request_headers_.begin();

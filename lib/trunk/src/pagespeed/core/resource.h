@@ -15,10 +15,7 @@
 #ifndef PAGESPEED_CORE_RESOURCE_H_
 #define PAGESPEED_CORE_RESOURCE_H_
 
-#include <map>
-#include <set>
 #include <string>
-#include <vector>
 
 #include "base/basictypes.h"
 #include "pagespeed/core/string_util.h"
@@ -26,15 +23,7 @@
 
 namespace pagespeed {
 
-class PagespeedInput;
 class Resource;
-
-// sorts resources by their URLs.
-struct ResourceUrlLessThan {
-  bool operator() (const Resource* lhs, const Resource* rhs) const;
-};
-
-typedef std::set<const Resource*, ResourceUrlLessThan> ResourceSet;
 
 /**
  * Represents an individual input resource.
@@ -163,8 +152,7 @@ class Resource {
   ResourceType GetResourceType() const;
   ImageType GetImageType() const;
 
-  bool SerializeData(const PagespeedInput& pagespeed_input,
-                     ResourceData* data) const;
+  bool SerializeData(ResourceData* data) const;
 
  private:
   // We let PagespeedInput access our private data in order to inspect

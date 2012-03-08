@@ -25,6 +25,7 @@
 #include "base/third_party/nspr/prtime.h"
 #include "base/values.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource_filter.h"
 #include "third_party/modp_b64/modp_b64.h"
 
 namespace pagespeed {

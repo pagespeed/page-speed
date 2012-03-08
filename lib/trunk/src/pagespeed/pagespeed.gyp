@@ -132,6 +132,7 @@
         'core/instrumentation_data_test.cc',
         'core/pagespeed_input_test.cc',
         'core/resource_test.cc',
+        'core/resource_collection_test.cc',
         'core/resource_evaluation_test.cc',
         'core/resource_fetch_test.cc',
         'core/resource_filter_test.cc',

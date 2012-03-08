@@ -16,6 +16,7 @@
 #define PAGESPEED_CORE_BROWSING_CONTEXT_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "base/scoped_ptr.h"
