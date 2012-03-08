@@ -139,7 +139,7 @@ void InputPopulator::PopulateInput(const Value& resources_json,
       continue;
     }
 
-    Resource* resource = input->GetMutableResourceWithUrl(url);
+    Resource* resource = input->GetMutableResourceWithUrlOrNull(url);
     if (resource == NULL) {
       // This can happen if a resource filter was applied.
       continue;
