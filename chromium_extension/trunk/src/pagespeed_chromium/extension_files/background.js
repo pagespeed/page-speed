@@ -168,6 +168,12 @@ var pagespeed_bg = {
         continue;
       }
 
+      // We do not request redirect URLs, because XHR will follow redirections.
+      if( entry.response.status === 301 || entry.response.status === 302 ||
+          entry.response.status === 303 || entry.response.status === 307) {
+        continue;
+      }
+
       // There are 3 known cases where Chrome Developer Tools
       // Extension APIs give us partial data: 304 responses (partial
       // HTTP headers), responses from cache (in which case there are
