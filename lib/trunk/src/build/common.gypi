@@ -587,22 +587,6 @@
                   '-fno-ident',
                 ],
               }],
-              # At gyp time, we test the linker for ICF support; this flag
-              # is then provided to us by gyp.  (Currently only gold supports
-              # an --icf flag.)
-              # There seems to be a conflict of --icf and -pie in gold which
-              # can generate crashy binaries. As a security measure, -pie
-              # takes precendence for now.
-              ['LINKER_SUPPORTS_ICF==1', {
-                'target_conditions': [
-                  ['_toolset=="target"', {
-                    'ldflags': [
-                      #'-Wl,--icf=safe',
-                      '-Wl,--icf=none',
-                    ]
-                  }]
-                ]
-              }],
             ]
           },
         },

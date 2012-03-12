@@ -29,7 +29,7 @@
 // following libpng private header, so we include it here. See
 // http://code.google.com/p/page-speed/issues/detail?id=644 for more
 // information.
-#include "third_party/libpng/src/pngstruct.h"
+#include "third_party/libpng/pngstruct.h"
 #endif
 
 extern "C" {
