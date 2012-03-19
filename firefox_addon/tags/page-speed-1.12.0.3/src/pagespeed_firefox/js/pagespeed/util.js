@@ -116,7 +116,7 @@ PAGESPEED.DEPENDENCIES = {
                url: 'http://getfirebug.com/',
                namespace: 'FBL',
                minimumVersion: '1.7.0',
-               maximumVersion: '1.9'
+               maximumVersion: '1.10'
   }
 };
 
@@ -2657,6 +2657,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * @return {object} JSON format of DOM document.
    */
   getDocumentDomJson: function(doc) {
+    if (!doc) return {};
     return collectDocument(doc);
   },
 
