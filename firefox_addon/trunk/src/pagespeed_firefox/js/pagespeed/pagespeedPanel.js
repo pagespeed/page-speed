@@ -113,7 +113,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
            'style': 'margin-top:8px;margin-left:10px;margin-bottom:5px',
            'onclick': '$analyzePerformance'}),
     P({'class': 'moduleManagerDecription'},
-      'Page Speed Copyright &copy; 2011 Google Inc.'
+      'Page Speed Copyright &copy; 2012 Google Inc.'
       )
     ),
 
@@ -136,7 +136,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
            'style': 'margin-top:8px;margin-left:10px;margin-bottom:5px',
            'onclick': '$analyzePerformance'}),
     P({'class': 'moduleManagerDecription'},
-      'Page Speed Copyright &copy; 2011 Google Inc.'
+      'Page Speed Copyright &copy; 2012 Google Inc.'
       )
     ),
 
@@ -183,7 +183,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
             ' for detailed information on the rules used to evaluate web pages.'
             ),
           P({'class': 'moduleManagerDecription'},
-            'Page Speed Copyright &copy; 2011 Google Inc.'
+            'Page Speed Copyright &copy; 2012 Google Inc.'
            ),
           DIV({'style': 'padding-top:5px'},
               FOR('dep', '$dependencies',
