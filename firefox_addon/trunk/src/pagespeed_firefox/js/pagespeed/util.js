@@ -116,7 +116,7 @@ PAGESPEED.DEPENDENCIES = {
                url: 'http://getfirebug.com/',
                namespace: 'FBL',
                minimumVersion: '1.7.0',
-               maximumVersion: '1.9'
+               maximumVersion: '1.10'
   }
 };
 
