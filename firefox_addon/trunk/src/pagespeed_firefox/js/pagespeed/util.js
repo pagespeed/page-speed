@@ -2657,6 +2657,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * @return {object} JSON format of DOM document.
    */
   getDocumentDomJson: function(doc) {
+    if (!doc) return {};
     return collectDocument(doc);
   },
 
