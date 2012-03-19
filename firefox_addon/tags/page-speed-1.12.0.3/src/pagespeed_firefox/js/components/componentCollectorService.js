@@ -804,8 +804,11 @@ ComponentCollectorService.prototype.handleResource = function(
 
   // Bind Resource->Window
   if (win.wrappedJSObject) {
+    // We store weak references to the DOM elements, so they can be
+    // cleared if the node is removed from the DOM.
+    var weakNode = Components.utils.getWeakReference(node);
     var typeUrlObj = this.addWindowComponent(
-        win, contentType, componentLocation, node);
+        win, contentType, componentLocation, weakNode);
     if (typeUrlObj) {
       if (!typeUrlObj.requestTime) {
         typeUrlObj.requestTime = (new Date()).getTime();
@@ -1484,7 +1487,7 @@ ComponentCollectorService.prototype.getWindowComponents = function(
     // more information.
     var documentUrl = getURIForWindow(win);
     win.__components__.doc[documentUrl] = {
-      elements: [win.document]
+      elements: [Components.utils.getWeakReference(win.document)]
     };
     this.bindPendingDocumentEntries(documentUrl, win);
     this.pendingDocs_.removeEntriesNotMatching(isEntryRecentEnough);
@@ -1623,7 +1626,12 @@ ComponentCollectorService.prototype.onLoad = function(event) {
     for (var url in componentType) {
       var elts = componentType[url].elements;
       for (var i = 0, len = elts.length; i < len; ++i) {
-        var elt = elts[i];
+        var elt = elts[i].get();
+        // If the value is null, it indicates that the weak reference
+        // has been cleared.
+        if (!elt) {
+          continue;
+        }
         // Small hack. We reuse this logic for both iframe nodes and
         // document nodes. if it's an iframe node it will have a
         // content document which points to the actual document in the

@@ -442,7 +442,7 @@ PAGESPEED.NativeLibrary = {
 
     var serializedDom = JSON.stringify(
         PAGESPEED.Utils.getDocumentDomJson(opt_doc ? opt_doc :
-        PAGESPEED.Utils.getElementsByType('doc')[0]));
+        PAGESPEED.Utils.getElementsByType('doc')[0].get()));
 
     var outputDir = PAGESPEED.Utils.getOutputDir('page-speed');
 
@@ -519,7 +519,7 @@ PAGESPEED.NativeLibrary = {
         documentUrl, opt_regexp_url_exclude_filter);
     var serializedDom = JSON.stringify(
         PAGESPEED.Utils.getDocumentDomJson(opt_doc ? opt_doc :
-            PAGESPEED.Utils.getElementsByType('doc')[0]));
+            PAGESPEED.Utils.getElementsByType('doc')[0].get()));
     var resultJSON = computeResults(
         JSON.stringify(input.har),
         JSON.stringify(input.custom),
