@@ -22,6 +22,7 @@
 #include "base/stl_util-inl.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_collection.h"
 #include "pagespeed/core/resource_evaluation.h"
 #include "pagespeed/core/resource_fetch.h"
 #include "pagespeed/core/resource_util.h"
@@ -67,8 +68,8 @@ BrowsingContext::BrowsingContext(
     const Resource* document_resource, const BrowsingContext* parent_context,
     TopLevelBrowsingContext* top_level_context,
     ActionUriGenerator* action_uri_generator,
-    const PagespeedInput* pagespeed_input)
-    : pagespeed_input_(pagespeed_input),
+    const ResourceCollection* resource_collection)
+    : resource_collection_(resource_collection),
       action_uri_generator_(action_uri_generator),
       finalized_(false),
       top_level_context_(top_level_context),
@@ -126,7 +127,7 @@ BrowsingContext* BrowsingContext::AddNestedBrowsingContext(
   BrowsingContext* nested_context = new BrowsingContext(resource, this,
                                                         top_level_context_,
                                                         action_uri_generator_,
-                                                        pagespeed_input_);
+                                                        resource_collection_);
   nested_contexts_.push_back(nested_context);
   RegisterBrowsingContext(nested_context);
   return nested_context;
@@ -146,8 +147,8 @@ ResourceFetch* BrowsingContext::AddResourceFetch(const Resource* resource) {
                                            resource->GetRequestUrl(),
                                            &fetch_uri);
 
-  ResourceFetch* result = new ResourceFetch(fetch_uri, this, resource,
-                                            pagespeed_input_);
+  ResourceFetch* result = new ResourceFetch(
+      fetch_uri, top_level_context_, resource);
   resource_fetch_map_[resource].push_back(result);
   RegisterResourceFetch(result);
   return result;
@@ -168,8 +169,8 @@ ResourceEvaluation* BrowsingContext::AddResourceEvaluation(
                                            resource->GetRequestUrl(),
                                            &eval_uri);
 
-  ResourceEvaluation* result = new ResourceEvaluation(eval_uri, this, resource,
-                                                      pagespeed_input_);
+  ResourceEvaluation* result = new ResourceEvaluation(
+      eval_uri, top_level_context_, resource);
   resource_evaluation_map_[resource].push_back(result);
   RegisterResourceEvaluation(result);
   return result;
@@ -410,10 +411,10 @@ bool BrowsingContext::RegisterResource(const Resource* child_resource) {
                 << GetBrowsingContextUri();
   }
 
-  if (pagespeed_input_->GetResourceWithUrlOrNull(
+  if (resource_collection_->GetResourceWithUrlOrNull(
       child_resource->GetRequestUrl()) != child_resource) {
     LOG(DFATAL) << "Cannot register child resource which is not added to the "
-                "PagespeedInput.";
+                "ResourceCollection.";
     return false;
   }
 
@@ -430,7 +431,8 @@ bool BrowsingContext::RegisterResource(const Resource* child_resource) {
 
     std::string target_url = resource_util::GetRedirectedUrl(
         *candidate_resource);
-    candidate_resource = pagespeed_input_->GetResourceWithUrlOrNull(target_url);
+    candidate_resource =
+        resource_collection_->GetResourceWithUrlOrNull(target_url);
     if (candidate_resource == NULL) {
       break;
     }
@@ -497,9 +499,10 @@ bool BrowsingContext::SerializeData(BrowsingContextData* data) const {
 }
 
 TopLevelBrowsingContext::TopLevelBrowsingContext(
-    const Resource* document_resource, const PagespeedInput* pagespeed_input)
+    const Resource* document_resource,
+    const ResourceCollection* resource_collection)
     : BrowsingContext(document_resource, NULL, this, new ActionUriGenerator(),
-                      pagespeed_input) {
+                      resource_collection) {
   RegisterBrowsingContext(this);
 }
 

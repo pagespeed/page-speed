@@ -31,11 +31,9 @@ namespace {
 namespace pagespeed {
 
 ResourceEvaluation::ResourceEvaluation(const std::string& uri,
-                                       const BrowsingContext* context,
-                                       const Resource* resource,
-                                       const PagespeedInput* pagespeed_input)
-    : pagespeed_input_(pagespeed_input),
-      resource_(resource),
+                                       const TopLevelBrowsingContext* context,
+                                       const Resource* resource)
+    : resource_(resource),
       context_(context),
       finalized_(false),
       data_(new ResourceEvaluationData()) {
@@ -53,7 +51,7 @@ ResourceEvaluationConstraint* ResourceEvaluation::AddConstraint() {
                 << GetResourceEvaluationUri();
   }
   ResourceEvaluationConstraint* result = new ResourceEvaluationConstraint(
-      pagespeed_input_);
+      context_);
   constraints_.push_back(result);
   return result;
 }
@@ -140,9 +138,7 @@ const ResourceFetch* ResourceEvaluation::GetFetch() const {
     return NULL;
   }
 
-  const TopLevelBrowsingContext* context = pagespeed_input_
-      ->GetTopLevelBrowsingContext();
-  return context->FindResourceFetch(data_->fetch_uri());
+  return context_->FindResourceFetch(data_->fetch_uri());
 }
 
 bool ResourceEvaluation::GetConstraints(
@@ -184,8 +180,8 @@ bool ResourceEvaluation::SerializeData(ResourceEvaluationData* data) const {
 }
 
 ResourceEvaluationConstraint::ResourceEvaluationConstraint(
-    const PagespeedInput* pagespeed_input)
-    : pagespeed_input_(pagespeed_input),
+    const TopLevelBrowsingContext* context)
+    : context_(context),
       data_(new ResourceEvaluationConstraintData()) {
 }
 
@@ -203,9 +199,7 @@ const ResourceEvaluation* ResourceEvaluationConstraint::GetPredecessor() const {
     return NULL;
   }
 
-  const TopLevelBrowsingContext* context = pagespeed_input_
-      ->GetTopLevelBrowsingContext();
-  return context->FindResourceEvaluation(data_->predecessor_uri());
+  return context_->FindResourceEvaluation(data_->predecessor_uri());
 }
 
 bool ResourceEvaluationConstraint::SerializeData(

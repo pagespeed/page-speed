@@ -26,7 +26,6 @@
 
 using pagespeed::BrowsingContext;
 using pagespeed::BrowsingContextData;
-using pagespeed::PagespeedInput;
 using pagespeed::Resource;
 using pagespeed::ResourceVector;
 using pagespeed::ResourceEvaluation;
@@ -262,7 +261,7 @@ TEST_F(BrowsingContextTest, FailUnknownResource) {
 #else
   ASSERT_DEATH(context->AddResourceEvaluation(script.get()),
                "Cannot register child resource which is not added to the "
-               "PagespeedInput.");
+               "ResourceCollection.");
 #endif
 }
 

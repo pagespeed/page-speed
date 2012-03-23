@@ -25,12 +25,11 @@
 
 namespace pagespeed {
 
-class BrowsingContext;
-class PagespeedInput;
 class Resource;
 class ResourceEvaluation;
 class ResourceFetchDelay;
 class ResourceFetchDownload;
+class TopLevelBrowsingContext;
 
 // Describes the fetch of a resource. There are potentially multiple fetches
 // of a single resource. The resource fetch is scoped to a browsing context.
@@ -38,9 +37,8 @@ class ResourceFetch {
  public:
   // Do not create instances directly, but rather obtain them using
   // BrowsingContext::CreateResourceFetch()
-  ResourceFetch(const std::string& uri, const BrowsingContext* context,
-                const Resource* resource,
-                const PagespeedInput* pagespeed_input);
+  ResourceFetch(const std::string& uri, const TopLevelBrowsingContext* context,
+                const Resource* resource);
   virtual ~ResourceFetch();
 
   // Set how the browser discovered the resource that is fetched here.
@@ -142,9 +140,8 @@ class ResourceFetch {
   bool SerializeData(ResourceFetchData* data) const;
 
  private:
-  const PagespeedInput* pagespeed_input_;
   const Resource* resource_;
-  const BrowsingContext* context_;
+  const TopLevelBrowsingContext* context_;
 
   bool finalized_;
 
@@ -161,7 +158,7 @@ class ResourceFetchDownload {
  public:
   // Do not create instances directly, but rather obtain them using
   // ResourceFetch::GetDownload() and ResourceFetch::GetRedirectDownload()
-  explicit ResourceFetchDownload(const PagespeedInput* pagespeed_input);
+  explicit ResourceFetchDownload(const TopLevelBrowsingContext* context);
   virtual ~ResourceFetchDownload();
 
   // Sets the ResourceEvaluation that discovered the resource that is fetched
@@ -204,7 +201,7 @@ class ResourceFetchDownload {
   bool SerializeData(ResourceFetchDownloadData* data) const;
 
  private:
-  const PagespeedInput* pagespeed_input_;
+  const TopLevelBrowsingContext* context_;
 
   scoped_ptr<ResourceFetchDownloadData> data_;
 

@@ -66,7 +66,8 @@ BrowsingContextDomResourceVisitor::CreateTopLevelBrowsingContext(
     const DomDocument* document,
     const Resource* primary_resource) {
   scoped_ptr<TopLevelBrowsingContext> top_level_context(
-      new TopLevelBrowsingContext(primary_resource, pagespeed_input_));
+      new TopLevelBrowsingContext(
+          primary_resource, &pagespeed_input_->GetResourceCollection()));
   current_context_ = top_level_context.get();
   top_level_context->AcquireDomDocument(document->Clone());
 

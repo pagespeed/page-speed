@@ -25,13 +25,12 @@
 
 namespace pagespeed {
 
-class BrowsingContext;
-class PagespeedInput;
 class Resource;
 class ResourceFetch;
 class ResourceEvaluationData;
 class ResourceEvaluationConstraint;
 class ResourceEvaluationConstraintData;
+class TopLevelBrowsingContext;
 
 typedef std::vector<const ResourceEvaluationConstraint*>
     EvaluationConstraintVector;
@@ -42,9 +41,8 @@ class ResourceEvaluation {
   // Do not create instances directly, but rather obtain them using
   // BrowsingContext::CreateResourceEvaluation().
   ResourceEvaluation(const std::string& uri,
-                     const BrowsingContext* context,
-                     const Resource* resource,
-                     const PagespeedInput* pagespeed_input);
+                     const TopLevelBrowsingContext* context,
+                     const Resource* resource);
   virtual ~ResourceEvaluation();
 
   // Adds a constraint to this evaluation.
@@ -175,9 +173,8 @@ class ResourceEvaluation {
   bool SerializeData(ResourceEvaluationData* data) const;
 
  private:
-  const PagespeedInput* pagespeed_input_;
   const Resource* resource_;
-  const BrowsingContext* context_;
+  const TopLevelBrowsingContext* context_;
 
   bool finalized_;
 
@@ -194,7 +191,7 @@ class ResourceEvaluationConstraint {
  public:
   // Do not create instances directly, but rather obtain them using
   // ResourceEvaluation::AddConstraint()
-  explicit ResourceEvaluationConstraint(const PagespeedInput* pagespeed_input);
+  explicit ResourceEvaluationConstraint(const TopLevelBrowsingContext* context);
   virtual ~ResourceEvaluationConstraint();
 
   // Sets a ResourceEvaluation, which must be completed according to
@@ -221,7 +218,7 @@ class ResourceEvaluationConstraint {
   bool SerializeData(ResourceEvaluationConstraintData* data) const;
 
  private:
-  const PagespeedInput* pagespeed_input_;
+  const TopLevelBrowsingContext* context_;
   scoped_ptr<ResourceEvaluationConstraintData> data_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceEvaluationConstraint);
