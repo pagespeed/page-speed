@@ -29,14 +29,12 @@ namespace {
 namespace pagespeed {
 
 ResourceFetch::ResourceFetch(const std::string& uri,
-                             const BrowsingContext* context,
-                             const Resource* resource,
-                             const PagespeedInput* pagespeed_input)
-    : pagespeed_input_(pagespeed_input),
-      resource_(resource),
+                             const TopLevelBrowsingContext* context,
+                             const Resource* resource)
+    : resource_(resource),
       context_(context),
       finalized_(false),
-      logical_download_(new ResourceFetchDownload(pagespeed_input)),
+      logical_download_(new ResourceFetchDownload(context)),
       data_(new ResourceFetchData()) {
   data_->set_uri(uri);
   data_->set_resource_url(resource->GetRequestUrl());
@@ -121,7 +119,7 @@ bool ResourceFetch::Finalize() {
     } while (true);
 
     if (redirect_head != NULL && redirect_head != this) {
-      redirect_download_.reset(new ResourceFetchDownload(pagespeed_input_));
+      redirect_download_.reset(new ResourceFetchDownload(context_));
       if (!redirect_download_->CopyFrom(*logical_download_, false)) {
         return false;
       }
@@ -216,8 +214,8 @@ bool ResourceFetch::SerializeData(ResourceFetchData* data) const {
 }
 
 ResourceFetchDownload::ResourceFetchDownload(
-    const PagespeedInput* pagespeed_input)
-    : pagespeed_input_(pagespeed_input),
+    const TopLevelBrowsingContext* context)
+    : context_(context),
       data_(new ResourceFetchDownloadData()) {
 }
 ResourceFetchDownload::~ResourceFetchDownload() {
@@ -263,9 +261,7 @@ const ResourceEvaluation* ResourceFetchDownload::GetRequestor() const {
     return NULL;
   }
 
-  const TopLevelBrowsingContext* context = pagespeed_input_
-      ->GetTopLevelBrowsingContext();
-  return context->FindResourceEvaluation(data_->requestor_uri());
+  return context_->FindResourceEvaluation(data_->requestor_uri());
 }
 
 bool ResourceFetchDownload::SerializeData(

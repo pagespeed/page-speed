@@ -215,8 +215,8 @@ bool PagespeedTest::SetTopLevelBrowsingContext(
 pagespeed::TopLevelBrowsingContext* PagespeedTest::NewTopLevelBrowsingContext(
     const pagespeed::Resource* document_resource) {
   scoped_ptr<pagespeed::TopLevelBrowsingContext> context(
-      new pagespeed::TopLevelBrowsingContext(document_resource,
-                                             pagespeed_input_.get()));
+      new pagespeed::TopLevelBrowsingContext(
+          document_resource, &pagespeed_input_->GetResourceCollection()));
   if (!SetTopLevelBrowsingContext(context.get())) {
     return NULL;
   }

@@ -27,8 +27,8 @@ namespace pagespeed {
 class ActionUriGenerator;
 class BrowsingContext;
 class DomDocument;
-class PagespeedInput;
 class Resource;
+class ResourceCollection;
 class ResourceEvaluation;
 class ResourceFetch;
 class TopLevelBrowsingContext;
@@ -54,18 +54,18 @@ class BrowsingContext {
   BrowsingContext* AddNestedBrowsingContext(const Resource* resource);
 
   // Creates a resource fetch descriptor and returns a modifiable pointer to it.
-  // Resources must have be added to the PagespeedInput before.
+  // Resources must have be added to the ResourceCollection before.
   // The ownership remains at this BrowsingContext.
   ResourceFetch* AddResourceFetch(const Resource* resource);
 
   // Creates a resource evaluation descriptor and returns a modifiable pointer
-  // to it. Resources must have be added to the PagespeedInput before.
+  // to it. Resources must have be added to the ResourceCollection before.
   // The ownership remains at this BrowsingContext.
   // For HTML resources, the first evaluation must be of the type PARSE_HTML.
   ResourceEvaluation* AddResourceEvaluation(const Resource* resource);
 
   // Registers a resource that is referenced in this browsing
-  // context. The resource must belong to the same PagespeedInput this
+  // context. The resource must belong to the same ResourceCollection this
   // BrowsingContext belongs to. Calling this method multiple times with the
   // same resource has no effect. If the specified resource redirect to another,
   // all resources (in-)directly redirected to will be added.
@@ -200,7 +200,7 @@ class BrowsingContext {
                   const BrowsingContext* parent_context,
                   TopLevelBrowsingContext* top_level_context,
                   ActionUriGenerator* action_uri_generator,
-                  const PagespeedInput* pagespeed_input);
+                  const ResourceCollection* resource_collection);
 
   // Registers a (nested) browsing context with the top-level context. This
   // ensures that the TopLevelBrowsingContext knows about the
@@ -227,7 +227,7 @@ class BrowsingContext {
   typedef std::map<const Resource*, std::vector<ResourceEvaluation*> >
       ResourceEvalMap;
 
-  const PagespeedInput* const pagespeed_input_;
+  const ResourceCollection* const resource_collection_;
 
   // This is owned by the TopLevelBrowsingContext.
   ActionUriGenerator* const action_uri_generator_;
@@ -261,7 +261,7 @@ class TopLevelBrowsingContext : public BrowsingContext {
  public:
   // Creates a top-level browsing context.
   TopLevelBrowsingContext(const Resource* document_resource,
-                          const PagespeedInput* pagespeed_input);
+                          const ResourceCollection* resource_collection);
   virtual ~TopLevelBrowsingContext();
 
   // Returns the (nested) BrowsingContext identified by the specified URI.
