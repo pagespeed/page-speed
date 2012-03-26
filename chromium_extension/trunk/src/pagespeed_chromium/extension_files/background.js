@@ -1,4 +1,4 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
+// Copyright 2012 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-"use strict";
+'use strict';
 
 var pagespeed_bg = {
 
@@ -84,12 +84,12 @@ var pagespeed_bg = {
 
   // Given a client object, return true if it is still active, or false if it
   // has been cancelled.
-  isClientStillActive: function (client) {
+  isClientStillActive: function(client) {
     return (client.port.sender.tab.id in pagespeed_bg.activeClients);
   },
 
   // Handle connections from DevTools panels.
-  connectHandler: function (port) {
+  connectHandler: function(port) {
     port.onMessage.addListener(pagespeed_bg.withErrorHandler(
         null, pagespeed_bg.messageHandler, port));
   },
@@ -169,7 +169,7 @@ var pagespeed_bg = {
       }
 
       // We do not request redirect URLs, because XHR will follow redirections.
-      if( entry.response.status === 301 || entry.response.status === 302 ||
+      if (entry.response.status === 301 || entry.response.status === 302 ||
           entry.response.status === 303 || entry.response.status === 307) {
         continue;
       }
@@ -221,7 +221,7 @@ var pagespeed_bg = {
           pagespeed_bg.onReadyStateChange,
           xhr, entry, fetchContext, timeoutCallbackId);
       try {
-        xhr.open("GET", url, true);
+        xhr.open('GET', url, true);
         // Request to get the response data in the form of an ArrayBuffer.  If
         // we don't do this, the XHR tends to try to interpret binary data as
         // UTF8-encoded text, which doesn't work out very well.
@@ -243,7 +243,7 @@ var pagespeed_bg = {
     }
   },
 
-  abortXmlHttpRequest_: function (xhr, url) {
+  abortXmlHttpRequest_: function(xhr, url) {
     console.log('Aborting XHR for ' + url);
     // Calling xhr.abort() will trigger a callback to
     // onReadyStateChange, where the XHR has a status code of
@@ -291,7 +291,7 @@ var pagespeed_bg = {
     }
   },
 
-  onXhrResponse: function (xhr, entry) {
+  onXhrResponse: function(xhr, entry) {
     var url = entry.request.url;
 
     // The server may 304 if the browser issues a conditional get,
@@ -307,7 +307,7 @@ var pagespeed_bg = {
     entry.response.status = 200;
   },
 
-  updateResponseHeaders: function (xhr, entry) {
+  updateResponseHeaders: function(xhr, entry) {
     function getHeaderKeyValue(headerLine) {
       // Find the first colon and split key, value at that point.
       var separatorIdx = headerLine.indexOf(':');
@@ -388,7 +388,7 @@ var pagespeed_bg = {
     entry.response.headers = responseHeadersArray;
   },
 
-  updateResponseBody: function (xhr, entry) {
+  updateResponseBody: function(xhr, entry) {
     var content = entry.response.content;
     if (!content || (content.text && content.text.length > 0)) {
       // Either there's no content entry, or we already have a
@@ -488,8 +488,9 @@ var pagespeed_bg = {
           'Native client module not ready: ' + pagespeed_module.readyState);
       return;
     }
+    var tab_id = client.port.sender.tab.id;
     var msg = {
-      id: String(client.port.sender.tab.id),
+      id: String(tab_id),
       har: JSON.stringify(client.har),
       document: JSON.stringify(client.document),
       timeline: JSON.stringify(client.timeline),
@@ -497,19 +498,58 @@ var pagespeed_bg = {
       locale: client.locale,
       save_optimized_content: client.save_optimized_content,
     };
-    pagespeed_module.postMessage(JSON.stringify(msg));
+
+    // Create a string that is the msg with the tabId prepended. When the NaCl
+    // module receives the message, it may be able to extract the tabId part,
+    // even if it fails to parse the input msg. It then can send back the error
+    // message to corresponding tab.
+    var msg_with_id = String(tab_id) + ',' + JSON.stringify(msg);
+    pagespeed_module.postMessage(msg_with_id);
   },
+
+  // Search the first 10 charcters for a ',', parse the characters before ',' as
+  // int, and return it.
+  extractTabId: function (str) {
+    var searchPart = str.substr(0, 10);
+    var commaPosition = searchPart.indexOf(",");
+    if (commaPosition <= 0) {
+      return Number.NaN;
+    }
+    var clientId = str.substr(0, commaPosition);
+    return parseInt(clientId);
+  },
+
+  // Search for a ',' and the return the substring that follows the comma.
+  // This function must be called afer extractTabId is successful, because it
+  // does not check for error, and assumming the ',' exists.
+  extractMessage: function (str) {
+    var commaPosition = str.indexOf(",");
+    return str.substr(commaPosition+1);
+  },
+
 
   // Invoked when the NaCL module sends a message to us.
   onNaclResponse: function (responseMsg) {
-    var result = JSON.parse(responseMsg.data);
-    if (result.error) {
-      pagespeed_bg.displayErrorAndEndCurrentRun(result.error);
+    // We also expect the responseMsg has the client tabId at the beginning of
+    // the result or error string.
+    var clientId = pagespeed_bg.extractTabId(responseMsg.data);
+    if (isNaN(clientId)) {
+      pagespeed_bg.displayErrorAndEndCurrentRun(
+          'Failed to extract the tabId of the result.');
       return;
     }
-    var clientId = parseInt(result.id);
+
     var client = pagespeed_bg.activeClients[clientId];
-    if (client) {
+    if (!client) {
+      // Siliently ignore the result because the client is not acitve anymore.
+      return;
+    }
+
+    // Let's get the result.
+    var result = JSON.parse(pagespeed_bg.extractMessage(responseMsg.data));
+    if (result.error) {
+        pagespeed_bg.displayErrorAndEndCurrentRun(result.error, null, client);
+    } else {
       pagespeed_bg.postMessage(client, 'onRunPageSpeedComplete', result);
     }
   },
@@ -533,10 +573,10 @@ var pagespeed_bg = {
 
 };
 
-pagespeed_bg.withErrorHandler(null, function () {
+pagespeed_bg.withErrorHandler(null, function() {
 
   // Listen for connections from DevTools panels:
   chrome.extension.onConnect.addListener(
-      pagespeed_bg.withErrorHandler(null, pagespeed_bg.connectHandler));
+    pagespeed_bg.withErrorHandler(null, pagespeed_bg.connectHandler));
 
 })();
