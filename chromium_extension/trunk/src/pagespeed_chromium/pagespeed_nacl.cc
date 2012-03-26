@@ -31,6 +31,30 @@
 
 namespace {
 
+const char* kUnknownMessageId = "unknown";
+
+std::string MakeErrorJsonString(const std::string& value) {
+  std::string error;
+  // Let's build the result with value.
+  scoped_ptr<DictionaryValue> root(new DictionaryValue);
+  root->SetString("error", value);
+  base::JSONWriter::Write(root.get(), false, &error);
+  return error;
+}
+
+bool ExtractIdAndMessage(const std::string& in, std::string* out_id,
+                         std::string* out_message) {
+  const std::string search_part = in.substr(0, 10);
+  size_t comma_pos = search_part.find(',');
+  if (comma_pos == std::string::npos) {
+    return false;
+  }
+
+  *out_id = in.substr(0, comma_pos);
+  *out_message = in.substr(comma_pos+1);
+  return true;
+}
+
 // A new pp::Instance object is instantiated for each <embed> element that
 // references the nexe that hosts the module.
 class PageSpeedInstance : public pp::Instance {
@@ -41,7 +65,7 @@ class PageSpeedInstance : public pp::Instance {
   virtual void HandleMessage(const pp::Var& var_message);
 
  private:
-  void PostError(const std::string& value);
+  void PostBackMessage(const std::string& id, const std::string& value);
 };
 
 // A pp::Module is a factory for creating pp::Instance objects. A
@@ -70,29 +94,45 @@ void PageSpeedInstance::HandleMessage(const pp::Var& in) {
   base::AtExitManager at_exit_manager;
 
   if (!in.is_string()) {
-    PostError("Failed to process non-string message.");
+    // We don't know what is the id of the sending side.
+    PostBackMessage(
+        kUnknownMessageId,
+        MakeErrorJsonString("Failed to process non-string message."));
     return;
   }
 
-  std::string in_json = in.AsString();
+
+  const std::string json_with_id = in.AsString();
+  // Extract the ID part, before we parse the JSON format of Page Speed input.
+  // The ID part is seperated from the JSON with a comma (','). We search only
+  // the first 10 charactor, which is large enough for a valid tadId. That way
+  // if the input data is total garbage we don't scan it looking for a very long
+  // string.
+  std::string message_id, in_json;
+  if (!ExtractIdAndMessage(json_with_id, &message_id, &in_json)) {
+    PostBackMessage(
+        kUnknownMessageId,
+        MakeErrorJsonString("Failed to extract the message sender id."));
+    return;
+  }
+
   std::string result, error;
   if (!pagespeed_chromium::RunPageSpeedRules(in_json, &result, &error)) {
-    PostError(error);
-    return;
+    // Let's build the result with error message.
+    result = MakeErrorJsonString(error);
   }
-
-  pp::Var out(result);
-  PostMessage(out);
+  PostBackMessage(message_id, result);
 }
 
-void PageSpeedInstance::PostError(const std::string& value) {
-  std::string msg;
-  {
-    scoped_ptr<DictionaryValue> root(new DictionaryValue);
-    root->SetString("error", value);
-    base::JSONWriter::Write(root.get(), false, &msg);
-  }
-  pp::Var out(msg);
+void PageSpeedInstance::PostBackMessage(const std::string& id,
+                                  const std::string& value) {
+  // Prepend the id at the beginning of the message.
+  std::string message;
+  message.append(id);
+  message.append(",");
+  message.append(value);
+
+  pp::Var out(message);
   PostMessage(out);
 }
 
