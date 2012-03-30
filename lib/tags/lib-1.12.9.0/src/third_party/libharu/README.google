@@ -1,0 +1,10 @@
+URL: http://www.libharu.org
+Version: 2.2.0
+License: ZLIB/LIBPNG
+License File: LICENSE
+
+Description:
+Library for generating PDF files.
+
+Local Modifications:
+None.
