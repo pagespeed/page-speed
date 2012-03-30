@@ -156,6 +156,12 @@ msgstr ""
 msgid "Avoid CSS @import"
 msgstr ""
 
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages do not specify a character set in an HTML meta tag.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid a character set in the meta tag"
+msgstr ""
+
 #  The name of a Page Speed rule that tells users to try and avoid
 #  writing pages that generate bad HTTP requests (i.e. requests that return
 #  HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
@@ -702,6 +708,15 @@ msgstr ""
 #  can serve as a cache validator.  Note that "Last-Modified" and "ETag"
 #  are code and should not be translated.
 msgid "The following resources are missing a cache validator. Resources that do not specify a cache validator cannot be refreshed efficiently. Specify a Last-Modified or ETag header to enable cache validation for the following resources:"
+msgstr ""
+
+#  Header at the top of a list of URLs that Page
+#  Speed detected as declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) in an HTML meta tag. It
+#  describes the problem to the user, and tells them how to fix
+#  it by explicitly specifying the character set in the HTTP
+#  Content-Type response header.
+msgid "The following resources have a character set specified in a meta tag. Specifying a character set in a meta tag disables the lookahead downloader in IE8. To improve resource download parallelization, move the character set to the HTTP Content-Type response header."
 msgstr ""
 
 #  Header at the top of a list of URLs that Page Speed
