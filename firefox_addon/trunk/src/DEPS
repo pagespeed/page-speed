@@ -75,8 +75,6 @@ deps = {
   "src/build/internal": From(Var("libpagespeed_deps_root")),
   "src/testing": From(Var("libpagespeed_deps_root")),
   "src/third_party/domain_registry_provider/src": From(Var("libpagespeed_deps_root")),
-  "src/third_party/instaweb/src/net/instaweb":
-    From(Var("libpagespeed_deps_root")),
   "src/third_party/modp_b64": From(Var("libpagespeed_deps_root")),
   "src/third_party/protobuf": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/base": From(Var("libpagespeed_deps_root")),
@@ -85,6 +83,7 @@ deps = {
   "src/tools/grit": From(Var("libpagespeed_deps_root")),
 
   "src/googleurl": From(Var("chromium_deps_root")),
+  "src/net/instaweb": From(Var("libpagespeed_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 
