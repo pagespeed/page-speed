@@ -105,8 +105,9 @@ void MetaCharsetFilter::StartElement(net_instaweb::HtmlElement* element) {
   // includes a "charset" keyword.
   for (int i = 0; i < element->attribute_size(); ++i) {
     const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
-    if (base::strcasecmp(kCharset, attr.name_str()) == 0) {
-      meta_charset_content_ = attr.value();
+    if (base::strcasecmp(kCharset, attr.name_str()) == 0 &&
+        attr.DecodedValueOrNull() != NULL) {
+      meta_charset_content_ = attr.DecodedValueOrNull();
       meta_charset_begin_line_number_ = element->begin_line_number();
       return;
     }

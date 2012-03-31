@@ -77,9 +77,10 @@ void ManifestFilter::StartElement(net_instaweb::HtmlElement* element) {
     // search the attributes list linearly to check if manifest exists.
     for (int idx = 0; idx < element->attribute_size(); ++idx) {
       if (string_util::StringCaseEqual(
-          element->attribute(idx).name_str(), "manifest")) {
-        // Manefest exits.
-        manifest_url_ = element->attribute(idx).value();
+          element->attribute(idx).name_str(), "manifest") &&
+          element->attribute(idx).DecodedValueOrNull() != NULL) {
+        // Manifest exits.
+        manifest_url_ = element->attribute(idx).DecodedValueOrNull();
         return;
       }
     }
