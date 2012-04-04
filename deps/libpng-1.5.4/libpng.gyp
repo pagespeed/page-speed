@@ -56,6 +56,12 @@
               '.',
             ],
             'defines': [
+              # The PNG_FREE_ME_SUPPORTED define was dropped in libpng
+              # 1.4.0beta78, with its behavior becoming the default
+              # behavior. Thus we define it here, since this is a
+              # libpng version greater than 1.4.0 and we want to
+              # indicate to our own code that free_me support is
+              # provided by libpng.
               'PNG_FREE_ME_SUPPORTED',
             ],
           },
