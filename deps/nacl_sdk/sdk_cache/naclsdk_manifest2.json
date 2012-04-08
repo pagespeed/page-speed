@@ -33,41 +33,6 @@
         }
       ],
       "revision": 16
-    },
-    {
-      "repath": "pepper_18",
-      "name": "pepper_18",
-      "description": "Chrome 18 bundle, revision 124251",
-      "stability": "beta",
-      "recommended": "yes",
-      "version": 18,
-      "archives": [
-        {
-          "url": "https://commondatastorage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/18.0.1025.46/naclsdk_mac.bz2",
-          "checksum": {
-            "sha1": "6ff19441a604d4e2a4faae27602e33c5bc4b56b5"
-          },
-          "host_os": "mac",
-          "size": 113524972
-        },
-        {
-          "url": "https://commondatastorage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/18.0.1025.46/naclsdk_linux.bz2",
-          "checksum": {
-            "sha1": "0d172df865e17c6dfb0bebe9efac3f0da8ddf14f"
-          },
-          "host_os": "linux",
-          "size": 113393279
-        },
-        {
-          "url": "https://commondatastorage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/18.0.1025.46/naclsdk_win.bz2",
-          "checksum": {
-            "sha1": "67574e5a8dcbc967993be46819b22795e8dc11de"
-          },
-          "host_os": "win",
-          "size": 108888118
-        }
-      ],
-      "revision": 124253
     }
   ],
   "manifest_version": 2
