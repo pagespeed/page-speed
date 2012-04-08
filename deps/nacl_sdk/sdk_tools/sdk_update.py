@@ -1,11 +1,12 @@
-#!/usr/bin/python
-# Copyright (c) 2011 The Native Client Authors. All rights reserved.
+#!/usr/bin/env python
+# Copyright (c) 2012 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
 '''A simple tool to update the Native Client SDK to the latest version'''
 
 import cStringIO
+import cygtar
 import errno
 import exceptions
 import hashlib
@@ -13,10 +14,8 @@ import json
 import optparse
 import os
 import shutil
-import string
 import subprocess
 import sys
-import tarfile
 import tempfile
 import time
 import urllib2
@@ -27,22 +26,31 @@ import urlparse
 # Constants
 
 # Bump the MINOR_REV every time you check this file in.
-MAJOR_REV = 1
-MINOR_REV = 10
+MAJOR_REV = 2
+MINOR_REV = 16
 
 GLOBAL_HELP = '''Usage: naclsdk [options] command [command_options]
 
 naclsdk is a simple utility that updates the Native Client (NaCl)
-Software Developer's Kit (SDK).
+Software Developer's Kit (SDK).  Each component is kept as a 'bundle' that
+this utility can download as as subdirectory into the SDK.
 
 Commands:
   help [command] - Get either general or command-specific help
   list - Lists the available bundles
-  update - Updates the SDK to the latest recommended toolchains'''
+  update/install - Updates/installs bundles in the SDK
 
-MANIFEST_FILENAME='naclsdk_manifest.json'
+Example Usage:
+  naclsdk list
+  naclsdk update --force pepper_17
+  naclsdk install recommended
+  naclsdk help update'''
+
+MANIFEST_FILENAME='naclsdk_manifest2.json'
 SDK_TOOLS='sdk_tools'  # the name for this tools directory
 USER_DATA_DIR='sdk_cache'
+
+HTTP_CONTENT_LENGTH = 'Content-Length'  # HTTP Header field for content length
 
 # The following SSL certificates are used to validate the SSL connection
 # to https://commondatastorage.googleapis.com
@@ -122,37 +130,17 @@ VERSION_KEY = 'version'
 
 # Valid values for bundle.stability field
 STABILITY_LITERALS = [
-    'obsolete', 'post_stable', 'stable', 'beta', 'dev', 'canary'
-]
+    'obsolete', 'post_stable', 'stable', 'beta', 'dev', 'canary']
 # Valid values for the archive.host_os field
 HOST_OS_LITERALS = frozenset(['mac', 'win', 'linux', 'all'])
 # Valid values for bundle-recommended field.
 YES_NO_LITERALS = ['yes', 'no']
-# Map option keys to manifest attribute key. Option keys are used to retrieve
-# option values fromcmd-line options. Manifest attribute keys label the
-# corresponding value in the manifest object.
-OPTION_KEY_MAP = {
-  #  option key         manifest attribute key
-    'bundle_desc_url': 'desc_url',
-    'bundle_revision': REVISION_KEY,
-    'bundle_version':  VERSION_KEY,
-    'desc':            'description',
-    'recommended':     'recommended',
-    'stability':       'stability',
-}
-# Map options keys to platform key, as stored in the bundle.
-OPTION_KEY_TO_PLATFORM_MAP = {
-    'mac_arch_url':    'mac',
-    'win_arch_url':    'win',
-    'linux_arch_url':  'linux',
-    'all_arch_url':    'all',
-}
 # Valid keys for various sdk objects, used for validation.
 VALID_ARCHIVE_KEYS = frozenset(['host_os', 'size', 'checksum', 'url'])
 VALID_BUNDLES_KEYS = frozenset([
     ARCHIVES_KEY, NAME_KEY, VERSION_KEY, REVISION_KEY,
-    'description', 'desc_url', 'stability', 'recommended',
-])
+    'description', 'desc_url', 'stability', 'recommended', 'repath',
+    ])
 VALID_MANIFEST_KEYS = frozenset(['manifest_version', BUNDLES_KEY])
 
 
@@ -211,7 +199,7 @@ def GetHostOS():
       'darwin': 'mac',
       'cygwin': 'win',
       'win32':  'win'
-  }[sys.platform]
+      }[sys.platform]
 
 
 def ExtractInstaller(installer, outdir):
@@ -225,8 +213,7 @@ def ExtractInstaller(installer, outdir):
 
   Raises:
     CalledProcessError - if the extract operation fails'''
-  if os.path.exists(outdir):
-    RemoveDir(outdir)
+  RemoveDir(outdir)
 
   if os.path.splitext(installer)[1] == '.exe':
     # If the installer has extension 'exe', assume it's a Windows NSIS-style
@@ -236,12 +223,15 @@ def ExtractInstaller(installer, outdir):
   else:
     os.mkdir(outdir)
     tar_file = None
+    curpath = os.getcwd()
     try:
-      tar_file = tarfile.open(installer)
-      tar_file.extractall(path=outdir)
+      tar_file = cygtar.CygTar(installer, 'r', verbose=True)
+      if outdir: os.chdir(outdir)
+      tar_file.Extract()
     finally:
       if tar_file:
-        tar_file.close()
+        tar_file.Close()
+      os.chdir(curpath)
 
 
 def RemoveDir(outdir):
@@ -250,7 +240,8 @@ def RemoveDir(outdir):
   On Unix systems, this just runs shutil.rmtree, but on Windows, this doesn't
   work when the directory contains junctions (as does our SDK installer).
   Therefore, on Windows, it runs rmdir /S /Q as a shell command.  This always
-  does the right thing on Windows.
+  does the right thing on Windows. If the directory already didn't exist,
+  RemoveDir will return successfully without taking any action.
 
   Args:
     outdir: The directory to delete
@@ -261,22 +252,24 @@ def RemoveDir(outdir):
   '''
 
   DebugPrint('Removing %s' % outdir)
-  if sys.platform == 'win32':
-    subprocess.check_call(['rmdir /S /Q', outdir], shell=True)
-  else:
+  try:
     shutil.rmtree(outdir)
+  except:
+    if not os.path.exists(outdir):
+      return
+    # On Windows this could be an issue with junctions, so try again with rmdir
+    if sys.platform == 'win32':
+      subprocess.check_call(['rmdir', '/S', '/Q', outdir], shell=True)
 
 
 def RenameDir(srcdir, destdir):
   '''Renames srcdir to destdir. Removes destdir before doing the
      rename if it already exists.'''
 
-  max_tries = 100
-
+  max_tries = 5
   for num_tries in xrange(max_tries):
     try:
-      if os.path.exists(destdir):
-        RemoveDir(destdir)
+      RemoveDir(destdir)
       os.rename(srcdir, destdir)
       return
     except OSError as err:
@@ -285,7 +278,7 @@ def RenameDir(srcdir, destdir):
       # If we are here, we didn't exit due to raised exception, so we are
       # handling a Windows flaky access error.  Sleep one second and try
       # again.
-      time.sleep(1)
+      time.sleep(num_tries + 1)
   # end of while loop -- could not RenameDir
   raise Error('Could not RenameDir %s => %s after %d tries.\n' %
               'Please check that no shells or applications '
@@ -436,8 +429,13 @@ class Archive(dict):
     try:
       print 'Scanning archive to generate sha1 and size info:'
       stream = self._OpenURLStream()
+      content_length = int(stream.info()[HTTP_CONTENT_LENGTH])
       sha1, size = DownloadAndComputeHash(from_stream=stream,
                                           progress_func=ShowProgress)
+      if size != content_length:
+        raise Error('Download size mismatch for %s.\n'
+                    'Expected %s bytes but got %s' %
+                    (self['url'], content_length, size))
     finally:
       if stream: stream.close()
     return sha1, size
@@ -458,13 +456,18 @@ class Archive(dict):
       from_stream = None
       try:
         from_stream = self._OpenURLStream()
+        content_length = int(from_stream.info()[HTTP_CONTENT_LENGTH])
         progress_function = ProgressFunction(
-            from_stream.info()['Content-Length']).GetProgressFunction()
+            content_length).GetProgressFunction()
         InfoPrint('Downloading %s' % self['url'])
         sha1, size = DownloadAndComputeHash(
             from_stream,
             to_stream=to_stream,
             progress_func=progress_function)
+        if size != content_length:
+          raise Error('Download size mismatch for %s.\n'
+                      'Expected %s bytes but got %s' %
+                      (self['url'], content_length, size))
       finally:
         if from_stream: from_stream.close()
     return sha1, size
@@ -477,6 +480,18 @@ class Archive(dict):
     sha1, size = self.ComputeSha1AndSize()
     self['size'] = size
     self['checksum'] = {'sha1': sha1}
+
+  def GetUrl(self):
+    '''Returns the URL of this Archive'''
+    return self['url']
+
+  def GetSize(self):
+    '''Returns the size of this archive, in bytes'''
+    return int(self['size'])
+
+  def GetChecksum(self, type='sha1'):
+    '''Returns a given cryptographic checksum of the archive'''
+    return self['checksum'][type]
 
 
 class Bundle(dict):
@@ -584,27 +599,9 @@ class Bundle(dict):
       self[ARCHIVES_KEY].append(archive)
     archive.Update(url)
 
-  def Update(self, options):
-    ''' Update the bundle per content of the options.
-
-    Args:
-      options: options data. Attributes that are used are also deleted from
-               options.'''
-    # Check, set and consume individual bundle options.
-    for option_key, attribute_key in OPTION_KEY_MAP.iteritems():
-      option_val = getattr(options, option_key, None)
-      if option_val is not None:
-        self[attribute_key] = option_val
-        delattr(options, option_key);
-    # Validate what we have so far; we may just avoid going through a lengthy
-    # download, just to realize that some other trivial stuff is missing.
-    self.Validate()
-    # Check and consume archive-url options.
-    for option_key, host_os in OPTION_KEY_TO_PLATFORM_MAP.iteritems():
-      platform_url = getattr(options, option_key, None)
-      if platform_url is not None:
-        self.UpdateArchive(host_os, platform_url)
-        delattr(options, option_key);
+  def GetArchives(self):
+    '''Returns all the archives in this bundle'''
+    return self[ARCHIVES_KEY]
 
 
 class SDKManifest(object):
@@ -615,12 +612,11 @@ class SDKManifest(object):
 
   def __init__(self):
     '''Create a new SDKManifest object with default contents'''
-    self.MANIFEST_VERSION = 1
+    self.MANIFEST_VERSION = MAJOR_REV
     self._manifest_data = {
         "manifest_version": self.MANIFEST_VERSION,
-        "bundles": []
-    }
-
+        "bundles": [],
+        }
 
   def _ValidateManifest(self):
     '''Validate the Manifest file and raises an exception for problems'''
@@ -635,18 +631,6 @@ class SDKManifest(object):
     # Validate each bundle
     for bundle in self._manifest_data[BUNDLES_KEY]:
       bundle.Validate()
-
-  def _ValidateBundleName(self, name):
-    ''' Verify that name is a valid bundle.
-
-    Args:
-      name: the proposed name for the bundle.
-
-    Return:
-      True if the name is valid for a bundle, False otherwise.'''
-    valid_char_set = '()-_.%s%s' % (string.ascii_letters, string.digits)
-    name_len = len(name)
-    return (name_len > 0 and all(c in valid_char_set for c in name))
 
   def GetBundle(self, name):
     ''' Get a bundle from the array of bundles.
@@ -682,59 +666,14 @@ class SDKManifest(object):
         del bundles[i]
     bundles.append(new_bundle)
 
-  def _UpdateManifestVersion(self, options):
-    ''' Update the manifest version number from the options
-
-    Args:
-      options: options data containing an attribute self.manifest_version '''
-    version_num = int(options.manifest_version)
-    self._manifest_data['manifest_version'] = version_num
-    del options.manifest_version
-
-  def _UpdateBundle(self, options):
-    ''' Update or setup a bundle from the options.
-
-    Args:
-      options: options data containing at least a valid bundle_name
-               attribute. Other relevant bundle attributes will also be
-               used (and consumed) by this function. '''
-    # Get and validate the bundle name
-    if not self._ValidateBundleName(options.bundle_name):
-      raise Error('Invalid bundle name: "%s"' %
-                              options.bundle_name)
-    bundle_name = options.bundle_name
-    del options.bundle_name
-    # Get the corresponding bundle, or create it.
-    bundle = self.GetBundle(bundle_name)
-    if not bundle:
-      bundle = Bundle(bundle_name)
-      self.SetBundle(bundle)
-    bundle.Update(options)
-
-  def _VerifyAllOptionsConsumed(self, options, bundle_name):
-    ''' Verify that all the options have been used. Raise an exception if
-        any valid option has not been used. Returns True if all options have
-        been consumed.
-
-    Args:
-      options: the object containg the remaining unused options attributes.
-      bundl_name: The name of the bundle, or None if it's missing.'''
-    # Any option left in the list should have value = None
-    for key, val in options.__dict__.items():
-      if val != None:
-        if bundle_name:
-          raise Error('Unused option "%s" for bundle "%s"' % (key, bundle_name))
-        else:
-          raise Error('No bundle name specified')
-    return True;
-
-
-  def LoadManifestString(self, json_string):
+  def LoadManifestString(self, json_string, all_hosts=False):
     ''' Load a JSON manifest string. Raises an exception if json_string
         is not well-formed JSON.
 
     Args:
-      json_string: a JSON-formatted string containing the previous manifest'''
+      json_string: a JSON-formatted string containing the previous manifest
+      all_hosts: True indicates that we should load bundles for all hosts.
+          False (default) says to only load bundles for the current host'''
     new_manifest = json.loads(json_string)
     for key, value in new_manifest.items():
       if key == BUNDLES_KEY:
@@ -746,13 +685,13 @@ class SDKManifest(object):
           # Only add this archive if it's supported on this platform.
           # However, the sdk_tools bundle might not have an archive entry,
           # but is still always valid.
-          if new_bundle.GetArchive(GetHostOS()) or b[NAME_KEY] == 'sdk_tools':
+          if (all_hosts or new_bundle.GetArchive(GetHostOS()) or
+              b[NAME_KEY] == 'sdk_tools'):
             bundles.append(new_bundle)
         self._manifest_data[key] = bundles
       else:
         self._manifest_data[key] = value
     self._ValidateManifest()
-
 
   def GetManifestString(self):
     '''Returns the current JSON manifest object, pretty-printed'''
@@ -761,26 +700,6 @@ class SDKManifest(object):
     # a newline at the end.  This code fixes these problems.
     pretty_lines = pretty_string.split('\n')
     return '\n'.join([line.rstrip() for line in pretty_lines]) + '\n'
-
-  def UpdateManifest(self, options):
-    ''' Update the manifest object with value from the command-line options
-
-    Args:
-      options: options object containing attribute for the command-line options.
-               Note that all the non-trivial options are consumed.
-    '''
-    # Go over all the options and update the manifest data accordingly.
-    # Valid options are consumed as they are used. This gives us a way to
-    # verify that all the options are used.
-    if options.manifest_version is not None:
-      self._UpdateManifestVersion(options)
-    # Keep a copy of bundle_name, which will be consumed by UpdateBundle, for
-    # use in _VerifyAllOptionsConsumed below.
-    bundle_name = options.bundle_name
-    if bundle_name is not None:
-      self._UpdateBundle(options)
-    self._VerifyAllOptionsConsumed(options, bundle_name)
-    self._ValidateManifest()
 
 
 class SDKManifestFile(object):
@@ -812,8 +731,7 @@ class SDKManifestFile(object):
     with open(self._json_filepath, 'r') as f:
       json_string = f.read()
     if json_string:
-      self._manifest.LoadManifestString(json_string)
-
+      self._manifest.LoadManifestString(json_string, all_hosts=True)
 
   def WriteFile(self):
     '''Write the json data to the file. If not file name was specified, the
@@ -876,16 +794,6 @@ class SDKManifestFile(object):
       self._manifest.SetBundle(bundle)
     else:
       self._manifest.SetBundle(local_bundle.MergeWithBundle(bundle))
-
-  def UpdateWithOptions(self, options):
-    ''' Update the manifest file with the given options. Create the manifest
-        if it doesn't already exists. Raises an Error if the manifest doesn't
-        validate after updating.
-
-    Args:
-      options: option data'''
-    self._manifest.UpdateManifest(options)
-    self.WriteFile()
 
 
 class ManifestTools(object):
@@ -992,7 +900,7 @@ def Update(options, argv):
     bundle_update_path = '%s_update' % bundle_path
     if not (bundle_name in args or
             ALL in args or (RECOMMENDED in args and
-                              bundle[RECOMMENDED] == 'yes')):
+                            bundle[RECOMMENDED] == 'yes')):
       continue
     def UpdateBundle():
       '''Helper to install a bundle'''
@@ -1011,7 +919,14 @@ def Update(options, argv):
                 (bundle_name, bundle[VERSION_KEY], bundle[REVISION_KEY])))
       ExtractInstaller(dest_filename, bundle_update_path)
       if bundle_name != SDK_TOOLS:
-        RenameDir(bundle_update_path, bundle_path)
+        repath = bundle.get('repath', None)
+        if repath:
+          bundle_move_path = os.path.join(bundle_update_path, repath)
+        else:
+          bundle_move_path = bundle_update_path
+        RenameDir(bundle_move_path, bundle_path)
+        if os.path.exists(bundle_update_path):
+          RemoveDir(bundle_update_path)
       os.remove(dest_filename)
       local_manifest.MergeBundle(bundle)
       local_manifest.WriteFile()
@@ -1087,7 +1002,8 @@ def main(argv):
   COMMANDS = {
       'list': List,
       'update': Update,
-  }
+      'install': Update,
+      }
 
   # Separate global options from command-specific options
   global_argv = argv
@@ -1140,18 +1056,8 @@ def main(argv):
 
 
 if __name__ == '__main__':
-  return_value = 1
   try:
-    return_value = main(sys.argv[1:])
-  except exceptions.SystemExit:
-    raise
+    sys.exit(main(sys.argv[1:]))
   except Error as error:
     print "Error: %s" % error
-  except:
-    if not _debug_mode:
-      print "Abnormal program termination: %s" % sys.exc_info()[1]
-      print "Run again in debug mode (-d option) for stack trace."
-    else:
-      raise
-
-  sys.exit(return_value)
+    sys.exit(1)
