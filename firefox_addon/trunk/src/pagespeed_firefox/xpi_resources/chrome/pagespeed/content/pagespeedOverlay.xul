@@ -134,7 +134,7 @@
 
         <hbox id="psContentAnalyzeMenu" align="center">
           <label value="Analyze:"/>
-          <menulist group="pagespeedButtons"
+          <menulist id="psAnalyzeMenu" group="pagespeedButtons"
                     oncommand="Firebug.PageSpeedModule.analyzePerformance()">
             <menupopup>
               <menuitem id="psAnalyzeAll"

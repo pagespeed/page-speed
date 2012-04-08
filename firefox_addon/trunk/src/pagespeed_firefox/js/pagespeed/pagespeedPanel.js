@@ -474,6 +474,33 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
       PAGESPEED.Utils.saveLink(anchorElem.href);
     };
 
+    // Update the filter preference to reflect the specified
+    // preference, if any.
+    var filterPref = PAGESPEED.Utils.getStringPref(
+        'extensions.PageSpeed.results_filter');
+
+    // Set button to reflect preference.
+    if (filterPref) {
+      // Make sure the preference is converted to proper case. We expect
+      // the first character after 'psAnalyze' to be uppercase.
+      var menuItem = 'psAnalyze' + filterPref.substr(0, 1).toUpperCase() +
+          filterPref.substr(1, filterPref.length);
+
+      var menu = document.getElementById('psAnalyzeMenu');
+      var selectedItem = document.getElementById(menuItem);
+      if (selectedItem) {
+        // Make sure that the selectedItem element is a child of the
+        // menu.
+        var selectedItemParent = selectedItem.parentNode;
+        while (selectedItemParent && selectedItemParent != menu) {
+          selectedItemParent = selectedItemParent.parentNode;
+        }
+        if (selectedItemParent == menu) {
+          menu.selectedItem = selectedItem;
+        }
+      }
+    }
+
     // Display the welcome page.
     this.welcomePageTag.replace(
         {'dependencies': mismatchedDependencies}, this.panelNode);
