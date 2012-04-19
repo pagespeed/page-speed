@@ -276,16 +276,7 @@
             '<(nexe_input_path)',
           ],
           'outputs': ['<(nexe_output_path)'],
-          'conditions': [
-            ['OS=="mac"', {
-              'action': [
-                'cp', '-r', '<(PRODUCT_DIR)/pagespeed_plugin.plugin',
-                '<(PRODUCT_DIR)/pagespeed',
-              ],
-	    }, {
-              'action': ['cp', '<(nexe_input_path)', '<(nexe_output_path)'],
-            }],
-          ],
+          'action': ['cp', '<(nexe_input_path)', '<(nexe_output_path)'],
         },
       ],
     },
