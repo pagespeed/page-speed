@@ -30,5 +30,5 @@
     { "path": "libpagespeed_plugin_Linux_x86_64-gcc3.so", "public": true },
     { "path": "pagespeed_plugin.plugin", "public": true }
   ],
-  "version": "1.12.0.6"
+  "version": "1.12.0.7"
 }
