@@ -47,7 +47,8 @@ var pagespeed_bg = {
   // Given a client object, return true if it is still active, or false if it
   // has been cancelled.
   isClientStillActive: function (client) {
-    return (client.port.sender.tab.id in pagespeed_bg.activeClients);
+    return (client.port &&
+            client.port.sender.tab.id in pagespeed_bg.activeClients);
   },
 
   // Handle connections from DevTools panels.
@@ -116,8 +117,32 @@ var pagespeed_bg = {
         continue;
       }
 
+      var content = entry.response.content;
+      var isRawBinaryResponse = content &&
+          !pagespeed_bg.isTextMimeType(content.mimeType) &&
+          content.encoding !== 'base64';
+      if (isRawBinaryResponse) {
+        // Chrome Developer Tools has a bug where it sometimes
+        // attempts to return a non-base64 encoded response for binary
+        // data. In this case we must discard the response body, since
+        // it's not safe to attempt to pass to the native client
+        // module. Note that it would be better to try to convert the
+        // binary string to a base64-encoded string directly here, but
+        // it's not clear that that is possible, so we instead clear
+        // the data and refetch as binary data via an XHR.
+        content.text = '';
+        content.encoding = '';
+        content.size = 0;
+      }
+
       // We only re-issue requests for GETs. If not a GET, skip it.
       if (entry.request.method !== 'GET') {
+        continue;
+      }
+
+      // We do not request redirect URLs, because XHR will follow redirections.
+      if (entry.response.status === 301 || entry.response.status === 302 ||
+          entry.response.status === 303 || entry.response.status === 307) {
         continue;
       }
 
@@ -129,12 +154,14 @@ var pagespeed_bg = {
       var is304Response = (entry.response.status === 304);
       var hasNoResponseHeaders =
           !entry.response.headers || entry.response.headers.length == 0;
-      var content = entry.response.content;
       var isMissingResponseBody =
           (!content || !content.text || content.text.length == 0) &&
           entry.response.bodySize !== 0;
 
-      if (!hasNoResponseHeaders && !is304Response && !isMissingResponseBody) {
+      if (!hasNoResponseHeaders &&
+          !is304Response &&
+          !isMissingResponseBody &&
+          !isRawBinaryResponse) {
         // Looks like we should have all the data for this
         // response. No need to re-fetch.
         continue;
@@ -167,11 +194,14 @@ var pagespeed_bg = {
           pagespeed_bg.onReadyStateChange,
           xhr, entry, fetchContext, timeoutCallbackId);
       try {
-        xhr.open("GET", url, true);
-        // Request to get the response data in the form of an ArrayBuffer.  If
-        // we don't do this, the XHR tends to try to interpret binary data as
-        // UTF8-encoded text, which doesn't work out very well.
-        xhr.responseType = 'arraybuffer';
+        xhr.open('GET', url, true);
+        if (!pagespeed_bg.isTextMimeType(content.mimeType)) {
+          // Request to get the response data in the form of an
+          // ArrayBuffer.  If we don't do this, the XHR tends to try
+          // to interpret binary data as UTF8-encoded text, which
+          // doesn't work out very well.
+          xhr.responseType = 'arraybuffer';
+        }
         xhr.send();
       } catch (e) {
         console.log('Failed to request resource ' + url);
@@ -353,29 +383,63 @@ var pagespeed_bg = {
       return;
     }
 
-    // Get the content as raw binary data.  Since we set xhr.responseType to
-    // 'arraybuffer', xhr.response will be an ArrayBuffer object (except that
-    // it may be null for empty responses, in which case we create an empty
-    // Uint8Array).
-    var bodyBytes = (xhr.response === null ? new Uint8Array() :
-                     new Uint8Array(xhr.response));
-    var bodySize = bodyBytes.length;
-    // Encode the binary content into base64.  For now, the following mess is
-    // the easiest way I know how to do this.  Hopefully someday there will be
-    // an easier way.
-    var bodyCharacters = [];
-    for (var index = 0; index < bodySize; ++index) {
-      bodyCharacters.push(String.fromCharCode(bodyBytes[index]));
-    }
-    var bodyEncoded = btoa(bodyCharacters.join(''));
+    var bodyEncoded;
+    var encoding;
 
-    // Update the content fields with the new data.  Note that we encode _all_
-    // resources with base64, even ASCII-only resources, simply because that's
-    // simpler than being smart about it.  We can change that later, though.
+    if (xhr.responseType == 'arraybuffer') {
+      // Get the content as raw binary data.  Since we set
+      // xhr.responseType to 'arraybuffer', xhr.response will be an
+      // ArrayBuffer object (except that it may be null for empty
+      // responses, in which case we create an empty Uint8Array).
+      var bodyBytes = (xhr.response === null ? new Uint8Array() :
+                       new Uint8Array(xhr.response));
+      var bodySize = bodyBytes.length;
+      // Encode the binary content into base64.  For now, the
+      // following mess is the easiest way I know how to do this.
+      // Hopefully someday there will be an easier way. Note that this
+      // mechanism does not handle multi-byte characters correctly,
+      // however, we attempt to only fetch binary resources as
+      // arraybuffers so this should not be a problem for us.
+      var bodyCharacters = [];
+      for (var index = 0; index < bodySize; ++index) {
+        bodyCharacters.push(String.fromCharCode(bodyBytes[index]));
+      }
+      bodyEncoded = btoa(bodyCharacters.join(''));
+      encoding = 'base64';
+    } else {
+      bodyEncoded = xhr.responseText;
+      encoding = '';
+      bodySize = bodyEncoded.length;
+    }
+
+    // Update the content fields with the new data.
     content.text = bodyEncoded;
     content.size = bodySize;
-    content.encoding = 'base64';
-  }
+    content.encoding = encoding;
+  },
+
+  isTextMimeType: function(mimeType) {
+    if (!mimeType || mimeType.length == 0) return false;
+    mimeType = mimeType.toLowerCase();
+
+    if (mimeType.substr(0, 5) == 'text/') return true;
+
+    // See http://www.w3.org/TR/xhtml-media-types/
+    if (mimeType.indexOf('/xhtml') > -1) return true;
+    if (mimeType.indexOf('/xml') > -1) return true;
+    if (mimeType.indexOf('+xml') > -1) return true;
+
+    // See http://www.w3.org/wiki/HTML/Elements/script
+    if (mimeType.indexOf('javascript') > -1) return true;
+    if (mimeType.indexOf('ecmascript') > -1) return true;
+    if (mimeType.indexOf('/jscript') > -1) return true;
+    if (mimeType.indexOf('/livescript') > -1) return true;
+
+    // We assume that everything else is binary. This includes
+    // application/* not covered by the cases above, as well as
+    // image/*.
+    return false;
+  },
 
 };
 
