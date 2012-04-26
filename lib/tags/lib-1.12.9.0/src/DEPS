@@ -1,4 +1,4 @@
-# Copyright 2009 Google Inc.
+# Copyright 2012 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@90205",
   "chromium_deps_root": "src/third_party/chromium_deps",
-  "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/tags/0.9.18.1",
-  "instaweb_revision": "@head",
+  "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/trunk",
+  "modpagespeed_revision": "@1489",
   "libharu_trunk": "git://github.com/tony2001/libharu.git",
   "libharu_revision": "@RELEASE_2_2_0",
   "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.4.1",
@@ -55,9 +55,6 @@ deps = {
   "src/third_party/domain_registry_provider/src":
     Var("drp_src") + "/src" + Var("drp_revision"),
 
-  "src/third_party/instaweb/src/net/instaweb":
-    Var("modpagespeed_src") + "/src/net/instaweb" + Var("instaweb_revision"),
-
   "src/third_party/libharu/libharu":
     Var("libharu_trunk") + Var("libharu_revision"),
 
@@ -84,6 +81,10 @@ deps = {
     Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
 
   "src/googleurl": From(Var("chromium_deps_root")),
+
+  "src/net/instaweb":
+    Var("modpagespeed_src") + "/src/net/instaweb" + Var("modpagespeed_revision"),
+
   "src/testing/gmock": From(Var("chromium_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
