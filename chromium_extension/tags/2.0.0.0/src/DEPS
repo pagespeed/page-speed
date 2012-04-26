@@ -74,8 +74,7 @@ deps = {
   "src/build/internal": From(Var("libpagespeed_deps_root")),
   "src/testing": From(Var("libpagespeed_deps_root")),
   "src/third_party/domain_registry_provider/src": From(Var("libpagespeed_deps_root")),
-  "src/third_party/instaweb/src/net/instaweb":
-    From(Var("libpagespeed_deps_root")),
+  "src/net/instaweb": From(Var("libpagespeed_deps_root")),
   "src/third_party/modp_b64": From(Var("libpagespeed_deps_root")),
   "src/third_party/npapi":
     "http://npapi-sdk.googlecode.com/svn/trunk/headers@7",
