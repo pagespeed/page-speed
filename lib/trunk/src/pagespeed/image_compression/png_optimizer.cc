@@ -105,7 +105,17 @@ void PngErrorFn(png_structp png_ptr, png_const_charp msg) {
   // Invoking the error function indicates a terminal failure, which
   // means we must longjmp to abort the libpng invocation.
 #if PNG_LIBPNG_VER >= 10400
-  png_longjmp(png_ptr, 1);
+  #ifndef __native_client__
+    png_longjmp(png_ptr, 1);
+  #else
+    // On native client, invoking png_longjmp as above causes a
+    // crash. Invoking longjmp directly, however, works fine.  For the
+    // time being we use this workaround for native client builds. See
+    // http://code.google.com/p/page-speed/issues/detail?id=644 for
+    // more information.
+    longjmp(png_ptr->longjmp_buffer, 1);
+  #endif
+
 #else
   longjmp(png_ptr->jmpbuf, 1);
 #endif
