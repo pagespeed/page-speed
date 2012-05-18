@@ -73,16 +73,12 @@ void ManifestFilter::StartElement(net_instaweb::HtmlElement* element) {
   net_instaweb::HtmlName::Keyword keyword = element->keyword();
   if (keyword == net_instaweb::HtmlName::kHtml) {
     has_html_ = true;
-    // Because manifest is not a recognized attribute in instaweb. We need to
-    // search the attributes list linearly to check if manifest exists.
-    for (int idx = 0; idx < element->attribute_size(); ++idx) {
-      if (string_util::StringCaseEqual(
-          element->attribute(idx).name_str(), "manifest") &&
-          element->attribute(idx).DecodedValueOrNull() != NULL) {
-        // Manifest exits.
-        manifest_url_ = element->attribute(idx).DecodedValueOrNull();
-        return;
-      }
+    const char* manifest_value =
+        element->AttributeValue(net_instaweb::HtmlName::kManifest);
+    if (manifest_value != NULL) {
+      // Manifest exits.
+      manifest_url_ = manifest_value;
+      return;
     }
   }
 }

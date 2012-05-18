@@ -100,17 +100,12 @@ void MetaCharsetFilter::StartElement(net_instaweb::HtmlElement* element) {
 
   // HTML5 allows the charset to be specified like so: <meta
   // charset="UTF-8" />.
-  //
-  // TODO(bmcquade): switch to element->AttributeValue() once HtmlName
-  // includes a "charset" keyword.
-  for (int i = 0; i < element->attribute_size(); ++i) {
-    const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
-    if (base::strcasecmp(kCharset, attr.name_str()) == 0 &&
-        attr.DecodedValueOrNull() != NULL) {
-      meta_charset_content_ = attr.DecodedValueOrNull();
-      meta_charset_begin_line_number_ = element->begin_line_number();
-      return;
-    }
+  const char* meta_charset_value =
+      element->AttributeValue(net_instaweb::HtmlName::kCharset);
+  if (meta_charset_value != NULL) {
+    meta_charset_content_ = meta_charset_value;
+    meta_charset_begin_line_number_ = element->begin_line_number();
+    return;
   }
 
   // Traditionally charset was specified via http-equiv, so check for
