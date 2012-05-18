@@ -99,7 +99,7 @@
       'targets': [
         {
           'target_name': 'libpng',
-          'type': 'settings',
+          'type': 'none',
           'dependencies': [
             '../zlib/zlib.gyp:zlib',
           ],

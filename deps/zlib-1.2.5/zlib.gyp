@@ -60,7 +60,7 @@
       'targets': [
         {
           'target_name': 'zlib',
-          'type': 'settings',
+          'type': 'none',
           'direct_dependent_settings': {
             'defines': [
               'USE_SYSTEM_ZLIB',
