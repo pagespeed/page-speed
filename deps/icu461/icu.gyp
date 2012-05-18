@@ -293,7 +293,7 @@
       'targets': [
         {
           'target_name': 'system_icu',
-          'type': 'settings',
+          'type': 'none',
           'direct_dependent_settings': {
             'defines': [
               'USE_SYSTEM_ICU',
