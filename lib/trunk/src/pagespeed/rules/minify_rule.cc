@@ -112,12 +112,13 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
     }
 
     int bytes_saved = 0;
+    int bytes_original = 0;
     bool is_post_gzip = false;
     if (resource_util::IsCompressedResource(resource)) {
-      int old_size, new_size;
-      if (rule_input.GetCompressedResponseBodySize(resource, &old_size) &&
+      int new_size;
+      if (rule_input.GetCompressedResponseBodySize(resource, &bytes_original) &&
           output->GetCompressedMinifiedSize(&new_size)) {
-        bytes_saved = old_size - new_size;
+        bytes_saved = bytes_original - new_size;
         is_post_gzip = true;
       } else {
         LOG(ERROR) << "Unable to compare compressed sizes for "
@@ -126,8 +127,8 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
         continue;
       }
     } else {
-      bytes_saved = (resource.GetResponseBody().size() -
-                     output->plain_minified_size());
+      bytes_original = resource.GetResponseBody().size();
+      bytes_saved = bytes_original - output->plain_minified_size();
     }
 
     if (bytes_saved <= 0) {
@@ -135,7 +136,7 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
     }
 
     Result* result = provider->NewResult();
-    result->set_original_response_bytes(resource.GetResponseBody().size());
+    result->set_original_response_bytes(bytes_original);
     result->add_resource_urls(resource.GetRequestUrl());
 
     Savings* savings = result->mutable_savings();
