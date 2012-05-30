@@ -196,6 +196,13 @@ class ResourceFetchDownload {
     return data_->finish().tick();
   }
 
+  // Get the millisecond finish time value. This is only provided
+  // temporarily for compatibility with some transitional APIs. It will go
+  // away soon.
+  int64 GetFinishTime__Do_Not_Use() const {
+    return data_->finish().msec();
+  }
+
   // Serializes this ResourceFetchDownload to the specified
   // ResourceFetchDownloadData message.
   bool SerializeData(ResourceFetchDownloadData* data) const;

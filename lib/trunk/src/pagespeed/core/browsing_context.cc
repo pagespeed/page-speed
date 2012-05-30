@@ -339,6 +339,20 @@ ResourceFetch* BrowsingContext::GetMutableResourceFetch(
   return const_cast<ResourceFetch*>(&GetResourceFetch(resource, index));
 }
 
+void BrowsingContext::GetAllMutableResourceFetches(
+    std::vector<ResourceFetch*>* fetches) {
+  if (finalized_) {
+    LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
+                << GetBrowsingContextUri();
+  }
+
+  DCHECK(fetches->empty());
+  for (ResourceFetchMap::const_iterator it = resource_fetch_map_.begin();
+      it != resource_fetch_map_.end(); ++it) {
+    fetches->insert(fetches->end(), it->second.begin(), it->second.end());
+  }
+}
+
 bool BrowsingContext::GetResourceEvaluations(
     const Resource& resource, ResourceEvaluationVector* evaluations) const {
   ResourceEvalMap::const_iterator it = resource_evaluation_map_.find(&resource);
@@ -384,6 +398,21 @@ ResourceEvaluation* BrowsingContext::GetMutableResourceEvaluation(
 
   return const_cast<ResourceEvaluation*>(&GetResourceEvaluation(resource,
                                                                 index));
+}
+
+void BrowsingContext::GetAllMutableResourceEvaluations(
+    std::vector<ResourceEvaluation*>* evaluations) {
+  if (finalized_) {
+    LOG(DFATAL) << "Attempting to modify finalized BrowsingContext "
+                << GetBrowsingContextUri();
+  }
+
+  DCHECK(evaluations->empty());
+  for (ResourceEvalMap::const_iterator it = resource_evaluation_map_.begin();
+      it != resource_evaluation_map_.end(); ++it) {
+    evaluations->insert(evaluations->end(),
+                        it->second.begin(), it->second.end());
+  }
 }
 
 bool BrowsingContext::RegisterBrowsingContext(const BrowsingContext* context) {
