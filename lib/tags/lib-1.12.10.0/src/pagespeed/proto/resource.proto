@@ -1,0 +1,343 @@
+// Copyright 2011 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Protocol buffers to describe resources, the documents they belong to as well
+// as their load and evaluation.
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+option java_package = "com.googlecode.page_speed";
+
+package pagespeed;
+
+// A location on a resource. This can be used to describe a stack frame, but
+// also other locations, for example the position of a tag in an HTML resource.
+message CodeLocation {
+  // The URL of the resource this location references to.
+  required string url = 1;
+
+  // The line number within the resource.
+  required int32 line = 2;
+
+  // The column within the resource.
+  optional int32 column = 3;
+
+  // The name of the function that was executed at this location.
+  optional string function_name = 4;
+}
+
+// Describes a specific time in the context of rendering a web page.
+message Timestamp {
+  // The time of described in UTC milliseconds, counted from January 1, 1970.
+  // Precision varies depending on platform but is usually as good as a
+  // millisecond.
+  optional int64 msec = 1;
+
+  // A unique, ascending value that is not linear with time but offers infinite
+  // precision. The value is guaranteed to be unique and ascending in the scope
+  // the rendering described with this pagespeed input.
+  optional int64 tick = 2;
+}
+
+// The cause for of a delayed resource fetch.
+enum ResourceFetchDelayType {
+  UNKNOWN_DELAY_TYPE = 0;
+  // The resource was requested as a result of an event firing.
+  EVENT = 1;
+  // The resource was requested after an timeout.
+  TIMEOUT = 2;
+  // The resource was not fetched earlier because all connections were busy
+  // loading other resources.
+  MAX_CONNECTION = 3;
+}
+
+// Describes the cause of why a resource was not fetched right after an
+// evaluation. This is a simplified representation of what happens within the
+// browser and does only model a subset of the reality.
+message ResourceFetchDelayData {
+  // The cause of why the resource was fetched delayed.
+  optional ResourceFetchDelayType type = 1 [default = UNKNOWN_DELAY_TYPE];
+
+  // The location where the timer / event-listener was installed.
+  repeated CodeLocation location = 2;
+
+  // The event name for EVENT types.
+  optional string event_name = 3;
+
+  // The time in ms that passed for TIMEOUT types.
+  optional int32 timeout_msec = 4;
+}
+
+// Describes how the browser discovered an resource that was fetched.
+enum ResourceDiscoveryType {
+  UNKNOWN_DISCOVERY_TYPE = 0;
+  // The resource was loaded because the parser detected it in a source file.
+  PARSER = 1;
+  // The resource was loaded because a respective HTML tag was added using
+  // document.write().
+  DOCUMENT_WRITE = 2;
+  // The resource was loaded because the respective HTML node was was added
+  // using scripting.
+  NODE_INSERT = 3;
+  // The resource was loaded via an XMLHttpRequest.
+  XHR = 4;
+  // This is the initial resource, as requested by the user.
+  INITIAL_RESOURCE = 5;
+}
+
+// Describes the requestor and download times of a resource fetch.
+message ResourceFetchDownloadData {
+  // The URI of the ResourceEvaluationData that caused this to load.
+  optional string requestor_uri = 1;
+
+  // The time stamp when this resource started fetching.
+  optional Timestamp start = 2;
+
+  // The time stamp when this resource finished fetching.
+  optional Timestamp finish = 3;
+}
+
+// Describes the fetch of a resource. There are potentially multiple fetches
+// of a single resource. The resource fetch is scoped to a browsing context.
+message ResourceFetchData {
+  // The URI of this fetch. This does not correspond with the resource URL.
+  optional string uri = 1;
+
+  // The URL of the resource that is being fetched.
+  optional string resource_url = 2;
+
+  // Describes how this resource was discovered by the browser.
+  optional ResourceDiscoveryType type = 3 [default = UNKNOWN_DISCOVERY_TYPE];
+
+  // The logical download for this fetch. The logical download folds
+  // potential redirects into this download, therefore hides redirects from the
+  // clients and makes analysis simpler. Its requestor is the same as the
+  // requestor of the first resource in a redirect chain. The download times
+  // include the time to download the redirects.
+  optional ResourceFetchDownloadData download = 4;
+
+  // A description of the location where the fetch was initiated from. If the
+  // request originated from JavaScript, this list represents the script stack
+  // trace, where the first entry in the list represents the topmost stack
+  // frame.
+  repeated CodeLocation location = 5;
+
+  // Describes causes of why a resource fetch was delayed. Multiple causes
+  // apply in the order they are stored in this list.
+  repeated ResourceFetchDelayData delay = 6;
+
+  // The redirect download for this fetch. The redirect download is only
+  // available if the resource was loaded due to a redirect. Its requestor is
+  // the evaluation of the HTTP headers that actually referred to the resource.
+  // The download times only include the time spent downloading this resource.
+  // clients and makes analysis simpler.
+  optional ResourceFetchDownloadData redirect_download = 7;
+}
+
+// Describes the precondition that must be met for a resource can be evaluated.
+enum EvaluationConstraintType {
+  UNKNOWN_CONSTRAINT_TYPE = 0;
+  // The evaluation of the resource was blocked on the UI thread, either by a
+  // stylesheet or a script.
+  BLOCKING = 1;
+  // The evaluation of this resource was deferred until after the document
+  // finished parsing.
+  AFTER_PARSE = 2;
+  // The evaluation of this resource is done as soon as available, however
+  // not before other resources of this type are evaluated.
+  ASAP_ORDERED = 3;
+  // The evaluation of this resource is done as soon as its available.
+  ASAP_UNORDERED = 4;
+}
+
+// A message describing a precondition that has to be met before the resource
+// can be evaluated.
+message ResourceEvaluationConstraintData {
+  // The type of precondition to be met before the evaluation can take place.
+  optional EvaluationConstraintType type = 1 [default = UNKNOWN_CONSTRAINT_TYPE];
+
+  // The URI of a ResourceEvaluationData, which must be completed according to
+  // the type attribute before this evaluation can be started.
+  optional string predecessor_uri = 2;
+}
+
+// The type of the evaluation.
+enum EvaluationType {
+  // Not yet categorized evaluations (ie image decoding).
+  UNKNOWN_EVALUATION_TYPE = 0;
+  // Parsing & executing JavaScript.
+  EVAL_SCRIPT = 1;
+  // Parsing and applying CSS.
+  APPLY_STYLES = 2;
+  // Parsing HTML (not including executing inline scripts).
+  PARSE_HTML = 3;
+}
+
+// Describes the (partial) evaluation of a resource.
+message ResourceEvaluationData {
+  // The URI uniquely identifying this evaluation.
+  optional string uri = 1;
+
+  // The URL of the resource that is being evaluated.
+  optional string resource_url = 2;
+
+  // The URI of the ResourceFetchData that loaded the resource being evaluated
+  // here.
+  optional string fetch_uri = 3;
+
+  // The type of this evaluation.
+  optional EvaluationType type = 4 [default = UNKNOWN_EVALUATION_TYPE];
+
+  // A list of constraints that must be met before this evaluation can be
+  // executed.
+  repeated ResourceEvaluationConstraintData constraints = 5;
+
+  // The start line within the resource which is being evaluated. -1 if the
+  // complete resource is being evaluated at once.
+  optional int32 block_start_line = 6 [default = -1];
+
+  // The end line within the resource which is being evaluated. -1 unknown
+  // or if the complete resource is being evaluated at once.
+  optional int32 block_end_line = 7 [default = -1];
+
+  // The time stamp when this evaluation started.
+  optional Timestamp start = 8;
+
+  // The time stamp when this evaluation finished.
+  optional Timestamp finish = 9;
+
+  // Indicates if this is a script is asynchronously executed (the async
+  // attribute of the script tag). Not set if the resource is not a script.
+  optional bool is_async = 10;
+
+  // Indicates if this is a script's execution was deferred (the defer attribute
+  // of the script tag). Not set if the resource is not a script.
+  optional bool is_defer = 11;
+
+  // True if the CSS media type matched. Not set if the resource is not a CSS.
+  optional bool is_matching_media_type = 12;
+}
+
+// The type of a resource.
+enum ResourceType {
+  OTHER = 0;
+  HTML = 1;
+  TEXT = 2;
+  CSS = 3;
+  IMAGE = 4;
+  JS = 5;
+  REDIRECT = 6;
+  FLASH = 7;
+}
+
+// The request protocol.
+enum Protocol {
+  HTTP_10 = 0;
+  HTTP_11 = 1;
+  UNKNOWN_PROTOCOL = 2;
+}
+
+// The type of image resources.
+enum ImageType {
+  JPEG = 0;
+  PNG = 1;
+  GIF = 2;
+  SVG = 3;
+  UNKNOWN_IMAGE_TYPE = 4;
+}
+
+// A message containing a header name/value pair.
+message HeaderData {
+  optional bytes name = 1;
+  optional bytes value = 2;
+}
+
+// Messages of this type describe the resources used to calculate the PageSpeed
+// results.
+message ResourceData {
+  // The URL of the resource.
+  optional string request_url = 1;
+
+  // Get the HTTP method used when issuing the request, e.g. GET, POST, etc.
+  optional string request_method = 2;
+
+  // A list of all HTTP request headers.
+  repeated HeaderData request_headers = 3;
+
+  // Get the size of the body sent with the request. This is only set for POST requests.
+  optional int32 request_body_size = 4;
+
+  // Get the status code (e.g. 200) for the response.
+  optional int32 status_code = 5;
+
+  // Get the protocol from response, e.g., HTTP_11.
+  optional Protocol response_protocol = 6 [default = UNKNOWN_PROTOCOL];
+
+  // A list of all HTTP response headers.
+  repeated HeaderData response_headers = 7;
+
+  // Get the size of the body sent with the response (e.g. the HTML, CSS,
+  // JavaScript, etc content). This is the body size after applying any
+  // content decodings (e.g. post ungzipping the response).
+  optional int32 response_body_size = 8;
+
+  // The type of the resource.
+  optional ResourceType resource_type = 9 [default = OTHER];
+
+  // The mime type of the resource.
+  optional string mime_type = 10;
+}
+
+// A browsing context describes the environment in which Document objects are
+// presented to the user.
+// A tab or window in a Web browser typically contains a browsing context, as
+// does an iframe or frames in a frameset.
+message BrowsingContextData {
+  // The URI uniquely identifying this browsing context.
+  optional string uri = 1;
+
+  // The URL of the document resource, if available.
+  optional string document_resource_url = 2;
+
+  // A list of URLs of resources that are included in this context. The
+  // resource references are stored in the order the render evaluates them.
+  repeated string resource_urls = 3;
+
+  // The resource fetches for this context.
+  repeated ResourceFetchData fetch = 4;
+
+  // The resource evaluations for this context.
+  repeated ResourceEvaluationData evaluation = 5;
+
+  // Nested browsing context, ie iframes.
+  repeated BrowsingContextData nested_context = 6;
+
+  // The time the DOMContent event was fired.
+  optional Timestamp event_dom_content = 7;
+
+  // The time the onLoad event was fired.
+  optional Timestamp event_on_load = 8;
+}
+
+// A container that contains all the data that describes the web page load.
+message PageResourceData {
+  // The URL of the primary resource for this page.
+  optional string primary_resource_url = 1;
+
+  // The top level browsing context.
+  optional BrowsingContextData top_level_context = 2;
+
+  // The resources included in this page.
+  repeated ResourceData resources = 3;
+}
