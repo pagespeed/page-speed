@@ -79,6 +79,12 @@ BrowsingContextDomResourceVisitor::CreateTopLevelBrowsingContext(
 
 void BrowsingContextDomResourceVisitor::VisitUrl(const DomElement& node,
                                                  const std::string& url) {
+  if (node.GetTagName() == "IFRAME") {
+    // We handle the resource in the document of the IFRAME itself. Otherwise,
+    // we'll see a "ghost" reference in this context.
+    return;
+  }
+
   const Resource* resource = pagespeed_input_->GetResourceWithUrlOrNull(url);
   if (resource != NULL) {
     current_context_->RegisterResource(resource);

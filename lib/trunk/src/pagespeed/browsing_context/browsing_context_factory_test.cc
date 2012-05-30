@@ -50,7 +50,7 @@ TEST_F(BrowsingContextFactoryTest, FindResources) {
 
   ResourceVector top_level_resources;
   top_level_context->GetResources(&top_level_resources);
-  ASSERT_EQ(static_cast<size_t>(3), top_level_resources.size());
+  ASSERT_EQ(static_cast<size_t>(2), top_level_resources.size());
 
   ASSERT_EQ(1, top_level_context->GetNestedContextCount());
 

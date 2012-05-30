@@ -137,4 +137,5 @@ message InstrumentationData {
   optional int64 total_heap_size = 8;
   optional int64 start_tick = 9;
   optional int64 end_tick = 10;
+  optional string context_id = 11;
 }

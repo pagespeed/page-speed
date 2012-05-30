@@ -156,6 +156,10 @@ class BrowsingContext {
   // 0 <= index < GetResourceFetchCount(resource).
   ResourceFetch* GetMutableResourceFetch(const Resource& resource, int index);
 
+  // Assigns all ResourceFetches registered at this BrowsingContext to the
+  // fetches vector.
+  void GetAllMutableResourceFetches(std::vector<ResourceFetch*>* fetches);
+
   // Assigns all ResourceEvaluations registered for the specified Resource at
   // this BrowsingContext to the evaluations vector. Returns true if one or more
   // ResourceFetch is being returned.
@@ -178,6 +182,10 @@ class BrowsingContext {
   ResourceEvaluation* GetMutableResourceEvaluation(
       const Resource& resource, int index);
 
+  // Assigns all ResourceEvaluations registered at this BrowsingContext to the
+  // evaluations vector.
+  void GetAllMutableResourceEvaluations(
+      std::vector<ResourceEvaluation*>* evaluations);
 
   // Returns the tick when the document finished parsing.
   int64 GetDomContentTick() const {
