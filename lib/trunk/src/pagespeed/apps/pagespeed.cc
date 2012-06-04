@@ -20,6 +20,7 @@
 #include <iostream>  // for std::cin and std::cout
 
 #include "base/at_exit.h"
+#include "base/command_line.h"
 #include "base/json/json_reader.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
@@ -74,6 +75,11 @@ DEFINE_string(strategy, "desktop",
               "The strategy to use. Valid values are 'desktop', 'mobile'.");
 DEFINE_bool(show_locales, false, "List all available locales and exit.");
 DEFINE_bool(v, false, "Show the Page Speed version and exit.");
+DEFINE_string(log_file, "",
+              "Path to log file. "
+              "Logs will be printed only to console if not specified.");
+DEFINE_bool(also_log_to_stderr, false,
+            "Output logs to error console along with the log file. ");
 
 // gflags defines its own version flag, which doesn't actually provide
 // any way to show the version of the program. We disable processing
@@ -442,6 +448,10 @@ int main(int argc, char** argv) {
       "in one of several formats.");
   ::google::ParseCommandLineNonHelpFlags(&argc, &argv, true);
 
+  // We need to initialize CommandLine to support logging
+  // since logging module checks for several switches from command line.
+  CommandLine::Init(argc, argv);
+
   if (FLAGS_v || FLAGS_version) {
     PrintVersion();
     return 0;
@@ -461,6 +471,24 @@ int main(int argc, char** argv) {
     PrintUsage();
     return 1;
   }
+
+  logging::LoggingDestination log_destination =
+      FLAGS_log_file.empty() ?
+          logging::LoggingDestination::LOG_ONLY_TO_SYSTEM_DEBUG_LOG
+          : logging::LoggingDestination::LOG_ONLY_TO_FILE;
+
+  if (!FLAGS_log_file.empty() && FLAGS_also_log_to_stderr) {
+    log_destination =
+        logging::LoggingDestination::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+  }
+
+  logging::InitLogging(
+      FLAGS_log_file.c_str(),
+      log_destination,
+      // Since we are entirely single-threaded no need to lock the log file.
+      logging::LogLockingState::DONT_LOCK_LOG_FILE,
+      logging::OldFileDeletionState::APPEND_TO_OLD_LOG_FILE,
+      logging::DcheckState::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
 
   if (RunPagespeed(FLAGS_output_format,
                    FLAGS_input_format,
