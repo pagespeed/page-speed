@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// This file is forked from Chromium project with few modifications.
+
 #ifndef PAGESPEED_CORE_STRING_UTIL_POSIX_H_
 #define PAGESPEED_CORE_STRING_UTIL_POSIX_H_
 #pragma once
