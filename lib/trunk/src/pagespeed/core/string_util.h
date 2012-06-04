@@ -17,8 +17,19 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "base/string_piece.h"
+#include "compiler_specific.h"
+
+#if defined(OS_WIN)
+#include "string_util_win.h"
+#elif defined(OS_POSIX)
+#include "string_util_posix.h"
+#else
+#error Define string operations appropriately for your platform
+#endif
+
 
 namespace pagespeed {
 
@@ -42,6 +53,56 @@ bool StringCaseStartsWith(const base::StringPiece& str,
 // Return true iff str ends with suffix, ignoring case.
 bool StringCaseEndsWith(const base::StringPiece& str,
                         const base::StringPiece& suffix);
+
+std::string IntToString(int value);
+bool StringToInt(const std::string& input, int* output);
+
+std::string JoinString(const std::vector<std::string>& parts, char s);
+
+std::string ReplaceStringPlaceholders(
+    const base::StringPiece& format_string,
+    const std::vector<std::string>& subst,
+    std::vector<size_t>* offsets);
+
+
+// PRINTF_FORMAT not everywhere.
+// Use PRINTF_FORMAT to force compiler to check for
+// formatting errors where supported.
+std::string StringPrintf(const char* format, ...)
+    PRINTF_FORMAT(1, 2);
+
+bool LowerCaseEqualsASCII(const std::string& a, const char* b);
+
+// ASCII-specific tolower.  The standard library's tolower is locale sensitive,
+// so we don't want to use it here.
+inline char ToLowerASCII(char c) {
+  return (c >= 'A' && c <= 'Z') ? (c + ('a' - 'A')) : c;
+}
+
+// ASCII-specific toupper.  The standard library's toupper is locale sensitive,
+// so we don't want to use it here.
+inline char ToUpperASCII(char c) {
+  return (c >= 'a' && c <= 'z') ? (c + ('A' - 'a')) : c;
+}
+
+
+inline void StringToUpperASCII(std::string* s) {
+  for (std::string::iterator i = s->begin(); i != s->end(); ++i)
+    *i = ToUpperASCII(*i);
+}
+
+// Trims any whitespace from either end of the input string.  Returns where
+// whitespace was found.
+// NOTE: Safe to use the same variable for both input and output.
+enum TrimPositions {
+  TRIM_NONE     = 0,
+  TRIM_LEADING  = 1 << 0,
+  TRIM_TRAILING = 1 << 1,
+  TRIM_ALL      = TRIM_LEADING | TRIM_TRAILING,
+};
+TrimPositions TrimWhitespaceASCII(const std::string& input,
+                                  TrimPositions positions,
+                                  std::string* output);
 
 }  // namespace string_util
 
