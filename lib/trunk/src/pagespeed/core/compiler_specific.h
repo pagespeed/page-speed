@@ -13,7 +13,6 @@
 // limitations under the License.
 
 // This file is forked from Chromium project with few modifications.
-// The original file is maintained at base/
 
 #ifndef PAGESPEED_CORE_COMPILER_SPECIFIC_H_
 #define PAGESPEED_CORE_COMPILER_SPECIFIC_H_
