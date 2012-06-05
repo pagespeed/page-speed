@@ -2,7 +2,7 @@
 
 == Getting started ==
 
-Please see other wiki pages for information on working on PageSpeed Insights SDK:
+Please follow these steps to make contributions to the PageSpeed Insights SDK:
   # HowToBuildNativeLibraries
   # CodeReviewHelp
   # Sign a license agreement, as described below.
