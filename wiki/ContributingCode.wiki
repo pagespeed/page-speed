@@ -2,12 +2,12 @@
 
 == Getting started ==
 
-Most content in this document was out of date and has been deleted. Please see other wiki pages for information:
+Please see other wiki pages for information on working on PageSpeed Insights SDK:
   # HowToBuildNativeLibraries
   # CodeReviewHelp
   # Sign a license agreement, as described below.
 
-== Making a larger contribution ==
+== Making a contribution ==
 
 Before you start working on a larger contribution you should get in touch with us first through the Page Speed [http://groups.google.com/group/page-speed-discuss discussion mailing list].
 
