@@ -178,10 +178,11 @@ enum EvaluationType {
   UNKNOWN_EVALUATION_TYPE = 0;
   // Parsing & executing JavaScript.
   EVAL_SCRIPT = 1;
-  // Parsing and applying CSS.
+  // Applying CSS styles.
   APPLY_STYLES = 2;
-  // Parsing HTML (not including executing inline scripts).
-  PARSE_HTML = 3;
+  // Parsing a resource, such as HTML or CSS. This does not include
+  // executing inline scripts.
+  PARSE = 3;
 }
 
 // Describes the (partial) evaluation of a resource.
