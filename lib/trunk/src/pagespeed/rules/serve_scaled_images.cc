@@ -145,7 +145,8 @@ void ScaledImagesChecker::Visit(const pagespeed::DomElement& node) {
       if (node.GetAttributeByName("src", &src)) {
         const std::string url(document_->ResolveUri(src));
         const pagespeed::Resource* resource =
-            rule_input_->GetFinalRedirectTarget(
+            rule_input_->pagespeed_input().GetResourceCollection()
+            .GetRedirectRegistry()->GetFinalRedirectTarget(
                 rule_input_->pagespeed_input().GetResourceWithUrlOrNull(url));
         if (resource != NULL) {
           scoped_ptr<pagespeed::ImageAttributes> image_attributes(
@@ -228,7 +229,8 @@ bool ServeScaledImages::AppendResults(const RuleInput& rule_input,
   OriginalSizesMap original_sizes_map;
   for (int idx = 0, num = input.num_resources(); idx < num; ++idx) {
     const Resource& resource = input.GetResource(idx);
-    const Resource* target = rule_input.GetFinalRedirectTarget(&resource);
+    const Resource* target = input.GetResourceCollection().GetRedirectRegistry()
+        ->GetFinalRedirectTarget(&resource);
     if (NULL == target) {
       LOG(DFATAL) << "target == NULL";
       continue;

@@ -15,10 +15,12 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_collection.h"
 #include "pagespeed/core/resource_filter.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
 
+using pagespeed::PagespeedInput;
+using pagespeed::RedirectRegistry;
 using pagespeed::Resource;
 using pagespeed::ResourceCollection;
 using pagespeed::ResourceVector;
@@ -40,6 +42,153 @@ Resource* NewResource(const std::string& url, int status_code) {
 
 Resource* New200Resource(const std::string& url) {
   return NewResource(url, 200);
+}
+
+class Violation {
+ public:
+  Violation(int _expected_request_savings,
+            const std::vector<std::string>& _urls)
+      : expected_request_savings(_expected_request_savings),
+        urls(_urls) {
+  }
+
+  int expected_request_savings;
+  std::vector<std::string> urls;
+};
+
+class RedirectRegistryTest : public ::pagespeed_testing::PagespeedTest {
+ protected:
+  void AddResourceUrl(const std::string& url, int status_code) {
+    Resource* resource = new Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetResponseStatusCode(status_code);
+    AddResource(resource);
+  }
+
+  void AddRedirect(const std::string& url, const std::string& location) {
+    Resource* resource = new Resource;
+    resource->SetRequestUrl(url);
+    resource->SetRequestMethod("GET");
+    resource->SetResponseStatusCode(302);
+    if (!location.empty()) {
+      resource->AddResponseHeader("Location", location);
+    }
+    AddResource(resource);
+  }
+
+  void CheckViolations(const std::vector<Violation>& expected_violations) {
+    const RedirectRegistry::RedirectChainVector& redirect_chains =
+        pagespeed_input()->GetResourceCollection()
+        .GetRedirectRegistry()->GetRedirectChains();
+
+    ASSERT_EQ(redirect_chains.size(), expected_violations.size());
+    for (size_t idx = 0; idx < redirect_chains.size(); idx++) {
+      const RedirectRegistry::RedirectChain& chain = redirect_chains[idx];
+      const Violation& violation = expected_violations[idx];
+
+      ASSERT_EQ(violation.urls.size(), chain.size());
+
+      for (size_t url_idx = 0;
+           url_idx < chain.size();
+           ++url_idx) {
+        EXPECT_EQ(violation.urls[url_idx], chain[url_idx]->GetRequestUrl())
+            << "At index: " << url_idx;
+      }
+    }
+  }
+};
+
+TEST_F(RedirectRegistryTest, SimpleRedirect) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+
+  AddRedirect(url1, url2);
+  AddResourceUrl(url2, 200);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
+
+  CheckViolations(violations);
+}
+
+TEST_F(RedirectRegistryTest, RedirectChain) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://www.foo.com/index.html";
+
+  AddRedirect(url1, url2);
+  AddRedirect(url2, url3);
+  AddResourceUrl(url3, 200);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+  urls.push_back(url3);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
+
+  CheckViolations(violations);
+}
+
+TEST_F(RedirectRegistryTest, NoRedirect) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+
+  AddResourceUrl(url1, 200);
+  AddResourceUrl(url2, 200);
+  Freeze();
+
+  std::vector<Violation> violations;
+  CheckViolations(violations);
+}
+
+TEST_F(RedirectRegistryTest, MissingDestination) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  AddRedirect(url1, url2);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
+
+  CheckViolations(violations);
+}
+
+TEST_F(RedirectRegistryTest, FinalRedirectTarget) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://www.foo.com/index.html";
+
+  AddRedirect(url1, url2);
+  AddRedirect(url2, url3);
+  AddResourceUrl(url3, 200);
+  Freeze();
+
+  const PagespeedInput* input = pagespeed_input();
+  const RedirectRegistry& redirect_registry =
+      *input->GetResourceCollection().GetRedirectRegistry();
+
+  const Resource* resource1 = input->GetResourceWithUrlOrNull(url1);
+  ASSERT_TRUE(NULL != resource1);
+  const Resource* resource2 = input->GetResourceWithUrlOrNull(url2);
+  ASSERT_TRUE(NULL != resource2);
+  const Resource* resource3 = input->GetResourceWithUrlOrNull(url3);
+  ASSERT_TRUE(NULL != resource3);
+  EXPECT_EQ(resource3, redirect_registry.GetFinalRedirectTarget(resource1));
+  EXPECT_EQ(resource3, redirect_registry.GetFinalRedirectTarget(resource2));
+  EXPECT_EQ(resource3, redirect_registry.GetFinalRedirectTarget(resource3));
+  EXPECT_EQ(NULL, redirect_registry.GetFinalRedirectTarget(NULL));
 }
 
 TEST(ResourceCollectionTest, DisallowDuplicates) {

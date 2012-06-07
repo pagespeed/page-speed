@@ -26,6 +26,7 @@
 namespace pagespeed {
 
 class Resource;
+class ResourceCollection;
 class ResourceFilter;
 
 // sorts resources by their URLs.
@@ -36,6 +37,37 @@ struct ResourceUrlLessThan {
 typedef std::set<const Resource*, ResourceUrlLessThan> ResourceSet;
 typedef std::map<std::string, ResourceSet> HostResourceMap;
 typedef std::vector<const Resource*> ResourceVector;
+
+/**
+ * Companion class to ResourceCollection that provides convenience
+ * methods to look up resources that are part of redirect chains.
+ */
+class RedirectRegistry {
+ public:
+  typedef std::vector<const Resource*> RedirectChain;
+  typedef std::vector<RedirectChain> RedirectChainVector;
+  typedef std::map<const Resource*, const RedirectChain*>
+      ResourceToRedirectChainMap;
+
+  RedirectRegistry();
+  void Init(const ResourceCollection& resource_collection);
+
+  const RedirectChainVector& GetRedirectChains() const;
+  const RedirectChain* GetRedirectChainOrNull(const Resource* resource) const;
+  // Given a pointer to a resource, return a pointer to the final resource in
+  // the redirect chain.  If the resource has no redirect chain, return the
+  // resource itself.  If the given pointer is NULL, return NULL.
+  const Resource* GetFinalRedirectTarget(const Resource* resource) const;
+
+ private:
+  void BuildRedirectChains(const ResourceCollection& resource_collection);
+
+  RedirectChainVector redirect_chains_;
+  ResourceToRedirectChainMap resource_to_redirect_chain_map_;
+  bool initialized_;
+
+  DISALLOW_COPY_AND_ASSIGN(RedirectRegistry);
+};
 
 /**
  * Collection of resources with convenient accessor methods.
@@ -77,6 +109,8 @@ class ResourceCollection {
   // time.
   const ResourceVector* GetResourcesInRequestOrder() const;
 
+  const RedirectRegistry* GetRedirectRegistry() const;
+
   bool is_frozen() const;
 
  private:
@@ -95,6 +129,7 @@ class ResourceCollection {
   ResourceVector request_order_vector_;
 
   scoped_ptr<ResourceFilter> resource_filter_;
+  RedirectRegistry redirect_registry_;
   bool frozen_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceCollection);

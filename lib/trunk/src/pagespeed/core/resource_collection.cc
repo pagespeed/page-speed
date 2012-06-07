@@ -20,6 +20,7 @@
 #include "base/stl_util-inl.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_filter.h"
+#include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/uri_util.h"
 
 namespace pagespeed {
@@ -32,6 +33,106 @@ struct ResourceRequestStartTimeLessThan {
     return lhs->IsRequestStartTimeLessThan(*rhs);
   }
 };
+
+class RedirectGraph {
+ public:
+  explicit RedirectGraph(const ResourceCollection* resource_collection)
+      : resource_collection_(resource_collection) {}
+  void AddResource(const Resource& resource);
+  void AppendRedirectChainResults(
+      RedirectRegistry::RedirectChainVector* chains);
+
+ private:
+  // Build a prioritized vector of possible roots.
+  // This vector should contain all redirect sources, but give
+  // priority to those that are not redirect targets.  We cannot
+  // exclude all redirect targets because we would like to warn about
+  // pure redirect loops.
+  void GetPriorizedRoots(std::vector<std::string>* roots);
+  void PopulateRedirectChainResult(const std::string& root,
+                                   RedirectRegistry::RedirectChain* chain);
+
+  typedef std::map<std::string, std::vector<std::string> > RedirectMap;
+  RedirectMap redirect_map_;
+  std::set<std::string> destinations_;
+  std::set<std::string> processed_;
+  const ResourceCollection* resource_collection_;
+};
+
+void RedirectGraph::AddResource(const Resource& resource) {
+  std::string destination =
+      resource_util::GetRedirectedUrl(resource);
+  if (!destination.empty()) {
+    redirect_map_[resource.GetRequestUrl()].push_back(destination);
+    destinations_.insert(destination);
+  }
+}
+
+void RedirectGraph::AppendRedirectChainResults(
+    RedirectRegistry::RedirectChainVector* chains) {
+  std::vector<std::string> roots;
+  GetPriorizedRoots(&roots);
+
+  // compute chains
+  for (std::vector<std::string>::const_iterator it = roots.begin(),
+           end = roots.end();
+       it != end;
+       ++it) {
+    if (processed_.find(*it) != processed_.end()) {
+      continue;
+    }
+    RedirectRegistry::RedirectChain chain;
+    chains->push_back(chain);
+
+    PopulateRedirectChainResult(*it, &(chains->back()));
+  }
+}
+
+void RedirectGraph::GetPriorizedRoots(std::vector<std::string>* roots) {
+  std::vector<std::string> primary_roots, secondary_roots;
+  for (RedirectMap::const_iterator it = redirect_map_.begin(),
+           end = redirect_map_.end();
+       it != end;
+       ++it) {
+    const std::string& root = it->first;
+    if (destinations_.find(root) == destinations_.end()) {
+      primary_roots.push_back(root);
+    } else {
+      secondary_roots.push_back(root);
+    }
+  }
+  roots->insert(roots->end(), primary_roots.begin(), primary_roots.end());
+  roots->insert(roots->end(), secondary_roots.begin(), secondary_roots.end());
+}
+
+void RedirectGraph::PopulateRedirectChainResult(
+    const std::string& root, RedirectRegistry::RedirectChain* chain) {
+  // Perform a DFS on the redirect graph.
+  std::vector<std::string> work_stack;
+  work_stack.push_back(root);
+  while (!work_stack.empty()) {
+    std::string current = work_stack.back();
+    work_stack.pop_back();
+    const Resource* resource =
+        resource_collection_->GetResourceWithUrlOrNull(current);
+    if (resource == NULL) {
+      LOG(INFO) << "Unable to find resource with URL " << current;
+      continue;
+    }
+    chain->push_back(resource);
+
+    // detect and break loops.
+    if (processed_.find(current) != processed_.end()) {
+      continue;
+    }
+    processed_.insert(current);
+
+    // add backwards so direct decendents are traversed in
+    // alphabetical order.
+    const std::vector<std::string>& targets = redirect_map_[current];
+    work_stack.insert(work_stack.end(), targets.rbegin(), targets.rend());
+  }
+}
 
 }  // namespace
 
@@ -117,6 +218,7 @@ bool ResourceCollection::Freeze() {
                      ResourceRequestStartTimeLessThan());
   }
   frozen_ = true;
+  redirect_registry_.Init(*this);
   return true;
 }
 
@@ -154,6 +256,11 @@ bool ResourceCollection::is_frozen() const {
   return frozen_;
 }
 
+const RedirectRegistry* ResourceCollection::GetRedirectRegistry() const {
+  DCHECK(is_frozen());
+  return &redirect_registry_;
+}
+
 const Resource* ResourceCollection::GetResourceWithUrlOrNull(
     const std::string& url) const {
   std::string url_canon;
@@ -187,6 +294,73 @@ Resource* ResourceCollection::GetMutableResourceWithUrlOrNull(
     return NULL;
   }
   return const_cast<Resource*>(GetResourceWithUrlOrNull(url));
+}
+
+RedirectRegistry::RedirectRegistry() : initialized_(false) {}
+
+void RedirectRegistry::Init(const ResourceCollection& resource_collection) {
+  DCHECK(!initialized_);
+  DCHECK(resource_collection.is_frozen());
+  if (!initialized_ && resource_collection.is_frozen()) {
+    BuildRedirectChains(resource_collection);
+    initialized_ = true;
+  }
+}
+
+void RedirectRegistry::BuildRedirectChains(
+    const ResourceCollection& resource_collection) {
+  RedirectGraph redirect_graph(&resource_collection);
+  for (int idx = 0, num = resource_collection.num_resources();
+       idx < num; ++idx) {
+    redirect_graph.AddResource(resource_collection.GetResource(idx));
+  }
+
+  redirect_chains_.clear();
+  redirect_graph.AppendRedirectChainResults(&redirect_chains_);
+
+  // Map resource to chains.
+  for (RedirectRegistry::RedirectChainVector::const_iterator it =
+       redirect_chains_.begin(), end = redirect_chains_.end();
+       it != end;
+       ++it) {
+    const RedirectRegistry::RedirectChain& chain = *it;
+    for (RedirectRegistry::RedirectChain::const_iterator cit = chain.begin(),
+        cend = chain.end();
+        cit != cend;
+        ++cit) {
+      resource_to_redirect_chain_map_[*cit] = &chain;
+    }
+  }
+}
+
+const RedirectRegistry::RedirectChainVector&
+RedirectRegistry::GetRedirectChains() const {
+  DCHECK(initialized_);
+  return redirect_chains_;
+};
+
+const RedirectRegistry::RedirectChain* RedirectRegistry::GetRedirectChainOrNull(
+    const Resource* resource) const {
+  DCHECK(initialized_);
+  if (resource == NULL) {
+    return NULL;
+  }
+  ResourceToRedirectChainMap::const_iterator it =
+      resource_to_redirect_chain_map_.find(resource);
+  if (it == resource_to_redirect_chain_map_.end()) {
+    return NULL;
+  } else {
+    return it->second;
+  }
+}
+
+const Resource* RedirectRegistry::GetFinalRedirectTarget(
+    const Resource* resource) const {
+  // If resource is NULL, GetRedirectChainOrNull will return NULL, and so we'll
+  // return resource, which is NULL, which is what we want.
+  const RedirectRegistry::RedirectChain* chain =
+      GetRedirectChainOrNull(resource);
+  return chain ? chain->back() : resource;
 }
 
 }  // namespace pagespeed

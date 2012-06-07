@@ -17,8 +17,6 @@
 
 #include <map>
 #include <string>
-#include <vector>
-
 
 #include "base/basictypes.h"
 
@@ -29,22 +27,10 @@ class Resource;
 
 class RuleInput {
  public:
-  typedef std::vector<const Resource*> RedirectChain;
-  typedef std::vector<RedirectChain> RedirectChainVector;
-  typedef std::map<const Resource*, const RedirectChain*>
-      ResourceToRedirectChainMap;
-
   explicit RuleInput(const PagespeedInput& pagespeed_input);
   void Init();
 
   const PagespeedInput& pagespeed_input() const { return *pagespeed_input_; }
-
-  const RedirectChainVector& GetRedirectChains() const;
-  const RedirectChain* GetRedirectChainOrNull(const Resource* resource) const;
-  // Given a pointer to a resource, return a pointer to the final resource in
-  // the redirect chain.  If the resource has no redirect chain, return the
-  // resource itself.  If the given pointer is NULL, return NULL.
-  const Resource* GetFinalRedirectTarget(const Resource* resource) const;
 
   // Determine how many bytes would the response body be if it were gzipped
   // (whether or not the resource actually was gzipped).  For resources that
@@ -55,11 +41,7 @@ class RuleInput {
                                      int* output) const;
 
  private:
-  void BuildRedirectChains();
-
   const PagespeedInput* pagespeed_input_;
-  RedirectChainVector redirect_chains_;
-  ResourceToRedirectChainMap resource_to_redirect_chain_map_;
   mutable std::map<const Resource*, int> compressed_response_body_sizes_;
   bool initialized_;
 

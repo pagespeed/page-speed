@@ -90,19 +90,20 @@ bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
   const Resource* primary_resource =
       input.GetResourceWithUrlOrNull(primary_resource_url);
 
-  const RuleInput::RedirectChain* landing_chain = NULL;
+  const RedirectRegistry::RedirectChain* landing_chain = NULL;
   if (primary_resource != NULL) {
-    landing_chain = rule_input.GetRedirectChainOrNull(primary_resource);
+    landing_chain = input.GetResourceCollection()
+        .GetRedirectRegistry()->GetRedirectChainOrNull(primary_resource);
   }
 
-  const RuleInput::RedirectChainVector& redirect_chains =
-      rule_input.GetRedirectChains();
+  const RedirectRegistry::RedirectChainVector& redirect_chains =
+      input.GetResourceCollection().GetRedirectRegistry()->GetRedirectChains();
 
-  for (RuleInput::RedirectChainVector::const_iterator it =
+  for (RedirectRegistry::RedirectChainVector::const_iterator it =
        redirect_chains.begin(), end = redirect_chains.end();
        it != end;
        ++it) {
-    const RuleInput::RedirectChain& chain = *it;
+    const RedirectRegistry::RedirectChain& chain = *it;
     if (chain.size() <= 1) {
       // This can happen if the destination URL of a redirect doesn't
       // have an associated Resource in the PagespeedInput.
@@ -116,7 +117,7 @@ bool MinimizeRedirects::AppendResults(const RuleInput& rule_input,
       continue;
     }
     Result* result = provider->NewResult();
-    for (RuleInput::RedirectChain::const_iterator cit = chain.begin(),
+    for (RedirectRegistry::RedirectChain::const_iterator cit = chain.begin(),
         cend = chain.end();
         cit != cend;
         ++cit) {

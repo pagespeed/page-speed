@@ -96,9 +96,13 @@ void PagespeedTest::DoSetUp() {}
 void PagespeedTest::DoTearDown() {}
 
 void PagespeedTest::Freeze() {
+  Freeze(true);
+}
+
+void PagespeedTest::Freeze(bool expected_result) {
   ASSERT_TRUE(
       pagespeed_input_->AcquireInstrumentationData(&instrumentation_data_));
-  ASSERT_TRUE(pagespeed_input_->Freeze());
+  ASSERT_EQ(expected_result, pagespeed_input_->Freeze());
 }
 
 pagespeed::Resource* PagespeedTest::NewResource(const std::string& url,

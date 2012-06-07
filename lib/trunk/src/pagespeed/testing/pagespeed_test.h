@@ -99,6 +99,7 @@ class PagespeedTest : public ::testing::Test {
 
   // Freeze the PagespeedInput structure.
   virtual void Freeze();
+  virtual void Freeze(bool expected_result);
 
   // Construct a new HTTP GET Resource with the specified URL and
   // status code, and add that resource to our PagespeedInput.
@@ -261,10 +262,14 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
     PagespeedTest::TearDown();
   }
 
-  virtual void Freeze() {
-    PagespeedTest::Freeze();
+  virtual void Freeze(bool expected_result) {
+    PagespeedTest::Freeze(expected_result);
     rule_input_.reset(new pagespeed::RuleInput(*pagespeed_input()));
     rule_input_->Init();
+  }
+
+  virtual void Freeze() {
+    Freeze(true);
   }
 
   bool AppendResults() {
