@@ -79,8 +79,9 @@ void PopulateLoneDnsResources(
   }
   const pagespeed::Resource* primary_resource =
       input.GetResourceWithUrlOrNull(primary_resource_url);
-  const pagespeed::RuleInput::RedirectChain* primary_resource_chain =
-      rule_input.GetRedirectChainOrNull(primary_resource);
+  const pagespeed::RedirectRegistry::RedirectChain* primary_resource_chain =
+      input.GetResourceCollection()
+      .GetRedirectRegistry()->GetRedirectChainOrNull(primary_resource);
   for (pagespeed::HostResourceMap::const_iterator iter =
            host_resource_map.begin(), end = host_resource_map.end();
        iter != end;
@@ -99,8 +100,9 @@ void PopulateLoneDnsResources(
       // URL of the primary resource.
       continue;
     }
-    const pagespeed::RuleInput::RedirectChain* resource_chain =
-        rule_input.GetRedirectChainOrNull(resource);
+    const pagespeed::RedirectRegistry::RedirectChain* resource_chain =
+        input.GetResourceCollection()
+        .GetRedirectRegistry()->GetRedirectChainOrNull(resource);
     if (resource_chain != NULL && resource_chain == primary_resource_chain) {
       // Special case: if this resource is a redirect to the primary
       // resource, don't flag it since it's not realistic for the site

@@ -86,7 +86,8 @@ void ImageDimensionsChecker::Visit(const pagespeed::DomElement& node) {
         savings->set_page_reflows_saved(1);
 
         const pagespeed::Resource* resource =
-            rule_input_->GetFinalRedirectTarget(
+            rule_input_->pagespeed_input().GetResourceCollection()
+            .GetRedirectRegistry()->GetFinalRedirectTarget(
                 rule_input_->pagespeed_input().GetResourceWithUrlOrNull(uri));
         if (resource != NULL) {
           scoped_ptr<pagespeed::ImageAttributes> image_attributes(

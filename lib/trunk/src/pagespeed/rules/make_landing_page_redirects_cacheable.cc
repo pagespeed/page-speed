@@ -82,8 +82,9 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
     LOG(ERROR) << "No resource for " << primary_resource_url;
     return false;
   }
-  const RuleInput::RedirectChain* chain =
-      rule_input.GetRedirectChainOrNull(primary_resource);
+  const RedirectRegistry::RedirectChain* chain =
+      input.GetResourceCollection()
+      .GetRedirectRegistry()->GetRedirectChainOrNull(primary_resource);
   if (chain == NULL || chain->empty()) {
     return true;
   }
@@ -102,7 +103,7 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
   // First, see if "login" is in the URL of any resources in the
   // chain. If so, skip it.
   const std::string login(kLoginSubstring);
-  for (RuleInput::RedirectChain::const_iterator it = chain->begin(),
+  for (RedirectRegistry::RedirectChain::const_iterator it = chain->begin(),
            end = chain->end();
        it != end;
        ++it) {
@@ -121,7 +122,7 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
   // Next, check to see if the URL of the previous resource appears in
   // the query string of the next URL. If so, skip it.
   std::string last_resource_url;
-  for (RuleInput::RedirectChain::const_iterator it = chain->begin(),
+  for (RedirectRegistry::RedirectChain::const_iterator it = chain->begin(),
            end = chain->end();
        it != end;
        ++it) {
@@ -135,10 +136,8 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
     last_resource_url = r.GetRequestUrl();
   }
 
-  for (pagespeed::RuleInput::RedirectChain::const_iterator it = chain->begin(),
-      end = chain->end();
-      it != end;
-      ++it) {
+  for (pagespeed::RedirectRegistry::RedirectChain::const_iterator it =
+           chain->begin(), end = chain->end(); it != end; ++it) {
     const pagespeed::Resource* resource =  *it;
     if (resource->GetResourceType() != pagespeed::REDIRECT) {
       // The last resource in each chain is the final resource, which
@@ -149,7 +148,7 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
         !pagespeed::resource_util::HasExplicitFreshnessLifetime(*resource)) {
       // We want to record the redirect and its destination so we can
       // present that information in the UI.
-      pagespeed::RuleInput::RedirectChain::const_iterator next = it;
+      pagespeed::RedirectRegistry::RedirectChain::const_iterator next = it;
       ++next;
       if (next == chain->end()) {
         continue;
