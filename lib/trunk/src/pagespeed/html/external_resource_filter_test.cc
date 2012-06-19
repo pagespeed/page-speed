@@ -59,6 +59,10 @@ static const char* kHtmlBodyBackground =
     "<html><body background='http://www.example.com/foo.png'>"
     "</body></html>";
 
+static const char* kHtmlTableBackground =
+    "<html><body><table background='http://www.example.com/foo.png'></table>"
+    "</body></html>";
+
 class ExternalResourceFilterTest : public pagespeed_testing::PagespeedTest {
  public:
   virtual void DoSetUp() {
@@ -162,6 +166,22 @@ TEST_F(ExternalResourceFilterTest, BodyBackground) {
 
   html_parse.StartParse(kRootUrl);
   html_parse.ParseText(kHtmlBodyBackground, strlen(kHtmlBodyBackground));
+  html_parse.FinishParse();
+
+  std::vector<std::string> external_resource_urls;
+  ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
+                                             document(),
+                                             kRootUrl));
+}
+
+TEST_F(ExternalResourceFilterTest, TableBackground) {
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  pagespeed::html::ExternalResourceFilter filter(&html_parse);
+  html_parse.AddFilter(&filter);
+
+  html_parse.StartParse(kRootUrl);
+  html_parse.ParseText(kHtmlTableBackground, strlen(kHtmlTableBackground));
   html_parse.FinishParse();
 
   std::vector<std::string> external_resource_urls;
