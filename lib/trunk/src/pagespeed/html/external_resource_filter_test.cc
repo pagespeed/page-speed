@@ -45,6 +45,20 @@ static const char* kImgHtml =
     "<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...'>"
     "</body></html>";
 
+static const char* kHtmlInputImage =
+    "<html><body>"
+    "<input type='image' src='http://www.example.com/foo.png'>"
+    "</body></html>";
+
+static const char* kHtmlObjectData =
+    "<html><body>"
+    "<object data='http://www.example.com/foo.png'>"
+    "</body></html>";
+
+static const char* kHtmlBodyBackground =
+    "<html><body background='http://www.example.com/foo.png'>"
+    "</body></html>";
+
 class ExternalResourceFilterTest : public pagespeed_testing::PagespeedTest {
  public:
   virtual void DoSetUp() {
@@ -100,6 +114,54 @@ TEST_F(ExternalResourceFilterTest, NoRelShouldNotCrash) {
 
   html_parse.StartParse(kRootUrl);
   html_parse.ParseText(kHtmlNoRelNoSrc, strlen(kHtmlNoRelNoSrc));
+  html_parse.FinishParse();
+
+  std::vector<std::string> external_resource_urls;
+  ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
+                                             document(),
+                                             kRootUrl));
+}
+
+TEST_F(ExternalResourceFilterTest, InputImage) {
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  pagespeed::html::ExternalResourceFilter filter(&html_parse);
+  html_parse.AddFilter(&filter);
+
+  html_parse.StartParse(kRootUrl);
+  html_parse.ParseText(kHtmlInputImage, strlen(kHtmlInputImage));
+  html_parse.FinishParse();
+
+  std::vector<std::string> external_resource_urls;
+  ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
+                                             document(),
+                                             kRootUrl));
+}
+
+TEST_F(ExternalResourceFilterTest, ObjectData) {
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  pagespeed::html::ExternalResourceFilter filter(&html_parse);
+  html_parse.AddFilter(&filter);
+
+  html_parse.StartParse(kRootUrl);
+  html_parse.ParseText(kHtmlObjectData, strlen(kHtmlObjectData));
+  html_parse.FinishParse();
+
+  std::vector<std::string> external_resource_urls;
+  ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
+                                             document(),
+                                             kRootUrl));
+}
+
+TEST_F(ExternalResourceFilterTest, BodyBackground) {
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  pagespeed::html::ExternalResourceFilter filter(&html_parse);
+  html_parse.AddFilter(&filter);
+
+  html_parse.StartParse(kRootUrl);
+  html_parse.ParseText(kHtmlBodyBackground, strlen(kHtmlBodyBackground));
   html_parse.FinishParse();
 
   std::vector<std::string> external_resource_urls;
