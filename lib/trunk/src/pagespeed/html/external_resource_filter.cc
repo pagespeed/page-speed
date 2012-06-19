@@ -67,8 +67,14 @@ void ExternalResourceFilter::StartDocument() {
 void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
   net_instaweb::HtmlName::Keyword keyword = element->keyword();
   if (keyword == net_instaweb::HtmlName::kScript ||
+      keyword == net_instaweb::HtmlName::kImg ||
       keyword == net_instaweb::HtmlName::kIframe ||
-      keyword == net_instaweb::HtmlName::kImg) {
+      keyword == net_instaweb::HtmlName::kFrame ||
+      keyword == net_instaweb::HtmlName::kEmbed ||
+      keyword == net_instaweb::HtmlName::kSource ||
+      keyword == net_instaweb::HtmlName::kAudio ||
+      keyword == net_instaweb::HtmlName::kVideo ||
+      keyword == net_instaweb::HtmlName::kTrack) {
     const char* src = element->AttributeValue(net_instaweb::HtmlName::kSrc);
     if (src != NULL) {
       external_resource_urls_.push_back(src);
@@ -84,6 +90,46 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
     const char* href = element->AttributeValue(net_instaweb::HtmlName::kHref);
     if (href != NULL) {
       external_resource_urls_.push_back(href);
+    }
+    return;
+  }
+
+  // <input type="image" src="...">
+  if (keyword == net_instaweb::HtmlName::kInput) {
+    const char* type = element->AttributeValue(net_instaweb::HtmlName::kType);
+    if (type != NULL && LowerCaseEqualsASCII(type, "image")) {
+      const char* src = element->AttributeValue(net_instaweb::HtmlName::kSrc);
+      if (src != NULL) {
+        external_resource_urls_.push_back(src);
+      }
+    }
+    return;
+  }
+
+  // <object data="...">
+  if (keyword == net_instaweb::HtmlName::kObject) {
+    for (int i = 0; i < element->attribute_size(); ++i) {
+      const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
+      if (LowerCaseEqualsASCII(attr.name_str(), "data")) {
+        const char* value = attr.DecodedValueOrNull();
+        if (value != NULL) {
+          external_resource_urls_.push_back(value);
+        }
+      }
+    }
+    return;
+  }
+
+  // <body background="...">
+  if (keyword == net_instaweb::HtmlName::kBody) {
+    for (int i = 0; i < element->attribute_size(); ++i) {
+      const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
+      if (LowerCaseEqualsASCII(attr.name_str(), "background")) {
+        const char* value = attr.DecodedValueOrNull();
+        if (value != NULL) {
+          external_resource_urls_.push_back(value);
+        }
+      }
     }
     return;
   }
