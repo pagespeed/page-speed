@@ -120,8 +120,16 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
     return;
   }
 
-  // <body background="...">
-  if (keyword == net_instaweb::HtmlName::kBody) {
+  // <body|td|th|... background="...">
+  if (keyword == net_instaweb::HtmlName::kBody ||
+      keyword == net_instaweb::HtmlName::kTd ||
+      keyword == net_instaweb::HtmlName::kTh ||
+      keyword == net_instaweb::HtmlName::kTable ||
+      keyword == net_instaweb::HtmlName::kTbody ||
+      keyword == net_instaweb::HtmlName::kTfoot ||
+      keyword == net_instaweb::HtmlName::kThead) {
+    // TODO(bmcquade): update to using kBackground next time we update
+    // the instaweb version we depend on.
     for (int i = 0; i < element->attribute_size(); ++i) {
       const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
       if (LowerCaseEqualsASCII(attr.name_str(), "background")) {
