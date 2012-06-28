@@ -108,14 +108,9 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
 
   // <object data="...">
   if (keyword == net_instaweb::HtmlName::kObject) {
-    for (int i = 0; i < element->attribute_size(); ++i) {
-      const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
-      if (LowerCaseEqualsASCII(attr.name_str(), "data")) {
-        const char* value = attr.DecodedValueOrNull();
-        if (value != NULL) {
-          external_resource_urls_.push_back(value);
-        }
-      }
+    const char* data = element->AttributeValue(net_instaweb::HtmlName::kData);
+    if (data != NULL) {
+      external_resource_urls_.push_back(data);
     }
     return;
   }
@@ -128,16 +123,10 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
       keyword == net_instaweb::HtmlName::kTbody ||
       keyword == net_instaweb::HtmlName::kTfoot ||
       keyword == net_instaweb::HtmlName::kThead) {
-    // TODO(bmcquade): update to using kBackground next time we update
-    // the instaweb version we depend on.
-    for (int i = 0; i < element->attribute_size(); ++i) {
-      const net_instaweb::HtmlElement::Attribute& attr = element->attribute(i);
-      if (LowerCaseEqualsASCII(attr.name_str(), "background")) {
-        const char* value = attr.DecodedValueOrNull();
-        if (value != NULL) {
-          external_resource_urls_.push_back(value);
-        }
-      }
+    const char* background =
+        element->AttributeValue(net_instaweb::HtmlName::kBackground);
+    if (background != NULL) {
+      external_resource_urls_.push_back(background);
     }
     return;
   }
