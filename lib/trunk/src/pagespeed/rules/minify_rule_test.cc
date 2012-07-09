@@ -81,11 +81,18 @@ class MinifyTest : public pagespeed_testing::PagespeedRuleTest<FoobarRule> {
   void AddTestResourceWithCompression(const std::string &url,
                                       const std::string &body,
                                       bool compressed) {
+    AddTestResourceWithCompressionAndModifiedResponse(url, body, compressed,
+                                                      false);
+  }
+  void AddTestResourceWithCompressionAndModifiedResponse(
+      const std::string &url, const std::string &body, bool compressed,
+      bool modified) {
     Resource* resource = new Resource;
     resource->SetRequestUrl(url);
     resource->SetRequestMethod("GET");
     resource->SetResponseStatusCode(200);
     resource->SetResponseBody(body);
+    resource->SetResponseBodyModified(modified);
     if (compressed) {
       resource->AddResponseHeader("Content-Encoding", "gzip");
     }
@@ -157,11 +164,27 @@ TEST_F(MinifyTest, FormatViolationWithCompression) {
   // generate the old style of message, not referring to gzip
   // compression.
   const pagespeed::Result& res = result(0);
+  ASSERT_TRUE(res.has_optimized_content());
   ASSERT_TRUE(res.has_details());
   const_cast<pagespeed::Result&>(res).clear_details();
   ASSERT_EQ("You could save 26B (50%)\n"
             "  http://www.example.com/foo.txt 26B (50%)\n",
             FormatResults());
+}
+
+TEST_F(MinifyTest, DoNotSaveOptimizedContent) {
+  AddTestResourceWithCompressionAndModifiedResponse(
+      "http://www.example.com/foo.txt", "alkcvmslkvmlsakejflaskjvlaksmvlwekm",
+      false, true);
+  CheckOneUrlViolation("http://www.example.com/foo.txt");
+  ASSERT_EQ("You could save 29B (82%)\n"
+            "  http://www.example.com/foo.txt 29B (82%)\n",
+            FormatResults());
+
+  const pagespeed::Result& res = result(0);
+  // There should be no optimized conent in the result, because we have the
+  // modified response body.
+  ASSERT_FALSE(res.has_optimized_content());
 }
 
 }  // namespace
