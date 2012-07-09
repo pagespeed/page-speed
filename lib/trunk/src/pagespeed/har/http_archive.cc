@@ -246,6 +246,11 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
       } else {
         INPUT_POPULATOR_ERROR() << "Received unexpected encoding: " << encoding;
       }
+
+      bool modified = false;
+      if (content_json->GetBoolean("modified", &modified) && modified) {
+        resource->SetResponseBodyModified(true);
+      }
     }
   }
 }

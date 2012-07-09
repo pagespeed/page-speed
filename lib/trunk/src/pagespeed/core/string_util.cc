@@ -14,6 +14,8 @@
 
 #include "pagespeed/core/string_util.h"
 
+#include <errno.h>
+
 #include <algorithm>  // for lexicographical_compare
 #include <functional> // for trim
 #include <cctype>     // for trim

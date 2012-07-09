@@ -44,6 +44,9 @@ class Resource {
   void AddResponseHeader(const std::string& name, const std::string& value);
   void RemoveResponseHeader(const std::string& name);
   void SetResponseBody(const std::string& value);
+  void SetResponseBodyModified(bool modified) {
+    response_body_modified_ = modified;
+  }
   void SetResponseProtocol(const std::string& protocol);
   void SetResponseProtocol(Protocol protocol) {
     response_protocol_ = protocol;
@@ -104,6 +107,14 @@ class Resource {
   // JavaScript, etc content). This is the body after applying any
   // content decodings (e.g. post ungzipping the response).
   const std::string& GetResponseBody() const;
+
+  // Check if the response body modified for the purpose of analysis. We should
+  // not save optimized content if the response body is modified. Note: the
+  // response body may be modified to fix invalid Unicode code points.
+  bool IsResponseBodyModified() const {
+    return response_body_modified_;
+  }
+
 
   // Get the cookies specified via SetCookies. If SetCookies was
   // unspecified, this will fall back to the Cookie request header. If that
@@ -166,6 +177,7 @@ class Resource {
   std::string request_method_;
   HeaderMap request_headers_;
   std::string request_body_;
+  bool response_body_modified_;
   int status_code_;
   Protocol response_protocol_;
   HeaderMap response_headers_;

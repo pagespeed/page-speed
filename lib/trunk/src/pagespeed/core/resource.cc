@@ -59,7 +59,8 @@ using string_util::StringCaseStartsWith;
 using string_util::StringCaseEndsWith;
 
 Resource::Resource()
-    : status_code_(-1),
+    : response_body_modified_(false),
+      status_code_(-1),
       response_protocol_(UNKNOWN_PROTOCOL),
       type_(OTHER),
       request_start_time_millis_(-1) {

@@ -147,7 +147,8 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
           MinificationDetails::message_set_extension);
     min_details->set_savings_are_post_gzip(is_post_gzip);
 
-    if (output->should_save_minified_content()) {
+    if (output->should_save_minified_content() &&
+        !resource.IsResponseBodyModified()) {
       result->set_optimized_content(*output->minified_content());
       result->set_optimized_content_mime_type(
           output->minified_content_mime_type());
