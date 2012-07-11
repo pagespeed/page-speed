@@ -474,21 +474,19 @@ int main(int argc, char** argv) {
 
   logging::LoggingDestination log_destination =
       FLAGS_log_file.empty() ?
-          logging::LoggingDestination::LOG_ONLY_TO_SYSTEM_DEBUG_LOG
-          : logging::LoggingDestination::LOG_ONLY_TO_FILE;
+      logging::LOG_ONLY_TO_SYSTEM_DEBUG_LOG : logging::LOG_ONLY_TO_FILE;
 
   if (!FLAGS_log_file.empty() && FLAGS_also_log_to_stderr) {
-    log_destination =
-        logging::LoggingDestination::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+    log_destination = logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
   }
 
   logging::InitLogging(
       FLAGS_log_file.c_str(),
       log_destination,
       // Since we are entirely single-threaded no need to lock the log file.
-      logging::LogLockingState::DONT_LOCK_LOG_FILE,
-      logging::OldFileDeletionState::APPEND_TO_OLD_LOG_FILE,
-      logging::DcheckState::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
+      logging::DONT_LOCK_LOG_FILE,
+      logging::APPEND_TO_OLD_LOG_FILE,
+      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
 
   if (RunPagespeed(FLAGS_output_format,
                    FLAGS_input_format,
