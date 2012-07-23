@@ -240,6 +240,22 @@ TEST_F(UpdateResourceTypesTest, DifferentTypesSameUrl) {
   ASSERT_EQ(pagespeed::CSS, resource->GetResourceType());
 }
 
+TEST_F(UpdateResourceTypesTest, Audio) {
+  const char* kAudioUrl = "http://example.com/foo.mp3";
+  Resource* resource = New200Resource(kAudioUrl);
+  resource->AddResponseHeader("content-type", "audio/mpeg");
+  FakeDomElement::New(body(), "embed")->AddAttribute("src", kAudioUrl);
+  ASSERT_EQ(pagespeed::MEDIA, resource->GetResourceType());
+}
+
+TEST_F(UpdateResourceTypesTest, Video) {
+  const char* kVideoUrl = "http://example.com/foo.mpg";
+  Resource* resource = New200Resource(kVideoUrl);
+  resource->AddResponseHeader("content-type", "video/mpeg");
+  FakeDomElement::New(body(), "embed")->AddAttribute("src", kVideoUrl);
+  ASSERT_EQ(pagespeed::MEDIA, resource->GetResourceType());
+}
+
 class EstimateCapabilitiesTest : public ::pagespeed_testing::PagespeedTest {};
 
 TEST_F(EstimateCapabilitiesTest, NotFrozen) {

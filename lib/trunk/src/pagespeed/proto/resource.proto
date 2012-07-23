@@ -240,6 +240,7 @@ enum ResourceType {
   JS = 5;
   REDIRECT = 6;
   FLASH = 7;
+  MEDIA = 8;
 }
 
 // The request protocol.
