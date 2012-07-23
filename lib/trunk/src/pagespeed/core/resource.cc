@@ -357,6 +357,9 @@ ResourceType Resource::GetResourceType() const {
     } else if (StringCaseEqual(type, "application/x-shockwave-flash")) {
       return FLASH;
     }
+  } else if (StringCaseStartsWith(type, "audio/") ||
+             StringCaseStartsWith(type, "video/")) {
+    return MEDIA;
   }
 
   return OTHER;

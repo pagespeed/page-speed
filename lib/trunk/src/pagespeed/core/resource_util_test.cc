@@ -283,6 +283,18 @@ TEST_F(StaticResourceTest, Javascript) {
   ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
 }
 
+TEST_F(StaticResourceTest, Audio) {
+  r_.AddResponseHeader("Content-Type", "audio/mp4");
+  ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
+  ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
+}
+
+TEST_F(StaticResourceTest, Video) {
+  r_.AddResponseHeader("Content-Type", "video/mpeg");
+  ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
+  ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
+}
+
 TEST_F(StaticResourceTest, UnknownContentType) {
   r_.AddResponseHeader("Content-Type", "foo");
   ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
