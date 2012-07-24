@@ -81,9 +81,9 @@ TEST_F(ResourceEvaluationTest, SimpleAndSerialization) {
   ASSERT_EQ(pagespeed::EVAL_SCRIPT, script_eval->GetEvaluationType());
   ASSERT_EQ(10, script_eval->GetStartTick());
   ASSERT_EQ(20, script_eval->GetFinishTick());
-  ASSERT_EQ(false, script_eval->IsMatchingMediaType());
-  ASSERT_EQ(true, script_eval->IsAsync());
-  ASSERT_EQ(false, script_eval->IsDefer());
+  ASSERT_FALSE(script_eval->IsMatchingMediaType());
+  ASSERT_TRUE(script_eval->IsAsync());
+  ASSERT_FALSE(script_eval->IsDefer());
   ASSERT_EQ(5, script_eval->GetEvaluationStartLine());
   ASSERT_EQ(7, script_eval->GetEvaluationEndLine());
 
@@ -133,9 +133,9 @@ TEST_F(ResourceEvaluationTest, SimpleAndSerialization) {
   ASSERT_EQ(100, data.start().msec());
   ASSERT_EQ(20, data.finish().tick());
   ASSERT_EQ(200, data.finish().msec());
-  ASSERT_EQ(false, data.is_matching_media_type());
-  ASSERT_EQ(true, data.is_async());
-  ASSERT_EQ(false, data.is_defer());
+  ASSERT_FALSE(data.is_matching_media_type());
+  ASSERT_TRUE(data.is_async());
+  ASSERT_FALSE(data.is_defer());
   ASSERT_EQ(5, data.block_start_line());
   ASSERT_EQ(7, data.block_end_line());
 }

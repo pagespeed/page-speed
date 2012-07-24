@@ -519,6 +519,8 @@
           # Don't warn about the "struct foo f = {0};" initialization pattern.
           '-Wno-missing-field-initializers',
           '-D_FILE_OFFSET_BITS=64',
+          # Don't warn about unused variables
+          '-Wno-unused-but-set-variable',
           # Don't export any symbols (for example, to plugins we dlopen()).
           # Note: this is *required* to make some plugins work.
           '-fvisibility=hidden',
