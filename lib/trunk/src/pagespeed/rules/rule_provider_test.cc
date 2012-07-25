@@ -21,6 +21,7 @@
 
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_css_import.h"
+#include "pagespeed/rules/avoid_flash_on_mobile.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/enable_keep_alive.h"
@@ -108,6 +109,7 @@ TEST(RuleProviderTest, CreateRuleWithName) {
   TestNamedRule("AvoidBadRequests");
   TestNamedRule("AvoidCharsetInMetaTag");
   TestNamedRule("AvoidCssImport");
+  TestNamedRule("AvoidFlashOnMobile");
   TestNamedRule("CombineExternalCss");
   TestNamedRule("CombineExternalJavaScript");
   TestNamedRule("EnableGzipCompression");

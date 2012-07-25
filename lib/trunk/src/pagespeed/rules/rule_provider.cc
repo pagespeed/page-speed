@@ -22,6 +22,7 @@
 #include "pagespeed/rules/avoid_charset_in_meta_tag.h"
 #include "pagespeed/rules/avoid_css_import.h"
 #include "pagespeed/rules/avoid_excess_serialization.h"
+#include "pagespeed/rules/avoid_flash_on_mobile.h"
 #include "pagespeed/rules/avoid_long_running_scripts.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/defer_parsing_javascript.h"
@@ -109,6 +110,7 @@ static const char* kMobileBrowserRules[] = {
   // NOTE: Page Speed includes several mobile-targeted rules. However
   // the rules are also applicable to desktop, so they are included as
   // part of the "core" ruleset.
+  "avoidflashonmobile",
   "useanapplicationcache",
   NULL,
 };
@@ -164,6 +166,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("avoidcharsetinmetatag", rules::AvoidCharsetInMetaTag());
   RULE("avoidcssimport", rules::AvoidCssImport());
   RULE("avoidexcessserialization", rules::AvoidExcessSerialization());
+  RULE("avoidflashonmobile", rules::AvoidFlashOnMobile());
   RULE("avoidlongrunningscripts", rules::AvoidLongRunningScripts());
   RULE("combineexternalcss", rules::CombineExternalCss());
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
