@@ -40,6 +40,7 @@
 #include "pagespeed/rules/minimize_dns_lookups.h"
 #include "pagespeed/rules/minimize_redirects.h"
 #include "pagespeed/rules/minimize_request_size.h"
+#include "pagespeed/rules/mobile_viewport.h"
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/optimize_the_order_of_styles_and_scripts.h"
 #include "pagespeed/rules/parallelize_downloads_across_hostnames.h"
@@ -111,6 +112,7 @@ static const char* kMobileBrowserRules[] = {
   // the rules are also applicable to desktop, so they are included as
   // part of the "core" ruleset.
   "avoidflashonmobile",
+  "mobileviewport",
   "useanapplicationcache",
   NULL,
 };
@@ -187,6 +189,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("minimizednslookups", rules::MinimizeDnsLookups());
   RULE("minimizeredirects", rules::MinimizeRedirects());
   RULE("minimizerequestsize", rules::MinimizeRequestSize());
+  RULE("mobileviewport", rules::MobileViewport());
   RULE("optimizeimages", rules::OptimizeImages(save_optimized_content));
   RULE("optimizetheorderofstylesandscripts",
        rules::OptimizeTheOrderOfStylesAndScripts());
