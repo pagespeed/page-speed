@@ -17,10 +17,10 @@
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
-#include "base/string_number_conversions.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/make_landing_page_redirects_cacheable.h"
 #include "pagespeed/testing/pagespeed_test.h"
@@ -87,8 +87,9 @@ class MakeLandingPageRedirectsCacheableTest : public
     if (response_code == 301) {
       std::string body = KPermanentResponsePart1 +
           location + KPermanentResponsePart2;
-      resource->AddResponseHeader("Content-Length",
-                                  base::IntToString(body.size()));
+      resource->AddResponseHeader(
+          "Content-Length",
+          pagespeed::string_util::IntToString(body.size()));
       resource->SetResponseBody(body);
     }
     AddResource(resource);

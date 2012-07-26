@@ -15,7 +15,7 @@
 #include "pagespeed/testing/fake_dom.h"
 
 #include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
 
 namespace {
 
@@ -142,7 +142,7 @@ FakeDomElement::FakeDomElement(const FakeDomElement* parent,
       y_(-1),
       actual_width_(-1),
       actual_height_(-1) {
-  StringToUpperASCII(&tag_name_);
+  pagespeed::string_util::StringToUpperASCII(&tag_name_);
 }
 
 FakeDomElement::~FakeDomElement() {

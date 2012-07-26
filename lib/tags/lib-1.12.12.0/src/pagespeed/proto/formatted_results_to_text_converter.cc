@@ -15,8 +15,7 @@
 #include "pagespeed/proto/formatted_results_to_text_converter.h"
 
 #include "base/logging.h"
-#include "base/string_number_conversions.h"
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 namespace pagespeed {
@@ -43,7 +42,7 @@ bool FormattedResultsToTextConverter::ConvertFormattedResults(
 
   if (results.has_score()) {
     out->append("**[");
-    out->append(base::IntToString(results.score()));
+    out->append(pagespeed::string_util::IntToString(results.score()));
     out->append("/100]**\n");
   }
 
@@ -62,12 +61,13 @@ bool FormattedResultsToTextConverter::ConvertFormattedRuleResults(
   out->append("_");
   if (rule_results.has_rule_score()) {
     out->append(" (");
-    out->append(base::IntToString(rule_results.rule_score()));
+    out->append(pagespeed::string_util::IntToString(rule_results.rule_score()));
     out->append("/100)");
   }
   if (rule_results.has_rule_impact()) {
     out->append(" [");
-    out->append(base::DoubleToString(rule_results.rule_impact()));
+    out->append(
+        pagespeed::string_util::DoubleToString(rule_results.rule_impact()));
     out->append("]");
   }
   out->append("\n");
@@ -128,7 +128,8 @@ void FormattedResultsToTextConverter::ConvertFormatString(
     for (int i = 0, len = format_string.args_size(); i < len; ++i) {
       sub.push_back(format_string.args(i).localized_value());
     }
-    out->append(ReplaceStringPlaceholders(format_string.format(), sub, NULL));
+    out->append(pagespeed::string_util::ReplaceStringPlaceholders(
+        format_string.format(), sub, NULL));
   } else {
     out->append(format_string.format());
   }

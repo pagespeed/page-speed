@@ -20,9 +20,9 @@
 #include <string>
 #include <vector>
 
-#include "base/string_util.h"
 #include "pagespeed/platform/ie/ie_dom.h"
 #include "pagespeed/core/dom.h"
+#include "pagespeed/core/string_util.h"
 
 namespace pagespeed {
 
@@ -264,7 +264,7 @@ std::string IEElement::GetTagName() const {
   }
   std::string tag_name_str(static_cast<LPSTR>(CW2A(tag_name)));
   // Just in case get_tagName doesn't always return an uppercase string.
-  StringToUpperASCII(&tag_name_str);
+  pagespeed::string_util::StringToUpperASCII(&tag_name_str);
   return tag_name_str;
 }
 

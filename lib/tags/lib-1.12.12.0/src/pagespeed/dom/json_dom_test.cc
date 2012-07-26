@@ -18,14 +18,15 @@
 #include "base/basictypes.h"
 #include "base/json/json_reader.h"
 #include "base/scoped_ptr.h"
-#include "base/string_number_conversions.h"  // for base::IntToString()
 #include "base/values.h"
 #include "pagespeed/core/dom.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/dom/json_dom.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using pagespeed::DomDocument;
 using pagespeed::DomElement;
+using pagespeed::string_util::IntToString;
 
 namespace {
 
@@ -168,11 +169,11 @@ void ImageVisitor::Visit(const DomElement& node) {
   output_ += "|";
   int size;
   if (node.GetActualWidth(&size) == DomElement::SUCCESS) {
-    output_ += base::IntToString(size);
+    output_ += IntToString(size);
   }
   output_ += "x";
   if (node.GetActualHeight(&size) == DomElement::SUCCESS) {
-    output_ += base::IntToString(size);
+    output_ += IntToString(size);
   }
   output_ += "|";
   bool specified;

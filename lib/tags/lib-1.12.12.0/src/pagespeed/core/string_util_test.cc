@@ -328,4 +328,23 @@ TEST(StringUtilTest, GrowBoundary) {
   EXPECT_STREQ(src, out.c_str());
 }
 
+static const struct {
+  const char*    src;
+  const char*    dst;
+} lowercase_cases[] = {
+  {"FoO", "foo"},
+  {"foo", "foo"},
+  {"FOO", "foo"},
+};
+
+static const size_t kLowercaseCasesSize =
+    sizeof(lowercase_cases) / sizeof(lowercase_cases[0]);
+
+TEST(StringUtilTest, LowerCaseEqualsASCII) {
+  for (size_t i = 0; i < kLowercaseCasesSize; ++i) {
+    EXPECT_TRUE(LowerCaseEqualsASCII(lowercase_cases[i].src,
+                                     lowercase_cases[i].dst));
+  }
+}
+
 }  // namespace
