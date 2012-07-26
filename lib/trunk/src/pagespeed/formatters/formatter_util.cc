@@ -17,7 +17,10 @@
 #include <algorithm>
 #include <vector>
 
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
+
+using pagespeed::string_util::JoinString;
+using pagespeed::string_util::StringPrintf;
 
 namespace {
 

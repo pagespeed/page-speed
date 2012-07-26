@@ -15,8 +15,7 @@
 #include "pagespeed/testing/formatted_results_test_converter.h"
 
 #include "base/logging.h"
-#include "base/string_number_conversions.h"
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 using pagespeed::FormatString;
@@ -110,7 +109,8 @@ void FormattedResultsTestConverter::ConvertFormatString(
     for (int i = 0, len = format_string.args_size(); i < len; ++i) {
       sub.push_back(format_string.args(i).localized_value());
     }
-    out->append(ReplaceStringPlaceholders(format_string.format(), sub, NULL));
+    out->append(pagespeed::string_util::ReplaceStringPlaceholders(
+        format_string.format(), sub, NULL));
   } else {
     out->append(format_string.format());
   }

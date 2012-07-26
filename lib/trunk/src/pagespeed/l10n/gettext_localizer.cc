@@ -20,7 +20,7 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/formatters/formatter_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/l10n/register_locale.h"
@@ -225,7 +225,8 @@ bool GettextLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
 
   std::vector<std::string> subst;
   subst.push_back(value);
-  *out = ReplaceStringPlaceholders(localized_format, subst, NULL);
+  *out = pagespeed::string_util::ReplaceStringPlaceholders(
+      localized_format, subst, NULL);
   return success;
 }
 

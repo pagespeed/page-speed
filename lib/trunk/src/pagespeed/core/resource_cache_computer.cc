@@ -20,10 +20,11 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/string_number_conversions.h"
-#include "base/string_util.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/string_util.h"
+
+using pagespeed::string_util::StringToInt;
 
 namespace pagespeed {
 
@@ -225,8 +226,8 @@ bool ResourceCacheComputer::ComputeFreshnessLifetimeMillis(
     resource_util::DirectiveMap::const_iterator it =
         cache_directives.find("max-age");
     if (it != cache_directives.end()) {
-      int64 max_age_value = 0;
-      if (base::StringToInt64(it->second, &max_age_value)) {
+      int max_age_value = 0;
+      if (StringToInt(it->second, &max_age_value)) {
         *out_freshness_lifetime_millis = max_age_value * 1000;
         return true;
       }
@@ -295,8 +296,8 @@ bool ResourceCacheComputer::ComputeHasExplicitNoCacheDirective() {
   resource_util::DirectiveMap::const_iterator it =
       cache_directives.find("max-age");
   if (it != cache_directives.end()) {
-    int64 max_age_value = 0;
-    if (base::StringToInt64(it->second, &max_age_value) &&
+    int max_age_value = 0;
+    if (StringToInt(it->second, &max_age_value) &&
         max_age_value == 0) {
       // Cache-Control: max-age=0 means do not cache.
       return true;

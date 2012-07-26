@@ -15,10 +15,10 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
-#include "base/string_util.h"  // for StringPrintf
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/parallelize_downloads_across_hostnames.h"
 #include "pagespeed/testing/pagespeed_test.h"
@@ -40,8 +40,9 @@ class ParallelizeDownloadsAcrossHostnamesTest
   void AddStaticResources(int num, const std::string& host) {
     for (int index = 0; index < num; ++index) {
       Resource* resource = new Resource;
-      resource->SetRequestUrl(StringPrintf("http://%s/resource%d.css",
-                                           host.c_str(), index));
+      resource->SetRequestUrl(
+          pagespeed::string_util::StringPrintf("http://%s/resource%d.css",
+                                               host.c_str(), index));
       resource->SetRequestMethod("GET");
       resource->SetResponseStatusCode(200);
       resource->AddResponseHeader("Content-Type", "text/css");

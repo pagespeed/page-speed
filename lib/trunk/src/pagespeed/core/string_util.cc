@@ -120,6 +120,12 @@ std::string IntToString(int value) {
   return sstream.str();
 }
 
+std::string DoubleToString(double value) {
+  std::ostringstream sstream;
+  sstream << value;
+  return sstream.str();
+}
+
 // Accepts a number string and returns its signed int representation.
 // Returns false in case of overflow and sets output to INT_MAX.
 // Returns false in case of underflow and sets output to INT_MIN.
@@ -345,6 +351,18 @@ bool LowerCaseEqualsASCII(const std::string& a, const char* b) {
         return false;
     }
     return *b == 0;
+}
+
+void TrimWhitespaceASCII(const std::string& input,
+                         TrimPositions positions,
+                         std::string* output) {
+  output->assign(input);
+  if ((positions & TRIM_LEADING) != 0) {
+    ltrim(*output);
+  }
+  if ((positions & TRIM_TRAILING) != 0) {
+    rtrim(*output);
+  }
 }
 
 }  // namespace string_util
