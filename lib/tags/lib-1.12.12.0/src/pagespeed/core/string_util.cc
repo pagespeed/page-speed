@@ -128,10 +128,18 @@ bool StringToInt(const std::string& input, int* output) {
 
   std::string trimmed(input);
   trim(trimmed);
+  if (trimmed.empty()) {
+    *output = 0;
+    return false;
+  }
 
   // Points to the next char in the input string
   // once strtol invocation completes.
   char* next_char;
+
+  // Reset errno before invoking strtol, as some implementations of
+  // strtol do not clear the value on success.
+  errno = 0;
 
   // strtol(input_str, next_char, base): converts the given input string
   // to long number and returns once the conversion is done.
@@ -139,24 +147,30 @@ bool StringToInt(const std::string& input, int* output) {
   // where the conversion is finalized.
   long int result = strtol(trimmed.c_str(), &next_char, 10);
 
-  if (errno == ERANGE) {
-    *output = 0;
-    return false;
-  }
+  // strtol will consume characters until it encounters either end of
+  // string or an invalid (non-numeric) character.
+  const bool found_invalid_char = *next_char != '\0';
 
+  // when the input is outside of the valid range for 'long int',
+  // strtol returns ERANGE and sets the output value to either
+  // LONG_MIN or LONG_MAX accordingly. note that LONG_MIN and LONG_MAX
+  // may be the same or differ from INT_MIN and INT_MAX, depending on
+  // architecture.
+  bool overflowed = errno == ERANGE;
+
+  // Clamp to [INT_MIN, INT_MAX] in cases where sizeof(long int) >
+  // sizeof(int), e.g. x86_64.
   if (result > INT_MAX) {
-    *output = INT_MAX;
-    return false;
-  }
-
-  if (result < INT_MIN) {
-    *output = INT_MIN;
-    return false;
+    result = INT_MAX;
+    overflowed = true;
+  } else if (result < INT_MIN) {
+    result = INT_MIN;
+    overflowed = true;
   }
 
   *output = static_cast<int>(result);
 
-  return (trimmed.length() > 0 && *next_char == '\0');
+  return !found_invalid_char && !overflowed;
 }
 
 std::string JoinString(const std::vector<std::string>& parts, char sep) {
