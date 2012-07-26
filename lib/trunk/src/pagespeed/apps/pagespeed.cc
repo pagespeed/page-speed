@@ -480,8 +480,16 @@ int main(int argc, char** argv) {
     log_destination = logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
   }
 
+// logging::InitLogging expects a wchar_t* on windows, and char* on
+// other platforms.
+#if defined (OS_WIN)
+  std::wstring log_file_path(FLAGS_log_file.c_str());
+#else
+  std::string log_file_path(FLAGS_log_file.c_str());
+#endif
+
   logging::InitLogging(
-      FLAGS_log_file.c_str(),
+      log_file_path.c_str(),
       log_destination,
       // Since we are entirely single-threaded no need to lock the log file.
       logging::DONT_LOCK_LOG_FILE,
