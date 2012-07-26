@@ -33,6 +33,7 @@
 #include "pagespeed/rules/minimize_dns_lookups.h"
 #include "pagespeed/rules/minimize_redirects.h"
 #include "pagespeed/rules/minimize_request_size.h"
+#include "pagespeed/rules/mobile_viewport.h"
 #include "pagespeed/rules/optimize_images.h"
 #include "pagespeed/rules/optimize_the_order_of_styles_and_scripts.h"
 #include "pagespeed/rules/parallelize_downloads_across_hostnames.h"
@@ -125,6 +126,7 @@ TEST(RuleProviderTest, CreateRuleWithName) {
   TestNamedRule("MinimizeDnsLookups");
   TestNamedRule("MinimizeRedirects");
   TestNamedRule("MinimizeRequestSize");
+  TestNamedRule("MobileViewport");
   TestNamedRule("OptimizeImages");
   TestNamedRule("OptimizeTheOrderOfStylesAndScripts");
   TestNamedRule("ParallelizeDownloadsAcrossHostnames");
