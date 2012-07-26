@@ -246,6 +246,10 @@ void PagespeedInput::PopulateInputInformation() {
         input_info_->set_other_response_bytes(
             input_info_->other_response_bytes() + response_bytes);
         break;
+      case MEDIA:
+        input_info_->set_media_response_bytes(
+            input_info_->media_response_bytes() + response_bytes);
+        break;
       default:
         LOG(DFATAL) << "Unknown resource type " << resource.GetResourceType();
         input_info_->set_other_response_bytes(
