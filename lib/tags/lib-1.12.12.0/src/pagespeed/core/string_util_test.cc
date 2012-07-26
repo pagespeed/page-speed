@@ -323,19 +323,4 @@ TEST(StringUtilTest, GrowBoundary) {
   EXPECT_STREQ(src, out.c_str());
 }
 
-// TODO(evanm): what's the proper cross-platform test here?
-#if defined(OS_WIN)
-// sprintf in Visual Studio fails when given U+FFFF. This tests that the
-// failure case is gracefuly handled.
-TEST(StringUtilTest, Invalid) {
-  wchar_t invalid[2];
-  invalid[0] = 0xffff;
-  invalid[1] = 0;
-
-  std::wstring out;
-  SStringPrintf(&out, L"%ls", invalid);
-  EXPECT_STREQ(L"", out.c_str());
-}
-#endif
-
 }  // namespace
