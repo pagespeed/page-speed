@@ -170,6 +170,11 @@ msgstr ""
 msgid "Avoid bad requests"
 msgstr ""
 
+#  The name of a Page Speed rule that tells users to avoid using
+#  Adobe Flash on mobile webpages
+msgid "Avoid flash on mobile webpages"
+msgstr ""
+
 #  The name of a Page Speed rule that tells users to try
 #  and avoid writing pages with Javascript scripts that run for a
 #  long time, which reduces browser responsiveness.  This is
@@ -555,6 +560,11 @@ msgstr ""
 #  image that appears in the page.  This is displayed in a list of rule names
 #  that Page Speed generates.
 msgid "Specify image dimensions"
+msgstr ""
+
+#  Header at the top of a list of URLs of Adobe Flash
+#  resources detected by Page Speed
+msgid "The following Flash objects are included on the page. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x+. Consider removing Flash objects and finding suitable replacements."
 msgstr ""
 
 #  Appears as part of the list of URLs that
