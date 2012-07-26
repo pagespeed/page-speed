@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -29,6 +28,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -112,7 +112,7 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
     std::string::const_iterator login_it =
         std::search(url.begin(), url.end(),
                     login.begin(), login.end(),
-                    base::CaseInsensitiveCompareASCII<const char>());
+                    pagespeed::string_util::CaseInsensitiveCompareASCII());
     if (login_it != url.end()) {
       // Looks like a login page. Don't flag it.
       return true;

@@ -19,16 +19,18 @@
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
-#include "base/string_util.h"
 #include "pagespeed/core/browsing_context.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/image_attributes.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/resource.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
+
+using pagespeed::string_util::LowerCaseEqualsASCII;
 
 namespace pagespeed {
 

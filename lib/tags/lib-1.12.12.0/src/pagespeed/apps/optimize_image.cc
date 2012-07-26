@@ -22,7 +22,6 @@
 #include <iterator>
 #include <string>
 
-#include "base/string_number_conversions.h"
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/image_converter.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"

@@ -17,7 +17,6 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/string_util.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"

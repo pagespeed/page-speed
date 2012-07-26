@@ -16,10 +16,10 @@
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
-#include "base/string_number_conversions.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/defer_parsing_javascript.h"
 #include "pagespeed/testing/pagespeed_test.h"
@@ -61,7 +61,7 @@ class DeferParsingJavaScriptTest : public
       } else {
         script->append("function func_");
       }
-      script->append(base::IntToString(idx));
+      script->append(pagespeed::string_util::IntToString(idx));
       script->append("(){var abc=1;bar();}\n");
     }
   }
@@ -135,7 +135,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeMinifiedJavascriptFile) {
   std::string script = kUnminified;
   for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("function func_");
-    script.append(base::IntToString(idx));
+    script.append(pagespeed::string_util::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
   AddTestResource(kScriptFullUrl, script.c_str());
@@ -147,7 +147,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeRelativeJavascriptFile) {
   std::string script = kUnminified;
   for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("function func_");
-    script.append(base::IntToString(idx));
+    script.append(pagespeed::string_util::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
   AddTestResource(kScriptRelativeUrl, script.c_str());
@@ -159,7 +159,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeCommentedJavascriptFile) {
   std::string script = kUnminified;
   for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("// function func_");
-    script.append(base::IntToString(idx));
+    script.append(pagespeed::string_util::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
   AddTestResource(kScriptFullUrl, script.c_str());
@@ -174,7 +174,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeInlineJavascript) {
   std::string script;
   for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("function func_");
-    script.append(base::IntToString(idx));
+    script.append(pagespeed::string_util::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
   script_tag += script;
@@ -251,7 +251,7 @@ TEST_F(DeferParsingJavaScriptTest, ComputeScore) {
   std::string script;
   for (int idx = 0; script.size() < kScore80Size; ++idx) {
     script.append("function func_");
-    script.append(base::IntToString(idx));
+    script.append(pagespeed::string_util::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
   script_tag += script;
@@ -272,7 +272,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeAsyncMinifiedJavascriptFile) {
   std::string script = kUnminified;
   for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("function func_");
-    script.append(base::IntToString(idx));
+    script.append(pagespeed::string_util::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
   AddTestResourceWithAttributes(kScriptFullUrl, script.c_str(), "async");
@@ -284,7 +284,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeQuotedMinifiedJavascriptFile) {
   std::string script = "var code=\"";
   for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
     script.append("function func_");
-    script.append(base::IntToString(idx));
+    script.append(pagespeed::string_util::IntToString(idx));
     script.append("(){var abc=1;bar();}\n");
   }
   script.append("\";\n");

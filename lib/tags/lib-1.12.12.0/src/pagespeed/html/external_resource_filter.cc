@@ -16,7 +16,6 @@
 
 #include <set>
 #include <string>
-#include "base/string_util.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/htmlparse/public/html_name.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"

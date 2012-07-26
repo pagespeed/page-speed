@@ -25,7 +25,6 @@
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
-#include "base/string_util.h"
 #include "base/values.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "google/protobuf/stubs/common.h"
@@ -38,6 +37,7 @@
 #include "pagespeed/core/pagespeed_version.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/dom/json_dom.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
@@ -350,7 +350,7 @@ bool RunPagespeed(const std::string& out_format,
       &rules, &incompatible_rule_names, capabilities);
   if (!incompatible_rule_names.empty()) {
     std::string incompatible_rule_list =
-        JoinString(incompatible_rule_names, ' ');
+        pagespeed::string_util::JoinString(incompatible_rule_names, ' ');
     LOG(INFO) << "Removing incompatible rules: " << incompatible_rule_list
               << "; Capabilities: " << capabilities.DebugString();
   }

@@ -56,6 +56,7 @@ bool StringCaseEndsWith(const base::StringPiece& str,
 
 std::string IntToString(int value);
 bool StringToInt(const std::string& input, int* output);
+std::string DoubleToString(double value);
 
 std::string JoinString(const std::vector<std::string>& parts, char s);
 
@@ -85,6 +86,12 @@ inline char ToUpperASCII(char c) {
   return (c >= 'a' && c <= 'z') ? (c + ('A' - 'a')) : c;
 }
 
+struct CaseInsensitiveCompareASCII {
+ public:
+  bool operator()(char x, char y) const {
+    return ToLowerASCII(x) == ToLowerASCII(y);
+  }
+};
 
 inline void StringToUpperASCII(std::string* s) {
   for (std::string::iterator i = s->begin(); i != s->end(); ++i)
@@ -100,9 +107,13 @@ enum TrimPositions {
   TRIM_TRAILING = 1 << 1,
   TRIM_ALL      = TRIM_LEADING | TRIM_TRAILING,
 };
-TrimPositions TrimWhitespaceASCII(const std::string& input,
-                                  TrimPositions positions,
-                                  std::string* output);
+void TrimWhitespaceASCII(const std::string& input,
+                         TrimPositions positions,
+                         std::string* output);
+
+inline bool IsAsciiDigit(char c) {
+  return c >= '0' && c <= '9';
+}
 
 }  // namespace string_util
 

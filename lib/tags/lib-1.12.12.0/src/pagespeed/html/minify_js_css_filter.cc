@@ -18,7 +18,6 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/string_util.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "pagespeed/css/cssmin.h"
 #include "pagespeed/js/js_minify.h"

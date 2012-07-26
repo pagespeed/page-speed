@@ -18,15 +18,13 @@
 
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
-#include "base/stringprintf.h"
-#include "base/string_number_conversions.h"
-#include "base/string_util.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/proto/timeline.pb.h"
@@ -163,7 +161,7 @@ std::string GetPresentableStackTrace(
   }
   for (int i = 0; i < stack.frame_size(); ++i) {
     const pagespeed::StackFrame& frame = stack.frame(i);
-    trace.push_back(base::StringPrintf(
+    trace.push_back(pagespeed::string_util::StringPrintf(
         "%*s @ %.75s:%d:%d",
         max_function_name_width,
         frame.function_name().c_str(),
@@ -171,7 +169,7 @@ std::string GetPresentableStackTrace(
         frame.line_number(),
         frame.column_number()));
   }
-  return JoinString(trace, '\n');
+  return pagespeed::string_util::JoinString(trace, '\n');
 }
 
 // Find all unique stack traces within the

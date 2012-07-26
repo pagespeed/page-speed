@@ -15,8 +15,8 @@
 #include "pagespeed/css/external_resource_finder.h"
 
 #include "base/logging.h"
-#include "base/string_util.h"
 #include "pagespeed/core/resource.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 
 using pagespeed::css::CssTokenizer;
@@ -79,7 +79,8 @@ void ExternalResourceFinder::FindExternalResources(
     if (type == CssTokenizer::URL) {
       url = token;
     } else if (type == CssTokenizer::IDENT &&
-               base::strcasecmp(kCssImportDirective, token.c_str()) == 0) {
+               pagespeed::string_util::LowerCaseEqualsASCII(
+                   token, kCssImportDirective)) {
       // @import can contain either a url, e.g. "url('foo.css')" or a
       // plain string, e.g. "foo.css". Either way, it will be the
       // immediate next token.
@@ -248,9 +249,11 @@ bool CssTokenizer::TakeUrl(std::string* out_token) {
   if (index_ >= css_body_.length()) {
     return false;
   }
-  if (base::strncasecmp(kCssUrlDirective,
-                        css_body_.c_str() + index_,
-                        kCssUrlDirectiveLen) != 0) {
+  std::string possible_url_directive(
+      css_body_.c_str() + index_, kCssUrlDirectiveLen);
+  if (!pagespeed::string_util::LowerCaseEqualsASCII(
+          possible_url_directive,
+          kCssUrlDirective)) {
     // Doesn't start with "url(", so it can't be a URL token.
     return false;
   }
@@ -301,7 +304,8 @@ bool CssTokenizer::TakeUrl(std::string* out_token) {
   }
   size_t url_start = index_ + kCssUrlDirectiveLen;
   out_token->assign(css_body_, url_start, close_paren - url_start);
-  TrimWhitespaceASCII(*out_token, TRIM_ALL, out_token);
+  pagespeed::string_util::TrimWhitespaceASCII(
+      *out_token, pagespeed::string_util::TRIM_ALL, out_token);
   index_ = close_paren + 1;
   return true;
 }
