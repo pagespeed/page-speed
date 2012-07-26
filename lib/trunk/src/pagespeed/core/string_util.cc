@@ -20,6 +20,7 @@
 #include <functional> // for trim
 #include <cctype>     // for trim
 #include <locale>     // for trim
+#include <sstream>
 
 namespace {
 
@@ -114,7 +115,7 @@ bool StringCaseEndsWith(const base::StringPiece& str,
 }
 
 std::string IntToString(int value) {
-  std::stringstream sstream;
+  std::ostringstream sstream;
   sstream << value;
   return sstream.str();
 }
@@ -261,7 +262,11 @@ void StringAppendV(std::string* dst, const char* format, va_list ap) {
   std::string::value_type stack_buf[1024];
 
   va_list ap_copy;
-  GG_VA_COPY(ap_copy, ap);
+#if defined(OS_WIN)
+  ap_copy = ap;
+#else
+  va_copy(ap_copy, ap);
+#endif
 
 #if !defined(OS_WIN)
   errno = 0;
@@ -309,7 +314,11 @@ void StringAppendV(std::string* dst, const char* format, va_list ap) {
 
     // NOTE: You can only use a va_list once.  Since we're in a while loop, we
     // need to make a new copy each time so we don't use up the original.
-    GG_VA_COPY(ap_copy, ap);
+#if defined(OS_WIN)
+    ap_copy = ap;
+#else
+    va_copy(ap_copy, ap);
+#endif
     result = vsnprintfT(&mem_buf[0], mem_length, format, ap_copy);
     va_end(ap_copy);
 
