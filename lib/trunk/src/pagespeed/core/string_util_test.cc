@@ -97,6 +97,7 @@ TEST(StringUtilTest, StringToInt) {
     {"-2147483648", INT_MIN, true},
     {"2147483647", INT_MAX, true},
     {"", 0, false},
+    {"  ", 0, false},
     {" 42", 42, true},
     {"42 ", 42, true},
     {"\t\n\v\f\r 42", 42, true},
@@ -120,8 +121,10 @@ TEST(StringUtilTest, StringToInt) {
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
     int output = 0;
-    EXPECT_EQ(cases[i].success, StringToInt(cases[i].input, &output));
-    EXPECT_EQ(cases[i].output, output);
+    EXPECT_EQ(cases[i].success, StringToInt(cases[i].input, &output))
+        << "Input: '" << cases[i].input << "'";
+    EXPECT_EQ(cases[i].output, output)
+        << "Input: '" << cases[i].input << "'";
   }
 
 }
