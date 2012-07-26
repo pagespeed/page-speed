@@ -119,7 +119,9 @@ TEST(StringUtilTest, StringToInt) {
     {" -123 ", -123, true},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+  static const size_t kCasesSize = sizeof(cases) / sizeof(cases[0]);
+
+  for (size_t i = 0; i < kCasesSize; ++i) {
     int output = 0;
     EXPECT_EQ(cases[i].success, StringToInt(cases[i].input, &output))
         << "Input: '" << cases[i].input << "'";
