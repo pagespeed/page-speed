@@ -483,9 +483,14 @@ int main(int argc, char** argv) {
 // logging::InitLogging expects a wchar_t* on windows, and char* on
 // other platforms.
 #if defined (OS_WIN)
-  std::wstring log_file_path(FLAGS_log_file.c_str());
+  std::wstring log_file_path;
+  log_file_path.reserve(FLAGS_log_file.length());
+
+  // NOTE: this assumes that FLAGS_log_file contains no multibyte
+  // characters.
+  log_file_path.assign(FLAGS_log_file.begin(), FLAGS_log_file.end());
 #else
-  std::string log_file_path(FLAGS_log_file.c_str());
+  std::string log_file_path(FLAGS_log_file);
 #endif
 
   logging::InitLogging(
