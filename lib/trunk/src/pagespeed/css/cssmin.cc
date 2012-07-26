@@ -19,7 +19,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_piece.h"
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
 
 namespace {
 

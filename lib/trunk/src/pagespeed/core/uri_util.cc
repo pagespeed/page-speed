@@ -18,11 +18,10 @@
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
-#include "base/stringprintf.h"
-#include "base/string_number_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "pagespeed/core/dom.h"
+#include "pagespeed/core/string_util.h"
 #include "third_party/domain_registry_provider/src/domain_registry/domain_registry.h"
 
 namespace {
@@ -265,7 +264,7 @@ bool GetActionUriFromResourceUrl(UriType type, const std::string& url,
   }
   action_uri->append(gurl.PathForRequest());
   action_uri->append("#");
-  action_uri->append(StringPrintf("%d", sequence));
+  action_uri->append(pagespeed::string_util::StringPrintf("%d", sequence));
   return true;
 }
 
@@ -310,7 +309,7 @@ bool GetResourceUrlFromActionUri(const std::string& action_uri,
   std::string path_string = action_uri.substr(host_end, path_end - host_end);
 
   int sequence = 0;
-  base::StringToInt(
+  pagespeed::string_util::StringToInt(
       action_uri.substr(path_end + 1, action_uri.length() - path_end - 1),
       &sequence);
 

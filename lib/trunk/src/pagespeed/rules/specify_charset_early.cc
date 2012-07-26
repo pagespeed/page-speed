@@ -16,7 +16,6 @@
 
 #include <string>
 #include "base/logging.h"
-#include "base/string_util.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"

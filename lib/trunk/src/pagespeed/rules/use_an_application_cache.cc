@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "base/string_util.h"
 #include "build/build_config.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"

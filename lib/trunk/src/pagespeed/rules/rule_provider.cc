@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_charset_in_meta_tag.h"
 #include "pagespeed/rules/avoid_css_import.h"
@@ -160,7 +160,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   // Compare the function parameter name to the given rule name, and construct a
   // new rule of the appropriate type if they match
 #define RULE(rule_name, cnstr) { \
-  if (LowerCaseEqualsASCII(name, (rule_name))) { \
+  if (pagespeed::string_util::LowerCaseEqualsASCII(name, (rule_name))) { \
     return new cnstr; \
   } \
 }
@@ -249,7 +249,7 @@ bool RemoveRuleWithName(const std::string& name, std::vector<Rule*>* rules,
   for (std::vector<Rule*>::iterator it = rules->begin();
        it != rules->end();
        ++it) {
-    if (*it && base::strcasecmp(name.c_str(), (*it)->name()) != 0) {
+    if (*it && !pagespeed::string_util::StringCaseEqual(name, (*it)->name())) {
       out_rules.push_back(*it);
     } else {
       *removed_rule = *it;

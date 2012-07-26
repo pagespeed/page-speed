@@ -14,12 +14,14 @@
 
 #include <vector>
 
-#include "base/string_number_conversions.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_util.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/testing/pagespeed_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+using pagespeed::string_util::IntToString;
 
 namespace {
 
@@ -596,11 +598,11 @@ class GetLastResourceInRedirectChainTest : public PagespeedTest {
       const int num_redirects,
       std::vector<const Resource*>* resources) {
     for (int i = 0; i < num_redirects; ++i) {
-      std::string source = base_url + base::IntToString(i);
-      std::string destination = base_url + base::IntToString(i + 1);
+      std::string source = base_url + IntToString(i);
+      std::string destination = base_url + IntToString(i + 1);
       resources->push_back(New302Resource(source, destination));
     }
-    return New200Resource(base_url + base::IntToString(num_redirects));
+    return New200Resource(base_url + IntToString(num_redirects));
   }
 };
 

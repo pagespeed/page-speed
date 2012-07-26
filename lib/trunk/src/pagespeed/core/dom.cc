@@ -18,7 +18,7 @@
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
-#include "base/string_util.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 
 #define NOT_IMPLEMENTED() do {                          \
@@ -59,7 +59,7 @@ void ExternalResourceVisitorAdaptor::Visit(const DomElement& node) {
   } else if (node.GetTagName() == "LINK") {
     std::string rel;
     if (node.GetAttributeByName("rel", &rel) &&
-        LowerCaseEqualsASCII(rel, "stylesheet")) {
+        pagespeed::string_util::LowerCaseEqualsASCII(rel, "stylesheet")) {
       found_uri = node.GetAttributeByName("href", &relative_uri);
     }
   }

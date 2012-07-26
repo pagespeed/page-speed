@@ -21,7 +21,6 @@
 #include "base/logging.h"
 #include "base/json/json_reader.h"
 #include "base/scoped_ptr.h"
-#include "base/string_util.h"
 #include "base/third_party/nspr/prtime.h"
 #include "base/values.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -359,7 +358,7 @@ bool Iso8601ToEpochMillis(const std::string& input, int64* output) {
   if (tail[0] == '.') {
     int multiplier = 100;
     index = 1;
-    while (IsAsciiDigit(tail[index])) {
+    while (pagespeed::string_util::IsAsciiDigit(tail[index])) {
       milliseconds += (tail[index] - '0') * multiplier;
       multiplier /= 10;
       ++index;
