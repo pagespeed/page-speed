@@ -25,6 +25,7 @@
 #include "pagespeed/core/resource_util.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
@@ -115,7 +116,8 @@ void MetaCharsetFilter::StartElement(net_instaweb::HtmlElement* element) {
     return;
   }
 
-  if (base::strcasecmp(kContentTypeHeaderName, equiv_header_name) != 0) {
+  if (!pagespeed::string_util::LowerCaseEqualsASCII(
+          equiv_header_name, kContentTypeHeaderName)) {
     return;
   }
 
@@ -191,7 +193,8 @@ bool AvoidCharsetInMetaTag::AppendResults(const RuleInput& rule_input,
       continue;
     }
 
-    if (base::strcasecmp(kDefaultCharset, meta_charset_content.c_str()) == 0) {
+    if (pagespeed::string_util::LowerCaseEqualsASCII(
+            meta_charset_content, kDefaultCharset)) {
       // If the user specified the default charset, the IE8 browser
       // will not disable the speculative parser, so don't warn.
       continue;
