@@ -20,16 +20,13 @@
 #include <vector>
 
 #include "base/string_piece.h"
-#include "compiler_specific.h"
+#include "pagespeed/core/compiler_specific.h"
 
-#if defined(OS_WIN)
-#include "string_util_win.h"
-#elif defined(OS_POSIX)
-#include "string_util_posix.h"
+#if defined(_WIN32)
+#include "pagespeed/core/string_util_win.h"
 #else
-#error Define string operations appropriately for your platform
+#include "pagespeed/core/string_util_posix.h"
 #endif
-
 
 namespace pagespeed {
 

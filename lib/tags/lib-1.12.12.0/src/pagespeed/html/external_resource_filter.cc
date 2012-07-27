@@ -19,6 +19,7 @@
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/htmlparse/public/html_name.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 
 namespace pagespeed {
@@ -83,7 +84,8 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
 
   if (keyword == net_instaweb::HtmlName::kLink) {
     const char* rel = element->AttributeValue(net_instaweb::HtmlName::kRel);
-    if (rel == NULL || !LowerCaseEqualsASCII(rel, "stylesheet")) {
+    if (rel == NULL ||
+        !pagespeed::string_util::LowerCaseEqualsASCII(rel, "stylesheet")) {
       return;
     }
     const char* href = element->AttributeValue(net_instaweb::HtmlName::kHref);
@@ -96,7 +98,8 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
   // <input type="image" src="...">
   if (keyword == net_instaweb::HtmlName::kInput) {
     const char* type = element->AttributeValue(net_instaweb::HtmlName::kType);
-    if (type != NULL && LowerCaseEqualsASCII(type, "image")) {
+    if (type != NULL &&
+        pagespeed::string_util::LowerCaseEqualsASCII(type, "image")) {
       const char* src = element->AttributeValue(net_instaweb::HtmlName::kSrc);
       if (src != NULL) {
         external_resource_urls_.push_back(src);

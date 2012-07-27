@@ -300,9 +300,9 @@ TEST(StringUtilTest, Grow) {
 
   const int kRefSize = 320000;
   char* ref = new char[kRefSize];
-#if defined(OS_WIN)
+#if defined(_WIN32)
   sprintf_s(ref, kRefSize, fmt, src, src, src, src, src, src, src);
-#elif defined(OS_POSIX)
+#else
   snprintf(ref, kRefSize, fmt, src, src, src, src, src, src, src);
 #endif
 

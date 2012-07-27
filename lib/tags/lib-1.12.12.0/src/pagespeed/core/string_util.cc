@@ -268,13 +268,13 @@ void StringAppendV(std::string* dst, const char* format, va_list ap) {
   std::string::value_type stack_buf[1024];
 
   va_list ap_copy;
-#if defined(OS_WIN)
+#if defined(_WIN32)
   ap_copy = ap;
 #else
   va_copy(ap_copy, ap);
 #endif
 
-#if !defined(OS_WIN)
+#if !defined(_WIN32)
   errno = 0;
 #endif
   int result = vsnprintfT(stack_buf, arraysize(stack_buf), format, ap_copy);
@@ -290,7 +290,7 @@ void StringAppendV(std::string* dst, const char* format, va_list ap) {
   int mem_length = arraysize(stack_buf);
   while (true) {
     if (result < 0) {
-#if !defined(OS_WIN)
+#if !defined(_WIN32)
       // On Windows, vsnprintfT always returns the number of characters in a
       // fully-formatted string, so if we reach this point, something else is
       // wrong and no amount of buffer-doubling is going to fix it.
@@ -320,7 +320,7 @@ void StringAppendV(std::string* dst, const char* format, va_list ap) {
 
     // NOTE: You can only use a va_list once.  Since we're in a while loop, we
     // need to make a new copy each time so we don't use up the original.
-#if defined(OS_WIN)
+#if defined(_WIN32)
     ap_copy = ap;
 #else
     va_copy(ap_copy, ap);

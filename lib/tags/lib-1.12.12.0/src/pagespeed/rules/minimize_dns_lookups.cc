@@ -19,7 +19,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "build/build_config.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"

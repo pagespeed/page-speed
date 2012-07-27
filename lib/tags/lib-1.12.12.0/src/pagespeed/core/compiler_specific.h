@@ -18,7 +18,7 @@
 #define PAGESPEED_CORE_COMPILER_SPECIFIC_H_
 #pragma once
 
-#if defined(COMPILER_MSVC)
+#if defined(_MSC_VER)
 
 // Macros for suppressing and disabling warnings on MSVC.
 //
@@ -90,7 +90,7 @@
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
 #define NON_EXPORTED_BASE(code) code
 
-#endif  // COMPILER_MSVC
+#endif  // _MSC_VER
 
 
 // Annotate a variable indicating it's ok if the variable is not used.
@@ -98,7 +98,7 @@
 // is important for some other reason.)
 // Use like:
 //   int x ALLOW_UNUSED = ...;
-#if defined(COMPILER_GCC)
+#if defined(__GNUC__)
 #define ALLOW_UNUSED __attribute__((unused))
 #define NOINLINE __attribute__((noinline))
 #else
@@ -110,7 +110,7 @@
 // method in the parent class.
 // Use like:
 //   virtual void foo() OVERRIDE;
-#if defined(COMPILER_MSVC)
+#if defined(_MSC_VER)
 #define OVERRIDE override
 #elif defined(__clang__)
 #define OVERRIDE override
@@ -122,7 +122,7 @@
 // Use like:
 //   int foo() WARN_UNUSED_RESULT;
 // To explicitly ignore a result, see |ignore_result()| in <base/basictypes.h>.
-#if defined(COMPILER_GCC)
+#if defined(__GNUC__)
 #define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #else
 #define WARN_UNUSED_RESULT
@@ -133,7 +133,7 @@
 // |dots_param| is the one-based index of the "..." parameter.
 // For v*printf functions (which take a va_list), pass 0 for dots_param.
 // (This is undocumented but matches what the system C headers do.)
-#if defined(COMPILER_GCC)
+#if defined(__GNUC__)
 #define PRINTF_FORMAT(format_param, dots_param) \
     __attribute__((format(printf, format_param, dots_param)))
 #else
