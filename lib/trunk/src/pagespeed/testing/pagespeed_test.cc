@@ -18,7 +18,6 @@
 #include <string>
 
 #include "base/stl_util-inl.h"
-#include "build/build_config.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/browsing_context.h"
 #include "pagespeed/formatters/proto_formatter.h"
@@ -42,7 +41,7 @@ void AssertNotNull(const void* value) {
 }
 
 std::string GetPathRelativeToSrcRoot(const char* relpath) {
-#if defined(OS_WIN)
+#if defined(_WIN32)
   const char kPathSep = '\\';
 #else
   const char kPathSep = '/';

@@ -482,7 +482,7 @@ int main(int argc, char** argv) {
 
 // logging::InitLogging expects a wchar_t* on windows, and char* on
 // other platforms.
-#if defined (OS_WIN)
+#if defined (_WIN32)
   std::wstring log_file_path;
   log_file_path.reserve(FLAGS_log_file.length());
 
