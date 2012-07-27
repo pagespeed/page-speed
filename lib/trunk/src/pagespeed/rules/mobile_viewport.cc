@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "base/string_util.h"
 #include "build/build_config.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
@@ -82,7 +81,8 @@ void MetaViewportFilter::StartElement(net_instaweb::HtmlElement* element) {
   const char* meta_name_value =
       element->AttributeValue(net_instaweb::HtmlName::kName);
   if (meta_name_value == NULL ||
-      base::strcasecmp(meta_name_value, kViewportMetaName)) {
+      !pagespeed::string_util::LowerCaseEqualsASCII(
+          meta_name_value, kViewportMetaName)) {
     return;
   }
 
