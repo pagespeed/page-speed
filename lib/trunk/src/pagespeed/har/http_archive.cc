@@ -246,6 +246,8 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
         INPUT_POPULATOR_ERROR() << "Received unexpected encoding: " << encoding;
       }
 
+      // NOTE: modified is a custom field used by PageSpeed that's not
+      // in the HAR specification.
       bool modified = false;
       if (content_json->GetBoolean("modified", &modified) && modified) {
         resource->SetResponseBodyModified(true);
