@@ -27,7 +27,8 @@ namespace image_compression {
 
 enum PixelFormat {
   UNSUPPORTED,  // Indicates not supported for reading the image.
-  RGB_888,      // RGB triplets, 8 bits per pixel
+  RGB_888,      // RGB triplets, 24 bits per pixel
+  RGBA_8888,    // RGB triplet plus alpha channel, 32 bits per pixel
   GRAY_8        // Grayscale, 8 bits per pixel
 };
 

@@ -25,7 +25,6 @@
 #include "pagespeed/image_compression/png_optimizer.h"
 #include "pagespeed/testing/pagespeed_test.h"
 #include "third_party/libpng/png.h"
-#include "third_party/readpng/cpp/readpng.h"
 
 namespace {
 
@@ -62,7 +61,7 @@ struct ReadPngDescriptor {
   int channels;              // 3 for RGB, 4 for RGB+alpha
   unsigned long row_bytes;   // number of bytes in a row
   unsigned char bg_red, bg_green, bg_blue;
-  int bgcolor_retval;
+  bool bgcolor_retval;
 };
 
 // Decode the PNG and store the decoded data and metadata in the
@@ -70,17 +69,63 @@ struct ReadPngDescriptor {
 void PopulateDescriptor(const std::string& img,
                         ReadPngDescriptor* desc,
                         const char* identifier) {
-  readpng::ReadPNG reader;
-  std::istringstream stream(img, std::istringstream::binary);
-  ASSERT_EQ(0, reader.readpng_init(stream, &desc->width, &desc->height))
-      << "Failed to init for img " << identifier;
-#if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
-  desc->bgcolor_retval = reader.readpng_get_bgcolor(&desc->bg_red,
-                                                    &desc->bg_green,
-                                                    &desc->bg_blue);
-#endif
-  desc->img_bytes = reader.readpng_get_image(&desc->channels, &desc->row_bytes);
-  reader.readpng_cleanup(0);
+  PngScanlineReader scanline_reader;
+  scanline_reader.set_transform(
+      // Expand paletted colors into true RGB triplets
+      // Expand grayscale images to full 8 bits from 1, 2, or 4 bits/pixel
+      // Expand paletted or RGB images with transparency to full alpha
+      // channels so the data will be available as RGBA quartets.
+      PNG_TRANSFORM_EXPAND |
+      // Downsample images with 16bits per channel to 8bits per channel.
+      PNG_TRANSFORM_STRIP_16 |
+      // Convert grayscale images to RGB images.
+      PNG_TRANSFORM_GRAY_TO_RGB);
+
+  if (setjmp(*scanline_reader.GetJmpBuf())) {
+    FAIL();
+  }
+  PngReader reader;
+  if (!scanline_reader.InitializeRead(reader, img)) {
+    FAIL();
+  }
+
+  int channels;
+  switch (scanline_reader.GetPixelFormat()) {
+    case pagespeed::image_compression::RGB_888:
+      channels = 3;
+      break;
+    case pagespeed::image_compression::RGBA_8888:
+      channels = 4;
+      break;
+    case pagespeed::image_compression::GRAY_8:
+      channels = 1;
+      break;
+    default:
+      LOG(INFO) << "Unexpected pixel format: "
+                << scanline_reader.GetPixelFormat();
+      channels = -1;
+      break;
+  }
+
+  desc->img_bytes = static_cast<unsigned char*>(
+      malloc(scanline_reader.GetBytesPerScanline() *
+             scanline_reader.GetImageHeight()));
+  desc->width = scanline_reader.GetImageWidth();
+  desc->height = scanline_reader.GetImageHeight();
+  desc->channels = channels;
+  desc->row_bytes = scanline_reader.GetBytesPerScanline();
+  desc->bgcolor_retval = scanline_reader.GetBackgroundColor(
+      &desc->bg_red, &desc->bg_green, &desc->bg_blue);
+
+  unsigned char* next_scanline_to_write = desc->img_bytes;
+  while (scanline_reader.HasMoreScanLines()) {
+    void* scanline = NULL;
+    if (scanline_reader.ReadNextScanline(&scanline)) {
+      memcpy(next_scanline_to_write, scanline,
+             scanline_reader.GetBytesPerScanline());
+      next_scanline_to_write += scanline_reader.GetBytesPerScanline();
+    }
+  }
 }
 
 void AssertPngEq(
@@ -100,7 +145,7 @@ void AssertPngEq(
   // If PNG background chunks are supported, verify that the
   // background chunks are not present in the optimized image.
 #if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
-  EXPECT_EQ(1, opt_desc.bgcolor_retval) << "Unexpected: bgcolor";
+  EXPECT_EQ(false, opt_desc.bgcolor_retval) << "Unexpected: bgcolor";
 #endif
 
   // Verify that the number of channels matches (should be 3 for RGB
@@ -444,7 +489,8 @@ TEST(PngOptimizerTest, ValidPngs_isOpaque) {
     PngReader png_reader;
     ASSERT_TRUE(png_reader.ReadPng(in, read.png_ptr(), read.info_ptr(), 0));
     EXPECT_EQ(kOpaqueImagesWithAlpha[i].is_opaque,
-        png_reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
+              PngReaderInterface::IsAlphaChannelOpaque(
+                  read.png_ptr(), read.info_ptr()));
     read.reset();
   }
 }
