@@ -108,12 +108,17 @@ class PngReaderInterface {
                              int* out_bit_depth,
                              int* out_color_type) = 0;
 
+  // Get the background color, in the form of 8-bit RGB triplets. Note
+  // that if the underlying image uses a bit_depth other than 8, the
+  // background color will be scaled to 8-bits per channel.
+  static bool GetBackgroundColor(
+      png_structp png_ptr, png_infop info_ptr,
+      unsigned char *red, unsigned char* green, unsigned char* blue);
+
   // Returns true if the alpha channel is actually a opaque. Returns
   // false otherwise. It is an error to call this method for an image
   // that does not have an alpha channel.
-  virtual bool IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
-    return false;
-  }
+  static bool IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PngReaderInterface);
@@ -156,6 +161,8 @@ class PngScanlineReader : public ScanlineReaderInterface {
 
   void set_transform(int transform);
   int GetColorType();
+  bool GetBackgroundColor(
+      unsigned char* red, unsigned char* green, unsigned char* blue);
 
 private:
   ScopedPngStruct read_;
@@ -223,8 +230,6 @@ class PngReader : public PngReaderInterface {
                              int* out_height,
                              int* out_bit_depth,
                              int* out_color_type);
-
-  virtual bool IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(PngReader);
