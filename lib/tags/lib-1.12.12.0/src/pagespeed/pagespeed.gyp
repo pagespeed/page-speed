@@ -140,6 +140,7 @@
         'core/resource_filter_test.cc',
         'core/resource_util_test.cc',
         'core/rule_input_test.cc',
+        'core/string_tokenizer_test.cc',
         'core/string_util_test.cc',
         'core/uri_util_test.cc',
         'css/cssmin_test.cc',
@@ -226,7 +227,6 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/libjpeg/libjpeg.gyp:libjpeg',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
-        '<(pagespeed_root)/third_party/readpng/readpng.gyp:readpng',
       ],
       'include_dirs': [
         '<(pagespeed_root)',

@@ -17,7 +17,7 @@
 
 #include <string>
 #include "base/basictypes.h"
-#include "base/string_tokenizer.h"
+#include "pagespeed/core/string_tokenizer.h"
 
 namespace pagespeed {
 
