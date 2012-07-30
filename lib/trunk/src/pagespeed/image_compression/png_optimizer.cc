@@ -503,7 +503,9 @@ void PngOptimizer::CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to) {
   // supported in most browsers.
 }
 
-bool PngReader::IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
+// static
+bool PngReaderInterface::IsAlphaChannelOpaque(
+    png_structp png_ptr, png_infop info_ptr) {
   png_uint_32 height;
   png_uint_32 width;
   int bit_depth;
@@ -541,7 +543,7 @@ bool PngReader::IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
   // We currently detect aplha only for 8/16 bit Gray/TrueColor with Alpha
   // channel. Only 8 or 16 bit depths are supports for these modes.
   if (bit_depth % 8 != 0) {
-    LOG(DFATAL) << "Received unexpected bit_depth: " << bit_depth;
+    LOG(WARNING) << "Received unexpected bit_depth: " << bit_depth;
     return false;
   }
 
@@ -564,6 +566,46 @@ bool PngReader::IsAlphaChannelOpaque(png_structp png_ptr, png_infop info_ptr) {
         }
       }
     }
+  }
+
+  return true;
+}
+
+// static
+bool PngReaderInterface::GetBackgroundColor(
+    png_structp png_ptr, png_infop info_ptr,
+    unsigned char *red, unsigned char* green, unsigned char* blue) {
+  if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_bKGD)) {
+    return false;
+  }
+  png_color_16p bg;
+  png_get_bKGD(png_ptr, info_ptr, &bg);
+  const png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+  const png_byte color_type = png_get_color_type(png_ptr, info_ptr);
+
+  if (bit_depth == 16) {
+    // Downsample 16bit to 8bit.
+    *red = bg->red >> 8;
+    *green = bg->green >> 8;
+    *blue = bg->blue >> 8;
+  } else if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
+    // Upsample to 8bit.
+    const int scale = 255 / ((bit_depth << 1) - 1);
+    const unsigned char gray_8bit = bg->gray * scale;
+    *red = gray_8bit;
+    *green = gray_8bit;
+    *blue = gray_8bit;
+  } else if (bit_depth == 8) {
+    *red = static_cast<unsigned char>(bg->red);
+    *green = static_cast<unsigned char>(bg->green);
+    *blue = static_cast<unsigned char>(bg->blue);
+  } else {
+    // TODO(bmcquade): we currently fall through to this case for
+    // 1-bit paletted images. Consider adding support.
+    LOG(WARNING) << "Unsupported bit_depth: "
+                << static_cast<int>(bit_depth) << " color type: "
+                << static_cast<int>(color_type);
+    return false;
   }
 
   return true;
@@ -599,7 +641,8 @@ bool PngScanlineReader::InitializeRead(PngReaderInterface& reader,
 
   int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
   if (((color_type & PNG_COLOR_MASK_ALPHA) != 0) &&
-      reader.IsAlphaChannelOpaque(read_.png_ptr(), read_.info_ptr())) {
+      PngReaderInterface::IsAlphaChannelOpaque(
+          read_.png_ptr(), read_.info_ptr())) {
     // Clear the read pointers.
     read_.reset();
     return reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(),
@@ -652,13 +695,21 @@ int PngScanlineReader::GetColorType() {
 PixelFormat PngScanlineReader::GetPixelFormat() {
   int bit_depth = png_get_bit_depth(read_.png_ptr(), read_.info_ptr());
   int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
-  if (bit_depth == 8 && color_type == 0) {
+  if (bit_depth == 8 && color_type == PNG_COLOR_TYPE_GRAY) {
     return GRAY_8;
-  } else if (bit_depth == 8 && color_type == 2) {
+  } else if (bit_depth == 8 && color_type == PNG_COLOR_TYPE_RGB) {
     return RGB_888;
+  } else if (bit_depth == 8 && color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
+    return RGBA_8888;
   }
 
   return UNSUPPORTED;
+}
+
+bool PngScanlineReader::GetBackgroundColor(
+  unsigned char* red, unsigned char* green, unsigned char* blue) {
+  return PngReaderInterface::GetBackgroundColor(
+      read_.png_ptr(), read_.info_ptr(), red, green, blue);
 }
 
 }  // namespace image_compression
