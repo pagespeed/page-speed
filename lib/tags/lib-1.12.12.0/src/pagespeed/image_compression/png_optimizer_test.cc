@@ -145,7 +145,7 @@ void AssertPngEq(
   // If PNG background chunks are supported, verify that the
   // background chunks are not present in the optimized image.
 #if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
-  EXPECT_EQ(false, opt_desc.bgcolor_retval) << "Unexpected: bgcolor";
+  EXPECT_FALSE(opt_desc.bgcolor_retval) << "Unexpected: bgcolor";
 #endif
 
   // Verify that the number of channels matches (should be 3 for RGB
