@@ -34,6 +34,7 @@
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/pagespeed_input_util.h"
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/dom/json_dom.h"
@@ -163,12 +164,17 @@ bool RunPageSpeedRules(const std::string& data,
     return false;
   }
 
+  bool is_mobile = false;
+  if (!root->GetBoolean("mobile", &is_mobile)) {
+    LOG(INFO) << "Input JSON does not have MOBILE info.";
+  }
   return RunPageSpeedRules(id,
                            har_data,
                            document_data,
                            timeline_data,
                            resource_filter_name,
                            locale,
+                           is_mobile,
                            save_optimized_content,
                            output_string,
                            error_string);
@@ -185,6 +191,7 @@ bool RunPageSpeedRules(const std::string& id,
                        const std::string& timeline_data,
                        const std::string& resource_filter_name,
                        const std::string& locale,
+                       bool is_mobile,
                        bool save_optimized_content,
                        std::string* output_string,
                        std::string* error_string) {
@@ -231,13 +238,12 @@ bool RunPageSpeedRules(const std::string& id,
   if (document != NULL) {
     input->SetPrimaryResourceUrl(document->GetDocumentUrl());
   }
-  input->AcquireDomDocument(document); // input takes ownership of document
+  input->AcquireDomDocument(document);  // input takes ownership of document
 
   // Finish up the PagespeedInput object and freeze it.
   input->AcquireInstrumentationData(&timeline_protos);
   input->AcquireImageAttributesFactory(
       new pagespeed::image_compression::ImageAttributesFactory());
-  input->Freeze();
 
   std::vector<pagespeed::Rule*> rules;
 
@@ -248,6 +254,16 @@ bool RunPageSpeedRules(const std::string& id,
 
   pagespeed::rule_provider::AppendPageSpeedRules(
       save_optimized_content, &rules);
+  if (is_mobile) {
+    pagespeed::ClientCharacteristics client_characteristics;
+    pagespeed::pagespeed_input_util::PopulateMobileClientCharacteristics(
+        &client_characteristics);
+    input->SetClientCharacteristics(client_characteristics);
+    pagespeed::rule_provider::AppendRuleSet(save_optimized_content,
+        pagespeed::rule_provider::MOBILE_BROWSER_RULES, &rules);
+  }
+  input->Freeze();
+
   std::vector<std::string> incompatible_rule_names;
   pagespeed::rule_provider::RemoveIncompatibleRules(
       &rules, &incompatible_rule_names, input->EstimateCapabilities());
