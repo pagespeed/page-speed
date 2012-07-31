@@ -108,6 +108,8 @@ message InputInformation {
   optional int64 javascript_response_bytes = 10;
   optional int64 flash_response_bytes = 11;
   optional int64 media_response_bytes = 16;
+  optional int64 font_response_bytes = 17;
+  optional int64 binary_data_response_bytes = 18;
   optional int64 other_response_bytes = 12;
 
   // Number of JS and CSS resources accessed while rendering the page.

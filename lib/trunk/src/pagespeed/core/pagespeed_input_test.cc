@@ -146,6 +146,15 @@ class UpdateResourceTypesTest : public pagespeed_testing::PagespeedTest {
     NewPrimaryResource(kRootUrl);
     CreateHtmlHeadBodyElements();
   }
+
+  void ResourceTypeTestHelper(const std::string& url,
+                              const std::string& content_type,
+                              pagespeed::ResourceType expected_resource_type) {
+    Resource* resource = New200Resource(url);
+    resource->AddResponseHeader("content-type", content_type);
+    FakeDomElement::New(body(), "embed")->AddAttribute("src", url);
+    ASSERT_EQ(expected_resource_type, resource->GetResourceType());
+  }
 };
 
 const char* UpdateResourceTypesTest::kRootUrl = "http://example.com/";
@@ -241,19 +250,28 @@ TEST_F(UpdateResourceTypesTest, DifferentTypesSameUrl) {
 }
 
 TEST_F(UpdateResourceTypesTest, Audio) {
-  const char* kAudioUrl = "http://example.com/foo.mp3";
-  Resource* resource = New200Resource(kAudioUrl);
-  resource->AddResponseHeader("content-type", "audio/mpeg");
-  FakeDomElement::New(body(), "embed")->AddAttribute("src", kAudioUrl);
-  ASSERT_EQ(pagespeed::MEDIA, resource->GetResourceType());
+  ResourceTypeTestHelper("http://example.com/foo.mp3", "audio/mpeg",
+                         pagespeed::MEDIA);
 }
 
 TEST_F(UpdateResourceTypesTest, Video) {
-  const char* kVideoUrl = "http://example.com/foo.mpg";
-  Resource* resource = New200Resource(kVideoUrl);
-  resource->AddResponseHeader("content-type", "video/mpeg");
-  FakeDomElement::New(body(), "embed")->AddAttribute("src", kVideoUrl);
-  ASSERT_EQ(pagespeed::MEDIA, resource->GetResourceType());
+  ResourceTypeTestHelper("http://example.com/foo.mpg", "video/mpeg",
+                         pagespeed::MEDIA);
+}
+
+TEST_F(UpdateResourceTypesTest, Pdf) {
+  ResourceTypeTestHelper("http://example.com/foo.pdf", "application/pdf",
+                         pagespeed::BINARY_DATA);
+}
+
+TEST_F(UpdateResourceTypesTest, BinaryOctetStream) {
+  ResourceTypeTestHelper("http://example.com/foo.bin", "binary/octet-stream",
+                         pagespeed::BINARY_DATA);
+}
+
+TEST_F(UpdateResourceTypesTest, Fonts) {
+  ResourceTypeTestHelper("http://example.com/foo.ttf", "application/x-font-ttf",
+                         pagespeed::FONT);
 }
 
 class EstimateCapabilitiesTest : public ::pagespeed_testing::PagespeedTest {};
