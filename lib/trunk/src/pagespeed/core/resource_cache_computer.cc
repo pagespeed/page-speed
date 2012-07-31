@@ -228,7 +228,7 @@ bool ResourceCacheComputer::ComputeFreshnessLifetimeMillis(
     if (it != cache_directives.end()) {
       int max_age_value = 0;
       if (StringToInt(it->second, &max_age_value)) {
-        *out_freshness_lifetime_millis = max_age_value * 1000;
+        *out_freshness_lifetime_millis = 1000LL * max_age_value;
         return true;
       }
     }
