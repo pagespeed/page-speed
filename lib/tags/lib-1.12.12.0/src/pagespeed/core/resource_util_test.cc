@@ -504,6 +504,13 @@ TEST_F(GetFreshnessLifetimeTest, BadMaxAge) {
                                                          &freshness_lifetime_));
 }
 
+TEST_F(GetFreshnessLifetimeTest, OverflowInt32MaxAge) {
+  r_.AddResponseHeader("Cache-Control", "max-age=2592000");
+  EXPECT_TRUE(resource_util::GetFreshnessLifetimeMillis(r_,
+                                                        &freshness_lifetime_));
+  EXPECT_EQ(2592000000LL, freshness_lifetime_);
+}
+
 TEST_F(GetFreshnessLifetimeTest, BadExpires) {
   r_.AddResponseHeader("Expires", "0");
   r_.AddResponseHeader("Date", "Tue, 16 Mar 2010 16:08:25 EDT");
