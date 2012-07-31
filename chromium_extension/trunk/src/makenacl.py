@@ -24,7 +24,7 @@ import sys
 script_dir = os.path.dirname(__file__)
 default_nacl_home = os.path.normpath(
     os.path.join(script_dir, 'third_party', 'nacl_sdk'))
-default_nacl_bundle = 'pepper_18'
+default_nacl_bundle = 'pepper_19'
 
 nacl_home = os.environ.get('NACL_HOME', default_nacl_home)
 nacl_bundle = os.environ.get('NACL_BUNDLE', default_nacl_bundle)

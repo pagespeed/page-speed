@@ -48,6 +48,7 @@ bool RunPageSpeedRules(const std::string& id,
                        const std::string& timeline_data,
                        const std::string& resource_filter_name,
                        const std::string& locale,
+                       bool is_mobile,
                        bool save_optimized_content,
                        std::string* output_string,
                        std::string* error_string);
