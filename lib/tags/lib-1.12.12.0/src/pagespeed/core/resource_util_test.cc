@@ -152,7 +152,17 @@ TEST_F(HeaderDirectiveTest, BadHeaderDirectives) {
   AssertBadHeaderDirectives("foo=bar, \"foo bar\"");
 }
 
-class StaticResourceTest : public ResourceUtilTest {};
+class StaticResourceTest : public ResourceUtilTest {
+ protected:
+  void TestIsLikelyStaticResource(const std::string& content_type,
+                                  bool is_static_resource) {
+  r_.AddResponseHeader("Content-Type", content_type);
+  ASSERT_EQ(is_static_resource,
+            resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
+  ASSERT_EQ(is_static_resource,
+            resource_util::IsLikelyStaticResource(r_));
+  }
+};
 
 TEST_F(StaticResourceTest, CacheControlNoCache) {
   // Base test: First specify a content type that's generally
@@ -256,51 +266,55 @@ TEST_F(StaticResourceTest, NoContentType) {
 }
 
 TEST_F(StaticResourceTest, Html) {
-  r_.AddResponseHeader("Content-Type", "text/html");
-  ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_FALSE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("text/html", false);
 }
 
 TEST_F(StaticResourceTest, Text) {
-  r_.AddResponseHeader("Content-Type", "text/plain");
-  ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_FALSE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("text/plain", false);
 }
 
 TEST_F(StaticResourceTest, Css) {
-  r_.AddResponseHeader("Content-Type", "text/css");
-  ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("text/css", true);
 }
 
 TEST_F(StaticResourceTest, Image) {
-  r_.AddResponseHeader("Content-Type", "image/png");
-  ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("image/png", true);
 }
 
 TEST_F(StaticResourceTest, Javascript) {
-  r_.AddResponseHeader("Content-Type", "application/x-javascript");
-  ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("application/x-javascript", true);
 }
 
 TEST_F(StaticResourceTest, Audio) {
-  r_.AddResponseHeader("Content-Type", "audio/mp4");
-  ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("audio/mp4", true);
 }
 
 TEST_F(StaticResourceTest, Video) {
-  r_.AddResponseHeader("Content-Type", "video/mpeg");
-  ASSERT_TRUE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_TRUE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("video/mpeg", true);
+}
+
+TEST_F(StaticResourceTest, Pdf) {
+  TestIsLikelyStaticResource("application/pdf", true);
+}
+
+TEST_F(StaticResourceTest, Zip) {
+  TestIsLikelyStaticResource("application/zip", true);
+}
+
+TEST_F(StaticResourceTest, Woff) {
+  TestIsLikelyStaticResource("application/x-font-woff", true);
+}
+
+TEST_F(StaticResourceTest, Ttf) {
+  TestIsLikelyStaticResource("application/x-font-ttf", true);
+}
+
+TEST_F(StaticResourceTest, BinaryOctetStream) {
+  TestIsLikelyStaticResource("binary/octet-stream", true);
 }
 
 TEST_F(StaticResourceTest, UnknownContentType) {
-  r_.AddResponseHeader("Content-Type", "foo");
-  ASSERT_FALSE(resource_util::IsLikelyStaticResourceType(r_.GetResourceType()));
-  ASSERT_FALSE(resource_util::IsLikelyStaticResource(r_));
+  TestIsLikelyStaticResource("foo", false);
 }
 
 TEST_F(StaticResourceTest, AlwaysCacheableStatusCodes) {
