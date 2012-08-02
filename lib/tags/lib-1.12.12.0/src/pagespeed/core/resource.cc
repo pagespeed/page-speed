@@ -356,10 +356,21 @@ ResourceType Resource::GetResourceType() const {
       return TEXT;
     } else if (StringCaseEqual(type, "application/x-shockwave-flash")) {
       return FLASH;
+    } else if (StringCaseEqual(type, "application/octet-stream") ||
+               StringCaseEqual(type, "application/pdf") ||
+               StringCaseEqual(type, "application/zip") ||
+               StringCaseEqual(type, "application/x-gzip")) {
+      return BINARY_DATA;
+    } else if (StringCaseEqual(type, "application/font-woff") ||
+               StringCaseEqual(type, "application/x-font-woff") ||
+               StringCaseEqual(type, "application/x-font-ttf")) {
+      return FONT;
     }
   } else if (StringCaseStartsWith(type, "audio/") ||
              StringCaseStartsWith(type, "video/")) {
     return MEDIA;
+  } else if (StringCaseEqual(type, "binary/octet-stream")) {
+    return BINARY_DATA;
   }
 
   return OTHER;

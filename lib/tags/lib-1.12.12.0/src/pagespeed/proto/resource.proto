@@ -241,6 +241,8 @@ enum ResourceType {
   REDIRECT = 6;
   FLASH = 7;
   MEDIA = 8;
+  BINARY_DATA = 9;
+  FONT = 10;
 }
 
 // The request protocol.
