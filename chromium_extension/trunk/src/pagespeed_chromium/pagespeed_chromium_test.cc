@@ -232,7 +232,7 @@ TEST_F(PagespeedChromiumTest, EmptyInput) {
   ASSERT_EQ("Line: 1, column: 1, Root value must be an array or object.", err);
 
   ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
-      "", "", "", "", kFilterName, "", false, &out, &err));
+      "", "", "", "", kFilterName, "", false, false, &out, &err));
   ASSERT_TRUE(out.empty());
   ASSERT_EQ("could not parse HAR", err);
 }
@@ -244,7 +244,7 @@ TEST_F(PagespeedChromiumTest, EmptyJsonInput) {
   ASSERT_EQ("Failed to extract required field(s) from input JSON.", err);
 
   ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
-      "", "{}", "{}", "{}", kFilterName, "", false, &out, &err));
+      "", "{}", "{}", "{}", kFilterName, "", false, false, &out, &err));
   ASSERT_TRUE(out.empty());
   ASSERT_EQ("could not parse HAR", err);
 }
@@ -257,6 +257,7 @@ TEST_F(PagespeedChromiumTest, Basic) {
                                                     kBasicTimeline,
                                                     kFilterName,
                                                     kLocale,
+                                                    false,
                                                     false,
                                                     &out,
                                                     &err));

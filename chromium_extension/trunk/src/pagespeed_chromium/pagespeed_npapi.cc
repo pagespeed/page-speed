@@ -130,7 +130,7 @@ bool PageSpeedModule::RunPageSpeed(const NPVariant& har_arg,
   // RunPageSpeedRules will deallocate the filter and the document.
   const bool success = pagespeed_chromium::RunPageSpeedRules(
       kDummyId, har_string, document_string, timeline_string, filter_string,
-      locale_string, save_optimized_content, &output, &error_string);
+      locale_string, false, save_optimized_content, &output, &error_string);
   if (!success) {
     return Throw(error_string);
   }
