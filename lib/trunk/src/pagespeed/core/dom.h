@@ -197,6 +197,20 @@ class DomElement {
   // element has a specified height.
   virtual Status HasHeightSpecified(bool* out_height_specified) const;
 
+  // Get the number of the children of the element.
+  // @param number output of the number of the children.
+  // @return SUCCESS if the runtime is able to determine the number of the
+  // children of the element.
+  virtual Status GetNumChildren(size_t* number) const;
+
+  // Get the child of the element at given index. The caller is responsible to
+  // delete the DomElement of the child.
+  // @param child output parameter to hold child (NULL, if index is out of
+  // range).
+  // @param index input parameter to the index of the child.
+  // @return SUCCESS if the runtime is able to return the child.
+  virtual Status GetChild(const DomElement** child, size_t index) const;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(DomElement);
 };

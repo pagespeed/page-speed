@@ -78,6 +78,32 @@ void TagVisitor::Visit(const DomElement& node) {
   }
 }
 
+class ChildrenVisitor : public pagespeed::DomElementVisitor {
+ public:
+  ChildrenVisitor() {}
+  virtual void Visit(const DomElement& node);
+  const std::vector<std::string>& children() const { return children_; }
+ private:
+  std::vector<std::string> children_;
+  DISALLOW_COPY_AND_ASSIGN(ChildrenVisitor);
+};
+
+void ChildrenVisitor::Visit(const DomElement& node) {
+  size_t size = 0;
+  ASSERT_EQ(node.GetNumChildren(&size), DomElement::SUCCESS);
+  for (size_t idx = 0; idx < size; ++idx) {
+    const DomElement* child;
+    ASSERT_EQ(node.GetChild(&child, idx), DomElement::SUCCESS);
+    scoped_ptr<const DomElement> child_ptr(child);
+    children_.push_back(child->GetTagName());
+  }
+  scoped_ptr<DomDocument> subdoc(node.GetContentDocument());
+  if (subdoc != NULL) {
+    subdoc->Traverse(this);
+  }
+}
+
+
 TEST_F(JsonDomTest, DocumentAndBaseUrls) {
   Parse("{\"documentUrl\":\"http://www.example.com/index.html\","
         " \"baseUrl\":\"http://www.example.com/\",\"elements\":[]}");
@@ -213,5 +239,26 @@ TEST_F(JsonDomTest, Attributes) {
   EXPECT_EQ("[a.png|32x24|WH][b.png|40x19|wH][c.png|100x80|wh][d.png|x|wh]",
             visitor.output());
 }
+
+TEST_F(JsonDomTest, Children) {
+  Parse("{\"documentUrl\":\"http://www.example.com/index.html\","
+        " \"baseUrl\":\"http://www.example.com/\",\"elements\":["
+        "  {\"tag\":\"HTML\", \"children\":[1,3]},"
+        "  {\"tag\":\"HEAD\", \"children\":[2]},"
+        "  {\"tag\":\"TITLE\"},"
+        "  {\"tag\":\"BODY\", \"children\":[4]},"
+        "  {\"tag\":\"H1\"}"
+        "]}");
+  ASSERT_FALSE(NULL == document());
+
+  ChildrenVisitor visitor;
+  document()->Traverse(&visitor);
+  EXPECT_EQ(4u, visitor.children().size());
+  EXPECT_EQ("HEAD", visitor.children()[0]);
+  EXPECT_EQ("BODY", visitor.children()[1]);
+  EXPECT_EQ("TITLE", visitor.children()[2]);
+  EXPECT_EQ("H1", visitor.children()[3]);
+}
+
 
 }  // namespace

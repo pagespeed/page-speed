@@ -141,6 +141,18 @@ DomElement::Status DomElement::HasHeightSpecified(
   return FAILURE;
 }
 
+DomElement::Status DomElement::GetNumChildren(size_t* number) const {
+  NOT_IMPLEMENTED();
+  return FAILURE;
+}
+
+DomElement::Status DomElement::GetChild(
+    const DomElement** child, size_t index) const {
+  NOT_IMPLEMENTED();
+  return FAILURE;
+}
+
+
 DomElementVisitor::DomElementVisitor() {}
 
 DomElementVisitor::~DomElementVisitor() {}
