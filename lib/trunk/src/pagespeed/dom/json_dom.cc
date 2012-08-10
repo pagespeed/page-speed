@@ -36,6 +36,24 @@ std::string DemandString(const DictionaryValue& dict, const std::string& key) {
   return out;
 }
 
+std::vector<int> DemandIntegerList(const DictionaryValue& dict,
+                                   const std::string& key) {
+  std::vector<int> out;
+  ListValue* list;
+  if (dict.GetListWithoutPathExpansion(key, &list)) {
+    for (size_t idx = 0, size = list->GetSize(); idx < size; ++idx) {
+      int num;
+      list->GetInteger(idx, &num);
+      out.push_back(num);
+    }
+  } else {
+    // The key does not exist, keep the output empty.
+  }
+
+  return out;
+}
+
+
 class JsonDocument : public pagespeed::DomDocument {
  public:
   explicit JsonDocument(const DictionaryValue* json) { json_.reset(json); }
@@ -46,6 +64,8 @@ class JsonDocument : public pagespeed::DomDocument {
   virtual std::string GetBaseUrl() const;
   virtual void Traverse(pagespeed::DomElementVisitor* visitor) const;
 
+  bool GetElement(int index, DictionaryValue** element) const;
+
  private:
   scoped_ptr<const DictionaryValue> json_;
 
@@ -54,7 +74,8 @@ class JsonDocument : public pagespeed::DomDocument {
 
 class JsonElement : public pagespeed::DomElement {
  public:
-  explicit JsonElement(const DictionaryValue* json) : json_(json) {}
+  JsonElement(const DictionaryValue* json, const JsonDocument* json_doc)
+      : json_(json), json_doc_(json_doc) {}
   virtual ~JsonElement() {}
 
   // DomElement interface:
@@ -66,9 +87,11 @@ class JsonElement : public pagespeed::DomElement {
   virtual Status HasHeightSpecified(bool* out_height_specified) const;
   virtual Status GetActualWidth(int* out_width) const;
   virtual Status GetActualHeight(int* out_height) const;
-
+  virtual Status GetNumChildren(size_t* number) const;
+  virtual Status GetChild(const DomElement** child, size_t index) const;
  private:
   const DictionaryValue* json_;
+  const JsonDocument* json_doc_;
 
   DISALLOW_COPY_AND_ASSIGN(JsonElement);
 };
@@ -94,9 +117,23 @@ void JsonDocument::Traverse(pagespeed::DomElementVisitor* visitor) const {
       LOG(ERROR) << "non-object item in \"elements\" list";
       continue;
     }
-    JsonElement element(dict);
+    JsonElement element(dict, this);
     visitor->Visit(element);
   }
+}
+
+bool JsonDocument::GetElement(int index, DictionaryValue** element) const {
+  ListValue* elements;
+  if (!json_->GetListWithoutPathExpansion("elements", &elements)) {
+    LOG(ERROR) << "missing \"elements\" in JSON for JsonDocument";
+    return false;
+  }
+
+  if (!elements->GetDictionary(index, element)) {
+    LOG(ERROR) << "non-object item in \"elements\" list";
+    return false;
+  }
+  return true;
 }
 
 pagespeed::DomDocument* JsonElement::GetContentDocument() const {
@@ -144,6 +181,28 @@ JsonElement::Status JsonElement::GetActualHeight(int* out_height) const {
           SUCCESS : FAILURE);
 }
 
+DomElement::Status JsonElement::GetNumChildren(size_t* number) const {
+  *number = 0;
+  ListValue* list;
+  if (json_->GetListWithoutPathExpansion("children", &list)) {
+    *number = list->GetSize();
+  }
+  return SUCCESS;
+}
+
+DomElement::Status JsonElement::GetChild(
+    const DomElement** child, size_t index) const {
+  std::vector<int> childrenIndices =
+      DemandIntegerList(*json_, "children");
+  if (index < 0 || index >= childrenIndices.size()) {
+    child = NULL;
+  } else {
+    DictionaryValue* dict;
+    json_doc_->GetElement(childrenIndices[index], &dict);
+    *child = new JsonElement(dict, json_doc_);
+  }
+  return SUCCESS;
+}
 }  // namespace
 
 pagespeed::DomDocument* CreateDocument(const DictionaryValue* json) {
