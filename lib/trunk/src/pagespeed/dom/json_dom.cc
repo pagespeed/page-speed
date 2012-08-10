@@ -194,8 +194,8 @@ DomElement::Status JsonElement::GetChild(
     const DomElement** child, size_t index) const {
   std::vector<int> childrenIndices =
       DemandIntegerList(*json_, "children");
-  if (index < 0 || index >= childrenIndices.size()) {
-    child = NULL;
+  if (index >= childrenIndices.size()) {
+    *child = NULL;
   } else {
     DictionaryValue* dict;
     json_doc_->GetElement(childrenIndices[index], &dict);
