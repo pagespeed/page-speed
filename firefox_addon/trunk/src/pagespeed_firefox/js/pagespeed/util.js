@@ -1338,15 +1338,15 @@ PAGESPEED.Utils = {  // Begin namespace
    *
    * PAGESPEED.Utils.getComponents().redirect = {
    *   "http://a1.com/":{
-   *     "elements":["http://b.com/"],
+   *     "elements":["http://b.com/"],
    *     lots of other info
    *   },
    *   "http://a2.com/":{
-   *     "elements":["http://b.com/"],
+   *     "elements":["http://b.com/"],
    *     lots of other info
    *   },
    *   "http://b.com/":{
-   *     "elements":["http://c.com/"],
+   *     "elements":["http://c.com/"],
    *     lots of other info
    *   },
    * }
@@ -2666,7 +2666,7 @@ PAGESPEED.Utils = {  // Begin namespace
    * @return {object} gBrowser
    */
   getGBrowser: function() {
-    return window.top.gBrowser;
+    return FBL.getTabBrowser();
   }
 };  // End namespace
 
