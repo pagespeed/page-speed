@@ -373,6 +373,8 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
                                               const char* output_dir) {
   Initialize();
 
+  printf("\n\nPageSpeed_ComputeAndFormatResults JSON DOM:\n\n%s\n\n", json_dom);
+
   // Instantiate an AtExitManager so our Singleton<>s are able to
   // schedule themselves for destruction.
   base::AtExitManager at_exit_manager;
