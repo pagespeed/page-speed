@@ -141,14 +141,17 @@ FakeDomElement::FakeDomElement(const FakeDomElement* parent,
       x_(-1),
       y_(-1),
       actual_width_(-1),
-      actual_height_(-1) {
+      actual_height_(-1),
+      is_clone_(false) {
   pagespeed::string_util::StringToUpperASCII(&tag_name_);
 }
 
 FakeDomElement::~FakeDomElement() {
-  STLDeleteContainerPointers(children_.begin(), children_.end());
-  if (document_ != NULL) {
-    delete document_;
+  if (!is_clone_) {
+    STLDeleteContainerPointers(children_.begin(), children_.end());
+    if (document_ != NULL) {
+      delete document_;
+    }
   }
 }
 
@@ -233,6 +236,19 @@ const FakeDomElement* FakeDomElement::GetNextSibling() const {
   return NULL;
 }
 
+FakeDomElement* FakeDomElement::Clone() const {
+  FakeDomElement* clone = new FakeDomElement(parent_, tag_name_);
+
+  clone->children_ = children_;
+  clone->attributes_ = attributes_;
+  clone->document_ = document_;
+  clone->x_ = x_;
+  clone->y_ = y_;
+  clone->actual_height_ = actual_height_;
+  clone->actual_width_ = actual_width_;
+  clone->is_clone_ = true;
+  return clone;
+}
 // static
 FakeDomDocument* FakeDomDocument::NewRoot(const std::string& document_url) {
   return new FakeDomDocument(document_url);
@@ -354,6 +370,22 @@ pagespeed::DomElement::Status FakeDomElement::HasHeightSpecified(
 pagespeed::DomElement::Status FakeDomElement::HasWidthSpecified(
     bool *out) const {
   *out = attributes_.find("width") != attributes_.end();
+  return SUCCESS;
+}
+
+pagespeed::DomElement::Status FakeDomElement::GetNumChildren(
+    size_t* number) const {
+  *number = children_.size();
+  return SUCCESS;
+}
+
+pagespeed::DomElement::Status FakeDomElement::GetChild(
+    const DomElement** child, size_t index) const {
+  if (index >= children_.size()) {
+      *child = NULL;
+  } else {
+    *child = children_[index]->Clone();
+  }
   return SUCCESS;
 }
 
