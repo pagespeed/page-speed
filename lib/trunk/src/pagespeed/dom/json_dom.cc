@@ -36,21 +36,22 @@ std::string DemandString(const DictionaryValue& dict, const std::string& key) {
   return out;
 }
 
-std::vector<int> DemandIntegerList(const DictionaryValue& dict,
-                                   const std::string& key) {
-  std::vector<int> out;
+void DemandIntegerList(const DictionaryValue& dict,
+                       const std::string& key, std::vector<int>* out) {
+  out->clear();
   ListValue* list;
   if (dict.GetListWithoutPathExpansion(key, &list)) {
     for (size_t idx = 0, size = list->GetSize(); idx < size; ++idx) {
       int num;
-      list->GetInteger(idx, &num);
-      out.push_back(num);
+      if (!list->GetInteger(idx, &num)) {
+        LOG(DFATAL) << "Could not get integer from list at " << idx << ".";
+        num = -1;
+      }
+      out->push_back(num);
     }
   } else {
     // The key does not exist, keep the output empty.
   }
-
-  return out;
 }
 
 
@@ -192,14 +193,14 @@ DomElement::Status JsonElement::GetNumChildren(size_t* number) const {
 
 DomElement::Status JsonElement::GetChild(
     const DomElement** child, size_t index) const {
-  std::vector<int> childrenIndices =
-      DemandIntegerList(*json_, "children");
-  if (index >= childrenIndices.size()) {
-    *child = NULL;
-  } else {
-    DictionaryValue* dict;
-    json_doc_->GetElement(childrenIndices[index], &dict);
+  std::vector<int> children_indices;
+  DemandIntegerList(*json_, "children", &children_indices);
+  DictionaryValue* dict = NULL;
+  if (index < children_indices.size() &&
+      json_doc_->GetElement(children_indices[index], &dict)) {
     *child = new JsonElement(dict, json_doc_);
+  } else {
+    *child = NULL;
   }
   return SUCCESS;
 }
