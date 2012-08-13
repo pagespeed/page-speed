@@ -16,11 +16,15 @@
 #include <vector>
 
 #include "base/scoped_ptr.h"
+#include "base/stl_util-inl.h"
+#include "pagespeed/core/dom.h"
 #include "pagespeed/testing/fake_dom.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
 
+using pagespeed::DomDocument;
+using pagespeed::DomElement;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
 
@@ -103,6 +107,33 @@ class FakeDomExternalResourceTest : public pagespeed_testing::PagespeedTest {
 
   FakeDomExternalResourceVisitor visitor_;
 };
+
+class ChildrenVisitor : public pagespeed::DomElementVisitor {
+ public:
+  ChildrenVisitor() {}
+  virtual void Visit(const DomElement& node);
+  const std::vector<std::string>& children() const { return children_; }
+ private:
+  std::vector<std::string> children_;
+  DISALLOW_COPY_AND_ASSIGN(ChildrenVisitor);
+};
+
+void ChildrenVisitor::Visit(const DomElement& node) {
+  size_t size = 0;
+  ASSERT_EQ(node.GetNumChildren(&size), DomElement::SUCCESS);
+  for (size_t idx = 0; idx < size; ++idx) {
+    const DomElement* child;
+    ASSERT_EQ(node.GetChild(&child, idx), DomElement::SUCCESS);
+    scoped_ptr<const DomElement> child_ptr(child);
+    children_.push_back(child->GetTagName());
+  }
+  if (node.GetTagName() == "IFRAME") {
+    scoped_ptr<DomDocument> subdoc(node.GetContentDocument());
+    if (subdoc != NULL) {
+      subdoc->Traverse(this);
+    }
+  }
+}
 
 const char* FakeDomTest::kRootUrl = "http://www.example.com/foo.html";
 const char* FakeDomTest::kChildUrl = "http://www.foo.com/bar.html";
@@ -306,6 +337,22 @@ TEST_F(FakeDomExternalResourceTest, Iframes) {
   ASSERT_EQ("http://www.example.com/script2.js", url(1));
   ASSERT_EQ(kChild2Url, url(2));
   ASSERT_EQ("http://www.foo.com/somepath/sheet.css", url(3));
+}
+
+TEST_F(FakeDomTest, ChildElements) {
+  FakeDomElement* root = FakeDomElement::NewRoot(document_.get(), "html");
+  FakeDomElement* head = FakeDomElement::New(root, "head");
+  FakeDomElement::New(head, "title");
+  FakeDomElement* body = FakeDomElement::New(root, "body");
+  FakeDomElement::New(body, "h1");
+
+  ChildrenVisitor visitor;
+  document_->Traverse(&visitor);
+  EXPECT_EQ(4u, visitor.children().size());
+  EXPECT_EQ("HEAD", visitor.children()[0]);
+  EXPECT_EQ("BODY", visitor.children()[1]);
+  EXPECT_EQ("TITLE", visitor.children()[2]);
+  EXPECT_EQ("H1", visitor.children()[3]);
 }
 
 }  // namespace

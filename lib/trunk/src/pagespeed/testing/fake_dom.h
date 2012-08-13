@@ -54,7 +54,8 @@ class FakeDomElement : public pagespeed::DomElement {
   virtual Status GetActualHeight(int* out_height) const;
   virtual Status HasHeightSpecified(bool *out) const;
   virtual Status HasWidthSpecified(bool *out) const;
-
+  virtual Status GetNumChildren(size_t* number) const;
+  virtual Status GetChild(const DomElement** child, size_t index) const;
 
   // Adds an attribute to the element.
   void AddAttribute(const std::string& key, const std::string& value);
@@ -66,6 +67,10 @@ class FakeDomElement : public pagespeed::DomElement {
   const FakeDomElement* GetFirstChild() const;
   const FakeDomElement* GetParentElement() const;
   const FakeDomElement* GetNextSibling() const;
+
+  // Create a shallow copy of this document. A cloned instance must
+  // not outlive the instance that created it.
+  FakeDomElement* Clone() const;
 
  private:
   friend class FakeDomDocument;
@@ -86,6 +91,7 @@ class FakeDomElement : public pagespeed::DomElement {
   int y_;
   int actual_width_;
   int actual_height_;
+  bool is_clone_;
 };
 
 class FakeDomDocument : public pagespeed::DomDocument {
