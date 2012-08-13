@@ -46,7 +46,11 @@ function PS_LOG(msg) {
 
 // TODO(lsong): Copied from chromium extension. Reduce duplication.
 function collectElement(element, outList) {
-  var obj = {tag: element.tagName};
+  var obj = {
+    tag: element.tagName
+  };
+  // Append the node before appending children to ensure pre-order traversal.
+  outList.push(obj);
   // If the tag has any attributes, add an attribute map to the output object.
   var attributes = element.attributes;
   if (attributes && attributes.length > 0) {
@@ -56,10 +60,13 @@ function collectElement(element, outList) {
       obj.attrs[attribute.name] = attribute.value;
     }
   }
-  // If the tag has any attributes, add children list to the output object.
+  // If the tag has any children, add children list to the output object.
   var children = element.children;
   if (children && children.length > 0) {
+    obj.children = [];
     for (var j = 0, len = children.length; j < len; ++j) {
+      // Append the index of the next to be-added element to children list.
+      obj.children.push(outList.length);
       collectElement(children[j], outList);
     }
   }
@@ -72,7 +79,6 @@ function collectElement(element, outList) {
     obj.width = element.width;
     obj.height = element.height;
   }
-  outList.push(obj);
 }
 
 function collectDocument(doc) {
