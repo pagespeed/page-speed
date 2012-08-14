@@ -45,6 +45,7 @@ class FlashChecker : public pagespeed::DomElementVisitor {
   bool DetermineIfFlashAndGetURI(const pagespeed::DomElement* node,
                                  std::string* uri);
   bool DetermineIfUriIsFlash(const std::string uri);
+  bool DetermineIfActiveXFlash(const pagespeed::DomElement* node);
   bool PullSrcFromMovieParam(const pagespeed::DomElement* node,
                              std::string* src);
   bool HasChildFlashElement(const pagespeed::DomElement* node);
@@ -83,7 +84,7 @@ void FlashChecker::ProcessFlashIncludeTag(const pagespeed::DomElement* node) {
   // when the visitor reaches the child. This will avoid double counting nested
   // objects / "twice cooked" embedding methods at the cost of checking the
   // child node for flash twice
-  if (HasChildFlashElement(node)) {
+  if (DetermineIfActiveXFlash(node) && HasChildFlashElement(node)) {
     return;
   }
 
@@ -156,13 +157,7 @@ bool FlashChecker::DetermineIfFlashAndGetURI(const pagespeed::DomElement* node,
   }
 
   // Next, look for IE's ActiveX classid
-  if (!is_flash && tag_name == "OBJECT") {
-    std::string classid;
-    if (node->GetAttributeByName("classid", &classid)
-        && pagespeed::string_util::StringCaseEqual(classid, kFlashClassid)) {
-      is_flash = true;
-    }
-  }
+  is_flash = is_flash || DetermineIfActiveXFlash(node);
 
   // Look for the src of the flash object
   if (tag_name == "EMBED") {
@@ -184,6 +179,19 @@ bool FlashChecker::DetermineIfFlashAndGetURI(const pagespeed::DomElement* node,
   // Return true if we already know the tag is flash, or look at the URI if we
   // were unlucky enough to not have a type or classid
   return (is_flash || DetermineIfUriIsFlash(*uri));
+}
+
+// Check for ActiveX classid,
+//    <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000">
+bool FlashChecker::DetermineIfActiveXFlash(const pagespeed::DomElement* node) {
+  if (node->GetTagName() == "OBJECT") {
+    std::string classid;
+    if (node->GetAttributeByName("classid", &classid)
+        && pagespeed::string_util::StringCaseEqual(classid, kFlashClassid)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool FlashChecker::DetermineIfUriIsFlash(const std::string uri) {
@@ -287,7 +295,8 @@ void AvoidFlashOnMobile::FormatResults(const ResultVector& results,
 
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs of Adobe Flash
-      // resources detected by Page Speed
+      // resources detected by Page Speed. "$1" will be replaced by the number
+      // of flash elements found.
       _("The following $1 Flash elements are included on the page or from "
         "included iframes. Adobe Flash Player is not supported on Apple iOS or "
         "Android versions greater than 4.0.x. Consider removing Flash objects "
