@@ -299,6 +299,15 @@ message MinificationDetails {
   optional bool savings_are_post_gzip = 1;
 }
 
+message AvoidFlashOnMobileDetails {
+  extend ResultDetails {
+    optional AvoidFlashOnMobileDetails message_set_extension = 4615265; // 'Fla'
+  }
+  optional int32 size = 1;
+  optional string width = 2;
+  optional string height = 3;
+}
+
 message Result {
   // Identifier of rule that produced this result. DEPRECATED (rule name is
   // stored in RuleResults)
