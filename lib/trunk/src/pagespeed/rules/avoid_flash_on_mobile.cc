@@ -29,6 +29,57 @@ static const char* kRuleName = "AvoidFlashOnMobile";
 static const char* kFlashMime = "application/x-shockwave-flash";
 static const char* kFlashClassid = "clsid:d27cdb6e-ae6d-11cf-96b8-444553540000";
 
+// Caller is responsible for freeing returned DomElement
+const pagespeed::DomElement* GetChildNode(
+    const pagespeed::DomElement* node, int idx) {
+  const pagespeed::DomElement* child = NULL;
+  if (node->GetChild(&child, idx) != pagespeed::DomElement::SUCCESS) {
+    LOG(INFO) << "DomElement::GetChild() failed.";
+  }
+  return child;
+}
+
+// Check for ActiveX classid,
+//    <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000">
+bool DetermineIfActiveXFlash(const pagespeed::DomElement* node) {
+  if (node->GetTagName() == "OBJECT") {
+    std::string classid;
+    if (node->GetAttributeByName("classid", &classid)
+        && pagespeed::string_util::StringCaseEqual(classid, kFlashClassid)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Searches through the children of the specified node for a tag of the form
+//     <param name="movie" value="movie_name.swf"/>
+// @return true if the src was found
+bool PullSrcFromMovieParam(const pagespeed::DomElement* node,
+                                         std::string* src) {
+  size_t size = 0;
+  if (node->GetNumChildren(&size) != pagespeed::DomElement::SUCCESS) {
+    LOG(INFO) << "DomElement::GetNumChildren() failed.";
+    return false;
+  }
+  for (size_t idx = 0; idx < size; ++idx) {
+    scoped_ptr<const pagespeed::DomElement> child(GetChildNode(node, idx));
+    if (child == NULL) {
+      LOG(INFO) << "DomElement::GetChild() returned NULL.";
+      continue;
+    }
+    if (child->GetTagName() == "PARAM") {
+      std::string name;
+      if (child->GetAttributeByName("name", &name)
+          && pagespeed::string_util::StringCaseEqual(name, "movie")
+          && child->GetAttributeByName("value", src)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 class FlashChecker : public pagespeed::DomElementVisitor {
  public:
   FlashChecker(const pagespeed::RuleInput* rule_input,
@@ -45,9 +96,6 @@ class FlashChecker : public pagespeed::DomElementVisitor {
   bool DetermineIfFlashAndGetURI(const pagespeed::DomElement* node,
                                  std::string* uri);
   bool DetermineIfUriIsFlash(const std::string uri);
-  bool DetermineIfActiveXFlash(const pagespeed::DomElement* node);
-  bool PullSrcFromMovieParam(const pagespeed::DomElement* node,
-                             std::string* src);
   bool HasChildFlashElement(const pagespeed::DomElement* node);
 
   const pagespeed::RuleInput* rule_input_;
@@ -181,19 +229,6 @@ bool FlashChecker::DetermineIfFlashAndGetURI(const pagespeed::DomElement* node,
   return (is_flash || DetermineIfUriIsFlash(*uri));
 }
 
-// Check for ActiveX classid,
-//    <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000">
-bool FlashChecker::DetermineIfActiveXFlash(const pagespeed::DomElement* node) {
-  if (node->GetTagName() == "OBJECT") {
-    std::string classid;
-    if (node->GetAttributeByName("classid", &classid)
-        && pagespeed::string_util::StringCaseEqual(classid, kFlashClassid)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 bool FlashChecker::DetermineIfUriIsFlash(const std::string uri) {
   // See if we fetched the resource and have its MIME type
   const pagespeed::Resource* resource = rule_input_->pagespeed_input()
@@ -210,45 +245,25 @@ bool FlashChecker::DetermineIfUriIsFlash(const std::string uri) {
   return pagespeed::string_util::StringCaseEndsWith(no_query, ".swf");
 }
 
-// Searches through the children of the specified node for a tag of the form
-//     <param name="movie" value="movie_name.swf"/>
-// @return true if the src was found
-bool FlashChecker::PullSrcFromMovieParam(const pagespeed::DomElement* node,
-                                         std::string* src) {
-  size_t size = 0;
-  CHECK_EQ(node->GetNumChildren(&size), pagespeed::DomElement::SUCCESS);
-  for (size_t idx = 0; idx < size; ++idx) {
-    const pagespeed::DomElement* child;
-    CHECK_EQ(node->GetChild(&child, idx), pagespeed::DomElement::SUCCESS);
-    if (child->GetTagName() == "PARAM") {
-      std::string name;
-      if (child->GetAttributeByName("name", &name)
-          && pagespeed::string_util::StringCaseEqual(name, "movie")
-          && child->GetAttributeByName("value", src)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 // Check if the node contains a tag embedding a flash object as a direct
 // descendant, useful to avoid double counting duplicated ActiveX classid and
 // application/x-shockwave-flash MIME object tags
 bool FlashChecker::HasChildFlashElement(const pagespeed::DomElement* node) {
   size_t size = 0;
-  CHECK_EQ(pagespeed::DomElement::SUCCESS, node->GetNumChildren(&size));
+  if (node->GetNumChildren(&size) != pagespeed::DomElement::SUCCESS) {
+    LOG(INFO) << "DomElement::GetNumChildren() failed.";
+    return false;
+  }
   for (size_t idx = 0; idx < size; ++idx) {
-    const pagespeed::DomElement* child = NULL;
-    CHECK_EQ(pagespeed::DomElement::SUCCESS, node->GetChild(&child, idx));
+    scoped_ptr<const pagespeed::DomElement> child(GetChildNode(node, idx));
     if (child == NULL) {
-      LOG(DFATAL) << "Child node " << idx << "out of " << size << " was null.";
-      return false;
+      LOG(INFO) << "Child node " << idx << " out of " << size << " was NULL.";
+      continue;
     }
     std::string child_tag_name = child->GetTagName();
     if (child_tag_name == "EMBED" || child_tag_name == "OBJECT") {
       std::string uri;
-      if (DetermineIfFlashAndGetURI(child, &uri)) {
+      if (DetermineIfFlashAndGetURI(child.get(), &uri)) {
         return true;
       }
     }
