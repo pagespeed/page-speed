@@ -1,0 +1,141 @@
+// Copyright 2009 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Protocol buffers to provide input to the pagespeed library.
+
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+option java_package = "com.googlecode.page_speed";
+
+package pagespeed;
+
+message StackFrame {
+  optional string url = 1;
+  optional int32 line_number = 2;
+  optional int32 column_number = 3;
+  optional string function_name = 4;
+}
+
+message InstrumentationData {
+  enum RecordType {
+    EVENT_DISPATCH = 0;
+    LAYOUT = 1;
+    RECALCULATE_STYLES = 2;
+    PAINT = 3;
+    PARSE_HTML = 4;
+    TIMER_INSTALL = 5;
+    TIMER_REMOVE = 6;
+    TIMER_FIRE = 7;
+    XHR_READY_STATE_CHANGE = 8;
+    XHR_LOAD = 9;
+    EVALUATE_SCRIPT = 10;
+    MARK_TIMELINE = 11;
+    RESOURCE_SEND_REQUEST = 12;
+    RESOURCE_RECEIVE_RESPONSE = 13;
+    RESOURCE_FINISH = 14;
+    FUNCTION_CALL = 15;
+    RESOURCE_RECEIVED_DATA = 16;
+    GC_EVENT = 17;
+    MARK_DOM_CONTENT = 18;
+    MARK_LOAD = 19;
+    SCHEDULE_RESOURCE_REQUEST = 20;
+    TIME_STAMP = 21;
+    REGISTER_ANIMATION_FRAME_CALLBACK= 22;
+    CANCEL_ANIMATION_FRAME_CALLBACK= 23;
+    FIRE_ANIMATION_FRAME_EVENT= 24;
+  }
+
+  message DataDictionary {
+    // ParseHTML
+    optional int32 length = 1;
+    optional int32 start_line = 2;
+    optional int32 end_line = 3;
+
+    // GCEvent
+    optional int32 used_heap_size_delta = 4;
+
+    // FunctionCall
+    optional string script_name = 5;
+    optional int32 script_line = 6;
+
+    // EventDispatch
+    optional string type = 7;
+
+    // TimerRemove, TimerFire, TimerInstall
+    optional int32 timer_id = 8;
+
+    // TimerInstall
+    optional int32 timeout = 9;
+    optional bool single_shot = 10;
+
+    // EvaluateScript, ResourceSendRequest, ScheduleResourceRequest, XHRLoad,
+    // XHRReadyStateChange
+    optional string url = 11;
+
+    // XHRReadyStateChange
+    optional int32 ready_state = 12;
+
+    // EvaluateScript
+    optional int32 line_number = 13;
+
+    // MarkTimeline
+    optional string message = 14;
+
+    // ResourceSendRequest, ResourceReceiveResponse, ResourceFinish,
+    // ReceiveResourceData
+    optional int32 identifier = 15 [deprecated=true];
+
+    // ResourceSendRequest
+    optional string request_method = 16;
+    optional bool is_main_resource = 17 [deprecated=true];
+
+    // ResourceReceiveResponse
+    optional int32 status_code = 18;
+    optional string mime_type = 19;
+    optional int32 expected_content_length = 20 [deprecated=true];
+
+    // ResourceFinish
+    optional bool did_fail = 21;
+    optional double network_time = 22;
+
+    // Paint
+    optional int32 x = 23;
+    optional int32 y = 24;
+    optional int32 width = 25;
+    optional int32 height = 26;
+
+    // ResourceSendRequest, ResourceReceiveResponse, ResourceFinish,
+    // ReceiveResourceData
+    optional string request_id = 27;
+
+    // Animation frame events
+    optional int32 id = 28;
+  }
+
+  // The type field is required, but we mark it 'optional' because otherwise
+  // breakage could occur if we have to add new values to the RecordType enum
+  // later on.
+  optional RecordType type = 1;
+  repeated InstrumentationData children = 2;
+  repeated StackFrame stack_trace = 3;
+  optional DataDictionary data = 4;
+  optional double start_time = 5;
+  optional double end_time = 6;
+  optional int64 used_heap_size = 7;
+  optional int64 total_heap_size = 8;
+  optional int64 start_tick = 9;
+  optional int64 end_tick = 10;
+  optional string context_id = 11;
+}

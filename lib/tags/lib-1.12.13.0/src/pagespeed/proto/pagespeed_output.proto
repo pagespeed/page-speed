@@ -1,0 +1,396 @@
+// Copyright 2009 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Protocol buffer used by the pagespeed library rule checkers to
+// represent violations, potential savings and recommendations.
+
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+option java_package = "com.googlecode.page_speed";
+
+package pagespeed;
+
+import "timeline.proto";
+
+message Savings {
+  // DNS requests that could be saved if page was optimized.
+  optional int32 dns_requests_saved = 1;
+
+  // Number of request that could be saved if page was optimized.
+  optional int32 requests_saved = 2;
+
+  // Download bytes that could be saved if page was optimized.
+  optional int32 response_bytes_saved = 3;
+
+  // Number of page reflows that could have been saved by specifying
+  // resource dimensions.
+  // NOTE: this metric will be removed in an upcoming Page Speed
+  // release.
+  optional int32 page_reflows_saved = 4;
+
+  // Upload bytes that could be saved if page was optimized.
+  optional int32 request_bytes_saved = 5;
+
+  // Number of times resource loading was blocked that could have been
+  // saved.
+  optional int32 critical_path_length_saved = 6;
+
+  // Number of connections that could have been saved if connection was reused.
+  optional int32 connections_saved = 7;
+
+}
+
+// A ClientCharacteristics object tracks how much different kinds of impact
+// matter relative to each other for a particular client.  These values might
+// be different for, say, mobile browsers vs. desktop browsers.  The scaling
+// doesn't matter since impact is eventually normalized; all that matters is
+// the ratios between these numbers.  The default values below should be set to
+// reasonable values for a desktop browser, so that the library will still give
+// reasonable results if the client_characteristics field of an
+// InputInformation is not set.
+message ClientCharacteristics {
+  // Relative impact per DNS request saved.
+  optional double dns_requests_weight = 1          [default = 2.0];
+  // Relative impact per request saved.
+  optional double requests_weight = 2              [default = 1.0];
+  // Relative impact per response byte saved.
+  optional double response_bytes_weight = 3        [default = 0.0001];
+  // Relative impact per reflow saved.
+  optional double page_reflows_weight = 4          [default = 0.001];
+  // Relative impact per reqeust byte saved.
+  optional double request_bytes_weight = 5         [default = 0.0005];
+  // Relative impact per critical path length reduced.
+  optional double critical_path_length_weight = 6  [default = 1.0];
+  // Relative impact per reqeust byte saved.
+  optional double connections_weight = 7           [default = 1.0];
+  // Relative impact per byte of Javascript code parsed.
+  optional double javascript_parse_weight = 8      [default = 0.00001];
+  // Average fraction of requests expected to be in cache.
+  optional double expected_cache_hit_rate = 9      [default = 0.5];
+}
+
+message InputInformation {
+  // Number of resources accessed while rendering the page.
+  optional int32 number_resources = 1;
+
+  // Number of hosts among which the page was sharded.
+  optional int32 number_hosts = 2;
+
+  // Total server response bytes. Deprecated. Use the type-specific
+  // response bytes fields below.
+  // optional int64 total_response_bytes = 3;
+
+  // Total client request bytes.
+  optional int64 total_request_bytes = 4;
+
+  // Number of static resources accessed while rendering the page.
+  optional int32 number_static_resources = 5;
+
+  // Total server response bytes for each resource type. Sum these
+  // fields to get the total number of response bytes for all
+  // resources.
+  optional int64 html_response_bytes = 6;
+  optional int64 text_response_bytes = 7;
+  optional int64 css_response_bytes = 8;
+  optional int64 image_response_bytes = 9;
+  optional int64 javascript_response_bytes = 10;
+  optional int64 flash_response_bytes = 11;
+  optional int64 media_response_bytes = 16;
+  optional int64 font_response_bytes = 17;
+  optional int64 binary_data_response_bytes = 18;
+  optional int64 other_response_bytes = 12;
+
+  // Number of JS and CSS resources accessed while rendering the page.
+  optional int32 number_js_resources = 13;
+  optional int32 number_css_resources = 14;
+
+  // The impact weights to use for scoring this page.  If the field is not
+  // present, use the default weights.
+  optional ClientCharacteristics client_characteristics = 15;
+}
+
+// Base class for result details
+// Ids 1000 and above are reserved for custom result details.  All
+// custom details must have different ids.
+//
+// We generate ids by starting with a three-character string and writing out
+// the ASCII values, big-endian.  For example, starting with 'Img', we get
+// ASCII {0x49, 0x6d, 0x67}, which becomes 0x496d67, which is 4812135.  To
+// easily do this conversion for a given string 'Foo', use this Python
+// one-liner:
+//   (lambda s:reduce(lambda t,c:(t<<8)|ord(c),s,0))('Foo')
+message ResultDetails {
+  extensions 1000 to max;
+}
+
+// Result detail to store image dimension information.
+message ImageDimensionDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional ImageDimensionDetails message_set_extension = 4812135;  // 'Img'
+  }
+
+  // Natural dimensions of the image element.
+  optional int32 expected_height = 1;
+  optional int32 expected_width = 2;
+
+  // Actual dimensions of the displayed image element.
+  optional int32 actual_height = 3;
+  optional int32 actual_width = 4;
+}
+
+// Result detail to store request size breakdown.
+message RequestDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional RequestDetails message_set_extension = 5399921;  // 'Req'
+  }
+
+  // Length of the requested URL
+  optional int32 url_length = 1;
+
+  // Length of Cookie headers
+  optional int32 cookie_length = 2;
+
+  // Length of Referer header
+  optional int32 referer_length = 3;
+
+  // Is this a static resource?
+  optional bool is_static = 4;
+}
+
+// Result detail to store image dimension information.
+message StylesInBodyDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional StylesInBodyDetails message_set_extension = 5469305;  // 'Sty'
+  }
+
+  // The number of inline styles blocks that appear in the body.
+  optional int32 num_inline_style_blocks = 1;
+
+  // The URLs of external style sheets that are linked in the body.
+  repeated string external_styles = 2;
+}
+
+// Result detail to store information about reordering resources in the head.
+message ResourceOrderingDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional ResourceOrderingDetails message_set_extension = 5206628;  // 'Ord'
+  }
+
+  // Urls of external CSS links that should be moved.
+  repeated string out_of_order_external_css = 1;
+
+  // Indices of inline script blocks that should be moved.
+  repeated int32 out_of_order_inline_scripts = 2;
+}
+
+// Result detail to store information about caching attributes of resources.
+message CachingDetails {
+  extend ResultDetails {
+    optional CachingDetails message_set_extension = 4415843;  // 'Cac'
+  }
+
+  // The freshness lifetime of the resource, in milliseconds.
+  optional int64 freshness_lifetime_millis = 1;
+
+  // Whether or not a resource is likely a cacheable resource, based
+  // on heuristics.
+  optional bool is_heuristically_cacheable = 2;
+}
+
+// Result detail to store information about a host that should be parallelized.
+message ParallelizableHostDetails {
+  extend ResultDetails {
+    optional ParallelizableHostDetails message_set_extension = 4747123; //'Hos'
+  }
+
+  // The host with the most static resources.
+  optional string host = 1;
+}
+
+// Result detail to store list of @imported stylesheets.
+message AvoidCssImportDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional AvoidCssImportDetails message_set_extension = 4812144;  // 'Imp'
+  }
+
+  // The URLs of external style sheets that are @imported.
+  repeated string imported_stylesheets = 1;
+}
+
+// Result detail to store list of script to load with async technique.
+message PreferAsyncResourcesDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional PreferAsyncResourcesDetails message_set_extension = 5272165;  // 'Pre'
+  }
+
+  // The URL of the resource that could be loaded asynchronously.
+  required string resource_url = 1;
+}
+
+message InlineSmallResourcesDetails {
+  extend ResultDetails {
+    optional InlineSmallResourcesDetails message_set_extension = 4812396;  // 'Inl'
+  }
+
+  repeated string inline_candidates = 1;
+}
+
+message DeferParsingJavaScriptDetails {
+  extend ResultDetails {
+    // NOTE: this is not a correctly generated extension ID (should be
+    // 4482406) however there are already protocol buffers persisted
+    // with this value, so we can't change it.
+    optional DeferParsingJavaScriptDetails message_set_extension = 446566;  // 'Def'
+  }
+
+  required bool is_inline = 1;
+  required int32 minified_javascript_size = 2;
+}
+
+message EliminateUnnecessaryReflowsDetails {
+  extend ResultDetails {
+    optional EliminateUnnecessaryReflowsDetails message_set_extension = 4543826;  // 'EUR'
+  }
+
+  message StackTrace {
+    repeated StackFrame frame = 1;
+
+    // Number of instances of this stack trace.
+    optional int32 count = 2;
+
+    optional double duration_millis = 3;
+  }
+  repeated StackTrace stack_trace = 1;
+}
+
+message AvoidLongRunningScriptsDetails {
+  extend ResultDetails {
+    optional AvoidLongRunningScriptsDetails message_set_extension = 5001811;  // 'LRS'
+  }
+  optional int32 line_number = 1;
+  optional double duration_millis = 2;
+}
+
+message MinificationDetails {
+  extend ResultDetails {
+    optional MinificationDetails message_set_extension = 5073262;  // 'Min'
+  }
+
+  // True if the response_bytes_saved refers to post-gzip savings; false if it
+  // refers to savings on the uncompressed content.
+  optional bool savings_are_post_gzip = 1;
+}
+
+message AvoidFlashOnMobileDetails {
+  extend ResultDetails {
+    optional AvoidFlashOnMobileDetails message_set_extension = 4615265; // 'Fla'
+  }
+  optional int32 size = 1;
+  optional string width = 2;
+  optional string height = 3;
+}
+
+message Result {
+  // Identifier of rule that produced this result. DEPRECATED (rule name is
+  // stored in RuleResults)
+  optional string rule_name = 1 [deprecated=true];
+
+  // Potential savings if page was optimized.
+  optional Savings savings = 2;
+
+  // Resource urls that were processed to compute this result.
+  repeated string resource_urls = 3;
+
+  // Full details about the rule violation.
+  optional ResultDetails details = 4;
+
+  // Optimized version of the current resource, if applicable.
+  optional bytes optimized_content = 5;
+
+  // Total response size before savings.
+  optional int32 original_response_bytes = 6;
+
+  // Total request size before savings.
+  optional int32 original_request_bytes = 7;
+
+  // Number of times resource loading was blocked before savings.
+  optional int32 original_critical_path_length = 8;
+
+  // MIME type for the optimized version of the current resource, if
+  // applicable.
+  optional string optimized_content_mime_type = 9;
+
+  // Identifier for this result. Each Result's id is unique within a
+  // RuleResults instance.
+  optional int32 id = 10;
+}
+
+// The set of results from a single rule
+message RuleResults {
+  // Identifier of rule that produced this result.
+  required string rule_name = 1;
+
+  // Score assigned by Page Speed for this rule.  It should be set in most
+  // cases, but may be left out if the rule is unable to compute a score (e.g.
+  // due to missing input information).
+  optional int32 rule_score = 2;
+
+  // The impact number assigned by Page Speed for this rule.  Unlike the score,
+  // this is not normalized to 0-100, but can be any nonnegative number, where
+  // zero corresponds to a perfect score.  Ideally, the impact would be
+  // directly proportional to the latency improvement that would be gained by
+  // implementing all suggestions made by the rule.
+  optional double rule_impact = 4;
+
+  repeated Result results = 3;
+}
+
+message Version {
+  required int32 major = 1;
+  required int32 minor = 2;
+
+  // Set to true in official release builds, false for debug/trunk builds.
+  required bool official_release = 3;
+}
+
+message Results {
+  // Set of results. DEPRECATED (use rule_results instead)
+  repeated Result results = 1 [deprecated=true];
+
+  // Summary of information about the inputs.
+  required InputInformation input_info = 2;
+
+  // Names of all rules that were run (use rule_results instead).
+  repeated string rules = 3 [deprecated=true];
+
+  // Names of rules that encountered errors during processing.
+  repeated string error_rules = 4;
+
+  // Version of the Page Speed library used to generate this Results
+  // structure.
+  required Version version = 5;
+
+  // Set of results for each rule.
+  repeated RuleResults rule_results = 6;
+
+  // Overall score assigned by Page Speed.
+  optional int32 score = 7;
+}

@@ -1,0 +1,825 @@
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "$1"  will be replaced
+#  by the document (HTML page, or a iframe) URL; the "$2" will be
+#  replaced by the size of its inline JavaScripts.
+msgid "$1 ($2 of inline JavaScript)"
+msgstr ""
+
+#  Shown as part of a list of unnecessary reflows
+#  (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community). Shows a URL
+#  at $1, and the number of unnecessary reflows for that URL
+#  at $2.
+msgid "$1 ($2 reflows)"
+msgstr ""
+
+#  A format string for one item in a list of images that
+#  Page Speed detected as not having both width and height explicitly
+#  specified in the page in which the image appears; each list item
+#  provides the URL of the image, and the actual width/height
+#  dimensions of the image to aid the user in specifying those
+#  dimensions in the page.  The "$1" is a format token that will be
+#  replaced with the URL of the image; the "$2" is a format token that
+#  will be replaced with the width of the image, in pixels
+#  (e.g. "320"); the $3 is a format token that will be replaced with
+#  the height of the image, in pixels (e.g. "240").
+msgid "$1 (Dimensions: $2 x $3)"
+msgstr ""
+
+#  A format string for one item in a list of images that
+#  Page Speed detected as not having both width and height explicitly
+#  specified in the page in which the image appears; each list item
+#  provides the URL of the image, and the actual width/height
+#  dimensions of the image to aid the user in specifying those
+#  dimensions in the page.  The "$1" is a format token that will be
+#  replaced with the URL of the image; the "$2" is a format token that
+#  will be replaced with the width of the image, in pixels
+#  (e.g. "320"); the $3 is a format token that will be replaced with
+#  the height of the image, in pixels (e.g. "240"); the $4 is a format
+#  token that will be replaced with the number of times this image
+#  appears in the page (e.g. "3").
+msgid "$1 (Dimensions: $2 x $3) ($4 uses)"
+msgstr ""
+
+#  Item describing a single URL that violates the
+#  LeverageBrowserCaching rule by not having a cache expiration.
+#  "$1" is a format string that will be replaced by the URL.
+msgid "$1 (expiration not specified)"
+msgstr ""
+
+#  The document that Page Speed detected as have CSS
+#  resources in document body. The "$1" will be replaced by the document
+#  URL.
+msgid "$1 has CSS in the document body."
+msgstr ""
+
+#  Header of a list of items the Page Speed suggests to
+#  move to document head. The "$1" will be replaced by the document
+#  URL.
+msgid "$1 has CSS in the document body:"
+msgstr ""
+
+#  Item describing a URL that violates the MinimzeRequestSize
+#  rule by having a large request size. The "$1" in the format string will
+#  be replaced by the URL; the "$2" will be replaced by the number of bytes
+#  in the request. This is displayed at the top of a breakdown of how large
+#  each element of the request is.
+#.
+msgid "$1 has a request size of $2"
+msgstr ""
+
+#  Message displayed to indicate that a URL
+#  redirects to another URL, e.g "http://example.com/ is an
+#  uncacheable redirect to http://www.example.com/".
+msgid "$1 is an uncacheable redirect to $2"
+msgstr ""
+
+#  Describes a single URL of an image that is resized in HTML
+#  or CSS.  It gives the served size of the image, the final size of the
+#  image, and the amount saved by serving the image in the final size.
+#  "$1" is a format token that will be replaced with the URL of the image
+#  resource.  "$2" and "$3" will be replaced with the original (served)
+#  width and height (respectively) of the image resource.  "$4" and "$5"
+#  will be replaced with the final (resized) width and height
+#  (respectively) of the image resource.  "$6" will be replaced with the
+#  amount saved (in bytes) by serving the image correctly size (e.g.
+#  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
+#  "25%").
+msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
+msgstr ""
+
+#  Describes a single URL of an image that is resized in HTML
+#  or CSS.  It gives the amount saved by serving the image in its final
+#  size.  "$1" is a format token that will be replaced with the URL of the
+#  image resource.  "$2" will be replaced with the amount saved (in bytes)
+#  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
+#  replaced with the percentage saved (e.g. "25%").
+msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
+msgstr ""
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL at $1, the line
+#  number (of the file at that URL that triggers the script URL) at $2,
+#  and the length of time the scripts runs for at $3.
+msgid "$1 line $2 ($3)"
+msgstr ""
+
+#  Detail for resource that loads synchronously. The "$1" will
+#  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
+#  be replaced by the resource URL.
+msgid "$1 loads $2 synchronously."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.
+msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr ""
+
+#  A sub-heading that contains the URL of the document and
+#  a statement instructing the user to inline certain small resources.
+#  "$1" is a format token that will be replaced with the URL of the
+#  document that contains the resources that can be inserted directly
+#  into the HTML document.
+msgid "$1 should inline the following small resources:"
+msgstr ""
+
+#  Detail of the inline CSS. It tells the user how many
+#  style blocks should be moved to document head. The "$1" will be
+#  replaced by the number of style blocks.
+msgid "$1 style block(s) in the body should be moved to the document head."
+msgstr ""
+
+#  An amount of bytes with abbreviated unit.  $1 is a string
+#  placeholder that is replaced with the number of bytes (e.g. "93",
+#  representing 93 bytes).
+msgid "$1B"
+msgstr ""
+
+#  An amount of kilobytes with abbreviated unit.  $1 is a string
+#  placeholder that is replaced with the number of kilobytes (e.g. "32.5",
+#  representing 32.5 kilobytes).
+msgid "$1KiB"
+msgstr ""
+
+#  An amount of megabytes with abbreviated unit.  $1 is a string
+#  placeholder that is replaced with the number of megabytes (e.g. "32.5",
+#  representing 32.5 megabytes).
+msgid "$1MiB"
+msgstr ""
+
+#  The name of a Page Speed rule telling webmasters to avoid using
+#  the @import directive in their CSS style sheets ("@import" is code, and
+#  should not be translated).  This is displayed in a list of rule names that
+#  Page Speed generates, telling webmasters which rules they broke in their
+#  website.
+msgid "Avoid CSS @import"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages do not specify a character set in an HTML meta tag.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid a character set in the meta tag"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to try and avoid
+#  writing pages that generate bad HTTP requests (i.e. requests that return
+#  HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
+#  style sheet.  This is displayed in a list of rule names that Page Speed
+#  generates, telling webmasters which rules they broke in their website.
+msgid "Avoid bad requests"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  Adobe Flash on mobile webpages
+msgid "Avoid flash on mobile webpages"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to try
+#  and avoid writing pages with Javascript scripts that run for a
+#  long time, which reduces browser responsiveness.  This is
+#  displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Avoid long-running scripts"
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
+msgid "CSS in the document body adversely impacts rendering performance."
+msgstr ""
+
+#  The name of a Page Speed rule that tells webmasters to combine
+#  external CSS resources that are loaded from the same domain.  This
+#  appears in a list of rule names generated by Page Speed, telling webmasters
+#  which rules they broke in their website.
+msgid "Combine external CSS"
+msgstr ""
+
+#  The name of a Page Speed rule that tells webmasters to combine
+#  external JavaScript resources that are loaded from the same domain.  This
+#  appears in a list of rule names generated by Page Speed, telling webmasters
+#  which rules they broke in their website.
+msgid "Combine external JavaScript"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to try to
+#  replace a group of small images on their site with a "CSS sprite" -- that
+#  is, a single larger image containing a number of subimages, which can then
+#  be used to display a single subimage at a time by using CSS to reveal a
+#  different section of the large image in place of each of the original
+#  small images.  This is displayed in a list of rule names that Page Speed
+#  generates.
+msgid "Combine images into CSS sprites"
+msgstr ""
+
+#  Description of a single resource that was served uncompressed,
+#  in violation of the EnableGzipCompression rule.  It gives the URL of the
+#  resource, as well as the amount of data that would be saved by compressing.
+#  It appears in a list of all the uncompressed resources on a site.  "$1" is
+#  a format token that will be replaced with the URL of the uncompressed
+#  resource in question.  "$2" will be replaced with the amount of data
+#  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
+#  replaced with the percentage of data transferred saved by compressing.
+msgid "Compressing $1 could save $2 ($3 reduction)."
+msgstr ""
+
+#  Descriptive header for a list of URLs that were served
+#  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
+#  webmaster that compressing all of those resources could reduce the amount
+#  of data transferred (which would speed up the site).  It is followed by a
+#  list of uncompressed resource URLs.  "$1" is a format token that will be
+#  replaced by the amount of data transferred saved by compressing (in bytes)
+#  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
+#  compressing (e.g. "25%").
+msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
+msgstr ""
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
+#  replace by the size of the cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: $1"
+msgstr ""
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. It also tell the
+#  user that the resource is static, and it should be served from a
+#  cookieless domain. The "$1" will be replace by the size of the
+#  cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr ""
+
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr ""
+
+#  The name of a Page Speed rule that tells webmasters to enable
+#  gzip compression on their servers (i.e. enable compressing the web content
+#  before it is sent to clients).  This appears in a list of rule names
+#  generated by Page Speed, telling webmasters which rules they broke in their
+#  website.
+msgid "Enable compression"
+msgstr ""
+
+#  Name of a Page Speed rule. A longer description
+#  would be "Insert (or move) small CSS resources directly into the
+#  HTML document" but rule names are intentionally short so we use
+#  "Inline Small CSS". Please choose a similarly short description
+#  that describes this concept. The word 'CSS' should not be
+#  localized.
+msgid "Inline Small CSS"
+msgstr ""
+
+#  Name of the Page Speed rule. A longer description
+#  would be "Insert (or move) small JavaScript resources directly
+#  into the HTML document" but rule names are intentionally short so
+#  we use "Inline Small JavaScript". Please choose a similarly short
+#  description that describes this concept. The word 'JavaScript'
+#  should not be localized.
+msgid "Inline Small JavaScript"
+msgstr ""
+
+#  Rule name. This rule recommends serving a low quality
+#  version of the images that appear inside of the visible scroll
+#  region of the browser (i.e. the part of the page that the user
+#  can see without having to scroll down) inlined in the HTML
+#  response.
+msgid "Inline previews of visible images"
+msgstr ""
+
+#  Detail of inline script block. The "$1" will be replace
+#  by the index of the script block (e.g. 3).
+msgid "Inline script block #$1"
+msgstr ""
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
+msgstr ""
+
+#  Rule name. A longer description would be "Specify
+#  proper caching expirations for the resources on the web
+#  page". Caching expirations are attached to each file on a web
+#  page and instruct the browser to keep a copy of the resource
+#  locally so it doesn't need to request that resource again. You
+#  can read the documentation on the page speed web site for more
+#  details.
+msgid "Leverage browser caching"
+msgstr ""
+
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head. The
+#  "$1" will be replaced by the CSS resource URL.
+msgid "Link node $1 should be moved to the document head."
+msgstr ""
+
+#  Rule name. This rule recommends loading the images
+#  that appear outside of the visible scroll region of the browser
+#  (i.e. the part of the page that the user needs to scroll down to
+#  see) after the images and resources needed to show the part
+#  within the initially visible region have loaded.
+msgid "Load visible images first"
+msgstr ""
+
+#  Detail info for one image URL. It tells the user how much can
+#  be save for one image. The "$1" will be replace the the image URL; "$2"
+#  will be replace by the number of bytes (e.g. 27B); the "$3" will be
+#  replace by the percentage (e.g. 12%).
+msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
+msgstr ""
+
+#  Name of a Page Speed rule. Here, minify means "remove
+#  whitespace and comments". The goal is to reduce the size of the
+#  CSS file by removing the parts that are unnecessary.
+msgid "Minify CSS"
+msgstr ""
+
+#  Name of a Page Speed rule. Here, minify means "remove
+#  whitespace and comments". The goal is to reduce the size of the
+#  HTML file by removing the parts that are unnecessary.
+msgid "Minify HTML"
+msgstr ""
+
+#  Name of a Page Speed rule. Here, minify means "remove
+#  whitespace and comments". The goal is to reduce the size of the
+#  JavaScript file by removing the parts that are unnecessary.
+msgid "Minify JavaScript"
+msgstr ""
+
+#  Subheading that describes the post-compression network savings
+#  possible from minifying a single resource. "$1" is a format token that
+#  will be replaced by the URL of the resource. "$2" will be replaced bythe
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction) after compression."
+msgstr ""
+
+#  Subheading that describes the savings possible from minifying a
+#  single resource. "$1" is a format token that will be replaced by the URL of
+#  the resource. "$2" will be replaced bythe absolute number of bytes or
+#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying $1 could save $2 ($3 reduction)."
+msgstr ""
+
+#  Heading that describes the savings possible from
+#  minifying resources. "$1" is a format token that will be replaced by the
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
+msgstr ""
+
+#  Heading that describes the savings possible from
+#  minifying resources. "$1" is a format token that will be replaced by the
+#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
+msgstr ""
+
+#  Heading that describes the savings possible from minifying
+#  resources.  "$1" will be replaced by the absolute number of bytes or
+#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
+#  replaced by the percent savings (e.g. "50%").
+msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
+msgstr ""
+
+#  Name of a Page Speed rule. A "DNS lookup" is a
+#  request that the browser issues to resolve a hostname to an
+#  internet address. The word "DNS" should remain in the translated
+#  string.
+msgid "Minimize DNS lookups"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to minimize
+#  HTTP redirects from one URL to another URL. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Minimize redirects"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to minimize
+#  the URL, cookies and request headers as small as possible. This is
+#  displayed in a list of rule names that Page Speed generates.
+msgid "Minimize request size"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to optimize the
+#  images (better compression). This is displayed in a list of rule names that
+#  Page Speed generates.
+msgid "Optimize images"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to optimize the
+#  order of resources of style sheets and scripts in HTML. This is displayed
+#  in a list of rule names that Page Speed generates.
+msgid "Optimize the order of styles and scripts"
+msgstr ""
+
+#  Header at the top a list of image URLs that Page Speed detected
+#  as can be optimized by using better compression. It describes the problem
+#  to the user that the size of the images can be reduced. The "$1" will be
+#  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
+#  the percentage (e.g. 25%).
+msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
+msgstr ""
+
+#  Item showing how large the other request components is in a
+#  request that violates the MinimizeRequestSizeRule by being large. The
+#  "$1" will be replace by the total size of other components of the
+#  request in bytes (e.g. "5.3KiB").
+msgid "Other: $1"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to parallelize
+#  downloads resources (image, css, javascript) across hostnames. This is
+#  displayed in a list of rule names that Page Speed generates.
+msgid "Parallelize downloads across hostnames"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to use
+#  asynchronous resources. This is displayed in a list of rule names that
+#  Page Speed generates.
+msgid "Prefer asynchronous resources"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to put CSS
+#  (style sheet) resources in HTML head. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Put CSS in the document head"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to try to avoid
+#  serializing requests too excessively but rather try to parallelize them.
+#  This is displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Reduce request serialization"
+msgstr ""
+
+#  Item showing how large the referrer URL is in a request
+#  that violates the MinimizeRequestSizeRule by being large. The "$1" will
+#  be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
+msgid "Referer Url: $1"
+msgstr ""
+
+#  The name of a Page Speed rule that tells webmasters to remove
+#  query strings from the URLs of static resources (i.e.
+#  'www.google.com/style.css?x=2), because it hurts the cachability of the
+#  resource (in this case 'style.css').  This is displayed in a list of rule
+#  names that Page Speed generates, telling webmasters which rules they broke
+#  in their website.
+msgid "Remove query strings from static resources"
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "Remove the following redirect chain if possible:"
+msgstr ""
+
+#  Item showing how large the URL is in a request that
+#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
+#  replace by the size of the request URL in bytes (e.g. "5.3KiB").
+msgid "Request URL: $1"
+msgstr ""
+
+#  Descriptive header at the top of a list of URLs that
+#  violate the RemoveQueryStringsFromStaticResources rule by using a query
+#  string in the URL of a static resource (such as
+#  www.google.com/style.css?x=2).  It describes the problem to the user,
+#  and tells the user how to fix it.
+msgid "Resources with a \"?\" in the URL are not cached by some proxy caching servers.  Remove the query string and encode the parameters into the URL for the following resources:"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to avoid
+#  writing pages that serve the same resource (or equivalently, two resources
+#  that are byte-for-byte identical) from two different URLs.  This is
+#  displayed in a list of rule names that Page Speed generates.
+msgid "Serve resources from a consistent URL"
+msgstr ""
+
+#  The name of a Page Speed rule that is triggered when users
+#  serve images, then rescale them in HTML or CSS to the final size (it is
+#  more efficient to serve the image with the dimensions it will be shown at).
+#  This is displayed at the top of a list of rules names that Page Speed
+#  generates.
+msgid "Serve scaled images"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  certain resources on their webpage are served with a "Vary" HTTP header
+#  whose value is set to "Accept-Encoding".  This is displayed in a list of
+#  rule names that Page Speed generates.  Note that "Vary: Accept-Encoding"
+#  is code and should not be translated.
+msgid "Specify a Vary: Accept-Encoding header"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their server provides a "cache validator" for each served resource -- that
+#  is, an HTTP header that indicates to the browser how to check whether a
+#  particular item in its cache is still valid.  This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Specify a cache validator"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages include a declaration of the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Specify a character set"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to specify
+#  a viewport for mobile devices. This is displayed in a list of rule names
+#  that Page Speed generates. "Viewport" is code and should not be translated.
+msgid "Specify a viewport for mobile browsers"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpage explicitly specifies the width/height dimensions of each
+#  image that appears in the page.  This is displayed in a list of rule names
+#  that Page Speed generates.
+msgid "Specify image dimensions"
+msgstr ""
+
+#  Header at the top of a list of URLs of Adobe Flash
+#  resources detected by Page Speed
+msgid "The following Flash objects are included on the page. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x+. Consider removing Flash objects and finding suitable replacements."
+msgstr ""
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains the number of times the code in this context
+#  executed, and $2 contains JavaScript code that gives
+#  the context of the reflow.
+msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
+msgstr ""
+
+#  Appears as part of the list of URLs that
+#  triggered unnecessary reflows (or "layouts", which is
+#  used interchangeably with the word "reflows" in the web
+#  performance community), as a detail string that shows
+#  the context that caused an unnecessary reflow.  $1
+#  contains JavaScript code that gives the context of the
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
+msgstr ""
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
+msgstr ""
+
+#  Heading that indicates which resources should
+#  have a longer cache freshness lifetime. Here "freshness
+#  lifetime" means the length of the period of time that the
+#  file can be reused without checking to see if there is a
+#  newer version of the file available.
+msgid "The following cacheable resources have a short freshness lifetime. Specify an expiration at least one week in the future for the following resources:"
+msgstr ""
+
+#  Header at the top of a list of CSS URLs that Page
+#  Speed detected as not able to be downloaded in parallel. It
+#  describes the problem to the user, and tells them how to fix it
+#  by including the external CSS before external JavaScript. The
+#  "$1" will be replaced by URL of the HTML page.
+msgid "The following external CSS files were included after an external JavaScript file in $1.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
+msgstr ""
+
+#  Header at the top of the list of URLs that Page
+#  Speed detected as candidates for being moved directly into
+#  the HTML. This describes the problem to the user and tells
+#  them how to fix it.
+msgid "The following external resources have small response bodies. Inlining the response in HTML can reduce blocking of page rendering."
+msgstr ""
+
+#  Descriptive header at the top of a list of URLs that
+#  are imported by a style sheet using the @import rule ("@import"
+#  is code, and should not be translated).  It gives the URL of the
+#  style sheet that violates the AvoidCssImport rule (the $1
+#  parameter) by using @import --- the style sheets that it imports
+#  will be listed below it.  "$1" is a format token that will be
+#  replaced with the URL of the style sheet that uses @import.
+msgid "The following external stylesheets were included in $1 using @import."
+msgstr ""
+
+#  Header at the top of a list of URLs of images that Page
+#  Speed detected as not having both width and height explicitly
+#  specified in the page in which the image appears.
+msgid "The following image(s) are missing width and/or height attributes."
+msgstr ""
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed outside of the initially visible region of the screen. Defer loading of these images to allow the initially visible region of the page to load faster."
+msgstr ""
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed within the initially visible region of the screen. To speed up rendering of the initially visible region of the page, inline a preview of these images and delay loading the full images until after page load is complete."
+msgstr ""
+
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  "$1" is a format token that is replaced with the total
+#  savings in bytes from serving images in their final size
+#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
+#  bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as being good candidates to be combined into CSS sprites
+#  (that is, larger images containing a number of subimages, which can
+#  then be used to display a single subimage at a time by using CSS to
+#  reveal a different section of the large image in place of each of the
+#  original small images).  It describes the problem to the user, and
+#  tells them how to fix it by combining multiple small images into a
+#  larger image.  The "$1" is a format string that will be replaced with
+#  the URL of the page in which the small images appear.
+msgid "The following images served from $1 should be combined into as few images as possible using CSS sprites."
+msgstr ""
+
+#  Header at the top of a list of inline javascript
+#  blocks that Page Speed detected as preventing parallel
+#  downloading.  It describes the problem to the user and tells them
+#  how to fix it by moving the inline script before the external CSS
+#  URL, or after the next resource. The "$1" will be replace by the
+#  URL of the HTML page.
+msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgstr ""
+
+msgid "The following pages do not specify a viewport. Consider adding a meta tag specifying a viewport so mobile browsers can render the document at a usable size."
+msgstr ""
+
+#  Header at the top of a list of URLs of webpage resources
+#  that Page Speed detected as having three properties: 1) they are
+#  publicly cacheable (that is, they can be cached by HTTP proxies), 2)
+#  they are compressible (that is, the data may be compressed during
+#  transfer), and 3) the resource does not have a "Vary" HTTP header
+#  whose value is set to "Accept-Encoding".  It describes the problem to
+#  the user, and explains how to fix the problem by adding a Vary:
+#  Accept-Encoding header to each of the listed resources.  Note that
+#  "Vary: Accept-Encoding" is code and should not be translated.
+msgid "The following publicly cacheable, compressible resources should have a \"Vary: Accept-Encoding\" header:"
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as bad requests (requesting them returned HTTP codes 404 or
+#  410).  It describes the problem to the user, and tells them how to fix
+#  it by eliminating the bad requests.
+msgid "The following requests are returning 404/410 responses.  Either fix the broken links, or remove the references to the non-existent resources."
+msgstr ""
+
+#  Header at the top of a list of URLs when Page Speed
+#  detected that a resource depends on all the resources shown in the
+#  list.
+msgid "The following requests are serialized. Try to break up the dependencies to make them load in parallel."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as loaded synchronously. It describes the problem and tells
+#  the user how to fix by loading them asynchronously.
+msgid "The following resources are loaded synchronously. Load them asynchronously to reduce blocking of page rendering."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as lacking a "cache validator" -- that is, an HTTP header
+#  that indicates to the browser how to check whether a particular item
+#  in its cache is still valid.  It describes the problem to the user,
+#  and tells them how to fix it by configuring their server to include a
+#  "Last-Modified" HTTP header, or an "ETag" HTTP header, either of which
+#  can serve as a cache validator.  Note that "Last-Modified" and "ETag"
+#  are code and should not be translated.
+msgid "The following resources are missing a cache validator. Resources that do not specify a cache validator cannot be refreshed efficiently. Specify a Last-Modified or ETag header to enable cache validation for the following resources:"
+msgstr ""
+
+#  Header at the top of a list of URLs that Page
+#  Speed detected as declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) in an HTML meta tag. It
+#  describes the problem to the user, and tells them how to fix
+#  it by explicitly specifying the character set in the HTTP
+#  Content-Type response header.
+msgid "The following resources have a character set specified in a meta tag. Specifying a character set in a meta tag disables the lookahead downloader in IE8. To improve resource download parallelization, move the character set to the HTTP Content-Type response header."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as being identical yet served multiple times from different
+#  URLs.  It describes the problem to the user, and tells them how to
+#  fix it by serving all these resources from the same URL.  The "$1"
+#  is a format string that will be replaced with the number of requests
+#  that could be saved (e.g. "3"); the "$2" is a format string that
+#  will be replaced with the number of bytes that could be saved
+#  (e.g. "12.3kB").
+msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save $1 request(s) and $2."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
+#  problem to the user, and tells them how to fix it by explicitly
+#  specifying the character set near the beginning of the page.
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
+msgstr ""
+
+#  Header at the top of a list of URLs of resources that are
+#  served from a domain that does not have HTTP Keep-Alive enabled.  It
+#  tells the user to enable keep-alive on that domain.  The "$1" is a
+#  format string that will be replaced with the domain in question.
+#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  translated.
+msgid "The host $1 should enable Keep-Alive. It serves the following resources."
+msgstr ""
+
+#  Heading that explains why the URLs that follow
+#  should be moved to different hostnames. "DNS" should remain
+#  in the translated format string.
+msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having large requests. It describes the problem to the
+#  user, and tells them how to fix it by reducing the size of requests.
+msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
+msgstr ""
+
+#  Descriptive header describing a list of CSS resources that
+#  are all served from a single domain (in violation of the
+#  CombineExternalResources rule).  It says how many resources were loaded
+#  from that domain, gives the domain name itself, and is followed by a list
+#  of the URLs of those resources.  It then tells the webmaster how to solve
+#  the problem, by combining the resources into fewer files.  "$1" is a
+#  format token that will be replaced with the number of CSS files loaded
+#  from the given domain. "$2" will be replaced by the domain name from
+#  which all the CSS files were loaded.
+msgid "There are $1 CSS files served from $2. They should be combined into as few files as possible."
+msgstr ""
+
+#  Descriptive header describing a list of JavaScript resources
+#  that are all served from a single domain (in violation of the
+#  CombineExternalResources rule).  It says how many resources were loaded
+#  from that domain, gives the domain name itself, and is followed by a list
+#  of the URLs of those resources.  It then tells the webmaster how to solve
+#  the problem, by combining the resources into fewer files.  "$1" is a
+#  format token that will be replaced by the number of JavaScript files
+#  loaded from the given domain.  "$2" will be replaced by the domain name
+#  from which all the JavaScript files were loaded.
+msgid "There are $1 JavaScript files served from $2. They should be combined into as few files as possible."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as from one host. It describes the problem to the user,
+#  and tells them how to fix it by distributing the requests across
+#  multiple hostnames. The "$1" will be replace by the number of the
+#  URLs; the "$2" wil be replaced by the name of the host (e.g.
+#  google.com).
+msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to make use
+#  of the application cache to achieve faster startup times. This is displayed
+#  in a list of rule names that Page Speed generates. "Application Cache"
+#  should not be translated since it is the name of an HTML 5 feature.
+msgid "Use an Application Cache"
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed detected
+#  that HTML5 application cache should be used. It tells the user to fix the
+#  problem by using application cache in the HTML documents.
+msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr ""
