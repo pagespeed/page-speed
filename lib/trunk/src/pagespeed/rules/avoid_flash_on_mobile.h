@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_RULES_AVOID_FLASH_H_
-#define PAGESPEED_RULES_AVOID_FLASH_H_
+#ifndef PAGESPEED_RULES_AVOID_FLASH_ON_MOBILE_H_
+#define PAGESPEED_RULES_AVOID_FLASH_ON_MOBILE_H_
 
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
@@ -51,4 +51,4 @@ class AvoidFlashOnMobile : public Rule {
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_RULES_AVOID_FLASH_H_
+#endif  // PAGESPEED_RULES_AVOID_FLASH_ON_MOBILE_H_
