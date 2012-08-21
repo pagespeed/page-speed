@@ -231,16 +231,13 @@
           'action_name': 'build_release_xpi',
           'script_name': 'generate_zip.py',
           'inputs': [
-# TODO: the gyp make generator is broken and doesn't respect the
-# suppress_wildcard flag for actions. In the meantime these are
-# commented out.
-#            '<@(_script_name)',
-#            '<@(xpi_files_common)',
-#            '<@(xpi_files_so_WINNT_x86-msvc)',
-#            '<@(xpi_files_so_Linux_x86-gcc3)',
-#            '<@(xpi_files_so_Linux_x86_64-gcc3)',
-#            '<@(xpi_files_so_Darwin_x86-gcc3)',
-#            '<@(xpi_files_so_Darwin_x86_64-gcc3)',
+            '<@(_script_name)',
+            '<@(xpi_files_common)',
+            '<@(xpi_files_so_WINNT_x86-msvc)',
+            '<@(xpi_files_so_Linux_x86-gcc3)',
+            '<@(xpi_files_so_Linux_x86_64-gcc3)',
+            '<@(xpi_files_so_Darwin_x86-gcc3)',
+            '<@(xpi_files_so_Darwin_x86_64-gcc3)',
           ],
           'outputs': [ '<(PRODUCT_DIR)/page-speed-release.xpi' ],
           'action': [ 'python', '<@(_script_name)', '<@(_outputs)', '<(xpi_stage_root)' ],
