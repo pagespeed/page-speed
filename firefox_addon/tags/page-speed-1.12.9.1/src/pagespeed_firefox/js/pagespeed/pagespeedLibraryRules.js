@@ -150,6 +150,7 @@ var shortNameTranslationTable = {
 // The (relative) URLs for the docs for each rule:
 var documentationURLs = {
   AvoidBadRequests: 'rtt.html#AvoidBadRequests',
+  AvoidCharsetInMetaTag: 'rendering.html#SpecifyCharsetEarly',
   AvoidCssImport: 'rtt.html#AvoidCssImport',
   AvoidDocumentWrite: 'rtt.html#AvoidDocumentWrite',
   CombineExternalCss: 'rtt.html#CombineExternalCSS',
