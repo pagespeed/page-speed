@@ -515,7 +515,7 @@ Firebug.PageSpeedModule = extend(Firebug.Module, {
   showHelp: function() {
     try {
       PAGESPEED.Utils.openLink(
-        'http://code.google.com/speed/page-speed/docs/using.html');
+        'https://developers.google.com/speed/docs/insights/using_firefox');
     } catch (e) {
       logException('PageSpeedModule.showHelp()', e);
     }
