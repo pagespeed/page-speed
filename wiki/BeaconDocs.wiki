@@ -1,5 +1,5 @@
 #summary Explain the format of the beacons Page Speed can send.
-#labels Phase-Design
+#labels Phase-Implementation
 
 = Introduction =
 
@@ -32,6 +32,8 @@ $ svn checkout http://page-speed.googlecode.com/svn/score_collection/trunk/ scor
   * {{{extensions.PageSpeed.beacon.minimal.url}}} Set to the URL which takes GETs.
   * {{{extensions.PageSpeed.beacon.minimal.enabled}}} Set to true to enable the minimal beacon.  
   * {{{extensions.PageSpeed.beacon.minimal.autorun}}} Set to true to automatically send the minimal beacon once scores are computed.
+
+  The beacon is sent once scores are computed.  If you are building an automated system, and wish to have pages scored after they are loaded, consider setting extensions.PageSpeed.autorun to true.
 
 === Data Encoded in the Minimal Beacon ===
 
@@ -85,6 +87,15 @@ The following table lists the parameters sent in the minimal beacon:
 == Full Beacon ==
 
    The full beacon sends an html POST to a url.  The text of the POST is a JSON object with information about the page.  You can get the same text written to a file by selecting "Write JSON File" from the Export menu in the Page Seed tab of firebug.
+
+=== Enabling the Full Beacon ===
+   The following preferences can be set in about:config to control the full beacon:
+
+  * {{{extensions.PageSpeed.beacon.full_results.url}}} Set to the URL which takes POSTs.
+  * {{{extensions.PageSpeed.beacon.full_results.enabled}}} Set to true to enable the full beacon.  
+  * {{{extensions.PageSpeed.beacon.full_results.autorun}}} Set to true to automatically send the full beacon once scores are computed.
+
+  The beacon is sent once scores are computed.  If you are building an automated system, and wish to have pages scored after they are loaded, consider setting extensions.PageSpeed.autorun to true.
 
 === Full Beacon Properties ===
 
