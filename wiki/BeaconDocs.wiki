@@ -21,8 +21,6 @@ $ svn checkout http://page-speed.googlecode.com/svn/score_collection/trunk/ scor
 
 == Minimal Beacon ==
 
-   Progress on implementing the minimal beacon is tracked as [http://code.google.com/p/page-speed/issues/detail?id=58 issue 58].
-
    The minimal beacon sends an http GET to a url with a set of key-value pairs encoded in the parameter string.  
 
    Both the key and value are escaped with the javascript function encodeURIComponent().  This matters for urls, which have characters like : and / which will be escaped.  For example, consider the url 'http://www.example.com/test'.  It can not be sent as-is, because it contains the characters '/' and ':'.  We encode that url like this: 'http%3A%2F%2Fwww.example.com%2Ftest'.  Most CGI libraries have functions to undo this encoding.
