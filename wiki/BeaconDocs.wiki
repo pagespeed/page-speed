@@ -33,7 +33,8 @@ $ svn checkout http://page-speed.googlecode.com/svn/score_collection/trunk/ scor
   * {{{extensions.PageSpeed.beacon.minimal.enabled}}} Set to true to enable the minimal beacon.  
   * {{{extensions.PageSpeed.beacon.minimal.autorun}}} Set to true to automatically send the minimal beacon once scores are computed.
 
-  The beacon is sent once scores are computed.  If you are building an automated system, and wish to have pages scored after they are loaded, consider setting extensions.PageSpeed.autorun to true.
+  The beacon is sent once scores are computed.  If you are building an automated system, and wish to have pages scored after they are loaded, consider setting:
+  * {{{extensions.PageSpeed.autorun}}} Set to true to automatically run Page Speed scoring after a page loads.
 
 === Data Encoded in the Minimal Beacon ===
 
@@ -95,7 +96,8 @@ The following table lists the parameters sent in the minimal beacon:
   * {{{extensions.PageSpeed.beacon.full_results.enabled}}} Set to true to enable the full beacon.  
   * {{{extensions.PageSpeed.beacon.full_results.autorun}}} Set to true to automatically send the full beacon once scores are computed.
 
-  The beacon is sent once scores are computed.  If you are building an automated system, and wish to have pages scored after they are loaded, consider setting extensions.PageSpeed.autorun to true.
+  The beacon is sent once scores are computed.  If you are building an automated system, and wish to have pages scored after they are loaded, consider setting:
+  * {{{extensions.PageSpeed.autorun}}} Set to true to automatically run Page Speed scoring after a page loads.
 
 === Full Beacon Properties ===
 
