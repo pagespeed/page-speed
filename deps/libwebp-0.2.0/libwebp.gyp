@@ -89,7 +89,6 @@
           'dependencies' : [
             'libwebp_dec',
             'libwebp_dsp',
-            'libwebp_dsp_neon',
             'libwebp_enc',
             'libwebp_utils',
           ],
