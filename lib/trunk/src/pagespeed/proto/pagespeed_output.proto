@@ -135,6 +135,46 @@ message ResultDetails {
   extensions 1000 to max;
 }
 
+// Result detail to store redirection information.
+message RedirectionDetails {
+  extend ResultDetails {
+    // In order to attach it to Result.details
+    optional RedirectionDetails message_set_extension = 5399908;  // 'Red'
+  }
+
+  // Is this redirection a permanent redirection (301)?
+  optional bool is_permanent = 1;
+
+  // Is this redirection a cacheable redirection? Permanent redirection may not
+  // be cacheable and temporary redirections can be cacheable with proper HTTP
+  // cache headers.
+  optional bool is_cacheable = 2;
+
+  // The freshness lifetime of the redirection, in milliseconds.
+  optional int64 freshness_lifetime_millis = 3;
+
+  // Is this redirection a same host redirection? For example: foo.com
+  // redirects to www.foo.com is not same.
+  optional bool is_same_host = 4;
+
+  // Is this redirection a likely login redirection? Heuristic is that the
+  // string "login" is in the URL.
+  optional bool is_likely_login = 5;
+
+  // Is this redirection a likely callback redirection? Redirect the URL to
+  // another location and later navigate to that URL again (such as captchas).
+  // Heuristic is that the previous resource appears in the query string of the
+  // next URL.
+  optional bool is_likely_callback = 6;
+
+  // The index of this direction in the redirection chain.
+  optional int32 chain_index = 7;
+
+  // The length of the redirection chain.
+  optional int32 chain_length = 8;
+}
+
+
 // Result detail to store image dimension information.
 message ImageDimensionDetails {
   extend ResultDetails {

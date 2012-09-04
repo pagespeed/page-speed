@@ -57,6 +57,12 @@ class Violation {
 };
 
 class RedirectRegistryTest : public ::pagespeed_testing::PagespeedTest {
+ public:
+  RedirectRegistryTest()
+      : request_start_time_millis_(0) {}
+ private:
+    // To enforce resources added in request order.
+  int request_start_time_millis_;
  protected:
   void AddResourceUrl(const std::string& url, int status_code) {
     Resource* resource = new Resource;
@@ -74,7 +80,14 @@ class RedirectRegistryTest : public ::pagespeed_testing::PagespeedTest {
     if (!location.empty()) {
       resource->AddResponseHeader("Location", location);
     }
+    resource->SetRequestStartTimeMillis(request_start_time_millis_++);
     AddResource(resource);
+  }
+
+  Resource* SetPrimaryResource(const std::string& url) {
+    Resource* resource = NewPrimaryResource(url);
+    resource->SetRequestStartTimeMillis(request_start_time_millis_++);
+    return resource;
   }
 
   void CheckViolations(const std::vector<Violation>& expected_violations) {
@@ -98,6 +111,13 @@ class RedirectRegistryTest : public ::pagespeed_testing::PagespeedTest {
     }
   }
 };
+
+// Make sure SetPrimaryResourceUrl canonicalizes its input.
+TEST_F(RedirectRegistryTest, SetPrimaryResourceUrl) {
+  NewPrimaryResource(kNonCanonUrl);
+  Freeze();
+  EXPECT_EQ(kCanonicalizedUrl, pagespeed_input()->primary_resource_url());
+}
 
 TEST_F(RedirectRegistryTest, SimpleRedirect) {
   std::string url1 = "http://foo.com/";
@@ -322,5 +342,50 @@ TEST(ResourcesInRequestOrderTest, ResourcesWithStartTimes) {
   ASSERT_EQ(kURL3, rv[2]->GetRequestUrl());
   ASSERT_EQ(kURL1, rv[3]->GetRequestUrl());
 }
+
+TEST_F(RedirectRegistryTest, RedirectMissingLocation) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+
+  AddRedirect(url1, "");
+  SetPrimaryResource(url2);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
+
+  CheckViolations(violations);
+}
+
+TEST_F(RedirectRegistryTest, OnlyOnePrimaryRedirectionChain) {
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://www.bar.com/";
+
+  AddRedirect(url1, url2);
+  AddRedirect(url2, "");
+  SetPrimaryResource(url3);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+  urls.push_back(url3);
+
+
+  // Only one redirection chain: url1->url2->url3. Without the
+  // BuildFixUpRedirectChain, we would only get a non-primary resource
+  // redirection chain of "url1->url2", and miss the redirection from url2 to
+  // url3.
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, urls));
+
+  CheckViolations(violations);
+}
+
 
 }  // namespace

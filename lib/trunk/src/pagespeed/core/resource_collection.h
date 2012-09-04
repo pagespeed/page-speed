@@ -111,12 +111,16 @@ class ResourceCollection {
 
   const RedirectRegistry* GetRedirectRegistry() const;
 
+  bool SetPrimaryResourceUrl(const std::string& url);
+  const std::string& primary_resource_url() const;
+  const Resource* GetPrimaryResourceOrNull() const;
   bool is_frozen() const;
 
  private:
   bool IsValidResource(const Resource* resource) const;
 
   std::vector<Resource*> resources_;
+  std::string primary_resource_url_;
 
   // Map from URL to Resource. The resources_ vector, above, owns the
   // Resource instances in this map.

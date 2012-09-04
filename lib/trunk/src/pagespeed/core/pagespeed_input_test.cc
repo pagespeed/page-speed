@@ -38,8 +38,7 @@ using pagespeed_testing::FakeDomElement;
 
 static const char* kURL1 = "http://www.foo.com/";
 static const char* kURL2 = "http://www.bar.com/";
-static const char* kNonCanonUrl = "http://example.com";
-static const char* kCanonicalizedUrl = "http://example.com/";
+
 
 Resource* NewResource(const std::string& url, int status_code) {
   Resource* resource = new Resource;
@@ -48,15 +47,7 @@ Resource* NewResource(const std::string& url, int status_code) {
   return resource;
 }
 
-// Make sure SetPrimaryResourceUrl canonicalizes its input.
-TEST(PagespeedInputTest, SetPrimaryResourceUrl) {
-  PagespeedInput input;
-  EXPECT_TRUE(input.AddResource(NewResource(kNonCanonUrl, 200)));
-  EXPECT_TRUE(input.SetPrimaryResourceUrl(kNonCanonUrl));
-  ASSERT_TRUE(input.Freeze());
 
-  EXPECT_EQ(kCanonicalizedUrl, input.primary_resource_url());
-}
 
 TEST(PagespeedInputTest, SetClientCharacteristicsFailsWhenFrozen) {
   PagespeedInput input;

@@ -13,6 +13,9 @@ msgstr ""
 msgid "$1 ($2 reflows)"
 msgstr ""
 
+msgid "$1 ($2 x $3)"
+msgstr ""
+
 #  A format string for one item in a list of images that
 #  Page Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears; each list item
@@ -69,9 +72,24 @@ msgid "$1 has a request size of $2"
 msgstr ""
 
 #  Message displayed to indicate that a URL
-#  redirects to another URL, e.g "http://example.com/ is an
-#  uncacheable redirect to http://www.example.com/".
-msgid "$1 is an uncacheable redirect to $2"
+#  redirects to another URL, and the redirection is cacheable.
+msgid "$1 is a cacheable redirect to $2"
+msgstr ""
+
+#  Message displayed to indicate that a URL
+#  redirects to another URL, and the redirection is not cacheable.
+msgid "$1 is a non-cacheable redirect to $2"
+msgstr ""
+
+#  Message displayed to indicate that a URL
+#  redirects to another URL, and the redirection is permanent.
+msgid "$1 is a permanent redirect to $2"
+msgstr ""
+
+#  Message displayed to indicate that a URL
+#  redirects to another URL, e.g "http://example.com/ is a redirect to
+#  http://www.example.com/".
+msgid "$1 is a redirect to $2"
 msgstr ""
 
 #  Describes a single URL of an image that is resized in HTML
@@ -173,6 +191,13 @@ msgstr ""
 #  The name of a Page Speed rule that tells users to avoid using
 #  Adobe Flash on mobile webpages
 msgid "Avoid flash on mobile webpages"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to avoid
+#  redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid landing page redirects"
 msgstr ""
 
 #  The name of a Page Speed rule that tells users to try
@@ -347,13 +372,6 @@ msgstr ""
 #  will be replace by the number of bytes (e.g. 27B); the "$3" will be
 #  replace by the percentage (e.g. 12%).
 msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
-msgstr ""
-
-#  The name of a Page Speed rule that tells users to avoid
-#  non-cacheable redirects at the landing page. The landing page is the root
-#  HTML document that was requested the user in the browser's address bar.
-#  This is displayed in a list of rule names that Page Speed generates.
-msgid "Make landing page redirects cacheable"
 msgstr ""
 
 #  Name of a Page Speed rule. Here, minify means "remove
@@ -569,8 +587,9 @@ msgid "Specify image dimensions"
 msgstr ""
 
 #  Header at the top of a list of URLs of Adobe Flash
-#  resources detected by Page Speed
-msgid "The following Flash objects are included on the page. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x+. Consider removing Flash objects and finding suitable replacements."
+#  resources detected by Page Speed. "$1" will be replaced by the number
+#  of flash elements found.
+msgid "The following $1 Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
 msgstr ""
 
 #  Appears as part of the list of URLs that
@@ -681,7 +700,7 @@ msgstr ""
 #  Header at the top of a list of URLs that Page Speed
 #  detected as a chain of HTTP redirections. It tells the user to fix
 #  the problem by removing the URLs that redirect to others.
-msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgid "The following landing page redirects should be eliminated. Make as few redirections as possible to speed up page load times for visitors to your site."
 msgstr ""
 
 msgid "The following pages do not specify a viewport. Consider adding a meta tag specifying a viewport so mobile browsers can render the document at a usable size."
