@@ -400,12 +400,14 @@ void RedirectRegistry::Init(const ResourceCollection& resource_collection) {
     //  a -> b -> c is one chain, and
     //  e -> d -> c is another.
     // In the above case, c is in both chains.
-    for (RedirectChainVector::iterator it = redirect_chains_.begin(),
-         end = redirect_chains_.end();
-         it != end;
-         ++it) {
+    for (RedirectChainVector::iterator it = redirect_chains_.begin();
+         it != redirect_chains_.end();
+         // Left empty intentionally. We will advance it inside the loop.
+         ) {
+
       RedirectChain* chain = &(*it);
       if (chain->empty()) {
+        ++it;  // Advance the iterator.
         continue;
       }
       RedirectChain::const_iterator resource_it =
@@ -420,12 +422,11 @@ void RedirectRegistry::Init(const ResourceCollection& resource_collection) {
              ++cit) {
           resource_to_redirect_chain_map_.erase(*cit);
         }
-
-        it = redirect_chains_.erase(it);
         // Erasing returns the new location of the element that followed the
-        // last element erased. We need to reset the iterator to the location of
-        // the element before the erased element before next iteration.
-        --it;
+        // last element erased. 
+        it = redirect_chains_.erase(it);
+      } else {
+        ++it;  // Advance the iterator.
       }
     }
 
