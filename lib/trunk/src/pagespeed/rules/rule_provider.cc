@@ -34,6 +34,7 @@
 #include "pagespeed/rules/inline_small_resources.h"
 #include "pagespeed/rules/leverage_browser_caching.h"
 #include "pagespeed/rules/load_visible_images_first.h"
+#include "pagespeed/rules/make_landing_page_redirects_cacheable.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/minify_javascript.h"
@@ -182,6 +183,13 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("inlinesmalljavascript", rules::InlineSmallJavaScript());
   RULE("leveragebrowsercaching", rules::LeverageBrowserCaching());
   RULE("loadvisibleimagesfirst", rules::LoadVisibleImagesFirst());
+  // makelandingpageredirectscacheable was replaced by the
+  // avoidlandingpageredirects rule. however we need to continue to
+  // make this rule instantiable so old results that contain
+  // makelandingpageredirectscacheable entries continue to display
+  // properly.
+  RULE("makelandingpageredirectscacheable",
+       rules::MakeLandingPageRedirectsCacheable());
   RULE("minifycss", rules::MinifyCss(save_optimized_content));
   RULE("minifyhtml", rules::MinifyHTML(save_optimized_content));
   RULE("minifyjavascript", rules::MinifyJavaScript(save_optimized_content));
