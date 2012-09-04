@@ -29,6 +29,7 @@
       ],
       'sources': [
         'ad_filter.cc',
+        'landing_page_redirection_filter.cc',
         'protocol_filter.cc',
         'response_byte_result_filter.cc',
         'tracker_filter.cc',

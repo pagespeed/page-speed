@@ -76,14 +76,7 @@ bool PagespeedInput::SetPrimaryResourceUrl(const std::string& url) {
                 << " to frozen PagespeedInput.";
     return false;
   }
-  std::string canon_url = url;
-  uri_util::CanonicalizeUrl(&canon_url);
-  if (!has_resource_with_url(canon_url)) {
-    LOG(INFO) << "No such primary resource " << canon_url;
-    return false;
-  }
-  primary_resource_url_ = canon_url;
-  return true;
+  return resources_.SetPrimaryResourceUrl(url);
 }
 
 bool PagespeedInput::SetOnloadState(OnloadState state) {
@@ -488,7 +481,7 @@ const InstrumentationDataVector* PagespeedInput::instrumentation_data() const {
 }
 
 const std::string& PagespeedInput::primary_resource_url() const {
-  return primary_resource_url_;
+  return resources_.primary_resource_url();
 }
 
 bool PagespeedInput::is_frozen() const {

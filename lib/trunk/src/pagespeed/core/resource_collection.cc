@@ -34,6 +34,31 @@ struct ResourceRequestStartTimeLessThan {
   }
 };
 
+// Build a redirect chain from resources in the request order. The chain starts
+// at the beginning of the resource vector if the first resource is a REDIRECT,
+// and ends with the first non-REDIRECT resource.
+void BuildFixUpRedirectChain(
+    pagespeed::RedirectRegistry::RedirectChain* chain,
+    const ResourceCollection& resource_collection) {
+  const ResourceVector* resources =
+      resource_collection.GetResourcesInRequestOrder();
+  if (resources == NULL) {
+    return;
+  }
+
+  for (int i = 0, num = resources->size(); i < num; ++i) {
+    const pagespeed::Resource* resource = resources->at(i);
+    if (resource->GetResourceType() == pagespeed::REDIRECT) {
+      chain->push_back(resource);
+    } else {
+      if (i > 0) {
+        chain->push_back(resource);
+      }
+      break;
+    }
+  }
+}
+
 class RedirectGraph {
  public:
   explicit RedirectGraph(const ResourceCollection* resource_collection)
@@ -296,6 +321,41 @@ Resource* ResourceCollection::GetMutableResourceWithUrlOrNull(
   return const_cast<Resource*>(GetResourceWithUrlOrNull(url));
 }
 
+bool ResourceCollection::SetPrimaryResourceUrl(const std::string& url) {
+  if (is_frozen()) {
+    LOG(DFATAL) << "Can't set primary resource " << url
+                << " to frozen ResourceCollection.";
+    return false;
+  }
+  std::string canon_url = url;
+  uri_util::CanonicalizeUrl(&canon_url);
+  if (!has_resource_with_url(canon_url)) {
+    LOG(INFO) << "No such primary resource " << canon_url;
+    return false;
+  }
+  primary_resource_url_ = canon_url;
+  return true;
+}
+
+const std::string& ResourceCollection::primary_resource_url() const {
+  return primary_resource_url_;
+}
+
+const Resource* ResourceCollection::GetPrimaryResourceOrNull() const {
+  const std::string& primary_resource_url_fragment = primary_resource_url();
+  std::string primary_resource_url;
+  if (!uri_util::GetUriWithoutFragment(primary_resource_url_fragment,
+                                       &primary_resource_url)) {
+    primary_resource_url = primary_resource_url_fragment;
+  }
+
+  if (primary_resource_url.empty()) {
+    LOG(ERROR) << "Primary resource URL was not set";
+    return NULL;
+  }
+  return GetResourceWithUrlOrNull(primary_resource_url);
+}
+
 RedirectRegistry::RedirectRegistry() : initialized_(false) {}
 
 void RedirectRegistry::Init(const ResourceCollection& resource_collection) {
@@ -304,6 +364,84 @@ void RedirectRegistry::Init(const ResourceCollection& resource_collection) {
   if (!initialized_ && resource_collection.is_frozen()) {
     BuildRedirectChains(resource_collection);
     initialized_ = true;
+  }
+
+  // Fix the landing page redirect chain if needed because the redirect
+  // destinations may be missing in the HAR. In that case, the redirect chain
+  // will not be in the redirect registry.  See:
+  // https://bugs.webkit.org/show_bug.cgi?id=94103
+  //
+  // We first build a new landing page redirect chain from the request-ordered
+  // resources, then compare this fix-up chain with the primary resource
+  // redirect chain. If they match, do nothing; otherwise, add this chain to the
+  // chains vector and replace resource to redirect chain map to this chain.
+
+  RedirectChain fixup_chain;
+  BuildFixUpRedirectChain(&fixup_chain,
+                          resource_collection);
+  if (fixup_chain.empty()) {
+    return;
+  }
+  const Resource* primary_resource =
+      resource_collection.GetPrimaryResourceOrNull();
+  if (primary_resource == NULL) {
+    // Primary resource is missing or primary resource URL is not set. Use the
+    // last the resource of the fix-up chain as the primary resource.
+    primary_resource = fixup_chain.back();
+  } else {
+    DCHECK(fixup_chain.back() == primary_resource);
+  }
+  const RedirectChain* primary_chain =
+      GetRedirectChainOrNull(primary_resource);
+  if (primary_chain == NULL || primary_chain->size() < fixup_chain.size()) {
+    // Remove chains that have resources from the *new* fix-up chain. We assume
+    // each resource belongs to only one chain. We may end up remove the wrong
+    // chain if one resource can be in multiple chains:
+    //  a -> b -> c is one chain, and
+    //  e -> d -> c is another.
+    // In the above case, c is in both chains.
+    for (RedirectChainVector::iterator it = redirect_chains_.begin(),
+         end = redirect_chains_.end();
+         it != end;
+         ++it) {
+      RedirectChain* chain = &(*it);
+      if (chain->empty()) {
+        continue;
+      }
+      RedirectChain::const_iterator resource_it =
+          std::find(fixup_chain.begin(), fixup_chain.end(), chain->at(0));
+      if (resource_it != fixup_chain.end()) {
+        // Remove all the chain resources from the map. We will add the *new*
+        // primary chain resources after.
+        for (RedirectRegistry::RedirectChain::const_iterator cit =
+             chain->begin(),
+             cend = chain->end();
+             cit != cend;
+             ++cit) {
+          resource_to_redirect_chain_map_.erase(*cit);
+        }
+
+        it = redirect_chains_.erase(it);
+        // Erasing returns the new location of the element that followed the
+        // last element erased. We need to reset the iterator to the location of
+        // the element before the erased element before next iteration.
+        --it;
+      }
+    }
+
+    // We need to add the fix up chain to the chains vector, then map the
+    // resources to the address of the chain in the vector.
+    redirect_chains_.push_back(fixup_chain);
+    primary_chain = &redirect_chains_.back();
+
+    // Add the *new* primary chain resources to the resource to chain map.
+    for (RedirectRegistry::RedirectChain::const_iterator cit =
+         primary_chain->begin(),
+         cend = primary_chain->end();
+         cit != cend;
+         ++cit) {
+      resource_to_redirect_chain_map_[*cit] = primary_chain;
+    }
   }
 }
 

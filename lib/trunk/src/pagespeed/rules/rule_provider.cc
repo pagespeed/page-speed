@@ -23,6 +23,7 @@
 #include "pagespeed/rules/avoid_css_import.h"
 #include "pagespeed/rules/avoid_excess_serialization.h"
 #include "pagespeed/rules/avoid_flash_on_mobile.h"
+#include "pagespeed/rules/avoid_landing_page_redirects.h"
 #include "pagespeed/rules/avoid_long_running_scripts.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/defer_parsing_javascript.h"
@@ -33,7 +34,6 @@
 #include "pagespeed/rules/inline_small_resources.h"
 #include "pagespeed/rules/leverage_browser_caching.h"
 #include "pagespeed/rules/load_visible_images_first.h"
-#include "pagespeed/rules/make_landing_page_redirects_cacheable.h"
 #include "pagespeed/rules/minify_css.h"
 #include "pagespeed/rules/minify_html.h"
 #include "pagespeed/rules/minify_javascript.h"
@@ -66,6 +66,7 @@ static const char* kCoreRules[] = {
   "avoidcharsetinmetatag",
   "avoidcssimport",
   "avoidexcessserialization",
+  "avoidlandingpageredirects",
   "avoidlongrunningscripts",
   "deferparsingjavascript",
   "eliminateunnecessaryreflows",
@@ -74,7 +75,6 @@ static const char* kCoreRules[] = {
   "inlinesmallcss",
   "inlinesmalljavascript",
   "leveragebrowsercaching",
-  "makelandingpageredirectscacheable",
   "minifycss",
   "minifyhtml",
   "minifyjavascript",
@@ -169,6 +169,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("avoidcssimport", rules::AvoidCssImport());
   RULE("avoidexcessserialization", rules::AvoidExcessSerialization());
   RULE("avoidflashonmobile", rules::AvoidFlashOnMobile());
+  RULE("avoidlandingpageredirects", rules::AvoidLandingPageRedirects());
   RULE("avoidlongrunningscripts", rules::AvoidLongRunningScripts());
   RULE("combineexternalcss", rules::CombineExternalCss());
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
@@ -181,8 +182,6 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("inlinesmalljavascript", rules::InlineSmallJavaScript());
   RULE("leveragebrowsercaching", rules::LeverageBrowserCaching());
   RULE("loadvisibleimagesfirst", rules::LoadVisibleImagesFirst());
-  RULE("makelandingpageredirectscacheable",
-       rules::MakeLandingPageRedirectsCacheable());
   RULE("minifycss", rules::MinifyCss(save_optimized_content));
   RULE("minifyhtml", rules::MinifyHTML(save_optimized_content));
   RULE("minifyjavascript", rules::MinifyJavaScript(save_optimized_content));

@@ -203,7 +203,6 @@ class PagespeedInput {
   scoped_ptr<DomDocument> document_;
   scoped_ptr<TopLevelBrowsingContext> top_level_browsing_context_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
-  std::string primary_resource_url_;
   OnloadState onload_state_;
   int onload_millis_;
 
