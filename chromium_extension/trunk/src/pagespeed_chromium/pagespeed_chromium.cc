@@ -41,6 +41,7 @@
 #include "pagespeed/timeline/json_importer.h"
 #include "pagespeed/filters/ad_filter.h"
 #include "pagespeed/filters/response_byte_result_filter.h"
+#include "pagespeed/filters/landing_page_redirection_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/proto_formatter.h"
 #include "pagespeed/har/http_archive.h"
@@ -277,15 +278,23 @@ bool RunPageSpeedRules(const std::string& id,
   engine.Init();
 
   // Compute results.
-  pagespeed::Results results;
-  if (!engine.ComputeResults(*input, &results)) {
+  pagespeed::Results unfiltered_results;
+  if (!engine.ComputeResults(*input, &unfiltered_results)) {
     std::vector<std::string> error_rules;
-    for (int i = 0, size = results.error_rules_size(); i < size; ++i) {
-      error_rules.push_back(results.error_rules(i));
+    for (int i = 0, size = unfiltered_results.error_rules_size(); i < size;
+         ++i) {
+      error_rules.push_back(unfiltered_results.error_rules(i));
     }
     LOG(WARNING) << "Errors during ComputeResults in rules: "
                  << JoinString(error_rules, ' ');
   }
+
+  // Filter out the results of some landing page redirection rules. For example,
+  // user typed url foo.com -> www.foo.com redirection is allowed.
+  pagespeed::LandingPageRedirectionFilter redirection_filter;
+  pagespeed::Results filtered_results;
+  engine.FilterResults(unfiltered_results, redirection_filter,
+                       &filtered_results);
 
   // Format results.
   pagespeed::FormattedResults formatted_results;
@@ -301,7 +310,7 @@ bool RunPageSpeedRules(const std::string& id,
     pagespeed::formatters::ProtoFormatter formatter(localizer.get(),
                                                     &formatted_results);
     pagespeed::ResponseByteResultFilter result_filter;
-    if (!engine.FormatResults(results, result_filter, &formatter)) {
+    if (!engine.FormatResults(filtered_results, result_filter, &formatter)) {
       *error_string = "error during FormatResults";
       return false;
     }
@@ -343,7 +352,7 @@ bool RunPageSpeedRules(const std::string& id,
   // Put optimized resources into JSON:
   scoped_ptr<DictionaryValue> optimized_content(new DictionaryValue);
   if (save_optimized_content) {
-    SerializeOptimizedContent(results, optimized_content.get());
+    SerializeOptimizedContent(filtered_results, optimized_content.get());
   }
 
   // Serialize all the JSON into a string.
