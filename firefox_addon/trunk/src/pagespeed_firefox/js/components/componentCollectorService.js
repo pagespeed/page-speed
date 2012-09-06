@@ -1768,6 +1768,30 @@ ProgressListenerHookInstaller.prototype.onStateChange = function(aWebProgress,
                                                                  aStateFlags,
                                                                  aStatus) {
   if ((aStateFlags & this.EXPECTED_STATE) != this.EXPECTED_STATE) return;
+
+  // We are not interested in about:blank, and allowing it through can
+  // cause the Firefox Debugger to break. See
+  // http://code.google.com/p/page-speed/issues/detail?id=983 for
+  // more.
+  if (aRequest.name == 'about:blank') return;
+  var requestProtocolIdx = aRequest.name.indexOf(':');
+  if (requestProtocolIdx < 0) {
+    // The request name does not contain a protocol, so ignore it.
+    return;
+  }
+  var requestProtocol = aRequest.name.substr(0, requestProtocolIdx);
+  // The request should be http or https, *or* we allow through other
+  // about: requests since there is e.g. about:document-onload-blocker
+  // which we do actually need to allow through. In the event that
+  // about:document-onload-blocker is renamed or other important
+  // about: requests are added in the future, we whitelist all other
+  // about: URLs to be safe.
+  if (requestProtocol != 'http' &&
+      requestProtocol != 'https' &&
+      requestProtocol != 'about') {
+    return;
+  }
+
   var win = aWebProgress.DOMWindow;
   var doc = win.document;
   var protocol = doc.location.protocol;
