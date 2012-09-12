@@ -108,7 +108,7 @@ const MinifierOutput* HtmlMinifier::Minify(const Resource& resource,
     return MinifierOutput::Error();
   }
 
-  if (save_optimized_content_) {
+  if (save_optimized_content_ && !content_type.empty()) {
     return MinifierOutput::SaveMinifiedContent(minified_html, content_type);
   } else {
     return MinifierOutput::DoNotSaveMinifiedContent(minified_html);
