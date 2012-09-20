@@ -105,6 +105,26 @@
       },
     },
     {
+      'target_name': 'pagespeed_webp_optimizer',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/third_party/libwebp/libwebp.gyp:libwebp',
+      ],
+      'sources': [
+        'webp_optimizer.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
+    {
       'target_name': 'pagespeed_png_optimizer',
       'type': '<(library)',
       'dependencies': [
@@ -144,6 +164,7 @@
       'dependencies': [
         'pagespeed_jpeg_optimizer',
         'pagespeed_png_optimizer',
+        'pagespeed_webp_optimizer',
         '<(DEPTH)/base/base.gyp:base',
       ],
       'sources': [

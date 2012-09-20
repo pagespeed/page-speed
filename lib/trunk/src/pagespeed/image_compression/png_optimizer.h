@@ -96,7 +96,7 @@ class PngReaderInterface {
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr,
-                       int transforms) = 0;
+                       int transforms) const = 0;
 
   // Get just the attributes of the given image. out_bit_depth is the
   // number of bits per channel. out_color_type is one of the
@@ -106,7 +106,7 @@ class PngReaderInterface {
                              int* out_width,
                              int* out_height,
                              int* out_bit_depth,
-                             int* out_color_type) = 0;
+                             int* out_color_type) const = 0;
 
   // Get the background color, in the form of 8-bit RGB triplets. Note
   // that if the underlying image uses a bit_depth other than 8, the
@@ -150,7 +150,7 @@ class PngScanlineReader : public ScanlineReaderInterface {
   virtual void Reset();
 
   // Initializes the read structures with the given input.
-  bool InitializeRead(PngReaderInterface& reader, const std::string& in);
+  bool InitializeRead(const PngReaderInterface& reader, const std::string& in);
 
   virtual size_t GetBytesPerScanline();
   virtual bool HasMoreScanLines();
@@ -164,7 +164,7 @@ class PngScanlineReader : public ScanlineReaderInterface {
   bool GetBackgroundColor(
       unsigned char* red, unsigned char* green, unsigned char* blue);
 
-private:
+ private:
   ScopedPngStruct read_;
   size_t current_scanline_;
   int transform_;
@@ -174,11 +174,11 @@ private:
 
 class PngOptimizer {
  public:
-  static bool OptimizePng(PngReaderInterface& reader,
+  static bool OptimizePng(const PngReaderInterface& reader,
                           const std::string& in,
                           std::string* out);
 
-  static bool OptimizePngBestCompression(PngReaderInterface& reader,
+  static bool OptimizePngBestCompression(const PngReaderInterface& reader,
                                          const std::string& in,
                                          std::string* out);
 
@@ -189,7 +189,7 @@ class PngOptimizer {
   // Take the given input and losslessly compress it by removing
   // all unnecessary chunks, and by choosing an optimal PNG encoding.
   // @return true on success, false on failure.
-  bool CreateOptimizedPng(PngReaderInterface& reader,
+  bool CreateOptimizedPng(const PngReaderInterface& reader,
                           const std::string& in,
                           std::string* out);
 
@@ -223,15 +223,15 @@ class PngReader : public PngReaderInterface {
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr,
-                       int transforms);
+                       int transforms) const;
 
   virtual bool GetAttributes(const std::string& body,
                              int* out_width,
                              int* out_height,
                              int* out_bit_depth,
-                             int* out_color_type);
+                             int* out_color_type) const;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(PngReader);
 };
 

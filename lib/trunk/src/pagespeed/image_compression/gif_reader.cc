@@ -323,7 +323,7 @@ GifReader::~GifReader() {
 bool GifReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
                         png_infop info_ptr,
-                        int transforms) {
+                        int transforms) const {
   if (transforms != PNG_TRANSFORM_IDENTITY) {
     LOG(DFATAL) << "Unsupported transform " << transforms;
     return false;
@@ -350,7 +350,7 @@ bool GifReader::GetAttributes(const std::string& body,
                               int* out_width,
                               int* out_height,
                               int* out_bit_depth,
-                              int* out_color_type) {
+                              int* out_color_type) const {
   // We need the length of the magic bytes (GIF_STAMP_LEN), plus 2
   // bytes for width, plus 2 bytes for height.
   const size_t kGifMinHeaderSize = GIF_STAMP_LEN + 2 + 2;

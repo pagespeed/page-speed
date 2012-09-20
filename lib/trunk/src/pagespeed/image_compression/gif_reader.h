@@ -37,13 +37,13 @@ class GifReader : public PngReaderInterface {
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr,
-                       int transforms);
+                       int transforms) const;
 
   virtual bool GetAttributes(const std::string& body,
                              int* out_width,
                              int* out_height,
                              int* out_bit_depth,
-                             int* out_color_type);
+                             int* out_color_type) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(GifReader);
@@ -53,4 +53,4 @@ class GifReader : public PngReaderInterface {
 
 }  // namespace pagespeed
 
-#endif // PNG_OPTIMIZER_GIF_READER_H_
+#endif  // PNG_OPTIMIZER_GIF_READER_H_
