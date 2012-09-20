@@ -131,10 +131,10 @@ void PngFlush(png_structp write_ptr) {}
 // Helper that reads an unsigned 32-bit integer from a stream of
 // big-endian bytes.
 inline uint32 ReadUint32FromBigEndianBytes(const unsigned char* read_head) {
-  return ((uint32)(*read_head) << 24) +
-      ((uint32)(*(read_head + 1)) << 16) +
-      ((uint32)(*(read_head + 2)) << 8) +
-      (uint32)(*(read_head + 3));
+  return (static_cast<uint32>(*read_head) << 24) +
+      (static_cast<uint32>(*(read_head + 1)) << 16) +
+      (static_cast<uint32>(*(read_head + 2)) << 8) +
+      static_cast<uint32>(*(read_head + 3));
 }
 
 }  // namespace
@@ -220,7 +220,7 @@ PngOptimizer::PngOptimizer()
 PngOptimizer::~PngOptimizer() {
 }
 
-bool PngOptimizer::CreateOptimizedPng(PngReaderInterface& reader,
+bool PngOptimizer::CreateOptimizedPng(const PngReaderInterface& reader,
                                       const std::string& in,
                                       std::string* out) {
   if (!read_.valid() || !write_.valid()) {
@@ -302,14 +302,14 @@ bool PngOptimizer::CreateOptimizedPngWithParams(ScopedPngStruct* write,
   return true;
 }
 
-bool PngOptimizer::OptimizePng(PngReaderInterface& reader,
+bool PngOptimizer::OptimizePng(const PngReaderInterface& reader,
                                const std::string& in,
                                std::string* out) {
   PngOptimizer o;
   return o.CreateOptimizedPng(reader, in, out);
 }
 
-bool PngOptimizer::OptimizePngBestCompression(PngReaderInterface& reader,
+bool PngOptimizer::OptimizePngBestCompression(const PngReaderInterface& reader,
                                               const std::string& in,
                                               std::string* out) {
   PngOptimizer o;
@@ -326,7 +326,7 @@ PngReader::~PngReader() {
 bool PngReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
                         png_infop info_ptr,
-                        int transforms) {
+                        int transforms) const {
   // Wrap the resource's response body in a structure that keeps a
   // pointer to the body and a read offset, and pass a pointer to this
   // object as the user data to be received by the PNG read function.
@@ -342,7 +342,7 @@ bool PngReader::GetAttributes(const std::string& body,
                               int* out_width,
                               int* out_height,
                               int* out_bit_depth,
-                              int* out_color_type) {
+                              int* out_color_type) const {
   // We need to read the PNG signature plus the IDAT chunk.
   //
   // Signature is 8 bytes, documentation:
@@ -628,14 +628,14 @@ void PngScanlineReader::Reset() {
   transform_ = PNG_TRANSFORM_IDENTITY;
 }
 
-bool PngScanlineReader::InitializeRead(PngReaderInterface& reader,
+bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
                                        const std::string& in) {
   if (!read_.valid()) {
     LOG(DFATAL) << "Invalid ScopedPngStruct r: " << read_.valid();
     return false;
   }
 
-  if(!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(), transform_)) {
+  if (!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(), transform_)) {
     return false;
   }
 

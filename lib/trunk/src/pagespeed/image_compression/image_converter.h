@@ -24,6 +24,7 @@
 #include "pagespeed/image_compression/scanline_interface.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
 #include "pagespeed/image_compression/png_optimizer.h"
+#include "pagespeed/image_compression/webp_optimizer.h"
 
 namespace pagespeed {
 
@@ -31,19 +32,74 @@ namespace image_compression {
 
 class ImageConverter {
  public:
+  enum ImageType {
+    IMAGE_NONE = 0,
+    IMAGE_PNG,
+    IMAGE_JPEG,
+    IMAGE_WEBP
+  };
+
   // Converts image one line at a time, between different image formats.
-  static bool ConvertImage(ScanlineReaderInterface& reader,
-                           ScanlineWriterInterface& writer);
+  static bool ConvertImage(ScanlineReaderInterface* reader,
+                           ScanlineWriterInterface* writer);
+
+  static bool ConvertPngToJpeg(
+      const PngReaderInterface& png_struct_reader,
+      const std::string& in,
+      const JpegCompressionOptions& options,
+      std::string* out);
+
+  // Reads the PNG encoded in 'in' with 'png_struct_reader', encodes
+  // it in WebP format using the options in 'config', and writes the
+  // resulting WebP in 'out'.
+  static bool ConvertPngToWebp(
+      const PngReaderInterface& png_struct_reader,
+      const std::string& in,
+      const WebpConfiguration& config,
+      std::string* out);
+
+  // Reads the PNG encoded in 'in' with 'png_struct_reader', encodes
+  // it in WebP format using the options in 'config', and writes the
+  // resulting WebP in 'out'. On entry, '*webp_writer' must be NULL;
+  // on exit, it contains the WebpScanlineWriter instance that was
+  // used to write the WebP, and the caller is responsible for
+  // deleting it. Most clients will prefer to use the other form
+  // ConvertPngToWebp.
+  static bool ConvertPngToWebp(
+      const PngReaderInterface& png_struct_reader,
+      const std::string& in,
+      const WebpConfiguration& config,
+      std::string* out,
+      WebpScanlineWriter** webp_writer);
 
   // Optimizes the given png image, also converts to jpeg and take the
   // the one that has smaller size and set the output. Returns false
   // if both of them fails.
   static bool OptimizePngOrConvertToJpeg(
-      PngReaderInterface& png_struct_reader,
+      const PngReaderInterface& png_struct_reader,
       const std::string& in,
       const JpegCompressionOptions& options,
       std::string* out,
-      bool *is_out_png);
+      bool* is_out_png);
+
+  // Populates 'out' with a version of the input image 'in' resulting
+  // in the smallest size, and returns the corresponding
+  // ImageType. The image formats that are candidates for the output
+  // image are: lossless WebP, optimized PNG, custom JPEG (if
+  // jpeg_options != NULL), and custom WebP (if webp_config !=
+  // NULL). To compensate for the loss in quality in the custom JPEG
+  // and WebP (which are presumably lossy), these two formats must be
+  // substantially smaller than the optimized PNG and the lossless
+  // WebP in order to be chosen. In the case where none of these image
+  // formats could be generated or the original image turns out to be
+  // the smallest, copies the original image to 'out' and returns
+  // IMAGE_NONE.
+  static ImageType GetSmallestOfPngJpegWebp(
+      const PngReaderInterface& png_struct_reader,
+      const std::string& in,
+      const JpegCompressionOptions* jpeg_options,
+      const WebpConfiguration* webp_config,
+      std::string* out);
 
  private:
   ImageConverter();

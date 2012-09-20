@@ -25,12 +25,34 @@ namespace pagespeed {
 
 namespace image_compression {
 
+#if defined(PAGESPEED_SCANLINE_PIXEL_FORMAT) || \
+  defined(PAGESPEED_SCANLINE_PIXEL_FORMAT) || \
+  defined(PAGESPEED_SCANLINE_PIXEL_FORMAT)
+#error "Preprocessor macro collision."
+#endif
+
+#define PAGESPEED_SCANLINE_PIXEL_FORMAT(_X)  \
+  _X(UNSUPPORTED),   /* Not supported for reading the image. */ \
+  _X(RGB_888),       /* RGB triplets, 24 bits per pixel */  \
+  _X(RGBA_8888),     /* RGB triplet plus alpha channel, 32 bits per pixel */ \
+  _X(GRAY_8)         /* Grayscale, 8 bits per pixel */
+
+#define PAGESPEED_SCANLINE_ENUM_NAME(Y) Y
+#define PAGESPEED_SCANLINE_ENUM_STRING(Y) #Y
+
 enum PixelFormat {
-  UNSUPPORTED,  // Indicates not supported for reading the image.
-  RGB_888,      // RGB triplets, 24 bits per pixel
-  RGBA_8888,    // RGB triplet plus alpha channel, 32 bits per pixel
-  GRAY_8        // Grayscale, 8 bits per pixel
+    PAGESPEED_SCANLINE_PIXEL_FORMAT(PAGESPEED_SCANLINE_ENUM_NAME)
 };
+
+inline const char* GetPixelFormatString(PixelFormat pf) {
+  static const char* format_names[] = {
+    PAGESPEED_SCANLINE_PIXEL_FORMAT(PAGESPEED_SCANLINE_ENUM_STRING)
+  };
+  return format_names[pf];
+}
+#undef PAGESPEED_SCANLINE_ENUM_STRING
+#undef PAGESPEED_SCANLINE_ENUM_NAME
+#undef PAGESPEED_SCANLINE_PIXEL_FORMAT
 
 class ScanlineReaderInterface {
  public:

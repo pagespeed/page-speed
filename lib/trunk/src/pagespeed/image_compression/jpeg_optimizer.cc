@@ -475,7 +475,7 @@ bool JpegScanlineWriter::Init(const size_t width, const size_t height,
     data_->jpeg_compress_.input_components = 1;
     data_->jpeg_compress_.in_color_space = JCS_GRAYSCALE;
   } else {
-    LOG(ERROR) << "Invalid pixel format " << pixel_format;
+    LOG(ERROR) << "Invalid pixel format " << GetPixelFormatString(pixel_format);
     return false;
   }
 
