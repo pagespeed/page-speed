@@ -146,7 +146,7 @@
         'include_dirs': [
           '<(DEPTH)',
           '<(pagespeed_root)',
-        ],
+        ], 
       },
       'msvs_disabled_warnings': [
         4996,  # std::string::copy() is deprecated on Windows, but we use it,
