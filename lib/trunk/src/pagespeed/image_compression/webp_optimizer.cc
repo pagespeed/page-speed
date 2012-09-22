@@ -190,8 +190,8 @@ bool WebpScanlineWriter::FinalizeWrite() {
   }
 
   bool ok = has_alpha_ ?
-      WebPPictureImportRGBA(&picture_, rgb_, stride_bytes_) :
-      WebPPictureImportRGB(&picture_, rgb_, stride_bytes_);
+      (WebPPictureImportRGBA(&picture_, rgb_, stride_bytes_) != 0) :
+      (WebPPictureImportRGB(&picture_, rgb_, stride_bytes_) != 0);
 
   if (!ok) {
     LOG(ERROR) << "Could not import RGB(A) picture data for webp";
