@@ -268,7 +268,7 @@ ImageConverter::ImageType ImageConverter::GetSmallestOfPngJpegWebp(
     png_out.clear();
   }
 
-  if ((jpeg_options == NULL) &&
+  if ((jpeg_options != NULL) &&
       !ConvertPngToJpeg(png_struct_reader, in, *jpeg_options, &jpeg_out)) {
     LOG(ERROR) << "Could not convert image to JPEG";
     jpeg_out.clear();
