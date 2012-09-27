@@ -95,6 +95,7 @@ class ImageConverter {
   // the smallest, copies the original image to 'out' and returns
   // IMAGE_NONE.
   static ImageType GetSmallestOfPngJpegWebp(
+      // TODO(bmcquade): should be a ScanlineReaderInterface.
       const PngReaderInterface& png_struct_reader,
       const std::string& in,
       const JpegCompressionOptions* jpeg_options,

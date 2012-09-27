@@ -464,6 +464,17 @@ TEST(ImageConverterTest, GetSmallestOfPngJpegWebp) {
                   png_struct_reader, in, &jpeg_options,
                   &lossy_config, &out)) << image.filename;
     EXPECT_EQ(expected_image_size, out.size()) << image.filename;
+
+    if (expected_image_type != ImageConverter::IMAGE_JPEG) {
+      // Verify that the call also succeeds with a NULL jpeg options
+      // (which will skip jpeg conversion).
+      out.clear();
+      EXPECT_EQ(expected_image_type,
+                ImageConverter::GetSmallestOfPngJpegWebp(
+                    png_struct_reader, in, NULL,
+                    &lossy_config, &out)) << image.filename;
+      EXPECT_EQ(expected_image_size, out.size()) << image.filename;
+    }
   }
 }
 
