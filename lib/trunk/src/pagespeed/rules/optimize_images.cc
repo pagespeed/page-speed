@@ -105,8 +105,8 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
   std::string output_mime_type;
   if (type == JPEG) {
     if (!image_compression::OptimizeJpeg(original, &compressed)) {
-      LOG(INFO) << "OptimizeJpeg failed for resource: "
-                << resource.GetRequestUrl();
+      DLOG(INFO) << "OptimizeJpeg failed for resource: "
+                 << resource.GetRequestUrl();
       return MinifierOutput::Error();
     }
     output_mime_type = "image/jpeg";
@@ -115,8 +115,8 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
     if (!image_compression::PngOptimizer::OptimizePng(reader,
                                                       original,
                                                       &compressed)) {
-      LOG(INFO) << "OptimizePng(PngReader) failed for resource: "
-                << resource.GetRequestUrl();
+      DLOG(INFO) << "OptimizePng(PngReader) failed for resource: "
+                 << resource.GetRequestUrl();
       return MinifierOutput::Error();
     }
     output_mime_type = "image/png";
@@ -125,8 +125,8 @@ const MinifierOutput* ImageMinifier::Minify(const Resource& resource,
     if (!image_compression::PngOptimizer::OptimizePng(reader,
                                                       original,
                                                       &compressed)) {
-      LOG(INFO) << "OptimizePng(GifReader) failed for resource: "
-                << resource.GetRequestUrl();
+      DLOG(INFO) << "OptimizePng(GifReader) failed for resource: "
+                 << resource.GetRequestUrl();
       return MinifierOutput::Error();
     }
     output_mime_type = "image/png";

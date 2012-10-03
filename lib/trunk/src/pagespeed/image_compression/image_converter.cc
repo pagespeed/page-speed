@@ -251,26 +251,26 @@ ImageConverter::ImageType ImageConverter::GetSmallestOfPngJpegWebp(
   WebpConfiguration webp_config_lossless;
   if (!ConvertPngToWebp(png_struct_reader, in, webp_config_lossless,
                         &webp_lossless_out, &webp_writer)) {
-    LOG(ERROR) << "Could not convert image to lossless WebP";
+    DLOG(INFO) << "Could not convert image to lossless WebP";
     webp_lossless_out.clear();
   }
   if ((webp_config != NULL) &&
       (!webp_writer->InitializeWrite(*webp_config, &webp_lossy_out) ||
        !webp_writer->FinalizeWrite())) {
-    LOG(ERROR) << "Could not convert image to custom WebP";
+    DLOG(INFO) << "Could not convert image to custom WebP";
     webp_lossy_out.clear();
   }
   delete webp_writer;
 
   if (!PngOptimizer::OptimizePngBestCompression(png_struct_reader, in,
                                                 &png_out)) {
-    LOG(ERROR) << "Could not optimize PNG";
+    DLOG(INFO) << "Could not optimize PNG";
     png_out.clear();
   }
 
   if ((jpeg_options != NULL) &&
       !ConvertPngToJpeg(png_struct_reader, in, *jpeg_options, &jpeg_out)) {
-    LOG(ERROR) << "Could not convert image to JPEG";
+    DLOG(INFO) << "Could not convert image to JPEG";
     jpeg_out.clear();
   }
 

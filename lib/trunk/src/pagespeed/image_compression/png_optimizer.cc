@@ -71,7 +71,7 @@ void ReadPngFromStream(png_structp read_ptr,
                                      input->offset_);
   input->offset_ += copied;
   if (copied < length) {
-    LOG(INFO) << "ReadPngFromStream: Unexpected EOF.";
+    DLOG(INFO) << "ReadPngFromStream: Unexpected EOF.";
 
     // We weren't able to satisfy the read, so abort.
 #if PNG_LIBPNG_VER >= 10400
@@ -100,7 +100,7 @@ void WritePngToString(png_structp write_ptr,
 }
 
 void PngErrorFn(png_structp png_ptr, png_const_charp msg) {
-  LOG(INFO) << "libpng error: " << msg;
+  DLOG(INFO) << "libpng error: " << msg;
 
   // Invoking the error function indicates a terminal failure, which
   // means we must longjmp to abort the libpng invocation.
@@ -122,7 +122,7 @@ void PngErrorFn(png_structp png_ptr, png_const_charp msg) {
 }
 
 void PngWarningFn(png_structp png_ptr, png_const_charp msg) {
-  LOG(INFO) << "libpng warning: " << msg;
+  DLOG(INFO) << "libpng warning: " << msg;
 }
 
 // no-op
@@ -516,8 +516,8 @@ bool PngReaderInterface::IsAlphaChannelOpaque(
 
   if ((color_type & PNG_COLOR_MASK_ALPHA) == 0) {
     // Image doesn't have alpha.
-    LOG(DFATAL) << "You shouldn't call this functions for image that doesn't"
-                << "have alpha channel";
+    LOG(DFATAL)
+        << "IsAlphaChannelOpaque called for image without alpha channel.";
     return false;
   }
 
@@ -540,10 +540,10 @@ bool PngReaderInterface::IsAlphaChannelOpaque(
     return false;
   }
 
-  // We currently detect aplha only for 8/16 bit Gray/TrueColor with Alpha
-  // channel. Only 8 or 16 bit depths are supports for these modes.
+  // We currently detect alpha only for 8/16 bit Gray/TrueColor with Alpha
+  // channel. Only 8 or 16 bit depths are supported for these modes.
   if (bit_depth % 8 != 0) {
-    LOG(WARNING) << "Received unexpected bit_depth: " << bit_depth;
+    DLOG(INFO) << "Received unexpected bit_depth: " << bit_depth;
     return false;
   }
 
@@ -602,9 +602,9 @@ bool PngReaderInterface::GetBackgroundColor(
   } else {
     // TODO(bmcquade): we currently fall through to this case for
     // 1-bit paletted images. Consider adding support.
-    LOG(WARNING) << "Unsupported bit_depth: "
-                << static_cast<int>(bit_depth) << " color type: "
-                << static_cast<int>(color_type);
+    DLOG(INFO) << "Unsupported bit_depth: "
+               << static_cast<int>(bit_depth) << " color type: "
+               << static_cast<int>(color_type);
     return false;
   }
 

@@ -93,14 +93,14 @@ bool WebpScanlineWriter::InitializeWrite(const WebpConfiguration& config,
   delete config_;
   config_ = new WebPConfig();
   if (!WebPConfigInit(config_)) {
-    LOG(ERROR) << "WebPConfigInit failed";
+    DLOG(INFO) << "WebPConfigInit failed";
     return false;
   }
 
   config.CopyTo(config_);
 
   if (!WebPValidateConfig(config_)) {
-    LOG(ERROR) << "WebPValidateConfig failed";
+    DLOG(INFO) << "WebPValidateConfig failed";
     return false;
   }
 
@@ -135,7 +135,7 @@ bool WebpScanlineWriter::Init(const size_t width, const size_t height,
   }
   DLOG(INFO) << "Pixel format: "  << GetPixelFormatString(pixel_format);
   if (!WebPPictureInit(&picture_)) {
-    LOG(ERROR) << "WebPPictureInit failed";
+    DLOG(INFO) << "WebPPictureInit failed";
     return false;
   }
 
@@ -194,7 +194,7 @@ bool WebpScanlineWriter::FinalizeWrite() {
       (WebPPictureImportRGB(&picture_, rgb_, stride_bytes_) != 0);
 
   if (!ok) {
-    LOG(ERROR) << "Could not import RGB(A) picture data for webp";
+    DLOG(INFO) << "Could not import RGB(A) picture data for webp";
     return false;
   }
 
@@ -203,7 +203,7 @@ bool WebpScanlineWriter::FinalizeWrite() {
   picture_.writer = WriteWebpIncrementally;
   picture_.custom_ptr = webp_image_;
   if (!WebPEncode(config_, &picture_)) {
-    LOG(ERROR) << "Could not encode webp data. "
+    DLOG(INFO) << "Could not encode webp data. "
                << "Error " << picture_.error_code
                << ": " << kWebPErrorMessages[picture_.error_code];
     return false;
