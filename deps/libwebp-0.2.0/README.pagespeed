@@ -10,4 +10,5 @@ developers and browser developers can use WebP to compress, archive and
 distribute digital images more efficiently.
 
 Local Modifications:
-none
+* Patched https://gerrit.chromium.org/gerrit/#/c/34505/ to address
+  differences in output between 32 and 64 bit builds.
