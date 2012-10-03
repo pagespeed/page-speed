@@ -61,7 +61,7 @@ ImageCompressionInfo kValidImages[] = {
   { "basi3p08", 1527, 565, 0, 810, 314},
   { "basi4a08", 214, 209, 1, 80, 1154},
   { "basi4a16", 2855, 1980, 1, 748, 1374},
-  { "basi6a08", 361, 350, 1, 132, 1262},
+  { "basi6a08", 361, 350, 1, 130, 1262},
   { "basi6a16", 4180, 4133, 1, 652, 1310},
   { "basn0g01", 164, 164, 1, 120, 390},
   { "basn0g02", 104, 104, 1, 74, 98},
@@ -76,19 +76,19 @@ ImageCompressionInfo kValidImages[] = {
   { "basn3p08", 1286, 565, 0, 810, 314},
   { "basn4a08", 126, 121, 1, 80, 1154},
   { "basn4a16", 2206, 1185, 1, 748, 1374},
-  { "basn6a08", 184, 176, 1, 132, 1262},
+  { "basn6a08", 184, 176, 1, 130, 1262},
   { "basn6a16", 3435, 3271, 1, 652, 1310},
   { "bgai4a08", 214, 209, 1, 80, 1154},
   { "bgai4a16", 2855, 1980, 1, 748, 1374},
-  { "bgan6a08", 184, 176, 1, 132, 1262},
+  { "bgan6a08", 184, 176, 1, 130, 1262},
   { "bgan6a16", 3435, 3271, 1, 652, 1310},
   { "bgbn4a08", 140, 121, 1, 80, 1154},
   { "bggn4a16", 2220, 1185, 1, 748, 1374},
-  { "bgwn6a08", 202, 176, 1, 132, 1262},
+  { "bgwn6a08", 202, 176, 1, 130, 1262},
   { "bgyn6a16", 3453, 3271, 1, 652, 1310},
   { "ccwn2c08", 1514, 764, 0, 1220, 394},
   { "ccwn3p08", 1554, 779, 0, 1234, 380},
-  { "cdfn2c08", 404, 498, 1, 348, 246},
+  { "cdfn2c08", 404, 498, 1, 346, 246},
   { "cdhn2c08", 344, 476, 1, 312, 230},
   { "cdsn2c08", 232, 255, 1, 156, 158},
   { "cdun2c08", 724, 928, 1, 638, 486},
@@ -112,7 +112,7 @@ ImageCompressionInfo kValidImages[] = {
   { "f01n2c08", 1180, 657, 0, 874, 326},
   { "f02n0g08", 355, 289, 1, 270, 230},
   { "f02n2c08", 1729, 696, 0, 944, 390},
-  { "f03n0g08", 389, 292, 1, 270, 226},
+  { "f03n0g08", 389, 292, 1, 272, 226},
   { "f03n2c08", 1291, 697, 0, 962, 382},
   { "f04n0g08", 269, 273, 1, 266, 208},
   { "f04n2c08", 985, 672, 0, 898, 328},
@@ -121,7 +121,7 @@ ImageCompressionInfo kValidImages[] = {
   { "g03n3p04", 214, 214, 1, 156, 316},
   { "g04n0g16", 363, 287, 1, 276, 298},
   { "g04n2c08", 377, 399, 1, 370, 340},
-  { "g04n3p04", 219, 219, 1, 156, 324},
+  { "g04n3p04", 219, 219, 1, 158, 324},
   { "g05n0g16", 339, 275, 1, 276, 280},
   { "g05n2c08", 350, 402, 1, 366, 316},
   { "g05n3p04", 206, 206, 1, 146, 306},
@@ -323,18 +323,9 @@ TEST(ImageConverterTest, ConvertPngToWebp) {
       EXPECT_TRUE(ImageConverter::ConvertPngToWebp(
           png_struct_reader, in, lossless_config, &out));
 
-      bool do_test = true;
-#if defined __i386__  && defined NDEBUG
-      do_test = (strcmp(image.filename, "cdfn2c08") != 0);
-#endif
-      if (do_test) {
-        // Verify that the size matches.
-        EXPECT_EQ(image.webp_lossless_size, out.size())
-            << "size mismatch for " << image.filename;
-      } else {
-        LOG(ERROR) << "Skipping size test due to webp size discrepancy on "
-                   << "32-bit Lucid release builds";
-      }
+      // Verify that the size matches.
+      EXPECT_EQ(image.webp_lossless_size, out.size())
+          << "size mismatch for " << image.filename;
 
     } else {
       EXPECT_FALSE(ImageConverter::ConvertPngToWebp(
