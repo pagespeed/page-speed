@@ -129,7 +129,7 @@ void OutputMessage(j_common_ptr jpeg_decompress) {
   /*
   char buf[JMSG_LENGTH_MAX];
   (*jpeg_decompress->err->format_message)(jpeg_decompress, buf);
-  LOG(INFO) << "JPEG Reader Error: " << buf;
+  DLOG(INFO) << "JPEG Reader Error: " << buf;
   */
 }
 

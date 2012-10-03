@@ -65,7 +65,7 @@ void AddTransparencyChunk(png_structp png_ptr,
                           int transparent_palette_index) {
   const int num_trans = transparent_palette_index + 1;
   if (num_trans <= 0 || num_trans > info_ptr->num_palette) {
-    LOG(INFO) << "Transparent palette index out of bounds.";
+    LOG(ERROR) << "Transparent palette index out of bounds.";
     return;
   }
 
@@ -83,12 +83,12 @@ bool ReadImageDescriptor(GifFileType* gif_file,
                          png_structp png_ptr,
                          png_infop info_ptr) {
   if (DGifGetImageDesc(gif_file) == GIF_ERROR) {
-    LOG(INFO) << "Failed to get image descriptor.";
+    DLOG(INFO) << "Failed to get image descriptor.";
     return false;
   }
   if (gif_file->ImageCount != 1) {
-    LOG(INFO) << "Unable to optimize image with "
-              << gif_file->ImageCount << " frames.";
+    DLOG(INFO) << "Unable to optimize image with "
+               << gif_file->ImageCount << " frames.";
     return false;
   }
   const GifWord row = gif_file->Image.Top;
@@ -99,7 +99,7 @@ bool ReadImageDescriptor(GifFileType* gif_file,
   // Validate coordinates.
   if (pixel + width > gif_file->SWidth ||
       row + height > gif_file->SHeight) {
-    LOG(INFO) << "Image coordinates outside of resolution.";
+    DLOG(INFO) << "Image coordinates outside of resolution.";
     return false;
   }
 
@@ -109,13 +109,13 @@ bool ReadImageDescriptor(GifFileType* gif_file,
       gif_file->Image.ColorMap : gif_file->SColorMap;
 
   if (color_map == NULL) {
-    LOG(INFO) << "Failed to find color map.";
+    DLOG(INFO) << "Failed to find color map.";
     return false;
   }
 
   png_color palette[256];
   if (color_map->ColorCount < 0 || color_map->ColorCount > 256) {
-    LOG(INFO) << "Invalid color count " << color_map->ColorCount;
+    DLOG(INFO) << "Invalid color count " << color_map->ColorCount;
     return false;
   }
   for (int i = 0; i < color_map->ColorCount; ++i) {
@@ -132,7 +132,7 @@ bool ReadImageDescriptor(GifFileType* gif_file,
                       static_cast<GifPixelType*>(
                           &info_ptr->row_pointers[row + i][pixel]),
                       width) == GIF_ERROR) {
-        LOG(INFO) << "Failed to DGifGetLine";
+        DLOG(INFO) << "Failed to DGifGetLine";
         return false;
       }
     }
@@ -147,7 +147,7 @@ bool ReadImageDescriptor(GifFileType* gif_file,
                         static_cast<GifPixelType*>(
                             &info_ptr->row_pointers[j][pixel]),
                         width) == GIF_ERROR) {
-          LOG(INFO) << "Failed to DGifGetLine";
+          DLOG(INFO) << "Failed to DGifGetLine";
           return false;
         }
       }
@@ -168,7 +168,7 @@ bool ReadExtension(GifFileType* gif_file,
   GifByteType* extension = NULL;
   int ext_code = 0;
   if (DGifGetExtension(gif_file, &ext_code, &extension) == GIF_ERROR) {
-    LOG(INFO) << "Failed to read extension.";
+    DLOG(INFO) << "Failed to read extension.";
     return false;
   }
 
@@ -177,7 +177,7 @@ bool ReadExtension(GifFileType* gif_file,
   if (ext_code == GRAPHICS_EXT_FUNC_CODE) {
     // Make sure that the extension has the expected length.
     if (extension[0] < 4) {
-      LOG(INFO) << "Received graphics extension with unexpected length.";
+      DLOG(INFO) << "Received graphics extension with unexpected length.";
       return false;
     }
     // The first payload byte contains the flags. Check to see if the
@@ -186,7 +186,7 @@ bool ReadExtension(GifFileType* gif_file,
       if (*out_transparent_index >= 0) {
         // The transparent index has already been set. Ignore new
         // values.
-        LOG(INFO) << "Found multiple transparency entries. Using first entry.";
+        DLOG(INFO) << "Found multiple transparency entries. Using first entry.";
       } else {
         // We found a transparency entry. The transparent index is in
         // the 4th payload byte.
@@ -202,7 +202,7 @@ bool ReadExtension(GifFileType* gif_file,
   // blocks.
   while (extension != NULL) {
     if (DGifGetExtensionNext(gif_file, &extension) == GIF_ERROR) {
-      LOG(INFO) << "Failed to read next extension.";
+      DLOG(INFO) << "Failed to read next extension.";
       return false;
     }
   }
@@ -215,7 +215,7 @@ bool ReadGifToPng(GifFileType* gif_file,
                   png_infop info_ptr) {
   if (static_cast<png_size_t>(gif_file->SHeight) >
       PNG_UINT_32_MAX/png_sizeof(png_bytep)) {
-    LOG(INFO) << "GIF image is too big to process.";
+    DLOG(INFO) << "GIF image is too big to process.";
     return false;
   }
 
@@ -270,7 +270,7 @@ bool ReadGifToPng(GifFileType* gif_file,
   while (!found_terminator) {
     GifRecordType record_type = UNDEFINED_RECORD_TYPE;
     if (DGifGetRecordType(gif_file, &record_type) == GIF_ERROR) {
-      LOG(INFO) << "Failed to read GifRecordType";
+      DLOG(INFO) << "Failed to read GifRecordType";
       return false;
     }
     switch (record_type) {
@@ -294,7 +294,7 @@ bool ReadGifToPng(GifFileType* gif_file,
         break;
 
       default:
-        LOG(INFO) << "Found unexpected record type " << record_type;
+        DLOG(INFO) << "Found unexpected record type " << record_type;
         return false;
     }
   }
@@ -341,7 +341,7 @@ bool GifReader::ReadPng(const std::string& body,
 
   bool result = ReadGifToPng(gif_file, png_ptr, info_ptr);
   if (DGifCloseFile(gif_file) == GIF_ERROR) {
-    LOG(INFO) << "Failed to close GIF.";
+    DLOG(INFO) << "Failed to close GIF.";
   }
   return result;
 }
