@@ -52,9 +52,30 @@ message InstrumentationData {
     MARK_LOAD = 19;
     SCHEDULE_RESOURCE_REQUEST = 20;
     TIME_STAMP = 21;
-    REGISTER_ANIMATION_FRAME_CALLBACK= 22;
-    CANCEL_ANIMATION_FRAME_CALLBACK= 23;
-    FIRE_ANIMATION_FRAME_EVENT= 24;
+    REGISTER_ANIMATION_FRAME_CALLBACK = 22;
+    CANCEL_ANIMATION_FRAME_CALLBACK = 23;
+    FIRE_ANIMATION_FRAME_EVENT = 24;
+
+    // Indicates that the display was about to be updated. Triggers
+    // before anything else in the update loop happens, which includes
+    // CSS animation (no explicit events for that), some JS event
+    // handlers (potentially including rAF), style recalc and layout
+    // if necessary, then paint, compositing and, finally, flushing
+    // this down to the browser screen.
+    BEGIN_FRAME = 25;
+
+    // Time that the program spends executing. Includes JS parsing and
+    // execution, parsing of CSS, parsing HTML, etc. Does not include
+    // time spent blocked on the network or other IO.
+    PROGRAM = 26;
+
+    // GPU compositing.
+    COMPOSITE_LAYERS = 27;
+
+    // Generated via a web page invoking console.time() or
+    // console.timeEnd().
+    TIME = 28;
+    TIME_END = 29;
   }
 
   message DataDictionary {
@@ -122,6 +143,9 @@ message InstrumentationData {
 
     // Animation frame events
     optional int32 id = 28;
+
+    // ReceiveResourceData
+    optional int32 encoded_data_length = 29;
   }
 
   // The type field is required, but we mark it 'optional' because otherwise
