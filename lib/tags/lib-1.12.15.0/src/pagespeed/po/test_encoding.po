@@ -1,0 +1,8 @@
+# 
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Avoid CSS @import"
+msgstr "피하 @ 수입을 CSS를"
