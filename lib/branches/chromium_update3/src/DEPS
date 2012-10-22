@@ -16,6 +16,8 @@ vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
   "chromium_revision": "@90205",
   "chromium_deps_root": "src/third_party/chromium_deps",
+  "chromium_revision_new": "@161115",
+  "chromium_deps_root_new": "src/third_party/chromium_deps_new",
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/branches/22",
   "modpagespeed_revision": "@1668",
   "libharu_trunk": "git://github.com/libharu/libharu.git",
@@ -31,7 +33,8 @@ deps = {
   # to it.
   Var("chromium_deps_root"):
     File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision")),
-
+  Var("chromium_deps_root_new"):
+    File(Var("chromium_trunk") + "/src/DEPS" + Var("chromium_revision_new")),
   "src/testing":
     Var("chromium_trunk") + "/src/testing" + Var("chromium_revision"),
 
@@ -80,7 +83,7 @@ deps = {
   "src/tools/grit":
     Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
 
-  "src/googleurl": From(Var("chromium_deps_root")),
+  "src/googleurl": From(Var("chromium_deps_root_new")),
 
   "src/net/instaweb":
     Var("modpagespeed_src") + "/src/net/instaweb" + Var("modpagespeed_revision"),
