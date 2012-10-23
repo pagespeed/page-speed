@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-#include "base/scoped_ptr.h"
-#include "base/stl_util-inl.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/stl_util.h"
 #include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/instrumentation_data_builder.h"

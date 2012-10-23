@@ -19,7 +19,7 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_collection.h"

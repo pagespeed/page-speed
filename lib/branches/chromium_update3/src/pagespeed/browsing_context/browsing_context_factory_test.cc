@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/core/browsing_context.h"
 #include "pagespeed/browsing_context/browsing_context_factory.h"
 #include "pagespeed/testing/pagespeed_test.h"

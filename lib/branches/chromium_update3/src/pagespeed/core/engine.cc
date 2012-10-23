@@ -18,7 +18,7 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
+#include "base/stl_util.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/pagespeed_version.h"

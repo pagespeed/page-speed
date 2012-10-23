@@ -15,7 +15,7 @@
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 
 #include "base/json/json_writer.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -227,7 +227,7 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {
   ASSERT_NE(static_cast<Value*>(NULL), value.get());
 
   std::string out;
-  base::JSONWriter::Write(value.get(), false, &out);
+  base::JSONWriter::Write(value.get(), &out);
   ASSERT_EQ("{\"int_value\":1,\"localized_value\":\"1\","
             "\"string_value\":\"hello\",\"type\":\"INT_LITERAL\"}", out);
 }
@@ -243,7 +243,7 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatString) {
   ASSERT_NE(static_cast<Value*>(NULL), value.get());
 
   std::string out;
-  base::JSONWriter::Write(value.get(), false, &out);
+  base::JSONWriter::Write(value.get(), &out);
   ASSERT_EQ("{\"format\":\"This is a format string.\"}", out);
 }
 
@@ -261,7 +261,7 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormattedUrlBlockResults) {
   ASSERT_NE(static_cast<Value*>(NULL), value.get());
 
   std::string out;
-  base::JSONWriter::Write(value.get(), false, &out);
+  base::JSONWriter::Write(value.get(), &out);
   ASSERT_EQ("{}", out);
 }
 
@@ -304,7 +304,7 @@ TEST(FormattedResultsToJsonConverterTest, InvalidUtf8) {
   ASSERT_NE(static_cast<Value*>(NULL), value.get());
 
   std::string out;
-  base::JSONWriter::Write(value.get(), false, &out);
+  base::JSONWriter::Write(value.get(), &out);
   ASSERT_EQ("{\"localized_value\":\"localized foo\","
             "\"string_value\":"
             "\"hello\\uFFFD \\u00A1\\uFFFD hello\",\"type\":\"STRING_LITERAL\"}", out);

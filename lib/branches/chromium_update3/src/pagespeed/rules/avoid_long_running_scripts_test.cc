@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 #include "pagespeed/rules/avoid_long_running_scripts.h"
 #include "pagespeed/testing/instrumentation_data_builder.h"

@@ -23,8 +23,8 @@
 #include "base/command_line.h"
 #include "base/json/json_reader.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
-#include "base/stl_util-inl.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/stl_util.h"
 #include "base/values.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "google/protobuf/stubs/common.h"
@@ -292,7 +292,7 @@ bool RunPagespeed(const std::string& out_format,
       }
 
       std::string error_msg_out;
-      scoped_ptr<const Value> document_json(
+      scoped_ptr<const base::Value> document_json(
           base::JSONReader::ReadAndReturnError(
               dom_file_contents,
               true,  // allow_trailing_comma
@@ -303,9 +303,9 @@ bool RunPagespeed(const std::string& out_format,
         PrintUsage();
         return false;
       }
-      if (document_json->IsType(Value::TYPE_DICTIONARY)) {
+      if (document_json->IsType(base::Value::TYPE_DICTIONARY)) {
         document.reset(pagespeed::dom::CreateDocument(
-            static_cast<const DictionaryValue*>(document_json.release())));
+            static_cast<const base::DictionaryValue*>(document_json.release())));
       }
       if (document == NULL) {
         fprintf(stderr, "Failed to parse DOM from %s.\n",

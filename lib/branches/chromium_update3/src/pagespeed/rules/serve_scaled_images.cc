@@ -18,8 +18,8 @@
 #include <map>
 
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
-#include "base/stl_util-inl.h"  // for STLDeleteContainerPairSecondPointers
+#include "base/memory/scoped_ptr.h"
+#include "base/stl_util.h"  // for STLDeleteContainerPairSecondPointers
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/image_attributes.h"

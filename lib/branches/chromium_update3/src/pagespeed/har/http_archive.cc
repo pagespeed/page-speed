@@ -20,7 +20,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/json/json_reader.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/third_party/nspr/prtime.h"
 #include "base/values.h"
 #include "pagespeed/core/pagespeed_input.h"
@@ -71,7 +71,7 @@ void InputPopulator::PopulateInput(const Value& har_json,
     return;
   }
 
-  DictionaryValue* log_json;
+  const DictionaryValue* log_json;
   if (!static_cast<const DictionaryValue&>(har_json).
       GetDictionary("log", &log_json)) {
     INPUT_POPULATOR_ERROR() << "\"log\" field must be an object.";
@@ -80,7 +80,7 @@ void InputPopulator::PopulateInput(const Value& har_json,
 
   DeterminePageTimings(*log_json, input);
 
-  ListValue* entries_json;
+  const ListValue* entries_json;
   if (!log_json->GetList("entries", &entries_json)) {
     INPUT_POPULATOR_ERROR() << "\"entries\" field must be an array.";
     return;
@@ -88,7 +88,7 @@ void InputPopulator::PopulateInput(const Value& har_json,
 
   for (size_t index = 0, size = entries_json->GetSize();
        index < size; ++index) {
-    DictionaryValue* entry_json;
+    const DictionaryValue* entry_json;
     if (!entries_json->GetDictionary(index, &entry_json)) {
       INPUT_POPULATOR_ERROR() << "Entry item must be an object.";
       continue;
@@ -103,7 +103,7 @@ void InputPopulator::PopulateInput(const Value& har_json,
 
 void InputPopulator::DeterminePageTimings(
     const DictionaryValue& log_json, PagespeedInput* input) {
-  ListValue* pages_json;
+  const ListValue* pages_json;
   if (!log_json.GetList("pages", &pages_json)) {
     // The "pages" field is optional, so give up without error if it's not
     // there.
@@ -115,7 +115,7 @@ void InputPopulator::DeterminePageTimings(
   if (pages_json->GetSize() < 1) {
     return;
   }
-  DictionaryValue* page_json;
+  const DictionaryValue* page_json;
   if (!pages_json->GetDictionary(0, &page_json)) {
     INPUT_POPULATOR_ERROR() << "Page item must be an object.";
     return;
@@ -175,7 +175,7 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
 
   // Get the request information.
   {
-    DictionaryValue* request_json;
+    const DictionaryValue* request_json;
     if (!entry_json.GetDictionary("request", &request_json)) {
       INPUT_POPULATOR_ERROR() << "\"request\" field must be an object.";
       return;
@@ -194,7 +194,7 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
 
   // Get the response information.
   {
-    DictionaryValue* response_json;
+    const DictionaryValue* response_json;
     if (!entry_json.GetDictionary("response", &response_json)) {
       INPUT_POPULATOR_ERROR() << "\"response\" field must be an object.";
       return;
@@ -216,7 +216,7 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
 
     PopulateHeaders(*response_json, RESPONSE_HEADERS, resource);
 
-    DictionaryValue* content_json;
+    const DictionaryValue* content_json;
     if (!response_json->GetDictionary("content", &content_json)) {
       INPUT_POPULATOR_ERROR() << "\"content\" field must be an object.";
       return;
@@ -259,7 +259,7 @@ void InputPopulator::PopulateResource(const DictionaryValue& entry_json,
 void InputPopulator::PopulateHeaders(const DictionaryValue& json,
                                      HeaderType htype,
                                      Resource* resource) {
-  ListValue* headers_json;
+  const ListValue* headers_json;
   if (!json.GetList("headers", &headers_json)) {
     INPUT_POPULATOR_ERROR() << "\"headers\" field must be an array.";
     return;
@@ -267,7 +267,7 @@ void InputPopulator::PopulateHeaders(const DictionaryValue& json,
 
   for (size_t index = 0, size = headers_json->GetSize();
        index < size; ++index) {
-    DictionaryValue* header_json;
+    const DictionaryValue* header_json;
     if (!headers_json->GetDictionary(index,  &header_json)) {
       INPUT_POPULATOR_ERROR() << "Header item must be an object.";
       continue;

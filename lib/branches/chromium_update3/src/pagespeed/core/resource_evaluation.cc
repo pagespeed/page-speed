@@ -20,7 +20,7 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 #include "pagespeed/core/browsing_context.h"
 #include "pagespeed/core/resource_fetch.h"
 
