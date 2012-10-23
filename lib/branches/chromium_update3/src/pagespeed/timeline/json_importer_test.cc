@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-#include "base/scoped_ptr.h"
-#include "base/stl_util-inl.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/stl_util.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/pagespeed_test.h"
 #include "pagespeed/timeline/json_importer.h"

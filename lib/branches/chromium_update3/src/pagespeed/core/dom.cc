@@ -17,7 +17,7 @@
 #include "pagespeed/core/dom.h"
 
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 

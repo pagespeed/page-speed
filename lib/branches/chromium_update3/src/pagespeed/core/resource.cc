@@ -20,7 +20,7 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/uri_util.h"
 

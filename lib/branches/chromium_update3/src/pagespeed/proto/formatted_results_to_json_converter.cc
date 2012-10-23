@@ -17,7 +17,7 @@
 #include "base/json/json_writer.h"
 #include "base/logging.h"
 #include "base/values.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 namespace {
@@ -56,21 +56,21 @@ namespace proto {
 
 bool FormattedResultsToJsonConverter::Convert(
     const pagespeed::FormattedResults& results, std::string* out) {
-  scoped_ptr<Value> root(ConvertFormattedResults(results));
+  scoped_ptr<base::Value> root(ConvertFormattedResults(results));
   if (root == NULL) {
     return false;
   }
-  base::JSONWriter::Write(root.get(), false, out);
+  base::JSONWriter::Write(root.get(), out);
   return true;
 }
 
-Value* FormattedResultsToJsonConverter::ConvertFormattedResults(
+base::Value* FormattedResultsToJsonConverter::ConvertFormattedResults(
     const pagespeed::FormattedResults& results) {
   if (!results.IsInitialized()) {
     LOG(ERROR) << "FormattedResults instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("locale", results.locale());
   if (results.has_score()) {
     root->SetInteger("score", results.score());
@@ -86,13 +86,13 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedResults(
   return root;
 }
 
-Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
+base::Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
     const pagespeed::FormattedRuleResults& rule_results) {
   if (!rule_results.IsInitialized()) {
     LOG(ERROR) << "FormattedRuleResults instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("rule_name", rule_results.rule_name());
   if (rule_results.has_rule_score()) {
     root->SetInteger("rule_score", rule_results.rule_score());
@@ -115,13 +115,13 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
   return root;
 }
 
-Value* FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults(
+base::Value* FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults(
     const pagespeed::FormattedUrlBlockResults& url_block_results) {
   if (!url_block_results.IsInitialized()) {
     LOG(ERROR) << "FormattedUrlBlockResults instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   if (url_block_results.has_header()) {
     root->Set("header", ConvertFormatString(url_block_results.header()));
   }
@@ -140,13 +140,13 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults(
   return root;
 }
 
-Value* FormattedResultsToJsonConverter::ConvertFormattedUrlResult(
+base::Value* FormattedResultsToJsonConverter::ConvertFormattedUrlResult(
     const pagespeed::FormattedUrlResult& url_result) {
   if (!url_result.IsInitialized()) {
     LOG(ERROR) << "FormattedUrlResult instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->Set("result", ConvertFormatString(url_result.result()));
   if (url_result.details_size() > 0) {
     ListValue* details = new ListValue();
@@ -162,13 +162,13 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedUrlResult(
   return root;
 }
 
-Value* FormattedResultsToJsonConverter::ConvertFormatString(
+base::Value* FormattedResultsToJsonConverter::ConvertFormatString(
     const pagespeed::FormatString& format_string) {
   if (!format_string.IsInitialized()) {
     LOG(ERROR) << "FormatString instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("format", format_string.format());
   if (format_string.args_size() > 0) {
     ListValue* args = new ListValue();
@@ -181,13 +181,13 @@ Value* FormattedResultsToJsonConverter::ConvertFormatString(
   return root;
 }
 
-Value* FormattedResultsToJsonConverter::ConvertFormatArgument(
+base::Value* FormattedResultsToJsonConverter::ConvertFormatArgument(
     const pagespeed::FormatArgument& format_arg) {
   if (!format_arg.IsInitialized()) {
     LOG(ERROR) << "FormatArgument instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("type", ConvertFormatArgumentType(format_arg.type()));
   root->SetString("localized_value", format_arg.localized_value());
   if (format_arg.has_string_value()) {

@@ -19,7 +19,7 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 
 namespace pagespeed {
@@ -28,7 +28,7 @@ namespace dom {
 
 namespace {
 
-std::string DemandString(const DictionaryValue& dict, const std::string& key) {
+std::string DemandString(const base::DictionaryValue& dict, const std::string& key) {
   std::string out;
   if (!dict.GetStringWithoutPathExpansion(key, &out)) {
     LOG(DFATAL) << "Could not get string: " << key;
@@ -36,10 +36,10 @@ std::string DemandString(const DictionaryValue& dict, const std::string& key) {
   return out;
 }
 
-void DemandIntegerList(const DictionaryValue& dict,
+void DemandIntegerList(const base::DictionaryValue& dict,
                        const std::string& key, std::vector<int>* out) {
   out->clear();
-  ListValue* list;
+  const base::ListValue* list;
   if (dict.GetListWithoutPathExpansion(key, &list)) {
     for (size_t idx = 0, size = list->GetSize(); idx < size; ++idx) {
       int num;
@@ -57,7 +57,7 @@ void DemandIntegerList(const DictionaryValue& dict,
 
 class JsonDocument : public pagespeed::DomDocument {
  public:
-  explicit JsonDocument(const DictionaryValue* json) { json_.reset(json); }
+  explicit JsonDocument(const base::DictionaryValue* json) { json_.reset(json); }
   virtual ~JsonDocument() {}
 
   // DomDocument interface:
@@ -65,17 +65,17 @@ class JsonDocument : public pagespeed::DomDocument {
   virtual std::string GetBaseUrl() const;
   virtual void Traverse(pagespeed::DomElementVisitor* visitor) const;
 
-  bool GetElement(int index, DictionaryValue** element) const;
+  bool GetElement(int index, const base::DictionaryValue** element) const;
 
  private:
-  scoped_ptr<const DictionaryValue> json_;
+  scoped_ptr<const base::DictionaryValue> json_;
 
   DISALLOW_COPY_AND_ASSIGN(JsonDocument);
 };
 
 class JsonElement : public pagespeed::DomElement {
  public:
-  JsonElement(const DictionaryValue* json, const JsonDocument* json_doc)
+  JsonElement(const base::DictionaryValue* json, const JsonDocument* json_doc)
       : json_(json), json_doc_(json_doc) {}
   virtual ~JsonElement() {}
 
@@ -91,7 +91,7 @@ class JsonElement : public pagespeed::DomElement {
   virtual Status GetNumChildren(size_t* number) const;
   virtual Status GetChild(const DomElement** child, size_t index) const;
  private:
-  const DictionaryValue* json_;
+  const base::DictionaryValue* json_;
   const JsonDocument* json_doc_;
 
   DISALLOW_COPY_AND_ASSIGN(JsonElement);
@@ -106,14 +106,14 @@ std::string JsonDocument::GetBaseUrl() const {
 }
 
 void JsonDocument::Traverse(pagespeed::DomElementVisitor* visitor) const {
-  ListValue* elements;
+  const base::ListValue* elements;
   if (!json_->GetListWithoutPathExpansion("elements", &elements)) {
     LOG(ERROR) << "missing \"elements\" in JSON for JsonDocument";
     return;
   }
 
   for (int index = 0, size = elements->GetSize(); index < size; ++index) {
-    DictionaryValue* dict;
+    const base::DictionaryValue* dict;
     if (!elements->GetDictionary(index, &dict)) {
       LOG(ERROR) << "non-object item in \"elements\" list";
       continue;
@@ -123,8 +123,8 @@ void JsonDocument::Traverse(pagespeed::DomElementVisitor* visitor) const {
   }
 }
 
-bool JsonDocument::GetElement(int index, DictionaryValue** element) const {
-  ListValue* elements;
+bool JsonDocument::GetElement(int index, const base::DictionaryValue** element) const {
+  const base::ListValue* elements;
   if (!json_->GetListWithoutPathExpansion("elements", &elements)) {
     LOG(ERROR) << "missing \"elements\" in JSON for JsonDocument";
     return false;
@@ -138,10 +138,10 @@ bool JsonDocument::GetElement(int index, DictionaryValue** element) const {
 }
 
 pagespeed::DomDocument* JsonElement::GetContentDocument() const {
-  DictionaryValue* out;
+  const base::DictionaryValue* out;
   // TODO(lsong): Use ref counted instead of DeepCopy().
   return (json_->GetDictionaryWithoutPathExpansion("contentDocument", &out) ?
-          new JsonDocument(static_cast<DictionaryValue*>(out->DeepCopy()))
+          new JsonDocument(static_cast<base::DictionaryValue*>(out->DeepCopy()))
           : NULL);
 }
 
@@ -184,7 +184,7 @@ JsonElement::Status JsonElement::GetActualHeight(int* out_height) const {
 
 DomElement::Status JsonElement::GetNumChildren(size_t* number) const {
   *number = 0;
-  ListValue* list;
+  const base::ListValue* list;
   if (json_->GetListWithoutPathExpansion("children", &list)) {
     *number = list->GetSize();
   }
@@ -195,7 +195,7 @@ DomElement::Status JsonElement::GetChild(
     const DomElement** child, size_t index) const {
   std::vector<int> children_indices;
   DemandIntegerList(*json_, "children", &children_indices);
-  DictionaryValue* dict = NULL;
+  const base::DictionaryValue* dict = NULL;
   if (index < children_indices.size() &&
       json_doc_->GetElement(children_indices[index], &dict)) {
     *child = new JsonElement(dict, json_doc_);
@@ -206,7 +206,7 @@ DomElement::Status JsonElement::GetChild(
 }
 }  // namespace
 
-pagespeed::DomDocument* CreateDocument(const DictionaryValue* json) {
+pagespeed::DomDocument* CreateDocument(const base::DictionaryValue* json) {
   return new JsonDocument(json);
 }
 

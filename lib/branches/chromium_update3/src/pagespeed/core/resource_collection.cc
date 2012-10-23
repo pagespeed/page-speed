@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/resource_filter.h"
 #include "pagespeed/core/resource_util.h"

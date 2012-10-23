@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/dom/resource_coordinate_finder.h"
 #include "pagespeed/testing/pagespeed_test.h"
 

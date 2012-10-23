@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/browsing_context.h"
 #include "pagespeed/core/resource_evaluation.h"

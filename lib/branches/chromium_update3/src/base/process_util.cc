@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_DOM_JSON_DOM_H_
-#define PAGESPEED_DOM_JSON_DOM_H_
 
-#include "pagespeed/core/dom.h"
+// Chromium's process_util.cc pulls a lot of file related functions into the
+// base package. We don't need them, so strip down all the code.
+
+#include "base/process_util.h"
 
 namespace base {
-class DictionaryValue;
+
+// Returns the id of the current process.
+ProcessId GetCurrentProcId() {
+  return 0;
 }
 
-namespace pagespeed {
-namespace dom {
-
-// Create DomDocument from JSON. The created docuemnt owns the JSON.
-pagespeed::DomDocument* CreateDocument(const base::DictionaryValue* json);
-
-}  // namespace dom
-}  // namespace pagespeed
-
-#endif  // PAGESPEED_DOM_JSON_DOM_H_
+}  // namespace base
