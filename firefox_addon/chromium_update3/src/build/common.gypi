@@ -15,13 +15,6 @@
 {
   'variables': {
     'conditions': [
-      [ 'target_arch=="ia32"', {
-        # We build for 10.4 for compatibility with Firefox 3.x.
-        'mac_deployment_target': '10.4',
-      }, {
-        # However mac x64 requires 10.5 as a minimum.
-        'mac_deployment_target': '10.5',
-      }],
       ['OS=="win"', {
         'xpcom_os': 'WINNT',
         'xpcom_compiler_abi': 'msvc',
@@ -58,7 +51,8 @@
     'linux_fpic': 1,
   },
   'includes': [
-    '../third_party/libpagespeed/src/build/common.gypi',
+#    '../third_party/libpagespeed/src/build/common.gypi',
+    'pagespeed-common.gypi',
   ],
   'conditions': [
     [ 'OS=="mac" and target_arch=="x64"', {
