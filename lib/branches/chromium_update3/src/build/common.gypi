@@ -284,7 +284,7 @@
       # Run tools/clang/scripts/update.sh to make sure they are compiled.
       # This causes 'clang_chrome_plugins_flags' to be set.
       # Has no effect if 'clang' is not set as well.
-      'clang_use_chrome_plugins%': 1,
+      'clang_use_chrome_plugins%': 0,
 
       # Enable building with ASAN (Clang's -faddress-sanitizer option).
       # -faddress-sanitizer only works with clang, but asan=1 implies clang=1
@@ -1912,7 +1912,8 @@
           [ 'OS=="mac" or OS=="ios"', {
             'xcode_settings': {
               'GCC_TREAT_WARNINGS_AS_ERRORS': 'NO',
-              'WARNING_CFLAGS!': ['-Wall', '-Wextra'],
+              'WARNING_CFLAGS!': ['-Wall', '-Wextra'
+                                  '-Wno-ignored-qualifiers' ],
             },
             'conditions': [
               ['buildtype=="Official"', {
@@ -2603,6 +2604,7 @@
 
               # TODO(thakis): Remove this.
               '-Wno-implicit-conversion-floating-point-to-bool',
+
             ],
             'cflags!': [
               # Clang doesn't seem to know know this flag.
@@ -3098,6 +3100,9 @@
             # Don't warn about the "struct foo f = {0};" initialization
             # pattern.
             '-Wno-missing-field-initializers',
+
+            # lsong add.
+            '-Wno-ignored-qualifiers',
           ],
           'conditions': [
             ['chromium_mac_pch', {'GCC_PRECOMPILE_PREFIX_HEADER': 'YES'},
