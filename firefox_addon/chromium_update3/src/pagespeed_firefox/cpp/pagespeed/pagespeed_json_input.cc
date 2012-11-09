@@ -24,7 +24,7 @@
 #include "base/basictypes.h"
 #include "base/json/json_reader.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
@@ -111,7 +111,7 @@ void InputPopulator::PopulateResource(const DictionaryValue& resource_json,
                                       Resource* resource) {
   for (DictionaryValue::key_iterator iter = resource_json.begin_keys(),
            end = resource_json.end_keys(); iter != end; ++iter) {
-    Value* attribute_json;
+    const Value* attribute_json;
     if (resource_json.Get(*iter, &attribute_json)) {
       PopulateAttribute(*iter, *attribute_json, resource);
     }
@@ -127,7 +127,7 @@ void InputPopulator::PopulateInput(const Value& resources_json,
   const ListValue& list_json = *static_cast<const ListValue*>(&resources_json);
 
   for (size_t index = 0, size = list_json.GetSize(); index < size; ++index) {
-    DictionaryValue* resource_json;
+    const DictionaryValue* resource_json;
     if (!list_json.GetDictionary(index, &resource_json)) {
       INPUT_POPULATOR_ERROR() << "Resource JSON value must be an object";
       continue;

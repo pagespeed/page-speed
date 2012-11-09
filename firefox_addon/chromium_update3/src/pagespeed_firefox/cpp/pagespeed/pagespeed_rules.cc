@@ -28,7 +28,7 @@
 #include "base/json/json_writer.h"  // for base::JSONWriter::Write
 #include "base/logging.h"
 #include "base/md5.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/string_number_conversions.h"  // for base::IntToString
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
@@ -193,7 +193,7 @@ bool PluginSerializer::CreateFileForResource(const std::string& content_url,
   }
 
   const std::string filename =
-      pagespeed::ChooseOutputFilename(url, mime_type, MD5String(body));
+      pagespeed::ChooseOutputFilename(url, mime_type, base::MD5String(body));
 #if defined(OS_WIN)
   std::wstring w_base_dir;
   if (!UTF8ToWide(base_dir_.c_str(), base_dir_.size(), &w_base_dir)) {
@@ -492,7 +492,7 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
     scoped_ptr<DictionaryValue> root(new DictionaryValue);
     root->Set("results", json_results.release());
     root->Set("optimized_content", paths.release());
-    base::JSONWriter::Write(root.get(), false, &output_string);
+    base::JSONWriter::Write(root.get(), &output_string);
   }
 
   return MallocString(output_string);
