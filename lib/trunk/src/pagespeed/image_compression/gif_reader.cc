@@ -324,7 +324,9 @@ bool GifReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
                         png_infop info_ptr,
                         int transforms) const {
-  if (transforms != PNG_TRANSFORM_IDENTITY) {
+  // All the transforms below are no-ops when reading a .gif file.
+  if (transforms & ~(PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_STRIP_16 |
+                     PNG_TRANSFORM_GRAY_TO_RGB)) {
     LOG(DFATAL) << "Unsupported transform " << transforms;
     return false;
   }
