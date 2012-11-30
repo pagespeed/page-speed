@@ -51,7 +51,9 @@ class ImageConverter {
 
   // Reads the PNG encoded in 'in' with 'png_struct_reader', encodes
   // it in WebP format using the options in 'config', and writes the
-  // resulting WebP in 'out'.
+  // resulting WebP in 'out'. Note that if config.alpha_quality==0,
+  // this function will fail when attempting to convert an image with
+  // transparent pixels.
   static bool ConvertPngToWebp(
       const PngReaderInterface& png_struct_reader,
       const std::string& in,

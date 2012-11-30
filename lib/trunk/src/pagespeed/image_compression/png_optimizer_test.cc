@@ -45,7 +45,7 @@ void ReadImageToString(const std::string& dir,
                        const char* ext,
                        std::string* dest) {
   const std::string path = dir + file_name + '.' + ext;
-  pagespeed_testing::ReadFileToString(path, dest);
+  ASSERT_TRUE(pagespeed_testing::ReadFileToString(path, dest));
 }
 
 void ReadPngSuiteFileToString(const char* file_name, std::string* dest) {
@@ -56,12 +56,21 @@ void ReadPngSuiteFileToString(const char* file_name, std::string* dest) {
 // PNG.
 struct ReadPngDescriptor {
   unsigned char* img_bytes;  // The actual pixel data.
+  unsigned char* img_rgba_bytes; // RGBA data for the image.
   unsigned long width;
   unsigned long height;
   int channels;              // 3 for RGB, 4 for RGB+alpha
   unsigned long row_bytes;   // number of bytes in a row
   unsigned char bg_red, bg_green, bg_blue;
   bool bgcolor_retval;
+
+  ReadPngDescriptor() : img_bytes(NULL), img_rgba_bytes(NULL) {};
+  ~ReadPngDescriptor() {
+    free(img_bytes);
+    if (channels != 4) {
+      free(img_rgba_bytes);
+    }
+  }
 };
 
 // Decode the PNG and store the decoded data and metadata in the
@@ -107,13 +116,18 @@ void PopulateDescriptor(const std::string& img,
       break;
   }
 
-  desc->img_bytes = static_cast<unsigned char*>(
-      malloc(scanline_reader.GetBytesPerScanline() *
-             scanline_reader.GetImageHeight()));
   desc->width = scanline_reader.GetImageWidth();
   desc->height = scanline_reader.GetImageHeight();
   desc->channels = channels;
   desc->row_bytes = scanline_reader.GetBytesPerScanline();
+  desc->img_bytes = static_cast<unsigned char*>(
+      malloc(desc->row_bytes * desc->height));
+  if (channels == 4) {
+    desc->img_rgba_bytes = desc->img_bytes;
+  } else {
+    desc->img_rgba_bytes = static_cast<unsigned char*>(
+        malloc(4 * desc->width * desc->height));
+  }
   desc->bgcolor_retval = scanline_reader.GetBackgroundColor(
       &desc->bg_red, &desc->bg_green, &desc->bg_blue);
 
@@ -126,10 +140,30 @@ void PopulateDescriptor(const std::string& img,
       next_scanline_to_write += scanline_reader.GetBytesPerScanline();
     }
   }
+  if (channels != 4) {
+    memset(desc->img_rgba_bytes, 0xff, 4 * desc->height * desc->width);
+    unsigned char* next_img_byte = desc->img_bytes;
+    unsigned char* next_rgba_byte = desc->img_rgba_bytes;
+    for (unsigned long pixel_count = 0;
+         pixel_count < desc->height * desc->width;
+         ++pixel_count) {
+      if (channels == 3) {
+        memcpy(next_rgba_byte, next_img_byte, channels);
+      } else if (channels == 1) {
+        memset(next_rgba_byte, *next_img_byte, 3);
+      } else {
+        FAIL() << "Unexpected number of channels: " << channels;
+      }
+      next_img_byte += channels;
+      next_rgba_byte += 4;
+    }
+  }
 }
 
+
 void AssertPngEq(
-    const std::string& orig, const std::string& opt, const char* identifier) {
+    const std::string& orig, const std::string& opt, const char* identifier,
+    const std::string& in_rgba) {
   // Gather data and metadata for the original and optimized PNGs.
   ReadPngDescriptor orig_desc;
   PopulateDescriptor(orig, &orig_desc, identifier);
@@ -166,9 +200,16 @@ void AssertPngEq(
         << "image data mismatch for " << identifier;
   }
 
-  free(orig_desc.img_bytes);
-  free(opt_desc.img_bytes);
+  if (!in_rgba.empty()) {
+    unsigned long num_rgba_bytes = 4 * opt_desc.height * opt_desc.width;
+    EXPECT_EQ(in_rgba.length(), num_rgba_bytes)
+        << "rgba data size mismatch for " << identifier;
+    EXPECT_EQ(0,
+              memcmp(opt_desc.img_rgba_bytes, in_rgba.c_str(), num_rgba_bytes))
+        << "rgba data bytes mismatch for " << identifier;
+  }
 }
+
 
 struct ImageCompressionInfo {
   const char* filename;
@@ -183,6 +224,8 @@ struct ImageCompressionInfo {
   int compressed_color_type;
 };
 
+// These images were obtained from
+// http://www.libpng.org/pub/png/pngsuite.html
 ImageCompressionInfo kValidImages[] = {
   { "basi0g01", 217, 208, 217, 32, 32, 1, 0, 1, 0 },
   { "basi0g02", 154, 154, 154, 32, 32, 2, 0, 2, 0 },
@@ -357,10 +400,14 @@ ImageCompressionInfo kValidGifImages[] = {
   { "basn3p02", 186, 115, 115, 32, 32, 8, 3, 2, 3 },
   { "basn3p04", 344, 185, 185, 32, 32, 8, 3, 4, 3 },
   { "basn3p08", 1737, 1270, 1270, 32, 32, 8, 3, 8, 3 },
+
+  // These files have been transformed by rounding the original png
+  // 8-bit alpha channel into a 1-bit alpha channel for gif.
+  { "tr-basi4a08", 467, 239, 316, 32, 32, 8, 3, 8, 3 },
+  { "tr-basn4a08", 467, 239, 316, 32, 32, 8, 3, 8, 3 },
 };
 
 const char* kInvalidFiles[] = {
-  "nosuchfile",
   "emptyfile",
   "x00n0g01",
   "xcrn0g04",
@@ -394,7 +441,8 @@ void WriteStringToFile(const std::string &file_name, std::string &src) {
 void AssertMatch(const std::string& in,
                  const std::string& ref,
                  PngReaderInterface* reader,
-                 const ImageCompressionInfo& info) {
+                 const ImageCompressionInfo& info,
+                 std::string in_rgba) {
   PngReader png_reader;
   int width, height, bit_depth, color_type;
   std::string out;
@@ -409,7 +457,7 @@ void AssertMatch(const std::string& in,
 
   ASSERT_TRUE(PngOptimizer::OptimizePng(*reader, in, &out)) << info.filename;
   EXPECT_EQ(info.compressed_size_default, out.size()) << info.filename;
-  AssertPngEq(ref, out, info.filename);
+  AssertPngEq(ref, out, info.filename, in_rgba);
 
   ASSERT_TRUE(png_reader.GetAttributes(
       out, &width, &height, &bit_depth, &color_type)) << info.filename;
@@ -419,13 +467,21 @@ void AssertMatch(const std::string& in,
   ASSERT_TRUE(PngOptimizer::OptimizePngBestCompression(*reader, in, &out))
       << info.filename;
   EXPECT_EQ(info.compressed_size_best, out.size()) << info.filename;
-  AssertPngEq(ref, out, info.filename);
+  AssertPngEq(ref, out, info.filename, in_rgba);
 
   ASSERT_TRUE(png_reader.GetAttributes(
       out, &width, &height, &bit_depth, &color_type)) << info.filename;
   EXPECT_EQ(info.compressed_bit_depth, bit_depth) << info.filename;
   EXPECT_EQ(info.compressed_color_type, color_type) << info.filename;
   WriteStringToFile(std::string("z") + info.filename, out);
+}
+
+void AssertMatch(const std::string& in,
+                 const std::string& ref,
+                 PngReaderInterface* reader,
+                 const ImageCompressionInfo& info) {
+  static std::string in_rgba;
+  AssertMatch(in, ref, reader, info, in_rgba);
 }
 
 const size_t kValidImageCount = arraysize(kValidImages);
@@ -486,8 +542,8 @@ TEST(PngOptimizerTest, ValidPngs_isOpaque) {
   for (size_t i = 0; i < kOpaqueImagesWithAlphaCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kOpaqueImagesWithAlpha[i].filename, &in);
-    PngReader png_reader;
-    ASSERT_TRUE(png_reader.ReadPng(in, read.png_ptr(), read.info_ptr(), 0));
+    scoped_ptr<PngReaderInterface> png_reader(new PngReader);
+    ASSERT_TRUE(png_reader->ReadPng(in, read.png_ptr(), read.info_ptr(), 0));
     EXPECT_EQ(kOpaqueImagesWithAlpha[i].is_opaque,
               PngReaderInterface::IsAlphaChannelOpaque(
                   read.png_ptr(), read.info_ptr()));
@@ -591,11 +647,14 @@ TEST(PngOptimizerTest, PartialPng) {
 TEST(PngOptimizerTest, ValidGifs) {
   GifReader reader;
   for (size_t i = 0; i < kValidGifImageCount; i++) {
-    std::string in, ref;
+    std::string in, ref, gif_rgba;
     ReadImageToString(
         kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+    ReadImageToString(
+        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif.rgba",
+        &gif_rgba);
     ReadPngSuiteFileToString(kValidGifImages[i].filename, &ref);
-    AssertMatch(in, ref, &reader, kValidGifImages[i]);
+    AssertMatch(in, ref, &reader, kValidGifImages[i], gif_rgba);
   }
 }
 
@@ -760,5 +819,46 @@ TEST(PngOptimizerTest, ScopedPngStruct) {
                "Invalid Type");
 #endif
 }
+
+TEST(PngReaderTest, ReadTransparentPng) {
+  ScopedPngStruct read(ScopedPngStruct::READ);
+  PngReader reader;
+  std::string in;
+  ReadPngSuiteFileToString("basn4a16", &in);
+  // Don't require_opaque.
+  ASSERT_TRUE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
+                             PNG_TRANSFORM_IDENTITY, false));
+  ASSERT_FALSE(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
+  read.reset();
+
+  // Don't transform but require opaque.
+  ASSERT_FALSE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
+                              PNG_TRANSFORM_IDENTITY, true));
+  read.reset();
+
+  // Strip the alpha channel and require opaque.
+  ASSERT_TRUE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
+                             PNG_TRANSFORM_STRIP_ALPHA, true));
+#ifndef NDEBUG
+  ASSERT_DEATH(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()),
+               "IsAlphaChannelOpaque called for image without alpha channel.");
+#else
+  ASSERT_FALSE(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
+#endif
+  read.reset();
+
+  // Strip the alpha channel and don't require opaque.
+  ASSERT_TRUE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
+                             PNG_TRANSFORM_STRIP_ALPHA, false));
+#ifndef NDEBUG
+  ASSERT_DEATH(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()),
+               "IsAlphaChannelOpaque called for image without alpha channel.");
+#else
+  ASSERT_FALSE(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
+#endif
+  read.reset();
+
+}
+
 
 }  // namespace

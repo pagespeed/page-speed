@@ -17,6 +17,7 @@
 // Author: Bryan McQuade
 
 #include "pagespeed/image_compression/gif_reader.h"
+#include "base/memory/scoped_ptr.h"
 
 extern "C" {
 #ifdef USE_SYSTEM_LIBPNG
@@ -36,6 +37,8 @@ extern "C" {
 
 #include "third_party/giflib/lib/gif_lib.h"
 }
+
+using pagespeed::image_compression::ScopedPngStruct;
 
 namespace {
 
@@ -81,7 +84,8 @@ void AddTransparencyChunk(png_structp png_ptr,
 
 bool ReadImageDescriptor(GifFileType* gif_file,
                          png_structp png_ptr,
-                         png_infop info_ptr) {
+                         png_infop info_ptr,
+                         png_color* palette) {
   if (DGifGetImageDesc(gif_file) == GIF_ERROR) {
     DLOG(INFO) << "Failed to get image descriptor.";
     return false;
@@ -113,7 +117,6 @@ bool ReadImageDescriptor(GifFileType* gif_file,
     return false;
   }
 
-  png_color palette[256];
   if (color_map->ColorCount < 0 || color_map->ColorCount > 256) {
     DLOG(INFO) << "Invalid color count " << color_map->ColorCount;
     return false;
@@ -210,32 +213,15 @@ bool ReadExtension(GifFileType* gif_file,
   return true;
 }
 
-bool ReadGifToPng(GifFileType* gif_file,
-                  png_structp png_ptr,
-                  png_infop info_ptr) {
-  if (static_cast<png_size_t>(gif_file->SHeight) >
-      PNG_UINT_32_MAX/png_sizeof(png_bytep)) {
-    DLOG(INFO) << "GIF image is too big to process.";
-    return false;
-  }
-
-  png_set_IHDR(png_ptr,
-               info_ptr,
-               gif_file->SWidth,
-               gif_file->SHeight,
-               8,  // bit depth
-               PNG_COLOR_TYPE_PALETTE,
-               PNG_INTERLACE_NONE,
-               PNG_COMPRESSION_TYPE_BASE,
-               PNG_FILTER_TYPE_BASE);
-
-  png_uint_32 row_size = png_get_rowbytes(png_ptr, info_ptr);
-  if (row_size == 0) {
-    return false;
-  }
-
+png_uint_32 AllocatePngPixels(png_structp png_ptr,
+                              png_infop info_ptr) {
   // Like libpng's png_read_png, we free the row pointers unless they
   // weren't allocated by libpng, in which case we reuse them.
+  png_uint_32 row_size = png_get_rowbytes(png_ptr, info_ptr);
+  if (row_size == 0) {
+    return 0;
+  }
+
 #ifdef PNG_FREE_ME_SUPPORTED
   png_free_data(png_ptr, info_ptr, PNG_FREE_ROWS, 0);
 #endif
@@ -256,17 +242,122 @@ bool ReadGifToPng(GifFileType* gif_file,
           static_cast<png_bytep>(png_malloc(png_ptr, row_size));
     }
   }
+  return row_size;
+}
+
+bool ExpandColorMap(png_structp paletted_png_ptr,
+                    png_infop paletted_info_ptr,
+                    png_color* palette,
+                    int transparent_palette_index,
+                    png_structp rgb_png_ptr,
+                    png_infop rgb_info_ptr) {
+  png_uint_32 height = png_get_image_height(paletted_png_ptr,
+                                            paletted_info_ptr);
+  png_uint_32 width = png_get_image_width(paletted_png_ptr,
+                                          paletted_info_ptr);
+  bool have_alpha = (transparent_palette_index >= 0);
+  png_set_IHDR(rgb_png_ptr,
+               rgb_info_ptr,
+               width,
+               height,
+               8,  // bit depth
+               have_alpha ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB,
+               PNG_INTERLACE_NONE,
+               PNG_COMPRESSION_TYPE_BASE,
+               PNG_FILTER_TYPE_BASE);
+  png_uint_32 row_size = AllocatePngPixels(rgb_png_ptr, rgb_info_ptr);
+  png_byte bytes_per_pixel = have_alpha ? 4 : 3;
+
+  if (row_size == 0) {
+    return false;
+  }
+
+  for (png_uint_32 row = 0; row < height; ++row) {
+    png_bytep rgb_next_byte = rgb_info_ptr->row_pointers[row];
+    if (have_alpha) {
+      // Make the row opaque initially.
+      memset(rgb_next_byte, 0xff, row_size);
+    }
+    for (png_uint_32 column = 0; column < width; ++column) {
+      png_byte palette_entry = paletted_info_ptr->row_pointers[row][column];
+      if (have_alpha &&
+          (palette_entry == static_cast<png_byte>(transparent_palette_index))) {
+        // Transparent: clear RGBA bytes.
+        memset(rgb_next_byte, 0x00, bytes_per_pixel);
+      } else {
+        // Opaque: Copy RGB, keeping A opaque from above
+        memcpy(rgb_next_byte, &(palette[palette_entry]), 3);
+      }
+      rgb_next_byte += bytes_per_pixel;
+    }
+  }
+  rgb_info_ptr->valid |= PNG_INFO_IDAT;
+  return true;
+}
+
+bool ReadGifToPng(GifFileType* gif_file,
+                  png_structp png_ptr,
+                  png_infop info_ptr,
+                  bool expand_colormap,
+                  bool require_opaque) {
+  if (static_cast<png_size_t>(gif_file->SHeight) >
+      PNG_UINT_32_MAX/png_sizeof(png_bytep)) {
+    DLOG(INFO) << "GIF image is too big to process.";
+    return false;
+  }
+
+  // If expand_colormap is true, the color-indexed GIF_file is read
+  // into paletted_png, and then transformed into a bona fide RGB(A)
+  // PNG in png_ptr and info_ptr. If expand_colormap is false, we just
+  // read the color-indexed GIF file directly into png_ptr and
+  // info_ptr.
+  scoped_ptr<ScopedPngStruct> paletted_png;
+  png_structp paletted_png_ptr = NULL;
+  png_infop paletted_info_ptr = NULL;
+
+  if (expand_colormap) {
+    // We read the image into a separate struct before expanding the
+    // colormap.
+    paletted_png.reset(new ScopedPngStruct(ScopedPngStruct::READ));
+    if (!paletted_png->valid()) {
+      LOG(DFATAL) << "Invalid ScopedPngStruct r: " << paletted_png->valid();
+      return false;
+    }
+    paletted_png_ptr = paletted_png->png_ptr();
+    paletted_info_ptr = paletted_png->info_ptr();
+  } else {
+    // We read the image directly into the pointers that was passed in.
+    paletted_png_ptr = png_ptr;
+    paletted_info_ptr = info_ptr;
+  }
+
+  png_set_IHDR(paletted_png_ptr,
+               paletted_info_ptr,
+               gif_file->SWidth,
+               gif_file->SHeight,
+               8,  // bit depth
+               PNG_COLOR_TYPE_PALETTE,
+               PNG_INTERLACE_NONE,
+               PNG_COMPRESSION_TYPE_BASE,
+               PNG_FILTER_TYPE_BASE);
+
+  png_uint_32 row_size = AllocatePngPixels(paletted_png_ptr, paletted_info_ptr);
+  if (row_size == 0) {
+    return false;
+  }
 
   // Fill the rows with the background color.
-  memset(info_ptr->row_pointers[0], gif_file->SBackGroundColor, row_size);
-  for (png_uint_32 row = 1; row < info_ptr->height; ++row) {
-    memcpy(info_ptr->row_pointers[row],
-           info_ptr->row_pointers[0],
+  memset(paletted_info_ptr->row_pointers[0],
+         gif_file->SBackGroundColor, row_size);
+  for (png_uint_32 row = 1; row < paletted_info_ptr->height; ++row) {
+    memcpy(paletted_info_ptr->row_pointers[row],
+           paletted_info_ptr->row_pointers[0],
            row_size);
   }
 
   int transparent_palette_index = -1;
   bool found_terminator = false;
+  png_color palette[256];
   while (!found_terminator) {
     GifRecordType record_type = UNDEFINED_RECORD_TYPE;
     if (DGifGetRecordType(gif_file, &record_type) == GIF_ERROR) {
@@ -275,15 +366,16 @@ bool ReadGifToPng(GifFileType* gif_file,
     }
     switch (record_type) {
       case IMAGE_DESC_RECORD_TYPE:
-        if (!ReadImageDescriptor(gif_file, png_ptr, info_ptr)) {
+        if (!ReadImageDescriptor(gif_file, paletted_png_ptr,
+                                 paletted_info_ptr, palette)) {
           return false;
         }
         break;
 
       case EXTENSION_RECORD_TYPE:
         if (!ReadExtension(gif_file,
-                           png_ptr,
-                           info_ptr,
+                           paletted_png_ptr,
+                           paletted_info_ptr,
                            &transparent_palette_index)) {
           return false;
         }
@@ -299,12 +391,31 @@ bool ReadGifToPng(GifFileType* gif_file,
     }
   }
 
-  // If the GIF contained a transparency index, then add it to the PNG
-  // now.
+  // Process transparency.
   if (transparent_palette_index >= 0) {
-    AddTransparencyChunk(png_ptr, info_ptr, transparent_palette_index);
+    if (require_opaque) {
+      return false;
+    }
+    // If the GIF contained a transparency index, then add it to the
+    // PNG now if we're returning a paletted image. If we're not,
+    // don't bother since we have all the information we need for
+    // ExpandColorMap below.
+    if (!expand_colormap) {
+      AddTransparencyChunk(paletted_png_ptr, paletted_info_ptr,
+                           transparent_palette_index);
+    }
   }
 
+  if (expand_colormap) {
+    // Generate the non-paletted PNG data into the pointers that were
+    // passed in.
+    if (!ExpandColorMap(paletted_png_ptr, paletted_info_ptr,
+                        palette,
+                        transparent_palette_index,
+                        png_ptr, info_ptr)) {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -323,13 +434,22 @@ GifReader::~GifReader() {
 bool GifReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
                         png_infop info_ptr,
-                        int transforms) const {
-  // All the transforms below are no-ops when reading a .gif file.
-  if (transforms & ~(PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_STRIP_16 |
-                     PNG_TRANSFORM_GRAY_TO_RGB)) {
+                        int transforms,
+                        bool require_opaque) const {
+  int allowed_transforms =
+      // These transforms are no-ops when reading a .gif file.
+      PNG_TRANSFORM_STRIP_16 |
+      PNG_TRANSFORM_GRAY_TO_RGB |
+      // We implement this transform explicitly in this class.
+      PNG_TRANSFORM_EXPAND;
+
+  if (transforms & ~allowed_transforms) {
     LOG(DFATAL) << "Unsupported transform " << transforms;
     return false;
   }
+
+  bool expand_colormap = (transforms & PNG_TRANSFORM_EXPAND);
+
   // Wrap the resource's response body in a structure that keeps a
   // pointer to the body and a read offset, and pass a pointer to this
   // object as the user data to be received by the GIF read function.
@@ -341,7 +461,8 @@ bool GifReader::ReadPng(const std::string& body,
     return false;
   }
 
-  bool result = ReadGifToPng(gif_file, png_ptr, info_ptr);
+  bool result = ReadGifToPng(gif_file, png_ptr, info_ptr,
+                             expand_colormap, require_opaque);
   if (DGifCloseFile(gif_file) == GIF_ERROR) {
     DLOG(INFO) << "Failed to close GIF.";
   }

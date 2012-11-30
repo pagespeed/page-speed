@@ -22,6 +22,7 @@
 #include <string>
 
 #include "base/logging.h"
+
 #include "pagespeed/image_compression/png_optimizer.h"
 
 namespace pagespeed {
@@ -37,7 +38,8 @@ class GifReader : public PngReaderInterface {
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr,
-                       int transforms) const;
+                       int transforms,
+                       bool require_opaque) const;
 
   virtual bool GetAttributes(const std::string& body,
                              int* out_width,

@@ -295,13 +295,13 @@ bool ReadFileToString(const std::string& filename, std::string *dest) {
   std::string path = GetPathRelativeToSrcRoot(filename.c_str());
   std::ifstream file_stream;
   file_stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
-  if (!file_stream.is_open()) {
+  if (!file_stream.good() || !file_stream.is_open()) {
     return false;
   }
   dest->assign(std::istreambuf_iterator<char>(file_stream),
                std::istreambuf_iterator<char>());
   file_stream.close();
-  return (dest->size() > 0);
+  return true;
 }
 
 const char* PagespeedTest::kUrl1 = "http://www.example.com/a";
