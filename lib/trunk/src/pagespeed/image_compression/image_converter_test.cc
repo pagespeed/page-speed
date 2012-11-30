@@ -414,21 +414,22 @@ TEST(ImageConverterTest, ConvertTransparentGifToWebp) {
   ASSERT_TRUE(ImageConverter::ConvertPngToWebp(
       png_struct_reader, in, options, &out));
 
-// NOTE: libwebp produces slightly different output on i386 release
-// builds than in other environments. For now, we vary the expected
-// result to account for this. Longer term, we should set general
-// thresholds for size (e.g. resulting compresed size should be
-// smaller than original input size and should instead be looking at
-// pixels using exact match for lossless and PSNR for lossy.
-#if defined(__i386__)  && defined(NDEBUG)
-  const size_t kExpectedSize = 21442;
-#else
-  const size_t kExpectedSize = 21452;
+// NOTE: libwebp produces slightly different output on i386 linux
+// release builds than in other environments, so we disable the test
+// there. Longer term, we should set general thresholds for size
+// (e.g. resulting compresed size should be smaller than original
+// input size) and should instead be looking at pixels using exact
+// match for lossless and PSNR for lossy.
+  bool verify_size_matches = true;
+#if defined(__i386__)  && defined(NDEBUG) && defined(__linux__)
+  verify_size_matches = false;
 #endif
 
-  // Verify that the size matches.
-  EXPECT_EQ(static_cast<size_t>(kExpectedSize), out.size())
-      << "output size mismatch";
+  if (verify_size_matches) {
+    // Verify that the size matches.
+    EXPECT_EQ(static_cast<size_t>(21452), out.size())
+        << "output size mismatch";
+  }
 
   // Uncomment the lines below for debugging
   // WriteStringToFile(std::string("gif-transparent.gif"), in);
