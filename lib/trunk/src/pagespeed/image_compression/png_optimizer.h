@@ -104,10 +104,10 @@ class PngReaderInterface {
   // Parse the contents of body, convert to a PNG, and populate the
   // PNG structures with the PNG representation. Returns true on
   // success, false on failure.
-  virtual bool ReadPng(const std::string& body,
-                       png_structp png_ptr,
-                       png_infop info_ptr,
-                       int transforms) const {
+  bool ReadPng(const std::string& body,
+               png_structp png_ptr,
+               png_infop info_ptr,
+               int transforms) const {
     return ReadPng(body, png_ptr, info_ptr, transforms, false);
   }
 
