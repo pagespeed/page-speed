@@ -443,12 +443,12 @@ bool GifReader::ReadPng(const std::string& body,
       // We implement this transform explicitly in this class.
       PNG_TRANSFORM_EXPAND;
 
-  if (transforms & ~allowed_transforms) {
+  if ((transforms & ~allowed_transforms) != 0) {
     LOG(DFATAL) << "Unsupported transform " << transforms;
     return false;
   }
 
-  bool expand_colormap = (transforms & PNG_TRANSFORM_EXPAND);
+  bool expand_colormap = ((transforms & PNG_TRANSFORM_EXPAND) != 0);
 
   // Wrap the resource's response body in a structure that keeps a
   // pointer to the body and a read offset, and pass a pointer to this
