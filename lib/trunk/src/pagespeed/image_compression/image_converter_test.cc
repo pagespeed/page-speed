@@ -414,7 +414,7 @@ TEST(ImageConverterTest, ConvertTransparentGifToWebp) {
   ASSERT_TRUE(ImageConverter::ConvertPngToWebp(
       png_struct_reader, in, options, &out));
   // Verify that the size matches.
-  EXPECT_EQ(static_cast<size_t>(21362), out.size())
+  EXPECT_EQ(static_cast<size_t>(21452), out.size())
       << "output size mismatch";
 
   // Uncomment the lines below for debugging
