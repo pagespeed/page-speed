@@ -50,7 +50,7 @@ struct PngCompressParams {
   //   PNG_FILTER_PAETH
   //   PNG_ALL_FILTERS
   int filter_level;
-  // Indicates which compression strategry to use while compressing the image.
+  // Indicates which compression strategy to use while compressing the image.
   // Valid values for this are
   //   Z_FILTERED
   //   Z_HUFFMAN_ONLY
@@ -74,8 +74,8 @@ class ScopedPngStruct {
   bool valid() const { return png_ptr_ != NULL && info_ptr_ != NULL; }
   void reset();
 
-  png_structp png_ptr() { return png_ptr_; }
-  png_infop info_ptr() { return info_ptr_; }
+  png_structp png_ptr() const { return png_ptr_; }
+  png_infop info_ptr() const { return info_ptr_; }
 
  private:
   png_structp png_ptr_;
@@ -91,12 +91,25 @@ class PngReaderInterface {
   virtual ~PngReaderInterface();
 
   // Parse the contents of body, convert to a PNG, and populate the
+  // PNG structures with the PNG representation. If 'require_opaque'
+  // is true, returns an image without an alpha channel if the
+  // original image has no transparent pixels, and fails
+  // otherwise. Returns true on success, false on failure.
+  virtual bool ReadPng(const std::string& body,
+                       png_structp png_ptr,
+                       png_infop info_ptr,
+                       int transforms,
+                       bool require_opaque) const = 0;
+
+  // Parse the contents of body, convert to a PNG, and populate the
   // PNG structures with the PNG representation. Returns true on
   // success, false on failure.
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr,
-                       int transforms) const = 0;
+                       int transforms) const {
+    return ReadPng(body, png_ptr, info_ptr, transforms, false);
+  }
 
   // Get just the attributes of the given image. out_bit_depth is the
   // number of bits per channel. out_color_type is one of the
@@ -125,7 +138,7 @@ class PngReaderInterface {
 };
 
 // Reader for PNG-encoded data.
-// This is sample code on how someone can use the scaneline reader
+// This is sample code on how someone can use the scanline reader
 // interface.
 // bool func() {
 //   if (setjmp(*GetJmpBuf())) {
@@ -133,7 +146,7 @@ class PngReaderInterface {
 //   }
 //
 //   InitializeRead(...)
-//   while (HasMoreScalines()) {
+//   while (HasMoreScanlines()) {
 //     Scanline line;
 //     ReadNextScanline(line);
 //     ....
@@ -160,6 +173,7 @@ class PngScanlineReader : public ScanlineReaderInterface {
   virtual PixelFormat GetPixelFormat();
 
   void set_transform(int transform);
+  void set_require_opaque(bool require_opaque);
   int GetColorType();
   bool GetBackgroundColor(
       unsigned char* red, unsigned char* green, unsigned char* blue);
@@ -168,6 +182,7 @@ class PngScanlineReader : public ScanlineReaderInterface {
   ScopedPngStruct read_;
   size_t current_scanline_;
   int transform_;
+  bool require_opaque_;
 
   DISALLOW_COPY_AND_ASSIGN(PngScanlineReader);
 };
@@ -223,7 +238,8 @@ class PngReader : public PngReaderInterface {
   virtual bool ReadPng(const std::string& body,
                        png_structp png_ptr,
                        png_infop info_ptr,
-                       int transforms) const;
+                       int transforms,
+                       bool require_opaque) const;
 
   virtual bool GetAttributes(const std::string& body,
                              int* out_width,

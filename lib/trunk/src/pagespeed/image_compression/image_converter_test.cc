@@ -23,17 +23,23 @@
 #include "base/logging.h"
 
 #include "base/basictypes.h"
+#include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/image_converter.h"
+#include "pagespeed/image_compression/png_optimizer.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
 
+using pagespeed::image_compression::GifReader;
 using pagespeed::image_compression::ImageConverter;
 using pagespeed::image_compression::JpegLossyOptions;
+using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
+using pagespeed::image_compression::PngReaderInterface;
 using pagespeed::image_compression::WebpConfiguration;
 
 // The *_TEST_DIR_PATH macro is set by the gyp target that builds this file.
+const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "gif/";
 const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
 
 struct ImageCompressionInfo {
@@ -209,7 +215,35 @@ const char* kInvalidFiles[] = {
   "xlfn0g04",
 };
 
+struct GifImageCompressionInfo {
+  const char* filename;
+  size_t original_size;
+  size_t png_size;
+  size_t jpeg_size;
+  size_t webp_size;
+};
+
+GifImageCompressionInfo kValidGifImages[] = {
+  { "basi0g01", 153,  166,  1036, 120},
+  { "basi0g02", 185,  112,  664,  74},
+  { "basi0g04", 344,  144,  439,  104},
+  { "basi0g08", 1736, 116,  468,  582},
+  { "basi3p01", 138,   96,  789,  56},
+  { "basi3p02", 186,  115,  1157, 74},
+  { "basi3p04", 344,  185,  992,  136},
+  { "basi3p08", 1737, 1270, 929,  810},
+  { "basn0g01", 153,  166,  1036, 120},
+  { "basn0g02", 185,  112,  664,  74},
+  { "basn0g04", 344,  144,  439,  104},
+  { "basn0g08", 1736, 116,  468,  582},
+  { "basn3p01", 138,  96,   789,  56},
+  { "basn3p02", 186,  115,  1157, 74},
+  { "basn3p04", 344,  185,  992,  136},
+  { "basn3p08", 1737, 1270, 929,  810}
+};
+
 const size_t kValidImageCount = arraysize(kValidImages);
+const size_t kValidGifImageCount = arraysize(kValidGifImages);
 const size_t kInvalidFileCount = arraysize(kInvalidFiles);
 
 void ReadImageToString(const std::string& dir,
@@ -234,14 +268,14 @@ void WriteStringToFile(const std::string &file_name, std::string &src) {
 }
 
 TEST(ImageConverterTest, OptimizePngOrConvertToJpeg_invalidPngs) {
-  PngReader png_struct_reader;
+  scoped_ptr<PngReaderInterface> png_struct_reader(new PngReader);
   pagespeed::image_compression::JpegCompressionOptions options;
   for (size_t i = 0; i < kInvalidFileCount; i++) {
     std::string in, out;
     bool is_out_png;
     ReadPngSuiteFileToString(kInvalidFiles[i], &in);
     ASSERT_FALSE(ImageConverter::OptimizePngOrConvertToJpeg(
-        png_struct_reader, in, options, &out, &is_out_png));
+        *(png_struct_reader.get()), in, options, &out, &is_out_png));
   }
 }
 
@@ -281,6 +315,149 @@ TEST(ImageConverterTest, ConvertPngToWebp_invalidPngs) {
         png_struct_reader, in, webp_config, &out));
   }
 }
+
+TEST(ImageConverterTest, ConvertOpaqueGifToPng) {
+  GifReader png_struct_reader;
+  for (size_t i = 0; i < kValidGifImageCount; i++) {
+    std::string in, out;
+     ReadImageToString(
+        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+    EXPECT_EQ(kValidGifImages[i].original_size, in.size())
+        << "input size mismatch for " << kValidGifImages[i].filename;
+    ASSERT_TRUE(PngOptimizer::OptimizePngBestCompression(
+        png_struct_reader, in, &out));
+    // Verify that the size matches.
+    EXPECT_EQ(kValidGifImages[i].png_size, out.size())
+        << "output size mismatch for " << kValidGifImages[i].filename;
+
+    // Uncomment the lines below for debugging
+    // WriteStringToFile(std::string("gif-") + kValidGifImages[i].filename +
+    //                   std::string(".gif"), in);
+    // WriteStringToFile(std::string("gif-") + kValidGifImages[i].filename +
+    //                   std::string(".png"), out);
+  }
+}
+
+TEST(ImageConverterTest, ConvertOpaqueGifToJpeg) {
+  GifReader png_struct_reader;
+  pagespeed::image_compression::JpegCompressionOptions options;
+  options.lossy = true;
+  options.progressive = false;
+  options.lossy_options.quality = 100;
+  for (size_t i = 0; i < kValidGifImageCount; i++) {
+    std::string in, out;
+     ReadImageToString(
+        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+    EXPECT_EQ(kValidGifImages[i].original_size, in.size())
+        << "input size mismatch for " << kValidGifImages[i].filename;
+    ASSERT_TRUE(ImageConverter::ConvertPngToJpeg(
+        png_struct_reader, in, options, &out));
+    // Verify that the size matches.
+    EXPECT_EQ(kValidGifImages[i].jpeg_size, out.size())
+        << "output size mismatch for " << kValidGifImages[i].filename;
+
+    // Uncomment the lines below for debugging
+    // WriteStringToFile(std::string("gif-") + kValidGifImages[i].filename +
+    //                   std::string(".gif"), in);
+    // WriteStringToFile(std::string("gif-") + kValidGifImages[i].filename +
+    //                   std::string(".jpg"), out);
+  }
+}
+
+TEST(ImageConverterTest, ConvertOpaqueGifToWebp) {
+  GifReader png_struct_reader;
+  pagespeed::image_compression::WebpConfiguration options;
+  for (size_t i = 0; i < kValidGifImageCount; i++) {
+    std::string in, out;
+     ReadImageToString(
+        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+    EXPECT_EQ(kValidGifImages[i].original_size, in.size())
+        << "input size mismatch for " << kValidGifImages[i].filename;
+    ASSERT_TRUE(ImageConverter::ConvertPngToWebp(
+        png_struct_reader, in, options, &out));
+    // Verify that the size matches.
+    EXPECT_EQ(kValidGifImages[i].webp_size, out.size())
+        << "output size mismatch for " << kValidGifImages[i].filename;
+
+    // Uncomment the lines below for debugging
+    // WriteStringToFile(std::string("gif-") + kValidGifImages[i].filename +
+    //                   std::string(".gif"), in);
+    // WriteStringToFile(std::string("gif-") + kValidGifImages[i].filename +
+    //                   std::string(".webp"), out);
+  }
+}
+
+TEST(ImageConverterTest, ConvertTransparentGifToPng) {
+  GifReader png_struct_reader;
+  std::string in, out;
+  ReadImageToString(kGifTestDir, "transparent", "gif", &in);
+  EXPECT_EQ(static_cast<size_t>(55800), in.size())
+      << "input size mismatch";
+  ASSERT_TRUE(PngOptimizer::OptimizePngBestCompression(
+      png_struct_reader, in, &out));
+  // Verify that the size matches.
+  EXPECT_EQ(static_cast<size_t>(25020), out.size())
+      << "output size mismatch";
+
+  // Uncomment the lines below for debugging
+  // WriteStringToFile(std::string("gif-transparent.gif"), in);
+  // WriteStringToFile(std::string("gif-transparent.png"), out);
+}
+
+TEST(ImageConverterTest, ConvertTransparentGifToWebp) {
+  GifReader png_struct_reader;
+  pagespeed::image_compression::WebpConfiguration options;
+  std::string in, out;
+  ReadImageToString(kGifTestDir, "transparent", "gif", &in);
+  EXPECT_EQ(static_cast<size_t>(55800), in.size())
+      << "input size mismatch";
+  ASSERT_TRUE(ImageConverter::ConvertPngToWebp(
+      png_struct_reader, in, options, &out));
+  // Verify that the size matches.
+  EXPECT_EQ(static_cast<size_t>(21362), out.size())
+      << "output size mismatch";
+
+  // Uncomment the lines below for debugging
+  // WriteStringToFile(std::string("gif-transparent.gif"), in);
+  // WriteStringToFile(std::string("gif-transparent.webp"), out);
+}
+
+TEST(ImageConverterTest, NotConvertTransparentGifToJpeg) {
+  GifReader png_struct_reader;
+  pagespeed::image_compression::JpegCompressionOptions options;
+  options.lossy = true;
+  options.progressive = false;
+  options.lossy_options.quality = 100;
+  std::string in, out;
+  ReadImageToString(kGifTestDir, "transparent", "gif", &in);
+  EXPECT_EQ(static_cast<size_t>(55800), in.size())
+      << "input size mismatch";
+  ASSERT_FALSE(ImageConverter::ConvertPngToJpeg(
+      png_struct_reader, in, options, &out));
+  // Verify that the size matches.
+  EXPECT_EQ(static_cast<size_t>(0), out.size())
+      << "output size mismatch";
+
+  // Uncomment the lines below for debugging
+  // WriteStringToFile(std::string("gif-transparent.gif"), in);
+  // WriteStringToFile(std::string("gif-transparent.jpg"), out);
+}
+
+// To manually inspect all gif conversions tested, uncomment the lines
+// indicated in the *Convert*GifTo* test cases above, run this
+// test, and then generate an html page as follows:
+//
+/*
+ (echo '<table border="1" style="background-color: gray;">'
+  echo '<tr><th>name</th><th>gif</th><th>png</th>'
+  echo '<th>jpeg</th><th>webp</th></tr>'
+  ls /tmp/image_converter_test/gif-*gif | sed -s 's/\.gif//' | \
+  xargs --replace=X \
+  echo '<tr><td>X</td><td><img src="X.gif"></td><td><img src="X.png"></td>' \
+  '<td><img src="X.jpg"></td><td><img src="X.webp"></td></tr>'
+  echo '</table>') > /tmp/allimages.html
+*/
+
 
 // TODO(vchudnov): add webp tests to do pixel-for-pixel comparisons
 // and to test GetSmallestOfPngJpegWebp

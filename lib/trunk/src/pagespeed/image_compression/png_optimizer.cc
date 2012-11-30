@@ -326,16 +326,35 @@ PngReader::~PngReader() {
 bool PngReader::ReadPng(const std::string& body,
                         png_structp png_ptr,
                         png_infop info_ptr,
-                        int transforms) const {
-  // Wrap the resource's response body in a structure that keeps a
-  // pointer to the body and a read offset, and pass a pointer to this
-  // object as the user data to be received by the PNG read function.
-  PngInput input;
-  input.data_ = &body;
-  input.offset_ = 0;
-  png_set_read_fn(png_ptr, &input, &ReadPngFromStream);
-  png_read_png(png_ptr, info_ptr, transforms , NULL);
-  return true;
+                        int transforms,
+                        bool require_opaque) const {
+    PngInput input;
+    input.data_ = &body;
+    input.offset_ = 0;
+
+    png_set_read_fn(png_ptr, &input, &ReadPngFromStream);
+    png_read_png(png_ptr, info_ptr, transforms, NULL);
+
+    if (require_opaque &&
+        ((transforms & PNG_TRANSFORM_STRIP_ALPHA) == 0)) {
+      // We're not guaranteed that the image is opaque already.
+
+      int color_type = png_get_color_type(png_ptr, info_ptr);
+      if ((color_type & PNG_COLOR_MASK_ALPHA) != 0) {
+        // Image has an alpha channel. Make sure it's opaque, and
+        // strip it.
+
+        if (!IsAlphaChannelOpaque(png_ptr, info_ptr)) {
+          return false;
+        }
+        if ((OPNG_REDUCE_STRIP_ALPHA &
+             opng_reduce_image(png_ptr, info_ptr, OPNG_REDUCE_STRIP_ALPHA))
+            == 0) {
+          return false;
+        }
+      }
+    }
+    return true;
 }
 
 bool PngReader::GetAttributes(const std::string& body,
@@ -521,6 +540,35 @@ bool PngReaderInterface::IsAlphaChannelOpaque(
     return false;
   }
 
+  png_bytep trans;
+  int num_trans;
+  png_color_16p trans_values;
+  if (png_get_tRNS(png_ptr,
+                   info_ptr,
+                   &trans,
+                   &num_trans,
+                   &trans_values) != 0) {
+    if ((color_type & PNG_COLOR_MASK_PALETTE) != 0) {
+      for (int idx = 0; idx < num_trans; ++idx) {
+        if (trans[idx] != 0xff) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      // Non-paletted image with a tRNS block is transparent
+      return false;
+    }
+  } else {
+    // There is no tRNS block.
+    if ((color_type & PNG_COLOR_MASK_PALETTE) != 0) {
+      // If we go this far, we have an image with
+      // PNG_COLOR_MASK_ALPHA but no tRNS block. We're confused.
+      LOG(DFATAL) << "PNG_COLOR_MASK is set but could not read tRNS.";
+      return false;
+    }
+  }
+
   int channels = png_get_channels(png_ptr, info_ptr);
 
   if (color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
@@ -614,7 +662,8 @@ bool PngReaderInterface::GetBackgroundColor(
 PngScanlineReader::PngScanlineReader()
     : read_(ScopedPngStruct::READ),
       current_scanline_(0),
-      transform_(PNG_TRANSFORM_IDENTITY) {
+      transform_(PNG_TRANSFORM_IDENTITY),
+      require_opaque_(false) {
 }
 
 jmp_buf* PngScanlineReader::GetJmpBuf() {
@@ -626,6 +675,7 @@ void PngScanlineReader::Reset() {
   read_.reset();
   current_scanline_ = 0;
   transform_ = PNG_TRANSFORM_IDENTITY;
+  require_opaque_ = false;
 }
 
 bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
@@ -635,18 +685,21 @@ bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
     return false;
   }
 
-  if (!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(), transform_)) {
+  if (!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(), transform_,
+                      require_opaque_)) {
     return false;
   }
 
-  int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
-  if (((color_type & PNG_COLOR_MASK_ALPHA) != 0) &&
-      PngReaderInterface::IsAlphaChannelOpaque(
-          read_.png_ptr(), read_.info_ptr())) {
-    // Clear the read pointers.
-    read_.reset();
-    return reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(),
-                          transform_ | PNG_TRANSFORM_STRIP_ALPHA);
+  if (!require_opaque_) {
+    int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
+    if (((color_type & PNG_COLOR_MASK_ALPHA) != 0) &&
+        PngReaderInterface::IsAlphaChannelOpaque(
+            read_.png_ptr(), read_.info_ptr())) {
+      // Clear the read pointers.
+      read_.reset();
+      return reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(),
+                            transform_ | PNG_TRANSFORM_STRIP_ALPHA);
+    }
   }
 
   return true;
@@ -678,6 +731,10 @@ bool PngScanlineReader::ReadNextScanline(void** out_scanline_bytes) {
 
 void PngScanlineReader::set_transform(int transform) {
   transform_ = transform;
+}
+
+void PngScanlineReader::set_require_opaque(bool require_opaque) {
+  require_opaque_ = require_opaque;
 }
 
 size_t PngScanlineReader::GetImageHeight() {

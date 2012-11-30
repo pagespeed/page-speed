@@ -235,6 +235,7 @@
         '<(pagespeed_root)',
       ],
       'sources': [
+        'image_compression/gif_reader_test.cc',
         'image_compression/image_converter_test.cc',
         'image_compression/image_attributes_factory_test.cc',
         'image_compression/jpeg_optimizer_test.cc',

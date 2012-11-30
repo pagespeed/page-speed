@@ -100,10 +100,14 @@ bool ImageConverter::ConvertPngToJpeg(
 
   // Since JPEG only support 8 bits/channels, we need convert PNG
   // having 1,2,4,16 bits/channel to 8 bits/channel.
-  //   -PNG_TRANSFORM_EXPAND expands 1,2 and 4 bit channels to 8 bit channels
-  //   -PNG_TRANSFORM_STRIP_16 will strip 16 bit channels to get 8 bit/channel
-  png_reader.set_transform(
-      PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_STRIP_16);
+  //   -PNG_TRANSFORM_EXPAND expands 1,2 and 4 bit channels to 8 bit
+  //                         channels, and de-colormaps images.
+  //   -PNG_TRANSFORM_STRIP_16 will strip 16 bit channels to get 8 bit
+  //                           channels.
+  png_reader.set_transform(PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_STRIP_16);
+
+  // Since JPEGs can only support opaque images, require this in the reader.
+  png_reader.set_require_opaque(true);
 
   // Configure png reader error handlers.
   if (setjmp(*png_reader.GetJmpBuf())) {
@@ -200,12 +204,16 @@ bool ImageConverter::ConvertPngToWebp(
 
   // Since the WebP API only support 8 bits/channels, we need convert PNG
   // having 1,2,4,16 bits/channel to 8 bits/channel.
-  //   -PNG_TRANSFORM_EXPAND expands 1,2 and 4 bit channels to 8 bit channels
+  //   -PNG_TRANSFORM_EXPAND expands 1,2 and 4 bit channels to 8 bit
+  //                         channels, and de-colormaps images.
   //   -PNG_TRANSFORM_STRIP_16 will strip 16 bit channels to get 8 bit/channel
   //   -PNG_TRANSFORM_GRAY_TO_RGB will transform grayscale to RGB
   png_reader.set_transform(
       PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_STRIP_16 |
       PNG_TRANSFORM_GRAY_TO_RGB);
+
+  // If alpha quality is zero, refuse to process transparent images.
+  png_reader.set_require_opaque(webp_config.alpha_quality == 0);
 
   // Configure png reader error handlers.
   if (setjmp(*png_reader.GetJmpBuf())) {
