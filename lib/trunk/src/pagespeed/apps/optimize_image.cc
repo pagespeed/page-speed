@@ -306,8 +306,10 @@ bool OptimizeImage(const std::string file_contents,
       return false;
     }
     if (output_type == WEBP) {
+      bool is_opaque = false;
       success = ImageConverter::ConvertPngToWebp(
-          *png_reader_interface, file_contents, webp_config, out_compressed);
+          *png_reader_interface, file_contents, webp_config, out_compressed,
+          &is_opaque);
     } else if (output_type == JPEG) {
       success = ImageConverter::ConvertPngToJpeg(
           *png_reader_interface, file_contents, jpeg_options, out_compressed);
