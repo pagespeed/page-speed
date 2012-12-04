@@ -680,11 +680,19 @@ void PngScanlineReader::Reset() {
 
 bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
                                        const std::string& in) {
+  bool is_opaque = false;
+  return InitializeRead(reader, in, &is_opaque);
+}
+
+bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
+                                       const std::string& in,
+                                       bool* is_opaque) {
   if (!read_.valid()) {
     LOG(DFATAL) << "Invalid ScopedPngStruct r: " << read_.valid();
     return false;
   }
 
+  *is_opaque = require_opaque_;
   if (!reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(), transform_,
                       require_opaque_)) {
     return false;
@@ -692,11 +700,13 @@ bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
 
   if (!require_opaque_) {
     int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
-    if (((color_type & PNG_COLOR_MASK_ALPHA) != 0) &&
+    *is_opaque = ((color_type & PNG_COLOR_MASK_ALPHA) == 0);
+    if (!(*is_opaque) &&
         PngReaderInterface::IsAlphaChannelOpaque(
             read_.png_ptr(), read_.info_ptr())) {
       // Clear the read pointers.
       read_.reset();
+      *is_opaque = true;
       return reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(),
                             transform_ | PNG_TRANSFORM_STRIP_ALPHA);
     }

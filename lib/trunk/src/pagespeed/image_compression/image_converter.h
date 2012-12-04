@@ -53,25 +53,31 @@ class ImageConverter {
   // it in WebP format using the options in 'config', and writes the
   // resulting WebP in 'out'. Note that if config.alpha_quality==0,
   // this function will fail when attempting to convert an image with
-  // transparent pixels.
+  // transparent pixels. Returns is_opaque set to true iff the 'in'
+  // image was opaque.
   static bool ConvertPngToWebp(
       const PngReaderInterface& png_struct_reader,
       const std::string& in,
       const WebpConfiguration& config,
-      std::string* out);
+      std::string* out,
+      bool* is_opaque);
 
   // Reads the PNG encoded in 'in' with 'png_struct_reader', encodes
   // it in WebP format using the options in 'config', and writes the
-  // resulting WebP in 'out'. On entry, '*webp_writer' must be NULL;
-  // on exit, it contains the WebpScanlineWriter instance that was
-  // used to write the WebP, and the caller is responsible for
-  // deleting it. Most clients will prefer to use the other form
+  // resulting WebP in 'out'. Note that if config.alpha_quality==0,
+  // this function will fail when attempting to convert an image with
+  // transparent pixels. Returns is_opaque set to true iff the 'in'
+  // image was opaque. On entry, '*webp_writer' must be NULL; on exit,
+  // it contains the WebpScanlineWriter instance that was used to
+  // write the WebP, and the caller is responsible for deleting
+  // it. Most clients will prefer to use the other form
   // ConvertPngToWebp.
   static bool ConvertPngToWebp(
       const PngReaderInterface& png_struct_reader,
       const std::string& in,
       const WebpConfiguration& config,
       std::string* out,
+      bool* is_opaque,
       WebpScanlineWriter** webp_writer);
 
   // Optimizes the given png image, also converts to jpeg and take the

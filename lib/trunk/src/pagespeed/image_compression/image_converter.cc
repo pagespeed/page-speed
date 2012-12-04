@@ -177,10 +177,11 @@ bool ImageConverter::ConvertPngToWebp(
     const PngReaderInterface& png_struct_reader,
     const std::string& in,
     const WebpConfiguration& webp_config,
-    std::string* const out) {
+    std::string* const out,
+    bool* is_opaque) {
     WebpScanlineWriter* webp_writer = NULL;
     bool success = ConvertPngToWebp(png_struct_reader, in, webp_config,
-                                    out, &webp_writer);
+                                    out, is_opaque, &webp_writer);
     delete webp_writer;
     return success;
 }
@@ -190,6 +191,7 @@ bool ImageConverter::ConvertPngToWebp(
     const std::string& in,
     const WebpConfiguration& webp_config,
     std::string* const out,
+    bool* is_opaque,
     WebpScanlineWriter** webp_writer) {
   DCHECK(out->empty());
   out->clear();
@@ -219,11 +221,10 @@ bool ImageConverter::ConvertPngToWebp(
   if (setjmp(*png_reader.GetJmpBuf())) {
     return false;
   }
-  if (!png_reader.InitializeRead(png_struct_reader, in)) {
+  if (!png_reader.InitializeRead(png_struct_reader, in, is_opaque)) {
     return false;
   }
 
-  // Try converting if the image is opaque.
   bool webp_success = false;
   size_t width = png_reader.GetImageWidth();
   size_t height = png_reader.GetImageHeight();
@@ -257,8 +258,9 @@ ImageConverter::ImageType ImageConverter::GetSmallestOfPngJpegWebp(
 
   WebpScanlineWriter* webp_writer = NULL;
   WebpConfiguration webp_config_lossless;
+  bool is_opaque = false;
   if (!ConvertPngToWebp(png_struct_reader, in, webp_config_lossless,
-                        &webp_lossless_out, &webp_writer)) {
+                        &webp_lossless_out, &is_opaque, &webp_writer)) {
     DLOG(INFO) << "Could not convert image to lossless WebP";
     webp_lossless_out.clear();
   }
@@ -276,7 +278,10 @@ ImageConverter::ImageType ImageConverter::GetSmallestOfPngJpegWebp(
     png_out.clear();
   }
 
+  // If jpeg options are passed in and we haven't determined for sure
+  // that the image has transparency, try jpeg conversion.
   if ((jpeg_options != NULL) &&
+      (webp_lossy_out.empty() || is_opaque) &&
       !ConvertPngToJpeg(png_struct_reader, in, *jpeg_options, &jpeg_out)) {
     DLOG(INFO) << "Could not convert image to JPEG";
     jpeg_out.clear();
