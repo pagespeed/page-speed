@@ -164,6 +164,8 @@ class PngScanlineReader : public ScanlineReaderInterface {
 
   // Initializes the read structures with the given input.
   bool InitializeRead(const PngReaderInterface& reader, const std::string& in);
+  bool InitializeRead(const PngReaderInterface& reader, const std::string& in,
+                      bool* is_opaque);
 
   virtual size_t GetBytesPerScanline();
   virtual bool HasMoreScanLines();
