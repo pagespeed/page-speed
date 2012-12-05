@@ -311,8 +311,9 @@ TEST(ImageConverterTest, ConvertPngToWebp_invalidPngs) {
   for (size_t i = 0; i < kInvalidFileCount; i++) {
     std::string in, out;
     ReadPngSuiteFileToString(kInvalidFiles[i], &in);
+    bool is_opaque = false;
     ASSERT_FALSE(ImageConverter::ConvertPngToWebp(
-        png_struct_reader, in, webp_config, &out));
+        png_struct_reader, in, webp_config, &out, &is_opaque));
   }
 }
 
@@ -373,11 +374,13 @@ TEST(ImageConverterTest, ConvertOpaqueGifToWebp) {
         kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
     EXPECT_EQ(kValidGifImages[i].original_size, in.size())
         << "input size mismatch for " << kValidGifImages[i].filename;
+    bool is_opaque = false;
     ASSERT_TRUE(ImageConverter::ConvertPngToWebp(
-        png_struct_reader, in, options, &out));
+        png_struct_reader, in, options, &out, &is_opaque));
     // Verify that the size matches.
     EXPECT_EQ(kValidGifImages[i].webp_size, out.size())
         << "output size mismatch for " << kValidGifImages[i].filename;
+    EXPECT_TRUE(is_opaque) << kValidGifImages[i].filename;
 
     // Uncomment the lines below for debugging
     // WriteStringToFile(std::string("gif-") + kValidGifImages[i].filename +
@@ -411,8 +414,9 @@ TEST(ImageConverterTest, ConvertTransparentGifToWebp) {
   ReadImageToString(kGifTestDir, "transparent", "gif", &in);
   EXPECT_EQ(static_cast<size_t>(55800), in.size())
       << "input size mismatch";
+  bool is_opaque = false;
   ASSERT_TRUE(ImageConverter::ConvertPngToWebp(
-      png_struct_reader, in, options, &out));
+      png_struct_reader, in, options, &out, &is_opaque));
 
 // NOTE: libwebp produces slightly different output on i386 linux
 // release builds than in other environments, so we disable the test
@@ -430,6 +434,8 @@ TEST(ImageConverterTest, ConvertTransparentGifToWebp) {
     EXPECT_EQ(static_cast<size_t>(21452), out.size())
         << "output size mismatch";
   }
+
+  EXPECT_FALSE(is_opaque);
 
   // Uncomment the lines below for debugging
   // WriteStringToFile(std::string("gif-transparent.gif"), in);
