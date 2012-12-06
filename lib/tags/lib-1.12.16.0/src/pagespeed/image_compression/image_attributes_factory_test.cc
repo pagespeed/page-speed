@@ -32,9 +32,9 @@ using pagespeed::Resource;
 namespace {
 
 // The *_TEST_DIR_PATH macros are set by the gyp target that builds this file.
-const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "pngsuite/gif/";
-const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
-const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
+const char kGifTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/gif/";
+const char kPngSuiteTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/";
+const char kJpegTestDir[] = IMAGE_TEST_DIR_PATH "jpeg/";
 
 void ReadImageToString(const std::string& dir,
                        const char* file_name,

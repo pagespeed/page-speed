@@ -44,8 +44,8 @@ using pagespeed_testing::image_compression::GetColorProfileMarker;
 using pagespeed_testing::image_compression::GetExifDataMarker;
 
 // The JPEG_TEST_DIR_PATH macro is set by the gyp target that builds this file.
-const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
-const char* kAppSegmentsJpegFile = "app_segments.jpg";
+const char kJpegTestDir[] = IMAGE_TEST_DIR_PATH "jpeg/";
+const char kAppSegmentsJpegFile[] = "app_segments.jpg";
 
 struct ImageCompressionInfo {
   const char* filename;
