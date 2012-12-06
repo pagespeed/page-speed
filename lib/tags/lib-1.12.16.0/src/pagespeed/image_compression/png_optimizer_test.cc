@@ -36,9 +36,10 @@ using pagespeed::image_compression::PngScanlineReader;
 using pagespeed::image_compression::ScopedPngStruct;
 
 // The *_TEST_DIR_PATH macros are set by the gyp target that builds this file.
-const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "gif/";
-const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
-const std::string kPngTestDir = IMAGE_TEST_DIR_PATH "png/";
+const char kGifTestDir[] = IMAGE_TEST_DIR_PATH "gif/";
+const char kPngSuiteTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/";
+const char kPngSuiteGifTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/gif/";
+const char kPngTestDir[] = IMAGE_TEST_DIR_PATH "png/";
 
 void ReadImageToString(const std::string& dir,
                        const char* file_name,
@@ -64,7 +65,7 @@ struct ReadPngDescriptor {
   unsigned char bg_red, bg_green, bg_blue;
   bool bgcolor_retval;
 
-  ReadPngDescriptor() : img_bytes(NULL), img_rgba_bytes(NULL) {};
+  ReadPngDescriptor() : img_bytes(NULL), img_rgba_bytes(NULL) {}
   ~ReadPngDescriptor() {
     free(img_bytes);
     if (channels != 4) {
@@ -649,9 +650,9 @@ TEST(PngOptimizerTest, ValidGifs) {
   for (size_t i = 0; i < kValidGifImageCount; i++) {
     std::string in, ref, gif_rgba;
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+        kPngSuiteGifTestDir, kValidGifImages[i].filename, "gif", &in);
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif.rgba",
+        kPngSuiteGifTestDir, kValidGifImages[i].filename, "gif.rgba",
         &gif_rgba);
     ReadPngSuiteFileToString(kValidGifImages[i].filename, &ref);
     AssertMatch(in, ref, &reader, kValidGifImages[i], gif_rgba);
