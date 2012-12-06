@@ -39,8 +39,9 @@ using pagespeed::image_compression::PngReaderInterface;
 using pagespeed::image_compression::WebpConfiguration;
 
 // The *_TEST_DIR_PATH macro is set by the gyp target that builds this file.
-const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "gif/";
-const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
+const char kGifTestDir[] = IMAGE_TEST_DIR_PATH "gif/";
+const char kPngSuiteTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/";
+const char kPngSuiteGifTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/gif/";
 
 struct ImageCompressionInfo {
   const char* filename;
@@ -322,7 +323,7 @@ TEST(ImageConverterTest, ConvertOpaqueGifToPng) {
   for (size_t i = 0; i < kValidGifImageCount; i++) {
     std::string in, out;
      ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+        kPngSuiteGifTestDir, kValidGifImages[i].filename, "gif", &in);
     EXPECT_EQ(kValidGifImages[i].original_size, in.size())
         << "input size mismatch for " << kValidGifImages[i].filename;
     ASSERT_TRUE(PngOptimizer::OptimizePngBestCompression(
@@ -348,7 +349,7 @@ TEST(ImageConverterTest, ConvertOpaqueGifToJpeg) {
   for (size_t i = 0; i < kValidGifImageCount; i++) {
     std::string in, out;
      ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+        kPngSuiteGifTestDir, kValidGifImages[i].filename, "gif", &in);
     EXPECT_EQ(kValidGifImages[i].original_size, in.size())
         << "input size mismatch for " << kValidGifImages[i].filename;
     ASSERT_TRUE(ImageConverter::ConvertPngToJpeg(
@@ -371,7 +372,7 @@ TEST(ImageConverterTest, ConvertOpaqueGifToWebp) {
   for (size_t i = 0; i < kValidGifImageCount; i++) {
     std::string in, out;
      ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidGifImages[i].filename, "gif", &in);
+        kPngSuiteGifTestDir, kValidGifImages[i].filename, "gif", &in);
     EXPECT_EQ(kValidGifImages[i].original_size, in.size())
         << "input size mismatch for " << kValidGifImages[i].filename;
     bool is_opaque = false;

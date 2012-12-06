@@ -61,9 +61,10 @@ const size_t kValidTransparentGifImageCount =
     arraysize(kValidTransparentGifImages);
 
 // The *_TEST_DIR_PATH macros are set by the gyp target that builds this file.
-const std::string kGifTestDir = IMAGE_TEST_DIR_PATH "gif/";
-const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
-const std::string kPngTestDir = IMAGE_TEST_DIR_PATH "png/";
+const char kGifTestDir[] = IMAGE_TEST_DIR_PATH "gif/";
+const char kPngSuiteTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/";
+const char kPngSuiteGifTestDir[] = IMAGE_TEST_DIR_PATH "pngsuite/gif/";
+const char kPngTestDir[] = IMAGE_TEST_DIR_PATH "png/";
 
 void ReadImageToString(const std::string& dir,
                        const char* file_name,
@@ -79,7 +80,7 @@ TEST(GifReaderTest, LoadValidGifsWithoutTransforms) {
   std::string in, out;
   for (size_t i = 0; i < kValidOpaqueGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidOpaqueGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidOpaqueGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_IDENTITY))
@@ -89,7 +90,7 @@ TEST(GifReaderTest, LoadValidGifsWithoutTransforms) {
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidTransparentGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidTransparentGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_IDENTITY))
@@ -109,7 +110,7 @@ TEST(GifReaderTest, ExpandColorMapForValidGifs) {
   std::string in, out;
   for (size_t i = 0; i < kValidOpaqueGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidOpaqueGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidOpaqueGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_EXPAND))
@@ -119,7 +120,7 @@ TEST(GifReaderTest, ExpandColorMapForValidGifs) {
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidTransparentGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidTransparentGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_EXPAND))
@@ -139,7 +140,7 @@ TEST(GifReaderTest, RequireOpaqueForValidGifs) {
   std::string in, out;
   for (size_t i = 0; i < kValidOpaqueGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidOpaqueGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidOpaqueGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_IDENTITY, true))
@@ -149,7 +150,7 @@ TEST(GifReaderTest, RequireOpaqueForValidGifs) {
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidTransparentGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidTransparentGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_FALSE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_IDENTITY, true))
@@ -169,7 +170,7 @@ TEST(GifReaderTest, ExpandColormapAndRequireOpaqueForValidGifs) {
   std::string in, out;
   for (size_t i = 0; i < kValidOpaqueGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidOpaqueGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidOpaqueGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_EXPAND, true))
@@ -179,7 +180,7 @@ TEST(GifReaderTest, ExpandColormapAndRequireOpaqueForValidGifs) {
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
     ReadImageToString(
-        kPngSuiteTestDir + "gif/", kValidTransparentGifImages[i], "gif", &in);
+        kPngSuiteGifTestDir, kValidTransparentGifImages[i], "gif", &in);
     ASSERT_NE(static_cast<size_t>(0), in.length());
     ASSERT_FALSE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_EXPAND, true))
