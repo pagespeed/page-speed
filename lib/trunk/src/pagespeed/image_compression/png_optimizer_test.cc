@@ -65,7 +65,7 @@ struct ReadPngDescriptor {
   unsigned char bg_red, bg_green, bg_blue;
   bool bgcolor_retval;
 
-  ReadPngDescriptor() : img_bytes(NULL), img_rgba_bytes(NULL) {};
+  ReadPngDescriptor() : img_bytes(NULL), img_rgba_bytes(NULL) {}
   ~ReadPngDescriptor() {
     free(img_bytes);
     if (channels != 4) {
