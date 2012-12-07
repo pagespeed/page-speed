@@ -369,6 +369,8 @@ int64 ComputeTotalResponseBytes(const InputInformation& input_info) {
       input_info.image_response_bytes() +
       input_info.javascript_response_bytes() +
       input_info.flash_response_bytes() +
+      input_info.font_response_bytes() +
+      input_info.media_response_bytes() +
       input_info.other_response_bytes();
 }
 
