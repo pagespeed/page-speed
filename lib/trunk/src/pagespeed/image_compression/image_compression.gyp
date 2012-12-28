@@ -43,6 +43,26 @@
       },
     },
     {
+      'target_name': 'pagespeed_scanline_utils',
+      'type': '<(library)',
+      'dependencies': [
+        '<(DEPTH)/base/base.gyp:base',
+        '<(pagespeed_root)/pagespeed/core/core.gyp:pagespeed_core',
+      ],
+      'sources': [
+        'scanline_utils.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
+    {
       'target_name': 'pagespeed_jpeg_reader',
       'type': '<(library)',
       'dependencies': [
@@ -128,6 +148,7 @@
       'target_name': 'pagespeed_png_optimizer',
       'type': '<(library)',
       'dependencies': [
+        'pagespeed_scanline_utils',
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',

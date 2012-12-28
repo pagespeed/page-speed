@@ -18,9 +18,12 @@
 
 #include "pagespeed/image_compression/png_optimizer.h"
 
+#include <stdlib.h>
 #include <string>
 
 #include "base/logging.h"
+#include "base/memory/scoped_ptr.h"
+#include "pagespeed/image_compression/scanline_utils.h"
 
 #ifdef __native_client__
 // For some reason that is not yet clear, invoking png_longjmp on
@@ -44,12 +47,59 @@ extern "C" {
 
 using pagespeed::image_compression::PngCompressParams;
 
-namespace {
+namespace pagespeed {
 
-struct PngInput {
-  const std::string* data_;
-  int offset_;
+namespace image_compression {
+
+// Define PngInput before its use in ReadPngFromStream().
+class PngInput {
+ public:
+  PngInput()
+    : data_(NULL), length_(0), offset_(0) {
+  }
+
+  void Reset() {
+    data_ = NULL;
+    length_ = 0;
+    offset_ = 0;
+  }
+
+  void Initialize(const void* image_buffer, size_t buffer_length) {
+    data_ = static_cast<const char*>(image_buffer);
+    length_ = buffer_length;
+    offset_ = 0;
+  }
+
+  void Initialize(const std::string& image_string) {
+    data_ = static_cast<const char*>(image_string.data());
+    length_ = image_string.length();
+    offset_ = 0;
+  }
+
+  const char* data() {
+    return data_;
+  }
+  png_size_t length() {
+    return length_;
+  }
+  png_size_t offset() {
+    return offset_;
+  }
+  void set_offset(png_size_t val) {
+    offset_ = val;
+  }
+
+ private:
+  const char* data_;
+  png_size_t length_;
+  png_size_t offset_;
 };
+
+}  // namespace image_compression
+
+}  // namespace pagespeed
+
+namespace {
 
 // we use these four combinations because different images seem to benefit from
 // different parameters and this combination of 4 seems to work best for a large
@@ -66,11 +116,15 @@ const size_t kParamCount = arraysize(kPngCompressionParams);
 void ReadPngFromStream(png_structp read_ptr,
                        png_bytep data,
                        png_size_t length) {
-  PngInput* input = reinterpret_cast<PngInput*>(png_get_io_ptr(read_ptr));
-  size_t copied = input->data_->copy(reinterpret_cast<char*>(data), length,
-                                     input->offset_);
-  input->offset_ += copied;
-  if (copied < length) {
+  pagespeed::image_compression::PngInput* input =
+    reinterpret_cast<pagespeed::image_compression::PngInput*>(
+      png_get_io_ptr(read_ptr));
+
+  if (input->offset() + length <= input->length()) {
+    memcpy(data, input->data() + input->offset(), length);
+    input->set_offset(input->offset() + length);
+
+  } else {
     DLOG(INFO) << "ReadPngFromStream: Unexpected EOF.";
 
     // We weren't able to satisfy the read, so abort.
@@ -329,8 +383,7 @@ bool PngReader::ReadPng(const std::string& body,
                         int transforms,
                         bool require_opaque) const {
     PngInput input;
-    input.data_ = &body;
-    input.offset_ = 0;
+    input.Initialize(body);
 
     png_set_read_fn(png_ptr, &input, &ReadPngFromStream);
     png_read_png(png_ptr, info_ptr, transforms, NULL);
@@ -777,6 +830,194 @@ bool PngScanlineReader::GetBackgroundColor(
   unsigned char* red, unsigned char* green, unsigned char* blue) {
   return PngReaderInterface::GetBackgroundColor(
       read_.png_ptr(), read_.info_ptr(), red, green, blue);
+}
+
+PngScanlineReaderRaw::PngScanlineReaderRaw()
+  : pixel_format_(UNSUPPORTED),
+    is_progressive_(false),
+    height_(0),
+    width_(0),
+    bytes_per_row_(0),
+    row_(0),
+    was_initialized_(false),
+    png_struct_(ScopedPngStruct::READ) {
+}
+
+PngScanlineReaderRaw::~PngScanlineReaderRaw() {
+}
+
+void PngScanlineReaderRaw::Reset() {
+  pixel_format_ = UNSUPPORTED;
+  is_progressive_ = false;
+  height_ = 0;
+  width_ = 0;
+  bytes_per_row_ = 0;
+  row_ = 0;
+  was_initialized_ = false;
+  png_struct_.reset();
+  png_input_->Reset();
+}
+
+// Initialize the reader with the given image stream. Note that image_buffer
+// must remain unchanged until the last call to ReadNextScanline().
+bool PngScanlineReaderRaw::Initialize(const void* image_buffer,
+                                      size_t buffer_length) {
+  // Allocate and initialize png_input_, if that has not been done.
+  if (png_input_ == NULL) {
+    png_input_.reset(new PngInput());
+    if (png_input_ == NULL) {
+      return false;
+    }
+  }
+
+  // Reset the reader if it has been initialized before.
+  if (was_initialized_) {
+    Reset();
+  }
+
+  if (!png_struct_.valid()) {
+    return false;
+  }
+
+  png_structp png_ptr = png_struct_.png_ptr();
+  png_infop info_ptr = png_struct_.info_ptr();
+
+  if (setjmp(png_jmpbuf(png_ptr)) != 0) {
+    // Jump to here if any error happens.
+    png_struct_.reset();
+    return false;
+  }
+
+  // Set up data feed for libpng.
+  png_input_->Initialize(image_buffer, buffer_length);
+  png_set_read_fn(png_ptr, png_input_.get(), ReadPngFromStream);
+
+  png_uint_32 width, height;
+  int32 bit_depth, color_type, interlace_type;
+  png_read_info(png_ptr, info_ptr);
+  const int ok = png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
+                              &color_type, &interlace_type, NULL, NULL);
+  if (ok == 0) {
+    png_struct_.reset();
+    return false;
+  }
+
+  // Set up transformations. We will transform the input to one of these
+  // formats: GRAY_8, RGB_888, and RGBA_8888.
+  //
+  // Reference for setting up transformations is in the png_read_png() function
+  // in pngread.c.
+  //
+  // Strip 16 bit per color down to 8 bits per color.
+  png_set_strip_16(png_ptr);
+  // Expand paletted colors into true RGB triplets.
+  // Expand grayscale images to full 8 bits from 1, 2, or 4 bits per pixel.
+  // Expand paletted or RGB images with transparency to full alpha channels
+  // so the data will be available as RGBA quartets.
+  if ((bit_depth < 8) ||
+      (color_type == PNG_COLOR_TYPE_PALETTE) ||
+      (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))) {
+    png_set_expand(png_ptr);
+  }
+  // Set up callbacks for interlacing (progressive) image.
+  png_set_interlace_handling(png_ptr);
+  // Expand Gray_Alpha to RGBA.
+  if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+    png_set_gray_to_rgb(png_ptr);
+  }
+
+  // Update the reader struct after setting the transformations.
+  png_read_update_info(png_ptr, info_ptr);
+  // Get the updated color type.
+  color_type = png_get_color_type(png_ptr, info_ptr);
+
+  // Determine the pixel format and the number of channels.
+  switch (color_type) {
+    case PNG_COLOR_TYPE_GRAY:
+      pixel_format_ = GRAY_8;
+      break;
+    case PNG_COLOR_TYPE_RGB:
+    case PNG_COLOR_TYPE_PALETTE:
+      pixel_format_ = RGB_888;
+      break;
+    case PNG_COLOR_TYPE_RGBA:
+      pixel_format_ = RGBA_8888;
+      break;
+    default:  // Unrecognized format.
+      LOG(INFO) << "Unrecognized color type.";
+      png_struct_.reset();
+      return false;
+  }
+
+  // Copy the information to the object properties.
+  width_ = width;
+  height_ = height;
+  bytes_per_row_ = width_ * GetNumChannelsFromPixelFormat(pixel_format_);
+  row_ = 0;
+  is_progressive_ = (interlace_type == PNG_INTERLACE_ADAM7);
+  was_initialized_ = true;
+  return true;
+}
+
+bool PngScanlineReaderRaw::ReadNextScanline(void** out_scanline_bytes) {
+  if (!was_initialized_ || !HasMoreScanLines()) {
+    return false;
+  }
+
+  png_structp png_ptr = png_struct_.png_ptr();
+  if (setjmp(png_jmpbuf(png_ptr)) != 0) {
+    // Jump to here if any error happens.
+    Reset();
+    return false;
+  }
+
+  // At the first time when ReadNextScanline() is called, we allocate buffer
+  // to store the decoded pixels. For non-progressive (non-interlacing)
+  // image, we need buffer to store a row of pixels. For progressive image,
+  // we need buffer to store the entire image. For progressive image, we
+  // also decode the entire image at the first call.
+  if (row_ == 0) {
+    if (!is_progressive_) {
+      image_buffer_.reset(new png_byte[bytes_per_row_]);
+    } else {
+      image_buffer_.reset(new png_byte[bytes_per_row_ * height_]);
+      // For a progressive PNG, we have to decode the entire image before
+      // rendering any row. So at the first time when ReadNextScanline()
+      // is called, we decode the entire image into image_buffer_.
+      if (image_buffer_ != NULL) {
+        // Initialize an array of pointers, which specify the address of rows.
+        scoped_array<png_bytep> row_pointers(new png_bytep[height_]);
+        if (row_pointers == NULL) {
+          Reset();
+          return false;
+        }
+        for (size_t i = 0; i < height_; ++i) {
+          row_pointers[i] = image_buffer_.get() + i * bytes_per_row_;
+        }
+
+        // Decode the entire image. The results are stored in image_buffer_.
+        png_read_image(png_ptr, row_pointers.get());
+      }
+    }
+    if (image_buffer_ == NULL) {
+      Reset();
+      return false;
+    }
+  }
+
+  if (!is_progressive_) {
+    // For a non-progressive PNG, we decode the image a row at a time.
+    png_read_row(png_ptr, image_buffer_.get(), NULL);
+    *out_scanline_bytes = static_cast<void*>(image_buffer_.get());
+  } else {
+    // For a progressive PNG, we simply point the output to the corresponding
+    // row, because the image has already been decoded.
+    *out_scanline_bytes =
+      static_cast<void*>(image_buffer_.get() + row_ * bytes_per_row_);
+  }
+
+  ++row_;
+  return true;
 }
 
 }  // namespace image_compression
