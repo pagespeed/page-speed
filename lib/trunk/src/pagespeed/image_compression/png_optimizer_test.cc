@@ -23,6 +23,7 @@
 #include "base/basictypes.h"
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/png_optimizer.h"
+#include "pagespeed/image_compression/scanline_utils.h"
 #include "pagespeed/testing/pagespeed_test.h"
 #include "third_party/libpng/png.h"
 
@@ -32,6 +33,7 @@ using pagespeed::image_compression::GifReader;
 using pagespeed::image_compression::PngOptimizer;
 using pagespeed::image_compression::PngReader;
 using pagespeed::image_compression::PngReaderInterface;
+using pagespeed::image_compression::PngScanlineReaderRaw;
 using pagespeed::image_compression::PngScanlineReader;
 using pagespeed::image_compression::ScopedPngStruct;
 
@@ -485,6 +487,24 @@ void AssertMatch(const std::string& in,
   AssertMatch(in, ref, reader, info, in_rgba);
 }
 
+bool InitializeEntireReader(const std::string& image_string,
+                            const PngReader& png_reader,
+                            PngScanlineReader* entire_image_reader) {
+  // Initialize entire_image_reader.
+  entire_image_reader->Reset();
+  entire_image_reader->set_transform(
+    PNG_TRANSFORM_EXPAND |
+    PNG_TRANSFORM_STRIP_16);
+
+  if (entire_image_reader->InitializeRead(png_reader, image_string) == false) {
+    return false;
+  }
+
+  // Skip the images which are not supported by PngScanlineReader.
+  return (entire_image_reader->GetPixelFormat()
+          != pagespeed::image_compression::UNSUPPORTED);
+}
+
 const size_t kValidImageCount = arraysize(kValidImages);
 const size_t kValidGifImageCount = arraysize(kValidGifImages);
 const size_t kInvalidFileCount = arraysize(kInvalidFiles);
@@ -861,5 +881,185 @@ TEST(PngReaderTest, ReadTransparentPng) {
 
 }
 
+TEST(PngScanlineReaderRawTest, ValidPngsRow) {
+  // Create a reader which tries to read a row of image at a time.
+  PngScanlineReaderRaw per_row_reader;
+
+  // Create a reader which reads the entire image.
+  PngReader png_reader;
+  PngScanlineReader entire_image_reader;
+  if (setjmp(*entire_image_reader.GetJmpBuf()) != 0) {
+    FAIL();
+  }
+
+  for (size_t i = 0; i < kValidImageCount; i++) {
+    std::string image_string;
+    ReadPngSuiteFileToString(kValidImages[i].filename, &image_string);
+
+    // Initialize entire_image_reader (PngScanlineReader).
+    if (!InitializeEntireReader(image_string, png_reader,
+                                &entire_image_reader)) {
+      // This image is not supported by PngScanlineReader. Skip it.
+      continue;
+    }
+
+    // Initialize per_row_reader.
+    ASSERT_TRUE(per_row_reader.Initialize(image_string.data(),
+                                          image_string.length()));
+
+    // Make sure the images sizes and the pixel formats are the same.
+    ASSERT_EQ(entire_image_reader.GetImageWidth(),
+              per_row_reader.GetImageWidth());
+    ASSERT_EQ(entire_image_reader.GetImageHeight(),
+              per_row_reader.GetImageHeight());
+    ASSERT_EQ(entire_image_reader.GetPixelFormat(),
+              per_row_reader.GetPixelFormat());
+
+    const int width = per_row_reader.GetImageWidth();
+    const int num_channels =
+      GetNumChannelsFromPixelFormat(per_row_reader.GetPixelFormat());
+    uint8* buffer_per_row = NULL;
+    uint8* buffer_entire = NULL;
+
+    // Decode and check the image a row at a time.
+    while (per_row_reader.HasMoreScanLines() &&
+           entire_image_reader.HasMoreScanLines()) {
+      ASSERT_TRUE(entire_image_reader.ReadNextScanline(
+        reinterpret_cast<void**>(&buffer_entire)));
+
+      ASSERT_TRUE(per_row_reader.ReadNextScanline(
+        reinterpret_cast<void**>(&buffer_per_row)));
+
+      for (int i = 0; i < width*num_channels; ++i) {
+        ASSERT_EQ(buffer_entire[i], buffer_per_row[i]);
+      }
+    }
+
+    // Make sure both readers have exhausted all image rows.
+    ASSERT_FALSE(per_row_reader.HasMoreScanLines());
+    ASSERT_FALSE(entire_image_reader.HasMoreScanLines());
+  }
+}
+
+TEST(PngScanlineReaderRawTest, ValidPngsEntire) {
+  PngReader png_reader;
+  PngScanlineReader entire_image_reader;
+  if (setjmp(*entire_image_reader.GetJmpBuf()) != 0) {
+    FAIL();
+  }
+
+  for (size_t i = 0; i < kValidImageCount; ++i) {
+    std::string image_string;
+    ReadPngSuiteFileToString(kValidImages[i].filename, &image_string);
+
+    // Initialize entire_image_reader (PngScanlineReader).
+    if (!InitializeEntireReader(image_string, png_reader,
+                                &entire_image_reader)) {
+      // This image is not supported by PngScanlineReader. Skip it.
+      continue;
+    }
+
+    size_t width, bytes_per_row;
+    void* buffer_for_raw_reader;
+    pagespeed::image_compression::PixelFormat pixel_format;
+    ASSERT_TRUE(ReadImage(pagespeed::image_compression::IMAGE_PNG,
+                          image_string.data(), image_string.length(),
+                          &buffer_for_raw_reader, &pixel_format, &width, NULL,
+                          &bytes_per_row));
+    uint8* buffer_per_row = static_cast<uint8*>(buffer_for_raw_reader);
+    int num_channels = GetNumChannelsFromPixelFormat(pixel_format);
+
+    // Check the image row by row.
+    while (entire_image_reader.HasMoreScanLines()) {
+      uint8* buffer_entire = NULL;
+      ASSERT_TRUE(entire_image_reader.ReadNextScanline(
+        reinterpret_cast<void**>(&buffer_entire)));
+
+      for (size_t i = 0; i < width*num_channels; ++i) {
+        ASSERT_EQ(buffer_entire[i], buffer_per_row[i]);
+      }
+      buffer_per_row += bytes_per_row;
+    }
+
+    free(buffer_for_raw_reader);
+  }
+}
+
+TEST(PngScanlineReaderRawTest, PartialRead) {
+  uint8* buffer = NULL;
+  std::string image_string;
+  ReadPngSuiteFileToString(kValidImages[0].filename, &image_string);
+
+  // Initialize a reader but do not read any scanline.
+  PngScanlineReaderRaw reader1;
+  ASSERT_TRUE(reader1.Initialize(image_string.data(), image_string.length()));
+
+  // Initialize a reader and read one scanline.
+  PngScanlineReaderRaw reader2;
+  ASSERT_TRUE(reader2.Initialize(image_string.data(), image_string.length()));
+  ASSERT_TRUE(reader2.ReadNextScanline(reinterpret_cast<void**>(&buffer)));
+
+  // Initialize a reader, and try to read a scanline after the image has been
+  // depleted.
+  PngScanlineReaderRaw reader3;
+  ASSERT_TRUE(reader3.Initialize(image_string.data(), image_string.length()));
+  while (reader3.HasMoreScanLines()) {
+    ASSERT_TRUE(reader3.ReadNextScanline(reinterpret_cast<void**>(&buffer)));
+  }
+  ASSERT_FALSE(reader3.ReadNextScanline(reinterpret_cast<void**>(&buffer)));
+}
+
+TEST(PngScanlineReaderRawTest, ReadAfterReset) {
+  uint8* buffer = NULL;
+  std::string image_string;
+  ReadPngSuiteFileToString(kValidImages[0].filename, &image_string);
+
+  // Initialize a reader and read one scanline.
+  PngScanlineReaderRaw reader;
+  ASSERT_TRUE(reader.Initialize(image_string.data(), image_string.length()));
+  ASSERT_TRUE(reader.ReadNextScanline(reinterpret_cast<void**>(&buffer)));
+  // Now re-initialize the reader.
+  ASSERT_TRUE(reader.Initialize(image_string.data(), image_string.length()));
+
+  // Decode the entire image using ReadImage(). This copy of image will be used
+  // as the baseline.
+  size_t width, bytes_per_row;
+  void* buffer_for_raw_reader;
+  pagespeed::image_compression::PixelFormat pixel_format;
+  ASSERT_TRUE(ReadImage(pagespeed::image_compression::IMAGE_PNG,
+                        image_string.data(), image_string.length(),
+                        &buffer_for_raw_reader, &pixel_format, &width, NULL,
+                        &bytes_per_row));
+  uint8* buffer_entire = static_cast<uint8*>(buffer_for_raw_reader);
+  int num_channels = GetNumChannelsFromPixelFormat(pixel_format);
+
+  // Compare the image row by row.
+  while (reader.HasMoreScanLines()) {
+    uint8* buffer_row = NULL;
+    ASSERT_TRUE(reader.ReadNextScanline(
+      reinterpret_cast<void**>(&buffer_row)));
+
+    for (size_t i = 0; i < width*num_channels; ++i) {
+      ASSERT_EQ(buffer_entire[i], buffer_row[i]);
+    }
+    buffer_entire += bytes_per_row;
+  }
+
+  free(buffer_for_raw_reader);
+}
+
+TEST(PngScanlineReaderRawTest, InvalidPngs) {
+  PngScanlineReaderRaw reader;
+  for (size_t i = 0; i < kInvalidFileCount; i++) {
+    std::string image_string;
+    ReadPngSuiteFileToString(kInvalidFiles[i], &image_string);
+
+    ASSERT_FALSE(reader.Initialize(image_string.data(), image_string.length()));
+
+    ASSERT_FALSE(ReadImage(pagespeed::image_compression::IMAGE_PNG,
+                           image_string.data(), image_string.length(),
+                           NULL, NULL, NULL, NULL, NULL));
+  }
+}
 
 }  // namespace
