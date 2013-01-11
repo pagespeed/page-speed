@@ -15,7 +15,7 @@
 #include "pagespeed/testing/instrumentation_data_builder.h"
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 
 namespace pagespeed_testing {
 

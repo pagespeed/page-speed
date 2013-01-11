@@ -16,7 +16,7 @@
 #include <map>
 
 #include "base/memory/scoped_ptr.h"
-#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
+#include "base/stl_util.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"

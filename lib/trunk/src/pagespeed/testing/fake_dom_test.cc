@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "base/memory/scoped_ptr.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/testing/fake_dom.h"
 #include "pagespeed/testing/pagespeed_test.h"

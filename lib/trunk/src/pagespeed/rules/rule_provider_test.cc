@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "base/stl_util-inl.h"  // for STLElementDeleter
+#include "base/stl_util.h"  // for STLElementDeleter
 #include "pagespeed/core/rule.h"
 #include "pagespeed/rules/rule_provider.h"
 #include "testing/gtest/include/gtest/gtest.h"

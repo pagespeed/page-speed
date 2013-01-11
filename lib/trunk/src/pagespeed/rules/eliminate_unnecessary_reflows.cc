@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 #include "pagespeed/core/formatter.h"
 #include "pagespeed/core/instrumentation_data.h"
 #include "pagespeed/core/pagespeed_input.h"
