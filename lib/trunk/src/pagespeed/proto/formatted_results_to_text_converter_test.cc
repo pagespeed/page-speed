@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "pagespeed/proto/formatted_results_to_text_converter.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"

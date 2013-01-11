@@ -20,7 +20,7 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/core/resource.h"
 #include "pagespeed/image_compression/image_attributes_factory.h"
 #include "pagespeed/testing/pagespeed_test.h"

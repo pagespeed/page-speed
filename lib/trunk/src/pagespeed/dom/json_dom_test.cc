@@ -17,7 +17,7 @@
 
 #include "base/basictypes.h"
 #include "base/json/json_reader.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/string_util.h"

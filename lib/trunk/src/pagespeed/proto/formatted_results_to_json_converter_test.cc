@@ -15,7 +15,7 @@
 #include "pagespeed/proto/formatted_results_to_json_converter.h"
 
 #include "base/json/json_writer.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 #include "testing/gtest/include/gtest/gtest.h"

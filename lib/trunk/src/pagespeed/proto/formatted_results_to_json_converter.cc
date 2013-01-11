@@ -17,7 +17,7 @@
 #include "base/json/json_writer.h"
 #include "base/logging.h"
 #include "base/values.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 namespace {
