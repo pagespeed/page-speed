@@ -18,7 +18,7 @@
 
 #include "base/at_exit.h"
 #include "base/json/json_writer.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "pagespeed_chromium/pagespeed_chromium.h"
 #include "pagespeed/core/pagespeed_init.h"
