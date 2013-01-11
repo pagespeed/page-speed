@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/proto/timeline.pb.h"
 #include "pagespeed/testing/instrumentation_data_builder.h"
 #include "testing/gtest/include/gtest/gtest.h"

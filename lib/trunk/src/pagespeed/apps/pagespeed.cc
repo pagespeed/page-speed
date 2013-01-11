@@ -23,7 +23,7 @@
 #include "base/command_line.h"
 #include "base/json/json_reader.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "base/values.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"

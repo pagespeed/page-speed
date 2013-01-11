@@ -18,7 +18,7 @@
 #include <vector>
 #include <string>
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/l10n/register_locale.h"
 #include "pagespeed/testing/pagespeed_test.h"
