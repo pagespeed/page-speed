@@ -28,7 +28,7 @@
 #include "base/json/json_writer.h"  // for base::JSONWriter::Write
 #include "base/logging.h"
 #include "base/md5.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/string_number_conversions.h"  // for base::IntToString
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
