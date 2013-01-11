@@ -18,7 +18,7 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/stl_util-inl.h"
+#include "base/stl_util.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"

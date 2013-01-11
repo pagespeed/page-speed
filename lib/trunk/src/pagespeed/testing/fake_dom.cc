@@ -14,7 +14,7 @@
 
 #include "pagespeed/testing/fake_dom.h"
 
-#include "base/stl_util-inl.h"  // for STLDeleteContainerPointers
+#include "base/stl_util.h"  // for STLDeleteContainerPointers
 #include "pagespeed/core/string_util.h"
 
 namespace {
