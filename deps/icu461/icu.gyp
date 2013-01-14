@@ -273,6 +273,15 @@
               'cflags_cc': [
                 '-frtti',
               ],
+              'conditions': [
+                ['clang==1', {
+                  'cflags': [
+                    '-Wno-dynamic-class-memaccess',
+                    '-Wno-switch',
+                    '-Wno-tautological-compare',
+                  ],
+                }],
+              ],
             }],
             ['OS == "mac"', {
               'xcode_settings': {
