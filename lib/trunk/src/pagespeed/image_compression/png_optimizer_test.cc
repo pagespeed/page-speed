@@ -836,7 +836,8 @@ TEST(PngOptimizerTest, ScopedPngStruct) {
   ASSERT_EQ(static_cast<png_structp>(NULL), invalid.png_ptr());
   ASSERT_EQ(static_cast<png_infop>(NULL), invalid.info_ptr());
 #else
-  ASSERT_DEATH(ScopedPngStruct(static_cast<ScopedPngStruct::Type>(-1)),
+  ASSERT_DEATH(ScopedPngStruct t =
+               ScopedPngStruct(static_cast<ScopedPngStruct::Type>(-1)),
                "Invalid Type");
 #endif
 }

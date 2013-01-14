@@ -54,6 +54,13 @@
           '<(giflib_gen_arch_root)/include',
         ],
       },
+      'conditions': [
+        [ 'os_posix == 1 and OS != "mac"', {
+          'cflags': [
+            '-Wno-pointer-sign',
+          ],
+        }],
+      ],
     },
   ],
 }

@@ -103,6 +103,12 @@
             ],
           },
         }],
+        [ 'os_posix == 1 and OS != "mac"', {
+          'cflags': [
+            '-Wno-literal-conversion',
+            '-Wno-tautological-compare',
+          ],
+        }],
       ],
     },
   ],
