@@ -156,10 +156,13 @@ void JavaScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
       }
       const net_instaweb::HtmlElement::Attribute* async =
           element->FindAttribute(net_instaweb::HtmlName::kAsync);
+      const net_instaweb::HtmlElement::Attribute* defer =
+          element->FindAttribute(net_instaweb::HtmlName::kDefer);
       // The presence of a boolean attribute on an element represents the true
       // value, and the absence of the attribute represents the false value.
       // (ref: HTML5 spec).
-      if (async == NULL) {
+
+      if (async == NULL && defer == NULL) {
         AddJavascriptBlock(resolved_src, resource->GetResponseBody(), false);
       }
     }

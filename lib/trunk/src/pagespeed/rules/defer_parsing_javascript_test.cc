@@ -280,6 +280,18 @@ TEST_F(DeferParsingJavaScriptTest, LargeAsyncMinifiedJavascriptFile) {
   CheckNoViolations();
 }
 
+TEST_F(DeferParsingJavaScriptTest, LargeDeferMinifiedJavascriptFile) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(pagespeed::string_util::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  AddTestResourceWithAttributes(kScriptFullUrl, script.c_str(), "defer");
+
+  CheckNoViolations();
+}
+
 TEST_F(DeferParsingJavaScriptTest, LargeQuotedMinifiedJavascriptFile) {
   std::string script = "var code=\"";
   for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
