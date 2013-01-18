@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 3)
+// gcc's cpuid.h was added in gcc 4.3.0.
+#define GNUC_CPUID_SUPPORTED
+#endif
+
+#if defined(GNUC_CPUID_SUPPORTED)
 #include <cpuid.h>
 #elif defined(_MSC_VER)
 #include <intrin.h>
@@ -45,7 +50,7 @@ const unsigned kCpuIdProcessorInfoAndFeatureBits = 1;
 
 void cpuid(
     unsigned info, unsigned *eax, unsigned *ebx, unsigned *ecx, unsigned *edx) {
-#if defined(__GNUC__)
+#if defined(GNUC_CPUID_SUPPORTED)
   // Use gcc's built-in __get_cpuid.
   if (__get_cpuid(info, eax, ebx, ecx, edx) != 1) {
     LOG(ERROR) << "Invalid __get_cpuid level: " << info;
@@ -59,7 +64,15 @@ void cpuid(
   *ecx = cpu_info[2];
   *edx = cpu_info[3];
 #else
-#error "No cpuid implementation available for the current compiler."
+  // Fall back to inline asm. From http://en.wikipedia.org/wiki/CPUID:
+  *eax = info;
+  __asm volatile
+    ("mov %%ebx, %%edi;" /* 32bit PIC: don't clobber ebx */
+     "cpuid;"
+     "mov %%ebx, %%esi;"
+     "mov %%edi, %%ebx;"
+     :"+a" (*eax), "=S" (*ebx), "=c" (*ecx), "=d" (*edx)
+     : :"edi");
 #endif
 }
 
