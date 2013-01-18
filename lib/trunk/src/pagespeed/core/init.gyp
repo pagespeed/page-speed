@@ -29,6 +29,7 @@
         '<(pagespeed_root)/pagespeed/l10n/l10n.gyp:pagespeed_l10n',
       ],
       'sources': [
+        'cpu_compatibility.cc',
         'pagespeed_init.cc',
       ],
     },

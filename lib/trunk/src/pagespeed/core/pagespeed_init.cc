@@ -16,16 +16,22 @@
 
 #include "googleurl/src/url_util.h"
 #include "net/instaweb/htmlparse/public/html_keywords.h"
+#include "pagespeed/core/cpu_compatibility.h"
 #include "pagespeed/l10n/register_locale.h"
 #include "third_party/domain_registry_provider/src/domain_registry/domain_registry.h"
 
 namespace pagespeed {
 
-void Init() {
+bool Init() {
+  if (!pagespeed::IsCpuCompatible()) {
+    return false;
+  }
+
   url_util::Initialize();
   net_instaweb::HtmlKeywords::Init();
   l10n::RegisterLocale::Freeze();
   InitializeDomainRegistry();
+  return true;
 }
 
 void ShutDown() {

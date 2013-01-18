@@ -45,6 +45,7 @@
       'target_name': 'minify_js_bin',
       'type': 'executable',
       'dependencies': [
+        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(pagespeed_root)/pagespeed/js/js.gyp:pagespeed_jsminify',
       ],
       'sources': [
@@ -79,6 +80,7 @@
       'target_name': 'optimize_image_bin',
       'type': 'executable',
       'dependencies': [
+        '<(pagespeed_root)/pagespeed/core/init.gyp:pagespeed_init',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_converter',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_jpeg_optimizer',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_png_optimizer',

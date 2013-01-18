@@ -20,6 +20,7 @@
 #include <fstream>
 #include <string>
 
+#include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/js/js_minify.h"
 
 bool Minify(const char* filename, const char* outfilename) {
@@ -58,6 +59,12 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
+  if (!pagespeed::Init()) {
+    fprintf(stderr, "Failed to initialize PageSpeed. Aborting.\n");
+    return EXIT_FAILURE;
+  }
+
   bool result = Minify(argv[1], argv[2]);
+  pagespeed::ShutDown();
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
