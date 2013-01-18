@@ -22,6 +22,7 @@
 #include <iterator>
 #include <string>
 
+#include "pagespeed/core/pagespeed_init.h"
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/image_converter.h"
 #include "pagespeed/image_compression/jpeg_optimizer.h"
@@ -341,12 +342,7 @@ void PrintUsage() {
   ::google::ShowUsageWithFlagsRestrict(::google::GetArgv0(), __FILE__);
 }
 
-}  // namespace
-
-int main(int argc, char** argv) {
-  ::google::SetUsageMessage("Optimize a PNG, JPEG, or GIF image.");
-  ::google::ParseCommandLineNonHelpFlags(&argc, &argv, true);
-
+bool DoOptimizeImage() {
   std::string file_contents;
   if (FLAGS_input_file == "-") {
     // Special case: if user specifies input file as '-', read the
@@ -356,15 +352,13 @@ int main(int argc, char** argv) {
   } else if (!ReadFileToString(FLAGS_input_file, &file_contents)) {
     fprintf(stderr, "Failed to read input file %s.\n",
             FLAGS_input_file.c_str());
-    PrintUsage();
-    return EXIT_FAILURE;
+    return false;
   }
 
   std::string compressed;
   bool result = OptimizeImage(file_contents, &compressed);
   if (!result) {
-    PrintUsage();
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (compressed.size() >= file_contents.size()) {
@@ -382,10 +376,28 @@ int main(int argc, char** argv) {
   if (!out) {
     fprintf(stderr, "Error opening %s for write.\n",
             FLAGS_output_file.c_str());
-    PrintUsage();
-    return EXIT_FAILURE;
+    return false;
   }
   out.write(compressed.c_str(), compressed.size());
   out.close();
-  return EXIT_SUCCESS;
+  return true;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+  if (!pagespeed::Init()) {
+    LOG(ERROR) << "Failed to initialize PageSpeed. Aborting.";
+    return EXIT_FAILURE;
+  }
+
+  ::google::SetUsageMessage("Optimize a PNG, JPEG, or GIF image.");
+  ::google::ParseCommandLineNonHelpFlags(&argc, &argv, true);
+
+  bool result = DoOptimizeImage();
+  if (!result) {
+    PrintUsage();
+  }
+  pagespeed::ShutDown();
+  return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

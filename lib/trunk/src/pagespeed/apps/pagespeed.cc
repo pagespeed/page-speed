@@ -437,11 +437,14 @@ ScopedShutDown g_shutdown;
 }  // namespace
 
 int main(int argc, char** argv) {
+  if (!pagespeed::Init()) {
+    LOG(ERROR) << "Failed to initialize PageSpeed. Aborting.";
+    return EXIT_FAILURE;
+  }
+
   // Some of our code uses Singleton<>s, which require an
   // AtExitManager to schedule their destruction.
   base::AtExitManager at_exit_manager;
-
-  pagespeed::Init();
 
   ::google::SetUsageMessage(
       "Reads a file (such as a HAR) and emits Page Speed results "

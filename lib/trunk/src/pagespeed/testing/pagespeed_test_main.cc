@@ -42,9 +42,13 @@ ScopedShutDown g_shutdown;
 }  // namespace
 
 int main(int argc, char **argv) {
-  std::cout << "Running main() from pagespeed_test_main.cc\n";
+  std::cout << "Running main() from pagespeed_test_main.cc" << std::endl;
 
-  pagespeed::Init();
+  if (!pagespeed::Init()) {
+    std::cerr << "Failed to initialize PageSpeed. Aborting." << std::endl;
+    return EXIT_FAILURE;
+  }
+
   testing::InitGoogleTest(&argc, argv);
   ::google::SetUsageMessage("Runner for Page Speed tests.");
   ::google::ParseCommandLineFlags(&argc, &argv, true);

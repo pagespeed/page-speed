@@ -59,7 +59,11 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  pagespeed::Init();
+  if (!pagespeed::Init()) {
+    fprintf(stderr, "Failed to initialize PageSpeed. Aborting.\n");
+    return EXIT_FAILURE;
+  }
+
   bool result = MinifyCss(argv[1], argv[2]);
   pagespeed::ShutDown();
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
