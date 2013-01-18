@@ -52,7 +52,7 @@ void cpuid(
   }
 #elif defined(_MSC_VER)
   // Use msvc's build-in __cpuid.
-  int cpu_info[4] = {-1};
+  int cpu_info[4] = {0};
   __cpuid(cpu_info, info);
   *eax = cpu_info[0];
   *ebx = cpu_info[1];
@@ -64,7 +64,7 @@ void cpuid(
 }
 
 bool ProcessorIsSse2Capable() {
-  unsigned eax, ebx, ecx, edx;
+  unsigned eax = 0, ebx = 0, ecx = 0, edx = 0;
   cpuid(kCpuIdProcessorInfoAndFeatureBits, &eax, &ebx, &ecx, &edx);
   // 26th bit of edx indicates whether the processor supports sse2
   // instructions. See http://en.wikipedia.org/wiki/CPUID for more
