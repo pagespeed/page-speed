@@ -51,23 +51,6 @@
           '<(DEPTH)',
         ],
       },
-      # This is needed due to an include of an icu header that
-      # contains inline code with an unused variable.
-      'conditions': [
-        [ 'os_posix == 1 and OS != "mac"', {
-          'conditions': [
-            ['clang==1', {
-              'cflags': [
-                '-Wno-unused-variable',
-              ]
-            }, {
-              'cflags': [
-                '-Wno-unused-but-set-variable',
-              ]
-            }]
-          ],
-        }],
-      ],
       # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
       'msvs_disabled_warnings': [4267, ],
     },
@@ -93,23 +76,6 @@
         '<(DEPTH)/googleurl/src/url_test_utils.h',
         '<(DEPTH)/googleurl/src/url_util_unittest.cc',
         '<(DEPTH)/googleurl/src/gurl_test_main.cc',
-      ],
-      # This is needed due to an include of an icu header that
-      # contains inline code with an unused variable.
-      'conditions': [
-        [ 'os_posix == 1 and OS != "mac"', {
-          'conditions': [
-            ['clang==1', {
-              'cflags': [
-                '-Wno-unused-variable',
-              ]
-            }, {
-              'cflags': [
-                '-Wno-unused-but-set-variable',
-              ]
-            }]
-          ],
-        }],
       ],
       # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
       'msvs_disabled_warnings': [4267, ],
