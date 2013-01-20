@@ -260,6 +260,21 @@
                   'U_STATIC_IMPLEMENTATION',
                 ],
               }],
+              # This is needed due to an icu header that contains
+              # inline code with an unused variable.
+              [ 'os_posix == 1 and OS != "mac"', {
+                'conditions': [
+                  ['clang==1', {
+                    'cflags': [
+                      '-Wno-unused-variable',
+                    ]
+                  }, {
+                    'cflags': [
+                      '-Wno-unused-but-set-variable',
+                    ]
+                  }]
+                ],
+              }],
             ],
           },
           'conditions': [
