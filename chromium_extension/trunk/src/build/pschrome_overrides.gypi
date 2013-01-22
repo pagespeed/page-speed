@@ -11,17 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# PageSpeed Chromium extension gyp configuration.
+
 {
-  'includes': [
-    # Import Chromium's common.gypi to inherit their build
-    # configuration.
-    '../third_party/chromium/src/build/common.gypi',
-    # Import pagespeed's override gypi to inherit their overrides.
-    '../third_party/libpagespeed/src/build/pagespeed_overrides.gypi',
-    # Import our override gypi to modify the Chromium configuration as
-    # needed.
-    'pschrome_overrides.gypi',
+  'variables': {
+    # Make sure we link statically so everything gets linked into a
+    # single shared object.
+    'library': 'static_library',
+  },
+  'conditions': [
+    ['build_nacl==1', {
+      'target_defaults': {
+        'defines': [
+          # NaCL newlib's libpthread.a provides the
+          # GetRunningOnValgrind symbol already, so we should not
+          # provide it.
+          'DYNAMIC_ANNOTATIONS_PROVIDE_RUNNING_ON_VALGRIND=0',
+        ],
+        'include_dirs': [
+          '<(DEPTH)/build/nacl_header_stubs',
+        ],
+      },
+    }],
   ],
 }
