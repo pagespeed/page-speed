@@ -11,65 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# PageSpeed Firefox extension gyp configuration.
 {
-  'variables': {
-    'conditions': [
-      [ 'target_arch=="ia32"', {
-        # We build for 10.4 for compatibility with Firefox 3.x.
-        'mac_deployment_target': '10.4',
-      }, {
-        # However mac x64 requires 10.5 as a minimum.
-        'mac_deployment_target': '10.5',
-      }],
-      ['OS=="win"', {
-        'xpcom_os': 'WINNT',
-        'xpcom_compiler_abi': 'msvc',
-      }],
-      ['OS=="linux"', {
-        'xpcom_os': 'Linux',
-        'xpcom_compiler_abi': 'gcc3',
-      }],
-      ['OS=="mac"', {
-        'xpcom_os': 'Darwin',
-        'xpcom_compiler_abi': 'gcc3',
-      }],
-      ['target_arch=="ia32"', {
-        'xpcom_cpu_arch': 'x86',
-      }],
-      ['target_arch=="x64"', {
-        'xpcom_cpu_arch': 'x86_64',
-      }],
-    ],
-
-    'variables': {
-      # Version of xulrunner SDK we build against.
-      'xulrunner_sdk_version%': 2,
-    },
-
-    'xulrunner_sdk_version%': '<(xulrunner_sdk_version)',
-
-    # Make sure we link statically so everything gets linked into a
-    # single shared object.
-    'library': 'static_library',
-
-    # We're building a shared library, so everything needs to be built
-    # with Position-Independent Code.
-    'linux_fpic': 1,
-  },
   'includes': [
-    '../third_party/libpagespeed/src/build/common.gypi',
+    # Import Chromium's common.gypi to inherit their build
+    # configuration.
+    '../third_party/chromium/src/build/common.gypi',
+    # Import pagespeed's override gypi to inherit their overrides.
+    '../third_party/libpagespeed/src/build/pagespeed_overrides.gypi',
+    # Import our override gypi to modify the Chromium configuration as
+    # needed.
+    'psff_overrides.gypi',
   ],
-  'conditions': [
-    [ 'OS=="mac" and target_arch=="x64"', {
-      'target_defaults': {
-        'xcode_settings': {
-          'ARCHS': 'x86_64',
-          'OTHER_CFLAGS': [
-            '-fPIC',
-          ]
-        }
-      }
-    }]
-  ]
 }
