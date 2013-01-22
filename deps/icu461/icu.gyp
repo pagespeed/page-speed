@@ -264,15 +264,11 @@
               # inline code with an unused variable.
               [ 'os_posix == 1 and OS != "mac"', {
                 'conditions': [
-                  ['clang==1', {
-                    'cflags': [
-                      '-Wno-unused-variable',
-                    ]
+                  ['<(gcc_version) < 46', {
+                    'cflags': ['-Wno-unused-variable']
                   }, {
-                    'cflags': [
-                      '-Wno-unused-but-set-variable',
-                    ]
-                  }]
+                    'cflags': ['-Wno-unused-but-set-variable']
+                  }], 
                 ],
               }],
             ],
