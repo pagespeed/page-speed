@@ -55,7 +55,7 @@ bool GetJpegNumComponentsAndSamplingFactors(
   // Need to install env so that it will be longjmp()ed to on error.
   jpeg_decompress->client_data = static_cast<void *>(&env);
 
-  reader.PrepareForRead(jpeg);
+  reader.PrepareForRead(jpeg.data(), jpeg.size());
   jpeg_read_header(jpeg_decompress, TRUE);
   *out_num_components = jpeg_decompress->num_components;
   *out_h_samp_factor = jpeg_decompress->comp_info[0].h_samp_factor;
@@ -75,7 +75,7 @@ bool IsJpegSegmentPresent(const std::string& data, int segment) {
   // Need to install env so that it will be longjmp()ed to on error.
   jpeg_decompress->client_data = static_cast<void *>(&env);
 
-  reader.PrepareForRead(data);
+  reader.PrepareForRead(data.data(), data.size());
   jpeg_save_markers(jpeg_decompress, segment, 0xFFFF);
   jpeg_read_header(jpeg_decompress, TRUE);
 
@@ -103,7 +103,7 @@ int GetNumScansInJpeg(const std::string& data) {
   // Need to install env so that it will be longjmp()ed to on error.
   jpeg_decompress->client_data = static_cast<void *>(&env);
 
-  reader.PrepareForRead(data);
+  reader.PrepareForRead(data.data(), data.size());
   jpeg_read_header(jpeg_decompress, TRUE);
 
   jpeg_decompress->buffered_image = true;

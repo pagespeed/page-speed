@@ -59,7 +59,8 @@ bool GetJpegWidthAndHeight(const pagespeed::Resource* resource,
   }
 
   jpeg_decompress->client_data = static_cast<void*>(&env);
-  reader.PrepareForRead(resource->GetResponseBody());
+  const std::string& image_string = resource->GetResponseBody();
+  reader.PrepareForRead(image_string.data(), image_string.size());
   jpeg_read_header(jpeg_decompress, TRUE);
   *out_width = jpeg_decompress->image_width;
   *out_height = jpeg_decompress->image_height;

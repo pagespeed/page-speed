@@ -384,7 +384,7 @@ bool JpegOptimizer::DoCreateOptimizedJpeg(
   jpeg_decompress->client_data = static_cast<void *>(&env);
   jpeg_compress_.client_data = static_cast<void *>(&env);
 
-  reader_.PrepareForRead(original);
+  reader_.PrepareForRead(original.data(), original.size());
 
   if (options.retain_color_profile) {
     jpeg_save_markers(jpeg_decompress, kColorProfileMarker, kMaxSegmentSize);

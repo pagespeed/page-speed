@@ -65,7 +65,9 @@ METHODDEF(void) TermSource(j_decompress_ptr cinfo) {};
 
 // Call this function on a j_decompress_ptr to install a reader that will read
 // from the given string.
-void JpegStringReader(j_decompress_ptr cinfo, const std::string &data_src) {
+void JpegStringReader(j_decompress_ptr cinfo,
+                      const void* image_data,
+                      size_t image_length) {
   if (cinfo->src == NULL) {
     cinfo->src = (struct jpeg_source_mgr*)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
@@ -79,9 +81,8 @@ void JpegStringReader(j_decompress_ptr cinfo, const std::string &data_src) {
   src.resync_to_restart = jpeg_resync_to_restart; // default method
   src.term_source = TermSource;
 
-  src.bytes_in_buffer = data_src.size();
-  src.next_input_byte =
-      reinterpret_cast<JOCTET*>(const_cast<char*>(data_src.data()));
+  src.bytes_in_buffer = image_length;
+  src.next_input_byte = static_cast<const JOCTET*>(image_data);
 }
 
 // ErrorExit() is installed as a callback, called on errors
@@ -131,9 +132,9 @@ JpegReader::~JpegReader() {
   free(jpeg_decompress_);
 }
 
-void JpegReader::PrepareForRead(const std::string& src) {
+void JpegReader::PrepareForRead(const void* image_data, size_t image_length) {
   // Prepare to read from a string.
-  JpegStringReader(jpeg_decompress_, src);
+  JpegStringReader(jpeg_decompress_, image_data, image_length);
 }
 
 }  // namespace image_compression
