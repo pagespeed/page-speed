@@ -49,19 +49,23 @@ void ReadJpegToString(const std::string &file_name, std::string *dest) {
 TEST(JpegUtilsTest, GetImageQualityFromImage) {
   std::string src_data;
   ReadJpegToString(kGreyScaleJpegFile, &src_data);
-  EXPECT_EQ(85, JpegUtils::GetImageQualityFromImage(src_data));
+  EXPECT_EQ(85, JpegUtils::GetImageQualityFromImage(src_data.data(),
+                                                    src_data.size()));
 
   src_data.clear();
   ReadJpegToString(kColorJpegFile, &src_data);
-  EXPECT_EQ(75, JpegUtils::GetImageQualityFromImage(src_data));
+  EXPECT_EQ(75, JpegUtils::GetImageQualityFromImage(src_data.data(),
+                                                    src_data.size()));
 
   src_data.clear();
   ReadJpegToString(kEmptyJpegFile, &src_data);
-  EXPECT_EQ(-1, JpegUtils::GetImageQualityFromImage(src_data));
+  EXPECT_EQ(-1, JpegUtils::GetImageQualityFromImage(src_data.data(),
+                                                    src_data.size()));
 
   src_data.clear();
   ReadJpegToString(kQuality100JpegFile, &src_data);
-  EXPECT_EQ(100, JpegUtils::GetImageQualityFromImage(src_data));
+  EXPECT_EQ(100, JpegUtils::GetImageQualityFromImage(src_data.data(),
+                                                     src_data.size()));
 }
 
 }  // namespace

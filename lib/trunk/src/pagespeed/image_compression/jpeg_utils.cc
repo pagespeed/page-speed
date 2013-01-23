@@ -76,7 +76,8 @@ namespace image_compression {
 JpegUtils::JpegUtils() {
 }
 
-int JpegUtils::GetImageQualityFromImage(const std::string& src) {
+int JpegUtils::GetImageQualityFromImage(const void* image_data,
+                                        size_t image_length) {
   JpegReader reader;
   jpeg_decompress_struct* jpeg_decompress = reader.decompress_struct();
 
@@ -92,7 +93,7 @@ int JpegUtils::GetImageQualityFromImage(const std::string& src) {
   // Need to install env so that it will be longjmp()ed to on error.
   jpeg_decompress->client_data = static_cast<void *>(&env);
 
-  reader.PrepareForRead(src);
+  reader.PrepareForRead(image_data, image_length);
 
   // Read jpeg data into the decompression struct.
   jpeg_read_header(jpeg_decompress, TRUE);
