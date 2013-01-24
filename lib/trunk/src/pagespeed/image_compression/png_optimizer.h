@@ -20,7 +20,8 @@
 #define PNG_OPTIMIZER_H_
 
 #include <string>
-#include <setjmp.h>
+// Note: we should not include setjmp.h here, since libpng 1.2 headers
+// include it themselves, and get unhappy if we do it ourselves.
 
 extern "C" {
 #ifdef USE_SYSTEM_LIBPNG
