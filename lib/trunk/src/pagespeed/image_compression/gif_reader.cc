@@ -319,6 +319,7 @@ bool ReadGifToPng(GifFileType* gif_file,
     // We read the image into a separate struct before expanding the
     // colormap.
     paletted_png.reset(new ScopedPngStruct(ScopedPngStruct::READ));
+    paletted_png->CopyJmpBufFrom(png_ptr);
     if (!paletted_png->valid()) {
       LOG(DFATAL) << "Invalid ScopedPngStruct r: " << paletted_png->valid();
       return false;

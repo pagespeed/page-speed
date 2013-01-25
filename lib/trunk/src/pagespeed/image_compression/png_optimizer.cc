@@ -223,22 +223,31 @@ ScopedPngStruct::ScopedPngStruct(Type type)
   png_set_error_fn(png_ptr_, NULL, &PngErrorFn, &PngWarningFn);
 }
 
+void ScopedPngStruct::CopyJmpBufFrom(const png_structp src) {
+  CopyJmpBuf(src, png_ptr_);
+}
+
 void ScopedPngStruct::reset() {
+  png_structp new_png_ptr = NULL;
   switch (type_) {
     case READ:
+      new_png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+                                           NULL, NULL, NULL);
+      CopyJmpBuf(png_ptr_, new_png_ptr);
       png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
-      png_ptr_ = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-                                        NULL, NULL, NULL);
       break;
     case WRITE:
+      new_png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+                                             NULL, NULL, NULL);
+      CopyJmpBuf(png_ptr_, new_png_ptr);
       png_destroy_write_struct(&png_ptr_, &info_ptr_);
-      png_ptr_ = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-                                         NULL, NULL, NULL);
       break;
     default:
       LOG(DFATAL) << "Invalid Type " << type_;
       break;
   }
+  png_ptr_ = new_png_ptr;
+
   if (png_ptr_ != NULL) {
     info_ptr_ = png_create_info_struct(png_ptr_);
   }

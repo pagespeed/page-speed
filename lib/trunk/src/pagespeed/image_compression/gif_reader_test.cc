@@ -137,7 +137,7 @@ TEST(GifReaderTest, ExpandColorMapForValidGifs) {
 TEST(GifReaderTest, RequireOpaqueForValidGifs) {
   ScopedPngStruct read(ScopedPngStruct::READ);
   scoped_ptr<PngReaderInterface> gif_reader(new GifReader);
-  std::string in, out;
+  std::string in;
   for (size_t i = 0; i < kValidOpaqueGifImageCount; i++) {
     ReadImageToString(
         kPngSuiteGifTestDir, kValidOpaqueGifImages[i], "gif", &in);
@@ -167,7 +167,7 @@ TEST(GifReaderTest, RequireOpaqueForValidGifs) {
 TEST(GifReaderTest, ExpandColormapAndRequireOpaqueForValidGifs) {
   ScopedPngStruct read(ScopedPngStruct::READ);
   scoped_ptr<PngReaderInterface> gif_reader(new GifReader);
-  std::string in, out;
+  std::string in;
   for (size_t i = 0; i < kValidOpaqueGifImageCount; i++) {
     ReadImageToString(
         kPngSuiteGifTestDir, kValidOpaqueGifImages[i], "gif", &in);
@@ -192,6 +192,29 @@ TEST(GifReaderTest, ExpandColormapAndRequireOpaqueForValidGifs) {
   ASSERT_NE(static_cast<size_t>(0), in.length());
   ASSERT_FALSE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_EXPAND, true));
+}
+
+
+TEST(GifReaderTest, ExpandColormapOnZeroSizeCanvasAndCatchLibPngError) {
+  ScopedPngStruct read(ScopedPngStruct::READ);
+  scoped_ptr<PngReaderInterface> gif_reader(new GifReader);
+  std::string in;
+  // This is a free image from
+  // <http://www.gifs.net/subcategory/40/0/20/Email>, with the canvas
+  // size information manually set to zero in order to trigger a
+  // libpng error.
+  ReadImageToString(kGifTestDir, "zero_size_animation", "gif", &in);
+  ASSERT_NE(static_cast<size_t>(0), in.length());
+  bool caught_error = false;
+  if (setjmp(png_jmpbuf(read.png_ptr()))) {
+    caught_error = true;
+  } else {
+    gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
+                        PNG_TRANSFORM_EXPAND, true);
+    // We should not get here
+    ASSERT_FALSE(true);
+  }
+  ASSERT_TRUE(caught_error);
 }
 
 }  // namespace
