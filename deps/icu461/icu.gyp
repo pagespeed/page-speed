@@ -305,6 +305,7 @@
               ],
               'xcode_settings': {
                 'WARNING_CFLAGS': [
+                  '-Wno-deprecated-declarations',
                   '-Wno-dynamic-class-memaccess',
                   '-Wno-switch',
                   '-Wno-tautological-compare',
