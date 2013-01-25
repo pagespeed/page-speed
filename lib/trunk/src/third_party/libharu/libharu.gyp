@@ -103,7 +103,13 @@
             ],
           },
         }],
-        [ 'os_posix == 1 and OS != "mac"', {
+        [ 'clang==1', {
+          'xcode_settings':  {
+            'WARNING_FLAGS': [
+              '-Wno-literal-conversion',
+              '-Wno-tautological-compare',
+            ],
+          },
           'cflags': [
             '-Wno-literal-conversion',
             '-Wno-tautological-compare',

@@ -28,6 +28,9 @@
     # Copy conditionally-set variables out one scope.
     'build_nacl%': '<(build_nacl)',
 
+    # This should normally be passed in by gclient's hooks.
+    'chromium_revision%': 90205,
+
     # TODO(bmcquade); these should be removed.
     'protobuf_gyp_path%': 'third_party/protobuf/protobuf.gyp',
     'protobuf_src_root%': 'third_party/protobuf/src',
@@ -66,6 +69,9 @@
       '<(DEPTH)/third_party/chromium/src',
     ],
   },
+  'defines': [
+    'CHROMIUM_REVISION=<(chromium_revision)',
+  ],
   'conditions': [
     ['os_posix==1 and OS!="mac"', {
       'target_defaults': {
