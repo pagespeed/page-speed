@@ -48,7 +48,7 @@ class MetaViewportFilter : public net_instaweb::EmptyHtmlFilter {
     return "MetaViewportFilter";
   }
 
-  const bool has_meta_viewport() const;
+  bool has_meta_viewport() const;
 
  private:
   bool has_meta_viewport_;
@@ -96,7 +96,7 @@ void MetaViewportFilter::StartElement(net_instaweb::HtmlElement* element) {
   }
 }
 
-const bool MetaViewportFilter::has_meta_viewport() const {
+bool MetaViewportFilter::has_meta_viewport() const {
   return has_meta_viewport_;
 }
 

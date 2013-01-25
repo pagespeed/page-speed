@@ -47,7 +47,7 @@ class ManifestFilter : public net_instaweb::EmptyHtmlFilter {
   }
 
   const std::string& manifest_url() const;
-  const bool has_html() const;
+  bool has_html() const;
 
  private:
   std::string manifest_url_;
@@ -85,7 +85,7 @@ const std::string& ManifestFilter::manifest_url() const {
   return manifest_url_;
 }
 
-const bool ManifestFilter::has_html() const {
+bool ManifestFilter::has_html() const {
   return has_html_;
 }
 
