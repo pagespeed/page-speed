@@ -284,15 +284,6 @@
               'cflags_cc': [
                 '-frtti',
               ],
-              'conditions': [
-                ['clang==1', {
-                  'cflags': [
-                    '-Wno-dynamic-class-memaccess',
-                    '-Wno-switch',
-                    '-Wno-tautological-compare',
-                  ],
-                }],
-              ],
             }],
             ['OS == "mac"', {
               'xcode_settings': {
@@ -305,6 +296,20 @@
                   'RuntimeTypeInfo': 'true',
                 },
               }
+            }],
+            ['clang==1', {
+              'cflags': [
+                '-Wno-dynamic-class-memaccess',
+                '-Wno-switch',
+                '-Wno-tautological-compare',
+              ],
+              'xcode_settings': {
+                'WARNING_CFLAGS': [
+                  '-Wno-dynamic-class-memaccess',
+                  '-Wno-switch',
+                  '-Wno-tautological-compare',
+                ],
+              },
             }],
           ],
         },
