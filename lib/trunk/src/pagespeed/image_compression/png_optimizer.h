@@ -74,6 +74,7 @@ class ScopedPngStruct {
 
   explicit ScopedPngStruct(Type t);
   ~ScopedPngStruct();
+  void CopyJmpBufFrom(const png_structp src);
 
   bool valid() const { return png_ptr_ != NULL && info_ptr_ != NULL; }
   void reset();
@@ -82,6 +83,11 @@ class ScopedPngStruct {
   png_infop info_ptr() const { return info_ptr_; }
 
  private:
+  void CopyJmpBuf(const png_structp src,
+                  const png_structp dst) {
+    memcpy(png_jmpbuf(dst), png_jmpbuf(src), sizeof(jmp_buf));
+  }
+
   png_structp png_ptr_;
   png_infop info_ptr_;
   Type type_;

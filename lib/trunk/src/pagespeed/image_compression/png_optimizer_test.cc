@@ -1063,4 +1063,14 @@ TEST(PngScanlineReaderRawTest, InvalidPngs) {
   }
 }
 
+TEST(ScopedPngStructResetTest, JmpBufContentPreservedAcrossResets) {
+  ScopedPngStruct sps(ScopedPngStruct::READ);
+  setjmp(png_jmpbuf(sps.png_ptr()));
+  jmp_buf saved_jmp_buf;
+  memcpy(saved_jmp_buf, png_jmpbuf(sps.png_ptr()), sizeof(jmp_buf));
+  sps.reset();
+  ASSERT_EQ(0, memcmp(saved_jmp_buf, png_jmpbuf(sps.png_ptr()),
+                      sizeof(jmp_buf)));
+}
+
 }  // namespace
