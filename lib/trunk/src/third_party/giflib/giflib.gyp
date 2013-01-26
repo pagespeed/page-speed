@@ -54,8 +54,8 @@
           '<(giflib_gen_arch_root)/include',
         ],
       },
-      'xcode_settings':  {
-        'WARNING_FLAGS': [
+      'xcode_settings': {
+        'WARNING_CFLAGS': [
           '-Wno-pointer-sign',
         ],
       },
