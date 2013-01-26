@@ -105,7 +105,7 @@
         }],
         [ 'clang==1', {
           'xcode_settings':  {
-            'WARNING_FLAGS': [
+            'WARNING_CFLAGS': [
               '-Wno-literal-conversion',
               '-Wno-tautological-compare',
             ],
