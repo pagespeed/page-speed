@@ -55,6 +55,16 @@
             'src/windows/port.cc',
           ],
         }],
+        ['clang==1', {
+          'xcode_settings': {
+            'WARNING_CFLAGS': [
+              '-Wno-header-hygiene',
+            ],
+          },
+          'cflags': [
+            '-Wno-header-hygiene',
+          ],
+        }],
       ],
     },
   ],
