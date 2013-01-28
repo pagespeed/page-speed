@@ -491,7 +491,9 @@ bool InitializeEntireReader(const std::string& image_string,
                             const PngReader& png_reader,
                             PngScanlineReader* entire_image_reader) {
   // Initialize entire_image_reader.
-  entire_image_reader->Reset();
+  if (!entire_image_reader->Reset()) {
+    return false;
+  }
   entire_image_reader->set_transform(
     PNG_TRANSFORM_EXPAND |
     PNG_TRANSFORM_STRIP_16);
@@ -528,7 +530,7 @@ TEST(PngScanlineReaderTest, InitializeRead_validPngs) {
     std::string in, out;
     ReadPngSuiteFileToString(kValidImages[i].filename, &in);
     PngReader png_reader;
-    scanline_reader.Reset();
+    ASSERT_TRUE(scanline_reader.Reset());
 
     int width, height, bit_depth, color_type;
     ASSERT_TRUE(png_reader.GetAttributes(
@@ -544,7 +546,7 @@ TEST(PngScanlineReaderTest, InitializeRead_validPngs) {
     std::string in, out;
     ReadPngSuiteFileToString(kOpaqueImagesWithAlpha[i].filename, &in);
     PngReader png_reader;
-    scanline_reader.Reset();
+    ASSERT_TRUE(scanline_reader.Reset());
 
     int width, height, bit_depth, color_type;
     ASSERT_TRUE(png_reader.GetAttributes(
@@ -568,7 +570,7 @@ TEST(PngOptimizerTest, ValidPngs_isOpaque) {
     EXPECT_EQ(kOpaqueImagesWithAlpha[i].is_opaque,
               PngReaderInterface::IsAlphaChannelOpaque(
                   read.png_ptr(), read.info_ptr()));
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 }
 
@@ -851,12 +853,12 @@ TEST(PngReaderTest, ReadTransparentPng) {
   ASSERT_TRUE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
                              PNG_TRANSFORM_IDENTITY, false));
   ASSERT_FALSE(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
-  read.reset();
+  ASSERT_TRUE(read.reset());
 
   // Don't transform but require opaque.
   ASSERT_FALSE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
                               PNG_TRANSFORM_IDENTITY, true));
-  read.reset();
+  ASSERT_TRUE(read.reset());
 
   // Strip the alpha channel and require opaque.
   ASSERT_TRUE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
@@ -867,7 +869,7 @@ TEST(PngReaderTest, ReadTransparentPng) {
 #else
   ASSERT_FALSE(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
 #endif
-  read.reset();
+  ASSERT_TRUE(read.reset());
 
   // Strip the alpha channel and don't require opaque.
   ASSERT_TRUE(reader.ReadPng(in, read.png_ptr(), read.info_ptr(),
@@ -878,7 +880,7 @@ TEST(PngReaderTest, ReadTransparentPng) {
 #else
   ASSERT_FALSE(reader.IsAlphaChannelOpaque(read.png_ptr(), read.info_ptr()));
 #endif
-  read.reset();
+  ASSERT_TRUE(read.reset());
 
 }
 
@@ -1062,15 +1064,4 @@ TEST(PngScanlineReaderRawTest, InvalidPngs) {
                            NULL, NULL, NULL, NULL, NULL));
   }
 }
-
-TEST(ScopedPngStructResetTest, JmpBufContentPreservedAcrossResets) {
-  ScopedPngStruct sps(ScopedPngStruct::READ);
-  setjmp(png_jmpbuf(sps.png_ptr()));
-  jmp_buf saved_jmp_buf;
-  memcpy(saved_jmp_buf, png_jmpbuf(sps.png_ptr()), sizeof(jmp_buf));
-  sps.reset();
-  ASSERT_EQ(0, memcmp(saved_jmp_buf, png_jmpbuf(sps.png_ptr()),
-                      sizeof(jmp_buf)));
-}
-
 }  // namespace

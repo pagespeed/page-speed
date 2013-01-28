@@ -223,36 +223,35 @@ ScopedPngStruct::ScopedPngStruct(Type type)
   png_set_error_fn(png_ptr_, NULL, &PngErrorFn, &PngWarningFn);
 }
 
-void ScopedPngStruct::CopyJmpBufFrom(const png_structp src) {
-  CopyJmpBuf(src, png_ptr_);
-}
-
-void ScopedPngStruct::reset() {
-  png_structp new_png_ptr = NULL;
+bool ScopedPngStruct::reset() {
   switch (type_) {
     case READ:
-      new_png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-                                           NULL, NULL, NULL);
-      CopyJmpBuf(png_ptr_, new_png_ptr);
       png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
+      png_ptr_ = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+                                        NULL, NULL, NULL);
       break;
     case WRITE:
-      new_png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-                                             NULL, NULL, NULL);
-      CopyJmpBuf(png_ptr_, new_png_ptr);
       png_destroy_write_struct(&png_ptr_, &info_ptr_);
+      png_ptr_ = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+                                         NULL, NULL, NULL);
       break;
     default:
       LOG(DFATAL) << "Invalid Type " << type_;
       break;
   }
-  png_ptr_ = new_png_ptr;
+
+  if (setjmp(png_jmpbuf(png_ptr_))) {
+    LOG(DFATAL) << "png_jumpbuf not set locally: risk of memory leaks";
+    return false;
+  }
 
   if (png_ptr_ != NULL) {
     info_ptr_ = png_create_info_struct(png_ptr_);
   }
 
   png_set_error_fn(png_ptr_, NULL, &PngErrorFn, &PngWarningFn);
+
+  return true;
 }
 
 ScopedPngStruct::~ScopedPngStruct() {
@@ -296,10 +295,12 @@ bool PngOptimizer::CreateOptimizedPng(const PngReaderInterface& reader,
 
   // Configure error handlers.
   if (setjmp(png_jmpbuf(read_.png_ptr()))) {
+    LOG(DFATAL) << "png_jmpbuf not set locally: risk of memory leaks";
     return false;
   }
 
   if (setjmp(png_jmpbuf(write_.png_ptr()))) {
+    LOG(DFATAL) << "png_jmpbuf not set locally: risk of memory leaks";
     return false;
   }
 
@@ -313,7 +314,9 @@ bool PngOptimizer::CreateOptimizedPng(const PngReaderInterface& reader,
   }
 
   // Copy the image data from the read structures to the write structures.
-  CopyReadToWrite();
+  if (!CopyReadToWrite()) {
+    return false;
+  }
 
   // Perform all possible lossless image reductions
   // (e.g. RGB->palette, etc).
@@ -394,6 +397,9 @@ bool PngReader::ReadPng(const std::string& body,
     PngInput input;
     input.Initialize(body);
 
+    if (setjmp(png_jmpbuf(png_ptr))) {
+      return false;
+    }
     png_set_read_fn(png_ptr, &input, &ReadPngFromStream);
     png_read_png(png_ptr, info_ptr, transforms, NULL);
 
@@ -504,6 +510,9 @@ bool PngReader::GetAttributes(const std::string& body,
 }
 
 bool PngOptimizer::WritePng(ScopedPngStruct* write, std::string* buffer) {
+  if (setjmp(png_jmpbuf(write->png_ptr()))) {
+    return false;
+  }
   png_set_write_fn(write->png_ptr(), buffer, &WritePngToString, &PngFlush);
   png_write_png(
       write->png_ptr(), write->info_ptr(), PNG_TRANSFORM_IDENTITY, NULL);
@@ -511,13 +520,16 @@ bool PngOptimizer::WritePng(ScopedPngStruct* write, std::string* buffer) {
   return true;
 }
 
-void PngOptimizer::CopyReadToWrite() {
-  CopyPngStructs(&read_, &write_);
+bool PngOptimizer::CopyReadToWrite() {
+  return CopyPngStructs(&read_, &write_);
 }
 
-void PngOptimizer::CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to) {
+bool PngOptimizer::CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to) {
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type, compression_type, filter_type;
+  if (setjmp(png_jmpbuf(from->png_ptr()))) {
+    return false;
+  }
   png_get_IHDR(from->png_ptr(),
                from->info_ptr(),
                &width,
@@ -528,6 +540,9 @@ void PngOptimizer::CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to) {
                &compression_type,
                &filter_type);
 
+  if (setjmp(png_jmpbuf(to->png_ptr()))) {
+    return false;
+  }
   png_set_IHDR(to->png_ptr(),
                to->info_ptr(),
                width,
@@ -582,6 +597,8 @@ void PngOptimizer::CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to) {
 
   // Do not copy bkgd, hist or sbit sections, since they are not
   // supported in most browsers.
+
+  return true;
 }
 
 // static
@@ -592,6 +609,9 @@ bool PngReaderInterface::IsAlphaChannelOpaque(
   int bit_depth;
   int color_type;
 
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    return false;
+  }
   png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
                NULL, NULL, NULL);
 
@@ -685,6 +705,9 @@ bool PngReaderInterface::IsAlphaChannelOpaque(
 bool PngReaderInterface::GetBackgroundColor(
     png_structp png_ptr, png_infop info_ptr,
     unsigned char *red, unsigned char* green, unsigned char* blue) {
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    return false;
+  }
   if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_bKGD)) {
     return false;
   }
@@ -733,11 +756,14 @@ jmp_buf* PngScanlineReader::GetJmpBuf() {
   return &buf;
 }
 
-void PngScanlineReader::Reset() {
-  read_.reset();
+bool PngScanlineReader::Reset() {
+  if (!read_.reset()) {
+    return false;
+  }
   current_scanline_ = 0;
   transform_ = PNG_TRANSFORM_IDENTITY;
   require_opaque_ = false;
+  return true;
 }
 
 bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
@@ -760,6 +786,9 @@ bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
     return false;
   }
 
+  if (setjmp(png_jmpbuf(read_.png_ptr()))) {
+    return false;
+  }
   if (!require_opaque_) {
     int color_type = png_get_color_type(read_.png_ptr(), read_.info_ptr());
     *is_opaque = ((color_type & PNG_COLOR_MASK_ALPHA) == 0);
@@ -767,7 +796,9 @@ bool PngScanlineReader::InitializeRead(const PngReaderInterface& reader,
         PngReaderInterface::IsAlphaChannelOpaque(
             read_.png_ptr(), read_.info_ptr())) {
       // Clear the read pointers.
-      read_.reset();
+      if (!read_.reset()) {
+        return false;
+      }
       *is_opaque = true;
       return reader.ReadPng(in, read_.png_ptr(), read_.info_ptr(),
                             transform_ | PNG_TRANSFORM_STRIP_ALPHA);
@@ -795,6 +826,9 @@ bool PngScanlineReader::ReadNextScanline(void** out_scanline_bytes) {
     return false;
   }
 
+  if (setjmp(png_jmpbuf(read_.png_ptr()))) {
+    return false;
+  }
   png_bytepp row_pointers = png_get_rows(read_.png_ptr(), read_.info_ptr());
   *out_scanline_bytes = static_cast<void*>(*(row_pointers + current_scanline_));
   current_scanline_++;
@@ -855,7 +889,7 @@ PngScanlineReaderRaw::PngScanlineReaderRaw()
 PngScanlineReaderRaw::~PngScanlineReaderRaw() {
 }
 
-void PngScanlineReaderRaw::Reset() {
+bool PngScanlineReaderRaw::Reset() {
   pixel_format_ = UNSUPPORTED;
   is_progressive_ = false;
   height_ = 0;
@@ -863,8 +897,11 @@ void PngScanlineReaderRaw::Reset() {
   bytes_per_row_ = 0;
   row_ = 0;
   was_initialized_ = false;
-  png_struct_.reset();
+  if (!png_struct_.reset()) {
+    return false;
+  }
   png_input_->Reset();
+  return true;
 }
 
 // Initialize the reader with the given image stream. Note that image_buffer
@@ -880,8 +917,8 @@ bool PngScanlineReaderRaw::Initialize(const void* image_buffer,
   }
 
   // Reset the reader if it has been initialized before.
-  if (was_initialized_) {
-    Reset();
+  if (was_initialized_ && !Reset()) {
+    return false;
   }
 
   if (!png_struct_.valid()) {

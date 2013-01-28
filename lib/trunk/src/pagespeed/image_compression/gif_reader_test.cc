@@ -85,7 +85,7 @@ TEST(GifReaderTest, LoadValidGifsWithoutTransforms) {
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_IDENTITY))
         << kValidOpaqueGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
@@ -95,7 +95,7 @@ TEST(GifReaderTest, LoadValidGifsWithoutTransforms) {
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_IDENTITY))
         << kValidTransparentGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   ReadImageToString(kGifTestDir, "transparent", "gif", &in);
@@ -115,7 +115,7 @@ TEST(GifReaderTest, ExpandColorMapForValidGifs) {
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_EXPAND))
         << kValidOpaqueGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
@@ -125,7 +125,7 @@ TEST(GifReaderTest, ExpandColorMapForValidGifs) {
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                    PNG_TRANSFORM_EXPAND))
         << kValidTransparentGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   ReadImageToString(kGifTestDir, "transparent", "gif", &in);
@@ -145,7 +145,7 @@ TEST(GifReaderTest, RequireOpaqueForValidGifs) {
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_IDENTITY, true))
         << kValidOpaqueGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
@@ -155,7 +155,7 @@ TEST(GifReaderTest, RequireOpaqueForValidGifs) {
     ASSERT_FALSE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_IDENTITY, true))
         << kValidTransparentGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   ReadImageToString(kGifTestDir, "transparent", "gif", &in);
@@ -175,7 +175,7 @@ TEST(GifReaderTest, ExpandColormapAndRequireOpaqueForValidGifs) {
     ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_EXPAND, true))
         << kValidOpaqueGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   for (size_t i = 0; i < kValidTransparentGifImageCount; i++) {
@@ -185,7 +185,7 @@ TEST(GifReaderTest, ExpandColormapAndRequireOpaqueForValidGifs) {
     ASSERT_FALSE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
                                     PNG_TRANSFORM_EXPAND, true))
         << kValidTransparentGifImages[i];
-    read.reset();
+    ASSERT_TRUE(read.reset());
   }
 
   ReadImageToString(kGifTestDir, "transparent", "gif", &in);
@@ -250,16 +250,8 @@ TEST(GifReaderTest, ExpandColormapOnZeroSizeCanvasAndCatchLibPngError) {
   // libpng error.
   ReadImageToString(kGifTestDir, "zero_size_animation", "gif", &in);
   ASSERT_NE(static_cast<size_t>(0), in.length());
-  bool caught_error = false;
-  if (setjmp(png_jmpbuf(read.png_ptr()))) {
-    caught_error = true;
-  } else {
-    gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
-                        PNG_TRANSFORM_EXPAND, true);
-    // We should not get here
-    ASSERT_FALSE(true);
-  }
-  ASSERT_TRUE(caught_error);
+  ASSERT_FALSE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
+                                   PNG_TRANSFORM_EXPAND, true));
 }
 
 }  // namespace

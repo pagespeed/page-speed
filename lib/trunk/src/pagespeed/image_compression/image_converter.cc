@@ -111,6 +111,7 @@ bool ImageConverter::ConvertPngToJpeg(
 
   // Configure png reader error handlers.
   if (setjmp(*png_reader.GetJmpBuf())) {
+    LOG(DFATAL) << "png_jmpbuf not set locally: risk of memory leaks";
     return false;
   }
 
@@ -219,6 +220,7 @@ bool ImageConverter::ConvertPngToWebp(
 
   // Configure png reader error handlers.
   if (setjmp(*png_reader.GetJmpBuf())) {
+    LOG(DFATAL) << "png_jmpbuf not set locally: risk of memory leaks";
     return false;
   }
   if (!png_reader.InitializeRead(png_struct_reader, in, is_opaque)) {

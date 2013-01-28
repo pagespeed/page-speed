@@ -63,15 +63,18 @@ int ReadGifFromStream(GifFileType* gif_file, GifByteType* data, int length) {
   return copied;
 }
 
-void AddTransparencyChunk(png_structp png_ptr,
+bool AddTransparencyChunk(png_structp png_ptr,
                           png_infop info_ptr,
                           int transparent_palette_index) {
   const int num_trans = transparent_palette_index + 1;
   if (num_trans <= 0 || num_trans > info_ptr->num_palette) {
     LOG(ERROR) << "Transparent palette index out of bounds.";
-    return;
+    return false;
   }
 
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    return false;
+  }
   // TODO: to optimize tRNS size, could move transparent index to
   // the head of the palette.
   png_byte trans[256];
@@ -80,6 +83,7 @@ void AddTransparencyChunk(png_structp png_ptr,
   // Set the one transparent index to fully transparent.
   trans[transparent_palette_index] = 0;
   png_set_tRNS(png_ptr, info_ptr, trans, num_trans, NULL);
+  return true;
 }
 
 bool ReadImageDescriptor(GifFileType* gif_file,
@@ -125,6 +129,9 @@ bool ReadImageDescriptor(GifFileType* gif_file,
     palette[i].red = color_map->Colors[i].Red;
     palette[i].green = color_map->Colors[i].Green;
     palette[i].blue = color_map->Colors[i].Blue;
+  }
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    return false;
   }
   png_set_PLTE(png_ptr, info_ptr, palette, color_map->ColorCount);
 
@@ -256,6 +263,9 @@ bool ExpandColorMap(png_structp paletted_png_ptr,
   png_uint_32 width = png_get_image_width(paletted_png_ptr,
                                           paletted_info_ptr);
   bool have_alpha = (transparent_palette_index >= 0);
+  if (setjmp(png_jmpbuf(rgb_png_ptr))) {
+    return false;
+  }
   png_set_IHDR(rgb_png_ptr,
                rgb_info_ptr,
                width,
@@ -320,7 +330,6 @@ bool ReadGifToPng(GifFileType* gif_file,
     // We read the image into a separate struct before expanding the
     // colormap.
     paletted_png.reset(new ScopedPngStruct(ScopedPngStruct::READ));
-    paletted_png->CopyJmpBufFrom(png_ptr);
     if (!paletted_png->valid()) {
       LOG(DFATAL) << "Invalid ScopedPngStruct r: " << paletted_png->valid();
       return false;
@@ -333,6 +342,9 @@ bool ReadGifToPng(GifFileType* gif_file,
     paletted_info_ptr = info_ptr;
   }
 
+  if (setjmp(png_jmpbuf(paletted_png_ptr))) {
+    return false;
+  }
   png_set_IHDR(paletted_png_ptr,
                paletted_info_ptr,
                gif_file->SWidth,
@@ -403,8 +415,10 @@ bool ReadGifToPng(GifFileType* gif_file,
     // a paletted image. If we're not, don't bother since we have all
     // the information we need for ExpandColorMap below.
     if (!strip_alpha && !expand_colormap) {
-      AddTransparencyChunk(paletted_png_ptr, paletted_info_ptr,
-                           transparent_palette_index);
+      if (!AddTransparencyChunk(paletted_png_ptr, paletted_info_ptr,
+                                transparent_palette_index)) {
+        return false;
+      }
     }
   }
 
