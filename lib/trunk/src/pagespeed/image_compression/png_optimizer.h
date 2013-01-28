@@ -74,20 +74,17 @@ class ScopedPngStruct {
 
   explicit ScopedPngStruct(Type t);
   ~ScopedPngStruct();
-  void CopyJmpBufFrom(const png_structp src);
 
   bool valid() const { return png_ptr_ != NULL && info_ptr_ != NULL; }
-  void reset();
+
+  // This will only return false as a result of a longjmp due to an
+  // unhandled libpng error.
+  bool reset();
 
   png_structp png_ptr() const { return png_ptr_; }
   png_infop info_ptr() const { return info_ptr_; }
 
  private:
-  void CopyJmpBuf(const png_structp src,
-                  const png_structp dst) {
-    memcpy(png_jmpbuf(dst), png_jmpbuf(src), sizeof(jmp_buf));
-  }
-
   png_structp png_ptr_;
   png_infop info_ptr_;
   Type type_;
@@ -170,7 +167,9 @@ class PngScanlineReader : public ScanlineReaderInterface {
 
   jmp_buf* GetJmpBuf();
 
-  virtual void Reset();
+  // This will only return false as a result of a longjmp due to an
+  // unhandled libpng error.
+  virtual bool Reset();
 
   // Initializes the read structures with the given input.
   bool InitializeRead(const PngReaderInterface& reader, const std::string& in);
@@ -225,10 +224,10 @@ class PngOptimizer {
   void EnableBestCompression() { best_compression_ = true; }
 
   bool WritePng(ScopedPngStruct* write, std::string* buffer);
-  void CopyReadToWrite();
+  bool CopyReadToWrite();
   // The 'from' object is conceptually const, but libpng doesn't accept const
   // pointers in the read functions.
-  void CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to);
+  bool CopyPngStructs(ScopedPngStruct* from, ScopedPngStruct* to);
   bool CreateBestOptimizedPngForParams(const PngCompressParams* param_list,
                                        size_t param_list_size,
                                        std::string* out);
@@ -282,7 +281,10 @@ class PngScanlineReaderRaw : public ScanlineReaderInterface {
  public:
   PngScanlineReaderRaw();
   virtual ~PngScanlineReaderRaw();
-  virtual void Reset();
+
+  // This will only return false as a result of a longjmp due to an
+  // unhandled libpng error.
+  virtual bool Reset();
 
   // Initialize the reader with the given image stream. Note that image_buffer
   // must remain unchanged until the last call to ReadNextScanline().
