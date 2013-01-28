@@ -94,6 +94,7 @@ deps = {
   "src/third_party/libjpeg": "/deps/jpeg-8c",
   "src/third_party/libpng": "/deps/libpng-1.5.4",
   "src/third_party/libwebp": "/deps/libwebp-0.2.1",
+  "src/third_party/nacl_sdk": "/deps/nacl_sdk",
   "src/third_party/zlib": "/deps/zlib-1.2.5",
 }
 
