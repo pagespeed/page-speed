@@ -194,6 +194,51 @@ TEST(GifReaderTest, ExpandColormapAndRequireOpaqueForValidGifs) {
                                    PNG_TRANSFORM_EXPAND, true));
 }
 
+TEST(GifReaderTest, StripAlpha) {
+  ScopedPngStruct read(ScopedPngStruct::READ);
+  scoped_ptr<PngReaderInterface> gif_reader(new GifReader);
+  std::string in;
+  png_uint_32 height;
+  png_uint_32 width;
+  int bit_depth;
+  int color_type;
+  png_bytep trans;
+  int num_trans;
+  png_color_16p trans_values;
+
+  ReadImageToString(kGifTestDir, "transparent", "gif", &in);
+  ASSERT_NE(static_cast<size_t>(0), in.length());
+  ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
+                                  PNG_TRANSFORM_STRIP_ALPHA, false));
+  png_get_IHDR(read.png_ptr(), read.info_ptr(),
+               &width, &height, &bit_depth, &color_type,
+               NULL, NULL, NULL);
+  ASSERT_TRUE((color_type & PNG_COLOR_MASK_ALPHA) == 0);
+
+  ASSERT_EQ(static_cast<unsigned int>(0),
+            png_get_tRNS(read.png_ptr(),
+                         read.info_ptr(),
+                         &trans,
+                         &num_trans,
+                         &trans_values));
+
+  read.reset();
+
+  ASSERT_TRUE(gif_reader->ReadPng(in, read.png_ptr(), read.info_ptr(),
+                                  PNG_TRANSFORM_STRIP_ALPHA |
+                                  PNG_TRANSFORM_EXPAND, false));
+  png_get_IHDR(read.png_ptr(), read.info_ptr(),
+               &width, &height, &bit_depth, &color_type,
+               NULL, NULL, NULL);
+  ASSERT_TRUE((color_type & PNG_COLOR_MASK_ALPHA) == 0);
+
+  ASSERT_EQ(static_cast<unsigned int>(0),
+            png_get_tRNS(read.png_ptr(),
+                         read.info_ptr(),
+                         &trans,
+                         &num_trans,
+                         &trans_values));
+}
 
 TEST(GifReaderTest, ExpandColormapOnZeroSizeCanvasAndCatchLibPngError) {
   ScopedPngStruct read(ScopedPngStruct::READ);

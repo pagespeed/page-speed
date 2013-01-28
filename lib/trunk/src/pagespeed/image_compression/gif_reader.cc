@@ -299,6 +299,7 @@ bool ReadGifToPng(GifFileType* gif_file,
                   png_structp png_ptr,
                   png_infop info_ptr,
                   bool expand_colormap,
+                  bool strip_alpha,
                   bool require_opaque) {
   if (static_cast<png_size_t>(gif_file->SHeight) >
       PNG_UINT_32_MAX/png_sizeof(png_bytep)) {
@@ -397,11 +398,11 @@ bool ReadGifToPng(GifFileType* gif_file,
     if (require_opaque) {
       return false;
     }
-    // If the GIF contained a transparency index, then add it to the
-    // PNG now if we're returning a paletted image. If we're not,
-    // don't bother since we have all the information we need for
-    // ExpandColorMap below.
-    if (!expand_colormap) {
+    // If the GIF contained a transparency index and we're not
+    // stripping alpha, then add it to the PNG now if we're returning
+    // a paletted image. If we're not, don't bother since we have all
+    // the information we need for ExpandColorMap below.
+    if (!strip_alpha && !expand_colormap) {
       AddTransparencyChunk(paletted_png_ptr, paletted_info_ptr,
                            transparent_palette_index);
     }
@@ -412,7 +413,7 @@ bool ReadGifToPng(GifFileType* gif_file,
     // passed in.
     if (!ExpandColorMap(paletted_png_ptr, paletted_info_ptr,
                         palette,
-                        transparent_palette_index,
+                        strip_alpha ? -1 : transparent_palette_index,
                         png_ptr, info_ptr)) {
       return false;
     }
@@ -441,8 +442,10 @@ bool GifReader::ReadPng(const std::string& body,
       // These transforms are no-ops when reading a .gif file.
       PNG_TRANSFORM_STRIP_16 |
       PNG_TRANSFORM_GRAY_TO_RGB |
-      // We implement this transform explicitly in this class.
-      PNG_TRANSFORM_EXPAND;
+      // We implement this transform explicitly.
+      PNG_TRANSFORM_EXPAND |
+      // We implement this transform explicitly, regardless of require_opaque.
+      PNG_TRANSFORM_STRIP_ALPHA;
 
   if ((transforms & ~allowed_transforms) != 0) {
     LOG(DFATAL) << "Unsupported transform " << transforms;
@@ -450,6 +453,7 @@ bool GifReader::ReadPng(const std::string& body,
   }
 
   bool expand_colormap = ((transforms & PNG_TRANSFORM_EXPAND) != 0);
+  bool strip_alpha = ((transforms & PNG_TRANSFORM_STRIP_ALPHA) != 0);
 
   // Wrap the resource's response body in a structure that keeps a
   // pointer to the body and a read offset, and pass a pointer to this
@@ -463,7 +467,8 @@ bool GifReader::ReadPng(const std::string& body,
   }
 
   bool result = ReadGifToPng(gif_file, png_ptr, info_ptr,
-                             expand_colormap, require_opaque);
+                             expand_colormap, strip_alpha,
+                             require_opaque);
   if (DGifCloseFile(gif_file) == GIF_ERROR) {
     DLOG(INFO) << "Failed to close GIF.";
   }
