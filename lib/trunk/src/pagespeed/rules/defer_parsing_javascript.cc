@@ -96,6 +96,7 @@ class JavaScriptFilter : public net_instaweb::EmptyHtmlFilter {
  private:
   void AddJavascriptBlock(
       const std::string& url, const std::string& content, bool is_inline);
+  JavaScriptBlock* FindExistingBlockForUrl(const std::string& url);
   void FlushPendingJavascriptBlocks();
   net_instaweb::HtmlParse* html_parse_;
   UrlToJavaScriptBlockMap pending_javascript_blocks_;
@@ -120,17 +121,15 @@ void JavaScriptFilter::AddJavascriptBlock(
     return;
   }
 
-  UrlToJavaScriptBlockMap::iterator it = pending_javascript_blocks_.find(url);
-  if (it == pending_javascript_blocks_.end()) {
-    it = problem_javascript_blocks_.find(url);
-  }
-  // The iterator will either point to problem.end() or will point to somewhere
-  // in the middle of pending or problem, indicating it is a dupe.
-  if (it == problem_javascript_blocks_.end()) {
+  JavaScriptBlock* existing_block = FindExistingBlockForUrl(url);
+  if (existing_block == NULL) {
+    // This is a new block, so add it to the list of pending blocks.
     pending_javascript_blocks_.insert(
         std::make_pair(url, JavaScriptBlock(url, size, is_inline)));
   } else if (is_inline) {
-      (it->second).set_size(it->second.size() + size);
+    // Increment the size of inline JS for the HTML resource that
+    // contains the inline script.
+    existing_block->set_size(existing_block->size() + size);
   } else {
     LOG(INFO) << "Duplicated JavaScript: " << url;
     // Do not count into the total size for now. It may confuse users when it
@@ -142,6 +141,22 @@ void JavaScriptFilter::AddJavascriptBlock(
    return;
   }
   total_size_ += size;
+}
+
+JavaScriptBlock* JavaScriptFilter::FindExistingBlockForUrl(
+    const std::string& url) {
+  UrlToJavaScriptBlockMap::iterator it = pending_javascript_blocks_.find(url);
+  if (it != pending_javascript_blocks_.end()) {
+    return &it->second;
+  }
+
+  it = problem_javascript_blocks_.find(url);
+  if (it != problem_javascript_blocks_.end()) {
+    return &it->second;
+  }
+
+  // There is no existing block for this URL.
+  return NULL;
 }
 
 void JavaScriptFilter::FlushPendingJavascriptBlocks() {
