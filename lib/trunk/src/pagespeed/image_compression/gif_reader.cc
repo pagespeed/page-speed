@@ -55,6 +55,31 @@ struct GifInput {
   int offset_;
 };
 
+// Some older versions of gcc (4.2.x) have trouble with certain setjmp
+// declarations. To address this gcc issue, we factor a few setjmp()
+// invocations into their own narrowly scoped methods, so gcc can
+// process them properly.
+bool ProtectedPngSetIhdr(
+    png_structp png_ptr, png_infop info_ptr,
+    png_uint_32 width, png_uint_32 height, int bit_depth, int color_type,
+    int interlace_method, int compression_method, int filter_method) {
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    return false;
+  }
+  png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, color_type,
+               interlace_method, compression_method, filter_method);
+  return true;
+}
+
+bool ProtectedPngSetPlte(png_structp png_ptr, png_infop info_ptr,
+                         png_const_colorp palette, int num_palette) {
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    return false;
+  }
+  png_set_PLTE(png_ptr, info_ptr, palette, num_palette);
+  return true;
+}
+
 int ReadGifFromStream(GifFileType* gif_file, GifByteType* data, int length) {
   GifInput* input = reinterpret_cast<GifInput*>(gif_file->UserData);
   size_t copied = input->data_->copy(reinterpret_cast<char*>(data), length,
@@ -130,10 +155,9 @@ bool ReadImageDescriptor(GifFileType* gif_file,
     palette[i].green = color_map->Colors[i].Green;
     palette[i].blue = color_map->Colors[i].Blue;
   }
-  if (setjmp(png_jmpbuf(png_ptr))) {
+  if (!ProtectedPngSetPlte(png_ptr, info_ptr, palette, color_map->ColorCount)) {
     return false;
   }
-  png_set_PLTE(png_ptr, info_ptr, palette, color_map->ColorCount);
 
   if (gif_file->Image.Interlace == 0) {
     // Not interlaced. Read each line into the PNG buffer.
@@ -342,18 +366,17 @@ bool ReadGifToPng(GifFileType* gif_file,
     paletted_info_ptr = info_ptr;
   }
 
-  if (setjmp(png_jmpbuf(paletted_png_ptr))) {
+  if (!ProtectedPngSetIhdr(paletted_png_ptr,
+                           paletted_info_ptr,
+                           gif_file->SWidth,
+                           gif_file->SHeight,
+                           8,  // bit depth
+                           PNG_COLOR_TYPE_PALETTE,
+                           PNG_INTERLACE_NONE,
+                           PNG_COMPRESSION_TYPE_BASE,
+                           PNG_FILTER_TYPE_BASE)) {
     return false;
   }
-  png_set_IHDR(paletted_png_ptr,
-               paletted_info_ptr,
-               gif_file->SWidth,
-               gif_file->SHeight,
-               8,  // bit depth
-               PNG_COLOR_TYPE_PALETTE,
-               PNG_INTERLACE_NONE,
-               PNG_COMPRESSION_TYPE_BASE,
-               PNG_FILTER_TYPE_BASE);
 
   png_uint_32 row_size = AllocatePngPixels(paletted_png_ptr, paletted_info_ptr);
   if (row_size == 0) {
