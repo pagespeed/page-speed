@@ -38,25 +38,31 @@ inline int vsnprintfT(char* buffer,
 }
 
 bool CaseInsensitiveCompareChars(char x, char y) {
-  return pagespeed::string_util::ToLowerASCII(x)
-            < pagespeed::string_util::ToLowerASCII(y);
+  return pagespeed::string_util::ToLowerASCII(x) <
+      pagespeed::string_util::ToLowerASCII(y);
 }
 
 // trim from start
 inline std::string& ltrim(std::string& s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return s;
+  s.erase(s.begin(),
+          std::find_if(s.begin(), s.end(),
+                       std::not1(std::ptr_fun<char, bool>(
+                           pagespeed::string_util::IsAsciiWhitespace))));
+  return s;
 }
 
 // trim from end
 inline std::string& rtrim(std::string& s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-        return s;
+  s.erase(std::find_if(s.rbegin(), s.rend(),
+                       std::not1(std::ptr_fun<char, bool>(
+                           pagespeed::string_util::IsAsciiWhitespace))).base(),
+          s.end());
+  return s;
 }
 
 // trim from both ends
 inline std::string& trim(std::string& s) {
-        return ltrim(rtrim(s));
+  return ltrim(rtrim(s));
 }
 
 // Used by ReplaceStringPlaceholders to track the position in the string of

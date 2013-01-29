@@ -347,4 +347,13 @@ TEST(StringUtilTest, LowerCaseEqualsASCII) {
   }
 }
 
+TEST(StringUtilTest, ContainsOnlyWhitespaceASCII) {
+  EXPECT_TRUE(ContainsOnlyWhitespaceASCII(""));
+  EXPECT_TRUE(ContainsOnlyWhitespaceASCII(" "));
+  EXPECT_TRUE(ContainsOnlyWhitespaceASCII("\t"));
+  EXPECT_TRUE(ContainsOnlyWhitespaceASCII("\t \r \n  "));
+  EXPECT_FALSE(ContainsOnlyWhitespaceASCII("a"));
+  EXPECT_FALSE(ContainsOnlyWhitespaceASCII("\thello\r \n  "));
+}
+
 }  // namespace
