@@ -5,10 +5,13 @@ License: X License (old version). For license pedigree see the
 License File: license.html
 
 Description:
-This directory contains the source code of ICU 4.6.1 for C/C++. Based
-on ICU code from Chromium's repository. See Chromium's ICU
-README.chromium file for details on Chromium modifications to the ICU
-library.
+This directory contains the source code of ICU 4.6.1 for C/C++.
+
+Local Modifiations:
+1. Modified stringpiece.cpp to disable StringPiece::npos in Visual
+   Studio 2010 and 2012, which is required in order to build in those
+   environments. Chromium made the same change to their
+   stringpiece.cpp.
 
 Page Speed uses ICU to enable IDN
 (http://en.wikipedia.org/wiki/Internationalized_domain_name) support
