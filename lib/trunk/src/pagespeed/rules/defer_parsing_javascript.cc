@@ -30,6 +30,7 @@
 #include "pagespeed/core/resource.h"
 #include "pagespeed/core/result_provider.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/js/js_minify.h"
@@ -75,23 +76,30 @@ class JavaScriptFilter : public net_instaweb::EmptyHtmlFilter {
   virtual ~JavaScriptFilter() {}
 
   virtual void StartDocument() {
-    javascript_blocks_.clear();
+    pending_javascript_blocks_.clear();
+    problem_javascript_blocks_.clear();
   }
   virtual void StartElement(net_instaweb::HtmlElement* element);
+  virtual void EndElement(net_instaweb::HtmlElement* element);
   virtual void Characters(net_instaweb::HtmlCharactersNode* characters);
   virtual const char* Name() const { return "JavaScriptFilter"; }
 
-  const UrlToJavaScriptBlockMap& javascript_blocks() const {
-    return javascript_blocks_;
+  const UrlToJavaScriptBlockMap& pending_javascript_blocks() const {
+    return pending_javascript_blocks_;
   }
 
+  const UrlToJavaScriptBlockMap& problem_javascript_blocks() const {
+    return problem_javascript_blocks_;
+  }
   size_t total_size() const { return total_size_; }
 
  private:
   void AddJavascriptBlock(
       const std::string& url, const std::string& content, bool is_inline);
+  void FlushPendingJavascriptBlocks();
   net_instaweb::HtmlParse* html_parse_;
-  UrlToJavaScriptBlockMap javascript_blocks_;
+  UrlToJavaScriptBlockMap pending_javascript_blocks_;
+  UrlToJavaScriptBlockMap problem_javascript_blocks_;
   const pagespeed::PagespeedInput* pagespeed_input_;
   size_t total_size_;
 
@@ -112,9 +120,14 @@ void JavaScriptFilter::AddJavascriptBlock(
     return;
   }
 
-  UrlToJavaScriptBlockMap::iterator it = javascript_blocks_.find(url);
-  if (it == javascript_blocks_.end()) {
-    javascript_blocks_.insert(
+  UrlToJavaScriptBlockMap::iterator it = pending_javascript_blocks_.find(url);
+  if (it == pending_javascript_blocks_.end()) {
+    it = problem_javascript_blocks_.find(url);
+  }
+  // The iterator will either point to problem.end() or will point to somewhere
+  // in the middle of pending or problem, indicating it is a dupe.
+  if (it == problem_javascript_blocks_.end()) {
+    pending_javascript_blocks_.insert(
         std::make_pair(url, JavaScriptBlock(url, size, is_inline)));
   } else if (is_inline) {
       (it->second).set_size(it->second.size() + size);
@@ -129,6 +142,17 @@ void JavaScriptFilter::AddJavascriptBlock(
    return;
   }
   total_size_ += size;
+}
+
+void JavaScriptFilter::FlushPendingJavascriptBlocks() {
+  for (JavaScriptFilter::UrlToJavaScriptBlockMap::const_iterator it =
+       pending_javascript_blocks_.begin();
+       it != pending_javascript_blocks_.end();
+       ++it) {
+    problem_javascript_blocks_.insert(std::make_pair(it->first, it->second));
+  }
+
+  pending_javascript_blocks_.clear();
 }
 
 void JavaScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
@@ -163,23 +187,47 @@ void JavaScriptFilter::StartElement(net_instaweb::HtmlElement* element) {
       // (ref: HTML5 spec).
 
       if (async == NULL && defer == NULL) {
+        // Note that this leaves the block pending. The rule may still be OK if
+        // this script tag occured at the bottom of the body.
         AddJavascriptBlock(resolved_src, resource->GetResponseBody(), false);
       }
     }
+  } else {
+    FlushPendingJavascriptBlocks();
   }
 }
 
 void JavaScriptFilter::Characters(
     net_instaweb::HtmlCharactersNode* characters) {
+  net_instaweb::HtmlName::Keyword keyword =
+      net_instaweb::HtmlName::kNotAKeyword;
   net_instaweb::HtmlElement* parent = characters->parent();
   if (parent != NULL) {
-    net_instaweb::HtmlName::Keyword keyword = parent->keyword();
-    if (keyword == net_instaweb::HtmlName::kScript) {
-      AddJavascriptBlock(html_parse_->url(), characters->contents(), true);
+    keyword = parent->keyword();
+  }
+
+  // inline script
+  if (keyword == net_instaweb::HtmlName::kScript) {
+    AddJavascriptBlock(html_parse_->url(), characters->contents(), true);
+  } else {
+    // Whitespace at the end of a body does not cause flushing. Other characters
+    // should, however. Note that comments are fed through a different callback
+    // which is not overriden, thus they also do not cause flushing.
+    const std::string& contents = characters->contents();
+    if (!ContainsOnlyWhitespaceASCII(contents)) {
+      FlushPendingJavascriptBlocks();
     }
   }
 }
 
+void JavaScriptFilter::EndElement(net_instaweb::HtmlElement* element) {
+  net_instaweb::HtmlName::Keyword keyword = element->keyword();
+  if (keyword != net_instaweb::HtmlName::kScript &&
+      keyword != net_instaweb::HtmlName::kBody &&
+      keyword != net_instaweb::HtmlName::kHtml) {
+    FlushPendingJavascriptBlocks();
+  }
+}
 /* Return true if result1 has a greater size of JavaScript code than result 2,
  * false otherwise. If either of them has no size info, the url is used.
  * */
@@ -275,9 +323,9 @@ bool DeferParsingJavaScript::AppendResults(const RuleInput& rule_input,
         resource.GetResponseBody().data(), resource.GetResponseBody().length());
     html_parse.FinishParse();
 
-    const JavaScriptFilter::UrlToJavaScriptBlockMap& javascript_blocks =
-        filter.javascript_blocks();
-    if (javascript_blocks.empty()) {
+    const JavaScriptFilter::UrlToJavaScriptBlockMap& problem_javascript_blocks =
+        filter.problem_javascript_blocks();
+    if (problem_javascript_blocks.empty()) {
       continue;
     }
     if (filter.total_size() < kMaxBlockOfJavascript) {
@@ -285,8 +333,8 @@ bool DeferParsingJavaScript::AppendResults(const RuleInput& rule_input,
     }
 
     for (JavaScriptFilter::UrlToJavaScriptBlockMap::const_iterator it =
-         javascript_blocks.begin();
-         it != javascript_blocks.end();
+         problem_javascript_blocks.begin();
+         it != problem_javascript_blocks.end();
          ++it) {
       Result* result = provider->NewResult();
       result->add_resource_urls(it->first);

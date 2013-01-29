@@ -90,6 +90,14 @@ bool CaseInsensitiveStringComparator::operator()(const std::string& x,
                                       CaseInsensitiveCompareChars);
 }
 
+bool ContainsOnlyWhitespaceASCII(const std::string& str) {
+  for (std::string::const_iterator i(str.begin()); i != str.end(); ++i) {
+    if (!IsAsciiWhitespace(*i))
+      return false;
+  }
+  return true;
+}
+
 bool StringCaseEqual(const base::StringPiece& s1,
                      const base::StringPiece& s2) {
   return (s1.size() == s2.size() &&
