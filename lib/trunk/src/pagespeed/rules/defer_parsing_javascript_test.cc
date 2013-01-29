@@ -84,9 +84,6 @@ class DeferParsingJavaScriptTest : public
                        const char* script_body,
                        const char* attributes) {
     FakeDomElement* element;
-    Resource* p_resource = primary_resource();
-    std::string primary_body = p_resource->GetResponseBody();
-    size_t pos = primary_body.rfind("</body>");
     std::string script_tag ="<script type=\"text/javascript\" src=\"";
     script_tag += url;
     script_tag += "\" ";
@@ -94,15 +91,22 @@ class DeferParsingJavaScriptTest : public
       script_tag += attributes;
     }
     script_tag += " ></script>\n";
-    if (pos != std::string::npos) {
-      primary_body.insert(pos, script_tag);
-    } else {
-      primary_body.append(script_tag);
-    }
-    p_resource->SetResponseBody(primary_body);
+    AppendHTML(script_tag);
     std::string resolved_src = document()->ResolveUri(url);
     Resource* resource = NewScriptResource(resolved_src, body(), &element);
     resource->SetResponseBody(script_body);
+  }
+
+  void AppendHTML(std::string content) {
+    Resource* p_resource = primary_resource();
+    std::string primary_body = p_resource->GetResponseBody();
+    size_t pos = primary_body.rfind("</body>");
+    if (pos != std::string::npos) {
+      primary_body.insert(pos, content);
+    } else {
+      primary_body.append(content);
+    }
+    p_resource->SetResponseBody(primary_body);
   }
 
   void CheckScore(int score) {
@@ -139,6 +143,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeMinifiedJavascriptFile) {
     script.append("(){var abc=1;bar();}\n");
   }
   AddTestResource(kScriptFullUrl, script.c_str());
+  AppendHTML("<span>x</span>");
 
   CheckOneUrlViolation(kScriptFullUrl);
 }
@@ -151,6 +156,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeRelativeJavascriptFile) {
     script.append("(){var abc=1;bar();}\n");
   }
   AddTestResource(kScriptRelativeUrl, script.c_str());
+  AppendHTML("<span>x</span>");
 
   CheckOneUrlViolation(kScriptFullUrl);
 }
@@ -186,6 +192,8 @@ TEST_F(DeferParsingJavaScriptTest, LargeInlineJavascript) {
     primary_body.append(script_tag);
   }
   p_resource->SetResponseBody(primary_body);
+  AppendHTML("<span>x</span>");
+
 
   CheckOneUrlViolation(kRootUrl);
 }
@@ -212,6 +220,7 @@ TEST_F(DeferParsingJavaScriptTest, LargeCombinedJavascript) {
     primary_body.append(script_tags);
   }
   p_resource->SetResponseBody(primary_body);
+  AppendHTML("<span>x</span>");
 
   // The inline scirpt is big than the script file.
   CheckTwoUrlViolations(kRootUrl, kScriptFullUrl);
@@ -263,6 +272,7 @@ TEST_F(DeferParsingJavaScriptTest, ComputeScore) {
     primary_body.append(script_tag);
   }
   p_resource->SetResponseBody(primary_body);
+  AppendHTML("<span>x</span>");
 
   Freeze();
   CheckScore(80);
@@ -306,5 +316,77 @@ TEST_F(DeferParsingJavaScriptTest, LargeQuotedMinifiedJavascriptFile) {
 
   CheckNoViolations();
 }
+
+
+TEST_F(DeferParsingJavaScriptTest, LargeLastJavascriptFile) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(pagespeed::string_util::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  AddTestResource(kScriptFullUrl, script.c_str());
+  AppendHTML(" \n \n \t\t\n ");
+
+  CheckNoViolations();
+}
+
+TEST_F(DeferParsingJavaScriptTest, LargeAlmostLastJavascriptFile) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(pagespeed::string_util::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  AddTestResource(kScriptFullUrl, script.c_str());
+  AppendHTML(" \n \n x\n");
+
+  CheckOneUrlViolation(kScriptFullUrl);
+}
+
+
+TEST_F(DeferParsingJavaScriptTest, LargeLastWithCommentJavascriptFile) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(pagespeed::string_util::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  AddTestResource(kScriptFullUrl, script.c_str());
+  AppendHTML(" \n \n <!--- foo\nbar -->\n\t\t\n ");
+
+  CheckNoViolations();
+}
+
+TEST_F(DeferParsingJavaScriptTest, LargeAlmostLastWithCommentJavascriptFile) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(pagespeed::string_util::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  AddTestResource(kScriptFullUrl, script.c_str());
+  AppendHTML(" \n \n <!--- foo\nbar -->X\n\t\t\n ");
+
+  CheckOneUrlViolation(kScriptFullUrl);
+}
+
+TEST_F(DeferParsingJavaScriptTest, ContentAfterBody) {
+  std::string script = kUnminified;
+  for (int idx = 0; script.size() < kMaxBlockOfJavascript; ++idx) {
+    script.append("function func_");
+    script.append(pagespeed::string_util::IntToString(idx));
+    script.append("(){var abc=1;bar();}\n");
+  }
+  AddTestResource(kScriptFullUrl, script.c_str());
+
+  Resource* p_resource = primary_resource();
+  std::string primary_body = p_resource->GetResponseBody();
+  primary_body.append("<div>footer</div>");
+  p_resource->SetResponseBody(primary_body);
+
+  CheckOneUrlViolation(kScriptFullUrl);
+}
+
 
 }  // namespace
