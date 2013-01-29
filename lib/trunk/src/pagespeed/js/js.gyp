@@ -26,6 +26,8 @@
       'sources': [
         'js_minify.cc',
       ],
+      # TODO: we should fix the code so this is not needed.
+      'msvs_disabled_warnings': [ 4018 ],
       'include_dirs': [
         '<(pagespeed_root)',
       ],
