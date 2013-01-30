@@ -73,7 +73,7 @@ pagespeed::ResourceFilter* NewFilter(const std::string& analyze) {
 }
 
 void SerializeOptimizedContent(const pagespeed::Results& results,
-                               DictionaryValue* optimized_content) {
+                               base::DictionaryValue* optimized_content) {
   for (int i = 0; i < results.rule_results_size(); ++i) {
     const pagespeed::RuleResults& rule_results = results.rule_results(i);
     for (int j = 0; j < rule_results.results_size(); ++j) {
@@ -110,9 +110,9 @@ void SerializeOptimizedContent(const pagespeed::Results& results,
       }
 
       const std::string& mimetype = result.optimized_content_mime_type();
-      scoped_ptr<DictionaryValue> entry(new DictionaryValue());
+      scoped_ptr<base::DictionaryValue> entry(new base::DictionaryValue());
       entry->SetString("filename", pagespeed::ChooseOutputFilename(
-          gurl, mimetype, MD5String(content)));
+          gurl, mimetype, base::MD5String(content)));
       entry->SetString("mimetype", mimetype);
       entry->SetString("content", encoded);
       optimized_content->Set(key, entry.release());
@@ -135,7 +135,7 @@ bool RunPageSpeedRules(const std::string& data,
   // (e.g. pagespeed::dom::CreateDocument). For now, we take the less
   // efficient but simpler approach of encoding the sub-values as
   // strings.
-  scoped_ptr<const Value> data_json(base::JSONReader::ReadAndReturnError(
+  scoped_ptr<const base::Value> data_json(base::JSONReader::ReadAndReturnError(
       data,
       true,  // allow_trailing_comma
       NULL,  // error_code_out (ReadAndReturnError permits NULL here)
@@ -144,13 +144,13 @@ bool RunPageSpeedRules(const std::string& data,
     return false;
   }
 
-  if (!data_json->IsType(Value::TYPE_DICTIONARY)) {
+  if (!data_json->IsType(base::Value::TYPE_DICTIONARY)) {
     *error_string = "Input is not a JSON dictionary.";
     return false;
   }
 
-  const DictionaryValue* root =
-      static_cast<const DictionaryValue*>(data_json.get());
+  const base::DictionaryValue* root =
+      static_cast<const base::DictionaryValue*>(data_json.get());
   std::string id, har_data, document_data, timeline_data,
       resource_filter_name, locale;
   bool save_optimized_content;
@@ -216,7 +216,8 @@ bool RunPageSpeedRules(const std::string& id,
   }
 
   std::string error_msg_out;
-  scoped_ptr<const Value> document_json(base::JSONReader::ReadAndReturnError(
+  scoped_ptr<const base::Value> document_json(
+      base::JSONReader::ReadAndReturnError(
       document_data,
       true,  // allow_trailing_comma
       NULL,  // error_code_out (ReadAndReturnError permits NULL here)
@@ -225,7 +226,7 @@ bool RunPageSpeedRules(const std::string& id,
     *error_string = "could not parse DOM: " + error_msg_out;
     return false;
   }
-  if (!document_json->IsType(Value::TYPE_DICTIONARY)) {
+  if (!document_json->IsType(base::Value::TYPE_DICTIONARY)) {
     *error_string = "DOM must be a JSON dictionary";
     return false;
   }
@@ -233,7 +234,7 @@ bool RunPageSpeedRules(const std::string& id,
   // Ownership of the document_json is transferred to the returned
   // DomDocument instance.
   pagespeed::DomDocument* document = pagespeed::dom::CreateDocument(
-      static_cast<const DictionaryValue*>(document_json.release()));
+      static_cast<const base::DictionaryValue*>(document_json.release()));
 
   // Add the DOM document to the PagespeedInput object.
   if (document != NULL) {
@@ -341,7 +342,7 @@ bool RunPageSpeedRules(const std::string& id,
   }
 
   // Convert the formatted results into JSON:
-  scoped_ptr<Value> json_results(
+  scoped_ptr<base::Value> json_results(
       pagespeed::proto::FormattedResultsToJsonConverter::
       ConvertFormattedResults(formatted_results));
   if (json_results == NULL) {
@@ -350,20 +351,21 @@ bool RunPageSpeedRules(const std::string& id,
   }
 
   // Put optimized resources into JSON:
-  scoped_ptr<DictionaryValue> optimized_content(new DictionaryValue);
+  scoped_ptr<base::DictionaryValue> optimized_content(
+      new base::DictionaryValue);
   if (save_optimized_content) {
     SerializeOptimizedContent(filtered_results, optimized_content.get());
   }
 
   // Serialize all the JSON into a string.
   {
-    scoped_ptr<DictionaryValue> root(new DictionaryValue);
+    scoped_ptr<base::DictionaryValue> root(new base::DictionaryValue);
     root->SetString("id", id);
     root->SetString("resourceFilterName", resource_filter_name);
     root->SetString("locale", locale);
     root->Set("results", json_results.release());
     root->Set("optimizedContent", optimized_content.release());
-    base::JSONWriter::Write(root.get(), false, output_string);
+    base::JSONWriter::Write(root.get(), output_string);
   }
 
   return true;

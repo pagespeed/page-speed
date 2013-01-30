@@ -186,25 +186,26 @@ const char* kLocale = "en";
 void AssertValidResponse(const std::string& out, const std::string& err) {
   ASSERT_TRUE(err.empty());
   std::string error_msg_out;
-  scoped_ptr<const Value> response_json(base::JSONReader::ReadAndReturnError(
+  scoped_ptr<const base::Value> response_json(
+      base::JSONReader::ReadAndReturnError(
       out,
       true,  // allow_trailing_comma
       NULL,  // error_code_out (ReadAndReturnError permits NULL here)
       &error_msg_out));
-  ASSERT_NE(static_cast<const Value*>(NULL), response_json.get());
+  ASSERT_NE(static_cast<const base::Value*>(NULL), response_json.get());
 
-  ASSERT_TRUE(response_json->IsType(Value::TYPE_DICTIONARY));
-  const DictionaryValue* root =
-      static_cast<const DictionaryValue*>(response_json.get());
+  ASSERT_TRUE(response_json->IsType(base::Value::TYPE_DICTIONARY));
+  const base::DictionaryValue* root =
+      static_cast<const base::DictionaryValue*>(response_json.get());
 
-  ListValue* results = NULL;
+  const base::ListValue* results = NULL;
   ASSERT_TRUE(root->GetList("results.rule_results", &results));
 
   // As a basic test, check for the presence of a
   // SpecifyACacheValidator result.
-  DictionaryValue* cache_validator_result = NULL;
+  const base::DictionaryValue* cache_validator_result = NULL;
   for (size_t i = 0; i < results->GetSize(); ++i) {
-    DictionaryValue* result = NULL;
+    const base::DictionaryValue* result = NULL;
     ASSERT_TRUE(results->GetDictionary(i, &result));
     std::string rule_name;
     ASSERT_TRUE(result->GetString("rule_name", &rule_name));
@@ -216,7 +217,7 @@ void AssertValidResponse(const std::string& out, const std::string& err) {
 
   // Make sure the SpecifyACacheValidator result has the expected
   // score and impact.
-  ASSERT_NE(static_cast<DictionaryValue*>(NULL), cache_validator_result);
+  ASSERT_NE(static_cast<base::DictionaryValue*>(NULL), cache_validator_result);
   int rule_score = -1;
   ASSERT_TRUE(cache_validator_result->GetInteger("rule_score", &rule_score));
   ASSERT_EQ(0, rule_score);
@@ -229,7 +230,7 @@ TEST_F(PagespeedChromiumTest, EmptyInput) {
   std::string out, err;
   ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules("", &out, &err));
   ASSERT_TRUE(out.empty());
-  ASSERT_EQ("Line: 1, column: 1, Root value must be an array or object.", err);
+  ASSERT_EQ("Line: 1, column: 1, Unexpected token.", err);
 
   ASSERT_FALSE(pagespeed_chromium::RunPageSpeedRules(
       "", "", "", "", kFilterName, "", false, false, &out, &err));
@@ -267,7 +268,7 @@ TEST_F(PagespeedChromiumTest, Basic) {
 TEST_F(PagespeedChromiumTest, BasicSingleArgument) {
   std::string data;
   {
-    scoped_ptr<DictionaryValue> root(new DictionaryValue);
+    scoped_ptr<base::DictionaryValue> root(new base::DictionaryValue);
     root->SetString("id", kBasicId);
     root->SetString("har", kBasicHar);
     root->SetString("document", kBasicDocument);
@@ -275,7 +276,7 @@ TEST_F(PagespeedChromiumTest, BasicSingleArgument) {
     root->SetString("resource_filter", kFilterName);
     root->SetString("locale", kLocale);
     root->SetBoolean("save_optimized_content", false);
-    base::JSONWriter::Write(root.get(), false, &data);
+    base::JSONWriter::Write(root.get(), &data);
   }
   std::string out, err;
   ASSERT_TRUE(pagespeed_chromium::RunPageSpeedRules(data,
