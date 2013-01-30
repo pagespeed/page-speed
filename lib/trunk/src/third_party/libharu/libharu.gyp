@@ -85,6 +85,7 @@
       },
       'conditions': [
         ['OS=="win"', {
+          'msvs_disabled_warnings': [ 4018, 4305 ],
           'include_dirs': [
             'gen/arch/win/ia32/include',
           ],
