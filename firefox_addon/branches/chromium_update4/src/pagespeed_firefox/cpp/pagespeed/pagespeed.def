@@ -1,0 +1,6 @@
+LIBRARY   pagespeed.dll
+
+EXPORTS
+	PageSpeed_ComputeResults           @1
+	PageSpeed_ComputeAndFormatResults  @2
+	PageSpeed_DoFree                   @3
