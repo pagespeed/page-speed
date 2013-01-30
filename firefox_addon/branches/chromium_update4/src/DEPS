@@ -14,7 +14,7 @@
 
 vars = {
   "chromium_deps_root": "src/third_party/chromium_deps",
-  "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/trunk",
+  "libpagespeed_trunk": "http://page-speed.googlecode.com/svn/lib/branches/chromium_update4",
   "libpagespeed_revision": "@head",
   "libpagespeed_deps_root": "src/third_party/libpagespeed_deps",
 
@@ -22,7 +22,7 @@ vars = {
   # commented-out line below.
   "chromium_trunk":
     "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@90205",
+  "chromium_revision": "@161115",
 }
 
 deps = {
@@ -68,6 +68,7 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/third_party" +
      Var("libpagespeed_revision")),
 
+  "src/build/ios": From(Var("libpagespeed_deps_root")),
   "src/build/linux": From(Var("libpagespeed_deps_root")),
   "src/build/mac": From(Var("libpagespeed_deps_root")),
   "src/build/win": From(Var("libpagespeed_deps_root")),
@@ -79,12 +80,12 @@ deps = {
   "src/third_party/protobuf": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/base": From(Var("libpagespeed_deps_root")),
   "src/third_party/chromium/src/build": From(Var("libpagespeed_deps_root")),
-  "src/tools/data_pack": From(Var("libpagespeed_deps_root")),
-  "src/tools/grit": From(Var("libpagespeed_deps_root")),
+  "src/tools/clang": From(Var("libpagespeed_deps_root")),
 
   "src/googleurl": From(Var("chromium_deps_root")),
   "src/net/instaweb": From(Var("libpagespeed_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
+  "src/tools/grit": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 
   "src/third_party/gflags": "/deps/gflags-2.0",
@@ -122,6 +123,13 @@ deps_os = {
 
 
 hooks = [
+   {
+    # Pull clang on mac. If nothing changed, or on non-mac platforms, this takes
+    # zero seconds to run. If something changed, it downloads a prebuilt clang,
+    # which takes ~20s, but clang speeds up builds by more than 20s.
+    "pattern": ".",
+    "action": ["python", "src/tools/clang/scripts/update.py", "--mac-only"],
+  },
   {
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
     "pattern": ".",
