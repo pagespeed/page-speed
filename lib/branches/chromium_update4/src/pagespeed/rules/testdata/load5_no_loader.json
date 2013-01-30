@@ -1,0 +1,463 @@
+[
+  {
+    "startTime": 1307731771485.473,
+    "data": {
+      "usedHeapSizeDelta": 52384
+    },
+    "endTime": 1307731771488.911,
+    "type": "GCEvent",
+    "usedHeapSize": 2603712,
+    "totalHeapSize": 8061312
+  },
+  {
+    "startTime": 1307731771489.372,
+    "data": {
+      "identifier": 5,
+      "url": "http://pagespeed-advanced.prom.corp.google.com/load5_no_loader.html",
+      "requestMethod": "GET"
+    },
+    "type": "ResourceSendRequest",
+    "usedHeapSize": 2603712,
+    "totalHeapSize": 8061312
+  },
+  {
+    "startTime": 1307731771489.551,
+    "data": {
+      "x": 0,
+      "y": 0,
+      "width": 2560,
+      "height": 404
+    },
+    "children": [],
+    "endTime": 1307731771492.2842,
+    "type": "Paint",
+    "usedHeapSize": 2603712,
+    "totalHeapSize": 8061312
+  },
+  {
+    "startTime": 1307731771558.879,
+    "data": {
+      "identifier": 5,
+      "statusCode": 200,
+      "mimeType": "text/html"
+    },
+    "children": [],
+    "endTime": 1307731771558.889,
+    "type": "ResourceReceiveResponse",
+    "usedHeapSize": 2603712,
+    "totalHeapSize": 8061312
+  },
+  {
+    "startTime": 1307731771559.074,
+    "data": {
+      "identifier": 5
+    },
+    "children": [
+      {
+        "startTime": 1307731771560.0942,
+        "data": {},
+        "children": [],
+        "endTime": 1307731771560.117,
+        "type": "RecalculateStyles",
+        "usedHeapSize": 2638016,
+        "totalHeapSize": 8061312
+      }
+    ],
+    "endTime": 1307731771561.6838,
+    "type": "ResourceReceivedData",
+    "usedHeapSize": 3195104,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771561.74,
+    "data": {},
+    "children": [],
+    "endTime": 1307731771561.748,
+    "type": "RecalculateStyles",
+    "usedHeapSize": 3195104,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771565.42,
+    "stackTrace": [
+      {
+        "functionName": "",
+        "url": "http://pagespeed-advanced.prom.corp.google.com/load5_no_loader.html",
+        "lineNumber": 10,
+        "columnNumber": 17
+      }
+    ],
+    "data": {
+      "identifier": 6,
+      "url": "http://pagespeed-advanced.prom.corp.google.com/load5_1.js",
+      "requestMethod": "GET"
+    },
+    "type": "ResourceSendRequest",
+    "usedHeapSize": 4146040,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771565.5972,
+    "stackTrace": [
+      {
+        "functionName": "",
+        "url": "http://pagespeed-advanced.prom.corp.google.com/load5_no_loader.html",
+        "lineNumber": 10,
+        "columnNumber": 17
+      }
+    ],
+    "data": {
+      "identifier": 6,
+      "didFail": false
+    },
+    "type": "ResourceFinish",
+    "usedHeapSize": 4148080,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771561.768,
+    "data": {
+      "length": 286,
+      "startLine": 0,
+      "endLine": 14
+    },
+    "children": [
+      {
+        "startTime": 1307731771563.049,
+        "data": {
+          "url": "",
+          "lineNumber": 1
+        },
+        "children": [],
+        "endTime": 1307731771563.602,
+        "type": "EvaluateScript",
+        "usedHeapSize": 3837488,
+        "totalHeapSize": 8321408
+      },
+      {
+        "startTime": 1307731771563.607,
+        "data": {
+          "url": "chrome-extension://okanipcmceoeemlbjnmnbdibhgpbllgc/in-document-start_content_script.js",
+          "lineNumber": 1
+        },
+        "children": [],
+        "endTime": 1307731771564.7559,
+        "type": "EvaluateScript",
+        "usedHeapSize": 4051344,
+        "totalHeapSize": 8321408
+      },
+      {
+        "startTime": 1307731771564.863,
+        "data": {
+          "url": "http://pagespeed-advanced.prom.corp.google.com/load5_no_loader.html",
+          "lineNumber": 6
+        },
+        "children": [
+          {
+            "startTime": 1307731771565.519,
+            "stackTrace": [
+              {
+                "functionName": "",
+                "url": "http://pagespeed-advanced.prom.corp.google.com/load5_no_loader.html",
+                "lineNumber": 10,
+                "columnNumber": 17
+              }
+            ],
+            "data": {
+              "identifier": 6,
+              "statusCode": 200,
+              "mimeType": "application/x-javascript"
+            },
+            "children": [],
+            "endTime": 1307731771565.5378,
+            "type": "ResourceReceiveResponse",
+            "usedHeapSize": 4147920,
+            "totalHeapSize": 8321408
+          }
+        ],
+        "endTime": 1307731771565.639,
+        "type": "EvaluateScript",
+        "usedHeapSize": 4148080,
+        "totalHeapSize": 8321408
+      },
+      {
+        "startTime": 1307731771565.643,
+        "data": {},
+        "children": [],
+        "endTime": 1307731771565.656,
+        "type": "RecalculateStyles",
+        "usedHeapSize": 4148080,
+        "totalHeapSize": 8321408
+      }
+    ],
+    "endTime": 1307731771565.67,
+    "type": "ParseHTML",
+    "usedHeapSize": 4148080,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771565.7239,
+    "data": {
+      "length": 1,
+      "startLine": 14,
+      "endLine": 14
+    },
+    "children": [],
+    "endTime": 1307731771565.726,
+    "type": "ParseHTML",
+    "usedHeapSize": 4148080,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771565.8281,
+    "type": "MarkDOMContent",
+    "usedHeapSize": 4148080,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771565.8801,
+    "data": {
+      "identifier": 5,
+      "didFail": false,
+      "networkTime": 1307731771558.818
+    },
+    "type": "ResourceFinish",
+    "usedHeapSize": 4148080,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771566.3782,
+    "stackTrace": [
+      {
+        "functionName": "",
+        "url": "http://pagespeed-advanced.prom.corp.google.com/load5_1.js",
+        "lineNumber": 8,
+        "columnNumber": 17
+      }
+    ],
+    "data": {
+      "identifier": 7,
+      "url": "http://pagespeed-advanced.prom.corp.google.com/load5_2.js",
+      "requestMethod": "GET"
+    },
+    "type": "ResourceSendRequest",
+    "usedHeapSize": 4151024,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771566.5432,
+    "stackTrace": [
+      {
+        "functionName": "",
+        "url": "http://pagespeed-advanced.prom.corp.google.com/load5_1.js",
+        "lineNumber": 8,
+        "columnNumber": 17
+      }
+    ],
+    "data": {
+      "identifier": 7,
+      "didFail": false
+    },
+    "type": "ResourceFinish",
+    "usedHeapSize": 4153064,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771566.214,
+    "data": {
+      "url": "http://pagespeed-advanced.prom.corp.google.com/load5_1.js",
+      "lineNumber": 1
+    },
+    "children": [
+      {
+        "startTime": 1307731771566.4722,
+        "stackTrace": [
+          {
+            "functionName": "",
+            "url": "http://pagespeed-advanced.prom.corp.google.com/load5_1.js",
+            "lineNumber": 8,
+            "columnNumber": 17
+          }
+        ],
+        "data": {
+          "identifier": 7,
+          "statusCode": 200,
+          "mimeType": "application/x-javascript"
+        },
+        "children": [],
+        "endTime": 1307731771566.489,
+        "type": "ResourceReceiveResponse",
+        "usedHeapSize": 4152904,
+        "totalHeapSize": 8321408
+      }
+    ],
+    "endTime": 1307731771566.589,
+    "type": "EvaluateScript",
+    "usedHeapSize": 4153064,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771566.614,
+    "data": {},
+    "children": [],
+    "endTime": 1307731771566.627,
+    "type": "RecalculateStyles",
+    "usedHeapSize": 4153064,
+    "totalHeapSize": 8321408
+  },
+  {
+    "startTime": 1307731771568.565,
+    "data": {
+      "url": "",
+      "lineNumber": 1
+    },
+    "children": [],
+    "endTime": 1307731771569.0679,
+    "type": "EvaluateScript",
+    "usedHeapSize": 4786968,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771569.093,
+    "data": {
+      "url": "chrome-extension://bfbameneiokkgbdmiekhjnmfkcnldhhm/content/content.js",
+      "lineNumber": 1
+    },
+    "children": [],
+    "endTime": 1307731771570.117,
+    "type": "EvaluateScript",
+    "usedHeapSize": 4829008,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771570.418,
+    "stackTrace": [
+      {
+        "functionName": "",
+        "url": "http://pagespeed-advanced.prom.corp.google.com/load5_2.js",
+        "lineNumber": 8,
+        "columnNumber": 17
+      }
+    ],
+    "data": {
+      "identifier": 8,
+      "url": "http://pagespeed-advanced.prom.corp.google.com/load5_3.js",
+      "requestMethod": "GET"
+    },
+    "type": "ResourceSendRequest",
+    "usedHeapSize": 4831952,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771570.587,
+    "stackTrace": [
+      {
+        "functionName": "",
+        "url": "http://pagespeed-advanced.prom.corp.google.com/load5_2.js",
+        "lineNumber": 8,
+        "columnNumber": 17
+      }
+    ],
+    "data": {
+      "identifier": 8,
+      "didFail": false
+    },
+    "type": "ResourceFinish",
+    "usedHeapSize": 4833992,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771570.21,
+    "data": {
+      "url": "http://pagespeed-advanced.prom.corp.google.com/load5_2.js",
+      "lineNumber": 1
+    },
+    "children": [
+      {
+        "startTime": 1307731771570.504,
+        "stackTrace": [
+          {
+            "functionName": "",
+            "url": "http://pagespeed-advanced.prom.corp.google.com/load5_2.js",
+            "lineNumber": 8,
+            "columnNumber": 17
+          }
+        ],
+        "data": {
+          "identifier": 8,
+          "statusCode": 200,
+          "mimeType": "application/x-javascript"
+        },
+        "children": [],
+        "endTime": 1307731771570.522,
+        "type": "ResourceReceiveResponse",
+        "usedHeapSize": 4833832,
+        "totalHeapSize": 8841600
+      }
+    ],
+    "endTime": 1307731771570.635,
+    "type": "EvaluateScript",
+    "usedHeapSize": 4833992,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771570.6611,
+    "data": {},
+    "children": [],
+    "endTime": 1307731771570.68,
+    "type": "RecalculateStyles",
+    "usedHeapSize": 4833992,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771570.7642,
+    "data": {
+      "url": "http://pagespeed-advanced.prom.corp.google.com/load5_3.js",
+      "lineNumber": 1
+    },
+    "children": [],
+    "endTime": 1307731771573.8772,
+    "type": "EvaluateScript",
+    "usedHeapSize": 4975392,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771573.917,
+    "type": "MarkLoad",
+    "usedHeapSize": 4975392,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771573.946,
+    "data": {},
+    "children": [
+      {
+        "startTime": 1307731771573.992,
+        "data": {},
+        "children": [],
+        "endTime": 1307731771574.012,
+        "type": "Layout",
+        "usedHeapSize": 4975392,
+        "totalHeapSize": 8841600
+      }
+    ],
+    "endTime": 1307731771574.017,
+    "type": "Layout",
+    "usedHeapSize": 4975392,
+    "totalHeapSize": 8841600
+  },
+  {
+    "startTime": 1307731771574.069,
+    "data": {
+      "x": 0,
+      "y": 0,
+      "width": 2560,
+      "height": 404
+    },
+    "children": [],
+    "endTime": 1307731771574.5908,
+    "type": "Paint",
+    "usedHeapSize": 4975392,
+    "totalHeapSize": 8841600
+  }
+]
