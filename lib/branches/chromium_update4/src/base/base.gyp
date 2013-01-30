@@ -26,6 +26,8 @@
       'sources': [
         '<(chromium_root)/base/base_switches.cc',
         '<(chromium_root)/base/base_switches.h',
+        '<(chromium_root)/base/win/pe_image.cc',
+        '<(chromium_root)/base/win/pe_image.h',
       ],
       'include_dirs': [
         '<(chromium_root)',

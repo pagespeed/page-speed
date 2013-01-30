@@ -60,7 +60,7 @@ bool FormattedResultsToJsonConverter::Convert(
   if (root == NULL) {
     return false;
   }
-  base::JSONWriter::Write(root.get(), false, out);
+  base::JSONWriter::Write(root.get(), out);
   return true;
 }
 
@@ -70,13 +70,13 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedResults(
     LOG(ERROR) << "FormattedResults instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("locale", results.locale());
   if (results.has_score()) {
     root->SetInteger("score", results.score());
   }
   if (results.rule_results_size() > 0) {
-    ListValue* rule_results = new ListValue();
+    base::ListValue* rule_results = new base::ListValue();
     for (int i = 0, len = results.rule_results_size(); i < len; ++i) {
       rule_results->Append(
           ConvertFormattedRuleResults(results.rule_results(i)));
@@ -92,7 +92,7 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
     LOG(ERROR) << "FormattedRuleResults instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("rule_name", rule_results.rule_name());
   if (rule_results.has_rule_score()) {
     root->SetInteger("rule_score", rule_results.rule_score());
@@ -105,7 +105,7 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
   }
   root->SetString("localized_rule_name", rule_results.localized_rule_name());
   if (rule_results.url_blocks_size() > 0) {
-    ListValue* url_blocks = new ListValue();
+    base::ListValue* url_blocks = new base::ListValue();
     for (int i = 0, len = rule_results.url_blocks_size(); i < len; ++i) {
       url_blocks->Append(
           ConvertFormattedUrlBlockResults(rule_results.url_blocks(i)));
@@ -121,13 +121,13 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedUrlBlockResults(
     LOG(ERROR) << "FormattedUrlBlockResults instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   if (url_block_results.has_header()) {
     root->Set("header", ConvertFormatString(url_block_results.header()));
   }
 
   if (url_block_results.urls_size() > 0) {
-    ListValue* urls = new ListValue();
+    base::ListValue* urls = new base::ListValue();
     for (int i = 0, len = url_block_results.urls_size(); i < len; ++i) {
       urls->Append(ConvertFormattedUrlResult(url_block_results.urls(i)));
     }
@@ -146,10 +146,10 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedUrlResult(
     LOG(ERROR) << "FormattedUrlResult instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->Set("result", ConvertFormatString(url_result.result()));
   if (url_result.details_size() > 0) {
-    ListValue* details = new ListValue();
+    base::ListValue* details = new base::ListValue();
     for (int i = 0, len = url_result.details_size(); i < len; ++i) {
       details->Append(ConvertFormatString(url_result.details(i)));
     }
@@ -168,10 +168,10 @@ Value* FormattedResultsToJsonConverter::ConvertFormatString(
     LOG(ERROR) << "FormatString instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("format", format_string.format());
   if (format_string.args_size() > 0) {
-    ListValue* args = new ListValue();
+    base::ListValue* args = new base::ListValue();
     for (int i = 0, len = format_string.args_size(); i < len; ++i) {
       args->Append(ConvertFormatArgument(format_string.args(i)));
     }
@@ -187,7 +187,7 @@ Value* FormattedResultsToJsonConverter::ConvertFormatArgument(
     LOG(ERROR) << "FormatArgument instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("type", ConvertFormatArgumentType(format_arg.type()));
   root->SetString("localized_value", format_arg.localized_value());
   if (format_arg.has_string_value()) {

@@ -51,7 +51,7 @@ class JsonDomTest : public testing::Test {
     }
 
     document_.reset(pagespeed::dom::CreateDocument(
-        static_cast<const DictionaryValue*>(value.release())));
+        static_cast<const base::DictionaryValue*>(value.release())));
   }
 
   DomDocument* document() { return document_.get(); }
