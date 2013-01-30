@@ -46,25 +46,25 @@ class InputPopulator {
   ~InputPopulator() {}
 
   // Extract an integer from a JSON value.
-  int ToInt(const Value& value);
+  int ToInt(const base::Value& value);
 
   // Extract a string from a JSON value.
-  const std::string ToString(const Value& value);
+  const std::string ToString(const base::Value& value);
 
   // Given a JSON value representing one attribute of a resource, set the
   // corresponding attribute on the Resource object.
   void PopulateAttribute(const std::string& key,
-                         const Value& attribute_json,
+                         const base::Value& attribute_json,
                          Resource* resource);
 
   // Given a JSON value representing a single resource, populate the Resource
   // object.
-  void PopulateResource(const DictionaryValue& attribute_json,
+  void PopulateResource(const base::DictionaryValue& attribute_json,
                         Resource* resource);
 
   // Given a JSON value representing a list of resources, populate the
   // PagespeedInput object.
-  void PopulateInput(const Value& attribute_json, PagespeedInput* input);
+  void PopulateInput(const base::Value& attribute_json, PagespeedInput* input);
 
   bool error_;  // true if there's been at least one error, false otherwise
 
@@ -74,7 +74,7 @@ class InputPopulator {
 // Macro to be used only within InputPopulator instance methods:
 #define INPUT_POPULATOR_ERROR() error_ = true; LOG(DFATAL)
 
-int InputPopulator::ToInt(const Value& value) {
+int InputPopulator::ToInt(const base::Value& value) {
   int integer;
   if (value.GetAsInteger(&integer)) {
     return integer;
@@ -84,7 +84,7 @@ int InputPopulator::ToInt(const Value& value) {
   }
 }
 
-const std::string InputPopulator::ToString(const Value& value) {
+const std::string InputPopulator::ToString(const base::Value& value) {
   std::string str;
   if (value.GetAsString(&str)) {
     return str;
@@ -95,7 +95,7 @@ const std::string InputPopulator::ToString(const Value& value) {
 }
 
 void InputPopulator::PopulateAttribute(const std::string& key,
-                                       const Value& attribute_json,
+                                       const base::Value& attribute_json,
                                        Resource *resource) {
   if (key == "url") {
     // Nothing to do. we already validated this field in
@@ -107,27 +107,29 @@ void InputPopulator::PopulateAttribute(const std::string& key,
   }
 }
 
-void InputPopulator::PopulateResource(const DictionaryValue& resource_json,
-                                      Resource* resource) {
-  for (DictionaryValue::key_iterator iter = resource_json.begin_keys(),
+void InputPopulator::PopulateResource(
+    const base::DictionaryValue& resource_json,
+    Resource* resource) {
+  for (base::DictionaryValue::key_iterator iter = resource_json.begin_keys(),
            end = resource_json.end_keys(); iter != end; ++iter) {
-    Value* attribute_json;
+    const base::Value* attribute_json;
     if (resource_json.Get(*iter, &attribute_json)) {
       PopulateAttribute(*iter, *attribute_json, resource);
     }
   }
 }
 
-void InputPopulator::PopulateInput(const Value& resources_json,
+void InputPopulator::PopulateInput(const base::Value& resources_json,
                                    PagespeedInput* input) {
-  if (!resources_json.IsType(Value::TYPE_LIST)) {
+  if (!resources_json.IsType(base::Value::TYPE_LIST)) {
     INPUT_POPULATOR_ERROR() << "Top-level JSON value must be an array.";
     return;
   }
-  const ListValue& list_json = *static_cast<const ListValue*>(&resources_json);
+  const base::ListValue& list_json =
+      *static_cast<const base::ListValue*>(&resources_json);
 
   for (size_t index = 0, size = list_json.GetSize(); index < size; ++index) {
-    DictionaryValue* resource_json;
+    const base::DictionaryValue* resource_json;
     if (!list_json.GetDictionary(index, &resource_json)) {
       INPUT_POPULATOR_ERROR() << "Resource JSON value must be an object";
       continue;
@@ -151,7 +153,7 @@ void InputPopulator::PopulateInput(const Value& resources_json,
 
 bool InputPopulator::Populate(PagespeedInput *input, const char *json_data) {
   std::string error_msg_out;
-  scoped_ptr<const Value> resources_json(base::JSONReader::ReadAndReturnError(
+  scoped_ptr<const base::Value> resources_json(base::JSONReader::ReadAndReturnError(
       json_data,
       true,  // allow_trailing_comma
       NULL,  // error_code_out (ReadAndReturnError permits NULL here)
