@@ -45,7 +45,7 @@
           'source/i18n',
           'genfiles/arch/<(OS)/common/include',
         ],
-        'msvs_disabled_warnings': [4005, 4355, 4996],
+        'msvs_disabled_warnings': [ 4005, 4018, 4099, 4133, 4355, 4996 ],
       },
       'targets': [
         {
