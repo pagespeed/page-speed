@@ -72,7 +72,7 @@ bool ProtectedPngSetIhdr(
 }
 
 bool ProtectedPngSetPlte(png_structp png_ptr, png_infop info_ptr,
-                         png_const_colorp palette, int num_palette) {
+                         png_colorp palette, int num_palette) {
   if (setjmp(png_jmpbuf(png_ptr))) {
     return false;
   }
