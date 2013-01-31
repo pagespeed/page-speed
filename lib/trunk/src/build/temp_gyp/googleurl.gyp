@@ -19,6 +19,7 @@
         '<(DEPTH)/googleurl/src/gurl.h',
         '<(DEPTH)/googleurl/src/url_canon.h',
         '<(DEPTH)/googleurl/src/url_canon_etc.cc',
+        '<(DEPTH)/googleurl/src/url_canon_filesystemurl.cc',
         '<(DEPTH)/googleurl/src/url_canon_fileurl.cc',
         '<(DEPTH)/googleurl/src/url_canon_host.cc',
         '<(DEPTH)/googleurl/src/url_canon_icu.cc',

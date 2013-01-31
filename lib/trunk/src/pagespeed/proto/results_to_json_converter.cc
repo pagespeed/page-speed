@@ -26,35 +26,35 @@ namespace proto {
 // static
 bool ResultsToJsonConverter::Convert(
     const pagespeed::Results& results, std::string* out) {
-  Value* root = ConvertResults(results);
+  base::Value* root = ConvertResults(results);
   if (root == NULL) {
     return false;
   }
-  base::JSONWriter::Write(root, false, out);
+  base::JSONWriter::Write(root, out);
   delete root;
   return true;
 }
 
-Value* ResultsToJsonConverter::ConvertVersion(
+base::Value* ResultsToJsonConverter::ConvertVersion(
     const pagespeed::Version& version) {
   if (!version.IsInitialized()) {
     LOG(ERROR) << "Version instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetInteger("major", version.major());
   root->SetInteger("minor", version.minor());
   root->SetBoolean("official_release", version.official_release());
   return root;
 }
 
-Value* ResultsToJsonConverter::ConvertSavings(
+base::Value* ResultsToJsonConverter::ConvertSavings(
     const pagespeed::Savings& savings) {
   if (!savings.IsInitialized()) {
     LOG(ERROR) << "Savings instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   if (savings.has_dns_requests_saved()) {
     root->SetInteger("dns_requests_saved", savings.dns_requests_saved());
   }
@@ -77,20 +77,20 @@ Value* ResultsToJsonConverter::ConvertSavings(
   return root;
 }
 
-Value* ResultsToJsonConverter::ConvertResult(
+base::Value* ResultsToJsonConverter::ConvertResult(
     const pagespeed::Result& result) {
   if (!result.IsInitialized()) {
     LOG(ERROR) << "Result instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   if (result.has_savings()) {
     root->Set("savings", ConvertSavings(result.savings()));
   }
   if (result.resource_urls_size() > 0) {
-    ListValue* resource_urls = new ListValue();
+    base::ListValue* resource_urls = new base::ListValue();
     for (int i = 0, len = result.resource_urls_size(); i < len; ++i) {
-      resource_urls->Append(Value::CreateStringValue(result.resource_urls(i)));
+      resource_urls->Append(base::Value::CreateStringValue(result.resource_urls(i)));
     }
     root->Set("resource_urls", resource_urls);
   }
@@ -99,13 +99,13 @@ Value* ResultsToJsonConverter::ConvertResult(
   return root;
 }
 
-Value* ResultsToJsonConverter::ConvertRuleResult(
+base::Value* ResultsToJsonConverter::ConvertRuleResult(
     const pagespeed::RuleResults& rule_results) {
   if (!rule_results.IsInitialized()) {
     LOG(ERROR) << "RuleResults instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("rule_name", rule_results.rule_name());
   if (rule_results.has_rule_score()) {
     root->SetInteger("rule_score", rule_results.rule_score());
@@ -114,7 +114,7 @@ Value* ResultsToJsonConverter::ConvertRuleResult(
     root->SetDouble("rule_impact", rule_results.rule_impact());
   }
   if (rule_results.results_size() > 0) {
-    ListValue* results = new ListValue();
+    base::ListValue* results = new base::ListValue();
     for (int i = 0, len = rule_results.results_size(); i < len; ++i) {
       results->Append(ConvertResult(rule_results.results(i)));
     }
@@ -123,20 +123,20 @@ Value* ResultsToJsonConverter::ConvertRuleResult(
   return root;
 }
 
-Value* ResultsToJsonConverter::ConvertResults(
+base::Value* ResultsToJsonConverter::ConvertResults(
     const pagespeed::Results& results) {
   if (!results.IsInitialized()) {
     LOG(ERROR) << "Results instance not fully initialized.";
     return NULL;
   }
-  DictionaryValue* root = new DictionaryValue();
+  base::DictionaryValue* root = new base::DictionaryValue();
 
   if (results.has_version()) {
     root->Set("version", ConvertVersion(results.version()));
   }
 
   if (results.rule_results_size() > 0) {
-    ListValue* rule_results = new ListValue();
+    base::ListValue* rule_results = new base::ListValue();
     for (int i = 0, len = results.rule_results_size(); i < len; ++i) {
       rule_results->Append(ConvertRuleResult(results.rule_results(i)));
     }

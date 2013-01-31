@@ -23,7 +23,7 @@ import sys
 
 default_nacl_home = os.path.normpath(
     os.path.join('third_party', 'nacl_sdk'))
-default_nacl_bundle = 'pepper_20'
+default_nacl_bundle = 'pepper_23'
 
 nacl_home = os.environ.get('NACL_HOME', default_nacl_home)
 nacl_bundle = os.environ.get('NACL_BUNDLE', default_nacl_bundle)
