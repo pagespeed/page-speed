@@ -14,7 +14,7 @@
 
 vars = {
   "chromium_trunk": "http://src.chromium.org/svn/trunk",
-  "chromium_revision": "@90205",
+  "chromium_revision": "@161115",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/trunk",
   "modpagespeed_revision": "@2456",
@@ -41,6 +41,8 @@ deps = {
   "src/third_party/chromium/src/base":
     Var("chromium_trunk") + "/src/base" + Var("chromium_revision"),
 
+  "src/build/ios":
+    Var("chromium_trunk") + "/src/build/ios" + Var("chromium_revision"),
   "src/build/linux":
     Var("chromium_trunk") + "/src/build/linux" + Var("chromium_revision"),
   "src/build/mac":
@@ -74,11 +76,8 @@ deps = {
     File(Var("protobuf_trunk") + "/src/google/protobuf/descriptor.proto" +
      Var("protobuf_revision")),
 
-  "src/tools/data_pack":
-    Var("chromium_trunk") + "/src/tools/data_pack" + Var("chromium_revision"),
-
-  "src/tools/grit":
-    Var("chromium_trunk") + "/src/tools/grit" + Var("chromium_revision"),
+  "src/tools/clang":
+    (Var("chromium_trunk") + "/src/tools/clang" + Var("chromium_revision")),
 
   "src/googleurl": From(Var("chromium_deps_root")),
 
@@ -87,6 +86,7 @@ deps = {
 
   "src/testing/gmock": From(Var("chromium_deps_root")),
   "src/testing/gtest": From(Var("chromium_deps_root")),
+  "src/tools/grit": From(Var("chromium_deps_root")),
   "src/tools/gyp": From(Var("chromium_deps_root")),
 
   "src/third_party/gflags": "/deps/gflags-2.0",
@@ -125,6 +125,13 @@ skip_child_includes = [
 
 
 hooks = [
+   {
+    # Pull clang on mac. If nothing changed, or on non-mac platforms, this takes
+    # zero seconds to run. If something changed, it downloads a prebuilt clang,
+    # which takes ~20s, but clang speeds up builds by more than 20s.
+    "pattern": ".",
+    "action": ["python", "src/tools/clang/scripts/update.py", "--mac-only"],
+  },
   {
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
     "pattern": ".",

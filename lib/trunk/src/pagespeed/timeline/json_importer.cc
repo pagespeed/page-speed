@@ -32,14 +32,14 @@ class ProtoPopulator {
  public:
   ProtoPopulator() : error_(false) {}
 
-  void PopulateToplevel(const ListValue& json,
+  void PopulateToplevel(const base::ListValue& json,
                         std::vector<const InstrumentationData*>* proto_out);
-  void PopulateInstrumentationData(const DictionaryValue& json,
+  void PopulateInstrumentationData(const base::DictionaryValue& json,
                                    InstrumentationData* instr);
-  void PopulateStackFrame(const DictionaryValue& json,
+  void PopulateStackFrame(const base::DictionaryValue& json,
                           pagespeed::StackFrame* out);
   void PopulateDataDictionary(InstrumentationData::RecordType type,
-                              const DictionaryValue& json,
+                              const base::DictionaryValue& json,
                               InstrumentationData::DataDictionary* out);
 
   bool error() { return error_; }
@@ -51,25 +51,25 @@ class ProtoPopulator {
 };
 
 void ProtoPopulator::PopulateToplevel(
-    const ListValue& json,
+    const base::ListValue& json,
     std::vector<const InstrumentationData*>* proto_out) {
-  for (ListValue::const_iterator iter = json.begin(), end = json.end();
+  for (base::ListValue::const_iterator iter = json.begin(), end = json.end();
        iter != end; ++iter) {
     const Value* item = *iter;
-    if (NULL == item || !item->IsType(Value::TYPE_DICTIONARY)) {
+    if (NULL == item || !item->IsType(base::Value::TYPE_DICTIONARY)) {
       error_ = true;
       LOG(WARNING) << "Top-level list item must be a dictionary";
       continue;
     }
     scoped_ptr<InstrumentationData> instr(new InstrumentationData);
-    PopulateInstrumentationData(*static_cast<const DictionaryValue*>(item),
+    PopulateInstrumentationData(*static_cast<const base::DictionaryValue*>(item),
                                 instr.get());
     proto_out->push_back(instr.release());
   }
 }
 
 void ProtoPopulator::PopulateInstrumentationData(
-    const DictionaryValue& json,
+    const base::DictionaryValue& json,
     InstrumentationData* instr) {
   {
     std::string type_string;
@@ -148,7 +148,7 @@ void ProtoPopulator::PopulateInstrumentationData(
       break;
 
     default:
-      DictionaryValue* data_json;
+      const base::DictionaryValue* data_json;
       if (!json.GetDictionary("data", &data_json)) {
         LOG(WARNING) << "Missing data dictionary";
         error_ = true;
@@ -177,35 +177,35 @@ void ProtoPopulator::PopulateInstrumentationData(
   }
 
   {
-    ListValue* stack;
+    const base::ListValue* stack;
     if (json.GetList("stackTrace", &stack)) {
-      for (ListValue::const_iterator iter = stack->begin(),
+      for (base::ListValue::const_iterator iter = stack->begin(),
                end = stack->end(); iter != end; ++iter) {
         const Value* item = *iter;
-        if (NULL == item || !item->IsType(Value::TYPE_DICTIONARY)) {
+        if (NULL == item || !item->IsType(base::Value::TYPE_DICTIONARY)) {
           error_ = true;
           LOG(WARNING) << "'stackTrace' list item must be a dictionary";
           continue;
         }
-        PopulateStackFrame(*static_cast<const DictionaryValue*>(item),
+        PopulateStackFrame(*static_cast<const base::DictionaryValue*>(item),
                            instr->add_stack_trace());
       }
     }
   }
 
   {
-    ListValue* children;
+    const base::ListValue* children;
     if (json.GetList("children", &children)) {
-      for (ListValue::const_iterator iter = children->begin(),
+      for (base::ListValue::const_iterator iter = children->begin(),
                end = children->end(); iter != end; ++iter) {
         const Value* item = *iter;
-        if (NULL == item || !item->IsType(Value::TYPE_DICTIONARY)) {
+        if (NULL == item || !item->IsType(base::Value::TYPE_DICTIONARY)) {
           error_ = true;
           LOG(WARNING) << "'children' list item must be a dictionary";
           continue;
         }
         PopulateInstrumentationData(
-            *static_cast<const DictionaryValue*>(item),
+            *static_cast<const base::DictionaryValue*>(item),
             instr->add_children());
       }
     }
@@ -239,7 +239,7 @@ void ProtoPopulator::PopulateInstrumentationData(
 
 void ProtoPopulator::PopulateDataDictionary(
     InstrumentationData::RecordType type,
-    const DictionaryValue& json,
+    const base::DictionaryValue& json,
     InstrumentationData::DataDictionary* out) {
   switch (type) {
     case InstrumentationData::EVALUATE_SCRIPT:
@@ -333,7 +333,7 @@ void ProtoPopulator::PopulateDataDictionary(
 }
 
 void ProtoPopulator::PopulateStackFrame(
-    const DictionaryValue& json, pagespeed::StackFrame* out) {
+    const base::DictionaryValue& json, pagespeed::StackFrame* out) {
   GET_STRING_DATA("url", url);
   GET_INTEGER_DATA("lineNumber", line_number);
   GET_INTEGER_DATA("columnNumber", column_number);
@@ -362,16 +362,16 @@ bool CreateTimelineProtoFromJsonString(
     LOG(WARNING) << "JSON string failed to parse";
     return false;
   }
-  if (!json->IsType(Value::TYPE_LIST)) {
+  if (!json->IsType(base::Value::TYPE_LIST)) {
     LOG(WARNING) << "Top-level JSON value must be a list";
     return false;
   }
   return CreateTimelineProtoFromJsonValue(
-      *static_cast<const ListValue*>(json.get()), proto_out);
+      *static_cast<const base::ListValue*>(json.get()), proto_out);
 }
 
 bool CreateTimelineProtoFromJsonValue(
-    const ListValue& json,
+    const base::ListValue& json,
     std::vector<const InstrumentationData*>* proto_out) {
   ProtoPopulator populator;
   populator.PopulateToplevel(json, proto_out);

@@ -29,7 +29,7 @@
     'build_nacl%': '<(build_nacl)',
 
     # This should normally be passed in by gclient's hooks.
-    'chromium_revision%': 90205,
+    'chromium_revision%': 161115,
 
     # TODO(bmcquade); these should be removed.
     'protobuf_gyp_path%': 'third_party/protobuf/protobuf.gyp',
@@ -59,6 +59,18 @@
     'use_system_libjpeg': 0,
     'use_system_libpng': 0,
     'use_system_zlib': 0,
+
+    # We don't use google API keys in the PageSpeed build, so disable them.
+    'use_official_google_api_keys': 0,
+
+    # Disable the chromium linting plugins since our code doesn't
+    # (yet) meet their requirements.
+    'clang_use_chrome_plugins': 0,
+
+    # Disable use of special ld gold flags, since it isn't installed
+    # by default.
+    'linux_use_gold_binary': 0,
+    'linux_use_gold_flags': 0,
   },
   'target_defaults': {
     # Make sure our shadow view of chromium source is available to
@@ -68,10 +80,10 @@
     'include_dirs': [
       '<(DEPTH)/third_party/chromium/src',
     ],
+    'defines': [
+      'CHROMIUM_REVISION=<(chromium_revision)', 
+    ],
   },
-  'defines': [
-    'CHROMIUM_REVISION=<(chromium_revision)',
-  ],
   'conditions': [
     ['build_nacl==1', {
       'target_defaults': {
@@ -93,6 +105,21 @@
           '-Wl,-z,defs',
         ],
       }
+    }],
+    ['OS=="mac"', {
+      'target_defaults': {
+        'xcode_settings': {
+          'conditions': [
+            ['clang==1', {
+              # Chromium's common.gypi does not currently scope the
+              # clang binary paths relative to DEPTH, so we must
+              # override the paths here.
+              'CC': '$(SOURCE_ROOT)/<(DEPTH)/third_party/llvm-build/Release+Asserts/bin/clang',
+              'LDPLUSPLUS': '$(SOURCE_ROOT)/<(DEPTH)/third_party/llvm-build/Release+Asserts/bin/clang++',
+            }],
+          ]
+        },
+      },
     }],
     ['OS=="win"', {
       'target_defaults': {
@@ -117,3 +144,4 @@
     }]
   ],
 }
+
