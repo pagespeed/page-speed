@@ -498,7 +498,11 @@ bool GifReader::ReadPng(const std::string& body,
   GifInput input;
   input.data_ = &body;
   input.offset_ = 0;
+#if GIFLIB_MAJOR < 5
   GifFileType* gif_file = DGifOpen(&input, ReadGifFromStream);
+#else
+  GifFileType* gif_file = DGifOpen(&input, ReadGifFromStream, NULL);
+#endif
   if (gif_file == NULL) {
     return false;
   }
