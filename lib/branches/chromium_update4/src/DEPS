@@ -17,7 +17,7 @@ vars = {
   "chromium_revision": "@161115",
   "chromium_deps_root": "src/third_party/chromium_deps",
   "modpagespeed_src": "http://modpagespeed.googlecode.com/svn/trunk",
-  "modpagespeed_revision": "@2380",
+  "modpagespeed_revision": "@2456",
   "libharu_trunk": "git://github.com/libharu/libharu.git",
   "libharu_revision": "@RELEASE_2_2_0",
   "protobuf_trunk": "http://protobuf.googlecode.com/svn/tags/2.4.1",
