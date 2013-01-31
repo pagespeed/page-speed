@@ -15,13 +15,6 @@
 {
   'variables': {
     'conditions': [
-      [ 'target_arch=="ia32"', {
-        # We build for 10.4 for compatibility with Firefox 3.x.
-        'mac_deployment_target': '10.4',
-      }, {
-        # However mac x64 requires 10.5 as a minimum.
-        'mac_deployment_target': '10.5',
-      }],
       ['OS=="win"', {
         'xpcom_os': 'WINNT',
         'xpcom_compiler_abi': 'msvc',
@@ -46,6 +39,10 @@
       # Version of xulrunner SDK we build against.
       'xulrunner_sdk_version%': 2,
     },
+
+    # Semi-recent versions of Firefox (through 16) target OS X 10.5,
+    # so we do the same.
+    'mac_deployment_target': '10.5',
 
     'xulrunner_sdk_version%': '<(xulrunner_sdk_version)',
 
