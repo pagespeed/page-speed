@@ -18,19 +18,4 @@
     # single shared object.
     'library': 'static_library',
   },
-  'conditions': [
-    ['build_nacl==1', {
-      'target_defaults': {
-        'defines': [
-          # NaCL newlib's libpthread.a provides the
-          # GetRunningOnValgrind symbol already, so we should not
-          # provide it.
-          'DYNAMIC_ANNOTATIONS_PROVIDE_RUNNING_ON_VALGRIND=0',
-        ],
-        'include_dirs': [
-          '<(DEPTH)/build/nacl_header_stubs',
-        ],
-      },
-    }],
-  ],
 }
