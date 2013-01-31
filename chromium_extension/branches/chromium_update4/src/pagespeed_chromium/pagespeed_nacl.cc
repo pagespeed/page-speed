@@ -36,9 +36,9 @@ const char* kUnknownMessageId = "unknown";
 std::string MakeErrorJsonString(const std::string& value) {
   std::string error;
   // Let's build the result with value.
-  scoped_ptr<DictionaryValue> root(new DictionaryValue);
+  scoped_ptr<base::DictionaryValue> root(new base::DictionaryValue);
   root->SetString("error", value);
-  base::JSONWriter::Write(root.get(), false, &error);
+  base::JSONWriter::Write(root.get(), &error);
   return error;
 }
 
