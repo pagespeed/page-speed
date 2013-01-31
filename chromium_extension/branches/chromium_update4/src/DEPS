@@ -48,6 +48,10 @@ deps = {
     (Var("libpagespeed_trunk") + "/src/build/temp_gyp" +
      Var("libpagespeed_revision")),
 
+  "src/build/nacl_header_stubs":
+    (Var("libpagespeed_trunk") + "/src/build/nacl_header_stubs" +
+     Var("libpagespeed_revision")),
+
   "src/googleurl_noconv":
     (Var("libpagespeed_trunk") + "/src/googleurl_noconv" +
      Var("libpagespeed_revision")),
