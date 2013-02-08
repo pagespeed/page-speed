@@ -70,7 +70,8 @@ void WebpConfiguration::CopyTo(WebPConfig* webp_config) const {
 WebpScanlineWriter::WebpScanlineWriter()
     : stride_bytes_(0), rgb_(NULL), rgb_end_(NULL), position_bytes_(NULL),
       config_(NULL), webp_image_(NULL), has_alpha_(false),
-      init_ok_(false), imported_(false), got_all_scanlines_(false) {
+      init_ok_(false), imported_(false), got_all_scanlines_(false),
+      progress_hook_(NULL), progress_hook_data_(NULL) {
 }
 
 WebpScanlineWriter::~WebpScanlineWriter() {
@@ -105,7 +106,17 @@ bool WebpScanlineWriter::InitializeWrite(const WebpConfiguration& config,
   }
 
   webp_image_ = out;
+  if (config.progress_hook) {
+    progress_hook_ = config.progress_hook;
+    progress_hook_data_ = config.user_data;
+  }
   return true;
+}
+
+int WebpScanlineWriter::ProgressHook(int percent, const WebPPicture* picture) {
+  const WebpScanlineWriter* webp_writer =
+      static_cast<WebpScanlineWriter*>(picture->user_data);
+  return webp_writer->progress_hook_(percent, webp_writer->progress_hook_data_);
 }
 
 bool WebpScanlineWriter::Init(const size_t width, const size_t height,
@@ -202,6 +213,10 @@ bool WebpScanlineWriter::FinalizeWrite() {
 
   picture_.writer = WriteWebpIncrementally;
   picture_.custom_ptr = webp_image_;
+  if (progress_hook_) {
+    picture_.progress_hook = ProgressHook;
+    picture_.user_data = this;
+  }
   if (!WebPEncode(config_, &picture_)) {
     DLOG(INFO) << "Could not encode webp data. "
                << "Error " << picture_.error_code
