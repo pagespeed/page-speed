@@ -202,6 +202,26 @@
       },
     },
     {
+      'target_name': 'pagespeed_read_image',
+      'type': '<(library)',
+      'dependencies': [
+        'pagespeed_png_optimizer',
+        '<(DEPTH)/base/base.gyp:base',
+      ],
+      'sources': [
+        'read_image.cc',
+      ],
+      'include_dirs': [
+        '<(pagespeed_root)',
+        '<(DEPTH)',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(pagespeed_root)',
+        ],
+      },
+    },
+    {
       'target_name': 'pagespeed_image_test_util',
       'type': '<(library)',
       'dependencies': [

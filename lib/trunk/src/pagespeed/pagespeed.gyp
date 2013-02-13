@@ -222,6 +222,7 @@
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_attributes_factory',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_converter',
         '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_image_test_util',
+        '<(pagespeed_root)/pagespeed/image_compression/image_compression.gyp:pagespeed_read_image',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_input_pb',
         '<(pagespeed_root)/pagespeed/proto/proto_gen.gyp:pagespeed_output_pb',
         '<(pagespeed_root)/pagespeed/proto/proto.gyp:pagespeed_proto',
