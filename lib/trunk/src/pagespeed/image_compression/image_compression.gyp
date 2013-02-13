@@ -222,25 +222,5 @@
         ],
       },
     },
-    {
-      'target_name': 'pagespeed_image_resizer',
-      'type': '<(library)',
-      'dependencies': [
-        'pagespeed_scanline_utils',
-        '<(DEPTH)/base/base.gyp:base',
-      ],
-      'sources': [
-        'image_resizer.cc',
-      ],
-      'include_dirs': [
-        '<(DEPTH)',
-        '<(pagespeed_root)',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(pagespeed_root)',
-        ],
-      },
-    },
   ],
 }
