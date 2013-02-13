@@ -26,38 +26,6 @@ namespace pagespeed {
 
 namespace image_compression {
 
-enum ImageFormat {
-  IMAGE_UNKNOWN = 0,
-  IMAGE_JPEG,
-  IMAGE_PNG,
-  IMAGE_GIF,
-  IMAGE_WEBP
-};
-
-// Decode the image stream and return the image information. Use non-null
-// pointers to retrieve the informatin you need, and use null pointers to
-// ignore other information.
-//
-// If the input "pixels" is set to a null pointer, the function will finish
-// quicker because the pixel data will not be decoded. If "pixel" is set to
-// a non-null pointer, the function will return a buffer containning the pixel
-// data. You are responsible for destroying the buffer using free().
-//
-// Arguments "width" and "height" indicate the number of pixels along the
-// horizontal and vertical directions, respectively. Argument "stride" indicates
-// the number of bytes between the starting points of adjacent rows. Garbage
-// bytes may be padded to the end of rows in order to make "stride" a multiplier
-// of 4.
-//
-bool ReadImage(ImageFormat image_type,
-               const void* image_buffer,
-               size_t buffer_length,
-               void** pixels,
-               PixelFormat* pixel_format,
-               size_t* width,
-               size_t* height,
-               size_t* stride);
-
 // Return the number of channels, including color channels and alpha channel,
 // for the input pixel format.
 //   GRAY_8:    1

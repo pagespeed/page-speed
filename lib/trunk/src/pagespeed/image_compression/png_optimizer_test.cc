@@ -23,6 +23,7 @@
 #include "base/basictypes.h"
 #include "pagespeed/image_compression/gif_reader.h"
 #include "pagespeed/image_compression/png_optimizer.h"
+#include "pagespeed/image_compression/read_image.h"
 #include "pagespeed/image_compression/scanline_utils.h"
 #include "pagespeed/testing/pagespeed_test.h"
 #include "third_party/libpng/png.h"
