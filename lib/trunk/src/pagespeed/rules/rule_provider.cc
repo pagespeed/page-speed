@@ -50,6 +50,7 @@
 #include "pagespeed/rules/remove_query_strings_from_static_resources.h"
 #include "pagespeed/rules/serve_resources_from_a_consistent_url.h"
 #include "pagespeed/rules/serve_scaled_images.h"
+#include "pagespeed/rules/server_response_time.h"
 #include "pagespeed/rules/specify_a_cache_validator.h"
 #include "pagespeed/rules/specify_a_vary_accept_encoding_header.h"
 #include "pagespeed/rules/specify_charset_early.h"
@@ -86,6 +87,7 @@ static const char* kCoreRules[] = {
   "putcssinthedocumenthead",
   "removequerystringsfromstaticresources",
   "serveresourcesfromaconsistenturl",
+  "serverresponsetime",
   "servescaledimages",
   "specifyacachevalidator",
   "specifyavaryacceptencodingheader",
@@ -209,6 +211,7 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("serveresourcesfromaconsistenturl",
        rules::ServeResourcesFromAConsistentUrl());
   RULE("servescaledimages", rules::ServeScaledImages());
+  RULE("serverresponsetime", rules::ServerResponseTime());
   RULE("specifyacachevalidator", rules::SpecifyACacheValidator());
   RULE("specifyavaryacceptencodingheader",
        rules::SpecifyAVaryAcceptEncodingHeader());
