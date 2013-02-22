@@ -25,6 +25,7 @@
 #include "base/values.h"
 #include "pagespeed/core/pagespeed_input.h"
 #include "pagespeed/core/resource_filter.h"
+#include "pagespeed/core/uri_util.h"
 #include "third_party/modp_b64/modp_b64.h"
 
 namespace pagespeed {
@@ -44,10 +45,22 @@ class InputPopulator {
   void PopulateInput(const Value& har_json, PagespeedInput* input);
   void DeterminePageTimings(const base::DictionaryValue& log_json,
                             PagespeedInput* input);
-  void PopulateResource(const base::DictionaryValue& entry_json, Resource* resource);
+  void PopulateResource(const base::DictionaryValue& entry_json,
+                        Resource* resource,
+                        const std::map<std::string, int>& min_connect_times);
   void PopulateHeaders(const base::DictionaryValue& headers_json, HeaderType htype,
                        Resource* resource);
   std::string GetString(const base::DictionaryValue& object, const std::string& key);
+
+  int GetEntryConnectTime(const base::DictionaryValue* entry_json);
+  int GetEntryWaitTime(const base::DictionaryValue* entry_json);
+  int GetMinConnectTimeForHost(
+      const std::map<std::string, int>& min_connect_times,
+      const std::string& host);
+  std::string GetEntryHost(const base::DictionaryValue* entry_json);
+
+
+
 
   int64 page_started_millis_;
   bool error_;
@@ -86,19 +99,106 @@ void InputPopulator::PopulateInput(const Value& har_json,
     return;
   }
 
-  for (size_t index = 0, size = entries_json->GetSize();
+  // We need to get the minimum connect time that is greater than zero in
+  // order to estimate our RTT. We do this by looping through our entries once
+  // before we do our full analysis.
+  size_t index = 0, size = 0;
+  std::map<std::string, int> min_connect_times;
+  const base::DictionaryValue* entry_json;
+  for (index = 0, size = entries_json->GetSize(); index < size; ++index) {
+    if (!entries_json->GetDictionary(index, &entry_json)) {
+      INPUT_POPULATOR_ERROR() << "Entry item must be an object.";
+      continue;
+    }
+    int connect_ms = GetEntryConnectTime(entry_json);
+    if (connect_ms == -1) {
+      LOG(WARNING) << "No connect time set";
+      continue;
+    }
+    std::string host = GetEntryHost(entry_json);
+    if (host.empty()) {
+      INPUT_POPULATOR_ERROR() << "Request URL must be a string";
+      continue;
+    }
+    int min_connect_ms = GetMinConnectTimeForHost(min_connect_times, host);
+    if (min_connect_ms == -1 ||
+        connect_ms < min_connect_ms) {
+      min_connect_times[host] = connect_ms;
+    }
+  }
+
+  for (index = 0, size = entries_json->GetSize();
        index < size; ++index) {
-    const base::DictionaryValue* entry_json;
     if (!entries_json->GetDictionary(index, &entry_json)) {
       INPUT_POPULATOR_ERROR() << "Entry item must be an object.";
       continue;
     }
     scoped_ptr<Resource> resource(new Resource);
-    PopulateResource(*entry_json, resource.get());
+    PopulateResource(*entry_json, resource.get(), min_connect_times);
     if (!error_) {
       input->AddResource(resource.release());
     }
   }
+}
+
+int InputPopulator::GetEntryConnectTime(
+    const base::DictionaryValue* entry_json) {
+  const base::DictionaryValue* timings_json;
+  int connect_ms = -1;
+
+  if (!entry_json->GetDictionary("timings", &timings_json)) {
+    LOG(ERROR) << "timings item must be an object.";
+    return -1;
+  }
+  if (!timings_json->GetInteger("connect", &connect_ms)) {
+      // No error technically. Connect is technically optional.
+    return -1;
+  }
+
+  return connect_ms;
+}
+
+int InputPopulator::GetEntryWaitTime(const base::DictionaryValue* entry_json) {
+  const base::DictionaryValue* timings_json;
+  int wait_ms = -1;
+
+  if (!entry_json->GetDictionary("timings", &timings_json)) {
+    LOG(ERROR) << "timings item must be an object.";
+    return -1;
+  }
+  if (!timings_json->GetInteger("wait", &wait_ms)) {
+    LOG(ERROR) << "wait item must be an integer.";
+    return -1;
+  }
+
+  return wait_ms;
+}
+
+int InputPopulator::GetMinConnectTimeForHost(
+    const std::map<std::string, int>& min_connect_times,
+    const std::string& host) {
+  const std::map<std::string, int>::const_iterator find_host =
+      min_connect_times.find(host);
+  if (find_host == min_connect_times.end()) {
+    return -1;
+  }
+
+  return find_host->second;
+}
+
+std::string InputPopulator::GetEntryHost(
+    const base::DictionaryValue* entry_json) {
+  const base::DictionaryValue* request_json;
+  std::string request_url;
+
+  if (!entry_json->GetDictionary("request", &request_json)) {
+    return request_url;
+  }
+  if (!request_json->GetString("url", &request_url)) {
+    return request_url;
+  }
+
+  return uri_util::GetHost(request_url);
 }
 
 void InputPopulator::DeterminePageTimings(
@@ -139,8 +239,10 @@ void InputPopulator::DeterminePageTimings(
   }
 }
 
-void InputPopulator::PopulateResource(const base::DictionaryValue& entry_json,
-                                      Resource* resource) {
+void InputPopulator::PopulateResource(
+    const base::DictionaryValue& entry_json,
+    Resource* resource,
+    const std::map<std::string, int>& min_connect_times) {
   // Determine if the resource was loaded after onload.
   {
     std::string started_datetime;
@@ -169,6 +271,21 @@ void InputPopulator::PopulateResource(const base::DictionaryValue& entry_json,
       } else {
         INPUT_POPULATOR_ERROR() << "Malformed resource startedDateTime: "
                                 << started_datetime;
+      }
+    }
+  }
+
+  // Get the timing information.
+  {
+    std::string host = GetEntryHost(&entry_json);
+    if (!host.empty()) {
+      int connect_ms = GetMinConnectTimeForHost(min_connect_times, host);
+      if (connect_ms != -1) {
+        int wait_ms = GetEntryWaitTime(&entry_json);
+        if (wait_ms == -1) {
+          return;
+        }
+        resource->SetFirstByteMillis(wait_ms - connect_ms / 2);
       }
     }
   }

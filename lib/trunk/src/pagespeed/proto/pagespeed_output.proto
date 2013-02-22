@@ -348,6 +348,13 @@ message AvoidFlashOnMobileDetails {
   optional string height = 3;
 }
 
+message ServerResponseTimeDetails {
+  extend ResultDetails {
+    optional ServerResponseTimeDetails message_set_extension = 5460564;  // 'SRT'
+  }
+  optional int32 first_byte_millis = 1;
+}
+
 message Result {
   // Identifier of rule that produced this result. DEPRECATED (rule name is
   // stored in RuleResults)

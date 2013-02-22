@@ -51,6 +51,9 @@ class Resource {
   void SetResponseProtocol(Protocol protocol) {
     response_protocol_ = protocol;
   }
+  void SetFirstByteMillis(int millis) {
+    first_byte_millis_ = millis;
+  }
 
   // In some cases, the Cookie header can differ from the cookie(s)
   // that would be associated with a resource. For instance, if a resource
@@ -115,12 +118,17 @@ class Resource {
     return response_body_modified_;
   }
 
-
   // Get the cookies specified via SetCookies. If SetCookies was
   // unspecified, this will fall back to the Cookie request header. If that
   // header is empty, this method falls back to the Set-Cookie response
   // header.
   const std::string& GetCookies() const;
+
+  // Return the number of milliseconds before the first byte of the body was
+  // seen. This should return -1 if it is unset.
+  const int GetFirstByteMillis() const {
+    return first_byte_millis_;
+  }
 
   // Do we have a request start time for this resource? Note that we
   // do not provide a getter for the request start time, because we do not
@@ -185,6 +193,7 @@ class Resource {
   std::string cookies_;
   ResourceType type_;
   int request_start_time_millis_;
+  int first_byte_millis_;
 
   DISALLOW_COPY_AND_ASSIGN(Resource);
 };

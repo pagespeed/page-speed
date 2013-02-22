@@ -559,6 +559,9 @@ InputCapabilities PagespeedInput::EstimateCapabilities() const {
       // headers were provided.
       capabilities.add(InputCapabilities::REQUEST_HEADERS);
     }
+    if (resource.GetFirstByteMillis() > -1) {
+      capabilities.add(InputCapabilities::FIRST_BYTE_TIMES);
+    }
   }
 
   if (top_level_browsing_context_ != NULL) {

@@ -38,6 +38,7 @@ class InputCapabilities {
     REQUEST_START_TIMES        = 1<<6,
     TIMELINE_DATA              = 1<<7,
     DEPENDENCY_DATA            = 1<<8,
+    FIRST_BYTE_TIMES           = 1<<9,
     ALL                        = ~0;
 
   InputCapabilities() : capabilities_mask_(NONE) {}

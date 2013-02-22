@@ -76,6 +76,12 @@ const char* kHarInput = (
     "          \"redirectUrl\":\"\","
     "          \"headersSize\":-1,"
     "          \"bodySize\":13"
+    "        },"
+    "        \"timings\":{"
+    "          \"connect\": 2,"
+    "          \"send\": 2,"
+    "          \"wait\": 100,"
+    "          \"receive\": 100"
     "        }"
     "      },"
     "      {"
@@ -107,6 +113,12 @@ const char* kHarInput = (
     "          \"redirectUrl\":\"\","
     "          \"headersSize\":-1,"
     "          \"bodySize\":13"
+    "        },"
+    "        \"timings\":{"
+    "          \"connect\": 100,"
+    "          \"send\": 2,"
+    "          \"wait\": 200,"
+    "          \"receive\": 100"
     "        }"
     "      }"
     "    ]"
@@ -148,6 +160,12 @@ const char* kHarInputBase64 = (
     "          \"redirectUrl\":\"\","
     "          \"headersSize\":-1,"
     "          \"bodySize\":13"
+    "        },"
+    "        \"timings\":{"
+    "          \"connect\": 100,"
+    "          \"send\": 100,"
+    "          \"wait\": 100,"
+    "          \"receive\": 100"
     "        }"
     "      }"
     "    ]"
@@ -170,6 +188,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
+  EXPECT_EQ(99, resource1.GetFirstByteMillis());
   EXPECT_FALSE(input->IsResourceLoadedAfterOnload(resource1));
 
   const Resource& resource2 = input->GetResource(1);
@@ -180,6 +199,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ(200, resource2.GetResponseStatusCode());
   EXPECT_EQ("application/javascript",
             resource2.GetResponseHeader("content-type"));
+  EXPECT_EQ(199, resource2.GetFirstByteMillis());
   EXPECT_EQ("Hello, world!", resource2.GetResponseBody());
   EXPECT_TRUE(input->IsResourceLoadedAfterOnload(resource2));
 
@@ -210,6 +230,7 @@ TEST(HttpArchiveTest, ValidInputBase64) {
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
+  EXPECT_EQ(50, resource1.GetFirstByteMillis());
   EXPECT_FALSE(input->IsResourceLoadedAfterOnload(resource1));
 }
 
@@ -253,6 +274,10 @@ TEST(HttpArchiveTest, MissingText) {
       "          \"httpVersion\":\"HTTP/1.1\","
       "          \"headers\":[],"
       "          \"content\":{},"
+      "        },"
+      "        \"timings\":{"
+      "          \"connect\": 2,"
+      "          \"wait\": 100"
       "        }"
       "      }"
       "    ]"

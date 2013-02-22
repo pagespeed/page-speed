@@ -63,7 +63,8 @@ Resource::Resource()
       status_code_(-1),
       response_protocol_(UNKNOWN_PROTOCOL),
       type_(OTHER),
-      request_start_time_millis_(-1) {
+      request_start_time_millis_(-1),
+      first_byte_millis_(-1) {
 }
 
 Resource::~Resource() {
