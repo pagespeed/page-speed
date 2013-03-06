@@ -246,7 +246,7 @@ bool CssTokenizer::TakeString(std::string* out_token, size_t *inout_index) {
 }
 
 bool CssTokenizer::TakeUrl(std::string* out_token) {
-  if (index_ >= css_body_.length()) {
+  if (index_ + kCssUrlDirectiveLen >= css_body_.length()) {
     return false;
   }
   std::string possible_url_directive(
