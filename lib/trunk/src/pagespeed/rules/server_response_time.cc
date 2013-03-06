@@ -80,9 +80,9 @@ void ServerResponseTime::FormatResults(const ResultVector& results,
 
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
-      // deteced as having slow server response times. It describes the
+      // detected as having slow server response times. It describes the
       // problem.
-      _("Long web server response times delay page loading. Reduce your"
+      _("Long web server response times delay page loading. Reduce your "
         "response times to make your page load faster."));
 
   for (ResultVector::const_iterator i = results.begin(), end = results.end();
