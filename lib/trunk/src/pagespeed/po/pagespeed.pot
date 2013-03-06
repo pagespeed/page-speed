@@ -318,6 +318,12 @@ msgstr ""
 msgid "Enable compression"
 msgstr ""
 
+#  The name of a Page Speed rule that tells users to improve
+#  their server response time. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Improve Server Response Time"
+msgstr ""
+
 #  Name of a Page Speed rule. A longer description
 #  would be "Insert (or move) small CSS resources directly into the
 #  HTML document" but rule names are intentionally short so we use
@@ -381,6 +387,12 @@ msgstr ""
 #  see) after the images and resources needed to show the part
 #  within the initially visible region have loaded.
 msgid "Load visible images first"
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having slow server response times. It describes the
+#  problem.
+msgid "Long web server response times delay page loading. Reduce your response times to make your page load faster."
 msgstr ""
 
 #  Detail info for one image URL. It tells the user how much can
