@@ -27,19 +27,31 @@
 #include "pagespeed/core/rule_input.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/resource.pb.h"
 
 namespace pagespeed {
 
 namespace rules {
 
 namespace {
+  // TODO(mankoff): These weights are quick hack to get around the fact that we
+  // don't track what is loaded syncrhonously vs asynchronously currently.
+  //Instead we simply assign HTML a higher weight than other resources.
   const int32 kFirstByteMillisThreshold = 100;
   const int32 kMillisPerRequestWeight = 100;
+  const double kHtmlWeight = 1.0;
+  const double kCssWeight = 0.5;
+  const double kJsWeight = 0.5;
+  const double kOtherWeight = 0.1;
+  // TODO(mankoff): Break out these weights further? Images, Flash, Iframes vs
+  // main HTML, etc.
 }
 
 ServerResponseTime::ServerResponseTime()
     : pagespeed::Rule(pagespeed::InputCapabilities(
-        pagespeed::InputCapabilities::FIRST_BYTE_TIMES)) {}
+        pagespeed::InputCapabilities::FIRST_BYTE_TIMES |
+        pagespeed::InputCapabilities::ONLOAD |
+        pagespeed::InputCapabilities::REQUEST_START_TIMES)) {}
 
 const char* ServerResponseTime::name() const {
   return "ServerResponseTime";
@@ -55,10 +67,18 @@ UserFacingString ServerResponseTime::header() const {
 bool ServerResponseTime::AppendResults(const RuleInput& rule_input,
                                        ResultProvider* provider) {
   const PagespeedInput& input = rule_input.pagespeed_input();
+  const RedirectRegistry* redirect_registry =
+      input.GetResourceCollection().GetRedirectRegistry();
+
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
+    if (input.IsResourceLoadedAfterOnload(resource)) {
+      continue;
+    }
 
     if (resource.GetFirstByteMillis() >= kFirstByteMillisThreshold) {
+      const Resource* final_resource =
+          redirect_registry->GetFinalRedirectTarget(&resource);
       Result* result = provider->NewResult();
       result->add_resource_urls(resource.GetRequestUrl());
       ResultDetails* details = result->mutable_details();
@@ -67,6 +87,11 @@ bool ServerResponseTime::AppendResults(const RuleInput& rule_input,
               ServerResponseTimeDetails::message_set_extension);
 
       srt_details->set_first_byte_millis(resource.GetFirstByteMillis());
+      srt_details->set_resource_type(resource.GetResourceType());
+      if (final_resource != NULL && final_resource != &resource) {
+        srt_details->set_final_resource_type(
+            final_resource->GetResourceType());
+      }
     }
   }
   return true;
@@ -115,10 +140,21 @@ double ServerResponseTime::ComputeResultImpact(
     const Result& result) {
   const ServerResponseTimeDetails& srt_details = result.details().GetExtension(
       ServerResponseTimeDetails::message_set_extension);
-
   const ClientCharacteristics& client = input_info.client_characteristics();
-  // Assuming that 100ms roughly equals 1 request and the first 100ms is free:
-  return client.requests_weight() *
+
+  const ResourceType resource_type = srt_details.has_final_resource_type() ?
+      srt_details.final_resource_type() : srt_details.resource_type();
+
+  double weight = kOtherWeight;
+  if (resource_type == HTML) {
+    weight = kHtmlWeight;
+  } else if (resource_type == JS) {
+    weight = kJsWeight;
+  } else if (resource_type == CSS) {
+    weight = kCssWeight;
+  }
+
+  return client.requests_weight() * weight *
       (srt_details.first_byte_millis() - kFirstByteMillisThreshold) /
       kMillisPerRequestWeight;
 }

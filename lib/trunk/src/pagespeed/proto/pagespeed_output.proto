@@ -22,6 +22,7 @@ option java_package = "com.googlecode.page_speed";
 
 package pagespeed;
 
+import "resource.proto";
 import "timeline.proto";
 
 message Savings {
@@ -353,6 +354,11 @@ message ServerResponseTimeDetails {
     optional ServerResponseTimeDetails message_set_extension = 5460564;  // 'SRT'
   }
   optional int32 first_byte_millis = 1;
+  optional ResourceType resource_type = 2;
+  // final_resource_type is used when a resource is a redirect. This field 
+  // represents the resource_type of the resource that is at the end of the
+  // redirect chain.
+  optional ResourceType final_resource_type = 3;
 }
 
 message Result {

@@ -40,64 +40,119 @@ class ServerResponseTimeTest : public PagespeedRuleTest<ServerResponseTime> {
   void AddTestResource(const std::string &url,
                        const int32 first_byte_millis,
                        const std::string &body) {
-    Resource* resource = new Resource;
-    resource->SetResponseStatusCode(200);
-    resource->SetRequestUrl(url);
+    Resource* resource = NewResource(url, 200);
     resource->SetFirstByteMillis(first_byte_millis);
     resource->SetResponseBody(body);
-    AddResource(resource);
+  }
+
+  void AddPrimaryTestResource(const std::string &url,
+                              const int32 first_byte_millis,
+                              const std::string &body) {
+    Resource* resource = NewPrimaryResource(url);
+    resource->SetFirstByteMillis(first_byte_millis);
+    resource->SetResponseBody(body);
+  }
+
+  void AddRedirectTestResource(const std::string &url,
+                               const std::string& location,
+                               const int32 first_byte_millis) {
+    Resource* resource = NewResource(url, 302);
+    resource->SetFirstByteMillis(first_byte_millis);
+    resource->AddResponseHeader("Location", location);
   }
 };
 
 TEST_F(ServerResponseTimeTest, FastResult) {
-  AddTestResource("http://www.example.com/hello.html",
-                  1,
-                  "Hello, World!");
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         1,
+                         "Hello, World!");
   CheckNoViolations();
 }
 
 TEST_F(ServerResponseTimeTest, BarelyFastResult) {
-  AddTestResource("http://www.example.com/hello.html",
-                  kFirstByteMillisThreshold - 1,
-                  "Hello, World!");
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         kFirstByteMillisThreshold - 1,
+                         "Hello, World!");
   CheckNoViolations();
 }
 
 TEST_F(ServerResponseTimeTest, BarelySlowResult) {
-  AddTestResource("http://www.example.com/hello.html",
-                  kFirstByteMillisThreshold,
-                  "Hello, World!");
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         kFirstByteMillisThreshold,
+                         "Hello, World!");
   CheckOneUrlViolation("http://www.example.com/hello.html");
 }
 
 TEST_F(ServerResponseTimeTest, SlowResult) {
-  AddTestResource("http://www.example.com/hello.html",
-                  kFirstByteMillisThreshold * 10,
-                  "Hello, World!");
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         kFirstByteMillisThreshold * 10,
+                         "Hello, World!");
   CheckOneUrlViolation("http://www.example.com/hello.html");
 }
 
 TEST_F(ServerResponseTimeTest, SlowSecondResult) {
-  AddTestResource("http://www.example.com/hello.html",
-                  2,
-                  "Hello, World!");
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         2,
+                         "Hello, World!");
   AddTestResource("http://www.example.com/hello2.html",
-                  kFirstByteMillisThreshold * 10,
-                  "Hello, World!");
+                         kFirstByteMillisThreshold * 10,
+                         "Hello, World!");
   CheckOneUrlViolation("http://www.example.com/hello2.html");
 }
 
 TEST_F(ServerResponseTimeTest, TwoSlowResults) {
-  AddTestResource("http://www.example.com/hello.html",
-                  kFirstByteMillisThreshold * 10,
-                  "Hello, World!");
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         kFirstByteMillisThreshold * 10,
+                         "Hello, World!");
   AddTestResource("http://www.example.com/hello2.html",
-                  kFirstByteMillisThreshold * 10,
-                  "Hello, World!");
+                         kFirstByteMillisThreshold * 10,
+                         "Hello, World!");
   CheckTwoUrlViolations(
       "http://www.example.com/hello.html",
       "http://www.example.com/hello2.html");
 }
 
+TEST_F(ServerResponseTimeTest, SlowRedirect) {
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         kFirstByteMillisThreshold - 1,
+                         "Hello, World!");
+  AddRedirectTestResource("http://www.example.com/hello2.html",
+                          "http://www.example.com/hello.html",
+                          kFirstByteMillisThreshold * 10);
+
+  CheckOneUrlViolation("http://www.example.com/hello2.html");
+}
+
+TEST_F(ServerResponseTimeTest, TwoSlowRedirects) {
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         kFirstByteMillisThreshold - 1,
+                         "Hello, World!");
+
+  AddRedirectTestResource("http://www.example.com/hello2.html",
+                          "http://www.example.com/hello.html",
+                          kFirstByteMillisThreshold * 10);
+
+  AddRedirectTestResource("http://www.example.com/hello3.html",
+                          "http://www.example.com/hello2.html",
+                          kFirstByteMillisThreshold * 10);
+
+  CheckTwoUrlViolations(
+      "http://www.example.com/hello2.html",
+      "http://www.example.com/hello3.html");
+}
+
+TEST_F(ServerResponseTimeTest, SlowRedirectToSlowPage) {
+  AddPrimaryTestResource("http://www.example.com/hello.html",
+                         kFirstByteMillisThreshold * 10,
+                         "Hello, World!");
+
+  AddRedirectTestResource("http://www.example.com/hello2.html",
+                          "http://www.example.com/hello.html",
+                          kFirstByteMillisThreshold * 10);
+
+  CheckTwoUrlViolations(
+      "http://www.example.com/hello.html",
+      "http://www.example.com/hello2.html");
+}
 
 }  // namespace
