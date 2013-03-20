@@ -132,13 +132,13 @@ TEST_F(LeverageBrowserCachingTest, OneShortOneLongLifetime) {
 // cache lifetimes for, since these resources tend to have fixed URLs
 // and thus it's not possible to include a fingerprint of the
 // resource's contents in the URL. For these resources we expect a
-// cache lifetime of one day instead of one week.
+// cache lifetime of 12 hours instead of one week.
 TEST_F(LeverageBrowserCachingTest, ShorterExpectedLifetimeThirdPartyContent) {
-  AddTestResource("http://www.example2.com/a", "max-age=86400");
-  AddTestResource("http://www.example2.com/b", "max-age=86399");
+  AddTestResource("http://www.example2.com/a", "max-age=43200");
+  AddTestResource("http://www.example2.com/b", "max-age=43199");
   Freeze();
   ASSERT_EQ(3, pagespeed_input()->num_resources());
-  CheckOneViolation("http://www.example2.com/b", 86399000, 57);
+  CheckOneViolation("http://www.example2.com/b", 43199000, 53);
 }
 
 }  // namespace
