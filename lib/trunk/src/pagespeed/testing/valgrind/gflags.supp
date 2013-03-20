@@ -13,30 +13,21 @@
 # limitations under the License.
 
 {
-   gflags_staticinit
-   Memcheck:Leak
-   ...
-   fun:_ZN3fLS25dont_pass0toDEFINE_stringEPcPKc
-   fun:_Z41__static_initialization_and_destruction_0ii
-   fun:_GLOBAL__I__ZN3fLS18FLAGS_*E
-   ...
-}
-{
    gflags_setusagemessage
    Memcheck:Leak
    fun:malloc
    fun:strdup
    fun:_ZN6google15SetUsageMessageERKSs
+   ...
    fun:main
 }
 {
-   gflags_parsecommandlineflags_setargv
+   gflags_setargv
    Memcheck:Leak
    fun:malloc
    fun:strdup
    fun:_ZN6google7SetArgvEiPPKc
-   fun:_ZN6googleL29ParseCommandLineFlagsInternalEPiPPPcbb
-   fun:_ZN6google21ParseCommandLineFlagsEPiPPPcb
+   ...
    fun:main
 }
 {
@@ -47,9 +38,10 @@
    fun:_ZN6googleL29ParseCommandLineFlagsInternalEPiPPPcbb
    fun:_ZN6google28ParseCommandLineFlagsEPiPPPcb
    ...
+   fun:main
 }
 {
-   gflags_new_string
+   gflags_new_string_debugbuild
    Memcheck:Leak
    fun:_Znwm
    fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
@@ -57,5 +49,33 @@
    fun:_ZNSsC1EPKcRKSaIcE
    fun:_ZN3fLS25dont_pass0toDEFINE_stringEPcPKc
    fun:_Z41__static_initialization_and_destruction_0ii
+   ...
+   fun:(below main)
+}
+
+# Unfortunately, nothing from gflags shows up in this leak signature,
+# so we retain the pagespeed_test reference to constrain the string
+# allocation whitelist to leaks in that file. This is more broad than
+# we would like. Note that this only applies to strings allocated as
+# part of statically initialized storage, so strings allocated after
+# main() are not whitelisted.
+{
+   gflags_new_string_releasebuild
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   ...
+   fun:_GLOBAL__sub_I_pagespeed_test.cc
+   fun:__libc_csu_init
+   fun:(below main)
+}
+
+# CommandLine::Init() leaks a bunch of stuff.
+{
+   commandline_init
+   Memcheck:Leak
+   fun:_Znwm
+   ...
+   fun:_ZN11CommandLine4InitEiPKPKc
    ...
 }
