@@ -29,8 +29,9 @@
 
 namespace {
 
-const int64 kMillisInADay = 1000 * 60 * 60 * 24;
-const int64 kMillisInAWeek = kMillisInADay * 7;
+const int64 kMillisInAnHour = 1000 * 60 * 60;
+const int64 kMinAgeForThirdPartyContent = kMillisInAnHour * 12;
+const int64 kMinAgeForSameDomainContent = kMillisInAnHour * 7 * 24;
 
 // Extract the freshness lifetime from the result object.
 int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
@@ -91,7 +92,8 @@ int64 ComputeAverageFreshnessLifetimeMillis(
   // In computing the score, we also need to account for the resources
   // that are properly cached, adding the target caching lifetime for
   // each such resource.
-  freshness_lifetime_sum += (number_properly_cached_resources * kMillisInAWeek);
+  freshness_lifetime_sum +=
+      (number_properly_cached_resources * kMinAgeForSameDomainContent);
 
   return freshness_lifetime_sum / number_static_resources;
 }
@@ -107,10 +109,10 @@ struct SortByFreshnessLifetime {
 // Resources served from third-party domains tend to have fixed URLs
 // and thus it's not possible to include a fingerprint of the
 // resource's contents in the URL. For these resources we expect a
-// cache lifetime of one day instead of one week. Note that we will
+// cache lifetime of 12 hours instead of one week. Note that we will
 // fail to detect cases where a completely separate cookieless domain
 // is being used (e.g. foo.com and foostatic.com, and will instead
-// suggest caching for just 1 day in those cases).
+// suggest caching for just 12 hours in those cases).
 int64 GetExpectedFreshnessLifetimeForResource(
     const pagespeed::PagespeedInput& input,
     const pagespeed::Resource& resource) {
@@ -119,7 +121,7 @@ int64 GetExpectedFreshnessLifetimeForResource(
     // whether the resource is on the same or a different domain. For
     // backward compatibility, we default to a freshness lifetime of a
     // week.
-    return kMillisInAWeek;
+    return kMinAgeForSameDomainContent;
   }
 
   const std::string primary_resource_domain =
@@ -127,9 +129,9 @@ int64 GetExpectedFreshnessLifetimeForResource(
   const std::string resource_domain =
       pagespeed::uri_util::GetDomainAndRegistry(resource.GetRequestUrl());
   if (primary_resource_domain == resource_domain) {
-    return kMillisInAWeek;
+    return kMinAgeForSameDomainContent;
   } else {
-    return kMillisInADay;
+    return kMinAgeForThirdPartyContent;
   }
 }
 
@@ -164,11 +166,11 @@ bool LeverageBrowserCaching::AppendResults(const RuleInput& rule_input,
   // ComputeAverageFreshnessLifetimeMillis assumes that the Results
   // emitted by this rule is the intersection of those that return
   // true for IsLikelyStaticResource and those that have an explicit
-  // freshness lifetime less than kMillisInAWeek (the computation of
-  // number_properly_cached_resources makes this assumption). If
-  // AppendResults changes such that this is no longer true, the
-  // computation of number_properly_cached_resources will need to
-  // change to match.
+  // freshness lifetime less than kMinAgeForSameDomainContent (the
+  // computation of number_properly_cached_resources makes this
+  // assumption). If AppendResults changes such that this is no longer
+  // true, the computation of number_properly_cached_resources will
+  // need to change to match.
   const PagespeedInput& input = rule_input.pagespeed_input();
   for (int i = 0, num = input.num_resources(); i < num; ++i) {
     const Resource& resource = input.GetResource(i);
@@ -284,13 +286,14 @@ int LeverageBrowserCaching::ComputeScore(const InputInformation& input_info,
     return -1;
   }
 
-  if (avg_freshness_lifetime > kMillisInAWeek) {
+  if (avg_freshness_lifetime > kMinAgeForSameDomainContent) {
     LOG(DFATAL) << "Average freshness lifetime " << avg_freshness_lifetime
                 << " exceeds max suggested freshness lifetime "
-                << kMillisInAWeek;
-    avg_freshness_lifetime = kMillisInAWeek;
+                << kMinAgeForSameDomainContent;
+    avg_freshness_lifetime = kMinAgeForSameDomainContent;
   }
-  return static_cast<int>(100 * avg_freshness_lifetime / kMillisInAWeek);
+  return static_cast<int>(
+      100 * avg_freshness_lifetime / kMinAgeForSameDomainContent);
 }
 
 double LeverageBrowserCaching::ComputeResultImpact(
@@ -299,7 +302,7 @@ double LeverageBrowserCaching::ComputeResultImpact(
       CachingDetails::message_set_extension);
   double lifetime =
       static_cast<double>(caching_details.freshness_lifetime_millis());
-  if (lifetime < 0.0 || lifetime > kMillisInAWeek) {
+  if (lifetime < 0.0 || lifetime > kMinAgeForSameDomainContent) {
     LOG(DFATAL) << "Invalid freshness lifetime: " << lifetime;
     lifetime = 0.0;
   }
@@ -308,7 +311,7 @@ double LeverageBrowserCaching::ComputeResultImpact(
   //   requests, but the cost of the bytes transferred over the net rather than
   //   taken from cache.
   return client.requests_weight() * client.expected_cache_hit_rate() *
-      (1.0 - lifetime / static_cast<double>(kMillisInAWeek));
+      (1.0 - lifetime / static_cast<double>(kMinAgeForSameDomainContent));
 }
 
 }  // namespace rules
