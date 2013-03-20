@@ -24,7 +24,7 @@ class Result;
 class ResponseByteResultFilter : public ResultFilter {
  public:
   // The default threshold for this filter.
-  static const int kDefaultThresholdBytes = 256;
+  static const int kDefaultThresholdBytes = 512;
 
   // Construct a ResponseByteResultFilter with the given
   // threshold. Results that have a response byte savings less than
@@ -46,4 +46,3 @@ class ResponseByteResultFilter : public ResultFilter {
 }
 
 #endif  // PAGESPEED_FILTERS_RESPONSE_BYTE_RESULT_FILTER_H_
-
