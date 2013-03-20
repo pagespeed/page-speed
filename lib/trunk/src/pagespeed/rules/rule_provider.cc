@@ -21,13 +21,11 @@
 #include "pagespeed/rules/avoid_bad_requests.h"
 #include "pagespeed/rules/avoid_charset_in_meta_tag.h"
 #include "pagespeed/rules/avoid_css_import.h"
-#include "pagespeed/rules/avoid_excess_serialization.h"
 #include "pagespeed/rules/avoid_flash_on_mobile.h"
 #include "pagespeed/rules/avoid_landing_page_redirects.h"
 #include "pagespeed/rules/avoid_long_running_scripts.h"
 #include "pagespeed/rules/combine_external_resources.h"
 #include "pagespeed/rules/defer_parsing_javascript.h"
-#include "pagespeed/rules/eliminate_unnecessary_reflows.h"
 #include "pagespeed/rules/enable_gzip_compression.h"
 #include "pagespeed/rules/enable_keep_alive.h"
 #include "pagespeed/rules/inline_previews_of_visible_images.h"
@@ -67,11 +65,9 @@ static const char* kCoreRules[] = {
   "avoidbadrequests",
   "avoidcharsetinmetatag",
   "avoidcssimport",
-  "avoidexcessserialization",
   "avoidlandingpageredirects",
   "avoidlongrunningscripts",
   "deferparsingjavascript",
-  "eliminateunnecessaryreflows",
   "enablegzipcompression",
   "enablekeepalive",
   "inlinesmallcss",
@@ -170,14 +166,12 @@ Rule* CreateRuleWithName(bool save_optimized_content, const std::string& name) {
   RULE("avoidbadrequests", rules::AvoidBadRequests());
   RULE("avoidcharsetinmetatag", rules::AvoidCharsetInMetaTag());
   RULE("avoidcssimport", rules::AvoidCssImport());
-  RULE("avoidexcessserialization", rules::AvoidExcessSerialization());
   RULE("avoidflashonmobile", rules::AvoidFlashOnMobile());
   RULE("avoidlandingpageredirects", rules::AvoidLandingPageRedirects());
   RULE("avoidlongrunningscripts", rules::AvoidLongRunningScripts());
   RULE("combineexternalcss", rules::CombineExternalCss());
   RULE("combineexternaljavascript", rules::CombineExternalJavaScript());
   RULE("deferparsingjavascript", rules::DeferParsingJavaScript());
-  RULE("eliminateunnecessaryreflows", rules::EliminateUnnecessaryReflows());
   RULE("enablegzipcompression", rules::EnableGzipCompression());
   RULE("enablekeepalive", rules::EnableKeepAlive());
   RULE("inlinepreviewsofvisibleimages", rules::InlinePreviewsOfVisibleImages());
