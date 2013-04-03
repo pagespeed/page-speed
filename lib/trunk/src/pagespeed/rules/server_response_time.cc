@@ -61,7 +61,7 @@ UserFacingString ServerResponseTime::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to improve
   // their server response time. This is displayed in a list of
   // rule names that Page Speed generates.
-  return _("Improve Server Response Time");
+  return _("Improve server response time");
 }
 
 bool ServerResponseTime::AppendResults(const RuleInput& rule_input,
