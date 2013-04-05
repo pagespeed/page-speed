@@ -37,13 +37,74 @@ const char* kRuleName = "PreferAsyncResources";
 const size_t kMaxChunksPerScriptMatcher = 5;
 
 const char* kScriptMatchers[][kMaxChunksPerScriptMatcher] = {
+  // Google Analytics. See:
+  // https://developers.google.com/analytics/devguides/collection/gajs/asyncTracking
   { "google-analytics.com/ga.js", NULL },
+
+  // Urchin.js is the name of the code snippet for an old version of the Google
+  // Analytics tracking code.  We strongly recommend you to use the new Google
+  // Analytics. See: http://www.google.com/urchin/faq.html
   { "google-analytics.com/urchin.js", NULL },
 
   // See: http://developers.facebook.com/docs/reference/javascript/
   { "connect.facebook.net/", "/all.js", NULL },
 
-  // TODO: Add additional scripts that can be loaded asynchronously.
+  // See: https://developers.google.com/+/web/+1button/#async-load
+  { "apis.google.com/js/plusone.js", NULL },
+
+  // See: https://twitter.com/about/resources/buttons
+  { "platform.twitter.com/widgets.js", NULL },
+
+  // Quantcast.  See:
+  // https://www.quantcast.com/learning-center/guides/using-the-quantcast-asynchronous-tag/
+  { "quantserve.com/quant.js", NULL },
+
+  // comScore tag uses https://sb.scorecardresearch.com/ for secure site, and
+  // http://b.scorecardresearch.com/ for HTTP.
+  // See: http://www.netmonitor.cz/sites/default/files/mobilewebcensus-allplatforms.pdf
+  { "b.scorecardresearch.com/beacon.js", NULL},
+
+  // Google DFP GPT.  See:
+  // https://support.google.com/dfp_premium/bin/answer.py?hl=en&answer=1638622
+  { "www.googletagservices.com/tag/js/gpt.js", NULL},
+
+  // ShareThis: http://support.sharethis.com/customer/portal/articles/475260
+  { "w.sharethis.com/button/buttons.js", NULL},
+
+  // Pinterest:
+  // https://help.pinterest.com/entries/21101982-adding-the-pin-it-button-to-your-website
+  { "assets.pinterest.com/js/pinit.js", NULL},
+
+  // Disqus: http://disqus.com/admin/universalcode/
+  { "disqus.com/", "count.js", NULL},
+  // Seems few sites are using hte embed.js (total of 326 in 2013/03/13
+  // httparchive).
+  { "disqus.com/", "embed.js", NULL},
+
+  // ChartBeat: http://chartbeat.com/docs/adding_the_code/
+  { "static.chartbeat.com/js/chartbeat.js", NULL},
+
+  // New Relic: https://newrelic.com/docs/features/how-does-real-user-monitoring-work#rum-for-browsers-without-the-navigation-timing-api
+  { "d1ros97qkrwjf5.cloudfront.net/", "/eum/rum.js", NULL},
+
+  // Clicky: no documentation found, but there is a blog post:
+  // http://clicky.com/blog/205/asynchronous-tracking-code-take-2
+  { "static.getclicky.com/js", NULL},
+
+  // BuySellAds: http://blog.buysellads.com/2010/new-feature-non-blocking-asynchronous-ad-code/
+  { "s3.buysellads.com/ac/bsa.js", NULL},
+
+  // StumbleUpon: no documentation found.
+  { "platform.stumbleupon.com/", "/widgets.js", NULL},
+
+  // Yandex: no doc, or in russian that I cannot read.
+  { "mc.yandex.ru/metrika/watch.js", NULL},
+
+  // Tynt: no doc.
+  { "cdn.tynt.com/tc.js", NULL},
+  { "cdn.tynt.com/ti.js", NULL},
+
+  // NOTE: Add additional scripts here that can be loaded asynchronously.
 };
 
 const size_t kNumScriptMatchers =

@@ -40,6 +40,24 @@ class PreferAsyncResourcesTest
   static const char* kFacebookScriptEnGbUrl;
   static const char* kFacebookScriptAcceptedUrl;
   static const char* kFacebookScriptRejectedUrl;
+  static const char* kPlusOneScriptUrl;
+  static const char* kTwitterScriptUrl;
+  static const char* kQuantCastScriptUrl;
+  static const char* kComScoreScriptUrl;
+  static const char* kComScoreSecureScriptUrl;
+  static const char* kGptScriptUrl;
+  static const char* kShareThisScriptUrl;
+  static const char* kPinterestScriptUrl;
+  static const char* kDisqusScriptUrl;
+  static const char* kDisqusEmbedScriptUrl;
+  static const char* kChartBeatScriptUrl;
+  static const char* kNewRelicScriptUrl;
+  static const char* kClickyScriptUrl;
+  static const char* kBuySellAdsScriptUrl;
+  static const char* kStumbleUponScriptUrl;
+  static const char* kShareaHolicScriptUrl;
+  static const char* kYandexScriptUrl;
+  static const char* kTyntScriptUrl;
 
   virtual void DoSetUp() {
     NewPrimaryResource(kRootUrl);
@@ -151,6 +169,40 @@ const char* PreferAsyncResourcesTest::kFacebookScriptEnUsUrl =
     "http://connect.facebook.net/en_US/all.js";
 const char* PreferAsyncResourcesTest::kFacebookScriptEnGbUrl =
     "http://connect.facebook.net/en_GB/all.js";
+const char* PreferAsyncResourcesTest::kPlusOneScriptUrl =
+    "http://apis.google.com/js/plusone.js";
+const char* PreferAsyncResourcesTest::kTwitterScriptUrl =
+    "http://platform.twitter.com/widgets.js";
+const char* PreferAsyncResourcesTest::kQuantCastScriptUrl =
+    "http://quantserve.com/quant.js";
+const char* PreferAsyncResourcesTest::kComScoreScriptUrl =
+    "http://b.scorecardresearch.com/beacon.js";
+const char* PreferAsyncResourcesTest::kComScoreSecureScriptUrl =
+    "https://sb.scorecardresearch.com/beacon.js";
+const char* PreferAsyncResourcesTest::kGptScriptUrl =
+    "http://www.googletagservices.com/tag/js/gpt.js";
+const char* PreferAsyncResourcesTest::kShareThisScriptUrl =
+    "http://w.sharethis.com/button/buttons.js";
+const char* PreferAsyncResourcesTest::kPinterestScriptUrl =
+    "http://assets.pinterest.com/js/pinit.js";
+const char* PreferAsyncResourcesTest::kDisqusScriptUrl =
+    "http://example.disqus.com/count.js";
+const char* PreferAsyncResourcesTest::kDisqusEmbedScriptUrl =
+    "http://example.disqus.com/embed.js";
+const char* PreferAsyncResourcesTest::kChartBeatScriptUrl =
+    "http://static.chartbeat.com/js/chartbeat.js";
+const char* PreferAsyncResourcesTest::kNewRelicScriptUrl =
+    "http://d1ros97qkrwjf5.cloudfront.net/42/eum/rum.js";
+const char* PreferAsyncResourcesTest::kClickyScriptUrl =
+    "http://static.getclicky.com/js";
+const char* PreferAsyncResourcesTest::kBuySellAdsScriptUrl =
+    "http://s3.buysellads.com/ac/bsa.js";
+const char* PreferAsyncResourcesTest::kStumbleUponScriptUrl =
+    "http://platform.stumbleupon.com/1/widgets.js";
+const char* PreferAsyncResourcesTest::kYandexScriptUrl =
+    "http://mc.yandex.ru/metrika/watch.js";
+const char* PreferAsyncResourcesTest::kTyntScriptUrl =
+    "http://cdn.tynt.com/tc.js";
 
 // This URL isn't valid for getting the FB js, however it should match
 // our matcher.
@@ -343,6 +395,109 @@ TEST_F(PreferAsyncResourcesRelativeTest, SyncGoogleAnalyticsRelativeUrl) {
   element->AddAttribute("src", "ga.js");
   CreateCssElement(body());
   CheckOneViolation(kRelativeRootUrl, kGaScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, PlusOneAboveOtherContentIsBad) {
+  CreateScriptElement(kPlusOneScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kPlusOneScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, TwitterOtherContentIsBad) {
+  CreateScriptElement(kTwitterScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kTwitterScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, QuantCastOtherContentIsBad) {
+  CreateScriptElement(kQuantCastScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kQuantCastScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, ComScoreOtherContentIsBad) {
+  CreateScriptElement(kComScoreScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kComScoreScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, ComScoreSecureOtherContentIsBad) {
+  CreateScriptElement(kComScoreSecureScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kComScoreSecureScriptUrl);
+}
+
+
+TEST_F(PreferAsyncResourcesTest, GptOtherContentIsBad) {
+  CreateScriptElement(kGptScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kGptScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, ShareThisOtherContentIsBad) {
+  CreateScriptElement(kShareThisScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kShareThisScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, PinterestOtherContentIsBad) {
+  CreateScriptElement(kPinterestScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kPinterestScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, DisqusOtherContentIsBad) {
+  CreateScriptElement(kDisqusScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kDisqusScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, DisqusEmbedOtherContentIsBad) {
+  CreateScriptElement(kDisqusEmbedScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kDisqusEmbedScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, ChartBeatOtherContentIsBad) {
+  CreateScriptElement(kChartBeatScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kChartBeatScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, NewRelicOtherContentIsBad) {
+  CreateScriptElement(kNewRelicScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kNewRelicScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, ClickyOtherContentIsBad) {
+  CreateScriptElement(kClickyScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kClickyScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, BuySellAdsOtherContentIsBad) {
+  CreateScriptElement(kBuySellAdsScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kBuySellAdsScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, StumbleUponOtherContentIsBad) {
+  CreateScriptElement(kStumbleUponScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kStumbleUponScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, YandexOtherContentIsBad) {
+  CreateScriptElement(kYandexScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kYandexScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, TyntOtherContentIsBad) {
+  CreateScriptElement(kTyntScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kTyntScriptUrl);
 }
 
 }  // namespace
