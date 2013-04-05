@@ -328,9 +328,10 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
                                     rule_results_);
   }
 
+  scoped_ptr<RULE> rule_;
+
  private:
   scoped_ptr<pagespeed::RuleInput> rule_input_;
-  scoped_ptr<pagespeed::Rule> rule_;
   pagespeed::RuleResults rule_results_;
   pagespeed::ResultProvider provider_;
 };
