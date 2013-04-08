@@ -126,7 +126,7 @@ class Resource {
 
   // Return the number of milliseconds before the first byte of the body was
   // seen. This should return -1 if it is unset.
-  const int GetFirstByteMillis() const {
+  int GetFirstByteMillis() const {
     return first_byte_millis_;
   }
 
