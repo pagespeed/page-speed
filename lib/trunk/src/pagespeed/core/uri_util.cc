@@ -28,8 +28,7 @@ namespace {
 
 class DocumentFinderVisitor : public pagespeed::DomElementVisitor {
  public:
-  explicit DocumentFinderVisitor(const std::string& url)
-      : url_(url), document_(NULL) {}
+  explicit DocumentFinderVisitor(const std::string& url) : url_(url) {}
 
   virtual void Visit(const pagespeed::DomElement& node);
 
