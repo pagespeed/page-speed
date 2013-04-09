@@ -75,7 +75,6 @@ BrowsingContext::BrowsingContext(
       top_level_context_(top_level_context),
       parent_context_(parent_context),
       document_resource_(document_resource),
-      document_(NULL),
       event_dom_content_msec_(-1),
       event_dom_content_tick_(-1),
       event_load_msec_(-1),
