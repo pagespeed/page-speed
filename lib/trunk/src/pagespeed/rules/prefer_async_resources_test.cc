@@ -55,7 +55,6 @@ class PreferAsyncResourcesTest
   static const char* kClickyScriptUrl;
   static const char* kBuySellAdsScriptUrl;
   static const char* kStumbleUponScriptUrl;
-  static const char* kShareaHolicScriptUrl;
   static const char* kYandexScriptUrl;
   static const char* kTyntScriptUrl;
 
