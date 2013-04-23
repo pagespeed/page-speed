@@ -32,7 +32,7 @@ using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
-const int kFirstByteMillisThreshold = 100;
+const int kFirstByteMillisThreshold = 200;
 
 
 class ServerResponseTimeTest : public PagespeedRuleTest<ServerResponseTime> {
