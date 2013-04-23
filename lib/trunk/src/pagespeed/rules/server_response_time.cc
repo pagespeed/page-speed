@@ -37,7 +37,7 @@ namespace {
   // TODO(mankoff): These weights are quick hack to get around the fact that we
   // don't track what is loaded syncrhonously vs asynchronously currently.
   //Instead we simply assign HTML a higher weight than other resources.
-  const int32 kFirstByteMillisThreshold = 100;
+  const int32 kFirstByteMillisThreshold = 200;
   const int32 kMillisPerRequestWeight = 100;
   const double kHtmlWeight = 1.0;
   const double kCssWeight = 0.5;
