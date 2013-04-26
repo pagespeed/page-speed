@@ -89,7 +89,7 @@ deps = {
   "src/tools/gyp": From(Var("chromium_deps_root")),
 
   "src/third_party/gflags": "/deps/gflags-2.0",
-  "src/third_party/giflib": "/deps/giflib-5.0.4",
+  "src/third_party/giflib": "/deps/giflib-4.1.6",
   "src/third_party/icu": "/deps/icu461",
   "src/third_party/libjpeg": "/deps/jpeg-8c",
   "src/third_party/libpng": "/deps/libpng-1.5.4",
