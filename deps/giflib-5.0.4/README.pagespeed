@@ -1,0 +1,9 @@
+URL: http://giflib.sourceforge.net/
+Version: 5.0.4
+License: MIT
+License File: COPYING
+
+Description:
+This is giflib version 5.0.4, a library for manipulating gif files.
+
+Local Modifications: none
