@@ -152,8 +152,8 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/third_party/giflib/giflib.gyp:dgiflib',
         '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
+        '<(DEPTH)/third_party/optipng/optipng.gyp:opngreduc',
         '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
-        '<(pagespeed_root)/third_party/optipng/optipng.gyp:opngreduc',
       ],
       'sources': [
         'gif_reader.cc',
