@@ -12,4 +12,5 @@ If you wish to learn how PNG optimization is done, or to know about
 other similar tools, read the PNG-Tech article "A guide to PNG
 optimization".
 
-Local Modifications: None
+Local Modifications: 
+* only the opngreduc component of optipng is included.
