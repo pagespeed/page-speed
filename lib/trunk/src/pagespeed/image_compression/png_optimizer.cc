@@ -42,7 +42,7 @@ extern "C" {
 #include "third_party/zlib/zlib.h"
 #endif
 
-#include "third_party/optipng/src/opngreduc.h"
+#include "third_party/optipng/src/opngreduc/opngreduc.h"
 }
 
 using pagespeed::image_compression::PngCompressParams;
