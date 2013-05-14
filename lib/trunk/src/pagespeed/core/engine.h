@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/memory/scoped_ptr.h"
 
 namespace pagespeed {
 
@@ -58,6 +59,22 @@ class AlwaysAcceptResultFilter : public ResultFilter {
 
  private:
   DISALLOW_COPY_AND_ASSIGN(AlwaysAcceptResultFilter);
+};
+
+
+// A ResultFilter that ANDs the result of two or more filters.
+class AndResultFilter : public ResultFilter {
+ public:
+  // AndResultFilter takes ownership of the passed filters.
+  AndResultFilter(ResultFilter* filter1, ResultFilter* filter2)
+      : filter1_(filter1), filter2_(filter2) {}
+  virtual ~AndResultFilter() {}
+
+  virtual bool IsAccepted(const Result& result) const;
+
+ private:
+  scoped_ptr<ResultFilter> filter1_;
+  scoped_ptr<ResultFilter> filter2_;
 };
 
 class Engine {
