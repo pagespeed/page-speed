@@ -356,4 +356,8 @@ bool AlwaysAcceptResultFilter::IsAccepted(const Result& result) const {
   return true;
 }
 
+bool AndResultFilter::IsAccepted(const Result& result) const {
+  return filter1_->IsAccepted(result) && filter2_->IsAccepted(result);
+}
+
 }  // namespace pagespeed
