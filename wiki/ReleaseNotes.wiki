@@ -81,7 +81,7 @@ New features:
   * Rules ported to native library
     * Leverage browser caching
   * Added HAR (HTTP Archive) support
-  * Released [http://code.google.com/p/page-speed/wiki/DownloadPageSpeed?tm=2 Page Speed SDK]
+  * Released [http://code.google.com/p/page-speed/wiki/HowToBuildNativeLibraries Page Speed SDK]
   * Activity Panel
     * Full support for Firefox 3.6
     * Firefox 3.5 and earlier are no longer supported
