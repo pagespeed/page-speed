@@ -2,39 +2,7 @@ To download and install Page Speed, please visit our download page:
 
 http://code.google.com/speed/page-speed/download.html
 
-===Page Speed Command-Line Utilities===
+===Build from source===
 
-Currently Windows-only
+Please go to [https://code.google.com/p/page-speed/wiki/HowToBuildNativeLibraries HowToBuildNativeLibraries].
 
-  * `har_to_pagespeed`: Run Page Speed on a HAR file. Download for [http://page-speed.googlecode.com/files/har_to_pagespeed.exe Windows]
-  * `pagespeed_optimize_image`: Page Speed image optimizer for PNG, GIF, and JPG (converts GIF to PNG). Download for [http://page-speed.googlecode.com/files/pagespeed_optimize_image.exe Windows]
-
-===Page Speed SDK===
-
-_NEW!_ Download the Page Speed SDK for Windows and Linux: [https://dl-ssl.google.com/page-speed/sdk/current/page-speed-sdk.zip page-speed-sdk.zip]
-
-Also see EmbeddingPageSpeed.
-
-*Linux*
-
-You will need the `g++` package, and the `libjpeg`, `libpng`, and `zlib` dev packages installed on your system. For instance, on Ubuntu, you can run:
-
-{{{
-sudo apt-get install g++ zlib1g-dev libpng12-dev libjpeg62-dev
-}}}
-
-To build the SDK:
-
-{{{
-unzip page-speed-1.8.zip
-cd page-speed-1.8
-make
-}}}
-
-*Windows*
-
-Windows users need to download the Page Speed SDK Windows dependencies: [http://page-speed.googlecode.com/files/page-speed-windeps.zip page-speed-windeps.zip]. This zip file contains static libraries for zlib, libpng, and libjpeg.
-
-Unzip page-speed-1.8.zip, then unzip page-speed-windeps.zip in the page-speed-1.8 directory (the directory that contains directories named pagespeed, base, build, third_party, etc). This will overlay the required dependencies into the Page Speed SDK build tree.
-
-Open pagespeed.sln and build.
