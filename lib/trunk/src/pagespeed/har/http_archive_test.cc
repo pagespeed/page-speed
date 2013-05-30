@@ -125,6 +125,105 @@ const char* kHarInput = (
     "  }"
     "}");
 
+const char* kHarSslInput = (
+    "{"
+    "  \"log\":{"
+    "    \"version\":\"1.2\","
+    "    \"creator\":{\"name\":\"http_archive_test\", \"version\":\"1.0\"},"
+    "    \"pages\":["
+    "      {"
+    "        \"startedDateTime\": \"2009-04-16T12:07:23.321Z\","
+    "        \"id\": \"page_0\","
+    "        \"title\": \"Example Page\","
+    "        \"pageTimings\": {"
+    "          \"onLoad\": 1500"
+    "        }"
+    "      }"
+    "    ],"
+    "    \"entries\":["
+    "      {"
+    "        \"pageref\": \"page_0\","
+    "        \"startedDateTime\": \"2009-04-16T12:07:23.596Z\","
+    "        \"request\":{"
+    "          \"method\":\"GET\","
+    "          \"url\":\"https://www.example.com/index.html\","
+    "          \"httpVersion\":\"HTTP/1.1\","
+    "          \"cookies\":[],"
+    "          \"headers\":["
+    "            {\"name\":\"X-Foo\", \"value\":\"bar\"}"
+    "          ],"
+    "          \"headersSize\":-1,"
+    "          \"bodySize\":0"
+    "        },"
+    "        \"response\":{"
+    "          \"status\":200,"
+    "          \"statusText\":\"OK\","
+    "          \"httpVersion\":\"HTTP/1.1\","
+    "          \"cookies\":[],"
+    "          \"headers\":["
+    "            {\"name\":\"Content-Type\", \"value\":\"text/html\"}"
+    "          ],"
+    "          \"content\":{"
+    "            \"size\":13,"
+    "            \"mimeType\":\"text/html\","
+    "            \"encoding\":\"\","
+    "            \"text\":\"Hello, world!\""
+    "          },"
+    "          \"redirectUrl\":\"\","
+    "          \"headersSize\":-1,"
+    "          \"bodySize\":13"
+    "        },"
+    "        \"timings\":{"
+    "          \"connect\": 120,"
+    "          \"ssl\": 80,"
+    "          \"send\": 2,"
+    "          \"wait\": 100,"
+    "          \"receive\": 100"
+    "        }"
+    "      },"
+    "      {"
+    "        \"pageref\": \"page_0\","
+    "        \"startedDateTime\": \"2009-05-16T12:07:25.596Z\","
+    "        \"request\":{"
+    "          \"method\":\"GET\","
+    "          \"url\":\"https://www.example.com/postonload.js\","
+    "          \"httpVersion\":\"HTTP/1.1\","
+    "          \"cookies\":[],"
+    "          \"headers\":[],"
+    "          \"headersSize\":-1,"
+    "          \"bodySize\":0"
+    "        },"
+    "        \"response\":{"
+    "          \"status\":200,"
+    "          \"statusText\":\"OK\","
+    "          \"httpVersion\":\"HTTP/1.1\","
+    "          \"cookies\":[],"
+    "          \"headers\":["
+    "            {\"name\":\"Content-Type\","
+    "             \"value\":\"application/javascript\"}"
+    "          ],"
+    "          \"content\":{"
+    "            \"size\":13,"
+    "            \"mimeType\":\"application/javascript\","
+    "            \"text\":\"Hello, world!\""
+    "          },"
+    "          \"redirectUrl\":\"\","
+    "          \"headersSize\":-1,"
+    "          \"bodySize\":13"
+    "        },"
+    "        \"timings\":{"
+    "          \"connect\": 100,"
+    "          \"ssl\": 40,"
+    "          \"send\": 2,"
+    "          \"wait\": 200,"
+    "          \"receive\": 100"
+    "        }"
+    "      }"
+    "    ]"
+    "  }"
+    "}");
+
+
 const char* kHarInputBase64 = (
     "{"
     "  \"log\":{"
@@ -162,7 +261,7 @@ const char* kHarInputBase64 = (
     "          \"bodySize\":13"
     "        },"
     "        \"timings\":{"
-    "          \"connect\": 100,"
+    "          \"connect\": 50,"
     "          \"send\": 100,"
     "          \"wait\": 100,"
     "          \"receive\": 100"
@@ -188,7 +287,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ(200, resource1.GetResponseStatusCode());
   EXPECT_EQ("text/html", resource1.GetResponseHeader("content-type"));
   EXPECT_EQ("Hello, world!", resource1.GetResponseBody());
-  EXPECT_EQ(99, resource1.GetFirstByteMillis());
+  EXPECT_EQ(98, resource1.GetFirstByteMillis());
   EXPECT_FALSE(input->IsResourceLoadedAfterOnload(resource1));
 
   const Resource& resource2 = input->GetResource(1);
@@ -199,7 +298,7 @@ TEST(HttpArchiveTest, ValidInput) {
   EXPECT_EQ(200, resource2.GetResponseStatusCode());
   EXPECT_EQ("application/javascript",
             resource2.GetResponseHeader("content-type"));
-  EXPECT_EQ(199, resource2.GetFirstByteMillis());
+  EXPECT_EQ(198, resource2.GetFirstByteMillis());
   EXPECT_EQ("Hello, world!", resource2.GetResponseBody());
   EXPECT_TRUE(input->IsResourceLoadedAfterOnload(resource2));
 
@@ -212,6 +311,21 @@ TEST(HttpArchiveTest, ValidInput) {
   other.SetRequestStartTimeMillis(kint32max - 1);
   EXPECT_FALSE(resource2.IsRequestStartTimeLessThan(other));
   EXPECT_TRUE(other.IsRequestStartTimeLessThan(resource2));
+}
+
+TEST(HttpArchiveTest, InputSsl) {
+  scoped_ptr<PagespeedInput> input(ParseHttpArchive(kHarSslInput));
+  ASSERT_FALSE(input == NULL);
+  input->Freeze();
+
+  ASSERT_EQ(2, input->num_resources());
+
+  const Resource& resource1 = input->GetResource(0);
+  EXPECT_EQ("https://www.example.com/index.html", resource1.GetRequestUrl());
+  EXPECT_EQ(60, resource1.GetFirstByteMillis());
+  const Resource& resource2 = input->GetResource(1);
+  EXPECT_EQ("https://www.example.com/postonload.js", resource2.GetRequestUrl());
+  EXPECT_EQ(160, resource2.GetFirstByteMillis());
 }
 
 TEST(HttpArchiveTest, ValidInputBase64) {
