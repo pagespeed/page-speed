@@ -229,7 +229,7 @@ void JavaScriptFilter::Characters(
     // should, however. Note that comments are fed through a different callback
     // which is not overriden, thus they also do not cause flushing.
     const std::string& contents = characters->contents();
-    if (!ContainsOnlyWhitespaceASCII(contents)) {
+    if (!string_util::ContainsOnlyWhitespaceASCII(contents)) {
       FlushPendingJavascriptBlocks();
     }
   }
