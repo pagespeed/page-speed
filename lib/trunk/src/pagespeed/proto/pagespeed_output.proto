@@ -51,6 +51,9 @@ message Savings {
   // Number of connections that could have been saved if connection was reused.
   optional int32 connections_saved = 7;
 
+  // Number of rounds trips that block the initial render of the page that we
+  // could avoid if the suggestions were followed.
+  optional int32 render_blocking_round_trips_saved = 8;
 }
 
 // A ClientCharacteristics object tracks how much different kinds of impact
@@ -80,6 +83,8 @@ message ClientCharacteristics {
   optional double javascript_parse_weight = 8      [default = 0.00001];
   // Average fraction of requests expected to be in cache.
   optional double expected_cache_hit_rate = 9      [default = 0.5];
+  // Relative impact per render-blocking round trip saved.
+  optional double render_blocking_round_trips_weight = 10 [default = 2.0];
 }
 
 message InputInformation {
