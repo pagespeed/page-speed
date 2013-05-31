@@ -55,9 +55,8 @@ class InputPopulator {
   std::string GetString(const base::DictionaryValue& object,
                         const std::string& key);
 
-  int GetEntryConnectTime(const base::DictionaryValue* entry_json);
-  int GetEntrySslTime(const base::DictionaryValue* entry_json);
-  int GetEntryWaitTime(const base::DictionaryValue* entry_json);
+  int GetEntryTiming(const base::DictionaryValue* entry_json,
+                     const std::string& name);
   int GetMinConnectTimeForHost(
       const std::map<std::string, int>& min_connect_times,
       const std::string& host);
@@ -114,14 +113,21 @@ void InputPopulator::PopulateInput(const Value& har_json,
       INPUT_POPULATOR_ERROR() << "Entry item must be an object.";
       continue;
     }
-    int connect_with_ssl_ms = GetEntryConnectTime(entry_json);
-    if (connect_with_ssl_ms < 0) {
-      LOG(WARNING) << "No connect time set";
-      continue;
+    int connect_ms = GetEntryTiming(entry_json, "connect");
+    if (connect_ms < 0) {
+      // See: https://code.google.com/p/chromium/issues/detail?id=152201
+      // If connect < 0 and dns > 0, the real connect time may be (connect +
+      // dns).
+      int dns_ms = GetEntryTiming(entry_json, "dns");
+      if (dns_ms > 0 && (connect_ms + dns_ms) > 0) {
+        connect_ms = connect_ms + dns_ms;
+      } else {
+        LOG(WARNING) << "No connect time set: " << connect_ms;
+        continue;
+      }
     }
 
-    int connect_ms = connect_with_ssl_ms;
-    int ssl_ms = GetEntrySslTime(entry_json);
+    int ssl_ms = GetEntryTiming(entry_json, "ssl");
     if (ssl_ms > 0) {
       // If the connection is over SSL, we need to subtract the SSL handshake
       // time from the connect time.
@@ -131,7 +137,12 @@ void InputPopulator::PopulateInput(const Value& har_json,
       // negotiation. If this field is defined then the time is also included in
       // the connect field (to ensure backward compatibility with HAR 1.1). Use
       // -1 if the timing does not apply to the current request."
-      connect_ms = connect_with_ssl_ms - ssl_ms;
+      connect_ms = connect_ms - ssl_ms;
+    }
+
+    if (connect_ms < 0) {
+      LOG(WARNING) << "Timing error from devtools: connet-ssl=" << connect_ms;
+      continue;
     }
 
     std::string host = GetEntryHost(entry_json);
@@ -140,8 +151,7 @@ void InputPopulator::PopulateInput(const Value& har_json,
       continue;
     }
     int min_connect_ms = GetMinConnectTimeForHost(min_connect_times, host);
-    if (connect_ms > 0 &&
-        (min_connect_ms == -1 || connect_ms < min_connect_ms)) {
+    if (min_connect_ms == -1 || connect_ms < min_connect_ms) {
       min_connect_times[host] = connect_ms;
     }
   }
@@ -160,55 +170,19 @@ void InputPopulator::PopulateInput(const Value& har_json,
   }
 }
 
-int InputPopulator::GetEntryConnectTime(
-    const base::DictionaryValue* entry_json) {
+int InputPopulator::GetEntryTiming(
+    const base::DictionaryValue* entry_json, const std::string& name) {
   const base::DictionaryValue* timings_json;
-  int connect_ms = -1;
-
   if (!entry_json->GetDictionary("timings", &timings_json)) {
     LOG(ERROR) << "timings item must be an object.";
     return -1;
   }
-  if (!timings_json->GetInteger("connect", &connect_ms)) {
-      // No error technically. Connect is technically optional.
+
+  int time_ms = -1;
+  if (!timings_json->GetInteger(name, &time_ms)) {
     return -1;
   }
-
-  return connect_ms;
-}
-
-int InputPopulator::GetEntrySslTime(
-    const base::DictionaryValue* entry_json) {
-  const base::DictionaryValue* timings_json;
-  int ssl_ms = -1;
-
-  if (!entry_json->GetDictionary("timings", &timings_json)) {
-    LOG(ERROR) << "timings item must be an object.";
-    return -1;
-  }
-  if (!timings_json->GetInteger("ssl", &ssl_ms)) {
-      // No error technically. ssl time is optional.
-    return -1;
-  }
-
-  return ssl_ms;
-}
-
-
-int InputPopulator::GetEntryWaitTime(const base::DictionaryValue* entry_json) {
-  const base::DictionaryValue* timings_json;
-  int wait_ms = -1;
-
-  if (!entry_json->GetDictionary("timings", &timings_json)) {
-    LOG(ERROR) << "timings item must be an object.";
-    return -1;
-  }
-  if (!timings_json->GetInteger("wait", &wait_ms)) {
-    LOG(ERROR) << "wait item must be an integer.";
-    return -1;
-  }
-
-  return wait_ms;
+  return time_ms;
 }
 
 int InputPopulator::GetMinConnectTimeForHost(
@@ -318,7 +292,7 @@ void InputPopulator::PopulateResource(
     if (!host.empty()) {
       int connect_ms = GetMinConnectTimeForHost(min_connect_times, host);
       if (connect_ms > 0) {
-        int wait_ms = GetEntryWaitTime(&entry_json);
+        int wait_ms = GetEntryTiming(&entry_json, "wait");
         if (wait_ms > -1) {
           // Wait time is required, and it should never be less than 0.
           // We assume the minimum connect_ms is one round trip time. The wait
