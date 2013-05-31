@@ -115,7 +115,7 @@ void InputPopulator::PopulateInput(const Value& har_json,
       continue;
     }
     int connect_with_ssl_ms = GetEntryConnectTime(entry_json);
-    if (connect_with_ssl_ms == -1) {
+    if (connect_with_ssl_ms < 0) {
       LOG(WARNING) << "No connect time set";
       continue;
     }
@@ -140,8 +140,8 @@ void InputPopulator::PopulateInput(const Value& har_json,
       continue;
     }
     int min_connect_ms = GetMinConnectTimeForHost(min_connect_times, host);
-    if (min_connect_ms == -1 ||
-        connect_ms < min_connect_ms) {
+    if (connect_ms > 0 &&
+        (min_connect_ms == -1 || connect_ms < min_connect_ms)) {
       min_connect_times[host] = connect_ms;
     }
   }
@@ -317,7 +317,7 @@ void InputPopulator::PopulateResource(
     std::string host = GetEntryHost(&entry_json);
     if (!host.empty()) {
       int connect_ms = GetMinConnectTimeForHost(min_connect_times, host);
-      if (connect_ms != -1) {
+      if (connect_ms > 0) {
         int wait_ms = GetEntryWaitTime(&entry_json);
         if (wait_ms > -1) {
           // Wait time is required, and it should never be less than 0.
