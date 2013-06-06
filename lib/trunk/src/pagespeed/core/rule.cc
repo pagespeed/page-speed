@@ -129,7 +129,9 @@ double Rule::ComputeResultImpact(const InputInformation& input_info,
       client.request_bytes_weight() * savings.request_bytes_saved() +
       client.critical_path_length_weight() *
         savings.critical_path_length_saved() +
-      client.connections_weight() * savings.connections_saved();
+      client.connections_weight() * savings.connections_saved() +
+      client.render_blocking_round_trips_weight() *
+        savings.render_blocking_round_trips_saved();
   if (impact == 0.0) {
     LOG(WARNING) << "Computed zero impact for result id " << result.id()
                  << " of " << name()
