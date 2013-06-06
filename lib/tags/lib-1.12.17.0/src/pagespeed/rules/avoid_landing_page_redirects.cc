@@ -62,6 +62,18 @@ bool SortRuleResultsByRedirection(const pagespeed::Result* lhs,
   const pagespeed::RedirectionDetails* rhs_details = GetDetails(*rhs);
   return lhs_details->chain_index() < rhs_details->chain_index();
 }
+
+// Return the host:port pair from a GURL as a string.  If the port is not
+// explicitly given, infer it from the URL scheme.
+std::string GetHostAndPort(const GURL& gurl) {
+  std::string host = gurl.host();
+  std::string port = gurl.port();
+  if (port.empty()) {
+    port = (gurl.scheme() == "https" ? "443" : "80");
+  }
+  return host + ":" + port;
+}
+
 }  // namespace
 
 namespace pagespeed {
@@ -108,6 +120,19 @@ bool AvoidLandingPageRedirects::AppendResults(
     return true;
   }
 
+  // Keep track of which hostnames we've had to do DNS lookups for so far
+  // (starting with the original request URL for the page).
+  std::set<std::string> hosts_used;
+  const GURL request_gurl(chain->front()->GetRequestUrl());
+  if (!request_gurl.HostIsIPAddress()) {
+    hosts_used.insert(request_gurl.host());
+  }
+
+  // Keep track of which host:port combinations we've had to open a TCP
+  // connection to (starting with the original request URL for the page).
+  std::set<std::string> tcp_connections_used;
+  tcp_connections_used.insert(GetHostAndPort(request_gurl));
+
   // All redirections should be avoided for landing page. We flag both temporary
   // and permanent redirections.
   for (int idx = 0, size = chain->size(); idx < size; ++idx) {
@@ -128,11 +153,41 @@ bool AvoidLandingPageRedirects::AppendResults(
     const std::string& next_url = chain->at(idx+1)->GetRequestUrl();
     GURL next_gurl(next_url);
 
+    // We'll have to do a new DNS lookup for the destination of this redirect
+    // if next_url is not an IP address and hasn't already been looked up.
+    const std::string next_host = next_gurl.host();
+    const bool needed_extra_dns =
+        (!next_gurl.HostIsIPAddress() && hosts_used.count(next_host) == 0);
+    if (needed_extra_dns) {
+      hosts_used.insert(next_host);
+    }
+
+    // We'll have to open a new TCP connection for the destination of this
+    // redirect if we don't already have one open.  In addition, we may have to
+    // do an SSL/TLS handshake first.
+    const std::string next_host_port = GetHostAndPort(next_gurl);
+    const bool needed_extra_tcp_handshake =
+        (tcp_connections_used.count(next_host_port) == 0);
+    if (needed_extra_tcp_handshake) {
+      tcp_connections_used.insert(next_host_port);
+    }
+    const bool needed_extra_ssl_handshake =
+        (needed_extra_tcp_handshake && next_gurl.SchemeIsSecure());
+
     Result* result = provider->NewResult();
     result->add_resource_urls(url);
     result->add_resource_urls(next_url);
     Savings* savings = result->mutable_savings();
     savings->set_requests_saved(1);
+    // TODO(mdsteele): If needed_extra_dns is true, maybe we should also do
+    //   savings->set_dns_requests_saved(1), but only if we won't be using that
+    //   host anyway for other resources.
+    // TODO(mdsteele): If needed_extra_tcp_handshake is true, maybe we should
+    //   also do savings->set_connections_saved(1), but only if we won't be
+    //   using that connection anyway for other resources.
+    savings->set_render_blocking_round_trips_saved(
+        1 + (needed_extra_dns ? 1 : 0) + (needed_extra_tcp_handshake ? 1 : 0) +
+        (needed_extra_ssl_handshake ? 1 : 0));
 
     ResultDetails* details = result->mutable_details();
     RedirectionDetails* redirection_details =
@@ -150,7 +205,7 @@ bool AvoidLandingPageRedirects::AppendResults(
           freshness_lifetime_millis);
       LOG(INFO) << "freshness_lifetime_millis: " << freshness_lifetime_millis;
       // An explicit cache freshness life time is specified, the redirection is
-      // not permanent by any way..
+      // not permanent by any way.
       redirection_details->set_is_permanent(false);
     } else {
       redirection_details->set_is_permanent(permanent_redirection);
