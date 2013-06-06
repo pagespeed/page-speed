@@ -51,12 +51,16 @@ const char* KPermanentResponsePart2 = "\">here</a>.</p> </body></html> ";
 class Violation {
  public:
   Violation(int _expected_request_savings,
+            int _expected_render_blocking_round_trip_savings,
             const std::vector<std::string>& _urls)
       : expected_request_savings(_expected_request_savings),
+        expected_render_blocking_round_trip_savings(
+            _expected_render_blocking_round_trip_savings),
         urls(_urls) {
   }
 
   int expected_request_savings;
+  int expected_render_blocking_round_trip_savings;
   std::vector<std::string> urls;
 };
 
@@ -134,8 +138,11 @@ class AvoidLandingPageRedirectsTest : public
       const Result* r = &result(idx);
       const Violation& violation = expected_violations[idx];
 
-      ASSERT_EQ(violation.expected_request_savings,
+      EXPECT_EQ(violation.expected_request_savings,
                 r->savings().requests_saved());
+
+      EXPECT_EQ(violation.expected_render_blocking_round_trip_savings,
+                r->savings().render_blocking_round_trips_saved());
 
       ASSERT_EQ(violation.urls.size(),
                 static_cast<size_t>(r->resource_urls_size()));
@@ -173,7 +180,7 @@ TEST_F(AvoidLandingPageRedirectsTest, SimpleRedirect) {
   urls.push_back(url2);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
+  violations.push_back(Violation(1, 3, urls));
 
   CheckViolations(violations);
 }
@@ -196,7 +203,7 @@ TEST_F(AvoidLandingPageRedirectsTest, EmptyLocation) {
   urls1.push_back(url2);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
+  violations.push_back(Violation(1, 3, urls1));
 
   CheckViolations(violations);
 }
@@ -226,8 +233,8 @@ TEST_F(AvoidLandingPageRedirectsTest, PermanentEmptyLocation) {
 
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 3, urls1));
+  violations.push_back(Violation(1, 3, urls2));
 
   CheckViolations(violations);
 }
@@ -265,8 +272,8 @@ TEST_F(AvoidLandingPageRedirectsTest, RedirectChain) {
   urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 3, urls1));
+  violations.push_back(Violation(1, 1, urls2));
 
   CheckViolations(violations);
 }
@@ -292,8 +299,8 @@ TEST_F(AvoidLandingPageRedirectsTest, AbsoltutePath) {
   urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 1, urls1));
+  violations.push_back(Violation(1, 1, urls2));
 
   CheckViolations(violations);
 }
@@ -319,8 +326,8 @@ TEST_F(AvoidLandingPageRedirectsTest, RelativePath) {
   urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 1, urls1));
+  violations.push_back(Violation(1, 1, urls2));
 
   CheckViolations(violations);
 }
@@ -346,9 +353,86 @@ TEST_F(AvoidLandingPageRedirectsTest, Fragment) {
   urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 1, urls1));
+  violations.push_back(Violation(1, 1, urls2));
 
+  CheckViolations(violations);
+}
+
+TEST_F(AvoidLandingPageRedirectsTest, RedirectToIP) {
+  std::string url1 = "http://www.foo.com/";
+  std::string url2 = "http://192.168.0.42/";
+
+  AddPermanentRedirect(url1, url2);
+  SetPrimaryResource(url2);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+
+  // Redirecting to an IP address doesn't incur an additional DNS lookup (but
+  // does still require a new connection).
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, 2, urls));
+  CheckViolations(violations);
+}
+
+TEST_F(AvoidLandingPageRedirectsTest, RedirectToDifferentPort) {
+  std::string url1 = "http://www.foo.com/";
+  std::string url2 = "http://www.foo.com:8080/";
+
+  AddPermanentRedirect(url1, url2);
+  SetPrimaryResource(url2);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+
+  // Redirecting to a different port doesn't incur an additional DNS lookup,
+  // but does still require a new connection.
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, 2, urls));
+  CheckViolations(violations);
+}
+
+TEST_F(AvoidLandingPageRedirectsTest, RedirectToSsl) {
+  std::string url1 = "http://www.foo.com/";
+  std::string url2 = "https://www.bar.com/";
+
+  AddPermanentRedirect(url1, url2);
+  SetPrimaryResource(url2);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(url1);
+  urls.push_back(url2);
+
+  // We pay for the new DNS, the new SSL handshake, the new TCP handshake, and
+  // finally the new request, so that's four render-blocking round trips.
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, 4, urls));
+  CheckViolations(violations);
+}
+
+TEST_F(AvoidLandingPageRedirectsTest, ExplicitPort) {
+  std::string url1 = "https://www.foo.com:443/";
+  std::string canonicalized_url1 = "https://www.foo.com/";
+  std::string url2 = "https://www.foo.com/main.html";
+
+  AddPermanentRedirect(url1, url2);
+  SetPrimaryResource(url2);
+  Freeze();
+
+  std::vector<std::string> urls;
+  urls.push_back(canonicalized_url1);
+  urls.push_back(url2);
+
+  // HTTPS is 443 by default, so the above redirect doesn't require a new
+  // connection.
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, 1, urls));
   CheckViolations(violations);
 }
 
@@ -365,7 +449,7 @@ TEST_F(AvoidLandingPageRedirectsTest, SimpleRedirectPermanent) {
   urls.push_back(url2);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
+  violations.push_back(Violation(1, 3, urls));
   CheckViolations(violations);
 }
 
@@ -389,8 +473,8 @@ TEST_F(AvoidLandingPageRedirectsTest, PermanentAndTemp) {
 
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 3, urls));
+  violations.push_back(Violation(1, 1, urls2));
   CheckViolations(violations);
 }
 
@@ -413,8 +497,8 @@ TEST_F(AvoidLandingPageRedirectsTest, TempAndPermanent) {
   urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 3, urls));
+  violations.push_back(Violation(1, 1, urls2));
   CheckViolations(violations);
 }
 
@@ -443,9 +527,9 @@ TEST_F(AvoidLandingPageRedirectsTest, TwoNonCacheable) {
   urls3.push_back(url4);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
-  violations.push_back(Violation(1, urls2));
-  violations.push_back(Violation(1, urls3));
+  violations.push_back(Violation(1, 3, urls1));
+  violations.push_back(Violation(1, 1, urls2));
+  violations.push_back(Violation(1, 1, urls3));
   CheckViolations(violations);
 }
 
@@ -468,8 +552,8 @@ TEST_F(AvoidLandingPageRedirectsTest, CacheableTempAndPermanent) {
   urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls1));
-  violations.push_back(Violation(1, urls2));
+  violations.push_back(Violation(1, 3, urls1));
+  violations.push_back(Violation(1, 1, urls2));
   CheckViolations(violations);
 }
 
@@ -493,7 +577,7 @@ TEST_F(AvoidLandingPageRedirectsTest, PrimaryResourceUrlHasFragment) {
   urls.push_back(kUrl1);
   urls.push_back(kUrlNoFragment);
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
+  violations.push_back(Violation(1, 1, urls));
   CheckViolations(violations);
 }
 
@@ -510,7 +594,7 @@ TEST_F(AvoidLandingPageRedirectsTest, LoginPages) {
 
   // One violation.
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
+  violations.push_back(Violation(1, 1, urls));
   CheckViolations(violations);
 
   RedirectionDetails detail = details(0);
@@ -533,7 +617,7 @@ TEST_F(AvoidLandingPageRedirectsTest,
 
   // One violation.
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, urls));
+  violations.push_back(Violation(1, 1, urls));
   CheckViolations(violations);
 
   RedirectionDetails detail = details(0);
@@ -592,11 +676,11 @@ TEST_F(AvoidLandingPageRedirectsTest, FormatWithOrder) {
   redirection5.push_back(url6);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, redirection1));
-  violations.push_back(Violation(1, redirection2));
-  violations.push_back(Violation(1, redirection3));
-  violations.push_back(Violation(1, redirection4));
-  violations.push_back(Violation(1, redirection5));
+  violations.push_back(Violation(1, 3, redirection1));
+  violations.push_back(Violation(1, 1, redirection2));
+  violations.push_back(Violation(1, 3, redirection3));
+  violations.push_back(Violation(1, 1, redirection4));
+  violations.push_back(Violation(1, 3, redirection5));
   CheckViolations(violations);
 
   const char* expected_results =
