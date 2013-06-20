@@ -21,7 +21,8 @@
 namespace {
 
 using pagespeed::css::CssTokenizer;
-using pagespeed::css::ExternalResourceFinder;
+using pagespeed::css::FindExternalResourcesInCssResource;
+using pagespeed::css::RemoveCssComments;
 
 struct CssToken {
   CssTokenizer::CssTokenType type;
@@ -111,77 +112,77 @@ static const char* kBadImportUrlBody = "@import \"http://!@#$%^&*()/\"";
 
 TEST(RemoveCssCommentsTest, EmptyBody) {
   std::string css;
-  ExternalResourceFinder::RemoveComments("", &css);
+  RemoveCssComments("", &css);
   ASSERT_TRUE(css.empty());
 }
 
 TEST(RemoveCssCommentsTest, NoComments) {
   const char* kNoComments = "here is some text that does not contain comments";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kNoComments, &css);
+  RemoveCssComments(kNoComments, &css);
   ASSERT_EQ(css, kNoComments);
 }
 
 TEST(RemoveCssCommentsTest, EmptyComment) {
   const char* kComment = "/**/";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_TRUE(css.empty());
 }
 
 TEST(RemoveCssCommentsTest, EmptyComments) {
   const char* kComment = "/**//**//**//**/";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_TRUE(css.empty());
 }
 
 TEST(RemoveCssCommentsTest, SimpleComment) {
   const char* kComment = "/* here is a comment*/";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_TRUE(css.empty());
 }
 
 TEST(RemoveCssCommentsTest, CommentAtBeginning) {
   const char* kComment = "/* here is a comment*/ content";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ(" content", css);
 }
 
 TEST(RemoveCssCommentsTest, CommentAtEnd) {
   const char* kComment = "content /* here is a comment*/";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ("content ", css);
 }
 
 TEST(RemoveCssCommentsTest, CommentAtBothEnds) {
   const char* kComment = "/* comment*/ content /* here is a comment*/";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ(" content ", css);
 }
 
 TEST(RemoveCssCommentsTest, CommentInMiddle) {
   const char* kComment = "content /* comment*/ content";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ("content  content", css);
 }
 
 TEST(RemoveCssCommentsTest, MultiLineComment) {
   const char* kComment = "/*here\nis\na\ncomment*/";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_TRUE(css.empty());
 }
 
 TEST(RemoveCssCommentsTest, MultipleComments) {
   const char* kComment = "/* here is a comment*//*here is another*/";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_TRUE(css.empty());
 }
 
@@ -189,7 +190,7 @@ TEST(RemoveCssCommentsTest, MultipleCommentsContentBetween) {
   const char* kComment =
       "here /* here is a comment*/ is /*here is another*/ content";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ(css, "here  is  content");
 }
 
@@ -197,21 +198,21 @@ TEST(RemoveCssCommentsTest, MultipleMultiLineCommentsContentBetween) {
   const char* kComment =
       "here\n /*\nhere\nis\na\ncomment*/ is /*here\nis\nanother*/ \ncontent";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ(css, "here\n  is  \ncontent");
 }
 
 TEST(RemoveCssCommentsTest, UnterminatedComment) {
   const char* kComment = "/*an unterminated comment";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_TRUE(css.empty());
 }
 
 TEST(RemoveCssCommentsTest, UnterminatedComment2) {
   const char* kComment = "here  is  content/*an unterminated comment";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ(css, "here  is  content");
 }
 
@@ -219,7 +220,7 @@ TEST(RemoveCssCommentsTest, UnterminatedComment3) {
   const char* kComment =
       "here/* */  is/* comment*/  content/*an unterminated comment";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ(css, "here  is  content");
 }
 
@@ -230,7 +231,7 @@ TEST(RemoveCssCommentsTest, NestedComment) {
   const char* kComment =
       "here  is  content /* here is /* a nested */ comment */";
   std::string css;
-  ExternalResourceFinder::RemoveComments(kComment, &css);
+  RemoveCssComments(kComment, &css);
   ASSERT_EQ(css, "here  is  content  comment */");
 }
 
@@ -495,8 +496,7 @@ TEST_F(ExternalResourceFinderTest, EmptyBody) {
   pagespeed::Resource* r = NewCssResource(kCssUrl);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_TRUE(urls.empty());
 }
 
@@ -505,8 +505,7 @@ TEST_F(ExternalResourceFinderTest, NoImport) {
   r->SetResponseBody(kNoImportBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_TRUE(urls.empty());
 }
 
@@ -515,8 +514,7 @@ TEST_F(ExternalResourceFinderTest, BasicImport) {
   r->SetResponseBody(kBasicImportBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_EQ(1U, urls.size());
   ASSERT_EQ(kImportUrl1, *urls.begin());
 }
@@ -526,8 +524,7 @@ TEST_F(ExternalResourceFinderTest, TwoBasicImports) {
   r->SetResponseBody(kTwoBasicImportsBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_EQ(2U, urls.size());
   ASSERT_EQ(kImportUrl1, *urls.begin());
   ASSERT_EQ(kImportUrl2, *urls.rbegin());
@@ -538,8 +535,7 @@ TEST_F(ExternalResourceFinderTest, TwoRelativeImports) {
   r->SetResponseBody(kTwoRelativeImportsBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_EQ(2U, urls.size());
   ASSERT_EQ(kImportUrl1, *urls.begin());
   ASSERT_EQ(kImportUrl2, *urls.rbegin());
@@ -550,8 +546,7 @@ TEST_F(ExternalResourceFinderTest, OneImport) {
   r->SetResponseBody(kOneImportBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_EQ(1U, urls.size());
   ASSERT_EQ(kImportUrl1, *urls.begin());
 }
@@ -561,8 +556,7 @@ TEST_F(ExternalResourceFinderTest, NoImportInComment) {
   r->SetResponseBody(kImportInCommentBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_TRUE(urls.empty());
 }
 
@@ -571,8 +565,7 @@ TEST_F(ExternalResourceFinderTest, NoImportUnterminatedComment) {
   r->SetResponseBody(kUnterminatedCommentBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_TRUE(urls.empty());
 }
 
@@ -581,8 +574,7 @@ TEST_F(ExternalResourceFinderTest, BadUrlInImport) {
   r->SetResponseBody(kBadImportUrlBody);
 
   std::set<std::string> urls;
-  ExternalResourceFinder f;
-  f.FindExternalResources(*r, &urls);
+  FindExternalResourcesInCssResource(*r, &urls);
   ASSERT_TRUE(urls.empty());
 }
 

@@ -53,6 +53,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_htmlparse_core',
         '<(DEPTH)/<(instaweb_src_root)/instaweb_core.gyp:instaweb_rewriter_html',
+        '<(pagespeed_root)/pagespeed/css/css.gyp:pagespeed_css_external_resource_finder',
       ],
       'sources': [
         'external_resource_filter.cc',
