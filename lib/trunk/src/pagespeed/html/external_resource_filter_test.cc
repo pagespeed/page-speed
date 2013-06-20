@@ -63,6 +63,13 @@ static const char* kHtmlTableBackground =
     "<html><body><table background='http://www.example.com/foo.png'></table>"
     "</body></html>";
 
+static const char* kHtmlInlineStyle =
+    "<html><head><style>\n"
+    "@import 'http://www.example.com/style1.css';\n"
+    "@import url('http://www.example.com/style2.css');\n"
+    ".foo { background-image: url('foo.gif'); }\n"
+    "</style></head><body>Hello, world</body></html>";
+
 class ExternalResourceFilterTest : public pagespeed_testing::PagespeedTest {
  public:
   virtual void DoSetUp() {
@@ -82,8 +89,7 @@ TEST_F(ExternalResourceFilterTest, Basic) {
 
   std::vector<std::string> external_resource_urls;
   ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
-                                             document(),
-                                             kRootUrl));
+                                             document(), kRootUrl));
 
   ASSERT_EQ(2U, external_resource_urls.size());
   ASSERT_EQ("http://www.example.com/foo.css", external_resource_urls[0]);
@@ -102,8 +108,7 @@ TEST_F(ExternalResourceFilterTest, Img) {
 
   std::vector<std::string> external_resource_urls;
   ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
-                                             document(),
-                                             kRootUrl));
+                                             document(), kRootUrl));
 
   ASSERT_EQ(2U, external_resource_urls.size());
   ASSERT_EQ("http://www.example.com/bar.png", external_resource_urls[0]);
@@ -122,8 +127,7 @@ TEST_F(ExternalResourceFilterTest, NoRelShouldNotCrash) {
 
   std::vector<std::string> external_resource_urls;
   ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
-                                             document(),
-                                             kRootUrl));
+                                             document(), kRootUrl));
 }
 
 TEST_F(ExternalResourceFilterTest, InputImage) {
@@ -138,8 +142,10 @@ TEST_F(ExternalResourceFilterTest, InputImage) {
 
   std::vector<std::string> external_resource_urls;
   ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
-                                             document(),
-                                             kRootUrl));
+                                             document(), kRootUrl));
+
+  ASSERT_EQ(1U, external_resource_urls.size());
+  ASSERT_EQ("http://www.example.com/foo.png", external_resource_urls[0]);
 }
 
 TEST_F(ExternalResourceFilterTest, ObjectData) {
@@ -154,8 +160,10 @@ TEST_F(ExternalResourceFilterTest, ObjectData) {
 
   std::vector<std::string> external_resource_urls;
   ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
-                                             document(),
-                                             kRootUrl));
+                                             document(), kRootUrl));
+
+  ASSERT_EQ(1U, external_resource_urls.size());
+  ASSERT_EQ("http://www.example.com/foo.png", external_resource_urls[0]);
 }
 
 TEST_F(ExternalResourceFilterTest, BodyBackground) {
@@ -170,8 +178,10 @@ TEST_F(ExternalResourceFilterTest, BodyBackground) {
 
   std::vector<std::string> external_resource_urls;
   ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
-                                             document(),
-                                             kRootUrl));
+                                             document(), kRootUrl));
+
+  ASSERT_EQ(1U, external_resource_urls.size());
+  ASSERT_EQ("http://www.example.com/foo.png", external_resource_urls[0]);
 }
 
 TEST_F(ExternalResourceFilterTest, TableBackground) {
@@ -186,8 +196,30 @@ TEST_F(ExternalResourceFilterTest, TableBackground) {
 
   std::vector<std::string> external_resource_urls;
   ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
-                                             document(),
-                                             kRootUrl));
+                                             document(), kRootUrl));
+
+  ASSERT_EQ(1U, external_resource_urls.size());
+  ASSERT_EQ("http://www.example.com/foo.png", external_resource_urls[0]);
+}
+
+TEST_F(ExternalResourceFilterTest, InlineStyleBlock) {
+  net_instaweb::GoogleMessageHandler message_handler;
+  net_instaweb::HtmlParse html_parse(&message_handler);
+  pagespeed::html::ExternalResourceFilter filter(&html_parse);
+  html_parse.AddFilter(&filter);
+
+  html_parse.StartParse(kRootUrl);
+  html_parse.ParseText(kHtmlInlineStyle, strlen(kHtmlInlineStyle));
+  html_parse.FinishParse();
+
+  std::vector<std::string> external_resource_urls;
+  ASSERT_TRUE(filter.GetExternalResourceUrls(&external_resource_urls,
+                                             document(), kRootUrl));
+
+  ASSERT_EQ(3U, external_resource_urls.size());
+  ASSERT_EQ("http://www.example.com/foo.gif", external_resource_urls[0]);
+  ASSERT_EQ("http://www.example.com/style1.css", external_resource_urls[1]);
+  ASSERT_EQ("http://www.example.com/style2.css", external_resource_urls[2]);
 }
 
 }  // namespace

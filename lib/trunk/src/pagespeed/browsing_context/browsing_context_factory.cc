@@ -90,9 +90,9 @@ void BrowsingContextDomResourceVisitor::VisitUrl(const DomElement& node,
     current_context_->RegisterResource(resource);
 
     if (resource->GetResourceType() == pagespeed::CSS) {
-      pagespeed::css::ExternalResourceFinder css_resource_finder;
       std::set<std::string> resource_urls;
-      css_resource_finder.FindExternalResources(*resource, &resource_urls);
+      pagespeed::css::FindExternalResourcesInCssResource(
+          *resource, &resource_urls);
       for (std::set<std::string>::const_iterator it = resource_urls.begin();
           it != resource_urls.end(); ++it) {
         const Resource* resource = pagespeed_input_->GetResourceWithUrlOrNull(

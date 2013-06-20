@@ -16,11 +16,14 @@
 
 #include <set>
 #include <string>
+
+#include "base/logging.h"
 #include "net/instaweb/htmlparse/public/empty_html_filter.h"
 #include "net/instaweb/htmlparse/public/html_name.h"
 #include "net/instaweb/htmlparse/public/html_parse.h"
 #include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
+#include "pagespeed/css/external_resource_finder.h"
 
 namespace pagespeed {
 
@@ -55,7 +58,10 @@ void ResolveExternalResourceUrls(
 namespace html {
 
 ExternalResourceFilter::ExternalResourceFilter(
-    net_instaweb::HtmlParse* html_parse) {
+    net_instaweb::HtmlParse* html_parse)
+    : html_parse_(html_parse),
+      within_inline_style_block_(false) {
+  DCHECK(html_parse_);
 }
 
 ExternalResourceFilter::~ExternalResourceFilter() {}
@@ -92,6 +98,15 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
     if (href != NULL) {
       external_resource_urls_.push_back(href);
     }
+    return;
+  }
+
+  if (keyword == net_instaweb::HtmlName::kStyle) {
+    if (within_inline_style_block_) {
+      LOG(DFATAL) << "Encountered style block, but already"
+                  << " within_inline_style_block.";
+    }
+    within_inline_style_block_ = true;
     return;
   }
 
@@ -134,6 +149,23 @@ void ExternalResourceFilter::StartElement(net_instaweb::HtmlElement* element) {
   }
 }
 
+void ExternalResourceFilter::EndElement(net_instaweb::HtmlElement* element) {
+  if (element->keyword() == net_instaweb::HtmlName::kStyle) {
+    within_inline_style_block_ = false;
+  }
+}
+
+void ExternalResourceFilter::Characters(
+    net_instaweb::HtmlCharactersNode* characters) {
+  if (within_inline_style_block_) {
+    std::set<std::string> urls;
+    css::FindExternalResourcesInCssBlock(
+        html_parse_->url(), characters->contents(), &urls);
+    external_resource_urls_.insert(external_resource_urls_.end(),
+                                   urls.begin(), urls.end());
+  }
+}
+
 bool ExternalResourceFilter::GetExternalResourceUrls(
     std::vector<std::string>* out,
     const DomDocument* document,
@@ -142,8 +174,7 @@ bool ExternalResourceFilter::GetExternalResourceUrls(
   // is to copy the contents of the vector to a set, and then back to
   // a vector.
   std::vector<std::string> tmp(external_resource_urls_);
-  ResolveExternalResourceUrls(
-      &tmp, document, document_url);
+  ResolveExternalResourceUrls(&tmp, document, document_url);
   std::set<std::string> unique;
   for (std::vector<std::string>::const_iterator it = tmp.begin(),
            end = tmp.end(); it != end; ++it) {

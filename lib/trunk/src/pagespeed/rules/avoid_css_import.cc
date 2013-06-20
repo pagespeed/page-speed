@@ -57,8 +57,7 @@ bool AvoidCssImport::AppendResults(const RuleInput& rule_input,
     }
 
     std::set<std::string> external_urls;
-    css::ExternalResourceFinder finder;
-    finder.FindExternalResources(resource, &external_urls);
+    css::FindExternalResourcesInCssResource(resource, &external_urls);
 
     std::set<std::string> imported_urls;
     for (std::set<std::string>::const_iterator it = external_urls.begin(),

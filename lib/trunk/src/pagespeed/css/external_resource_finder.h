@@ -26,26 +26,26 @@ class Resource;
 
 namespace css {
 
-// Finds resources referenced from the body of a CSS resource.
-class ExternalResourceFinder {
- public:
-  ExternalResourceFinder();
+// Get all external resource URLs contained in the body of the given CSS
+// resource.  The given resource object must have type CSS.
+void FindExternalResourcesInCssResource(
+    const Resource& resource,
+    std::set<std::string>* external_resource_urls);
 
-  // Scans the body of the given CSS resource and emits a list of
-  // resource URLs referenced from the CSS resource.
-  void FindExternalResources(const Resource& resource,
-                             std::set<std::string>* external_resource_urls);
+// Get all external resource URLs contained in the given CSS text.  This can
+// either be the body of an external CSS resource, or the contents of an inline
+// CSS block in an HTML resource.
+void FindExternalResourcesInCssBlock(
+    const std::string& resource_url, const std::string& css_body,
+    std::set<std::string>* external_resource_urls);
 
-  // These methods are exposed only for unittesting. They should not
-  // be called by non-test code.
-  static void RemoveComments(const std::string& in, std::string* out);
+// These function is exposed only for unit testing.  It should not be called by
+// non-test code.
+void RemoveCssComments(const std::string& in, std::string* out);
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(ExternalResourceFinder);
-};
 
-// Simple CSS tokenizer. Generates a stream of tokens along with the
-// token type. Exposed in the header only for testing.
+// Simple CSS tokenizer.  Generates a stream of tokens along with the
+// token type.  Exposed in the header only for testing.
 class CssTokenizer {
  public:
   enum CssTokenType {
@@ -78,6 +78,7 @@ class CssTokenizer {
 };
 
 }  // namespace css
+
 }  // namespace pagespeed
 
 #endif  // PAGESPEED_CSS_EXTERNAL_RESOURCE_FINDER_H_

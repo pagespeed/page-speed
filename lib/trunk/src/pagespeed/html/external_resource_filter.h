@@ -35,6 +35,8 @@ class ExternalResourceFilter : public net_instaweb::EmptyHtmlFilter {
 
   virtual void StartDocument();
   virtual void StartElement(net_instaweb::HtmlElement* element);
+  virtual void EndElement(net_instaweb::HtmlElement* element);
+  virtual void Characters(net_instaweb::HtmlCharactersNode* characters);
   virtual const char* Name() const { return "ExternalResource"; }
 
   // Get the URLs of resources referenced by the parsed HTML.
@@ -43,7 +45,9 @@ class ExternalResourceFilter : public net_instaweb::EmptyHtmlFilter {
                                const std::string& document_url) const;
 
  private:
+  const net_instaweb::HtmlParse* html_parse_;
   std::vector<std::string> external_resource_urls_;
+  bool within_inline_style_block_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalResourceFilter);
 };

@@ -52,24 +52,30 @@ namespace pagespeed {
 
 namespace css {
 
-ExternalResourceFinder::ExternalResourceFinder() {}
 
-void ExternalResourceFinder::FindExternalResources(
-    const Resource& resource, std::set<std::string>* external_resource_urls) {
-  DCHECK(external_resource_urls->empty());
+void FindExternalResourcesInCssResource(
+    const Resource& resource,
+    std::set<std::string>* external_resource_urls) {
   if (resource.GetResourceType() != pagespeed::CSS) {
-    LOG(DFATAL) << "Non-CSS resource passed to ExternalResourceFinder.";
+    LOG(DFATAL) << "Non-CSS resource passed to"
+                << " FindExternalResourcesInCssResource.";
     return;
   }
+  FindExternalResourcesInCssBlock(
+      resource.GetRequestUrl(), resource.GetResponseBody(),
+      external_resource_urls);
+}
 
-  const std::string& css_body = resource.GetResponseBody();
+void FindExternalResourcesInCssBlock(
+    const std::string& resource_url, const std::string& css_body,
+    std::set<std::string>* external_resource_urls) {
   std::string body;
 
   // Make our search easier by removing comments. We could be more
   // efficient by attempting to skip over comments as we walk the
   // string, but this would complicate the logic. It's simpler to
   // remove comments first, then iterate over the string.
-  RemoveComments(css_body, &body);
+  RemoveCssComments(css_body, &body);
   CssTokenizer tokenizer(body);
   std::string token;
   CssTokenizer::CssTokenType type;
@@ -93,7 +99,7 @@ void ExternalResourceFinder::FindExternalResources(
     if (!url.empty()) {
       // Resolve the URI relative to its parent stylesheet.
       std::string resolved_url =
-          pagespeed::uri_util::ResolveUri(url, resource.GetRequestUrl());
+          pagespeed::uri_util::ResolveUri(url, resource_url);
       if (resolved_url.empty()) {
         LOG(INFO) << "Unable to ResolveUri " << url;
       } else {
@@ -115,8 +121,7 @@ void ExternalResourceFinder::FindExternalResources(
 // SGML comments, since these are supported only for very old user
 // agents. If many web pages do use such comments, we may need to add
 // support for them.
-void ExternalResourceFinder::RemoveComments(
-    const std::string& in, std::string* out) {
+void RemoveCssComments(const std::string& in, std::string* out) {
   size_t comment_start = 0;
   while (true) {
     const size_t previous_start = comment_start;
