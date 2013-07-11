@@ -243,6 +243,12 @@ TEST_F(JsMinifyTest, TrickyRegexLiteral) {
                     "var x=a[0]/b/i;var y=a[0]+/ b /i;");
 }
 
+// See http://code.google.com/p/modpagespeed/issues/detail?id=743
+TEST_F(JsMinifyTest, DoWhileDivide) {
+  // The slash here is division, not a regex literal.
+  CheckMinification("{do { m } while (e() / h) };", "{do{m}while(e()/h)};");
+}
+
 // See http://code.google.com/p/modpagespeed/issues/detail?id=327
 TEST_F(JsMinifyTest, RegexLiteralWithBrackets1) {
   // The / in [^/] doesn't end the regex, so the // is not a comment.
