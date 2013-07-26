@@ -76,6 +76,19 @@ message InstrumentationData {
     // console.timeEnd().
     TIME = 28;
     TIME_END = 29;
+
+    SCHEDULE_STYLE_RECALCULATION = 30;
+    INVALIDATE_LAYOUT = 31;
+    SCROLL_LAYER = 32;
+    RESIZE_IMAGE = 33;
+
+    WEB_SOCKET_CREATE = 34;
+    WEB_SOCKET_SEND_HANDSHAKE_REQUEST = 35;
+    WEB_SOCKET_RECEIVE_HANDSHAKE_RESPONSE = 36;
+    WEB_SOCKET_DESTROY = 37;
+
+    DECODE_IMAGE = 38;
+    RASTERIZE = 39;
   }
 
   message DataDictionary {
@@ -146,6 +159,14 @@ message InstrumentationData {
 
     // ReceiveResourceData
     optional int32 encoded_data_length = 29;
+
+    // Layout
+    optional int32 dirty_objects = 30;
+    optional int32 total_objects = 31;
+    optional bool partial_layout = 32;
+
+    // Marks
+    optional bool is_main_frame = 33;
   }
 
   // The type field is required, but we mark it 'optional' because otherwise
