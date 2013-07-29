@@ -57,6 +57,8 @@ class PreferAsyncResourcesTest
   static const char* kStumbleUponScriptUrl;
   static const char* kYandexScriptUrl;
   static const char* kTyntScriptUrl;
+  static const char* kAdSenseShowAdsUrl1;
+  static const char* kAdSenseShowAdsUrl2;
 
   virtual void DoSetUp() {
     NewPrimaryResource(kRootUrl);
@@ -202,6 +204,10 @@ const char* PreferAsyncResourcesTest::kYandexScriptUrl =
     "http://mc.yandex.ru/metrika/watch.js";
 const char* PreferAsyncResourcesTest::kTyntScriptUrl =
     "http://cdn.tynt.com/tc.js";
+const char* PreferAsyncResourcesTest::kAdSenseShowAdsUrl1 =
+    "http://pagead2.googlesyndication.com/pagead/show_ads.js";
+const char* PreferAsyncResourcesTest::kAdSenseShowAdsUrl2 =
+    "https://pagead2.googlesyndication.com/pagead/show_ads.js";
 
 // This URL isn't valid for getting the FB js, however it should match
 // our matcher.
@@ -497,6 +503,18 @@ TEST_F(PreferAsyncResourcesTest, TyntOtherContentIsBad) {
   CreateScriptElement(kTyntScriptUrl, body());
   CreateCssElement(body());
   CheckOneViolation(kRootUrl, kTyntScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, AdSenseShowAds1) {
+  CreateScriptElement(kAdSenseShowAdsUrl1, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kAdSenseShowAdsUrl1);
+}
+
+TEST_F(PreferAsyncResourcesTest, AdSenseShowAds2) {
+  CreateScriptElement(kAdSenseShowAdsUrl2, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kAdSenseShowAdsUrl2);
 }
 
 }  // namespace

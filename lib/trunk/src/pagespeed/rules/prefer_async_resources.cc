@@ -104,6 +104,9 @@ const char* kScriptMatchers[][kMaxChunksPerScriptMatcher] = {
   { "cdn.tynt.com/tc.js", NULL},
   { "cdn.tynt.com/ti.js", NULL},
 
+  // See: https://support.google.com/adsense/answer/3221666?hl=en
+  { "pagead2.googlesyndication.com/pagead/show_ads.js", NULL },
+
   // NOTE: Add additional scripts here that can be loaded asynchronously.
 };
 
