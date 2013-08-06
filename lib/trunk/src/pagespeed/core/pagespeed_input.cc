@@ -47,6 +47,7 @@ struct ResourceRequestStartTimeLessThan {
 
 PagespeedInput::PagespeedInput()
     : input_info_(new InputInformation),
+      initial_resource_is_canonical_(false),
       onload_state_(UNKNOWN),
       onload_millis_(-1),
       initialization_state_(INIT),

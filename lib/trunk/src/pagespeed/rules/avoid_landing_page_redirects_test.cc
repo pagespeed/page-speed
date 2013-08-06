@@ -133,7 +133,7 @@ class AvoidLandingPageRedirectsTest : public
 
   void CheckViolations(const std::vector<Violation>& expected_violations) {
     ASSERT_TRUE(AppendResults());
-    ASSERT_EQ(static_cast<size_t>(num_results()), expected_violations.size());
+    ASSERT_EQ(expected_violations.size(), static_cast<size_t>(num_results()));
     for (int idx = 0; idx < num_results(); idx++) {
       const Result* r = &result(idx);
       const Violation& violation = expected_violations[idx];
@@ -157,6 +157,11 @@ class AvoidLandingPageRedirectsTest : public
     }
   }
 
+  void CheckNoViolations() {
+    std::vector<Violation> no_violations;
+    CheckViolations(no_violations);
+  }
+
   const RedirectionDetails& details(int result_idx) {
     pagespeed_testing::AssertTrue(result(result_idx).has_details());
     const ResultDetails& detail = result(result_idx).details();
@@ -173,6 +178,7 @@ TEST_F(AvoidLandingPageRedirectsTest, SimpleRedirect) {
 
   AddTemporaryRedirect(url1, url2);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -185,6 +191,44 @@ TEST_F(AvoidLandingPageRedirectsTest, SimpleRedirect) {
   CheckViolations(violations);
 }
 
+TEST_F(AvoidLandingPageRedirectsTest, AllowOneRedirect) {
+  // Single redirect.
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+
+  AddTemporaryRedirect(url1, url2);
+  SetPrimaryResource(url2);
+  Freeze();
+
+  CheckNoViolations();
+}
+
+TEST_F(AvoidLandingPageRedirectsTest, AllowOneRedirectFailure) {
+  // Allow one redirect, but redirect twice, thus we expect two violations.
+  std::string url1 = "http://foo.com/";
+  std::string url2 = "http://www.foo.com/";
+  std::string url3 = "http://m.foo.com/";
+
+  AddTemporaryRedirect(url1, url2);
+  AddTemporaryRedirect(url2, url3);
+  SetPrimaryResource(url3);
+  Freeze();
+
+  std::vector<std::string> urls1;
+  urls1.push_back(url1);
+  urls1.push_back(url2);
+
+  std::vector<std::string> urls2;
+  urls2.push_back(url2);
+  urls2.push_back(url3);
+
+  std::vector<Violation> violations;
+  violations.push_back(Violation(1, 3, urls1));
+  violations.push_back(Violation(1, 3, urls2));
+
+  CheckViolations(violations);
+}
+
 TEST_F(AvoidLandingPageRedirectsTest, EmptyLocation) {
   // Single redirect.
   std::string url1 = "http://foo.com/";
@@ -193,6 +237,7 @@ TEST_F(AvoidLandingPageRedirectsTest, EmptyLocation) {
 
   AddTemporaryRedirect(url1, empty);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   // Although there is an empty redirection, we treat is as missing Location
@@ -218,6 +263,7 @@ TEST_F(AvoidLandingPageRedirectsTest, PermanentEmptyLocation) {
   AddPermanentRedirect(url1, empty);
   AddTemporaryRedirect(url2, url3);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   // Although there is an empty redirection, we treat is as missing Location
@@ -246,6 +292,7 @@ TEST_F(AvoidLandingPageRedirectsTest, NoRedirects) {
 
   AddResourceUrl(url1, 200);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<Violation> violations;
@@ -261,6 +308,7 @@ TEST_F(AvoidLandingPageRedirectsTest, RedirectChain) {
   AddTemporaryRedirect(url1, url2);
   AddTemporaryRedirect(url2, url3);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls1;
@@ -288,6 +336,7 @@ TEST_F(AvoidLandingPageRedirectsTest, AbsoltutePath) {
   AddTemporaryRedirect(url1, url2);
   AddTemporaryRedirect(url2, url3_path);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls1;
@@ -315,6 +364,7 @@ TEST_F(AvoidLandingPageRedirectsTest, RelativePath) {
   AddTemporaryRedirect(url1, url2);
   AddTemporaryRedirect(url2, url3_relative);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls1;
@@ -342,6 +392,7 @@ TEST_F(AvoidLandingPageRedirectsTest, Fragment) {
   AddTemporaryRedirect(url1, url2);
   AddTemporaryRedirect(url2, url3_with_fragment);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls1;
@@ -365,6 +416,7 @@ TEST_F(AvoidLandingPageRedirectsTest, RedirectToIP) {
 
   AddPermanentRedirect(url1, url2);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -384,6 +436,7 @@ TEST_F(AvoidLandingPageRedirectsTest, RedirectToDifferentPort) {
 
   AddPermanentRedirect(url1, url2);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -403,6 +456,7 @@ TEST_F(AvoidLandingPageRedirectsTest, RedirectToSsl) {
 
   AddPermanentRedirect(url1, url2);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -423,6 +477,7 @@ TEST_F(AvoidLandingPageRedirectsTest, ExplicitPort) {
 
   AddPermanentRedirect(url1, url2);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -442,6 +497,7 @@ TEST_F(AvoidLandingPageRedirectsTest, SimpleRedirectPermanent) {
 
   AddPermanentRedirect(url1, url2);
   SetPrimaryResource(url2);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -461,6 +517,7 @@ TEST_F(AvoidLandingPageRedirectsTest, PermanentAndTemp) {
   AddPermanentRedirect(url1, url2);
   AddTemporaryRedirect(url2, url3);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -486,6 +543,7 @@ TEST_F(AvoidLandingPageRedirectsTest, TempAndPermanent) {
   AddTemporaryRedirect(url1, url2);
   AddPermanentRedirect(url2, url3);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -512,6 +570,7 @@ TEST_F(AvoidLandingPageRedirectsTest, TwoNonCacheable) {
   AddPermanentRedirect(url2, url3);
   AddTemporaryRedirect(url3, url4);
   SetPrimaryResource(url4);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls1;
@@ -541,6 +600,7 @@ TEST_F(AvoidLandingPageRedirectsTest, CacheableTempAndPermanent) {
   AddCacheableTemporaryRedirect(url1, url2);
   AddPermanentRedirect(url2, url3);
   SetPrimaryResource(url3);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls1;
@@ -562,6 +622,7 @@ TEST_F(AvoidLandingPageRedirectsTest, PrimaryResourceUrlHasFragment) {
   static const char *kUrlNoFragment = "http://www.example.com/foo";
   AddTemporaryRedirect(kUrl1, kUrlWithFragment);
   SetPrimaryResource(kUrlWithFragment);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   // We expect that the resource's URL was converted to not have a
@@ -586,6 +647,7 @@ TEST_F(AvoidLandingPageRedirectsTest, LoginPages) {
   static const char* kLoginUrl = "http://www.example.com/lOgIn?foo=bar";
   AddTemporaryRedirect(kInitialUrl, kLoginUrl);
   SetPrimaryResource(kLoginUrl);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -609,6 +671,7 @@ TEST_F(AvoidLandingPageRedirectsTest,
       "http://www.example.com/oops?http://www.example.com/";
   AddTemporaryRedirect(kInitialUrl, kOopsUrl);
   SetPrimaryResource(kOopsUrl);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> urls;
@@ -630,6 +693,7 @@ TEST_F(AvoidLandingPageRedirectsTest, IgnoreRedirectsToErrorPages) {
   static const char* kErrorUrl = "http://www.example.com/foo";
   SetPrimaryResource(kErrorUrl)->SetResponseStatusCode(503);
   AddTemporaryRedirect(kInitialUrl, kErrorUrl);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   // No violation.
@@ -653,6 +717,7 @@ TEST_F(AvoidLandingPageRedirectsTest, FormatWithOrder) {
   // cacheable instead of permanent.
   AddRedirect(url5, 301, url6, "max-age=600");
   SetPrimaryResource(url6);
+  SetInitialResourceIsCanonical(true);
   Freeze();
 
   std::vector<std::string> redirection1;
