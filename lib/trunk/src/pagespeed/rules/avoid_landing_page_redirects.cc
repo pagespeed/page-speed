@@ -109,7 +109,11 @@ bool AvoidLandingPageRedirects::AppendResults(
   const RedirectRegistry::RedirectChain* chain =
     input.GetResourceCollection()
     .GetRedirectRegistry()->GetRedirectChainOrNull(primary_resource);
-  if (chain == NULL || chain->empty()) {
+
+  // When there is one redirect, the chain size is 2, as it includes both the
+  // initial url and the final url.
+  if (chain == NULL || chain->empty() ||
+      (!input.GetInitialResourceIsCanonical() && chain->size() <= 2)) {
     return true;
   }
 

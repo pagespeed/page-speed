@@ -184,6 +184,13 @@ class PagespeedInput {
 
   bool SetViewportWidthAndHeight(int width, int height);
 
+  bool GetInitialResourceIsCanonical() const {
+    return initial_resource_is_canonical_;
+  }
+  void SetInitialResourceIsCanonical(bool initial_resource_is_canonical) {
+    initial_resource_is_canonical_ = initial_resource_is_canonical;
+  }
+
  private:
   // Compute information about the set of resources. Called once at
   // the time the PagespeedInput is frozen.
@@ -203,6 +210,7 @@ class PagespeedInput {
   scoped_ptr<DomDocument> document_;
   scoped_ptr<TopLevelBrowsingContext> top_level_browsing_context_;
   scoped_ptr<ImageAttributesFactory> image_attributes_factory_;
+  bool initial_resource_is_canonical_;
   OnloadState onload_state_;
   int onload_millis_;
 

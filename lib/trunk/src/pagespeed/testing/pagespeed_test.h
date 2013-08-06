@@ -202,6 +202,11 @@ class PagespeedTest : public ::testing::Test {
     return pagespeed_input_->SetViewportWidthAndHeight(width, height);
   }
 
+  void SetInitialResourceIsCanonical(bool initial_resource_is_canonical) {
+    pagespeed_input_->SetInitialResourceIsCanonical(
+        initial_resource_is_canonical);
+  }
+
   const pagespeed::PagespeedInput* pagespeed_input() {
     return pagespeed_input_.get();
   }
