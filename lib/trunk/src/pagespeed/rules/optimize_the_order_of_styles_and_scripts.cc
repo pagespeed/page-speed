@@ -333,20 +333,22 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
             // blocks that Page Speed detected as preventing parallel
             // downloading.  It describes the problem to the user and tells them
             // how to fix it by moving the inline script before the external CSS
-            // URL, or after the next resource. The "$1" will be replace by the
-            // URL of the HTML page.
-            _("The following inline script blocks were found in $1 between an "
-              "external CSS file and another resource.  To allow parallel "
-              "downloading, move the inline script before the external CSS "
-              "file, or after the next resource."),
-            UrlArgument(result.resource_urls(0)));
+            // URL, or after the next resource.
+            _("The following inline script blocks were found in %(URL)s "
+              "between an external CSS file and another resource.  To allow "
+              "parallel downloading, move the inline script before the "
+              "external CSS file, or after the next resource."),
+            UrlArgument("URL", result.resource_urls(0)));
         for (int i = 0,
                  size = ordering_details.out_of_order_inline_scripts_size();
              i < size; ++i) {
-          // TRANSLATOR: Detail of inline script block. The "$1" will be replace
-          // by the index of the script block (e.g. 3).
-          body->AddUrlResult(_("Inline script block #$1"), IntArgument(
-              ordering_details.out_of_order_inline_scripts(i)));
+          body->AddUrlResult(
+              // TRANSLATOR: Detail of inline script block. The "INDEX"
+              // placeholder will be replaced by the index of the script block
+              // (e.g. "3").
+              _("Inline script block #%(INDEX)s"),
+              IntArgument("INDEX",
+                          ordering_details.out_of_order_inline_scripts(i)));
         }
       }
 
@@ -355,12 +357,12 @@ void OptimizeTheOrderOfStylesAndScripts::FormatResults(
             // TRANSLATOR: Header at the top of a list of CSS URLs that Page
             // Speed detected as not able to be downloaded in parallel. It
             // describes the problem to the user, and tells them how to fix it
-            // by including the external CSS before external JavaScript. The
-            // "$1" will be replaced by URL of the HTML page.
+            // by including the external CSS before external JavaScript.
             _("The following external CSS files were included after an "
-              "external JavaScript file in $1.  To ensure CSS files are "
+              "external JavaScript file in %(URL)s.  To ensure CSS files are "
               "downloaded in parallel, always include external CSS before "
-              " external JavaScript."), UrlArgument(result.resource_urls(0)));
+              " external JavaScript."),
+            UrlArgument("URL", result.resource_urls(0)));
         for (int i = 0,
                  size = ordering_details.out_of_order_external_css_size();
              i < size; ++i) {

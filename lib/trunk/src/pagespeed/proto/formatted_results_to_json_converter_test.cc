@@ -96,6 +96,9 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
       "\"http://\\u043F\\u0440\\u0435\\u0437\\u0438\\u0434\\u0435\\u043D"
       "\\u0442.\\u0440\\u0444/\?\\u003C\\u003E\",");
 
+  arg->set_placeholder_key("URL");
+  expected.append("\"placeholder_key\":\"URL\",");
+
   arg->set_string_value("http://президент.рф/?<>");
   expected.append(
       "\"string_value\":"
@@ -114,13 +117,16 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
   arg->set_localized_value("123");
   expected.append("\"localized_value\":\"123\",");
 
+  arg->set_placeholder_key("INT");
+  expected.append("\"placeholder_key\":\"INT\",");
+
   arg->set_type(FormatArgument::INT_LITERAL);
   expected.append("\"type\":\"INT_LITERAL\"");
 
   expected.append("}],");
 
-  format_string->set_format("Here $1 is $2.");
-  expected.append("\"format\":\"Here $1 is $2.\"");
+  format_string->set_format("Here %(URL)s is %(INT)s.");
+  expected.append("\"format\":\"Here {{URL}} is {{INT}}.\"");
 
   // Add one more detail format string.
   format_string = result->add_details();
@@ -172,6 +178,62 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
   ASSERT_NE(static_cast<Value*>(NULL), value);
 }
 
+TEST(FormattedResultsToTextConverterTest, Hyperlink) {
+  std::string expected;
+
+  FormattedResults results;
+  expected.append("{");
+
+  results.set_locale("test");
+  expected.append("\"locale\":\"test\",");
+
+  FormattedRuleResults* rule_results = results.add_rule_results();
+  expected.append("\"rule_results\":[{");
+
+  rule_results->set_localized_rule_name("LocalizedRuleName");
+  expected.append("\"localized_rule_name\":\"LocalizedRuleName\",");
+
+  rule_results->set_rule_name("RuleName");
+  expected.append("\"rule_name\":\"RuleName\",");
+
+  rule_results->set_rule_score(56);
+  expected.append("\"rule_score\":56,");
+
+  FormattedUrlBlockResults* block = rule_results->add_url_blocks();
+  expected.append("\"url_blocks\":[{");
+
+  FormatArgument* arg = block->mutable_header()->add_args();
+  expected.append("\"header\":{\"args\":[{");
+
+  arg->set_localized_value("http://www.example.com/");
+  expected.append("\"localized_value\":\"http://www.example.com/\",");
+
+  arg->set_placeholder_key("LINK");
+  expected.append("\"placeholder_key\":\"LINK\",");
+
+  arg->set_string_value("http://www.example.com/");
+  expected.append("\"string_value\":\"http://www.example.com/\",");
+
+  arg->set_type(FormatArgument::HYPERLINK);
+  expected.append("\"type\":\"HYPERLINK\"}],");
+
+  block->mutable_header()->set_format(
+      "You can {{BEGIN_LINK}}click here{{END_LINK}} to learn more.");
+  expected.append("\"format\":\"You can {{BEGIN_LINK}}click "
+                  "here{{END_LINK}} to learn more.\"}}]}],");
+
+  results.set_score(23);
+  expected.append("\"score\":23}");
+
+  std::string json;
+  ASSERT_TRUE(FormattedResultsToJsonConverter::Convert(results, &json));
+  ASSERT_EQ(expected, json);
+
+  scoped_ptr<Value> value(
+      FormattedResultsToJsonConverter::ConvertFormattedResults(results));
+  ASSERT_NE(static_cast<Value*>(NULL), value);
+}
+
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
   EXPECT_STREQ("INVALID",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(0));
@@ -204,9 +266,13 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::PERCENTAGE));
 
+  EXPECT_STREQ("HYPERLINK",
+               FormattedResultsToJsonConverter::ConvertFormatArgumentType(
+                   FormatArgument::HYPERLINK));
+
   EXPECT_STREQ("INVALID",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
-                   FormatArgument::PERCENTAGE + 1));
+                   FormatArgument::HYPERLINK + 1));
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {
@@ -219,6 +285,7 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {
   value.reset(FormattedResultsToJsonConverter::ConvertFormatArgument(arg));
   ASSERT_EQ(NULL, value.get());
 
+  arg.set_placeholder_key("INT");
   arg.set_localized_value("1");
   arg.set_int_value(1);
   arg.set_string_value("hello");
@@ -228,8 +295,9 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {
 
   std::string out;
   base::JSONWriter::Write(value.get(), &out);
-  ASSERT_EQ("{\"int_value\":1,\"localized_value\":\"1\","
-            "\"string_value\":\"hello\",\"type\":\"INT_LITERAL\"}", out);
+  EXPECT_EQ("{\"int_value\":1,\"localized_value\":\"1\","
+            "\"placeholder_key\":\"INT\",\"string_value\":\"hello\","
+            "\"type\":\"INT_LITERAL\"}", out);
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatString) {
@@ -291,6 +359,7 @@ TEST(FormattedResultsToJsonConverterTest, InvalidUtf8) {
 
   FormatArgument arg;
   arg.set_type(FormatArgument::STRING_LITERAL);
+  arg.set_placeholder_key("FOO");
   arg.set_localized_value("localized foo");
   arg.set_string_value(kInvalidUtf8);
 
@@ -306,8 +375,9 @@ TEST(FormattedResultsToJsonConverterTest, InvalidUtf8) {
   std::string out;
   base::JSONWriter::Write(value.get(), &out);
   ASSERT_EQ("{\"localized_value\":\"localized foo\","
-            "\"string_value\":"
-            "\"hello\\uFFFD \\u00A1\\uFFFD hello\",\"type\":\"STRING_LITERAL\"}", out);
+            "\"placeholder_key\":\"FOO\","
+            "\"string_value\":\"hello\\uFFFD \\u00A1\\uFFFD hello\","
+            "\"type\":\"STRING_LITERAL\"}", out);
 #endif
 }
 

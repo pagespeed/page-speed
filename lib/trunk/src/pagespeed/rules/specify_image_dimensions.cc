@@ -197,38 +197,39 @@ void SpecifyImageDimensions::FormatResults(const ResultVector& results,
       const ImageDimensionDetails& image_details = details.GetExtension(
           ImageDimensionDetails::message_set_extension);
       if ( count > 1 ) {
-        // TRANSLATOR: A format string for one item in a list of images that
-        // Page Speed detected as not having both width and height explicitly
-        // specified in the page in which the image appears; each list item
-        // provides the URL of the image, and the actual width/height
-        // dimensions of the image to aid the user in specifying those
-        // dimensions in the page.  The "$1" is a format token that will be
-        // replaced with the URL of the image; the "$2" is a format token that
-        // will be replaced with the width of the image, in pixels
-        // (e.g. "320"); the $3 is a format token that will be replaced with
-        // the height of the image, in pixels (e.g. "240"); the $4 is a format
-        // token that will be replaced with the number of times this image
-        // appears in the page (e.g. "3").
-        body->AddUrlResult(_("$1 (Dimensions: $2 x $3) ($4 uses)"),
-                           UrlArgument(result.resource_urls(0)),
-                           IntArgument(image_details.expected_width()),
-                           IntArgument(image_details.expected_height()),
-                           IntArgument(count));
+        body->AddUrlResult(
+            // TRANSLATOR: A format string for one item in a list of images
+            // that Page Speed detected as not having both width and height
+            // explicitly specified in the page in which the image appears;
+            // each list item provides the URL of the image, and the actual
+            // width/height dimensions of the image to aid the user in
+            // specifying those dimensions in the page.  The "URL" placeholder
+            // will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+            // will be replaced with the width and height of the image, in
+            // pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+            // the number of times this image was used in the page (e.g. "3").
+            _("%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s) "
+              "(%(NUM_USES)s uses)"),
+            UrlArgument("URL", result.resource_urls(0)),
+            IntArgument("WIDTH", image_details.expected_width()),
+            IntArgument("HEIGHT", image_details.expected_height()),
+            IntArgument("NUM_USES", count));
       } else {
-        // TRANSLATOR: A format string for one item in a list of images that
-        // Page Speed detected as not having both width and height explicitly
-        // specified in the page in which the image appears; each list item
-        // provides the URL of the image, and the actual width/height
-        // dimensions of the image to aid the user in specifying those
-        // dimensions in the page.  The "$1" is a format token that will be
-        // replaced with the URL of the image; the "$2" is a format token that
-        // will be replaced with the width of the image, in pixels
-        // (e.g. "320"); the $3 is a format token that will be replaced with
-        // the height of the image, in pixels (e.g. "240").
-        body->AddUrlResult(_("$1 (Dimensions: $2 x $3)"),
-                           UrlArgument(result.resource_urls(0)),
-                           IntArgument(image_details.expected_width()),
-                           IntArgument(image_details.expected_height()));
+        body->AddUrlResult(
+            // TRANSLATOR: A format string for one item in a list of images
+            // that Page Speed detected as not having both width and height
+            // explicitly specified in the page in which the image appears;
+            // each list item provides the URL of the image, and the actual
+            // width/height dimensions of the image to aid the user in
+            // specifying those dimensions in the page.  The "URL" placeholder
+            // will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+            // will be replaced with the width and height of the image, in
+            // pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+            // the number of times this image was used in the page (e.g. "3").
+            _("%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s)"),
+            UrlArgument("URL", result.resource_urls(0)),
+            IntArgument("WIDTH", image_details.expected_width()),
+            IntArgument("HEIGHT", image_details.expected_height()));
       }
     } else {
       body->AddUrl(result.resource_urls(0));

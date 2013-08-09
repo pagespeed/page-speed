@@ -27,20 +27,30 @@ namespace pagespeed {
 
 class Rule;
 
-FormatArgument BytesArgument(int64 bytes);
+FormatArgument BytesArgument(const std::string& key, int64 bytes);
 
-FormatArgument DurationArgument(int64 milliseconds);
+FormatArgument DurationArgument(const std::string& key, int64 milliseconds);
 
-FormatArgument IntArgument(int64 value);
+FormatArgument IntArgument(const std::string& key, int64 integer);
 
-FormatArgument PercentageArgument(int64 numerator, int64 denominator);
+FormatArgument PercentageArgument(const std::string& key,
+                                  int64 numerator, int64 denominator);
 
 // Used for pre-formatted strings such as code blocks or stack traces.
-FormatArgument VerbatimStringArgument(const std::string& value);
+FormatArgument VerbatimStringArgument(const std::string& key,
+                                      const std::string& str);
 
-FormatArgument StringArgument(const std::string& value);
+FormatArgument StringArgument(const std::string& key, const std::string& str);
 
-FormatArgument UrlArgument(const std::string& url);
+// A URL; in contexts that allow hyperlinks, the given URL should be used both
+// as the href and as the displayed label.
+FormatArgument UrlArgument(const std::string& key, const std::string& url);
+
+// Used for turning a portion of the translated text into a hyperlink.  This
+// format argument uses two placeholders: if key is "FOO", the placeholders are
+// "%(BEGIN_FOO)s" and "%(END_FOO)s".
+FormatArgument HyperlinkArgument(const std::string& key,
+                                 const std::string& href);
 
 class UrlFormatter {
  public:
@@ -102,6 +112,19 @@ class UrlBlockFormatter {
                              const FormatArgument& arg2,
                              const FormatArgument& arg3,
                              const FormatArgument& arg4,
+                             const FormatArgument& arg5);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str,
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2,
+                             const FormatArgument& arg3,
+                             const FormatArgument& arg4,
+                             const FormatArgument& arg5,
+                             const FormatArgument& arg6);
+  UrlFormatter* AddUrlResult(const UserFacingString& format_str,
+                             const FormatArgument& arg1,
+                             const FormatArgument& arg2,
+                             const FormatArgument& arg3,
+                             const FormatArgument& arg4,
                              const FormatArgument& arg5,
                              const FormatArgument& arg6,
                              const FormatArgument& arg7);
@@ -128,6 +151,28 @@ class RuleFormatter {
   UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
                                  const FormatArgument& arg1,
                                  const FormatArgument& arg2);
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
+                                 const FormatArgument& arg1,
+                                 const FormatArgument& arg2,
+                                 const FormatArgument& arg3);
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
+                                 const FormatArgument& arg1,
+                                 const FormatArgument& arg2,
+                                 const FormatArgument& arg3,
+                                 const FormatArgument& arg4);
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
+                                 const FormatArgument& arg1,
+                                 const FormatArgument& arg2,
+                                 const FormatArgument& arg3,
+                                 const FormatArgument& arg4,
+                                 const FormatArgument& arg5);
+  UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
+                                 const FormatArgument& arg1,
+                                 const FormatArgument& arg2,
+                                 const FormatArgument& arg3,
+                                 const FormatArgument& arg4,
+                                 const FormatArgument& arg5,
+                                 const FormatArgument& arg6);
   UrlBlockFormatter* AddUrlBlock(const UserFacingString& format_str,
                                  const FormatArgument& arg1,
                                  const FormatArgument& arg2,

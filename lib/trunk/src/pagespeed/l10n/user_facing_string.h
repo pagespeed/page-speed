@@ -31,7 +31,7 @@ namespace pagespeed {
 // with the _(...) macro) should be passed through the localization process
 // (i.e.  translated and put in string tables), while non-localized strings
 // (marked with the non_localized(...) macro) should not.  This allows us to
-// skip lookups on non-translatable strings like "$1".
+// skip lookups on non-translatable strings like "%(FOO)s".
 class UserFacingString {
  public:
   UserFacingString() : value_(NULL) {}

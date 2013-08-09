@@ -68,11 +68,16 @@ std::string DoubleToString(double value);
 
 std::string JoinString(const std::vector<std::string>& parts, char s);
 
+// Replace placeholders in a format string with their string values.  For a
+// given key "FOO", the placeholder in the format string should be "%(FOO)s".
+// Percent signs can be escaped by doubling them.  For example, if the map is
+// {"URL": "example.com", "PERCENTAGE": "95"} and the format string is "The
+// page at %(URL)s is %(PERCENTAGE)s%% awesome.", the result will be "The page
+// at example.com is 95% awesome."  Each placeholder key must appear in the
+// format string exactly once.
 std::string ReplaceStringPlaceholders(
-    const base::StringPiece& format_string,
-    const std::vector<std::string>& subst,
-    std::vector<size_t>* offsets);
-
+    base::StringPiece format_string,
+    const std::map<std::string, std::string>& subst);
 
 // PRINTF_FORMAT not everywhere.
 // Use PRINTF_FORMAT to force compiler to check for

@@ -105,6 +105,9 @@ public class Pagespeed {
    * <a> HTML tags).
    */
   public static String DoFormat(PagespeedProtoFormatter.FormatString formatString) {
+    // TODO(mdsteele): This method uses the deprecated $1 placeholder format.
+    // We need to update it to the new %(FOO)s placeholder format.
+
     StringBuilder sb = new StringBuilder();
     final String formatStr = formatString.getFormat();
     Matcher m = formatArgumentPattern.matcher(formatStr);
@@ -212,4 +215,3 @@ public class Pagespeed {
     PresentResults(results);
   }
 }
-

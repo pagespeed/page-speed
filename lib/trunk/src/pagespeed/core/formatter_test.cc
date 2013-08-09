@@ -23,13 +23,13 @@ using pagespeed::PercentageArgument;
 namespace {
 
 TEST(FormatterTest, PercentageArgument) {
-  EXPECT_EQ(100, PercentageArgument(1, 1).int_value());
-  EXPECT_EQ(99, PercentageArgument(995, 1000).int_value());
-  EXPECT_EQ(50, PercentageArgument(1, 2).int_value());
-  EXPECT_EQ(25, PercentageArgument(10, 40).int_value());
-  EXPECT_EQ(1, PercentageArgument(5, 1000).int_value());
-  EXPECT_EQ(0, PercentageArgument(0, 1000).int_value());
-  EXPECT_EQ(0, PercentageArgument(0, 0).int_value());
+  EXPECT_EQ(100, PercentageArgument("P", 1, 1).int_value());
+  EXPECT_EQ(99, PercentageArgument("P", 995, 1000).int_value());
+  EXPECT_EQ(50, PercentageArgument("P", 1, 2).int_value());
+  EXPECT_EQ(25, PercentageArgument("P", 10, 40).int_value());
+  EXPECT_EQ(1, PercentageArgument("P", 5, 1000).int_value());
+  EXPECT_EQ(0, PercentageArgument("P", 0, 1000).int_value());
+  EXPECT_EQ(0, PercentageArgument("P", 0, 0).int_value());
 }
 
 }  // namespace

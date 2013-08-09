@@ -25,7 +25,6 @@ package pagespeed;
 
 // Typed format string arguments.
 message FormatArgument {
-
   // NOTE: these must be kept in sync with kArgumentTypeToNameMap in
   // formatted_results_to_json_converter.cc.
   enum ArgumentType {
@@ -37,21 +36,43 @@ message FormatArgument {
     // Used for pre-formatted strings such as code blocks or stack traces.
     VERBATIM_STRING = 6;
     PERCENTAGE = 7;
+    HYPERLINK = 8;
   }
 
-  required ArgumentType type = 1;
+  // The type of this format argument; must be present.
+  optional ArgumentType type = 1;
+
+  // The raw value to be inserted.  Only one of string or int should be used,
+  // depending on the argument type:
+  //   URL: string_value holds the URL to display
+  //   STRING_LITERAL: string_value holds the string
+  //   INT_LITERAL: int_value holds the integer
+  //   BYTES: int_value holds the size, in bytes
+  //   DURATION: int_value holds the duration, in milliseconds
+  //   VERBATIM_STRING: string_value holds the string
+  //   PERCENTAGE: int_value holds the percentage (from 0 to 100)
+  //   HYPERLINK: string_value holds the URL to link to
   optional string string_value = 2;
   optional int64 int_value = 3;
+
   // A localized string representing the value (e.g. in the 'fr' locale, 3900
-  // bytes might be localized as '3,9 kB')
-  required string localized_value = 4;
+  // bytes might be localized as '3,9 kB'); must be present.  This is filled in
+  // by the localizer.
+  optional string localized_value = 4;
+
+  // The placeholder string used for this format argumet (e.g. "FILE_SIZE" or
+  // "URL_1").  The HYPERLINK argument type actually uses two placeholders, for
+  // the start and end of the link; in this case, if the value of
+  // placeholder_key is e.g. "FOO", then the placeholder strings are
+  // "BEGIN_FOO" and "END_FOO".
+  optional string placeholder_key = 5;
 }
 
 // Pair of a format string and its arguments.
 message FormatString {
-  // Format string (e.g. 'You saved $1 bytes over $2 URLs').
+  // Format string (e.g. 'You saved %(NUM_BYTES)s bytes for %(URL)s.').
   required string format = 1;
-  // Format arguments (one for each of the $<n> placeholders above).
+  // Format arguments (one for each of the %(FOO)s placeholders above).
   repeated FormatArgument args = 2;
 }
 

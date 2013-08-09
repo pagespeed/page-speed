@@ -234,10 +234,10 @@ TEST_F(ServeScaledImagesTest, ShrunkAndIncreased) {
 
 TEST_F(ServeScaledImagesTest, RedirectTest) {
   std::string expected =
-      "The following images are resized in HTML or CSS.  "
+      "The following images are resized in HTML or CSS. "
       "Serving scaled images could save 47B (94% reduction).\n"
       "  http://test.com/redirect/image.png is resized in HTML or CSS from "
-      "42x23 to 15x5.  "
+      "42x23 to 15x5. "
       "Serving a scaled image could save 47B (94% reduction).\n";
 
   pagespeed::Resource* resource;
@@ -253,10 +253,10 @@ TEST_F(ServeScaledImagesTest, RedirectTest) {
 
 TEST_F(ServeScaledImagesTest, FormatTest) {
   std::string expected =
-      "The following images are resized in HTML or CSS.  "
+      "The following images are resized in HTML or CSS. "
       "Serving scaled images could save 47B (94% reduction).\n"
       "  http://test.com/image.png is resized in HTML or CSS from "
-      "42x23 to 15x5.  "
+      "42x23 to 15x5. "
       "Serving a scaled image could save 47B (94% reduction).\n";
 
   pagespeed::Resource* resource;

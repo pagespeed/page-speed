@@ -167,37 +167,35 @@ void PutCssInTheDocumentHead::FormatResults(const ResultVector& results,
 
       UrlBlockFormatter* entry = formatter->AddUrlBlock(
           // TRANSLATOR: Header of a list of items the Page Speed suggests to
-          // move to document head. The "$1" will be replaced by the document
-          // URL.
-          _("$1 has CSS in the document body:"),
-          UrlArgument(result.resource_urls(0)));
+          // move to document head.
+          _("%(DOCUMENT_URL)s has CSS in the document body:"),
+          UrlArgument("DOCUMENT_URL", result.resource_urls(0)));
 
       int num_inline_style_blocks =
           style_details.num_inline_style_blocks();
       if (num_inline_style_blocks > 0) {
-        // TRANSLATOR: Detail of the inline CSS. It tells the user how many
-        // style blocks should be moved to document head. The "$1" will be
-        // replaced by the number of style blocks.
-        entry->AddUrlResult(_("$1 style block(s) in the body should be moved "
-                              "to the document head."),
-                            IntArgument(num_inline_style_blocks));
+        entry->AddUrlResult(
+            // TRANSLATOR: Detail of the inline CSS. It tells the user how many
+            // style blocks should be moved to document head.
+            _("%(NUM_STYLE_BLOCKS)s style block(s) in the body should be "
+              "moved to the document head."),
+            IntArgument("NUM_STYLE_BLOCKS", num_inline_style_blocks));
       }
 
       for (int i = 0, size = style_details.external_styles_size();
            i < size; ++i) {
         entry->AddUrlResult(
             // TRANSLATOR: Detail of external CSS resources. It tells the user
-            // how to fix the problem by moving the CSS to document head. The
-            // "$1" will be replaced by the CSS resource URL.
-            _("Link node $1 should be moved to the document head."),
-            UrlArgument(style_details.external_styles(i)));
+            // how to fix the problem by moving the CSS to document head.
+            _("Link node %(LINK_URL)s should be moved to the document head."),
+            UrlArgument("LINK_URL", style_details.external_styles(i)));
       }
     } else {
-      // TRANSLATOR: The document that Page Speed detected as have CSS
-      // resources in document body. The "$1" will be replaced by the document
-      // URL.
-      formatter->AddUrlBlock(_("$1 has CSS in the document body."),
-                             UrlArgument(result.resource_urls(0)));
+      formatter->AddUrlBlock(
+          // TRANSLATOR: The document that Page Speed detected as have CSS
+          // resources in document body.
+          _("%(DOCUMENT_URL)s has CSS in the document body."),
+          UrlArgument("DOCUMENT_URL", result.resource_urls(0)));
     }
   }
 }

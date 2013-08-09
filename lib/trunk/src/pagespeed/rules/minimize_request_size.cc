@@ -120,15 +120,16 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
       continue;
     }
 
-    // TRANSLATOR: Item describing a URL that violates the MinimzeRequestSize
-    // rule by having a large request size. The "$1" in the format string will
-    // be replaced by the URL; the "$2" will be replaced by the number of bytes
-    // in the request. This is displayed at the top of a breakdown of how large
-    // each element of the request is.
-    //
-    UrlFormatter* entry = body->AddUrlResult(_("$1 has a request size of $2"),
-        UrlArgument(result.resource_urls(0)),
-        BytesArgument(result.original_request_bytes()));
+    UrlFormatter* entry = body->AddUrlResult(
+        // TRANSLATOR: Item describing a URL that violates the
+        // MinimzeRequestSize rule by having a large request size. The "URL"
+        // placeholder will be replaced by the URL; the "SIZE_IN_BYTES"
+        // placeholder will be replaced by the number of bytes in the request
+        // (e.g. "1492 bytes"). This is displayed at the top of a breakdown of
+        // how large each element of the request is.
+        _("%(URL)s has a request size of %(SIZE_IN_BYTES)s"),
+        UrlArgument("URL", result.resource_urls(0)),
+        BytesArgument("SIZE_IN_BYTES", result.original_request_bytes()));
 
     const ResultDetails& details_container = result.details();
     if (details_container.HasExtension(RequestDetails::message_set_extension)) {
@@ -136,40 +137,47 @@ void MinimizeRequestSize::FormatResults(const ResultVector& results,
           RequestDetails::message_set_extension);
 
       // TRANSLATOR: Item showing how large the URL is in a request that
-      // violates the MinimizeRequestSizeRule by being large. The "$1" will be
-      // replace by the size of the request URL in bytes (e.g. "5.3KiB").
-      entry->AddDetail(_("Request URL: $1"),
-                       BytesArgument(details.url_length()));
+      // violates the MinimizeRequestSizeRule by being large. The
+      // "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+      // request URL in bytes (e.g. "5.3KiB").
+      entry->AddDetail(_("Request URL: %(SIZE_IN_BYTES)s"),
+                       BytesArgument("SIZE_IN_BYTES", details.url_length()));
 
       if (details.is_static() && details.cookie_length() > 0) {
         // TRANSLATOR: Item showing how large the cookie is in a request that
-        // violates the MinimizeRequestSizeRule by being large. It also tell the
-        // user that the resource is static, and it should be served from a
-        // cookieless domain. The "$1" will be replace by the size of the
-        // cookies in bytes (e.g. "5.3KiB").
-        entry->AddDetail(_("Cookies: $1 (note that this is a static resource, "
+        // violates the MinimizeRequestSizeRule by being large. It also tell
+        // the user that the resource is static, and it should be served from a
+        // cookieless domain. The "SIZE_IN_BYTES" placeholder will be replaced
+        // by the size of the cookies in bytes (e.g. "5.3KiB").
+        entry->AddDetail(_("Cookies: %(SIZE_IN_BYTES)s (note that this is a static resource, "
                            "and should be served from a cookieless domain)"),
-                         BytesArgument(details.cookie_length()));
+                         BytesArgument("SIZE_IN_BYTES",
+                                       details.cookie_length()));
       } else {
         // TRANSLATOR: Item showing how large the cookie is in a request that
-        // violates the MinimizeRequestSizeRule by being large. The "$1" will be
-        // replace by the size of the cookies in bytes (e.g. "5.3KiB").
-        entry->AddDetail(_("Cookies: $1"),
-                         BytesArgument(details.cookie_length()));
+        // violates the MinimizeRequestSizeRule by being large. The
+        // "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+        // cookies in bytes (e.g. "5.3KiB").
+        entry->AddDetail(_("Cookies: %(SIZE_IN_BYTES)s"),
+                         BytesArgument("SIZE_IN_BYTES",
+                                       details.cookie_length()));
       }
 
       // TRANSLATOR: Item showing how large the referrer URL is in a request
-      // that violates the MinimizeRequestSizeRule by being large. The "$1" will
-      // be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-      entry->AddDetail(_("Referer Url: $1"),
-                       BytesArgument(details.referer_length()));
+      // that violates the MinimizeRequestSizeRule by being large. The
+      // "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+      // referrer URL in bytes (e.g. "5.3KiB").
+      entry->AddDetail(_("Referer Url: %(SIZE_IN_BYTES)s"),
+                       BytesArgument("SIZE_IN_BYTES",
+                                     details.referer_length()));
 
-      // TRANSLATOR: Item showing how large the other request components is in a
-      // request that violates the MinimizeRequestSizeRule by being large. The
-      // "$1" will be replace by the total size of other components of the
-      // request in bytes (e.g. "5.3KiB").
-      entry->AddDetail(_("Other: $1"),
-                       BytesArgument(result.original_request_bytes() -
+      // TRANSLATOR: Item showing how large the other request components is in
+      // a request that violates the MinimizeRequestSizeRule by being
+      // large. The "SIZE_IN_BYTES" placeholder will be replaced by the total
+      // size of other components of the request in bytes (e.g. "5.3KiB").
+      entry->AddDetail(_("Other: %(SIZE_IN_BYTES)s"),
+                       BytesArgument("SIZE_IN_BYTES",
+                                     result.original_request_bytes() -
                                      details.url_length() -
                                      details.cookie_length() -
                                      details.referer_length()));

@@ -142,16 +142,6 @@ bool EnableKeepAlive::AppendResults(const RuleInput& rule_input,
 
 void EnableKeepAlive::FormatResults(const ResultVector& results,
                                     RuleFormatter* formatter) {
-  UserFacingString body_tmpl =
-      // TRANSLATOR: Header at the top of a list of URLs of resources that are
-      // served from a domain that does not have HTTP Keep-Alive enabled.  It
-      // tells the user to enable keep-alive on that domain.  The "$1" is a
-      // format string that will be replaced with the domain in question.
-      // "Keep-Alive" is the name of an HTTP header, and shouldn't be
-      // translated.
-      _("The host $1 should enable Keep-Alive. It serves the following "
-        "resources.");
-
   if (results.empty()) {
     return;
   }
@@ -164,7 +154,16 @@ void EnableKeepAlive::FormatResults(const ResultVector& results,
     std::string domain =
         uri_util::GetDomainAndRegistry(result.resource_urls(0));
     UrlBlockFormatter* body = formatter->AddUrlBlock(
-        body_tmpl, StringArgument(domain));
+        // TRANSLATOR: Header at the top of a list of URLs of resources that
+        // are served from a domain that does not have HTTP Keep-Alive enabled.
+        // It tells the user to enable keep-alive on that host.  The
+        // "HOST_NAME" placeholder gives the name of the host
+        // (e.g. "www.example.com").  The "KEEPALIVE" placeholder is replaced
+        // with the string "Keep-Alive", which is code that should not be
+        // translated.
+        _("The host %(HOST_NAME)s should enable %(KEEPALIVE)s. It serves the "
+          "following resources."), StringArgument("HOST_NAME", domain),
+        StringArgument("KEEPALIVE", "Keep-Alive"));
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       body->AddUrl(result.resource_urls(idx));

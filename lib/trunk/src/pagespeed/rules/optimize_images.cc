@@ -67,21 +67,25 @@ UserFacingString ImageMinifier::header_format() const {
 }
 
 UserFacingString ImageMinifier::body_format() const {
-  // TRANSLATOR: Header at the top a list of image URLs that Page Speed detected
-  // as can be optimized by using better compression. It describes the problem
-  // to the user that the size of the images can be reduced. The "$1" will be
-  // replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-  // the percentage (e.g. 25%).
+  // TRANSLATOR: Header at the top a list of image URLs that Page Speed
+  // detected as can be optimized by using better compression. It describes the
+  // problem to the user that the size of the images can be reduced. The
+  // "SIZE_IN_BYTES" placeholder will be replaced by the absolute number of
+  // bytes or kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). The
+  // "PERCENTAGE" placeholder will be replaced by the percent savings
+  // (e.g. "50%").
   return _("Optimizing the following images could reduce their size "
-           "by $1 ($2 reduction).");
+           "by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
 }
 
 UserFacingString ImageMinifier::child_format() const {
-  // TRANSLATOR: Detail info for one image URL. It tells the user how much can
-  // be save for one image. The "$1" will be replace the the image URL; "$2"
-  // will be replace by the number of bytes (e.g. 27B); the "$3" will be
-  // replace by the percentage (e.g. 12%).
-  return _("Losslessly compressing $1 could save $2 ($3 reduction).");
+  // TRANSLATOR: Subheading that describes the savings possible from optimizing
+  // a particular image resource via lossless compression.  The "SIZE_IN_BYTES"
+  // placeholder will be replaced by the absolute number of bytes or kilobytes
+  // that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+  // placeholder will be replaced by the percent savings (e.g. "50%").
+  return _("Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s "
+           "(%(PERCENTAGE)s reduction).");
 }
 
 UserFacingString ImageMinifier::child_format_post_gzip() const {

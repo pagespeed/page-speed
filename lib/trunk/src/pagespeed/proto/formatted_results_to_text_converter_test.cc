@@ -78,16 +78,18 @@ TEST(FormattedResultsToTextConverterTest, Full) {
 
   // Add a few arguments to test argument serialization.
   FormatArgument* arg1 = format_string1->add_args();
+  arg1->set_placeholder_key("URL");
   arg1->set_string_value("http://президент.рф/?<>");
   arg1->set_localized_value("http://президент.рф/?<>");
   arg1->set_type(FormatArgument::URL);
 
   FormatArgument* arg2 = format_string1->add_args();
+  arg2->set_placeholder_key("INT");
   arg2->set_int_value(123);
   arg2->set_localized_value("123");
   arg2->set_type(FormatArgument::INT_LITERAL);
 
-  format_string1->set_format("Here $1 is $2.");
+  format_string1->set_format("Here %(URL)s is %(INT)s.");
   expected.append("      - Here http://президент.рф/?<> is 123.\n");
 
   // Add one more detail format string.
@@ -109,6 +111,38 @@ TEST(FormattedResultsToTextConverterTest, Full) {
 
   results.set_score(12);
   expected.append("**[12/100]**\n");
+
+  std::string text;
+  ASSERT_TRUE(FormattedResultsToTextConverter::Convert(results, &text));
+  ASSERT_EQ(expected, text);
+}
+
+TEST(FormattedResultsToTextConverterTest, Hyperlink) {
+  std::string expected;
+
+  FormattedResults results;
+  results.set_locale("test");
+
+  FormattedRuleResults* rule_results1 = results.add_rule_results();
+  rule_results1->set_rule_name("RuleName");
+  rule_results1->set_localized_rule_name("LocalizedRuleName");
+  rule_results1->set_rule_score(56);
+  expected.append("_LocalizedRuleName_ (56/100)\n");
+
+
+  FormattedUrlBlockResults* block = rule_results1->add_url_blocks();
+  block->mutable_header()->set_format(
+      "You can %(BEGIN_LINK)sclick here%(END_LINK)s to learn more.");
+  FormatArgument* arg = block->mutable_header()->add_args();
+  arg->set_placeholder_key("LINK");
+  arg->set_string_value("http://www.example.com/");
+  arg->set_localized_value("http://www.example.com/");
+  arg->set_type(FormatArgument::HYPERLINK);
+  expected.append("  You can click here<http://www.example.com/> to learn "
+                  "more.\n");
+
+  results.set_score(23);
+  expected.append("**[23/100]**\n");
 
   std::string text;
   ASSERT_TRUE(FormattedResultsToTextConverter::Convert(results, &text));

@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "pagespeed/core/string_util.h"
+
+#include <map>
+#include <string>
 #include <vector>
 
-#include "pagespeed/core/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -149,117 +152,75 @@ TEST(StringUtilTest, JoinString) {
   EXPECT_EQ("a|b|c|| ", JoinString(in, '|'));
 }
 
-TEST(StringUtilTest, GetStringFWithOffsets) {
-  std::vector<std::string> subst;
-  subst.push_back("1");
-  subst.push_back("2");
-  std::vector<size_t> offsets;
-
-  ReplaceStringPlaceholders("Hello, $1. Your number is $2.",
-                            subst,
-                            &offsets);
-  EXPECT_EQ(2U, offsets.size());
-  EXPECT_EQ(7U, offsets[0]);
-  EXPECT_EQ(25U, offsets[1]);
-  offsets.clear();
-
-  ReplaceStringPlaceholders("Hello, $2. Your number is $1.",
-                            subst,
-                            &offsets);
-  EXPECT_EQ(2U, offsets.size());
-  EXPECT_EQ(25U, offsets[0]);
-  EXPECT_EQ(7U, offsets[1]);
-  offsets.clear();
+TEST(StringUtilTest, ReplaceStringPlaceholdersSimple) {
+  std::map<std::string, std::string> subst;
+  subst["FOO_BAR"] = "Hello";
+  subst["BAZ_1"] = "world";
+  EXPECT_EQ("Hello, world!",
+            ReplaceStringPlaceholders("%(FOO_BAR)s, %(BAZ_1)s!", subst));
 }
 
-TEST(StringUtilTest, ReplaceStringPlaceholdersTooFew) {
-  // Test whether replacestringplaceholders works as expected when there
-  // are fewer inputs than outputs.
-
-  std::vector<std::string> subst;
-  subst.push_back("9a");
-  subst.push_back("8b");
-  subst.push_back("7c");
-
-  std::string formatted =
-      ReplaceStringPlaceholders(
-         "$1a,$2b,$3c,$4d,$5e,$6f,$1g,$2h,$3i", subst, NULL);
-
-  EXPECT_EQ(formatted, "9aa,8bb,7cc,d,e,f,9ag,8bh,7ci");
+TEST(StringUtilTest, ReplaceStringPlaceholdersMany) {
+  std::map<std::string, std::string> subst;
+  subst["A"] = "a";
+  subst["B"] = "b";
+  subst["C"] = "c";
+  subst["D"] = "d";
+  subst["E"] = "e";
+  subst["F"] = "f";
+  subst["G"] = "g";
+  subst["H"] = "h";
+  subst["I"] = "i";
+  subst["J"] = "j";
+  subst["K"] = "k";
+  subst["L"] = "l";
+  subst["M"] = "m";
+  EXPECT_EQ("mlkjihgfedcba", ReplaceStringPlaceholders(
+      "%(M)s%(L)s%(K)s%(J)s%(I)s%(H)s%(G)s%(F)s%(E)s%(D)s%(C)s%(B)s%(A)s",
+      subst));
 }
 
-TEST(StringUtilTest, ReplaceStringPlaceholders) {
-  std::vector<std::string> subst;
-  subst.push_back("9a");
-  subst.push_back("8b");
-  subst.push_back("7c");
-  subst.push_back("6d");
-  subst.push_back("5e");
-  subst.push_back("4f");
-  subst.push_back("3g");
-  subst.push_back("2h");
-  subst.push_back("1i");
-
-  std::string formatted =
-      ReplaceStringPlaceholders(
-          "$1a,$2b,$3c,$4d,$5e,$6f,$7g,$8h,$9i", subst, NULL);
-
-  EXPECT_EQ(formatted, "9aa,8bb,7cc,6dd,5ee,4ff,3gg,2hh,1ii");
+TEST(StringUtilTest, ReplaceStringPlaceholdersEscapedPercents) {
+  std::map<std::string, std::string> subst;
+  subst["INT"] = "99";
+  EXPECT_EQ("This is 99% awesome.",
+            ReplaceStringPlaceholders("This is %(INT)s%% awesome.", subst));
+  EXPECT_EQ("This is only 98% (less than 99%) awesome.",
+            ReplaceStringPlaceholders(
+                "This is only 98%% (less than %(INT)s%%) awesome.", subst));
 }
 
-TEST(StringUtilTest, ReplaceStringPlaceholdersMoreThan9Replacements) {
-  std::vector<std::string> subst;
-  subst.push_back("9a");
-  subst.push_back("8b");
-  subst.push_back("7c");
-  subst.push_back("6d");
-  subst.push_back("5e");
-  subst.push_back("4f");
-  subst.push_back("3g");
-  subst.push_back("2h");
-  subst.push_back("1i");
-  subst.push_back("0j");
-  subst.push_back("-1k");
-  subst.push_back("-2l");
-  subst.push_back("-3m");
-  subst.push_back("-4n");
-
-  std::string formatted =
-      ReplaceStringPlaceholders(
-          "$1a,$2b,$3c,$4d,$5e,$6f,$7g,$8h,$9i,"
-          "$10j,$11k,$12l,$13m,$14n,$1", subst, NULL);
-
-  EXPECT_EQ(formatted, "9aa,8bb,7cc,6dd,5ee,4ff,3gg,2hh,"
-                                    "1ii,0jj,-1kk,-2ll,-3mm,-4nn,9a");
-
+// If a placeholder isn't closed properly (for example, if we forgot the 's'
+// after the close paren), that's an error.
+TEST(StringUtilTest, ReplaceStringPlaceholdersUnclosedPlaceholder) {
+  std::map<std::string, std::string> subst;
+  subst["INT"] = "5";
+  EXPECT_DEBUG_DEATH(
+      ReplaceStringPlaceholders("There are %(INT results.", subst),
+      "Unclosed format placeholder");
+  EXPECT_DEBUG_DEATH(
+      ReplaceStringPlaceholders("This are %(INT) results.", subst),
+      "Unclosed format placeholder");
 }
 
-TEST(StringUtilTest, StdStringReplaceStringPlaceholders) {
-  std::vector<std::string> subst;
-  subst.push_back("9a");
-  subst.push_back("8b");
-  subst.push_back("7c");
-  subst.push_back("6d");
-  subst.push_back("5e");
-  subst.push_back("4f");
-  subst.push_back("3g");
-  subst.push_back("2h");
-  subst.push_back("1i");
-
-  std::string formatted =
-      ReplaceStringPlaceholders(
-          "$1a,$2b,$3c,$4d,$5e,$6f,$7g,$8h,$9i", subst, NULL);
-
-  EXPECT_EQ(formatted, "9aa,8bb,7cc,6dd,5ee,4ff,3gg,2hh,1ii");
+// If the format string contains a placeholder that isn't in the map, that's an
+// error.
+TEST(StringUtilTest, ReplaceStringPlaceholdersPlaceholderNotInMap) {
+  std::map<std::string, std::string> subst;
+  subst["FOO"] = "5";
+  EXPECT_DEBUG_DEATH(
+      ReplaceStringPlaceholders("Hello %(FOO)s %(BAR)s.", subst),
+      "No such placeholder key: BAR");
 }
 
-TEST(StringUtilTest, ReplaceStringPlaceholdersConsecutiveDollarSigns) {
-  std::vector<std::string> subst;
-  subst.push_back("a");
-  subst.push_back("b");
-  subst.push_back("c");
-  EXPECT_EQ(ReplaceStringPlaceholders("$$1 $$$2 $$$$3", subst, NULL),
-            "$1 $$2 $$$3");
+// A percent sign in the format string must be followed by either an open paren
+// or another percent sign.  Anything else is an error.
+TEST(StringUtilTest, ReplaceStringPlaceholdersInvalidEscape) {
+  std::map<std::string, std::string> subst;
+  subst["BAR"] = "42";
+  EXPECT_DEBUG_DEATH(
+      ReplaceStringPlaceholders("Foo %(BAR)s %t baz.", subst),
+      "Invalid format escape: %t");
 }
 
 TEST(StringUtilTest, StringPrintfEmpty) {

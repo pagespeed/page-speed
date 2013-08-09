@@ -147,16 +147,14 @@ void ServeResourcesFromAConsistentUrl::FormatResults(
         // TRANSLATOR: Header at the top of a list of URLs that Page Speed
         // detected as being identical yet served multiple times from different
         // URLs.  It describes the problem to the user, and tells them how to
-        // fix it by serving all these resources from the same URL.  The "$1"
-        // is a format string that will be replaced with the number of requests
-        // that could be saved (e.g. "3"); the "$2" is a format string that
-        // will be replaced with the number of bytes that could be saved
-        // (e.g. "12.3kB").
+        // fix it by serving all these resources from the same URL.  The
+        // "BYTES_SAVED" placeholder will be replaced with the amount of
+        // transferred data that could be saved (e.g. "12.3kB").
         _("The following resources have identical contents, but are served "
           "from different URLs.  Serve these resources from a consistent URL "
-          "to save $1 request(s) and $2."),
-        IntArgument(result.savings().requests_saved()),
-        BytesArgument(result.savings().response_bytes_saved()));
+          "to save %(NUM_REQUESTS)s request(s) and %(BYTES_SAVED)s."),
+        IntArgument("NUM_REQUESTS", result.savings().requests_saved()),
+        BytesArgument("BYTES_SAVED", result.savings().response_bytes_saved()));
     for (int url_idx = 0; url_idx < result.resource_urls_size(); url_idx++) {
       body->AddUrl(result.resource_urls(url_idx));
     }
