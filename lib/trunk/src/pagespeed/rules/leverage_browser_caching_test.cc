@@ -141,4 +141,15 @@ TEST_F(LeverageBrowserCachingTest, ShorterExpectedLifetimeThirdPartyContent) {
   CheckOneViolation("http://www.example2.com/b", 43199000, 53);
 }
 
+TEST_F(LeverageBrowserCachingTest, Format) {
+  AddTestResource("http://www.example.com/", "max-age=500");
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "Leverage browser caching"
+      "<https://developers.google.com/speed/docs/insights/"
+      "LeverageBrowserCaching> for the following cacheable resources:"
+      "\n  http://www.example.com/ (8 minutes 20 seconds)\n", FormatResults());
+}
+
 }  // namespace

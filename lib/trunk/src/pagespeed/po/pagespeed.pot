@@ -1,3 +1,80 @@
+#  Header at the top of a list of URLs that Page
+#  Speed detected as a chain of HTTP redirections. It tells the
+#  user to fix the problem by removing the URLs that redirect to
+#  others. The text between BEGIN_LINK and END_LINK will be
+#  displayed as a clickable link in the browser, which takes the
+#  user to a document providing additional information.
+msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
+msgstr ""
+
+#  Descriptive header for a list of URLs that were
+#  served uncompressed, in violation of the EnableGzipCompression
+#  rule.  It tells the webmaster that compressing all of those
+#  resources could reduce the amount of data transferred (which
+#  would speed up the site). It is followed by a list of
+#  uncompressed resource URLs. The text between BEGIN_LINK and
+#  END_LINK will link to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sEnable compression%(END_LINK)s for the following resources to reduce their transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
+#  Heading that indicates which resources should
+#  make use of browser caching. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the
+#  browser, which takes the user to a document providing
+#  additional information.
+msgid "%(BEGIN_LINK)sLeverage browser caching%(END_LINK)s for the following cacheable resources:"
+msgstr ""
+
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify CSS%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify HTML%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify JavaScript%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
+#  Header at the top a list of image URLs that Page
+#  Speed detected as can be optimized by using better
+#  compression. It describes the problem to the user that the size
+#  of the images can be reduced. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the browser,
+#  which takes the user to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
 #  The document that Page Speed detected as have CSS
 #  resources in document body.
 msgid "%(DOCUMENT_URL)s has CSS in the document body."
@@ -35,41 +112,6 @@ msgstr ""
 #  Detail of the inline CSS. It tells the user how many
 #  style blocks should be moved to document head.
 msgid "%(NUM_STYLE_BLOCKS)s style block(s) in the body should be moved to the document head."
-msgstr ""
-
-#  Message displayed to indicate that one URL redirects
-#  to another URL, and that the redirection is cacheable for a
-#  limited amount of time.  The "DURATION" placeholder indicates
-#  how long the redirected is cacheable for (e.g. "2 hours").
-msgid "%(ORIGINAL_URL)s is a cacheable (%(DURATION)s) redirect to %(TARGET_URL)s"
-msgstr ""
-
-#  Message displayed to indicate that one URL redirects
-#  to another URL, and that the redirection is cacheable.
-msgid "%(ORIGINAL_URL)s is a cacheable redirect to %(TARGET_URL)s"
-msgstr ""
-
-#  Message displayed to indicate that one URL redirects
-#  to another URL, and that the redirection is not cacheable.
-msgid "%(ORIGINAL_URL)s is a non-cacheable redirect to %(TARGET_URL)s"
-msgstr ""
-
-#  Message displayed to indicate that one URL redirects
-#  to another URL, and the redirection is permanent.
-msgid "%(ORIGINAL_URL)s is a permanent redirect to %(TARGET_URL)s"
-msgstr ""
-
-#  Message displayed to indicate that one URL redirects
-#  to another URL, e.g "http://example.com/ is a redirect to
-#  http://www.example.com/".
-msgid "%(ORIGINAL_URL)s is a redirect to %(TARGET_URL)s"
-msgstr ""
-
-#  Message displayed to indicate that one URL redirects
-#  to another URL, and that the redirection is not cacheable for
-#  very long.  The "DURATION" placeholder indicates how long the
-#  redirected is cacheable for (e.g. "2 hours").
-msgid "%(ORIGINAL_URL)s is a short-cacheable (%(DURATION)s) redirect to %(TARGET_URL)s"
 msgstr ""
 
 #  Message displayed to indicate that one URL redirects to
@@ -266,17 +308,6 @@ msgstr ""
 msgid "Compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr ""
 
-#  Descriptive header for a list of URLs that were served
-#  uncompressed, in violation of the EnableGzipCompression rule.  It tells
-#  the webmaster that compressing all of those resources could reduce the
-#  amount of data transferred (which would speed up the site).  It is
-#  followed by a list of uncompressed resource URLs. The "SIZE_IN_BYTES"
-#  placeholder will be replaced by the absolute number of bytes or kilobytes
-#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
-#  placeholder will be replaced by the percent savings (e.g. "50%").
-msgid "Compressing the following resources with gzip could reduce their transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
-msgstr ""
-
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The
 #  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
@@ -446,30 +477,6 @@ msgstr ""
 msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr ""
 
-#  Heading that describes the savings possible from minifying
-#  resources. The "SIZE_IN_BYTES" placeholder will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
-#  savings (e.g. "50%").
-msgid "Minifying the following CSS resources could reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
-msgstr ""
-
-#  Heading that describes the savings possible from minifying
-#  resources. The "SIZE_IN_BYTES" placeholder will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
-#  savings (e.g. "50%").
-msgid "Minifying the following HTML resources could reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
-msgstr ""
-
-#  Heading that describes the savings possible from minifying
-#  resources. The "SIZE_IN_BYTES" placeholder will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
-#  savings (e.g. "50%").
-msgid "Minifying the following JavaScript resources could reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
-msgstr ""
-
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
 #  internet address. The word "DNS" should remain in the translated
@@ -499,16 +506,6 @@ msgstr ""
 #  order of resources of style sheets and scripts in HTML. This is displayed
 #  in a list of rule names that Page Speed generates.
 msgid "Optimize the order of styles and scripts"
-msgstr ""
-
-#  Header at the top a list of image URLs that Page Speed
-#  detected as can be optimized by using better compression. It describes the
-#  problem to the user that the size of the images can be reduced. The
-#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute number of
-#  bytes or kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). The
-#  "PERCENTAGE" placeholder will be replaced by the percent savings
-#  (e.g. "50%").
-msgid "Optimizing the following images could reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr ""
 
 #  Item showing how large the other request components is in
@@ -656,14 +653,6 @@ msgstr ""
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made.
 msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
-msgstr ""
-
-#  Heading that indicates which resources should
-#  have a longer cache freshness lifetime. Here "freshness
-#  lifetime" means the length of the period of time that the
-#  file can be reused without checking to see if there is a
-#  newer version of the file available.
-msgid "The following cacheable resources have a short freshness lifetime. %(BEGIN_LINK)sSpecify an expiration%(END_LINK)s at least one week in the future for the following resources:"
 msgstr ""
 
 #  Header at the top of a list of CSS URLs that Page
@@ -860,12 +849,6 @@ msgstr ""
 #  tells them how to fix it by distributing the requests across
 #  multiple hostnames.
 msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
-msgstr ""
-
-#  Header at the top of a list of URLs that Page Speed
-#  detected as a chain of HTTP redirections. It tells the user to fix
-#  the problem by removing the URLs that redirect to others.
-msgid "To speed up page load times for visitors of your site, remove as many landing page redirections as possible, and make any required redirections cacheable if possible."
 msgstr ""
 
 #  The name of a Page Speed rule that tells users to make use

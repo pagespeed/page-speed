@@ -40,7 +40,8 @@ namespace {
 const std::string kJpegTestDir = IMAGE_TEST_DIR_PATH "jpeg/";
 const std::string kPngSuiteTestDir = IMAGE_TEST_DIR_PATH "pngsuite/";
 
-class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
+class OptimizeImagesTest :
+      public ::pagespeed_testing::PagespeedRuleTest<OptimizeImages> {
  protected:
   void AddJpegResource(const std::string &url,
                        const std::string &content_type,
@@ -61,72 +62,9 @@ class OptimizeImagesTest : public ::pagespeed_testing::PagespeedTest {
   void AddTestResource(const std::string &url,
                        const std::string &content_type,
                        const std::string &body) {
-    Resource* resource = new Resource;
-    resource->SetRequestUrl(url);
-    resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
+    Resource* resource = New200Resource(url);
     resource->AddResponseHeader("Content-Type", content_type);
     resource->SetResponseBody(body);
-    AddResource(resource);
-  }
-
-  void CheckNoViolations() {
-    CheckNoViolationsInternal(false);
-    CheckNoViolationsInternal(true);
-  }
-
-  void CheckOneViolation(const std::string &url, int score) {
-    CheckOneViolationInternal(url, false, score);
-    CheckOneViolationInternal(url, true, score);
-  }
-
-  void CheckError() {
-    CheckErrorInternal(false);
-    CheckErrorInternal(true);
-  }
-
- private:
-  void CheckNoViolationsInternal(bool save_optimized_content) {
-    OptimizeImages optimize(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(optimize, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(optimize.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
-  }
-
-  void CheckOneViolationInternal(const std::string &url,
-                                 bool save_optimized_content,
-                                 int score) {
-    OptimizeImages optimize(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(optimize, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(optimize.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 1);
-
-    const Result& result = rule_results.results(0);
-    ASSERT_GT(result.savings().response_bytes_saved(), 0);
-    ASSERT_EQ(result.resource_urls_size(), 1);
-    ASSERT_EQ(result.resource_urls(0), url);
-
-    ASSERT_EQ(save_optimized_content, result.has_optimized_content());
-
-    ASSERT_EQ(score, optimize.ComputeScore(
-        *pagespeed_input()->input_information(),
-        rule_results));
-  }
-
-  void CheckErrorInternal(bool save_optimized_content) {
-    OptimizeImages optimize(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(optimize, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_FALSE(optimize.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
   }
 };
 
@@ -134,31 +72,27 @@ TEST_F(OptimizeImagesTest, BasicJpg) {
   AddJpegResource("http://www.example.com/foo.jpg",
                   "image/jpg",
                   "test420.jpg");
-  Freeze();
-  CheckOneViolation("http://www.example.com/foo.jpg", 0);
+  CheckOneUrlViolation("http://www.example.com/foo.jpg");
 }
 
 TEST_F(OptimizeImagesTest, BasicJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "image/jpeg",
                   "test411.jpg");
-  Freeze();
-  CheckOneViolation("http://www.example.com/foo.jpeg", 0);
+  CheckOneUrlViolation("http://www.example.com/foo.jpeg");
 }
 
 TEST_F(OptimizeImagesTest, BasicPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
                  "basi3p02.png");
-  Freeze();
-  CheckOneViolation("http://www.example.com/foo.png", 80);
+  CheckOneUrlViolation("http://www.example.com/foo.png");
 }
 
 TEST_F(OptimizeImagesTest, UnknownImageTypeDoesNotGetOptimized) {
   AddJpegResource("http://www.example.com/foo.xyz",
                   "image/xyz",
                   "testgray.jpg");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -166,7 +100,6 @@ TEST_F(OptimizeImagesTest, WrongContentTypeDoesNotGetOptimizedJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "application/x-foo-bar-baz",
                   "testgray.jpg");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -174,7 +107,6 @@ TEST_F(OptimizeImagesTest, WrongContentTypeDoesNotGetOptimizedPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "application/x-foo-bar-baz",
                  "basi0g01.png");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -182,7 +114,6 @@ TEST_F(OptimizeImagesTest, AlreadyOptimizedJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "image/jpeg",
                   "already_optimized.jpg");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -190,7 +121,6 @@ TEST_F(OptimizeImagesTest, AlreadyOptimizedPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
                  "already_optimized.png");
-  Freeze();
   CheckNoViolations();
 }
 
@@ -198,7 +128,6 @@ TEST_F(OptimizeImagesTest, ErrorJpeg) {
   AddJpegResource("http://www.example.com/foo.jpeg",
                   "image/jpeg",
                   "corrupt.jpg");
-  Freeze();
   CheckError();
 }
 
@@ -206,8 +135,20 @@ TEST_F(OptimizeImagesTest, ErrorPng) {
   AddPngResource("http://www.example.com/foo.png",
                  "image/png",
                  "x00n0g01.png");
-  Freeze();
   CheckError();
+}
+
+TEST_F(OptimizeImagesTest, Format) {
+  AddJpegResource("http://www.example.com/foo.jpg",
+                  "image/jpg",
+                  "test420.jpg");
+  CheckOneUrlViolation("http://www.example.com/foo.jpg");
+  ASSERT_EQ(
+      "Optimize the following images"
+      "<https://developers.google.com/speed/docs/insights/OptimizeImages> "
+      "to reduce their size by 2.5KiB (41% reduction).\n  "
+      "Losslessly compressing http://www.example.com/foo.jpg could save "
+      "2.5KiB (41% reduction).\n", FormatResults());
 }
 
 }  // namespace

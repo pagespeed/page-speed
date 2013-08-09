@@ -46,6 +46,7 @@ class ImageMinifier : public Minifier {
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
+  virtual const char* additional_info_url() const;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
 
@@ -67,15 +68,22 @@ UserFacingString ImageMinifier::header_format() const {
 }
 
 UserFacingString ImageMinifier::body_format() const {
-  // TRANSLATOR: Header at the top a list of image URLs that Page Speed
-  // detected as can be optimized by using better compression. It describes the
-  // problem to the user that the size of the images can be reduced. The
-  // "SIZE_IN_BYTES" placeholder will be replaced by the absolute number of
-  // bytes or kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). The
-  // "PERCENTAGE" placeholder will be replaced by the percent savings
-  // (e.g. "50%").
-  return _("Optimizing the following images could reduce their size "
-           "by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
+  // TRANSLATOR: Header at the top a list of image URLs that Page
+  // Speed detected as can be optimized by using better
+  // compression. It describes the problem to the user that the size
+  // of the images can be reduced. The text between BEGIN_LINK and
+  // END_LINK will be displayed as a clickable link in the browser,
+  // which takes the user to a document providing additional
+  // information. The "SIZE_IN_BYTES" placeholder will be replaced by
+  // the absolute number of bytes or kilobytes that can be saved
+  // (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+  // be replaced by the percent savings (e.g. "50%").
+  return _("%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce "
+           "their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
+}
+
+const char* ImageMinifier::additional_info_url() const {
+  return "https://developers.google.com/speed/docs/insights/OptimizeImages";
 }
 
 UserFacingString ImageMinifier::child_format() const {

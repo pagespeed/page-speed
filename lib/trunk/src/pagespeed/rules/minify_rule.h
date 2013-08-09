@@ -138,6 +138,7 @@ class Minifier {
   virtual UserFacingString body_format() const = 0;
   virtual UserFacingString child_format() const = 0;
   virtual UserFacingString child_format_post_gzip() const = 0;
+  virtual const char* additional_info_url() const = 0;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const = 0;
 

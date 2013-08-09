@@ -37,17 +37,14 @@ using pagespeed::Savings;
 
 namespace {
 
-class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
+class EnableGzipCompressionTest :
+      public ::pagespeed_testing::PagespeedRuleTest<EnableGzipCompression> {
  protected:
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* content_encoding,
                        const std::string& body) {
-    Resource* resource = new Resource;
-    resource->SetRequestUrl(url);
-    resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
-
+    Resource* resource = New200Resource(url);
     if (content_type != NULL) {
       resource->AddResponseHeader("Content-Type", content_type);
     }
@@ -57,7 +54,6 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
     }
 
     resource->SetResponseBody(body);
-    AddResource(resource);
   }
 
   void AddTestResource(const char* url,
@@ -99,126 +95,37 @@ class EnableGzipCompressionTest : public ::pagespeed_testing::PagespeedTest {
                     NULL,
                     10);
   }
-
-  void CheckNoViolations() {
-    CheckNoViolationsInternal(true);
-  }
-
-  void CheckErrorAndNoViolations() {
-    CheckNoViolationsInternal(false);
-  }
-
-  void CheckOneViolation(int expected_savings, int score) {
-    CheckOneViolationInternal(expected_savings,
-                              score,
-                              true);
-  }
-
-  void CheckErrorAndOneViolation(int expected_savings) {
-    CheckOneViolationInternal(expected_savings, -1, false);
-  }
-
-  void CheckTwoViolations(int first_expected_savings,
-                          int second_expected_savings,
-                          int score) {
-    EnableGzipCompression gzip_rule;
-
-    RuleResults rule_results;
-    ResultProvider provider(gzip_rule, &rule_results, 0);
-    RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(gzip_rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 2);
-
-    const Result& result0 = rule_results.results(0);
-    ASSERT_EQ(result0.savings().response_bytes_saved(), first_expected_savings);
-    ASSERT_EQ(result0.resource_urls_size(), 1);
-    ASSERT_EQ(result0.resource_urls(0), "http://www.test.com/");
-
-    const Result& result1 = rule_results.results(1);
-    ASSERT_EQ(result1.savings().response_bytes_saved(),
-              second_expected_savings);
-    ASSERT_EQ(result1.resource_urls_size(), 1);
-    ASSERT_EQ(result1.resource_urls(0), "http://www.test.com/foo");
-
-    ASSERT_EQ(score, gzip_rule.ComputeScore(
-        *pagespeed_input()->input_information(),
-        rule_results));
-  }
-
- private:
-  void CheckNoViolationsInternal(bool expect_success) {
-    EnableGzipCompression gzip_rule;
-
-    RuleResults rule_results;
-    ResultProvider provider(gzip_rule, &rule_results, 0);
-    RuleInput rule_input(*pagespeed_input());
-    ASSERT_EQ(expect_success, gzip_rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
-  }
-
-  void CheckOneViolationInternal(int expected_savings,
-                                 int score,
-                                 bool expect_success) {
-    EnableGzipCompression gzip_rule;
-
-    RuleResults rule_results;
-    ResultProvider provider(gzip_rule, &rule_results, 0);
-    RuleInput rule_input(*pagespeed_input());
-    ASSERT_EQ(expect_success, gzip_rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 1);
-
-    const Result& result = rule_results.results(0);
-    ASSERT_EQ(result.savings().response_bytes_saved(), expected_savings);
-    ASSERT_EQ(result.resource_urls_size(), 1);
-    ASSERT_EQ(result.resource_urls(0), "http://www.test.com/");
-
-    if (expect_success) {
-      ASSERT_EQ(score, gzip_rule.ComputeScore(
-          *pagespeed_input()->input_information(),
-          rule_results));
-    }
-  }
 };
 
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
-  Freeze();
-
-  CheckOneViolation(8956, 0);
+  CheckOneUrlViolation("http://www.test.com/");
+  ASSERT_EQ(8956, result(0).savings().response_bytes_saved());
 }
 
 TEST_F(EnableGzipCompressionTest, ViolationLargeHtmlUtf8NoGzip) {
   AddFirstLargeHtmlResource("utf-8", false);
-  Freeze();
-
-  CheckOneViolation(8956, 0);
+  CheckOneUrlViolation("http://www.test.com/");
+  ASSERT_EQ(8956, result(0).savings().response_bytes_saved());
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzip) {
   AddFirstLargeHtmlResource(true);
-  Freeze();
-
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationSmallHtmlNoGzip) {
   AddShortHtmlResource();
-  Freeze();
-
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeNoContentTypeNoGzip) {
   AddTestResource("http://www.test.com/", NULL, NULL, 9000);
-  Freeze();
-
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeImageNoGzip) {
   AddTestResource("http://www.test.com/", "image/jpeg", NULL, 9000);
-  Freeze();
-
   CheckNoViolations();
 }
 
@@ -230,40 +137,35 @@ TEST_F(EnableGzipCompressionTest, ViolationSvgXmlImageNoGzip) {
   // are no compressible bytes, because ComputeCompressibleResponseBytes
   // doesn't count SVG images.
   AddSecondLargeHtmlResource(true);
-  Freeze();
 
-  CheckOneViolation(8956, 0);
+  CheckOneUrlViolation("http://www.test.com/");
+  ASSERT_EQ(8956, result(0).savings().response_bytes_saved());
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationLargeHtmlGzipSdch) {
   AddTestResource("http://www.test.com/", "text/html", "gzip,sdch", 9000);
-  Freeze();
-
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, NoViolationTwoHtmlGzip) {
   AddFirstLargeHtmlResource(true);
   AddSecondLargeHtmlResource(true);
-  Freeze();
-
   CheckNoViolations();
 }
 
 TEST_F(EnableGzipCompressionTest, OneViolationTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(true);
-  Freeze();
-
-  CheckOneViolation(8956, 33);
+  CheckOneUrlViolation("http://www.test.com/");
+  ASSERT_EQ(8956, result(0).savings().response_bytes_saved());
 }
 
 TEST_F(EnableGzipCompressionTest, TwoViolationsTwoHtmlNoGzip) {
   AddFirstLargeHtmlResource(false);
   AddSecondLargeHtmlResource(false);
-  Freeze();
-
-  CheckTwoViolations(8956, 4460, 0);
+  CheckTwoUrlViolations("http://www.test.com/", "http://www.test.com/foo");
+  ASSERT_EQ(8956, result(0).savings().response_bytes_saved());
+  ASSERT_EQ(4460, result(1).savings().response_bytes_saved());
 }
 
 TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
@@ -271,8 +173,18 @@ TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
   body.append(9000, ' ');
   body[0] = '\0';
   AddTestResource("http://www.test.com/", "text/html", NULL, body);
-  Freeze();
-  CheckOneViolation(8955, 0);
+  CheckOneUrlViolation("http://www.test.com/");
+  ASSERT_EQ(8955, result(0).savings().response_bytes_saved());
+}
+
+TEST_F(EnableGzipCompressionTest, Format) {
+  AddFirstLargeHtmlResource(false);
+  CheckOneUrlViolation("http://www.test.com/");
+  ASSERT_EQ("Enable compression<https://developers.google.com/speed/docs/"
+            "insights/EnableCompression> for the following resources to reduce "
+            "their transfer size by 8.7KiB (99% reduction).\n  "
+            "Compressing http://www.test.com/ could save 8.7KiB "
+            "(99% reduction).\n", FormatResults());
 }
 
 }  // namespace

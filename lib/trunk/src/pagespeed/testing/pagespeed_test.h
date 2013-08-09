@@ -281,6 +281,12 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
     return rule_->AppendResults(*rule_input(), &provider_);
   }
 
+  void CheckError() {
+    Freeze();
+    ASSERT_FALSE(AppendResults());
+    ASSERT_EQ(0, num_results());
+  }
+
   void CheckNoViolations() {
     Freeze();
     ASSERT_TRUE(AppendResults());

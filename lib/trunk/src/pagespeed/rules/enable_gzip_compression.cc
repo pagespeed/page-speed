@@ -50,6 +50,7 @@ class GzipMinifier : public Minifier {
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
+  virtual const char* additional_info_url() const;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
 
@@ -73,16 +74,24 @@ UserFacingString GzipMinifier::header_format() const {
 }
 
 UserFacingString GzipMinifier::body_format() const {
-  // TRANSLATOR: Descriptive header for a list of URLs that were served
-  // uncompressed, in violation of the EnableGzipCompression rule.  It tells
-  // the webmaster that compressing all of those resources could reduce the
-  // amount of data transferred (which would speed up the site).  It is
-  // followed by a list of uncompressed resource URLs. The "SIZE_IN_BYTES"
-  // placeholder will be replaced by the absolute number of bytes or kilobytes
-  // that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
-  // placeholder will be replaced by the percent savings (e.g. "50%").
-  return _("Compressing the following resources with gzip could reduce their "
-           "transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
+  // TRANSLATOR: Descriptive header for a list of URLs that were
+  // served uncompressed, in violation of the EnableGzipCompression
+  // rule.  It tells the webmaster that compressing all of those
+  // resources could reduce the amount of data transferred (which
+  // would speed up the site). It is followed by a list of
+  // uncompressed resource URLs. The text between BEGIN_LINK and
+  // END_LINK will link to a document providing additional
+  // information. The "SIZE_IN_BYTES" placeholder will be replaced by
+  // the absolute number of bytes or kilobytes that can be saved
+  // (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+  // be replaced by the percent savings (e.g. "50%").
+  return _("%(BEGIN_LINK)sEnable compression%(END_LINK)s for the following "
+           "resources to reduce their transfer size by "
+           "%(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
+}
+
+const char* GzipMinifier::additional_info_url() const {
+  return "https://developers.google.com/speed/docs/insights/EnableCompression";
 }
 
 UserFacingString GzipMinifier::child_format() const {
