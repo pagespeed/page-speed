@@ -223,13 +223,12 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
 
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Heading that indicates which resources should
-      // have a longer cache freshness lifetime. Here "freshness
-      // lifetime" means the length of the period of time that the
-      // file can be reused without checking to see if there is a
-      // newer version of the file available.
-      _("The following cacheable resources have a short freshness lifetime. "
-        "%(BEGIN_LINK)sSpecify an expiration%(END_LINK)s at least one "
-        "week in the future for the following resources:"),
+      // make use of browser caching. The text between BEGIN_LINK and
+      // END_LINK will be displayed as a clickable link in the
+      // browser, which takes the user to a document providing
+      // additional information.
+      _("%(BEGIN_LINK)sLeverage browser caching%(END_LINK)s "
+        "for the following cacheable resources:"),
       HyperlinkArgument("LINK", "https://developers.google.com/speed/docs/"
                         "insights/LeverageBrowserCaching"));
 

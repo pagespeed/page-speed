@@ -242,11 +242,17 @@ bool AvoidLandingPageRedirects::AppendResults(
 void AvoidLandingPageRedirects::FormatResults(
     const ResultVector& results, RuleFormatter* formatter) {
   UrlBlockFormatter* body = formatter->AddUrlBlock(
-      // TRANSLATOR: Header at the top of a list of URLs that Page Speed
-      // detected as a chain of HTTP redirections. It tells the user to fix
-      // the problem by removing the URLs that redirect to others.
-      _("Avoid landing page redirects for the following chain of urls."));
-
+      // TRANSLATOR: Header at the top of a list of URLs that Page
+      // Speed detected as a chain of HTTP redirections. It tells the
+      // user to fix the problem by removing the URLs that redirect to
+      // others. The text between BEGIN_LINK and END_LINK will be
+      // displayed as a clickable link in the browser, which takes the
+      // user to a document providing additional information.
+      _("%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the "
+        "following chain of redirected URLs."),
+      HyperlinkArgument(
+          "LINK",
+          "https://developers.google.com/speed/docs/insights/AvoidRedirects"));
 
   // Add the very first url onto the front of the list. Then loop over
   // everything, adding on the second url from each result.

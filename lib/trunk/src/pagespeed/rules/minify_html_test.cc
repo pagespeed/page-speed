@@ -30,6 +30,7 @@ using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::ResultVector;
 using pagespeed::RuleResults;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
@@ -59,16 +60,12 @@ const char* kMinified =
     "</body>\n"
     "</html>\n";
 
-class MinifyHtmlTest : public ::pagespeed_testing::PagespeedTest {
+class MinifyHtmlTest : public PagespeedRuleTest<MinifyHTML> {
  protected:
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* body) {
-    Resource* resource = new Resource;
-    resource->SetRequestUrl(url);
-    resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
-
+    Resource* resource = New200Resource(url);
     if (content_type != NULL) {
       resource->AddResponseHeader("Content-Type", content_type);
     }
@@ -76,71 +73,6 @@ class MinifyHtmlTest : public ::pagespeed_testing::PagespeedTest {
     if (body != NULL) {
       resource->SetResponseBody(body);
     }
-    AddResource(resource);
-  }
-
-  void CheckNoViolations() {
-    CheckNoViolationsInternal(false);
-    CheckNoViolationsInternal(true);
-  }
-
-  void CheckOneViolation(int score) {
-    CheckOneViolationInternal(score, false);
-    CheckOneViolationInternal(score, true);
-  }
-
-  void CheckError() {
-    CheckErrorInternal(false);
-    CheckErrorInternal(true);
-  }
-
- private:
-  void CheckNoViolationsInternal(bool save_optimized_content) {
-    MinifyHTML minify(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
-  }
-
-  void CheckOneViolationInternal(int score, bool save_optimized_content) {
-    MinifyHTML minify(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 1);
-
-    const Result& result = rule_results.results(0);
-
-    if (save_optimized_content) {
-      ASSERT_TRUE(result.has_optimized_content());
-      EXPECT_EQ(kMinified, result.optimized_content());
-    } else {
-      ASSERT_FALSE(result.has_optimized_content());
-    }
-
-    ASSERT_EQ(static_cast<size_t>(result.savings().response_bytes_saved()),
-              strlen(kUnminified) - strlen(kMinified));
-    ASSERT_EQ(result.resource_urls_size(), 1);
-    ASSERT_EQ(result.resource_urls(0), "http://www.example.com/foo.html");
-
-    ASSERT_EQ(score, minify.ComputeScore(
-        *pagespeed_input()->input_information(),
-        rule_results));
-  }
-
-  void CheckErrorInternal(bool save_optimized_content) {
-    MinifyHTML minify(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_FALSE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
   }
 };
 
@@ -148,15 +80,13 @@ TEST_F(MinifyHtmlTest, Basic) {
   AddTestResource("http://www.example.com/foo.html",
                   "text/html",
                   kUnminified);
-  Freeze();
-  CheckOneViolation(69);
+  CheckOneUrlViolation("http://www.example.com/foo.html");
 }
 
 TEST_F(MinifyHtmlTest, WrongContentTypeDoesNotGetMinified) {
   AddTestResource("http://www.example.com/foo.html",
                   "text/css",
                   kUnminified);
-  Freeze();
   CheckNoViolations();
 }
 
@@ -164,8 +94,22 @@ TEST_F(MinifyHtmlTest, AlreadyMinified) {
   AddTestResource("http://www.example.com/foo.html",
                   "text/html",
                   kMinified);
-  Freeze();
   CheckNoViolations();
+}
+
+TEST_F(MinifyHtmlTest, Format) {
+  AddTestResource("http://www.example.com/foo.html",
+                  "text/html",
+                  kUnminified);
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "Minify HTML<"
+      "https://developers.google.com/speed/docs/insights/MinifyResources> "
+      "for the following resources to reduce their size by 34B "
+      "(26% reduction).\n  Minifying "
+      "http://www.example.com/foo.html could save 34B (26% reduction).\n",
+      FormatResults());
 }
 
 }  // namespace

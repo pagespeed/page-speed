@@ -45,6 +45,7 @@ class CssMinifier : public Minifier {
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
+  virtual const char* additional_info_url() const;
   virtual const MinifierOutput* Minify(const Resource& resource,
                                        const RuleInput& input) const;
 
@@ -66,13 +67,21 @@ UserFacingString CssMinifier::header_format() const {
 }
 
 UserFacingString CssMinifier::body_format() const {
-  // TRANSLATOR: Heading that describes the savings possible from minifying
-  // resources. The "SIZE_IN_BYTES" placeholder will be replaced by the
-  // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-  // "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
-  // savings (e.g. "50%").
-  return _("Minifying the following CSS resources could reduce their size by "
-           "%(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
+  // TRANSLATOR: Heading that describes the savings possible from
+  // minifying resources. The text between BEGIN_LINK and END_LINK
+  // will be displayed as a clickable link in the browser, which takes
+  // the user to a document providing additional information. The
+  // "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+  // number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+  // "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+  // percent savings (e.g. "50%").
+  return _("%(BEGIN_LINK)sMinify CSS%(END_LINK)s for the following resources "
+           "to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s "
+           "reduction).");
+}
+
+const char* CssMinifier::additional_info_url() const {
+  return "https://developers.google.com/speed/docs/insights/MinifyResources";
 }
 
 UserFacingString CssMinifier::child_format() const {

@@ -30,6 +30,7 @@ using pagespeed::Results;
 using pagespeed::ResultProvider;
 using pagespeed::ResultVector;
 using pagespeed::RuleResults;
+using pagespeed_testing::PagespeedRuleTest;
 
 namespace {
 
@@ -41,16 +42,12 @@ const char* kMinified = "function(){foo();}";
 
 // TODO(aoates): combine this with the tests from MinifyCss and MinifyHtml
 // (since there's a lot of common code).
-class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
+class MinifyJavaScriptTest : public PagespeedRuleTest<MinifyJavaScript> {
  protected:
   void AddTestResource(const char* url,
                        const char* content_type,
                        const char* body) {
-    Resource* resource = new Resource;
-    resource->SetRequestUrl(url);
-    resource->SetRequestMethod("GET");
-    resource->SetResponseStatusCode(200);
-
+    Resource* resource = New200Resource(url);
     if (content_type != NULL) {
       resource->AddResponseHeader("Content-Type", content_type);
     }
@@ -58,70 +55,6 @@ class MinifyJavaScriptTest : public ::pagespeed_testing::PagespeedTest {
     if (body != NULL) {
       resource->SetResponseBody(body);
     }
-    AddResource(resource);
-  }
-
-  void CheckNoViolations() {
-    CheckNoViolationsInternal(false);
-    CheckNoViolationsInternal(true);
-  }
-
-  void CheckOneViolation(int score) {
-    CheckOneViolationInternal(score, false);
-    CheckOneViolationInternal(score, true);
-  }
-
-  void CheckError() {
-    CheckErrorInternal(false);
-    CheckErrorInternal(true);
-  }
-
- private:
-  void CheckNoViolationsInternal(bool save_optimized_content) {
-    MinifyJavaScript minify(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
-  }
-
-  void CheckOneViolationInternal(int score, bool save_optimized_content) {
-    MinifyJavaScript minify(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 1);
-
-    const Result& result = rule_results.results(0);
-    ASSERT_EQ(static_cast<size_t>(result.savings().response_bytes_saved()),
-              strlen(kUnminified) - strlen(kMinified));
-    ASSERT_EQ(result.resource_urls_size(), 1);
-    ASSERT_EQ(result.resource_urls(0), "http://www.example.com/foo.js");
-
-    if (save_optimized_content) {
-      ASSERT_TRUE(result.has_optimized_content());
-      EXPECT_EQ(kMinified, result.optimized_content());
-    } else {
-      ASSERT_FALSE(result.has_optimized_content());
-    }
-
-    ASSERT_EQ(score, minify.ComputeScore(
-        *pagespeed_input()->input_information(),
-        rule_results));
-  }
-
-  void CheckErrorInternal(bool save_optimized_content) {
-    MinifyJavaScript minify(save_optimized_content);
-
-    RuleResults rule_results;
-    ResultProvider provider(minify, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_FALSE(minify.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 0);
   }
 };
 
@@ -129,17 +62,13 @@ TEST_F(MinifyJavaScriptTest, Basic) {
   AddTestResource("http://www.example.com/foo.js",
                   "application/x-javascript",
                   kUnminified);
-  Freeze();
-
-  CheckOneViolation(80);
+  CheckOneUrlViolation("http://www.example.com/foo.js");
 }
 
 TEST_F(MinifyJavaScriptTest, WrongContentTypeDoesNotGetMinified) {
   AddTestResource("http://www.example.com/foo.js",
                   "text/html",
                   kUnminified);
-  Freeze();
-
   CheckNoViolations();
 }
 
@@ -147,8 +76,6 @@ TEST_F(MinifyJavaScriptTest, AlreadyMinified) {
   AddTestResource("http://www.example.com/foo.js",
                   "application/x-javascript",
                   kMinified);
-  Freeze();
-
   CheckNoViolations();
 }
 
@@ -156,9 +83,22 @@ TEST_F(MinifyJavaScriptTest, Error) {
   AddTestResource("http://www.example.com/foo.js",
                   "application/x-javascript",
                   "/* not valid javascript");
-  Freeze();
-
   CheckError();
+}
+
+TEST_F(MinifyJavaScriptTest, Format) {
+  AddTestResource("http://www.example.com/foo.js",
+                  "application/x-javascript",
+                  kUnminified);
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "Minify JavaScript"
+      "<https://developers.google.com/speed/docs/insights/MinifyResources> "
+      "for the following resources to reduce their size by 4B "
+      "(19% reduction).\n  Minifying "
+      "http://www.example.com/foo.js could save 4B (19% reduction).\n",
+      FormatResults());
 }
 
 }  // namespace

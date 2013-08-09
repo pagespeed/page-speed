@@ -749,7 +749,9 @@ TEST_F(AvoidLandingPageRedirectsTest, FormatWithOrder) {
   CheckViolations(violations);
 
   const char* expected_results =
-      "Avoid landing page redirects for the following chain of urls.\n"
+      "Avoid landing page redirects"
+      "<https://developers.google.com/speed/docs/insights/AvoidRedirects> "
+      "for the following chain of redirected URLs.\n"
       "  http://foo.com/\n"
       "  http://www.foo.com/\n"
       "  http://www.foo.com/bar\n"

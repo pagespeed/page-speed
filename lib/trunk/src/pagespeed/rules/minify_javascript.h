@@ -27,7 +27,7 @@ namespace rules {
  */
 class MinifyJavaScript : public MinifyRule {
  public:
-  explicit MinifyJavaScript(bool save_optimized_content);
+  explicit MinifyJavaScript(bool save_optimized_content = false);
   virtual int ComputeScore(const InputInformation& input_info,
                            const RuleResults& results);
 
