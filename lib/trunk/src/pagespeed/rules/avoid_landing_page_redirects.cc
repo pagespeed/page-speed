@@ -181,17 +181,20 @@ bool AvoidLandingPageRedirects::AppendResults(
     Result* result = provider->NewResult();
     result->add_resource_urls(url);
     result->add_resource_urls(next_url);
-    Savings* savings = result->mutable_savings();
-    savings->set_requests_saved(1);
-    // TODO(mdsteele): If needed_extra_dns is true, maybe we should also do
-    //   savings->set_dns_requests_saved(1), but only if we won't be using that
-    //   host anyway for other resources.
-    // TODO(mdsteele): If needed_extra_tcp_handshake is true, maybe we should
-    //   also do savings->set_connections_saved(1), but only if we won't be
-    //   using that connection anyway for other resources.
-    savings->set_render_blocking_round_trips_saved(
-        1 + (needed_extra_dns ? 1 : 0) + (needed_extra_tcp_handshake ? 1 : 0) +
-        (needed_extra_ssl_handshake ? 1 : 0));
+    // We don't penalize people for the first url when we allow a single redirect.
+    if (idx != 0 || input.GetInitialResourceIsCanonical()) {
+      Savings* savings = result->mutable_savings();
+      savings->set_requests_saved(1);
+      // TODO(mdsteele): If needed_extra_dns is true, maybe we should also do
+      //   savings->set_dns_requests_saved(1), but only if we won't be using that
+      //   host anyway for other resources.
+      // TODO(mdsteele): If needed_extra_tcp_handshake is true, maybe we should
+      //   also do savings->set_connections_saved(1), but only if we won't be
+      //   using that connection anyway for other resources.
+      savings->set_render_blocking_round_trips_saved(
+          1 + (needed_extra_dns ? 1 : 0) + (needed_extra_tcp_handshake ? 1 : 0) +
+          (needed_extra_ssl_handshake ? 1 : 0));
+    }
 
     ResultDetails* details = result->mutable_details();
     RedirectionDetails* redirection_details =
@@ -242,9 +245,14 @@ void AvoidLandingPageRedirects::FormatResults(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as a chain of HTTP redirections. It tells the user to fix
       // the problem by removing the URLs that redirect to others.
-      _("To speed up page load times for visitors of your site, remove as many "
-        "landing page redirections as possible, and make any required "
-        "redirections cacheable if possible."));
+      _("Avoid landing page redirects for the following chain of urls."));
+
+
+  // Add the very first url onto the front of the list. Then loop over
+  // everything, adding on the second url from each result.
+  body->AddUrlResult(
+      not_localized("%(FIRST_URL)s"),
+      UrlArgument("FIRST_URL", (*results.begin())->resource_urls(0)));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -257,72 +265,9 @@ void AvoidLandingPageRedirects::FormatResults(
       continue;
     }
 
-    const RedirectionDetails* details = GetDetails(result);
-    if (details == NULL) {
-      body->AddUrlResult(
-          // TRANSLATOR: Message displayed to indicate that one URL redirects
-          // to another URL, e.g "http://example.com/ is a redirect to
-          // http://www.example.com/".
-          _("%(ORIGINAL_URL)s is a redirect to %(TARGET_URL)s"),
-          UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
-          UrlArgument("TARGET_URL", result.resource_urls(1)));
-      continue;
-    }
-
-    if (!details->is_cacheable()) {
-      // Not long cacheable.
-      if (details->has_freshness_lifetime_millis() &&
-          details->freshness_lifetime_millis() > 0) {
-        body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that one URL redirects
-            // to another URL, and that the redirection is not cacheable for
-            // very long.  The "DURATION" placeholder indicates how long the
-            // redirected is cacheable for (e.g. "2 hours").
-            _("%(ORIGINAL_URL)s is a short-cacheable (%(DURATION)s) redirect "
-              "to %(TARGET_URL)s"),
-            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
-            UrlArgument("TARGET_URL", result.resource_urls(1)),
-            DurationArgument("DURATION",
-                             details->freshness_lifetime_millis()));
-      } else {
-        body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that one URL redirects
-            // to another URL, and that the redirection is not cacheable.
-            _("%(ORIGINAL_URL)s is a non-cacheable redirect to "
-              "%(TARGET_URL)s"),
-            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
-            UrlArgument("TARGET_URL", result.resource_urls(1)));
-      }
-    } else if (!details->is_permanent()) {
-      // Cacheable long enough, but not permanent.
-      if (details->has_freshness_lifetime_millis()) {
-        body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that one URL redirects
-            // to another URL, and that the redirection is cacheable for a
-            // limited amount of time.  The "DURATION" placeholder indicates
-            // how long the redirected is cacheable for (e.g. "2 hours").
-            _("%(ORIGINAL_URL)s is a cacheable (%(DURATION)s) redirect to "
-              "%(TARGET_URL)s"),
-            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
-            UrlArgument("TARGET_URL", result.resource_urls(1)),
-            DurationArgument("DURATION",
-                             details->freshness_lifetime_millis()));
-      } else {
-        body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that one URL redirects
-            // to another URL, and that the redirection is cacheable.
-            _("%(ORIGINAL_URL)s is a cacheable redirect to %(TARGET_URL)s"),
-            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
-            UrlArgument("TARGET_URL", result.resource_urls(1)));
-      }
-    } else {
-      body->AddUrlResult(
-          // TRANSLATOR: Message displayed to indicate that one URL redirects
-          // to another URL, and the redirection is permanent.
-          _("%(ORIGINAL_URL)s is a permanent redirect to %(TARGET_URL)s"),
-          UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
-          UrlArgument("TARGET_URL", result.resource_urls(1)));
-    }
+    body->AddUrlResult(
+        not_localized("%(REDIRECTED_URL)s"),
+        UrlArgument("REDIRECTED_URL", result.resource_urls(1)));
   }
 }
 

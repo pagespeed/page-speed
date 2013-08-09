@@ -184,6 +184,8 @@ class PagespeedInput {
 
   bool SetViewportWidthAndHeight(int width, int height);
 
+  // Returns true if the initial resource url should be treated as canonical
+  // or if the resource is expected to redirect.
   bool GetInitialResourceIsCanonical() const {
     return initial_resource_is_canonical_;
   }
