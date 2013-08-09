@@ -37,7 +37,7 @@ class PreferAsyncResources : public Rule {
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
 
-  static bool IsAsyncResourceCandidate(const Resource* r);
+  static bool IsAsyncResourceCandidate(const Resource& r);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PreferAsyncResources);
