@@ -212,11 +212,8 @@ void ScriptVisitor::VisitExternalScript(const std::string& script_src) {
     return;
   }
 
-  for (size_t i = 0; i < kNumScriptMatchers; i++) {
-    if (IsBlockingScript(kScriptMatchers[i], resolved_src)) {
-      blocking_scripts_.push_back(resolved_src);
-      break;
-    }
+  if (rules::PreferAsyncResources::IsAsyncResourceCandidate(resource)) {
+    blocking_scripts_.push_back(resolved_src);
   }
 }
 
@@ -309,6 +306,17 @@ void PreferAsyncResources::FormatResults(const ResultVector& results,
       LOG(DFATAL) << "Async details missing.";
     }
   }
+}
+
+bool PreferAsyncResources::IsAsyncResourceCandidate(const Resource* r) {
+  const std::string& resource_url = r->GetRequestUrl();
+  for (size_t i = 0; i < kNumScriptMatchers; i++) {
+    if (IsBlockingScript(kScriptMatchers[i], resource_url)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 }  // namespace rules

@@ -16,6 +16,7 @@
 #define PAGESPEED_RULES_PREFER_ASYNC_RESOURCES_H_
 
 #include "base/basictypes.h"
+#include "pagespeed/core/resource.h"
 #include "pagespeed/core/rule.h"
 
 namespace pagespeed {
@@ -35,6 +36,8 @@ class PreferAsyncResources : public Rule {
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
+
+  static bool IsAsyncResourceCandidate(const Resource* r);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PreferAsyncResources);
