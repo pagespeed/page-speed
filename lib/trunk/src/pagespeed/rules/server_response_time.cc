@@ -125,10 +125,10 @@ void ServerResponseTime::FormatResults(const ResultVector& results,
       const ServerResponseTimeDetails& srt_details = details.GetExtension(
           ServerResponseTimeDetails::message_set_extension);
 
-      UserFacingString format_str = not_localized("$1 ($2)");
+      UserFacingString format_str = not_localized("%(URL)s (%(DURATION)s)");
       body->AddUrlResult(
-          format_str, UrlArgument(result.resource_urls(0)),
-          DurationArgument(srt_details.first_byte_millis()));
+          format_str, UrlArgument("URL", result.resource_urls(0)),
+          DurationArgument("DURATION", srt_details.first_byte_millis()));
     } else {
       LOG(DFATAL) << "Server Response Time details missing";
     }

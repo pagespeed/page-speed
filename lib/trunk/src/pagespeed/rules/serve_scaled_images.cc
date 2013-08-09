@@ -304,14 +304,15 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: A descriptive header at the top of a list of URLs of
       // images that are resized in HTML or CSS.  It describes the problem to
-      // the user.  "$1" is a format token that is replaced with the total
-      // savings in bytes from serving images in their final size
-      // (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-      // bytes transferred (e.g. "25%").
-      _("The following images are resized in HTML or CSS.  Serving scaled "
-        "images could save $1 ($2 reduction)."),
-      BytesArgument(total_bytes_saved),
-      PercentageArgument(total_bytes_saved, total_original_size));
+      // the user.  The "SIZE_IN_BYTES" placeholder will be replaced with the
+      // total saved in bytes by serving the images with the correct dimensions
+      // (e.g. "32.5KiB").  The "PERCENTAGE" placeholder will be replaced with
+      // the percentage reduction of bytes transferred (e.g. "25%").
+      _("The following images are resized in HTML or CSS. Serving scaled "
+        "images could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."),
+      BytesArgument("SIZE_IN_BYTES", total_bytes_saved),
+      PercentageArgument("PERCENTAGE",
+                         total_bytes_saved, total_original_size));
 
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
@@ -332,38 +333,44 @@ void ServeScaledImages::FormatResults(const ResultVector& results,
       const ImageDimensionDetails& image_details = details.GetExtension(
           ImageDimensionDetails::message_set_extension);
       body->AddUrlResult(
-      // TRANSLATOR: Describes a single URL of an image that is resized in HTML
-      // or CSS.  It gives the served size of the image, the final size of the
-      // image, and the amount saved by serving the image in the final size.
-      // "$1" is a format token that will be replaced with the URL of the image
-      // resource.  "$2" and "$3" will be replaced with the original (served)
-      // width and height (respectively) of the image resource.  "$4" and "$5"
-      // will be replaced with the final (resized) width and height
-      // (respectively) of the image resource.  "$6" will be replaced with the
-      // amount saved (in bytes) by serving the image correctly size (e.g.
-      // "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-      // "25%").
-          _("$1 is resized in HTML or CSS from $2x$3 to $4x$5.  "
-            "Serving a scaled image could save $6 ($7 reduction)."),
-          UrlArgument(result.resource_urls(0)),
-          IntArgument(image_details.expected_width()),
-          IntArgument(image_details.expected_height()),
-          IntArgument(image_details.actual_width()),
-          IntArgument(image_details.actual_height()),
-          BytesArgument(bytes_saved),
-          PercentageArgument(bytes_saved, original_size));
+          // TRANSLATOR: Describes a single URL of an image that is resized in
+          // HTML or CSS.  It gives the original size of the image, the final
+          // size of the image, and the amount saved by serving the image in
+          // the final size.  The "URL" placeholder will be replaced with the
+          // URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+          // be replaced with the amount saved (in bytes) by serving the image
+          // correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+          // will be replaced with the percentage saved out of the original
+          // file size (e.g. "25%").  The "ORIGINAL_WIDTH x ORIGINAL_HEIGHT"
+          // gives the natural size of the image file (e.g. "640x480"), while
+          // the "FINAL_WIDTH x FINAL_HEIGHT" gives the size to which the
+          // image has been resized by the HTML or CSS (e.g. "160x120").
+          _("%(URL)s is resized in HTML or CSS from "
+            "%(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s to "
+            "%(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Serving a scaled image "
+            "could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."),
+          UrlArgument("URL", result.resource_urls(0)),
+          IntArgument("ORIGINAL_WIDTH", image_details.expected_width()),
+          IntArgument("ORIGINAL_HEIGHT", image_details.expected_height()),
+          IntArgument("FINAL_WIDTH", image_details.actual_width()),
+          IntArgument("FINAL_HEIGHT", image_details.actual_height()),
+          BytesArgument("SIZE_IN_BYTES", bytes_saved),
+          PercentageArgument("PERCENTAGE", bytes_saved, original_size));
     } else {
-      // TRANSLATOR: Describes a single URL of an image that is resized in HTML
-      // or CSS.  It gives the amount saved by serving the image in its final
-      // size.  "$1" is a format token that will be replaced with the URL of the
-      // image resource.  "$2" will be replaced with the amount saved (in bytes)
-      // by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-      // replaced with the percentage saved (e.g. "25%").
-      body->AddUrlResult(_("$1 is resized in HTML or CSS.  Serving a "
-                           "scaled image could save $2 ($3 reduction)."),
-                         UrlArgument(result.resource_urls(0)),
-                         BytesArgument(bytes_saved),
-                         PercentageArgument(bytes_saved, original_size));
+      body->AddUrlResult(
+          // TRANSLATOR: Describes a single URL of an image that is resized in
+          // HTML or CSS.  It gives the amount saved by serving the image in
+          // its final size.  The "URL" placeholder will be replaced with the
+          // URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+          // be replaced with the amount saved (in bytes) by serving the image
+          // correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+          // will be replaced with the percentage saved out of the original
+          // file size (e.g. "25%").
+          _("%(URL)s is resized in HTML or CSS. Serving a scaled image could "
+            "save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."),
+          UrlArgument("URL", result.resource_urls(0)),
+          BytesArgument("SIZE_IN_BYTES", bytes_saved),
+          PercentageArgument("PERCENTAGE", bytes_saved, original_size));
     }
   }
 }

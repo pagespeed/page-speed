@@ -74,27 +74,28 @@ UserFacingString GzipMinifier::header_format() const {
 
 UserFacingString GzipMinifier::body_format() const {
   // TRANSLATOR: Descriptive header for a list of URLs that were served
-  // uncompressed, in violation of the EnableGzipCompression rule.  It tells the
-  // webmaster that compressing all of those resources could reduce the amount
-  // of data transferred (which would speed up the site).  It is followed by a
-  // list of uncompressed resource URLs.  "$1" is a format token that will be
-  // replaced by the amount of data transferred saved by compressing (in bytes)
-  // (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-  // compressing (e.g. "25%").
+  // uncompressed, in violation of the EnableGzipCompression rule.  It tells
+  // the webmaster that compressing all of those resources could reduce the
+  // amount of data transferred (which would speed up the site).  It is
+  // followed by a list of uncompressed resource URLs. The "SIZE_IN_BYTES"
+  // placeholder will be replaced by the absolute number of bytes or kilobytes
+  // that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+  // placeholder will be replaced by the percent savings (e.g. "50%").
   return _("Compressing the following resources with gzip could reduce their "
-           "transfer size by $1 ($2 reduction).");
+           "transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
 }
 
 UserFacingString GzipMinifier::child_format() const {
   // TRANSLATOR: Description of a single resource that was served uncompressed,
   // in violation of the EnableGzipCompression rule.  It gives the URL of the
-  // resource, as well as the amount of data that would be saved by compressing.
-  // It appears in a list of all the uncompressed resources on a site.  "$1" is
-  // a format token that will be replaced with the URL of the uncompressed
-  // resource in question.  "$2" will be replaced with the amount of data
-  // transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
-  // replaced with the percentage of data transferred saved by compressing.
-  return _("Compressing $1 could save $2 ($3 reduction).");
+  // resource, as well as the amount of data that would be saved by
+  // compressing.  It appears in a list of all the uncompressed resources on a
+  // site.  The "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+  // number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+  // "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
+  // savings (e.g. "50%").
+  return _("Compressing %(URL)s could save %(SIZE_IN_BYTES)s "
+           "(%(PERCENTAGE)s reduction).");
 }
 
 UserFacingString GzipMinifier::child_format_post_gzip() const {
@@ -102,7 +103,7 @@ UserFacingString GzipMinifier::child_format_post_gzip() const {
   // resources that were served compressed, and if the resource were
   // compressed, this rule wouldn't be giving a violation!
   DCHECK(false);
-  return not_localized("$1 $2 $3");
+  return not_localized("%(URL)s %(SIZE_IN_BYTES)s %(PERCENTAGE)s");
 }
 
 const MinifierOutput* GzipMinifier::Minify(const Resource& resource,

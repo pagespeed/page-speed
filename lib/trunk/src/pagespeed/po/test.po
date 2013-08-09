@@ -12,20 +12,20 @@ msgstr "(SCORE=$2) _$1_"
 #. TRANSLATOR: An amount of bytes with abbreviated unit.  $1 is a string
 #. placeholder that is replaced with the number of bytes (e.g. "93",
 #. representing 93 bytes).
-msgid "$1B"
-msgstr "$1b"
+msgid "%(NUM_BYTES)sB"
+msgstr "%(NUM_BYTES)sb"
 
 #. TRANSLATOR: An amount of kilobytes with abbreviated unit.  $1 is a string
 #. placeholder that is replaced with the number of kilobytes (e.g. "32.5",
 #. representing 32.5 kilobytes).
-msgid "$1KiB"
-msgstr "$1kIb"
+msgid "%(NUM_KILOBYTES)sKiB"
+msgstr "%(NUM_KILOBYTES)skIb"
 
 #. TRANSLATOR: An amount of megabytes with abbreviated unit.  $1 is a string
 #. placeholder that is replaced with the number of megabytes (e.g. "32.5",
 #. representing 32.5 megabytes).
-msgid "$1MiB"
-msgstr "$1mIb"
+msgid "%(NUM_MEGABYTES)sMiB"
+msgstr "%(NUM_MEGABYTES)smIb"
 
 #. TRANSLATOR: The name of a Page Speed rule telling webmasters to avoid using
 #. the @import directive in their CSS style sheets ("@import" is code, and

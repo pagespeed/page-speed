@@ -375,13 +375,13 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
     }
 
     UrlFormatter* url_formatter = body->AddUrlResult(
-        // TRANSLATOR: Shown as part of a list of unnecessary reflows
-        // (or "layouts", which is used interchangeably with the word
-        // "reflows" in the web performance community). Shows a URL
-        // at $1, and the number of unnecessary reflows for that URL
-        // at $2.
-        _("$1 ($2 reflows)"), UrlArgument(result.resource_urls(0)),
-        IntArgument(result.savings().page_reflows_saved()));
+        // TRANSLATOR: Shown as part of a list of URLs that have unnecessary
+        // reflows (or "layouts", which is used interchangeably with the word
+        // "reflows" in the web performance community).  The message indicates
+        // the URL and the number of reflows that it requires.
+        _("%(URL)s (%(NUM_REFLOWS)s reflows)"),
+        UrlArgument("URL", result.resource_urls(0)),
+        IntArgument("NUM_REFLOWS", result.savings().page_reflows_saved()));
     StackTraceVector traces;
     for (int i = 0; i < eur_details->stack_trace_size(); ++i) {
       traces.push_back(&eur_details->stack_trace(i));
@@ -393,32 +393,32 @@ void EliminateUnnecessaryReflows::FormatResults(const ResultVector& results,
           **stack_iter;
       if (stack.count() == 1) {
         url_formatter->AddDetail(
-            // TRANSLATOR: Appears as part of the list of URLs that
-            // triggered unnecessary reflows (or "layouts", which is
-            // used interchangeably with the word "reflows" in the web
-            // performance community), as a detail string that shows
-            // the context that caused an unnecessary reflow.  $1
-            // contains JavaScript code that gives the context of the
+            // TRANSLATOR: Appears as part of the list of URLs that triggered
+            // unnecessary reflows (or "layouts", which is used interchangeably
+            // with the word "reflows" in the web performance community), as a
+            // detail string that shows the context that caused an unnecessary
             // reflow.
             _("The following JavaScript call stack caused a reflow that "
-              "took $1 milliseconds: $2"),
-            IntArgument(static_cast<int64>(stack.duration_millis())),
-            VerbatimStringArgument(GetPresentableStackTrace(stack)));
+              "took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"),
+            IntArgument("NUM_MILLISECONDS",
+                        static_cast<int64>(stack.duration_millis())),
+            VerbatimStringArgument("CALL_STACK",
+                                   GetPresentableStackTrace(stack)));
       } else {
         url_formatter->AddDetail(
-            // TRANSLATOR: Appears as part of the list of URLs that
-            // triggered unnecessary reflows (or "layouts", which is
-            // used interchangeably with the word "reflows" in the web
-            // performance community), as a detail string that shows
-            // the context that caused an unnecessary reflow.  $1
-            // contains the number of times the code in this context
-            // executed, and $2 contains JavaScript code that gives
-            // the context of the reflow.
-            _("The following JavaScript call stack (executed $1 times) "
-              "caused reflows that took $2 milliseconds: $3"),
-            IntArgument(stack.count()),
-            IntArgument(static_cast<int64>(stack.duration_millis())),
-            VerbatimStringArgument(GetPresentableStackTrace(stack)));
+            // TRANSLATOR: Appears as part of the list of URLs that triggered
+            // unnecessary reflows (or "layouts", which is used interchangeably
+            // with the word "reflows" in the web performance community), as a
+            // detail string that shows the context that caused multiple
+            // unnecessary reflows.
+            _("The following JavaScript call stack (executed %(NUM_TIMES)s "
+              "times) caused reflows that took %(NUM_MILLISECONDS)s "
+              "milliseconds: %(CALL_STACK)s"),
+            IntArgument("NUM_TIMES", stack.count()),
+            IntArgument("NUM_MILLISECONDS",
+                        static_cast<int64>(stack.duration_millis())),
+            VerbatimStringArgument("CALL_STACK",
+                                   GetPresentableStackTrace(stack)));
       }
     }
   }

@@ -14,6 +14,8 @@
 
 #include "pagespeed/proto/formatted_results_to_text_converter.h"
 
+#include <map>
+
 #include "base/logging.h"
 #include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
@@ -124,12 +126,19 @@ bool FormattedResultsToTextConverter::ConvertFormattedUrlResult(
 void FormattedResultsToTextConverter::ConvertFormatString(
     const FormatString& format_string, std::string* out) {
   if (format_string.args_size() > 0) {
-    std::vector<std::string> sub;
+    std::map<std::string, std::string> sub;
     for (int i = 0, len = format_string.args_size(); i < len; ++i) {
-      sub.push_back(format_string.args(i).localized_value());
+      const FormatArgument& arg = format_string.args(i);
+      if (arg.type() == FormatArgument::HYPERLINK) {
+        sub["BEGIN_" + arg.placeholder_key()] = "";
+        sub["END_" + arg.placeholder_key()] =
+            "<" + arg.localized_value() + ">";
+      } else {
+        sub[arg.placeholder_key()] = arg.localized_value();
+      }
     }
     out->append(pagespeed::string_util::ReplaceStringPlaceholders(
-        format_string.format(), sub, NULL));
+        format_string.format(), sub));
   } else {
     out->append(format_string.format());
   }

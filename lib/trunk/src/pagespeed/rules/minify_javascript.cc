@@ -67,29 +67,32 @@ UserFacingString JsMinifier::header_format() const {
 
 UserFacingString JsMinifier::body_format() const {
   // TRANSLATOR: Heading that describes the savings possible from minifying
-  // resources.  "$1" will be replaced by the absolute number of bytes or
-  // kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-  // replaced by the percent savings (e.g. "50%").
-  return _("Minifying the following JavaScript resources could "
-           "reduce their size by $1 ($2 reduction).");
+  // resources. The "SIZE_IN_BYTES" placeholder will be replaced by the
+  // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+  // "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
+  // savings (e.g. "50%").
+  return _("Minifying the following JavaScript resources could reduce their "
+           "size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction).");
 }
 
 UserFacingString JsMinifier::child_format() const {
-  // TRANSLATOR: Subheading that describes the savings possible from minifying a
-  // single resource. "$1" is a format token that will be replaced by the URL of
-  // the resource. "$2" will be replaced bythe absolute number of bytes or
-  // kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-  // replaced by the percent savings (e.g. "50%").
-  return _("Minifying $1 could save $2 ($3 reduction).");
+  // TRANSLATOR: Subheading that describes the savings possible from minifying
+  // a single resource.  The "SIZE_IN_BYTES" placeholder will be replaced by
+  // the absolute number of bytes or kilobytes that can be saved (e.g. "5
+  // bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+  // percent savings (e.g. "50%").
+  return _("Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s "
+           "reduction).");
 }
 
 UserFacingString JsMinifier::child_format_post_gzip() const {
   // TRANSLATOR: Subheading that describes the post-compression network savings
-  // possible from minifying a single resource. "$1" is a format token that
-  // will be replaced by the URL of the resource. "$2" will be replaced bythe
-  // absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-  // "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
-  return _("Minifying $1 could save $2 ($3 reduction) after compression.");
+  // possible from minifying a single resource.  The "SIZE_IN_BYTES"
+  // placeholder will be replaced by the absolute number of bytes or kilobytes
+  // that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+  // placeholder will be replaced by the percent savings (e.g. "50%").
+  return _("Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s "
+           "reduction) after compression.");
 }
 
 const MinifierOutput* JsMinifier::Minify(const Resource& resource,

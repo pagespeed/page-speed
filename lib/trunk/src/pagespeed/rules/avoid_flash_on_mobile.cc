@@ -310,12 +310,13 @@ void AvoidFlashOnMobile::FormatResults(const ResultVector& results,
 
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs of Adobe Flash
-      // resources detected by Page Speed. "$1" will be replaced by the number
-      // of flash elements found.
-      _("The following $1 Flash elements are included on the page or from "
-        "included iframes. Adobe Flash Player is not supported on Apple iOS or "
-        "Android versions greater than 4.0.x. Consider removing Flash objects "
-        "and finding suitable replacements."), IntArgument(results.size()));
+      // resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
+      // the number of Flash elements found.
+      _("The following %(NUM_ELEMENTS)s Flash elements are included on the "
+        "page or from included iframes. Adobe Flash Player is not supported on "
+        "Apple iOS or Android versions greater than 4.0.x. Consider removing "
+        "Flash objects and finding suitable replacements."),
+      IntArgument("NUM_ELEMENTS", results.size()));
 
   for (ResultVector::const_iterator iter = results.begin(), end = results.end();
       iter != end; ++iter) {
@@ -332,10 +333,10 @@ void AvoidFlashOnMobile::FormatResults(const ResultVector& results,
       const AvoidFlashOnMobileDetails& flash_details = details.GetExtension(
           AvoidFlashOnMobileDetails::message_set_extension);
       if (flash_details.has_width() && flash_details.has_height()) {
-        body->AddUrlResult( _("$1 ($2 x $3)"),
-                            UrlArgument(result.resource_urls(0)),
-                            StringArgument(flash_details.width()),
-                            StringArgument(flash_details.height()));
+        body->AddUrlResult(not_localized("%(URL)s (%(WIDTH)s x %(HEIGHT)s)"),
+                           UrlArgument("URL", result.resource_urls(0)),
+                           StringArgument("WIDTH", flash_details.width()),
+                           StringArgument("HEIGHT", flash_details.height()));
       } else {
         body->AddUrl(result.resource_urls(0));
       }

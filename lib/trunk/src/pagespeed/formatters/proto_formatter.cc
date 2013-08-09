@@ -15,10 +15,13 @@
 
 #include "pagespeed/formatters/proto_formatter.h"
 
+#include <set>
 #include <string>
+#include <vector>
 
 #include "base/logging.h"
 #include "base/stl_util.h"
+#include "base/string_piece.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/localizer.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
@@ -48,11 +51,93 @@ bool MaybeLocalizeString(const Localizer* loc,
     return loc->LocalizeString(std::string(str), out);
   } else {
     // ShouldLocalize() is false for string constants that are not appropriate
-    // for translation (i.e. those marked with not_localized(...), such as "$1"
-    // or "$1 ($2)"), so we pass them through as-is.
+    // for translation (i.e. those marked with not_localized(...)), so we pass
+    // them through as-is.
     *out = std::string(str);
     return true;
   }
+}
+
+// Make sure that each format arg's placeholder_key() is present in the format
+// string (or, for HYPERLINK format args, that BEGIN_KEY and END_KEY are
+// present), and that no extraneous placeholders are present.  This is only
+// used for sanity checking in debug builds.
+bool ValidatePlaceholderKeys(
+    const base::StringPiece format,
+    const std::vector<const FormatArgument*>& args) {
+  // Collect placeholder keys appearing in format string:
+  std::set<std::string> format_keys;
+  for (size_t i = 0; i < format.size(); ++i) {
+    const char ch = format[i];
+    if (ch == '%' && i + 1 < format.size()) {
+      const char next = format[i + 1];
+      if (next == '%') {
+        ++i;
+      } else if (next == '(') {
+        const size_t end = format.find(")s", i + 2);
+        if (end == base::StringPiece::npos) {
+          LOG(ERROR) << "Unclosed format placeholder";
+          return false;
+        }
+        const std::string key =
+            format.substr(i + 2, end - (i + 2)).as_string();
+        if (format_keys.count(key) != 0) {
+          LOG(ERROR) << "Repeated placeholder key: " << key;
+          return false;
+        }
+        format_keys.insert(key);
+        // Set i to point at the "s" at the end of the placeholder.  Then, for
+        // the next for-loop iteration, the ++i will correctly increment us to
+        // start on the next character after the placeholder.
+        i = end + 1;
+      } else {
+        LOG(ERROR) << "Invalid format escape: " << format.substr(i, 2);
+        return false;
+      }
+    }
+  }
+
+  // Collect placeholder keys of format arguments.
+  std::set<std::string> arg_keys;
+  for (std::vector<const FormatArgument*>::const_iterator iter = args.begin();
+       iter != args.end(); ++iter) {
+    const FormatArgument* arg = *iter;
+    const std::string& key = arg->placeholder_key();
+    if (arg->type() != FormatArgument::HYPERLINK) {
+      if (arg_keys.count(key) != 0) {
+        LOG(ERROR) << "Repeated placeholder key: " << key;
+        return false;
+      }
+      arg_keys.insert(key);
+    } else {
+      if (arg_keys.count("BEGIN_" + key) != 0 ||
+          arg_keys.count("END_" + key) != 0) {
+        LOG(ERROR) << "Repeated placeholder key: " << key;
+        return false;
+      }
+      arg_keys.insert("BEGIN_" + key);
+      arg_keys.insert("END_" + key);
+    }
+  }
+
+  // Check that the two sets are the same:
+  if (format_keys != arg_keys) {
+    std::string message = "{ ";
+    for (std::set<std::string>::const_iterator iter = format_keys.begin();
+         iter != format_keys.end(); ++iter) {
+      message += *iter + " ";
+    }
+    message += "} vs. { ";
+    for (std::set<std::string>::const_iterator iter = arg_keys.begin();
+         iter != arg_keys.end(); ++iter) {
+      message += *iter + " ";
+    }
+    message += "}";
+    LOG(ERROR) << "Placeholder mismatch for \"" << format << "\": " << message;
+    return false;
+  }
+
+  return true;
 }
 
 // Fills in a FormatString proto from a format string and arguments.
@@ -63,6 +148,10 @@ void FillFormatString(const Localizer* loc,
                       const std::vector<const FormatArgument*>& arguments,
                       FormatString* out) {
   MaybeLocalizeString(loc, format_str, out->mutable_format());
+
+  // In debug builds, do some post-translation sanity checking on the
+  // placeholders and the format string.
+  DCHECK(ValidatePlaceholderKeys(out->format(), arguments));
 
   for (int index = 0, limit = arguments.size(); index < limit; ++index) {
     bool success = true;
@@ -98,6 +187,9 @@ void FillFormatString(const Localizer* loc,
         break;
       case FormatArgument::PERCENTAGE:
         success = loc->LocalizePercentage(format_arg->int_value(), &localized);
+        break;
+      case FormatArgument::HYPERLINK:
+        success = loc->LocalizeUrl(format_arg->string_value(), &localized);
         break;
       default:
         LOG(DFATAL) << "Unknown argument type " << format_arg->type();

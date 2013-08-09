@@ -260,12 +260,12 @@ void AvoidLandingPageRedirects::FormatResults(
     const RedirectionDetails* details = GetDetails(result);
     if (details == NULL) {
       body->AddUrlResult(
-          // TRANSLATOR: Message displayed to indicate that a URL
-          // redirects to another URL, e.g "http://example.com/ is a redirect to
+          // TRANSLATOR: Message displayed to indicate that one URL redirects
+          // to another URL, e.g "http://example.com/ is a redirect to
           // http://www.example.com/".
-          _("$1 is a redirect to $2"),
-          UrlArgument(result.resource_urls(0)),
-          UrlArgument(result.resource_urls(1)));
+          _("%(ORIGINAL_URL)s is a redirect to %(TARGET_URL)s"),
+          UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
+          UrlArgument("TARGET_URL", result.resource_urls(1)));
       continue;
     }
 
@@ -274,45 +274,54 @@ void AvoidLandingPageRedirects::FormatResults(
       if (details->has_freshness_lifetime_millis() &&
           details->freshness_lifetime_millis() > 0) {
         body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that a URL
-            // redirects to another URL, and the redirection is not cacheable.
-            _("$1 is a short-cacheable ($3) redirect to $2"),
-            UrlArgument(result.resource_urls(0)),
-            UrlArgument(result.resource_urls(1)),
-            DurationArgument(details->freshness_lifetime_millis()));
+            // TRANSLATOR: Message displayed to indicate that one URL redirects
+            // to another URL, and that the redirection is not cacheable for
+            // very long.  The "DURATION" placeholder indicates how long the
+            // redirected is cacheable for (e.g. "2 hours").
+            _("%(ORIGINAL_URL)s is a short-cacheable (%(DURATION)s) redirect "
+              "to %(TARGET_URL)s"),
+            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
+            UrlArgument("TARGET_URL", result.resource_urls(1)),
+            DurationArgument("DURATION",
+                             details->freshness_lifetime_millis()));
       } else {
         body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that a URL
-            // redirects to another URL, and the redirection is not cacheable.
-            _("$1 is a non-cacheable redirect to $2"),
-            UrlArgument(result.resource_urls(0)),
-            UrlArgument(result.resource_urls(1)));
+            // TRANSLATOR: Message displayed to indicate that one URL redirects
+            // to another URL, and that the redirection is not cacheable.
+            _("%(ORIGINAL_URL)s is a non-cacheable redirect to "
+              "%(TARGET_URL)s"),
+            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
+            UrlArgument("TARGET_URL", result.resource_urls(1)));
       }
     } else if (!details->is_permanent()) {
       // Cacheable long enough, but not permanent.
       if (details->has_freshness_lifetime_millis()) {
         body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that a URL
-            // redirects to another URL, and the redirection is not cacheable.
-            _("$1 is a cacheable ($3) redirect to $2"),
-            UrlArgument(result.resource_urls(0)),
-            UrlArgument(result.resource_urls(1)),
-            DurationArgument(details->freshness_lifetime_millis()));
+            // TRANSLATOR: Message displayed to indicate that one URL redirects
+            // to another URL, and that the redirection is cacheable for a
+            // limited amount of time.  The "DURATION" placeholder indicates
+            // how long the redirected is cacheable for (e.g. "2 hours").
+            _("%(ORIGINAL_URL)s is a cacheable (%(DURATION)s) redirect to "
+              "%(TARGET_URL)s"),
+            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
+            UrlArgument("TARGET_URL", result.resource_urls(1)),
+            DurationArgument("DURATION",
+                             details->freshness_lifetime_millis()));
       } else {
         body->AddUrlResult(
-            // TRANSLATOR: Message displayed to indicate that a URL
-            // redirects to another URL, and the redirection is cacheable.
-            _("$1 is a cacheable redirect to $2"),
-            UrlArgument(result.resource_urls(0)),
-            UrlArgument(result.resource_urls(1)));
+            // TRANSLATOR: Message displayed to indicate that one URL redirects
+            // to another URL, and that the redirection is cacheable.
+            _("%(ORIGINAL_URL)s is a cacheable redirect to %(TARGET_URL)s"),
+            UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
+            UrlArgument("TARGET_URL", result.resource_urls(1)));
       }
     } else {
       body->AddUrlResult(
-          // TRANSLATOR: Message displayed to indicate that a URL
-          // redirects to another URL, and the redirection is permanent.
-          _("$1 is a permanent redirect to $2"),
-          UrlArgument(result.resource_urls(0)),
-          UrlArgument(result.resource_urls(1)));
+          // TRANSLATOR: Message displayed to indicate that one URL redirects
+          // to another URL, and the redirection is permanent.
+          _("%(ORIGINAL_URL)s is a permanent redirect to %(TARGET_URL)s"),
+          UrlArgument("ORIGINAL_URL", result.resource_urls(0)),
+          UrlArgument("TARGET_URL", result.resource_urls(1)));
     }
   }
 }

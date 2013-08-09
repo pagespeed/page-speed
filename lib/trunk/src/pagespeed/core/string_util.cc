@@ -65,25 +65,6 @@ inline std::string& trim(std::string& s) {
   return ltrim(rtrim(s));
 }
 
-// Used by ReplaceStringPlaceholders to track the position in the string of
-// replaced parameters.
-struct ReplacementOffset {
-  ReplacementOffset(uintptr_t parameter, size_t offset)
-      : parameter(parameter),
-        offset(offset) {}
-
-  // Index of the parameter.
-  uintptr_t parameter;
-
-  // Starting position in the string.
-  size_t offset;
-};
-
-static bool CompareParameter(const ReplacementOffset& elem1,
-                             const ReplacementOffset& elem2) {
-  return elem1.parameter < elem2.parameter;
-}
-
 }  // namespace
 
 namespace pagespeed {
@@ -210,69 +191,68 @@ std::string JoinString(const std::vector<std::string>& parts, char sep) {
   return result;
 }
 
-
 std::string ReplaceStringPlaceholders(
-  const base::StringPiece& format_string,
-  const std::vector<std::string>& subst,
-  std::vector<size_t>* offsets) {
+    base::StringPiece format_string,
+    const std::map<std::string, std::string>& subst) {
+  // Determine how long the output string will be, so that we can reserve
+  // enough space in advance (for efficiency).  We start with the length of the
+  // format string.
+  int formatted_length = format_string.size();
+  for (std::map<std::string, std::string>::const_iterator iter = subst.begin();
+       iter != subst.end(); ++iter) {
+    // Assume that each placeholder key appears exactly once in the format
+    // string (anything else is considered an error for this function).  Each
+    // placeholder replacement in the format string will increase the final
+    // length by value_length, but also decrease it by (key_length + 4) (the 4
+    // accounts for the "%()s" characters).
+    const int key_length = iter->first.size();
+    const int value_length = iter->second.size();
+    formatted_length += value_length - (key_length + 4);
+  }
+  // We're about to cast formatted_length to size_t (which is unsigned), so
+  // let's prevent underflow in the case of bad input.
+  if (formatted_length < 0) {
+    LOG(DFATAL) << "Format string is too short to possibly contain "
+                << "all placeholders.";
+    formatted_length = 0;
+  }
 
- size_t substitutions = subst.size();
+  std::string formatted;
+  formatted.reserve(static_cast<size_t>(formatted_length));
 
- size_t sub_length = 0;
- for (std::vector<std::string>::const_iterator iter = subst.begin();
-      iter != subst.end(); ++iter) {
-   sub_length += iter->length();
- }
+  for (size_t i = 0; i < format_string.size(); ++i) {
+    const char ch = format_string[i];
+    if (ch == '%' && i + 1 < format_string.size()) {
+      const char next = format_string[i + 1];
+      if (next == '%') {
+        formatted.push_back('%');
+        ++i;
+      } else if (next == '(') {
+        const size_t close = format_string.find(")s", i + 2);
+        if (close == base::StringPiece::npos) {
+          LOG(DFATAL) << "Unclosed format placeholder";
+          break;
+        }
+        const base::StringPiece key =
+            format_string.substr(i + 2, close - (i + 2));
+        const std::map<std::string, std::string>::const_iterator iter =
+            subst.find(key.as_string());
+        if (iter == subst.end()) {
+          LOG(DFATAL) << "No such placeholder key: " << key;
+          break;
+        }
+        formatted.append(iter->second);
+        i = close + 1;
+      } else {
+        LOG(DFATAL) << "Invalid format escape: " << format_string.substr(i, 2);
+        break;
+      }
+    } else {
+      formatted.push_back(ch);
+    }
+  }
 
- std::string formatted;
- formatted.reserve(format_string.length() + sub_length);
-
- std::vector<ReplacementOffset> r_offsets;
- for (base::StringPiece::const_iterator i = format_string.begin();
-      i != format_string.end(); ++i) {
-   if ('$' == *i) {
-     if (i + 1 != format_string.end()) {
-       ++i;
-       DCHECK('$' == *i || '1' <= *i) << "Invalid placeholder: " << *i;
-       if ('$' == *i) {
-         while (i != format_string.end() && '$' == *i) {
-           formatted.push_back('$');
-           ++i;
-         }
-         --i;
-       } else {
-         uintptr_t index = 0;
-         while (i != format_string.end() && '0' <= *i && *i <= '9') {
-           index *= 10;
-           index += *i - '0';
-           ++i;
-         }
-         --i;
-         index -= 1;
-         if (offsets) {
-           ReplacementOffset r_offset(index,
-               static_cast<int>(formatted.size()));
-           r_offsets.insert(std::lower_bound(r_offsets.begin(),
-                                             r_offsets.end(),
-                                             r_offset,
-                                             &CompareParameter),
-                            r_offset);
-         }
-         if (index < substitutions)
-           formatted.append(subst.at(index));
-       }
-     }
-   } else {
-     formatted.push_back(*i);
-   }
- }
- if (offsets) {
-   for (std::vector<ReplacementOffset>::const_iterator i = r_offsets.begin();
-        i != r_offsets.end(); ++i) {
-     offsets->push_back(i->offset);
-   }
- }
- return formatted;
+  return formatted;
 }
 
 void StringAppendV(std::string* dst, const char* format, va_list ap) {

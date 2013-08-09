@@ -238,13 +238,13 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
           InlineSmallResourcesDetails::message_set_extension);
 
       UrlBlockFormatter* body = formatter->AddUrlBlock(
-          // TRANSLATOR: A sub-heading that contains the URL of the document and
-          // a statement instructing the user to inline certain small resources.
-          // "$1" is a format token that will be replaced with the URL of the
-          // document that contains the resources that can be inserted directly
-          // into the HTML document.
-          _("$1 should inline the following small resources:"),
-          UrlArgument(result.resource_urls(0)));
+          // TRANSLATOR: A sub-heading that contains the URL of the document
+          // and a statement instructing the user to inline certain small
+          // resources.  The "URL" placeholder will be replaced with the URL of
+          // the document that contains the resources that can be inserted
+          // directly into the HTML document.
+          _("%(URL)s should inline the following small resources:"),
+          UrlArgument("URL", result.resource_urls(0)));
       for (int i = 0; i < isr_details.inline_candidates_size(); ++i) {
         body->AddUrl(isr_details.inline_candidates(i));
       }

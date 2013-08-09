@@ -167,6 +167,8 @@ void PdfGenerator::GenerateRuleSummary(const FormattedRuleResults& results) {
   }
 }
 
+// TODO(mdsteele): This uses the deprecated $1 placeholder format.  We need to
+// update it to the new %(FOO)s placeholder format.
 void PdfGenerator::FormatParagraph(const FormatString& format_string,
                                    double left, double right,
                                    double* baseline) {

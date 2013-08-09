@@ -16,8 +16,8 @@
 #include "pagespeed/l10n/gettext_localizer.h"
 
 #include <iomanip>
+#include <map>
 #include <sstream>
-#include <vector>
 
 #include "base/logging.h"
 #include "pagespeed/core/string_util.h"
@@ -191,30 +191,34 @@ bool GettextLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
   }
 
   const char* format;
+  const char* placeholder_key;
   std::string value;
 
   // TODO(aoates): correctly localize decimal places, etc.
   ClearOstream();
   if (bytes < kBytesPerKiB) {
-    // TRANSLATOR: An amount of bytes with abbreviated unit.  $1 is a string
-    // placeholder that is replaced with the number of bytes (e.g. "93",
+    // TRANSLATOR: An amount of bytes with abbreviated unit.  The "NUM_BYTES"
+    // placeholder is replaced with the number of bytes (e.g. "93",
     // representing 93 bytes).
-    format = _("$1B");
+    format = _("%(NUM_BYTES)sB");
+    placeholder_key = "NUM_BYTES";
     ostream_ << bytes;
     value = ostream_.str();
   } else if (bytes < kBytesPerMiB) {
-    // TRANSLATOR: An amount of kilobytes with abbreviated unit.  $1 is a string
-    // placeholder that is replaced with the number of kilobytes (e.g. "32.5",
-    // representing 32.5 kilobytes).
-    format = _("$1KiB");
+    // TRANSLATOR: An amount of kilobytes with abbreviated unit.  The
+    // "NUM_KILOBYTES" placeholder is replaced with the number of kilobytes
+    // (e.g. "32.5", representing 32.5 kilobytes).
+    format = _("%(NUM_KILOBYTES)sKiB");
+    placeholder_key = "NUM_KILOBYTES";
     ostream_ << std::fixed << std::setprecision(1)
              << bytes / static_cast<double>(kBytesPerKiB);
     value = ostream_.str();
   } else {
-    // TRANSLATOR: An amount of megabytes with abbreviated unit.  $1 is a string
-    // placeholder that is replaced with the number of megabytes (e.g. "32.5",
-    // representing 32.5 megabytes).
-    format = _("$1MiB");
+    // TRANSLATOR: An amount of megabytes with abbreviated unit.  The
+    // "NUM_MEGABYTES" placeholder is replaced with the number of megabytes
+    // (e.g. "32.5", representing 32.5 megabytes).
+    format = _("%(NUM_MEGABYTES)sMiB");
+    placeholder_key = "NUM_MEGABYTES";
     ostream_ << std::fixed << std::setprecision(1)
              << bytes / static_cast<double>(kBytesPerMiB);
     value = ostream_.str();
@@ -223,10 +227,10 @@ bool GettextLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
   std::string localized_format;
   bool success = LocalizeString(format, &localized_format);
 
-  std::vector<std::string> subst;
-  subst.push_back(value);
+  std::map<std::string, std::string> subst;
+  subst[placeholder_key] = value;
   *out = pagespeed::string_util::ReplaceStringPlaceholders(
-      localized_format, subst, NULL);
+      localized_format, subst);
   return success;
 }
 

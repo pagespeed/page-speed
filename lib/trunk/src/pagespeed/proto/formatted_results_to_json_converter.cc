@@ -18,6 +18,7 @@
 #include "base/logging.h"
 #include "base/values.h"
 #include "base/memory/scoped_ptr.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 namespace {
@@ -33,6 +34,7 @@ static const char* kArgumentTypeToNameMap[] = {
   "DURATION",
   "VERBATIM_STRING",
   "PERCENTAGE",
+  "HYPERLINK",
 };
 
 static const char* kInvalidArgumentType = kArgumentTypeToNameMap[0];
@@ -169,13 +171,19 @@ Value* FormattedResultsToJsonConverter::ConvertFormatString(
     return NULL;
   }
   base::DictionaryValue* root = new base::DictionaryValue();
-  root->SetString("format", format_string.format());
   if (format_string.args_size() > 0) {
     base::ListValue* args = new base::ListValue();
+    std::map<std::string, std::string> subst;
     for (int i = 0, len = format_string.args_size(); i < len; ++i) {
-      args->Append(ConvertFormatArgument(format_string.args(i)));
+      const FormatArgument& arg = format_string.args(i);
+      args->Append(ConvertFormatArgument(arg));
+      subst[arg.placeholder_key()] = "{{" + arg.placeholder_key() + "}}";
     }
     root->Set("args", args);
+    root->SetString("format", string_util::ReplaceStringPlaceholders(
+        format_string.format(), subst));
+  } else {
+    root->SetString("format", format_string.format());
   }
 
   return root;
@@ -183,12 +191,14 @@ Value* FormattedResultsToJsonConverter::ConvertFormatString(
 
 Value* FormattedResultsToJsonConverter::ConvertFormatArgument(
     const pagespeed::FormatArgument& format_arg) {
-  if (!format_arg.IsInitialized()) {
+  if (!format_arg.has_type() || !format_arg.has_placeholder_key() ||
+      !format_arg.has_localized_value()) {
     LOG(ERROR) << "FormatArgument instance not fully initialized.";
     return NULL;
   }
   base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("type", ConvertFormatArgumentType(format_arg.type()));
+  root->SetString("placeholder_key", format_arg.placeholder_key());
   root->SetString("localized_value", format_arg.localized_value());
   if (format_arg.has_string_value()) {
     root->SetString("string_value", format_arg.string_value());

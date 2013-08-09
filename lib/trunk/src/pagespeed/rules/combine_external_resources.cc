@@ -113,24 +113,20 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
     // CombineExternalResources rule).  It says how many resources were loaded
     // from that domain, gives the domain name itself, and is followed by a list
     // of the URLs of those resources.  It then tells the webmaster how to solve
-    // the problem, by combining the resources into fewer files.  "$1" is a
-    // format token that will be replaced with the number of CSS files loaded
-    // from the given domain. "$2" will be replaced by the domain name from
-    // which all the CSS files were loaded.
-    body_tmpl = _("There are $1 CSS files served from $2. "
-        "They should be combined into as few files as possible.");
+    // the problem, by combining the resources into fewer files.
+    body_tmpl = _("There are %(NUM_FILES)s CSS files served from "
+                  "%(DOMAIN_NAME)s. They should be combined into as few files "
+                  "as possible.");
   } else if (resource_type_ == JS) {
     // TRANSLATOR: Descriptive header describing a list of JavaScript resources
     // that are all served from a single domain (in violation of the
     // CombineExternalResources rule).  It says how many resources were loaded
     // from that domain, gives the domain name itself, and is followed by a list
     // of the URLs of those resources.  It then tells the webmaster how to solve
-    // the problem, by combining the resources into fewer files.  "$1" is a
-    // format token that will be replaced by the number of JavaScript files
-    // loaded from the given domain.  "$2" will be replaced by the domain name
-    // from which all the JavaScript files were loaded.
-    body_tmpl = _("There are $1 JavaScript files served from $2. "
-        "They should be combined into as few files as possible.");
+    // the problem, by combining the resources into fewer files.
+    body_tmpl = _("There are %(NUM_FILES)s JavaScript files served from "
+                  "%(DOMAIN_NAME)s. They should be combined into as few files "
+                  "as possible.");
   } else {
     LOG(DFATAL) << "Unknown violation type " << resource_type_;
     return;
@@ -144,8 +140,8 @@ void CombineExternalResources::FormatResults(const ResultVector& results,
 
     GURL url(result.resource_urls(0));
     UrlBlockFormatter* body = formatter->AddUrlBlock(
-        body_tmpl, IntArgument(result.resource_urls_size()),
-        StringArgument(url.host()));
+        body_tmpl, IntArgument("NUM_FILES", result.resource_urls_size()),
+        StringArgument("DOMAIN_NAME", url.host()));
 
     for (int idx = 0; idx < result.resource_urls_size(); idx++) {
       body->AddUrl(result.resource_urls(idx));

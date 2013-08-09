@@ -181,15 +181,15 @@ FormatResults(const ResultVector& results, RuleFormatter* formatter) {
       const int num_resources = result.resource_urls_size();
       UrlBlockFormatter* body = formatter->AddUrlBlock(
           // TRANSLATOR: Header at the top of a list of URLs that Page Speed
-          // detected as from one host. It describes the problem to the user,
-          // and tells them how to fix it by distributing the requests across
-          // multiple hostnames. The "$1" will be replace by the number of the
-          // URLs; the "$2" wil be replaced by the name of the host (e.g.
-          // google.com).
-          _("This page makes $1 parallelizable requests to $2.  Increase "
-            "download parallelization by distributing these requests across "
-            "multiple hostnames:"), IntArgument(num_resources),
-          StringArgument(host_details.host()));
+          // detected as being loaded from one hostname
+          // (e.g. "example.com"). It describes the problem to the user, and
+          // tells them how to fix it by distributing the requests across
+          // multiple hostnames.
+          _("This page makes %(NUM_REQUESTS)s parallelizable requests to "
+            "%(HOSTNAME)s. Increase download parallelization by distributing "
+            "these requests across multiple hostnames:"),
+          IntArgument("NUM_REQUESTS", num_resources),
+          StringArgument("HOSTNAME", host_details.host()));
 
       for (int index = 0; index < num_resources; ++index) {
         body->AddUrl(result.resource_urls(index));
