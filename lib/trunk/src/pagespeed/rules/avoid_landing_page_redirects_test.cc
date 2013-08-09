@@ -223,7 +223,7 @@ TEST_F(AvoidLandingPageRedirectsTest, AllowOneRedirectFailure) {
   urls2.push_back(url3);
 
   std::vector<Violation> violations;
-  violations.push_back(Violation(1, 3, urls1));
+  violations.push_back(Violation(0, 0, urls1));
   violations.push_back(Violation(1, 3, urls2));
 
   CheckViolations(violations);
@@ -749,18 +749,13 @@ TEST_F(AvoidLandingPageRedirectsTest, FormatWithOrder) {
   CheckViolations(violations);
 
   const char* expected_results =
-      "To speed up page load times for visitors of your site, remove as many "
-      "landing page redirections as possible, and make any required "
-      "redirections cacheable if possible.\n"
-      "  http://foo.com/ is a non-cacheable redirect to http://www.foo.com/\n"
-      "  http://www.foo.com/ is a cacheable (1 year) redirect to "
-      "http://www.foo.com/bar\n"
-      "  http://www.foo.com/bar is a permanent redirect to "
-      "http://www.bar.com/\n"
-      "  http://www.bar.com/ is a short-cacheable (10 minutes) redirect to "
-      "http://www.bar.com/mobile\n"
-      "  http://www.bar.com/mobile is a short-cacheable (10 minutes) redirect "
-      "to http://m.www.bar.com/\n";
+      "Avoid landing page redirects for the following chain of urls.\n"
+      "  http://foo.com/\n"
+      "  http://www.foo.com/\n"
+      "  http://www.foo.com/bar\n"
+      "  http://www.bar.com/\n"
+      "  http://www.bar.com/mobile\n"
+      "  http://m.www.bar.com/\n";
   ASSERT_EQ(expected_results, FormatResults());
 }
 
