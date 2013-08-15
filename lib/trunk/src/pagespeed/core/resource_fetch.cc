@@ -14,8 +14,8 @@
 
 #include "pagespeed/core/resource_fetch.h"
 
-#include <map>
 #include <set>
+#include <vector>
 
 #include "base/logging.h"
 #include "base/stl_util.h"
@@ -121,11 +121,25 @@ bool ResourceFetch::Finalize() {
     if (redirect_head != NULL && redirect_head != this) {
       redirect_download_.reset(new ResourceFetchDownload(context_));
       if (!redirect_download_->CopyFrom(*logical_download_, false)) {
+        if (resource_ != NULL) {
+          LOG(WARNING) << "Unable to copy logical download to redirect "
+                       << "download for " << resource_->GetRequestUrl();
+        } else {
+          LOG(WARNING) << "Unable to copy logical download to redirect "
+                       << "download.";
+        }
         return false;
       }
 
       if (!logical_download_->CopyFrom(*redirect_head->logical_download_,
                                        true)) {
+        if (resource_ != NULL) {
+          LOG(WARNING) << "Unable to copy redirect logical download to fetch "
+                       << "logical download for " << resource_->GetRequestUrl();
+        } else {
+          LOG(WARNING) << "Unable to copy redirect logical download to fetch "
+                       << "logical download.";
+        }
         return false;
       }
 
@@ -143,6 +157,12 @@ bool ResourceFetch::Finalize() {
       for (int i = 0; i < redirect_head->GetFetchDelayCount(); i++) {
         ResourceFetchDelay* delay = AddFetchDelay();
         if (!delay->CopyFrom(redirect_head->GetFetchDelay(i))) {
+          if (resource_ != NULL) {
+            LOG(WARNING) << "Unable to copy ResourceFetchDelay for "
+                         << resource_->GetRequestUrl();
+          } else {
+            LOG(WARNING) << "Unable to copy ResourceFetchDelay.";
+          }
           return false;
         }
       }
@@ -245,6 +265,10 @@ bool ResourceFetchDownload::CopyFrom(const ResourceFetchDownload& download,
                                      bool keep_finish_time) {
   if (keep_finish_time &&
       data_->finish().tick() < download.data_->start().tick()) {
+    // TODO(bmcquade): this can happen when there are duplicate
+    // AddResource() invocations for the same resource, and we end up
+    // binding mismatched start/end times and ticks. Unfortunately, we
+    // don't have a great way to address this.
     return false;
   }
 
