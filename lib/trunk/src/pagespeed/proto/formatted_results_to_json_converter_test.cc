@@ -66,6 +66,27 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
   rule_results->set_rule_score(56);
   expected.append("\"rule_score\":56,");
 
+  FormatString* summary = rule_results->mutable_summary();
+  expected.append("\"summary_line\":{");
+
+  FormatArgument* summary_arg = summary->add_args();
+  expected.append("\"args\":[{");
+
+  summary_arg->set_localized_value("world");
+  expected.append("\"localized_value\":\"world\",");
+
+  summary_arg->set_placeholder_key("PLACE");
+  expected.append("\"placeholder_key\":\"PLACE\",");
+
+  summary_arg->set_string_value("world");
+  expected.append("\"string_value\":\"world\",");
+
+  summary_arg->set_type(FormatArgument::STRING_LITERAL);
+  expected.append("\"type\":\"STRING_LITERAL\"}],");
+
+  summary->set_format("Hello, %(PLACE)s!");
+  expected.append("\"format\":\"Hello, {{PLACE}}!\"},");
+
   FormattedUrlBlockResults* block = rule_results->add_url_blocks();
   expected.append("\"url_blocks\":[{");
 

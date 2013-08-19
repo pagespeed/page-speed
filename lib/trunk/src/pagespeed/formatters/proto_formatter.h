@@ -63,6 +63,9 @@ class ProtoRuleFormatter : public RuleFormatter {
   ~ProtoRuleFormatter();
 
   // RuleFormatter interface.
+  virtual void SetSummaryLine(
+      const UserFacingString& format_str,
+      const std::vector<const FormatArgument*>& arguments);
   virtual UrlBlockFormatter* AddUrlBlock(
       const UserFacingString& format_str,
       const std::vector<const FormatArgument*>& arguments);

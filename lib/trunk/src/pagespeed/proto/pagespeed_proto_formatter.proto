@@ -107,6 +107,10 @@ message FormattedRuleResults {
   // Formatted version of the rule name.
   required string localized_rule_name = 2;
 
+  // A summary line to display above the list of URL blocks.  Older front-ends
+  // may simply prepend this to the list of URL blocks instead.
+  optional FormatString summary = 7;
+
   // Blocks of URLs (e.g. one for each redirect chain to be eliminated).
   repeated FormattedUrlBlockResults url_blocks = 3;
 

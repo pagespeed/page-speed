@@ -236,6 +236,110 @@ UrlFormatter* UrlBlockFormatter::AddUrlResult(
   return AddUrlResult(format_str, args);
 }
 
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str) {
+  std::vector<const FormatArgument*> args;
+  SetSummaryLine(format_str, args);
+}
+
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  SetSummaryLine(format_str, args);
+}
+
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1,
+    const FormatArgument& arg2) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  SetSummaryLine(format_str, args);
+}
+
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  SetSummaryLine(format_str, args);
+}
+
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3,
+    const FormatArgument& arg4) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  args.push_back(&arg4);
+  SetSummaryLine(format_str, args);
+}
+
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3,
+    const FormatArgument& arg4,
+    const FormatArgument& arg5) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  args.push_back(&arg4);
+  args.push_back(&arg5);
+  SetSummaryLine(format_str, args);
+}
+
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3,
+    const FormatArgument& arg4,
+    const FormatArgument& arg5,
+    const FormatArgument& arg6) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  args.push_back(&arg4);
+  args.push_back(&arg5);
+  args.push_back(&arg6);
+  SetSummaryLine(format_str, args);
+}
+
+void RuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const FormatArgument& arg1,
+    const FormatArgument& arg2,
+    const FormatArgument& arg3,
+    const FormatArgument& arg4,
+    const FormatArgument& arg5,
+    const FormatArgument& arg6,
+    const FormatArgument& arg7) {
+  std::vector<const FormatArgument*> args;
+  args.push_back(&arg1);
+  args.push_back(&arg2);
+  args.push_back(&arg3);
+  args.push_back(&arg4);
+  args.push_back(&arg5);
+  args.push_back(&arg6);
+  args.push_back(&arg7);
+  SetSummaryLine(format_str, args);
+}
+
 UrlBlockFormatter* RuleFormatter::AddUrlBlock(
     const UserFacingString& format_str) {
   std::vector<const FormatArgument*> args;

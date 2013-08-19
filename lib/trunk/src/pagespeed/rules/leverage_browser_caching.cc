@@ -221,6 +221,13 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
     return;
   }
 
+  formatter->SetSummaryLine(
+      // TRANSLATOR: Summary sentence explaining briefly how HTTP browser
+      // cachine can be enabled, and why it is beneficial to do so.
+      _("Setting an expiry date or a maximum age in the HTTP headers for "
+        "static resources instructs the browser to load previously downloaded "
+        "resources from local disk rather than over the network."));
+
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Heading that indicates which resources should
       // make use of browser caching. The text between BEGIN_LINK and
