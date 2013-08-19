@@ -62,7 +62,7 @@ class TestRule : public Rule {
         append_results_return_value_(true),
         append_results_(true),
         score_(100),
-        impact_(0.25) {}
+        impact_(72.0) {}
   virtual ~TestRule() {}
 
   virtual const char* name() const {
@@ -92,6 +92,8 @@ class TestRule : public Rule {
     formatter->AddUrlBlock(not_localized(kBody1));
     formatter->AddUrlBlock(not_localized(kBody2));
   }
+
+  void set_impact(double impact) { impact_ = impact; }
 
   virtual double ComputeResultImpact(const InputInformation& input_info,
                                      const Result& result) {
@@ -143,7 +145,7 @@ TEST(EngineTest, ComputeResults) {
   ASSERT_EQ(0, results.error_rules_size());
   ASSERT_NE(0, results.version().major());
   ASSERT_NE(0, results.version().minor());
-  ASSERT_EQ(75, results.score());
+  ASSERT_EQ(60, results.score());
 
   const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -168,7 +170,7 @@ TEST(EngineTest, ComputeResultsError) {
   ASSERT_EQ(1, results.error_rules_size());
   ASSERT_EQ(kRuleName, results.error_rules(0));
   ASSERT_TRUE(results.has_score());
-  ASSERT_EQ(75, results.score());
+  ASSERT_EQ(60, results.score());
 
   const RuleResults& result = results.rule_results(0);
   EXPECT_EQ(result.rule_name(), kRuleName);
@@ -444,7 +446,7 @@ TEST(EngineTest, ComputeScoresWithExperimentalRule) {
   engine.Init();
   Results results;
   ASSERT_TRUE(engine.ComputeResults(input, &results));
-  ASSERT_EQ(75, results.score());
+  ASSERT_EQ(60, results.score());
 }
 
 TEST(EngineTest, FilterResults) {
@@ -478,14 +480,38 @@ TEST(EngineTest, FilterResults) {
   // Try another filter.
   AlwaysAcceptResultFilter filter2;
   engine.FilterResults(results, filter2, &filtered_results);
-  ASSERT_EQ(75, filtered_results.score());
+  ASSERT_EQ(60, filtered_results.score());
   ASSERT_EQ(1, filtered_results.rule_results_size());
   const RuleResults& filtered_rule_results2 =
       filtered_results.rule_results(0);
   ASSERT_EQ(1, filtered_rule_results2.results_size());
   ASSERT_EQ(100, filtered_rule_results2.rule_score());
-  ASSERT_EQ(0.25, filtered_rule_results2.rule_impact());
+  ASSERT_EQ(72.0, filtered_rule_results2.rule_impact());
 }
 
+// Currently, our scores are calibrated so that that an impact of three mobile
+// blocking round trips (8 * 3) should yield a score of 80; an impact of nine
+// mobile blocking round trips (8 * 9) should yield a score of 60; and so on
+// logarithmically.  Also, anything >= an impact of 93 mobile blocking rounds
+// trips should just be a score of zero.
+TEST(EngineTest, TestScoreRanges) {
+  PagespeedInput input;
+  input.Freeze();
+
+  const int impacts[] = {0, 8 * 3, 8 * 9, 8 * 21, 8 * 45, 8 * 93, 8 * 189};
+  const int scores[] = {100,   80,    60,     40,     20,      0,       0};
+
+  for (unsigned i = 0; i < arraysize(impacts); ++i) {
+    TestRule* rule = new TestRule;
+    rule->set_impact(impacts[i]);
+    std::vector<Rule*> rules;
+    rules.push_back(rule);
+    Engine engine(&rules);
+    engine.Init();
+    Results results;
+    ASSERT_TRUE(engine.ComputeResults(input, &results));
+    EXPECT_EQ(scores[i], results.score());
+  }
+}
 
 }  // namespace

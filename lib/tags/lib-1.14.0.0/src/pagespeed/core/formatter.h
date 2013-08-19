@@ -138,6 +138,49 @@ class RuleFormatter {
   RuleFormatter() {}
   virtual ~RuleFormatter() {}
 
+  // Change the summary line.
+  virtual void SetSummaryLine(
+      const UserFacingString& format_str,
+      const std::vector<const FormatArgument*>& arguments) = 0;
+
+  // Convenience methods:
+  void SetSummaryLine(const UserFacingString& format_str);
+  void SetSummaryLine(const UserFacingString& format_str,
+                      const FormatArgument& arg1);
+  void SetSummaryLine(const UserFacingString& format_str,
+                      const FormatArgument& arg1,
+                      const FormatArgument& arg2);
+  void SetSummaryLine(const UserFacingString& format_str,
+                      const FormatArgument& arg1,
+                      const FormatArgument& arg2,
+                      const FormatArgument& arg3);
+  void SetSummaryLine(const UserFacingString& format_str,
+                      const FormatArgument& arg1,
+                      const FormatArgument& arg2,
+                      const FormatArgument& arg3,
+                      const FormatArgument& arg4);
+  void SetSummaryLine(const UserFacingString& format_str,
+                      const FormatArgument& arg1,
+                      const FormatArgument& arg2,
+                      const FormatArgument& arg3,
+                      const FormatArgument& arg4,
+                      const FormatArgument& arg5);
+  void SetSummaryLine(const UserFacingString& format_str,
+                      const FormatArgument& arg1,
+                      const FormatArgument& arg2,
+                      const FormatArgument& arg3,
+                      const FormatArgument& arg4,
+                      const FormatArgument& arg5,
+                      const FormatArgument& arg6);
+  void SetSummaryLine(const UserFacingString& format_str,
+                      const FormatArgument& arg1,
+                      const FormatArgument& arg2,
+                      const FormatArgument& arg3,
+                      const FormatArgument& arg4,
+                      const FormatArgument& arg5,
+                      const FormatArgument& arg6,
+                      const FormatArgument& arg7);
+
   // Create, add, and return a new UrlBlockFormatter.  The returned object has
   // the same lifetime as the parent.
   virtual UrlBlockFormatter* AddUrlBlock(

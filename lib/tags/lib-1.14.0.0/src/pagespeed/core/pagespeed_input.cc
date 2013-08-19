@@ -169,7 +169,7 @@ bool PagespeedInput::AcquireTopLevelBrowsingContext(
 }
 
 bool PagespeedInput::Freeze(
-    PagespeedInputFreezeParticipant* freezeParticipant) {
+    PagespeedInputFreezeParticipant* participant) {
   if (is_frozen()) {
     LOG(DFATAL) << "Can't Freeze frozen PagespeedInput.";
     return false;
@@ -179,17 +179,20 @@ bool PagespeedInput::Freeze(
   PopulateResourceInformationFromDom(&resource_type_map);
   UpdateResourceTypes(resource_type_map);
 
-  if (freezeParticipant != NULL) {
-    freezeParticipant->OnFreeze(this);
+  if (participant != NULL) {
+    participant->OnFreeze(this);
   }
 
   resources_.Freeze();
   PopulateInputInformation();
 
   if (top_level_browsing_context_ != NULL) {
-    if (!top_level_browsing_context_->Finalize()) {
-      return false;
-    }
+    // We explicitly ignore the return value of Finalize() here. In
+    // some cases, the BrowsingContext can fail to initialize a
+    // subset of its data. In those cases, we still want to try to
+    // make as much progress as possible, so we ignore the error and
+    // continue.
+    top_level_browsing_context_->Finalize();
 
     // TODO(michschn): Add a validator here to ensure that all BrowsingContexts,
     // ResourceFetches and ResourceEvaluations meet the expectations.

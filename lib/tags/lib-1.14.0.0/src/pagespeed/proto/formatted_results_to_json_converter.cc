@@ -106,6 +106,9 @@ Value* FormattedResultsToJsonConverter::ConvertFormattedRuleResults(
     root->SetBoolean("experimental", rule_results.experimental());
   }
   root->SetString("localized_rule_name", rule_results.localized_rule_name());
+  if (rule_results.has_summary()) {
+    root->Set("summary_line", ConvertFormatString(rule_results.summary()));
+  }
   if (rule_results.url_blocks_size() > 0) {
     base::ListValue* url_blocks = new base::ListValue();
     for (int i = 0, len = rule_results.url_blocks_size(); i < len; ++i) {
