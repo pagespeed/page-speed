@@ -14,6 +14,8 @@
 
 #include "pagespeed/core/engine.h"
 
+#include <math.h>
+
 #include <algorithm>
 #include <string>
 
@@ -56,34 +58,6 @@ void FormatRuleResults(const RuleResults& rule_results,
   if (!sorted_results.empty()) {
     rule->FormatResults(sorted_results, rule_formatter);
   }
-}
-
-double ComputePageWeight(const InputInformation& input_info) {
-  const ClientCharacteristics& client = input_info.client_characteristics();
-  double weight = 0.0;
-  weight += client.dns_requests_weight() * input_info.number_hosts();
-  weight += client.requests_weight() * input_info.number_resources();
-  weight += client.response_bytes_weight() *
-      resource_util::ComputeTotalResponseBytes(input_info);
-  weight += client.request_bytes_weight() * input_info.total_request_bytes();
-
-  // There are at least as many connections as there are hosts.
-  // TODO(mdsteele): revisit this when we know the exact number of
-  // connections.
-  weight += client.connections_weight() + input_info.number_hosts();
-
-  // TODO(mdsteele): Note that there are some fields of ClientCharacteristics
-  // that we don't use here yet:
-  //
-  // - page_reflows_weight: There's no good way for us to know how many times
-  //   the page reflowed while rendering, is there?
-  //
-  // - critical_path_length_weight: We should multiply this by the current
-  //   length of the page's critical path; do we have of knowing that?
-  //
-  // - expected_cache_hit_rate: Maybe we should be multiplying the requests
-  //   term above by (1 - hit_rate)?
-  return weight;
 }
 
 }  // namespace
@@ -286,9 +260,8 @@ bool Engine::ComputeScoreAndImpact(Results* results) const {
     }
   }
 
-  // Compute the overall score based on the impacts of the rules compared to
-  // the current weight of the page.  Only set the overall score if at least
-  // one rule ran successfully.
+  // Compute the overall score based on the impacts of the rules.  Only set the
+  // overall score if at least one rule ran successfully.
   // TODO(mdsteele): Ideally, we would be smarter than just summing the
   //   impacts.  For example, maybe the impact of rules A and B together is
   //   less than their sum (because they overlap), and maybe the impact of
@@ -296,18 +269,22 @@ bool Engine::ComputeScoreAndImpact(Results* results) const {
   //   synergetic).
   if (any_rules_succeeded) {
     DCHECK(total_impact >= 0.0);
-    if (total_impact == 0.0) {
-      // If the impact is zero, the score should be perfect (even if page
-      // weight is zero).
-      results->set_score(100);
-    } else {
-      const double page_weight = ComputePageWeight(results->input_info());
-      DCHECK(page_weight >= 0.0);
-      // If the impact is positive but the page weight is zero, we'll get a
-      // score of max(0, -infinity) == 0, which is what we want.
-      results->set_score(static_cast<int>(
-          std::max(0.0, 100.0 * (1.0 - total_impact / page_weight))));
-    }
+    // Divide the impact by 24 (3 mobile round trips) which
+    // allows us to use log2 to map neatly into the ranges below.
+    const double scaled_impact = total_impact / 24.0;
+    // Compute the base-2 logarithm of the scaled impact.  This produces the
+    // following ranking mapping:
+    //   <=3 mobile round trips (<=600ms)     = 80..100 score
+    //   3-9 mobile round trips (600-1800ms)  = 60..80 score
+    //  9-21 mobile round trips (1800-4200ms) = 40..60 score
+    // 21-45 mobile round trips (4200-9000ms) = 20..40 score
+    //  >=45 mobile round trips (>=9000ms)    =  0..20 score
+    double ranking_cost = log(scaled_impact + 1.0) / log(2.0);
+    // Map from 0..5 to 0..100.
+    ranking_cost *= 20.0;
+    // Clamp to 0..100.
+    results->set_score(
+        100 - std::max(0, std::min(100, static_cast<int>(ranking_cost))));
   }
 
   return success;
