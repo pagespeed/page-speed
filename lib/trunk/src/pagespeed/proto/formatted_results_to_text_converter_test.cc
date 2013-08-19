@@ -65,6 +65,15 @@ TEST(FormattedResultsToTextConverterTest, Full) {
   rule_results1->set_rule_score(56);
   expected.append("_LocalizedRuleName_ (56/100)\n");
 
+  FormatString* summary = rule_results1->mutable_summary();
+  FormatArgument* summary_arg = summary->add_args();
+  summary_arg->set_placeholder_key("PLACE");
+  summary_arg->set_string_value("world");
+  summary_arg->set_localized_value("world");
+  summary_arg->set_type(FormatArgument::STRING_LITERAL);
+  summary->set_format("Hello, %(PLACE)s!");
+  expected.append("  Hello, world!\n");
+
   FormattedUrlBlockResults* block = rule_results1->add_url_blocks();
 
   block->mutable_header()->set_format("Header format string.");
