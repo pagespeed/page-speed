@@ -74,6 +74,12 @@ bool FormattedResultsToTextConverter::ConvertFormattedRuleResults(
   }
   out->append("\n");
 
+  if (rule_results.has_summary()) {
+    out->append("  ");
+    ConvertFormatString(rule_results.summary(), out);
+    out->append("\n");
+  }
+
   for (int i = 0, len = rule_results.url_blocks_size(); i < len; ++i) {
     if (!ConvertFormattedUrlBlockResults(rule_results.url_blocks(i), out)) {
       return false;

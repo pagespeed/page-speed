@@ -17,6 +17,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "base/logging.h"
 #include "base/stl_util.h"
@@ -210,14 +211,17 @@ bool BrowsingContext::Finalize() {
                 << GetBrowsingContextUri();
   }
 
+  bool error = false;
+
   // Ensure that all ResourceFetches and ResourceEvals are finalized at this
   // point.
   for (ResourceFetchMap::const_iterator map_it = resource_fetch_map_.begin();
       map_it != resource_fetch_map_.end(); ++map_it) {
     for (std::vector<ResourceFetch*>::const_iterator it =
         map_it->second.begin(); it != map_it->second.end(); ++it) {
-      if (!(*it)->IsFinalized() && !(*it)->Finalize()) {
-        return false;
+      ResourceFetch* fetch = *it;
+      if (fetch->IsFinalized() || !fetch->Finalize()) {
+        error = true;
       }
     }
   }
@@ -227,8 +231,9 @@ bool BrowsingContext::Finalize() {
       map_it != resource_evaluation_map_.end(); ++map_it) {
     for (std::vector<ResourceEvaluation*>::const_iterator it =
         map_it->second.begin(); it != map_it->second.end(); ++it) {
-      if (!(*it)->IsFinalized() && !(*it)->Finalize()) {
-        return false;
+      ResourceEvaluation* eval = *it;
+      if (eval->IsFinalized() || !eval->Finalize()) {
+        error = true;
       }
     }
   }
@@ -236,13 +241,14 @@ bool BrowsingContext::Finalize() {
   for (std::vector<BrowsingContext*>::const_iterator it =
       nested_contexts_.begin();
       it != nested_contexts_.end(); ++it) {
-    if (!(*it)->Finalize()) {
-      return false;
+    BrowsingContext* context = *it;
+    if (!context->Finalize()) {
+      error = true;
     }
   }
 
   finalized_ = true;
-  return true;
+  return !error;
 }
 
 const Resource* BrowsingContext::GetDocumentResourceOrNull() const {

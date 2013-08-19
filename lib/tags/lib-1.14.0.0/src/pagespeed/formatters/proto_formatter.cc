@@ -282,6 +282,13 @@ ProtoRuleFormatter::~ProtoRuleFormatter() {
                              url_block_formatters_.end());
 }
 
+void ProtoRuleFormatter::SetSummaryLine(
+    const UserFacingString& format_str,
+    const std::vector<const FormatArgument*>& arguments) {
+  FillFormatString(localizer_, format_str, arguments,
+                   rule_results_->mutable_summary());
+}
+
 UrlBlockFormatter* ProtoRuleFormatter::AddUrlBlock(
     const UserFacingString& format_str,
     const std::vector<const FormatArgument*>& arguments) {

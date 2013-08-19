@@ -146,6 +146,9 @@ TEST_F(LeverageBrowserCachingTest, Format) {
   Freeze();
   ASSERT_TRUE(AppendResults());
   ASSERT_EQ(
+      "Setting an expiry date or a maximum age in the HTTP headers for "
+      "static resources instructs the browser to load previously downloaded "
+      "resources from local disk rather than over the network.\n"
       "Leverage browser caching"
       "<https://developers.google.com/speed/docs/insights/"
       "LeverageBrowserCaching> for the following cacheable resources:"

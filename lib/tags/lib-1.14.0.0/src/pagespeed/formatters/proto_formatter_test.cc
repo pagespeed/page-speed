@@ -115,6 +115,8 @@ TEST(ProtoFormatterTest, BasicTest) {
   DummyTestRule rule2(_N("rule2"));
 
   RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
+  body->SetSummaryLine(_N("Hello, %(PLACE)s!"),
+                       pagespeed::StringArgument("PLACE", "world"));
   UrlBlockFormatter* block = body->AddUrlBlock(_N("url block 1"));
   UrlFormatter* url = block->AddUrlResult(_N("URL 1"));
   url->AddDetail(_N("URL 1, detail 1"));
@@ -137,6 +139,11 @@ TEST(ProtoFormatterTest, BasicTest) {
   ASSERT_EQ(100, r1.rule_score());
   ASSERT_EQ("rule1", r1.localized_rule_name());
   ASSERT_EQ(2, r1.url_blocks_size());
+  ASSERT_EQ("Hello, %(PLACE)s!", r1.summary().format());
+  ASSERT_EQ(1, r1.summary().args_size());
+  ASSERT_EQ(FormatArgument::STRING_LITERAL, r1.summary().args(0).type());
+  ASSERT_EQ("PLACE", r1.summary().args(0).placeholder_key());
+  ASSERT_EQ("world", r1.summary().args(0).string_value());
 
   ASSERT_EQ("url block 1", r1.url_blocks(0).header().format());
   ASSERT_EQ(2, r1.url_blocks(0).urls_size());
