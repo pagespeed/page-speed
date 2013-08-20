@@ -84,6 +84,8 @@ TEST_F(MinifyCssTest, Format) {
   Freeze();
   ASSERT_TRUE(AppendResults());
   ASSERT_EQ(
+      "Compacting CSS code can save many bytes of data "
+      "and speed up download and parse times.\n"
       "Minify CSS"
       "<https://developers.google.com/speed/docs/insights/MinifyResources> "
       "for the following resources to reduce their size by 12B "

@@ -93,6 +93,8 @@ TEST_F(MinifyJavaScriptTest, Format) {
   Freeze();
   ASSERT_TRUE(AppendResults());
   ASSERT_EQ(
+      "Compacting JavaScript code can save many bytes of data "
+      "and speed up downloading, parsing, and execution time.\n"
       "Minify JavaScript"
       "<https://developers.google.com/speed/docs/insights/MinifyResources> "
       "for the following resources to reduce their size by 4B "

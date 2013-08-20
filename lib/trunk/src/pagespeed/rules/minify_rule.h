@@ -135,6 +135,7 @@ class Minifier {
 
   virtual const char* name() const = 0;
   virtual UserFacingString header_format() const = 0;
+  virtual UserFacingString summary_line() const = 0;
   virtual UserFacingString body_format() const = 0;
   virtual UserFacingString child_format() const = 0;
   virtual UserFacingString child_format_post_gzip() const = 0;

@@ -144,6 +144,8 @@ TEST_F(OptimizeImagesTest, Format) {
                   "test420.jpg");
   CheckOneUrlViolation("http://www.example.com/foo.jpg");
   ASSERT_EQ(
+      "Properly formatting and compressing images can save "
+      "many bytes of data.\n"
       "Optimize the following images"
       "<https://developers.google.com/speed/docs/insights/OptimizeImages> "
       "to reduce their size by 2.5KiB (41% reduction).\n  "
