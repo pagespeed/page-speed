@@ -41,6 +41,9 @@ class FoobarMinifier : public pagespeed::rules::Minifier {
   virtual UserFacingString header_format() const {
     return not_localized("Test rule");
   }
+  virtual UserFacingString summary_line() const {
+    return not_localized("Test summary line");
+  }
   virtual UserFacingString body_format() const {
     return not_localized(
         "You %(BEGIN_LINK)scould save%(END_LINK)s "
@@ -147,7 +150,8 @@ TEST_F(MinifyTest, FormatViolationWithoutCompression) {
   AddTestResourceWithCompression("http://www.example.com/foo.txt",
                                  "alkcvmslkvmlsakejflaskjvlaksmvlwekm", false);
   CheckOneUrlViolation("http://www.example.com/foo.txt");
-  ASSERT_EQ("You could save<http://foo.bar/> 29B (82%)\n"
+  ASSERT_EQ("Test summary line\n"
+            "You could save<http://foo.bar/> 29B (82%)\n"
             "  http://www.example.com/foo.txt 29B (82%)\n",
             FormatResults());
 }
@@ -156,7 +160,8 @@ TEST_F(MinifyTest, FormatViolationWithCompression) {
   AddTestResourceWithCompression("http://www.example.com/foo.txt",
                                  "alkcvmslkvmlsakejflaskjvlaksmvlwekm", true);
   CheckOneUrlViolation("http://www.example.com/foo.txt");
-  ASSERT_EQ("You could save<http://foo.bar/> 26B (50%)\n"
+  ASSERT_EQ("Test summary line\n"
+            "You could save<http://foo.bar/> 26B (50%)\n"
             "  http://www.example.com/foo.txt 26B (50%) after compression\n",
             FormatResults());
 
@@ -171,7 +176,8 @@ TEST_F(MinifyTest, FormatViolationWithCompression) {
   ASSERT_TRUE(res.has_optimized_content());
   ASSERT_TRUE(res.has_details());
   const_cast<pagespeed::Result&>(res).clear_details();
-  ASSERT_EQ("You could save<http://foo.bar/> 26B (50%)\n"
+  ASSERT_EQ("Test summary line\n"
+            "You could save<http://foo.bar/> 26B (50%)\n"
             "  http://www.example.com/foo.txt 26B (50%)\n",
             FormatResults());
 }
@@ -181,7 +187,8 @@ TEST_F(MinifyTest, DoNotSaveOptimizedContent) {
       "http://www.example.com/foo.txt", "alkcvmslkvmlsakejflaskjvlaksmvlwekm",
       false, true);
   CheckOneUrlViolation("http://www.example.com/foo.txt");
-  ASSERT_EQ("You could save<http://foo.bar/> 29B (82%)\n"
+  ASSERT_EQ("Test summary line\n"
+            "You could save<http://foo.bar/> 29B (82%)\n"
             "  http://www.example.com/foo.txt 29B (82%)\n",
             FormatResults());
 

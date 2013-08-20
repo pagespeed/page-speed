@@ -43,6 +43,7 @@ class ImageMinifier : public Minifier {
   // Minifier interface:
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
+  virtual UserFacingString summary_line() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -65,6 +66,13 @@ UserFacingString ImageMinifier::header_format() const {
   // images (better compression). This is displayed in a list of rule names that
   // Page Speed generates.
   return _("Optimize images");
+}
+
+UserFacingString ImageMinifier::summary_line() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Properly formatting and compressing images can save "
+           "many bytes of data.");
 }
 
 UserFacingString ImageMinifier::body_format() const {

@@ -42,6 +42,7 @@ class JsMinifier : public Minifier {
   // Minifier interface:
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
+  virtual UserFacingString summary_line() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -64,6 +65,13 @@ UserFacingString JsMinifier::header_format() const {
   // whitespace and comments". The goal is to reduce the size of the
   // JavaScript file by removing the parts that are unnecessary.
   return _("Minify JavaScript");
+}
+
+UserFacingString JsMinifier::summary_line() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Compacting JavaScript code can save many bytes of data "
+           "and speed up downloading, parsing, and execution time.");
 }
 
 UserFacingString JsMinifier::body_format() const {
