@@ -104,6 +104,9 @@ TEST_F(MinifyHtmlTest, Format) {
   Freeze();
   ASSERT_TRUE(AppendResults());
   ASSERT_EQ(
+      "Compacting HTML code, including any inline JavaScript and "
+      "CSS contained in it, can save many bytes of data and speed up "
+      "download and parse times.\n"
       "Minify HTML<"
       "https://developers.google.com/speed/docs/insights/MinifyResources> "
       "for the following resources to reduce their size by 34B "

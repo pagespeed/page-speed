@@ -42,6 +42,7 @@ class CssMinifier : public Minifier {
   // Minifier interface:
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
+  virtual UserFacingString summary_line() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -64,6 +65,13 @@ UserFacingString CssMinifier::header_format() const {
   // whitespace and comments". The goal is to reduce the size of the
   // CSS file by removing the parts that are unnecessary.
   return _("Minify CSS");
+}
+
+UserFacingString CssMinifier::summary_line() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Compacting CSS code can save many bytes of data "
+           "and speed up download and parse times.");
 }
 
 UserFacingString CssMinifier::body_format() const {
