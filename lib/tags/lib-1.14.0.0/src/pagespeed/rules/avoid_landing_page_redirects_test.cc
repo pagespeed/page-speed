@@ -749,6 +749,9 @@ TEST_F(AvoidLandingPageRedirectsTest, FormatWithOrder) {
   CheckViolations(violations);
 
   const char* expected_results =
+      "Your page has 5 redirects. "
+      "Redirects introduce additional delays before "
+      "the page can be loaded.\n"
       "Avoid landing page redirects"
       "<https://developers.google.com/speed/docs/insights/AvoidRedirects> "
       "for the following chain of redirected URLs.\n"

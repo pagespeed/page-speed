@@ -241,6 +241,14 @@ bool AvoidLandingPageRedirects::AppendResults(
 
 void AvoidLandingPageRedirects::FormatResults(
     const ResultVector& results, RuleFormatter* formatter) {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  formatter->SetSummaryLine(
+      _("Your page has %(NUM_REDIRECTS)s redirects. "
+        "Redirects introduce additional delays before "
+        "the page can be loaded."),
+      IntArgument("NUM_REDIRECTS", results.size()));
+
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page
       // Speed detected as a chain of HTTP redirections. It tells the

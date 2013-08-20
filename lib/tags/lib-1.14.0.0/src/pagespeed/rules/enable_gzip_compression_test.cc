@@ -180,7 +180,9 @@ TEST_F(EnableGzipCompressionTest, BinaryResponseBody) {
 TEST_F(EnableGzipCompressionTest, Format) {
   AddFirstLargeHtmlResource(false);
   CheckOneUrlViolation("http://www.test.com/");
-  ASSERT_EQ("Enable compression<https://developers.google.com/speed/docs/"
+  ASSERT_EQ("Compressing resources with gzip or deflate can reduce "
+            "the number of bytes sent over the network.\n"
+            "Enable compression<https://developers.google.com/speed/docs/"
             "insights/EnableCompression> for the following resources to reduce "
             "their transfer size by 8.7KiB (99% reduction).\n  "
             "Compressing http://www.test.com/ could save 8.7KiB "

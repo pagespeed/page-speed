@@ -177,6 +177,8 @@ void MinifyRule::FormatResults(const ResultVector& results,
     return;
   }
 
+  formatter->SetSummaryLine(minifier_->summary_line());
+
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       minifier_->body_format(),
       HyperlinkArgument("LINK", minifier_->additional_info_url()),

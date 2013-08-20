@@ -41,6 +41,7 @@ class HtmlMinifier : public Minifier {
   // Minifier interface:
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
+  virtual UserFacingString summary_line() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -63,6 +64,13 @@ UserFacingString HtmlMinifier::header_format() const {
   // whitespace and comments". The goal is to reduce the size of the
   // HTML file by removing the parts that are unnecessary.
   return _("Minify HTML");
+}
+
+UserFacingString HtmlMinifier::summary_line() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Compacting HTML code, including any inline JavaScript and "
+           "CSS contained in it, can save many bytes of data and speed up download and parse times.");
 }
 
 UserFacingString HtmlMinifier::body_format() const {
