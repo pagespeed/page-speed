@@ -46,6 +46,7 @@ class PreferAsyncResourcesTest
   static const char* kComScoreScriptUrl;
   static const char* kComScoreSecureScriptUrl;
   static const char* kGptScriptUrl;
+  static const char* kGptMobileScriptUrl;
   static const char* kShareThisScriptUrl;
   static const char* kPinterestScriptUrl;
   static const char* kDisqusScriptUrl;
@@ -182,6 +183,8 @@ const char* PreferAsyncResourcesTest::kComScoreSecureScriptUrl =
     "https://sb.scorecardresearch.com/beacon.js";
 const char* PreferAsyncResourcesTest::kGptScriptUrl =
     "http://www.googletagservices.com/tag/js/gpt.js";
+const char* PreferAsyncResourcesTest::kGptMobileScriptUrl =
+    "https://www.googletagservices.com/tag/js/gpt_mobile.js";
 const char* PreferAsyncResourcesTest::kShareThisScriptUrl =
     "http://w.sharethis.com/button/buttons.js";
 const char* PreferAsyncResourcesTest::kPinterestScriptUrl =
@@ -433,10 +436,16 @@ TEST_F(PreferAsyncResourcesTest, ComScoreSecureOtherContentIsBad) {
 }
 
 
-TEST_F(PreferAsyncResourcesTest, GptOtherContentIsBad) {
+TEST_F(PreferAsyncResourcesTest, Gpt) {
   CreateScriptElement(kGptScriptUrl, body());
   CreateCssElement(body());
   CheckOneViolation(kRootUrl, kGptScriptUrl);
+}
+
+TEST_F(PreferAsyncResourcesTest, GptMobile) {
+  CreateScriptElement(kGptMobileScriptUrl, body());
+  CreateCssElement(body());
+  CheckOneViolation(kRootUrl, kGptMobileScriptUrl);
 }
 
 TEST_F(PreferAsyncResourcesTest, ShareThisOtherContentIsBad) {
