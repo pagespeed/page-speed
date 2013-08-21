@@ -356,7 +356,7 @@ TEST_F(PreferAsyncResourcesTest, SyncScriptInBodyAndIframeIsDoublyBad) {
 TEST_F(PreferAsyncResourcesTest, SyncFacebookBeforeAnyContentIsBad) {
   CreateScriptElement(kFacebookScriptEnUsUrl, body());
   CreateCssElement(body());
-  CheckOneViolation(kRootUrl, kFacebookScriptEnUsUrl);
+  CheckNoViolations();
 }
 
 TEST_F(PreferAsyncResourcesTest, AsyncFacebookAnywhereIsGood) {
@@ -379,21 +379,20 @@ TEST_F(PreferAsyncResourcesTest, SyncFacebookWithVersionIsBad) {
   const char* kUrl = "http://connect.facebook.net/en_US/all.js?v=25.9.51";
   CreateScriptElement(kUrl, body());
   CreateCssElement(body());
-  CheckOneViolation(kRootUrl, kUrl);
+  CheckNoViolations();
 }
 
 TEST_F(PreferAsyncResourcesTest, SyncFacebookForAnyRegionIsBad) {
   CreateScriptElement(kFacebookScriptEnUsUrl, body());
   CreateScriptElement(kFacebookScriptEnGbUrl, body());
   CreateCssElement(body());
-  CheckTwoViolations(kRootUrl, kFacebookScriptEnUsUrl,
-                     kRootUrl, kFacebookScriptEnGbUrl);
+  CheckNoViolations();
 }
 
 TEST_F(PreferAsyncResourcesTest, FacebookUrlCornerCases) {
   CreateScriptElement(kFacebookScriptAcceptedUrl, body());
   CreateScriptElement(kFacebookScriptRejectedUrl, body());
-  CheckOneViolation(kRootUrl, kFacebookScriptAcceptedUrl);
+  CheckNoViolations();
 }
 
 // Make sure the DOM traversal properly resolves relative URLs.
@@ -414,7 +413,7 @@ TEST_F(PreferAsyncResourcesTest, PlusOneAboveOtherContentIsBad) {
 TEST_F(PreferAsyncResourcesTest, TwitterOtherContentIsBad) {
   CreateScriptElement(kTwitterScriptUrl, body());
   CreateCssElement(body());
-  CheckOneViolation(kRootUrl, kTwitterScriptUrl);
+  CheckNoViolations();
 }
 
 TEST_F(PreferAsyncResourcesTest, QuantCastOtherContentIsBad) {
