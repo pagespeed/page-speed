@@ -67,6 +67,7 @@ const char* kScriptMatchers[][kMaxChunksPerScriptMatcher] = {
   // Google DFP GPT.  See:
   // https://support.google.com/dfp_premium/bin/answer.py?hl=en&answer=1638622
   { "www.googletagservices.com/tag/js/gpt.js", NULL},
+  { "www.googletagservices.com/tag/js/gpt_mobile.js", NULL},
 
   // ShareThis: http://support.sharethis.com/customer/portal/articles/475260
   { "w.sharethis.com/button/buttons.js", NULL},
