@@ -199,7 +199,7 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
   ASSERT_NE(static_cast<Value*>(NULL), value);
 }
 
-TEST(FormattedResultsToTextConverterTest, Hyperlink) {
+TEST(FormattedResultsToJsonConverterTest, Hyperlink) {
   std::string expected;
 
   FormattedResults results;
@@ -239,7 +239,7 @@ TEST(FormattedResultsToTextConverterTest, Hyperlink) {
   expected.append("\"type\":\"HYPERLINK\"}],");
 
   block->mutable_header()->set_format(
-      "You can {{BEGIN_LINK}}click here{{END_LINK}} to learn more.");
+      "You can %(BEGIN_LINK)sclick here%(END_LINK)s to learn more.");
   expected.append("\"format\":\"You can {{BEGIN_LINK}}click "
                   "here{{END_LINK}} to learn more.\"}}]}],");
 
