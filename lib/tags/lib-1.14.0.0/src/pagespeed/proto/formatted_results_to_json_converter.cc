@@ -180,7 +180,14 @@ Value* FormattedResultsToJsonConverter::ConvertFormatString(
     for (int i = 0, len = format_string.args_size(); i < len; ++i) {
       const FormatArgument& arg = format_string.args(i);
       args->Append(ConvertFormatArgument(arg));
-      subst[arg.placeholder_key()] = "{{" + arg.placeholder_key() + "}}";
+      if (arg.type() == FormatArgument::HYPERLINK) {
+        subst["BEGIN_" + arg.placeholder_key()] =
+            "{{BEGIN_" + arg.placeholder_key() + "}}";
+        subst["END_" + arg.placeholder_key()] =
+            "{{END_" + arg.placeholder_key() + "}}";
+      } else {
+        subst[arg.placeholder_key()] = "{{" + arg.placeholder_key() + "}}";
+      }
     }
     root->Set("args", args);
     root->SetString("format", string_util::ReplaceStringPlaceholders(

@@ -47,13 +47,17 @@ const char* kScriptMatchers[][kMaxChunksPerScriptMatcher] = {
   { "google-analytics.com/urchin.js", NULL },
 
   // See: http://developers.facebook.com/docs/reference/javascript/
-  { "connect.facebook.net/", "/all.js", NULL },
+  // This script is added via a DOM element from JS. Then it is async,
+  // regardless of the 'async' property. Same as the twitter script.
+  // { "connect.facebook.net/", "/all.js", NULL },
 
   // See: https://developers.google.com/+/web/+1button/#async-load
   { "apis.google.com/js/plusone.js", NULL },
 
   // See: https://twitter.com/about/resources/buttons
-  { "platform.twitter.com/widgets.js", NULL },
+  // This script is added via a DOM element from JS. Then it is async,
+  // regardless of the 'async' property
+  // { "platform.twitter.com/widgets.js", NULL },
 
   // Quantcast.  See:
   // https://www.quantcast.com/learning-center/guides/using-the-quantcast-asynchronous-tag/
