@@ -1,166 +1,288 @@
-#  Page Speed result for a single resource that should
-#  defer parsing its inline JavaScript. The "$1"  will be replaced
-#  by the document (HTML page, or a iframe) URL; the "$2" will be
-#  replaced by the size of its inline JavaScripts.
-msgid "$1 ($2 of inline JavaScript)"
-msgstr "$1 (iekļautā JavaScript lielums: $2)"
+#  Header at the top of a list of URLs that Page
+#  Speed detected as a chain of HTTP redirections. It tells the
+#  user to fix the problem by removing the URLs that redirect to
+#  others. The text between BEGIN_LINK and END_LINK will be
+#  displayed as a clickable link in the browser, which takes the
+#  user to a document providing additional information.
+msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
+msgstr "%(BEGIN_LINK)sNovērsiet galvenās lapas novirzījumus%(END_LINK)s pa tālāk norādīto novirzīto vietrāžu URL ķēdi."
 
-#  Shown as part of a list of unnecessary reflows
-#  (or "layouts", which is used interchangeably with the word
-#  "reflows" in the web performance community). Shows a URL
-#  at $1, and the number of unnecessary reflows for that URL
-#  at $2.
-msgid "$1 ($2 reflows)"
-msgstr "$1 ($2 plūduma sakārtošanas reizes)"
+#  Descriptive header for a list of URLs that were
+#  served uncompressed, in violation of the EnableGzipCompression
+#  rule.  It tells the webmaster that compressing all of those
+#  resources could reduce the amount of data transferred (which
+#  would speed up the site). It is followed by a list of
+#  uncompressed resource URLs. The text between BEGIN_LINK and
+#  END_LINK will link to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sEnable compression%(END_LINK)s for the following resources to reduce their transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sIespējojiet saspiešanu%(END_LINK)s tālāk norādītajiem resursiem, lai samazinātu to pārsūtīšanas lielumu par %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240").
-msgid "$1 (Dimensions: $2 x $3)"
-msgstr "$1 (izmēri: $2 x $3)"
+#  Heading that indicates which resources should
+#  make use of browser caching. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the
+#  browser, which takes the user to a document providing
+#  additional information.
+msgid "%(BEGIN_LINK)sLeverage browser caching%(END_LINK)s for the following cacheable resources:"
+msgstr "%(BEGIN_LINK)sIzmantojiet pārlūkprogrammas kešošanu%(END_LINK)s tālāk norādītajiem kešojamajiem resursiem."
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240"); the $4 is a format
-#  token that will be replaced with the number of times this image
-#  appears in the page (e.g. "3").
-msgid "$1 (Dimensions: $2 x $3) ($4 uses)"
-msgstr "$1 (izmēri: $2 x $3) ($4 pielietojumi)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify CSS%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sSamaziniet CSS%(END_LINK)s tālāk norādītajiem resursiem, lai samazinātu to lielumu par %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
 
-#  Item describing a single URL that violates the
-#  LeverageBrowserCaching rule by not having a cache expiration.
-#  "$1" is a format string that will be replaced by the URL.
-msgid "$1 (expiration not specified)"
-msgstr "$1 (beigu termiņš nav norādīts)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify HTML%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sSamaziniet HTML%(END_LINK)s tālāk norādītajiem resursiem, lai samazinātu to lielumu par %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
 
-#  Describes a single resource that violates the
-#  AvoidDocumentWrite rule by using the "document.write"
-#  JavaScript command ("document.write" is code, and should not
-#  be translated).  It gives the URL of the resource that uses
-#  "document.write", and the line number of that
-#  call.  Following this will be a list of the URLs that are
-#  fetched as a result of that "document.write" call.  "$1" is a
-#  format token that will be replaced with the URL of the
-#  external resource that uses "document.write".  "$2" will be
-#  replaced with the line number of the call to "document.write"
-#  in that resource.
-msgid "$1 calls document.write on line $2 to fetch:"
-msgstr "$1 izsauc komandu document.write rindā $2, lai iegūtu:"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify JavaScript%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sSamaziniet JavaScript%(END_LINK)s tālāk norādītajiem resursiem, lai samazinātu to lielumu par %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the render of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sOptimize CSS Delivery%(END_LINK)s of the following:"
+msgstr "%(BEGIN_LINK)sOptimizējiet CSS piegādi%(END_LINK)s tālāk norādītajiem vienumiem:"
+
+#  Header at the top a list of image URLs that Page
+#  Speed detected as can be optimized by using better
+#  compression. It describes the problem to the user that the size
+#  of the images can be reduced. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the browser,
+#  which takes the user to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sOptimizējiet tālāk norādītos attēlus%(END_LINK)s, lai samazinātu to lielumu par %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "%(BEGIN_LINK)sPiešķiriet prioritāti redzamajam saturam%(END_LINK)s, kas ir nepieciešams renderēšanai pirmajā ekrānā."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the parser of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sRemove render-blocking JavaScript%(END_LINK)s:"
+msgstr "%(BEGIN_LINK)sNoņemiet renderēšanu bloķējošo JavaScript skriptu%(END_LINK)s:"
+
+#  Header at the top of a list of URLs that PageSpeed
+#  determined were blocking the parser of above-the-fold content that
+#  can be made asynchronous. The text between BEGIN_LINK and END_LINK
+#  will link to a document providing additional information.
+msgid "%(BEGIN_LINK)sUse asynchronous versions%(END_LINK)s of the following scripts:"
+msgstr "Izmantojiet tālāk norādīto skriptu %(BEGIN_LINK)sasinhronās versijas%(END_LINK)s:"
 
 #  The document that Page Speed detected as have CSS
-#  resources in document body. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body."
-msgstr "Dokumenta·$1·pamatdaļā·ir·CSS·resurss."
+#  resources in document body.
+msgid "%(DOCUMENT_URL)s has CSS in the document body."
+msgstr "Dokumenta %(DOCUMENT_URL)s pamatdaļā·ir·CSS resurss."
 
 #  Header of a list of items the Page Speed suggests to
-#  move to document head. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body:"
-msgstr "Dokumenta $1 pamatdaļā ir CSS resurss:"
+#  move to document head.
+msgid "%(DOCUMENT_URL)s has CSS in the document body:"
+msgstr "Dokumenta %(DOCUMENT_URL)s pamatdaļā ir CSS resurss:"
 
-#  Item describing a URL that violates the MinimzeRequestSize
-#  rule by having a large request size. The "$1" in the format string will
-#  be replaced by the URL; the "$2" will be replaced by the number of bytes
-#  in the request. This is displayed at the top of a breakdown of how large
-#  each element of the request is.
-#.
-msgid "$1 has a request size of $2"
-msgstr "Vietrāža·URL·$1·pieprasījuma·lielums·ir·$2"
+#  List item indicating that a particular HTML document
+#  loads a particular resource file synchronously (rather than
+#  asynchronously).
+msgid "%(DOCUMENT_URL)s loads %(RESOURCE_URL)s synchronously."
+msgstr "Dokuments %(DOCUMENT_URL)s ielādē resursu %(RESOURCE_URL)s sinhroni."
 
-#  Message displayed to indicate that a URL
-#  redirects to another URL, e.g "http://example.com/ is an
-#  uncacheable redirect to http://www.example.com/".
-msgid "$1 is an uncacheable redirect to $2"
-msgstr "$1 ir nekešojama novirzīšana uz $2"
+#  An amount of bytes with abbreviated unit.  The "NUM_BYTES"
+#  placeholder is replaced with the number of bytes (e.g. "93",
+#  representing 93 bytes).
+msgid "%(NUM_BYTES)sB"
+msgstr "%(NUM_BYTES)s B"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the served size of the image, the final size of the
-#  image, and the amount saved by serving the image in the final size.
-#  "$1" is a format token that will be replaced with the URL of the image
-#  resource.  "$2" and "$3" will be replaced with the original (served)
-#  width and height (respectively) of the image resource.  "$4" and "$5"
-#  will be replaced with the final (resized) width and height
-#  (respectively) of the image resource.  "$6" will be replaced with the
-#  amount saved (in bytes) by serving the image correctly size (e.g.
-#  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25%").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
-msgstr "$1 lielums HTML vai CSS kodā ir mainīts no $2 x $3 uz $4 x $5. Mērogota attēla rādīšana varētu ietaupīt $6 ($7 samazinājums)."
+#  An amount of kilobytes with abbreviated unit.  The
+#  "NUM_KILOBYTES" placeholder is replaced with the number of kilobytes
+#  (e.g. "32.5", representing 32.5 kilobytes).
+msgid "%(NUM_KILOBYTES)sKiB"
+msgstr "%(NUM_KILOBYTES)s KB"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the amount saved by serving the image in its final
-#  size.  "$1" is a format token that will be replaced with the URL of the
-#  image resource.  "$2" will be replaced with the amount saved (in bytes)
-#  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25%").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
-msgstr "$1 lielums HTML vai CSS kodā ir mainīts. Mērogota attēla rādīšana varētu ietaupīt $2 ($3 samazinājums)."
+#  An amount of megabytes with abbreviated unit.  The
+#  "NUM_MEGABYTES" placeholder is replaced with the number of megabytes
+#  (e.g. "32.5", representing 32.5 megabytes).
+msgid "%(NUM_MEGABYTES)sMiB"
+msgstr "%(NUM_MEGABYTES)s MB"
 
-#  Shown as part of a list of URLs that initiate JavaScript
-#  scripts that run for a long time.  Shows a URL at $1, the line
-#  number (of the file at that URL that triggers the script URL) at $2,
-#  and the length of time the scripts runs for at $3.
-msgid "$1 line $2 ($3)"
-msgstr "$1 $2. rindā ($ 3)"
+#  Detail of the inline CSS. It tells the user how many
+#  style blocks should be moved to document head.
+msgid "%(NUM_STYLE_BLOCKS)s style block(s) in the body should be moved to the document head."
+msgstr "%(NUM_STYLE_BLOCKS)s stila bloks(-i) no dokumenta daļas “body” ir jāpārvieto uz daļu “head”."
 
-#  Detail for resource that loads synchronously. The "$1" will
-#  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
-#  be replaced by the resource URL.
-msgid "$1 loads $2 synchronously."
-msgstr "$1 ielādē $2 vienlaikus."
+#  Message displayed to indicate that one URL redirects to
+#  another URL, e.g "http://example.com/ is an uncacheable redirect to
+#  http://www.example.com/".
+msgid "%(ORIGINAL_URL)s is an uncacheable redirect to %(TARGET_URL)s"
+msgstr "Vietrādis %(ORIGINAL_URL)s ir nekešojams novirzījums uz vietrādi %(TARGET_URL)s."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected to have JavaScript code. It describes the problem and tells
-#  the user how to fix by defering parsing the JavaScript code.
-msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
-msgstr "Lapas sākotnējās ielādes laikā $1 JavaScript tiek parsēti. Atlieciet JavaScript parsēšanu, lai mazinātu lapas renderēšanas bloķēšanu."
+#  the user how to fix by defering parsing the JavaScript code.  The
+#  "SIZE_IN_BYTES" placeholder indicates how much Javascript data is
+#  begin parsed (e.g. "273.1KB").
+msgid "%(SIZE_IN_BYTES)s of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "%(SIZE_IN_BYTES)s no JavaScript koda sākumlapas ielādes laikā tiek parsēti. Atlieciet JavaScript parsēšanu, lai samazinātu lapas renderēšanas bloķēšanu."
 
-#  A sub-heading that contains the URL of the document and
-#  a statement instructing the user to inline certain small resources.
-#  "$1" is a format token that will be replaced with the URL of the
-#  document that contains the resources that can be inserted directly
-#  into the HTML document.
-msgid "$1 should inline the following small resources:"
-msgstr "Dokumentā $1 ir jāiekļauj šādi nelielie resursi:"
+#  Summary header indicating how much of the server's
+#  HTML response, in bytes, was needed by the browser in order to
+#  render the above-the-fold content, and recommending that the user
+#  place priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)  The "SIZE_IN_BYTES"
+#  is the actual amount of HTML content needed to render the above
+#  the full fold content (e.g. "24.3kB").
+msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "Lai renderētu pirmā ekrāna saturu, bija nepieciešami %(SIZE_IN_BYTES)s no atbildes. %(BEGIN_LINK)sPiešķiriet prioritāti redzamajam saturam%(END_LINK)s, kas ir nepieciešams renderēšanai pirmajā ekrānā."
 
-#  Detail of the inline CSS. It tells the user how many
-#  style blocks should be moved to document head. The "$1" will be
-#  replaced by the number of style blocks.
-msgid "$1 style block(s) in the body should be moved to the document head."
-msgstr "$1 stila bloks(-i) pamatdaļā ir jāpārvieto uz dokumenta galveni."
+#  Shown as part of a list of URLs that have unnecessary
+#  reflows (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community).  The message indicates
+#  the URL and the number of reflows that it requires.
+msgid "%(URL)s (%(NUM_REFLOWS)s reflows)"
+msgstr "%(URL)s (plūdums tiek sakārtots %(NUM_REFLOWS)s reizes)"
 
-#  An amount of bytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of bytes (e.g. "93",
-#  representing 93 bytes).
-msgid "$1B"
-msgstr "$1 B"
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "URL" placeholder will be
+#  replaced by the document (HTML page, or a iframe) URL; the
+#  "SIZE_IN_BYTES" will be replaced by the size of its inline
+#  JavaScripts (e.g. "273.1KB").
+msgid "%(URL)s (%(SIZE_IN_BYTES)s of inline JavaScript)"
+msgstr "%(URL)s (%(SIZE_IN_BYTES)s iebūvēta JavaScript)"
 
-#  An amount of kilobytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of kilobytes (e.g. "32.5",
-#  representing 32.5 kilobytes).
-msgid "$1KiB"
-msgstr "$1 KiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s)"
+msgstr "%(URL)s (izmēri: %(WIDTH)s x %(HEIGHT)s)"
 
-#  An amount of megabytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of megabytes (e.g. "32.5",
-#  representing 32.5 megabytes).
-msgid "$1MiB"
-msgstr "$1 MiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s uses)"
+msgstr "%(URL)s (izmēri: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s lietojumi)"
+
+#  Item describing a single URL that violates the
+#  LeverageBrowserCaching rule by not having a specified cache expiration
+#  time.
+msgid "%(URL)s (expiration not specified)"
+msgstr "%(URL)s (derīguma termiņš nav norādīts)"
+
+#  Item describing a URL that violates the
+#  MinimzeRequestSize rule by having a large request size. The "URL"
+#  placeholder will be replaced by the URL; the "SIZE_IN_BYTES"
+#  placeholder will be replaced by the number of bytes in the request
+#  (e.g. "1492 bytes"). This is displayed at the top of a breakdown of
+#  how large each element of the request is.
+msgid "%(URL)s has a request size of %(SIZE_IN_BYTES)s"
+msgstr "Vietrāža %(URL)s pieprasījuma lielums ir %(SIZE_IN_BYTES)s."
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the original size of the image, the final
+#  size of the image, and the amount saved by serving the image in
+#  the final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").  The "ORIGINAL_WIDTH x ORIGINAL_HEIGHT"
+#  gives the natural size of the image file (e.g. "640x480"), while
+#  the "FINAL_WIDTH x FINAL_HEIGHT" gives the size to which the
+#  image has been resized by the HTML or CSS (e.g. "160x120").
+msgid "%(URL)s is resized in HTML or CSS from %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s to %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Vietrādim %(URL)s HTML vai CSS resursā lielums tiek mainīts no %(ORIGINAL_WIDTH)s x %(ORIGINAL_HEIGHT)s uz %(FINAL_WIDTH)s x %(FINAL_HEIGHT)s. Rādot mērogotu attēlu, varētu ietaupīt %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the amount saved by serving the image in
+#  its final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").
+msgid "%(URL)s is resized in HTML or CSS. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Vietrādim %(URL)s HTML vai CSS resursā tiek mainīts lielums. Rādot mērogotu attēlu, varētu ietaupīt %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL, the line number (of
+#  the file at that URL that triggers the script URL), and the duration
+#  of time for which the scripts runs.
+msgid "%(URL)s line %(LINE_NUMBER)s (%(DURATION)s)"
+msgstr "Vietrādis %(URL)s, %(LINE_NUMBER)s. rindiņa (laiks: %(DURATION)s)"
+
+#  A sub-heading that contains the URL of the document
+#  and a statement instructing the user to inline certain small
+#  resources.  The "URL" placeholder will be replaced with the URL of
+#  the document that contains the resources that can be inserted
+#  directly into the HTML document.
+msgid "%(URL)s should inline the following small resources:"
+msgstr "Dokumentā %(URL)s ir jāiekļauj šādi nelielie resursi:"
+
+#  Summary header indicating how much of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be correctly
+#  rendered without relying on any render-blocking
+#  resources.  The "PERCENTAGE" placeholder will be
+#  replaced with the percentage of the content that was
+#  ready (e.g. "85%").
+msgid "Approximately %(PERCENTAGE)s of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Aptuveni %(PERCENTAGE)s no lapas pirmā ekrāna satura varēja renderēt, negaidot, līdz ielādēsies tālāk norādītie resursi. Mēģiniet atlikt šo resursu ielādi vai veikt to asinhroni, vai arī iekļaujiet svarīgākās šo resursu daļas tieši HTML dokumentā."
 
 #  The name of a Page Speed rule telling webmasters to avoid using
 #  the @import directive in their CSS style sheets ("@import" is code, and
@@ -170,6 +292,12 @@ msgstr "$1 MiB"
 msgid "Avoid CSS @import"
 msgstr "Izvairīšanās no CSS @import"
 
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages do not specify a character set in an HTML meta tag.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid a character set in the meta tag"
+msgstr "Neizmantot metatagā rakstzīmju kopu"
+
 #  The name of a Page Speed rule that tells users to try and avoid
 #  writing pages that generate bad HTTP requests (i.e. requests that return
 #  HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
@@ -178,13 +306,17 @@ msgstr "Izvairīšanās no CSS @import"
 msgid "Avoid bad requests"
 msgstr "Izvairīšanās no nepareiziem pieprasījumiem"
 
-#  The name of a Page Speed rule that tells webmasters to avoid
-#  using the "document.write" command in their JavaScript code
-#  ("document.write" is code, and should not be translated).  This appears in
-#  a list of rule names generated by Page Speed, telling webmasters which
-#  rules they broke in their website.
-msgid "Avoid document.write"
-msgstr "Izvairīšanās no komandas document.write"
+#  The name of a Page Speed rule that tells users to avoid using
+#  Adobe Flash on mobile webpages
+msgid "Avoid flash on mobile webpages"
+msgstr "Neizmantojiet Flash mobilajām ierīcēm paredzētās tīmekļa lapās."
+
+#  The name of a Page Speed rule that tells users to avoid
+#  redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid landing page redirects"
+msgstr "Neizmantojiet novirzīšanu no galvenās lapas"
 
 #  The name of a Page Speed rule that tells users to try
 #  and avoid writing pages with Javascript scripts that run for a
@@ -224,47 +356,68 @@ msgstr "Ārējo JavaScript resursu apvienošana"
 msgid "Combine images into CSS sprites"
 msgstr "Attēlu apvienošana CSS gariņos"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting CSS code can save many bytes of data and speed up download and parse times."
+msgstr "CSS koda saspiešana var ievērojami ietaupīt datu baitu apjomu un paātrināt lejupielādi un parsēšanu."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting HTML code, including any inline JavaScript and CSS contained in it, can save many bytes of data and speed up download and parse times."
+msgstr "HTML koda, tostarp visu tajā iekļauto JavaScript un CSS fragmentu, saspiešana var ievērojami ietaupīt datu baitu apjomu un paātrināt lejupielādi un parsēšanu."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting JavaScript code can save many bytes of data and speed up downloading, parsing, and execution time."
+msgstr "JavaScript koda saspiešana var ievērojami ietaupīt datu baitu apjomu un paātrināt lejupielādi, parsēšanu un izpildi."
+
 #  Description of a single resource that was served uncompressed,
 #  in violation of the EnableGzipCompression rule.  It gives the URL of the
-#  resource, as well as the amount of data that would be saved by compressing.
-#  It appears in a list of all the uncompressed resources on a site.  "$1" is
-#  a format token that will be replaced with the URL of the uncompressed
-#  resource in question.  "$2" will be replaced with the amount of data
-#  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3 reduction)."
-msgstr "Saspiežot $1, varētu ietaupīt $2 ($3 samazinājums)."
+#  resource, as well as the amount of data that would be saved by
+#  compressing.  It appears in a list of all the uncompressed resources on a
+#  site.  The "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
+#  savings (e.g. "50%").
+msgid "Compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Saspiežot %(URL)s, varētu ietaupīt %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
 
-#  Descriptive header for a list of URLs that were served
-#  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
-#  webmaster that compressing all of those resources could reduce the amount
-#  of data transferred (which would speed up the site).  It is followed by a
-#  list of uncompressed resource URLs.  "$1" is a format token that will be
-#  replaced by the amount of data transferred saved by compressing (in bytes)
-#  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25%").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
-msgstr "Saspiežot tālāk minētos resursus ar gzip, varētu samazināt pārsūtāmo datu lielumu par $1 ($2 samazinājums)."
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compressing resources with gzip or deflate can reduce the number of bytes sent over the network."
+msgstr "Resursu saspiešana, izmantojot metodi gzip vai deflate, var samazināt tīklā pārsūtīto baitu apjomu."
 
-#  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1"
-msgstr "Sīkfaili: $1"
+#  Summary header indicating that compressing will bring
+#  the page to meeting the criteria (the above the fold content is
+#  rendered on the first 15 kilobytes).
+msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
+msgstr "Saspiežot savas lapas HTML resursu, lapā lielāko daļu pirmā ekrāna satura var renderēt pirmajos 15 atbildes KB."
 
 #  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. It also tell the
-#  user that the resource is static, and it should be served from a
-#  cookieless domain. The "$1" will be replace by the size of the
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
 #  cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
-msgstr "Sīkfaili: $1 (ņemiet vērā, ka šis ir statisks resurss un tas ir jāapkalpo no domēna, kuram nav sīkfailu)"
+msgid "Cookies: %(SIZE_IN_BYTES)s"
+msgstr "Sīkfaili: %(SIZE_IN_BYTES)s"
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. It also tell
+#  the user that the resource is static, and it should be served from a
+#  cookieless domain. The "SIZE_IN_BYTES" placeholder will be replaced
+#  by the size of the cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: %(SIZE_IN_BYTES)s (note that this is a static resource, and should be served from a cookieless domain)"
+msgstr "Sīkfaili: %(SIZE_IN_BYTES)s (ņemiet vērā, ka šis ir statisks resurss un tas ir jārāda no domēna, kuram nav sīkfailu)"
 
 #  The name of a Page Speed rule that tells users to defer
 #  parsing of large amount of JavaScript code. This is displayed in a list
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "JavaScript parsēšanas atlikšana"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  loading resources on the page that block the initial render of the page
+msgid "Eliminate render-blocking JavaScript and CSS in above-the-fold content"
+msgstr "Lapas pirmā ekrāna saturā izvairieties no renderēšanu bloķējošiem JavaScript un CSS resursiem."
 
 #  Title of this rule, which suggests
 #  removing/eliminating reflows (or "layouts", which is used
@@ -288,6 +441,21 @@ msgstr "Keep-Alive iespējošana"
 msgid "Enable compression"
 msgstr "Resursu saspiešanas iespējošana"
 
+#  The name of a Page Speed rule that tells users to improve
+#  their server response time. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Improve server response time"
+msgstr "Uzlabojiet servera atbildes laiku."
+
+#  Summary header indicating how long it took for the
+#  user's web server to respond to a request, and providing a link to
+#  more information about how one can measure and keep track of which
+#  aspects of the server's operation are consuming that time.  The
+#  "RESPONSE_TIME" placeholder will be replaced with the time taken by
+#  the server (e.g. "872 milliseconds").
+msgid "In our test, your server responded in %(RESPONSE_TIME)s. There are many factors that can slow down your server response time. %(BEGIN_LINK)sPlease read our recommendations%(END_LINK)s to learn how you can monitor and measure where your server is spending the most time."
+msgstr "Mūsu testā atbilde no jūsu servera tika saņemta pēc šāda laika: %(RESPONSE_TIME)s. Pastāv vairāki faktori, kas var palēnināt servera atbildes laiku. %(BEGIN_LINK)sLūdzu, izlasiet mūsu ieteikumus%(END_LINK)s, lai uzzinātu, kā veikt pārraudzīšanu un noteikt, kam jūsu serveris patērē visvairāk laika."
+
 #  Name of a Page Speed rule. A longer description
 #  would be "Insert (or move) small CSS resources directly into the
 #  HTML document" but rule names are intentionally short so we use
@@ -306,10 +474,24 @@ msgstr "Nelielu CSS resursu iekļaušana"
 msgid "Inline Small JavaScript"
 msgstr "Neliela JavaScript resursa iekļaušana"
 
-#  Detail of inline script block. The "$1" will be replace
-#  by the index of the script block (e.g. 3).
-msgid "Inline script block #$1"
-msgstr "Iekļautais skriptu bloks #$1"
+#  Rule name. This rule recommends serving a low quality
+#  version of the images that appear inside of the visible scroll
+#  region of the browser (i.e. the part of the page that the user
+#  can see without having to scroll down) inlined in the HTML
+#  response.
+msgid "Inline previews of visible images"
+msgstr "Iekļaut redzamo attēlu priekšskatījumus"
+
+#  The name of a Page Speed rule that tells users to inline CSS
+#  resources that block the initial render of the page.
+msgid "Inline render-blocking CSS"
+msgstr "Iekļaujiet renderēšanu bloķējošo CSS resursu."
+
+#  Detail of inline script block. The "INDEX"
+#  placeholder will be replaced by the index of the script block
+#  (e.g. "3").
+msgid "Inline script block #%(INDEX)s"
+msgstr "Iekļautais skripta bloks nr. %(INDEX)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made, as well as a brief summary
@@ -332,17 +514,36 @@ msgid "Leverage browser caching"
 msgstr "Pārlūka kešošanas izmantošana"
 
 #  Detail of external CSS resources. It tells the user
-#  how to fix the problem by moving the CSS to document head. The
-#  "$1" will be replaced by the CSS resource URL.
-msgid "Link node $1 should be moved to the document head."
-msgstr "Saites mezgls $1 ir jāpārvieto uz dokumenta galveni."
+#  how to fix the problem by moving the CSS to document head.
+msgid "Link node %(LINK_URL)s should be moved to the document head."
+msgstr "Saites mezgls %(LINK_URL)s ir jāpārvieto uz dokumenta daļu “head”."
 
-#  Detail info for one image URL. It tells the user how much can
-#  be save for one image. The "$1" will be replace the the image URL; "$2"
-#  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the percentage (e.g. 12%).
-msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
-msgstr "Saspiežot $1 bez datu zudumiem, varētu ietaupīt $2 ($3 samazinājums)."
+#  Rule name. This rule recommends loading the images
+#  that appear outside of the visible scroll region of the browser
+#  (i.e. the part of the page that the user needs to scroll down to
+#  see) after the images and resources needed to show the part
+#  within the initially visible region have loaded.
+msgid "Load visible images first"
+msgstr "Vispirms ielādēt redzamos attēlus"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having slow server response times. It describes the
+#  problem.
+msgid "Long web server response times delay page loading. Reduce your response times to make your page load faster."
+msgstr "Ilgs tīmekļa servera atbildes laiks aizkavē lapu ielādi. Lai jūsu lapas tiktu ielādētas ātrāk, jāsamazina atbildes laiks."
+
+#  Subheading that describes the savings possible from optimizing
+#  a particular image resource via lossless compression.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Veicot vienuma %(URL)s bezzudumu saspiešanu, varētu ietaupīt %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
+
+#  The name of a Pagespeed rule that tells users to make the
+#  most of visible content render-able by end of the HTML.
+msgid "Make content visible by end of HTML"
+msgstr "Padariet HTML dokumenta beigās esošo saturu redzamu."
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -370,41 +571,20 @@ msgid "Minify JavaScript"
 msgstr "JavaScript samazināšana"
 
 #  Subheading that describes the post-compression network savings
-#  possible from minifying a single resource. "$1" is a format token that
-#  will be replaced by the URL of the resource. "$2" will be replaced bythe
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction) after compression."
-msgstr "Samazinot $1, pēc saspiešanas varētu ietaupīt $2 ($3 samazinājums)."
+#  possible from minifying a single resource.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction) after compression."
+msgstr "Samazinot %(URL)s, pēc saspiešanas varētu ietaupīt %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
 
-#  Subheading that describes the savings possible from minifying a
-#  single resource. "$1" is a format token that will be replaced by the URL of
-#  the resource. "$2" will be replaced bythe absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction)."
-msgstr "Samazinot $1, varētu ietaupīt $2 ($3 samazinājums)."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
-msgstr "Tālāk minēto CSS resursu lielumu varētu samazināt par $1 ($2 samazinājums)."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
-msgstr "Tālāk minēto HTML resursu lielumu varētu samazināt par $1 ($2 samazinājums)."
-
-#  Heading that describes the savings possible from minifying
-#  resources.  "$1" will be replaced by the absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
-msgstr "Tālāk minēto JavaScript resursu lielumu varētu samazināt par $1 ($2 samazinājums)."
+#  Subheading that describes the savings possible from minifying
+#  a single resource.  The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved (e.g. "5
+#  bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Samazinot %(URL)s, varētu ietaupīt %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -425,6 +605,22 @@ msgstr "Novirzīšanas reižu skaita samazināšana"
 msgid "Minimize request size"
 msgstr "Pieprasījuma lieluma samazināšana"
 
+#  Summary header indicating that none of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be rendered
+#  without relying on any render-blocking resources.
+msgid "None of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Lapas pirmā ekrāna saturu nevarēja renderēt, negaidot, līdz ielādēsies tālāk norādītie resursi. Mēģiniet atlikt šo resursu ielādi vai veikt to asinhroni, vai arī iekļaujiet svarīgākās šo resursu daļas tieši HTML dokumentā."
+
+#  Summary header indicating how much of the above-the-fold
+#  (i.e. within the initial browser viewport) content of a webpage was
+#  able to be correctly rendered based on the HTML of the HTTP
+#  response.  This header will be followed by the URL for the page.
+#  The "PERCENTAGE" placeholder will be replaced with the percentage of
+#  the content that was ready (e.g. "36%").
+msgid "Only %(PERCENTAGE)s of the final above-the-fold content of the page was able to be rendered using the whole HTML of the HTTP response for the page URL:"
+msgstr "Tikai %(PERCENTAGE)s lapas pirmā ekrāna satura varēja renderēt, izmantojot visu HTTP atbildes HTML resursu lapas vietrādim URL:"
+
 #  The name of a Page Speed rule that tells users to optimize the
 #  images (better compression). This is displayed in a list of rule names that
 #  Page Speed generates.
@@ -437,20 +633,12 @@ msgstr "Attēlu optimizēšana"
 msgid "Optimize the order of styles and scripts"
 msgstr "Stilu un skriptu secības optimizēšana"
 
-#  Header at the top a list of image URLs that Page Speed detected
-#  as can be optimized by using better compression. It describes the problem
-#  to the user that the size of the images can be reduced. The "$1" will be
-#  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the percentage (e.g. 25%).
-msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
-msgstr "Optimizējot tālāk minētos attēlus, varētu samazināt to lielumu par $1 ($2 samazinājums)."
-
-#  Item showing how large the other request components is in a
-#  request that violates the MinimizeRequestSizeRule by being large. The
-#  "$1" will be replace by the total size of other components of the
-#  request in bytes (e.g. "5.3KiB").
-msgid "Other: $1"
-msgstr "Cits: $1"
+#  Item showing how large the other request components is in
+#  a request that violates the MinimizeRequestSizeRule by being
+#  large. The "SIZE_IN_BYTES" placeholder will be replaced by the total
+#  size of other components of the request in bytes (e.g. "5.3KiB").
+msgid "Other: %(SIZE_IN_BYTES)s"
+msgstr "Citi: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells users to parallelize
 #  downloads resources (image, css, javascript) across hostnames. This is
@@ -463,6 +651,17 @@ msgstr "Lejupielāžu sastatīšana starp saimniekdatoru nosaukumiem"
 #  Page Speed generates.
 msgid "Prefer asynchronous resources"
 msgstr "Priekšrokas došana asinhroniem resursiem"
+
+#  The name of a Page Speed rule that tells users to prioritize
+#  being able to render the initially-visible content of a page as early as
+#  possible.
+msgid "Prioritize visible content"
+msgstr "Piešķiriet prioritāti redzamajam saturam."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Properly formatting and compressing images can save many bytes of data."
+msgstr "Pareizi formatējot un saspiežot attēlus, var tikt ievērojami samazināts datu baitu apjoms."
 
 #  The name of a Page Speed rule that tells users to put CSS
 #  (style sheet) resources in HTML head. This is displayed in a list of
@@ -477,11 +676,18 @@ msgstr "CSS resursu ievietošana dokumenta galvenē"
 msgid "Reduce request serialization"
 msgstr "Pieprasījumu serializācijas samazināšana"
 
+#  The name of a Page Speed rule that tells users to
+#  reduce the time it takes for their HTML resource to be generated
+#  by the server.
+msgid "Reduce server response time"
+msgstr "Samaziniet servera atbildes laiku."
+
 #  Item showing how large the referrer URL is in a request
-#  that violates the MinimizeRequestSizeRule by being large. The "$1" will
-#  be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-msgid "Referer Url: $1"
-msgstr "Atsauces URL: $1"
+#  that violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  referrer URL in bytes (e.g. "5.3KiB").
+msgid "Referer Url: %(SIZE_IN_BYTES)s"
+msgstr "Novirzītāja URL: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells webmasters to remove
 #  query strings from the URLs of static resources (i.e.
@@ -499,10 +705,11 @@ msgid "Remove the following redirect chain if possible:"
 msgstr "Ja iespējams, noņemiet šo novirzīšanas ķēdi:"
 
 #  Item showing how large the URL is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the request URL in bytes (e.g. "5.3KiB").
-msgid "Request URL: $1"
-msgstr "Pieprasījuma URL: $1"
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  request URL in bytes (e.g. "5.3KiB").
+msgid "Request URL: %(SIZE_IN_BYTES)s"
+msgstr "Pieprasījuma URL: %(SIZE_IN_BYTES)s"
 
 #  Descriptive header at the top of a list of URLs that
 #  violate the RemoveQueryStringsFromStaticResources rule by using a query
@@ -527,6 +734,11 @@ msgstr "Resursu apkalpošana no nemainīga URL"
 msgid "Serve scaled images"
 msgstr "Mērogotu attēlu rādīšana"
 
+#  Summary sentence explaining briefly how HTTP browser
+#  cachine can be enabled, and why it is beneficial to do so.
+msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
+msgstr "Iestatot derīguma termiņu vai maksimālo vecumu statisku resursu HTTP galvenēs, pārlūkprogrammai tiek norādīts ielādēt iepriekš lejupielādētus resursus no lokālā diska, nevis no tīkla."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -550,6 +762,12 @@ msgstr "Kešatmiņas pārbaudītāja norādīšana"
 msgid "Specify a character set"
 msgstr "Rakstzīmju kopas norādīšana"
 
+#  The name of a Page Speed rule that tells users to specify
+#  a viewport for mobile devices. This is displayed in a list of rule names
+#  that Page Speed generates. "Viewport" is code and should not be translated.
+msgid "Specify a viewport for mobile browsers"
+msgstr "Norādiet apskates punktu mobilajām pārlūkprogrammām."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
 #  image that appears in the page.  This is displayed in a list of rule names
@@ -557,47 +775,44 @@ msgstr "Rakstzīmju kopas norādīšana"
 msgid "Specify image dimensions"
 msgstr "Attēlu izmēru norādīšana"
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains the number of times the code in this context
-#  executed, and $2 contains JavaScript code that gives
-#  the context of the reflow.
-msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
-msgstr "Tālāk minētais JavaScript izsaukuma steks (izpildīts $1 reizes) izraisīja plūduma sakārtošanu, kas ilga $2 milisekundes: $3"
+#  Header at the top of a list of URLs of Adobe Flash
+#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
+#  the number of Flash elements found.
+msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
+msgstr "Tālāk norādītie %(NUM_ELEMENTS)s Flash elementi ir iekļauti lapā vai no iekļautajiem ietvariem “iframe”. Programmatūra Adobe Flash Player netiek atbalstīta operētājsistēmā Apple iOS vai operētājsistēmas Android versijās, kas ir jaunākas par versiju 4.0.x. Apsveriet Flash objektu noņemšanu un aizstāšanu ar piemērotiem aizvietotājiem."
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains JavaScript code that gives the context of the
+#  Summary header indicating that the external CSS
+#  resources can be inlined in the HTML and still meet the 15k criteria.
+msgid "The following %(NUM_RESOURCES)s external CSS resources blocked the rendering before the browser was able to render most of the above-the-fold content. Inlining them and enabling compression (if it is not enabled already) will make your page render most of the above-the-fold content in the first 15kB."
+msgstr "Tālāk norādītie %(NUM_RESOURCES)s ārējie CSS resursi bloķēja renderēšanu, pirms pārlūkprogramma varēja renderēt lielāko daļu pirmā ekrāna satura. Iekļaujot tos un iespējojot saspiešanu (ja tas vēl nav izdarīts), lielākā daļa jūsu lapas pirmā ekrāna satura tiks renderēta pirmajos 15 KB."
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused multiple
+#  unnecessary reflows.
+msgid "The following JavaScript call stack (executed %(NUM_TIMES)s times) caused reflows that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Tālāk norādītais JavaScript izsaukšanas steks (izpildīts %(NUM_TIMES)s reizes) izraisīja plūduma sakārtošanu, kas aizņēma %(NUM_MILLISECONDS)s milisekundes: %(CALL_STACK)s"
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused an unnecessary
 #  reflow.
-msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
-msgstr "Tālāk minētais JavaScript izsaukuma steks izraisīja plūduma sakārtošanu, kas ilga $1 milisekundes: $2"
+msgid "The following JavaScript call stack caused a reflow that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Tālāk norādītais JavaScript izsaukšanas steks izraisīja plūduma sakārtošanu, kas aizņēma %(NUM_MILLISECONDS)s milisekundes: %(CALL_STACK)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made.
 msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
 msgstr "Tālāk minētie vietrāži URL izpilda JavaScript, kas uz ilgu laiku bloķē lietotāja interfeisu. Lai uzlabotu pārlūka darbību, optimizējiet JavaScript vai sadaliet to, izmantojot atzvanus."
 
-#  Heading that indicates which resources should
-#  have a longer cache freshness lifetime. Here "freshness
-#  lifetime" means the length of the period of time that the
-#  file can be reused without checking to see if there is a
-#  newer version of the file available.
-msgid "The following cacheable resources have a short freshness lifetime. Specify an expiration at least one week in the future for the following resources:"
-msgstr "Tālāk minētajiem kešatmiņā ievietojamajiem resursiem ir īss izmantošanas laiks. Norādiet derīguma termiņu vismaz vienu nedēļu uz priekšu šādiem resursiem:"
-
 #  Header at the top of a list of CSS URLs that Page
 #  Speed detected as not able to be downloaded in parallel. It
 #  describes the problem to the user, and tells them how to fix it
-#  by including the external CSS before external JavaScript. The
-#  "$1" will be replaced by URL of the HTML page.
-msgid "The following external CSS files were included after an external JavaScript file in $1.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
-msgstr "Tālāk minētie ārējie CSS faili tika ietverti pēc ārējā JavaScript faila vietrādī URL $1. Lai nodrošinātu, ka CSS faili tiek lejupielādēti paralēli, vienmēr iekļaujiet ārējo CSS pirms ārējā JavaScript."
+#  by including the external CSS before external JavaScript.
+msgid "The following external CSS files were included after an external JavaScript file in %(URL)s.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
+msgstr "Tālāk minētie ārējie CSS faili tika ietverti pēc ārējā JavaScript faila vietrādī %(URL)s. Lai nodrošinātu, ka CSS faili tiek lejupielādēti paralēli, vienmēr iekļaujiet ārējo CSS pirms ārējā JavaScript."
 
 #  Header at the top of the list of URLs that Page
 #  Speed detected as candidates for being moved directly into
@@ -608,13 +823,14 @@ msgstr "Tālāk minētajiem ārējiem resursiem ir neliela atbildes pamatdaļa. 
 
 #  Descriptive header at the top of a list of URLs that
 #  are imported by a style sheet using the @import rule ("@import"
-#  is code, and should not be translated).  It gives the URL of the
-#  style sheet that violates the AvoidCssImport rule (the $1
-#  parameter) by using @import --- the style sheets that it imports
-#  will be listed below it.  "$1" is a format token that will be
-#  replaced with the URL of the style sheet that uses @import.
-msgid "The following external stylesheets were included in $1 using @import."
-msgstr "Tālāk redzamās ārējās stilu lapas tika iekļautas vietrādī $1, izmantojot @import."
+#  is code, and should not be translated; it is represented by the
+#  "IMPORT" placeholder).  It gives the URL of the style sheet that
+#  violates the AvoidCssImport rule (the "URL" parameter) by
+#  using @import --- the style sheets that it imports will be
+#  listed below it.  The "URL" placeholder will be replaced with
+#  the URL of the style sheet that uses @import.
+msgid "The following external stylesheets were included in %(URL)s using %(IMPORT)s."
+msgstr "Tālāk redzamās ārējās stilu lapas tika iekļautas vietrādī %(URL)s, izmantojot %(IMPORT)s."
 
 #  Header at the top of a list of URLs of images that Page
 #  Speed detected as not having both width and height explicitly
@@ -622,41 +838,54 @@ msgstr "Tālāk redzamās ārējās stilu lapas tika iekļautas vietrādī $1, i
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "Tālāk redzamajam(-iem) attēlam(-iem) trūkst platuma un/vai augstuma atribūta."
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed outside of the initially visible region of the screen. Defer loading of these images to allow the initially visible region of the page to load faster."
+msgstr "Tālāk minētie attēli tiek rādīti ārpus sākotnēji redzamā ekrāna apgabala. Atlieciet šo attēlu ielādi, lai lapas sākotnēji redzamais apgabals tiktu ielādēts ātrāk."
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed within the initially visible region of the screen. To speed up rendering of the initially visible region of the page, inline a preview of these images and delay loading the full images until after page load is complete."
+msgstr "Tālāk redzamie attēli tiek rādīti sākotnēji redzamajā ekrāna apgabalā. Lai paātrinātu sākotnēji redzamā ekrāna apgabala atveidošanu, iekļaujiet šo attēlu priekšskatījumu un aizkavējiet pilnu attēlu ielādi, kamēr nav pabeigta lapas ielāde."
+
 #  A descriptive header at the top of a list of URLs of
 #  images that are resized in HTML or CSS.  It describes the problem to
-#  the user.  "$1" is a format token that is replaced with the total
-#  savings in bytes from serving images in their final size
-#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25%").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
-msgstr "Tālāk minēto attēlu lielums HTML vai CSS kodā tiek mainīts. Mērogotu attēlu rādīšana varētu ietaupīt $1 ($2 samazinājums)."
+#  the user.  The "SIZE_IN_BYTES" placeholder will be replaced with the
+#  total saved in bytes by serving the images with the correct dimensions
+#  (e.g. "32.5KiB").  The "PERCENTAGE" placeholder will be replaced with
+#  the percentage reduction of bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS. Serving scaled images could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Tālāk norādīto attēlu lielums HTML·vai·CSS·resursā·tiek·mainīts. Mērogotu attēlu rādīšana varētu ietaupīt %(SIZE_IN_BYTES)s (%(PERCENTAGE)s samazinājums)."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
 #  (that is, larger images containing a number of subimages, which can
 #  then be used to display a single subimage at a time by using CSS to
-#  reveal a different section of the large image in place of each of the
-#  original small images).  It describes the problem to the user, and
-#  tells them how to fix it by combining multiple small images into a
-#  larger image.  The "$1" is a format string that will be replaced with
-#  the URL of the page in which the small images appear.
-msgid "The following images served from $1 should be combined into as few images as possible using CSS sprites."
-msgstr "Tālāk redzamie·attēli, kurus rāda vietrādī URL $1, ir jāapvieno pēc iespējas mazākā failu skaitā, izmantojot CSS gariņus."
+#  reveal a different section of the large image in place of each of
+#  the original small images).  It describes the problem to the user,
+#  and tells them how to fix it by combining multiple small images into
+#  a larger image.  The "DOMAIN_NAME" placeholder will be replaced with
+#  the domain name of the page in which the small images appear
+#  (e.g. "www.example.com").
+msgid "The following images served from %(DOMAIN_NAME)s should be combined into as few images as possible using CSS sprites."
+msgstr "Tālāk redzamie·attēli, kurus rāda domēnā %(DOMAIN_NAME)s, ir jāapvieno pēc iespējas mazākā failu skaitā, izmantojot CSS gariņus."
 
 #  Header at the top of a list of inline javascript
 #  blocks that Page Speed detected as preventing parallel
 #  downloading.  It describes the problem to the user and tells them
 #  how to fix it by moving the inline script before the external CSS
-#  URL, or after the next resource. The "$1" will be replace by the
-#  URL of the HTML page.
-msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
-msgstr "Tālāk minētie iekļautie skriptu bloki tika atrasti vietrādī URL $1 starp ārējo CSS failu un citu resursu. Lai atļautu paralēlu lejupielādi, pārvietojiet iekļauto skriptu pirms ārējā CSS faila vai pēc nākamā resursa."
+#  URL, or after the next resource.
+msgid "The following inline script blocks were found in %(URL)s between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
+msgstr "Tālāk minētie iekļautie skriptu bloki tika atrasti vietrādī %(URL)s starp ārējo CSS failu un citu resursu. Lai atļautu paralēlu lejupielādi, pārvietojiet iekļauto skriptu pirms ārējā CSS faila vai pēc nākamā resursa."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as a chain of HTTP redirections. It tells the user to fix
 #  the problem by removing the URLs that redirect to others.
 msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
 msgstr "Tālāk minētās galvenās lapas novirzīšana nav kešojama. Padariet novirzīšanu kešojamu, lai samazinātu lapu ielādes laiku tiem apmeklētājiem, kuri atkārtoti apmeklē jūsu vietni."
+
+msgid "The following pages do not specify a viewport. Consider adding a meta tag specifying a viewport so mobile browsers can render the document at a usable size."
+msgstr "Tālāk minētajās lapās netiek norādīts apskates punkts. Pievienojiet metatagu, kurā ir norādīts apskates punkts, lai mobilajās pārlūkprogrammās dokumentu varētu renderēt lietojamā izmērā."
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -700,16 +929,23 @@ msgstr "Tālāk minētie resursi tiek ielādēti vienlaikus. Ielādējiet tos as
 msgid "The following resources are missing a cache validator. Resources that do not specify a cache validator cannot be refreshed efficiently. Specify a Last-Modified or ETag header to enable cache validation for the following resources:"
 msgstr "Tālāk minētajiem resursiem trūkst kešatmiņas pārbaudītāja. Resursus, kuriem nav norādīts kešatmiņas pārbaudītājs, nevar efektīvi atsvaidzināt. Norādiet Last-Modified vai ETag galveni, lai iespējotu kešatmiņas pārbaudi šādiem resursiem:"
 
+#  Header at the top of a list of URLs that Page
+#  Speed detected as declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) in an HTML meta tag. It
+#  describes the problem to the user, and tells them how to fix
+#  it by explicitly specifying the character set in the HTTP
+#  Content-Type response header.
+msgid "The following resources have a character set specified in a meta tag. Specifying a character set in a meta tag disables the lookahead downloader in IE8. To improve resource download parallelization, move the character set to the HTTP Content-Type response header."
+msgstr "Tālāk redzamajos resursos metatagā ir norādīta rakstzīmju kopa. Nosakot rakstzīmju kopu metatagā, pārlūkprogrammā IE8 tiek atspējots algoritma priekšskatīšanas lejupielādētājs. Lai uzlabotu resursu lejupielādes sastatīšanu, pārvietojiet rakstzīmju kopu uz HTTP satura tipa atbildes galveni."
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being identical yet served multiple times from different
 #  URLs.  It describes the problem to the user, and tells them how to
-#  fix it by serving all these resources from the same URL.  The "$1"
-#  is a format string that will be replaced with the number of requests
-#  that could be saved (e.g. "3"); the "$2" is a format string that
-#  will be replaced with the number of bytes that could be saved
-#  (e.g. "12.3kB").
-msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save $1 request(s) and $2."
-msgstr "Tālāk minētajiem resursiem ir identisks saturs, taču tos apkalpo dažādi vietrāži URL. Apkalpojiet šos resursus no viena URL, lai ietaupītu $1 pieprasījumu(-s) un $2."
+#  fix it by serving all these resources from the same URL.  The
+#  "BYTES_SAVED" placeholder will be replaced with the amount of
+#  transferred data that could be saved (e.g. "12.3kB").
+msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save %(NUM_REQUESTS)s request(s) and %(BYTES_SAVED)s."
+msgstr "Tālāk minētajiem resursiem ir identisks saturs, taču tie tiek rādīti no dažādiem vietrāžiem URL. Rādiet šos resursus no viena URL, lai ietaupītu %(NUM_REQUESTS)s pieprasījumu(-s) un %(BYTES_SAVED)s."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as not declaring the character set (e.g. UTF-8,
@@ -719,14 +955,15 @@ msgstr "Tālāk minētajiem resursiem ir identisks saturs, taču tos apkalpo da�
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "Tālāk minēto resursu HTTP galvenēs nav norādīta rakstzīmju kopa. Ja HTTP galvenēs ir norādīta rakstzīmju kopa, var tikt paātrināta pārlūka renderēšana."
 
-#  Header at the top of a list of URLs of resources that are
-#  served from a domain that does not have HTTP Keep-Alive enabled.  It
-#  tells the user to enable keep-alive on that domain.  The "$1" is a
-#  format string that will be replaced with the domain in question.
-#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  Header at the top of a list of URLs of resources that
+#  are served from a domain that does not have HTTP Keep-Alive enabled.
+#  It tells the user to enable keep-alive on that host.  The
+#  "HOST_NAME" placeholder gives the name of the host
+#  (e.g. "www.example.com").  The "KEEPALIVE" placeholder is replaced
+#  with the string "Keep-Alive", which is code that should not be
 #  translated.
-msgid "The host $1 should enable Keep-Alive. It serves the following resources."
-msgstr "Saimniekdatora domēnā $1 ir jāiespējo Keep-Alive. Tas apkalpo tālāk minētos resursus."
+msgid "The host %(HOST_NAME)s should enable %(KEEPALIVE)s. It serves the following resources."
+msgstr "Saimniekdatora domēnā %(HOST_NAME)s ir jāiespējo %(KEEPALIVE)s. Tas rāda tālāk minētos resursus."
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -745,33 +982,26 @@ msgstr "Tālāk minēto vietrāžu URL pieprasījumi nesatilpst vienā paketē. 
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced with the number of CSS files loaded
-#  from the given domain. "$2" will be replaced by the domain name from
-#  which all the CSS files were loaded.
-msgid "There are $1 CSS files served from $2. They should be combined into as few files as possible."
-msgstr "Pastāv $1 CSS faili, kurus apkalpo domēns $2. Tie jāapvieno, lai failu skaits būtu pēc iespējas mazāks."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s CSS files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "No domēna %(DOMAIN_NAME)s tiek rādīti %(NUM_FILES)s faili. Tie jāapvieno, lai failu skaits būtu pēc iespējas mazāks."
 
 #  Descriptive header describing a list of JavaScript resources
 #  that are all served from a single domain (in violation of the
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced by the number of JavaScript files
-#  loaded from the given domain.  "$2" will be replaced by the domain name
-#  from which all the JavaScript files were loaded.
-msgid "There are $1 JavaScript files served from $2. They should be combined into as few files as possible."
-msgstr "Pastāv $1 JavaScript faili, kurus apkalpo domēns $2. Tie jāapvieno, lai failu skaits būtu pēc iespējas mazāks."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s JavaScript files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "No domēna %(NUM_FILES)s tiek rādīti %(DOMAIN_NAME)s CSS faili. Tie jāapvieno, lai failu skaits būtu pēc iespējas mazāks."
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as from one host. It describes the problem to the user,
-#  and tells them how to fix it by distributing the requests across
-#  multiple hostnames. The "$1" will be replace by the number of the
-#  URLs; the "$2" wil be replaced by the name of the host (e.g.
-#  google.com).
-msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
-msgstr "Šī lapa veic $1 sastatāmus pieprasījumus saimniekdatorā $2. Palieliniet lejupielādes sastatīšanu, izplatot šos pieprasījumus pa vairākiem saimniekdatoru nosaukumiem:"
+#  detected as being loaded from one hostname
+#  (e.g. "example.com"). It describes the problem to the user, and
+#  tells them how to fix it by distributing the requests across
+#  multiple hostnames.
+msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
+msgstr "Šī lapa veic %(NUM_REQUESTS)s sastatāmus pieprasījumus saimniekdatorā %(HOSTNAME)s. Palieliniet lejupielādes sastatīšanu, izplatot šos pieprasījumus pa vairākiem saimniekdatoru nosaukumiem."
 
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
@@ -786,10 +1016,31 @@ msgstr "Lietojumprogrammas kešatmiņas izmantošana"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Izmantojot lietojumprogrammas kešatmiņu, lapa tiek parādīta nekavējoties. Tālāk minētie HTML dokumenti var izmantot lietojumprogrammas kešatmiņu, lai samazinātu laiku, kas nepieciešams lietotāju mijiedarbībai ar lapu."
 
-#  This appears as a header before a list of URLs of resources
-#  that use the JavaScript command "document.write" ("document.write" is
-#  code, and should not be translated).  It describes how using
-#  "document.write" can slow down your website (by forcing external
-#  resources to load serially, not in parallel).
-msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
-msgstr "Ja tiek izmantota komanda document.write, lai iegūtu ārējos resursus, iespējams, radīsies serializācijas aizkaves lapas renderēšanas procesā. Tālāk minētie resursi izmanto komandu document.write, lai iegūtu ārējos resursus:"
+#  Summary header indicating the number of CSS resources
+#  that are blocking the webpage from rendering while loading.
+msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "Jūsu lapā ir %(NUM_CSS)s bloķējoši CSS resursi. Tādējādi rodas jūsu lapas renderēšanas aizkave."
+
+msgid "Your page has %(NUM_REDIRECTS)s redirects. Redirects introduce additional delays before the page can be loaded."
+msgstr "Jūsu lapā ir %(NUM_REDIRECTS)s novirzīšanas URL. Novirzīšanas URL aizkavē lapas ielādi."
+
+#  Summary header indicating the number of Javascript
+#  resources and the number of CSS resources that are blocking the
+#  webpage from rendering while loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources and %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "Jūsu lapā ir %(NUM_SCRIPTS)s bloķējoši skriptu resursi un %(NUM_CSS)s bloķējoši CSS resursi. Tādējādi rodas jūsu lapas renderēšanas aizkave."
+
+#  Summary header indicating the number of Javascript
+#  resources that are blocking the webpage from rendering while
+#  loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
+msgstr "Jūsu lapā ir %(NUM_SCRIPTS)s bloķējoši skriptu resursi. Tādējādi rodas jūsu lapas renderēšanas aizkave."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where the
+#  upper portion of the front page that is above the fold of the paper is
+#  immediately visible to the reader.)
+msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
+msgstr "Lai attēlotu jūsu lapas pirmā ekrāna saturu, ir nepieciešams vairāk tīkla aprišu. Lai nodrošinātu vislabāko veiktspēju, samaziniet HTML apjomu, kas nepieciešams pirmā ekrāna satura atveidei."

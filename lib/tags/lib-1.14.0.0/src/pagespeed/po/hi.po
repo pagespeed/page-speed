@@ -1,166 +1,288 @@
-#  Page Speed result for a single resource that should
-#  defer parsing its inline JavaScript. The "$1"  will be replaced
-#  by the document (HTML page, or a iframe) URL; the "$2" will be
-#  replaced by the size of its inline JavaScripts.
-msgid "$1 ($2 of inline JavaScript)"
-msgstr "$1 (इनलाइन JavaScript का $2)"
+#  Header at the top of a list of URLs that Page
+#  Speed detected as a chain of HTTP redirections. It tells the
+#  user to fix the problem by removing the URLs that redirect to
+#  others. The text between BEGIN_LINK and END_LINK will be
+#  displayed as a clickable link in the browser, which takes the
+#  user to a document providing additional information.
+msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
+msgstr "रीडायरेक्‍ट किए गए URL की निम्‍न श्रृंखला के लिए %(BEGIN_LINK)sलैंडिंग पृष्ठ रीडायरेक्‍ट से बचें%(END_LINK)s."
 
-#  Shown as part of a list of unnecessary reflows
-#  (or "layouts", which is used interchangeably with the word
-#  "reflows" in the web performance community). Shows a URL
-#  at $1, and the number of unnecessary reflows for that URL
-#  at $2.
-msgid "$1 ($2 reflows)"
-msgstr "$1 ($2 रीफ़्लो)"
+#  Descriptive header for a list of URLs that were
+#  served uncompressed, in violation of the EnableGzipCompression
+#  rule.  It tells the webmaster that compressing all of those
+#  resources could reduce the amount of data transferred (which
+#  would speed up the site). It is followed by a list of
+#  uncompressed resource URLs. The text between BEGIN_LINK and
+#  END_LINK will link to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sEnable compression%(END_LINK)s for the following resources to reduce their transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "निम्‍न संसाधनों के स्‍थानांतरण आकार को %(SIZE_IN_BYTES)s (%(PERCENTAGE)s कमी) तक कम करने के लिए उनका %(BEGIN_LINK)sसंपीड़न सक्षम करें%(END_LINK)s."
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240").
-msgid "$1 (Dimensions: $2 x $3)"
-msgstr "$1 (आयाम: $2 x $3)"
+#  Heading that indicates which resources should
+#  make use of browser caching. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the
+#  browser, which takes the user to a document providing
+#  additional information.
+msgid "%(BEGIN_LINK)sLeverage browser caching%(END_LINK)s for the following cacheable resources:"
+msgstr "निम्‍न संचित किए जाने योग्‍य संसाधनों के लिए %(BEGIN_LINK)sब्राउज़र कैशिंग का लाभ उठाएं%(END_LINK)s:"
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240"); the $4 is a format
-#  token that will be replaced with the number of times this image
-#  appears in the page (e.g. "3").
-msgid "$1 (Dimensions: $2 x $3) ($4 uses)"
-msgstr "$1 (आयाम: $2 x $3) ($4 प्रदर्शन)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify CSS%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "निम्‍न संसाधनों के आकार को %(SIZE_IN_BYTES)s (%(PERCENTAGE)s कमी) तक कम करने के लिए उनका %(BEGIN_LINK)sCSS को न्यूनतम कम करें%(END_LINK)s."
 
-#  Item describing a single URL that violates the
-#  LeverageBrowserCaching rule by not having a cache expiration.
-#  "$1" is a format string that will be replaced by the URL.
-msgid "$1 (expiration not specified)"
-msgstr "$1 (समाप्ति निर्दिष्ट नहीं)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify HTML%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "निम्‍न संसाधनों के आकार को %(SIZE_IN_BYTES)s (%(PERCENTAGE)s कमी) तक कम करने के लिए उनका %(BEGIN_LINK)sHTML को न्यूनतम करें%(END_LINK)s."
 
-#  Describes a single resource that violates the
-#  AvoidDocumentWrite rule by using the "document.write"
-#  JavaScript command ("document.write" is code, and should not
-#  be translated).  It gives the URL of the resource that uses
-#  "document.write", and the line number of that
-#  call.  Following this will be a list of the URLs that are
-#  fetched as a result of that "document.write" call.  "$1" is a
-#  format token that will be replaced with the URL of the
-#  external resource that uses "document.write".  "$2" will be
-#  replaced with the line number of the call to "document.write"
-#  in that resource.
-msgid "$1 calls document.write on line $2 to fetch:"
-msgstr "इसे लाने के लिए $1 पंक्ति $2 पर document.write को कॉल करता है:"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify JavaScript%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "निम्‍न संसाधनों के आकार को %(SIZE_IN_BYTES)s (%(PERCENTAGE)s कमी) तक कम करने के लिए %(BEGIN_LINK)sJavaScript को न्‍यूनतम करें%(END_LINK)s."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the render of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sOptimize CSS Delivery%(END_LINK)s of the following:"
+msgstr "निम्‍न का %(BEGIN_LINK)sCSS वितरण अनुकूलित करें%(END_LINK)s:"
+
+#  Header at the top a list of image URLs that Page
+#  Speed detected as can be optimized by using better
+#  compression. It describes the problem to the user that the size
+#  of the images can be reduced. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the browser,
+#  which takes the user to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "निम्‍न चित्रों के आकार को %(SIZE_IN_BYTES)s (%(PERCENTAGE)s कमी) तक कम करने के लिए %(BEGIN_LINK)s‍चित्रों को अनुकूलित करें%(END_LINK)s."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "उन %(BEGIN_LINK)sदृश्यमान सामग्री को प्राथमिकता दें%(END_LINK)s, जो ऊपरी आधे भाग की सामग्री को रेंडर करने के लिए आवश्‍यक है."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the parser of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sRemove render-blocking JavaScript%(END_LINK)s:"
+msgstr "%(BEGIN_LINK)sरेंडर को अवरुद्ध करने वाली JavaScript निकालें%(END_LINK)s:"
+
+#  Header at the top of a list of URLs that PageSpeed
+#  determined were blocking the parser of above-the-fold content that
+#  can be made asynchronous. The text between BEGIN_LINK and END_LINK
+#  will link to a document providing additional information.
+msgid "%(BEGIN_LINK)sUse asynchronous versions%(END_LINK)s of the following scripts:"
+msgstr "निम्‍न स्‍क्रिप्‍ट के %(BEGIN_LINK)sएसिंक्रोनस संस्‍करणों का उपयोग करें%(END_LINK)s:"
 
 #  The document that Page Speed detected as have CSS
-#  resources in document body. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body."
-msgstr "$1 के पास दस्‍तावेज़ के मुख्‍य भाग में CSS है."
+#  resources in document body.
+msgid "%(DOCUMENT_URL)s has CSS in the document body."
+msgstr "%(DOCUMENT_URL)s में दस्‍तावेज़ के मुख्‍य भाग में CSS है."
 
 #  Header of a list of items the Page Speed suggests to
-#  move to document head. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body:"
-msgstr "$1 में दस्‍तावेज़ के मुख्‍य भाग में CSS है:"
+#  move to document head.
+msgid "%(DOCUMENT_URL)s has CSS in the document body:"
+msgstr "%(DOCUMENT_URL)s में दस्‍तावेज़ के मुख्‍य भाग में CSS है:"
 
-#  Item describing a URL that violates the MinimzeRequestSize
-#  rule by having a large request size. The "$1" in the format string will
-#  be replaced by the URL; the "$2" will be replaced by the number of bytes
-#  in the request. This is displayed at the top of a breakdown of how large
-#  each element of the request is.
-#.
-msgid "$1 has a request size of $2"
-msgstr "$1 का अनुरोध आकार $2 है"
+#  List item indicating that a particular HTML document
+#  loads a particular resource file synchronously (rather than
+#  asynchronously).
+msgid "%(DOCUMENT_URL)s loads %(RESOURCE_URL)s synchronously."
+msgstr "%(DOCUMENT_URL)s, %(RESOURCE_URL)s को सिंक्रोनस रूप से लोड करता है."
 
-#  Message displayed to indicate that a URL
-#  redirects to another URL, e.g "http://example.com/ is an
-#  uncacheable redirect to http://www.example.com/".
-msgid "$1 is an uncacheable redirect to $2"
-msgstr "$1, $2 के लिए कैश न करने योग्य रीडायरेक्ट है"
+#  An amount of bytes with abbreviated unit.  The "NUM_BYTES"
+#  placeholder is replaced with the number of bytes (e.g. "93",
+#  representing 93 bytes).
+msgid "%(NUM_BYTES)sB"
+msgstr "%(NUM_BYTES)sB"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the served size of the image, the final size of the
-#  image, and the amount saved by serving the image in the final size.
-#  "$1" is a format token that will be replaced with the URL of the image
-#  resource.  "$2" and "$3" will be replaced with the original (served)
-#  width and height (respectively) of the image resource.  "$4" and "$5"
-#  will be replaced with the final (resized) width and height
-#  (respectively) of the image resource.  "$6" will be replaced with the
-#  amount saved (in bytes) by serving the image correctly size (e.g.
-#  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25%").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
-msgstr "HTML या CSS में $1 का आकार $2x$3 से बदलकर $4x$5 कर दिया गया है. किसी आकार बदली गई छवि को सर्व करने से $6 की बचत हो सकती है ($7 की कमी)."
+#  An amount of kilobytes with abbreviated unit.  The
+#  "NUM_KILOBYTES" placeholder is replaced with the number of kilobytes
+#  (e.g. "32.5", representing 32.5 kilobytes).
+msgid "%(NUM_KILOBYTES)sKiB"
+msgstr "%(NUM_KILOBYTES)sKiB"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the amount saved by serving the image in its final
-#  size.  "$1" is a format token that will be replaced with the URL of the
-#  image resource.  "$2" will be replaced with the amount saved (in bytes)
-#  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25%").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
-msgstr "HTML या CSS में $1 का आकार बदला गया है. किसी आकार बदली गई छवि को सर्व करने से $2 की बचत हो सकती है ($3 की कमी)."
+#  An amount of megabytes with abbreviated unit.  The
+#  "NUM_MEGABYTES" placeholder is replaced with the number of megabytes
+#  (e.g. "32.5", representing 32.5 megabytes).
+msgid "%(NUM_MEGABYTES)sMiB"
+msgstr "%(NUM_MEGABYTES)sMiB"
 
-#  Shown as part of a list of URLs that initiate JavaScript
-#  scripts that run for a long time.  Shows a URL at $1, the line
-#  number (of the file at that URL that triggers the script URL) at $2,
-#  and the length of time the scripts runs for at $3.
-msgid "$1 line $2 ($3)"
-msgstr "$1 पंक्ति $2 ($3)"
+#  Detail of the inline CSS. It tells the user how many
+#  style blocks should be moved to document head.
+msgid "%(NUM_STYLE_BLOCKS)s style block(s) in the body should be moved to the document head."
+msgstr "मुख्‍य भाग में %(NUM_STYLE_BLOCKS)s शैली अवरोध (अवरोधों) को दस्‍तावेज़ के शीर्ष पर ले जाना चाहिए."
 
-#  Detail for resource that loads synchronously. The "$1" will
-#  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
-#  be replaced by the resource URL.
-msgid "$1 loads $2 synchronously."
-msgstr "$1, $2 को साथ में लोड करता है."
+#  Message displayed to indicate that one URL redirects to
+#  another URL, e.g "http://example.com/ is an uncacheable redirect to
+#  http://www.example.com/".
+msgid "%(ORIGINAL_URL)s is an uncacheable redirect to %(TARGET_URL)s"
+msgstr "%(ORIGINAL_URL)s, %(TARGET_URL)s पर संचित नहीं करने योग्‍य रीडायरेक्‍ट है"
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected to have JavaScript code. It describes the problem and tells
-#  the user how to fix by defering parsing the JavaScript code.
-msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
-msgstr "JavaScript के $1 को प्रारंभिक पृष्ठ लोड के दौरान पार्स किया गया है. पृष्ठ रेंडरिंग का अवरुद्ध किया जाना कम करने के लिए JavaScript को पार्स करना स्‍थगित करें."
+#  the user how to fix by defering parsing the JavaScript code.  The
+#  "SIZE_IN_BYTES" placeholder indicates how much Javascript data is
+#  begin parsed (e.g. "273.1KB").
+msgid "%(SIZE_IN_BYTES)s of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "JavaScript के %(SIZE_IN_BYTES)s को प्रारंभिक पृष्ठ लोड के दौरान पार्स किया गया है. पृष्ठ रेंडरिंग का अवरुद्ध किया जाना कम करने के लिए JavaScript को पार्स करना स्‍थगित करें."
 
-#  A sub-heading that contains the URL of the document and
-#  a statement instructing the user to inline certain small resources.
-#  "$1" is a format token that will be replaced with the URL of the
-#  document that contains the resources that can be inserted directly
-#  into the HTML document.
-msgid "$1 should inline the following small resources:"
-msgstr "$1 को निम्‍न छोटे संसाधनों को इनलाइन करना चाहिए:"
+#  Summary header indicating how much of the server's
+#  HTML response, in bytes, was needed by the browser in order to
+#  render the above-the-fold content, and recommending that the user
+#  place priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)  The "SIZE_IN_BYTES"
+#  is the actual amount of HTML content needed to render the above
+#  the full fold content (e.g. "24.3kB").
+msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "ऊपरी आधे भाग की सामग्री को रेंडर करने के लिए %(SIZE_IN_BYTES)s के जवाब की आवश्‍यकता थी. उन %(BEGIN_LINK)sदृश्यमान सामग्री को प्राथमिकता दें%(END_LINK)s, जो ऊपरी आधे भाग को रेंडर करने के लिए आवश्‍यक है."
 
-#  Detail of the inline CSS. It tells the user how many
-#  style blocks should be moved to document head. The "$1" will be
-#  replaced by the number of style blocks.
-msgid "$1 style block(s) in the body should be moved to the document head."
-msgstr "मुख्‍य भाग में $1 शैली अवरोध (अवरोधों) को दस्‍तावेज़ के शीर्ष मुख्य भाग में ले जाना चाहिए."
+#  Shown as part of a list of URLs that have unnecessary
+#  reflows (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community).  The message indicates
+#  the URL and the number of reflows that it requires.
+msgid "%(URL)s (%(NUM_REFLOWS)s reflows)"
+msgstr "%(URL)s (%(NUM_REFLOWS)s पुन: प्रवाह)"
 
-#  An amount of bytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of bytes (e.g. "93",
-#  representing 93 bytes).
-msgid "$1B"
-msgstr "$1B"
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "URL" placeholder will be
+#  replaced by the document (HTML page, or a iframe) URL; the
+#  "SIZE_IN_BYTES" will be replaced by the size of its inline
+#  JavaScripts (e.g. "273.1KB").
+msgid "%(URL)s (%(SIZE_IN_BYTES)s of inline JavaScript)"
+msgstr "%(URL)s (%(SIZE_IN_BYTES)s की इनलाइन JavaScript)"
 
-#  An amount of kilobytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of kilobytes (e.g. "32.5",
-#  representing 32.5 kilobytes).
-msgid "$1KiB"
-msgstr "$1KiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s)"
+msgstr "%(URL)s (आयाम: %(WIDTH)s x %(HEIGHT)s)"
 
-#  An amount of megabytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of megabytes (e.g. "32.5",
-#  representing 32.5 megabytes).
-msgid "$1MiB"
-msgstr "$1MiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s uses)"
+msgstr "%(URL)s (आयाम: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s बार उपयोग)"
+
+#  Item describing a single URL that violates the
+#  LeverageBrowserCaching rule by not having a specified cache expiration
+#  time.
+msgid "%(URL)s (expiration not specified)"
+msgstr "%(URL)s (समापन की समय सीमा निर्दिष्ट नहीं)"
+
+#  Item describing a URL that violates the
+#  MinimzeRequestSize rule by having a large request size. The "URL"
+#  placeholder will be replaced by the URL; the "SIZE_IN_BYTES"
+#  placeholder will be replaced by the number of bytes in the request
+#  (e.g. "1492 bytes"). This is displayed at the top of a breakdown of
+#  how large each element of the request is.
+msgid "%(URL)s has a request size of %(SIZE_IN_BYTES)s"
+msgstr "%(URL)s में %(SIZE_IN_BYTES)s के आकार का अनुरोध है"
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the original size of the image, the final
+#  size of the image, and the amount saved by serving the image in
+#  the final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").  The "ORIGINAL_WIDTH x ORIGINAL_HEIGHT"
+#  gives the natural size of the image file (e.g. "640x480"), while
+#  the "FINAL_WIDTH x FINAL_HEIGHT" gives the size to which the
+#  image has been resized by the HTML or CSS (e.g. "160x120").
+msgid "%(URL)s is resized in HTML or CSS from %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s to %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "HTML या CSS में %(URL)s का आकार %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s से %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s में बदल दिया गया है. किसी आकार बदले गए चित्र को सर्व करने से %(SIZE_IN_BYTES)s (%(PERCENTAGE)s की कमी) की बचत हो सकती है."
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the amount saved by serving the image in
+#  its final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").
+msgid "%(URL)s is resized in HTML or CSS. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "HTML या CSS में %(URL)s का आकार बदल दिया गया है. किसी आकार बदले गए चित्र को सर्व करने से %(SIZE_IN_BYTES)s (%(PERCENTAGE)s की कमी) की बचत हो सकती है."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL, the line number (of
+#  the file at that URL that triggers the script URL), and the duration
+#  of time for which the scripts runs.
+msgid "%(URL)s line %(LINE_NUMBER)s (%(DURATION)s)"
+msgstr "%(URL)s पंक्ति %(LINE_NUMBER)s (%(DURATION)s)"
+
+#  A sub-heading that contains the URL of the document
+#  and a statement instructing the user to inline certain small
+#  resources.  The "URL" placeholder will be replaced with the URL of
+#  the document that contains the resources that can be inserted
+#  directly into the HTML document.
+msgid "%(URL)s should inline the following small resources:"
+msgstr "%(URL)s को निम्‍न छोटे संसाधनों को इनलाइन करना चाहिए:"
+
+#  Summary header indicating how much of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be correctly
+#  rendered without relying on any render-blocking
+#  resources.  The "PERCENTAGE" placeholder will be
+#  replaced with the percentage of the content that was
+#  ready (e.g. "85%").
+msgid "Approximately %(PERCENTAGE)s of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "आपके पृष्ठ पर ऊपरी भाग की लगभग %(PERCENTAGE)s सामग्री निम्न संसाधनों के लोड होने की प्रतीक्षा किए बिना रेंडर की जा सकती है. अवरोधित करने वाले संसाधनों को स्थगित करने या एसिंक्रोनस रूप से लोड करने का प्रयास करें, या उन संसाधनों के महत्वपूर्ण भागों को सीधे HTML में इनलाइन करें."
 
 #  The name of a Page Speed rule telling webmasters to avoid using
 #  the @import directive in their CSS style sheets ("@import" is code, and
@@ -170,6 +292,12 @@ msgstr "$1MiB"
 msgid "Avoid CSS @import"
 msgstr "CSS @import से बचें"
 
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages do not specify a character set in an HTML meta tag.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid a character set in the meta tag"
+msgstr "मेटा टैग में वर्ण सेट से बचें"
+
 #  The name of a Page Speed rule that tells users to try and avoid
 #  writing pages that generate bad HTTP requests (i.e. requests that return
 #  HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
@@ -178,13 +306,17 @@ msgstr "CSS @import से बचें"
 msgid "Avoid bad requests"
 msgstr "ग़लत अनुरोधों से बचें"
 
-#  The name of a Page Speed rule that tells webmasters to avoid
-#  using the "document.write" command in their JavaScript code
-#  ("document.write" is code, and should not be translated).  This appears in
-#  a list of rule names generated by Page Speed, telling webmasters which
-#  rules they broke in their website.
-msgid "Avoid document.write"
-msgstr "document.write से बचें"
+#  The name of a Page Speed rule that tells users to avoid using
+#  Adobe Flash on mobile webpages
+msgid "Avoid flash on mobile webpages"
+msgstr "मोबाइल वेबपृष्ठों पर flash से बचें"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid landing page redirects"
+msgstr "लैंडिंग पृष्ठ रीडायरेक्ट से बचें"
 
 #  The name of a Page Speed rule that tells users to try
 #  and avoid writing pages with Javascript scripts that run for a
@@ -224,47 +356,68 @@ msgstr "बाह्य JavaScript संयोजित करें"
 msgid "Combine images into CSS sprites"
 msgstr "छवियों को CSS स्‍प्राइट में संयोजित करें"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting CSS code can save many bytes of data and speed up download and parse times."
+msgstr "CSS कोड को संक्षिप्‍त करने से कई बाइट डेटा बचाया जा सकता है और डाउनलोड करने तथा पार्स करने के समय में तेज़ी लाई जा सकती है."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting HTML code, including any inline JavaScript and CSS contained in it, can save many bytes of data and speed up download and parse times."
+msgstr "HTML कोड, साथ ही इनलाइन JavaScript और CSS को संक्षिप्त करने से कई बाइट डेटा बचाया जा सकता है और डाउनलोड करने तथा पार्स करने के समय में तेज़ी लाई जा सकती है."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting JavaScript code can save many bytes of data and speed up downloading, parsing, and execution time."
+msgstr "JavaScript कोड को संक्षिप्‍त करने से कई बाइट डेटा बचाया जा सकता है और डाउनलोड करने, पार्स करने, एवं निष्‍पादन के समय में तेज़ी लाई जा सकती है."
+
 #  Description of a single resource that was served uncompressed,
 #  in violation of the EnableGzipCompression rule.  It gives the URL of the
-#  resource, as well as the amount of data that would be saved by compressing.
-#  It appears in a list of all the uncompressed resources on a site.  "$1" is
-#  a format token that will be replaced with the URL of the uncompressed
-#  resource in question.  "$2" will be replaced with the amount of data
-#  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3 reduction)."
-msgstr "$1 को संपीड़ित करने से $2 की बचत हो सकती है ($3% की कमी)."
+#  resource, as well as the amount of data that would be saved by
+#  compressing.  It appears in a list of all the uncompressed resources on a
+#  site.  The "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
+#  savings (e.g. "50%").
+msgid "Compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(URL)s को संपीड़ित करने से %(SIZE_IN_BYTES)s की बचत की जा सकती है (%(PERCENTAGE)s की कमी)."
 
-#  Descriptive header for a list of URLs that were served
-#  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
-#  webmaster that compressing all of those resources could reduce the amount
-#  of data transferred (which would speed up the site).  It is followed by a
-#  list of uncompressed resource URLs.  "$1" is a format token that will be
-#  replaced by the amount of data transferred saved by compressing (in bytes)
-#  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25%").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
-msgstr "निम्न संसाधनों को gzip के साथ संपीड़ित करने से उनका स्थानांतरण आकार $1 तक कम हो सकता है ($2 की कमी)."
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compressing resources with gzip or deflate can reduce the number of bytes sent over the network."
+msgstr "gzip या deflate वाले संसाधनों को संपीड़ित करने से नेटवर्क पर भेजी गई बाइट की संख्‍या में कमी आ सकती है."
 
-#  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1"
-msgstr "कुकी: $1"
+#  Summary header indicating that compressing will bring
+#  the page to meeting the criteria (the above the fold content is
+#  rendered on the first 15 kilobytes).
+msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
+msgstr "आपके पृष्ठ के HTML को संपीड़ित करके आपका पृष्ठ जवाब के पहले 15kB में ऊपरी आधे भाग की अधिकांश सामग्री को रेंडर कर सकता है."
 
 #  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. It also tell the
-#  user that the resource is static, and it should be served from a
-#  cookieless domain. The "$1" will be replace by the size of the
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
 #  cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
-msgstr "कुकी: $1 (ध्‍यान रखें कि यह एक स्थिर संसाधन है, और इसे कुकी-रहित डोमेन से सर्व किया जाना चाहिए)"
+msgid "Cookies: %(SIZE_IN_BYTES)s"
+msgstr "कुकी: %(SIZE_IN_BYTES)s"
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. It also tell
+#  the user that the resource is static, and it should be served from a
+#  cookieless domain. The "SIZE_IN_BYTES" placeholder will be replaced
+#  by the size of the cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: %(SIZE_IN_BYTES)s (note that this is a static resource, and should be served from a cookieless domain)"
+msgstr "कुकी: %(SIZE_IN_BYTES)s (ध्‍यान रखें कि यह एक स्थिर संसाधन है, और इसे कुकी-रहित डोमेन से सर्व किया जाना चाहिए)"
 
 #  The name of a Page Speed rule that tells users to defer
 #  parsing of large amount of JavaScript code. This is displayed in a list
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "JavaScript को पार्स करना स्‍थगित करें"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  loading resources on the page that block the initial render of the page
+msgid "Eliminate render-blocking JavaScript and CSS in above-the-fold content"
+msgstr "ऊपरी भाग की सामग्री में रेंडर-अवरोधित करने वाली JavaScript और CSS को हटाएं"
 
 #  Title of this rule, which suggests
 #  removing/eliminating reflows (or "layouts", which is used
@@ -288,6 +441,21 @@ msgstr " Keep-Alive सक्षम करें"
 msgid "Enable compression"
 msgstr "संपीड़न सक्षम करें"
 
+#  The name of a Page Speed rule that tells users to improve
+#  their server response time. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Improve server response time"
+msgstr "सर्वर प्रतिक्रिया समय में सुधार करें"
+
+#  Summary header indicating how long it took for the
+#  user's web server to respond to a request, and providing a link to
+#  more information about how one can measure and keep track of which
+#  aspects of the server's operation are consuming that time.  The
+#  "RESPONSE_TIME" placeholder will be replaced with the time taken by
+#  the server (e.g. "872 milliseconds").
+msgid "In our test, your server responded in %(RESPONSE_TIME)s. There are many factors that can slow down your server response time. %(BEGIN_LINK)sPlease read our recommendations%(END_LINK)s to learn how you can monitor and measure where your server is spending the most time."
+msgstr "हमारे परीक्षण में, आपके सर्वर ने %(RESPONSE_TIME)s में प्रतिक्रिया दी. ऐसे कई कारक हैं, जो आपके सर्वर की प्रतिक्रिया के समय को धीमा कर सकते हैं. आपके सर्वर का अधिकांश समय कहां खर्च हो रहा है, इस बारे में निगरानी और मूल्‍यांकन करने हेतु अधिक जानने के लिए, %(BEGIN_LINK)sकृपया हमारी अनुशंसाएं पढ़ें%(END_LINK)s."
+
 #  Name of a Page Speed rule. A longer description
 #  would be "Insert (or move) small CSS resources directly into the
 #  HTML document" but rule names are intentionally short so we use
@@ -306,10 +474,24 @@ msgstr "इनलाइन छोटा CSS"
 msgid "Inline Small JavaScript"
 msgstr "इनलाइन छोटी JavaScript"
 
-#  Detail of inline script block. The "$1" will be replace
-#  by the index of the script block (e.g. 3).
-msgid "Inline script block #$1"
-msgstr "इनलाइन स्‍क्रिप्‍ट अवरोध #$1"
+#  Rule name. This rule recommends serving a low quality
+#  version of the images that appear inside of the visible scroll
+#  region of the browser (i.e. the part of the page that the user
+#  can see without having to scroll down) inlined in the HTML
+#  response.
+msgid "Inline previews of visible images"
+msgstr "दृश्‍यमान छवियों के इनलाइन पूर्वावलोकन"
+
+#  The name of a Page Speed rule that tells users to inline CSS
+#  resources that block the initial render of the page.
+msgid "Inline render-blocking CSS"
+msgstr "रेंडर अवरुद्ध करने वाले CSS को इनलाइन करें"
+
+#  Detail of inline script block. The "INDEX"
+#  placeholder will be replaced by the index of the script block
+#  (e.g. "3").
+msgid "Inline script block #%(INDEX)s"
+msgstr "इनलाइन स्‍क्रिप्‍ट अवरोध #%(INDEX)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made, as well as a brief summary
@@ -319,7 +501,7 @@ msgstr "इनलाइन स्‍क्रिप्‍ट अवरोध #$1
 #  web performance community) that happened on the page being
 #  analyzed will be shown.
 msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
-msgstr "JavaScript को निम्न संसाधनों में निष्पादित करने से अनावश्यक रीफ़्लो हुए. पृष्‍ठ रेंडर समय को कम करने के लिए, JavaScript संशोधित करें ताकि इससे कोई रीफ़्लो नहीं हो:"
+msgstr "JavaScript को निम्न संसाधनों में निष्पादित करने से अनावश्यक रीफ़्लो हुए. पृष्‍ठ रेंडर समय को कम करने के लिए, JavaScript बदलें ताकि इससे कोई रीफ़्लो नहीं हो:"
 
 #  Rule name. A longer description would be "Specify
 #  proper caching expirations for the resources on the web
@@ -332,17 +514,36 @@ msgid "Leverage browser caching"
 msgstr "ब्राउज़र कैशिंग का लाभ उठाएं"
 
 #  Detail of external CSS resources. It tells the user
-#  how to fix the problem by moving the CSS to document head. The
-#  "$1" will be replaced by the CSS resource URL.
-msgid "Link node $1 should be moved to the document head."
-msgstr "लिंक नोड $1 को दस्‍तावेज़ के शीर्ष भाग में ले जाया जाना चाहिए."
+#  how to fix the problem by moving the CSS to document head.
+msgid "Link node %(LINK_URL)s should be moved to the document head."
+msgstr "लिंक नोड %(LINK_URL)s को दस्‍तावेज़ के शीर्ष में ले जाया जाना चाहिए."
 
-#  Detail info for one image URL. It tells the user how much can
-#  be save for one image. The "$1" will be replace the the image URL; "$2"
-#  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the percentage (e.g. 12%).
-msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
-msgstr "$1 को हानिरहित संपीड़ित करने से $2 की बचत हो सकती है ($3 की कमी)."
+#  Rule name. This rule recommends loading the images
+#  that appear outside of the visible scroll region of the browser
+#  (i.e. the part of the page that the user needs to scroll down to
+#  see) after the images and resources needed to show the part
+#  within the initially visible region have loaded.
+msgid "Load visible images first"
+msgstr "दिखाई देने वाली छवियों को पहले लोड करें"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having slow server response times. It describes the
+#  problem.
+msgid "Long web server response times delay page loading. Reduce your response times to make your page load faster."
+msgstr "वेब सर्वर की प्रतिक्रिया के लंबे समय के कारण पृष्ठ लोड होने में विलंब होता है. अपने पृष्ठ को तेज़ी से लोड करने के लिए अपना प्रतिक्रिया समय कम करें."
+
+#  Subheading that describes the savings possible from optimizing
+#  a particular image resource via lossless compression.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(URL)s को हानिरहित तरीके से संपीड़ित करने से %(SIZE_IN_BYTES)s (%(PERCENTAGE)s की कमी) की बचत हो सकती है."
+
+#  The name of a Pagespeed rule that tells users to make the
+#  most of visible content render-able by end of the HTML.
+msgid "Make content visible by end of HTML"
+msgstr "HTML की समाप्ति तक सामग्री को दृश्यमान बनाएं"
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -370,41 +571,20 @@ msgid "Minify JavaScript"
 msgstr "JavaScript कम करें"
 
 #  Subheading that describes the post-compression network savings
-#  possible from minifying a single resource. "$1" is a format token that
-#  will be replaced by the URL of the resource. "$2" will be replaced bythe
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction) after compression."
-msgstr "संपीड़न के बाद $1 को कम करने से $2 की बचत हो सकती है ($3% की कमी)."
+#  possible from minifying a single resource.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction) after compression."
+msgstr "%(URL)s को न्‍यूनतम करने से संपीड़न के बाद %(SIZE_IN_BYTES)s (%(PERCENTAGE)s की कमी) की बचत हो सकती है."
 
-#  Subheading that describes the savings possible from minifying a
-#  single resource. "$1" is a format token that will be replaced by the URL of
-#  the resource. "$2" will be replaced bythe absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction)."
-msgstr "$1 को कम करने से $2 की बचत हो सकती है ($3% की कमी)."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
-msgstr "निम्‍न CSS संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
-msgstr "निम्‍न HTML संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
-
-#  Heading that describes the savings possible from minifying
-#  resources.  "$1" will be replaced by the absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
-msgstr "निम्‍न JavaScript संसाधनों को कम करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
+#  Subheading that describes the savings possible from minifying
+#  a single resource.  The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved (e.g. "5
+#  bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(URL)s को न्‍यूनतम करने से %(SIZE_IN_BYTES)s (%(PERCENTAGE)s की कमी) की बचत हो सकती है."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -425,11 +605,27 @@ msgstr "रीडायरेक्‍ट छोटे करें"
 msgid "Minimize request size"
 msgstr "अनुरोध आकार को कम करें"
 
+#  Summary header indicating that none of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be rendered
+#  without relying on any render-blocking resources.
+msgid "None of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "आपके पृष्ठ पर ऊपरी भाग की कोई भी सामग्री निम्न संसाधनों के लोड होने की प्रतीक्षा किए बिना रेंडर नहीं की जा सकती है. अवरोधित करने वाले संसाधनों को स्थगित करने या एसिंक्रोनस रूप से लोड करने का प्रयास करें, या उन संसाधनों के महत्वपूर्ण भागों को सीधे HTML में इनलाइन करें."
+
+#  Summary header indicating how much of the above-the-fold
+#  (i.e. within the initial browser viewport) content of a webpage was
+#  able to be correctly rendered based on the HTML of the HTTP
+#  response.  This header will be followed by the URL for the page.
+#  The "PERCENTAGE" placeholder will be replaced with the percentage of
+#  the content that was ready (e.g. "36%").
+msgid "Only %(PERCENTAGE)s of the final above-the-fold content of the page was able to be rendered using the whole HTML of the HTTP response for the page URL:"
+msgstr "पृष्ठ के ऊपरी भाग अंतिम सामग्री के केवल %(PERCENTAGE)s भाग को, पृष्ठ के URL के लिए HTTP प्रतिक्रिया के संपूर्ण HTML का उपयोग करके रेंडर किया जा सकता था:"
+
 #  The name of a Page Speed rule that tells users to optimize the
 #  images (better compression). This is displayed in a list of rule names that
 #  Page Speed generates.
 msgid "Optimize images"
-msgstr "छवियां अनुकूलित करें"
+msgstr "चित्र अनुकूलित करें"
 
 #  The name of a Page Speed rule that tells users to optimize the
 #  order of resources of style sheets and scripts in HTML. This is displayed
@@ -437,20 +633,12 @@ msgstr "छवियां अनुकूलित करें"
 msgid "Optimize the order of styles and scripts"
 msgstr "शैलियों और स्‍क्रिप्‍ट के क्रम को अनुकूलित करें"
 
-#  Header at the top a list of image URLs that Page Speed detected
-#  as can be optimized by using better compression. It describes the problem
-#  to the user that the size of the images can be reduced. The "$1" will be
-#  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the percentage (e.g. 25%).
-msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
-msgstr "निम्‍न छवियों को ऑप्टिमाइज़ करने से उनका आकार $1 तक कम हो सकता है ($2 की कमी)."
-
-#  Item showing how large the other request components is in a
-#  request that violates the MinimizeRequestSizeRule by being large. The
-#  "$1" will be replace by the total size of other components of the
-#  request in bytes (e.g. "5.3KiB").
-msgid "Other: $1"
-msgstr "अन्य: $1"
+#  Item showing how large the other request components is in
+#  a request that violates the MinimizeRequestSizeRule by being
+#  large. The "SIZE_IN_BYTES" placeholder will be replaced by the total
+#  size of other components of the request in bytes (e.g. "5.3KiB").
+msgid "Other: %(SIZE_IN_BYTES)s"
+msgstr "अन्‍य: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells users to parallelize
 #  downloads resources (image, css, javascript) across hostnames. This is
@@ -463,6 +651,17 @@ msgstr "सभी होस्‍टनामों में डाउनलो
 #  Page Speed generates.
 msgid "Prefer asynchronous resources"
 msgstr "एसिंक्रोनस संसाधनों को प्राथमिकता दें"
+
+#  The name of a Page Speed rule that tells users to prioritize
+#  being able to render the initially-visible content of a page as early as
+#  possible.
+msgid "Prioritize visible content"
+msgstr "दृश्यमान सामग्री को प्राथमिकता दें"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Properly formatting and compressing images can save many bytes of data."
+msgstr "चित्रों का ठीक तरह से प्रारूपण और संपीड़न करने से कई बाइट डेटा बचाया जा सकता है."
 
 #  The name of a Page Speed rule that tells users to put CSS
 #  (style sheet) resources in HTML head. This is displayed in a list of
@@ -477,11 +676,18 @@ msgstr "CSS को दस्‍तावेज़ के शीर्ष भा�
 msgid "Reduce request serialization"
 msgstr "अनुरोध क्रमांकन कम करें"
 
+#  The name of a Page Speed rule that tells users to
+#  reduce the time it takes for their HTML resource to be generated
+#  by the server.
+msgid "Reduce server response time"
+msgstr "सर्वर प्रतिक्रिया समय घटाएं"
+
 #  Item showing how large the referrer URL is in a request
-#  that violates the MinimizeRequestSizeRule by being large. The "$1" will
-#  be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-msgid "Referer Url: $1"
-msgstr "संदर्भ Url: $1"
+#  that violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  referrer URL in bytes (e.g. "5.3KiB").
+msgid "Referer Url: %(SIZE_IN_BYTES)s"
+msgstr "संदर्भ Url: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells webmasters to remove
 #  query strings from the URLs of static resources (i.e.
@@ -499,10 +705,11 @@ msgid "Remove the following redirect chain if possible:"
 msgstr "यदि संभव हो तो निम्न रीडायरेक्‍ट श्रृंखला निकालें:"
 
 #  Item showing how large the URL is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the request URL in bytes (e.g. "5.3KiB").
-msgid "Request URL: $1"
-msgstr "अनुरोध URL: $1"
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  request URL in bytes (e.g. "5.3KiB").
+msgid "Request URL: %(SIZE_IN_BYTES)s"
+msgstr "अनुरोध URL: %(SIZE_IN_BYTES)s"
 
 #  Descriptive header at the top of a list of URLs that
 #  violate the RemoveQueryStringsFromStaticResources rule by using a query
@@ -525,7 +732,12 @@ msgstr "किसी संगत URL से संसाधन सर्व क
 #  This is displayed at the top of a list of rules names that Page Speed
 #  generates.
 msgid "Serve scaled images"
-msgstr "आकार बदली गई छवियां सर्व करें"
+msgstr "आकार बदली गई चित्र सर्व करें"
+
+#  Summary sentence explaining briefly how HTTP browser
+#  cachine can be enabled, and why it is beneficial to do so.
+msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
+msgstr "स्थिर संसाधनों के लिए HTTP शीर्षलेखों में कोई समाप्ति दिनांक या अधिकतम आयु सेट करना, ब्राउज़र को पूर्व में डाउनलोड किए गए संसाधनों को नेटवर्क से लोड करने के बजाय स्थानीय डिस्क से लोड करने के निर्देश देता है."
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
@@ -550,54 +762,57 @@ msgstr "कोई कैश सत्‍यापनकर्ता निर्
 msgid "Specify a character set"
 msgstr "कोई वर्ण सेट निर्दिष्ट करें"
 
+#  The name of a Page Speed rule that tells users to specify
+#  a viewport for mobile devices. This is displayed in a list of rule names
+#  that Page Speed generates. "Viewport" is code and should not be translated.
+msgid "Specify a viewport for mobile browsers"
+msgstr "मोबाइल ब्राउज़र के लिए व्‍यूपोर्ट निर्दिष्ट करें"
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
 #  image that appears in the page.  This is displayed in a list of rule names
 #  that Page Speed generates.
 msgid "Specify image dimensions"
-msgstr "छवि आयामों को निर्दिष्ट करें"
+msgstr "चित्र आयामों को निर्दिष्ट करें"
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains the number of times the code in this context
-#  executed, and $2 contains JavaScript code that gives
-#  the context of the reflow.
-msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
-msgstr "निम्‍न JavaScript कॉल स्‍टैक ($1 बार निष्‍पादित) से रीफ़्लो हुए जिन्होंने $2 मिलीसेकंड लिए: $3"
+#  Header at the top of a list of URLs of Adobe Flash
+#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
+#  the number of Flash elements found.
+msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
+msgstr "निम्‍न %(NUM_ELEMENTS)s Flash तत्‍व पृष्ठ पर शामिल किए गए हैं या शामिल iframes से लिए गए हैं. Apple iOS या 4.0.x के बाद वाले Android संस्‍करणों पर Adobe Flash Player समर्थित नहीं है. Flash ऑब्‍जेक्‍ट निकालें और उपयुक्त प्रतिस्‍थापन ढूंढें."
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains JavaScript code that gives the context of the
+#  Summary header indicating that the external CSS
+#  resources can be inlined in the HTML and still meet the 15k criteria.
+msgid "The following %(NUM_RESOURCES)s external CSS resources blocked the rendering before the browser was able to render most of the above-the-fold content. Inlining them and enabling compression (if it is not enabled already) will make your page render most of the above-the-fold content in the first 15kB."
+msgstr "निम्‍न %(NUM_RESOURCES)s बाह्य CSS संसाधनों ने ब्राउज़र के द्वारा ऊपरी आधे भाग की अधिकांश सामग्री को रेंडर किए जाने से पहले रेंडरिंग को अवरुद्ध कर दिया है. उन्‍हें इनलाइन करने और संपीड़न सक्षम करने से (यदि पहले से सक्षम नहीं हो तो) आपका पृष्ठ पहले 15kB में ऊपरी आधे भाग की अधिकांश सामग्री को रेंडर कर सकेगा."
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused multiple
+#  unnecessary reflows.
+msgid "The following JavaScript call stack (executed %(NUM_TIMES)s times) caused reflows that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "निम्‍न JavaScript कॉल स्‍टैक (%(NUM_TIMES)s बार निष्‍पादित) के कारण पुन: प्रवाह हुआ जिसमें %(NUM_MILLISECONDS)s मिलीसेकंड लगे: %(CALL_STACK)s"
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused an unnecessary
 #  reflow.
-msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
-msgstr "निम्‍न JavaScript कॉल स्‍टैक से रीफ़्लो हुए जिन्होंने $1 मिलीसेकंड लिए: $2"
+msgid "The following JavaScript call stack caused a reflow that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "निम्‍न JavaScript कॉल स्‍टैक के कारण पुन: प्रवाह हुआ जिसमें %(NUM_MILLISECONDS)s मिलीसेकंड लगे: %(CALL_STACK)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made.
 msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
 msgstr "निम्‍न URL ऐसी JavaScript चलाते हैं जो लंबे समय के लिए UI को अवरुद्ध करती है. ब्राउज़र के प्रतिसाद देने को बेहतर बनाने के लिए, JavaScript ऑप्‍टिमाइज़ करें या कॉलबैक का उपयोग करके उसे विभाजित करें."
 
-#  Heading that indicates which resources should
-#  have a longer cache freshness lifetime. Here "freshness
-#  lifetime" means the length of the period of time that the
-#  file can be reused without checking to see if there is a
-#  newer version of the file available.
-msgid "The following cacheable resources have a short freshness lifetime. Specify an expiration at least one week in the future for the following resources:"
-msgstr "निम्‍न कैश करने योग्‍य संसाधन बहुत कम समय तक ताज़ा रहते हैं. निम्‍न संसाधनों के लिए समाप्ति समय भविष्य में कम से कम एक सप्ताह निर्दिष्ट करें:"
-
 #  Header at the top of a list of CSS URLs that Page
 #  Speed detected as not able to be downloaded in parallel. It
 #  describes the problem to the user, and tells them how to fix it
-#  by including the external CSS before external JavaScript. The
-#  "$1" will be replaced by URL of the HTML page.
-msgid "The following external CSS files were included after an external JavaScript file in $1.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
-msgstr "$1 में बाह्य JavaScript फ़ाइल सम्‍मिलित करने के बाद निम्‍न बाह्य CSS फ़ाइलें सम्‍मिलित की गई थी.  यह सुनिश्चित करने के लिए कि CSS फ़ाइलें समानांतर रूप से डाउनलोड की गई हैं, हमेशा बाह्य JavaScript के पहले बाह्य CSS सम्‍मिलित करें."
+#  by including the external CSS before external JavaScript.
+msgid "The following external CSS files were included after an external JavaScript file in %(URL)s.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
+msgstr "%(URL)s में बाह्य JavaScript फ़ाइल सम्‍मिलित करने के बाद निम्‍न बाह्य CSS फ़ाइलें सम्‍मिलित की गई थी.  यह सुनिश्चित करने के लिए कि CSS फ़ाइलें समानांतर रूप से डाउनलोड की गई हैं, हमेशा बाह्य JavaScript के पहले बाह्य CSS सम्‍मिलित करें."
 
 #  Header at the top of the list of URLs that Page
 #  Speed detected as candidates for being moved directly into
@@ -608,55 +823,69 @@ msgstr "निम्‍न बाह्य संसाधनों में �
 
 #  Descriptive header at the top of a list of URLs that
 #  are imported by a style sheet using the @import rule ("@import"
-#  is code, and should not be translated).  It gives the URL of the
-#  style sheet that violates the AvoidCssImport rule (the $1
-#  parameter) by using @import --- the style sheets that it imports
-#  will be listed below it.  "$1" is a format token that will be
-#  replaced with the URL of the style sheet that uses @import.
-msgid "The following external stylesheets were included in $1 using @import."
-msgstr "निम्‍न बाह्य शैलीपत्रक $1 में @import के उपयोग द्वारा सम्‍मिलित थे."
+#  is code, and should not be translated; it is represented by the
+#  "IMPORT" placeholder).  It gives the URL of the style sheet that
+#  violates the AvoidCssImport rule (the "URL" parameter) by
+#  using @import --- the style sheets that it imports will be
+#  listed below it.  The "URL" placeholder will be replaced with
+#  the URL of the style sheet that uses @import.
+msgid "The following external stylesheets were included in %(URL)s using %(IMPORT)s."
+msgstr "निम्‍न बाह्य शैलीपत्रक, %(URL)s में %(IMPORT)s का उपयोग करके सम्‍मिलित किए गए थे."
 
 #  Header at the top of a list of URLs of images that Page
 #  Speed detected as not having both width and height explicitly
 #  specified in the page in which the image appears.
 msgid "The following image(s) are missing width and/or height attributes."
-msgstr "निम्‍न छवि (छवियों) में चौड़ाई और/या ऊंचाई विशेषताएं नहीं हैं."
+msgstr "निम्‍न चित्र (चित्रयों) में चौड़ाई और/या ऊंचाई विशेषताएं नहीं हैं."
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed outside of the initially visible region of the screen. Defer loading of these images to allow the initially visible region of the page to load faster."
+msgstr "निम्न छवियों को स्क्रीन के दिखाई देने वाले प्रारंभिक क्षेत्र के बाहर प्रदर्शित किया जाता है. पृष्ठ के दिखाई देने वाले प्रारंभिक क्षेत्र को तेज़ी से लोड करने के लिए इन छवियों के लोड होने को लंबित करें."
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed within the initially visible region of the screen. To speed up rendering of the initially visible region of the page, inline a preview of these images and delay loading the full images until after page load is complete."
+msgstr "निम्‍न चित्र स्‍क्रीन के प्रारंभिक दृश्‍यमान क्षेत्र में प्रदर्शित होती हैं. पृष्ठ के प्रारंभिक दृश्‍यमान क्षेत्र की रेंडरिंग गति को बढ़ाने के लिए, इन छवियों के पूर्वावलोकन को इनलाइन रखें और पृष्ठ लोड पूर्ण होने तक पूर्ण छवियों को लोड होने से रोकें."
 
 #  A descriptive header at the top of a list of URLs of
 #  images that are resized in HTML or CSS.  It describes the problem to
-#  the user.  "$1" is a format token that is replaced with the total
-#  savings in bytes from serving images in their final size
-#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25%").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
-msgstr "निम्‍न छवियों का आकार HTML या CSS में बदल दिया गया है. आकार बदली गई छवियों को सर्व करने से $1 की बचत हो सकती है ($2 की कमी)."
+#  the user.  The "SIZE_IN_BYTES" placeholder will be replaced with the
+#  total saved in bytes by serving the images with the correct dimensions
+#  (e.g. "32.5KiB").  The "PERCENTAGE" placeholder will be replaced with
+#  the percentage reduction of bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS. Serving scaled images could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "निम्‍न चित्रों का आकार HTML या CSS में बदला गया है. आकार बदले गए चित्रों को सर्व करने से %(SIZE_IN_BYTES)s (%(PERCENTAGE)s कमी) की बचत हो सकती है."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
 #  (that is, larger images containing a number of subimages, which can
 #  then be used to display a single subimage at a time by using CSS to
-#  reveal a different section of the large image in place of each of the
-#  original small images).  It describes the problem to the user, and
-#  tells them how to fix it by combining multiple small images into a
-#  larger image.  The "$1" is a format string that will be replaced with
-#  the URL of the page in which the small images appear.
-msgid "The following images served from $1 should be combined into as few images as possible using CSS sprites."
-msgstr "$1 द्वारा सर्व की गई निम्‍न छवियों को CSS स्‍प्राइट के उपयोग द्वारा यथासंभव कम छवियों में संयोजित किया जाना चाहिए."
+#  reveal a different section of the large image in place of each of
+#  the original small images).  It describes the problem to the user,
+#  and tells them how to fix it by combining multiple small images into
+#  a larger image.  The "DOMAIN_NAME" placeholder will be replaced with
+#  the domain name of the page in which the small images appear
+#  (e.g. "www.example.com").
+msgid "The following images served from %(DOMAIN_NAME)s should be combined into as few images as possible using CSS sprites."
+msgstr "%(DOMAIN_NAME)s से सर्व किए गए निम्‍न चित्रों को CSS स्‍प्राइट का उपयोग करके यथासंभव कम चित्रों में संयोजित किया जाना चाहिए."
 
 #  Header at the top of a list of inline javascript
 #  blocks that Page Speed detected as preventing parallel
 #  downloading.  It describes the problem to the user and tells them
 #  how to fix it by moving the inline script before the external CSS
-#  URL, or after the next resource. The "$1" will be replace by the
-#  URL of the HTML page.
-msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
-msgstr "$1 में बाह्य CSS फ़ाइल और दूसरे संसाधन के बीच निम्‍न इनलाइन स्‍क्रिप्ट अवरोध पाए गए थे.  समानांतर डाउनलोड करने की अनुमति के लिए, इनलाइन स्‍क्रिप्‍ट को बाह्य CSS फ़ाइल के पहले, या अगले संसाधन के बाद ले जाएं."
+#  URL, or after the next resource.
+msgid "The following inline script blocks were found in %(URL)s between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
+msgstr "%(URL)s में बाह्य CSS फ़ाइल और दूसरे संसाधन के बीच निम्‍न इनलाइन स्‍क्रिप्ट अवरोध पाए गए थे.  समानांतर रूप से डाउनलोड करने की अनुमति के लिए, इनलाइन स्‍क्रिप्‍ट को बाह्य CSS फ़ाइल के पहले, या अगले संसाधन के बाद ले जाएं."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as a chain of HTTP redirections. It tells the user to fix
 #  the problem by removing the URLs that redirect to others.
 msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
 msgstr "निम्न लैंडिंग पृष्ठ रीडायरेक्ट ,कैश किए जाने योग्य नहीं हैं. आपकी साइट पर  दोबारा आने वालों के लिए पृष्ठ लोड समय की गति बढ़ाने हेतु उन्हें कैश किए जाने योग्य बनाएं."
+
+msgid "The following pages do not specify a viewport. Consider adding a meta tag specifying a viewport so mobile browsers can render the document at a usable size."
+msgstr "निम्‍न पृष्ठ व्‍यूपोर्ट निर्दिष्ट नहीं करते. व्‍यूपोर्ट निर्दिष्ट करके मेटा टैग जोड़ें, जिससे मोबाइल ब्राउज़र दस्‍तावेज़ को उपयोग करने योग्‍य आकार में रेंडर कर सकें."
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -700,16 +929,23 @@ msgstr "निम्‍न संसाधन साथ में लोड क�
 msgid "The following resources are missing a cache validator. Resources that do not specify a cache validator cannot be refreshed efficiently. Specify a Last-Modified or ETag header to enable cache validation for the following resources:"
 msgstr "निम्‍न संसाधनों में कैश सत्‍यापनकर्ता नहीं है. वे संसाधन जो किसी कैश सत्‍यापनकर्ता को निर्दिष्ट नहीं करते, उन्हें कुशलता से रीफ़्रेश नहीं किया जा सकता. निम्‍न संसाधनों के लिए कैश सत्‍यापन सक्षम करने के लिए Last-Modified या ETag शीर्षलेख निर्दिष्‍ट करें:"
 
+#  Header at the top of a list of URLs that Page
+#  Speed detected as declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) in an HTML meta tag. It
+#  describes the problem to the user, and tells them how to fix
+#  it by explicitly specifying the character set in the HTTP
+#  Content-Type response header.
+msgid "The following resources have a character set specified in a meta tag. Specifying a character set in a meta tag disables the lookahead downloader in IE8. To improve resource download parallelization, move the character set to the HTTP Content-Type response header."
+msgstr "निम्न संसाधनों में मेटाटैग में एक वर्ण सेट निर्दिष्ट किया गया है. मेटाटैग में वर्ण सेट निर्दिष्ट करने से IE8 में लुकअहेड डाउनलोडर अक्षम हो जाता है. संसाधन डाउनलोड को साथ में चलाना बेहतर बनाने के लिए, वर्ण सेट को HTTP सामग्री-प्रकार प्रतिसाद शीर्षलेख में ले जाएं."
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being identical yet served multiple times from different
 #  URLs.  It describes the problem to the user, and tells them how to
-#  fix it by serving all these resources from the same URL.  The "$1"
-#  is a format string that will be replaced with the number of requests
-#  that could be saved (e.g. "3"); the "$2" is a format string that
-#  will be replaced with the number of bytes that could be saved
-#  (e.g. "12.3kB").
-msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save $1 request(s) and $2."
-msgstr "निम्न संसाधनों की सामग्री समान है, लेकिन वे विभिन्न URL से सर्व किए जाते हैं.  $1 अनुरोध (अनुरोधों) और $2 को बचाने के लिए इन संसाधनों को किसी संगत URL से सर्व करें."
+#  fix it by serving all these resources from the same URL.  The
+#  "BYTES_SAVED" placeholder will be replaced with the amount of
+#  transferred data that could be saved (e.g. "12.3kB").
+msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save %(NUM_REQUESTS)s request(s) and %(BYTES_SAVED)s."
+msgstr "निम्न संसाधनों में समान सामग्रियां हैं, लेकिन उन्‍हें विभिन्न URL से सर्व किया जाता है.  %(NUM_REQUESTS)s अनुरोध और %(BYTES_SAVED)s की बचत के लिए इन संसाधनों को किसी संगत URL से सर्व करें."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as not declaring the character set (e.g. UTF-8,
@@ -719,14 +955,15 @@ msgstr "निम्न संसाधनों की सामग्री �
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "निम्न संसाधनों के लिए उनके HTTP शीर्ष लेखों में कोई वर्ण सेट निर्दिष्ट किया हुआ नहीं है. HTTP शीर्ष लेखों में किसी वर्ण सेट को निर्दिष्ट करने से ब्राउज़र रेंडर करने की गति बढ़ सकती है."
 
-#  Header at the top of a list of URLs of resources that are
-#  served from a domain that does not have HTTP Keep-Alive enabled.  It
-#  tells the user to enable keep-alive on that domain.  The "$1" is a
-#  format string that will be replaced with the domain in question.
-#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  Header at the top of a list of URLs of resources that
+#  are served from a domain that does not have HTTP Keep-Alive enabled.
+#  It tells the user to enable keep-alive on that host.  The
+#  "HOST_NAME" placeholder gives the name of the host
+#  (e.g. "www.example.com").  The "KEEPALIVE" placeholder is replaced
+#  with the string "Keep-Alive", which is code that should not be
 #  translated.
-msgid "The host $1 should enable Keep-Alive. It serves the following resources."
-msgstr "$1 होस्‍ट द्वारा Keep-Alive को सक्षम किया जाना चाहिए. यह निम्न संसाधनों को प्रदान करता है."
+msgid "The host %(HOST_NAME)s should enable %(KEEPALIVE)s. It serves the following resources."
+msgstr "%(HOST_NAME)s होस्‍ट के द्वारा %(KEEPALIVE)s को सक्षम किया जाना चाहिए. यह निम्‍न संसाधनों को सर्व करता है."
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -745,33 +982,26 @@ msgstr "निम्‍न URL के लिए अनुरोध एक पै
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced with the number of CSS files loaded
-#  from the given domain. "$2" will be replaced by the domain name from
-#  which all the CSS files were loaded.
-msgid "There are $1 CSS files served from $2. They should be combined into as few files as possible."
-msgstr "$2 द्वारा सर्व की गई $1 CSS फाइलें हैं. उन्‍हें यथासंभव कम-से-कम फ़ाइलों में संयोजित किया जाना चाहिए."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s CSS files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "%(DOMAIN_NAME)s से सर्व की गईं %(NUM_FILES)s CSS फाइलें हैं. उन्‍हें यथासंभव कम-से-कम फ़ाइलों में संयोजित किया जाना चाहिए:"
 
 #  Descriptive header describing a list of JavaScript resources
 #  that are all served from a single domain (in violation of the
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced by the number of JavaScript files
-#  loaded from the given domain.  "$2" will be replaced by the domain name
-#  from which all the JavaScript files were loaded.
-msgid "There are $1 JavaScript files served from $2. They should be combined into as few files as possible."
-msgstr "$2 द्वारा सर्व की गई $1 JavaScript फाइलें हैं. उन्‍हें यथासंभव कम-से-कम फ़ाइलों में संयोजित किया जाना चाहिए."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s JavaScript files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "%(DOMAIN_NAME)s से सर्व की गईं %(NUM_FILES)s JavaScript फाइलें हैं. उन्‍हें यथासंभव कम-से-कम फ़ाइलों में संयोजित किया जाना चाहिए."
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as from one host. It describes the problem to the user,
-#  and tells them how to fix it by distributing the requests across
-#  multiple hostnames. The "$1" will be replace by the number of the
-#  URLs; the "$2" wil be replaced by the name of the host (e.g.
-#  google.com).
-msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
-msgstr "यह पृष्ठ $1 को $2 पर साथ में चलाने योग्‍य अनुरोध बनाता है.  इन अनुरोधों को एकाधिक होस्‍टनामों में वितरित करके डाउनलोड को साथ में चलाना तेज़ बनाएं:"
+#  detected as being loaded from one hostname
+#  (e.g. "example.com"). It describes the problem to the user, and
+#  tells them how to fix it by distributing the requests across
+#  multiple hostnames.
+msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
+msgstr "यह पृष्ठ %(HOSTNAME)s के लिए %(NUM_REQUESTS)s साथ में चलाने योग्‍य अनुरोध बनाता है.  इन अनुरोधों को एकाधिक होस्‍टनामों में वितरित करके डाउनलोड को साथ में चलाना तेज़ करें:"
 
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
@@ -786,10 +1016,31 @@ msgstr "एप्‍लिकेशन संचय का उपयोग क�
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "एप्‍लिकेशन संचय का उपयोग करने से पृष्‍ठ तुरंत दिखाई देता है. उपयोगकर्ताओं द्वारा पृष्‍ठ से सहभागिता कर सकने में लगने वाले समय को कम करने के लिए निम्‍न HTML दस्‍तावेज़, एप्‍लिकेशन संचय का उपयोग कर सकते हैं:"
 
-#  This appears as a header before a list of URLs of resources
-#  that use the JavaScript command "document.write" ("document.write" is
-#  code, and should not be translated).  It describes how using
-#  "document.write" can slow down your website (by forcing external
-#  resources to load serially, not in parallel).
-msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
-msgstr "बाह्य संसाधनों को लाने के लिए document.write का उपयोग करना पृष्ठ को रेंडर करने में सीरियलाइज़ेशन विलंब कर सकता है. निम्‍न संसाधन बाह्य संसाधनों को लाने के लिए document.write का उपयोग करते हैं:"
+#  Summary header indicating the number of CSS resources
+#  that are blocking the webpage from rendering while loading.
+msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "आपके पृष्ठ में %(NUM_CSS)s अवरोधित करने वाले CSS संसाधन हैं. इससे आपके पृष्ठ को रेंडर करने में विलंब होता है."
+
+msgid "Your page has %(NUM_REDIRECTS)s redirects. Redirects introduce additional delays before the page can be loaded."
+msgstr "आपके पृष्ठ में %(NUM_REDIRECTS)s रीडायरेक्ट हैं. रीडायरेक्ट, पृष्ठ के लोड होने से पहले अतिरिक्त विलंब प्रस्तुत करते हैं."
+
+#  Summary header indicating the number of Javascript
+#  resources and the number of CSS resources that are blocking the
+#  webpage from rendering while loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources and %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "आपके पृष्ठ में %(NUM_SCRIPTS)s अवरोधित करने वाले स्क्रिप्ट संसाधन और %(NUM_CSS)s अवरोधित करने वाले CSS संसाधन हैं. इससे आपके पृष्ठ को रेंडर करने में विलंब होता है."
+
+#  Summary header indicating the number of Javascript
+#  resources that are blocking the webpage from rendering while
+#  loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
+msgstr "आपके पृष्ठ में %(NUM_SCRIPTS)s अवरोधित करने वाले स्क्रिप्ट संसाधन हैं. इससे आपके पृष्ठ को रेंडर करने में विलंब होता है."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where the
+#  upper portion of the front page that is above the fold of the paper is
+#  immediately visible to the reader.)
+msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
+msgstr "आपके पृष्ठ को तह के ऊपर की सामग्री को रेंडर करने के लिए अतिरिक्त नेटवर्क राउंड ट्रिप की आवश्यकता है. सर्वश्रेष्ठ प्रदर्शन के लिए, HTML की मात्रा को कम करके तह के ऊपर सामग्री को रेंडर करने की आवश्यकता तक लाएं."
