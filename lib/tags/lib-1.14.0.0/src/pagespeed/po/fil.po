@@ -1,166 +1,288 @@
-#  Page Speed result for a single resource that should
-#  defer parsing its inline JavaScript. The "$1"  will be replaced
-#  by the document (HTML page, or a iframe) URL; the "$2" will be
-#  replaced by the size of its inline JavaScripts.
-msgid "$1 ($2 of inline JavaScript)"
-msgstr "$1 ($2 ng inline JavaScript)"
+#  Header at the top of a list of URLs that Page
+#  Speed detected as a chain of HTTP redirections. It tells the
+#  user to fix the problem by removing the URLs that redirect to
+#  others. The text between BEGIN_LINK and END_LINK will be
+#  displayed as a clickable link in the browser, which takes the
+#  user to a document providing additional information.
+msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
+msgstr "%(BEGIN_LINK)sIwasan ang mga pagre-redirect ng landing page%(END_LINK)s para sa sumusunod na chain ng mga na-redirect na URL."
 
-#  Shown as part of a list of unnecessary reflows
-#  (or "layouts", which is used interchangeably with the word
-#  "reflows" in the web performance community). Shows a URL
-#  at $1, and the number of unnecessary reflows for that URL
-#  at $2.
-msgid "$1 ($2 reflows)"
-msgstr "$1 ($2 na mga muling pagdaloy)"
+#  Descriptive header for a list of URLs that were
+#  served uncompressed, in violation of the EnableGzipCompression
+#  rule.  It tells the webmaster that compressing all of those
+#  resources could reduce the amount of data transferred (which
+#  would speed up the site). It is followed by a list of
+#  uncompressed resource URLs. The text between BEGIN_LINK and
+#  END_LINK will link to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sEnable compression%(END_LINK)s for the following resources to reduce their transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sI-enable ang compression%(END_LINK)s para sa mga sumusunod na mapagkukunan upang bawasan ang laki ng paglilipat ng mga ito nang %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240").
-msgid "$1 (Dimensions: $2 x $3)"
-msgstr "$1 (Mga Sukat: $2 x $3)"
+#  Heading that indicates which resources should
+#  make use of browser caching. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the
+#  browser, which takes the user to a document providing
+#  additional information.
+msgid "%(BEGIN_LINK)sLeverage browser caching%(END_LINK)s for the following cacheable resources:"
+msgstr "%(BEGIN_LINK)sPahusayin ang pagka-cache ng browser%(END_LINK)s para sa mga sumusunod na naka-cache na mapagkukunan:"
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240"); the $4 is a format
-#  token that will be replaced with the number of times this image
-#  appears in the page (e.g. "3").
-msgid "$1 (Dimensions: $2 x $3) ($4 uses)"
-msgstr "$1 (Mga Sukat: $2 x $3) ($4 na paggamit)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify CSS%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sPaliitin ang CSS%(END_LINK)s para sa mga sumusunod na mapagkukunan upang bawasan ang laki ng mga ito nang %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
 
-#  Item describing a single URL that violates the
-#  LeverageBrowserCaching rule by not having a cache expiration.
-#  "$1" is a format string that will be replaced by the URL.
-msgid "$1 (expiration not specified)"
-msgstr "$1 (hindi tinukoy ang pag-expire)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify HTML%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sPaliitin ang HTML%(END_LINK)s para sa mga sumusunod na mapagkukunan upang bawasan ang laki ng mga ito nang %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
 
-#  Describes a single resource that violates the
-#  AvoidDocumentWrite rule by using the "document.write"
-#  JavaScript command ("document.write" is code, and should not
-#  be translated).  It gives the URL of the resource that uses
-#  "document.write", and the line number of that
-#  call.  Following this will be a list of the URLs that are
-#  fetched as a result of that "document.write" call.  "$1" is a
-#  format token that will be replaced with the URL of the
-#  external resource that uses "document.write".  "$2" will be
-#  replaced with the line number of the call to "document.write"
-#  in that resource.
-msgid "$1 calls document.write on line $2 to fetch:"
-msgstr "Tinatawagan ng $1 ang document.write sa $2 na linya upang makuha:"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify JavaScript%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sPaliitin ang JavaScript%(END_LINK)s para sa mga sumusunod na mapagkukunan upang bawasan ang laki ng mga ito nang %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the render of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sOptimize CSS Delivery%(END_LINK)s of the following:"
+msgstr "%(BEGIN_LINK)sI-optimize ang Paghahatid ng CSS%(END_LINK)s ng sumusunod:"
+
+#  Header at the top a list of image URLs that Page
+#  Speed detected as can be optimized by using better
+#  compression. It describes the problem to the user that the size
+#  of the images can be reduced. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the browser,
+#  which takes the user to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sI-optimize ang mga sumusunod na larawan%(END_LINK)s upang bawasan ang laki ng mga ito nang %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "%(BEGIN_LINK)sGawing priyoridad ang nakikitang nilalaman%(END_LINK)s na kinakailangan para sa pagre-render sa itaas ng fold."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the parser of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sRemove render-blocking JavaScript%(END_LINK)s:"
+msgstr "%(BEGIN_LINK)sAlisin ang JavaScript na nagba-block sa pagre-render%(END_LINK)s:"
+
+#  Header at the top of a list of URLs that PageSpeed
+#  determined were blocking the parser of above-the-fold content that
+#  can be made asynchronous. The text between BEGIN_LINK and END_LINK
+#  will link to a document providing additional information.
+msgid "%(BEGIN_LINK)sUse asynchronous versions%(END_LINK)s of the following scripts:"
+msgstr "%(BEGIN_LINK)sGamitin ang mga asynchronous na bersyon%(END_LINK)s ng mga sumusunod na script:"
 
 #  The document that Page Speed detected as have CSS
-#  resources in document body. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body."
-msgstr "May CSS ang $1 sa nilalaman ng dokumento."
+#  resources in document body.
+msgid "%(DOCUMENT_URL)s has CSS in the document body."
+msgstr "May CSS sa nilalaman ng dokumento ang %(DOCUMENT_URL)s."
 
 #  Header of a list of items the Page Speed suggests to
-#  move to document head. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body:"
-msgstr "May CSS ang $1 sa nilalaman ng dokumento:"
+#  move to document head.
+msgid "%(DOCUMENT_URL)s has CSS in the document body:"
+msgstr "May CSS sa nilalaman ng dokumento ang %(DOCUMENT_URL)s:"
 
-#  Item describing a URL that violates the MinimzeRequestSize
-#  rule by having a large request size. The "$1" in the format string will
-#  be replaced by the URL; the "$2" will be replaced by the number of bytes
-#  in the request. This is displayed at the top of a breakdown of how large
-#  each element of the request is.
-#.
-msgid "$1 has a request size of $2"
-msgstr "May laki ng kahilingan na $2 ang $1"
+#  List item indicating that a particular HTML document
+#  loads a particular resource file synchronously (rather than
+#  asynchronously).
+msgid "%(DOCUMENT_URL)s loads %(RESOURCE_URL)s synchronously."
+msgstr "Nilo-load ng %(DOCUMENT_URL)s ang %(RESOURCE_URL)s nang synchronous."
 
-#  Message displayed to indicate that a URL
-#  redirects to another URL, e.g "http://example.com/ is an
-#  uncacheable redirect to http://www.example.com/".
-msgid "$1 is an uncacheable redirect to $2"
-msgstr "Isang hindi naka-cache na pag-redirect sa $2 ang $1"
+#  An amount of bytes with abbreviated unit.  The "NUM_BYTES"
+#  placeholder is replaced with the number of bytes (e.g. "93",
+#  representing 93 bytes).
+msgid "%(NUM_BYTES)sB"
+msgstr "%(NUM_BYTES)sB"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the served size of the image, the final size of the
-#  image, and the amount saved by serving the image in the final size.
-#  "$1" is a format token that will be replaced with the URL of the image
-#  resource.  "$2" and "$3" will be replaced with the original (served)
-#  width and height (respectively) of the image resource.  "$4" and "$5"
-#  will be replaced with the final (resized) width and height
-#  (respectively) of the image resource.  "$6" will be replaced with the
-#  amount saved (in bytes) by serving the image correctly size (e.g.
-#  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25%").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
-msgstr "Binabago ang laki ng $1 sa HTML o CSS mula $2x$3 patungong $4x$5. Makakatipid ng $6 ($7 na pagbabawas) ang paghahatid ng naka-scale na larawan."
+#  An amount of kilobytes with abbreviated unit.  The
+#  "NUM_KILOBYTES" placeholder is replaced with the number of kilobytes
+#  (e.g. "32.5", representing 32.5 kilobytes).
+msgid "%(NUM_KILOBYTES)sKiB"
+msgstr "%(NUM_KILOBYTES)sKiB"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the amount saved by serving the image in its final
-#  size.  "$1" is a format token that will be replaced with the URL of the
-#  image resource.  "$2" will be replaced with the amount saved (in bytes)
-#  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25%").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
-msgstr "Binabago ang laki ng $1 sa HTML o CSS. Makakatipid ng $2 ($3 na pagbabawas) ang paghahatid ng naka-scale na larawan."
+#  An amount of megabytes with abbreviated unit.  The
+#  "NUM_MEGABYTES" placeholder is replaced with the number of megabytes
+#  (e.g. "32.5", representing 32.5 megabytes).
+msgid "%(NUM_MEGABYTES)sMiB"
+msgstr "%(NUM_MEGABYTES)sMiB"
 
-#  Shown as part of a list of URLs that initiate JavaScript
-#  scripts that run for a long time.  Shows a URL at $1, the line
-#  number (of the file at that URL that triggers the script URL) at $2,
-#  and the length of time the scripts runs for at $3.
-msgid "$1 line $2 ($3)"
-msgstr "$1 linya $2 ($3)"
+#  Detail of the inline CSS. It tells the user how many
+#  style blocks should be moved to document head.
+msgid "%(NUM_STYLE_BLOCKS)s style block(s) in the body should be moved to the document head."
+msgstr "Ilipat dapat sa itaas na bahagi ng dokumento ang %(NUM_STYLE_BLOCKS)s (na) style block sa nilalaman."
 
-#  Detail for resource that loads synchronously. The "$1" will
-#  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
-#  be replaced by the resource URL.
-msgid "$1 loads $2 synchronously."
-msgstr "Nilo-load ng $1 ang $2 nang magkasabay."
+#  Message displayed to indicate that one URL redirects to
+#  another URL, e.g "http://example.com/ is an uncacheable redirect to
+#  http://www.example.com/".
+msgid "%(ORIGINAL_URL)s is an uncacheable redirect to %(TARGET_URL)s"
+msgstr "Ang %(ORIGINAL_URL)s ay isang hindi naka-cache na pagre-redirect sa %(TARGET_URL)s"
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected to have JavaScript code. It describes the problem and tells
-#  the user how to fix by defering parsing the JavaScript code.
-msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
-msgstr "Pina-parse ang $1 ng JavaScript sa panahon ng pag-load ng paunang pahina. I-defer ang pag-parse ng JavaScript upang bawasan ang pag-block ng pag-render ng pahina."
+#  the user how to fix by defering parsing the JavaScript code.  The
+#  "SIZE_IN_BYTES" placeholder indicates how much Javascript data is
+#  begin parsed (e.g. "273.1KB").
+msgid "%(SIZE_IN_BYTES)s of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "Pina-parse ang %(SIZE_IN_BYTES)s ng JavaScript sa panahon ng paglo-load ng paunang pahina. I-defer ang pagpa-parse ng JavaScript upang bawasan ang pagba-block sa pagre-render ng pahina."
 
-#  A sub-heading that contains the URL of the document and
-#  a statement instructing the user to inline certain small resources.
-#  "$1" is a format token that will be replaced with the URL of the
-#  document that contains the resources that can be inserted directly
-#  into the HTML document.
-msgid "$1 should inline the following small resources:"
-msgstr "Kailangang i-inline ng $1 ang sumusunod na mga maliit na mapagkukunan:"
+#  Summary header indicating how much of the server's
+#  HTML response, in bytes, was needed by the browser in order to
+#  render the above-the-fold content, and recommending that the user
+#  place priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)  The "SIZE_IN_BYTES"
+#  is the actual amount of HTML content needed to render the above
+#  the full fold content (e.g. "24.3kB").
+msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "Kinailangan ang %(SIZE_IN_BYTES)s ng tugon upang i-render ang nilalaman sa itaas ng fold. %(BEGIN_LINK)sGawing priyoridad ang nakikitang nilalaman%(END_LINK)s na kinakailangan para sa pagre-render sa itaas ng fold."
 
-#  Detail of the inline CSS. It tells the user how many
-#  style blocks should be moved to document head. The "$1" will be
-#  replaced by the number of style blocks.
-msgid "$1 style block(s) in the body should be moved to the document head."
-msgstr "Ang (mga) $1 style block sa nilalaman ay dapat na ilipat sa itaas na bahagi ng dokumento."
+#  Shown as part of a list of URLs that have unnecessary
+#  reflows (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community).  The message indicates
+#  the URL and the number of reflows that it requires.
+msgid "%(URL)s (%(NUM_REFLOWS)s reflows)"
+msgstr "%(URL)s (%(NUM_REFLOWS)s (na) muling pagdaloy)"
 
-#  An amount of bytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of bytes (e.g. "93",
-#  representing 93 bytes).
-msgid "$1B"
-msgstr "$1B"
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "URL" placeholder will be
+#  replaced by the document (HTML page, or a iframe) URL; the
+#  "SIZE_IN_BYTES" will be replaced by the size of its inline
+#  JavaScripts (e.g. "273.1KB").
+msgid "%(URL)s (%(SIZE_IN_BYTES)s of inline JavaScript)"
+msgstr "%(URL)s (%(SIZE_IN_BYTES)s ng inline JavaScript)"
 
-#  An amount of kilobytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of kilobytes (e.g. "32.5",
-#  representing 32.5 kilobytes).
-msgid "$1KiB"
-msgstr "$1KiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s)"
+msgstr "%(URL)s (Mga Dimensyon: %(WIDTH)s x %(HEIGHT)s)"
 
-#  An amount of megabytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of megabytes (e.g. "32.5",
-#  representing 32.5 megabytes).
-msgid "$1MiB"
-msgstr "$1MiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s uses)"
+msgstr "%(URL)s (Mga Dimensyon: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s (na) paggamit)"
+
+#  Item describing a single URL that violates the
+#  LeverageBrowserCaching rule by not having a specified cache expiration
+#  time.
+msgid "%(URL)s (expiration not specified)"
+msgstr "%(URL)s (hindi tinukoy ang expiration)"
+
+#  Item describing a URL that violates the
+#  MinimzeRequestSize rule by having a large request size. The "URL"
+#  placeholder will be replaced by the URL; the "SIZE_IN_BYTES"
+#  placeholder will be replaced by the number of bytes in the request
+#  (e.g. "1492 bytes"). This is displayed at the top of a breakdown of
+#  how large each element of the request is.
+msgid "%(URL)s has a request size of %(SIZE_IN_BYTES)s"
+msgstr "Ang %(URL)s ay may laki ng kahilingan na %(SIZE_IN_BYTES)s"
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the original size of the image, the final
+#  size of the image, and the amount saved by serving the image in
+#  the final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").  The "ORIGINAL_WIDTH x ORIGINAL_HEIGHT"
+#  gives the natural size of the image file (e.g. "640x480"), while
+#  the "FINAL_WIDTH x FINAL_HEIGHT" gives the size to which the
+#  image has been resized by the HTML or CSS (e.g. "160x120").
+msgid "%(URL)s is resized in HTML or CSS from %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s to %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Binago ang laki ng %(URL)s sa HTML o CSS mula sa %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s patungo sa %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Ang paghahatid ng sinukat na larawan ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the amount saved by serving the image in
+#  its final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").
+msgid "%(URL)s is resized in HTML or CSS. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Binago ang laki ng %(URL)s sa HTML o CSS. Ang paghahatid ng sinukat na larawan ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL, the line number (of
+#  the file at that URL that triggers the script URL), and the duration
+#  of time for which the scripts runs.
+msgid "%(URL)s line %(LINE_NUMBER)s (%(DURATION)s)"
+msgstr "Linya %(LINE_NUMBER)s ng %(URL)s (%(DURATION)s)"
+
+#  A sub-heading that contains the URL of the document
+#  and a statement instructing the user to inline certain small
+#  resources.  The "URL" placeholder will be replaced with the URL of
+#  the document that contains the resources that can be inserted
+#  directly into the HTML document.
+msgid "%(URL)s should inline the following small resources:"
+msgstr "Kailangang i-inline ng %(URL)s ang sumusunod na maliliit na mapagkukunan:"
+
+#  Summary header indicating how much of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be correctly
+#  rendered without relying on any render-blocking
+#  resources.  The "PERCENTAGE" placeholder will be
+#  replaced with the percentage of the content that was
+#  ready (e.g. "85%").
+msgid "Approximately %(PERCENTAGE)s of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Tinatayang %(PERCENTAGE)s ng nilalaman sa itaas ng fold sa iyong pahina ang mare-render nang hindi naghihintay na ma-load ang mga sumusunod na mapagkukunan. Subukang i-defer o asynchronous na i-load ang mga nagba-block na mapagkukunan, o i-inline ang mahahalagang bahagi ng mga mapagkukunang iyon nang direkta sa HTML."
 
 #  The name of a Page Speed rule telling webmasters to avoid using
 #  the @import directive in their CSS style sheets ("@import" is code, and
@@ -170,6 +292,12 @@ msgstr "$1MiB"
 msgid "Avoid CSS @import"
 msgstr "Iwasan ang CSS @import"
 
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages do not specify a character set in an HTML meta tag.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid a character set in the meta tag"
+msgstr "Iwasan ang isang set ng character sa meta tag"
+
 #  The name of a Page Speed rule that tells users to try and avoid
 #  writing pages that generate bad HTTP requests (i.e. requests that return
 #  HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
@@ -178,13 +306,17 @@ msgstr "Iwasan ang CSS @import"
 msgid "Avoid bad requests"
 msgstr "Iwasan ang mga hindi tamang kahilingan"
 
-#  The name of a Page Speed rule that tells webmasters to avoid
-#  using the "document.write" command in their JavaScript code
-#  ("document.write" is code, and should not be translated).  This appears in
-#  a list of rule names generated by Page Speed, telling webmasters which
-#  rules they broke in their website.
-msgid "Avoid document.write"
-msgstr "Iwasan ang document.write"
+#  The name of a Page Speed rule that tells users to avoid using
+#  Adobe Flash on mobile webpages
+msgid "Avoid flash on mobile webpages"
+msgstr "Iwasan ang flash sa mga webpage sa mobile"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid landing page redirects"
+msgstr "Iwasan ang mga pagre-redirect ng landing page"
 
 #  The name of a Page Speed rule that tells users to try
 #  and avoid writing pages with Javascript scripts that run for a
@@ -224,47 +356,68 @@ msgstr "Pagsamahin ang panlabas na JavaScript"
 msgid "Combine images into CSS sprites"
 msgstr "Pagsamahin ang mga larawan sa CSS sprites"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting CSS code can save many bytes of data and speed up download and parse times."
+msgstr "Makakatipid ng maraming byte ng data at makakapagpabilis sa mga oras ng pag-download at pag-parse ang pag-compact ng CSS code."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting HTML code, including any inline JavaScript and CSS contained in it, can save many bytes of data and speed up download and parse times."
+msgstr "Makakatipid ng maraming byte ng data at makakapagpabilis sa mga oras ng pag-download at pag-parse ang pag-compact ng HTML code, kasama na ang anumang inline na JavaScript at CSS na nilalaman nito."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting JavaScript code can save many bytes of data and speed up downloading, parsing, and execution time."
+msgstr "Makakatipid ng maraming byte ng data at makakapagpabilis sa oras ng pag-download, pag-parse at pag-execute ang pag-compact ng JavaScript code."
+
 #  Description of a single resource that was served uncompressed,
 #  in violation of the EnableGzipCompression rule.  It gives the URL of the
-#  resource, as well as the amount of data that would be saved by compressing.
-#  It appears in a list of all the uncompressed resources on a site.  "$1" is
-#  a format token that will be replaced with the URL of the uncompressed
-#  resource in question.  "$2" will be replaced with the amount of data
-#  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3 reduction)."
-msgstr "Makakatipid ng $2 ($3 na pagbabawas) ang pagsisiksik ng $1."
+#  resource, as well as the amount of data that would be saved by
+#  compressing.  It appears in a list of all the uncompressed resources on a
+#  site.  The "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
+#  savings (e.g. "50%").
+msgid "Compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Ang pagko-compress ng %(URL)s ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
 
-#  Descriptive header for a list of URLs that were served
-#  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
-#  webmaster that compressing all of those resources could reduce the amount
-#  of data transferred (which would speed up the site).  It is followed by a
-#  list of uncompressed resource URLs.  "$1" is a format token that will be
-#  replaced by the amount of data transferred saved by compressing (in bytes)
-#  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25%").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
-msgstr "Ang pagsisiksik ng mga sumusunod na mapagkukunan gamit ang gzip ay makakabawas sa laki ng paglipat ng mga ito ng $1 ($2 na pagbabawas)."
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compressing resources with gzip or deflate can reduce the number of bytes sent over the network."
+msgstr "Maaaring bawasan ng pag-compress ng mga mapagkukunan gamit ang gzip o deflate ang bilang ng mga byte na ipinapadala sa network."
 
-#  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1"
-msgstr "Cookies: $1"
+#  Summary header indicating that compressing will bring
+#  the page to meeting the criteria (the above the fold content is
+#  rendered on the first 15 kilobytes).
+msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
+msgstr "Ang pagko-compress sa HTML ng iyong pahina ay makakapagdulot na mare-render ng iyong pahina ang karamihan ng nilalaman sa itaas ng fold sa loob ng unang 15kB ng tugon."
 
 #  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. It also tell the
-#  user that the resource is static, and it should be served from a
-#  cookieless domain. The "$1" will be replace by the size of the
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
 #  cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
-msgstr "Cookies: $1 (tandaan na ito ay isang static na mapagkukunan, at kailangang ihatid mula sa isang domain na walang cookies)"
+msgid "Cookies: %(SIZE_IN_BYTES)s"
+msgstr "Cookies: %(SIZE_IN_BYTES)s"
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. It also tell
+#  the user that the resource is static, and it should be served from a
+#  cookieless domain. The "SIZE_IN_BYTES" placeholder will be replaced
+#  by the size of the cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: %(SIZE_IN_BYTES)s (note that this is a static resource, and should be served from a cookieless domain)"
+msgstr "Cookies: %(SIZE_IN_BYTES)s (tandaan na isa itong static na tugon, at ihatid dapat mula sa domain na walang cookie)"
 
 #  The name of a Page Speed rule that tells users to defer
 #  parsing of large amount of JavaScript code. This is displayed in a list
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
 msgstr "I-defer ang pag-parse ng JavaScript"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  loading resources on the page that block the initial render of the page
+msgid "Eliminate render-blocking JavaScript and CSS in above-the-fold content"
+msgstr "Alisin ang JavaScript at CSS na nagba-block sa pagre-render sa nilalaman sa itaas ng fold"
 
 #  Title of this rule, which suggests
 #  removing/eliminating reflows (or "layouts", which is used
@@ -288,6 +441,21 @@ msgstr "Paganahin ang Keep-Alive"
 msgid "Enable compression"
 msgstr "Paganahin ang compression"
 
+#  The name of a Page Speed rule that tells users to improve
+#  their server response time. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Improve server response time"
+msgstr "Pahusayin ang oras ng pagtugon ng server"
+
+#  Summary header indicating how long it took for the
+#  user's web server to respond to a request, and providing a link to
+#  more information about how one can measure and keep track of which
+#  aspects of the server's operation are consuming that time.  The
+#  "RESPONSE_TIME" placeholder will be replaced with the time taken by
+#  the server (e.g. "872 milliseconds").
+msgid "In our test, your server responded in %(RESPONSE_TIME)s. There are many factors that can slow down your server response time. %(BEGIN_LINK)sPlease read our recommendations%(END_LINK)s to learn how you can monitor and measure where your server is spending the most time."
+msgstr "Sa aming pagsubok, tumugon ang iyong server sa loob ng %(RESPONSE_TIME)s. May maraming salik na makakapagpabagal sa oras ng pagtugon ng iyong server. %(BEGIN_LINK)sPakibasa ang aming mga rekomendasyon%(END_LINK)s upang matutunan kung paano mo masusubaybayan at masusukat kung saan gumugugol ng higit na oras ang iyong server."
+
 #  Name of a Page Speed rule. A longer description
 #  would be "Insert (or move) small CSS resources directly into the
 #  HTML document" but rule names are intentionally short so we use
@@ -306,10 +474,24 @@ msgstr "Mag-inline ng Maliit na CSS"
 msgid "Inline Small JavaScript"
 msgstr "Mag-inline ng Maliit na JavaScript"
 
-#  Detail of inline script block. The "$1" will be replace
-#  by the index of the script block (e.g. 3).
-msgid "Inline script block #$1"
-msgstr "Inline script block #$1"
+#  Rule name. This rule recommends serving a low quality
+#  version of the images that appear inside of the visible scroll
+#  region of the browser (i.e. the part of the page that the user
+#  can see without having to scroll down) inlined in the HTML
+#  response.
+msgid "Inline previews of visible images"
+msgstr "Mga inline na preview ng mga nakikitang larawan"
+
+#  The name of a Page Speed rule that tells users to inline CSS
+#  resources that block the initial render of the page.
+msgid "Inline render-blocking CSS"
+msgstr "I-inline ang CSS na nagba-block sa pagre-render"
+
+#  Detail of inline script block. The "INDEX"
+#  placeholder will be replaced by the index of the script block
+#  (e.g. "3").
+msgid "Inline script block #%(INDEX)s"
+msgstr "Inline na script block #%(INDEX)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made, as well as a brief summary
@@ -332,17 +514,36 @@ msgid "Leverage browser caching"
 msgstr "Pag-cache ng leverage browser"
 
 #  Detail of external CSS resources. It tells the user
-#  how to fix the problem by moving the CSS to document head. The
-#  "$1" will be replaced by the CSS resource URL.
-msgid "Link node $1 should be moved to the document head."
-msgstr "Kailangang ilipat ang link node na $1 sa itaas na bahagi ng dokumento."
+#  how to fix the problem by moving the CSS to document head.
+msgid "Link node %(LINK_URL)s should be moved to the document head."
+msgstr "Ilipat dapat ang %(LINK_URL)s ng link node sa itaas na bahagi ng dokumento."
 
-#  Detail info for one image URL. It tells the user how much can
-#  be save for one image. The "$1" will be replace the the image URL; "$2"
-#  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the percentage (e.g. 12%).
-msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
-msgstr "Makakatipid ng $2 ($3 na pagbabawas) ang walang pagkawalang pagsisiksik ng $1."
+#  Rule name. This rule recommends loading the images
+#  that appear outside of the visible scroll region of the browser
+#  (i.e. the part of the page that the user needs to scroll down to
+#  see) after the images and resources needed to show the part
+#  within the initially visible region have loaded.
+msgid "Load visible images first"
+msgstr "Mag-load muna ng mga nakikitang larawan"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having slow server response times. It describes the
+#  problem.
+msgid "Long web server response times delay page loading. Reduce your response times to make your page load faster."
+msgstr "Inaantala ng mahahabang oras ng pagtugon ng web server ang paglo-load ng pahina. Bawasan ang mga oras ng iyong pagtugon upang gawing mas mabilis ang paglo-load ng iyong pahina."
+
+#  Subheading that describes the savings possible from optimizing
+#  a particular image resource via lossless compression.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Ang mahigpit na pagko-compress sa %(URL)s ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
+
+#  The name of a Pagespeed rule that tells users to make the
+#  most of visible content render-able by end of the HTML.
+msgid "Make content visible by end of HTML"
+msgstr "Gawing nakikita ang nilalaman sa dulo ng HTML"
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -370,41 +571,20 @@ msgid "Minify JavaScript"
 msgstr "Paliitin ang JavaScript"
 
 #  Subheading that describes the post-compression network savings
-#  possible from minifying a single resource. "$1" is a format token that
-#  will be replaced by the URL of the resource. "$2" will be replaced bythe
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction) after compression."
-msgstr "Makakatipid ng $2 ($3 na pagbabawas) ang pagpapaliit ng $1 pagkatapos ng pagsisiksik."
+#  possible from minifying a single resource.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction) after compression."
+msgstr "Ang pagpapaliit sa %(URL)s ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas) pagkatapos ng compression."
 
-#  Subheading that describes the savings possible from minifying a
-#  single resource. "$1" is a format token that will be replaced by the URL of
-#  the resource. "$2" will be replaced bythe absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction)."
-msgstr "Makakatipid ng $2 ($3 na pagbabawas) ang pagpapaliit ng $1."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
-msgstr "Ang pagpapaliit ng mga sumusunod na mapagkukunan ng CSS ay makakabawas sa laki ng mga ito ng $1 ($2 na pagbabawas)."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
-msgstr "Ang pagpapaliit ng mga sumusunod na mapagkukunan ay makakabawas sa laki ng mga ito ng $1 ($2 na pagbabawas)."
-
-#  Heading that describes the savings possible from minifying
-#  resources.  "$1" will be replaced by the absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
-msgstr "Ang pagpapaliit ng mga sumusunod na mapagkukunan ng JavaScript ay makakabawas sa laki ng mga ito ng $1 ($2 na pagbabawas)."
+#  Subheading that describes the savings possible from minifying
+#  a single resource.  The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved (e.g. "5
+#  bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Ang pagpapaliit sa %(URL)s ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -425,6 +605,22 @@ msgstr "I-minimize ang mga pag-redirect"
 msgid "Minimize request size"
 msgstr "I-minimize ang laki ng kahilingan"
 
+#  Summary header indicating that none of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be rendered
+#  without relying on any render-blocking resources.
+msgid "None of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Wala sa nilalaman sa itaas ng fold sa iyong pahina ang mare-render nang hindi naghihintay na ma-load ang mga sumusunod na mapagkukunan. Subukang i-defer o asynchronous na i-load ang mga nagba-block na mapagkukunan, o i-inline ang mahahalagang bahagi ng mga mapagkukunang iyon nang direkta sa HTML."
+
+#  Summary header indicating how much of the above-the-fold
+#  (i.e. within the initial browser viewport) content of a webpage was
+#  able to be correctly rendered based on the HTML of the HTTP
+#  response.  This header will be followed by the URL for the page.
+#  The "PERCENTAGE" placeholder will be replaced with the percentage of
+#  the content that was ready (e.g. "36%").
+msgid "Only %(PERCENTAGE)s of the final above-the-fold content of the page was able to be rendered using the whole HTML of the HTTP response for the page URL:"
+msgstr "Ang %(PERCENTAGE)s lang ng pinal na nilalaman sa itaas ng fold ng pahina ang nakapag-render gamit ang buong HTML ng tugon ng HTTP para sa URL ng pahina:"
+
 #  The name of a Page Speed rule that tells users to optimize the
 #  images (better compression). This is displayed in a list of rule names that
 #  Page Speed generates.
@@ -437,20 +633,12 @@ msgstr "I-optimize ang mga larawan"
 msgid "Optimize the order of styles and scripts"
 msgstr "I-optimize ang kaayusan ng mga estilo at script"
 
-#  Header at the top a list of image URLs that Page Speed detected
-#  as can be optimized by using better compression. It describes the problem
-#  to the user that the size of the images can be reduced. The "$1" will be
-#  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the percentage (e.g. 25%).
-msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
-msgstr "Ang pag-optimize sa mga sumusunod na larawan ay makakabawas sa laki ng mga ito ng $1 ($2 na pagbabawas)."
-
-#  Item showing how large the other request components is in a
-#  request that violates the MinimizeRequestSizeRule by being large. The
-#  "$1" will be replace by the total size of other components of the
-#  request in bytes (e.g. "5.3KiB").
-msgid "Other: $1"
-msgstr "Iba pa: $1"
+#  Item showing how large the other request components is in
+#  a request that violates the MinimizeRequestSizeRule by being
+#  large. The "SIZE_IN_BYTES" placeholder will be replaced by the total
+#  size of other components of the request in bytes (e.g. "5.3KiB").
+msgid "Other: %(SIZE_IN_BYTES)s"
+msgstr "Iba pa: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells users to parallelize
 #  downloads resources (image, css, javascript) across hostnames. This is
@@ -463,6 +651,17 @@ msgstr "I-parallel ang mga download sa mga hostname"
 #  Page Speed generates.
 msgid "Prefer asynchronous resources"
 msgstr "Piliin ang asynchronous na mga mapagkukunan"
+
+#  The name of a Page Speed rule that tells users to prioritize
+#  being able to render the initially-visible content of a page as early as
+#  possible.
+msgid "Prioritize visible content"
+msgstr "Gawing priyoridad ang nakikitang nilalaman"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Properly formatting and compressing images can save many bytes of data."
+msgstr "Makakatipid ng maraming byte ng data ang maayos na pag-format at pag-compress ng mga larawan."
 
 #  The name of a Page Speed rule that tells users to put CSS
 #  (style sheet) resources in HTML head. This is displayed in a list of
@@ -477,11 +676,18 @@ msgstr "Maglagay ng CSS sa itaas na bahagi ng dokumento"
 msgid "Reduce request serialization"
 msgstr "Bawasan ang pag-serialize ng kahilingan"
 
+#  The name of a Page Speed rule that tells users to
+#  reduce the time it takes for their HTML resource to be generated
+#  by the server.
+msgid "Reduce server response time"
+msgstr "Bawasan ang oras ng pagtugon ng server"
+
 #  Item showing how large the referrer URL is in a request
-#  that violates the MinimizeRequestSizeRule by being large. The "$1" will
-#  be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-msgid "Referer Url: $1"
-msgstr "Taga-refer na Url: $1"
+#  that violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  referrer URL in bytes (e.g. "5.3KiB").
+msgid "Referer Url: %(SIZE_IN_BYTES)s"
+msgstr "Url ng Referer: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells webmasters to remove
 #  query strings from the URLs of static resources (i.e.
@@ -499,10 +705,11 @@ msgid "Remove the following redirect chain if possible:"
 msgstr "Alisin ang sumusunod na chain ng pag-redirect kung maaari:"
 
 #  Item showing how large the URL is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the request URL in bytes (e.g. "5.3KiB").
-msgid "Request URL: $1"
-msgstr "Humiling ng URL: $1"
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  request URL in bytes (e.g. "5.3KiB").
+msgid "Request URL: %(SIZE_IN_BYTES)s"
+msgstr "URL ng Kahilingan: %(SIZE_IN_BYTES)s"
 
 #  Descriptive header at the top of a list of URLs that
 #  violate the RemoveQueryStringsFromStaticResources rule by using a query
@@ -527,6 +734,11 @@ msgstr "Ihatid ang mga mapagkukunan mula sa isang matatag na URL"
 msgid "Serve scaled images"
 msgstr "Maghatid ng mga naka-scale na larawan"
 
+#  Summary sentence explaining briefly how HTTP browser
+#  cachine can be enabled, and why it is beneficial to do so.
+msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
+msgstr "Ang pagtatakda ng expiry date o maximum na edad sa mga header ng HTTP para sa mga static na mapagkukunan ay nagbibigay-tagubilin sa browser na mag-load ng mga nakaraang na-download na mapagkukunan mula sa lokal na disk sa halip na sa network."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -550,6 +762,12 @@ msgstr "Tumukoy ng validator ng cache"
 msgid "Specify a character set"
 msgstr "Tumukoy ng hanay ng character"
 
+#  The name of a Page Speed rule that tells users to specify
+#  a viewport for mobile devices. This is displayed in a list of rule names
+#  that Page Speed generates. "Viewport" is code and should not be translated.
+msgid "Specify a viewport for mobile browsers"
+msgstr "Tumukoy ng viewport para sa mga browser sa mobile"
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
 #  image that appears in the page.  This is displayed in a list of rule names
@@ -557,47 +775,44 @@ msgstr "Tumukoy ng hanay ng character"
 msgid "Specify image dimensions"
 msgstr "Tumukoy ng mga sukat ng larawan"
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains the number of times the code in this context
-#  executed, and $2 contains JavaScript code that gives
-#  the context of the reflow.
-msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
-msgstr "Ang sumusunod na stack ng tawag ng JavaScript (pinagana ng $1 na beses) ay nagdulot ng mga muling pagdaloy na tumagal ng $2 na millisecond: $3"
+#  Header at the top of a list of URLs of Adobe Flash
+#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
+#  the number of Flash elements found.
+msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
+msgstr "Kasama ang sumusunod na %(NUM_ELEMENTS)s (na) elemento ng Flash sa pahina o mula sa mga isinamang iframe. Hindi sinusuportahan ang Adobe Flash Player sa Apple iOS o mga bersyon ng Android na mas mataas sa 4.0.x. Isaalang-alang ang pag-aalis ng mga Flash na bagay at paghahanap ng mga naaangkop na kapalit."
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains JavaScript code that gives the context of the
+#  Summary header indicating that the external CSS
+#  resources can be inlined in the HTML and still meet the 15k criteria.
+msgid "The following %(NUM_RESOURCES)s external CSS resources blocked the rendering before the browser was able to render most of the above-the-fold content. Inlining them and enabling compression (if it is not enabled already) will make your page render most of the above-the-fold content in the first 15kB."
+msgstr "Na-block ng sumusunod na %(NUM_RESOURCES)s (na) panlabas na mapagkukunan ng CSS ang pagre-render bago na-render ng browser ang karamihan ng nilalaman sa itaas ng fold. Ang pag-i-inline sa mga ito at pag-e-enable ng compression (kung hindi pa ito naka-enable) ay magdudulot na ma-render ng iyong pahina ang karamihan ng nilalaman sa itaas ng fold sa unang 15kB."
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused multiple
+#  unnecessary reflows.
+msgid "The following JavaScript call stack (executed %(NUM_TIMES)s times) caused reflows that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Ang sumusunod na stack ng tawag ng JavaScript (pinagana nang %(NUM_TIMES)s (na) beses) ay nagdulot ng mga muling pagdaloy na tumagal nang %(NUM_MILLISECONDS)s (na) millisecond: %(CALL_STACK)s"
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused an unnecessary
 #  reflow.
-msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
-msgstr "Ang sumusunod na stack ng tawag ng JavaScript ay nagdulot ng muling pagdaloy na tumagal ng $1 na millisecond: $2"
+msgid "The following JavaScript call stack caused a reflow that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Ang sumusunod na stack ng tawag ng JavaScript ay nagdulot ng muling pagdaloy na tumagal nang %(NUM_MILLISECONDS)s (na) millisecond: %(CALL_STACK)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made.
 msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
 msgstr "Ang mga sumusunod na URL ay nagpapatakbo ng JavaScript na nagba-block sa UI ng mahabang panahon. Upang mapabuti ang kakayahang tumugon ng browser, i-optimize ang JavaScript o hatiin ito gamit ang mga callback."
 
-#  Heading that indicates which resources should
-#  have a longer cache freshness lifetime. Here "freshness
-#  lifetime" means the length of the period of time that the
-#  file can be reused without checking to see if there is a
-#  newer version of the file available.
-msgid "The following cacheable resources have a short freshness lifetime. Specify an expiration at least one week in the future for the following resources:"
-msgstr "Ang sumusunod na maaaring i-cache na mga mapagkukunan ay mayroong maiksing tagal ng pagiging bago. Tumukoy ng pag-expire na hindi bababa sa isang linggo sa hinaharap para sa sumusunod na mga mapagkukunan:"
-
 #  Header at the top of a list of CSS URLs that Page
 #  Speed detected as not able to be downloaded in parallel. It
 #  describes the problem to the user, and tells them how to fix it
-#  by including the external CSS before external JavaScript. The
-#  "$1" will be replaced by URL of the HTML page.
-msgid "The following external CSS files were included after an external JavaScript file in $1.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
-msgstr "Isinama ang sumusunod na mga panlabas na CSS file pagkatapos ng isang panlabas na JavaScript file sa $1.  Upang matiyak na na-download ang mga CSS file sa parallel, palaging isama ang panlabas na CSS bago ang panlabas na JavaScript."
+#  by including the external CSS before external JavaScript.
+msgid "The following external CSS files were included after an external JavaScript file in %(URL)s.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
+msgstr "Isinama ang mga sumusunod na panlabas na CSS file pagkatapos ng isang panlabas na JavaScript file sa %(URL)s.  Upang matiyak na na-download ang mga CSS file sa parallel, palaging isama ang panlabas na CSS bago ang panlabas na JavaScript."
 
 #  Header at the top of the list of URLs that Page
 #  Speed detected as candidates for being moved directly into
@@ -608,13 +823,14 @@ msgstr "Mayroong maliliit na bahagi sa pagtugon ang sumusunod na mga mapagkukuna
 
 #  Descriptive header at the top of a list of URLs that
 #  are imported by a style sheet using the @import rule ("@import"
-#  is code, and should not be translated).  It gives the URL of the
-#  style sheet that violates the AvoidCssImport rule (the $1
-#  parameter) by using @import --- the style sheets that it imports
-#  will be listed below it.  "$1" is a format token that will be
-#  replaced with the URL of the style sheet that uses @import.
-msgid "The following external stylesheets were included in $1 using @import."
-msgstr "Isinama ang sumusunod na mga panlabas na stylesheet sa $1 gamit ang @import."
+#  is code, and should not be translated; it is represented by the
+#  "IMPORT" placeholder).  It gives the URL of the style sheet that
+#  violates the AvoidCssImport rule (the "URL" parameter) by
+#  using @import --- the style sheets that it imports will be
+#  listed below it.  The "URL" placeholder will be replaced with
+#  the URL of the style sheet that uses @import.
+msgid "The following external stylesheets were included in %(URL)s using %(IMPORT)s."
+msgstr "Isinama ang mga sumusunod na panlabas na stylesheet sa %(URL)s gamit ang %(IMPORT)s."
 
 #  Header at the top of a list of URLs of images that Page
 #  Speed detected as not having both width and height explicitly
@@ -622,41 +838,54 @@ msgstr "Isinama ang sumusunod na mga panlabas na stylesheet sa $1 gamit ang @imp
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "Walang mga katangian sa lapad at/o haba ang sumusunod na (mga) larawan."
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed outside of the initially visible region of the screen. Defer loading of these images to allow the initially visible region of the page to load faster."
+msgstr "Ang mga sumusunod na larawan ay ipinapakita sa labas ng paunang nakikitang rehiyon ng screen. I-antala ang paglo-load ng mga larawang ito upang bigyang-daan ang paunang nakikitang rehiyon ng pahina na mag-load nang mas mabilis."
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed within the initially visible region of the screen. To speed up rendering of the initially visible region of the page, inline a preview of these images and delay loading the full images until after page load is complete."
+msgstr "Ang mga sumusunod na larawan ay ipinapakita sa loob ng unang makikitang rehiyon ng screen. Upang mapabilis ang pag-render ng unang makikitang rehiyon ng pahina, mag-inline ng isang preview ng mga larawan at antalahin ang pag-load ng buong mga larawan hanggang sa makumpleto ang pag-load ng pahina."
+
 #  A descriptive header at the top of a list of URLs of
 #  images that are resized in HTML or CSS.  It describes the problem to
-#  the user.  "$1" is a format token that is replaced with the total
-#  savings in bytes from serving images in their final size
-#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25%").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
-msgstr "Binabago ang laki ng mga sumusunod na larawan sa HTML o CSS. Makakatipid ng $1 ($2 na pagbabawas) ang paghahatid ng mga naka-scale na larawan."
+#  the user.  The "SIZE_IN_BYTES" placeholder will be replaced with the
+#  total saved in bytes by serving the images with the correct dimensions
+#  (e.g. "32.5KiB").  The "PERCENTAGE" placeholder will be replaced with
+#  the percentage reduction of bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS. Serving scaled images could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Binabago ang laki ng mga sumusunod na larawan sa HTML o CSS.  Ang paghahatid ng mga sinukat na larawan ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
 #  (that is, larger images containing a number of subimages, which can
 #  then be used to display a single subimage at a time by using CSS to
-#  reveal a different section of the large image in place of each of the
-#  original small images).  It describes the problem to the user, and
-#  tells them how to fix it by combining multiple small images into a
-#  larger image.  The "$1" is a format string that will be replaced with
-#  the URL of the page in which the small images appear.
-msgid "The following images served from $1 should be combined into as few images as possible using CSS sprites."
-msgstr "Ang sumusunod na mga larawan na inihatid mula sa $1 ay dapat na ipagsama sa kaunting mga larawan kung maaari gamit ang CSS sprites."
+#  reveal a different section of the large image in place of each of
+#  the original small images).  It describes the problem to the user,
+#  and tells them how to fix it by combining multiple small images into
+#  a larger image.  The "DOMAIN_NAME" placeholder will be replaced with
+#  the domain name of the page in which the small images appear
+#  (e.g. "www.example.com").
+msgid "The following images served from %(DOMAIN_NAME)s should be combined into as few images as possible using CSS sprites."
+msgstr "Ang mga sumusunod na larawan na inihatid mula sa %(DOMAIN_NAME)s ay dapat na pagsamahin bilang kakaunting mga larawan hangga't maaari gamit ang CSS sprites."
 
 #  Header at the top of a list of inline javascript
 #  blocks that Page Speed detected as preventing parallel
 #  downloading.  It describes the problem to the user and tells them
 #  how to fix it by moving the inline script before the external CSS
-#  URL, or after the next resource. The "$1" will be replace by the
-#  URL of the HTML page.
-msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
-msgstr "Natagpuan ang sumusunod na mga inline script block sa $1 sa pagitan ng panlabas na CSS file at ibang mapagkukunan.  Upang payagan ang parallel na pag-download, ilipat ang inline script sa unahan ng CSS file, o pagkatapos ng susunod na mapagkukunan."
+#  URL, or after the next resource.
+msgid "The following inline script blocks were found in %(URL)s between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
+msgstr "Nahanap ang mga sumusunod na inline na script block sa %(URL)s sa pagitan ng panlabas na CSS file at isa pang mapagkukunan. Upang payagan ang parallel na pagda-download, ilipat ang inline na script sa unahan ng panlabas na CSS file, o pagkatapos ng susunod na mapagkukunan."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as a chain of HTTP redirections. It tells the user to fix
 #  the problem by removing the URLs that redirect to others.
 msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
 msgstr "Hindi naka-cache ang mga sumusunod na pag-redirect ng landing page. Gawing naka-cache ang mga ito upang pabilisin ang mga oras ng paglo-load ng pahina para sa mga umuulit na bisita sa iyong site."
+
+msgid "The following pages do not specify a viewport. Consider adding a meta tag specifying a viewport so mobile browsers can render the document at a usable size."
+msgstr "Hindi tumutukoy ng viewport ang mga sumusunod na pahina. Isaalang-alang ang pagdaragdag ng meta tag na tumutukoy ng viewport upang ma-render ng mga browser sa mobile ang dokumento sa nagagamit na laki."
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -700,16 +929,23 @@ msgstr "Nilo-load nang magkasabay ang sumusunod na mga mapagkukunan. I-load ang 
 msgid "The following resources are missing a cache validator. Resources that do not specify a cache validator cannot be refreshed efficiently. Specify a Last-Modified or ETag header to enable cache validation for the following resources:"
 msgstr "Walang validator ng cache ang sumusunod na mga mapagkukunan. Hindi mare-refresh nang mahusay ang mga mapagkukunan na hindi tumutukoy ng isang validator ng cache. Tumukoy ng Last-Modified o ETag na header upang paganahin ang pagpapatotoo ng cache para sa sumusunod na mga mapagkukunan:"
 
+#  Header at the top of a list of URLs that Page
+#  Speed detected as declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) in an HTML meta tag. It
+#  describes the problem to the user, and tells them how to fix
+#  it by explicitly specifying the character set in the HTTP
+#  Content-Type response header.
+msgid "The following resources have a character set specified in a meta tag. Specifying a character set in a meta tag disables the lookahead downloader in IE8. To improve resource download parallelization, move the character set to the HTTP Content-Type response header."
+msgstr "Ang mga sumusunod na mapagkukunan ay may isang set ng character na tinukoy sa isang meta tag. Ang pagtukoy sa isang set ng character sa isang meta tag ay tinatanggal ang pagpapagana ng lookhead na taga-download sa IE8 . Upang mapabuti ang parallelization ng mapagkukunan sa download, ilipat ang set ng character sa header ng pagtugon ng  HTTP na Uri ng Nilalaman."
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being identical yet served multiple times from different
 #  URLs.  It describes the problem to the user, and tells them how to
-#  fix it by serving all these resources from the same URL.  The "$1"
-#  is a format string that will be replaced with the number of requests
-#  that could be saved (e.g. "3"); the "$2" is a format string that
-#  will be replaced with the number of bytes that could be saved
-#  (e.g. "12.3kB").
-msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save $1 request(s) and $2."
-msgstr "Ang sumusunod na mga mapagkukunan ay may magkaparehong mga nilalaman, subalit inihahatid mula sa magkaibang URL. Ihatid ang mga mapagkukunang ito mula sa magkaayon na URL upang i-save ang (mga) kahilingan na $1 at $2."
+#  fix it by serving all these resources from the same URL.  The
+#  "BYTES_SAVED" placeholder will be replaced with the amount of
+#  transferred data that could be saved (e.g. "12.3kB").
+msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save %(NUM_REQUESTS)s request(s) and %(BYTES_SAVED)s."
+msgstr "May magkaparehong mga nilalaman ang mga sumusunod na mapagkukunan, ngunit inihatid mula sa iba't ibang URL. Ihatid ang mga mapagkukunang ito mula sa parehong URL upang i-save ang %(NUM_REQUESTS)s (na) kahilingan at %(BYTES_SAVED)s:"
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as not declaring the character set (e.g. UTF-8,
@@ -719,14 +955,15 @@ msgstr "Ang sumusunod na mga mapagkukunan ay may magkaparehong mga nilalaman, su
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "Walang tinukoy na hanay ng character ang mga sumusunod na mapagkukunan sa mga header ng HTTP ng mga ito. Ang pagtukoy ng hanay ng character sa mga header ng HTTP ay maaaring magpabilis sa pag-render ng browser."
 
-#  Header at the top of a list of URLs of resources that are
-#  served from a domain that does not have HTTP Keep-Alive enabled.  It
-#  tells the user to enable keep-alive on that domain.  The "$1" is a
-#  format string that will be replaced with the domain in question.
-#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  Header at the top of a list of URLs of resources that
+#  are served from a domain that does not have HTTP Keep-Alive enabled.
+#  It tells the user to enable keep-alive on that host.  The
+#  "HOST_NAME" placeholder gives the name of the host
+#  (e.g. "www.example.com").  The "KEEPALIVE" placeholder is replaced
+#  with the string "Keep-Alive", which is code that should not be
 #  translated.
-msgid "The host $1 should enable Keep-Alive. It serves the following resources."
-msgstr "Dapat na paganahin ng host $1 ang Keep-Alive. Ihinahatid nito ang mga sumusunod na mapagkukunan."
+msgid "The host %(HOST_NAME)s should enable %(KEEPALIVE)s. It serves the following resources."
+msgstr "I-enable dapat ng host na %(HOST_NAME)s ang %(KEEPALIVE)s. Ihinahatid nito ang mga sumusunod na mapagkukunan."
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
@@ -745,33 +982,26 @@ msgstr "Ang mga kahilingan para sa sumusunod na mga URL ay hindi umaakma sa isah
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced with the number of CSS files loaded
-#  from the given domain. "$2" will be replaced by the domain name from
-#  which all the CSS files were loaded.
-msgid "There are $1 CSS files served from $2. They should be combined into as few files as possible."
-msgstr "Mayroong mga $1 CSS file na inihatid mula sa $2. Dapat na ipagsama ang mga ito sa kaunting mga file hangga't maaari."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s CSS files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "May %(NUM_FILES)s (na) CSS file na inihatid mula sa %(DOMAIN_NAME)s. Pagsamahin dapat ang mga ito bilang kakaunting mga file hangga't maaari."
 
 #  Descriptive header describing a list of JavaScript resources
 #  that are all served from a single domain (in violation of the
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced by the number of JavaScript files
-#  loaded from the given domain.  "$2" will be replaced by the domain name
-#  from which all the JavaScript files were loaded.
-msgid "There are $1 JavaScript files served from $2. They should be combined into as few files as possible."
-msgstr "Mayroong $1 Javascript na mga file ang inihatid mula sa $2. Dapat na ipagsama ang mga ito sa kaunting file hangga't maaari."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s JavaScript files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "May %(NUM_FILES)s (na) JavaScript file na inihatid mula sa %(DOMAIN_NAME)s. Pagsamahin dapat ang mga ito bilang kakaunting mga file hangga't maaari."
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as from one host. It describes the problem to the user,
-#  and tells them how to fix it by distributing the requests across
-#  multiple hostnames. The "$1" will be replace by the number of the
-#  URLs; the "$2" wil be replaced by the name of the host (e.g.
-#  google.com).
-msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
-msgstr "Gumagawa ang mga pahina na ito ng &$1 na mga napa-parallel na kahilingan sa $2.  Pataasin ang pagpa-parallel ng download sa pamamagitan ng pagbabahagi ng mga kahilingan na ito sa maramihang hostname:"
+#  detected as being loaded from one hostname
+#  (e.g. "example.com"). It describes the problem to the user, and
+#  tells them how to fix it by distributing the requests across
+#  multiple hostnames.
+msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
+msgstr "Gumagawa ang pahinang ito ng %(NUM_REQUESTS)s (na) napa-parallel na kahilingan sa %(HOSTNAME)s. Dagdagan ang pagpa-parallel sa pamamagitan ng pamamahagi ng mga kahilingang ito sa kabuuan ng maraming hostname:"
 
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
@@ -786,10 +1016,31 @@ msgstr "Gumamit ng isang Application Cache"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Ang paggamit ng isang application cache ay nagbibigay-daan para sa isang pahina na lumitaw kaagad. Makakagamit ng application cache ang mga sumusunod na HTML na dokumento upang bawasan ang panahong ginugugol ng mga user upang magawang makipag-ugnayan sa pahina:"
 
-#  This appears as a header before a list of URLs of resources
-#  that use the JavaScript command "document.write" ("document.write" is
-#  code, and should not be translated).  It describes how using
-#  "document.write" can slow down your website (by forcing external
-#  resources to load serially, not in parallel).
-msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
-msgstr "Ang paggamit ng document.write upang makakuha ng mga panlabas na pagkukunan ay maaaring magdulot ng pagkaantala sa serialization sa pag-render ng pahina. Ang sumusunod na mga mapagkukunan ay gumagamit ng document.write upang makakuha ng mga panlabas na mapagkukunan:"
+#  Summary header indicating the number of CSS resources
+#  that are blocking the webpage from rendering while loading.
+msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "May %(NUM_CSS)s (na) mapagkukunan ng nagba-block na CSS ang iyong pahina. Nagdudulot ito ng pagkaantala sa pagre-render ng iyong pahina."
+
+msgid "Your page has %(NUM_REDIRECTS)s redirects. Redirects introduce additional delays before the page can be loaded."
+msgstr "May %(NUM_REDIRECTS)s (na) pag-redirect ang iyong pahina. Nagdudulot ng mga karagdagang pagkaantala ang mga pag-redirect bago ma-load ang pahina."
+
+#  Summary header indicating the number of Javascript
+#  resources and the number of CSS resources that are blocking the
+#  webpage from rendering while loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources and %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "May %(NUM_SCRIPTS)s (na) mapagkukunan ng nagba-block na script ang iyong pahina at %(NUM_CSS)s (na) mapagkukunan ng nagba-block na CSS. Nagdudulot ito ng pagkaantala sa pagre-render ng iyong pahina."
+
+#  Summary header indicating the number of Javascript
+#  resources that are blocking the webpage from rendering while
+#  loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
+msgstr "May %(NUM_SCRIPTS)s (na) mapagkukunan ng nagba-block na script ang iyong pahina. Nagdudulot ito ng pagkaantala sa pagre-render ng iyong pahina."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where the
+#  upper portion of the front page that is above the fold of the paper is
+#  immediately visible to the reader.)
+msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
+msgstr "Nangangailangan ang iyong pahina ng mga karagdagang round trip sa network upang i-render ang nilalaman sa itaas ng fold. Para sa pinakamahusay na performance, bawasan ang HTML na kailangan upang i-render ang nilalaman sa itaas ng fold."

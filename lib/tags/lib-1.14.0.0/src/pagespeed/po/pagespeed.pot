@@ -62,6 +62,14 @@ msgstr ""
 msgid "%(BEGIN_LINK)sMinify JavaScript%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr ""
 
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the render of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sOptimize CSS Delivery%(END_LINK)s of the following:"
+msgstr ""
+
 #  Header at the top a list of image URLs that Page
 #  Speed detected as can be optimized by using better
 #  compression. It describes the problem to the user that the size
@@ -73,6 +81,32 @@ msgstr ""
 #  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
 #  be replaced by the percent savings (e.g. "50%").
 msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr ""
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the parser of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sRemove render-blocking JavaScript%(END_LINK)s:"
+msgstr ""
+
+#  Header at the top of a list of URLs that PageSpeed
+#  determined were blocking the parser of above-the-fold content that
+#  can be made asynchronous. The text between BEGIN_LINK and END_LINK
+#  will link to a document providing additional information.
+msgid "%(BEGIN_LINK)sUse asynchronous versions%(END_LINK)s of the following scripts:"
 msgstr ""
 
 #  The document that Page Speed detected as have CSS
@@ -126,6 +160,21 @@ msgstr ""
 #  "SIZE_IN_BYTES" placeholder indicates how much Javascript data is
 #  begin parsed (e.g. "273.1KB").
 msgid "%(SIZE_IN_BYTES)s of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr ""
+
+#  Summary header indicating how much of the server's
+#  HTML response, in bytes, was needed by the browser in order to
+#  render the above-the-fold content, and recommending that the user
+#  place priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)  The "SIZE_IN_BYTES"
+#  is the actual amount of HTML content needed to render the above
+#  the full fold content (e.g. "24.3kB").
+msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
 msgstr ""
 
 #  Shown as part of a list of URLs that have unnecessary
@@ -225,6 +274,16 @@ msgstr ""
 msgid "%(URL)s should inline the following small resources:"
 msgstr ""
 
+#  Summary header indicating how much of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be correctly
+#  rendered without relying on any render-blocking
+#  resources.  The "PERCENTAGE" placeholder will be
+#  replaced with the percentage of the content that was
+#  ready (e.g. "85%").
+msgid "Approximately %(PERCENTAGE)s of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr ""
+
 #  The name of a Page Speed rule telling webmasters to avoid using
 #  the @import directive in their CSS style sheets ("@import" is code, and
 #  should not be translated).  This is displayed in a list of rule names that
@@ -297,6 +356,21 @@ msgstr ""
 msgid "Combine images into CSS sprites"
 msgstr ""
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting CSS code can save many bytes of data and speed up download and parse times."
+msgstr ""
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting HTML code, including any inline JavaScript and CSS contained in it, can save many bytes of data and speed up download and parse times."
+msgstr ""
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting JavaScript code can save many bytes of data and speed up downloading, parsing, and execution time."
+msgstr ""
+
 #  Description of a single resource that was served uncompressed,
 #  in violation of the EnableGzipCompression rule.  It gives the URL of the
 #  resource, as well as the amount of data that would be saved by
@@ -306,6 +380,17 @@ msgstr ""
 #  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
 #  savings (e.g. "50%").
 msgid "Compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compressing resources with gzip or deflate can reduce the number of bytes sent over the network."
+msgstr ""
+
+#  Summary header indicating that compressing will bring
+#  the page to meeting the criteria (the above the fold content is
+#  rendered on the first 15 kilobytes).
+msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
 msgstr ""
 
 #  Item showing how large the cookie is in a request that
@@ -327,6 +412,11 @@ msgstr ""
 #  parsing of large amount of JavaScript code. This is displayed in a list
 #  of rule names that Page Speed generates.
 msgid "Defer parsing of JavaScript"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to avoid
+#  loading resources on the page that block the initial render of the page
+msgid "Eliminate render-blocking JavaScript and CSS in above-the-fold content"
 msgstr ""
 
 #  Title of this rule, which suggests
@@ -357,6 +447,15 @@ msgstr ""
 msgid "Improve server response time"
 msgstr ""
 
+#  Summary header indicating how long it took for the
+#  user's web server to respond to a request, and providing a link to
+#  more information about how one can measure and keep track of which
+#  aspects of the server's operation are consuming that time.  The
+#  "RESPONSE_TIME" placeholder will be replaced with the time taken by
+#  the server (e.g. "872 milliseconds").
+msgid "In our test, your server responded in %(RESPONSE_TIME)s. There are many factors that can slow down your server response time. %(BEGIN_LINK)sPlease read our recommendations%(END_LINK)s to learn how you can monitor and measure where your server is spending the most time."
+msgstr ""
+
 #  Name of a Page Speed rule. A longer description
 #  would be "Insert (or move) small CSS resources directly into the
 #  HTML document" but rule names are intentionally short so we use
@@ -381,6 +480,11 @@ msgstr ""
 #  can see without having to scroll down) inlined in the HTML
 #  response.
 msgid "Inline previews of visible images"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to inline CSS
+#  resources that block the initial render of the page.
+msgid "Inline render-blocking CSS"
 msgstr ""
 
 #  Detail of inline script block. The "INDEX"
@@ -434,6 +538,11 @@ msgstr ""
 #  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
 #  placeholder will be replaced by the percent savings (e.g. "50%").
 msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr ""
+
+#  The name of a Pagespeed rule that tells users to make the
+#  most of visible content render-able by end of the HTML.
+msgid "Make content visible by end of HTML"
 msgstr ""
 
 #  The name of a Page Speed rule that tells users to avoid
@@ -496,6 +605,22 @@ msgstr ""
 msgid "Minimize request size"
 msgstr ""
 
+#  Summary header indicating that none of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be rendered
+#  without relying on any render-blocking resources.
+msgid "None of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr ""
+
+#  Summary header indicating how much of the above-the-fold
+#  (i.e. within the initial browser viewport) content of a webpage was
+#  able to be correctly rendered based on the HTML of the HTTP
+#  response.  This header will be followed by the URL for the page.
+#  The "PERCENTAGE" placeholder will be replaced with the percentage of
+#  the content that was ready (e.g. "36%").
+msgid "Only %(PERCENTAGE)s of the final above-the-fold content of the page was able to be rendered using the whole HTML of the HTTP response for the page URL:"
+msgstr ""
+
 #  The name of a Page Speed rule that tells users to optimize the
 #  images (better compression). This is displayed in a list of rule names that
 #  Page Speed generates.
@@ -527,6 +652,17 @@ msgstr ""
 msgid "Prefer asynchronous resources"
 msgstr ""
 
+#  The name of a Page Speed rule that tells users to prioritize
+#  being able to render the initially-visible content of a page as early as
+#  possible.
+msgid "Prioritize visible content"
+msgstr ""
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Properly formatting and compressing images can save many bytes of data."
+msgstr ""
+
 #  The name of a Page Speed rule that tells users to put CSS
 #  (style sheet) resources in HTML head. This is displayed in a list of
 #  rule names that Page Speed generates.
@@ -538,6 +674,12 @@ msgstr ""
 #  This is displayed in a list of rule names that Page Speed generates,
 #  telling webmasters which rules they broke in their website.
 msgid "Reduce request serialization"
+msgstr ""
+
+#  The name of a Page Speed rule that tells users to
+#  reduce the time it takes for their HTML resource to be generated
+#  by the server.
+msgid "Reduce server response time"
 msgstr ""
 
 #  Item showing how large the referrer URL is in a request
@@ -592,6 +734,11 @@ msgstr ""
 msgid "Serve scaled images"
 msgstr ""
 
+#  Summary sentence explaining briefly how HTTP browser
+#  cachine can be enabled, and why it is beneficial to do so.
+msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
+msgstr ""
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -632,6 +779,11 @@ msgstr ""
 #  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
 #  the number of Flash elements found.
 msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
+msgstr ""
+
+#  Summary header indicating that the external CSS
+#  resources can be inlined in the HTML and still meet the 15k criteria.
+msgid "The following %(NUM_RESOURCES)s external CSS resources blocked the rendering before the browser was able to render most of the above-the-fold content. Inlining them and enabling compression (if it is not enabled already) will make your page render most of the above-the-fold content in the first 15kB."
 msgstr ""
 
 #  Appears as part of the list of URLs that triggered
@@ -862,4 +1014,33 @@ msgstr ""
 #  that HTML5 application cache should be used. It tells the user to fix the
 #  problem by using application cache in the HTML documents.
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr ""
+
+#  Summary header indicating the number of CSS resources
+#  that are blocking the webpage from rendering while loading.
+msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr ""
+
+msgid "Your page has %(NUM_REDIRECTS)s redirects. Redirects introduce additional delays before the page can be loaded."
+msgstr ""
+
+#  Summary header indicating the number of Javascript
+#  resources and the number of CSS resources that are blocking the
+#  webpage from rendering while loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources and %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr ""
+
+#  Summary header indicating the number of Javascript
+#  resources that are blocking the webpage from rendering while
+#  loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
+msgstr ""
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where the
+#  upper portion of the front page that is above the fold of the paper is
+#  immediately visible to the reader.)
+msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr ""
