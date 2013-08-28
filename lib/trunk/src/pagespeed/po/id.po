@@ -1,166 +1,288 @@
-#  Page Speed result for a single resource that should
-#  defer parsing its inline JavaScript. The "$1"  will be replaced
-#  by the document (HTML page, or a iframe) URL; the "$2" will be
-#  replaced by the size of its inline JavaScripts.
-msgid "$1 ($2 of inline JavaScript)"
-msgstr "$1 ($2 JavaScript sebaris)"
+#  Header at the top of a list of URLs that Page
+#  Speed detected as a chain of HTTP redirections. It tells the
+#  user to fix the problem by removing the URLs that redirect to
+#  others. The text between BEGIN_LINK and END_LINK will be
+#  displayed as a clickable link in the browser, which takes the
+#  user to a document providing additional information.
+msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
+msgstr "%(BEGIN_LINK)sHindari pengalihan laman landas%(END_LINK)s untuk rantai URL yang dialihkan berikut."
 
-#  Shown as part of a list of unnecessary reflows
-#  (or "layouts", which is used interchangeably with the word
-#  "reflows" in the web performance community). Shows a URL
-#  at $1, and the number of unnecessary reflows for that URL
-#  at $2.
-msgid "$1 ($2 reflows)"
-msgstr "$1 (perubahan ukuran $2)"
+#  Descriptive header for a list of URLs that were
+#  served uncompressed, in violation of the EnableGzipCompression
+#  rule.  It tells the webmaster that compressing all of those
+#  resources could reduce the amount of data transferred (which
+#  would speed up the site). It is followed by a list of
+#  uncompressed resource URLs. The text between BEGIN_LINK and
+#  END_LINK will link to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sEnable compression%(END_LINK)s for the following resources to reduce their transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sAktifkan kompresi%(END_LINK)s untuk sumber daya berikut guna mengurangi ukuran transfer sebanyak %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240").
-msgid "$1 (Dimensions: $2 x $3)"
-msgstr "$1 (Dimensi: $2 x $3)"
+#  Heading that indicates which resources should
+#  make use of browser caching. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the
+#  browser, which takes the user to a document providing
+#  additional information.
+msgid "%(BEGIN_LINK)sLeverage browser caching%(END_LINK)s for the following cacheable resources:"
+msgstr "%(BEGIN_LINK)sManfaatkan penyimpanan dalam cache browser%(END_LINK)s untuk sumber daya yang dapat disimpan dalam cache berikut:"
 
-#  A format string for one item in a list of images that
-#  Page Speed detected as not having both width and height explicitly
-#  specified in the page in which the image appears; each list item
-#  provides the URL of the image, and the actual width/height
-#  dimensions of the image to aid the user in specifying those
-#  dimensions in the page.  The "$1" is a format token that will be
-#  replaced with the URL of the image; the "$2" is a format token that
-#  will be replaced with the width of the image, in pixels
-#  (e.g. "320"); the $3 is a format token that will be replaced with
-#  the height of the image, in pixels (e.g. "240"); the $4 is a format
-#  token that will be replaced with the number of times this image
-#  appears in the page (e.g. "3").
-msgid "$1 (Dimensions: $2 x $3) ($4 uses)"
-msgstr "$1 (Dimensi: $2 x $3) ($4 penggunaan)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify CSS%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sMinimalkan CSS%(END_LINK)s untuk sumber daya berikut guna mengurangi ukurannya sebesar %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
 
-#  Item describing a single URL that violates the
-#  LeverageBrowserCaching rule by not having a cache expiration.
-#  "$1" is a format string that will be replaced by the URL.
-msgid "$1 (expiration not specified)"
-msgstr "$1 (waktu kedaluwarsa tidak ditentukan)"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify HTML%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sMinimalkan HTML%(END_LINK)s untuk sumber daya berikut guna mengurangi ukurannya sebesar %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
 
-#  Describes a single resource that violates the
-#  AvoidDocumentWrite rule by using the "document.write"
-#  JavaScript command ("document.write" is code, and should not
-#  be translated).  It gives the URL of the resource that uses
-#  "document.write", and the line number of that
-#  call.  Following this will be a list of the URLs that are
-#  fetched as a result of that "document.write" call.  "$1" is a
-#  format token that will be replaced with the URL of the
-#  external resource that uses "document.write".  "$2" will be
-#  replaced with the line number of the call to "document.write"
-#  in that resource.
-msgid "$1 calls document.write on line $2 to fetch:"
-msgstr "$1 memanggil document.write di baris $2 untuk mengambil:"
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify JavaScript%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sMinimalkan JavaScript%(END_LINK)s untuk sumber daya berikut guna mengurangi ukurannya sebesar %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the render of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sOptimize CSS Delivery%(END_LINK)s of the following:"
+msgstr "%(BEGIN_LINK)sOptimalkan Pengiriman CSS%(END_LINK)s yang berikut:"
+
+#  Header at the top a list of image URLs that Page
+#  Speed detected as can be optimized by using better
+#  compression. It describes the problem to the user that the size
+#  of the images can be reduced. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the browser,
+#  which takes the user to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sOptimalkan gambar berikut%(END_LINK)s untuk mengurangi ukurannya sebesar %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "%(BEGIN_LINK)sPrioritaskan konten yang terlihat%(END_LINK)s yang diperlukan untuk merender paruh atas."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the parser of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sRemove render-blocking JavaScript%(END_LINK)s:"
+msgstr "%(BEGIN_LINK)sHapus JavaScript yang memblokir render%(END_LINK)s:"
+
+#  Header at the top of a list of URLs that PageSpeed
+#  determined were blocking the parser of above-the-fold content that
+#  can be made asynchronous. The text between BEGIN_LINK and END_LINK
+#  will link to a document providing additional information.
+msgid "%(BEGIN_LINK)sUse asynchronous versions%(END_LINK)s of the following scripts:"
+msgstr "%(BEGIN_LINK)sGunakan versi asinkron%(END_LINK)s dari skrip berikut:"
 
 #  The document that Page Speed detected as have CSS
-#  resources in document body. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body."
-msgstr "$1 memiliki CSS di badan dokumen."
+#  resources in document body.
+msgid "%(DOCUMENT_URL)s has CSS in the document body."
+msgstr "%(DOCUMENT_URL)s memiliki CSS di badan dokumen."
 
 #  Header of a list of items the Page Speed suggests to
-#  move to document head. The "$1" will be replaced by the document
-#  URL.
-msgid "$1 has CSS in the document body:"
-msgstr "$1 memiliki CSS di badan dokumen:"
+#  move to document head.
+msgid "%(DOCUMENT_URL)s has CSS in the document body:"
+msgstr "%(DOCUMENT_URL)s memiliki CSS di badan dokumen:"
 
-#  Item describing a URL that violates the MinimzeRequestSize
-#  rule by having a large request size. The "$1" in the format string will
-#  be replaced by the URL; the "$2" will be replaced by the number of bytes
-#  in the request. This is displayed at the top of a breakdown of how large
-#  each element of the request is.
-#.
-msgid "$1 has a request size of $2"
-msgstr "$1 memiliki permintaan ukuran $2"
+#  List item indicating that a particular HTML document
+#  loads a particular resource file synchronously (rather than
+#  asynchronously).
+msgid "%(DOCUMENT_URL)s loads %(RESOURCE_URL)s synchronously."
+msgstr "%(DOCUMENT_URL)s memuat %(RESOURCE_URL)s secara sinkron."
 
-#  Message displayed to indicate that a URL
-#  redirects to another URL, e.g "http://example.com/ is an
-#  uncacheable redirect to http://www.example.com/".
-msgid "$1 is an uncacheable redirect to $2"
-msgstr "$1 adalah pengalihan ke $2 yang tidak dapat disimpan dalam tembolok"
+#  An amount of bytes with abbreviated unit.  The "NUM_BYTES"
+#  placeholder is replaced with the number of bytes (e.g. "93",
+#  representing 93 bytes).
+msgid "%(NUM_BYTES)sB"
+msgstr "%(NUM_BYTES)s B"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the served size of the image, the final size of the
-#  image, and the amount saved by serving the image in the final size.
-#  "$1" is a format token that will be replaced with the URL of the image
-#  resource.  "$2" and "$3" will be replaced with the original (served)
-#  width and height (respectively) of the image resource.  "$4" and "$5"
-#  will be replaced with the final (resized) width and height
-#  (respectively) of the image resource.  "$6" will be replaced with the
-#  amount saved (in bytes) by serving the image correctly size (e.g.
-#  "32.5KiB").  "$7" will be replaced with the percentage saved (e.g.
-#  "25%").
-msgid "$1 is resized in HTML or CSS from $2x$3 to $4x$5.  Serving a scaled image could save $6 ($7 reduction)."
-msgstr "$1 diubah ukurannya dalam HTML atau CSS dari $2x$3 menjadi $4x$5. Menyajikan gambar yang diperkecil dapat menghemat $6 (reduksi $7)."
+#  An amount of kilobytes with abbreviated unit.  The
+#  "NUM_KILOBYTES" placeholder is replaced with the number of kilobytes
+#  (e.g. "32.5", representing 32.5 kilobytes).
+msgid "%(NUM_KILOBYTES)sKiB"
+msgstr "%(NUM_KILOBYTES)s KB"
 
-#  Describes a single URL of an image that is resized in HTML
-#  or CSS.  It gives the amount saved by serving the image in its final
-#  size.  "$1" is a format token that will be replaced with the URL of the
-#  image resource.  "$2" will be replaced with the amount saved (in bytes)
-#  by serving the image correctly size (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage saved (e.g. "25%").
-msgid "$1 is resized in HTML or CSS.  Serving a scaled image could save $2 ($3 reduction)."
-msgstr "$1 diubah ukurannya dalam HTML atau CSS. Menyajikan gambar yang diperkecil dapat menghemat $2 (reduksi $3)."
+#  An amount of megabytes with abbreviated unit.  The
+#  "NUM_MEGABYTES" placeholder is replaced with the number of megabytes
+#  (e.g. "32.5", representing 32.5 megabytes).
+msgid "%(NUM_MEGABYTES)sMiB"
+msgstr "%(NUM_MEGABYTES)s MB"
 
-#  Shown as part of a list of URLs that initiate JavaScript
-#  scripts that run for a long time.  Shows a URL at $1, the line
-#  number (of the file at that URL that triggers the script URL) at $2,
-#  and the length of time the scripts runs for at $3.
-msgid "$1 line $2 ($3)"
-msgstr "$1 baris $2 ($3)"
+#  Detail of the inline CSS. It tells the user how many
+#  style blocks should be moved to document head.
+msgid "%(NUM_STYLE_BLOCKS)s style block(s) in the body should be moved to the document head."
+msgstr "%(NUM_STYLE_BLOCKS)s blok gaya di badan harus dipindahkan ke kepala dokumen."
 
-#  Detail for resource that loads synchronously. The "$1" will
-#  be replaced by the document (HTML page, or a iframe) URL; the "$2" will
-#  be replaced by the resource URL.
-msgid "$1 loads $2 synchronously."
-msgstr "$1 memuat $2 secara sinkron."
+#  Message displayed to indicate that one URL redirects to
+#  another URL, e.g "http://example.com/ is an uncacheable redirect to
+#  http://www.example.com/".
+msgid "%(ORIGINAL_URL)s is an uncacheable redirect to %(TARGET_URL)s"
+msgstr "%(ORIGINAL_URL)s adalah pengalihan yang tidak dapat disimpan dalam cache ke %(TARGET_URL)s"
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected to have JavaScript code. It describes the problem and tells
-#  the user how to fix by defering parsing the JavaScript code.
-msgid "$1 of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
-msgstr "$1 JavaScript diuraikan saat pemuatan awal laman. Tunda penguraian JavaScript untuk mengurangi pencekalan penguraian laman."
+#  the user how to fix by defering parsing the JavaScript code.  The
+#  "SIZE_IN_BYTES" placeholder indicates how much Javascript data is
+#  begin parsed (e.g. "273.1KB").
+msgid "%(SIZE_IN_BYTES)s of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "%(SIZE_IN_BYTES)s JavaScript diurai selama pemuatan laman awal. Tunda penguraian JavaScript untuk mengurangi pemblokiran perenderan laman."
 
-#  A sub-heading that contains the URL of the document and
-#  a statement instructing the user to inline certain small resources.
-#  "$1" is a format token that will be replaced with the URL of the
-#  document that contains the resources that can be inserted directly
-#  into the HTML document.
-msgid "$1 should inline the following small resources:"
-msgstr "$1 seharusnya sebaris dengan sumber daya kecil berikut:"
+#  Summary header indicating how much of the server's
+#  HTML response, in bytes, was needed by the browser in order to
+#  render the above-the-fold content, and recommending that the user
+#  place priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)  The "SIZE_IN_BYTES"
+#  is the actual amount of HTML content needed to render the above
+#  the full fold content (e.g. "24.3kB").
+msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "%(SIZE_IN_BYTES)s respons diperlukan untuk merender konten paruh atas. %(BEGIN_LINK)sPrioritaskan konten yang terlihat%(END_LINK)s yang diperlukan untuk perenderan paruh atas."
 
-#  Detail of the inline CSS. It tells the user how many
-#  style blocks should be moved to document head. The "$1" will be
-#  replaced by the number of style blocks.
-msgid "$1 style block(s) in the body should be moved to the document head."
-msgstr "$1 cekalan gaya pada badan harus dipindah ke kepala dokumen."
+#  Shown as part of a list of URLs that have unnecessary
+#  reflows (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community).  The message indicates
+#  the URL and the number of reflows that it requires.
+msgid "%(URL)s (%(NUM_REFLOWS)s reflows)"
+msgstr "%(URL)s (%(NUM_REFLOWS)s pemuatan ulang tata letak)"
 
-#  An amount of bytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of bytes (e.g. "93",
-#  representing 93 bytes).
-msgid "$1B"
-msgstr "$1B"
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "URL" placeholder will be
+#  replaced by the document (HTML page, or a iframe) URL; the
+#  "SIZE_IN_BYTES" will be replaced by the size of its inline
+#  JavaScripts (e.g. "273.1KB").
+msgid "%(URL)s (%(SIZE_IN_BYTES)s of inline JavaScript)"
+msgstr "%(URL)s (%(SIZE_IN_BYTES)s JavaScript sebaris)"
 
-#  An amount of kilobytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of kilobytes (e.g. "32.5",
-#  representing 32.5 kilobytes).
-msgid "$1KiB"
-msgstr "$1KiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s)"
+msgstr "%(URL)s (Dimensi: %(WIDTH)s x %(HEIGHT)s)"
 
-#  An amount of megabytes with abbreviated unit.  $1 is a string
-#  placeholder that is replaced with the number of megabytes (e.g. "32.5",
-#  representing 32.5 megabytes).
-msgid "$1MiB"
-msgstr "$1MiB"
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s uses)"
+msgstr "%(URL)s (Dimensi: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s pemakaian)"
+
+#  Item describing a single URL that violates the
+#  LeverageBrowserCaching rule by not having a specified cache expiration
+#  time.
+msgid "%(URL)s (expiration not specified)"
+msgstr "%(URL)s (habisnya masa berlaku tidak ditentukan)"
+
+#  Item describing a URL that violates the
+#  MinimzeRequestSize rule by having a large request size. The "URL"
+#  placeholder will be replaced by the URL; the "SIZE_IN_BYTES"
+#  placeholder will be replaced by the number of bytes in the request
+#  (e.g. "1492 bytes"). This is displayed at the top of a breakdown of
+#  how large each element of the request is.
+msgid "%(URL)s has a request size of %(SIZE_IN_BYTES)s"
+msgstr "%(URL)s memiliki ukuran permintaan sebesar %(SIZE_IN_BYTES)s"
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the original size of the image, the final
+#  size of the image, and the amount saved by serving the image in
+#  the final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").  The "ORIGINAL_WIDTH x ORIGINAL_HEIGHT"
+#  gives the natural size of the image file (e.g. "640x480"), while
+#  the "FINAL_WIDTH x FINAL_HEIGHT" gives the size to which the
+#  image has been resized by the HTML or CSS (e.g. "160x120").
+msgid "%(URL)s is resized in HTML or CSS from %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s to %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(URL)s diubah ukurannya dalam HTML atau CSS dari %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s menjadi %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Menyajikan gambar yang diperkecil dapat menghemat %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the amount saved by serving the image in
+#  its final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").
+msgid "%(URL)s is resized in HTML or CSS. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(URL)s diubah ukurannya dalam HTML atau CSS. Menyajikan gambar yang diperkecil dapat menghemat %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL, the line number (of
+#  the file at that URL that triggers the script URL), and the duration
+#  of time for which the scripts runs.
+msgid "%(URL)s line %(LINE_NUMBER)s (%(DURATION)s)"
+msgstr "%(URL)s baris %(LINE_NUMBER)s (%(DURATION)s)"
+
+#  A sub-heading that contains the URL of the document
+#  and a statement instructing the user to inline certain small
+#  resources.  The "URL" placeholder will be replaced with the URL of
+#  the document that contains the resources that can be inserted
+#  directly into the HTML document.
+msgid "%(URL)s should inline the following small resources:"
+msgstr "%(URL)s harus menjadikan sebaris sumber daya kecil berikut:"
+
+#  Summary header indicating how much of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be correctly
+#  rendered without relying on any render-blocking
+#  resources.  The "PERCENTAGE" placeholder will be
+#  replaced with the percentage of the content that was
+#  ready (e.g. "85%").
+msgid "Approximately %(PERCENTAGE)s of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Sekitar %(PERCENTAGE)s konten paruh atas di laman Anda dapat dirender tanpa menunggu pemuatan sumber daya berikut. Coba tunda atau muat sumber daya yang memblokir secara asinkron, atau jadikan sebaris bagian penting dari sumber daya tersebut secara langsung dalam HTML."
 
 #  The name of a Page Speed rule telling webmasters to avoid using
 #  the @import directive in their CSS style sheets ("@import" is code, and
@@ -170,6 +292,12 @@ msgstr "$1MiB"
 msgid "Avoid CSS @import"
 msgstr "Hindari CSS @import"
 
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages do not specify a character set in an HTML meta tag.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid a character set in the meta tag"
+msgstr "Hindari himpunan karakter di tag meta"
+
 #  The name of a Page Speed rule that tells users to try and avoid
 #  writing pages that generate bad HTTP requests (i.e. requests that return
 #  HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
@@ -178,13 +306,17 @@ msgstr "Hindari CSS @import"
 msgid "Avoid bad requests"
 msgstr "Hindari permintaan yang bermasalah"
 
-#  The name of a Page Speed rule that tells webmasters to avoid
-#  using the "document.write" command in their JavaScript code
-#  ("document.write" is code, and should not be translated).  This appears in
-#  a list of rule names generated by Page Speed, telling webmasters which
-#  rules they broke in their website.
-msgid "Avoid document.write"
-msgstr "Hindari document.write"
+#  The name of a Page Speed rule that tells users to avoid using
+#  Adobe Flash on mobile webpages
+msgid "Avoid flash on mobile webpages"
+msgstr "Hindari flash dalam laman web seluler"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid landing page redirects"
+msgstr "Hindari pengalihan laman landas"
 
 #  The name of a Page Speed rule that tells users to try
 #  and avoid writing pages with Javascript scripts that run for a
@@ -224,41 +356,57 @@ msgstr "Gabungkan JavaScript eksternal"
 msgid "Combine images into CSS sprites"
 msgstr "Gabungkan gambar ke dalam CSS sprites"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting CSS code can save many bytes of data and speed up download and parse times."
+msgstr "Memampatkan kode CSS dapat menghemat banyak bita data dan mempercepat waktu pengunduhan dan penguraian."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting HTML code, including any inline JavaScript and CSS contained in it, can save many bytes of data and speed up download and parse times."
+msgstr "Memampatkan kode HTML, termasuk CSS dan JavaScript sebaris apa pun yang ada di dalamnya, dapat menghemat banyak bita data dan mempercepat waktu pengunduhan dan penguraian."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting JavaScript code can save many bytes of data and speed up downloading, parsing, and execution time."
+msgstr "Memampatkan kode JavaScript dapat menghemat banyak bita data dan mempercepat waktu pengunduhan, penguraian, dan eksekusi."
+
 #  Description of a single resource that was served uncompressed,
 #  in violation of the EnableGzipCompression rule.  It gives the URL of the
-#  resource, as well as the amount of data that would be saved by compressing.
-#  It appears in a list of all the uncompressed resources on a site.  "$1" is
-#  a format token that will be replaced with the URL of the uncompressed
-#  resource in question.  "$2" will be replaced with the amount of data
-#  transferred saved by compressing (in bytes) (e.g. "32.5KiB").  "$3" will be
-#  replaced with the percentage of data transferred saved by compressing.
-msgid "Compressing $1 could save $2 ($3 reduction)."
-msgstr "Memampatkan $1 dapat menghemat $2 (reduksi $3%)."
+#  resource, as well as the amount of data that would be saved by
+#  compressing.  It appears in a list of all the uncompressed resources on a
+#  site.  The "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
+#  savings (e.g. "50%").
+msgid "Compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Mengompresi %(URL)s dapat menghemat %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
 
-#  Descriptive header for a list of URLs that were served
-#  uncompressed, in violation of the EnableGzipCompression rule.  It tells the
-#  webmaster that compressing all of those resources could reduce the amount
-#  of data transferred (which would speed up the site).  It is followed by a
-#  list of uncompressed resource URLs.  "$1" is a format token that will be
-#  replaced by the amount of data transferred saved by compressing (in bytes)
-#  (e.g. "32.5KiB").  "$2" will be replaced by the percentage saved by
-#  compressing (e.g. "25%").
-msgid "Compressing the following resources with gzip could reduce their transfer size by $1 ($2 reduction)."
-msgstr "Memampatkan sumber daya berikut dengan gzip dapat mengurangi ukuran transfer sebesar $1 (reduksi $2)."
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compressing resources with gzip or deflate can reduce the number of bytes sent over the network."
+msgstr "Mengompresi sumber daya dengan gzip atau deflate dapat mengurangi jumlah bita yang dikirimkan melalui jaringan."
 
-#  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1"
-msgstr "Kuki: $1"
+#  Summary header indicating that compressing will bring
+#  the page to meeting the criteria (the above the fold content is
+#  rendered on the first 15 kilobytes).
+msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
+msgstr "Mengompresi HTML laman Anda dapat membuat laman merender mayoritas konten paruh atas dalam 15 kB pertama respons."
 
 #  Item showing how large the cookie is in a request that
-#  violates the MinimizeRequestSizeRule by being large. It also tell the
-#  user that the resource is static, and it should be served from a
-#  cookieless domain. The "$1" will be replace by the size of the
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
 #  cookies in bytes (e.g. "5.3KiB").
-msgid "Cookies: $1 (note that this is a static resource, and should be served from a cookieless domain)"
-msgstr "Kuki: $1 (perlu diketahui bahwa ini adalah sumber daya statis dan sebaiknya disajikan dari domain tanpa kuki)"
+msgid "Cookies: %(SIZE_IN_BYTES)s"
+msgstr "Cookie: %(SIZE_IN_BYTES)s"
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. It also tell
+#  the user that the resource is static, and it should be served from a
+#  cookieless domain. The "SIZE_IN_BYTES" placeholder will be replaced
+#  by the size of the cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: %(SIZE_IN_BYTES)s (note that this is a static resource, and should be served from a cookieless domain)"
+msgstr "Cookie: %(SIZE_IN_BYTES)s (perhatikan bahwa ini adalah sumber daya statis dan harus dilayani dari domain tanpa cookie)"
 
 #  The name of a Page Speed rule that tells users to defer
 #  parsing of large amount of JavaScript code. This is displayed in a list
@@ -266,12 +414,17 @@ msgstr "Kuki: $1 (perlu diketahui bahwa ini adalah sumber daya statis dan sebaik
 msgid "Defer parsing of JavaScript"
 msgstr "Tunda penguraian JavaScript"
 
+#  The name of a Page Speed rule that tells users to avoid
+#  loading resources on the page that block the initial render of the page
+msgid "Eliminate render-blocking JavaScript and CSS in above-the-fold content"
+msgstr "Menghilangkan JavaScript dan CSS yang memblokir perenderan di konten paruh atas"
+
 #  Title of this rule, which suggests
 #  removing/eliminating reflows (or "layouts", which is used
 #  interchangeably with the word "reflows" in the web performance
 #  community).
 msgid "Eliminate unnecessary reflows"
-msgstr "Hapus perubahan ukuran yang tidak perlu"
+msgstr "Menghilangkan perubahan tata letak yang tidak perlu"
 
 #  The name of a Page Speed rule that tells users to enable
 #  keep-alive on their server to save connection time. This is displayed
@@ -287,6 +440,21 @@ msgstr "Aktifkan Keep-Alive"
 #  website.
 msgid "Enable compression"
 msgstr "Aktifkan pemampatan"
+
+#  The name of a Page Speed rule that tells users to improve
+#  their server response time. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Improve server response time"
+msgstr "Meningkatkan waktu respons server"
+
+#  Summary header indicating how long it took for the
+#  user's web server to respond to a request, and providing a link to
+#  more information about how one can measure and keep track of which
+#  aspects of the server's operation are consuming that time.  The
+#  "RESPONSE_TIME" placeholder will be replaced with the time taken by
+#  the server (e.g. "872 milliseconds").
+msgid "In our test, your server responded in %(RESPONSE_TIME)s. There are many factors that can slow down your server response time. %(BEGIN_LINK)sPlease read our recommendations%(END_LINK)s to learn how you can monitor and measure where your server is spending the most time."
+msgstr "Dalam pengujian kami, server Anda merespons dalam %(RESPONSE_TIME)s. Ada banyak faktor yang dapat memperlambat waktu respons server. %(BEGIN_LINK)sBaca saran kami%(END_LINK)s untuk mempelajari bagaimana Anda dapat memantau dan mengukur di mana server Anda menghabiskan waktu paling banyak."
 
 #  Name of a Page Speed rule. A longer description
 #  would be "Insert (or move) small CSS resources directly into the
@@ -306,10 +474,24 @@ msgstr "CSS Kecil Sebaris"
 msgid "Inline Small JavaScript"
 msgstr "JavaScript Kecil Sebaris"
 
-#  Detail of inline script block. The "$1" will be replace
-#  by the index of the script block (e.g. 3).
-msgid "Inline script block #$1"
-msgstr "Cekalan skrip sebaris #$1"
+#  Rule name. This rule recommends serving a low quality
+#  version of the images that appear inside of the visible scroll
+#  region of the browser (i.e. the part of the page that the user
+#  can see without having to scroll down) inlined in the HTML
+#  response.
+msgid "Inline previews of visible images"
+msgstr "Pratinjau sebaris dari gambar yang terlihat"
+
+#  The name of a Page Speed rule that tells users to inline CSS
+#  resources that block the initial render of the page.
+msgid "Inline render-blocking CSS"
+msgstr "Jadikan sebaris CSS yang memblokir render"
+
+#  Detail of inline script block. The "INDEX"
+#  placeholder will be replaced by the index of the script block
+#  (e.g. "3").
+msgid "Inline script block #%(INDEX)s"
+msgstr "Blokir skrip sebaris #%(INDEX)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made, as well as a brief summary
@@ -319,7 +501,7 @@ msgstr "Cekalan skrip sebaris #$1"
 #  web performance community) that happened on the page being
 #  analyzed will be shown.
 msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
-msgstr "JavaScript yang dieksekusi di sumber berikut menyebabkan perubahan ukuran yang tidak diperlukan. Untuk mengurangi waktu perenderan laman, ubahlah JavaScript sehingga tidak menimbulkan perubahan ukuran:"
+msgstr "JavaScript yang dieksekusi di sumber berikut menyebabkan perubahan tata letak yang tidak diperlukan. Untuk mengurangi waktu perenderan laman, ubahlah JavaScript sehingga tidak menimbulkan perubahan tata letak:"
 
 #  Rule name. A longer description would be "Specify
 #  proper caching expirations for the resources on the web
@@ -329,27 +511,46 @@ msgstr "JavaScript yang dieksekusi di sumber berikut menyebabkan perubahan ukura
 #  can read the documentation on the page speed web site for more
 #  details.
 msgid "Leverage browser caching"
-msgstr "Manfaatkan penyimpanan tembolok peramban"
+msgstr "Manfaatkan penyimpanan cache browser"
 
 #  Detail of external CSS resources. It tells the user
-#  how to fix the problem by moving the CSS to document head. The
-#  "$1" will be replaced by the CSS resource URL.
-msgid "Link node $1 should be moved to the document head."
-msgstr "Simpul tautan $1 harus dipindah ke kepala dokumen."
+#  how to fix the problem by moving the CSS to document head.
+msgid "Link node %(LINK_URL)s should be moved to the document head."
+msgstr "Simpul tautan %(LINK_URL)s harus dipindahkan ke kepala dokumen."
 
-#  Detail info for one image URL. It tells the user how much can
-#  be save for one image. The "$1" will be replace the the image URL; "$2"
-#  will be replace by the number of bytes (e.g. 27B); the "$3" will be
-#  replace by the percentage (e.g. 12%).
-msgid "Losslessly compressing $1 could save $2 ($3 reduction)."
-msgstr "Pemampatan nirrugi $1 dapat menghemat $2 (reduksi $3)."
+#  Rule name. This rule recommends loading the images
+#  that appear outside of the visible scroll region of the browser
+#  (i.e. the part of the page that the user needs to scroll down to
+#  see) after the images and resources needed to show the part
+#  within the initially visible region have loaded.
+msgid "Load visible images first"
+msgstr "Memuat terlebih dulu gambar yang terlihat"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having slow server response times. It describes the
+#  problem.
+msgid "Long web server response times delay page loading. Reduce your response times to make your page load faster."
+msgstr "Waktu respons server web yang lama menunda pemuatan laman. Kurangi waktu respons Anda untuk mempercepat pemuatan laman."
+
+#  Subheading that describes the savings possible from optimizing
+#  a particular image resource via lossless compression.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Mengompresi %(URL)s tanpa mengurangi kualitas file dapat menghemat %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
+
+#  The name of a Pagespeed rule that tells users to make the
+#  most of visible content render-able by end of the HTML.
+msgid "Make content visible by end of HTML"
+msgstr "Jadikan konten terlihat pada akhir HTML"
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
 #  HTML document that was requested the user in the browser's address bar.
 #  This is displayed in a list of rule names that Page Speed generates.
 msgid "Make landing page redirects cacheable"
-msgstr "Jadikan pengalihan laman landas dapat disimpan dalam tembolok"
+msgstr "Jadikan pengalihan laman landas dapat disimpan dalam cache"
 
 #  Name of a Page Speed rule. Here, minify means "remove
 #  whitespace and comments". The goal is to reduce the size of the
@@ -370,41 +571,20 @@ msgid "Minify JavaScript"
 msgstr "Memperkecil JavaScript"
 
 #  Subheading that describes the post-compression network savings
-#  possible from minifying a single resource. "$1" is a format token that
-#  will be replaced by the URL of the resource. "$2" will be replaced bythe
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$3" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction) after compression."
-msgstr "Meminimalkan $1 dapat menghemat $2 (reduksi $3) setelah pemampatan."
+#  possible from minifying a single resource.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction) after compression."
+msgstr "Meminimalkan %(URL)s dapat menghemat %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s) setelah kompresi."
 
-#  Subheading that describes the savings possible from minifying a
-#  single resource. "$1" is a format token that will be replaced by the URL of
-#  the resource. "$2" will be replaced bythe absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB"). "$3" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying $1 could save $2 ($3 reduction)."
-msgstr "Meminimalkan $1 dapat menghemat $2 (reduksi $3)."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following CSS resources could reduce their size by $1 ($2 reduction)."
-msgstr "Meminimalkan sumber daya CSS berikut dapat mengurangi ukurannya sebesar $1 (reduksi $2)."
-
-#  Heading that describes the savings possible from
-#  minifying resources. "$1" is a format token that will be replaced by the
-#  absolute number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
-#  "23.2KiB"). "$2" will be replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following HTML resources could reduce their size by $1 ($2 reduction)."
-msgstr "Meminimalkan sumber daya HTML berikut dapat mengurangi ukurannya sebesar $1 (reduksi $2)."
-
-#  Heading that describes the savings possible from minifying
-#  resources.  "$1" will be replaced by the absolute number of bytes or
-#  kilobytes that can be saved (e.g. "5 bytes" or "23.2KiB").  "$2" will be
-#  replaced by the percent savings (e.g. "50%").
-msgid "Minifying the following JavaScript resources could reduce their size by $1 ($2 reduction)."
-msgstr "Meminimalkan sumber daya JavaScript berikut dapat mengurangi ukurannya sebesar $1 (reduksi $2)."
+#  Subheading that describes the savings possible from minifying
+#  a single resource.  The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved (e.g. "5
+#  bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Meminimalkan %(URL)s dapat menghemat %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
 
 #  Name of a Page Speed rule. A "DNS lookup" is a
 #  request that the browser issues to resolve a hostname to an
@@ -425,6 +605,22 @@ msgstr "Minimalkan pengalihan"
 msgid "Minimize request size"
 msgstr "Perkecil ukuran permintaan"
 
+#  Summary header indicating that none of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be rendered
+#  without relying on any render-blocking resources.
+msgid "None of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Tidak ada konten paruh atas di laman Anda yang dapat dirender tanpa menunggu pemuatan sumber daya berikut. Coba tunda atau muat sumber daya yang memblokir secara asinkron, atau jadikan sebaris bagian penting dari sumber daya tersebut secara langsung dalam HTML."
+
+#  Summary header indicating how much of the above-the-fold
+#  (i.e. within the initial browser viewport) content of a webpage was
+#  able to be correctly rendered based on the HTML of the HTTP
+#  response.  This header will be followed by the URL for the page.
+#  The "PERCENTAGE" placeholder will be replaced with the percentage of
+#  the content that was ready (e.g. "36%").
+msgid "Only %(PERCENTAGE)s of the final above-the-fold content of the page was able to be rendered using the whole HTML of the HTTP response for the page URL:"
+msgstr "Hanya %(PERCENTAGE)s dari konten paruh atas akhir laman yang dapat dirender menggunakan seluruh HTML dari respons HTTP untuk URL laman:"
+
 #  The name of a Page Speed rule that tells users to optimize the
 #  images (better compression). This is displayed in a list of rule names that
 #  Page Speed generates.
@@ -437,32 +633,35 @@ msgstr "Optimalkan gambar"
 msgid "Optimize the order of styles and scripts"
 msgstr "Optimalkan urutan gaya dan skrip"
 
-#  Header at the top a list of image URLs that Page Speed detected
-#  as can be optimized by using better compression. It describes the problem
-#  to the user that the size of the images can be reduced. The "$1" will be
-#  replaced by the number of bytes (e.g. 365B); the "$2" will be replace by
-#  the percentage (e.g. 25%).
-msgid "Optimizing the following images could reduce their size by $1 ($2 reduction)."
-msgstr "Mengoptimalkan gambar berikut dapat mengurangi ukurannya sebesar $1 (reduksi $2)."
-
-#  Item showing how large the other request components is in a
-#  request that violates the MinimizeRequestSizeRule by being large. The
-#  "$1" will be replace by the total size of other components of the
-#  request in bytes (e.g. "5.3KiB").
-msgid "Other: $1"
-msgstr "Lainnya: $1"
+#  Item showing how large the other request components is in
+#  a request that violates the MinimizeRequestSizeRule by being
+#  large. The "SIZE_IN_BYTES" placeholder will be replaced by the total
+#  size of other components of the request in bytes (e.g. "5.3KiB").
+msgid "Other: %(SIZE_IN_BYTES)s"
+msgstr "Lainnya: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells users to parallelize
 #  downloads resources (image, css, javascript) across hostnames. This is
 #  displayed in a list of rule names that Page Speed generates.
 msgid "Parallelize downloads across hostnames"
-msgstr "Paralelkan unduhan ke semua nama inang"
+msgstr "Paralelkan unduhan ke semua nama host"
 
 #  The name of a Page Speed rule that tells users to use
 #  asynchronous resources. This is displayed in a list of rule names that
 #  Page Speed generates.
 msgid "Prefer asynchronous resources"
 msgstr "Pilih sumber daya asinkron"
+
+#  The name of a Page Speed rule that tells users to prioritize
+#  being able to render the initially-visible content of a page as early as
+#  possible.
+msgid "Prioritize visible content"
+msgstr "Prioritaskan konten yang terlihat"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Properly formatting and compressing images can save many bytes of data."
+msgstr "Memformat dan mengompresi gambar dengan benar dapat menghemat banyak bita data."
 
 #  The name of a Page Speed rule that tells users to put CSS
 #  (style sheet) resources in HTML head. This is displayed in a list of
@@ -477,11 +676,18 @@ msgstr "Letakkan CSS di kepala dokumen"
 msgid "Reduce request serialization"
 msgstr "Mengurangi serialisasi permintaan"
 
+#  The name of a Page Speed rule that tells users to
+#  reduce the time it takes for their HTML resource to be generated
+#  by the server.
+msgid "Reduce server response time"
+msgstr "Mengurangi waktu respons server"
+
 #  Item showing how large the referrer URL is in a request
-#  that violates the MinimizeRequestSizeRule by being large. The "$1" will
-#  be replace by the size of the referrer URL in bytes (e.g. "5.3KiB").
-msgid "Referer Url: $1"
-msgstr "Url Perujuk: $1"
+#  that violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  referrer URL in bytes (e.g. "5.3KiB").
+msgid "Referer Url: %(SIZE_IN_BYTES)s"
+msgstr "URL Rujukan: %(SIZE_IN_BYTES)s"
 
 #  The name of a Page Speed rule that tells webmasters to remove
 #  query strings from the URLs of static resources (i.e.
@@ -499,10 +705,11 @@ msgid "Remove the following redirect chain if possible:"
 msgstr "Hapus rantai pengalihan berikut jika mungkin:"
 
 #  Item showing how large the URL is in a request that
-#  violates the MinimizeRequestSizeRule by being large. The "$1" will be
-#  replace by the size of the request URL in bytes (e.g. "5.3KiB").
-msgid "Request URL: $1"
-msgstr "URL Permintaan: $1"
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  request URL in bytes (e.g. "5.3KiB").
+msgid "Request URL: %(SIZE_IN_BYTES)s"
+msgstr "URL Permintaan: %(SIZE_IN_BYTES)s"
 
 #  Descriptive header at the top of a list of URLs that
 #  violate the RemoveQueryStringsFromStaticResources rule by using a query
@@ -510,7 +717,7 @@ msgstr "URL Permintaan: $1"
 #  www.google.com/style.css?x=2).  It describes the problem to the user,
 #  and tells the user how to fix it.
 msgid "Resources with a \"?\" in the URL are not cached by some proxy caching servers.  Remove the query string and encode the parameters into the URL for the following resources:"
-msgstr "Sumber daya dengan tanda \"?\" di URL-nya tidak dimasukkan tembolok oleh beberapa server penyimpan tembolok proxy.  Hapus string kueri dan sandiaksarakan parameter ke dalam URL untuk sumber daya berikut:"
+msgstr "Sumber daya dengan tanda \"?\" di URL-nya tidak dimasukkan cache oleh beberapa server penyimpan cache proxy.  Hapus string kueri dan sandiaksarakan parameter ke dalam URL untuk sumber daya berikut:"
 
 #  The name of a Page Speed rule that tells users to avoid
 #  writing pages that serve the same resource (or equivalently, two resources
@@ -527,6 +734,11 @@ msgstr "Sajikan sumber daya dari URL yang konsisten"
 msgid "Serve scaled images"
 msgstr "Sajikan gambar yang diperkecil"
 
+#  Summary sentence explaining briefly how HTTP browser
+#  cachine can be enabled, and why it is beneficial to do so.
+msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
+msgstr "Menyetel tanggal kedaluwarsa atau usia maksimum pada header HTTP untuk sumber daya statis akan memerintahkan browser memuat sumber daya yang telah diunduh sebelumnya dari disk lokal, bukan dari jaringan."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -541,7 +753,7 @@ msgstr "Tentukan kepala Vary: Accept-Encoding"
 #  particular item in its cache is still valid.  This is displayed in a list
 #  of rule names that Page Speed generates.
 msgid "Specify a cache validator"
-msgstr "Tentukan validator tembolok"
+msgstr "Tentukan validator cache"
 
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpages include a declaration of the character set (e.g. UTF-8,
@@ -550,6 +762,12 @@ msgstr "Tentukan validator tembolok"
 msgid "Specify a character set"
 msgstr "Tentukan himpunan karakter"
 
+#  The name of a Page Speed rule that tells users to specify
+#  a viewport for mobile devices. This is displayed in a list of rule names
+#  that Page Speed generates. "Viewport" is code and should not be translated.
+msgid "Specify a viewport for mobile browsers"
+msgstr "Tentukan area pandang untuk browser seluler"
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  their webpage explicitly specifies the width/height dimensions of each
 #  image that appears in the page.  This is displayed in a list of rule names
@@ -557,47 +775,44 @@ msgstr "Tentukan himpunan karakter"
 msgid "Specify image dimensions"
 msgstr "Tetapkan dimensi gambar"
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains the number of times the code in this context
-#  executed, and $2 contains JavaScript code that gives
-#  the context of the reflow.
-msgid "The following JavaScript call stack (executed $1 times) caused reflows that took $2 milliseconds: $3"
-msgstr "Tumpukan panggilan JavaScript berikut (dieksekusi $1 kali) menyebabkan perubahan ukuran yang memerlukan waktu $2 milidetik: $3"
+#  Header at the top of a list of URLs of Adobe Flash
+#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
+#  the number of Flash elements found.
+msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
+msgstr "%(NUM_ELEMENTS)s elemen Flash berikut disertakan di laman atau dari iframe yang disertakan. Adobe Flash Player tidak didukung pada Apple iOS atau Android versi lebih tinggi dari 4.0.x. Pertimbangkan untuk menghapus objek Flash dan mencari pengganti yang cocok."
 
-#  Appears as part of the list of URLs that
-#  triggered unnecessary reflows (or "layouts", which is
-#  used interchangeably with the word "reflows" in the web
-#  performance community), as a detail string that shows
-#  the context that caused an unnecessary reflow.  $1
-#  contains JavaScript code that gives the context of the
+#  Summary header indicating that the external CSS
+#  resources can be inlined in the HTML and still meet the 15k criteria.
+msgid "The following %(NUM_RESOURCES)s external CSS resources blocked the rendering before the browser was able to render most of the above-the-fold content. Inlining them and enabling compression (if it is not enabled already) will make your page render most of the above-the-fold content in the first 15kB."
+msgstr "%(NUM_RESOURCES)s sumber daya CSS eksternal berikut memblokir perenderan sebelum browser mampu merender sebagian besar konten paruh atas. Menjadikan sumber daya tersebut sebaris dan mengaktifkan kompresi (jika belum diaktifkan) akan membuat laman Anda merender sebagian besar konten paruh atas dalam 15 kB pertama."
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused multiple
+#  unnecessary reflows.
+msgid "The following JavaScript call stack (executed %(NUM_TIMES)s times) caused reflows that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Tumpukan panggilan JavaScript berikut (dilakukan %(NUM_TIMES)s kali) menyebabkan pemuatan ulang tata letak yang menghabiskan waktu %(NUM_MILLISECONDS)s milidetik: %(CALL_STACK)s"
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused an unnecessary
 #  reflow.
-msgid "The following JavaScript call stack caused a reflow that took $1 milliseconds: $2"
-msgstr "Tumpukan panggilan JavaScript berikut menyebabkan perubahan ukuran yang memerlukan waktu $1 milidetik: $2"
+msgid "The following JavaScript call stack caused a reflow that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Tumpukan panggilan Java Script berikut ini menyebabkan pemuatan ulang tata letak yang memakan waktu %(NUM_MILLISECONDS)s milidetik: %(CALL_STACK)s"
 
 #  Heading that gives a high-level overview of the
 #  reason suggestions are being made.
 msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
-msgstr "URL berikut menjalankan JavaScript yang mencekal UI untuk waktu yang lama. Untuk meningkatkan daya tanggap peramban, optimalkan JavaScript atau pisahkan menggunakan panggilan balik."
-
-#  Heading that indicates which resources should
-#  have a longer cache freshness lifetime. Here "freshness
-#  lifetime" means the length of the period of time that the
-#  file can be reused without checking to see if there is a
-#  newer version of the file available.
-msgid "The following cacheable resources have a short freshness lifetime. Specify an expiration at least one week in the future for the following resources:"
-msgstr " Sumber daya yang dapat masuk tembolok berikut memiliki masa penyegaran yang singkat. Tetapkan waktu kedaluwarsa paling tidak seminggu untuk sumber daya berikut di masa mendatang:"
+msgstr "URL berikut menjalankan JavaScript yang mencekal UI untuk waktu yang lama. Untuk meningkatkan daya tanggap browser, optimalkan JavaScript atau pisahkan menggunakan panggilan balik."
 
 #  Header at the top of a list of CSS URLs that Page
 #  Speed detected as not able to be downloaded in parallel. It
 #  describes the problem to the user, and tells them how to fix it
-#  by including the external CSS before external JavaScript. The
-#  "$1" will be replaced by URL of the HTML page.
-msgid "The following external CSS files were included after an external JavaScript file in $1.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
-msgstr "Berkas CSS eksternal berikut disertakan setelah berkas JavaScript eksternal di $1.  Untuk memastikan berkas CSS diunduh secara paralel, selalu sertakan CSS eksternal sebelum JavaScript eksternal."
+#  by including the external CSS before external JavaScript.
+msgid "The following external CSS files were included after an external JavaScript file in %(URL)s.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
+msgstr "Berkas CSS eksternal berikut disertakan setelah file JavaScript eksternal di %(URL)s. Untuk memastikan file CSS diunduh secara paralel, selalu sertakan CSS eksternal sebelum JavaScript eksternal."
 
 #  Header at the top of the list of URLs that Page
 #  Speed detected as candidates for being moved directly into
@@ -608,13 +823,14 @@ msgstr "Sumber daya eksternal berikut memiliki badan respons kecil. Menyejajarka
 
 #  Descriptive header at the top of a list of URLs that
 #  are imported by a style sheet using the @import rule ("@import"
-#  is code, and should not be translated).  It gives the URL of the
-#  style sheet that violates the AvoidCssImport rule (the $1
-#  parameter) by using @import --- the style sheets that it imports
-#  will be listed below it.  "$1" is a format token that will be
-#  replaced with the URL of the style sheet that uses @import.
-msgid "The following external stylesheets were included in $1 using @import."
-msgstr "Style sheet eksternal berikut disertakan dalam $1 menggunakan @import."
+#  is code, and should not be translated; it is represented by the
+#  "IMPORT" placeholder).  It gives the URL of the style sheet that
+#  violates the AvoidCssImport rule (the "URL" parameter) by
+#  using @import --- the style sheets that it imports will be
+#  listed below it.  The "URL" placeholder will be replaced with
+#  the URL of the style sheet that uses @import.
+msgid "The following external stylesheets were included in %(URL)s using %(IMPORT)s."
+msgstr "Stylesheet eksternal berikut disertakan dalam %(URL)s menggunakan %(IMPORT)s."
 
 #  Header at the top of a list of URLs of images that Page
 #  Speed detected as not having both width and height explicitly
@@ -622,41 +838,54 @@ msgstr "Style sheet eksternal berikut disertakan dalam $1 menggunakan @import."
 msgid "The following image(s) are missing width and/or height attributes."
 msgstr "Gambar berikut tidak mempunyai atribut lebar dan/atau tinggi."
 
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed outside of the initially visible region of the screen. Defer loading of these images to allow the initially visible region of the page to load faster."
+msgstr "Gambar berikut ditampilkan di luar bagian yang pertama terlihat pada layar. Tunda pemuatan gambar tersebut agar bagian yang pertama terlihat pada laman dimuat dengan lebih cepat."
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed within the initially visible region of the screen. To speed up rendering of the initially visible region of the page, inline a preview of these images and delay loading the full images until after page load is complete."
+msgstr "Gambar berikut ditampilkan dalam wilayah layar yang terlihat di awal. Untuk mempercepat penguraian wilayah laman yang terlihat di awal, jadikan pratinjau gambar ini sebaris dan tunda pemuatan gambar penuh sampai pemuatan laman selesai."
+
 #  A descriptive header at the top of a list of URLs of
 #  images that are resized in HTML or CSS.  It describes the problem to
-#  the user.  "$1" is a format token that is replaced with the total
-#  savings in bytes from serving images in their final size
-#  (e.g. "32.5KiB").  "$2" is replaced with the percentage reduction of
-#  bytes transferred (e.g. "25%").
-msgid "The following images are resized in HTML or CSS.  Serving scaled images could save $1 ($2 reduction)."
-msgstr "Gambar berikut diubah ukurannya dalam HTML atau CSS. Menyajikan gambar yang diperkecil dapat menghemat $1 (reduksi $2)."
+#  the user.  The "SIZE_IN_BYTES" placeholder will be replaced with the
+#  total saved in bytes by serving the images with the correct dimensions
+#  (e.g. "32.5KiB").  The "PERCENTAGE" placeholder will be replaced with
+#  the percentage reduction of bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS. Serving scaled images could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Gambar berikut diubah ukurannya dalam HTML atau CSS. Menampilkan gambar yang diperkecil dapat menghemat %(SIZE_IN_BYTES)s (berkurang %(PERCENTAGE)s)."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being good candidates to be combined into CSS sprites
 #  (that is, larger images containing a number of subimages, which can
 #  then be used to display a single subimage at a time by using CSS to
-#  reveal a different section of the large image in place of each of the
-#  original small images).  It describes the problem to the user, and
-#  tells them how to fix it by combining multiple small images into a
-#  larger image.  The "$1" is a format string that will be replaced with
-#  the URL of the page in which the small images appear.
-msgid "The following images served from $1 should be combined into as few images as possible using CSS sprites."
-msgstr "Gambar berikut yang disajikan dari $1 sebaiknya digabungkan menjadi sesedikit mungkin gambar menggunakan CSS sprites."
+#  reveal a different section of the large image in place of each of
+#  the original small images).  It describes the problem to the user,
+#  and tells them how to fix it by combining multiple small images into
+#  a larger image.  The "DOMAIN_NAME" placeholder will be replaced with
+#  the domain name of the page in which the small images appear
+#  (e.g. "www.example.com").
+msgid "The following images served from %(DOMAIN_NAME)s should be combined into as few images as possible using CSS sprites."
+msgstr "Gambar berikut yang disajikan dari %(DOMAIN_NAME)s sebaiknya digabungkan menjadi sesedikit mungkin gambar menggunakan sprite CSS."
 
 #  Header at the top of a list of inline javascript
 #  blocks that Page Speed detected as preventing parallel
 #  downloading.  It describes the problem to the user and tells them
 #  how to fix it by moving the inline script before the external CSS
-#  URL, or after the next resource. The "$1" will be replace by the
-#  URL of the HTML page.
-msgid "The following inline script blocks were found in $1 between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
-msgstr "Cekalan skrip sebaris berikut ditemukan di $1 antara berkas CSS eksternal dan sumber daya lainnya.  Agar pengunduhan paralel dapat dilakukan, pindahkan skrip sebaris ke sebelum berkas CSS eksternal, atau setelah sumber daya berikutnya."
+#  URL, or after the next resource.
+msgid "The following inline script blocks were found in %(URL)s between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
+msgstr "Pemblokiran skrip sebaris berikut ditemukan di %(URL)s antara file CSS eksternal dan sumber daya lainnya. Agar pengunduhan paralel dapat dilakukan, pindahkan skrip sebaris ke sebelum file CSS eksternal, atau setelah sumber daya berikutnya."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as a chain of HTTP redirections. It tells the user to fix
 #  the problem by removing the URLs that redirect to others.
 msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
-msgstr "Pengalihan laman landas berikut tidak dapat disimpan dalam tembolok. Jadikan agar dapat disimpan dalam tembolok untuk mempercepat waktu pemuatan laman bagi pengunjung yang kembali berkunjung ke situs Anda."
+msgstr "Pengalihan laman landas berikut tidak dapat disimpan dalam cache. Jadikan agar dapat disimpan dalam cache untuk mempercepat waktu pemuatan laman bagi pengunjung yang kembali berkunjung ke situs Anda."
+
+msgid "The following pages do not specify a viewport. Consider adding a meta tag specifying a viewport so mobile browsers can render the document at a usable size."
+msgstr "Laman berikut tidak menentukan area pandang. Pertimbangkan untuk menambahkan meta tag yang menentukan area pandang sehingga browser seluler dapat merender dokumen dengan ukuran yang dapat digunakan."
 
 #  Header at the top of a list of URLs of webpage resources
 #  that Page Speed detected as having three properties: 1) they are
@@ -668,7 +897,7 @@ msgstr "Pengalihan laman landas berikut tidak dapat disimpan dalam tembolok. Jad
 #  Accept-Encoding header to each of the listed resources.  Note that
 #  "Vary: Accept-Encoding" is code and should not be translated.
 msgid "The following publicly cacheable, compressible resources should have a \"Vary: Accept-Encoding\" header:"
-msgstr "Sumber daya yang dapat dimampatkan dan masuk tembolok secara publik berikut seharusnya memiliki kepala \"Vary: Accept-Encoding\":"
+msgstr "Sumber daya yang dapat dimampatkan dan masuk cache secara publik berikut seharusnya memiliki kepala \"Vary: Accept-Encoding\":"
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as bad requests (requesting them returned HTTP codes 404 or
@@ -698,18 +927,25 @@ msgstr "Sumber daya berikut dimuat secara sinkron. Muat secara asinkron untuk me
 #  can serve as a cache validator.  Note that "Last-Modified" and "ETag"
 #  are code and should not be translated.
 msgid "The following resources are missing a cache validator. Resources that do not specify a cache validator cannot be refreshed efficiently. Specify a Last-Modified or ETag header to enable cache validation for the following resources:"
-msgstr "Sumber daya berikut tidak memiliki validator tembolok. Sumber daya yang tidak menentukan validator tembolok tidak dapat disegarkan secara efisien. Tentukan kepala ETag atau Last-Modified untuk mengaktifkan validasi tembolok sumber daya berikut:"
+msgstr "Sumber daya berikut tidak memiliki validator cache. Sumber daya yang tidak menentukan validator cache tidak dapat disegarkan secara efisien. Tentukan kepala ETag atau Last-Modified untuk mengaktifkan validasi cache sumber daya berikut:"
+
+#  Header at the top of a list of URLs that Page
+#  Speed detected as declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) in an HTML meta tag. It
+#  describes the problem to the user, and tells them how to fix
+#  it by explicitly specifying the character set in the HTTP
+#  Content-Type response header.
+msgid "The following resources have a character set specified in a meta tag. Specifying a character set in a meta tag disables the lookahead downloader in IE8. To improve resource download parallelization, move the character set to the HTTP Content-Type response header."
+msgstr "Sumber daya berikut memiliki himpunan karakter yang ditentukan dalam tag meta. Menentukan himpunan karakter di tag meta akan menonaktifkan lookahead downloader di IE8. Untuk menyempurnakan paralelisasi pengunduhan sumber daya, pindahkan himpunan karakter ke HTTP Content-Type response tajuk."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as being identical yet served multiple times from different
 #  URLs.  It describes the problem to the user, and tells them how to
-#  fix it by serving all these resources from the same URL.  The "$1"
-#  is a format string that will be replaced with the number of requests
-#  that could be saved (e.g. "3"); the "$2" is a format string that
-#  will be replaced with the number of bytes that could be saved
-#  (e.g. "12.3kB").
-msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save $1 request(s) and $2."
-msgstr "Sumber daya berikut mempunyai konten yang persis, tetapi disajikan dari URL yang berbeda. Sajikan sumber daya dari URL yang konsisten untuk menghemat $1 permintaan dan $2."
+#  fix it by serving all these resources from the same URL.  The
+#  "BYTES_SAVED" placeholder will be replaced with the amount of
+#  transferred data that could be saved (e.g. "12.3kB").
+msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save %(NUM_REQUESTS)s request(s) and %(BYTES_SAVED)s."
+msgstr "Sumber daya berikut ini memiliki konten yang sama, tetapi ditampilkan dari URL yang berbeda. Tampilkan sumber daya ini dari URL yang konsisten untuk menghemat %(NUM_REQUESTS)s permintaan dan %(BYTES_SAVED)s."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as not declaring the character set (e.g. UTF-8,
@@ -717,22 +953,23 @@ msgstr "Sumber daya berikut mempunyai konten yang persis, tetapi disajikan dari 
 #  problem to the user, and tells them how to fix it by explicitly
 #  specifying the character set near the beginning of the page.
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
-msgstr "Sumber daya berikut belum ditentukan himpunan karakternya di header HTTP-nya. Dengan menentukan himpunan karakter di header HTTP, penguraian peramban dapat lebih cepat."
+msgstr "Sumber daya berikut belum ditentukan himpunan karakternya di tajuk HTTP-nya. Dengan menentukan himpunan karakter di tajuk HTTP, penguraian browser dapat lebih cepat."
 
-#  Header at the top of a list of URLs of resources that are
-#  served from a domain that does not have HTTP Keep-Alive enabled.  It
-#  tells the user to enable keep-alive on that domain.  The "$1" is a
-#  format string that will be replaced with the domain in question.
-#  "Keep-Alive" is the name of an HTTP header, and shouldn't be
+#  Header at the top of a list of URLs of resources that
+#  are served from a domain that does not have HTTP Keep-Alive enabled.
+#  It tells the user to enable keep-alive on that host.  The
+#  "HOST_NAME" placeholder gives the name of the host
+#  (e.g. "www.example.com").  The "KEEPALIVE" placeholder is replaced
+#  with the string "Keep-Alive", which is code that should not be
 #  translated.
-msgid "The host $1 should enable Keep-Alive. It serves the following resources."
-msgstr "Inang $1 harus mengaktifkan Keep-Alive. Domain ini memberikan sumber daya berikut."
+msgid "The host %(HOST_NAME)s should enable %(KEEPALIVE)s. It serves the following resources."
+msgstr "Host %(HOST_NAME)s harus mengaktifkan %(KEEPALIVE)s. Ini melayani sumber daya berikut."
 
 #  Heading that explains why the URLs that follow
 #  should be moved to different hostnames. "DNS" should remain
 #  in the translated format string.
 msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
-msgstr "Nama inang setiap url berikut hanya menyajikan satu sumber daya. Hindari carian DNS tambahan dengan menyajikan sumber daya ini dari nama inang yang ada."
+msgstr "Nama host setiap url berikut hanya menyajikan satu sumber daya. Hindari carian DNS tambahan dengan menyajikan sumber daya ini dari nama host yang ada."
 
 #  Header at the top of a list of URLs that Page Speed
 #  detected as having large requests. It describes the problem to the
@@ -745,51 +982,65 @@ msgstr "Permintaan untuk URL berikut tidak muat dalam satu paket.  Mengurangi uk
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced with the number of CSS files loaded
-#  from the given domain. "$2" will be replaced by the domain name from
-#  which all the CSS files were loaded.
-msgid "There are $1 CSS files served from $2. They should be combined into as few files as possible."
-msgstr "Ada $1 berkas CSS yang disajikan dari $2. Semua berkas itu sebaiknya digabungkan menjadi sesedikit mungkin berkas."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s CSS files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "Ada %(NUM_FILES)s file CSS yang disajikan dari %(DOMAIN_NAME)s. File tersebut harus digabungkan menjadi file dalam jumlah sesedikit mungkin."
 
 #  Descriptive header describing a list of JavaScript resources
 #  that are all served from a single domain (in violation of the
 #  CombineExternalResources rule).  It says how many resources were loaded
 #  from that domain, gives the domain name itself, and is followed by a list
 #  of the URLs of those resources.  It then tells the webmaster how to solve
-#  the problem, by combining the resources into fewer files.  "$1" is a
-#  format token that will be replaced by the number of JavaScript files
-#  loaded from the given domain.  "$2" will be replaced by the domain name
-#  from which all the JavaScript files were loaded.
-msgid "There are $1 JavaScript files served from $2. They should be combined into as few files as possible."
-msgstr "Ada $1 berkas JavaScript yang disajikan dari $2. Semua berkas itu sebaiknya digabungkan menjadi sesedikit mungkin berkas."
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s JavaScript files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "Ada %(NUM_FILES)s file JavaScript yang ditampilkan dari %(DOMAIN_NAME)s. File tersebut harus digabungkan menjadi file dalam jumlah sesedikit mungkin."
 
 #  Header at the top of a list of URLs that Page Speed
-#  detected as from one host. It describes the problem to the user,
-#  and tells them how to fix it by distributing the requests across
-#  multiple hostnames. The "$1" will be replace by the number of the
-#  URLs; the "$2" wil be replaced by the name of the host (e.g.
-#  google.com).
-msgid "This page makes $1 parallelizable requests to $2.  Increase download parallelization by distributing these requests across multiple hostnames:"
-msgstr "Laman ini mengubah $1 permintaan yang dapat diparalelkan menjadi $2.  Tingkatkan paralelisasi unduhan dengan mendistribusikan permintaan berikut ke banyak nama inang:"
+#  detected as being loaded from one hostname
+#  (e.g. "example.com"). It describes the problem to the user, and
+#  tells them how to fix it by distributing the requests across
+#  multiple hostnames.
+msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
+msgstr "Laman ini membuat %(NUM_REQUESTS)s permintaan yang dapat diparalelkan ke %(HOSTNAME)s. Tingkatkan paralelisasi pengunduhan dengan mendistribusikan permintaan ini di beberapa nama hosting:"
 
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
-msgstr "Gunakan Tembolok Aplikasi"
+msgstr "Gunakan Cache Aplikasi"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
 #  problem by using application cache in the HTML documents.
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
-msgstr "Dengan menggunakan tembolok aplikasi, suatu laman dapat langsung muncul. Dokumen HTML berikut dapat menggunakan tembolok aplikasi guna mengurangi waktu yang diperlukan pengguna untuk dapat berinteraksi dengan laman:"
+msgstr "Dengan menggunakan cache aplikasi, suatu laman dapat langsung muncul. Dokumen HTML berikut dapat menggunakan cache aplikasi guna mengurangi waktu yang diperlukan pengguna untuk dapat berinteraksi dengan laman:"
 
-#  This appears as a header before a list of URLs of resources
-#  that use the JavaScript command "document.write" ("document.write" is
-#  code, and should not be translated).  It describes how using
-#  "document.write" can slow down your website (by forcing external
-#  resources to load serially, not in parallel).
-msgid "Using document.write to fetch external resources can introduce serialization delays in the rendering of the page. The following resources use document.write to fetch external resources:"
-msgstr "Menggunakan document.write untuk mengambil sumber daya eksternal dapat menyebabkan penundaan serialisasi dalam penguraian laman. Sumber daya berikut menggunakan document.write untuk mengambil sumber daya eksternal:"
+#  Summary header indicating the number of CSS resources
+#  that are blocking the webpage from rendering while loading.
+msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "Laman Anda memiliki %(NUM_CSS)s sumber daya CSS yang memblokir. Ini menyebabkan penundaan dalam perenderan laman Anda."
+
+msgid "Your page has %(NUM_REDIRECTS)s redirects. Redirects introduce additional delays before the page can be loaded."
+msgstr "Laman Anda memiliki %(NUM_REDIRECTS)s pengalihan. Pengalihan menyebabkan penundaan tambahan sebelum laman dapat dimuat."
+
+#  Summary header indicating the number of Javascript
+#  resources and the number of CSS resources that are blocking the
+#  webpage from rendering while loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources and %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "Laman Anda memiliki %(NUM_SCRIPTS)s sumber daya skrip yang memblokir dan %(NUM_CSS)s sumber daya CSS yang memblokir. Ini menyebabkan penundaan dalam perenderan laman Anda."
+
+#  Summary header indicating the number of Javascript
+#  resources that are blocking the webpage from rendering while
+#  loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
+msgstr "Laman Anda memiliki %(NUM_SCRIPTS)s sumber daya skrip yang memblokir. Ini menyebabkan penundaan dalam perenderan laman Anda."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where the
+#  upper portion of the front page that is above the fold of the paper is
+#  immediately visible to the reader.)
+msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
+msgstr "Laman Anda memerlukan edaran jaringan tambahan untuk merender konten pada paruh atas. Untuk kinerja terbaik, kurangi jumlah HTML yang diperlukan untuk merender konten pada paruh atas."
