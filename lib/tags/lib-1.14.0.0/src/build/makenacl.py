@@ -23,7 +23,7 @@ import sys
 
 default_nacl_home = os.path.normpath(
     os.path.join('third_party', 'nacl_sdk'))
-default_nacl_bundle = 'pepper_23'
+default_nacl_bundle = 'pepper_28'
 
 nacl_home = os.environ.get('NACL_HOME', default_nacl_home)
 nacl_bundle = os.environ.get('NACL_BUNDLE', default_nacl_bundle)
@@ -54,6 +54,8 @@ gyp_defines = os.environ.get('GYP_DEFINES', '')
 gyp_defines = 'build_nacl=1' + ' ' + gyp_defines
 os.putenv('GYP_DEFINES', gyp_defines)
 
+os.putenv('C_INCLUDE_PATH', os.path.join(nacl_home, nacl_bundle, 'include'))
+os.putenv('CPLUS_INCLUDE_PATH', os.path.join(nacl_home, nacl_bundle, 'include'))
 os.putenv('CC.target', os.path.join(nacl_bin_dir, nacl_bin_prefix) + '-gcc')
 os.putenv('CXX.target', os.path.join(nacl_bin_dir, nacl_bin_prefix) + '-g++')
 os.putenv('LINK.target', os.path.join(nacl_bin_dir, nacl_bin_prefix) + '-g++')
