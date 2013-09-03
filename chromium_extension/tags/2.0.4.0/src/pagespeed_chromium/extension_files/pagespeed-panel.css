@@ -1,0 +1,246 @@
+/* Copyright 2010 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+BODY {
+  direction: __MSG_@@bidi_dir__;
+  font-family: Lucida Grande, sans-serif;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+BUTTON {
+  cursor: pointer;
+  font-weight: bold;
+  text-shadow: rgba(255, 255, 255, 0.75) 0 1px 0;
+  -webkit-appearance: square-button;
+}
+
+BUTTON[disabled] {
+  cursor: auto;
+}
+
+SELECT {
+  cursor: pointer;
+  font-weight: bold;
+  padding-__MSG_@@bidi_start_edge__: 5px;
+  text-shadow: rgba(255, 255, 255, 0.75) 0 1px 0;
+}
+
+/***** Control Bar *****/
+
+DIV.control-bar {
+  background-color: #DDD;
+  border-bottom: 1px gray solid;
+  height: 23px;
+  padding: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+BUTTON#run-button {
+  height: 23px;
+  margin: 0 2px;
+  vertical-align: middle;
+  width: 140px;
+}
+
+IMG#spinner-img {
+  display: none;
+  vertical-align: middle;
+}
+
+SPAN#status-text {
+  padding-__MSG_@@bidi_start_edge__: 3px;
+}
+
+SELECT#analyze-dropdown {
+  float: __MSG_@@bidi_end_edge__;
+  height: 23px;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+/***** Welcome Page *****/
+
+DIV#welcome-container {
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  padding: 5px 25px;
+  position: absolute;
+  right: 0;
+  top: 34px;
+}
+
+DIV#welcome-container > H1 {
+  text-shadow: rgba(128, 128, 128, 0.5) 1px 1px 0;
+}
+
+DIV#welcome-container > H2 {
+  font-size: 14px;
+}
+
+DIV#welcome-container > UL {
+  list-style-position: inside;
+}
+
+#logo-img {
+  float: __MSG_@@bidi_start_edge__;
+  margin-__MSG_@@bidi_start_edge__: 5px;
+  margin-__MSG_@@bidi_end_edge__: 25px;
+}
+
+/***** Results Page *****/
+
+DIV#results-container {
+  display: none;
+}
+
+DIV.icon-error {
+  background-image: url(errorRedDot.png);
+  background-position: 0 -1px;
+  height: 16px;
+  width: 16px;
+}
+
+DIV.icon-warn {
+  background-image: url(warningOrangeDot.png);
+  background-position: 0 -1px;
+  height: 16px;
+  width: 16px;
+}
+
+DIV.icon-okay {
+  background-image: url(successGreenDot.png);
+  background-position: 0 -1px;
+  height: 16px;
+  width: 16px;
+}
+
+DIV.icon-info {
+  background-image: url(infoBlueDot.png);
+  background-position: 0 -1px;
+  height: 16px;
+  width: 16px;
+}
+
+DIV.icon-na {
+  background-image: url(naGrayDot.png);
+  background-position: 0 -1px;
+  height: 16px;
+  width: 16px;
+}
+
+/***** Score Bar *****/
+
+DIV.score-bar {
+  background-color: silver;
+  border-bottom: 1px gray solid;
+  color: rgb(48, 48, 48);
+  font-size: 14px;
+  font-weight: bold;
+  height: 20px;
+  padding: 3px 5px;
+  text-shadow: rgba(255, 255, 255, 0.75) 0 1px 0;
+}
+
+DIV.score-bar > BUTTON {
+  float: __MSG_@@bidi_end_edge__;
+  height: 19px;
+  font-size: 10px;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+DIV.score-bar > DIV {
+  display: inline-block;
+  margin: 0 5px;
+  vertical-align: middle;
+}
+
+/***** Rules Listing *****/
+
+DIV#rules-container {
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  position: absolute;
+  right: 0;
+  top: 61px;
+}
+
+DIV#rules-container > DIV.result {
+  border-bottom: 1px silver solid;
+  margin: 0;
+  padding: 0;
+}
+
+DIV#rules-container > DIV.result > DIV.header {
+  background-color: #eee;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 5px;
+  text-shadow: rgba(128, 128, 128, 0.25) 1px 1px 0;
+}
+
+DIV#rules-container > DIV.result > DIV.header > DIV {
+  display: inline-block;
+  margin: 0 10px;
+  vertical-align: middle;
+}
+
+DIV#rules-container > DIV.result > DIV.details {
+  display: none;
+}
+
+DIV#rules-container > DIV.result > DIV.details > P {
+  margin: 10px;
+  margin-__MSG_@@bidi_start_edge__: 20px;
+}
+
+DIV#rules-container > DIV.result > DIV.details > UL {
+  margin: 10px;
+  margin-__MSG_@@bidi_start_edge__: 20px;
+}
+
+/***** Error report *****/
+
+DIV#error-container {
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 35px;
+}
+
+DIV#error-container > P {
+  background-color: #ffe;
+  border: 1px #eee solid;
+  font-size: 12px;
+  margin: 30px 60px 15px;
+  padding: 8px;
+}
+
+DIV#error-container > BUTTON {
+  font-size: 10px;
+  height: 19px;
+}
+
+PRE.result {
+  margin-top: 0;
+}
