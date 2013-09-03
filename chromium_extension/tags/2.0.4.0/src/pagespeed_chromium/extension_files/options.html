@@ -1,0 +1,56 @@
+<!doctype html>
+<!----------------------------------------------------------------------
+Copyright 2010 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+----------------------------------------------------------------------->
+<html>
+  <head>
+    <title>Page Speed Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <h1>
+      <img src="pagespeed-32.png" width="32" height="32" />
+      Page Speed Options
+    </h1>
+    <div id="content">
+      <section>
+        <h3>Autorun</h3>
+        <div>
+          <div class="checkbox">
+            <label>
+              <input id="runAtOnLoad" type="checkbox" />
+              <span>Run automatically when page loads</span>
+            </label>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h3>Optimized resources</h3>
+        <div>
+          <div class="checkbox">
+            <label>
+              <input id="noOptimizedContent" type="checkbox" />
+              <span>Don't produce optimized versions of resources</span>
+            </label>
+          </div>
+        </div>
+      </section>
+      <section>
+        <button id="reset-button">Reset to defaults</button>
+      </section>
+    </div>
+    <script src="options.js"></script>
+  </body>
+</html>
