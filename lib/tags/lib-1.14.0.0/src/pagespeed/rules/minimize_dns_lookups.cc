@@ -197,6 +197,10 @@ bool MinimizeDnsLookups::AppendResults(const RuleInput& rule_input,
 
 void MinimizeDnsLookups::FormatResults(const ResultVector& results,
                                        RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   std::vector<std::string> violation_urls;
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();

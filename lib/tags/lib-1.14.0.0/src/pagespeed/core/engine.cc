@@ -55,9 +55,7 @@ void FormatRuleResults(const RuleResults& rule_results,
   RuleFormatter* rule_formatter =
       root_formatter->AddRule(*rule, rule_results.rule_score(),
                               rule_results.rule_impact());
-  if (!sorted_results.empty()) {
-    rule->FormatResults(sorted_results, rule_formatter);
-  }
+  rule->FormatResults(sorted_results, rule_formatter);
 }
 
 }  // namespace
