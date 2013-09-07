@@ -167,6 +167,10 @@ bool MakeLandingPageRedirectsCacheable::AppendResults(
 
 void MakeLandingPageRedirectsCacheable::FormatResults(
     const ResultVector& results, RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   UrlBlockFormatter* body = formatter->AddUrlBlock(
       // TRANSLATOR: Header at the top of a list of URLs that Page Speed
       // detected as a chain of HTTP redirections. It tells the user to fix

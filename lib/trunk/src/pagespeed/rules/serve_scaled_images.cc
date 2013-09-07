@@ -284,7 +284,7 @@ bool ServeScaledImages::AppendResults(const RuleInput& rule_input,
 
 void ServeScaledImages::FormatResults(const ResultVector& results,
                                       RuleFormatter* formatter) {
-  if (results.size() == 0) {
+  if (results.empty()) {
     return;
   }
 

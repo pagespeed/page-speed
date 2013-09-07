@@ -101,6 +101,10 @@ bool AvoidCssImport::AppendResults(const RuleInput& rule_input,
 
 void AvoidCssImport::FormatResults(const ResultVector& results,
                                    RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end(); iter != end; ++iter) {
     const Result& result = **iter;
