@@ -159,6 +159,10 @@ bool UseAnApplicationCache::AppendResults(const RuleInput& rule_input,
 
 void UseAnApplicationCache::FormatResults(const ResultVector& results,
                                    RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   UserFacingString body_tmpl =
   // TRANSLATOR: Header at the top of a list of URLs that Page Speed detected
   // that HTML5 application cache should be used. It tells the user to fix the

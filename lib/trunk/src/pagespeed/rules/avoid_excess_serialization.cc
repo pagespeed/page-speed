@@ -219,6 +219,10 @@ bool AvoidExcessSerialization::AppendResults(const RuleInput& rule_input,
 
 void AvoidExcessSerialization::FormatResults(const ResultVector& results,
                                              RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   for (ResultVector::const_iterator iter = results.begin();
        iter != results.end(); ++iter) {
 

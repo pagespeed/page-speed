@@ -138,6 +138,10 @@ AppendResults(const RuleInput& rule_input, ResultProvider* provider) {
 
 void ServeResourcesFromAConsistentUrl::FormatResults(
     const ResultVector& results, RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   for (ResultVector::const_iterator iter = results.begin(),
            end = results.end();
        iter != end;

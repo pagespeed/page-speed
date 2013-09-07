@@ -106,6 +106,10 @@ bool CombineExternalResources::AppendResults(const RuleInput& rule_input,
 
 void CombineExternalResources::FormatResults(const ResultVector& results,
                                              RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   UserFacingString body_tmpl;
   if (resource_type_ == CSS) {
     // TRANSLATOR: Descriptive header describing a list of CSS resources that

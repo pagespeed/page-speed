@@ -51,6 +51,7 @@ namespace {
 const char* kRuleName = "TestRule";
 const char* kExperimentalRuleName = "TestExperimentalRule";
 const char* kHeader = "Test Rule";
+const char* kSummaryLineNoResults = "Summary line with no results";
 const char* kBody1 = "Example format string";
 const char* kBody2 = "Another format string";
 
@@ -89,6 +90,10 @@ class TestRule : public Rule {
 
   virtual void FormatResults(const pagespeed::ResultVector& results,
                              RuleFormatter* formatter) {
+    if (results.empty()) {
+      formatter->SetSummaryLine(not_localized(kSummaryLineNoResults));
+      return;
+    }
     formatter->AddUrlBlock(not_localized(kBody1));
     formatter->AddUrlBlock(not_localized(kBody2));
   }
@@ -316,6 +321,7 @@ TEST(EngineTest, FormatResultsNoResults) {
   const FormattedRuleResults& rule_results =
       formatted_results.rule_results(0);
   ASSERT_EQ(kHeader, rule_results.localized_rule_name());
+  ASSERT_EQ(kSummaryLineNoResults, rule_results.summary().format());
   ASSERT_EQ(0, rule_results.url_blocks_size());
 }
 

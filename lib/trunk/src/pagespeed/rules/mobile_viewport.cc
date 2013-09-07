@@ -166,6 +166,10 @@ bool MobileViewport::AppendResults(const RuleInput& rule_input,
 
 void MobileViewport::FormatResults(const ResultVector& results,
                                    RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   // TRANSLATOR: Header at the top of a list of URLs that Page Speed detected
   // that do not have a viewport specified. It tells the user to fix the
   // problem by adding a meta tag specifying a viewport to the HTML documents.
