@@ -241,6 +241,10 @@ bool AvoidLandingPageRedirects::AppendResults(
 
 void AvoidLandingPageRedirects::FormatResults(
     const ResultVector& results, RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   // TRANSLATOR: A summary to give a general overview of this Page
   // Speed rule.
   formatter->SetSummaryLine(

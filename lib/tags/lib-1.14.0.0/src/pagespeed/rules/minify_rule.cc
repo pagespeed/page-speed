@@ -160,6 +160,10 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
 
 void MinifyRule::FormatResults(const ResultVector& results,
                                RuleFormatter* formatter) {
+  if (results.empty()) {
+    return;
+  }
+
   int total_original_size = 0;
   int total_bytes_saved = 0;
 
