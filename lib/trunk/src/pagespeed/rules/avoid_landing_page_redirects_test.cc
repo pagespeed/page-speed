@@ -764,4 +764,15 @@ TEST_F(AvoidLandingPageRedirectsTest, FormatWithOrder) {
   ASSERT_EQ(expected_results, FormatResults());
 }
 
+TEST_F(AvoidLandingPageRedirectsTest, FormatResultsNoResults) {
+  Freeze();
+  AppendResults();
+
+  const char* expected_results =
+      "Your page has no redirects. "
+      "Learn more about avoiding landing page redirects"
+      "<https://developers.google.com/speed/docs/insights/AvoidRedirects>.\n";
+  ASSERT_EQ(expected_results, FormatResults());
+}
+
 }  // namespace

@@ -135,7 +135,11 @@ class Minifier {
 
   virtual const char* name() const = 0;
   virtual UserFacingString header_format() const = 0;
+  // The summary line to display when there is at least one result.
   virtual UserFacingString summary_line() const = 0;
+  // The summary line to display when the page passes this rule
+  // (i.e. when there are no results).
+  virtual UserFacingString summary_line_passed() const = 0;
   virtual UserFacingString body_format() const = 0;
   virtual UserFacingString child_format() const = 0;
   virtual UserFacingString child_format_post_gzip() const = 0;

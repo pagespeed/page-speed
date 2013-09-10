@@ -42,6 +42,7 @@ class HtmlMinifier : public Minifier {
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
   virtual UserFacingString summary_line() const;
+  virtual UserFacingString summary_line_passed() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -70,7 +71,15 @@ UserFacingString HtmlMinifier::summary_line() const {
   // TRANSLATOR: A summary to give a general overview of this Page
   // Speed rule.
   return _("Compacting HTML code, including any inline JavaScript and "
-           "CSS contained in it, can save many bytes of data and speed up download and parse times.");
+           "CSS contained in it, can save many bytes of data and speed up "
+           "download and parse times.");
+}
+
+UserFacingString HtmlMinifier::summary_line_passed() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Your HTML is minified. Learn more about "
+           "%(BEGIN_LINK)sminifying HTML%(END_LINK)s.");
 }
 
 UserFacingString HtmlMinifier::body_format() const {

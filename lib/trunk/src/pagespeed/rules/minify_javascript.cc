@@ -43,6 +43,7 @@ class JsMinifier : public Minifier {
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
   virtual UserFacingString summary_line() const;
+  virtual UserFacingString summary_line_passed() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -72,6 +73,13 @@ UserFacingString JsMinifier::summary_line() const {
   // Speed rule.
   return _("Compacting JavaScript code can save many bytes of data "
            "and speed up downloading, parsing, and execution time.");
+}
+
+UserFacingString JsMinifier::summary_line_passed() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Your JavaScript content is minified. Learn more about "
+           "%(BEGIN_LINK)sminifying JavaScript%(END_LINK)s.");
 }
 
 UserFacingString JsMinifier::body_format() const {
