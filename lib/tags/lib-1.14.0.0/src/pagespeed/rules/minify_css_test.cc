@@ -94,4 +94,13 @@ TEST_F(MinifyCssTest, Format) {
       FormatResults());
 }
 
+TEST_F(MinifyCssTest, FormatNoResults) {
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "Your CSS is minified. Learn more about minifying CSS"
+      "<https://developers.google.com/speed/docs/insights/MinifyResources>.\n",
+      FormatResults());
+}
+
 }  // namespace

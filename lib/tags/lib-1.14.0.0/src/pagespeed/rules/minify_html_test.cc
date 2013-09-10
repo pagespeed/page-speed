@@ -115,4 +115,13 @@ TEST_F(MinifyHtmlTest, Format) {
       FormatResults());
 }
 
+TEST_F(MinifyHtmlTest, FormatNoResults) {
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "Your HTML is minified. Learn more about minifying HTML"
+      "<https://developers.google.com/speed/docs/insights/MinifyResources>.\n",
+      FormatResults());
+}
+
 }  // namespace

@@ -242,6 +242,15 @@ bool AvoidLandingPageRedirects::AppendResults(
 void AvoidLandingPageRedirects::FormatResults(
     const ResultVector& results, RuleFormatter* formatter) {
   if (results.empty()) {
+    // TRANSLATOR: A summary to give a general overview of this Page
+    // Speed rule.
+    formatter->SetSummaryLine(
+        _("Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding "
+          "landing page redirects%(END_LINK)s."),
+        HyperlinkArgument(
+            "LINK",
+            "https://developers.google.com/speed/docs/insights/"
+            "AvoidRedirects"));
     return;
   }
 
