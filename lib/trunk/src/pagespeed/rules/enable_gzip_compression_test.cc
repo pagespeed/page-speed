@@ -189,4 +189,14 @@ TEST_F(EnableGzipCompressionTest, Format) {
             "(99% reduction).\n", FormatResults());
 }
 
+TEST_F(EnableGzipCompressionTest, FormatNoResults) {
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "You have compression enabled. Learn more about enabling compression"
+      "<https://developers.google.com/speed/docs/insights/"
+      "EnableCompression>.\n",
+      FormatResults());
+}
+
 }  // namespace

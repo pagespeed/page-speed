@@ -218,6 +218,15 @@ bool LeverageBrowserCaching::AppendResults(const RuleInput& rule_input,
 void LeverageBrowserCaching::FormatResults(const ResultVector& results,
                                            RuleFormatter* formatter) {
   if (results.empty()) {
+    // TRANSLATOR: A summary to give a general overview of this Page
+    // Speed rule.
+    formatter->SetSummaryLine(
+        _("You have enabled browser caching. Learn more about "
+          "%(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."),
+          HyperlinkArgument(
+              "LINK",
+              "https://developers.google.com/speed/docs/insights/"
+              "LeverageBrowserCaching"));
     return;
   }
 

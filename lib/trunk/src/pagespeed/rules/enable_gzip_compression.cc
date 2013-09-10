@@ -48,6 +48,7 @@ class GzipMinifier : public Minifier {
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
   virtual UserFacingString summary_line() const;
+  virtual UserFacingString summary_line_passed() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -79,6 +80,13 @@ UserFacingString GzipMinifier::summary_line() const {
   // Speed rule.
   return _("Compressing resources with gzip or deflate can reduce "
            "the number of bytes sent over the network.");
+}
+
+UserFacingString GzipMinifier::summary_line_passed() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("You have compression enabled. Learn more about "
+           "%(BEGIN_LINK)senabling compression%(END_LINK)s.");
 }
 
 UserFacingString GzipMinifier::body_format() const {

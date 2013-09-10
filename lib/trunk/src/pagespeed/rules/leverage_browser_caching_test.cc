@@ -155,4 +155,15 @@ TEST_F(LeverageBrowserCachingTest, Format) {
       "\n  http://www.example.com/ (8 minutes 20 seconds)\n", FormatResults());
 }
 
+TEST_F(LeverageBrowserCachingTest, FormatNoResults) {
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "You have enabled browser caching. Learn more about "
+      "browser caching recommendations"
+      "<https://developers.google.com/speed/docs/insights/"
+      "LeverageBrowserCaching>.\n",
+      FormatResults());
+}
+
 }  // namespace

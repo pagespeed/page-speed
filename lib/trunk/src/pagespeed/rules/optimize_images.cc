@@ -44,6 +44,7 @@ class ImageMinifier : public Minifier {
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
   virtual UserFacingString summary_line() const;
+  virtual UserFacingString summary_line_passed() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -73,6 +74,13 @@ UserFacingString ImageMinifier::summary_line() const {
   // Speed rule.
   return _("Properly formatting and compressing images can save "
            "many bytes of data.");
+}
+
+UserFacingString ImageMinifier::summary_line_passed() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Your images are optimized. Learn more about "
+           "%(BEGIN_LINK)soptimizing images%(END_LINK)s.");
 }
 
 UserFacingString ImageMinifier::body_format() const {

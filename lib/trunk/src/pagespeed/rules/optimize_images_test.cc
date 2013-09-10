@@ -153,4 +153,14 @@ TEST_F(OptimizeImagesTest, Format) {
       "2.5KiB (41% reduction).\n", FormatResults());
 }
 
+TEST_F(OptimizeImagesTest, FormatNoResults) {
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "Your images are optimized. Learn more about optimizing images"
+      "<https://developers.google.com/speed/docs/insights/"
+      "OptimizeImages>.\n",
+      FormatResults());
+}
+
 }  // namespace
