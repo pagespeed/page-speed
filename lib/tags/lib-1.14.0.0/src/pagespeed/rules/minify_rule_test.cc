@@ -44,6 +44,9 @@ class FoobarMinifier : public pagespeed::rules::Minifier {
   virtual UserFacingString summary_line() const {
     return not_localized("Test summary line");
   }
+  virtual UserFacingString summary_line_passed() const {
+    return not_localized("Test summary line %(BEGIN_LINK)spassed%(END_LINK)s");
+  }
   virtual UserFacingString body_format() const {
     return not_localized(
         "You %(BEGIN_LINK)scould save%(END_LINK)s "
@@ -196,6 +199,12 @@ TEST_F(MinifyTest, DoNotSaveOptimizedContent) {
   // There should be no optimized conent in the result, because we have the
   // modified response body.
   ASSERT_FALSE(res.has_optimized_content());
+}
+
+TEST_F(MinifyTest, FormatResultsNoResults) {
+  Freeze();
+  AppendResults();
+  ASSERT_EQ("Test summary line passed<http://foo.bar/>\n", FormatResults());
 }
 
 }  // namespace

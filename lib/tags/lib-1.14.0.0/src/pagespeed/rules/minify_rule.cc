@@ -161,6 +161,9 @@ bool MinifyRule::AppendResults(const RuleInput& rule_input,
 void MinifyRule::FormatResults(const ResultVector& results,
                                RuleFormatter* formatter) {
   if (results.empty()) {
+    formatter->SetSummaryLine(
+        minifier_->summary_line_passed(),
+        HyperlinkArgument("LINK", minifier_->additional_info_url()));
     return;
   }
 

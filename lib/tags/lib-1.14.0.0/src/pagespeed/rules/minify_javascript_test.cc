@@ -103,4 +103,14 @@ TEST_F(MinifyJavaScriptTest, Format) {
       FormatResults());
 }
 
+TEST_F(MinifyJavaScriptTest, FormatNoResults) {
+  Freeze();
+  ASSERT_TRUE(AppendResults());
+  ASSERT_EQ(
+      "Your JavaScript content is minified. Learn more about minifying "
+      "JavaScript"
+      "<https://developers.google.com/speed/docs/insights/MinifyResources>.\n",
+      FormatResults());
+}
+
 }  // namespace

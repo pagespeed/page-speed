@@ -43,6 +43,7 @@ class CssMinifier : public Minifier {
   virtual const char* name() const;
   virtual UserFacingString header_format() const;
   virtual UserFacingString summary_line() const;
+  virtual UserFacingString summary_line_passed() const;
   virtual UserFacingString body_format() const;
   virtual UserFacingString child_format() const;
   virtual UserFacingString child_format_post_gzip() const;
@@ -72,6 +73,13 @@ UserFacingString CssMinifier::summary_line() const {
   // Speed rule.
   return _("Compacting CSS code can save many bytes of data "
            "and speed up download and parse times.");
+}
+
+UserFacingString CssMinifier::summary_line_passed() const {
+  // TRANSLATOR: A summary to give a general overview of this Page
+  // Speed rule.
+  return _("Your CSS is minified. "
+           "Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s.");
 }
 
 UserFacingString CssMinifier::body_format() const {
