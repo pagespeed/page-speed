@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "Ang mahigpit na pagko-compress sa %(URL)s ay makakatipid ng %(SIZE_IN_BYTES)s (%(PERCENTAGE)s na pagbabawas)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "Gawing nakikita ang nilalaman sa dulo ng HTML"
 
@@ -1016,6 +1017,44 @@ msgstr "Gumamit ng isang Application Cache"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Ang paggamit ng isang application cache ay nagbibigay-daan para sa isang pahina na lumitaw kaagad. Makakagamit ng application cache ang mga sumusunod na HTML na dokumento upang bawasan ang panahong ginugugol ng mga user upang magawang makipag-ugnayan sa pahina:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "Mayroon kang naka-enable na compression. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spag-e-enable sa compression%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "Mayroon kang naka-enable na pagka-cache ng browser. Matuto nang higit pa tungkol sa %(BEGIN_LINK)smga rekomendasyon sa pagka-cache ng browser%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "Wala kang mga mapagkukunang nagba-block sa pagre-render. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spag-aalis ng mga mapagkukunang nagba-block sa pagre-render%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "Mayroon kang maayos na nagawang priyoridad para sa nilalaman sa itaas ng fold. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spagsasapriyoridad ng nakikitang nilalaman%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "Pinaliit ang iyong CSS. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spagpapaliit ng CSS%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "Pinaliit ang iyong HTML. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spagpapaliit ng HTML%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "Pinaliit ang iyong nilalamang JavaScript. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spagpapaliit ng JavaScript%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Na-optimize ang iyong mga larawan. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spag-o-optimize ng mga larawan%(END_LINK)s."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "May %(NUM_SCRIPTS)s (na) mapagkukunan ng nagba-block na script ang iyong
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "May %(NUM_SCRIPTS)s (na) mapagkukunan ng nagba-block na script ang iyong pahina. Nagdudulot ito ng pagkaantala sa pagre-render ng iyong pahina."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "Walang mga pagre-redirect ang iyong pahina. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spag-iwas sa mga pagre-redirect ng landing page%(END_LINK)s."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "May %(NUM_SCRIPTS)s (na) mapagkukunan ng nagba-block na script ang iyong
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Nangangailangan ang iyong pahina ng mga karagdagang round trip sa network upang i-render ang nilalaman sa itaas ng fold. Para sa pinakamahusay na performance, bawasan ang HTML na kailangan upang i-render ang nilalaman sa itaas ng fold."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "Mabilis na tumugon ang iyong server. Matuto nang higit pa tungkol sa %(BEGIN_LINK)spag-o-optimize ng oras ng pagtugon ng server%(END_LINK)s."

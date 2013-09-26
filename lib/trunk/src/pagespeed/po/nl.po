@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "Het lossless comprimeren van %(URL)s kan %(SIZE_IN_BYTES)s besparen (een besparing van %(PERCENTAGE)s)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "Content zichtbaar maken wanneer het eind van de HTML is bereikt"
 
@@ -1016,6 +1017,44 @@ msgstr "Een applicatiecache gebruiken"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Met een applicatiecache kan een pagina onmiddellijk worden weergegeven. Voor de volgende HTML-documenten kan een applicatiecache worden gebruikt om ervoor te zorgen dat gebruikers de pagina sneller kunnen gebruiken:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "U heeft compressie ingeschakeld. Meer informatie over %(BEGIN_LINK)shet inschakelen van compressie%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "U heeft browsercaching ingeschakeld. Meer informatie over %(BEGIN_LINK)saanbevelingen voor browsercaching%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "U heeft geen bronnen die het weergeven blokkeren. Meer informatie over %(BEGIN_LINK)shet verwijderen van bronnen die het weergeven blokkeren%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "U heeft de prioriteit voor de inhoud boven de vouw correct ingesteld. Meer informatie over %(BEGIN_LINK)shet instellen van de prioriteit van zichtbare inhoud%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "Uw CSS is verkleind. Meer informatie over %(BEGIN_LINK)shet verkleinen van CSS%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "Uw HTML is verkleind. Meer informatie over %(BEGIN_LINK)shet verkleinen van HTML%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "Uw JavaScript-inhoud is verkleind. Meer informatie over %(BEGIN_LINK)shet verkleinen van JavaScript%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Uw afbeeldingen zijn geoptimaliseerd. Meer informatie over %(BEGIN_LINK)shet optimaliseren van afbeeldingen%(END_LINK)s."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "Uw pagina heeft %(NUM_SCRIPTS)s blokkerende scriptbronnen en %(NUM_CSS)s
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "Uw pagina heeft %(NUM_SCRIPTS)s blokkerende scriptbronnen. Dit veroorzaakt vertraging bij het weergeven van uw pagina."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "Uw pagina heeft geen omleidingen. Meer informatie over %(BEGIN_LINK)shet vermijden van omleidingen voor bestemmingspagina's%(END_LINK)s."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "Uw pagina heeft %(NUM_SCRIPTS)s blokkerende scriptbronnen. Dit veroorzaa
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Uw pagina vereist extra netwerkomleidingen om inhoud boven de vouw weer te geven. Voor optimale prestaties beperkt u de hoeveelheid HTML-code die is vereist voor het weergeven van inhoud boven de vouw."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "Uw server heeft snel gereageerd. Meer informatie over %(BEGIN_LINK)soptimalisatie van de reactietijd van de server%(END_LINK)s."
