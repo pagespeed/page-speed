@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "דחיסה ללא אובדן נתונים של %(URL)s יכולה לחסוך %(SIZE_IN_BYTES)s (הפחתה של %(PERCENTAGE)s)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "הפוך את התוכן לגלוי באמצעות HTML"
 
@@ -1016,6 +1017,44 @@ msgstr "השתמש בקובץ שמור של יישום"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "שימוש בקובץ שמור של יישום מאפשר לדף להופיע באופן מיידי. מסמכי ה-HTML הבאים יכולים להשתמש בקובץ שמור של יישום כדי לקצר את משך הזמן הדרוש עד שהמשתמשים יוכלו לקיים אינטראקציה עם הדף:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "הפעלת את הדחיסה. קרא מידע נוסף על %(BEGIN_LINK)sהפעלת דחיסה%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "הפעלת אחסון בקובץ השמור של הדפדפן. קרא מידע נוסף על %(BEGIN_LINK)sהמלצות בנושא אחסון בקובץ השמור של הדפדפן%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "אין לך משאבים החוסמים עיבוד. קרא מידע נוסף על %(BEGIN_LINK)sהסרה של משאבים החוסמים עיבוד%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "ההעדפה של התוכן בחלק העליון והקבוע מוגדרת כראוי. קרא מידע נוסף על %(BEGIN_LINK)sתעדוף של תוכן גלוי%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "ה-CSS שלך מוקטן. קרא מידע נוסף על %(BEGIN_LINK)sהקטנת CSS%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "ה-HTML שלך מוקטן. קרא מידע נוסף על %(BEGIN_LINK)sהקטנתHTML%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "תוכן ה-JavaScript שלך מוקטן. קרא מידע נוסף על %(BEGIN_LINK)sהקטנת JavaScript%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "התמונות שלך עברו אופטימיזציה. קרא מידע נוסף על %(BEGIN_LINK)sאופטימיזציה של תמונות%(END_LINK)s."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "הדף שלך מכיל %(NUM_SCRIPTS)s משאבי סקריפט חוסמ�
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "הדף שלך מכיל %(NUM_SCRIPTS)s משאבי סקריפט חוסמים. מצב זה גורם לעיכוב בעיבוד הדף."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "הדף שלך לא מכיל הפניות מחדש. קרא מידע נוסף על %(BEGIN_LINK)sהימנעות מהפנייה מחדש בדף הנחיתה%(END_LINK)s."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "הדף שלך מכיל %(NUM_SCRIPTS)s משאבי סקריפט חוסמ�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "לדף שלך נדרשות העברות חוזרות נוספות ברשת על מנת לעבד את התוכן שבחלק העליון והקבוע. לביצועים הטובים ביותר, הפחת את כמות ה-HTML הנדרשת לעיבוד התוכן שבחלק העליון והקבוע."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "השרת שלך הגיב במהירות. קרא מידע נוסף על %(BEGIN_LINK)sאופטימיזציה של זמן תגובת השרת%(END_LINK)s."

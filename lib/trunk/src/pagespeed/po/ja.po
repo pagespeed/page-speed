@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "%(URL)s をロスレス圧縮すると %(SIZE_IN_BYTES)s（%(PERCENTAGE)s）削減できます。"
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "HTML の終わりまでにコンテンツを表示可能にする"
 
@@ -1016,6 +1017,44 @@ msgstr "アプリケーション キャッシュを使用する"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "アプリケーション キャッシュを使用すると、ページをすばやく表示できます。以下の HTML ドキュメントは、アプリケーション キャッシュを使用して、ユーザーがページとやり取りできるようになるまでの時間を短縮することができます。"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "このページでは、圧縮が有効になっています。詳しくは、%(BEGIN_LINK)s圧縮の有効化%(END_LINK)sに関する説明をご覧ください。"
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "このページでは、ブラウザのキャッシュが有効になっています。詳しくは、%(BEGIN_LINK)sブラウザのキャッシュの推奨%(END_LINK)sに関する説明をご覧ください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "このページには、レンダリング ブロッキング リソースはありません。詳しくは、%(BEGIN_LINK)sレンダリング ブロッキング リソースの削除%(END_LINK)sに関する説明をご覧ください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "このページでは、スクロールせずに見えるコンテンツの優先順位は適切に決定されています。詳しくは、%(BEGIN_LINK)s表示可能コンテンツの優先順位の決定%(END_LINK)sに関する説明をご覧ください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "このページでは、CSS は縮小されています。詳しくは、%(BEGIN_LINK)sCSS の縮小%(END_LINK)sに関する説明をご覧ください。."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "このページでは、HTML は縮小されています。詳しくは、%(BEGIN_LINK)sHTML の縮小%(END_LINK)sに関する説明をご覧ください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "このページでは、JavaScript コンテンツは縮小されています。詳しくは、%(BEGIN_LINK)sJavaScript の縮小%(END_LINK)sに関する説明をご覧ください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "このページでは、画像は最適化されています。詳しくは、%(BEGIN_LINK)s画像の最適化%(END_LINK)sに関する説明をご覧ください。"
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "このページには、ブロッキング スクリプト リソース 
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "このページには、ブロッキング スクリプト リソースが %(NUM_SCRIPTS)s あります。これが原因で、ページのレンダリングに遅延が発生しています。"
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "このページでは、リダイレクトは使用されていません。詳しくは、%(BEGIN_LINK)sリンク先ページのリダイレクトを使用しない%(END_LINK)sルールに関する説明をご覧ください。"
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "このページには、ブロッキング スクリプト リソース�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "スクロールせずに見えるコンテンツをレンダリングするには、このページにネットワーク ラウンド トリップを追加する必要があります。最適なパフォーマンスを得るには、スクロールせずに見えるコンテンツをレンダリングするのに必要な HTML の量を減らしてください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "このサーバーは素早く応答しています。詳しくは、%(BEGIN_LINK)sサーバー応答時間の最適化%(END_LINK)sに関する説明をご覧ください。"

@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "%(URL)s을(를) 압축하면 %(SIZE_IN_BYTES)s만큼 줄일 수 있습니다(%(PERCENTAGE)s 감소)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "HTML 끝에 콘텐츠 표시"
 
@@ -1016,6 +1017,44 @@ msgstr "애플리케이션 캐시 사용"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "애플리케이션 캐시를 사용하면 페이지를 즉시 표시할 수 있습니다. 다음 HTML 문서는 애플리케이션 캐시를 사용하여 사용자가 더 빠른 속도로 페이지와 상호 작용할 수 있도록 해 줍니다."
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "압축이 사용 설정되어 있습니다. %(BEGIN_LINK)s압축 사용 설정%(END_LINK)s에 대해 자세히 알아보기"
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "브라우저 캐싱이 사용 설정되어 있습니다. %(BEGIN_LINK)s브라우저 캐싱 권장사항%(END_LINK)s에 대해 자세히 알아보기"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "렌더링 차단 리소스가 없습니다. %(BEGIN_LINK)s렌더링 차단 리소스 삭제%(END_LINK)s에 대해 자세히 알아보기"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "스크롤 없이 볼 수 있는 콘텐츠의 우선순위가 올바르게 지정되었습니다. %(BEGIN_LINK)s표시되는 콘텐츠 우선순위 지정%(END_LINK)s에 대해 자세히 알아보기"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "CSS가 축소되었습니다. %(BEGIN_LINK)sCSS 축소%(END_LINK)s에 대해 자세히 알아보기"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "HTML이 축소되었습니다. %(BEGIN_LINK)sHTML 축소%(END_LINK)s에 대해 자세히 알아보기"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "자바스크립트 콘텐츠가 축소되었습니다. %(BEGIN_LINK)s자바스크립트 축소%(END_LINK)s에 대해 자세히 알아보기"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "이미지가 최적화되었습니다. %(BEGIN_LINK)s이미지 최적화%(END_LINK)s에 대해 자세히 알아보기"
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "페이지에 차단 스크립트 리소스 %(NUM_SCRIPTS)s개 및 차단
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "페이지에 차단 스크립트 리소스가 %(NUM_SCRIPTS)s개 있습니다. 따라서 페이지 렌더링이 지연됩니다."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "페이지에 리디렉션이 없습니다. %(BEGIN_LINK)s방문 페이지 리디렉션 방지%(END_LINK)s에 대해 자세히 알아보기"
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "페이지에 차단 스크립트 리소스가 %(NUM_SCRIPTS)s개 있습�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "스크롤 없이 볼 수 있는 콘텐츠를 렌더링하려면 페이지에서 네트워크 신호 교환이 추가로 필요합니다. 최상의 성능을 위해서는 스크롤 없이 볼 수 있는 콘텐츠를 렌더링하는 데 필요한 HTML의 양을 줄이세요."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "서버 응답이 빠릅니다. %(BEGIN_LINK)s서버 응답 시간 최적화%(END_LINK)s에 대해 자세히 알아보기"
