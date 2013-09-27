@@ -541,9 +541,10 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "%(URL)s को हानिरहित तरीके से संपीड़ित करने से %(SIZE_IN_BYTES)s (%(PERCENTAGE)s की कमी) की बचत हो सकती है."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
-msgstr "HTML की समाप्ति तक सामग्री को दृश्यमान बनाएं"
+msgstr "HTML की समाप्ति तक सामग्री को दिखाई  दे"
 
 #  The name of a Page Speed rule that tells users to avoid
 #  non-cacheable redirects at the landing page. The landing page is the root
@@ -1008,13 +1009,51 @@ msgstr "यह पृष्ठ %(HOSTNAME)s के लिए %(NUM_REQUESTS)s �
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
-msgstr "एप्‍लिकेशन संचय का उपयोग करें"
+msgstr "एप्‍स संचय का उपयोग करें"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
 #  problem by using application cache in the HTML documents.
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
-msgstr "एप्‍लिकेशन संचय का उपयोग करने से पृष्‍ठ तुरंत दिखाई देता है. उपयोगकर्ताओं द्वारा पृष्‍ठ से सहभागिता कर सकने में लगने वाले समय को कम करने के लिए निम्‍न HTML दस्‍तावेज़, एप्‍लिकेशन संचय का उपयोग कर सकते हैं:"
+msgstr "एप्‍स संचय का उपयोग करने से पृष्‍ठ तुरंत दिखाई देता है. उपयोगकर्ताओं द्वारा पृष्‍ठ से सहभागिता कर सकने में लगने वाले समय को कम करने के लिए निम्‍न HTML दस्‍तावेज़, एप्‍स संचय का उपयोग कर सकते हैं:"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "आपने संपीड़न को सक्षम किया हुआ है. %(BEGIN_LINK)sसंपीड़न सक्षम करने%(END_LINK)s के बारे में अधिक जानें."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "आपने ब्राउज़र संचयन सक्षम किया हुआ है. %(BEGIN_LINK)sब्राउज़र संचयन अनुशंसाओं%(END_LINK)s के बारे में अधिक जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "आपके पास रेंडर अवरोधित करने वाला कोई भी संसाधन नहीं है. %(BEGIN_LINK)sरेंडर अवरोधित करने वाले संसाधनों को निकालने%(END_LINK)s के बारे में अधिक जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "आपने ऊपरी भाग की सामग्री को ठीक से प्राथमिकता दी है. %(BEGIN_LINK)sदृश्यमान सामग्री को प्राथमिकता देने%(END_LINK)s के बारे में अधिक जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "आपका CSS न्यूनतम  किया गया है. %(BEGIN_LINK)sCSS न्यूनतम करने%(END_LINK)s के बारे में अधिक जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "आपका HTML न्यूनतम किया गया है. %(BEGIN_LINK)sHTML न्यूनतम करने%(END_LINK)s के बारे में अधिक जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "आपकी JavaScript सामग्री न्यूनतम की गई है. %(BEGIN_LINK)sJavaScript न्यूनतम करने%(END_LINK)s के बारे में अधिक जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "आपके चित्र ऑप्टिमाइज़ किए गए हैं. %(BEGIN_LINK)sचित्रों को ऑप्टिमाइज़ करने%(END_LINK)s के बारे में अधिक जानें."
 
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
@@ -1036,6 +1075,9 @@ msgstr "आपके पृष्ठ में %(NUM_SCRIPTS)s अवरोध�
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "आपके पृष्ठ में %(NUM_SCRIPTS)s अवरोधित करने वाले स्क्रिप्ट संसाधन हैं. इससे आपके पृष्ठ को रेंडर करने में विलंब होता है."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "आपके पृष्ठ में कोई भी रीडायरेक्ट नहीं है. %(BEGIN_LINK)sलैंडिंग पृष्ठ रीडायरेक्ट से बचने%(END_LINK)s के बारे में अधिक जानें."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "आपके पृष्ठ में %(NUM_SCRIPTS)s अवरोध�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "आपके पृष्ठ को तह के ऊपर की सामग्री को रेंडर करने के लिए अतिरिक्त नेटवर्क राउंड ट्रिप की आवश्यकता है. सर्वश्रेष्ठ प्रदर्शन के लिए, HTML की मात्रा को कम करके तह के ऊपर सामग्री को रेंडर करने की आवश्यकता तक लाएं."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "आपके सर्वर ने तेज़ी से प्रतिक्रिया दी. %(BEGIN_LINK)sसर्वर प्रतिक्रिया समय ऑप्टिमाइज़ेशन%(END_LINK)s के बारे में अधिक जानें."

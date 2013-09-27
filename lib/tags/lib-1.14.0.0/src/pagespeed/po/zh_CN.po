@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "无损压缩 %(URL)s 可减少%(SIZE_IN_BYTES)s (%(PERCENTAGE)s)。"
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "在 HTML 结尾处将内容设置为可见"
 
@@ -1016,6 +1017,44 @@ msgstr "使用 Application Cache"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "使用应用缓存可让网页得以立即显示。以下 HTML 文档可以使用应用缓存来缩短用户在能够与网页进行交互之前等待的时间："
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "您已启用压缩。详细了解%(BEGIN_LINK)s启用压缩%(END_LINK)s。"
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "您已启用浏览器缓存。详细了解%(BEGIN_LINK)s浏览器缓存建议%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "您没有任何阻止呈现的资源。详细了解%(BEGIN_LINK)s删除阻止呈现的资源%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "您已按优先级正确排列了首屏内容。详细了解%(BEGIN_LINK)s按优先级排列可见内容%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "系统已缩减 CSS 的大小。详细了解%(BEGIN_LINK)s缩减 CSS 的大小%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "系统已缩减 HTML 的大小。详细了解%(BEGIN_LINK)s缩减 HTML 的大小%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "系统已缩减 JavaScript 内容的大小。详细了解%(BEGIN_LINK)s缩减 JavaScript 内容的大小%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "系统已对您的图片进行优化。详细了解%(BEGIN_LINK)s优化图片%(END_LINK)s。"
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "您的网页中有%(NUM_SCRIPTS)s个阻止呈现的脚本资源和%(NUM_
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "您的网页中有%(NUM_SCRIPTS)s个阻止呈现的脚本资源。这会导致呈现网页的过程出现延迟。"
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "您的网页没有任何重定向。详细了解%(BEGIN_LINK)s避免目标网页重定向%(END_LINK)s。"
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "您的网页中有%(NUM_SCRIPTS)s个阻止呈现的脚本资源。这会
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "您的网页需要进行更多次的网络往返通信才能呈现首屏内容。要获得最佳效果，请减少呈现首屏内容所需的 HTML 数量。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "您的服务器响应迅速。详细了解%(BEGIN_LINK)s服务器响应时间优化%(END_LINK)s。"

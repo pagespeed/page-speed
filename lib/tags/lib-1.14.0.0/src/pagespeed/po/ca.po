@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "Si comprimiu %(URL)s sense pèrdues, es pot estalviar %(SIZE_IN_BYTES)s (un %(PERCENTAGE)s de reducció)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "Feu que el contingut estigui visible al final de l'HTML."
 
@@ -1016,6 +1017,44 @@ msgstr "Utilització d'una memòria cau d'aplicacions"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Si es fa servir la memòria cau d'aplicacions, les pàgines es mostren immediatament. Els documents HTML poden fer servir la memòria cau d'aplicacions per reduir el temps que triguen els usuaris a poder interactuar amb la pàgina:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "Teniu la compressió activada. Més informació sobre l'%(BEGIN_LINK)sactivació de la compressió%(END_LINK)s"
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "Heu activat la memòria cau del navegador. Més informació sobre les %(BEGIN_LINK)srecomanacions sobre la memòria cau del navegador%(END_LINK)s"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "No teniu cap recurs que bloquegi la renderització. Més informació sobre com podeu %(BEGIN_LINK)ssuprimir els recursos que bloquegen la renderització%(END_LINK)s"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "Teniu el contingut de la part superior visible prioritzat correctament. Més informació sobre la %(BEGIN_LINK)spriorització del contingut visible%(END_LINK)s"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "El CSS està reduït. Més informació sobre la %(BEGIN_LINK)sreducció de CSS%(END_LINK)s"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "L'HTML està reduït. Més informació sobre la %(BEGIN_LINK)sreducció d'HTML%(END_LINK)s"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "El contingut JavaScript està reduït. Més informació sobre la %(BEGIN_LINK)sreducció de JavaScript%(END_LINK)s"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Les vostres imatges estan optimitzades. Més informació sobre l'%(BEGIN_LINK)soptimització d'imatges%(END_LINK)s"
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "La vostra pàgina té %(NUM_SCRIPTS)s recursos de script i %(NUM_CSS)s r
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "La vostra pàgina té %(NUM_SCRIPTS)s recursos de script que la bloquegen. Això genera un retard en renderitzar la pàgina."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "La vostra pàgina no té cap redirecció. Més informació sobre com es poden %(BEGIN_LINK)sevitar les redireccions de la pàgina de destinació%(END_LINK)s"
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "La vostra pàgina té %(NUM_SCRIPTS)s recursos de script que la bloquege
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "La vostra pàgina requereix cicles d'anada i de tornada de la xarxa addicionals per renderitzar el contingut de la part superior visible. Per obtenir un rendiment millor quan la pàgina dugui a terme aquest procés, reduïu la quantitat de HTML necessària."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "El servidor ha respost ràpidament. Més informació sobre l'%(BEGIN_LINK)soptimització del temps de resposta del servidor%(END_LINK)s"

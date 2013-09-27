@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "Bezztrátovou kompresí zdroje %(URL)s lze ušetřit %(SIZE_IN_BYTES)s (zmenšení o %(PERCENTAGE)s)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "Umístěte viditelný obsah na konec kódu HTML"
 
@@ -1016,6 +1017,44 @@ msgstr "Použijte funkci Application Cache"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Pomocí funkce Application Cache lze zajistit okamžité zobrazení stránky. U následujících dokumentů HTML lze pomocí funkce Application Cache zkrátit dobu, po které budou uživatelé moci se stránkou pracovat:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "Máte povolenou kompresi. Další informace o %(BEGIN_LINK)spovolení komprese%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "Máte povolené používání mezipaměti prohlížeče. Další informace o %(BEGIN_LINK)sdoporučeních ohledně používání mezipaměti prohlížeče%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "Nemáte žádné zdroje, které by blokovaly vykreslení. Další informace o %(BEGIN_LINK)sodebrání zdrojů blokujících vykreslení%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "Správně upřednostňujete obsah nad okrajem. Další informace o %(BEGIN_LINK)supřednostnění viditelného obsahu%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "Vaše styly CSS jsou minifikovány. Další informace o %(BEGIN_LINK)sminifikaci stylů CSS%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "Váš kód HTML je minifikován. Další informace o %(BEGIN_LINK)sminifikaci kódu HTML%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "Váš obsah v JavaScriptu je minifikován. Další informace o %(BEGIN_LINK)sminifikaci JavaScriptu%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Vaše obrázky jsou optimalizovány. Další informace o %(BEGIN_LINK)soptimalizaci obrázků%(END_LINK)s."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "Vaše stránka obsahuje zdroje skriptů (%(NUM_SCRIPTS)s) a stylů CSS (
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "Stránka obsahuje zdroje skriptů, které blokují vykreslení (celkem %(NUM_SCRIPTS)s). Tato skutečnost způsobuje prodlevu ve vykreslení stránky."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "Stránka neobsahuje žádná přesměrování. Další informace o tom, %(BEGIN_LINK)sproč nepoužívat přesměrování na vstupní stránce%(END_LINK)s."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "Stránka obsahuje zdroje skriptů, které blokují vykreslení (celkem %
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Vaše stránka k vykreslení obsahu nad okrajem vyžaduje delší dobu odezvy sítě. Chcete-li zvýšit výkon, snižte množství kódu HTML potřebné k vykreslení obsahu nad okrajem."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "Váš server odpověděl rychle. Další informace o %(BEGIN_LINK)soptimalizaci doby odezvy serveru%(END_LINK)s."

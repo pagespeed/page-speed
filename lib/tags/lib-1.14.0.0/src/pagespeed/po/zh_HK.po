@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "以不失真方式壓縮 %(URL)s 可將檔案大小減少 %(SIZE_IN_BYTES)s (減少幅度為 %(PERCENTAGE)s)。"
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "使用 HTML 結尾讓內容顯示"
 
@@ -1016,6 +1017,44 @@ msgstr "使用應用程式快取"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "使用應用程式快取可大幅加快瀏覽器顯示網頁的速度。下列 HTML 文件可使用應用程式快取，有助於減少使用者與網頁互動時等待的時間："
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "您已啟用壓縮功能。進一步瞭解%(BEGIN_LINK)s啟用壓縮功能%(END_LINK)s的優點。"
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "您已啟用瀏覽器快取功能。進一步瞭解%(BEGIN_LINK)s瀏覽器快取功能建議事項%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "您並未使用禁止轉譯資源。進一步瞭解%(BEGIN_LINK)s移除禁止轉譯資源%(END_LINK)s的優點。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "您已正確優先處理前幾行內容。進一步瞭解%(BEGIN_LINK)s優先處理要顯示的內容%(END_LINK)s的優點。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "您的 CSS 已經過壓縮。進一步瞭解%(BEGIN_LINK)s壓縮 CSS%(END_LINK)s 的優點。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "您的 HTML 已經過壓縮。進一步瞭解%(BEGIN_LINK)s壓縮 HTML%(END_LINK)s 的優點。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "您的 JavaScript 內容已經過壓縮。進一步瞭解%(BEGIN_LINK)s壓縮 JavaScript%(END_LINK)s 的優點。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "您的圖片已經過最佳化處理。進一步瞭解%(BEGIN_LINK)s為圖片進行最佳化處理%(END_LINK)s的優點。"
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "您的網頁含有 %(NUM_SCRIPTS)s 項禁止轉譯指令碼資源和 %(N
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "您的網頁含有 %(NUM_SCRIPTS)s 項禁止轉譯指令碼資源，對網頁的轉譯作業造成延遲。"
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "您的網頁不含任何重新導向。進一步瞭解%(BEGIN_LINK)s避免使用到達網頁重新導向%(END_LINK)s的優點。"
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "您的網頁含有 %(NUM_SCRIPTS)s 項禁止轉譯指令碼資源，對�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "您的網頁需要額外的網路來回行程，才能轉譯前幾行內容。如要達到最佳效能，請減少轉譯前幾行內容所需的 HTML 資料量。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "您的伺服器回應速度相當快。進一步瞭解%(BEGIN_LINK)s為伺服器回應速度進行最佳化處理%(END_LINK)s的優點。"
