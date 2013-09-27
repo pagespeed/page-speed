@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "Resurssin %(URL)s hävikitön pakkaaminen voi säästää %(SIZE_IN_BYTES)s (%(PERCENTAGE)s:n lasku)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "Tuo sisältö näkyviin ennen HTML-koodin loppua"
 
@@ -1016,6 +1017,44 @@ msgstr "Käytä Application Cachea"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Application Cachen avulla sivu voidaan näyttää välittömästi. Seuraavissa HTML-asiakirjoissa Application Cachen avulla voidaan lyhentää aikaa, joka käyttäjiltä kuluu, ennen kuin he voivat käyttää sivua:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "Olet ottanut pakkauksen käyttöön. Lue lisää %(BEGIN_LINK)spakkauksen käyttöönotosta%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "Olet ottanut selaimen välimuistiin tallentamisen käyttöön. Lue lisää %(BEGIN_LINK)sselaimen välimuistiin tallentamisen suosituksista%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "Sinulla ei ole hahmontamisen estäviä resursseja. Lue lisää %(BEGIN_LINK)shahmontamisen estävien resurssien poistamisesta%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "Olet priorisoinut sivun yläosan sisällön oikein. Lue lisää %(BEGIN_LINK)snäkyvän sisällön priorisoimisesta%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "CSS on pienennetty. Lue lisää %(BEGIN_LINK)sCSS:n pienentämisestä%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "HTML on pienennetty. Lue lisää %(BEGIN_LINK)sHTML:n pienentämisestä%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "JavaScript on pienennetty. Lue lisää %(BEGIN_LINK)sJavaScriptin pienentämisestä%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Kuvasi on optimoitu. Lue lisää %(BEGIN_LINK)skuvien optimoinnista%(END_LINK)s."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "Sivullasi on %(NUM_SCRIPTS)s estävää ohjelmaresurssia ja %(NUM_CSS)s 
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "Sivullasi on %(NUM_SCRIPTS)s estävää ohjelmaresurssia. Tämä viivästyttää sivun hahmonnusta."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "Sivullasi ei ole uudelleenohjauksia. Lue lisää %(BEGIN_LINK)saloitussivun uudelleenohjausten välttämisestä%(END_LINK)s."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "Sivullasi on %(NUM_SCRIPTS)s estävää ohjelmaresurssia. Tämä viiväs
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Sivusi tarvitsee ylimääräisiä latauskiertoja hahmontaakseen sivun yläosan sisällön. Paranna sivun tehokkuutta vähentämällä sivun yläosan sisällön hahmontamiseen tarvittavan HTML-koodin määrää."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "Palvelin vastasi nopeasti. Lue lisää %(BEGIN_LINK)spalvelimen vastausajan optimoinnista%(END_LINK)s."

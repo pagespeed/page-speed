@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "S stiskanjem %(URL)s brez izgub bi lahko prihranili %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "Naredite vsebino vidno proti koncu HTML-ja"
 
@@ -1016,6 +1017,44 @@ msgstr "Uporaba predpomnilnika programov"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Uporaba predpomnilnika programov omogoča takojšen prikaz strani. Ti dokumenti HTML lahko uporabijo predpomnilnik programov za skrajšanje časa, ki je potreben, da lahko uporabniki začnejo uporabljati stran:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "Imate omogočeno stiskanje. Preberite več o %(BEGIN_LINK)somogočanju stiskanja%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "Imate omogočeno predpomnjenje v brskalniku. Preberite več o %(BEGIN_LINK)spriporočilih za predpomnjenje v brskalniku%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "Nimate več virov, ki blokirajo upodabljanje. Preberite več o %(BEGIN_LINK)sodstranjevanju virov, ki blokirajo upodabljanje%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "Pravilno ste določili prednost v vsebini na vrhu strani. Preberite več o %(BEGIN_LINK)sdajanju prednosti vidni vsebini%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "Vaš CSS je stisnjen. Preberite več o %(BEGIN_LINK)sstiskanju CSS-ja%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "Vaš HTML je stisnjen. Preberite več o %(BEGIN_LINK)sstiskanju HTML-ja%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "Vaš JavaScript je stisnjen. Preberite več o %(BEGIN_LINK)sstiskanju JavaScripta%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Vaše slike so optimizirane. Preberite več o %(BEGIN_LINK)soptimiziranju slik%(END_LINK)s."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "Vaša stran ima toliko blokirajočih virov skriptov: %(NUM_SCRIPTS)s in 
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "Vaša stran ima toliko blokirajočih virov skriptov: %(NUM_SCRIPTS)s. To povzroča zakasnitve pri upodabljanju strani."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "Vaša stran nima preusmeritev. Preberite več o %(BEGIN_LINK)sizogibanju preusmeritvam na ciljni strani%(END_LINK)s."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "Vaša stran ima toliko blokirajočih virov skriptov: %(NUM_SCRIPTS)s. To
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Vaša stran mora izvesti dodatne krožne poti v omrežju, da se bo lahko prikazala vsebina na vrhu strani. Svetujemo vam, da zmanjšate količino kode HTML, ki je potrebna za prikaz vsebine na vrhu strani."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "Vaš strežnik se je hitro odzval. Preberite več o %(BEGIN_LINK)soptimizaciji odzivnega časa strežnika%(END_LINK)s."

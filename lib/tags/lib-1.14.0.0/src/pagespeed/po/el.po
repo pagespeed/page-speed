@@ -541,7 +541,8 @@ msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE
 msgstr "Η συμπίεση χωρίς απώλειες %(URL)s θα μπορούσε να σας εξοικονομήσει %(SIZE_IN_BYTES)s (μείωση %(PERCENTAGE)s)."
 
 #  The name of a Pagespeed rule that tells users to make the
-#  most of visible content render-able by end of the HTML.
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
 msgid "Make content visible by end of HTML"
 msgstr "Να είναι ορατό το περιεχόμενο έως το τέλος του HTML"
 
@@ -1016,6 +1017,44 @@ msgstr "Χρήση Application Cache"
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
 msgstr "Με τη χρήση μιας προσωρινής μνήμης η σελίδα εμφανίζεται αμέσως. Τα ακόλουθα έγγραφα HTML μπορούν να χρησιμοποιήσουν μια προσωρινή μνήμη εφαρμογής για τη μείωση του χρόνου που απαιτείται, ώστε οι χρήστες να μπορούν να αλληλεπιδράσουν με τη σελίδα:"
 
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "Έχετε ενεργοποιήσει τη συμπίεση. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sενεργοποίηση της συμπίεσης%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "Έχετε ενεργοποιήσει την προσωρινή αποθήκευση του προγράμματος περιήγησης. Μάθετε περισσότερα σχετικά με τις %(BEGIN_LINK)sπροτάσεις προσωρινής αποθήκευσης του προγράμματος περιήγησης%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "Δεν διαθέτετε πόρους αποκλεισμού απόδοσης. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sκατάργηση πόρων αποκλεισμού απόδοσης%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "Έχετε ορίσει σωστά την προτεραιότητα του περιεχομένου στο επάνω μέρος. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sπροτεραιότητα του ορατού περιεχομένου%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "Το CSS έχει ελαχιστοποιηθεί. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sελαχιστοποίηση του css%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "Το HTML έχει ελαχιστοποιηθεί. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sελαχιστοποίηση του html%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "Το περιεχόμενο JavaScript έχει ελαχιστοποιηθεί. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sελαχιστοποίηση του JavaScript%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Οι εικόνες σας έχουν βελτιστοποιηθεί. Μάθετε περισσότερα σχετικά με τη %(BEGIN_LINK)sβελτιστοποίηση των εικόνων%(END_LINK)s."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1036,6 +1075,9 @@ msgstr "Η σελίδα σας διαθέτει %(NUM_SCRIPTS)s πόρους α�
 msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
 msgstr "Η σελίδα σας διαθέτει %(NUM_SCRIPTS)s πόρους αποκλεισμού σεναρίων. Αυτό προκαλεί καθυστέρηση στην απόδοση της σελίδας σας."
 
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "Η σελίδα σας δεν διαθέτει ανακατευθύνσεις. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sαποφυγή ανακατευθύνσεων σελίδας προορισμού%(END_LINK)s."
+
 #  A summary to give a general overview of this PageSpeed
 #  rule.  ("Above-the-fold content" refers to the portion of the webpage
 #  that is immediately visible in the browser window without the user
@@ -1044,3 +1086,8 @@ msgstr "Η σελίδα σας διαθέτει %(NUM_SCRIPTS)s πόρους α�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Η σελίδα σας απαιτεί επιπλέον διαδρομές δικτύου για την απόδοση του παραπάνω περιεχομένου στο επάνω μέρος. Για καλύτερη απόδοση, περιορίστε την ποσότητα HTML που απαιτείται για την απόδοση περιεχομένου στο επάνω μέρος."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "Η απόκριση του διακομιστή σας ήταν ταχεία. Μάθετε περισσότερα σχετικά με τη %(BEGIN_LINK)sβελτιστοποίηση του χρόνου απόκρισης του διακομιστή%(END_LINK)s."
