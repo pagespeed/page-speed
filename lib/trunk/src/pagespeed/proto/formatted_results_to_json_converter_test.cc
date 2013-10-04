@@ -28,6 +28,7 @@ using pagespeed::FormattedResults;
 using pagespeed::FormattedRuleResults;
 using pagespeed::FormattedUrlResult;
 using pagespeed::FormattedUrlBlockResults;
+using pagespeed::Rect;
 using pagespeed::proto::FormattedResultsToJsonConverter;
 
 TEST(FormattedResultsToJsonConverterTest, NotInitialized) {
@@ -255,6 +256,73 @@ TEST(FormattedResultsToJsonConverterTest, Hyperlink) {
   ASSERT_NE(static_cast<Value*>(NULL), value);
 }
 
+TEST(FormattedResultsToJsonConverterTest, SnapshotRect) {
+  std::string expected;
+
+  FormattedResults results;
+  expected.append("{");
+
+  results.set_locale("test");
+  expected.append("\"locale\":\"test\",");
+
+  FormattedRuleResults* rule_results = results.add_rule_results();
+  expected.append("\"rule_results\":[{");
+
+  rule_results->set_localized_rule_name("LocalizedRuleName");
+  expected.append("\"localized_rule_name\":\"LocalizedRuleName\",");
+
+  rule_results->set_rule_name("RuleName");
+  expected.append("\"rule_name\":\"RuleName\",");
+
+  rule_results->set_rule_score(56);
+  expected.append("\"rule_score\":56,");
+
+  FormattedUrlBlockResults* block = rule_results->add_url_blocks();
+  expected.append("\"url_blocks\":[{");
+
+  FormatArgument* arg = block->mutable_header()->add_args();
+  expected.append("\"header\":{\"args\":[{");
+
+  arg->set_localized_value("snapshot:3");
+  expected.append("\"localized_value\":\"snapshot:3\",");
+
+  arg->set_placeholder_key("SCREENSHOT");
+  expected.append("\"placeholder_key\":\"SCREENSHOT\",");
+
+  Rect* rect = arg->mutable_rect();
+  expected.append("\"rect\":{");
+  rect->set_height(40);
+  expected.append("\"height\":40,");
+  rect->set_left(10);
+  expected.append("\"left\":10,");
+  rect->set_top(20);
+  expected.append("\"top\":20,");
+  rect->set_width(30);
+  expected.append("\"width\":30},");
+
+  arg->set_string_value("snapshot:3");
+  expected.append("\"string_value\":\"snapshot:3\",");
+
+  arg->set_type(FormatArgument::SNAPSHOT_RECT);
+  expected.append("\"type\":\"SNAPSHOT_RECT\"}],");
+
+  block->mutable_header()->set_format(
+      "This page element is no good %(SCREENSHOT)s.");
+  expected.append("\"format\":\"This page element is no "
+                  "good {{SCREENSHOT}}.\"}}]}],");
+
+  results.set_score(23);
+  expected.append("\"score\":23}");
+
+  std::string json;
+  ASSERT_TRUE(FormattedResultsToJsonConverter::Convert(results, &json));
+  ASSERT_EQ(expected, json);
+
+  scoped_ptr<Value> value(
+      FormattedResultsToJsonConverter::ConvertFormattedResults(results));
+  ASSERT_NE(static_cast<Value*>(NULL), value);
+}
+
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
   EXPECT_STREQ("INVALID",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(0));
@@ -291,9 +359,13 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::HYPERLINK));
 
+  EXPECT_STREQ("SNAPSHOT_RECT",
+               FormattedResultsToJsonConverter::ConvertFormatArgumentType(
+                   FormatArgument::SNAPSHOT_RECT));
+
   EXPECT_STREQ("INVALID",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
-                   FormatArgument::HYPERLINK + 1));
+                   FormatArgument::SNAPSHOT_RECT + 1));
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {

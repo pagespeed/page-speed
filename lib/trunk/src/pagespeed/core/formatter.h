@@ -52,6 +52,18 @@ FormatArgument UrlArgument(const std::string& key, const std::string& url);
 FormatArgument HyperlinkArgument(const std::string& key,
                                  const std::string& href);
 
+// Reference to a particular partial render snapshot.
+FormatArgument SnapshotArgument(const std::string& key, int snapshot_index);
+
+// Reference to a rectangle within a particular partial render snapshot.
+FormatArgument SnapshotRectArgument(
+    const std::string& key, int snapshot_index,
+    int32 left, int32 top, int32 width, int32 height);
+
+// Reference to a rectangle within the final render snapshot.
+FormatArgument FinalRectArgument(
+    const std::string& key, int32 left, int32 top, int32 width, int32 height);
+
 class UrlFormatter {
  public:
   UrlFormatter() {}

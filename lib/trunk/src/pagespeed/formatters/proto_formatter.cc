@@ -191,6 +191,11 @@ void FillFormatString(const Localizer* loc,
       case FormatArgument::HYPERLINK:
         success = loc->LocalizeUrl(format_arg->string_value(), &localized);
         break;
+      case FormatArgument::SNAPSHOT_RECT:
+        // The string_value for SNAPSHOT_RECT args is a snapshot key, which
+        // isn't localizable.
+        localized = format_arg->string_value();
+        break;
       default:
         LOG(DFATAL) << "Unknown argument type " << format_arg->type();
         format_arg->set_type(FormatArgument::STRING_LITERAL);

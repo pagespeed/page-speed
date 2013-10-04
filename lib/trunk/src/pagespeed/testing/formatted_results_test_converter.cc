@@ -17,6 +17,7 @@
 #include <map>
 
 #include "base/logging.h"
+#include "base/stringprintf.h"
 #include "pagespeed/core/string_util.h"
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
@@ -121,7 +122,13 @@ void FormattedResultsTestConverter::ConvertFormatString(
         sub["END_" + arg.placeholder_key()] =
             "<" + arg.localized_value() + ">";
       } else {
-        sub[arg.placeholder_key()] = arg.localized_value();
+        std::string value = arg.localized_value();
+        if (arg.has_rect()) {
+          value.append(StringPrintf(
+              "[%d,%d,%d,%d]", arg.rect().left(), arg.rect().top(),
+              arg.rect().width(), arg.rect().height()));
+        }
+        sub[arg.placeholder_key()] = value;
       }
     }
     out->append(pagespeed::string_util::ReplaceStringPlaceholders(

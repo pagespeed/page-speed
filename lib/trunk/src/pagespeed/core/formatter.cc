@@ -15,6 +15,7 @@
 #include "pagespeed/core/formatter.h"
 
 #include "base/logging.h"
+#include "base/stringprintf.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/l10n.h"  // for not_localized()
 #include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
@@ -95,6 +96,46 @@ FormatArgument HyperlinkArgument(const std::string& key,
   argument.set_string_value(href);
   return argument;
 }
+
+FormatArgument SnapshotArgument(
+    const std::string& key, int snapshot_index) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::SNAPSHOT_RECT);
+  argument.set_placeholder_key(key);
+  argument.set_string_value(StringPrintf("snapshot:%d", snapshot_index));
+  return argument;
+}
+
+FormatArgument SnapshotRectArgument(
+    const std::string& key, int snapshot_index,
+    int32 left, int32 top, int32 width, int32 height) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::SNAPSHOT_RECT);
+  argument.set_placeholder_key(key);
+  argument.set_string_value(StringPrintf("snapshot:%d", snapshot_index));
+  Rect* rect = argument.mutable_rect();
+  rect->set_left(left);
+  rect->set_top(top);
+  rect->set_width(width);
+  rect->set_height(height);
+  return argument;
+}
+
+FormatArgument FinalRectArgument(
+    const std::string& key, int32 left, int32 top, int32 width, int32 height) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::SNAPSHOT_RECT);
+  argument.set_placeholder_key(key);
+  argument.set_string_value("final");
+  Rect* rect = argument.mutable_rect();
+  rect->set_left(left);
+  rect->set_top(top);
+  rect->set_width(width);
+  rect->set_height(height);
+  return argument;
+}
+
+FormatArgument SnapshotArgument(const std::string& key, int64 snapshot_index);
 
 void UrlFormatter::AddDetail(const UserFacingString& format_str) {
   std::vector<const FormatArgument*> args;

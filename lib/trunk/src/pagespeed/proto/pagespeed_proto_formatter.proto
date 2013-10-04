@@ -23,6 +23,13 @@ option java_package = "com.googlecode.page_speed";
 
 package pagespeed;
 
+message Rect {
+  optional int32 left = 1;
+  optional int32 top = 2;
+  optional int32 width = 3;
+  optional int32 height = 4;
+}
+
 // Typed format string arguments.
 message FormatArgument {
   // NOTE: these must be kept in sync with kArgumentTypeToNameMap in
@@ -37,6 +44,7 @@ message FormatArgument {
     VERBATIM_STRING = 6;
     PERCENTAGE = 7;
     HYPERLINK = 8;
+    SNAPSHOT_RECT = 9;
   }
 
   // The type of this format argument; must be present.
@@ -52,6 +60,7 @@ message FormatArgument {
   //   VERBATIM_STRING: string_value holds the string
   //   PERCENTAGE: int_value holds the percentage (from 0 to 100)
   //   HYPERLINK: string_value holds the URL to link to
+  //   SNAPSHOT_RECT: string_value holds the snapshot key
   optional string string_value = 2;
   optional int64 int_value = 3;
 
@@ -66,6 +75,10 @@ message FormatArgument {
   // placeholder_key is e.g. "FOO", then the placeholder strings are
   // "BEGIN_FOO" and "END_FOO".
   optional string placeholder_key = 5;
+
+  // Used (sometimes) by SNAPSHOT_RECT arguments; leave unset to refer to the
+  // whole snapshot.  Also leave unset for other argument types.
+  optional Rect rect = 6;
 }
 
 // Pair of a format string and its arguments.

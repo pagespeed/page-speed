@@ -26,6 +26,7 @@ using pagespeed::FormattedResults;
 using pagespeed::FormattedRuleResults;
 using pagespeed::FormattedUrlResult;
 using pagespeed::FormattedUrlBlockResults;
+using pagespeed::Rect;
 using pagespeed::proto::FormattedResultsToTextConverter;
 
 TEST(FormattedResultsToTextConverterTest, NotInitialized) {
@@ -138,7 +139,6 @@ TEST(FormattedResultsToTextConverterTest, Hyperlink) {
   rule_results1->set_rule_score(56);
   expected.append("_LocalizedRuleName_ (56/100)\n");
 
-
   FormattedUrlBlockResults* block = rule_results1->add_url_blocks();
   block->mutable_header()->set_format(
       "You can %(BEGIN_LINK)sclick here%(END_LINK)s to learn more.");
@@ -149,6 +149,41 @@ TEST(FormattedResultsToTextConverterTest, Hyperlink) {
   arg->set_type(FormatArgument::HYPERLINK);
   expected.append("  You can click here<http://www.example.com/> to learn "
                   "more.\n");
+
+  results.set_score(23);
+  expected.append("**[23/100]**\n");
+
+  std::string text;
+  ASSERT_TRUE(FormattedResultsToTextConverter::Convert(results, &text));
+  ASSERT_EQ(expected, text);
+}
+
+TEST(FormattedResultsToTextConverterTest, SnapshotRect) {
+  std::string expected;
+
+  FormattedResults results;
+  results.set_locale("test");
+
+  FormattedRuleResults* rule_results1 = results.add_rule_results();
+  rule_results1->set_rule_name("RuleName");
+  rule_results1->set_localized_rule_name("LocalizedRuleName");
+  rule_results1->set_rule_score(56);
+  expected.append("_LocalizedRuleName_ (56/100)\n");
+
+  FormattedUrlBlockResults* block = rule_results1->add_url_blocks();
+  block->mutable_header()->set_format(
+      "This page element is no good %(SCREENSHOT)s.");
+  FormatArgument* arg = block->mutable_header()->add_args();
+  arg->set_placeholder_key("SCREENSHOT");
+  arg->set_string_value("snapshot:3");
+  arg->set_localized_value("snapshot:3");
+  arg->set_type(FormatArgument::SNAPSHOT_RECT);
+  Rect* rect = arg->mutable_rect();
+  rect->set_left(10);
+  rect->set_top(20);
+  rect->set_width(30);
+  rect->set_height(40);
+  expected.append("  This page element is no good snapshot:3[10,20,30,40].\n");
 
   results.set_score(23);
   expected.append("**[23/100]**\n");
