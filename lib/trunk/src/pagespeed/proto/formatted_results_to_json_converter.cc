@@ -35,6 +35,7 @@ static const char* kArgumentTypeToNameMap[] = {
   "VERBATIM_STRING",
   "PERCENTAGE",
   "HYPERLINK",
+  "SNAPSHOT_RECT",
 };
 
 static const char* kInvalidArgumentType = kArgumentTypeToNameMap[0];
@@ -215,6 +216,15 @@ Value* FormattedResultsToJsonConverter::ConvertFormatArgument(
   }
   if (format_arg.has_int_value()) {
     root->SetInteger("int_value", static_cast<int>(format_arg.int_value()));
+  }
+  if (format_arg.has_rect()) {
+    const pagespeed::Rect& rect = format_arg.rect();
+    base::DictionaryValue* coords = new base::DictionaryValue();
+    coords->SetInteger("left", rect.left());
+    coords->SetInteger("top", rect.top());
+    coords->SetInteger("width", rect.width());
+    coords->SetInteger("height", rect.height());
+    root->Set("rect", coords);
   }
   return root;
 }
