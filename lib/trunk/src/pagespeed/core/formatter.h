@@ -64,6 +64,11 @@ FormatArgument SnapshotRectArgument(
 FormatArgument FinalRectArgument(
     const std::string& key, int32 left, int32 top, int32 width, int32 height);
 
+// Reference to multiple rectangles within the final render snapshot.
+FormatArgument FinalRectsArgument(
+    const std::string& key, const std::vector<Rect>& rects,
+    const std::vector<Rect>& secondary_rects);
+
 class UrlFormatter {
  public:
   UrlFormatter() {}

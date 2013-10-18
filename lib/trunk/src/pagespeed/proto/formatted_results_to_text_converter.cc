@@ -142,10 +142,17 @@ void FormattedResultsToTextConverter::ConvertFormatString(
             "<" + arg.localized_value() + ">";
       } else {
         std::string value = arg.localized_value();
-        if (arg.has_rect()) {
+        for (int i = 0; i < arg.rect_size(); ++i) {
+          const pagespeed::Rect& rect = arg.rect(i);
           value.append(StringPrintf(
-              "[%d,%d,%d,%d]", arg.rect().left(), arg.rect().top(),
-              arg.rect().width(), arg.rect().height()));
+              "[%d,%d,%d,%d]", rect.left(), rect.top(), rect.width(),
+              rect.height()));
+        }
+        for (int i = 0; i < arg.secondary_rect_size(); ++i) {
+          const pagespeed::Rect& rect = arg.secondary_rect(i);
+          value.append(StringPrintf(
+              "{%d,%d,%d,%d}", rect.left(), rect.top(), rect.width(),
+              rect.height()));
         }
         sub[arg.placeholder_key()] = value;
       }
