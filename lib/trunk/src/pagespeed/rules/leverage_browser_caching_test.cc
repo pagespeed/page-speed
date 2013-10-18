@@ -153,6 +153,9 @@ TEST_F(LeverageBrowserCachingTest, Format) {
       "<https://developers.google.com/speed/docs/insights/"
       "LeverageBrowserCaching> for the following cacheable resources:"
       "\n  http://www.example.com/ (8 minutes 20 seconds)\n", FormatResults());
+  std::vector<pagespeed::FormattedRuleResults::RuleGroup> groups;
+  groups.push_back(pagespeed::FormattedRuleResults::SPEED);
+  CheckRuleGroups(groups);
 }
 
 TEST_F(LeverageBrowserCachingTest, FormatNoResults) {

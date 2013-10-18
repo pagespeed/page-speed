@@ -145,6 +145,15 @@ message FormattedRuleResults {
   // overall score, and are expected to either graduate to non-experimental
   // rules or else be deleted.
   optional bool experimental = 6;
+
+  enum RuleGroup {
+    SPEED = 1;
+    USABILITY = 2;
+    SECURITY = 3;
+  }
+
+  // Rule groups that this rule is a member of.
+  repeated RuleGroup groups = 8;
 }
 
 // Formatted and localized results proto, mirroring the hiercharchy of results

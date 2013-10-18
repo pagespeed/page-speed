@@ -236,6 +236,13 @@ RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, int score,
     rule_results->set_experimental(true);
   }
 
+  std::vector<FormattedRuleResults::RuleGroup> groups;
+  rule.AppendRuleGroups(&groups);
+  for (std::vector<FormattedRuleResults::RuleGroup>::const_iterator iter =
+           groups.begin(), end = groups.end(); iter != end; ++iter) {
+    rule_results->add_groups(*iter);
+  }
+
   if (!MaybeLocalizeString(localizer_,
                            rule.header(),
                            rule_results->mutable_localized_rule_name())) {

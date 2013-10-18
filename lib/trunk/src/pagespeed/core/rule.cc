@@ -225,6 +225,13 @@ void Rule::SortResultsInPresentationOrder(ResultVector* rule_results) const {
                    CompareResults);
 }
 
+void Rule::AppendRuleGroups(
+    std::vector<FormattedRuleResults::RuleGroup>* out) const {
+  // TODO(mdsteele): Once we've added AppendRuleGroups implementations for all
+  //   existing rules, remove this.
+  out->push_back(FormattedRuleResults::SPEED);
+}
+
 bool Rule::IsExperimental() const {
   return false;
 }
