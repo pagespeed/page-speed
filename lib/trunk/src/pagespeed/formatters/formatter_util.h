@@ -32,6 +32,10 @@ std::string FormatBytes(int64 bytes);
 // e.g. "10 minutes" or "1 year" or "5 days 12 hours".
 std::string FormatTimeDuration(int64 milliseconds);
 
+// Format a distance as a human-readable string, e.g. "4.2mm" or
+// "4km".
+std::string FormatDistance(int64 micrometers);
+
 }  // namespace formatters
 
 }  // namespace pagespeed

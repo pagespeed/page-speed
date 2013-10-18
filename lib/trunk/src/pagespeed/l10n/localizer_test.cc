@@ -38,6 +38,8 @@ TEST(LocalizerTest, BasicLocalizerTest) {
   ASSERT_EQ("3.1KiB", out);
   ASSERT_TRUE(l.LocalizeTimeDuration(302000, &out));
   ASSERT_EQ("5 minutes 2 seconds", out);
+  ASSERT_TRUE(l.LocalizeDistance(12345, &out));
+  ASSERT_EQ("12mm", out);
 }
 
 TEST(LocalizerTest, NullLocalizerTest) {
@@ -55,6 +57,8 @@ TEST(LocalizerTest, NullLocalizerTest) {
   ASSERT_EQ("3174", out);
   ASSERT_TRUE(l.LocalizeTimeDuration(302000, &out));
   ASSERT_EQ("302000", out);
+  ASSERT_TRUE(l.LocalizeDistance(12345, &out));
+  ASSERT_EQ("12345", out);
 }
 
 } // namespace

@@ -81,6 +81,11 @@ class TestLocalizer : public Localizer {
     return true;
   }
 
+  bool LocalizeDistance(int64 micrometers, std::string* out) const {
+    *out = "*****";
+    return true;
+  }
+
  private:
   char symbol_;
 

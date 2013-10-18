@@ -194,7 +194,6 @@ bool GettextLocalizer::LocalizeBytes(int64 bytes, std::string* out) const {
   const char* placeholder_key;
   std::string value;
 
-  // TODO(aoates): correctly localize decimal places, etc.
   ClearOstream();
   if (bytes < kBytesPerKiB) {
     // TRANSLATOR: An amount of bytes with abbreviated unit.  The "NUM_BYTES"
@@ -240,8 +239,18 @@ bool GettextLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
     return false;
   }
 
-  // TODO(aoates): localize time durations
   *out = pagespeed::formatters::FormatTimeDuration(ms);
+  return false;
+}
+
+bool GettextLocalizer::LocalizeDistance(
+    int64 micrometers, std::string* out) const {
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+
+  *out = pagespeed::formatters::FormatDistance(micrometers);
   return false;
 }
 
@@ -251,7 +260,6 @@ bool GettextLocalizer::LocalizePercentage(int64 p, std::string* out) const {
     return false;
   }
 
-  // TODO(aoates): localize percentages
   ClearOstream();
   ostream_ << p << "%";
   *out = ostream_.str();

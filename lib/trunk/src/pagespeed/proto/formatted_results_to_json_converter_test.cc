@@ -385,9 +385,13 @@ TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgumentType) {
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
                    FormatArgument::SNAPSHOT_RECT));
 
+  EXPECT_STREQ("DISTANCE",
+               FormattedResultsToJsonConverter::ConvertFormatArgumentType(
+                   FormatArgument::DISTANCE));
+
   EXPECT_STREQ("INVALID",
                FormattedResultsToJsonConverter::ConvertFormatArgumentType(
-                   FormatArgument::SNAPSHOT_RECT + 1));
+                   FormatArgument::DISTANCE + 1));
 }
 
 TEST(FormattedResultsToJsonConverterTest, ConvertFormatArgument) {

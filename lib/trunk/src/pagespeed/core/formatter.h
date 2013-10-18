@@ -69,6 +69,8 @@ FormatArgument FinalRectsArgument(
     const std::string& key, const std::vector<Rect>& rects,
     const std::vector<Rect>& secondary_rects);
 
+FormatArgument DistanceArgument(const std::string& key, int64 micrometers);
+
 class UrlFormatter {
  public:
   UrlFormatter() {}

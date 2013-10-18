@@ -56,6 +56,7 @@ class GettextLocalizer : public Localizer {
   virtual bool LocalizeBytes(int64 bytes, std::string* out) const;
   virtual bool LocalizeTimeDuration(int64 ms, std::string* out) const;
   virtual bool LocalizePercentage(int64 percent, std::string* out) const;
+  virtual bool LocalizeDistance(int64 micrometers, std::string* out) const;
 
  private:
   GettextLocalizer(const std::string& locale, const char** locale_string_table);

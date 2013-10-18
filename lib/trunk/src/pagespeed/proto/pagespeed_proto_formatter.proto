@@ -45,6 +45,7 @@ message FormatArgument {
     PERCENTAGE = 7;
     HYPERLINK = 8;
     SNAPSHOT_RECT = 9;
+    DISTANCE = 10;
   }
 
   // The type of this format argument; must be present.
@@ -61,6 +62,7 @@ message FormatArgument {
   //   PERCENTAGE: int_value holds the percentage (from 0 to 100)
   //   HYPERLINK: string_value holds the URL to link to
   //   SNAPSHOT_RECT: string_value holds the snapshot key
+  //   DISTANCE: int_value holds the distance, in micrometers
   optional string string_value = 2;
   optional int64 int_value = 3;
 
