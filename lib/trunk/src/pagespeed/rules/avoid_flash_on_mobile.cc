@@ -149,13 +149,14 @@ void FlashChecker::ProcessFlashIncludeTag(const pagespeed::DomElement* node) {
       ->MutableExtension(
       pagespeed::AvoidFlashOnMobileDetails::message_set_extension);
 
-  std::string width;
-  if (node->GetAttributeByName("width", &width)) {
+  int x, y, width, height;
+  if (node->GetX(&x) == pagespeed::DomElement::SUCCESS &&
+      node->GetY(&y) == pagespeed::DomElement::SUCCESS &&
+      node->GetActualWidth(&width) == pagespeed::DomElement::SUCCESS &&
+      node->GetActualHeight(&height) == pagespeed::DomElement::SUCCESS) {
+    avoid_flash_details->set_x(x);
+    avoid_flash_details->set_y(y);
     avoid_flash_details->set_width(width);
-  }
-
-  std::string height;
-  if (node->GetAttributeByName("height", &height)) {
     avoid_flash_details->set_height(height);
   }
 }
@@ -332,11 +333,20 @@ void AvoidFlashOnMobile::FormatResults(const ResultVector& results,
         AvoidFlashOnMobileDetails::message_set_extension)) {
       const AvoidFlashOnMobileDetails& flash_details = details.GetExtension(
           AvoidFlashOnMobileDetails::message_set_extension);
-      if (flash_details.has_width() && flash_details.has_height()) {
-        body->AddUrlResult(not_localized("%(URL)s (%(WIDTH)s x %(HEIGHT)s)"),
-                           UrlArgument("URL", result.resource_urls(0)),
-                           StringArgument("WIDTH", flash_details.width()),
-                           StringArgument("HEIGHT", flash_details.height()));
+      if (flash_details.has_x() &&
+          flash_details.has_y() &&
+          flash_details.has_width() &&
+          flash_details.has_height()) {
+        body->AddUrlResult(
+            not_localized("%(URL)s (%(WIDTH)s x %(HEIGHT)s) %(SCREENSHOT)s."),
+            UrlArgument("URL", result.resource_urls(0)),
+            IntArgument("WIDTH", flash_details.width()),
+            IntArgument("HEIGHT", flash_details.height()),
+            FinalRectArgument("SCREENSHOT",
+                              flash_details.x(),
+                              flash_details.y(),
+                              flash_details.width(),
+                              flash_details.height()));
       } else {
         body->AddUrl(result.resource_urls(0));
       }

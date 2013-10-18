@@ -88,10 +88,11 @@ TEST_F(AvoidFlashOnMobileTest, FlashEmbedSize) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("type", kFlashMime);
   embed_element->AddAttribute("src", kSwfUrl);
-  embed_element->AddAttribute("width", "400px");
-  embed_element->AddAttribute("height", "800px");
+  embed_element->SetCoordinates(111, 222);
+  embed_element->SetActualWidthAndHeight(400, 800);
   std::string header = StringPrintf(kResultHeader, 1);
-  std::string expected = header + "\n  " + kSwfUrl + " (400px x 800px)\n";
+  std::string expected = header + "\n  " + kSwfUrl + " (400 x 800) " +
+                         "final[111,222,400,800].\n";
   CheckFormattedOutput(expected);
 }
 
@@ -108,10 +109,11 @@ TEST_F(AvoidFlashOnMobileTest, FlashObjectSize) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("type", kFlashMime);
   object_element->AddAttribute("data", kSwfUrl);
-  object_element->AddAttribute("width", "400");
-  object_element->AddAttribute("height", "800");
+  object_element->SetCoordinates(111, 222);
+  object_element->SetActualWidthAndHeight(400, 800);
   std::string header = StringPrintf(kResultHeader, 1);
-  std::string expected = header + "\n  " + kSwfUrl + " (400 x 800)\n";
+  std::string expected = header + "\n  " + kSwfUrl + " (400 x 800) " +
+                         "final[111,222,400,800].\n";
   CheckFormattedOutput(expected);
 }
 
@@ -119,14 +121,14 @@ TEST_F(AvoidFlashOnMobileTest, FlashEmbedAndObject) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("type", kFlashMime);
   embed_element->AddAttribute("src", "a.swf");
-  embed_element->AddAttribute("width", "400px");
-  embed_element->AddAttribute("height", "800px");
+  embed_element->SetCoordinates(111, 222);
+  embed_element->SetActualWidthAndHeight(400, 800);
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("type", kFlashMime);
   object_element->AddAttribute("data", "b.swf");
   std::string header = StringPrintf(kResultHeader, 2);
   std::string expected = header + "\n"
-      + "  http://example.com/a.swf (400px x 800px)\n"
+      + "  http://example.com/a.swf (400 x 800) final[111,222,400,800].\n"
       + "  http://example.com/b.swf\n";
   CheckFormattedOutput(expected);
 }
