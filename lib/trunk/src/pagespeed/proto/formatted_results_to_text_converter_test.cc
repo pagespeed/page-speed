@@ -178,7 +178,7 @@ TEST(FormattedResultsToTextConverterTest, SnapshotRect) {
   arg->set_string_value("snapshot:3");
   arg->set_localized_value("snapshot:3");
   arg->set_type(FormatArgument::SNAPSHOT_RECT);
-  Rect* rect = arg->mutable_rect();
+  Rect* rect = arg->add_rect();
   rect->set_left(10);
   rect->set_top(20);
   rect->set_width(30);

@@ -76,9 +76,13 @@ message FormatArgument {
   // "BEGIN_FOO" and "END_FOO".
   optional string placeholder_key = 5;
 
-  // Used (sometimes) by SNAPSHOT_RECT arguments; leave unset to refer to the
-  // whole snapshot.  Also leave unset for other argument types.
-  optional Rect rect = 6;
+  // Used (sometimes) by SNAPSHOT_RECT arguments; add none to refer to the
+  // whole snapshot.  Also have none for other argument types.
+  repeated Rect rect = 6;
+
+  // Used (sometimes) by SNAPSHOT_RECT arguments.  Indicates ancillary rects,
+  // which should be displayed e.g. in a different color.
+  repeated Rect secondary_rect = 7;
 }
 
 // Pair of a format string and its arguments.

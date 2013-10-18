@@ -113,7 +113,7 @@ FormatArgument SnapshotRectArgument(
   argument.set_type(FormatArgument::SNAPSHOT_RECT);
   argument.set_placeholder_key(key);
   argument.set_string_value(StringPrintf("snapshot:%d", snapshot_index));
-  Rect* rect = argument.mutable_rect();
+  Rect* rect = argument.add_rect();
   rect->set_left(left);
   rect->set_top(top);
   rect->set_width(width);
@@ -127,11 +127,32 @@ FormatArgument FinalRectArgument(
   argument.set_type(FormatArgument::SNAPSHOT_RECT);
   argument.set_placeholder_key(key);
   argument.set_string_value("final");
-  Rect* rect = argument.mutable_rect();
+  Rect* rect = argument.add_rect();
   rect->set_left(left);
   rect->set_top(top);
   rect->set_width(width);
   rect->set_height(height);
+  return argument;
+}
+
+// Reference to multiple rectangles within the final render snapshot.
+FormatArgument FinalRectsArgument(
+    const std::string& key, const std::vector<Rect>& rects,
+    const std::vector<Rect>& secondary_rects) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::SNAPSHOT_RECT);
+  argument.set_placeholder_key(key);
+  argument.set_string_value("final");
+  for (std::vector<Rect>::const_iterator iter = rects.begin();
+       iter != rects.end(); ++iter) {
+    Rect* rect = argument.add_rect();
+    rect->CopyFrom(*iter);
+  }
+  for (std::vector<Rect>::const_iterator iter = secondary_rects.begin();
+       iter != secondary_rects.end(); ++iter) {
+    Rect* rect = argument.add_secondary_rect();
+    rect->CopyFrom(*iter);
+  }
   return argument;
 }
 

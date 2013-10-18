@@ -217,14 +217,31 @@ Value* FormattedResultsToJsonConverter::ConvertFormatArgument(
   if (format_arg.has_int_value()) {
     root->SetInteger("int_value", static_cast<int>(format_arg.int_value()));
   }
-  if (format_arg.has_rect()) {
-    const pagespeed::Rect& rect = format_arg.rect();
-    base::DictionaryValue* coords = new base::DictionaryValue();
-    coords->SetInteger("left", rect.left());
-    coords->SetInteger("top", rect.top());
-    coords->SetInteger("width", rect.width());
-    coords->SetInteger("height", rect.height());
-    root->Set("rect", coords);
+  if (format_arg.rect_size() > 0) {
+    base::ListValue* rects = new base::ListValue();
+    for (int i = 0; i < format_arg.rect_size(); ++i) {
+      const pagespeed::Rect& rect = format_arg.rect(i);
+      base::DictionaryValue* coords = new base::DictionaryValue();
+      coords->SetInteger("left", rect.left());
+      coords->SetInteger("top", rect.top());
+      coords->SetInteger("width", rect.width());
+      coords->SetInteger("height", rect.height());
+      rects->Append(coords);
+    }
+    root->Set("rects", rects);
+  }
+  if (format_arg.secondary_rect_size() > 0) {
+    base::ListValue* secondary_rects = new base::ListValue();
+    for (int i = 0; i < format_arg.secondary_rect_size(); ++i) {
+      const pagespeed::Rect& rect = format_arg.secondary_rect(i);
+      base::DictionaryValue* coords = new base::DictionaryValue();
+      coords->SetInteger("left", rect.left());
+      coords->SetInteger("top", rect.top());
+      coords->SetInteger("width", rect.width());
+      coords->SetInteger("height", rect.height());
+      secondary_rects->Append(coords);
+    }
+    root->Set("secondary_rects", secondary_rects);
   }
   return root;
 }

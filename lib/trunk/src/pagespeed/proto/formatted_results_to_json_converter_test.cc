@@ -289,8 +289,8 @@ TEST(FormattedResultsToJsonConverterTest, SnapshotRect) {
   arg->set_placeholder_key("SCREENSHOT");
   expected.append("\"placeholder_key\":\"SCREENSHOT\",");
 
-  Rect* rect = arg->mutable_rect();
-  expected.append("\"rect\":{");
+  Rect* rect = arg->add_rect();
+  expected.append("\"rects\":[{");
   rect->set_height(40);
   expected.append("\"height\":40,");
   rect->set_left(10);
@@ -298,7 +298,29 @@ TEST(FormattedResultsToJsonConverterTest, SnapshotRect) {
   rect->set_top(20);
   expected.append("\"top\":20,");
   rect->set_width(30);
-  expected.append("\"width\":30},");
+  expected.append("\"width\":30}],");
+
+  Rect* secondary_rect_1 = arg->add_secondary_rect();
+  expected.append("\"secondary_rects\":[{");
+  secondary_rect_1->set_height(40);
+  expected.append("\"height\":40,");
+  secondary_rect_1->set_left(40);
+  expected.append("\"left\":40,");
+  secondary_rect_1->set_top(20);
+  expected.append("\"top\":20,");
+  secondary_rect_1->set_width(60);
+  expected.append("\"width\":60},");
+
+  Rect* secondary_rect_2 = arg->add_secondary_rect();
+  expected.append("{");
+  secondary_rect_2->set_height(25);
+  expected.append("\"height\":25,");
+  secondary_rect_2->set_left(10);
+  expected.append("\"left\":10,");
+  secondary_rect_2->set_top(60);
+  expected.append("\"top\":60,");
+  secondary_rect_2->set_width(30);
+  expected.append("\"width\":30}],");
 
   arg->set_string_value("snapshot:3");
   expected.append("\"string_value\":\"snapshot:3\",");
