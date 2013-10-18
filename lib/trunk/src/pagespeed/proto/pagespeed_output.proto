@@ -345,13 +345,17 @@ message MinificationDetails {
   optional bool savings_are_post_gzip = 1;
 }
 
+// Do not reuse id: 2, 3
 message AvoidFlashOnMobileDetails {
   extend ResultDetails {
     optional AvoidFlashOnMobileDetails message_set_extension = 4615265; // 'Fla'
   }
   optional int32 size = 1;
-  optional string width = 2;
-  optional string height = 3;
+
+  optional int32 x = 4;
+  optional int32 y = 5;
+  optional int32 width = 6;
+  optional int32 height = 7;
 }
 
 message ServerResponseTimeDetails {
