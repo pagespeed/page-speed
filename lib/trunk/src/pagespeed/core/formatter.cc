@@ -38,6 +38,14 @@ FormatArgument DurationArgument(const std::string& key, int64 milliseconds) {
   return argument;
 }
 
+FormatArgument DistanceArgument(const std::string& key, int64 micrometers) {
+  FormatArgument argument;
+  argument.set_type(FormatArgument::DISTANCE);
+  argument.set_placeholder_key(key);
+  argument.set_int_value(micrometers);
+  return argument;
+}
+
 FormatArgument IntArgument(const std::string& key, int64 integer) {
   FormatArgument argument;
   argument.set_type(FormatArgument::INT_LITERAL);

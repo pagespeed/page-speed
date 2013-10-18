@@ -86,6 +86,15 @@ bool BasicLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
   return true;
 }
 
+bool BasicLocalizer::LocalizeDistance(int64 ms, std::string* out) const {
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+  *out = pagespeed::formatters::FormatDistance(ms);
+  return true;
+}
+
 bool BasicLocalizer::LocalizePercentage(int64 p, std::string* out) const {
   if (!out) {
     LOG(DFATAL) << "out == NULL";
@@ -151,6 +160,18 @@ bool NullLocalizer::LocalizeTimeDuration(int64 ms, std::string* out) const {
   }
   std::ostringstream ss;
   ss << ms;
+  *out = ss.str();
+  return true;
+}
+
+bool NullLocalizer::LocalizeDistance(
+    int64 micrometers, std::string* out) const {
+  if (!out) {
+    LOG(DFATAL) << "out == NULL";
+    return false;
+  }
+  std::ostringstream ss;
+  ss << micrometers;
   *out = ss.str();
   return true;
 }

@@ -196,6 +196,10 @@ void FillFormatString(const Localizer* loc,
         // isn't localizable.
         localized = format_arg->string_value();
         break;
+      case FormatArgument::DISTANCE:
+        success = loc->LocalizeDistance(format_arg->int_value(),
+                                        &localized);
+        break;
       default:
         LOG(DFATAL) << "Unknown argument type " << format_arg->type();
         format_arg->set_type(FormatArgument::STRING_LITERAL);

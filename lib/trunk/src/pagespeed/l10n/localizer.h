@@ -61,6 +61,7 @@ class Localizer {
 
   // Localize a percentage into a human-readable string in the current locale
   virtual bool LocalizePercentage(int64 percent, std::string* out) const = 0;
+  virtual bool LocalizeDistance(int64 micrometers, std::string* out) const = 0;
 };
 
 /**
@@ -76,6 +77,7 @@ class BasicLocalizer : public Localizer {
   virtual bool LocalizeBytes(int64 bytes, std::string* out) const;
   virtual bool LocalizeTimeDuration(int64 ms, std::string* out) const;
   virtual bool LocalizePercentage(int64 percent, std::string* out) const;
+  virtual bool LocalizeDistance(int64 micrometers, std::string* out) const;
 };
 
 /**
@@ -90,6 +92,7 @@ class NullLocalizer : public Localizer {
   virtual bool LocalizeBytes(int64 bytes, std::string* out) const;
   virtual bool LocalizeTimeDuration(int64 ms, std::string* out) const;
   virtual bool LocalizePercentage(int64 percent, std::string* out) const;
+  virtual bool LocalizeDistance(int64 micrometers, std::string* out) const;
 };
 
 } // namespace l10n

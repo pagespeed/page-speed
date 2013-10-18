@@ -36,6 +36,7 @@ static const char* kArgumentTypeToNameMap[] = {
   "PERCENTAGE",
   "HYPERLINK",
   "SNAPSHOT_RECT",
+  "DISTANCE",
 };
 
 static const char* kInvalidArgumentType = kArgumentTypeToNameMap[0];

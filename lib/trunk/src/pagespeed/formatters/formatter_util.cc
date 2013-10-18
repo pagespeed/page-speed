@@ -14,6 +14,8 @@
 
 #include "pagespeed/formatters/formatter_util.h"
 
+#include <math.h>
+
 #include <algorithm>
 #include <vector>
 
@@ -27,14 +29,12 @@ namespace {
 const int kBytesPerKiB = 1 << 10;
 const int kBytesPerMiB = 1 << 20;
 
-struct DurationDescriptor {
+struct UnitDescriptor {
   int quantity;
   const char *display_name;
 };
 
-// TODO: need to localize the display names when we add localization
-// support.
-const DurationDescriptor kQuantities[] = {
+const UnitDescriptor kDurations[] = {
   { 1000, "millisecond" },
   { 60, "second" },
   { 60, "minute" },
@@ -43,15 +43,23 @@ const DurationDescriptor kQuantities[] = {
   { -1, "year" },
 };
 
-const size_t kQuantitiesSize = sizeof(kQuantities) / sizeof(kQuantities[0]);
+const UnitDescriptor kDistances[] = {
+  { 1000, "um" },
+  { 1000, "mm" },
+  { 1000, "m" },
+  { -1, "km" },
+};
+
+const size_t kDurationsSize = sizeof(kDurations) / sizeof(kDurations[0]);
+const size_t kDistancesSize = sizeof(kDistances) / sizeof(kDistances[0]);
 const char *kTimeDurationFormatStr = "%d %s%s";
 const char *kZeroSecondsStr = "0 seconds";
 const size_t kNumComponentsToDisplay = 2;
 
 void DoFormatTimeDuration(int64 duration,
                           std::vector<std::string> *components) {
-  for (size_t i = 0; i < kQuantitiesSize && duration > 0; ++i) {
-    const DurationDescriptor *desc = kQuantities + i;
+  for (size_t i = 0; i < kDurationsSize && duration > 0; ++i) {
+    const UnitDescriptor *desc = kDurations + i;
     int64 value = duration;
     duration /= desc->quantity;
     if (desc->quantity > 0) {
@@ -105,6 +113,37 @@ std::string FormatTimeDuration(int64 milliseconds) {
     components.resize(kNumComponentsToDisplay);
   }
   return JoinString(components, ' ');
+}
+
+std::string FormatDistance(int64 micrometers) {
+  if (micrometers <= 0) {
+    return "0mm";
+  }
+  double distance = micrometers;
+  const char* display_name = "";
+  for (size_t i = 0; i < kDistancesSize && distance > 0; ++i) {
+    const UnitDescriptor *desc = kDistances + i;
+    display_name = desc->display_name;
+    if (desc->quantity < 0 || round(distance) < desc->quantity) {
+      break;
+    }
+    distance /= desc->quantity;
+  }
+
+  // If the value is between 0 and 10, and the first decimal place is
+  // non-zero, then show a single digit decimal value. Otherwise,
+  // round to the nearest whole number.
+  if (distance < 10) {
+    const int tenths = static_cast<int>(round(distance * 10)) % 10;
+    if (tenths > 0) {
+      // Round to nearest tenth.
+      const double rounded_distance = round(distance * 10) / 10;
+      return StringPrintf("%.1f%s", rounded_distance, display_name);
+    }
+  }
+  // Round to nearest whole.
+  const int rounded_distance = static_cast<int>(round(distance));
+  return StringPrintf("%d%s", rounded_distance, display_name);
 }
 
 }  // namespace formatters
