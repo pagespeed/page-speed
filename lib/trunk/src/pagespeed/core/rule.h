@@ -20,6 +20,7 @@
 #include "base/basictypes.h"
 #include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/l10n/user_facing_string.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 namespace pagespeed {
 
@@ -89,6 +90,10 @@ class Rule {
 
   // Sort the results in their presentation order.
   virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;
+
+  // Add to the vector the group(s) that this rule is a member of.
+  virtual void AppendRuleGroups(
+      std::vector<FormattedRuleResults::RuleGroup>* out) const;
 
   // Show if the rule is experimental. Return false by default. Any experimental
   // rule must override this method to return true. Experimental rules are new

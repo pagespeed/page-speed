@@ -319,7 +319,6 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
     }
   }
 
-  // TODO(mdsteele): Rename this to FormatResultsAsText
   std::string FormatResults() {
     return DoFormatResultsAsText(rule_.get(), rule_results_);
   }
@@ -337,6 +336,20 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
   double ComputeRuleImpact() {
     return rule_->ComputeRuleImpact(*pagespeed_input()->input_information(),
                                     rule_results_);
+  }
+
+  void CheckRuleGroups(
+      const std::vector<pagespeed::FormattedRuleResults::RuleGroup>& expected) {
+    pagespeed::FormattedResults formatted_results;
+    FormatResultsAsProto(&formatted_results);
+    ASSERT_EQ(1, formatted_results.rule_results_size());
+    const pagespeed::FormattedRuleResults& rule_results =
+        formatted_results.rule_results(0);
+    std::vector<pagespeed::FormattedRuleResults::RuleGroup> actual;
+    for (int i = 0; i < rule_results.groups_size(); ++i) {
+      actual.push_back(rule_results.groups(i));
+    }
+    EXPECT_EQ(expected, actual);
   }
 
   scoped_ptr<RULE> rule_;
