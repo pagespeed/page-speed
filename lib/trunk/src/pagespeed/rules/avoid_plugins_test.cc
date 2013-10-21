@@ -14,18 +14,18 @@
 
 #include "base/stringprintf.h"
 #include "pagespeed/core/pagespeed_input.h"
-#include "pagespeed/rules/avoid_flash_on_mobile.h"
+#include "pagespeed/rules/avoid_plugins.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
 
-using pagespeed::rules::AvoidFlashOnMobile;
+using pagespeed::rules::AvoidPlugins;
 using pagespeed::Resource;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
 using pagespeed_testing::PagespeedRuleTest;
 
-class AvoidFlashOnMobileTest : public PagespeedRuleTest<AvoidFlashOnMobile> {
+class AvoidPluginsTest : public PagespeedRuleTest<AvoidPlugins> {
  protected:
   static const char* kResultHeader;
   static const char* kRootUrl;
@@ -58,24 +58,24 @@ class AvoidFlashOnMobileTest : public PagespeedRuleTest<AvoidFlashOnMobile> {
   }
 };
 
-const char* AvoidFlashOnMobileTest::kResultHeader =
+const char* AvoidPluginsTest::kResultHeader =
     "The following %i Flash elements are included on the page or from "
     "included iframes. Adobe Flash Player is not supported on Apple iOS or "
     "Android versions greater than 4.0.x. Consider removing Flash objects "
     "and finding suitable replacements.";
-const char* AvoidFlashOnMobileTest::kRootUrl = "http://example.com/";
-const char* AvoidFlashOnMobileTest::kSwfUrl = "http://example.com/flash.swf";
-const char* AvoidFlashOnMobileTest::kFlashMime =
+const char* AvoidPluginsTest::kRootUrl = "http://example.com/";
+const char* AvoidPluginsTest::kSwfUrl = "http://example.com/flash.swf";
+const char* AvoidPluginsTest::kFlashMime =
     "application/x-shockwave-flash";
-const char* AvoidFlashOnMobileTest::kFlashClassid =
+const char* AvoidPluginsTest::kFlashClassid =
     "clsid:d27cdb6e-ae6d-11cf-96b8-444553540000";
-const int AvoidFlashOnMobileTest::kDefaultSize = 2000;
+const int AvoidPluginsTest::kDefaultSize = 2000;
 
-TEST_F(AvoidFlashOnMobileTest, EmptyDom) {
+TEST_F(AvoidPluginsTest, EmptyDom) {
   CheckNoViolations();
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashEmbedSimple) {
+TEST_F(AvoidPluginsTest, FlashEmbedSimple) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("type", kFlashMime);
   embed_element->AddAttribute("src", kSwfUrl);
@@ -84,7 +84,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashEmbedSimple) {
   CheckFormattedOutput(expected);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashEmbedSize) {
+TEST_F(AvoidPluginsTest, FlashEmbedSize) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("type", kFlashMime);
   embed_element->AddAttribute("src", kSwfUrl);
@@ -96,7 +96,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashEmbedSize) {
   CheckFormattedOutput(expected);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashObjectSimple) {
+TEST_F(AvoidPluginsTest, FlashObjectSimple) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("type", kFlashMime);
   object_element->AddAttribute("data", kSwfUrl);
@@ -105,7 +105,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashObjectSimple) {
   CheckFormattedOutput(expected);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashObjectSize) {
+TEST_F(AvoidPluginsTest, FlashObjectSize) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("type", kFlashMime);
   object_element->AddAttribute("data", kSwfUrl);
@@ -117,7 +117,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashObjectSize) {
   CheckFormattedOutput(expected);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashEmbedAndObject) {
+TEST_F(AvoidPluginsTest, FlashEmbedAndObject) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("type", kFlashMime);
   embed_element->AddAttribute("src", "a.swf");
@@ -133,7 +133,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashEmbedAndObject) {
   CheckFormattedOutput(expected);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashActiveXObject) {
+TEST_F(AvoidPluginsTest, FlashActiveXObject) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("classid", kFlashClassid);
   FakeDomElement* param_name = FakeDomElement::New(object_element, "param");
@@ -142,27 +142,27 @@ TEST_F(AvoidFlashOnMobileTest, FlashActiveXObject) {
   CheckOneUrlViolation(kSwfUrl);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashEmbedNoTypeNoResource) {
+TEST_F(AvoidPluginsTest, FlashEmbedNoTypeNoResource) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("src", "http://example.com/flash.SWF?q=1#a");
   CheckOneUrlViolation("http://example.com/flash.SWF?q=1");
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashEmbedNoTypeHasResource) {
+TEST_F(AvoidPluginsTest, FlashEmbedNoTypeHasResource) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("src", "movie");
   AddFlashResource("http://example.com/movie");
   CheckOneUrlViolation("http://example.com/movie");
 }
 
-TEST_F(AvoidFlashOnMobileTest, UnknownEmbedNoTypeNoResource) {
+TEST_F(AvoidPluginsTest, UnknownEmbedNoTypeNoResource) {
   FakeDomElement* embed_element = FakeDomElement::New(body(), "embed");
   embed_element->AddAttribute("src", "http://example.com/movie");
   // Cannot determine that the resource is flash, no violation
   CheckNoViolations();
 }
 
-TEST_F(AvoidFlashOnMobileTest, PngObjectNoTypeHasResource) {
+TEST_F(AvoidPluginsTest, PngObjectNoTypeHasResource) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("data", kSwfUrl);
   AddTestResource(kSwfUrl, "image/png", kDefaultSize);
@@ -170,13 +170,13 @@ TEST_F(AvoidFlashOnMobileTest, PngObjectNoTypeHasResource) {
   CheckNoViolations();
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashObjectNoType) {
+TEST_F(AvoidPluginsTest, FlashObjectNoType) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("data", kSwfUrl);
   CheckOneUrlViolation(kSwfUrl);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashObjectTypeMovieNoData) {
+TEST_F(AvoidPluginsTest, FlashObjectTypeMovieNoData) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("type", kFlashMime);
   FakeDomElement* param_name = FakeDomElement::New(object_element, "param");
@@ -185,14 +185,14 @@ TEST_F(AvoidFlashOnMobileTest, FlashObjectTypeMovieNoData) {
   CheckOneUrlViolation(kSwfUrl);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashObjectMimeCase) {
+TEST_F(AvoidPluginsTest, FlashObjectMimeCase) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("type", "ApPlIcAtIoN/x-shockWAVE-FLASH");
   object_element->AddAttribute("data", kSwfUrl);
   CheckOneUrlViolation(kSwfUrl);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashActiveXObjectClassidCase) {
+TEST_F(AvoidPluginsTest, FlashActiveXObjectClassidCase) {
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("classid",
                                "CLSID:D27CDB6E-AE6D-11CF-96B8-444553540000");
@@ -203,7 +203,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashActiveXObjectClassidCase) {
   CheckOneUrlViolation(kSwfUrl);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashObjectInIFrame) {
+TEST_F(AvoidPluginsTest, FlashObjectInIFrame) {
   FakeDomElement* iframe = FakeDomElement::NewIframe(body());
   FakeDomDocument* iframe_doc;
   NewDocumentResource("http://example.com/frame/i.html", iframe, &iframe_doc);
@@ -215,7 +215,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashObjectInIFrame) {
   CheckOneUrlViolation("http://example.com/frame/flash.swf");
 }
 
-TEST_F(AvoidFlashOnMobileTest, AdobeTwiceCooked) {
+TEST_F(AvoidPluginsTest, AdobeTwiceCooked) {
   // http://helpx.adobe.com/flash/kb/object-tag-syntax-flash-professional.html
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("classid",
@@ -240,7 +240,7 @@ TEST_F(AvoidFlashOnMobileTest, AdobeTwiceCooked) {
   CheckOneUrlViolation(kSwfUrl);
 }
 
-TEST_F(AvoidFlashOnMobileTest, FlashSatay) {
+TEST_F(AvoidPluginsTest, FlashSatay) {
   // http://www.alistapart.com/articles/flashsatay
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("type", "application/x-shockwave-flash");
@@ -253,7 +253,7 @@ TEST_F(AvoidFlashOnMobileTest, FlashSatay) {
   CheckOneUrlViolation("http://example.com/c.swf?path=movie.swf");
 }
 
-TEST_F(AvoidFlashOnMobileTest, SilverlightObject) {
+TEST_F(AvoidPluginsTest, SilverlightObject) {
   // http://msdn.microsoft.com/en-us/library/cc189089(v=vs.95).aspx
   FakeDomElement* object_element = FakeDomElement::New(body(), "object");
   object_element->AddAttribute("width", "300");

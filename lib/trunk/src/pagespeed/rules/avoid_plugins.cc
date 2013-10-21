@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pagespeed/rules/avoid_flash_on_mobile.h"
+#include "pagespeed/rules/avoid_plugins.h"
 
 #include "net/instaweb/util/public/google_url.h"
 #include "pagespeed/core/dom.h"
@@ -25,7 +25,7 @@
 
 namespace {
 
-static const char* kRuleName = "AvoidFlashOnMobile";
+static const char* kRuleName = "AvoidPlugins";
 static const char* kFlashMime = "application/x-shockwave-flash";
 static const char* kFlashClassid = "clsid:d27cdb6e-ae6d-11cf-96b8-444553540000";
 
@@ -145,19 +145,19 @@ void FlashChecker::ProcessFlashIncludeTag(const pagespeed::DomElement* node) {
   result->add_resource_urls(uri);
 
   pagespeed::ResultDetails* details = result->mutable_details();
-  pagespeed::AvoidFlashOnMobileDetails* avoid_flash_details = details
+  pagespeed::AvoidPluginsDetails* avoid_plugins_details = details
       ->MutableExtension(
-      pagespeed::AvoidFlashOnMobileDetails::message_set_extension);
+      pagespeed::AvoidPluginsDetails::message_set_extension);
 
   int x, y, width, height;
   if (node->GetX(&x) == pagespeed::DomElement::SUCCESS &&
       node->GetY(&y) == pagespeed::DomElement::SUCCESS &&
       node->GetActualWidth(&width) == pagespeed::DomElement::SUCCESS &&
       node->GetActualHeight(&height) == pagespeed::DomElement::SUCCESS) {
-    avoid_flash_details->set_x(x);
-    avoid_flash_details->set_y(y);
-    avoid_flash_details->set_width(width);
-    avoid_flash_details->set_height(height);
+    avoid_plugins_details->set_x(x);
+    avoid_plugins_details->set_y(y);
+    avoid_plugins_details->set_width(width);
+    avoid_plugins_details->set_height(height);
   }
 }
 
@@ -278,22 +278,22 @@ namespace pagespeed {
 
 namespace rules {
 
-AvoidFlashOnMobile::AvoidFlashOnMobile()
+AvoidPlugins::AvoidPlugins()
     : pagespeed::Rule(pagespeed::InputCapabilities(
         pagespeed::InputCapabilities::DOM |
         pagespeed::InputCapabilities::RESPONSE_BODY)) {}
 
-const char* AvoidFlashOnMobile::name() const {
+const char* AvoidPlugins::name() const {
   return kRuleName;
 }
 
-UserFacingString AvoidFlashOnMobile::header() const {
+UserFacingString AvoidPlugins::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to avoid using
   // Adobe Flash on mobile webpages
   return _("Avoid flash on mobile webpages");
 }
 
-bool AvoidFlashOnMobile::AppendResults(const RuleInput& rule_input,
+bool AvoidPlugins::AppendResults(const RuleInput& rule_input,
                                        ResultProvider* provider) {
   const DomDocument* document = rule_input.pagespeed_input().dom_document();
   if (document) {
@@ -303,7 +303,7 @@ bool AvoidFlashOnMobile::AppendResults(const RuleInput& rule_input,
   return true;
 }
 
-void AvoidFlashOnMobile::FormatResults(const ResultVector& results,
+void AvoidPlugins::FormatResults(const ResultVector& results,
                                        RuleFormatter* formatter) {
   if (results.empty()) {
     return;
@@ -330,23 +330,23 @@ void AvoidFlashOnMobile::FormatResults(const ResultVector& results,
 
     const ResultDetails& details = result.details();
     if (details.HasExtension(
-        AvoidFlashOnMobileDetails::message_set_extension)) {
-      const AvoidFlashOnMobileDetails& flash_details = details.GetExtension(
-          AvoidFlashOnMobileDetails::message_set_extension);
-      if (flash_details.has_x() &&
-          flash_details.has_y() &&
-          flash_details.has_width() &&
-          flash_details.has_height()) {
+        AvoidPluginsDetails::message_set_extension)) {
+      const AvoidPluginsDetails& plugins_details = details.GetExtension(
+          AvoidPluginsDetails::message_set_extension);
+      if (plugins_details.has_x() &&
+          plugins_details.has_y() &&
+          plugins_details.has_width() &&
+          plugins_details.has_height()) {
         body->AddUrlResult(
             not_localized("%(URL)s (%(WIDTH)s x %(HEIGHT)s) %(SCREENSHOT)s."),
             UrlArgument("URL", result.resource_urls(0)),
-            IntArgument("WIDTH", flash_details.width()),
-            IntArgument("HEIGHT", flash_details.height()),
+            IntArgument("WIDTH", plugins_details.width()),
+            IntArgument("HEIGHT", plugins_details.height()),
             FinalRectArgument("SCREENSHOT",
-                              flash_details.x(),
-                              flash_details.y(),
-                              flash_details.width(),
-                              flash_details.height()));
+                              plugins_details.x(),
+                              plugins_details.y(),
+                              plugins_details.width(),
+                              plugins_details.height()));
       } else {
         body->AddUrl(result.resource_urls(0));
       }
@@ -356,16 +356,19 @@ void AvoidFlashOnMobile::FormatResults(const ResultVector& results,
   }
 }
 
-int AvoidFlashOnMobile::ComputeScore(const InputInformation& input_info,
-                                     const RuleResults& results) {
+double AvoidPlugins::ComputeResultImpact(const InputInformation& input_info,
+                                         const RuleResults& results) {
   // Scoring is binary: Flash == bad; no flash == good
   if (results.results_size() > 0) {
-    return 0;
+    // TODO(dbathgate): Update this calculation from a fixed 1.0 impact.
+    return 1.0;
   }
-  return 100;
+  return 0;
 }
 
-bool AvoidFlashOnMobile::IsExperimental() const {
+bool AvoidPlugins::IsExperimental() const {
+  // TODO(dbathgate): Update ComputeResultImpact before graduating from
+  //   experimental.
   return true;
 }
 
