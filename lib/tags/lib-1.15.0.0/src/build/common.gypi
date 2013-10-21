@@ -22,4 +22,12 @@
     # needed.
     'pagespeed_overrides.gypi',
   ],
+  'target_defaults': {
+    'conditions': [
+      ['OS=="linux"', {
+        # Warn about overloaded virtual functions.
+        'cflags_cc': ['-Woverloaded-virtual'],
+      }],
+    ],
+  },
 }
