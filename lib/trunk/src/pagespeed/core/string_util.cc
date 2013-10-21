@@ -213,7 +213,7 @@ std::string ReplaceStringPlaceholders(
   // let's prevent underflow in the case of bad input.
   if (formatted_length < 0) {
     LOG(DFATAL) << "Format string is too short to possibly contain "
-                << "all placeholders.";
+                << "all placeholders: \"" << format_string << "\"";
     formatted_length = 0;
   }
 
@@ -230,7 +230,8 @@ std::string ReplaceStringPlaceholders(
       } else if (next == '(') {
         const size_t close = format_string.find(")s", i + 2);
         if (close == base::StringPiece::npos) {
-          LOG(DFATAL) << "Unclosed format placeholder";
+          LOG(DFATAL) << "Unclosed format placeholder in format string \""
+                      << format_string << "\"";
           break;
         }
         const base::StringPiece key =
@@ -244,7 +245,8 @@ std::string ReplaceStringPlaceholders(
         formatted.append(iter->second);
         i = close + 1;
       } else {
-        LOG(DFATAL) << "Invalid format escape: " << format_string.substr(i, 2);
+        LOG(DFATAL) << "Invalid format escape \"" << format_string.substr(i, 2)
+                    << "\" in format string \"" << format_string << "\"";
         break;
       }
     } else {

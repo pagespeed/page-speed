@@ -197,10 +197,12 @@ TEST(StringUtilTest, ReplaceStringPlaceholdersUnclosedPlaceholder) {
   subst["INT"] = "5";
   EXPECT_DEBUG_DEATH(
       ReplaceStringPlaceholders("There are %(INT results.", subst),
-      "Unclosed format placeholder");
+      "Unclosed format placeholder in format "
+      "string \"There are %\\(INT results.\"");
   EXPECT_DEBUG_DEATH(
-      ReplaceStringPlaceholders("This are %(INT) results.", subst),
-      "Unclosed format placeholder");
+      ReplaceStringPlaceholders("There are %(INT) results.", subst),
+      "Unclosed format placeholder in format "
+      "string \"There are %\\(INT\\) results.\"");
 }
 
 // If the format string contains a placeholder that isn't in the map, that's an
@@ -220,7 +222,8 @@ TEST(StringUtilTest, ReplaceStringPlaceholdersInvalidEscape) {
   subst["BAR"] = "42";
   EXPECT_DEBUG_DEATH(
       ReplaceStringPlaceholders("Foo %(BAR)s %t baz.", subst),
-      "Invalid format escape: %t");
+      "Invalid format escape \"%t\" in format "
+      "string \"Foo %\\(BAR\\)s %t baz.\"");
 }
 
 TEST(StringUtilTest, StringPrintfEmpty) {
