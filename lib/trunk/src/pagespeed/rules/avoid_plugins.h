@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PAGESPEED_RULES_AVOID_FLASH_ON_MOBILE_H_
-#define PAGESPEED_RULES_AVOID_FLASH_ON_MOBILE_H_
+#ifndef PAGESPEED_RULES_AVOID_PLUGINS_H_
+#define PAGESPEED_RULES_AVOID_PLUGINS_H_
 
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
@@ -25,9 +25,9 @@ namespace rules {
 /**
  * Checks for flash objects in the resource list
  */
-class AvoidFlashOnMobile : public Rule {
+class AvoidPlugins : public Rule {
  public:
-  AvoidFlashOnMobile();
+  AvoidPlugins();
 
   // Rule interface.
   virtual const char* name() const;
@@ -35,8 +35,8 @@ class AvoidFlashOnMobile : public Rule {
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
-  virtual int ComputeScore(const InputInformation& input_info,
-                           const RuleResults& results);
+  virtual double ComputeResultImpact(const InputInformation& input_info,
+                                     const RuleResults& results);
 
   // This rule is still experimental. It returns true to indicate that. When
   // this rule graduates to stable, remove this function, and the code in .cc.
@@ -44,11 +44,11 @@ class AvoidFlashOnMobile : public Rule {
   virtual bool IsExperimental() const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(AvoidFlashOnMobile);
+  DISALLOW_COPY_AND_ASSIGN(AvoidPlugins);
 };
 
 }  // namespace rules
 
 }  // namespace pagespeed
 
-#endif  // PAGESPEED_RULES_AVOID_FLASH_ON_MOBILE_H_
+#endif  // PAGESPEED_RULES_AVOID_PLUGINS_H_
