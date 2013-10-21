@@ -19,7 +19,7 @@
 namespace {
 
 const int kPagespeedMajorVersion = 1;
-const int kPagespeedMinorVersion = 14;
+const int kPagespeedMinorVersion = 15;
 const bool kRelease = false;
 
 }  // namespace
