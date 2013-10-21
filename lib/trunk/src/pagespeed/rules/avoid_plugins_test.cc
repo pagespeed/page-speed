@@ -82,6 +82,7 @@ TEST_F(AvoidPluginsTest, FlashEmbedSimple) {
   std::string header = StringPrintf(kResultHeader, 1);
   std::string expected = header + "\n  " + kSwfUrl + "\n";
   CheckFormattedOutput(expected);
+  EXPECT_EQ(1.0, ComputeRuleImpact());
 }
 
 TEST_F(AvoidPluginsTest, FlashEmbedSize) {
@@ -131,6 +132,7 @@ TEST_F(AvoidPluginsTest, FlashEmbedAndObject) {
       + "  http://example.com/a.swf (400 x 800) final[111,222,400,800].\n"
       + "  http://example.com/b.swf\n";
   CheckFormattedOutput(expected);
+  EXPECT_EQ(2.0, ComputeRuleImpact());
 }
 
 TEST_F(AvoidPluginsTest, FlashActiveXObject) {
