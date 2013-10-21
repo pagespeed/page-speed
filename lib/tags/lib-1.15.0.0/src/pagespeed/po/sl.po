@@ -1,0 +1,1093 @@
+#  Header at the top of a list of URLs that Page
+#  Speed detected as a chain of HTTP redirections. It tells the
+#  user to fix the problem by removing the URLs that redirect to
+#  others. The text between BEGIN_LINK and END_LINK will be
+#  displayed as a clickable link in the browser, which takes the
+#  user to a document providing additional information.
+msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
+msgstr "%(BEGIN_LINK)sIzogibajte se preusmeritvam ciljne strani%(END_LINK)s za naslednjo verigo preusmerjenih URL-jev."
+
+#  Descriptive header for a list of URLs that were
+#  served uncompressed, in violation of the EnableGzipCompression
+#  rule.  It tells the webmaster that compressing all of those
+#  resources could reduce the amount of data transferred (which
+#  would speed up the site). It is followed by a list of
+#  uncompressed resource URLs. The text between BEGIN_LINK and
+#  END_LINK will link to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sEnable compression%(END_LINK)s for the following resources to reduce their transfer size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sOmogočite stiskanje%(END_LINK)s za naslednje vire, da zmanjšate njihovo velikost za prenos za %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Heading that indicates which resources should
+#  make use of browser caching. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the
+#  browser, which takes the user to a document providing
+#  additional information.
+msgid "%(BEGIN_LINK)sLeverage browser caching%(END_LINK)s for the following cacheable resources:"
+msgstr "%(BEGIN_LINK)sIzkoristite predpomnjenje v brskalniku%(END_LINK)s za naslednje vire, ki jih je mogoče predpomniti:"
+
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify CSS%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sSkrčite CSS%(END_LINK)s za naslednje vire, da zmanjšate njihovo velikost za %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify HTML%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sSkrčite HTML%(END_LINK)s za naslednje vire, da zmanjšate njihovo velikost za %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Heading that describes the savings possible from
+#  minifying resources. The text between BEGIN_LINK and END_LINK
+#  will be displayed as a clickable link in the browser, which takes
+#  the user to a document providing additional information. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sMinify JavaScript%(END_LINK)s for the following resources to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sSkrčite JavaScript%(END_LINK)s za naslednje vire, da zmanjšate njihovo velikost za %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the render of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sOptimize CSS Delivery%(END_LINK)s of the following:"
+msgstr "%(BEGIN_LINK)sOptimizirajte zagotavljanje CSS-ja%(END_LINK)s za naslednje:"
+
+#  Header at the top a list of image URLs that Page
+#  Speed detected as can be optimized by using better
+#  compression. It describes the problem to the user that the size
+#  of the images can be reduced. The text between BEGIN_LINK and
+#  END_LINK will be displayed as a clickable link in the browser,
+#  which takes the user to a document providing additional
+#  information. The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved
+#  (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will
+#  be replaced by the percent savings (e.g. "50%").
+msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "%(BEGIN_LINK)sOptimizirajte naslednje slike%(END_LINK)s, da zmanjšate njihovo velikost za %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "%(BEGIN_LINK)sDajte prednost vidni vsebini%(END_LINK)s, ki je potrebna za upodobitev na vrhu strani."
+
+#  Header at the top of a list of URLs that Page Speed
+#  determined were blocking the parser of above-the-fold
+#  (i.e. within the initial browser viewport) content. The text between
+#  BEGIN_LINK and END_LINK will link to a document providing additional
+#  information.
+msgid "%(BEGIN_LINK)sRemove render-blocking JavaScript%(END_LINK)s:"
+msgstr "%(BEGIN_LINK)sOdstranite JavaScript, ki blokira upodabljanje%(END_LINK)s:"
+
+#  Header at the top of a list of URLs that PageSpeed
+#  determined were blocking the parser of above-the-fold content that
+#  can be made asynchronous. The text between BEGIN_LINK and END_LINK
+#  will link to a document providing additional information.
+msgid "%(BEGIN_LINK)sUse asynchronous versions%(END_LINK)s of the following scripts:"
+msgstr "%(BEGIN_LINK)sUporabite asinhrone različice%(END_LINK)s naslednjih skriptov:"
+
+#  The document that Page Speed detected as have CSS
+#  resources in document body.
+msgid "%(DOCUMENT_URL)s has CSS in the document body."
+msgstr "%(DOCUMENT_URL)s ima v telesu dokumenta CSS."
+
+#  Header of a list of items the Page Speed suggests to
+#  move to document head.
+msgid "%(DOCUMENT_URL)s has CSS in the document body:"
+msgstr "%(DOCUMENT_URL)s ima v telesu dokumenta CSS:"
+
+#  List item indicating that a particular HTML document
+#  loads a particular resource file synchronously (rather than
+#  asynchronously).
+msgid "%(DOCUMENT_URL)s loads %(RESOURCE_URL)s synchronously."
+msgstr "%(DOCUMENT_URL)s nalaga %(RESOURCE_URL)s sinhrono."
+
+#  An amount of bytes with abbreviated unit.  The "NUM_BYTES"
+#  placeholder is replaced with the number of bytes (e.g. "93",
+#  representing 93 bytes).
+msgid "%(NUM_BYTES)sB"
+msgstr "%(NUM_BYTES)s B"
+
+#  An amount of kilobytes with abbreviated unit.  The
+#  "NUM_KILOBYTES" placeholder is replaced with the number of kilobytes
+#  (e.g. "32.5", representing 32.5 kilobytes).
+msgid "%(NUM_KILOBYTES)sKiB"
+msgstr "%(NUM_KILOBYTES)s KB"
+
+#  An amount of megabytes with abbreviated unit.  The
+#  "NUM_MEGABYTES" placeholder is replaced with the number of megabytes
+#  (e.g. "32.5", representing 32.5 megabytes).
+msgid "%(NUM_MEGABYTES)sMiB"
+msgstr "%(NUM_MEGABYTES)s MB"
+
+#  Detail of the inline CSS. It tells the user how many
+#  style blocks should be moved to document head.
+msgid "%(NUM_STYLE_BLOCKS)s style block(s) in the body should be moved to the document head."
+msgstr "Število slogovnih blokov v telesu, ki jih je treba premakniti v glavo dokumenta: %(NUM_STYLE_BLOCKS)s"
+
+#  Message displayed to indicate that one URL redirects to
+#  another URL, e.g "http://example.com/ is an uncacheable redirect to
+#  http://www.example.com/".
+msgid "%(ORIGINAL_URL)s is an uncacheable redirect to %(TARGET_URL)s"
+msgstr "%(ORIGINAL_URL)s je preusmeritev na %(TARGET_URL)s, ki je ni mogoče predpomniti"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected to have JavaScript code. It describes the problem and tells
+#  the user how to fix by defering parsing the JavaScript code.  The
+#  "SIZE_IN_BYTES" placeholder indicates how much Javascript data is
+#  begin parsed (e.g. "273.1KB").
+msgid "%(SIZE_IN_BYTES)s of JavaScript is parsed during initial page load. Defer parsing JavaScript to reduce blocking of page rendering."
+msgstr "%(SIZE_IN_BYTES)s JavaScripta se razčleni pri prvem nalaganju strani. Odložite razčlenitev JavaScripta, da zmanjšate blokiranje upodabljanja strani."
+
+#  Summary header indicating how much of the server's
+#  HTML response, in bytes, was needed by the browser in order to
+#  render the above-the-fold content, and recommending that the user
+#  place priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)  The "SIZE_IN_BYTES"
+#  is the actual amount of HTML content needed to render the above
+#  the full fold content (e.g. "24.3kB").
+msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
+msgstr "%(SIZE_IN_BYTES)s odziva je bilo potrebnih za upodobitev vsebine na vrhu strani. %(BEGIN_LINK)sDajte prednost vidni vsebini%(END_LINK)s, ki je potrebna za upodobitev na vrhu strani."
+
+#  Shown as part of a list of URLs that have unnecessary
+#  reflows (or "layouts", which is used interchangeably with the word
+#  "reflows" in the web performance community).  The message indicates
+#  the URL and the number of reflows that it requires.
+msgid "%(URL)s (%(NUM_REFLOWS)s reflows)"
+msgstr "%(URL)s (št. vnovičnih postavitev: %(NUM_REFLOWS)s)"
+
+#  Page Speed result for a single resource that should
+#  defer parsing its inline JavaScript. The "URL" placeholder will be
+#  replaced by the document (HTML page, or a iframe) URL; the
+#  "SIZE_IN_BYTES" will be replaced by the size of its inline
+#  JavaScripts (e.g. "273.1KB").
+msgid "%(URL)s (%(SIZE_IN_BYTES)s of inline JavaScript)"
+msgstr "%(URL)s (%(SIZE_IN_BYTES)s vdelanega JavaScripta)"
+
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s)"
+msgstr "%(URL)s (Mere: %(WIDTH)s × %(HEIGHT)s)"
+
+#  A format string for one item in a list of images
+#  that Page Speed detected as not having both width and height
+#  explicitly specified in the page in which the image appears;
+#  each list item provides the URL of the image, and the actual
+#  width/height dimensions of the image to aid the user in
+#  specifying those dimensions in the page.  The "URL" placeholder
+#  will be replaced with the URL of the image; the "WIDTH x HEIGHT"
+#  will be replaced with the width and height of the image, in
+#  pixels (e.g. 320 x 240); the "NUM_USES" placeholder indicates
+#  the number of times this image was used in the page (e.g. "3").
+msgid "%(URL)s (Dimensions: %(WIDTH)s x %(HEIGHT)s) (%(NUM_USES)s uses)"
+msgstr "%(URL)s (Mere: %(WIDTH)s × %(HEIGHT)s) (Št. uporab: %(NUM_USES)s)"
+
+#  Item describing a single URL that violates the
+#  LeverageBrowserCaching rule by not having a specified cache expiration
+#  time.
+msgid "%(URL)s (expiration not specified)"
+msgstr "%(URL)s (rok poteka ni določen)"
+
+#  Item describing a URL that violates the
+#  MinimzeRequestSize rule by having a large request size. The "URL"
+#  placeholder will be replaced by the URL; the "SIZE_IN_BYTES"
+#  placeholder will be replaced by the number of bytes in the request
+#  (e.g. "1492 bytes"). This is displayed at the top of a breakdown of
+#  how large each element of the request is.
+msgid "%(URL)s has a request size of %(SIZE_IN_BYTES)s"
+msgstr "%(URL)s ima zahtevo v velikosti %(SIZE_IN_BYTES)s"
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the original size of the image, the final
+#  size of the image, and the amount saved by serving the image in
+#  the final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").  The "ORIGINAL_WIDTH x ORIGINAL_HEIGHT"
+#  gives the natural size of the image file (e.g. "640x480"), while
+#  the "FINAL_WIDTH x FINAL_HEIGHT" gives the size to which the
+#  image has been resized by the HTML or CSS (e.g. "160x120").
+msgid "%(URL)s is resized in HTML or CSS from %(ORIGINAL_WIDTH)sx%(ORIGINAL_HEIGHT)s to %(FINAL_WIDTH)sx%(FINAL_HEIGHT)s. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Velikost slike na naslovu %(URL)s je spremenjena v HTML-ju ali CSS-ju iz %(ORIGINAL_WIDTH)s×%(ORIGINAL_HEIGHT)s v %(FINAL_WIDTH)s×%(FINAL_HEIGHT)s. Prikazovanje slike prilagojene velikosti lahko prihrani %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Describes a single URL of an image that is resized in
+#  HTML or CSS.  It gives the amount saved by serving the image in
+#  its final size.  The "URL" placeholder will be replaced with the
+#  URL of the image resource.  The "SIZE_IN_BYTES" placeholder will
+#  be replaced with the amount saved (in bytes) by serving the image
+#  correctly size (e.g. "32.5KiB").  The "PERCENTAGE" placeholder
+#  will be replaced with the percentage saved out of the original
+#  file size (e.g. "25%").
+msgid "%(URL)s is resized in HTML or CSS. Serving a scaled image could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Velikost slike na naslovu %(URL)s je spremenjena v HTML-ju ali CSS-ju. Prikazovanje slike prilagojene velikosti lahko prihrani %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Shown as part of a list of URLs that initiate JavaScript
+#  scripts that run for a long time.  Shows a URL, the line number (of
+#  the file at that URL that triggers the script URL), and the duration
+#  of time for which the scripts runs.
+msgid "%(URL)s line %(LINE_NUMBER)s (%(DURATION)s)"
+msgstr "%(URL)s vrstica %(LINE_NUMBER)s (%(DURATION)s)"
+
+#  A sub-heading that contains the URL of the document
+#  and a statement instructing the user to inline certain small
+#  resources.  The "URL" placeholder will be replaced with the URL of
+#  the document that contains the resources that can be inserted
+#  directly into the HTML document.
+msgid "%(URL)s should inline the following small resources:"
+msgstr "Dokument %(URL)s bi moral vdelati te majhne vire:"
+
+#  Summary header indicating how much of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be correctly
+#  rendered without relying on any render-blocking
+#  resources.  The "PERCENTAGE" placeholder will be
+#  replaced with the percentage of the content that was
+#  ready (e.g. "85%").
+msgid "Approximately %(PERCENTAGE)s of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Približno %(PERCENTAGE)s vsebine na vrhu strani je bilo mogoče upodobiti brez čakanja na nalaganje naslednjih virov. Poskusite odložiti ali asinhrono naložiti blokirajoče vire ali vdelati kritične dele teh virov neposredno v HTML."
+
+#  The name of a Page Speed rule telling webmasters to avoid using
+#  the @import directive in their CSS style sheets ("@import" is code, and
+#  should not be translated).  This is displayed in a list of rule names that
+#  Page Speed generates, telling webmasters which rules they broke in their
+#  website.
+msgid "Avoid CSS @import"
+msgstr "Izogibanje CSS @import"
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages do not specify a character set in an HTML meta tag.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid a character set in the meta tag"
+msgstr "V metaoznaki ne določite nabora znakov"
+
+#  The name of a Page Speed rule that tells users to try and avoid
+#  writing pages that generate bad HTTP requests (i.e. requests that return
+#  HTTP 404 or HTTP 410 codes), for example by referencing a missing image or
+#  style sheet.  This is displayed in a list of rule names that Page Speed
+#  generates, telling webmasters which rules they broke in their website.
+msgid "Avoid bad requests"
+msgstr "Izogibanje napačnim zahtevam"
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  Adobe Flash on mobile webpages
+msgid "Avoid flash on mobile webpages"
+msgstr "Na mobilnih spletnih straneh se izogibajte Flashu"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Avoid landing page redirects"
+msgstr "Izogibajte se preusmeritvam ciljnih strani"
+
+#  The name of a Page Speed rule that tells users to try
+#  and avoid writing pages with Javascript scripts that run for a
+#  long time, which reduces browser responsiveness.  This is
+#  displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Avoid long-running scripts"
+msgstr "Izogibajte se skriptom, ki se izvajajo dolgo časa"
+
+#  Header at the top of a list of URLs that Page Speed
+#  deteced as having CSS resources in the document body. It describes the
+#  problem.
+msgid "CSS in the document body adversely impacts rendering performance."
+msgstr "CSS v telesu dokumenta neugodno vpliva na hitrost upodabljanja."
+
+#  The name of a Page Speed rule that tells webmasters to combine
+#  external CSS resources that are loaded from the same domain.  This
+#  appears in a list of rule names generated by Page Speed, telling webmasters
+#  which rules they broke in their website.
+msgid "Combine external CSS"
+msgstr "Združitev zunanjih slogov CSS"
+
+#  The name of a Page Speed rule that tells webmasters to combine
+#  external JavaScript resources that are loaded from the same domain.  This
+#  appears in a list of rule names generated by Page Speed, telling webmasters
+#  which rules they broke in their website.
+msgid "Combine external JavaScript"
+msgstr "Združevanje zunanjega JavaScripta"
+
+#  The name of a Page Speed rule that tells users to try to
+#  replace a group of small images on their site with a "CSS sprite" -- that
+#  is, a single larger image containing a number of subimages, which can then
+#  be used to display a single subimage at a time by using CSS to reveal a
+#  different section of the large image in place of each of the original
+#  small images.  This is displayed in a list of rule names that Page Speed
+#  generates.
+msgid "Combine images into CSS sprites"
+msgstr "Združevanje slik v sličice CSS"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting CSS code can save many bytes of data and speed up download and parse times."
+msgstr "S stiskanjem kode CSS lahko zmanjšate količino prenesenih podatkov in pospešite prenos ter razčlenjevanje."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting HTML code, including any inline JavaScript and CSS contained in it, can save many bytes of data and speed up download and parse times."
+msgstr "S stiskanjem kode HTML, vključno s skripti JavaScript in slogi CSS, vdelanimi v njej, lahko prihranite precej prostora ter pospešite prenos v računalnik in razčlenjevanje."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compacting JavaScript code can save many bytes of data and speed up downloading, parsing, and execution time."
+msgstr "S stiskanjem kode JavaScript zmanjšate količino prenesenih podatkov, pospešite prenos in razčlenjevanje ter skrajšate čas izvajanja."
+
+#  Description of a single resource that was served uncompressed,
+#  in violation of the EnableGzipCompression rule.  It gives the URL of the
+#  resource, as well as the amount of data that would be saved by
+#  compressing.  It appears in a list of all the uncompressed resources on a
+#  site.  The "SIZE_IN_BYTES" placeholder will be replaced by the absolute
+#  number of bytes or kilobytes that can be saved (e.g. "5 bytes" or
+#  "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the percent
+#  savings (e.g. "50%").
+msgid "Compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "S stiskanjem %(URL)s bi lahko prihranili %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Compressing resources with gzip or deflate can reduce the number of bytes sent over the network."
+msgstr "S stiskanjem sredstev z orodjem »gzip« ali »deflate« lahko zmanjšate količino podatkov, poslanih v omrežju."
+
+#  Summary header indicating that compressing will bring
+#  the page to meeting the criteria (the above the fold content is
+#  rendered on the first 15 kilobytes).
+msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
+msgstr "Če stisnete HTML strani, bo stran morda lahko upodobila večino vsebine na vrhu strani v okviru prvih 15 KB odziva."
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: %(SIZE_IN_BYTES)s"
+msgstr "Piškotki: %(SIZE_IN_BYTES)s"
+
+#  Item showing how large the cookie is in a request that
+#  violates the MinimizeRequestSizeRule by being large. It also tell
+#  the user that the resource is static, and it should be served from a
+#  cookieless domain. The "SIZE_IN_BYTES" placeholder will be replaced
+#  by the size of the cookies in bytes (e.g. "5.3KiB").
+msgid "Cookies: %(SIZE_IN_BYTES)s (note that this is a static resource, and should be served from a cookieless domain)"
+msgstr "Piškotki: %(SIZE_IN_BYTES)s (to je statičen vir in mora biti strežen iz domene brez piškotkov)"
+
+#  The name of a Page Speed rule that tells users to defer
+#  parsing of large amount of JavaScript code. This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Defer parsing of JavaScript"
+msgstr "Odloži razčlenitev JavaScripta"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  loading resources on the page that block the initial render of the page
+msgid "Eliminate render-blocking JavaScript and CSS in above-the-fold content"
+msgstr "V vsebini na vrhu strani odstranite JavaScript in CSS, ki blokirata upodabljanje"
+
+#  Title of this rule, which suggests
+#  removing/eliminating reflows (or "layouts", which is used
+#  interchangeably with the word "reflows" in the web performance
+#  community).
+msgid "Eliminate unnecessary reflows"
+msgstr "Odstranite nepotrebne spremembe postavitve"
+
+#  The name of a Page Speed rule that tells users to enable
+#  keep-alive on their server to save connection time. This is displayed
+#  in a list of rule names that Page Speed generates. "Keep-Alive" should not
+#  be translated since it is the name of an HTTP header.
+msgid "Enable Keep-Alive"
+msgstr "Omogoči Keep-Alive"
+
+#  The name of a Page Speed rule that tells webmasters to enable
+#  gzip compression on their servers (i.e. enable compressing the web content
+#  before it is sent to clients).  This appears in a list of rule names
+#  generated by Page Speed, telling webmasters which rules they broke in their
+#  website.
+msgid "Enable compression"
+msgstr "Stiskanje omogočeno"
+
+#  The name of a Page Speed rule that tells users to improve
+#  their server response time. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Improve server response time"
+msgstr "Izboljšajte čas odziva strežnika"
+
+#  Summary header indicating how long it took for the
+#  user's web server to respond to a request, and providing a link to
+#  more information about how one can measure and keep track of which
+#  aspects of the server's operation are consuming that time.  The
+#  "RESPONSE_TIME" placeholder will be replaced with the time taken by
+#  the server (e.g. "872 milliseconds").
+msgid "In our test, your server responded in %(RESPONSE_TIME)s. There are many factors that can slow down your server response time. %(BEGIN_LINK)sPlease read our recommendations%(END_LINK)s to learn how you can monitor and measure where your server is spending the most time."
+msgstr "Vaš strežnik se je pri našem testu odzval v %(RESPONSE_TIME)s. Odzivni čas lahko upočasnijo številni dejavniki. %(BEGIN_LINK)sPreberite naša priporočila%(END_LINK)s, v katerih izveste, kako spremljate in merite, kje vaš strežnik porabi največ časa."
+
+#  Name of a Page Speed rule. A longer description
+#  would be "Insert (or move) small CSS resources directly into the
+#  HTML document" but rule names are intentionally short so we use
+#  "Inline Small CSS". Please choose a similarly short description
+#  that describes this concept. The word 'CSS' should not be
+#  localized.
+msgid "Inline Small CSS"
+msgstr "Vdelava majhnega CSS-ja"
+
+#  Name of the Page Speed rule. A longer description
+#  would be "Insert (or move) small JavaScript resources directly
+#  into the HTML document" but rule names are intentionally short so
+#  we use "Inline Small JavaScript". Please choose a similarly short
+#  description that describes this concept. The word 'JavaScript'
+#  should not be localized.
+msgid "Inline Small JavaScript"
+msgstr "Vdelava majhnega JavaScripta"
+
+#  Rule name. This rule recommends serving a low quality
+#  version of the images that appear inside of the visible scroll
+#  region of the browser (i.e. the part of the page that the user
+#  can see without having to scroll down) inlined in the HTML
+#  response.
+msgid "Inline previews of visible images"
+msgstr "Vdelani predogledi vidnih slik"
+
+#  The name of a Page Speed rule that tells users to inline CSS
+#  resources that block the initial render of the page.
+msgid "Inline render-blocking CSS"
+msgstr "Vdelan CSS, ki blokira upodabljanje"
+
+#  Detail of inline script block. The "INDEX"
+#  placeholder will be replaced by the index of the script block
+#  (e.g. "3").
+msgid "Inline script block #%(INDEX)s"
+msgstr "Vdelan blok skripta št. %(INDEX)s"
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made, as well as a brief summary
+#  of how to fix the issue. Beneath this heading, the JavaScript
+#  for specific instances of unnecessary reflows (or "layouts",
+#  which is used interchangeably with the word "reflows" in the
+#  web performance community) that happened on the page being
+#  analyzed will be shown.
+msgid "JavaScript that executed in the following resources caused unnecessary reflows. To reduce page render time, modify the JavaScript so it does not cause a reflow:"
+msgstr "JavaScript, ki se je izvedel v teh sredstvih, je povzročil nepotrebne spremembe postavitve. Če želite zmanjšati čas upodabljanja strani, spremenite JavaScript, da ne bo povzročal sprememb postavitve:"
+
+#  Rule name. A longer description would be "Specify
+#  proper caching expirations for the resources on the web
+#  page". Caching expirations are attached to each file on a web
+#  page and instruct the browser to keep a copy of the resource
+#  locally so it doesn't need to request that resource again. You
+#  can read the documentation on the page speed web site for more
+#  details.
+msgid "Leverage browser caching"
+msgstr "Uporaba predpomnjenja v brskalniku"
+
+#  Detail of external CSS resources. It tells the user
+#  how to fix the problem by moving the CSS to document head.
+msgid "Link node %(LINK_URL)s should be moved to the document head."
+msgstr "Povezovalno vozlišče %(LINK_URL)s je treba premakniti v glavo dokumenta."
+
+#  Rule name. This rule recommends loading the images
+#  that appear outside of the visible scroll region of the browser
+#  (i.e. the part of the page that the user needs to scroll down to
+#  see) after the images and resources needed to show the part
+#  within the initially visible region have loaded.
+msgid "Load visible images first"
+msgstr "Najprej naloži vidne slike"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having slow server response times. It describes the
+#  problem.
+msgid "Long web server response times delay page loading. Reduce your response times to make your page load faster."
+msgstr "Dolg odzivni čas strežnika upočasnjuje nalaganje strani. Zmanjšajte odzivne čase, da se bo stran hitreje naložila."
+
+#  Subheading that describes the savings possible from optimizing
+#  a particular image resource via lossless compression.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Losslessly compressing %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "S stiskanjem %(URL)s brez izgub bi lahko prihranili %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  The name of a Pagespeed rule that tells users to make the
+#  most of visible content render-able by end of the HTML file. That is, using
+#  only the HTML file, the browser can render most of the visible content.
+msgid "Make content visible by end of HTML"
+msgstr "Naredite vsebino vidno proti koncu HTML-ja"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  non-cacheable redirects at the landing page. The landing page is the root
+#  HTML document that was requested the user in the browser's address bar.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Make landing page redirects cacheable"
+msgstr "Omogoči predpomnjenje preusmeritev ciljne strani"
+
+#  Name of a Page Speed rule. Here, minify means "remove
+#  whitespace and comments". The goal is to reduce the size of the
+#  CSS file by removing the parts that are unnecessary.
+msgid "Minify CSS"
+msgstr "Minimiranje CSS-ja"
+
+#  Name of a Page Speed rule. Here, minify means "remove
+#  whitespace and comments". The goal is to reduce the size of the
+#  HTML file by removing the parts that are unnecessary.
+msgid "Minify HTML"
+msgstr "Minimiranje HTML-ja"
+
+#  Name of a Page Speed rule. Here, minify means "remove
+#  whitespace and comments". The goal is to reduce the size of the
+#  JavaScript file by removing the parts that are unnecessary.
+msgid "Minify JavaScript"
+msgstr "Minimiranje JavaScripta"
+
+#  Subheading that describes the post-compression network savings
+#  possible from minifying a single resource.  The "SIZE_IN_BYTES"
+#  placeholder will be replaced by the absolute number of bytes or kilobytes
+#  that can be saved (e.g. "5 bytes" or "23.2KiB"). The "PERCENTAGE"
+#  placeholder will be replaced by the percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction) after compression."
+msgstr "Z zmanjšanjem %(URL)s bi lahko po stiskanju prihranili %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Subheading that describes the savings possible from minifying
+#  a single resource.  The "SIZE_IN_BYTES" placeholder will be replaced by
+#  the absolute number of bytes or kilobytes that can be saved (e.g. "5
+#  bytes" or "23.2KiB"). The "PERCENTAGE" placeholder will be replaced by the
+#  percent savings (e.g. "50%").
+msgid "Minifying %(URL)s could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Z zmanjšanjem %(URL)s bi lahko prihranili %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Name of a Page Speed rule. A "DNS lookup" is a
+#  request that the browser issues to resolve a hostname to an
+#  internet address. The word "DNS" should remain in the translated
+#  string.
+msgid "Minimize DNS lookups"
+msgstr "Minimiranje iskanj DNS"
+
+#  The name of a Page Speed rule that tells users to minimize
+#  HTTP redirects from one URL to another URL. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Minimize redirects"
+msgstr "Minimiranje preusmeritev"
+
+#  The name of a Page Speed rule that tells users to minimize
+#  the URL, cookies and request headers as small as possible. This is
+#  displayed in a list of rule names that Page Speed generates.
+msgid "Minimize request size"
+msgstr "Minimiranje velikosti zahteve"
+
+#  Summary header indicating that none of the
+#  above-the-fold (i.e. within the initial browser
+#  viewport) content of a webpage was able to be rendered
+#  without relying on any render-blocking resources.
+msgid "None of the above-the-fold content on your page could be rendered without waiting for the following resources to load. Try to defer or asynchronously load blocking resources, or inline the critical portions of those resources directly in the HTML."
+msgstr "Nobene vsebine na vrhu strani ni bilo mogoče upodobiti, ne da bi bilo treba čakati na nalaganje naslednjih virov. Poskusite odložiti ali asinhrono naložiti blokirajoče vire ali vdelati kritične dele teh virov neposredno v HTML."
+
+#  Summary header indicating how much of the above-the-fold
+#  (i.e. within the initial browser viewport) content of a webpage was
+#  able to be correctly rendered based on the HTML of the HTTP
+#  response.  This header will be followed by the URL for the page.
+#  The "PERCENTAGE" placeholder will be replaced with the percentage of
+#  the content that was ready (e.g. "36%").
+msgid "Only %(PERCENTAGE)s of the final above-the-fold content of the page was able to be rendered using the whole HTML of the HTTP response for the page URL:"
+msgstr "Samo %(PERCENTAGE)s končne vsebine na vrhu strani je bilo lahko upodobljene z uporabo celotnega HTML-ja odziva HTTP za URL strani:"
+
+#  The name of a Page Speed rule that tells users to optimize the
+#  images (better compression). This is displayed in a list of rule names that
+#  Page Speed generates.
+msgid "Optimize images"
+msgstr "Optimiranje slik"
+
+#  The name of a Page Speed rule that tells users to optimize the
+#  order of resources of style sheets and scripts in HTML. This is displayed
+#  in a list of rule names that Page Speed generates.
+msgid "Optimize the order of styles and scripts"
+msgstr "Optimiranje vrstnega reda slogov in skriptov"
+
+#  Item showing how large the other request components is in
+#  a request that violates the MinimizeRequestSizeRule by being
+#  large. The "SIZE_IN_BYTES" placeholder will be replaced by the total
+#  size of other components of the request in bytes (e.g. "5.3KiB").
+msgid "Other: %(SIZE_IN_BYTES)s"
+msgstr "Drugo: %(SIZE_IN_BYTES)s"
+
+#  The name of a Page Speed rule that tells users to parallelize
+#  downloads resources (image, css, javascript) across hostnames. This is
+#  displayed in a list of rule names that Page Speed generates.
+msgid "Parallelize downloads across hostnames"
+msgstr "Paraleliziranje prenosov po gostiteljskih imenih"
+
+#  The name of a Page Speed rule that tells users to use
+#  asynchronous resources. This is displayed in a list of rule names that
+#  Page Speed generates.
+msgid "Prefer asynchronous resources"
+msgstr "Nesinhroni viri imajo prednost"
+
+#  The name of a Page Speed rule that tells users to prioritize
+#  being able to render the initially-visible content of a page as early as
+#  possible.
+msgid "Prioritize visible content"
+msgstr "Dajte prednost vidni vsebini"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Properly formatting and compressing images can save many bytes of data."
+msgstr "S pravilnimi oblikami zapisa in stiskanjem slik lahko prihranite veliko prostora."
+
+#  The name of a Page Speed rule that tells users to put CSS
+#  (style sheet) resources in HTML head. This is displayed in a list of
+#  rule names that Page Speed generates.
+msgid "Put CSS in the document head"
+msgstr "CSS naj bo v glavi dokumenta"
+
+#  The name of a Page Speed rule that tells users to try to avoid
+#  serializing requests too excessively but rather try to parallelize them.
+#  This is displayed in a list of rule names that Page Speed generates,
+#  telling webmasters which rules they broke in their website.
+msgid "Reduce request serialization"
+msgstr "Zmanjšaj serializacijo zahtev"
+
+#  The name of a Page Speed rule that tells users to
+#  reduce the time it takes for their HTML resource to be generated
+#  by the server.
+msgid "Reduce server response time"
+msgstr "Zmanjšajte odzivni čas strežnika"
+
+#  Item showing how large the referrer URL is in a request
+#  that violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  referrer URL in bytes (e.g. "5.3KiB").
+msgid "Referer Url: %(SIZE_IN_BYTES)s"
+msgstr "URL napotitelja: %(SIZE_IN_BYTES)s"
+
+#  The name of a Page Speed rule that tells webmasters to remove
+#  query strings from the URLs of static resources (i.e.
+#  'www.google.com/style.css?x=2), because it hurts the cachability of the
+#  resource (in this case 'style.css').  This is displayed in a list of rule
+#  names that Page Speed generates, telling webmasters which rules they broke
+#  in their website.
+msgid "Remove query strings from static resources"
+msgstr "Odstranitev nizov poizvedb iz statičnih virov"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "Remove the following redirect chain if possible:"
+msgstr "Če je mogoče, odstranite to verigo preusmeritev:"
+
+#  Item showing how large the URL is in a request that
+#  violates the MinimizeRequestSizeRule by being large. The
+#  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
+#  request URL in bytes (e.g. "5.3KiB").
+msgid "Request URL: %(SIZE_IN_BYTES)s"
+msgstr "URL zahteve: %(SIZE_IN_BYTES)s"
+
+#  Descriptive header at the top of a list of URLs that
+#  violate the RemoveQueryStringsFromStaticResources rule by using a query
+#  string in the URL of a static resource (such as
+#  www.google.com/style.css?x=2).  It describes the problem to the user,
+#  and tells the user how to fix it.
+msgid "Resources with a \"?\" in the URL are not cached by some proxy caching servers.  Remove the query string and encode the parameters into the URL for the following resources:"
+msgstr "Nekateri predpomnilniški strežniki proxy ne predpomnijo virov, ki imajo v URL-ju znak »?«. Za te vire odstranite niz poizvedbe in kodirajte parametre v URL:"
+
+#  The name of a Page Speed rule that tells users to avoid
+#  writing pages that serve the same resource (or equivalently, two resources
+#  that are byte-for-byte identical) from two different URLs.  This is
+#  displayed in a list of rule names that Page Speed generates.
+msgid "Serve resources from a consistent URL"
+msgstr "Viri naj bodo na voljo z doslednega spletnega naslova"
+
+#  The name of a Page Speed rule that is triggered when users
+#  serve images, then rescale them in HTML or CSS to the final size (it is
+#  more efficient to serve the image with the dimensions it will be shown at).
+#  This is displayed at the top of a list of rules names that Page Speed
+#  generates.
+msgid "Serve scaled images"
+msgstr "Streženje slik v spremenjeni velikosti"
+
+#  Summary sentence explaining briefly how HTTP browser
+#  cachine can be enabled, and why it is beneficial to do so.
+msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
+msgstr "Če nastavite datum poteka ali največjo starost statičnih sredstev v glavah HTTP, brskalniku poveste, naj sredstva, ki so že bila prenesena, naloži z lokalnega diska, ne iz omrežja."
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  certain resources on their webpage are served with a "Vary" HTTP header
+#  whose value is set to "Accept-Encoding".  This is displayed in a list of
+#  rule names that Page Speed generates.  Note that "Vary: Accept-Encoding"
+#  is code and should not be translated.
+msgid "Specify a Vary: Accept-Encoding header"
+msgstr "Določanje glave »Vary: Accept-Encoding«"
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their server provides a "cache validator" for each served resource -- that
+#  is, an HTTP header that indicates to the browser how to check whether a
+#  particular item in its cache is still valid.  This is displayed in a list
+#  of rule names that Page Speed generates.
+msgid "Specify a cache validator"
+msgstr "Določanje preverjevalnika predpomnilnika"
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpages include a declaration of the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used, in the HTTP header.
+#  This is displayed in a list of rule names that Page Speed generates.
+msgid "Specify a character set"
+msgstr "Izbor nabora znakov"
+
+#  The name of a Page Speed rule that tells users to specify
+#  a viewport for mobile devices. This is displayed in a list of rule names
+#  that Page Speed generates. "Viewport" is code and should not be translated.
+msgid "Specify a viewport for mobile browsers"
+msgstr "Določite začetni prikaz za mobilne brskalnike"
+
+#  The name of a Page Speed rule that tells users to ensure that
+#  their webpage explicitly specifies the width/height dimensions of each
+#  image that appears in the page.  This is displayed in a list of rule names
+#  that Page Speed generates.
+msgid "Specify image dimensions"
+msgstr "Določanje mer slik"
+
+#  Header at the top of a list of URLs of Adobe Flash
+#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
+#  the number of Flash elements found.
+msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
+msgstr "Naslednje število elementov Flash je vključenih na stran ali iz vključenih okvirjev iframe: %(NUM_ELEMENTS)s. Predvajalnik Adobe Flash ni podprt v operacijskih sistemih Apple iOS in Android (različice, novejše od 4.0x). Poskusite odstraniti objekte Flash in poiskati ustrezna nadomestila."
+
+#  Summary header indicating that the external CSS
+#  resources can be inlined in the HTML and still meet the 15k criteria.
+msgid "The following %(NUM_RESOURCES)s external CSS resources blocked the rendering before the browser was able to render most of the above-the-fold content. Inlining them and enabling compression (if it is not enabled already) will make your page render most of the above-the-fold content in the first 15kB."
+msgstr "Toliko zunanjih virov CSS je blokiralo upodabljanje, preden je lahko brskalnik upodobil večino vsebine na vrhu strani: %(NUM_RESOURCES)s. Če jih vdelate v HTML in omogočite stiskanje (če že ni omogočeno), bo stran lahko upodobila večino vsebine na vrhu strani v okviru prvih 15 KB."
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused multiple
+#  unnecessary reflows.
+msgid "The following JavaScript call stack (executed %(NUM_TIMES)s times) caused reflows that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Ta sklad klicev JavaScripta (izveden %(NUM_TIMES)s-krat) je povzročil vnovične postavitve, ki so trajale %(NUM_MILLISECONDS)s ms: %(CALL_STACK)s"
+
+#  Appears as part of the list of URLs that triggered
+#  unnecessary reflows (or "layouts", which is used interchangeably
+#  with the word "reflows" in the web performance community), as a
+#  detail string that shows the context that caused an unnecessary
+#  reflow.
+msgid "The following JavaScript call stack caused a reflow that took %(NUM_MILLISECONDS)s milliseconds: %(CALL_STACK)s"
+msgstr "Ta sklad klicev JavaScripta je povzročil vnovično postavitev, ki je trajala %(NUM_MILLISECONDS)s ms: %(CALL_STACK)s"
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following URLs run JavaScript that blocks the UI for a long time. To improve browser responsiveness, optimize the JavaScript or split it up using callbacks."
+msgstr "Ti URL-ji izvedejo JavaScript, ki za dalj časa blokira uporabniški vmesnik. Če želite izboljšati odzivnost brskalnika, optimirajte JavaScript ali ga razdelite s povratnimi klici."
+
+#  Header at the top of a list of CSS URLs that Page
+#  Speed detected as not able to be downloaded in parallel. It
+#  describes the problem to the user, and tells them how to fix it
+#  by including the external CSS before external JavaScript.
+msgid "The following external CSS files were included after an external JavaScript file in %(URL)s.  To ensure CSS files are downloaded in parallel, always include external CSS before  external JavaScript."
+msgstr "Te zunanje datoteke CSS so bile vključene po zunanji datoteki JavaScript v %(URL)s. Če želite zagotoviti, da se datoteke CSS prenesejo paralelno, zunanje datoteke CSS vedno vključite pred zunanjim JavaScriptom."
+
+#  Header at the top of the list of URLs that Page
+#  Speed detected as candidates for being moved directly into
+#  the HTML. This describes the problem to the user and tells
+#  them how to fix it.
+msgid "The following external resources have small response bodies. Inlining the response in HTML can reduce blocking of page rendering."
+msgstr "Ti zunanji viri imajo majhna telesa odziva. Z uvrstitvijo odziva v HTML lahko zmanjšate blokiranje upodabljanja strani."
+
+#  Descriptive header at the top of a list of URLs that
+#  are imported by a style sheet using the @import rule ("@import"
+#  is code, and should not be translated; it is represented by the
+#  "IMPORT" placeholder).  It gives the URL of the style sheet that
+#  violates the AvoidCssImport rule (the "URL" parameter) by
+#  using @import --- the style sheets that it imports will be
+#  listed below it.  The "URL" placeholder will be replaced with
+#  the URL of the style sheet that uses @import.
+msgid "The following external stylesheets were included in %(URL)s using %(IMPORT)s."
+msgstr "Te zunanje datoteke s slogi so bile vključene v %(URL)s z uporabo %(IMPORT)s."
+
+#  Header at the top of a list of URLs of images that Page
+#  Speed detected as not having both width and height explicitly
+#  specified in the page in which the image appears.
+msgid "The following image(s) are missing width and/or height attributes."
+msgstr "Za te slike manjkajo atributi širine in/ali višine."
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed outside of the initially visible region of the screen. Defer loading of these images to allow the initially visible region of the page to load faster."
+msgstr "Te slike so prikazane zunaj območja zaslona, ki je viden na začetku. Odloži nalaganje teh slik, da se območje zaslona, ki je viden najprej, naloži hitreje."
+
+#  Heading that gives a high-level overview of the
+#  reason suggestions are being made.
+msgid "The following images are displayed within the initially visible region of the screen. To speed up rendering of the initially visible region of the page, inline a preview of these images and delay loading the full images until after page load is complete."
+msgstr "Te slike so prikazane v prvotno vidnem območju zaslona. Če želite pospešiti upodabljanje prvotno vidnega območja strani, vdelajte predogled teh slik in zamaknite nalaganje celotnih slik, dokler se ne naloži celotna stran."
+
+#  A descriptive header at the top of a list of URLs of
+#  images that are resized in HTML or CSS.  It describes the problem to
+#  the user.  The "SIZE_IN_BYTES" placeholder will be replaced with the
+#  total saved in bytes by serving the images with the correct dimensions
+#  (e.g. "32.5KiB").  The "PERCENTAGE" placeholder will be replaced with
+#  the percentage reduction of bytes transferred (e.g. "25%").
+msgid "The following images are resized in HTML or CSS. Serving scaled images could save %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
+msgstr "Velikosti naslednjih slik so spremenjene v HTML-ju ali CSS-ju. S prikazom v prilagojeni velikosti se lahko prihrani %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as being good candidates to be combined into CSS sprites
+#  (that is, larger images containing a number of subimages, which can
+#  then be used to display a single subimage at a time by using CSS to
+#  reveal a different section of the large image in place of each of
+#  the original small images).  It describes the problem to the user,
+#  and tells them how to fix it by combining multiple small images into
+#  a larger image.  The "DOMAIN_NAME" placeholder will be replaced with
+#  the domain name of the page in which the small images appear
+#  (e.g. "www.example.com").
+msgid "The following images served from %(DOMAIN_NAME)s should be combined into as few images as possible using CSS sprites."
+msgstr "Naslednje slike, ki se strežejo z naslova %(DOMAIN_NAME)s, je treba s sličicami CSS združiti v čim manj slik."
+
+#  Header at the top of a list of inline javascript
+#  blocks that Page Speed detected as preventing parallel
+#  downloading.  It describes the problem to the user and tells them
+#  how to fix it by moving the inline script before the external CSS
+#  URL, or after the next resource.
+msgid "The following inline script blocks were found in %(URL)s between an external CSS file and another resource.  To allow parallel downloading, move the inline script before the external CSS file, or after the next resource."
+msgstr "V %(URL)s so bili med zunanjo datoteko CSS in drugim virom najdeni naslednji vdelani bloki skripta. Če želite omogočiti paralelni prenos, premaknite vdelani skript pred zunanjo datoteko CSS ali za naslednji vir."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as a chain of HTTP redirections. It tells the user to fix
+#  the problem by removing the URLs that redirect to others.
+msgid "The following landing page redirects are not cacheable. Make them cacheable to speed up page load times for repeat visitors to your site."
+msgstr "Teh preusmeritev ciljne strani ni mogoče predpomniti. Če želite pospešiti čas nalaganje strani za večkratne obiskovalce mesta, omogočite predpomnjenje."
+
+msgid "The following pages do not specify a viewport. Consider adding a meta tag specifying a viewport so mobile browsers can render the document at a usable size."
+msgstr "Naslednje strani ne določajo začetnega prikaza. Poskusite dodati metaoznako, ki bo določala začetni prikaz, da bodo lahko mobilni brskalniki upodobili dokument v uporabni velikosti."
+
+#  Header at the top of a list of URLs of webpage resources
+#  that Page Speed detected as having three properties: 1) they are
+#  publicly cacheable (that is, they can be cached by HTTP proxies), 2)
+#  they are compressible (that is, the data may be compressed during
+#  transfer), and 3) the resource does not have a "Vary" HTTP header
+#  whose value is set to "Accept-Encoding".  It describes the problem to
+#  the user, and explains how to fix the problem by adding a Vary:
+#  Accept-Encoding header to each of the listed resources.  Note that
+#  "Vary: Accept-Encoding" is code and should not be translated.
+msgid "The following publicly cacheable, compressible resources should have a \"Vary: Accept-Encoding\" header:"
+msgstr "Ti javni viri, ki jih je mogoče predpomniti in stisniti, naj imajo glavo »Vary: Accept-Encoding«:"
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as bad requests (requesting them returned HTTP codes 404 or
+#  410).  It describes the problem to the user, and tells them how to fix
+#  it by eliminating the bad requests.
+msgid "The following requests are returning 404/410 responses.  Either fix the broken links, or remove the references to the non-existent resources."
+msgstr "Te zahteve vračajo odzive 404/410. Popravite napačne povezave ali odstranite sklice na neobstoječe virov."
+
+#  Header at the top of a list of URLs when Page Speed
+#  detected that a resource depends on all the resources shown in the
+#  list.
+msgid "The following requests are serialized. Try to break up the dependencies to make them load in parallel."
+msgstr "Te zahteve so serializirane. Poskušajte razdeliti odvisnosti, da bodo naložene vzporedno."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as loaded synchronously. It describes the problem and tells
+#  the user how to fix by loading them asynchronously.
+msgid "The following resources are loaded synchronously. Load them asynchronously to reduce blocking of page rendering."
+msgstr "Ti viri se naložijo sinhrono. Naložite jih nesinhrono, da zmanjšate blokiranje upodabljanja strani."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as lacking a "cache validator" -- that is, an HTTP header
+#  that indicates to the browser how to check whether a particular item
+#  in its cache is still valid.  It describes the problem to the user,
+#  and tells them how to fix it by configuring their server to include a
+#  "Last-Modified" HTTP header, or an "ETag" HTTP header, either of which
+#  can serve as a cache validator.  Note that "Last-Modified" and "ETag"
+#  are code and should not be translated.
+msgid "The following resources are missing a cache validator. Resources that do not specify a cache validator cannot be refreshed efficiently. Specify a Last-Modified or ETag header to enable cache validation for the following resources:"
+msgstr "Za te vire manjka preverjevalnik predpomnilnika. Virov, za katere ni naveden preverjevalnik predpomnilnika, ni mogoče učinkovito osvežiti. Določite glavo Last-Modified ali ETag, da omogočite preverjanje predpomnilnika za te vire:"
+
+#  Header at the top of a list of URLs that Page
+#  Speed detected as declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) in an HTML meta tag. It
+#  describes the problem to the user, and tells them how to fix
+#  it by explicitly specifying the character set in the HTTP
+#  Content-Type response header.
+msgid "The following resources have a character set specified in a meta tag. Specifying a character set in a meta tag disables the lookahead downloader in IE8. To improve resource download parallelization, move the character set to the HTTP Content-Type response header."
+msgstr "Ta sredstva imajo v metaoznaki naveden nabor znakov. Če v metaoznaki navedete nabor znakov, bo program za vnaprejšnji prenos v Internet Explorerju 8 onemogočen. Če želite izboljšati paraleliziranje prenosa sredstev, premaknite nabor znakov v glavo odgovora z vrsto vsebine HTTP."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as being identical yet served multiple times from different
+#  URLs.  It describes the problem to the user, and tells them how to
+#  fix it by serving all these resources from the same URL.  The
+#  "BYTES_SAVED" placeholder will be replaced with the amount of
+#  transferred data that could be saved (e.g. "12.3kB").
+msgid "The following resources have identical contents, but are served from different URLs.  Serve these resources from a consistent URL to save %(NUM_REQUESTS)s request(s) and %(BYTES_SAVED)s."
+msgstr "Naslednja sredstva imajo isto vsebino, vendar so strežena z različnih URL-jev. Vire strežite s konsistentnega spletnega naslova, da prihranite toliko zahtev: %(NUM_REQUESTS)s in %(BYTES_SAVED)s."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as not declaring the character set (e.g. UTF-8,
+#  Latin-1, or some other text encoding) being used. It describes the
+#  problem to the user, and tells them how to fix it by explicitly
+#  specifying the character set near the beginning of the page.
+msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
+msgstr "Ti viri v glavah HTTP nimajo nastavljenega nabora znakov. Če ga izberete, lahko pospešite upodabljanje v brskalniku."
+
+#  Header at the top of a list of URLs of resources that
+#  are served from a domain that does not have HTTP Keep-Alive enabled.
+#  It tells the user to enable keep-alive on that host.  The
+#  "HOST_NAME" placeholder gives the name of the host
+#  (e.g. "www.example.com").  The "KEEPALIVE" placeholder is replaced
+#  with the string "Keep-Alive", which is code that should not be
+#  translated.
+msgid "The host %(HOST_NAME)s should enable %(KEEPALIVE)s. It serves the following resources."
+msgstr "Gostitelj %(HOST_NAME)s mora omogočiti %(KEEPALIVE)s. Streže naslednje vire."
+
+#  Heading that explains why the URLs that follow
+#  should be moved to different hostnames. "DNS" should remain
+#  in the translated format string.
+msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
+msgstr "Gostiteljska imena teh URL-jev strežejo samo po en vir. Izognite se dodatnim iskanjem DNS, tako da se ta sredstva strežejo iz obstoječih gostiteljskih imen."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as having large requests. It describes the problem to the
+#  user, and tells them how to fix it by reducing the size of requests.
+msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
+msgstr "Zahtev za te URL-je ni mogoče dati v en paket. Z zmanjšanjem velikosti teh zahtev se lahko zmanjša zakasnitev."
+
+#  Descriptive header describing a list of CSS resources that
+#  are all served from a single domain (in violation of the
+#  CombineExternalResources rule).  It says how many resources were loaded
+#  from that domain, gives the domain name itself, and is followed by a list
+#  of the URLs of those resources.  It then tells the webmaster how to solve
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s CSS files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "Iz domene %(DOMAIN_NAME)s se streže toliko datotek CSS: %(NUM_FILES)s. Združiti jih je treba v čim manj datotek."
+
+#  Descriptive header describing a list of JavaScript resources
+#  that are all served from a single domain (in violation of the
+#  CombineExternalResources rule).  It says how many resources were loaded
+#  from that domain, gives the domain name itself, and is followed by a list
+#  of the URLs of those resources.  It then tells the webmaster how to solve
+#  the problem, by combining the resources into fewer files.
+msgid "There are %(NUM_FILES)s JavaScript files served from %(DOMAIN_NAME)s. They should be combined into as few files as possible."
+msgstr "Iz domene %(NUM_FILES)s se streže toliko datotek JavaScript: %(DOMAIN_NAME)s. Združiti jih je treba v čim manj datotek."
+
+#  Header at the top of a list of URLs that Page Speed
+#  detected as being loaded from one hostname
+#  (e.g. "example.com"). It describes the problem to the user, and
+#  tells them how to fix it by distributing the requests across
+#  multiple hostnames.
+msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
+msgstr "Ta stran gostitelju %(HOSTNAME)s pošlje toliko zahtev: %(NUM_REQUESTS)s, ki omogočajo paraleliziranje. Povečajte število paraleliziranja prenosov z razporejanjem teh zahtev med več imeni gostiteljev:"
+
+#  The name of a Page Speed rule that tells users to make use
+#  of the application cache to achieve faster startup times. This is displayed
+#  in a list of rule names that Page Speed generates. "Application Cache"
+#  should not be translated since it is the name of an HTML 5 feature.
+msgid "Use an Application Cache"
+msgstr "Uporaba predpomnilnika programov"
+
+#  Header at the top of a list of URLs that Page Speed detected
+#  that HTML5 application cache should be used. It tells the user to fix the
+#  problem by using application cache in the HTML documents.
+msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
+msgstr "Uporaba predpomnilnika programov omogoča takojšen prikaz strani. Ti dokumenti HTML lahko uporabijo predpomnilnik programov za skrajšanje časa, ki je potreben, da lahko uporabniki začnejo uporabljati stran:"
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have compression enabled. Learn more about %(BEGIN_LINK)senabling compression%(END_LINK)s."
+msgstr "Imate omogočeno stiskanje. Preberite več o %(BEGIN_LINK)somogočanju stiskanja%(END_LINK)s."
+
+msgid "You have enabled browser caching. Learn more about %(BEGIN_LINK)sbrowser caching recommendations%(END_LINK)s."
+msgstr "Imate omogočeno predpomnjenje v brskalniku. Preberite več o %(BEGIN_LINK)spriporočilih za predpomnjenje v brskalniku%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have no render blocking resources. Learn more about %(BEGIN_LINK)sremoving render blocking resources%(END_LINK)s."
+msgstr "Nimate več virov, ki blokirajo upodabljanje. Preberite več o %(BEGIN_LINK)sodstranjevanju virov, ki blokirajo upodabljanje%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "You have the above-the-fold content properly prioritized. Learn more about %(BEGIN_LINK)sprioritizing visible content%(END_LINK)s."
+msgstr "Pravilno ste določili prednost v vsebini na vrhu strani. Preberite več o %(BEGIN_LINK)sdajanju prednosti vidni vsebini%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your CSS is minified. Learn more about %(BEGIN_LINK)sminifying CSS%(END_LINK)s."
+msgstr "Vaš CSS je stisnjen. Preberite več o %(BEGIN_LINK)sstiskanju CSS-ja%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your HTML is minified. Learn more about %(BEGIN_LINK)sminifying HTML%(END_LINK)s."
+msgstr "Vaš HTML je stisnjen. Preberite več o %(BEGIN_LINK)sstiskanju HTML-ja%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your JavaScript content is minified. Learn more about %(BEGIN_LINK)sminifying JavaScript%(END_LINK)s."
+msgstr "Vaš JavaScript je stisnjen. Preberite več o %(BEGIN_LINK)sstiskanju JavaScripta%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
+msgstr "Vaše slike so optimizirane. Preberite več o %(BEGIN_LINK)soptimiziranju slik%(END_LINK)s."
+
+#  Summary header indicating the number of CSS resources
+#  that are blocking the webpage from rendering while loading.
+msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "Vaša stran ima toliko blokirajočih virov CSS: %(NUM_CSS)s. To povzroča zakasnitve pri upodabljanju strani."
+
+msgid "Your page has %(NUM_REDIRECTS)s redirects. Redirects introduce additional delays before the page can be loaded."
+msgstr "Vaša stran vključuje toliko preusmeritev: %(NUM_REDIRECTS)s. Zaradi preusmeritev pride do dodatnih zamud v nalaganju vaše strani."
+
+#  Summary header indicating the number of Javascript
+#  resources and the number of CSS resources that are blocking the
+#  webpage from rendering while loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources and %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
+msgstr "Vaša stran ima toliko blokirajočih virov skriptov: %(NUM_SCRIPTS)s in toliko blokirajočih virov CSS: %(NUM_CSS)s. To povzroča zakasnitve pri upodabljanju strani."
+
+#  Summary header indicating the number of Javascript
+#  resources that are blocking the webpage from rendering while
+#  loading.
+msgid "Your page has %(NUM_SCRIPTS)s blocking script resources. This causes a delay in rendering your page."
+msgstr "Vaša stran ima toliko blokirajočih virov skriptov: %(NUM_SCRIPTS)s. To povzroča zakasnitve pri upodabljanju strani."
+
+msgid "Your page has no redirects. Learn more about %(BEGIN_LINK)savoiding landing page redirects%(END_LINK)s."
+msgstr "Vaša stran nima preusmeritev. Preberite več o %(BEGIN_LINK)sizogibanju preusmeritvam na ciljni strani%(END_LINK)s."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where the
+#  upper portion of the front page that is above the fold of the paper is
+#  immediately visible to the reader.)
+msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
+msgstr "Vaša stran mora izvesti dodatne krožne poti v omrežju, da se bo lahko prikazala vsebina na vrhu strani. Svetujemo vam, da zmanjšate količino kode HTML, ki je potrebna za prikaz vsebine na vrhu strani."
+
+#  A summary to give a general overview of this Page
+#  Speed rule.
+msgid "Your server responded quickly. Learn more about %(BEGIN_LINK)sserver response time optimization%(END_LINK)s."
+msgstr "Vaš strežnik se je hitro odzval. Preberite več o %(BEGIN_LINK)soptimizaciji odzivnega časa strežnika%(END_LINK)s."

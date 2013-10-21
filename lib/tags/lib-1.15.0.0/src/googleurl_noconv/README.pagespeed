@@ -1,0 +1,8 @@
+This directory contains modified versions of googleurl files in order
+to make googleurl compile and pass tests in our build environment.
+
+Currently, only url_canon_unittest.cc is modified. This file has a few
+tests that exercise character set encodings from character sets such
+as big5, shift_jis, and gb2312. We only compile these tests if
+ICU_NO_CONVERTER_DATA is not set, and we make sure to set this in our
+version of googleurl.gyp.
