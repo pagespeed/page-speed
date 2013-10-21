@@ -35,13 +35,15 @@ class AvoidPlugins : public Rule {
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
-  virtual double ComputeResultImpact(const InputInformation& input_info,
-                                     const RuleResults& results);
 
   // This rule is still experimental. It returns true to indicate that. When
   // this rule graduates to stable, remove this function, and the code in .cc.
   // Let the base class return false by default.
   virtual bool IsExperimental() const;
+
+ protected:
+  virtual double ComputeResultImpact(const InputInformation& input_info,
+                                     const Result& result);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(AvoidPlugins);

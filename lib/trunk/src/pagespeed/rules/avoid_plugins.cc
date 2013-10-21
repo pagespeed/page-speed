@@ -53,7 +53,7 @@ bool DetermineIfActiveXFlash(const pagespeed::DomElement* node) {
 }
 
 // Searches through the children of the specified node for a tag of the form
-//     <param name="movie" value="movie_name.swf"/>
+//     <param name="movie" value="movie_name.swf"/>
 // @return true if the src was found
 bool PullSrcFromMovieParam(const pagespeed::DomElement* node,
                                          std::string* src) {
@@ -357,13 +357,9 @@ void AvoidPlugins::FormatResults(const ResultVector& results,
 }
 
 double AvoidPlugins::ComputeResultImpact(const InputInformation& input_info,
-                                         const RuleResults& results) {
-  // Scoring is binary: Flash == bad; no flash == good
-  if (results.results_size() > 0) {
-    // TODO(dbathgate): Update this calculation from a fixed 1.0 impact.
-    return 1.0;
-  }
-  return 0;
+                                         const Result& result) {
+  // TODO(dbathgate): Update this calculation from a fixed 1.0 impact.
+  return 1.0;
 }
 
 bool AvoidPlugins::IsExperimental() const {
