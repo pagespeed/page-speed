@@ -108,18 +108,6 @@ class DeferParsingJavaScriptTest : public
     }
     p_resource->SetResponseBody(primary_body);
   }
-
-  void CheckScore(int score) {
-    DeferParsingJavaScript rule;
-    RuleResults rule_results;
-    ResultProvider provider(rule, &rule_results, 0);
-    pagespeed::RuleInput rule_input(*pagespeed_input());
-    ASSERT_TRUE(rule.AppendResults(rule_input, &provider));
-    ASSERT_EQ(rule_results.results_size(), 1);
-    ASSERT_EQ(score, rule.ComputeScore(
-        *pagespeed_input()->input_information(),
-        rule_results));
-  }
 };
 
 TEST_F(DeferParsingJavaScriptTest, Basic) {
@@ -250,32 +238,6 @@ TEST_F(DeferParsingJavaScriptTest, LargeCombinedCommentedJavascript) {
   p_resource->SetResponseBody(primary_body);
 
   CheckNoViolations();
-}
-
-TEST_F(DeferParsingJavaScriptTest, ComputeScore) {
-  const size_t kScore80Size = 142*1024;
-  Resource* p_resource = primary_resource();
-  std::string primary_body = p_resource->GetResponseBody();
-  std::string script_tag ="<script type=\"text/javascript\">";
-  std::string script;
-  for (int idx = 0; script.size() < kScore80Size; ++idx) {
-    script.append("function func_");
-    script.append(pagespeed::string_util::IntToString(idx));
-    script.append("(){var abc=1;bar();}\n");
-  }
-  script_tag += script;
-  script_tag += "</script>\n";
-  size_t pos = primary_body.find_last_of("</body>");
-  if (pos != std::string::npos) {
-    primary_body.insert(pos, script_tag);
-  } else {
-    primary_body.append(script_tag);
-  }
-  p_resource->SetResponseBody(primary_body);
-  AppendHTML("<span>x</span>");
-
-  Freeze();
-  CheckScore(80);
 }
 
 TEST_F(DeferParsingJavaScriptTest, LargeAsyncMinifiedJavascriptFile) {

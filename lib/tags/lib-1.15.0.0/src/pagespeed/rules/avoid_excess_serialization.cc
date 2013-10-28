@@ -243,8 +243,7 @@ void AvoidExcessSerialization::FormatResults(const ResultVector& results,
 bool AvoidExcessSerialization::IsExperimental() const {
   // TODO(michschn): Before graduating from experimental:
   // 1. write unit tests!
-  // 2. implement ComputeScore
-  // 3. implement ComputeResultImpact
+  // 2. implement ComputeResultImpact
   return true;
 }
 

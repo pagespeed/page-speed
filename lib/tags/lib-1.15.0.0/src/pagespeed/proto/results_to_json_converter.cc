@@ -107,9 +107,6 @@ base::Value* ResultsToJsonConverter::ConvertRuleResult(
   }
   base::DictionaryValue* root = new base::DictionaryValue();
   root->SetString("rule_name", rule_results.rule_name());
-  if (rule_results.has_rule_score()) {
-    root->SetInteger("rule_score", rule_results.rule_score());
-  }
   if (rule_results.has_rule_impact()) {
     root->SetDouble("rule_impact", rule_results.rule_impact());
   }

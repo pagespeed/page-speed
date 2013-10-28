@@ -431,27 +431,6 @@ void DeferParsingJavaScript::SortResultsInPresentationOrder(
                    CompareResults);
 }
 
-// User linear interpolation to calculate the score base on the warning
-// size/score, and critical size/score pairs.
-int DeferParsingJavaScript::ComputeScore(
-    const InputInformation& input_info, const RuleResults& results) {
-  const size_t kPerfectThresholdSize = kMaxBlockOfJavascript;
-  const size_t kCriticalThresholdSize = 1024*300;
-  const double kPerfectScore = 100.0;
-  const double kCriticalScore = 50.0;
-  size_t total_javascript_size = GetTotalJavaScriptSize(results);
-  double rate = (kCriticalScore - kPerfectScore) /
-      (kCriticalThresholdSize - kPerfectThresholdSize);
-  double offset = kPerfectScore - kPerfectThresholdSize * rate;
-  int score = static_cast<int>(total_javascript_size * rate + offset);
-  if (score < 0) {
-    score = 0;
-  } else if (score > 100) {
-    score = 100;
-  }
-  return score;
-}
-
 double DeferParsingJavaScript::ComputeResultImpact(
     const InputInformation& input_info, const Result& result) {
   const DeferParsingJavaScriptDetails& details = result.details().GetExtension(

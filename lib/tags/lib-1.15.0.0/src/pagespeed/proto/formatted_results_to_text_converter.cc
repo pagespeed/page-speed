@@ -62,11 +62,6 @@ bool FormattedResultsToTextConverter::ConvertFormattedRuleResults(
   out->append("_");
   out->append(rule_results.localized_rule_name());
   out->append("_");
-  if (rule_results.has_rule_score()) {
-    out->append(" (");
-    out->append(pagespeed::string_util::IntToString(rule_results.rule_score()));
-    out->append("/100)");
-  }
   if (rule_results.has_rule_impact()) {
     out->append(" [");
     out->append(

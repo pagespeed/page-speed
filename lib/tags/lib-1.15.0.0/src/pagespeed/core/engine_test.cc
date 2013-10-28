@@ -62,7 +62,6 @@ class TestRule : public Rule {
         name_(name),
         append_results_return_value_(true),
         append_results_(true),
-        score_(100),
         impact_(72.0) {}
   virtual ~TestRule() {}
 
@@ -105,18 +104,10 @@ class TestRule : public Rule {
     return impact_;
   }
 
-  void set_score(int score) { score_ = score; }
-
-  virtual int ComputeScore(const InputInformation& input_info,
-                           const RuleResults& results) {
-    return score_;
-  }
-
  private:
   const char* name_;
   bool append_results_return_value_;
   bool append_results_;
-  int score_;
   double impact_;
 
   DISALLOW_COPY_AND_ASSIGN(TestRule);
@@ -146,7 +137,7 @@ TEST(EngineTest, ComputeResults) {
   ASSERT_EQ(1, results.rule_results_size());
   ASSERT_EQ(kRuleName, results.rule_results(0).rule_name());
   ASSERT_EQ(1, results.rule_results(0).results_size());
-  ASSERT_EQ(100, results.rule_results(0).rule_score());
+  ASSERT_EQ(72.0, results.rule_results(0).rule_impact());
   ASSERT_EQ(0, results.error_rules_size());
   ASSERT_NE(0, results.version().major());
   ASSERT_NE(0, results.version().minor());
@@ -181,24 +172,7 @@ TEST(EngineTest, ComputeResultsError) {
   EXPECT_EQ(result.rule_name(), kRuleName);
 }
 
-TEST(EngineTest, NoScore) {
-  PagespeedInput input;
-  input.Freeze();
-
-  TestRule* rule = new TestRule();
-  std::vector<Rule*> rules;
-  rule->set_score(-1);
-  rules.push_back(rule);
-
-  Engine engine(&rules);
-  engine.Init();
-  Results results;
-  ASSERT_TRUE(engine.ComputeResults(input, &results));
-  ASSERT_FALSE(results.rule_results(0).has_rule_score());
-  ASSERT_FALSE(results.has_score());
-}
-
-TEST(EngineTest, ComputeScores) {
+TEST(EngineTest, ComputeImpacts) {
   PagespeedInput input;
   input.Freeze();
 
@@ -207,10 +181,10 @@ TEST(EngineTest, ComputeScores) {
   rules.push_back(new TestRule("rule2"));
   rules.push_back(new TestRule("rule3"));
   rules.push_back(new TestRule("rule4"));
-  static_cast<TestRule*>(rules[0])->set_score(50);
-  static_cast<TestRule*>(rules[1])->set_score(-1);
-  static_cast<TestRule*>(rules[2])->set_score(120);  // should be clamped to 100
-  static_cast<TestRule*>(rules[3])->set_score(100);
+  static_cast<TestRule*>(rules[0])->set_impact(5.2);
+  static_cast<TestRule*>(rules[1])->set_impact(0);
+  static_cast<TestRule*>(rules[2])->set_impact(120);
+  static_cast<TestRule*>(rules[3])->set_impact(100);
   static_cast<TestRule*>(rules[3])->set_append_results_return_value(false);
 
   Engine engine(&rules);
@@ -218,10 +192,10 @@ TEST(EngineTest, ComputeScores) {
   Results results;
   ASSERT_FALSE(engine.ComputeResults(input, &results));
 
-  ASSERT_EQ(50, results.rule_results(0).rule_score());
-  ASSERT_FALSE(results.rule_results(1).has_rule_score());
-  ASSERT_EQ(100, results.rule_results(2).rule_score());
-  ASSERT_EQ(100, results.rule_results(3).rule_score());
+  ASSERT_EQ(5.2, results.rule_results(0).rule_impact());
+  ASSERT_EQ(0, results.rule_results(1).rule_impact());
+  ASSERT_EQ(120, results.rule_results(2).rule_impact());
+  ASSERT_EQ(100, results.rule_results(3).rule_impact());
 }
 
 TEST(EngineTest, FormatResults) {
@@ -274,7 +248,6 @@ TEST(EngineTest, FormatResultsFilter) {
   ASSERT_TRUE(engine.ComputeResults(input, &results));
   results.set_score(50);
   RuleResults* rule_results = results.mutable_rule_results(0);
-  rule_results->set_rule_score(50);
   rule_results->set_rule_impact(5.0);
 
   FormattedResults formatted_results;
@@ -289,7 +262,6 @@ TEST(EngineTest, FormatResultsFilter) {
       formatted_results.rule_results(0);
   ASSERT_EQ(kHeader, fmt_rule_results.localized_rule_name());
   ASSERT_EQ(0, fmt_rule_results.url_blocks_size());
-  ASSERT_EQ(100, fmt_rule_results.rule_score());
   ASSERT_EQ(0, fmt_rule_results.rule_impact());
 }
 
@@ -468,7 +440,6 @@ TEST(EngineTest, FilterResults) {
   ASSERT_TRUE(engine.ComputeResults(input, &results));
   results.set_score(50);
   RuleResults* rule_results = results.mutable_rule_results(0);
-  rule_results->set_rule_score(50);
   rule_results->set_rule_impact(5.0);
 
   Results filtered_results;
@@ -480,7 +451,6 @@ TEST(EngineTest, FilterResults) {
   const RuleResults& filtered_rule_results =
       filtered_results.rule_results(0);
   ASSERT_EQ(0, filtered_rule_results.results_size());
-  ASSERT_EQ(100, filtered_rule_results.rule_score());
   ASSERT_EQ(0, filtered_rule_results.rule_impact());
 
   // Try another filter.
@@ -491,7 +461,6 @@ TEST(EngineTest, FilterResults) {
   const RuleResults& filtered_rule_results2 =
       filtered_results.rule_results(0);
   ASSERT_EQ(1, filtered_rule_results2.results_size());
-  ASSERT_EQ(100, filtered_rule_results2.rule_score());
   ASSERT_EQ(72.0, filtered_rule_results2.rule_impact());
 }
 

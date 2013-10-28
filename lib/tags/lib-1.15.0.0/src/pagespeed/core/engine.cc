@@ -53,8 +53,7 @@ void FormatRuleResults(const RuleResults& rule_results,
   rule->SortResultsInPresentationOrder(&sorted_results);
 
   RuleFormatter* rule_formatter =
-      root_formatter->AddRule(*rule, rule_results.rule_score(),
-                              rule_results.rule_impact());
+      root_formatter->AddRule(*rule, rule_results.rule_impact());
   rule->FormatResults(sorted_results, rule_formatter);
 }
 
@@ -192,12 +191,10 @@ bool Engine::ComputeScoreAndImpact(Results* results) const {
   CHECK(init_has_been_called_);
 
   double total_impact = 0.0;
-  bool any_rules_succeeded = false;
 
   bool success = true;
   for (int i = 0; i < results->rule_results_size(); ++i) {
     RuleResults* rule_results = results->mutable_rule_results(i);
-    rule_results->clear_rule_score();
     rule_results->clear_rule_impact();
 
     const std::string& rule_name = rule_results->rule_name();
@@ -227,63 +224,31 @@ bool Engine::ComputeScoreAndImpact(Results* results) const {
     if (!rule->IsExperimental()) {
       total_impact += impact;
     }
-
-    int score = 100;
-    if (rule_results->results_size() > 0) {
-      score = rule->ComputeScore(results->input_info(), *rule_results);
-      if (score > 100 || score < -1) {
-        // Note that the value -1 indicates a valid score could not be
-        // computed, so we need to allow it.
-        LOG(ERROR) << "Score for " << rule->name() << " out of bounds: "
-                   << score;
-        score = std::max(-1, std::min(100, score));
-      }
-    }
-
-    // TODO(bmcquade): Ideally we would not set the rule score if
-    // there was a rule error, however many of our rules generate
-    // errors when they encounter invalid content (e.g. when we
-    // encounter an image that we can't parse). These content errors
-    // are not fatal errors and we may still be able to generate a
-    // meaningful score in these cases. Once we fix rules to only
-    // signal error on internal Page Speed logic errors, we can update
-    // the if test below to also check for rule_success, in order to
-    // prevent setting a score when we encounter an internal error.
-    //
-    // Instead of using a -1 to indicate an error, we just don't set
-    // rule_score.
-    if (score >= 0) {
-      any_rules_succeeded = true;
-      rule_results->set_rule_score(score);
-    }
   }
 
-  // Compute the overall score based on the impacts of the rules.  Only set the
-  // overall score if at least one rule ran successfully.
+  // Compute the overall score based on the impacts of the rules.
   // TODO(mdsteele): Ideally, we would be smarter than just summing the
   //   impacts.  For example, maybe the impact of rules A and B together is
   //   less than their sum (because they overlap), and maybe the impact of
   //   rules B and C together is greater than their sum (because they're
   //   synergetic).
-  if (any_rules_succeeded) {
-    DCHECK(total_impact >= 0.0);
-    // Divide the impact by 24 (3 mobile round trips) which
-    // allows us to use log2 to map neatly into the ranges below.
-    const double scaled_impact = total_impact / 24.0;
-    // Compute the base-2 logarithm of the scaled impact.  This produces the
-    // following ranking mapping:
-    //   <=3 mobile round trips (<=600ms)     = 80..100 score
-    //   3-9 mobile round trips (600-1800ms)  = 60..80 score
-    //  9-21 mobile round trips (1800-4200ms) = 40..60 score
-    // 21-45 mobile round trips (4200-9000ms) = 20..40 score
-    //  >=45 mobile round trips (>=9000ms)    =  0..20 score
-    double ranking_cost = log(scaled_impact + 1.0) / log(2.0);
-    // Map from 0..5 to 0..100.
-    ranking_cost *= 20.0;
-    // Clamp to 0..100.
-    results->set_score(
-        100 - std::max(0, std::min(100, static_cast<int>(ranking_cost))));
-  }
+  DCHECK(total_impact >= 0.0);
+  // Divide the impact by 24 (3 mobile round trips) which
+  // allows us to use log2 to map neatly into the ranges below.
+  const double scaled_impact = total_impact / 24.0;
+  // Compute the base-2 logarithm of the scaled impact.  This produces the
+  // following ranking mapping:
+  //   <=3 mobile round trips (<=600ms)     = 80..100 score
+  //   3-9 mobile round trips (600-1800ms)  = 60..80 score
+  //  9-21 mobile round trips (1800-4200ms) = 40..60 score
+  // 21-45 mobile round trips (4200-9000ms) = 20..40 score
+  //  >=45 mobile round trips (>=9000ms)    =  0..20 score
+  double ranking_cost = log(scaled_impact + 1.0) / log(2.0);
+  // Map from 0..5 to 0..100.
+  ranking_cost *= 20.0;
+  // Clamp to 0..100.
+  results->set_score(
+      100 - std::max(0, std::min(100, static_cast<int>(ranking_cost))));
 
   return success;
 }

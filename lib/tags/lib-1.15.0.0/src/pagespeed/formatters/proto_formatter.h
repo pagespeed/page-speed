@@ -44,7 +44,7 @@ class ProtoFormatter : public Formatter {
   ~ProtoFormatter();
 
   // Formatter interface.
-  virtual RuleFormatter* AddRule(const Rule& rule, int score, double impact);
+  virtual RuleFormatter* AddRule(const Rule& rule, double impact);
   void SetOverallScore(int score);
   void Finalize();
 

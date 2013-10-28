@@ -56,48 +56,6 @@ int64 GetFreshnessLifetimeMillis(const pagespeed::Result &result) {
   return caching_details.freshness_lifetime_millis();
 }
 
-int64 ComputeAverageFreshnessLifetimeMillis(
-    const pagespeed::InputInformation& input_info,
-    const pagespeed::RuleResults& results) {
-  if (results.results_size() <= 0) {
-    LOG(DFATAL) << "Unexpected inputs: " << results.results_size();
-    return -1;
-  }
-  const int number_static_resources = input_info.number_static_resources();
-
-  // Any results that weren't flagged by this rule are properly
-  // cached. This computation makes assumptions about the
-  // implementation of AppendResults(). See the NOTE comment at the
-  // top of that function for more details.
-  const int number_properly_cached_resources =
-      number_static_resources - results.results_size();
-  if (number_properly_cached_resources < 0) {
-    LOG(DFATAL) << "Number of results exceeds number of static resources.";
-    return -1;
-  }
-
-  // Sum all of the freshness lifetimes of the results, so we can
-  // compute an average.
-  int64 freshness_lifetime_sum = 0;
-  for (int i = 0, num = results.results_size(); i < num; ++i) {
-    int64 resource_freshness_lifetime =
-        GetFreshnessLifetimeMillis(results.results(i));
-    if (resource_freshness_lifetime < 0) {
-      // An error occurred.
-      return -1;
-    }
-    freshness_lifetime_sum += resource_freshness_lifetime;
-  }
-
-  // In computing the score, we also need to account for the resources
-  // that are properly cached, adding the target caching lifetime for
-  // each such resource.
-  freshness_lifetime_sum +=
-      (number_properly_cached_resources * kMinAgeForSameDomainContent);
-
-  return freshness_lifetime_sum / number_static_resources;
-}
-
 // StrictWeakOrdering that sorts by freshness lifetime
 struct SortByFreshnessLifetime {
   bool operator()(const pagespeed::Result *a, const pagespeed::Result *b) {
@@ -294,25 +252,6 @@ void LeverageBrowserCaching::FormatResults(const ResultVector& results,
                          UrlArgument("URL", result.resource_urls(0)));
     }
   }
-}
-
-int LeverageBrowserCaching::ComputeScore(const InputInformation& input_info,
-                                         const RuleResults& results) {
-  int64 avg_freshness_lifetime =
-      ComputeAverageFreshnessLifetimeMillis(input_info, results);
-  if (avg_freshness_lifetime < 0) {
-    // An error occurred, so we cannot generate a score for this rule.
-    return -1;
-  }
-
-  if (avg_freshness_lifetime > kMinAgeForSameDomainContent) {
-    LOG(DFATAL) << "Average freshness lifetime " << avg_freshness_lifetime
-                << " exceeds max suggested freshness lifetime "
-                << kMinAgeForSameDomainContent;
-    avg_freshness_lifetime = kMinAgeForSameDomainContent;
-  }
-  return static_cast<int>(
-      100 * avg_freshness_lifetime / kMinAgeForSameDomainContent);
 }
 
 double LeverageBrowserCaching::ComputeResultImpact(

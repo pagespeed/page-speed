@@ -105,10 +105,6 @@ bool IsLikelyStaticResource(const Resource& resource);
 // Compute the total number of response bytes for all resource types.
 int64 ComputeTotalResponseBytes(const InputInformation& input_into);
 
-// Compute the number of response bytes that are compressible using
-// gzip/deflate.
-int64 ComputeCompressibleResponseBytes(const InputInformation& input_into);
-
 // Get the URL of the resource redirected to from the specified
 // resource, or the empty string if unable to determine the redirected
 // URL.

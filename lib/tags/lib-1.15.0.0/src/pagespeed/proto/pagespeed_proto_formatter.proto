@@ -133,10 +133,9 @@ message FormattedRuleResults {
   // Blocks of URLs (e.g. one for each redirect chain to be eliminated).
   repeated FormattedUrlBlockResults url_blocks = 3;
 
-  // Score assigned by Page Speed for this rule.  It should be set in most
-  // cases, but may be left out if the rule is unable to compute a score (e.g.
-  // due to missing input information).
-  optional int32 rule_score = 4;
+  // The per-rule score is deprecated. The 'rule_impact' value is the
+  // most meaningful per-rule metric.
+  // optional int32 rule_score = 4 [deprecated=true];
 
   // The impact number assigned by Page Speed for this rule.  Like the score,
   // this may be left out if it cannot be calculated.

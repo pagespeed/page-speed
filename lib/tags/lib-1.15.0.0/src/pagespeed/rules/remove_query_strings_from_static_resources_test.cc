@@ -77,7 +77,6 @@ TEST_F(RemoveQueryStringsFromStaticResourcesTest, ExcludeNonStaticResources) {
   AddTestResource("http://www.example.com/index.html?query",
                   "text/html");
   CheckNoViolations();
-  ASSERT_EQ(100, ComputeScore());
 }
 
 }  // namespace
