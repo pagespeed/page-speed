@@ -374,18 +374,6 @@ int64 ComputeTotalResponseBytes(const InputInformation& input_info) {
       input_info.other_response_bytes();
 }
 
-int64 ComputeCompressibleResponseBytes(const InputInformation& input_info) {
-  // TODO(mdsteele): This should include SVG images as well (and maybe other
-  // things), but there's not an easy way to do that.  On the other hand, this
-  // function is only used for computing the rule score of the gzip rule, and
-  // we're phasing out rule scores.  We should just remove this function when
-  // we can.
-  return input_info.html_response_bytes() +
-      input_info.text_response_bytes() +
-      input_info.css_response_bytes() +
-      input_info.javascript_response_bytes();
-}
-
 std::string GetRedirectedUrl(const Resource& resource) {
   if (resource.GetResourceType() != pagespeed::REDIRECT) {
     return "";

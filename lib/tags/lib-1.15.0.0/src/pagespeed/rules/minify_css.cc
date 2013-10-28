@@ -30,10 +30,6 @@ namespace rules {
 
 namespace {
 
-// This cost weight yields an avg score of 83 and a median score of 100
-// for the top 100 websites.
-const double kCostWeight = 3.5;
-
 class CssMinifier : public Minifier {
  public:
   explicit CssMinifier(bool save_optimized_content)
@@ -155,13 +151,6 @@ const MinifierOutput* CssMinifier::Minify(const Resource& resource,
 
 MinifyCss::MinifyCss(bool save_optimized_content)
     : MinifyRule(new CssMinifier(save_optimized_content)) {}
-
-int MinifyCss::ComputeScore(const InputInformation& input_info,
-                            const RuleResults& results) {
-  WeightedCostBasedScoreComputer score_computer(
-      &results, input_info.css_response_bytes(), kCostWeight);
-  return score_computer.ComputeScore();
-}
 
 }  // namespace rules
 

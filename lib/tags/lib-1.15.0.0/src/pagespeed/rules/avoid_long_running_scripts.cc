@@ -200,8 +200,7 @@ void AvoidLongRunningScripts::FormatResults(const ResultVector& results,
 
 bool AvoidLongRunningScripts::IsExperimental() const {
   // TODO(mdsteele): Before graduating from experimental:
-  // 1. implement ComputeScore
-  // 2. implement ComputeResultImpact
+  // * implement ComputeResultImpact
   return true;
 }
 

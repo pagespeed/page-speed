@@ -328,11 +328,6 @@ template <class RULE> class PagespeedRuleTest : public PagespeedTest {
                                   formatted_results);
   }
 
-  int ComputeScore() {
-    return rule_->ComputeScore(*pagespeed_input()->input_information(),
-                               rule_results_);
-  }
-
   double ComputeRuleImpact() {
     return rule_->ComputeRuleImpact(*pagespeed_input()->input_information(),
                                     rule_results_);

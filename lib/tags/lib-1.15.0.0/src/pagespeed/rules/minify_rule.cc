@@ -238,49 +238,6 @@ void MinifyRule::FormatResults(const ResultVector& results,
   }
 }
 
-CostBasedScoreComputer::CostBasedScoreComputer(int64 max_possible_cost)
-    : max_possible_cost_(max_possible_cost) {
-}
-
-CostBasedScoreComputer::~CostBasedScoreComputer() {}
-
-int CostBasedScoreComputer::ComputeScore() {
-  if (max_possible_cost_ <= 0) {
-    LOG(DFATAL) << "Invalid value for max_possible_cost: "
-                << max_possible_cost_;
-    return -1;
-  }
-
-  int score =  static_cast<int>(
-      100 * (max_possible_cost_ - ComputeCost()) / max_possible_cost_);
-
-  // Lower bound at zero. If a site's resources are very unoptimized
-  // then the computed score could go below zero.
-  return std::max(0, score);
-}
-
-WeightedCostBasedScoreComputer::WeightedCostBasedScoreComputer(
-    const RuleResults* results,
-    int64 max_possible_cost,
-    double cost_weight)
-    : CostBasedScoreComputer(max_possible_cost),
-      results_(results),
-      cost_weight_(cost_weight) {
-}
-
-int64 WeightedCostBasedScoreComputer::ComputeCost() {
-  int64 total_cost = 0;
-  for (int idx = 0, end = results_->results_size(); idx < end; ++idx) {
-    const Result& result = results_->results(idx);
-    if (result.has_savings()) {
-      const Savings& savings = result.savings();
-      total_cost += savings.response_bytes_saved();
-    }
-  }
-
-  return static_cast<int64>(total_cost * cost_weight_);
-}
-
 }  // namespace rules
 
 }  // namespace pagespeed

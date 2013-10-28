@@ -230,11 +230,9 @@ ProtoFormatter::~ProtoFormatter() {
                              rule_formatters_.end());
 }
 
-RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, int score,
-                                       double impact) {
+RuleFormatter* ProtoFormatter::AddRule(const Rule& rule, double impact) {
   FormattedRuleResults* rule_results = results_->add_rule_results();
   rule_results->set_rule_name(rule.name());
-  rule_results->set_rule_score(score);
   rule_results->set_rule_impact(impact);
   if (rule.IsExperimental()) {
     rule_results->set_experimental(true);
@@ -275,7 +273,6 @@ void ProtoFormatter::Finalize() {
     FormattedRuleResults* rule_results =
         results_->mutable_rule_results(i);
     if (rule_results->url_blocks_size() == 0) {
-      rule_results->set_rule_score(100);
       rule_results->set_rule_impact(0.0);
     } else {
       has_any_results = true;

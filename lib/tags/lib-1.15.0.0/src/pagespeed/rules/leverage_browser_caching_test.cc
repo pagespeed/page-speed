@@ -63,12 +63,9 @@ class LeverageBrowserCachingTest
   }
 
   void CheckOneViolation(const char *url,
-                         int64 freshness_lifetime_millis,
-                         int score) {
+                         int64 freshness_lifetime_millis) {
     ASSERT_TRUE(AppendResults());
     ASSERT_EQ(1, num_results());
-
-    ASSERT_EQ(score, ComputeScore());
 
     const Result& result0 = result(0);
     ASSERT_EQ(result0.resource_urls_size(), 1);
@@ -89,7 +86,7 @@ TEST_F(LeverageBrowserCachingTest, ShortFreshnessLifetime) {
   AddTestResource("http://www.example.com/", "max-age=500");
   Freeze();
   ASSERT_EQ(2, pagespeed_input()->num_resources());
-  CheckOneViolation("http://www.example.com/", 500000, 0);
+  CheckOneViolation("http://www.example.com/", 500000);
 }
 
 TEST_F(LeverageBrowserCachingTest, LongFreshnessLifetime) {
@@ -110,14 +107,14 @@ TEST_F(LeverageBrowserCachingTest, BadFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", "max-age=foo");
   Freeze();
   ASSERT_EQ(2, pagespeed_input()->num_resources());
-  CheckOneViolation("http://www.example.com/1", 0, 0);
+  CheckOneViolation("http://www.example.com/1", 0);
 }
 
 TEST_F(LeverageBrowserCachingTest, NoFreshnessLifetime) {
   AddTestResource("http://www.example.com/1", NULL);
   Freeze();
   ASSERT_EQ(2, pagespeed_input()->num_resources());
-  CheckOneViolation("http://www.example.com/1", 0, 0);
+  CheckOneViolation("http://www.example.com/1", 0);
 }
 
 TEST_F(LeverageBrowserCachingTest, OneShortOneLongLifetime) {
@@ -125,7 +122,7 @@ TEST_F(LeverageBrowserCachingTest, OneShortOneLongLifetime) {
   AddTestResource("http://www.example.com/1", "max-age=31536000");
   Freeze();
   ASSERT_EQ(3, pagespeed_input()->num_resources());
-  CheckOneViolation("http://www.example.com/a", 302400000, 75);
+  CheckOneViolation("http://www.example.com/a", 302400000);
 }
 
 // Content served from third-party domains is harder to have long
@@ -138,7 +135,7 @@ TEST_F(LeverageBrowserCachingTest, ShorterExpectedLifetimeThirdPartyContent) {
   AddTestResource("http://www.example2.com/b", "max-age=43199");
   Freeze();
   ASSERT_EQ(3, pagespeed_input()->num_resources());
-  CheckOneViolation("http://www.example2.com/b", 43199000, 53);
+  CheckOneViolation("http://www.example2.com/b", 43199000);
 }
 
 TEST_F(LeverageBrowserCachingTest, Format) {
