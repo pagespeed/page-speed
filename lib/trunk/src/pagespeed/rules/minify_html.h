@@ -28,8 +28,6 @@ namespace rules {
 class MinifyHTML : public MinifyRule {
  public:
   explicit MinifyHTML(bool save_optimized_content = false);
-  virtual int ComputeScore(const InputInformation& input_info,
-                           const RuleResults& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MinifyHTML);

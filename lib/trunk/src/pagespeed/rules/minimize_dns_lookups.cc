@@ -233,22 +233,6 @@ void MinimizeDnsLookups::FormatResults(const ResultVector& results,
   }
 }
 
-int MinimizeDnsLookups::ComputeScore(const InputInformation& input_info,
-                                     const RuleResults& results) {
-  int num_violations = 0;
-  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
-    const Result& result = results.results(idx);
-    num_violations += result.savings().dns_requests_saved();
-  }
-  const int num_hosts = input_info.number_hosts();
-  if (num_hosts <= 0 || num_hosts < num_violations) {
-    LOG(DFATAL) << "Bad num_hosts " << num_hosts
-                << " compared to num_violations " << num_violations;
-    return -1;
-  }
-  return 100 * (num_hosts - num_violations) / num_hosts;
-}
-
 }  // namespace rules
 
 }  // namespace pagespeed

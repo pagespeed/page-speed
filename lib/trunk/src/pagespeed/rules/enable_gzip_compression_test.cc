@@ -132,12 +132,6 @@ TEST_F(EnableGzipCompressionTest, NoViolationLargeImageNoGzip) {
 // See http://code.google.com/p/page-speed/issues/detail?id=487
 TEST_F(EnableGzipCompressionTest, ViolationSvgXmlImageNoGzip) {
   AddTestResource("http://www.test.com/", "image/svg+xml", NULL, 9000);
-  // TODO(mdsteele): We need this next line here to keep the score computer
-  // from dying when it finds that the max_possible_cost is zero, because there
-  // are no compressible bytes, because ComputeCompressibleResponseBytes
-  // doesn't count SVG images.
-  AddSecondLargeHtmlResource(true);
-
   CheckOneUrlViolation("http://www.test.com/");
   ASSERT_EQ(8956, result(0).savings().response_bytes_saved());
 }

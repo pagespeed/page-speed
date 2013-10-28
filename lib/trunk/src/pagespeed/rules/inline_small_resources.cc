@@ -254,50 +254,6 @@ void InlineSmallResources::FormatResults(const ResultVector& results,
   }
 }
 
-// Our score computation could be better. We compute the score as:
-// (num_js_or_css_resources-num_inlineable_js_or_css_resources)/
-//    num_js_or_css_resources
-// This doesn't seem quite right, but it's not clear how to compute a
-// better score for this rule. One benefit to this score computation
-// is that as a site reduces the number of JS files, e.g. by combining
-// them, the score will drop for this rule. So when there are many JS
-// resources, this rule will not be prominent in the results list, and
-// we'll likely suggest combining resources instead. Once resources
-// have been combined, the score for this rule will go down, and it
-// will become more prominent in the results list.
-int InlineSmallResources::ComputeScore(const InputInformation& input_info,
-                                       const RuleResults& results) {
-  int total_resources = GetTotalResourcesOfSameType(input_info);
-  if (total_resources == 0) {
-    // No candidates to inline.
-    return 100;
-  }
-
-  int num_candidates = 0;
-  for (int idx = 0, end = results.results_size(); idx < end; ++idx) {
-    const Result& result = results.results(idx);
-    const ResultDetails& details = result.details();
-    if (!details.HasExtension(
-            InlineSmallResourcesDetails::message_set_extension)) {
-      LOG(DFATAL) << "InlineSmallResourcesDetails missing.";
-      continue;
-    }
-
-    const InlineSmallResourcesDetails& isr_details =
-        details.GetExtension(
-            InlineSmallResourcesDetails::message_set_extension);
-    DCHECK(isr_details.inline_candidates_size() > 0);
-    num_candidates += isr_details.inline_candidates_size();
-  }
-  if (num_candidates > total_resources) {
-    LOG(DFATAL) << "Number of candidates " << num_candidates
-                << " exceeds total resources " << total_resources;
-    return -1;
-  }
-
-  return 100 - (100 * num_candidates / total_resources);
-}
-
 InlineSmallCss::InlineSmallCss() : InlineSmallResources(CSS) {}
 const char* InlineSmallCss::name() const { return "InlineSmallCss"; }
 UserFacingString InlineSmallCss::header() const {

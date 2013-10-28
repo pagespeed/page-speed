@@ -91,18 +91,6 @@ FormatResults(const ResultVector& results, RuleFormatter* formatter) {
   }
 }
 
-int RemoveQueryStringsFromStaticResources::
-ComputeScore(const InputInformation& input_info,
-             const RuleResults& results) {
-  const int num_static_resources = input_info.number_static_resources();
-  if (num_static_resources == 0) {
-    return 100;
-  }
-  const int num_non_violations = num_static_resources - results.results_size();
-  DCHECK(num_non_violations >= 0);
-  return 100 * num_non_violations / num_static_resources;
-}
-
 double RemoveQueryStringsFromStaticResources::ComputeResultImpact(
     const InputInformation& input_info, const Result& result) {
   // TODO(mdsteele): What is the impact of this rule?  It doesn't ever actually

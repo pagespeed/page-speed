@@ -36,11 +36,7 @@ namespace rules {
  */
 class EnableGzipCompression : public MinifyRule {
  public:
-  // @param computer Object responsible for computing the compressed
-  // size of the resource.
   EnableGzipCompression();
-  virtual int ComputeScore(const InputInformation& input_info,
-                           const RuleResults& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(EnableGzipCompression);

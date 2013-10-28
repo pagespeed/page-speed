@@ -36,8 +36,6 @@ class DeferParsingJavaScript : public Rule {
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
   virtual void SortResultsInPresentationOrder(ResultVector* results) const;
-  virtual int ComputeScore(const InputInformation& input_info,
-                           const RuleResults& results);
  protected:
   virtual double ComputeResultImpact(const InputInformation& input_info,
                                      const Result& result);

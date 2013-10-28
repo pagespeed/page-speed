@@ -25,43 +25,6 @@ namespace pagespeed {
 
 namespace rules {
 
-// Compute the rule score as a function of the "cost" of the rule,
-// where the cost is usually the number of wasted bytes.
-class CostBasedScoreComputer {
- public:
-  CostBasedScoreComputer(int64 max_possible_cost);
-  virtual ~CostBasedScoreComputer();
-
-  int ComputeScore();
-
- protected:
-  virtual int64 ComputeCost() = 0;
-
-  const int64 max_possible_cost_;
-};
-
-// Compute a rule score as a function of the "cost" of the rule,
-// taking a cost weight into account.  For many minification rules,
-// there is no upper bound on how large an unoptimized resource can
-// be, and thus no limit to the possible cost. Each of these rules
-// specifies a "cost weight" multiplier that maps the cost into a
-// range that distributes scores into a reasonable distribution from
-// 0..100.  The weights were chosen by analyzing the resources of the top
-// 100 web sites.
-class WeightedCostBasedScoreComputer : public CostBasedScoreComputer {
- public:
-  WeightedCostBasedScoreComputer(const RuleResults* results,
-                                 int64 max_possible_cost,
-                                 double cost_weight);
-
- protected:
-  virtual int64 ComputeCost();
-
- private:
-  const RuleResults* const results_;
-  const double cost_weight_;
-};
-
 struct MinifierOutput {
  public:
   // Indicate an error in the rule.

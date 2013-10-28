@@ -153,48 +153,10 @@ bool GzipMinifier::IsViolation(const Resource& resource) const {
           resource.GetResponseBody().size() >= kMinGzipSize);
 }
 
-class EnableCompressionScoreComputer : public CostBasedScoreComputer {
- public:
-  EnableCompressionScoreComputer(const RuleResults* results,
-                                 int64 max_possible_cost);
-  virtual ~EnableCompressionScoreComputer();
-
- protected:
-  virtual int64 ComputeCost();
-
- private:
-  const RuleResults* const results_;
-};
-
-EnableCompressionScoreComputer::EnableCompressionScoreComputer(
-    const RuleResults* results, int64 max_possible_cost)
-    : CostBasedScoreComputer(max_possible_cost),
-      results_(results) {
-}
-
-EnableCompressionScoreComputer::~EnableCompressionScoreComputer() {}
-
-int64 EnableCompressionScoreComputer::ComputeCost() {
-  int64 total_cost = 0;
-  for (int idx = 0, end = results_->results_size(); idx < end; ++idx) {
-    const Result& result = results_->results(idx);
-    total_cost += result.original_response_bytes();
-  }
-
-  return total_cost;
-}
-
 }  // namespace
 
 EnableGzipCompression::EnableGzipCompression()
     : MinifyRule(new GzipMinifier()) {}
-
-int EnableGzipCompression::ComputeScore(const InputInformation& input_info,
-                                        const RuleResults& results) {
-  EnableCompressionScoreComputer score_computer(
-      &results, resource_util::ComputeCompressibleResponseBytes(input_info));
-  return score_computer.ComputeScore();
-}
 
 }  // namespace rules
 

@@ -61,11 +61,11 @@ TEST(FormattedResultsToJsonConverterTest, Full) {
   rule_results->set_localized_rule_name("LocalizedRuleName");
   expected.append("\"localized_rule_name\":\"LocalizedRuleName\",");
 
+  rule_results->set_rule_impact(56);
+  expected.append("\"rule_impact\":56.0,");
+
   rule_results->set_rule_name("RuleName");
   expected.append("\"rule_name\":\"RuleName\",");
-
-  rule_results->set_rule_score(56);
-  expected.append("\"rule_score\":56,");
 
   FormatString* summary = rule_results->mutable_summary();
   expected.append("\"summary_line\":{");
@@ -215,11 +215,11 @@ TEST(FormattedResultsToJsonConverterTest, Hyperlink) {
   rule_results->set_localized_rule_name("LocalizedRuleName");
   expected.append("\"localized_rule_name\":\"LocalizedRuleName\",");
 
+  rule_results->set_rule_impact(56);
+  expected.append("\"rule_impact\":56.0,");
+
   rule_results->set_rule_name("RuleName");
   expected.append("\"rule_name\":\"RuleName\",");
-
-  rule_results->set_rule_score(56);
-  expected.append("\"rule_score\":56,");
 
   FormattedUrlBlockResults* block = rule_results->add_url_blocks();
   expected.append("\"url_blocks\":[{");
@@ -271,11 +271,11 @@ TEST(FormattedResultsToJsonConverterTest, SnapshotRect) {
   rule_results->set_localized_rule_name("LocalizedRuleName");
   expected.append("\"localized_rule_name\":\"LocalizedRuleName\",");
 
+  rule_results->set_rule_impact(56);
+  expected.append("\"rule_impact\":56.0,");
+
   rule_results->set_rule_name("RuleName");
   expected.append("\"rule_name\":\"RuleName\",");
-
-  rule_results->set_rule_score(56);
-  expected.append("\"rule_score\":56,");
 
   FormattedUrlBlockResults* block = rule_results->add_url_blocks();
   expected.append("\"url_blocks\":[{");

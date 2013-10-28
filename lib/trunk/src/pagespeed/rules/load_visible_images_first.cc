@@ -137,8 +137,7 @@ void LoadVisibleImagesFirst::FormatResults(const ResultVector& results,
 
 bool LoadVisibleImagesFirst::IsExperimental() const {
   // TODO(bmcquade): Before graduating from experimental:
-  // 1. implement ComputeScore
-  // 2. implement ComputeResultImpact
+  // 1. implement ComputeResultImpact
   return true;
 }
 
