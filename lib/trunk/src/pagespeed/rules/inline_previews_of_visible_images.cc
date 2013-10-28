@@ -115,8 +115,7 @@ void InlinePreviewsOfVisibleImages::FormatResults(const ResultVector& results,
 
 bool InlinePreviewsOfVisibleImages::IsExperimental() const {
   // TODO(bmcquade): Before graduating from experimental:
-  // 1. implement ComputeScore
-  // 2. implement ComputeResultImpact
+  // * implement ComputeResultImpact
   return true;
 }
 

@@ -40,8 +40,8 @@ const char *kFullJson =
        "\"savings\":{\"dns_requests_saved\":1,\"response_bytes_saved\":500}"
       "}"
      "],"
-    "\"rule_name\":\"Foo\","
-    "\"rule_score\":56"
+    "\"rule_impact\":56.0,"
+    "\"rule_name\":\"Foo\""
    "},"
    "{"
     "\"results\":"
@@ -55,8 +55,8 @@ const char *kFullJson =
        "\"savings\":{\"request_bytes_saved\":1}"
       "}"
      "],"
-    "\"rule_name\":\"Bar\","
-    "\"rule_score\":100"
+    "\"rule_impact\":5.5,"
+    "\"rule_name\":\"Bar\""
    "}"
   "],"
  "\"score\":42,"
@@ -97,7 +97,7 @@ TEST(ResultsToJsonConverterTest, Full) {
 
   RuleResults* rule_results = results.add_rule_results();
   rule_results->set_rule_name("Foo");
-  rule_results->set_rule_score(56);
+  rule_results->set_rule_impact(56);
   Result* result = rule_results->add_results();
   Savings* savings = result->mutable_savings();
   savings->set_dns_requests_saved(1);
@@ -107,7 +107,7 @@ TEST(ResultsToJsonConverterTest, Full) {
 
   rule_results = results.add_rule_results();
   rule_results->set_rule_name("Bar");
-  rule_results->set_rule_score(100);
+  rule_results->set_rule_impact(5.5);
   result = rule_results->add_results();
   savings = result->mutable_savings();
   savings->set_requests_saved(2);

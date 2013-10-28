@@ -80,14 +80,6 @@ class Rule {
   double ComputeRuleImpact(const InputInformation& input_info,
                            const RuleResults& results);
 
-  // Compute the Rule score from InputInformation and ResultVector.
-  //
-  // @param input_info Information about resources that are part of the page.
-  // @param results Result vector that contains savings information.
-  // @returns 0-100 score.
-  virtual int ComputeScore(const InputInformation& input_info,
-                           const RuleResults& results);
-
   // Sort the results in their presentation order.
   virtual void SortResultsInPresentationOrder(ResultVector* rule_results) const;
 

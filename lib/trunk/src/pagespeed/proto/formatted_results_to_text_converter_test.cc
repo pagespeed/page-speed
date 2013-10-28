@@ -63,8 +63,8 @@ TEST(FormattedResultsToTextConverterTest, Full) {
   FormattedRuleResults* rule_results1 = results.add_rule_results();
   rule_results1->set_rule_name("RuleName");
   rule_results1->set_localized_rule_name("LocalizedRuleName");
-  rule_results1->set_rule_score(56);
-  expected.append("_LocalizedRuleName_ (56/100)\n");
+  rule_results1->set_rule_impact(56);
+  expected.append("_LocalizedRuleName_ [56]\n");
 
   FormatString* summary = rule_results1->mutable_summary();
   FormatArgument* summary_arg = summary->add_args();
@@ -136,8 +136,8 @@ TEST(FormattedResultsToTextConverterTest, Hyperlink) {
   FormattedRuleResults* rule_results1 = results.add_rule_results();
   rule_results1->set_rule_name("RuleName");
   rule_results1->set_localized_rule_name("LocalizedRuleName");
-  rule_results1->set_rule_score(56);
-  expected.append("_LocalizedRuleName_ (56/100)\n");
+  rule_results1->set_rule_impact(56);
+  expected.append("_LocalizedRuleName_ [56]\n");
 
   FormattedUrlBlockResults* block = rule_results1->add_url_blocks();
   block->mutable_header()->set_format(
@@ -167,8 +167,8 @@ TEST(FormattedResultsToTextConverterTest, SnapshotRect) {
   FormattedRuleResults* rule_results1 = results.add_rule_results();
   rule_results1->set_rule_name("RuleName");
   rule_results1->set_localized_rule_name("LocalizedRuleName");
-  rule_results1->set_rule_score(56);
-  expected.append("_LocalizedRuleName_ (56/100)\n");
+  rule_results1->set_rule_impact(56);
+  expected.append("_LocalizedRuleName_ [56]\n");
 
   FormattedUrlBlockResults* block = rule_results1->add_url_blocks();
   block->mutable_header()->set_format(

@@ -28,8 +28,6 @@ namespace rules {
 class OptimizeImages : public MinifyRule {
  public:
   explicit OptimizeImages(bool save_optimized_content = false);
-  virtual int ComputeScore(const InputInformation& input_info,
-                           const RuleResults& results);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(OptimizeImages);

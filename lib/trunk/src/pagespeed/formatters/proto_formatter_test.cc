@@ -119,7 +119,7 @@ TEST(ProtoFormatterTest, BasicTest) {
   DummyTestRule rule1(_N("rule1"));
   DummyTestRule rule2(_N("rule2"));
 
-  RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
+  RuleFormatter* body = formatter.AddRule(rule1, 0);
   body->SetSummaryLine(_N("Hello, %(PLACE)s!"),
                        pagespeed::StringArgument("PLACE", "world"));
   UrlBlockFormatter* block = body->AddUrlBlock(_N("url block 1"));
@@ -132,7 +132,7 @@ TEST(ProtoFormatterTest, BasicTest) {
   block = body->AddUrlBlock(_N("url block 2"));
   url = block->AddUrlResult(_N("URL 3"));
 
-  body = formatter.AddRule(rule2, 50, 1);
+  body = formatter.AddRule(rule2, 1);
   block = body->AddUrlBlock(_N("url block 3"));
   url = block->AddUrlResult(_N("URL 4"));
 
@@ -141,7 +141,7 @@ TEST(ProtoFormatterTest, BasicTest) {
   ASSERT_EQ(2, results.rule_results_size());
   const FormattedRuleResults& r1 = results.rule_results(0);
   ASSERT_EQ("DummyTestRule", r1.rule_name());
-  ASSERT_EQ(100, r1.rule_score());
+  ASSERT_EQ(0.0, r1.rule_impact());
   ASSERT_EQ("rule1", r1.localized_rule_name());
   ASSERT_EQ(2, r1.url_blocks_size());
   ASSERT_EQ("Hello, %(PLACE)s!", r1.summary().format());
@@ -167,7 +167,7 @@ TEST(ProtoFormatterTest, BasicTest) {
 
   const FormattedRuleResults& r2 = results.rule_results(1);
   ASSERT_EQ("DummyTestRule", r2.rule_name());
-  ASSERT_EQ(50, r2.rule_score());
+  ASSERT_EQ(1.0, r2.rule_impact());
   ASSERT_EQ("rule2", r2.localized_rule_name());
   ASSERT_EQ(1, r2.url_blocks_size());
 
@@ -185,7 +185,7 @@ TEST(ProtoFormatterTest, FormattingTest) {
 
   DummyTestRule rule1(_N("rule1"));
 
-  RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
+  RuleFormatter* body = formatter.AddRule(rule1, 0);
   body->AddUrlBlock(_N("url block 1, %(FOO)s urls %(BAR)s"),
                     pagespeed::IntArgument("FOO", 50),
                     pagespeed::BytesArgument("BAR", 100));
@@ -195,7 +195,7 @@ TEST(ProtoFormatterTest, FormattingTest) {
   ASSERT_EQ(1, results.rule_results_size());
   const FormattedRuleResults& r1 = results.rule_results(0);
   ASSERT_EQ("DummyTestRule", r1.rule_name());
-  ASSERT_EQ(100, r1.rule_score());
+  ASSERT_EQ(0.0, r1.rule_impact());
   ASSERT_EQ("rule1", r1.localized_rule_name());
   ASSERT_EQ(1, r1.url_blocks_size());
 
@@ -224,7 +224,7 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   DummyTestRule rule1(UserFacingString("rule1", true));
   DummyTestRule rule2(UserFacingString("rule2", false));
 
-  RuleFormatter* body = formatter.AddRule(rule1, 100, 0);
+  RuleFormatter* body = formatter.AddRule(rule1, 0);
 
   // Test a localized format string.
   UserFacingString format_str("text %(URL)s %(STR)s %(INT)s %(BYTES)s %(DUR)s"
@@ -243,14 +243,14 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   body->AddUrlBlock(format_str2);
 
   // Test a non-localized rule header.
-  formatter.AddRule(rule2, 100, 0);
+  formatter.AddRule(rule2, 0);
 
   ASSERT_TRUE(results.IsInitialized());
 
   ASSERT_EQ(2, results.rule_results_size());
   const FormattedRuleResults& r1 = results.rule_results(0);
   EXPECT_EQ("DummyTestRule", r1.rule_name());
-  EXPECT_EQ(100, r1.rule_score());
+  EXPECT_EQ(0.0, r1.rule_impact());
   EXPECT_EQ("***rule1***", r1.localized_rule_name());
   ASSERT_EQ(2, r1.url_blocks_size());
 
@@ -310,7 +310,7 @@ TEST(ProtoFormatterTest, LocalizerTest) {
   // Test that string marked not localized isn't passed through the localizer.
   const FormattedRuleResults& r2 = results.rule_results(1);
   EXPECT_EQ("DummyTestRule", r2.rule_name());
-  EXPECT_EQ(100, r2.rule_score());
+  EXPECT_EQ(0.0, r2.rule_impact());
   EXPECT_EQ("rule2", r2.localized_rule_name());
   ASSERT_EQ(0, r2.url_blocks_size());
 }

@@ -264,8 +264,7 @@ void DoFormatResultsAsProto(pagespeed::Rule* rule,
   pagespeed::formatters::ProtoFormatter formatter(&localizer,
                                                   formatted_results);
   pagespeed::RuleFormatter* rule_formatter =
-      formatter.AddRule(*rule, rule_results.rule_score(),
-                        rule_results.rule_impact());
+      formatter.AddRule(*rule, rule_results.rule_impact());
   rule->FormatResults(result_vector, rule_formatter);
 }
 
