@@ -26,7 +26,7 @@ class Rule;
 // Creates a non-translatable user facing string, enforcing that the provided
 // rule is experimental. This should only be called by the not_localized macro
 // in l10n.h.
-UserFacingString ExperimentalUserFacingString(Rule* rule, const char* s);
+UserFacingString ExperimentalUserFacingString(const Rule* rule, const char* s);
 
 } // namespace pagespeed
 
