@@ -21,7 +21,7 @@
 
 namespace pagespeed {
 
-UserFacingString ExperimentalUserFacingString(Rule* rule, const char* s) {
+UserFacingString ExperimentalUserFacingString(const Rule* rule, const char* s) {
   if (!rule->IsExperimental()) {
     LOG(DFATAL) << "Non-finalized translatable string used in non-experimental "
                 << "rule! Replace non_finalized() with _() so this user facing "
