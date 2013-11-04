@@ -161,6 +161,7 @@
         'html/external_resource_filter_test.cc',
         'html/html_minifier_test.cc',
         'js/js_minify_test.cc',
+        'l10n/experimental_user_facing_string_test.cc',
         'l10n/localizer_test.cc',
         'l10n/gettext_localizer_test.cc',
         'proto/formatted_results_to_json_converter_test.cc',
