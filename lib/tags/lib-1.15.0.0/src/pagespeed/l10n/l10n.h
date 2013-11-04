@@ -17,9 +17,10 @@
 #ifndef PAGESPEED_L10N_L10N_H_
 #define PAGESPEED_L10N_L10N_H_
 
+#include "pagespeed/l10n/experimental_user_facing_string.h"
 #include "pagespeed/l10n/user_facing_string.h"
 
-#if defined(_) || defined(not_localized)
+#if defined(_) || defined(not_localized) || defined(not_finalized)
 #error localization macros are already defined.
 #endif
 
@@ -29,5 +30,10 @@
 
 // Macro for marking user-facing strings that should *not* be localized.
 #define not_localized(X) (::pagespeed::UserFacingString(X, false))
+
+// Macro for marking user-facing strings that should be localized with _(X) in
+// a future release, but are not currently ready for translation. This macro
+// can only be used in experimental rules, which is enforced with a LOG(DFATAL).
+#define not_finalized(X) (::pagespeed::ExperimentalUserFacingString(this, X))
 
 #endif  // PAGESPEED_L10N_L10N_H_

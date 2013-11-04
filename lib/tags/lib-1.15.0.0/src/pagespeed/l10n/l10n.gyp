@@ -28,6 +28,7 @@
         '<(pagespeed_root)/pagespeed/po/po_gen.gyp:pagespeed_genpo',
       ],
       'sources': [
+        'experimental_user_facing_string.cc',
         'localizer.cc',
         'gettext_localizer.cc',
         'register_locale.cc',
