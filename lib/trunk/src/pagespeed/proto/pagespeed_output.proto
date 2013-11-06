@@ -345,12 +345,22 @@ message MinificationDetails {
   optional bool savings_are_post_gzip = 1;
 }
 
-// Do not reuse id: 2, 3
+// Do not reuse id: 1, 2, 3
 message AvoidPluginsDetails {
   extend ResultDetails {
     optional AvoidPluginsDetails message_set_extension = 4615265; // 'Fla'
   }
-  optional int32 size = 1;
+
+  enum PluginType {
+    UNKNOWN = 0;
+    FLASH = 1;
+    SILVERLIGHT = 2;
+    JAVA = 3;
+  }
+  optional PluginType type = 8;
+
+  optional string mime = 9;
+  optional string classid = 10;
 
   optional int32 x = 4;
   optional int32 y = 5;
