@@ -17,6 +17,7 @@
 
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/l10n/user_facing_string.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {

@@ -106,6 +106,11 @@ struct CaseInsensitiveCompareASCII {
   }
 };
 
+inline void StringToLowerASCII(std::string* s) {
+  for (std::string::iterator i = s->begin(); i != s->end(); ++i)
+    *i = ToLowerASCII(*i);
+}
+
 inline void StringToUpperASCII(std::string* s) {
   for (std::string::iterator i = s->begin(); i != s->end(); ++i)
     *i = ToUpperASCII(*i);

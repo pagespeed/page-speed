@@ -31,6 +31,12 @@ namespace uri_util {
 // return http://www.example.com/bar.
 bool GetUriWithoutFragment(const std::string& uri, std::string* out);
 
+// Get the given URI, and remove its query and fragment if it has
+// one. For instance, http://www.example.com/foo?q=bar#fragment will
+// return http://www.example.com/foo while http://www.example.com/bar
+// will return http://www.example.com/bar.
+bool GetUriWithoutQueryOrFragment(const std::string& uri, std::string* out);
+
 // Canonicalize the given URL. For instance, http://www.foo.com will
 // become http://www.foo.com/.
 void CanonicalizeUrl(std::string* inout_url);
