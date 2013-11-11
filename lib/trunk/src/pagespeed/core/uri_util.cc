@@ -14,6 +14,7 @@
 
 #include "pagespeed/core/uri_util.h"
 
+#include <stddef.h>
 #include <string>
 
 #include "base/logging.h"
@@ -133,6 +134,24 @@ void CanonicalizeUrl(std::string* inout_url) {
     return;
   }
   *inout_url = url.spec();
+}
+
+bool GetUriWithoutQueryOrFragment(const std::string& uri, std::string* out) {
+  GURL url(uri);
+  if (!url.is_valid()) {
+    return false;
+  }
+  url_canon::Replacements<char> clear;
+  clear.ClearQuery();
+  clear.ClearRef();
+  GURL url_no_query = url.ReplaceComponents(clear);
+  if (!url_no_query.is_valid()) {
+    // Should never happen.
+    DCHECK(false);
+    return false;
+  }
+  *out = url_no_query.spec();
+  return true;
 }
 
 bool GetUriWithoutFragment(const std::string& uri, std::string* out) {

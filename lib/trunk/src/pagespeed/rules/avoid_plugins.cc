@@ -14,12 +14,26 @@
 
 #include "pagespeed/rules/avoid_plugins.h"
 
-#include "net/instaweb/util/public/google_url.h"
+#include <stddef.h>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "base/logging.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/string_piece.h"
+#include "net/instaweb/util/public/basictypes.h"
 #include "pagespeed/core/dom.h"
 #include "pagespeed/core/formatter.h"
+#include "pagespeed/core/input_capabilities.h"
 #include "pagespeed/core/pagespeed_input.h"
+#include "pagespeed/core/resource.h"
+#include "pagespeed/core/resource_collection.h"
 #include "pagespeed/core/result_provider.h"
+#include "pagespeed/core/rule.h"
 #include "pagespeed/core/rule_input.h"
+#include "pagespeed/core/string_util.h"
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
@@ -154,7 +168,7 @@ bool DetermineTypeFromClassid(const pagespeed::DomElement& node,
                               AvoidPluginsDetails_PluginType* out_type) {
   std::string classid;
   if (node.GetAttributeByName("classid", &classid)) {
-    classid = StringToLowerASCII(classid);
+    pagespeed::string_util::StringToLowerASCII(&classid);
     for (size_t i = 0; i < arraysize(kPluginClassids); ++i) {
       const PluginID& plugin_id = kPluginClassids[i];
       // Ideally this would be a regex for matching Java's versioned classids,
@@ -550,13 +564,13 @@ AvoidPluginsDetails_PluginType PluginElementVisitor::DetermineTypeFromUrl(
 
   // If we don't have the resource or it doesn't have a content type header,
   // guess from the file extension.
-  net_instaweb::GoogleUrl google_url(document_->ResolveUri(url));
-  if (google_url.is_valid()) {
-    base::StringPiece no_query = google_url.AllExceptQuery();
-
+  std::string url_no_query;
+  if (pagespeed::uri_util::GetUriWithoutQueryOrFragment(
+          document_->ResolveUri(url), &url_no_query)) {
     for (size_t i = 0; i < arraysize(kPluginFileExtensions); ++i) {
       const PluginID& plugin_id = kPluginFileExtensions[i];
-      if (pagespeed::string_util::StringCaseEndsWith(no_query, plugin_id.id)) {
+      if (pagespeed::string_util::StringCaseEndsWith(
+              url_no_query, plugin_id.id)) {
         return plugin_id.type;
       }
     }
@@ -599,7 +613,7 @@ bool PluginElementVisitor::DetermineJavaUrl(const std::string& code,
   if (!archive.empty()) {
     // The archive parameter is a comma separated list of resources. We'll take
     // the first one to report to the user.
-    StringPiece archives_piece(archive);
+    base::StringPiece archives_piece(archive);
     const size_t first_comma_index = archives_piece.find(",");
     if (first_comma_index >= 0) {
       archives_piece.substr(0, first_comma_index).CopyToString(&src);
