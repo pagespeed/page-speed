@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stddef.h>
+
 #include "googleurl/src/gurl.h"
 #include "pagespeed/core/uri_util.h"
+#include "pagespeed/testing/fake_dom.h"
 #include "pagespeed/testing/pagespeed_test.h"
 
 namespace {
@@ -117,9 +120,11 @@ TEST(UriUtilTest, Utf8) {
 }
 
 TEST(UriUtilTest, GetUriWithoutFragmentTest) {
-  static const char* kNoFragmentUrl = "http://www.example.com/foo";
-  static const char* kFragmentUrl = "http://www.example.com/foo#fragment";
-  static const char* kFragmentUrlNoFragment = "http://www.example.com/foo";
+  static const char* kNoFragmentUrl = "http://www.example.com/foo?q=baz";
+  static const char* kFragmentUrl =
+      "http://www.example.com/foo?q=baz#fragment";
+  static const char* kFragmentUrlNoFragment =
+      "http://www.example.com/foo?q=baz";
   std::string uri_no_fragment;
   ASSERT_TRUE(pagespeed::uri_util::GetUriWithoutFragment(
       kNoFragmentUrl, &uri_no_fragment));
@@ -131,6 +136,26 @@ TEST(UriUtilTest, GetUriWithoutFragmentTest) {
 
   ASSERT_FALSE(
       pagespeed::uri_util::GetUriWithoutFragment("", &uri_no_fragment));
+}
+
+TEST(UriUtilTest, GetUriWithoutQueryOrFragmentTest) {
+  static const char* kNoQueryFragmentUrl = "http://www.example.com/foo";
+  static const char* kQueryFragmentUrl =
+      "http://www.example.com/foo?q=baz#fragment";
+  static const char* kQueryFragmentUrlNoQueryFragment =
+      "http://www.example.com/foo";
+  std::string uri_no_query_or_fragment;
+  ASSERT_TRUE(pagespeed::uri_util::GetUriWithoutQueryOrFragment(
+      kNoQueryFragmentUrl, &uri_no_query_or_fragment));
+  ASSERT_EQ(uri_no_query_or_fragment, kNoQueryFragmentUrl);
+
+  ASSERT_TRUE(pagespeed::uri_util::GetUriWithoutQueryOrFragment(
+      kQueryFragmentUrl, &uri_no_query_or_fragment));
+  ASSERT_EQ(uri_no_query_or_fragment, kQueryFragmentUrlNoQueryFragment);
+
+  ASSERT_FALSE(
+      pagespeed::uri_util::GetUriWithoutQueryOrFragment(
+          "", &uri_no_query_or_fragment));
 }
 
 TEST(UriUtilTest, CanonicalizeUrl) {
