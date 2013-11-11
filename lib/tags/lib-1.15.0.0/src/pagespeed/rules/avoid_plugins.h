@@ -17,8 +17,11 @@
 
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
+#include "pagespeed/proto/pagespeed_output.pb.h"
 
 namespace pagespeed {
+
+class UrlBlockFormatter;
 
 namespace rules {
 
@@ -46,6 +49,9 @@ class AvoidPlugins : public Rule {
                                      const Result& result);
 
  private:
+  UrlBlockFormatter* CreateUrlBlockFormatterForType(
+      const AvoidPluginsDetails_PluginType& type, RuleFormatter* formatter);
+
   DISALLOW_COPY_AND_ASSIGN(AvoidPlugins);
 };
 
