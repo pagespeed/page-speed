@@ -37,6 +37,7 @@
 #include "pagespeed/core/uri_util.h"
 #include "pagespeed/l10n/l10n.h"
 #include "pagespeed/proto/pagespeed_output.pb.h"
+#include "pagespeed/proto/pagespeed_proto_formatter.pb.h"
 
 using pagespeed::AvoidPluginsDetails_PluginType;
 using pagespeed::AvoidPluginsDetails_PluginType_UNKNOWN;
@@ -842,6 +843,11 @@ bool AvoidPlugins::IsExperimental() const {
   // TODO(dbathgate): Update ComputeResultImpact before graduating from
   //   experimental.
   return true;
+}
+
+void AvoidPlugins::AppendRuleGroups(
+    std::vector<FormattedRuleResults::RuleGroup>* out) const {
+  out->push_back(FormattedRuleResults::USABILITY);
 }
 
 }  // namespace rules
