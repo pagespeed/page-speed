@@ -36,6 +36,7 @@ class ResultText;
 class Results;
 class Result;
 class Rule;
+class RuleResults;
 
 // ResultFilter is used to filter the results passed to the
 // formatter. A ResultFilter might want to remove Results that have an
@@ -44,7 +45,15 @@ class ResultFilter {
  public:
   ResultFilter();
   virtual ~ResultFilter();
-  virtual bool IsAccepted(const Result& result) const = 0;
+  // Whether to retain the given Result instance.
+  virtual bool IsResultAccepted(const Result& result) const = 0;
+
+  // Whether to retain the given RuleResults instance. If false, the
+  // entire RuleResults instance and all its child Results will be
+  // discarded. If true, the RuleResults instance will be retained and
+  // all its child Results instances will be passed to
+  // IsResultAccepted(Result) to determine if they should be retained.
+  virtual bool IsRuleResultsAccepted(const RuleResults& results) const = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ResultFilter);
@@ -55,7 +64,8 @@ class AlwaysAcceptResultFilter : public ResultFilter {
   AlwaysAcceptResultFilter();
   virtual ~AlwaysAcceptResultFilter();
 
-  virtual bool IsAccepted(const Result& result) const;
+  virtual bool IsResultAccepted(const Result& result) const;
+  virtual bool IsRuleResultsAccepted(const RuleResults& results) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(AlwaysAcceptResultFilter);
@@ -70,7 +80,8 @@ class AndResultFilter : public ResultFilter {
       : filter1_(filter1), filter2_(filter2) {}
   virtual ~AndResultFilter() {}
 
-  virtual bool IsAccepted(const Result& result) const;
+  virtual bool IsResultAccepted(const Result& result) const;
+  virtual bool IsRuleResultsAccepted(const RuleResults& results) const;
 
  private:
   scoped_ptr<ResultFilter> filter1_;

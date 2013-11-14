@@ -28,7 +28,8 @@ ResponseByteResultFilter::ResponseByteResultFilter()
 ResponseByteResultFilter::~ResponseByteResultFilter() {
 }
 
-bool ResponseByteResultFilter::IsAccepted(const Result& result) const {
+bool ResponseByteResultFilter::IsResultAccepted(
+    const Result& result) const {
   if (!result.has_savings()) {
     return true;
   }
@@ -39,6 +40,13 @@ bool ResponseByteResultFilter::IsAccepted(const Result& result) const {
   }
 
   return savings.response_bytes_saved() >= response_byte_threshold_;
+}
+
+bool ResponseByteResultFilter::IsRuleResultsAccepted(
+    const RuleResults&) const {
+  // ResponseByteResultFilter is only interested in filtering at the
+  // Result level, so we always retain RuleResults instances.
+  return true;
 }
 
 }

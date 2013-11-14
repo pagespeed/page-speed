@@ -28,7 +28,8 @@ LandingPageRedirectionFilter::LandingPageRedirectionFilter()
 LandingPageRedirectionFilter::~LandingPageRedirectionFilter() {
 }
 
-bool LandingPageRedirectionFilter::IsAccepted(const Result& result) const {
+bool LandingPageRedirectionFilter::IsResultAccepted(
+    const Result& result) const {
   if (!result.has_savings()) {
     return true;
   }
@@ -52,6 +53,13 @@ bool LandingPageRedirectionFilter::IsAccepted(const Result& result) const {
       return false;
     }
   }
+  return true;
+}
+
+bool LandingPageRedirectionFilter::IsRuleResultsAccepted(
+    const RuleResults&) const {
+  // LandingPageRedirectionFilter is only interested in filtering at
+  // the Result level, so we always retain RuleResults instances.
   return true;
 }
 

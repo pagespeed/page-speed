@@ -46,7 +46,7 @@ void FormatRuleResults(const RuleResults& rule_results,
        result_idx < end; ++result_idx) {
     const Result& result = rule_results.results(result_idx);
 
-    if (filter.IsAccepted(result)) {
+    if (filter.IsResultAccepted(result)) {
       sorted_results.push_back(&rule_results.results(result_idx));
     }
   }
@@ -151,6 +151,9 @@ bool Engine::FormatResults(const Results& results,
   bool success = true;
   for (int idx = 0, end = results.rule_results_size(); idx < end; ++idx) {
     const RuleResults& rule_results = results.rule_results(idx);
+    if (!filter.IsRuleResultsAccepted(rule_results)) {
+      continue;
+    }
     const std::string& rule_name = rule_results.rule_name();
     NameToRuleMap::const_iterator rule_iter = name_to_rule_map_.find(rule_name);
     if (rule_iter == name_to_rule_map_.end()) {
@@ -258,29 +261,44 @@ void Engine::FilterResults(const Results& results,
                            Results* filtered_results_out) const {
   CHECK(init_has_been_called_);
 
+  // We want to copy all fields but the rule_results
+  // field. Unfortunately there's no way to do this other than to copy
+  // all fields, then clear the rule_results field. This is somewhat
+  // inefficient but safer than copying the fields we want by hand, as
+  // we do also want to automatically copy any new fields added to
+  // Results in the future.
   filtered_results_out->CopyFrom(results);
+  filtered_results_out->clear_rule_results();
 
   for (int rule_idx = 0;
-       rule_idx < filtered_results_out->rule_results_size();
-       ++rule_idx) {
-    RuleResults* rule_results =
-        filtered_results_out->mutable_rule_results(rule_idx);
-    RuleResults new_rule_results;
+       rule_idx < results.rule_results_size(); ++rule_idx) {
+    const RuleResults& rule_results = results.rule_results(rule_idx);
+    if (!filter.IsRuleResultsAccepted(rule_results)) {
+      continue;
+    }
+
+    RuleResults* new_rule_results =
+        filtered_results_out->add_rule_results();
+
+    // We want to copy all fields but the results field. Unfortunately
+    // there's no way to do this other than to copy all fields, then
+    // clear the results field. This is somewhat inefficient but safer
+    // than copying the fields we want by hand, as we do also want to
+    // automatically copy any new fields added to RuleResults in the
+    // future.
+    new_rule_results->MergeFrom(rule_results);
+    new_rule_results->clear_results();
 
     // Copy any non-filtered results into new_rule_results;
     for (int result_idx = 0;
-         result_idx < rule_results->results_size();
+         result_idx < rule_results.results_size();
          ++result_idx) {
-      const Result& result = rule_results->results(result_idx);
+      const Result& result = rule_results.results(result_idx);
 
-      if (filter.IsAccepted(result)) {
-        new_rule_results.add_results()->CopyFrom(result);
+      if (filter.IsResultAccepted(result)) {
+        new_rule_results->add_results()->CopyFrom(result);
       }
     }
-
-    // Clear out the old results and copy back in the filtered set.
-    rule_results->clear_results();
-    rule_results->MergeFrom(new_rule_results);
   }
 
   ComputeScoreAndImpact(filtered_results_out);
@@ -292,12 +310,22 @@ ResultFilter::~ResultFilter() {}
 AlwaysAcceptResultFilter::AlwaysAcceptResultFilter() {}
 AlwaysAcceptResultFilter::~AlwaysAcceptResultFilter() {}
 
-bool AlwaysAcceptResultFilter::IsAccepted(const Result& result) const {
+bool AlwaysAcceptResultFilter::IsResultAccepted(const Result&) const {
   return true;
 }
 
-bool AndResultFilter::IsAccepted(const Result& result) const {
-  return filter1_->IsAccepted(result) && filter2_->IsAccepted(result);
+bool AlwaysAcceptResultFilter::IsRuleResultsAccepted(const RuleResults&) const {
+  return true;
+}
+
+bool AndResultFilter::IsResultAccepted(const Result& result) const {
+  return filter1_->IsResultAccepted(result) &&
+      filter2_->IsResultAccepted(result);
+}
+
+bool AndResultFilter::IsRuleResultsAccepted(const RuleResults& results) const {
+  return filter1_->IsRuleResultsAccepted(results) &&
+      filter2_->IsRuleResultsAccepted(results);
 }
 
 }  // namespace pagespeed
