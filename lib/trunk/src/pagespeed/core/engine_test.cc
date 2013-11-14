@@ -229,10 +229,23 @@ class NeverAcceptResultFilter : public pagespeed::ResultFilter {
   NeverAcceptResultFilter() {}
   virtual ~NeverAcceptResultFilter() {}
 
-  virtual bool IsAccepted(const Result& result) const { return false; }
+  virtual bool IsResultAccepted(const Result&) const { return false; }
+  virtual bool IsRuleResultsAccepted(const RuleResults&) const { return true; }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(NeverAcceptResultFilter);
+};
+
+class NeverAcceptRuleResultsFilter : public pagespeed::ResultFilter {
+ public:
+  NeverAcceptRuleResultsFilter() {}
+  virtual ~NeverAcceptRuleResultsFilter() {}
+
+  virtual bool IsResultAccepted(const Result&) const { return true; }
+  virtual bool IsRuleResultsAccepted(const RuleResults&) const { return false; }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(NeverAcceptRuleResultsFilter);
 };
 
 TEST(EngineTest, FormatResultsFilter) {
@@ -253,16 +266,27 @@ TEST(EngineTest, FormatResultsFilter) {
   FormattedResults formatted_results;
   NullLocalizer localizer;
   ProtoFormatter formatter(&localizer, &formatted_results);
-  NeverAcceptResultFilter filter;
-  ASSERT_TRUE(engine.FormatResults(results, filter, &formatter));
+  {
+    NeverAcceptResultFilter filter;
+    ASSERT_TRUE(engine.FormatResults(results, filter, &formatter));
 
-  ASSERT_EQ(100, formatted_results.score());
-  ASSERT_EQ(1, formatted_results.rule_results_size());
-  const FormattedRuleResults& fmt_rule_results =
-      formatted_results.rule_results(0);
-  ASSERT_EQ(kHeader, fmt_rule_results.localized_rule_name());
-  ASSERT_EQ(0, fmt_rule_results.url_blocks_size());
-  ASSERT_EQ(0, fmt_rule_results.rule_impact());
+    ASSERT_EQ(100, formatted_results.score());
+    ASSERT_EQ(1, formatted_results.rule_results_size());
+    const FormattedRuleResults& fmt_rule_results =
+        formatted_results.rule_results(0);
+    ASSERT_EQ(kHeader, fmt_rule_results.localized_rule_name());
+    ASSERT_EQ(0, fmt_rule_results.url_blocks_size());
+    ASSERT_EQ(0, fmt_rule_results.rule_impact());
+  }
+
+  {
+    formatted_results.Clear();
+    NeverAcceptRuleResultsFilter filter;
+    ASSERT_TRUE(engine.FormatResults(results, filter, &formatter));
+
+    ASSERT_EQ(100, formatted_results.score());
+    ASSERT_EQ(0, formatted_results.rule_results_size());
+  }
 }
 
 TEST(EngineTest, FormatResultsNoResults) {
@@ -462,6 +486,21 @@ TEST(EngineTest, FilterResults) {
       filtered_results.rule_results(0);
   ASSERT_EQ(1, filtered_rule_results2.results_size());
   ASSERT_EQ(72.0, filtered_rule_results2.rule_impact());
+
+  // Test a filter that filters all Results.
+  NeverAcceptResultFilter filter3;
+  engine.FilterResults(results, filter3, &filtered_results);
+  ASSERT_EQ(100, filtered_results.score());
+  ASSERT_EQ(1, filtered_results.rule_results_size());
+  const RuleResults& filtered_rule_results3 =
+      filtered_results.rule_results(0);
+  ASSERT_EQ(0, filtered_rule_results3.results_size());
+
+  // Test a filter that filters all RuleResults.
+  NeverAcceptRuleResultsFilter filter4;
+  engine.FilterResults(results, filter4, &filtered_results);
+  ASSERT_EQ(100, filtered_results.score());
+  ASSERT_EQ(0, filtered_results.rule_results_size());
 }
 
 // Currently, our scores are calibrated so that that an impact of three mobile

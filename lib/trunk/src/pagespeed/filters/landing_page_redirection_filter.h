@@ -20,6 +20,7 @@
 namespace pagespeed {
 
 class Result;
+class RuleResults;
 
 // This result filter removes the landing page redirection result in a
 // redirection chain less than kDefaultThresholdRedirectionCount and matching
@@ -45,7 +46,8 @@ class LandingPageRedirectionFilter : public ResultFilter {
   LandingPageRedirectionFilter();
   virtual ~LandingPageRedirectionFilter();
 
-  virtual bool IsAccepted(const Result& result) const;
+  virtual bool IsResultAccepted(const Result& result) const;
+  virtual bool IsRuleResultsAccepted(const RuleResults& result) const;
 
  private:
   int redirection_count_threshold_;
