@@ -366,6 +366,10 @@ message AvoidPluginsDetails {
   optional int32 y = 5;
   optional int32 width = 6;
   optional int32 height = 7;
+
+  // How much of the above the fold viewport is covered by this plugin.
+  // 0 is none, 1.0 is the entirety of the viewport.
+  optional double atf_ratio = 11;
 }
 
 message ServerResponseTimeDetails {

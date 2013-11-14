@@ -106,6 +106,18 @@ static const PluginID kPluginHumanNames[] = {
     {AvoidPluginsDetails_PluginType_JAVA, "Java"}
 };
 
+// Base impact to be assigned to all plugins. Currently equal to
+// Rule::kImpactMediumCutoff
+static const double kPluginBaseImpact = 3.0;
+
+// If we have dimensions for a plugin, it's impact will be the kPluginBaseImpact
+// plus the percentage of the ATF content covered by this plugin times this
+// constant. The logic behind the current value is if a single plugin is more
+// than 20% of the ATF content, it should trigger a high impact result.
+// Therefore, it is currently equal to
+// (Rule::kImpactHighCutoff - Rule::kImpactMediumCutoff) / 0.2.
+static const double kPluginAtfImpactMultiplier = (10.0 - 3.0) / 0.2;
+
 // Maximum depth to recurse when looking for a child of an object or element
 // tag that embeds a plugin in order to avoid double counting nested tags.
 //
@@ -317,6 +329,26 @@ void PluginElementVisitor::AddResult(const pagespeed::DomElement& node,
     avoid_plugins_details->set_y(y);
     avoid_plugins_details->set_width(width);
     avoid_plugins_details->set_height(height);
+
+    const int viewport_w = rule_input_->pagespeed_input().viewport_width();
+    const int viewport_h = rule_input_->pagespeed_input().viewport_height();
+
+    // Sanity check that the viewport width and height are set.
+    if (viewport_w > 0 && viewport_h > 0) {
+      const int atf_pixels = viewport_w * viewport_h;
+
+      const int clamped_x1 = std::min(std::max(x, 0), viewport_w);
+      const int clamped_y1 = std::min(std::max(y, 0), viewport_h);
+      const int clamped_x2 = std::min(std::max(x + width, 0), viewport_w);
+      const int clamped_y2 = std::min(std::max(y + height, 0), viewport_h);
+
+      const int atf_plugin_pixels =
+          (clamped_x2 - clamped_x1) * (clamped_y2 - clamped_y1);
+
+      avoid_plugins_details->set_atf_ratio(
+          static_cast<double>(atf_plugin_pixels) /
+          static_cast<double>(atf_pixels));
+    }
   }
 }
 
@@ -829,19 +861,20 @@ void AvoidPlugins::FormatResults(const ResultVector& results,
 
 double AvoidPlugins::ComputeResultImpact(const InputInformation& input_info,
                                          const Result& result) {
-  // TODO(dbathgate): We don't currently have a way to measure savings from UX
-  // rules. For now, return a fixed 1.0 impact if any plugins were detected on
-  // the page. This should probably take into account the number and size of
-  // the plugins.
-  if (result.resource_urls_size() > 0) {
-    return 1.0;
+  const ResultDetails& details = result.details();
+  if (details.HasExtension(AvoidPluginsDetails::message_set_extension)) {
+    const AvoidPluginsDetails& plugin_details = details.GetExtension(
+        AvoidPluginsDetails::message_set_extension);
+    if (plugin_details.has_atf_ratio()) {
+      return kPluginBaseImpact +
+          (kPluginAtfImpactMultiplier * plugin_details.atf_ratio());
+    }
   }
-  return 0;
+
+  return kPluginBaseImpact;
 }
 
 bool AvoidPlugins::IsExperimental() const {
-  // TODO(dbathgate): Update ComputeResultImpact before graduating from
-  //   experimental.
   return true;
 }
 
