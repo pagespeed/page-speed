@@ -20,6 +20,7 @@
 namespace pagespeed {
 
 class Result;
+class RuleResults;
 
 class ResponseByteResultFilter : public ResultFilter {
  public:
@@ -35,7 +36,8 @@ class ResponseByteResultFilter : public ResultFilter {
   ResponseByteResultFilter();
   virtual ~ResponseByteResultFilter();
 
-  virtual bool IsAccepted(const Result& result) const;
+  virtual bool IsResultAccepted(const Result& result) const;
+  virtual bool IsRuleResultsAccepted(const RuleResults& result) const;
 
  private:
   int response_byte_threshold_;

@@ -22,22 +22,22 @@ TEST(ResponseByteResultFilterTest, ResponseByteResultFilter) {
   Result result;
   ResponseByteResultFilter filter(10);
 
-  EXPECT_TRUE(filter.IsAccepted(result));
+  EXPECT_TRUE(filter.IsResultAccepted(result));
 
   Savings* savings = result.mutable_savings();
-  EXPECT_TRUE(filter.IsAccepted(result));
+  EXPECT_TRUE(filter.IsResultAccepted(result));
 
   savings->set_response_bytes_saved(100);
-  EXPECT_TRUE(filter.IsAccepted(result));
+  EXPECT_TRUE(filter.IsResultAccepted(result));
 
   savings->set_response_bytes_saved(10);
-  EXPECT_TRUE(filter.IsAccepted(result));
+  EXPECT_TRUE(filter.IsResultAccepted(result));
 
   savings->set_response_bytes_saved(9);
-  EXPECT_FALSE(filter.IsAccepted(result));
+  EXPECT_FALSE(filter.IsResultAccepted(result));
 
   savings->set_response_bytes_saved(0);
-  EXPECT_FALSE(filter.IsAccepted(result));
+  EXPECT_FALSE(filter.IsResultAccepted(result));
 }
 
 TEST(ResponseByteResultFilterTest, DefaultThreshold) {
@@ -47,11 +47,11 @@ TEST(ResponseByteResultFilterTest, DefaultThreshold) {
   Savings* savings = result.mutable_savings();
   savings->set_response_bytes_saved(
       ResponseByteResultFilter::kDefaultThresholdBytes);
-  EXPECT_TRUE(filter.IsAccepted(result));
+  EXPECT_TRUE(filter.IsResultAccepted(result));
 
   savings->set_response_bytes_saved(
       ResponseByteResultFilter::kDefaultThresholdBytes - 1);
-  EXPECT_FALSE(filter.IsAccepted(result));
+  EXPECT_FALSE(filter.IsResultAccepted(result));
 }
 
 }  // namespace pagespeed
