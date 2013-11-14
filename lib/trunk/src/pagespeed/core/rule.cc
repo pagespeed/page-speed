@@ -96,6 +96,9 @@ bool CompareResults(const Result* result1, const Result* result2) {
 
 }  // namespace
 
+const double Rule::kImpactMediumCutoff = 3.0;
+const double Rule::kImpactHighCutoff = 10.0;
+
 Rule::Rule(const InputCapabilities& capability_requirements)
     : capability_requirements_(capability_requirements) {}
 
