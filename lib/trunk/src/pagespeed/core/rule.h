@@ -39,6 +39,11 @@ typedef std::vector<const Result*> ResultVector;
  */
 class Rule {
  public:
+  // Lowest rule impact values that trigger a "medium" and "high" severity
+  // result presentation, respectively.
+  static const double kImpactMediumCutoff;
+  static const double kImpactHighCutoff;
+
   explicit Rule(const InputCapabilities& capability_requirements);
   virtual ~Rule();
 
