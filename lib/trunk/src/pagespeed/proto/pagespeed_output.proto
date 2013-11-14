@@ -383,7 +383,7 @@ message ServerResponseTimeDetails {
 message Result {
   // Identifier of rule that produced this result. DEPRECATED (rule name is
   // stored in RuleResults)
-  optional string rule_name = 1 [deprecated=true];
+  // optional string rule_name = 1 [deprecated=true];
 
   // Potential savings if page was optimized.
   optional Savings savings = 2;
@@ -453,13 +453,13 @@ message Version {
 
 message Results {
   // Set of results. DEPRECATED (use rule_results instead)
-  repeated Result results = 1 [deprecated=true];
+  // repeated Result results = 1 [deprecated=true];
 
   // Summary of information about the inputs.
   required InputInformation input_info = 2;
 
   // Names of all rules that were run (use rule_results instead).
-  repeated string rules = 3 [deprecated=true];
+  // repeated string rules = 3 [deprecated=true];
 
   // Names of rules that encountered errors during processing.
   repeated string error_rules = 4;
