@@ -15,6 +15,8 @@
 #ifndef PAGESPEED_RULES_AVOID_PLUGINS_H_
 #define PAGESPEED_RULES_AVOID_PLUGINS_H_
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "pagespeed/core/rule.h"
 #include "pagespeed/l10n/user_facing_string.h"
@@ -39,10 +41,8 @@ class AvoidPlugins : public Rule {
   virtual bool AppendResults(const RuleInput& input, ResultProvider* provider);
   virtual void FormatResults(const ResultVector& results,
                              RuleFormatter* formatter);
-
-  // This rule is still experimental. It returns true to indicate that. When
-  // this rule graduates to stable, remove this function, and the code in .cc.
-  // Let the base class return false by default.
+  virtual void AppendRuleGroups(
+      std::vector<FormattedRuleResults::RuleGroup>* out) const;
   virtual bool IsExperimental() const;
 
  protected:
