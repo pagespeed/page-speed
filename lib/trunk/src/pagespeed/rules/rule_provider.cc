@@ -111,8 +111,6 @@ static const char* kMobileBrowserRules[] = {
   // the rules are also applicable to desktop, so they are included as
   // part of the "core" ruleset.
   "avoidplugins",
-  "mobileviewport",
-  "useanapplicationcache",
   NULL,
 };
 
