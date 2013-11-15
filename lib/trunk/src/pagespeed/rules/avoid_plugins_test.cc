@@ -169,6 +169,33 @@ TEST_F(AvoidPluginsTest, FlashEmbedSize) {
               ComputeRuleImpact(), 0.01);
 }
 
+TEST_F(AvoidPluginsTest, FlashEmbedInIframe) {
+  SetViewportWidthAndHeight(200, 200);  // 40000 px
+
+  // Main document:
+  FakeDomElement* iframe = FakeDomElement::NewIframe(body());
+  iframe->SetCoordinates(20, 25);
+  iframe->SetActualWidthAndHeight(150, 100);
+
+  // Iframe document:
+  FakeDomDocument* doc2;
+  NewDocumentResource("http://example.com/iframe.html",
+                      iframe,
+                      &doc2);
+  FakeDomElement* html2 = FakeDomElement::NewRoot(doc2, "HTML");
+  FakeDomElement* embed = FakeDomElement::New(html2, "embed");
+  embed->AddAttribute("type", kFlashMime);
+  embed->AddAttribute("src", kSwfUrl);
+  embed->SetCoordinates(5, 20);
+  embed->SetActualWidthAndHeight(100, 900);  // 8000 px when clipped
+  std::string expected =
+      std::string() + kSummary + kFlashBlock +
+      "  " + kSwfUrl + " (100 x 80) final[25,45,100,80].\n";
+  CheckFormattedOutput(expected);
+  // One plugin that's 20% of the ATF should be a high impact result.
+  EXPECT_EQ(Rule::kImpactHighCutoff, ComputeRuleImpact());
+}
+
 TEST_F(AvoidPluginsTest, FlashObjectSimple) {
   FakeDomElement* object = FakeDomElement::New(body(), "object");
   object->AddAttribute("type", kFlashMime);
