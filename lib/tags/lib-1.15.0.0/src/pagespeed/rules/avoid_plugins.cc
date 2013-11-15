@@ -219,6 +219,9 @@ class PluginElementVisitor : public pagespeed::DomElementVisitor {
                const pagespeed::DomDocument* document,
                pagespeed::ResultProvider* provider);
 
+  void SetFrameVisible(bool visible);
+  void SetFrameBounds(int x1, int y1, int x2, int y2);
+
   virtual void Visit(const pagespeed::DomElement& node);
 
  private:
@@ -255,6 +258,14 @@ class PluginElementVisitor : public pagespeed::DomElementVisitor {
 
   const pagespeed::RuleInput* rule_input_;
   const pagespeed::DomDocument* document_;
+  bool frame_visible_;
+
+  // Bounds of this frame within the window. If frame_x2_ and frame_y2 are -1,
+  // the width and height of the frame are treated as unbounded.
+  int frame_x1_;
+  int frame_y1_;
+  int frame_x2_;
+  int frame_y2_;
   pagespeed::ResultProvider* provider_;
 
   DISALLOW_COPY_AND_ASSIGN(PluginElementVisitor);
@@ -266,7 +277,32 @@ PluginElementVisitor::PluginElementVisitor(
     pagespeed::ResultProvider* provider) :
         rule_input_(rule_input),
         document_(document),
+        frame_visible_(true),
+        frame_x1_(0),
+        frame_y1_(0),
+        frame_x2_(-1),
+        frame_y2_(-1),
         provider_(provider) {
+}
+
+// Sets the bounds of this frame within the main window. Must describe a non
+// zero sized box in at least partially in positive coordinate space,
+// or else will set the frame visibility to false instead.
+void PluginElementVisitor::SetFrameBounds(int x1, int y1, int x2, int y2) {
+  if (x2 < 0 || y2 < 0 || x2 < x1 || y2 < y1) {
+    SetFrameVisible(false);
+    return;
+  }
+
+  frame_x1_ = x1;
+  frame_y1_ = y1;
+  frame_x2_ = x2;
+  frame_y2_ = y2;
+}
+
+// Sets whether this frame is visible in the main window.
+void PluginElementVisitor::SetFrameVisible(bool visible) {
+  frame_visible_ = visible;
 }
 
 void PluginElementVisitor::Visit(const pagespeed::DomElement& node) {
@@ -277,6 +313,26 @@ void PluginElementVisitor::Visit(const pagespeed::DomElement& node) {
     scoped_ptr<pagespeed::DomDocument> child_doc(node.GetContentDocument());
     if (child_doc.get()) {
       PluginElementVisitor checker(rule_input_, child_doc.get(), provider_);
+      int x, y, width, height;
+      if (frame_visible_ &&
+          node.GetX(&x) == pagespeed::DomElement::SUCCESS &&
+          node.GetY(&y) == pagespeed::DomElement::SUCCESS &&
+          node.GetActualWidth(&width) == pagespeed::DomElement::SUCCESS &&
+          node.GetActualHeight(&height) == pagespeed::DomElement::SUCCESS) {
+        const int x1 = frame_x1_ + x;
+        const int y1 = frame_y1_ + y;
+        int x2 = x1 + width;
+        int y2 = y1 + height;
+        // If the x2 and y2 coordinates of the frame containing this iframe are
+        // bounded, clip the iframe's x2 and y2 coordinates to match.
+        if (frame_x2_ >= 0 && frame_y2_ >= 0) {
+          x2 = std::min(x2, frame_x2_);
+          y2 = std::min(y2, frame_y2_);
+        }
+        checker.SetFrameBounds(x1, y1, x2, y2);
+      } else {
+        checker.SetFrameVisible(false);
+      }
       child_doc->Traverse(&checker);
     }
   }
@@ -320,27 +376,47 @@ void PluginElementVisitor::AddResult(const pagespeed::DomElement& node,
     avoid_plugins_details->set_classid(classid);
   }
 
+  // Don't attempt to calculate dimensions if we are in a frame that does not
+  // have layout coordinates.
+  if (!frame_visible_) {
+    return;
+  }
+
   int x, y, width, height;
   if (node.GetX(&x) == pagespeed::DomElement::SUCCESS &&
       node.GetY(&y) == pagespeed::DomElement::SUCCESS &&
       node.GetActualWidth(&width) == pagespeed::DomElement::SUCCESS &&
       node.GetActualHeight(&height) == pagespeed::DomElement::SUCCESS) {
-    avoid_plugins_details->set_x(x);
-    avoid_plugins_details->set_y(y);
-    avoid_plugins_details->set_width(width);
-    avoid_plugins_details->set_height(height);
+    // Translate the bounds of this plugin based on the containing frame.
+    const int x1 = std::max(0, frame_x1_ + x);
+    const int y1 = std::max(0, frame_y1_ + y);
+    int x2 = std::max(0, frame_x1_ + x + width);
+    int y2 = std::max(0, frame_y1_ + y + height);
+
+    // If the x2 and y2 coordinates of the frame containing this plugin are
+    // bounded, clip the plugin's x2 and y2 coordinates to match.
+    if (frame_x2_ > 0 && frame_y2_ > 0) {
+      x2 = std::min(x2, frame_x2_);
+      y2 = std::min(y2, frame_y2_);
+    }
+
+    avoid_plugins_details->set_x(x1);
+    avoid_plugins_details->set_y(y1);
+    avoid_plugins_details->set_width(x2 - x1);
+    avoid_plugins_details->set_height(y2 - y1);
 
     const int viewport_w = rule_input_->pagespeed_input().viewport_width();
     const int viewport_h = rule_input_->pagespeed_input().viewport_height();
 
-    // Sanity check that the viewport width and height are set.
+    // Sanity check that the viewport width and height are set before
+    // calculating ATF percentage.
     if (viewport_w > 0 && viewport_h > 0) {
       const int atf_pixels = viewport_w * viewport_h;
 
-      const int clamped_x1 = std::min(std::max(x, 0), viewport_w);
-      const int clamped_y1 = std::min(std::max(y, 0), viewport_h);
-      const int clamped_x2 = std::min(std::max(x + width, 0), viewport_w);
-      const int clamped_y2 = std::min(std::max(y + height, 0), viewport_h);
+      const int clamped_x1 = std::min(std::max(x1, 0), viewport_w);
+      const int clamped_y1 = std::min(std::max(y1, 0), viewport_h);
+      const int clamped_x2 = std::min(std::max(x2, 0), viewport_w);
+      const int clamped_y2 = std::min(std::max(y2, 0), viewport_h);
 
       const int atf_plugin_pixels =
           (clamped_x2 - clamped_x1) * (clamped_y2 - clamped_y1);
