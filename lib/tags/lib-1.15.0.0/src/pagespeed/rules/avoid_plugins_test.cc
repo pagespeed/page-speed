@@ -20,6 +20,7 @@ namespace {
 
 using pagespeed::rules::AvoidPlugins;
 using pagespeed::Resource;
+using pagespeed::Rule;
 using pagespeed_testing::FakeDomDocument;
 using pagespeed_testing::FakeDomElement;
 using pagespeed_testing::PagespeedRuleTest;
@@ -113,18 +114,59 @@ TEST_F(AvoidPluginsTest, FlashEmbedSimple) {
   embed->AddAttribute("type", kFlashMime);
   embed->AddAttribute("src", "flash");
   CheckOneUrl(kFlashBlock, "http://example.com/flash");
+  // No layout information, score as medium impact.
+  EXPECT_EQ(Rule::kImpactMediumCutoff, ComputeRuleImpact());
 }
 
-TEST_F(AvoidPluginsTest, FlashEmbedSize) {
+TEST_F(AvoidPluginsTest, FlashEmbed20PercentOfSize) {
+  SetViewportWidthAndHeight(100, 100);  // 10000 px
   FakeDomElement* embed = FakeDomElement::New(body(), "embed");
   embed->AddAttribute("type", kFlashMime);
   embed->AddAttribute("src", kSwfUrl);
-  embed->SetCoordinates(111, 222);
-  embed->SetActualWidthAndHeight(400, 800);
+  embed->SetCoordinates(5, 5);
+  embed->SetActualWidthAndHeight(50, 40);  // 2000 px
   std::string expected =
       std::string() + kSummary + kFlashBlock +
-      "  " + kSwfUrl + " (400 x 800) final[111,222,400,800].\n";
+      "  " + kSwfUrl + " (50 x 40) final[5,5,50,40].\n";
   CheckFormattedOutput(expected);
+  // One plugin that's 20% of the ATF should be a high impact result.
+  EXPECT_EQ(Rule::kImpactHighCutoff, ComputeRuleImpact());
+}
+
+TEST_F(AvoidPluginsTest, TwoClippedFlashEmbed20PercentOfSize) {
+  SetViewportWidthAndHeight(100, 100);
+  FakeDomElement* embed = FakeDomElement::New(body(), "embed");
+  embed->AddAttribute("type", kFlashMime);
+  embed->AddAttribute("src", kSwfUrl);
+  embed->SetCoordinates(0, 0);
+  embed->SetActualWidthAndHeight(50, 40);
+  FakeDomElement* embed_2 = FakeDomElement::New(body(), "embed");
+  embed_2->AddAttribute("type", kFlashMime);
+  embed_2->AddAttribute("src", kSwfUrl);
+  embed_2->SetCoordinates(100 - 50, 100 - 40);
+  embed_2->SetActualWidthAndHeight(800, 900);
+  std::string expected =
+      std::string() + kSummary + kFlashBlock +
+      "  " + kSwfUrl + " (50 x 40) final[0,0,50,40].\n" +
+      "  " + kSwfUrl + " (800 x 900) final[50,60,800,900].\n";
+  CheckFormattedOutput(expected);
+  // Each plugin is 20% of the ATF viewport after clipping.
+  EXPECT_EQ(2 * Rule::kImpactHighCutoff, ComputeRuleImpact());
+}
+
+TEST_F(AvoidPluginsTest, FlashEmbedSize) {
+  SetViewportWidthAndHeight(1024, 768);
+  FakeDomElement* embed = FakeDomElement::New(body(), "embed");
+  embed->AddAttribute("type", kFlashMime);
+  embed->AddAttribute("src", kSwfUrl);
+  embed->SetCoordinates(11, 22);
+  embed->SetActualWidthAndHeight(400, 300);
+  std::string expected =
+      std::string() + kSummary + kFlashBlock +
+      "  " + kSwfUrl + " (400 x 300) final[11,22,400,300].\n";
+  CheckFormattedOutput(expected);
+  EXPECT_NEAR(3.0 + ((10.0 - 3.0) / 0.2) * ((400.0*300.0) / (1024.0*768.0)),
+              ComputeRuleImpact(), 0.01);
 }
 
 TEST_F(AvoidPluginsTest, FlashObjectSimple) {
@@ -160,7 +202,9 @@ TEST_F(AvoidPluginsTest, FlashEmbedAndObject) {
       "  http://example.com/a.swf (400 x 800) final[111,222,400,800].\n" +
       "  http://example.com/b.swf\n";
   CheckFormattedOutput(expected);
-  EXPECT_EQ(2.0, ComputeRuleImpact());
+  // Since a viewport wasn't provided, this should be scored as two plugins
+  // with unknown area.
+  EXPECT_EQ(6.0, ComputeRuleImpact());
 }
 
 TEST_F(AvoidPluginsTest, FlashActiveXObject) {
