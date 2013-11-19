@@ -54,8 +54,11 @@ TEST(FormatterUtilTest, Multi) {
 TEST(FormatterUtilTest, Distance) {
   EXPECT_EQ("0mm", pagespeed::formatters::FormatDistance(-10));
   EXPECT_EQ("0mm", pagespeed::formatters::FormatDistance(0));
-  EXPECT_EQ("123um", pagespeed::formatters::FormatDistance(123));
-  EXPECT_EQ("999um", pagespeed::formatters::FormatDistance(999));
+  EXPECT_EQ("0.01mm", pagespeed::formatters::FormatDistance(1));
+  EXPECT_EQ("0.1mm", pagespeed::formatters::FormatDistance(100));
+  EXPECT_EQ("0.12mm", pagespeed::formatters::FormatDistance(123));
+  EXPECT_EQ("0.13mm", pagespeed::formatters::FormatDistance(126));
+  EXPECT_EQ("1mm", pagespeed::formatters::FormatDistance(999));
   EXPECT_EQ("1mm", pagespeed::formatters::FormatDistance(1000));
   EXPECT_EQ("4.6mm", pagespeed::formatters::FormatDistance(4567));
   EXPECT_EQ("3.9mm", pagespeed::formatters::FormatDistance(3949));
