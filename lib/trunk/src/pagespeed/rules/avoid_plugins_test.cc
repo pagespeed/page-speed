@@ -534,7 +534,11 @@ TEST_F(AvoidPluginsTest, LotsOfPlugins) {
   {
     FakeDomElement* embed = FakeDomElement::New(body(), "embed");
     embed->AddAttribute("type", "video/mp4");
-    embed->AddAttribute("src", "should_ignore_this_video.mp4");
+    embed->AddAttribute("src", "should_ignore_this_video");
+  }
+  {
+    FakeDomElement* embed = FakeDomElement::New(body(), "embed");
+    embed->AddAttribute("src", "should_ignore_this_audio.mp3");
   }
 
   // Blocks should be sorted by the order the first instance was encountered on

@@ -44,6 +44,7 @@ using pagespeed::AvoidPluginsDetails_PluginType_UNKNOWN;
 using pagespeed::AvoidPluginsDetails_PluginType_FLASH;
 using pagespeed::AvoidPluginsDetails_PluginType_SILVERLIGHT;
 using pagespeed::AvoidPluginsDetails_PluginType_JAVA;
+using pagespeed::string_util::StringCaseEndsWith;
 using pagespeed::string_util::StringCaseStartsWith;
 
 namespace {
@@ -68,6 +69,7 @@ static const PluginID kPluginMimeTypes[] = {
 // a plugin.
 static const char* kAllowedMimeTypes[] = {
     "image/",
+    "audio/",
     "video/",
     "text/",
     // Allow preloaded javascript hacks:
@@ -96,6 +98,16 @@ static const PluginID kPluginFileExtensions[] = {
     {AvoidPluginsDetails_PluginType_SILVERLIGHT, ".xap"},
     {AvoidPluginsDetails_PluginType_JAVA, ".class"},
     {AvoidPluginsDetails_PluginType_JAVA, ".jar"}
+};
+
+// Whitelist of file extensions most browsers can directly interpret without
+// a plugin. Must include the ".".
+static const char* kAllowedFileExtensions[] = {
+    ".mp3",
+    ".mp4",
+    ".ogg",
+    ".wav",
+    ".webm"
 };
 
 // Human-readable names for known plugin types. As these are product names,
@@ -213,6 +225,29 @@ AvoidPluginsDetails_PluginType DetermineTypeFromMime(
   return AvoidPluginsDetails_PluginType_UNKNOWN;
 }
 
+// If true, this MIME type can likely be interpreted directly by browsers and
+// should not be recorded as a plugin.
+bool DetermineAllowedFromMime(const std::string& mime_type) {
+  for (size_t i = 0; i < arraysize(kAllowedMimeTypes); ++i) {
+    if (StringCaseStartsWith(mime_type, kAllowedMimeTypes[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// If true, this file's extension can likely be interpreted directly by
+// browsers and should not be recorded as a plugin. The provided url should not
+// contain any query params or fragments.
+bool DetermineAllowedFromExtension(const std::string& url) {
+  for (size_t i = 0; i < arraysize(kAllowedFileExtensions); ++i) {
+    if (StringCaseEndsWith(url, kAllowedFileExtensions[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 class PluginElementVisitor : public pagespeed::DomElementVisitor {
  public:
   PluginElementVisitor(const pagespeed::RuleInput* rule_input,
@@ -246,8 +281,9 @@ class PluginElementVisitor : public pagespeed::DomElementVisitor {
   bool ProcessAppletTag(const pagespeed::DomElement& node,
                         AvoidPluginsDetails_PluginType* out_type,
                         std::string* out_url);
-  AvoidPluginsDetails_PluginType DetermineTypeFromUrl(const std::string url,
-                                                      std::string* out_mime);
+  void DetermineTypeFromUrl(const std::string url, bool* out_allowed,
+                            AvoidPluginsDetails_PluginType* out_type,
+                            std::string* out_mime);
   bool DetermineJavaUrlFromAttributes(const pagespeed::DomElement& node,
                                       std::string* out_url);
   bool DetermineJavaUrl(const std::string& archive,
@@ -350,15 +386,6 @@ void PluginElementVisitor::AddResult(const pagespeed::DomElement& node,
                                      AvoidPluginsDetails_PluginType type,
                                      const std::string& mime,
                                      const std::string& url) {
-  if (type == AvoidPluginsDetails_PluginType_UNKNOWN) {
-    for (size_t i = 0; i < arraysize(kAllowedMimeTypes); ++i) {
-      if (StringCaseStartsWith(mime, kAllowedMimeTypes[i])) {
-        LOG(INFO) << "Ignoring allowed plugin type " << mime;
-        return;
-      }
-    }
-  }
-
   pagespeed::Result* result = provider_->NewResult();
   result->add_resource_urls(url);
 
@@ -524,6 +551,12 @@ bool PluginElementVisitor::ProcessObjectTag(
     // Put more amusingly: at this point, the type is known to be
     // PluginType_UNKNOWN, where as before it was an unknown unknown.
     found_type = true;
+
+    if (*out_type == AvoidPluginsDetails_PluginType_UNKNOWN) {
+      if (DetermineAllowedFromMime(*out_mime)) {
+        return false;
+      }
+    }
   }
 
   bool found_src = false;
@@ -578,7 +611,11 @@ bool PluginElementVisitor::ProcessObjectTag(
     // the URL relative to the document.
     *out_url = document_->ResolveUri(src);
     if (!found_type) {
-      *out_type = DetermineTypeFromUrl(*out_url, out_mime);
+      bool allowed_type;
+      DetermineTypeFromUrl(*out_url, &allowed_type, out_type, out_mime);
+      if (allowed_type) {
+        return false;
+      }
     }
   }
 
@@ -602,6 +639,12 @@ bool PluginElementVisitor::ProcessEmbedTag(
   if (node.GetAttributeByName("type", out_mime) && !out_mime->empty()) {
     *out_type = DetermineTypeFromMime(*out_mime);
     found_type = true;
+
+    if (*out_type == AvoidPluginsDetails_PluginType_UNKNOWN) {
+      if (DetermineAllowedFromMime(*out_mime)) {
+        return false;
+      }
+    }
   }
 
   bool found_src = false;
@@ -626,7 +669,11 @@ bool PluginElementVisitor::ProcessEmbedTag(
   if (found_src) {
     *out_url = document_->ResolveUri(src);
     if (!found_type) {
-      *out_type = DetermineTypeFromUrl(*out_url, out_mime);
+      bool allowed_type;
+      DetermineTypeFromUrl(*out_url, &allowed_type, out_type, out_mime);
+      if (allowed_type) {
+        return false;
+      }
     }
   }
   return true;
@@ -647,10 +694,14 @@ bool PluginElementVisitor::ProcessAppletTag(
 // Determine the plugin type given a URL. If the resource is in the
 // PagespeedInput, uses the Content-Type header and sets out_mime. Otherwise,
 // guesses from the file extension and does not change out_mime.
-AvoidPluginsDetails_PluginType PluginElementVisitor::DetermineTypeFromUrl(
-    const std::string url, std::string* out_mime) {
+void PluginElementVisitor::DetermineTypeFromUrl(
+    const std::string url, bool* out_allowed,
+    AvoidPluginsDetails_PluginType* out_type, std::string* out_mime) {
+  *out_allowed = false;
+
   if (url.empty()) {
-    return AvoidPluginsDetails_PluginType_UNKNOWN;
+    *out_type = AvoidPluginsDetails_PluginType_UNKNOWN;
+    return;
   }
 
   // See if we fetched the resource and have its MIME type.
@@ -667,7 +718,11 @@ AvoidPluginsDetails_PluginType PluginElementVisitor::DetermineTypeFromUrl(
     std::string content_type = resource->GetResponseHeader("Content-Type");
     if (!content_type.empty()) {
       *out_mime = content_type;
-      return DetermineTypeFromMime(content_type);
+      *out_type = DetermineTypeFromMime(content_type);
+      if (*out_type == AvoidPluginsDetails_PluginType_UNKNOWN) {
+        *out_allowed = DetermineAllowedFromMime(content_type);
+      }
+      return;
     }
   }
 
@@ -680,13 +735,17 @@ AvoidPluginsDetails_PluginType PluginElementVisitor::DetermineTypeFromUrl(
       const PluginID& plugin_id = kPluginFileExtensions[i];
       if (pagespeed::string_util::StringCaseEndsWith(
               url_no_query, plugin_id.id)) {
-        return plugin_id.type;
+        *out_type = plugin_id.type;
+        return;
       }
     }
+
+    // If it's not a known plugin, maybe it should be allowed.
+    *out_allowed = DetermineAllowedFromExtension(url_no_query);
   }
 
   // If that didn't work, give up.
-  return AvoidPluginsDetails_PluginType_UNKNOWN;
+  *out_type = AvoidPluginsDetails_PluginType_UNKNOWN;
 }
 
 // Determine the source URL of a Java plugin from attributes on the tag.
