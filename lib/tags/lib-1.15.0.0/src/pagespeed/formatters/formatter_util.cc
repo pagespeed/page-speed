@@ -44,7 +44,6 @@ const UnitDescriptor kDurations[] = {
 };
 
 const UnitDescriptor kDistances[] = {
-  { 1000, "um" },
   { 1000, "mm" },
   { 1000, "m" },
   { -1, "km" },
@@ -119,7 +118,9 @@ std::string FormatDistance(int64 micrometers) {
   if (micrometers <= 0) {
     return "0mm";
   }
-  double distance = micrometers;
+
+  // The smallest unit used for output is a millimeter, not a micrometer.
+  double distance = micrometers / 1000.0;
   const char* display_name = "";
   for (size_t i = 0; i < kDistancesSize && distance > 0; ++i) {
     const UnitDescriptor *desc = kDistances + i;
@@ -130,9 +131,25 @@ std::string FormatDistance(int64 micrometers) {
     distance /= desc->quantity;
   }
 
-  // If the value is between 0 and 10, and the first decimal place is
-  // non-zero, then show a single digit decimal value. Otherwise,
+  // Attempt to show a minimum of two significant figures, with a minimum
+  // result of 0.01 and truncating trailing zeroes. If the value is between
+  // 0 and 1, and the hundredth place is non-zero, then show a two digit
+  // decimal value. Otherwise, if the value is between 0 and 10 and the tenth
+  // place is non-zero, then show a single digit decimal value. Otherwise,
   // round to the nearest whole number.
+  if (distance < 1) {
+    if (distance <= 0.01) {
+      // Make sure that the formatted version of any non-zero distance is
+      // non-zero by rounding up very small numbers.
+      return StringPrintf("0.01%s", display_name);
+    }
+    const int hundredths = static_cast<int>(round(distance * 100)) % 10;
+    if (hundredths > 0) {
+      // Round to nearest hundredth.
+      double rounded_distance = round(distance * 100) / 100;
+      return StringPrintf("%.2f%s", rounded_distance, display_name);
+    }
+  }
   if (distance < 10) {
     const int tenths = static_cast<int>(round(distance * 10)) % 10;
     if (tenths > 0) {

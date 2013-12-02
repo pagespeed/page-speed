@@ -167,6 +167,12 @@ message InstrumentationData {
 
     // Marks
     optional bool is_main_frame = 33;
+
+    // DecodeImage
+    optional string image_type = 34;
+
+    // ResizeImage
+    optional bool cached = 35;
   }
 
   // The type field is required, but we mark it 'optional' because otherwise
