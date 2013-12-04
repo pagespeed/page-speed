@@ -828,8 +828,8 @@ const char* AvoidPlugins::name() const {
 
 UserFacingString AvoidPlugins::header() const {
   // TRANSLATOR: The name of a Page Speed rule that tells users to avoid using
-  // plugins like Flash on webpages.
-  return not_finalized("Avoid plugins");
+  // browser plugins like Flash or Silverlight on webpages.
+  return _("Avoid plugins");
 }
 
 bool AvoidPlugins::AppendResults(const RuleInput& rule_input,
@@ -849,9 +849,9 @@ UrlBlockFormatter* AvoidPlugins::CreateUrlBlockFormatterForType(
       return formatter->AddUrlBlock(
           // TRANSLATOR: Header at the top of a list of browser plugins
           // of a specified type detected on a webpage. PLUGIN_TYPE will be
-          // replaced with a name such as Flash or Silverlight.
-          not_finalized("Find alternatives for the following %(PLUGIN_TYPE)s "
-                        "plugins."),
+          // replaced with a name such as "Flash" or "Silverlight", which are
+          // not translated.
+          _("Find alternatives for the following %(PLUGIN_TYPE)s plugins."),
           VerbatimStringArgument("PLUGIN_TYPE", kPluginHumanNames[i].id));
     }
   }
@@ -865,7 +865,7 @@ UrlBlockFormatter* AvoidPlugins::CreateUrlBlockFormatterForType(
       // type detected on a webpage. "Plugins" refers to additional software
       // that needs to be installed to use portions of some web pages, such as
       // Flash or Silverlight.
-      not_finalized("Find alternatives for the following plugins."));
+      _("Find alternatives for the following plugins."));
 }
 
 void AvoidPlugins::FormatResults(const ResultVector& results,
@@ -877,7 +877,10 @@ void AvoidPlugins::FormatResults(const ResultVector& results,
         // installed to use portions of some web pages, such as Flash or
         // Silverlight. "Platforms" refer to devices like cell phones, and
         // browsers like Chrome or Internet Explorer.
-        not_finalized("Your page does not appear to use plugins, which would "
+        // The text between BEGIN_LINK and END_LINK will be displayed as a
+        // clickable link in the browser, which takes the user to a document
+        // providing additional information.
+        _("Your page does not appear to use plugins, which would "
           "prevent content from being usable on many platforms. Learn more "
           "about the importance of %(BEGIN_LINK)savoiding "
           "plugins%(END_LINK)s."),
@@ -893,7 +896,10 @@ void AvoidPlugins::FormatResults(const ResultVector& results,
       // installed to use portions of some web pages, such as Flash or
       // Silverlight. "Platforms" refer to devices like cell phones, and
       // browsers like Chrome or Internet Explorer.
-      not_finalized("Your page uses plugins, which prevents portions of your "
+      // The text between BEGIN_LINK and END_LINK will be displayed as a
+      // clickable link in the browser, which takes the user to a document
+      // providing additional information.
+      _("Your page uses plugins, which prevents portions of your "
         "page from being used on many platforms. %(BEGIN_LINK)sFind "
         "alternatives for plugin based content%(END_LINK)s to increase "
         "compatibility."),
@@ -944,7 +950,7 @@ void AvoidPlugins::FormatResults(const ResultVector& results,
             // TRANSLATOR: Entry of a list of plugins detected on a webpage.
             // TYPE will be replaced with an identifier like "application/java"
             // or "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
-            not_finalized("Unknown plugin of type %(TYPE)s."),
+            _("Unknown plugin of type %(TYPE)s."),
             VerbatimStringArgument("TYPE", type));
         continue;
       }
