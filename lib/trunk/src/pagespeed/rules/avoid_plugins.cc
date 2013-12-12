@@ -783,7 +783,7 @@ bool PluginElementVisitor::DetermineJavaUrl(const std::string& code,
     // the first one to report to the user.
     base::StringPiece archives_piece(archive);
     const size_t first_comma_index = archives_piece.find(",");
-    if (first_comma_index >= 0) {
+    if (first_comma_index != base::StringPiece::npos) {
       archives_piece.substr(0, first_comma_index).CopyToString(&src);
     } else {
       src = archive;
