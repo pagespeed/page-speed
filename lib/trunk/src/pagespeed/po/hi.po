@@ -7,6 +7,35 @@
 msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
 msgstr "रीडायरेक्‍ट किए गए URL की निम्‍न श्रृंखला के लिए %(BEGIN_LINK)sलैंडिंग पृष्ठ रीडायरेक्‍ट से बचें%(END_LINK)s."
 
+#  Detailed text in a Page Speed rule telling a web developer
+#  to change the viewport on their page in order to work better on mobile
+#  devices.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "%(BEGIN_LINK)sConfigure a viewport%(END_LINK)s for this page."
+msgstr "इस पृष्ठ के लिए %(BEGIN_LINK)sव्यूपोर्ट कॉन्फ़िगर करें%(END_LINK)s."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work if the styling on your page relies on a fixed-width layout."
+msgstr "%(VIEWPORT)s के बजाय %(DEVICE_WIDTH)s निर्दिष्ट करके %(BEGIN_LINK)sव्यूपोर्ट कॉन्फ़िगर करना%(END_LINK)s आपके पृष्ठ को विभिन्न चौड़ाई वाले उपकरणों से अनुकूलित होने देगा. इसकी आवश्यकता तब हो सकती है यदि आपके पृष्ठ की शैली निश्चित-चौड़ाई वाले लेआउट पर भरोसा करती है."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work to adapt your styling for smaller screens."
+msgstr "%(VIEWPORT)s के बजाय %(DEVICE_WIDTH)s निर्दिष्ट करके %(BEGIN_LINK)sव्यूपोर्ट कॉन्फ़िगर करना%(END_LINK)s आपके पृष्ठ को विभिन्न चौड़ाई वाले उपकरणों से अनुकूलित होने देगा. छोटे आकार वाली स्क्रीन हेतु आपकी स्टाइलिंग से अनुकूलित होने के लिए अतिरिक्त कार्य की आवश्यकता हो सकती है."
+
 #  Descriptive header for a list of URLs that were
 #  served uncompressed, in violation of the EnableGzipCompression
 #  rule.  It tells the webmaster that compressing all of those
@@ -82,17 +111,6 @@ msgstr "निम्‍न का %(BEGIN_LINK)sCSS वितरण अनुक
 #  be replaced by the percent savings (e.g. "50%").
 msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr "निम्‍न चित्रों के आकार को %(SIZE_IN_BYTES)s (%(PERCENTAGE)s कमी) तक कम करने के लिए %(BEGIN_LINK)s‍चित्रों को अनुकूलित करें%(END_LINK)s."
-
-#  Summary header recommending that the user place
-#  priority on rendering the content that will be visible
-#  above-the-fold in the early portion of the HTML response.
-#  ("Above-the-fold content" refers to the portion of the webpage
-#  that is immediately visible in the browser window without the user
-#  needing to scroll downwards; the term comes from newspapers, where
-#  the upper portion of the front page that is above the fold of the
-#  paper is immediately visible to the reader.)
-msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
-msgstr "उन %(BEGIN_LINK)sदृश्यमान सामग्री को प्राथमिकता दें%(END_LINK)s, जो ऊपरी आधे भाग की सामग्री को रेंडर करने के लिए आवश्‍यक है."
 
 #  Header at the top of a list of URLs that Page Speed
 #  determined were blocking the parser of above-the-fold
@@ -176,6 +194,82 @@ msgstr "JavaScript के %(SIZE_IN_BYTES)s को प्रारंभिक �
 #  the full fold content (e.g. "24.3kB").
 msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
 msgstr "ऊपरी आधे भाग की सामग्री को रेंडर करने के लिए %(SIZE_IN_BYTES)s के जवाब की आवश्‍यकता थी. उन %(BEGIN_LINK)sदृश्यमान सामग्री को प्राथमिकता दें%(END_LINK)s, जो ऊपरी आधे भाग को रेंडर करने के लिए आवश्‍यक है."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s और %(NUM_OTHERS)s अन्य की पंक्ति ऊंचाई %(SCREENSHOT)s के फ़ॉन्ट आकार का केवल %(LINE_HEIGHT_PERCENT)s है."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "%(TEXT_SNIPPET)s और %(NUM_OTHERS)s अन्य की पंक्ति ऊंचाई फ़ॉन्ट आकार का केवल %(LINE_HEIGHT_PERCENT)s है."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s और %(NUM_OTHERS)s अन्य केवल %(HEIGHT)s पिक्सेल ऊंचाई का %(SCREENSHOT)s रेंडर करते हैं."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s और %(NUM_OTHERS)s अन्य केवल %(HEIGHT)s पिक्सेल ऊंचाई का (%(CSS_HEIGHT)s CSS पिक्सेल) %(SCREENSHOT)s रेंडर करते हैं."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "%(TEXT_SNIPPET)s और %(NUM_OTHERS)s अन्य केवल %(HEIGHT)s पिक्सेल ऊंचाई का (%(CSS_HEIGHT)s CSS पिक्सेल) रेंडर करते हैं."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall."
+msgstr "%(TEXT_SNIPPET)s और %(NUM_OTHERS)s अन्य केवल %(HEIGHT)s पिक्सेल ऊंचाई रेंडर करते हैं."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s की पंक्ति ऊंचाई फ़ॉन्ट आकार %(SCREENSHOT)s की केवल %(LINE_HEIGHT_PERCENT)s है."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "%(TEXT_SNIPPET)s की पंक्ति ऊंचाई फ़ॉन्ट आकार की केवल %(LINE_HEIGHT_PERCENT)s है."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s केवल %(HEIGHT)s पिक्सेल की ऊंचाई वाला %(SCREENSHOT)s रेंडर करता है."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s केवल %(HEIGHT)s पिक्सेल की ऊंचाई वाला (%(CSS_HEIGHT)s CSS पिक्सेल) %(SCREENSHOT)s रेंडर करता है."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "%(TEXT_SNIPPET)s केवल %(HEIGHT)s पिक्सेल ऊंचाई (%(CSS_HEIGHT)s CSS पिक्सेल) रेंडर करता है."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall."
+msgstr "%(TEXT_SNIPPET)s केवल %(HEIGHT)s पिक्सेल ऊंचाई रेंडर करता है."
 
 #  Shown as part of a list of URLs that have unnecessary
 #  reflows (or "layouts", which is used interchangeably with the word
@@ -274,6 +368,12 @@ msgstr "%(URL)s पंक्ति %(LINE_NUMBER)s (%(DURATION)s)"
 msgid "%(URL)s should inline the following small resources:"
 msgstr "%(URL)s को निम्‍न छोटे संसाधनों को इनलाइन करना चाहिए:"
 
+#  A summary to give a general overview of this Page Speed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+msgid "All of your page's links/buttons are large enough for a user to easily tap on a touchscreen. Learn more about %(BEGIN_LINK)ssizing tap targets appropriately%(END_LINK)s."
+msgstr "आपके पृष्ठ के सभी लिंक/बटन इतने बड़े हैं कि उन्हें उपयोगकर्ता द्वारा आसानी से मोबाइल उपकरण की टचस्क्रीन पर टैप किया जा सकता है. %(BEGIN_LINK)sटैप लक्ष्यों का आकार उपयुक्त रूप से बदलने%(END_LINK)s के बारे में और जानें."
+
 #  Summary header indicating how much of the
 #  above-the-fold (i.e. within the initial browser
 #  viewport) content of a webpage was able to be correctly
@@ -306,11 +406,6 @@ msgstr "मेटा टैग में वर्ण सेट से बचे
 msgid "Avoid bad requests"
 msgstr "ग़लत अनुरोधों से बचें"
 
-#  The name of a Page Speed rule that tells users to avoid using
-#  Adobe Flash on mobile webpages
-msgid "Avoid flash on mobile webpages"
-msgstr "मोबाइल वेबपृष्ठों पर flash से बचें"
-
 #  The name of a Page Speed rule that tells users to avoid
 #  redirects at the landing page. The landing page is the root
 #  HTML document that was requested the user in the browser's address bar.
@@ -325,6 +420,11 @@ msgstr "लैंडिंग पृष्ठ रीडायरेक्ट स
 #  telling webmasters which rules they broke in their website.
 msgid "Avoid long-running scripts"
 msgstr "लंबे समय तक चलने वाली स्क्रिप्ट से बचें"
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  browser plugins like Flash or Silverlight on webpages.
+msgid "Avoid plugins"
+msgstr "प्लग-इन का उपयोग न करें"
 
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
@@ -393,6 +493,12 @@ msgstr "gzip या deflate वाले संसाधनों को सं�
 msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
 msgstr "आपके पृष्ठ के HTML को संपीड़ित करके आपका पृष्ठ जवाब के पहले 15kB में ऊपरी आधे भाग की अधिकांश सामग्री को रेंडर कर सकता है."
 
+#  The name of a PageSpeed rule that tells users to configure a
+#  viewport on their webpage, which allows mobile browsers to display the page
+#  at a reasonable size.
+msgid "Configure the viewport"
+msgstr "व्यूपोर्ट कॉन्फ़िगर करें"
+
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The
 #  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
@@ -440,6 +546,33 @@ msgstr " Keep-Alive सक्षम करें"
 #  website.
 msgid "Enable compression"
 msgstr "संपीड़न सक्षम करें"
+
+#  Header at the top of a list of browser plugins
+#  of a specified type detected on a webpage. PLUGIN_TYPE will be
+#  replaced with a name such as "Flash" or "Silverlight", which are
+#  not translated.
+msgid "Find alternatives for the following %(PLUGIN_TYPE)s plugins."
+msgstr "निम्न %(PLUGIN_TYPE)s प्लग-इन के लिए विकल्प ढूंढना."
+
+#  Header at the top of a list of browser plugins of unknown
+#  type detected on a webpage. "Plugins" refers to additional software
+#  that needs to be installed to use portions of some web pages, such as
+#  Flash or Silverlight.
+msgid "Find alternatives for the following plugins."
+msgstr "निम्न प्लग-इन के लिए विकल्प ढूंढना."
+
+#  Detailed text in a Page Speed rule telling a
+#  web developer that they may need to perform extra work if they make
+#  a certain change to their page.
+#  A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage. HTML_DOCTYPE will be replaced with the non-translatable
+#  string "<!DOCTYPE html>".
+#  A viewport is the size of a webpage when displayed on a phone,
+#  and is set using an HTML tag. META_VIEWPORT_TAG will be replaced
+#  with the non-translatable string
+#  "<meta name=viewport width=device-width>".
+msgid "If you change the doctype, for example to %(HTML_DOCTYPE)s in order to use HTML5 features, %(BEGIN_LINK)sconfigure a viewport%(END_LINK)s with %(META_VIEWPORT_TAG)s to keep the page's current behavior."
+msgstr "यदि आप HTML5 की सुविधाओं का उपयोग करने हेतु, doctype को, उदाहरण के लिए %(HTML_DOCTYPE)s में बदलते हैं, तो पृष्ठ के वर्तमान व्यवहार को बनाए रखने के लिए %(META_VIEWPORT_TAG)s के साथ %(BEGIN_LINK)sव्यूपोर्ट कॉन्फ़िगर करें%(END_LINK)s."
 
 #  The name of a Page Speed rule that tells users to improve
 #  their server response time. This is displayed in a list of
@@ -740,6 +873,29 @@ msgstr "आकार बदली गई चित्र सर्व करे�
 msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
 msgstr "स्थिर संसाधनों के लिए HTTP शीर्षलेखों में कोई समाप्ति दिनांक या अधिकतम आयु सेट करना, ब्राउज़र को पूर्व में डाउनलोड किए गए संसाधनों को नेटवर्क से लोड करने के बजाय स्थानीय डिस्क से लोड करने के निर्देश देता है."
 
+#  The name of a PageSpeed rule that tells users to make their
+#  webpage content of a size that is appropriate for their viewport setting,
+#  so that users won't need to e.g. scroll horizontally to see the rest of
+#  the page content.
+msgid "Size content to viewport"
+msgstr "सामग्री का आकार व्यूपोर्ट के अनुसार करें"
+
+#  The name of a PageSpeed rule that tells users to make sure
+#  that all of the "tap targets" (links or buttons on a touchscreen, which
+#  are pressed by the user by tapping on them) on their mobile webpage are
+#  large enough for the user to press easily.
+msgid "Size tap targets appropriately"
+msgstr "टैप लक्ष्यों का आकार उपयुक्त रूप से बदलें"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Some of the links/buttons on your webpage may be too small for a user to easily tap on a touchscreen. Consider %(BEGIN_LINK)smaking these tap targets larger%(END_LINK)s to provide a better user experience."
+msgstr "आपके वेबपृष्ठ के कुछ लिंक/बटन इतने छोटे हो सकते हैं कि उपयोगकर्ता उन्हें टचस्क्रीन पर आसानी से टैप नहीं कर सकते हैं. बेहतर उपयोगकर्ता अनुभव प्रदान करने के लिए %(BEGIN_LINK)sइन टैप लक्ष्यों को बड़ा बनाने%(END_LINK)s पर विचार करें."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -776,11 +932,22 @@ msgstr "मोबाइल ब्राउज़र के लिए व्‍�
 msgid "Specify image dimensions"
 msgstr "चित्र आयामों को निर्दिष्ट करें"
 
-#  Header at the top of a list of URLs of Adobe Flash
-#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
-#  the number of Flash elements found.
-msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
-msgstr "निम्‍न %(NUM_ELEMENTS)s Flash तत्‍व पृष्ठ पर शामिल किए गए हैं या शामिल iframes से लिए गए हैं. Apple iOS या 4.0.x के बाद वाले Android संस्‍करणों पर Adobe Flash Player समर्थित नहीं है. Flash ऑब्‍जेक्‍ट निकालें और उपयुक्त प्रतिस्‍थापन ढूंढें."
+msgid "The contents of your page fit within the viewport. Learn more about %(BEGIN_LINK)ssizing content to the viewport%(END_LINK)s."
+msgstr "आपके पृष्ठ की सामग्री व्यूपोर्ट में फ़िट हो जाती है. %(BEGIN_LINK)sसामग्री को व्यूपोर्ट के अनुसार आकार देने%(END_LINK)s के बारे में और जानें."
+
+msgid "The element %(HTML_TEXT)s falls outside the viewport."
+msgstr "%(HTML_TEXT)s तत्व व्यूपोर्ट के बाहर रह जाता है."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "The entire HTML response was not sufficient to render the above-the-fold content. This usually indicates that additional resources, loaded after HTML parsing, were required to render above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold by including it directly in the HTML response."
+msgstr "संपूर्ण HTML प्रतिसाद फ़ोल्ड के ऊपर वाली सामग्री रेंडर करने के लिए पर्याप्त नहीं था. इससे आमतौर पर यह संकेत मिलता है कि फ़ोल्ड के ऊपर वाली सामग्री रेंडर करने के लिए, HTML पार्सिंग के बाद लोड किए गए, अतिरिक्त संसाधन आवश्यक थे. %(BEGIN_LINK)sऐसी दृश्यमान सामग्री को प्राथमिकता दें%(END_LINK)s जो फ़ोल्ड के ऊपर वाली सामग्री रेंडर करने के लिए आवश्यक है, इसके लिए इसे HTML प्रतिसाद में सीधे शामिल करें."
 
 #  Summary header indicating that the external CSS
 #  resources can be inlined in the HTML and still meet the 15k criteria.
@@ -956,6 +1123,39 @@ msgstr "निम्न संसाधनों में समान सा�
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "निम्न संसाधनों के लिए उनके HTTP शीर्ष लेखों में कोई वर्ण सेट निर्दिष्ट किया हुआ नहीं है. HTTP शीर्ष लेखों में किसी वर्ण सेट को निर्दिष्ट करने से ब्राउज़र रेंडर करने की गति बढ़ सकती है."
 
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too close to other tap targets to be easily usable.
+#  A "tap target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The following tap targets are close to other nearby tap targets and may need additional spacing around them."
+msgstr "निम्न टैप लक्ष्य आस-पास के अन्य टैप लक्ष्यों के निकट हैं और उनके चारों ओर अतिरिक्त स्थान की आवश्यकता हो सकती है."
+
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too small to be easily usable.  A "tap target"
+#  refers to a webpage link or button on a touchscreen, which is
+#  pressed by the user by tapping on it.
+msgid "The following tap targets are small. Consider increasing their size."
+msgstr "निम्न टैप लक्ष्य बहुत ही छोटे हैं. उनका आकार बढ़ाने पर विचार करें."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that are too small to be
+#  easily legible when rendered on the screen.
+msgid "The following text fragments have a small font size. Increase the font size to make them more legible."
+msgstr "पाठ के निम्न हिस्सों का फ़ॉन्ट आकार छोटा है. इन्हें पठनीय बनाने के लिए फ़ॉन्ट आकार बढ़ाएं."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that have a line height
+#  (line height is the spacing between individual lines of
+#  text) that is too small to be easily legible.
+msgid "The following text fragments have a small line height. Increase the line height to make them more legible."
+msgstr "पाठ के निम्न हिस्सों की पंक्ति ऊंचाई कम है. उन्हें अधिक पठनीय बनाने के लिए पंक्ति की ऊंचाई बढ़ाएं."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  This rule informs that user that the text on a their website is
+#  too small and that they should make it larger.
+msgid "The following text on your page renders in a way that may be difficult for some of your visitors to read. %(BEGIN_LINK)sUse legible font sizes%(END_LINK)s to provide a better user experience."
+msgstr "आपके पृष्ठ पर मौजूद निम्न पाठ इस तरह रेंडर किया जाता है, जिसे पढ़ना आपके कुछ आगंतुकों के लिए कठिन हो सकता है. बेहतर उपयोगकर्ता अनुभव प्रदान करने के लिए %(BEGIN_LINK)sपठनीय फ़ॉन्ट आकारों का उपयोग करें%(END_LINK)s."
+
 #  Header at the top of a list of URLs of resources that
 #  are served from a domain that does not have HTTP Keep-Alive enabled.
 #  It tells the user to enable keep-alive on that host.  The
@@ -972,11 +1172,185 @@ msgstr "%(HOST_NAME)s होस्‍ट के द्वारा %(KEEPALIVE)s
 msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
 msgstr "निम्न url के होस्‍टनाम प्रत्येक के लिए केवल एक संसाधन सर्व करते हैं. इन संसाधनों को मौजूदा डोमेन से सर्व करके अतिरिक्त DNS लुकअप से बचें."
 
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide."
+msgstr "पृष्ठ की सामग्री %(CONTENT_WIDTH)s CSS पिक्सेल चौड़ी है, लेकिन व्यूपोर्ट केवल %(VIEWPORT_WIDTH)s CSS पिक्सेल चौड़ा है."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide. The following elements fall outside the viewport:"
+msgstr "पृष्ठ की सामग्री %(CONTENT_WIDTH)s CSS पिक्सेल चौड़ी है, लेकिन व्यूपोर्ट केवल %(VIEWPORT_WIDTH)s CSS पिक्सेल चौड़ा है. निम्न तत्व व्यूपोर्ट के बाहर रह जाते हैं:"
+
+msgid "The page content is too wide for the viewport, forcing the user to scroll horizontally. %(BEGIN_LINK)sSize the page content to the viewport%(END_LINK)s to provide a better user experience."
+msgstr "पृष्ठ की सामग्री व्यूपोर्ट के लिए बहुत ही चौड़ी है, जिससे उपयोगकर्ता क्षैतिज रूप से स्क्रॉल करने के लिए बाध्य हो जाता है. बेहतर उपयोगकर्ता अनुभव प्रदान करने के लिए %(BEGIN_LINK)sसामग्री को व्यूपोर्ट के अनुसार आकार दें%(END_LINK)s."
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as having large requests. It describes the problem to the
 #  user, and tells them how to fix it by reducing the size of requests.
 msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
 msgstr "निम्‍न URL के लिए अनुरोध एक पैकेट में फ़िट नहीं होते हैं.  इन अनुरोधों का आकार कम करने से विलंबता कम हो सकती है."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.  The SCREENSHOT
+#  placeholder will be replaced by a parenthetical link
+#  (e.g. "(see screenshot)") that displays a screenshot of the
+#  problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets %(SCREENSHOT)s."
+msgstr "%(HTML_TEXT)s और %(NUM_OTHERS)s अन्य टैप लक्ष्य अन्य टैप लक्ष्यों %(SCREENSHOT)s के पास हैं."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets."
+msgstr "%(HTML_TEXT)s और %(NUM_OTHERS)s टैप लक्ष्य अन्य टैप लक्ष्यों के पास हैं."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset. The HEIGHT
+#  placeholder will give the phyiscal height of the tap target
+#  on the touchscreen (e.g. "1.5mm"), while the HEIGHT_PX gives
+#  the number of CSS pixels specified in the stylesheet
+#  (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "सामान्य उपकरण पर %(HTML_TEXT)s और %(NUM_OTHERS)s अन्य टैप लक्ष्य की ऊंचाई केवल %(HEIGHT)s है (%(HEIGHT_PX)s CSS पिक्सेल) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The HEIGHT placeholder will give the phyiscal height of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  HEIGHT_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels)."
+msgstr "सामान्य उपकरण पर %(HTML_TEXT)s और %(NUM_OTHERS)s अन्य टैप की ऊंचाई केवल %(HEIGHT)s है (%(HEIGHT_PX)s CSS पिक्सेल)."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "सामान्य उपकरण पर %(HTML_TEXT)s और %(NUM_OTHERS)s अन्य टैप लक्ष्य की चौड़ाई केवल %(WIDTH)s है (%(WIDTH_PX)s CSS पिक्सेल) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels)."
+msgstr "सामान्य उपकरण पर %(HTML_TEXT)s और %(NUM_OTHERS)s अन्य टैप लक्ष्य की चौड़ाई केवल %(WIDTH)s है (%(WIDTH_PX)s CSS पिक्सेल)."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.  The SCREENSHOT placeholder will be
+#  replaced by a parenthetical link (e.g. "(see screenshot)")
+#  that displays a screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets %(SCREENSHOT)s."
+msgstr "%(HTML_TEXT)s टैप लक्ष्य %(NUM_TOO_CLOSE)s अन्य टैप लक्ष्यों %(SCREENSHOT)s के पास है."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets."
+msgstr "टैप लक्ष्य %(HTML_TEXT)s अन्य टैप लक्ष्यों %(NUM_TOO_CLOSE)s के पास है."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels"). The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "सामान्य मोबाइल उपकरण पर टैप लक्ष्य %(HTML_TEXT)s, केवल %(WIDTH)s गुणा %(HEIGHT)s है (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS पिक्सेल) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels").
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels)."
+msgstr "सामान्य मोबाइल उपकरण पर टैप लक्ष्य %(HTML_TEXT)s, केवल %(WIDTH)s गुणा %(HEIGHT)s है (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS पिक्सेल)."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. We encourage people to have large, legible fonts and this text
+#  is shown to them when they succeed at this.
+msgid "The text on your page is legible. Learn more about %(BEGIN_LINK)susing legible font sizes%(END_LINK)s."
+msgstr "आपके पृष्ठ का पाठ पठनीय है. %(BEGIN_LINK)sपठनीय फ़ॉन्ट आकारों को उपयोग करने%(END_LINK)s के बारे में अधिक जानें."
 
 #  Descriptive header describing a list of CSS resources that
 #  are all served from a single domain (in violation of the
@@ -1004,18 +1378,29 @@ msgstr "%(DOMAIN_NAME)s से सर्व की गईं %(NUM_FILES)s JavaS
 msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "यह पृष्ठ %(HOSTNAME)s के लिए %(NUM_REQUESTS)s साथ में चलाने योग्‍य अनुरोध बनाता है.  इन अनुरोधों को एकाधिक होस्‍टनामों में वितरित करके डाउनलोड को साथ में चलाना तेज़ करें:"
 
+#  Entry of a list of plugins detected on a webpage.
+#  TYPE will be replaced with an identifier like "application/java"
+#  or "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+msgid "Unknown plugin of type %(TYPE)s."
+msgstr "%(TYPE)s प्रकार का अज्ञात प्लग-इन."
+
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
-msgstr "एप्‍स संचय का उपयोग करें"
+msgstr "ऐप्स संचय का उपयोग करें"
+
+#  The name of the PageSpeed rule that tells user to ensure that
+#  the size of their text remains large enough for people to read.
+msgid "Use legible font sizes"
+msgstr "पठनीय फ़ॉन्ट आकारों का उपयोग करें"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
 #  problem by using application cache in the HTML documents.
 msgid "Using an application cache allows a page to show up immediately. The following HTML documents can use an application cache to reduce the time it takes for users to be able to interact with the page:"
-msgstr "एप्‍स संचय का उपयोग करने से पृष्‍ठ तुरंत दिखाई देता है. उपयोगकर्ताओं द्वारा पृष्‍ठ से सहभागिता कर सकने में लगने वाले समय को कम करने के लिए निम्‍न HTML दस्‍तावेज़, एप्‍स संचय का उपयोग कर सकते हैं:"
+msgstr "ऐप्स संचय का उपयोग करने से पृष्‍ठ तुरंत दिखाई देता है. उपयोगकर्ताओं द्वारा पृष्‍ठ से सहभागिता कर सकने में लगने वाले समय को कम करने के लिए निम्‍न HTML दस्‍तावेज़, ऐप्स संचय का उपयोग कर सकते हैं:"
 
 #  A summary to give a general overview of this Page
 #  Speed rule.
@@ -1055,6 +1440,23 @@ msgstr "आपकी JavaScript सामग्री न्यूनतम क�
 msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
 msgstr "आपके चित्र ऑप्टिमाइज़ किए गए हैं. %(BEGIN_LINK)sचित्रों को ऑप्टिमाइज़ करने%(END_LINK)s के बारे में अधिक जानें."
 
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page does not appear to use plugins, which would prevent content from being usable on many platforms. Learn more about the importance of %(BEGIN_LINK)savoiding plugins%(END_LINK)s."
+msgstr "ऐसा लगता है कि आपका पृष्ठ प्लग-इन का उपयोग नहीं करता है, जिससे सामग्री कई प्लेटफ़ॉर्म पर उपयोग करने योग्य नहीं रह जाती. %(BEGIN_LINK)sप्लग-इन का उपयोग करने से बचने%(END_LINK)s के महत्व के बारे में और जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page does not have a viewport specified. This causes mobile devices to render your page as it would appear on a desktop browser, scaling it down to fit on a mobile screen. Configure a viewport to allow your page to render properly on all devices."
+msgstr "आपके पृष्ठ में व्यूपोर्ट निर्दिष्ट नहीं किया गया है. इसके कारण मोबाइल उपकरण आपके पृष्ठ को मोबाइल स्क्रीन पर फ़िट होने के लिए उसके आकार को कम करके, उसे वैसे ही रेंडर करते हैं जैसे वह किसी डेस्कटॉप ब्राउज़र पर दिखाई देगा. अपने पृष्ठ को सभी उपकरणों पर ठीक से रेंडर होने देने के लिए एक व्यूपोर्ट कॉन्फ़िगर करें."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1086,6 +1488,48 @@ msgstr "आपके पृष्ठ में कोई भी रीडाय�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "आपके पृष्ठ को तह के ऊपर की सामग्री को रेंडर करने के लिए अतिरिक्त नेटवर्क राउंड ट्रिप की आवश्यकता है. सर्वश्रेष्ठ प्रदर्शन के लिए, HTML की मात्रा को कम करके तह के ऊपर सामग्री को रेंडर करने की आवश्यकता तक लाएं."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width desktop viewport. Use a responsive viewport to allow your page to render properly on all devices."
+msgstr "आपका पृष्ठ एक निश्चित चौड़ाई वाला डेस्कटॉप व्यूपोर्ट निर्दिष्ट करता है. अपने पृष्ठ को सभी उपकरणों पर ठीक से रेंडर होने देने के लिए एक प्रतिसादात्मक व्यूपोर्ट का उपयोग करें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width mobile viewport. Consider using a responsive viewport to allow your page to render properly on all devices."
+msgstr "आपका पृष्ठ निश्चित-चौड़ाई वाला मोबाइल व्यूपोर्ट निर्दिष्ट करता है. अपने पृष्ठ को सभी उपकरणों पर ठीक से रेंडर होने देने के लिए एक प्रतिसादात्मक व्यूपोर्ट का उपयोग करने पर विचार करें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page specifies a viewport matching the device's size, which allows it to render properly on all devices. Learn more about %(BEGIN_LINK)sconfiguring viewports%(END_LINK)s."
+msgstr "आपका पृष्ठ उपकरण के आकार से मिलान करने वाला व्यूपोर्ट निर्दिष्ट करता है, जो इसे सभी उपकरणों पर ठीक तरह से रेंडर होने देता है. %(BEGIN_LINK)sव्यूपोर्ट को कॉन्फ़िगर करने%(END_LINK)s के बारे में और जानें."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage.)
+msgid "Your page uses an XHTML Mobile doctype declaration, which instructs browsers that your page is optimized for mobile and should render properly on all devices."
+msgstr "आपका पृष्ठ XHTML मोबाइल doctype घोषणा का उपयोग करता है, जो ब्राउज़र को यह निर्देश देता है कि आपका पृष्ठ मोबाइल के लिए ऑप्टिमाइज़ किया गया है और सभी उपकरणों पर ठीक से रेंडर होना चाहिए."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page uses plugins, which prevents portions of your page from being used on many platforms. %(BEGIN_LINK)sFind alternatives for plugin based content%(END_LINK)s to increase compatibility."
+msgstr "आपका पृष्ठ प्लग-इन का उपयोग करता है, इससे आपके पृष्ठ के भागों को कई प्लेटफ़ॉर्म पर उपयोग किए जाने से रोका जाता है. संगतता बढ़ाने के लिए %(BEGIN_LINK)sप्लग-इन आधारित सामग्री के विकल्पों को ढूंढें%(END_LINK)s."
 
 #  A summary to give a general overview of this Page
 #  Speed rule.

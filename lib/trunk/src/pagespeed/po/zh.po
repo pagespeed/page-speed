@@ -7,6 +7,35 @@
 msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
 msgstr "避免对以下重定向网址链使用%(BEGIN_LINK)s目标网页重定向%(END_LINK)s。"
 
+#  Detailed text in a Page Speed rule telling a web developer
+#  to change the viewport on their page in order to work better on mobile
+#  devices.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "%(BEGIN_LINK)sConfigure a viewport%(END_LINK)s for this page."
+msgstr "为此页面%(BEGIN_LINK)s配置视口%(END_LINK)s。"
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work if the styling on your page relies on a fixed-width layout."
+msgstr "%(BEGIN_LINK)s配置视口%(END_LINK)s时指定 %(DEVICE_WIDTH)s（而非 %(VIEWPORT)s）可使您的网页在各种宽度的设备上都能正常显示。如果您的页面样式采用固定宽度的布局，那么您可能需要多花些时间来进行此配置。"
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work to adapt your styling for smaller screens."
+msgstr "%(BEGIN_LINK)s配置视口%(END_LINK)s时指定 %(DEVICE_WIDTH)s（而非 %(VIEWPORT)s）可使您的网页在各种宽度的设备上都能正常显示。如果要在较小的屏幕上展示您的页面样式，那么您可能需要多花些时间来进行此配置。"
+
 #  Descriptive header for a list of URLs that were
 #  served uncompressed, in violation of the EnableGzipCompression
 #  rule.  It tells the webmaster that compressing all of those
@@ -82,17 +111,6 @@ msgstr "为以下项%(BEGIN_LINK)s优化 CSS 递送%(END_LINK)s："
 #  be replaced by the percent savings (e.g. "50%").
 msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr "%(BEGIN_LINK)s优化以下图片%(END_LINK)s可将其大小减少%(SIZE_IN_BYTES)s (%(PERCENTAGE)s)。"
-
-#  Summary header recommending that the user place
-#  priority on rendering the content that will be visible
-#  above-the-fold in the early portion of the HTML response.
-#  ("Above-the-fold content" refers to the portion of the webpage
-#  that is immediately visible in the browser window without the user
-#  needing to scroll downwards; the term comes from newspapers, where
-#  the upper portion of the front page that is above the fold of the
-#  paper is immediately visible to the reader.)
-msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
-msgstr "%(BEGIN_LINK)s按优先级%(END_LINK)s排列呈现首屏所需的可见内容。"
 
 #  Header at the top of a list of URLs that Page Speed
 #  determined were blocking the parser of above-the-fold
@@ -176,6 +194,82 @@ msgstr "初始网页加载过程中会解析%(SIZE_IN_BYTES)s 的 JavaScript。�
 #  the full fold content (e.g. "24.3kB").
 msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
 msgstr "要呈现首屏内容，需要%(SIZE_IN_BYTES)s 的响应。请%(BEGIN_LINK)s按优先级%(END_LINK)s排列呈现首屏所需的可见内容。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "“%(TEXT_SNIPPET)s”和其他%(NUM_OTHERS)s个文本片段的行高仅为字体大小的%(LINE_HEIGHT_PERCENT)s%(SCREENSHOT)s。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "“%(TEXT_SNIPPET)s”和其他%(NUM_OTHERS)s个文本片段的行高仅为字体大小的%(LINE_HEIGHT_PERCENT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "“%(TEXT_SNIPPET)s”和其他%(NUM_OTHERS)s个文本片段的呈现高度仅为%(HEIGHT)s像素%(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "“%(TEXT_SNIPPET)s”和其他%(NUM_OTHERS)s个文本片段的呈现高度仅为%(HEIGHT)s像素（%(CSS_HEIGHT)s CSS 像素）%(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "“%(TEXT_SNIPPET)s”和其他%(NUM_OTHERS)s个文本片段的呈现高度仅为%(HEIGHT)s像素（%(CSS_HEIGHT)s CSS 像素）。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall."
+msgstr "“%(TEXT_SNIPPET)s”和其他%(NUM_OTHERS)s个文本片段的呈现高度仅为%(HEIGHT)s像素。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "“%(TEXT_SNIPPET)s”的行高仅为字体大小的%(LINE_HEIGHT_PERCENT)s%(SCREENSHOT)s。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "“%(TEXT_SNIPPET)s”的行高仅为字体大小的%(LINE_HEIGHT_PERCENT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "“%(TEXT_SNIPPET)s”的呈现高度仅为%(HEIGHT)s像素%(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "“%(TEXT_SNIPPET)s”的呈现高度仅为%(HEIGHT)s像素（%(CSS_HEIGHT)s CSS 像素）%(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "“%(TEXT_SNIPPET)s”的呈现高度仅为%(HEIGHT)s像素（%(CSS_HEIGHT)s CSS 像素）。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall."
+msgstr "“%(TEXT_SNIPPET)s”的呈现高度仅为%(HEIGHT)s像素。"
 
 #  Shown as part of a list of URLs that have unnecessary
 #  reflows (or "layouts", which is used interchangeably with the word
@@ -274,6 +368,12 @@ msgstr "%(URL)s 第%(LINE_NUMBER)s行（%(DURATION)s）"
 msgid "%(URL)s should inline the following small resources:"
 msgstr "%(URL)s 应内嵌下列较小的资源："
 
+#  A summary to give a general overview of this Page Speed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+msgid "All of your page's links/buttons are large enough for a user to easily tap on a touchscreen. Learn more about %(BEGIN_LINK)ssizing tap targets appropriately%(END_LINK)s."
+msgstr "网页上所有链接/按钮的尺寸均合适，方便用户在触摸屏上进行点按。详细了解%(BEGIN_LINK)s适当调整点按目标尺寸%(END_LINK)s。"
+
 #  Summary header indicating how much of the
 #  above-the-fold (i.e. within the initial browser
 #  viewport) content of a webpage was able to be correctly
@@ -306,11 +406,6 @@ msgstr "请勿在元标记中指定字符集"
 msgid "Avoid bad requests"
 msgstr "避免出现错误的请求"
 
-#  The name of a Page Speed rule that tells users to avoid using
-#  Adobe Flash on mobile webpages
-msgid "Avoid flash on mobile webpages"
-msgstr "避免在移动网页上使用 Flash"
-
 #  The name of a Page Speed rule that tells users to avoid
 #  redirects at the landing page. The landing page is the root
 #  HTML document that was requested the user in the browser's address bar.
@@ -325,6 +420,11 @@ msgstr "避免使用目标网页重定向"
 #  telling webmasters which rules they broke in their website.
 msgid "Avoid long-running scripts"
 msgstr "避免使用运行时间较长的脚本"
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  browser plugins like Flash or Silverlight on webpages.
+msgid "Avoid plugins"
+msgstr "避免使用插件"
 
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
@@ -393,6 +493,12 @@ msgstr "使用 gzip 或 deflate 压缩资源可以减少通过网络发送的字
 msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
 msgstr "如果您压缩自己网页的 HTML，就可以在响应的前15 KB 内呈现大部分首屏内容。"
 
+#  The name of a PageSpeed rule that tells users to configure a
+#  viewport on their webpage, which allows mobile browsers to display the page
+#  at a reasonable size.
+msgid "Configure the viewport"
+msgstr "配置 viewport"
+
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The
 #  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
@@ -440,6 +546,33 @@ msgstr "启用 Keep-Alive"
 #  website.
 msgid "Enable compression"
 msgstr "启用压缩"
+
+#  Header at the top of a list of browser plugins
+#  of a specified type detected on a webpage. PLUGIN_TYPE will be
+#  replaced with a name such as "Flash" or "Silverlight", which are
+#  not translated.
+msgid "Find alternatives for the following %(PLUGIN_TYPE)s plugins."
+msgstr "查找以下%(PLUGIN_TYPE)s插件的替代插件。"
+
+#  Header at the top of a list of browser plugins of unknown
+#  type detected on a webpage. "Plugins" refers to additional software
+#  that needs to be installed to use portions of some web pages, such as
+#  Flash or Silverlight.
+msgid "Find alternatives for the following plugins."
+msgstr "查找以下插件的替代插件。"
+
+#  Detailed text in a Page Speed rule telling a
+#  web developer that they may need to perform extra work if they make
+#  a certain change to their page.
+#  A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage. HTML_DOCTYPE will be replaced with the non-translatable
+#  string "<!DOCTYPE html>".
+#  A viewport is the size of a webpage when displayed on a phone,
+#  and is set using an HTML tag. META_VIEWPORT_TAG will be replaced
+#  with the non-translatable string
+#  "<meta name=viewport width=device-width>".
+msgid "If you change the doctype, for example to %(HTML_DOCTYPE)s in order to use HTML5 features, %(BEGIN_LINK)sconfigure a viewport%(END_LINK)s with %(META_VIEWPORT_TAG)s to keep the page's current behavior."
+msgstr "如果您改变了 DOCTYPE（例如将其改为 %(HTML_DOCTYPE)s 以使用HTML5功能），请%(BEGIN_LINK)s配置相应视口%(END_LINK)s并在其中指定 %(META_VIEWPORT_TAG)s，以保持网页的当前显示效果。"
 
 #  The name of a Page Speed rule that tells users to improve
 #  their server response time. This is displayed in a list of
@@ -740,6 +873,29 @@ msgstr "提供压缩后的图片"
 msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
 msgstr "在 HTTP 标头中为静态资源设置过期日期或最长存在时间，可指示浏览器从本地磁盘中加载以前下载的资源，而不是通过网络加载。"
 
+#  The name of a PageSpeed rule that tells users to make their
+#  webpage content of a size that is appropriate for their viewport setting,
+#  so that users won't need to e.g. scroll horizontally to see the rest of
+#  the page content.
+msgid "Size content to viewport"
+msgstr "调整内容的尺寸，使其符合视口设置"
+
+#  The name of a PageSpeed rule that tells users to make sure
+#  that all of the "tap targets" (links or buttons on a touchscreen, which
+#  are pressed by the user by tapping on them) on their mobile webpage are
+#  large enough for the user to press easily.
+msgid "Size tap targets appropriately"
+msgstr "适当调整点按目标的尺寸"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Some of the links/buttons on your webpage may be too small for a user to easily tap on a touchscreen. Consider %(BEGIN_LINK)smaking these tap targets larger%(END_LINK)s to provide a better user experience."
+msgstr "网页上某些链接/按钮的尺寸可能过小，不方便用户在触摸屏上进行点按。请考虑%(BEGIN_LINK)s调大这些点按目标的尺寸%(END_LINK)s，以改善用户体验。"
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -776,11 +932,22 @@ msgstr "为移动浏览器指定视口"
 msgid "Specify image dimensions"
 msgstr "指定图片大小"
 
-#  Header at the top of a list of URLs of Adobe Flash
-#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
-#  the number of Flash elements found.
-msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
-msgstr "网页或包含的 iframe 中含有以下%(NUM_ELEMENTS)s个 Flash 元素。Apple iOS 或高于4.0.x 的 Android 版本不支持 Adobe Flash Player，请考虑删除 Flash 对象，并寻找合适的替换项。"
+msgid "The contents of your page fit within the viewport. Learn more about %(BEGIN_LINK)ssizing content to the viewport%(END_LINK)s."
+msgstr "网页内容的尺寸适合视口的大小。详细了解%(BEGIN_LINK)s将内容尺寸调整为适合视口大小%(END_LINK)s。"
+
+msgid "The element %(HTML_TEXT)s falls outside the viewport."
+msgstr "元素“%(HTML_TEXT)s”超出了视口范围。"
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "The entire HTML response was not sufficient to render the above-the-fold content. This usually indicates that additional resources, loaded after HTML parsing, were required to render above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold by including it directly in the HTML response."
+msgstr "整个 HTML 响应不足以呈现首屏内容。这通常表明需要在 HTML 解析后加载额外资源才能呈现首屏内容。请将呈现首屏所需的可见内容直接加到 HTML 响应中，以便%(BEGIN_LINK)s划分可见内容的优先级%(END_LINK)s。"
 
 #  Summary header indicating that the external CSS
 #  resources can be inlined in the HTML and still meet the 15k criteria.
@@ -956,6 +1123,39 @@ msgstr "下列资源的内容相同，但是来自不同的网址。使用同一
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "以下资源未在其 HTTP 标头中指定字符集。在 HTTP 标头中指定字符集可加快浏览器的显示速度。"
 
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too close to other tap targets to be easily usable.
+#  A "tap target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The following tap targets are close to other nearby tap targets and may need additional spacing around them."
+msgstr "下列点按目标与周围其他点按目标之间的距离太近，可能需要在其周围添加额外的间距。"
+
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too small to be easily usable.  A "tap target"
+#  refers to a webpage link or button on a touchscreen, which is
+#  pressed by the user by tapping on it.
+msgid "The following tap targets are small. Consider increasing their size."
+msgstr "下列点按目标的尺寸太小，请考虑调大其尺寸。"
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that are too small to be
+#  easily legible when rendered on the screen.
+msgid "The following text fragments have a small font size. Increase the font size to make them more legible."
+msgstr "以下文本片段的字体较小。请增加字体大小，使其更加清晰可辨。"
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that have a line height
+#  (line height is the spacing between individual lines of
+#  text) that is too small to be easily legible.
+msgid "The following text fragments have a small line height. Increase the line height to make them more legible."
+msgstr "以下文本片段的行高偏小。请增加行高，使文本更加清晰可辨。"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  This rule informs that user that the text on a their website is
+#  too small and that they should make it larger.
+msgid "The following text on your page renders in a way that may be difficult for some of your visitors to read. %(BEGIN_LINK)sUse legible font sizes%(END_LINK)s to provide a better user experience."
+msgstr "网页中以下文本的呈现方式可能会给部分访问者进行阅读带来不便。请%(BEGIN_LINK)s使用清晰可辨的字体大小%(END_LINK)s，以改善用户体验。"
+
 #  Header at the top of a list of URLs of resources that
 #  are served from a domain that does not have HTTP Keep-Alive enabled.
 #  It tells the user to enable keep-alive on that host.  The
@@ -972,11 +1172,185 @@ msgstr "主机 %(HOST_NAME)s 应启用 %(KEEPALIVE)s，它提供了以下资源�
 msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
 msgstr "下列网址的主机名分别只能提供一个资源。请尽量从现有主机名提供这些资源，以便避免执行额外的 DNS 查询。"
 
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide."
+msgstr "该网页内容的宽度为%(CONTENT_WIDTH)s CSS 像素，但视口的宽度仅为%(VIEWPORT_WIDTH)s CSS 像素。"
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide. The following elements fall outside the viewport:"
+msgstr "该网页内容的宽度为%(CONTENT_WIDTH)s CSS 像素，但视口的宽度仅为%(VIEWPORT_WIDTH)s CSS 像素。因此，下列元素超出了视口范围："
+
+msgid "The page content is too wide for the viewport, forcing the user to scroll horizontally. %(BEGIN_LINK)sSize the page content to the viewport%(END_LINK)s to provide a better user experience."
+msgstr "该网页内容的宽度超出了视口的宽度，这样会迫使用户水平滚动屏幕。请%(BEGIN_LINK)s将网页内容的尺寸调整为适合视口大小%(END_LINK)s，以改善用户体验。"
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as having large requests. It describes the problem to the
 #  user, and tells them how to fix it by reducing the size of requests.
 msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
 msgstr "对下列网址的请求无法打包到单个数据包中。减少这些请求的数据量可缩短延迟时间。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.  The SCREENSHOT
+#  placeholder will be replaced by a parenthetical link
+#  (e.g. "(see screenshot)") that displays a screenshot of the
+#  problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets %(SCREENSHOT)s."
+msgstr "%(HTML_TEXT)s 和另外%(NUM_OTHERS)s个点按目标与其他点按目标之间的距离太近%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets."
+msgstr "%(HTML_TEXT)s 和另外%(NUM_OTHERS)s个点按目标与其他点按目标之间的距离太近。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset. The HEIGHT
+#  placeholder will give the phyiscal height of the tap target
+#  on the touchscreen (e.g. "1.5mm"), while the HEIGHT_PX gives
+#  the number of CSS pixels specified in the stylesheet
+#  (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "%(HTML_TEXT)s 和另外%(NUM_OTHERS)s个点按目标在标准设备上的高度仅为%(HEIGHT)s（%(HEIGHT_PX)s CSS 像素）%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The HEIGHT placeholder will give the phyiscal height of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  HEIGHT_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels)."
+msgstr "%(HTML_TEXT)s 和另外%(NUM_OTHERS)s个点按目标在标准设备上的高度仅为%(HEIGHT)s（%(HEIGHT_PX)s CSS 像素）。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "%(HTML_TEXT)s 和另外%(NUM_OTHERS)s个点按目标在标准设备上的宽度仅为%(WIDTH)s（%(WIDTH_PX)s CSS 像素）%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels)."
+msgstr "%(HTML_TEXT)s 和另外%(NUM_OTHERS)s个点按目标在标准设备上的宽度仅为%(WIDTH)s（%(WIDTH_PX)s CSS 像素）。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.  The SCREENSHOT placeholder will be
+#  replaced by a parenthetical link (e.g. "(see screenshot)")
+#  that displays a screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets %(SCREENSHOT)s."
+msgstr "%(HTML_TEXT)s 与另外%(NUM_TOO_CLOSE)s个点按目标之间的距离太近%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets."
+msgstr "%(HTML_TEXT)s 与另外%(NUM_TOO_CLOSE)s个点按目标之间的距离太近。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels"). The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "点按目标 %(HTML_TEXT)s 在标准设备上的呈现尺寸仅为%(WIDTH)sx%(HEIGHT)s（%(WIDTH_PX)sx%(HEIGHT_PX)s CSS 像素）%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels").
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels)."
+msgstr "点按目标 %(HTML_TEXT)s 在标准设备上的呈现尺寸仅为%(WIDTH)sx%(HEIGHT)s（%(WIDTH_PX)sx%(HEIGHT_PX)s CSS 像素）。"
+
+#  A summary to give a general overview of this Page Speed
+#  rule. We encourage people to have large, legible fonts and this text
+#  is shown to them when they succeed at this.
+msgid "The text on your page is legible. Learn more about %(BEGIN_LINK)susing legible font sizes%(END_LINK)s."
+msgstr "网页中的文本清晰可辨。详细了解%(BEGIN_LINK)s使用清晰可辨的字体大小%(END_LINK)s。"
 
 #  Descriptive header describing a list of CSS resources that
 #  are all served from a single domain (in violation of the
@@ -1004,12 +1378,23 @@ msgstr "%(DOMAIN_NAME)s 提供了%(NUM_FILES)s个 JavaScript 文件。您应该�
 msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "该网页向 %(HOSTNAME)s 发出%(NUM_REQUESTS)s个同时载入请求。请将这些请求分发给多个主机名，以便增加并行下载量："
 
+#  Entry of a list of plugins detected on a webpage.
+#  TYPE will be replaced with an identifier like "application/java"
+#  or "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+msgid "Unknown plugin of type %(TYPE)s."
+msgstr "类型为%(TYPE)s的未知插件。"
+
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
 msgstr "使用 Application Cache"
+
+#  The name of the PageSpeed rule that tells user to ensure that
+#  the size of their text remains large enough for people to read.
+msgid "Use legible font sizes"
+msgstr "使用清晰可辨的字体大小"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
@@ -1055,6 +1440,23 @@ msgstr "系统已缩减 JavaScript 内容的大小。详细了解%(BEGIN_LINK)s�
 msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
 msgstr "系统已对您的图片进行优化。详细了解%(BEGIN_LINK)s优化图片%(END_LINK)s。"
 
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page does not appear to use plugins, which would prevent content from being usable on many platforms. Learn more about the importance of %(BEGIN_LINK)savoiding plugins%(END_LINK)s."
+msgstr "您的网页似乎没有使用会导致内容无法在多类平台上使用的插件。详细了解%(BEGIN_LINK)s避免使用插件%(END_LINK)s的重要性。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page does not have a viewport specified. This causes mobile devices to render your page as it would appear on a desktop browser, scaling it down to fit on a mobile screen. Configure a viewport to allow your page to render properly on all devices."
+msgstr "您没有为自己的网页指定视口。这样，该网页在移动设备上的呈现尺寸将与在桌面浏览器中一样，因此系统会将其缩小到适合在移动屏幕上显示的尺寸。请配置视口，使该网页在所有设备上都能正常显示。"
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1086,6 +1488,48 @@ msgstr "您的网页没有任何重定向。详细了解%(BEGIN_LINK)s避免目�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "您的网页需要进行更多次的网络往返通信才能呈现首屏内容。要获得最佳效果，请减少呈现首屏内容所需的 HTML 数量。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width desktop viewport. Use a responsive viewport to allow your page to render properly on all devices."
+msgstr "您为自己的网页指定了一个固定宽度的桌面视口。请使用自适应视口，使该网页在所有设备上都能正常显示。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width mobile viewport. Consider using a responsive viewport to allow your page to render properly on all devices."
+msgstr "您为自己的网页指定了一个固定宽度的移动视口。请考虑使用自适应视口，使该网页在所有设备上都能正常显示。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page specifies a viewport matching the device's size, which allows it to render properly on all devices. Learn more about %(BEGIN_LINK)sconfiguring viewports%(END_LINK)s."
+msgstr "您为自己的网页指定了一个与相应设备尺寸相符的视口，因此该网页可在所有设备上正常显示。详细了解如何%(BEGIN_LINK)s配置视口%(END_LINK)s。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage.)
+msgid "Your page uses an XHTML Mobile doctype declaration, which instructs browsers that your page is optimized for mobile and should render properly on all devices."
+msgstr "您的网页使用了 XHTML Mobile DOCTYPE 声明，此声明会告知浏览器，该网页已针对移动设备进行优化，应该可以在所有设备上正常显示。"
+
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page uses plugins, which prevents portions of your page from being used on many platforms. %(BEGIN_LINK)sFind alternatives for plugin based content%(END_LINK)s to increase compatibility."
+msgstr "您的网页使用了导致网页中的部分内容无法在多类平台上使用的插件。请%(BEGIN_LINK)s根据内容查找相关插件的替代插件%(END_LINK)s，以提高兼容性。"
 
 #  A summary to give a general overview of this Page
 #  Speed rule.
