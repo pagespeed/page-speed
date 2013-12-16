@@ -7,6 +7,35 @@
 msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
 msgstr "%(BEGIN_LINK)sVältä aloitussivun uudelleenohjauksia%(END_LINK)s seuraavien uudelleenohjattujen URL-osoitteiden tapauksessa."
 
+#  Detailed text in a Page Speed rule telling a web developer
+#  to change the viewport on their page in order to work better on mobile
+#  devices.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "%(BEGIN_LINK)sConfigure a viewport%(END_LINK)s for this page."
+msgstr "%(BEGIN_LINK)sMääritä näkymä%(END_LINK)s tälle sivulle."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work if the styling on your page relies on a fixed-width layout."
+msgstr "Jos %(BEGIN_LINK)smäärität näkymän%(END_LINK)s määrittelemällä laitteen leveyden %(DEVICE_WIDTH)s näkymän %(VIEWPORT)s sijaan, sivusi on helpompi sovittaa erikokoisiin laitteisiin. Tämä saattaa vaatia lisätyötä, jos sivusi muotoilu perustuu kiinteäleveyksiseen asetteluun."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work to adapt your styling for smaller screens."
+msgstr "Jos %(BEGIN_LINK)smäärität näkymän%(END_LINK)s määrittelemällä laitteen leveyden %(DEVICE_WIDTH)s näkymän %(VIEWPORT)s sijaan, sivusi on helpompi sovittaa erikokoisiin laitteisiin. Sivusi muotoilun sopeuttaminen pienemmille näytöille saattaa vaatia lisätyötä."
+
 #  Descriptive header for a list of URLs that were
 #  served uncompressed, in violation of the EnableGzipCompression
 #  rule.  It tells the webmaster that compressing all of those
@@ -82,17 +111,6 @@ msgstr "%(BEGIN_LINK)sOptimoi seuraavien kohteiden CSS-jakelu%(END_LINK)s:"
 #  be replaced by the percent savings (e.g. "50%").
 msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr "Pienennä seuraavien kuvien kokoa %(SIZE_IN_BYTES)s (%(PERCENTAGE)s:n lasku) %(BEGIN_LINK)soptimoimalla kuvat%(END_LINK)s."
-
-#  Summary header recommending that the user place
-#  priority on rendering the content that will be visible
-#  above-the-fold in the early portion of the HTML response.
-#  ("Above-the-fold content" refers to the portion of the webpage
-#  that is immediately visible in the browser window without the user
-#  needing to scroll downwards; the term comes from newspapers, where
-#  the upper portion of the front page that is above the fold of the
-#  paper is immediately visible to the reader.)
-msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
-msgstr "%(BEGIN_LINK)sPriorisoi näkyvä sisältö%(END_LINK)s, joka tarvitaan sivun yläosan hahmontamiseen."
 
 #  Header at the top of a list of URLs that Page Speed
 #  determined were blocking the parser of above-the-fold
@@ -176,6 +194,82 @@ msgstr "%(SIZE_IN_BYTES)s JavaScriptiä jäsennetään sivun latauksen aikana. L
 #  the full fold content (e.g. "24.3kB").
 msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
 msgstr "%(SIZE_IN_BYTES)s vastauksesta tarvitaan sivun yläosan sisällön hahmontamiseen. %(BEGIN_LINK)sPriorisoi näkyvä sisältö%(END_LINK)s, joka tarvitaan sivun yläosan hahmontamiseen."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "Tekstin %(TEXT_SNIPPET)s ja %(NUM_OTHERS)s muun tekstin rivikorkeus on vain %(LINE_HEIGHT_PERCENT)s kirjasimen koosta %(SCREENSHOT)s."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "Tekstin %(TEXT_SNIPPET)s ja %(NUM_OTHERS)s muun tekstin rivikorkeus on vain %(LINE_HEIGHT_PERCENT)s kirjasimen koosta."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s ja %(NUM_OTHERS)s muuta tekstiä piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s ja %(NUM_OTHERS)s muuta tekstiä piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena (%(CSS_HEIGHT)s CSS-kuvapistettä) %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "%(TEXT_SNIPPET)s ja %(NUM_OTHERS)s muuta tekstiä piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena (%(CSS_HEIGHT)s CSS-kuvapistettä)."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall."
+msgstr "%(TEXT_SNIPPET)s ja %(NUM_OTHERS)s muuta tekstiä piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "Tekstin %(TEXT_SNIPPET)s rivikorkeus on vain %(LINE_HEIGHT_PERCENT)s kirjasimen koosta %(SCREENSHOT)s."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "Tekstin %(TEXT_SNIPPET)s rivikorkeus on vain %(LINE_HEIGHT_PERCENT)s kirjasimen koosta."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "%(TEXT_SNIPPET)s piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Teksti %(TEXT_SNIPPET)s piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena (%(CSS_HEIGHT)s kuvapistettä CSS:ssä) %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "%(TEXT_SNIPPET)s piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena (%(CSS_HEIGHT)s CSS-kuvapistettä)."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall."
+msgstr "%(TEXT_SNIPPET)s piirretään ruudulle vain %(HEIGHT)s kuvapisteen korkuisena."
 
 #  Shown as part of a list of URLs that have unnecessary
 #  reflows (or "layouts", which is used interchangeably with the word
@@ -274,6 +368,12 @@ msgstr "%(URL)s, rivi %(LINE_NUMBER)s (%(DURATION)s)"
 msgid "%(URL)s should inline the following small resources:"
 msgstr "Osoitteen %(URL)s tulee upottaa seuraavat pienet resurssit:"
 
+#  A summary to give a general overview of this Page Speed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+msgid "All of your page's links/buttons are large enough for a user to easily tap on a touchscreen. Learn more about %(BEGIN_LINK)ssizing tap targets appropriately%(END_LINK)s."
+msgstr "Kaikki sivusi linkit/painikkeet ovat tarpeeksi isoja, jotta käyttäjät voivat helposti napauttaa niitä kosketusnäytöllä. Lisätietoja %(BEGIN_LINK)snapautuskohteiden oikeasta mitoituksesta%(END_LINK)s."
+
 #  Summary header indicating how much of the
 #  above-the-fold (i.e. within the initial browser
 #  viewport) content of a webpage was able to be correctly
@@ -306,11 +406,6 @@ msgstr "Älä määritä merkistöä sisällönkuvauskentässä"
 msgid "Avoid bad requests"
 msgstr "Vältä virheellisiä pyyntöjä"
 
-#  The name of a Page Speed rule that tells users to avoid using
-#  Adobe Flash on mobile webpages
-msgid "Avoid flash on mobile webpages"
-msgstr "Älä käytä flashia mobiilisivuilla"
-
 #  The name of a Page Speed rule that tells users to avoid
 #  redirects at the landing page. The landing page is the root
 #  HTML document that was requested the user in the browser's address bar.
@@ -325,6 +420,11 @@ msgstr "Älä käytä aloitussivun uudelleenohjauksia"
 #  telling webmasters which rules they broke in their website.
 msgid "Avoid long-running scripts"
 msgstr "Vältä pitkäkestoisia komentosarjoja"
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  browser plugins like Flash or Silverlight on webpages.
+msgid "Avoid plugins"
+msgstr "Vältä laajennuksia"
 
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
@@ -393,6 +493,12 @@ msgstr "Tiivistämällä resursseja gzip- tai deflate-koodilla voit vähentää 
 msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
 msgstr "Pakkaamalla sivun HTML-koodin voit saada suurimman osan sivun yläosan sisällöstä hahmontumaan vastauksen ensimmäisen 15 kt:n aikana."
 
+#  The name of a PageSpeed rule that tells users to configure a
+#  viewport on their webpage, which allows mobile browsers to display the page
+#  at a reasonable size.
+msgid "Configure the viewport"
+msgstr "Määritä viewport-tunniste"
+
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The
 #  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
@@ -440,6 +546,33 @@ msgstr "Ota Keep-Alive käyttöön"
 #  website.
 msgid "Enable compression"
 msgstr "Ota pakkaus käyttöön"
+
+#  Header at the top of a list of browser plugins
+#  of a specified type detected on a webpage. PLUGIN_TYPE will be
+#  replaced with a name such as "Flash" or "Silverlight", which are
+#  not translated.
+msgid "Find alternatives for the following %(PLUGIN_TYPE)s plugins."
+msgstr "Etsi vaihtoehtoja seuraaville laajennustyypeille: %(PLUGIN_TYPE)s."
+
+#  Header at the top of a list of browser plugins of unknown
+#  type detected on a webpage. "Plugins" refers to additional software
+#  that needs to be installed to use portions of some web pages, such as
+#  Flash or Silverlight.
+msgid "Find alternatives for the following plugins."
+msgstr "Etsi vaihtoehtoja seuraaville laajennuksille."
+
+#  Detailed text in a Page Speed rule telling a
+#  web developer that they may need to perform extra work if they make
+#  a certain change to their page.
+#  A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage. HTML_DOCTYPE will be replaced with the non-translatable
+#  string "<!DOCTYPE html>".
+#  A viewport is the size of a webpage when displayed on a phone,
+#  and is set using an HTML tag. META_VIEWPORT_TAG will be replaced
+#  with the non-translatable string
+#  "<meta name=viewport width=device-width>".
+msgid "If you change the doctype, for example to %(HTML_DOCTYPE)s in order to use HTML5 features, %(BEGIN_LINK)sconfigure a viewport%(END_LINK)s with %(META_VIEWPORT_TAG)s to keep the page's current behavior."
+msgstr "Jos muutat doctype-kohtaa, esimerkiksi tyypiksi %(HTML_DOCTYPE)s, jotta voit käyttää HTML5-ominaisuuksia, %(BEGIN_LINK)smääritä näkymä%(END_LINK)s tunnisteella %(META_VIEWPORT_TAG)s, niin nykyinen toiminta pysyy samanlaisena."
 
 #  The name of a Page Speed rule that tells users to improve
 #  their server response time. This is displayed in a list of
@@ -740,6 +873,29 @@ msgstr "Käytä skaalattuja kuvia"
 msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
 msgstr "Asettamalla umpeutumispäivän tai enimmäisiän staattisten resurssien HTTP-header-osissa neuvot selainta lataamaan aiemmin ladatut resurssit tietokoneelta verkon sijaan."
 
+#  The name of a PageSpeed rule that tells users to make their
+#  webpage content of a size that is appropriate for their viewport setting,
+#  so that users won't need to e.g. scroll horizontally to see the rest of
+#  the page content.
+msgid "Size content to viewport"
+msgstr "Varmista, että sisältö mahtuu näkymään kokonaan"
+
+#  The name of a PageSpeed rule that tells users to make sure
+#  that all of the "tap targets" (links or buttons on a touchscreen, which
+#  are pressed by the user by tapping on them) on their mobile webpage are
+#  large enough for the user to press easily.
+msgid "Size tap targets appropriately"
+msgstr "Mitoita napautuskohteet oikein"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Some of the links/buttons on your webpage may be too small for a user to easily tap on a touchscreen. Consider %(BEGIN_LINK)smaking these tap targets larger%(END_LINK)s to provide a better user experience."
+msgstr "Osa verkkosivusi linkeistä tai painikkeista voi olla liian pieniä, jotta käyttäjä voisi napauttaa niitä helposti kosketusnäytöllä. Jos haluat tarjota paremman käyttäjäkokemuksen, %(BEGIN_LINK)ssuurenna näitä napautuskohteita%(END_LINK)s."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -776,11 +932,22 @@ msgstr "Määritä viewport mobiiliselaimille"
 msgid "Specify image dimensions"
 msgstr "Määritä kuvien mitat"
 
-#  Header at the top of a list of URLs of Adobe Flash
-#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
-#  the number of Flash elements found.
-msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
-msgstr "Seuraavat %(NUM_ELEMENTS)s Flash-elementtiä sisältyvät sivuun tai siihen liittyviin iframes-kehyksiin. Adobe Flash Playeria ei tueta Apple iOS:n ja Androidin versiossa 4.0.x ja sitä uudemmissa. Suosittelemme poistamaan Flash-sisällön ja korvaamaan ne muilla tavoilla."
+msgid "The contents of your page fit within the viewport. Learn more about %(BEGIN_LINK)ssizing content to the viewport%(END_LINK)s."
+msgstr "Sivusi sisältö sopii näkymään. Lue lisätietoja %(BEGIN_LINK)ssisällön koon muokkaamisesta näkymään sopivaksi%(END_LINK)s."
+
+msgid "The element %(HTML_TEXT)s falls outside the viewport."
+msgstr "Elementti %(HTML_TEXT)s jää näkymän ulkopuolelle."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "The entire HTML response was not sufficient to render the above-the-fold content. This usually indicates that additional resources, loaded after HTML parsing, were required to render above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold by including it directly in the HTML response."
+msgstr "Koko HTML-vastaus ei riittänyt sivun yläosan sisällön piirtämiseen ruudulle. Tämä yleensä tarkoittaa, että HTML-jäsentämisen jälkeen ladattavia lisäsisältöjä tarvitaan sivun yläosan sisällön piirtämiseen. %(BEGIN_LINK)sPriorisoi näkyvä sisältö%(END_LINK)s, jota tarvitaan sivun yläosan sisällön piirtämiseen ruudulle, ja sisällytä se suoraan HTML-vastaukseen."
 
 #  Summary header indicating that the external CSS
 #  resources can be inlined in the HTML and still meet the 15k criteria.
@@ -956,6 +1123,39 @@ msgstr "Seuraavien resurssien sisällöt ovat identtiset, mutta ne lähetetään
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "Seuraavien resurssien HTTP-otsikoissa ei ole määritetty merkistöä. Merkistön määrittäminen HTTP-otsikossa voi nopeuttaa sivun hahmontamista."
 
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too close to other tap targets to be easily usable.
+#  A "tap target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The following tap targets are close to other nearby tap targets and may need additional spacing around them."
+msgstr "Seuraavat napautuskohteet sijaitsevat lähellä toisia napautuskohteita. Suosittelemme kasvattamaan kohteiden välistä etäisyyttä."
+
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too small to be easily usable.  A "tap target"
+#  refers to a webpage link or button on a touchscreen, which is
+#  pressed by the user by tapping on it.
+msgid "The following tap targets are small. Consider increasing their size."
+msgstr "Seuraavat napautuskohteet ovat pieniä. Suosittelemme kasvattamaan niiden kokoa."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that are too small to be
+#  easily legible when rendered on the screen.
+msgid "The following text fragments have a small font size. Increase the font size to make them more legible."
+msgstr "Seuraavien tekstikatkelmien kirjasinkoko on pieni. Tee tekstistä selkeämpää kasvattamalla kirjasinkokoa."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that have a line height
+#  (line height is the spacing between individual lines of
+#  text) that is too small to be easily legible.
+msgid "The following text fragments have a small line height. Increase the line height to make them more legible."
+msgstr "Seuraavien tekstikatkelmien rivin korkeus on pieni. Tee tekstistä selkeämpää suurentamalla rivin korkeutta."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  This rule informs that user that the text on a their website is
+#  too small and that they should make it larger.
+msgid "The following text on your page renders in a way that may be difficult for some of your visitors to read. %(BEGIN_LINK)sUse legible font sizes%(END_LINK)s to provide a better user experience."
+msgstr "Seuraava sivullasi oleva teksti piirretään ruudulle koossa, jota kaikki sivujesi käyttäjät eivät välttämättä näe lukea. Paranna käyttökokemusta %(BEGIN_LINK)skäyttämällä tarpeeksi suuria kirjasinkokoja%(END_LINK)s."
+
 #  Header at the top of a list of URLs of resources that
 #  are served from a domain that does not have HTTP Keep-Alive enabled.
 #  It tells the user to enable keep-alive on that host.  The
@@ -972,11 +1172,185 @@ msgstr "Isännän %(HOST_NAME)s tulee ottaa käyttöön %(KEEPALIVE)s. Se lähet
 msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
 msgstr "Seuraavien URL-osoitteiden verkkotunnukset lähettävät vain yhden resurssin. Jos mahdollista, vähennä DNS-hakujen määrää lähettämällä nämä resurssit nykyisistä verkkotunnuksista."
 
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide."
+msgstr "Sivun sisältö on %(CONTENT_WIDTH)s CSS-kuvapisteen levyinen mutta näkymä on vain %(VIEWPORT_WIDTH)s CSS-kuvapisteen levyinen."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide. The following elements fall outside the viewport:"
+msgstr "Sivun sisältö on %(CONTENT_WIDTH)s CSS-kuvapisteen levyinen mutta näkymä on vain %(VIEWPORT_WIDTH)s CSS-kuvapisteen levyinen. Seuraavat elementit jäävät näkymän ulkopuolelle:"
+
+msgid "The page content is too wide for the viewport, forcing the user to scroll horizontally. %(BEGIN_LINK)sSize the page content to the viewport%(END_LINK)s to provide a better user experience."
+msgstr "Sivun sisältö on liian leveä näkymään, ja käyttäjä joutuu vierittämään ruutua vaakasuuntaan nähdäkseen sisällön. Paranna käyttäjäkokemusta %(BEGIN_LINK)smuokkaamalla sivun sisältö koko näkymään sopivaksi%(END_LINK)s."
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as having large requests. It describes the problem to the
 #  user, and tells them how to fix it by reducing the size of requests.
 msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
 msgstr "Seuraavien URL-osoitteiden pyynnöt eivät mahdu yhteen pakettiin. Pienentämällä pyyntöjen kokoa voit vähentää viivettä."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.  The SCREENSHOT
+#  placeholder will be replaced by a parenthetical link
+#  (e.g. "(see screenshot)") that displays a screenshot of the
+#  problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets %(SCREENSHOT)s."
+msgstr "Napautuskohde %(HTML_TEXT)s ja %(NUM_OTHERS)s muuta ovat lähellä muita napautuskohteita %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets."
+msgstr "Napautuskohde %(HTML_TEXT)s ja %(NUM_OTHERS)s muuta ovat lähellä muita napautuskohteita."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset. The HEIGHT
+#  placeholder will give the phyiscal height of the tap target
+#  on the touchscreen (e.g. "1.5mm"), while the HEIGHT_PX gives
+#  the number of CSS pixels specified in the stylesheet
+#  (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Napautuskohde %(HTML_TEXT)s ja %(NUM_OTHERS)s muuta ovat vain %(HEIGHT)s korkeita tavallisen laitteen näytöllä (%(HEIGHT_PX)s kuvapistettä CSS:ssä) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The HEIGHT placeholder will give the phyiscal height of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  HEIGHT_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels)."
+msgstr "Napautuskohde %(HTML_TEXT)s ja %(NUM_OTHERS)s muuta ovat vain %(HEIGHT)s korkeita tavallisen laitteen näytöllä (%(HEIGHT_PX)s kuvapistettä CSS:ssä)."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Napautuskohde %(HTML_TEXT)s ja %(NUM_OTHERS)s muuta ovat vain %(WIDTH)s leveitä tavallisen laitteen näytöllä (%(WIDTH_PX)s kuvapistettä CSS:ssä) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels)."
+msgstr "Napautuskohde %(HTML_TEXT)s ja %(NUM_OTHERS)s muuta ovat vain %(WIDTH)s leveitä tavallisen laitteen näytöllä (%(WIDTH_PX)s kuvapistettä CSS:ssä)."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.  The SCREENSHOT placeholder will be
+#  replaced by a parenthetical link (e.g. "(see screenshot)")
+#  that displays a screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets %(SCREENSHOT)s."
+msgstr "Napautuskohde %(HTML_TEXT)s on lähellä %(NUM_TOO_CLOSE)s muuta napautuskohdetta %(SCREENSHOT)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets."
+msgstr "Napautuskohde %(HTML_TEXT)s on lähellä %(NUM_TOO_CLOSE)s muuta napautuskohdetta."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels"). The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Napautuskohteen %(HTML_TEXT)s koko on vain %(WIDTH)s x %(HEIGHT)s tavallisen laitteen näytöllä (%(WIDTH_PX)s x %(HEIGHT_PX)s kuvapistettä CSS:ssä) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels").
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels)."
+msgstr "Napautuskohteen %(HTML_TEXT)s koko on vain %(WIDTH)s x %(HEIGHT)s tavallisen laitteen näytöllä (%(WIDTH_PX)s x %(HEIGHT_PX)s kuvapistettä CSS:ssä)."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. We encourage people to have large, legible fonts and this text
+#  is shown to them when they succeed at this.
+msgid "The text on your page is legible. Learn more about %(BEGIN_LINK)susing legible font sizes%(END_LINK)s."
+msgstr "Sivullasi oleva teksti on tarpeeksi suurta luettavaksi. Lue lisää %(BEGIN_LINK)starpeeksi suurien kirjasinkokojen käytöstä%(END_LINK)s."
 
 #  Descriptive header describing a list of CSS resources that
 #  are all served from a single domain (in violation of the
@@ -1004,12 +1378,23 @@ msgstr "Osoitteesta %(DOMAIN_NAME)s lähetetään %(NUM_FILES)s JavaScript-tiedo
 msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "Tämä sivu lähettää %(NUM_REQUESTS)s samaan aikaan ladattavaa pyyntöä osoitteelle %(HOSTNAME)s. Lisää samaan aikaan latausta jakamalla nämä pyynnöt useisiin verkkotunnuksiin:"
 
+#  Entry of a list of plugins detected on a webpage.
+#  TYPE will be replaced with an identifier like "application/java"
+#  or "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+msgid "Unknown plugin of type %(TYPE)s."
+msgstr "Tuntematon laajennus, joka on tyyppiä %(TYPE)s."
+
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
 msgstr "Käytä Application Cachea"
+
+#  The name of the PageSpeed rule that tells user to ensure that
+#  the size of their text remains large enough for people to read.
+msgid "Use legible font sizes"
+msgstr "Käytä riittävän suuria kirjasinkokoja"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
@@ -1055,6 +1440,23 @@ msgstr "JavaScript on pienennetty. Lue lisää %(BEGIN_LINK)sJavaScriptin pienen
 msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
 msgstr "Kuvasi on optimoitu. Lue lisää %(BEGIN_LINK)skuvien optimoinnista%(END_LINK)s."
 
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page does not appear to use plugins, which would prevent content from being usable on many platforms. Learn more about the importance of %(BEGIN_LINK)savoiding plugins%(END_LINK)s."
+msgstr "Sivusi ei vaikuta käyttävän laajennuksia, mikä voi estää sisällön käytön monilla alustoilla. Lisätietoja %(BEGIN_LINK)slaajennusten välttämisen%(END_LINK)s merkityksestä."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page does not have a viewport specified. This causes mobile devices to render your page as it would appear on a desktop browser, scaling it down to fit on a mobile screen. Configure a viewport to allow your page to render properly on all devices."
+msgstr "Sivullesi ei ole määritetty näkymää. Tämän vuoksi sivusi piirretään mobiililaitteiden ruudulle kuin se näkyisi pöytäkoneen selaimessa, mutta se skaalataan pienemmäksi, jotta se mahtuu mobiililaitteen näytölle. Määritä näkymä, jos haluat että sivusi piirretään ruudulle oikein kaikilla laitteilla."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1086,6 +1488,48 @@ msgstr "Sivullasi ei ole uudelleenohjauksia. Lue lisää %(BEGIN_LINK)saloitussi
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Sivusi tarvitsee ylimääräisiä latauskiertoja hahmontaakseen sivun yläosan sisällön. Paranna sivun tehokkuutta vähentämällä sivun yläosan sisällön hahmontamiseen tarvittavan HTML-koodin määrää."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width desktop viewport. Use a responsive viewport to allow your page to render properly on all devices."
+msgstr "Sivusi määrittää kiinteäleveyksisen pöytäkonenäkymän. Käytä responsiivista näkymää, jos haluat että sivusi piirretään ruudulle oikein kaikilla laitteilla."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width mobile viewport. Consider using a responsive viewport to allow your page to render properly on all devices."
+msgstr "Sivusi määrittää kiinteäleveyksisen mobiilinäkymän. Harkitse responsiivisen näkymän käyttämistä, jos haluat että sivusi piirretään ruudulle oikein kaikilla laitteilla."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page specifies a viewport matching the device's size, which allows it to render properly on all devices. Learn more about %(BEGIN_LINK)sconfiguring viewports%(END_LINK)s."
+msgstr "Sivusi määrittää laitteen kokoa vastaavan näkymän, minkä takia se piirretään ruudulle oikein kaikilla laitteilla. Lue lisää %(BEGIN_LINK)snäkymien määrittämisestä%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage.)
+msgid "Your page uses an XHTML Mobile doctype declaration, which instructs browsers that your page is optimized for mobile and should render properly on all devices."
+msgstr "Sivusi käyttää XHTML Mobile doctype -määritelmää, joka kertoo selaimille, että sivusi on optimoitu mobiililaitteille ja sen pitäisi piirtyä ruudulle oikein kaikilla laitteilla."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page uses plugins, which prevents portions of your page from being used on many platforms. %(BEGIN_LINK)sFind alternatives for plugin based content%(END_LINK)s to increase compatibility."
+msgstr "Sivusi käyttää laajennuksia, mikä voi estää sisällön käytön monilla alustoilla. Lisää yhteensopivuutta %(BEGIN_LINK)setsimällä vaihtoehtoja laajennuspohjaiselle sisällölle%(END_LINK)s."
 
 #  A summary to give a general overview of this Page
 #  Speed rule.
