@@ -16,7 +16,7 @@
 
 syntax = "proto2";
 
-
+option optimize_for = LITE_RUNTIME;
 option java_package = "com.googlecode.page_speed";
 
 package pagespeed;

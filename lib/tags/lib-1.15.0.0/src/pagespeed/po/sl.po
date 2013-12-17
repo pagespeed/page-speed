@@ -7,6 +7,35 @@
 msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
 msgstr "%(BEGIN_LINK)sIzogibajte se preusmeritvam ciljne strani%(END_LINK)s za naslednjo verigo preusmerjenih URL-jev."
 
+#  Detailed text in a Page Speed rule telling a web developer
+#  to change the viewport on their page in order to work better on mobile
+#  devices.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "%(BEGIN_LINK)sConfigure a viewport%(END_LINK)s for this page."
+msgstr "%(BEGIN_LINK)sKonfigurirajte začetni prikaz%(END_LINK)s za to stran."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work if the styling on your page relies on a fixed-width layout."
+msgstr "%(BEGIN_LINK)sČe pri konfiguraciji začetnega prikaza%(END_LINK)s določite %(DEVICE_WIDTH)s namesto %(VIEWPORT)s, se bo lahko vaša stran prilagodila napravam različnih širin. Za to bo morda potrebno dodatno delo, če je oblikovanje na strani prilagojeno postavitvi s fiksno širino."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work to adapt your styling for smaller screens."
+msgstr "%(BEGIN_LINK)sČe pri konfiguraciji začetnega prikaza%(END_LINK)s določite %(DEVICE_WIDTH)s namesto %(VIEWPORT)s, se bo vaša stran lahko prilagodila napravam različnih širin. Za to bo morda potrebno dodatno delo za prilagoditev oblikovanja za majhne zaslone."
+
 #  Descriptive header for a list of URLs that were
 #  served uncompressed, in violation of the EnableGzipCompression
 #  rule.  It tells the webmaster that compressing all of those
@@ -82,17 +111,6 @@ msgstr "%(BEGIN_LINK)sOptimizirajte zagotavljanje CSS-ja%(END_LINK)s za naslednj
 #  be replaced by the percent savings (e.g. "50%").
 msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr "%(BEGIN_LINK)sOptimizirajte naslednje slike%(END_LINK)s, da zmanjšate njihovo velikost za %(SIZE_IN_BYTES)s (zmanjšanje za %(PERCENTAGE)s)."
-
-#  Summary header recommending that the user place
-#  priority on rendering the content that will be visible
-#  above-the-fold in the early portion of the HTML response.
-#  ("Above-the-fold content" refers to the portion of the webpage
-#  that is immediately visible in the browser window without the user
-#  needing to scroll downwards; the term comes from newspapers, where
-#  the upper portion of the front page that is above the fold of the
-#  paper is immediately visible to the reader.)
-msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
-msgstr "%(BEGIN_LINK)sDajte prednost vidni vsebini%(END_LINK)s, ki je potrebna za upodobitev na vrhu strani."
 
 #  Header at the top of a list of URLs that Page Speed
 #  determined were blocking the parser of above-the-fold
@@ -176,6 +194,82 @@ msgstr "%(SIZE_IN_BYTES)s JavaScripta se razčleni pri prvem nalaganju strani. O
 #  the full fold content (e.g. "24.3kB").
 msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
 msgstr "%(SIZE_IN_BYTES)s odziva je bilo potrebnih za upodobitev vsebine na vrhu strani. %(BEGIN_LINK)sDajte prednost vidni vsebini%(END_LINK)s, ki je potrebna za upodobitev na vrhu strani."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "Višina vrstice za besedilo %(TEXT_SNIPPET)s in še za toliko drugih: %(NUM_OTHERS)s meri samo %(LINE_HEIGHT_PERCENT)s velikosti pisave %(SCREENSHOT)s."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "Višina vrstice za besedilo %(TEXT_SNIPPET)s in še za toliko drugih: %(NUM_OTHERS)s meri samo %(LINE_HEIGHT_PERCENT)s velikosti pisave."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "Besedilo %(TEXT_SNIPPET)s in še toliko drugih: %(NUM_OTHERS)s so upodobljeni v višini samo %(HEIGHT)s slikovnih pik %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Besedilo %(TEXT_SNIPPET)s in še toliko drugih: %(NUM_OTHERS)s so upodobljeni v višini samo %(HEIGHT)s slikovnih pik (%(CSS_HEIGHT)s slikovnih pik v CSS) %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "Besedilo %(TEXT_SNIPPET)s in še toliko drugih: %(NUM_OTHERS)s so upodobljeni v višini samo %(HEIGHT)s slikovnih pik (%(CSS_HEIGHT)s slikovnih pik v CSS)."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall."
+msgstr "Besedilo %(TEXT_SNIPPET)s in še toliko drugih: %(NUM_OTHERS)s so upodobljeni v višini samo %(HEIGHT)s slikovnih pik."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "Višina vrstice besedila %(TEXT_SNIPPET)s meri samo %(LINE_HEIGHT_PERCENT)s velikosti pisave %(SCREENSHOT)s."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "Višina vrstice besedila %(TEXT_SNIPPET)s meri samo %(LINE_HEIGHT_PERCENT)s velikosti pisave."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "Besedilo %(TEXT_SNIPPET)s je upodobljeno v višini samo %(HEIGHT)s slikovnih pik %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Besedilo %(TEXT_SNIPPET)s je upodobljeno v višini samo %(HEIGHT)s slikovnih pik (%(CSS_HEIGHT)s slikovnih pik v CSS-ju) %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "Besedilo %(TEXT_SNIPPET)s je upodobljeno v višini samo %(HEIGHT)s slikovnih pik (%(CSS_HEIGHT)s slikovnih pik v CSS)."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall."
+msgstr "Besedilo %(TEXT_SNIPPET)s je upodobljeno v višini samo %(HEIGHT)s slikovnih pik."
 
 #  Shown as part of a list of URLs that have unnecessary
 #  reflows (or "layouts", which is used interchangeably with the word
@@ -274,6 +368,12 @@ msgstr "%(URL)s vrstica %(LINE_NUMBER)s (%(DURATION)s)"
 msgid "%(URL)s should inline the following small resources:"
 msgstr "Dokument %(URL)s bi moral vdelati te majhne vire:"
 
+#  A summary to give a general overview of this Page Speed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+msgid "All of your page's links/buttons are large enough for a user to easily tap on a touchscreen. Learn more about %(BEGIN_LINK)ssizing tap targets appropriately%(END_LINK)s."
+msgstr "Vse povezave/gumbi na vaši strani so dovolj veliki, da se jih uporabnik preprosto dotakne na zaslonu na dotik. Preberite več o %(BEGIN_LINK)sdoločanju ustrezne velikosti za cilje dotika%(END_LINK)s."
+
 #  Summary header indicating how much of the
 #  above-the-fold (i.e. within the initial browser
 #  viewport) content of a webpage was able to be correctly
@@ -306,11 +406,6 @@ msgstr "V metaoznaki ne določite nabora znakov"
 msgid "Avoid bad requests"
 msgstr "Izogibanje napačnim zahtevam"
 
-#  The name of a Page Speed rule that tells users to avoid using
-#  Adobe Flash on mobile webpages
-msgid "Avoid flash on mobile webpages"
-msgstr "Na mobilnih spletnih straneh se izogibajte Flashu"
-
 #  The name of a Page Speed rule that tells users to avoid
 #  redirects at the landing page. The landing page is the root
 #  HTML document that was requested the user in the browser's address bar.
@@ -325,6 +420,11 @@ msgstr "Izogibajte se preusmeritvam ciljnih strani"
 #  telling webmasters which rules they broke in their website.
 msgid "Avoid long-running scripts"
 msgstr "Izogibajte se skriptom, ki se izvajajo dolgo časa"
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  browser plugins like Flash or Silverlight on webpages.
+msgid "Avoid plugins"
+msgstr "Izogibajte se vtičnikov"
 
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
@@ -393,6 +493,12 @@ msgstr "S stiskanjem sredstev z orodjem »gzip« ali »deflate« lahko zmanjšat
 msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
 msgstr "Če stisnete HTML strani, bo stran morda lahko upodobila večino vsebine na vrhu strani v okviru prvih 15 KB odziva."
 
+#  The name of a PageSpeed rule that tells users to configure a
+#  viewport on their webpage, which allows mobile browsers to display the page
+#  at a reasonable size.
+msgid "Configure the viewport"
+msgstr "Konfiguracija začetnega prikaza"
+
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The
 #  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
@@ -440,6 +546,33 @@ msgstr "Omogoči Keep-Alive"
 #  website.
 msgid "Enable compression"
 msgstr "Stiskanje omogočeno"
+
+#  Header at the top of a list of browser plugins
+#  of a specified type detected on a webpage. PLUGIN_TYPE will be
+#  replaced with a name such as "Flash" or "Silverlight", which are
+#  not translated.
+msgid "Find alternatives for the following %(PLUGIN_TYPE)s plugins."
+msgstr "Poiščite alternative za naslednje vtičnike %(PLUGIN_TYPE)s."
+
+#  Header at the top of a list of browser plugins of unknown
+#  type detected on a webpage. "Plugins" refers to additional software
+#  that needs to be installed to use portions of some web pages, such as
+#  Flash or Silverlight.
+msgid "Find alternatives for the following plugins."
+msgstr "Poiščite alternative za naslednje vtičnike."
+
+#  Detailed text in a Page Speed rule telling a
+#  web developer that they may need to perform extra work if they make
+#  a certain change to their page.
+#  A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage. HTML_DOCTYPE will be replaced with the non-translatable
+#  string "<!DOCTYPE html>".
+#  A viewport is the size of a webpage when displayed on a phone,
+#  and is set using an HTML tag. META_VIEWPORT_TAG will be replaced
+#  with the non-translatable string
+#  "<meta name=viewport width=device-width>".
+msgid "If you change the doctype, for example to %(HTML_DOCTYPE)s in order to use HTML5 features, %(BEGIN_LINK)sconfigure a viewport%(END_LINK)s with %(META_VIEWPORT_TAG)s to keep the page's current behavior."
+msgstr "Če spremenite vrsto dokumenta, na primer v %(HTML_DOCTYPE)s, da omogočite uporabo funkcij HTML5, %(BEGIN_LINK)skonfigurirajte začetni prikaz%(END_LINK)s širine %(META_VIEWPORT_TAG)s, da ohranite trenutno vedenje strani."
 
 #  The name of a Page Speed rule that tells users to improve
 #  their server response time. This is displayed in a list of
@@ -740,6 +873,29 @@ msgstr "Streženje slik v spremenjeni velikosti"
 msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
 msgstr "Če nastavite datum poteka ali največjo starost statičnih sredstev v glavah HTTP, brskalniku poveste, naj sredstva, ki so že bila prenesena, naloži z lokalnega diska, ne iz omrežja."
 
+#  The name of a PageSpeed rule that tells users to make their
+#  webpage content of a size that is appropriate for their viewport setting,
+#  so that users won't need to e.g. scroll horizontally to see the rest of
+#  the page content.
+msgid "Size content to viewport"
+msgstr "Velikost vsebine prilagodite začetnemu prikazu"
+
+#  The name of a PageSpeed rule that tells users to make sure
+#  that all of the "tap targets" (links or buttons on a touchscreen, which
+#  are pressed by the user by tapping on them) on their mobile webpage are
+#  large enough for the user to press easily.
+msgid "Size tap targets appropriately"
+msgstr "Določanje ustrezne velikosti za ciljne elemente na dotik"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Some of the links/buttons on your webpage may be too small for a user to easily tap on a touchscreen. Consider %(BEGIN_LINK)smaking these tap targets larger%(END_LINK)s to provide a better user experience."
+msgstr "Nekatere povezave ali gumbi na vaši spletni strani so morda premajhni, da bi se jih uporabniki lahko brez težav dotaknili na zaslonu na dotik. %(BEGIN_LINK)sPovečajte te ciljne elemente na dotik%(END_LINK)s in zagotovite boljšo uporabniško izkušnjo."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -776,11 +932,22 @@ msgstr "Določite začetni prikaz za mobilne brskalnike"
 msgid "Specify image dimensions"
 msgstr "Določanje mer slik"
 
-#  Header at the top of a list of URLs of Adobe Flash
-#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
-#  the number of Flash elements found.
-msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
-msgstr "Naslednje število elementov Flash je vključenih na stran ali iz vključenih okvirjev iframe: %(NUM_ELEMENTS)s. Predvajalnik Adobe Flash ni podprt v operacijskih sistemih Apple iOS in Android (različice, novejše od 4.0x). Poskusite odstraniti objekte Flash in poiskati ustrezna nadomestila."
+msgid "The contents of your page fit within the viewport. Learn more about %(BEGIN_LINK)ssizing content to the viewport%(END_LINK)s."
+msgstr "Vsebina vaše strani se prilega začetnemu prikazu. Preberite več o %(BEGIN_LINK)sprilagajanju velikosti vsebine za začetni prikaz%(END_LINK)s."
+
+msgid "The element %(HTML_TEXT)s falls outside the viewport."
+msgstr "Element %(HTML_TEXT)s je zunaj začetnega prikaza."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "The entire HTML response was not sufficient to render the above-the-fold content. This usually indicates that additional resources, loaded after HTML parsing, were required to render above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold by including it directly in the HTML response."
+msgstr "Celotni odziv HTML-ja ni zadostoval za prikaz vsebine na vrhu strani. To običajno pomeni, da so bili za prikaz vsebine na vrhu strani potrebni dodatni viri, naloženi po razčlenitvi HTML-ja. %(BEGIN_LINK)sZagotovite prednost vidni vsebini%(END_LINK)s, ki je potrebna za prikaz vsebine na vrhu strani, tako da jo vključite neposredno v odziv HTML-ja."
 
 #  Summary header indicating that the external CSS
 #  resources can be inlined in the HTML and still meet the 15k criteria.
@@ -956,6 +1123,39 @@ msgstr "Naslednja sredstva imajo isto vsebino, vendar so strežena z različnih 
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "Ti viri v glavah HTTP nimajo nastavljenega nabora znakov. Če ga izberete, lahko pospešite upodabljanje v brskalniku."
 
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too close to other tap targets to be easily usable.
+#  A "tap target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The following tap targets are close to other nearby tap targets and may need additional spacing around them."
+msgstr "Naslednji cilji za dotik so preblizu sosednjim ciljem za dotik, zato bo morda treba okoli njih zagotoviti več prostora."
+
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too small to be easily usable.  A "tap target"
+#  refers to a webpage link or button on a touchscreen, which is
+#  pressed by the user by tapping on it.
+msgid "The following tap targets are small. Consider increasing their size."
+msgstr "Naslednji cilji za dotik so premajhni. Povečajte jih."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that are too small to be
+#  easily legible when rendered on the screen.
+msgid "The following text fragments have a small font size. Increase the font size to make them more legible."
+msgstr "Naslednji odlomki besedila imajo majhno velikost pisave. Povečajte velikost pisave, da bodo lažje berljivi."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that have a line height
+#  (line height is the spacing between individual lines of
+#  text) that is too small to be easily legible.
+msgid "The following text fragments have a small line height. Increase the line height to make them more legible."
+msgstr "Naslednji fragmenti besedila imajo nizko višino vrstice. Povečajte višino vrstice, da bodo lažje berljivi."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  This rule informs that user that the text on a their website is
+#  too small and that they should make it larger.
+msgid "The following text on your page renders in a way that may be difficult for some of your visitors to read. %(BEGIN_LINK)sUse legible font sizes%(END_LINK)s to provide a better user experience."
+msgstr "Naslednje besedilo na vaši strani je upodobljeno tako, da ga nekateri obiskovalci morda težko preberejo. %(BEGIN_LINK)sUporabite berljive velikosti pisave%(END_LINK)s, da zagotovite boljšo uporabniško izkušnjo."
+
 #  Header at the top of a list of URLs of resources that
 #  are served from a domain that does not have HTTP Keep-Alive enabled.
 #  It tells the user to enable keep-alive on that host.  The
@@ -972,11 +1172,185 @@ msgstr "Gostitelj %(HOST_NAME)s mora omogočiti %(KEEPALIVE)s. Streže naslednje
 msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
 msgstr "Gostiteljska imena teh URL-jev strežejo samo po en vir. Izognite se dodatnim iskanjem DNS, tako da se ta sredstva strežejo iz obstoječih gostiteljskih imen."
 
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide."
+msgstr "Vsebina strani je široka %(CONTENT_WIDTH)s slikovnih pik v CSS, začetni prikaz pa je širok samo %(VIEWPORT_WIDTH)s slikovnih pik v CSS."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide. The following elements fall outside the viewport:"
+msgstr "Vsebina strani je široka %(CONTENT_WIDTH)s slikovnih pik v CSS, začetni prikaz pa je širok samo %(VIEWPORT_WIDTH)s slikovnih pik v CSS. Naslednji elementi so zunaj začetnega prikaza:"
+
+msgid "The page content is too wide for the viewport, forcing the user to scroll horizontally. %(BEGIN_LINK)sSize the page content to the viewport%(END_LINK)s to provide a better user experience."
+msgstr "Vsebina strani je preširoka za začetni prikaz, zato se mora uporabnik z drsnikom pomikati levo in desno. %(BEGIN_LINK)sPrilagodite velikost vsebine strani začetnemu prikazu%(END_LINK)s in zagotovite boljšo uporabniško izkušnjo."
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as having large requests. It describes the problem to the
 #  user, and tells them how to fix it by reducing the size of requests.
 msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
 msgstr "Zahtev za te URL-je ni mogoče dati v en paket. Z zmanjšanjem velikosti teh zahtev se lahko zmanjša zakasnitev."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.  The SCREENSHOT
+#  placeholder will be replaced by a parenthetical link
+#  (e.g. "(see screenshot)") that displays a screenshot of the
+#  problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets %(SCREENSHOT)s."
+msgstr "Cilj dotika %(HTML_TEXT)s in nekateri drugi cilji dotika (%(NUM_OTHERS)s) so blizu drugim ciljem dotika %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets."
+msgstr "Cilj dotika %(HTML_TEXT)s in nekateri drugi cilji dotika (%(NUM_OTHERS)s) so blizu drugim ciljem dotika."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset. The HEIGHT
+#  placeholder will give the phyiscal height of the tap target
+#  on the touchscreen (e.g. "1.5mm"), while the HEIGHT_PX gives
+#  the number of CSS pixels specified in the stylesheet
+#  (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Cilj dotika %(HTML_TEXT)s in nekateri drugi cilji dotika (%(NUM_OTHERS)s) so v običajnih napravah visoki samo %(HEIGHT)s (%(HEIGHT_PX)s slikovnih pik v CSS-ju) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The HEIGHT placeholder will give the phyiscal height of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  HEIGHT_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels)."
+msgstr "Cilj dotika %(HTML_TEXT)s in nekateri drugi cilji dotika (%(NUM_OTHERS)s) so v običajnih napravah visoki samo %(HEIGHT)s (%(HEIGHT_PX)s slikovnih pik v CSS-ju)."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Cilj dotika %(HTML_TEXT)s in nekateri drugi cilji dotika (%(NUM_OTHERS)s) so v običajnih napravah široki samo %(WIDTH)s (%(WIDTH_PX)s slikovnih pik v CSS-ju) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels)."
+msgstr "Cilj dotika %(HTML_TEXT)s in nekateri drugi cilji dotika (%(NUM_OTHERS)s) so v običajnih napravah široki samo %(WIDTH)s (%(WIDTH_PX)s slikovnih pik v CSS-ju)."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.  The SCREENSHOT placeholder will be
+#  replaced by a parenthetical link (e.g. "(see screenshot)")
+#  that displays a screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets %(SCREENSHOT)s."
+msgstr "Cilj dotika %(HTML_TEXT)s je blizu toliko drugim ciljem dotika: %(NUM_TOO_CLOSE)s %(SCREENSHOT)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets."
+msgstr "Cilj dotika %(HTML_TEXT)s je blizu toliko drugim ciljem dotika: %(NUM_TOO_CLOSE)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels"). The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Cilj dotika %(HTML_TEXT)s je v običajnih napravah velik samo %(WIDTH)s × %(HEIGHT)s (%(WIDTH_PX)s × %(HEIGHT_PX)s slikovnih pik v CSS-ju) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels").
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels)."
+msgstr "Cilj dotika %(HTML_TEXT)s je v običajnih napravah velik samo %(WIDTH)s × %(HEIGHT)s (%(WIDTH_PX)s × %(HEIGHT_PX)s slikovnih pik v CSS-ju)."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. We encourage people to have large, legible fonts and this text
+#  is shown to them when they succeed at this.
+msgid "The text on your page is legible. Learn more about %(BEGIN_LINK)susing legible font sizes%(END_LINK)s."
+msgstr "Besedilo na vaši strani je berljivo. Preberite več o %(BEGIN_LINK)suporabi berljivih velikosti pisav%(END_LINK)s."
 
 #  Descriptive header describing a list of CSS resources that
 #  are all served from a single domain (in violation of the
@@ -1004,12 +1378,23 @@ msgstr "Iz domene %(NUM_FILES)s se streže toliko datotek JavaScript: %(DOMAIN_N
 msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "Ta stran gostitelju %(HOSTNAME)s pošlje toliko zahtev: %(NUM_REQUESTS)s, ki omogočajo paraleliziranje. Povečajte število paraleliziranja prenosov z razporejanjem teh zahtev med več imeni gostiteljev:"
 
+#  Entry of a list of plugins detected on a webpage.
+#  TYPE will be replaced with an identifier like "application/java"
+#  or "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+msgid "Unknown plugin of type %(TYPE)s."
+msgstr "Neznan vtičnik vrste %(TYPE)s."
+
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
 msgstr "Uporaba predpomnilnika programov"
+
+#  The name of the PageSpeed rule that tells user to ensure that
+#  the size of their text remains large enough for people to read.
+msgid "Use legible font sizes"
+msgstr "Uporaba čitljivih velikosti pisav"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
@@ -1055,6 +1440,23 @@ msgstr "Vaš JavaScript je stisnjen. Preberite več o %(BEGIN_LINK)sstiskanju Ja
 msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
 msgstr "Vaše slike so optimizirane. Preberite več o %(BEGIN_LINK)soptimiziranju slik%(END_LINK)s."
 
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page does not appear to use plugins, which would prevent content from being usable on many platforms. Learn more about the importance of %(BEGIN_LINK)savoiding plugins%(END_LINK)s."
+msgstr "Zdi se, da vaša stran ne uporablja vtičnikov, ki bi lahko preprečevali uporabo vsebine na številnih platformah. Preberite več o tem, zakaj je pomembno, da se %(BEGIN_LINK)sizogibate vtičnikov%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page does not have a viewport specified. This causes mobile devices to render your page as it would appear on a desktop browser, scaling it down to fit on a mobile screen. Configure a viewport to allow your page to render properly on all devices."
+msgstr "Vaša stran nima določenega začetnega prikaza. Zato je stran v mobilnih napravah prikazana enako, kot bi bila prikazana v namiznih brskalnikih, vendar pomanjšana, da se prilega zaslonu mobilne naprave. Konfigurirajte začetni prikaz, da bo stran pravilno upodobljena v vseh napravah."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1086,6 +1488,48 @@ msgstr "Vaša stran nima preusmeritev. Preberite več o %(BEGIN_LINK)sizogibanju
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Vaša stran mora izvesti dodatne krožne poti v omrežju, da se bo lahko prikazala vsebina na vrhu strani. Svetujemo vam, da zmanjšate količino kode HTML, ki je potrebna za prikaz vsebine na vrhu strani."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width desktop viewport. Use a responsive viewport to allow your page to render properly on all devices."
+msgstr "Vaša stran določa namizni začetni prikaz fiksne širine. Uporabite odziven začetni prikaz, da bo stran pravilno upodobljena v vseh napravah."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width mobile viewport. Consider using a responsive viewport to allow your page to render properly on all devices."
+msgstr "Vaša stran določa mobilni začetni prikaz fiksne širine. Premislite o uporabi odzivnega začetnega prikaza, da bo stran pravilno upodobljena v vseh napravah."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page specifies a viewport matching the device's size, which allows it to render properly on all devices. Learn more about %(BEGIN_LINK)sconfiguring viewports%(END_LINK)s."
+msgstr "Vaša stran določa začetni prikaz, ki se ujema z velikostjo naprave, kar omogoča pravilno upodabljanje strani v vseh napravah. Preberite več o %(BEGIN_LINK)skonfiguraciji začetnih prikazov%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage.)
+msgid "Your page uses an XHTML Mobile doctype declaration, which instructs browsers that your page is optimized for mobile and should render properly on all devices."
+msgstr "Vaša stran uporablja deklaracijo dokumenta vrste XHTML Mobile, ki brskalniku sporoča, da je vaša stran optimizirana za mobilne naprave in bi morala biti pravilno upodobljena v vseh napravah."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page uses plugins, which prevents portions of your page from being used on many platforms. %(BEGIN_LINK)sFind alternatives for plugin based content%(END_LINK)s to increase compatibility."
+msgstr "Vaša stran uporablja vtičnike, ki preprečujejo uporabo delov vaše strani na številnih platformah. %(BEGIN_LINK)sPoiščite alternative za vsebino, ki temelji na vtičnikih%(END_LINK)s, da povečate združljivost."
 
 #  A summary to give a general overview of this Page
 #  Speed rule.
