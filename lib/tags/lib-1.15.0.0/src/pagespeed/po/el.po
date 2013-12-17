@@ -7,6 +7,35 @@
 msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
 msgstr "%(BEGIN_LINK)sΑποφυγή ανακατευθύνσεων σελίδας προορισμού%(END_LINK)s για την παρακάτω αλυσίδα ανακατευθυνόμενων διευθύνσεων URL."
 
+#  Detailed text in a Page Speed rule telling a web developer
+#  to change the viewport on their page in order to work better on mobile
+#  devices.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "%(BEGIN_LINK)sConfigure a viewport%(END_LINK)s for this page."
+msgstr "%(BEGIN_LINK)sΔιαμόρφωση θύρας προβολής%(END_LINK)s για αυτήν τη σελίδα."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work if the styling on your page relies on a fixed-width layout."
+msgstr "Η %(BEGIN_LINK)sδιαμόρφωση μιας θύρας προβολής%(END_LINK)s προσδιορίζοντας %(DEVICE_WIDTH)s αντί για %(VIEWPORT)s θα δώσει τη δυνατότητα στη σελίδα σας να προσαρμόζεται σε συσκευές με διάφορα πλάτη. Αυτό ενδέχεται να απαιτεί επιπλέον ενέργειες εάν το στυλ της σελίδας σας βασίζεται σε διάταξη ορισμένου πλάτους."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work to adapt your styling for smaller screens."
+msgstr "Η %(BEGIN_LINK)sδιαμόρφωση μιας θύρας προβολής%(END_LINK)s προσδιορίζοντας %(DEVICE_WIDTH)s αντί για %(VIEWPORT)s θα δώσει τη δυνατότητα στη σελίδα σας να προσαρμόζεται σε συσκευές με διάφορα πλάτη. Αυτό ενδέχεται να απαιτεί επιπλέον ενέργειες για την προσαρμογή του στυλ σας σε μικρότερες οθόνες."
+
 #  Descriptive header for a list of URLs that were
 #  served uncompressed, in violation of the EnableGzipCompression
 #  rule.  It tells the webmaster that compressing all of those
@@ -82,17 +111,6 @@ msgstr "%(BEGIN_LINK)sΒελτιστοποίηση προβολής CSS%(END_LIN
 #  be replaced by the percent savings (e.g. "50%").
 msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr "%(BEGIN_LINK)sΒελτιστοποίηση των παρακάτω εικόνων%(END_LINK)s για τον περιορισμό του μεγέθους τους κατά %(SIZE_IN_BYTES)s (μείωση %(PERCENTAGE)s)."
-
-#  Summary header recommending that the user place
-#  priority on rendering the content that will be visible
-#  above-the-fold in the early portion of the HTML response.
-#  ("Above-the-fold content" refers to the portion of the webpage
-#  that is immediately visible in the browser window without the user
-#  needing to scroll downwards; the term comes from newspapers, where
-#  the upper portion of the front page that is above the fold of the
-#  paper is immediately visible to the reader.)
-msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
-msgstr "%(BEGIN_LINK)sΟρισμός προτεραιότητας ορατού περιεχομένου%(END_LINK)s που απαιτείται για την απόδοση στο επάνω μέρος."
 
 #  Header at the top of a list of URLs that Page Speed
 #  determined were blocking the parser of above-the-fold
@@ -176,6 +194,82 @@ msgstr "%(SIZE_IN_BYTES)s JavaScript αναλύονται κατά την αρχ
 #  the full fold content (e.g. "24.3kB").
 msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
 msgstr "Απαιτούνται %(SIZE_IN_BYTES)s της απόκρισης για την απόδοση του περιεχομένου στο επάνω μέρος. %(BEGIN_LINK)sΟρίστε σε προτεραιότητα το ορατό περιεχόμενο%(END_LINK)s που απαιτείται για απόδοση στο επάνω μέρος."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s και %(NUM_OTHERS)s ακόμη έχουν ύψος γραμμής μόνο %(LINE_HEIGHT_PERCENT)s του μεγέθους γραμματοσειράς %(SCREENSHOT)s."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s και %(NUM_OTHERS)s ακόμη έχουν ύψος γραμμής μόνο %(LINE_HEIGHT_PERCENT)s του μεγέθους της γραμματοσειράς."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s και %(NUM_OTHERS)s ακόμη εμφανίζονται μόνο με ύψος %(HEIGHT)s εικονοστοιχεία %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s και %(NUM_OTHERS)s ακόμη εμφανίζονται μόνο με ύψος %(HEIGHT)s εικονοστοιχεία (%(CSS_HEIGHT)s εικονοστοιχεία CSS) %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s και %(NUM_OTHERS)s ακόμη εμφανίζονται μόνο με ύψος %(HEIGHT)s εικονοστοιχεία (%(CSS_HEIGHT)s εικονοστοιχεία CSS)."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s και %(NUM_OTHERS)s ακόμη εμφανίζονται μόνο με ύψος %(HEIGHT)s εικονοστοιχεία."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s έχει ύψος γραμμής μόνο %(LINE_HEIGHT_PERCENT)s του μεγέθους γραμματοσειράς %(SCREENSHOT)s."
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s έχει ύψος γραμμής μόνο %(LINE_HEIGHT_PERCENT)s του μεγέθους γραμματοσειράς."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s εμφανίζει μόνο εικονοστοιχεία ύψους %(HEIGHT)s %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s εμφανίζει μόνο εικονοστοιχεία ύψους %(HEIGHT)s (εικονοστοιχεία CSS ύψους %(CSS_HEIGHT)s) %(SCREENSHOT)s."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s εμφανίζεται μόνο με ύψος %(HEIGHT)s εικονοστοιχεία (εικονοστοιχεία CSS ύψους %(CSS_HEIGHT)s)."
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall."
+msgstr "Το απόσπασμα %(TEXT_SNIPPET)s εμφανίζεται μόνο με ύψος %(HEIGHT)s εικονοστοιχεία."
 
 #  Shown as part of a list of URLs that have unnecessary
 #  reflows (or "layouts", which is used interchangeably with the word
@@ -274,6 +368,12 @@ msgstr "%(URL)s γραμμή %(LINE_NUMBER)s (%(DURATION)s)"
 msgid "%(URL)s should inline the following small resources:"
 msgstr "Η διεύθυνση %(URL)s θα πρέπει να ενσωματώσει τους παρακάτω μικρούς πόρους:"
 
+#  A summary to give a general overview of this Page Speed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+msgid "All of your page's links/buttons are large enough for a user to easily tap on a touchscreen. Learn more about %(BEGIN_LINK)ssizing tap targets appropriately%(END_LINK)s."
+msgstr "Όλοι οι σύνδεσμοι/κουμπιά της σελίδας σας έχουν αρκετά μεγάλο μέγεθος έτσι ώστε ένας χρήστης να μπορεί να τα πατήσει εύκολα σε μια οθόνη αφής. Μάθετε περισσότερα σχετικά με τα %(BEGIN_LINK)sκατάλληλα μεγέθη για στοχευόμενες περιοχές πατήματος%(END_LINK)s."
+
 #  Summary header indicating how much of the
 #  above-the-fold (i.e. within the initial browser
 #  viewport) content of a webpage was able to be correctly
@@ -306,11 +406,6 @@ msgstr "Αποφύγετε ένα σύνολο χαρακτήρων στη με�
 msgid "Avoid bad requests"
 msgstr "Αποφεύγετε εσφαλμένα αιτήματα"
 
-#  The name of a Page Speed rule that tells users to avoid using
-#  Adobe Flash on mobile webpages
-msgid "Avoid flash on mobile webpages"
-msgstr "Αποφύγετε το flash για ιστοσελίδες για κινητά"
-
 #  The name of a Page Speed rule that tells users to avoid
 #  redirects at the landing page. The landing page is the root
 #  HTML document that was requested the user in the browser's address bar.
@@ -325,6 +420,11 @@ msgstr "Αποφύγετε τις ανακατευθύνσεις σελίδας 
 #  telling webmasters which rules they broke in their website.
 msgid "Avoid long-running scripts"
 msgstr "Αποφύγετε τα σενάρια μεγάλης διάρκειας"
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  browser plugins like Flash or Silverlight on webpages.
+msgid "Avoid plugins"
+msgstr "Αποφυγή προσθηκών"
 
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
@@ -385,13 +485,19 @@ msgstr "Με τη συμπίεση της διεύθυνσης %(URL)s θα μπ
 #  A summary to give a general overview of this Page
 #  Speed rule.
 msgid "Compressing resources with gzip or deflate can reduce the number of bytes sent over the network."
-msgstr "Η συμπίεση των πόρων με <code>gzip</ code> ή <code>deflate</ code> μπορεί να μειώσει τον αριθμό των byte που αποστέλλονται μέσω του δικτύου."
+msgstr "Η συμπίεση των πόρων με gzip ή deflate μπορεί να μειώσει τον αριθμό των byte που αποστέλλονται μέσω του δικτύου."
 
 #  Summary header indicating that compressing will bring
 #  the page to meeting the criteria (the above the fold content is
 #  rendered on the first 15 kilobytes).
 msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
 msgstr "Η συμπίεση του κώδικα HTML της σελίδας σας μπορεί να κάνει τη σελίδα σας να αποδίδει το μεγαλύτερο μέρος του περιεχομένου στο επάνω μέρος από τα πρώτα 15 KB της απόκρισης."
+
+#  The name of a PageSpeed rule that tells users to configure a
+#  viewport on their webpage, which allows mobile browsers to display the page
+#  at a reasonable size.
+msgid "Configure the viewport"
+msgstr "Διαμόρφωση θύρας προβολής"
 
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The
@@ -440,6 +546,33 @@ msgstr "Ενεργοποίηση του Keep-Alive"
 #  website.
 msgid "Enable compression"
 msgstr "Ενεργοποίηση συμπίεσης "
+
+#  Header at the top of a list of browser plugins
+#  of a specified type detected on a webpage. PLUGIN_TYPE will be
+#  replaced with a name such as "Flash" or "Silverlight", which are
+#  not translated.
+msgid "Find alternatives for the following %(PLUGIN_TYPE)s plugins."
+msgstr "Βρείτε εναλλακτικές λύσεις για τις παρακάτω προσθήκες %(PLUGIN_TYPE)s."
+
+#  Header at the top of a list of browser plugins of unknown
+#  type detected on a webpage. "Plugins" refers to additional software
+#  that needs to be installed to use portions of some web pages, such as
+#  Flash or Silverlight.
+msgid "Find alternatives for the following plugins."
+msgstr "Βρείτε εναλλακτικές λύσεις για τις παρακάτω προσθήκες."
+
+#  Detailed text in a Page Speed rule telling a
+#  web developer that they may need to perform extra work if they make
+#  a certain change to their page.
+#  A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage. HTML_DOCTYPE will be replaced with the non-translatable
+#  string "<!DOCTYPE html>".
+#  A viewport is the size of a webpage when displayed on a phone,
+#  and is set using an HTML tag. META_VIEWPORT_TAG will be replaced
+#  with the non-translatable string
+#  "<meta name=viewport width=device-width>".
+msgid "If you change the doctype, for example to %(HTML_DOCTYPE)s in order to use HTML5 features, %(BEGIN_LINK)sconfigure a viewport%(END_LINK)s with %(META_VIEWPORT_TAG)s to keep the page's current behavior."
+msgstr "Εάν αλλάξετε τον τύπο εγγράφου, για παράδειγμα σε %(HTML_DOCTYPE)s προκειμένου να χρησιμοποιήσετε τις λειτουργίες HTML5, %(BEGIN_LINK)sδιαμορφώστε μια θύρα προβολής%(END_LINK)s με %(META_VIEWPORT_TAG)s για να διατηρήσετε την τρέχουσα συμπεριφορά της σελίδας σας."
 
 #  The name of a Page Speed rule that tells users to improve
 #  their server response time. This is displayed in a list of
@@ -740,6 +873,29 @@ msgstr "Εμφάνιση εικόνων σε κλίμακα"
 msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
 msgstr "Ο καθορισμός μιας ημερομηνίας λήξης ή μιας μέγιστης ηλικίας στις κεφαλίδες HTTP για στατικούς πόρους συνιστά στο πρόγραμμα περιήγησης τη φόρτωση πόρων που έχουν ληφθεί στο παρελθόν, από τον τοπικό δίσκο και όχι μέσω του δικτύου."
 
+#  The name of a PageSpeed rule that tells users to make their
+#  webpage content of a size that is appropriate for their viewport setting,
+#  so that users won't need to e.g. scroll horizontally to see the rest of
+#  the page content.
+msgid "Size content to viewport"
+msgstr "Μέγεθος περιεχομένου στη θύρα προβολής"
+
+#  The name of a PageSpeed rule that tells users to make sure
+#  that all of the "tap targets" (links or buttons on a touchscreen, which
+#  are pressed by the user by tapping on them) on their mobile webpage are
+#  large enough for the user to press easily.
+msgid "Size tap targets appropriately"
+msgstr "Κατάλληλο μέγεθος για στοχευόμενη περιοχή πατήματος"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Some of the links/buttons on your webpage may be too small for a user to easily tap on a touchscreen. Consider %(BEGIN_LINK)smaking these tap targets larger%(END_LINK)s to provide a better user experience."
+msgstr "Ορισμένοι από τους συνδέσμους/κουμπιά στην ιστοσελίδα σας ενδέχεται να έχουν πολύ μικρό μέγεθος για εύκολο πάτημα σε μια οθόνη αφής. Εξετάστε το ενδεχόμενο να %(BEGIN_LINK)sαυξήσετε το μέγεθος αυτών των στοχευόμενων περιοχών πατήματος%(END_LINK)s για να προσφέρετε στους χρήστες μια καλύτερη εμπειρία."
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -776,11 +932,22 @@ msgstr "Καθορίστε μια θύρα προβολής για τα προγ
 msgid "Specify image dimensions"
 msgstr "Καθορισμός των διαστάσεων της εικόνας"
 
-#  Header at the top of a list of URLs of Adobe Flash
-#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
-#  the number of Flash elements found.
-msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
-msgstr "Τα παρακάτω %(NUM_ELEMENTS)s στοιχεία Flash συμπεριλαμβάνονται στη σελίδα ή προέρχονται από συμπεριλαμβανομένα iframe. Το Adobe Flash Player δεν υποστηρίζεται σε Apple iOS ή εκδόσεις Android υψηλότερες από 4.0.x. Εξετάστε το ενδεχόμενο να καταργήσετε τα αντικείμενα Flash και να τα αντικαταστήσετε κατάλληλα."
+msgid "The contents of your page fit within the viewport. Learn more about %(BEGIN_LINK)ssizing content to the viewport%(END_LINK)s."
+msgstr "Το περιεχόμενο της σελίδας προσαρμόζεται στη θύρα προβολής. Μάθετε περισσότερα σχετικά με την %(BEGIN_LINK)sπροσαρμογή του μεγέθους του περιεχομένου στη θύρα προβολής%(END_LINK)s."
+
+msgid "The element %(HTML_TEXT)s falls outside the viewport."
+msgstr "Το στοιχείο %(HTML_TEXT)s είναι εκτός της θύρας προβολής."
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "The entire HTML response was not sufficient to render the above-the-fold content. This usually indicates that additional resources, loaded after HTML parsing, were required to render above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold by including it directly in the HTML response."
+msgstr "Το σύνολο της απόκρισης HTML δεν ήταν επαρκές για την απόδοση του περιεχομένου στο επάνω μέρος. Αυτό υποδεικνύει, συνήθως, ότι απαιτούνταν πρόσθετες πληροφορίες, οι οποίες είχαν φορτωθεί μετά την ανάλυση HTML, για την απόδοση του περιεχομένου στο επάνω μέρος %(BEGIN_LINK)sΔώστε προτεραιότητα στο ορατό περιεχόμενο%(END_LINK)s που απαιτείται για την απόδοση στο επάνω μέρος, συμπεριλαμβάνοντάς το απευθείας στην απόκριση HTML."
 
 #  Summary header indicating that the external CSS
 #  resources can be inlined in the HTML and still meet the 15k criteria.
@@ -956,6 +1123,39 @@ msgstr "Οι παρακάτω πόροι έχουν πανομοιότυπο π�
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "Δεν έχει καθοριστεί κάποιο σύνολο χαρακτήρων για τους παρακάτω πόρους στις κεφαλίδες τους HTTP. Ο καθορισμός ενός συνόλου χαρακτήρων στις κεφαλίδες HTTP μπορεί να επιταχύνει την εμφάνιση του προγράμματος περιήγησης."
 
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too close to other tap targets to be easily usable.
+#  A "tap target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The following tap targets are close to other nearby tap targets and may need additional spacing around them."
+msgstr "Οι παρακάτω στοχευόμενες περιοχές πατήματος είναι κοντά σε άλλες κοντινές στοχευόμενες περιοχές πατήματος και ενδέχεται να χρειάζεται επιπλέον χώρος γύρω τους."
+
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too small to be easily usable.  A "tap target"
+#  refers to a webpage link or button on a touchscreen, which is
+#  pressed by the user by tapping on it.
+msgid "The following tap targets are small. Consider increasing their size."
+msgstr "Οι παρακάτω στοχευόμενες περιοχές πατήματος είναι μικρές. Εξετάστε το ενδεχόμενο να αυξήσετε το μέγεθός τους."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that are too small to be
+#  easily legible when rendered on the screen.
+msgid "The following text fragments have a small font size. Increase the font size to make them more legible."
+msgstr "Τα παρακάτω τμήματα κειμένου έχουν μικρό μέγεθος γραμματοσειράς. Αυξήστε το μέγεθος γραμματοσειράς για να τα κάνετε πιο ευανάγνωστα."
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that have a line height
+#  (line height is the spacing between individual lines of
+#  text) that is too small to be easily legible.
+msgid "The following text fragments have a small line height. Increase the line height to make them more legible."
+msgstr "Τα παρακάτω τμήματα κειμένου έχουν μικρό ύψος γραμμής. Αυξήστε το ύψος γραμμής για να τα κάνετε πιο ευανάγνωστα."
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  This rule informs that user that the text on a their website is
+#  too small and that they should make it larger.
+msgid "The following text on your page renders in a way that may be difficult for some of your visitors to read. %(BEGIN_LINK)sUse legible font sizes%(END_LINK)s to provide a better user experience."
+msgstr "Το παρακάτω κείμενο της σελίδας σας εμφανίζεται με τρόπο ο οποίος δυσκολεύει μερικούς από τους επισκέπτες σας να το διαβάσουν. %(BEGIN_LINK)sΧρησιμοποιήστε ευανάγνωστα μεγέθη γραμματοσειράς%(END_LINK)s για να προσφέρετε καλύτερη εμπειρία στους χρήστες."
+
 #  Header at the top of a list of URLs of resources that
 #  are served from a domain that does not have HTTP Keep-Alive enabled.
 #  It tells the user to enable keep-alive on that host.  The
@@ -972,11 +1172,185 @@ msgstr "Ο κεντρικός υπολογιστής %(HOST_NAME)s θα πρέπ
 msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
 msgstr "Κάθε όνομα κεντρικού υπολογιστή των ακόλουθων διευθύνσεων URL, εμφανίζει μόνο έναν πόρο. Αποφύγετε τις επιπλέον αναζητήσεις DNS, εμφανίζοντας αυτούς τους πόρους από υπάρχοντα ονόματα κεντρικού υπολογιστή."
 
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide."
+msgstr "Το περιεχόμενο της σελίδας έχει πλάτος %(CONTENT_WIDTH)s εικονοστοιχεία CSS, αλλά η θύρα προβολής έχει πλάτος μόνο %(VIEWPORT_WIDTH)s εικονοστοιχεία CSS."
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide. The following elements fall outside the viewport:"
+msgstr "Το περιεχόμενο της σελίδας έχει πλάτος %(CONTENT_WIDTH)s εικονοστοιχεία CSS, αλλά η θύρα προβολής έχει πλάτος μόνο %(VIEWPORT_WIDTH)s εικονοστοιχεία CSS. Τα ακόλουθα στοιχεία είναι εκτός της θύρας προβολής:"
+
+msgid "The page content is too wide for the viewport, forcing the user to scroll horizontally. %(BEGIN_LINK)sSize the page content to the viewport%(END_LINK)s to provide a better user experience."
+msgstr "Το πλάτος του περιεχομένου της σελίδας είναι πάρα πολύ μεγάλο για τη θύρα προβολής, αναγκάζοντας το χρήστη να κάνει οριζόντια κύλιση. %(BEGIN_LINK)sΠροσαρμόστε το μέγεθος του περιεχομένου της σελίδας στη θύρα προβολής%(END_LINK)s για να προσφέρετε μια βελτιωμένη εμπειρία χρήστη."
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as having large requests. It describes the problem to the
 #  user, and tells them how to fix it by reducing the size of requests.
 msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
 msgstr "Τα αιτήματα των παρακάτω διευθύνσεων URL δεν χωρούν σε ένα πακέτο.  Η μείωση του μεγέθους αυτών των αιτημάτων μπορεί να μειώσει το λανθάνοντα χρόνο."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.  The SCREENSHOT
+#  placeholder will be replaced by a parenthetical link
+#  (e.g. "(see screenshot)") that displays a screenshot of the
+#  problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets %(SCREENSHOT)s."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s και %(NUM_OTHERS)s ακόμη είναι κοντά σε άλλους στόχους πατήματος %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s και %(NUM_OTHERS)s ακόμη είναι κοντά σε άλλους στόχους πατήματος."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset. The HEIGHT
+#  placeholder will give the phyiscal height of the tap target
+#  on the touchscreen (e.g. "1.5mm"), while the HEIGHT_PX gives
+#  the number of CSS pixels specified in the stylesheet
+#  (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s και %(NUM_OTHERS)s ακόμη έχουν ύψος μόνο %(HEIGHT)s σε μια συνηθισμένη κινητή συσκευή (%(HEIGHT_PX)s εικονοστοιχεία CSS) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The HEIGHT placeholder will give the phyiscal height of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  HEIGHT_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels)."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s και %(NUM_OTHERS)s ακόμη έχουν ύψος μόνο %(HEIGHT)s σε μια συνηθισμένη κινητή συσκευή (%(HEIGHT_PX)s εικονοστοιχεία CSS)."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s και %(NUM_OTHERS)s ακόμη έχουν πλάτος μόνο %(WIDTH)s σε μια συνηθισμένη κινητή συσκευή (%(WIDTH_PX)s εικονοστοιχεία CSS) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels)."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s και %(NUM_OTHERS)s ακόμη έχουν πλάτος μόνο %(WIDTH)s σε μια συνηθισμένη συσκευή (%(WIDTH_PX)s εικονοστοιχεία CSS)."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.  The SCREENSHOT placeholder will be
+#  replaced by a parenthetical link (e.g. "(see screenshot)")
+#  that displays a screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets %(SCREENSHOT)s."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s είναι κοντά σε %(NUM_TOO_CLOSE)s άλλους στόχους πατήματος %(SCREENSHOT)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s είναι κοντά σε %(NUM_TOO_CLOSE)s άλλους στόχους πατήματος."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels"). The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s είναι μόνο %(WIDTH)s επί %(HEIGHT)s σε μια συνηθισμένη κινητή συσκευή (%(WIDTH_PX)sx%(HEIGHT_PX)s εικονοστοιχεία CSS) %(SCREENSHOT)s."
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels").
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels)."
+msgstr "Ο στόχος πατήματος %(HTML_TEXT)s είναι μόνο %(WIDTH)s επί %(HEIGHT)s σε μια συνηθισμένη συσκευή (%(WIDTH_PX)sx%(HEIGHT_PX)s εικονοστοιχεία CSS)."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. We encourage people to have large, legible fonts and this text
+#  is shown to them when they succeed at this.
+msgid "The text on your page is legible. Learn more about %(BEGIN_LINK)susing legible font sizes%(END_LINK)s."
+msgstr "Το κείμενο της σελίδας σας είναι ευανάγνωστο. Μάθετε περισσότερα σχετικά με τη %(BEGIN_LINK)sχρήση ευανάγνωστων μεγεθών γραμματοσειράς%(END_LINK)s."
 
 #  Descriptive header describing a list of CSS resources that
 #  are all served from a single domain (in violation of the
@@ -1004,12 +1378,23 @@ msgstr "Εμφανίζονται %(NUM_FILES)s αρχεία JavaScript από τ
 msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "Αυτή η σελίδα υποβάλει %(NUM_REQUESTS)s παραλληλοποιήσιμα αιτήματα στον κεντρικό υπολογιστή %(HOSTNAME)s. Αυξήστε τη δυνατότητα παραλληλοποίησης λήψης διανέμοντας αυτά τα αιτήματα σε πολλούς κεντρικούς υπολογιστές:"
 
+#  Entry of a list of plugins detected on a webpage.
+#  TYPE will be replaced with an identifier like "application/java"
+#  or "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+msgid "Unknown plugin of type %(TYPE)s."
+msgstr "Άγνωστος τύπος προσθήκης %(TYPE)s."
+
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
 msgstr "Χρήση Application Cache"
+
+#  The name of the PageSpeed rule that tells user to ensure that
+#  the size of their text remains large enough for people to read.
+msgid "Use legible font sizes"
+msgstr "Χρησιμοποιήστε ευανάγνωστα μεγέθη γραμματοσειράς"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
@@ -1055,6 +1440,23 @@ msgstr "Το περιεχόμενο JavaScript έχει ελαχιστοποιη
 msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
 msgstr "Οι εικόνες σας έχουν βελτιστοποιηθεί. Μάθετε περισσότερα σχετικά με τη %(BEGIN_LINK)sβελτιστοποίηση των εικόνων%(END_LINK)s."
 
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page does not appear to use plugins, which would prevent content from being usable on many platforms. Learn more about the importance of %(BEGIN_LINK)savoiding plugins%(END_LINK)s."
+msgstr "Η σελίδα σας δεν φαίνεται να χρησιμοποιεί προσθήκες, γεγονός που θα μπορούσε να παρεμποδίσει τη δυνατότητα χρήσης περιεχομένου σε πολλές πλατφόρμες. Μάθετε περισσότερα σχετικά με τη σημασία της %(BEGIN_LINK)sαποφυγής προσθηκών%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page does not have a viewport specified. This causes mobile devices to render your page as it would appear on a desktop browser, scaling it down to fit on a mobile screen. Configure a viewport to allow your page to render properly on all devices."
+msgstr "Δεν έχει προσδιοριστεί θύρα προβολής στη σελίδα σας. Αυτό έχει ως αποτέλεσμα οι κινητές συσκευές να εμφανίζουν τη σελίδα σας όπως θα εμφανιζόταν σε ένα πρόγραμμα περιήγησης για υπολογιστή, με σμίκρυνση έτσι ώστε να χωρέσει σε μια οθόνη κινητής συσκευής. Διαμορφώστε μια θύρα προβολής έτσι ώστε η σελίδα σας να εμφανίζεται σωστά σε όλες τις συσκευές."
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1086,6 +1488,48 @@ msgstr "Η σελίδα σας δεν διαθέτει ανακατευθύνσ�
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "Η σελίδα σας απαιτεί επιπλέον διαδρομές δικτύου για την απόδοση του παραπάνω περιεχομένου στο επάνω μέρος. Για καλύτερη απόδοση, περιορίστε την ποσότητα HTML που απαιτείται για την απόδοση περιεχομένου στο επάνω μέρος."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width desktop viewport. Use a responsive viewport to allow your page to render properly on all devices."
+msgstr "Η σελίδα σας καθορίζει μια θύρα προβολής σταθερού πλάτους για υπολογιστές. Χρησιμοποιήστε μια διαδραστική θύρα προβολής έτσι ώστε η σελίδα σας να εμφανίζεται σωστά σε όλες τις συσκευές."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width mobile viewport. Consider using a responsive viewport to allow your page to render properly on all devices."
+msgstr "Η σελίδα σας καθορίζει μια θύρα προβολής σταθερού πλάτους για κινητές συσκευές. Εξετάστε το ενδεχόμενο να χρησιμοποιήσετε μια διαδραστική θύρα προβολής έτσι ώστε η σελίδα σας να εμφανίζεται σωστά σε όλες τις συσκευές."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page specifies a viewport matching the device's size, which allows it to render properly on all devices. Learn more about %(BEGIN_LINK)sconfiguring viewports%(END_LINK)s."
+msgstr "Η σελίδα σας προσδιορίζει μια θύρα προβολής που αντιστοιχεί στο μέγεθος της συσκευής, η οποία της δίνει τη δυνατότητα να εμφανίζεται σωστά σε όλες τις συσκευές. Μάθετε περισσότερα σχετικά με τη %(BEGIN_LINK)sδιαμόρφωση θυρών προβολής%(END_LINK)s."
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage.)
+msgid "Your page uses an XHTML Mobile doctype declaration, which instructs browsers that your page is optimized for mobile and should render properly on all devices."
+msgstr "Η σελίδα σας χρησιμοποιεί δήλωση τύπου εγγράφου για κινητές συσκευές XHTML, που υποδεικνύει στα προγράμματα περιήγησης ότι η σελίδα σας έχει βελτιστοποιηθεί για κινητές συσκευές και θα πρέπει να εμφανίζεται σωστά σε όλες τις συσκευές."
+
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page uses plugins, which prevents portions of your page from being used on many platforms. %(BEGIN_LINK)sFind alternatives for plugin based content%(END_LINK)s to increase compatibility."
+msgstr "Η σελίδα σας χρησιμοποιεί προσθήκες, γεγονός που παρεμποδίζει τη δυνατότητα χρήσης τμημάτων της σελίδας σας σε πολλές πλατφόρμες. %(BEGIN_LINK)sΒρείτε εναλλακτικές λύσεις για το περιεχόμενο που βασίζεται σε προσθήκες%(END_LINK)s για να βελτιώσετε τη συμβατότητα."
 
 #  A summary to give a general overview of this Page
 #  Speed rule.

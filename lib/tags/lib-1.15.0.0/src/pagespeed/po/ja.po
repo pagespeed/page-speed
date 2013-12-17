@@ -7,6 +7,35 @@
 msgid "%(BEGIN_LINK)sAvoid landing page redirects%(END_LINK)s for the following chain of redirected URLs."
 msgstr "%(BEGIN_LINK)sリンク先ページのリダイレクトを使用しない%(END_LINK)sでください（リダイレクト URL が連鎖するのを防ぎます）。"
 
+#  Detailed text in a Page Speed rule telling a web developer
+#  to change the viewport on their page in order to work better on mobile
+#  devices.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "%(BEGIN_LINK)sConfigure a viewport%(END_LINK)s for this page."
+msgstr "このページの %(BEGIN_LINK)sviewport を設定%(END_LINK)sしましょう。"
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work if the styling on your page relies on a fixed-width layout."
+msgstr "%(BEGIN_LINK)sviewport を設定%(END_LINK)sして %(VIEWPORT)s ではなく %(DEVICE_WIDTH)s を指定すると、さまざまな幅の端末に合わせてページを表示できるようになります。ページのスタイルで固定幅レイアウトを使用している場合は、追加の作業が必要になる場合があります。"
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer to change the viewport on their page in order to work
+#  better on mobile devices. A viewport is the size of a webpage
+#  when displayed on a phone, and is set using an HTML tag.
+#  DEVICE_WIDTH is replaced by the non-translatable string
+#  "width=device-width".
+#  VIEWPORT is replaced by the current value of the viewport tag on
+#  the page, such as "width=1024".
+msgid "%(BEGIN_LINK)sConfiguring a viewport%(END_LINK)s specifying %(DEVICE_WIDTH)s instead of %(VIEWPORT)s will allow your page to adapt for devices of various widths. This may require additional work to adapt your styling for smaller screens."
+msgstr "%(BEGIN_LINK)sviewport を設定%(END_LINK)sして %(VIEWPORT)s ではなく %(DEVICE_WIDTH)s を指定すると、さまざまな幅の端末に合わせてページを表示できるようになります。小さい画面にスタイルを合わせるには、追加の作業が必要になる場合があります。"
+
 #  Descriptive header for a list of URLs that were
 #  served uncompressed, in violation of the EnableGzipCompression
 #  rule.  It tells the webmaster that compressing all of those
@@ -82,17 +111,6 @@ msgstr "次の%(BEGIN_LINK)sCSS 配信を最適化%(END_LINK)sしてください
 #  be replaced by the percent savings (e.g. "50%").
 msgid "%(BEGIN_LINK)sOptimize the following images%(END_LINK)s to reduce their size by %(SIZE_IN_BYTES)s (%(PERCENTAGE)s reduction)."
 msgstr "%(BEGIN_LINK)s次の画像を最適化%(END_LINK)sすると、サイズを %(SIZE_IN_BYTES)s（%(PERCENTAGE)s）削減できます。"
-
-#  Summary header recommending that the user place
-#  priority on rendering the content that will be visible
-#  above-the-fold in the early portion of the HTML response.
-#  ("Above-the-fold content" refers to the portion of the webpage
-#  that is immediately visible in the browser window without the user
-#  needing to scroll downwards; the term comes from newspapers, where
-#  the upper portion of the front page that is above the fold of the
-#  paper is immediately visible to the reader.)
-msgid "%(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
-msgstr "スクロールせずに見えるコンテンツのレンダリングに必要な%(BEGIN_LINK)s表示可能コンテンツの優先順位を決定%(END_LINK)sしてください。"
 
 #  Header at the top of a list of URLs that Page Speed
 #  determined were blocking the parser of above-the-fold
@@ -176,6 +194,82 @@ msgstr "最初のページの読み込み中に JavaScript の %(SIZE_IN_BYTES)s
 #  the full fold content (e.g. "24.3kB").
 msgid "%(SIZE_IN_BYTES)s of the response was required to render the above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold."
 msgstr "スクロールせずに見えるコンテンツをレンダリングするには %(SIZE_IN_BYTES)s のレスポンスが必要でした。スクロールせずに見えるコンテンツのレンダリングに必要な%(BEGIN_LINK)s表示可能コンテンツの優先順位を決定%(END_LINK)sしてください。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "「%(TEXT_SNIPPET)s」と他 %(NUM_OTHERS)s 個の行の高さがフォント サイズの %(LINE_HEIGHT_PERCENT)s しかありません %(SCREENSHOT)s。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others have a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "「%(TEXT_SNIPPET)s」と他 %(NUM_OTHERS)s 個の行の高さがフォント サイズの %(LINE_HEIGHT_PERCENT)s しかありません。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "「%(TEXT_SNIPPET)s」と他 %(NUM_OTHERS)s 個では高さ %(HEIGHT)s ピクセルしかレンダリングしません %(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "「%(TEXT_SNIPPET)s」と他 %(NUM_OTHERS)s 個では高さ %(HEIGHT)s ピクセル（%(CSS_HEIGHT)s CSS ピクセル）しかレンダリングしません %(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "「%(TEXT_SNIPPET)s」と他 %(NUM_OTHERS)s 個では高さ %(HEIGHT)s ピクセル（%(CSS_HEIGHT)s CSS ピクセル）しかレンダリングしません。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s and %(NUM_OTHERS)s others render only %(HEIGHT)s pixels tall."
+msgstr "「%(TEXT_SNIPPET)s」と他 %(NUM_OTHERS)s 個では高さ %(HEIGHT)s ピクセルしかレンダリングしません。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size %(SCREENSHOT)s."
+msgstr "「%(TEXT_SNIPPET)s」の行の高さがフォント サイズの %(LINE_HEIGHT_PERCENT)s しかありません %(SCREENSHOT)s。"
+
+#  A single issue describing a block of text on
+#  a web page that has a line height (line height is the
+#  spacing between individual lines of text) that is too
+#  small to be easily legible.
+msgid "%(TEXT_SNIPPET)s has a line height of only %(LINE_HEIGHT_PERCENT)s of the font size."
+msgstr "「%(TEXT_SNIPPET)s」の行の高さがフォント サイズの %(LINE_HEIGHT_PERCENT)s しかありません。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall %(SCREENSHOT)s."
+msgstr "「%(TEXT_SNIPPET)s」では高さ %(HEIGHT)s ピクセルしかレンダリングしません %(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels) %(SCREENSHOT)s."
+msgstr "「%(TEXT_SNIPPET)s」では高さ %(HEIGHT)s ピクセル（%(CSS_HEIGHT)s CSS ピクセル）しかレンダリングしません %(SCREENSHOT)s。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall (%(CSS_HEIGHT)s CSS pixels)."
+msgstr "「%(TEXT_SNIPPET)s」では高さ %(HEIGHT)s ピクセル（%(CSS_HEIGHT)s CSS ピクセル）しかレンダリングしません。"
+
+#  A single issue describing a block of text
+#  on a web page that is too small to be easily legible
+#  when rendered on the screen.
+msgid "%(TEXT_SNIPPET)s renders only %(HEIGHT)s pixels tall."
+msgstr "「%(TEXT_SNIPPET)s」では高さ %(HEIGHT)s ピクセルしかレンダリングしません。"
 
 #  Shown as part of a list of URLs that have unnecessary
 #  reflows (or "layouts", which is used interchangeably with the word
@@ -274,6 +368,12 @@ msgstr "%(URL)s 行 %(LINE_NUMBER)s（%(DURATION)s）"
 msgid "%(URL)s should inline the following small resources:"
 msgstr "以下の小さなリソースを %(URL)s にインライン化してください:"
 
+#  A summary to give a general overview of this Page Speed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+msgid "All of your page's links/buttons are large enough for a user to easily tap on a touchscreen. Learn more about %(BEGIN_LINK)ssizing tap targets appropriately%(END_LINK)s."
+msgstr "ページのリンク/ボタンはすべて、ユーザーがタッチスクリーンで簡単にタップするのに十分なサイズです。詳しくは、%(BEGIN_LINK)sタップ ターゲットのサイズを適切に調整する方法についてのページ%(END_LINK)sをご覧ください。"
+
 #  Summary header indicating how much of the
 #  above-the-fold (i.e. within the initial browser
 #  viewport) content of a webpage was able to be correctly
@@ -306,11 +406,6 @@ msgstr "文字セットをメタ タグ内で指定しない"
 msgid "Avoid bad requests"
 msgstr "誤りのあるリクエストを送信しない"
 
-#  The name of a Page Speed rule that tells users to avoid using
-#  Adobe Flash on mobile webpages
-msgid "Avoid flash on mobile webpages"
-msgstr "モバイル ウェブページで Flash を使用しない"
-
 #  The name of a Page Speed rule that tells users to avoid
 #  redirects at the landing page. The landing page is the root
 #  HTML document that was requested the user in the browser's address bar.
@@ -325,6 +420,11 @@ msgstr "リンク先ページのリダイレクトを使用しない"
 #  telling webmasters which rules they broke in their website.
 msgid "Avoid long-running scripts"
 msgstr "長時間実行されるスクリプトは避ける"
+
+#  The name of a Page Speed rule that tells users to avoid using
+#  browser plugins like Flash or Silverlight on webpages.
+msgid "Avoid plugins"
+msgstr "プラグインを使用しない"
 
 #  Header at the top of a list of URLs that Page Speed
 #  deteced as having CSS resources in the document body. It describes the
@@ -393,6 +493,12 @@ msgstr "gzip や deflate を使用してリソースを圧縮することで、�
 msgid "Compressing the HTML of your page can make your page render the majority of above the fold content within the first 15kB of the response."
 msgstr "ページの HTML を圧縮すると、ページはレスポンスの最初の 15 KB 以内で、スクロールせずに見えるコンテンツの大部分をレンダリングできます。"
 
+#  The name of a PageSpeed rule that tells users to configure a
+#  viewport on their webpage, which allows mobile browsers to display the page
+#  at a reasonable size.
+msgid "Configure the viewport"
+msgstr "viewport の設定"
+
 #  Item showing how large the cookie is in a request that
 #  violates the MinimizeRequestSizeRule by being large. The
 #  "SIZE_IN_BYTES" placeholder will be replaced by the size of the
@@ -440,6 +546,33 @@ msgstr "Keep-Alive を有効にする"
 #  website.
 msgid "Enable compression"
 msgstr "圧縮を有効にする"
+
+#  Header at the top of a list of browser plugins
+#  of a specified type detected on a webpage. PLUGIN_TYPE will be
+#  replaced with a name such as "Flash" or "Silverlight", which are
+#  not translated.
+msgid "Find alternatives for the following %(PLUGIN_TYPE)s plugins."
+msgstr "次の %(PLUGIN_TYPE)s プラグインの代わりに使用できるものを見つけてください。"
+
+#  Header at the top of a list of browser plugins of unknown
+#  type detected on a webpage. "Plugins" refers to additional software
+#  that needs to be installed to use portions of some web pages, such as
+#  Flash or Silverlight.
+msgid "Find alternatives for the following plugins."
+msgstr "次のプラグインの代わりに使用できるものを見つけてください。"
+
+#  Detailed text in a Page Speed rule telling a
+#  web developer that they may need to perform extra work if they make
+#  a certain change to their page.
+#  A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage. HTML_DOCTYPE will be replaced with the non-translatable
+#  string "<!DOCTYPE html>".
+#  A viewport is the size of a webpage when displayed on a phone,
+#  and is set using an HTML tag. META_VIEWPORT_TAG will be replaced
+#  with the non-translatable string
+#  "<meta name=viewport width=device-width>".
+msgid "If you change the doctype, for example to %(HTML_DOCTYPE)s in order to use HTML5 features, %(BEGIN_LINK)sconfigure a viewport%(END_LINK)s with %(META_VIEWPORT_TAG)s to keep the page's current behavior."
+msgstr "HTML5 の機能を利用するために DOCTYPE を %(HTML_DOCTYPE)s などに変更する場合は、%(BEGIN_LINK)sviewport を設定%(END_LINK)sして %(META_VIEWPORT_TAG)s を指定し、現在の動作を維持するようにします。"
 
 #  The name of a Page Speed rule that tells users to improve
 #  their server response time. This is displayed in a list of
@@ -740,6 +873,29 @@ msgstr "変更後のサイズで画像を提供する"
 msgid "Setting an expiry date or a maximum age in the HTTP headers for static resources instructs the browser to load previously downloaded resources from local disk rather than over the network."
 msgstr "静的リソースの HTTP ヘッダー内で、有効期日や最大経過時間を設定すると、ブラウザがネットワークからではなくローカル ディスクから以前にダウンロードしたリソースを読み込むようになります。"
 
+#  The name of a PageSpeed rule that tells users to make their
+#  webpage content of a size that is appropriate for their viewport setting,
+#  so that users won't need to e.g. scroll horizontally to see the rest of
+#  the page content.
+msgid "Size content to viewport"
+msgstr "コンテンツのサイズを表示域に合わせる"
+
+#  The name of a PageSpeed rule that tells users to make sure
+#  that all of the "tap targets" (links or buttons on a touchscreen, which
+#  are pressed by the user by tapping on them) on their mobile webpage are
+#  large enough for the user to press easily.
+msgid "Size tap targets appropriately"
+msgstr "タップ ターゲットのサイズを適切に調整する"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  A "tap target" refers to a webpage link or button on a
+#  touchscreen, which is pressed by the user by tapping on it.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Some of the links/buttons on your webpage may be too small for a user to easily tap on a touchscreen. Consider %(BEGIN_LINK)smaking these tap targets larger%(END_LINK)s to provide a better user experience."
+msgstr "ウェブページのリンク/ボタンのいくつかは小さすぎるため、ユーザーがタッチスクリーンで簡単にタップできない場合があります。ユーザー エクスペリエンスを向上させるために%(BEGIN_LINK)sタップ ターゲットをより大きくする%(END_LINK)sことをご検討ください。"
+
 #  The name of a Page Speed rule that tells users to ensure that
 #  certain resources on their webpage are served with a "Vary" HTTP header
 #  whose value is set to "Accept-Encoding".  This is displayed in a list of
@@ -776,11 +932,22 @@ msgstr "モバイル ブラウザの表示域を指定する"
 msgid "Specify image dimensions"
 msgstr "画像のサイズを指定する"
 
-#  Header at the top of a list of URLs of Adobe Flash
-#  resources detected by Page Speed. "NUM_ELEMENTS" will be replaced by
-#  the number of Flash elements found.
-msgid "The following %(NUM_ELEMENTS)s Flash elements are included on the page or from included iframes. Adobe Flash Player is not supported on Apple iOS or Android versions greater than 4.0.x. Consider removing Flash objects and finding suitable replacements."
-msgstr "次の %(NUM_ELEMENTS)s 個の Flash エレメントがこのページか内部の iframe に含まれています。Adobe Flash Player は Apple iOS と 4.0.x より上の Android バージョンでは動作しません。Flash オブジェクトを削除し、適切なコンテンツに置き換えることをおすすめします。"
+msgid "The contents of your page fit within the viewport. Learn more about %(BEGIN_LINK)ssizing content to the viewport%(END_LINK)s."
+msgstr "ページのコンテンツを表示域に合わせます。詳しくは、%(BEGIN_LINK)sコンテンツのサイズを表示域に合わせる%(END_LINK)sをご覧ください。"
+
+msgid "The element %(HTML_TEXT)s falls outside the viewport."
+msgstr "要素「%(HTML_TEXT)s」が表示域から外れています。"
+
+#  Summary header recommending that the user place
+#  priority on rendering the content that will be visible
+#  above-the-fold in the early portion of the HTML response.
+#  ("Above-the-fold content" refers to the portion of the webpage
+#  that is immediately visible in the browser window without the user
+#  needing to scroll downwards; the term comes from newspapers, where
+#  the upper portion of the front page that is above the fold of the
+#  paper is immediately visible to the reader.)
+msgid "The entire HTML response was not sufficient to render the above-the-fold content. This usually indicates that additional resources, loaded after HTML parsing, were required to render above-the-fold content. %(BEGIN_LINK)sPrioritize visible content%(END_LINK)s that is needed for rendering above-the-fold by including it directly in the HTML response."
+msgstr "スクロールせずに見えるコンテンツをレンダリングするのに、HTML レスポンスが不足していました。HTML 解析後に読み込まれる追加リソースが、スクロールせずに見えるコンテンツのレンダリングに必要だった可能性があります。このリソースを HTML レスポンスに直接追加することで、スクロールせずに見えるコンテンツのレンダリングに必要な%(BEGIN_LINK)s表示可能コンテンツを優先させる%(END_LINK)sことができます。"
 
 #  Summary header indicating that the external CSS
 #  resources can be inlined in the HTML and still meet the 15k criteria.
@@ -956,6 +1123,39 @@ msgstr "次のリソースはコンテンツが重複していますが、別々
 msgid "The following resources have no character set specified in their HTTP headers. Specifying a character set in HTTP headers can speed up browser rendering."
 msgstr "次のリソースは HTTP ヘッダーに文字セットが指定されていません。HTTP ヘッダーに文字セットを指定するとブラウザの表示が速くなります。"
 
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too close to other tap targets to be easily usable.
+#  A "tap target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The following tap targets are close to other nearby tap targets and may need additional spacing around them."
+msgstr "次のタップ ターゲットは、近くにある他のタップ ターゲットと近すぎるため、周囲のスペースの拡大が必要になる場合があります。"
+
+#  Header above a list of tap targets on a webpage that are
+#  considered to be too small to be easily usable.  A "tap target"
+#  refers to a webpage link or button on a touchscreen, which is
+#  pressed by the user by tapping on it.
+msgid "The following tap targets are small. Consider increasing their size."
+msgstr "次のタップ ターゲットは小さいため、サイズの拡大をご検討ください。"
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that are too small to be
+#  easily legible when rendered on the screen.
+msgid "The following text fragments have a small font size. Increase the font size to make them more legible."
+msgstr "次のテキストの一部のフォント サイズが小さすぎます。読みやすくなるようにフォント サイズを大きくしてください。"
+
+#  Header above a bullet list of issues listing
+#  the blocks of text on a webpage that have a line height
+#  (line height is the spacing between individual lines of
+#  text) that is too small to be easily legible.
+msgid "The following text fragments have a small line height. Increase the line height to make them more legible."
+msgstr "次のテキストの一部の行の高さが小さすぎます。読みやすくなるように行の高さを大きくしてください。"
+
+#  A summary to give a general overview of this PageSpeed
+#  rule.  This rule informs that user that the text on a their website is
+#  too small and that they should make it larger.
+msgid "The following text on your page renders in a way that may be difficult for some of your visitors to read. %(BEGIN_LINK)sUse legible font sizes%(END_LINK)s to provide a better user experience."
+msgstr "ページの次のテキストのレンダリングでは、一部の訪問者には読みにくく感じる可能性があります。ユーザー エクスペリエンスを向上させるために%(BEGIN_LINK)s読みやすいフォント サイズを使用してください%(END_LINK)s。"
+
 #  Header at the top of a list of URLs of resources that
 #  are served from a domain that does not have HTTP Keep-Alive enabled.
 #  It tells the user to enable keep-alive on that host.  The
@@ -972,11 +1172,185 @@ msgstr "ホスト %(HOST_NAME)s は %(KEEPALIVE)s を有効にする必要があ
 msgid "The hostnames of the following urls only serve one resource each. Avoid the extra DNS lookups by serving these resources from existing hostnames."
 msgstr "以下の URL のホスト名はそれぞれ 1 つのリソースのみを提供しています。DNS ルックアップの回数を減らすために、これらのリソースを既存のホスト名から提供してください。"
 
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide."
+msgstr "ページ コンテンツの幅は %(CONTENT_WIDTH)s CSS ピクセルですが、表示域の幅は %(VIEWPORT_WIDTH)s CSS ピクセルしかありません。"
+
+#  Detailed text in a Page Speed rule telling a web
+#  developer that their page is too wide. CONTENT_WIDTH and
+#  VIEWPORT_WIDTH will be replaced with a numerical distance like "320",
+#  and "CSS pixels" are the units of these measurements.
+#  CSS stands for Cascading Style Sheets, the language used for styling
+#  web pages.
+msgid "The page content is %(CONTENT_WIDTH)s CSS pixels wide, but the viewport is only %(VIEWPORT_WIDTH)s CSS pixels wide. The following elements fall outside the viewport:"
+msgstr "ページ コンテンツの幅は %(CONTENT_WIDTH)s CSS ピクセルですが、表示域の幅は %(VIEWPORT_WIDTH)s CSS ピクセルしかありません。次の要素が表示域から外れています:"
+
+msgid "The page content is too wide for the viewport, forcing the user to scroll horizontally. %(BEGIN_LINK)sSize the page content to the viewport%(END_LINK)s to provide a better user experience."
+msgstr "ページ コンテンツの幅が表示域に対して広すぎるため、水平方向へのスクロールが必要になります。ユーザー エクスペリエンスを向上させるために%(BEGIN_LINK)sページ コンテンツのサイズを表示域に合わせて%(END_LINK)sください。"
+
 #  Header at the top of a list of URLs that Page Speed
 #  detected as having large requests. It describes the problem to the
 #  user, and tells them how to fix it by reducing the size of requests.
 msgid "The requests for the following URLs don't fit in a single packet.  Reducing the size of these requests could reduce latency."
 msgstr "以下の URL のリクエストは、1 つのパケットに収まりません。これらのリクエストのサイズを縮小すると、待ち時間を短縮できます。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.  The SCREENSHOT
+#  placeholder will be replaced by a parenthetical link
+#  (e.g. "(see screenshot)") that displays a screenshot of the
+#  problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets %(SCREENSHOT)s."
+msgstr "%(HTML_TEXT)s と他 %(NUM_OTHERS)s 個のタップ ターゲットが他のタップ ターゲットの近くにあります%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be placed
+#  too close to other tap targets to be easily usable.  A "tap
+#  target" refers to a webpage link or button on a touchscreen,
+#  which is pressed by the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are close to other tap targets."
+msgstr "%(HTML_TEXT)s と他 %(NUM_OTHERS)s 個のタップ ターゲットが他のタップ ターゲットの近くにあります。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset. The HEIGHT
+#  placeholder will give the phyiscal height of the tap target
+#  on the touchscreen (e.g. "1.5mm"), while the HEIGHT_PX gives
+#  the number of CSS pixels specified in the stylesheet
+#  (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "標準的な端末（%(HEIGHT_PX)s CSS ピクセル）の場合、%(HTML_TEXT)s と他 %(NUM_OTHERS)s 個のタップ ターゲットの高さが %(HEIGHT)s しかありません%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The HEIGHT placeholder will give the phyiscal height of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  HEIGHT_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(HEIGHT)s tall on a typical device (%(HEIGHT_PX)s CSS pixels)."
+msgstr "標準的な端末（%(HEIGHT_PX)s CSS ピクセル）の場合、%(HTML_TEXT)s と他 %(NUM_OTHERS)s 個のタップ ターゲットの高さが %(HEIGHT)s しかありません。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+#  The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "標準的な端末（%(WIDTH_PX)s CSS ピクセル）の場合、%(HTML_TEXT)s と他 %(NUM_OTHERS)s 個のタップ ターゲットの幅が %(WIDTH)s しかありません%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular group of
+#  similar tap targets on a webpage are considered to be too
+#  small to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The
+#  fragment will be displayed in a different style, and does
+#  not need to be quoted or otherwise offset.
+#  The WIDTH placeholder will give the phyiscal width of the
+#  tap target on the touchscreen (e.g. "1.5mm"), while the
+#  WIDTH_PX gives the number of CSS pixels specified in the
+#  stylesheet (e.g. "12 CSS pixels").
+msgid "The tap target %(HTML_TEXT)s and %(NUM_OTHERS)s others are only %(WIDTH)s wide on a typical device (%(WIDTH_PX)s CSS pixels)."
+msgstr "標準的な端末（%(WIDTH_PX)s CSS ピクセル）の場合、%(HTML_TEXT)s と他 %(NUM_OTHERS)s 個のタップ ターゲットの幅が %(WIDTH)s しかありません。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.  The SCREENSHOT placeholder will be
+#  replaced by a parenthetical link (e.g. "(see screenshot)")
+#  that displays a screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets %(SCREENSHOT)s."
+msgstr "タップ ターゲット %(HTML_TEXT)s が他の %(NUM_TOO_CLOSE)s 個のタップ ターゲットの近くにあります%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be placed too close to other tap
+#  targets to be easily usable.  A "tap target" refers to a
+#  webpage link or button on a touchscreen, which is pressed by
+#  the user by tapping on it.
+msgid "The tap target %(HTML_TEXT)s is close to %(NUM_TOO_CLOSE)s other tap targets."
+msgstr "タップ ターゲット %(HTML_TEXT)s が他の %(NUM_TOO_CLOSE)s 個のタップ ターゲットの近くにあります。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels"). The SCREENSHOT placeholder will be replaced by a
+#  parenthetical link (e.g. "(see screenshot)") that displays a
+#  screenshot of the problem when clicked.
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels) %(SCREENSHOT)s."
+msgstr "標準的な端末（%(WIDTH_PX)s x %(HEIGHT_PX)s CSS ピクセル）の場合、タップ ターゲット %(HTML_TEXT)s が %(WIDTH)s x %(HEIGHT)s しかありません%(SCREENSHOT)s。"
+
+#  List entry indicating that a particular tap target
+#  on a webpage is considered to be too small to be easily
+#  usable.  A "tap target" refers to a webpage link or button on
+#  a touchscreen, which is pressed by the user by tapping on it.
+#  HTML_TEXT will be replaced with a fragment of HTML code from
+#  the webpage, such as
+#  "<button class="ex">Text...abbreviated</button>".  The fragment
+#  will be displayed in a different style, and does not need to
+#  be quoted or otherwise offset.
+#  The WIDTH and HEIGHT placeholders will give the phyiscal
+#  dimensions of the tap target on the touchscreen (e.g. "2mm by
+#  1.5mm"), while the WIDTH_PX and HEIGHT_PX give the number of
+#  CSS pixels specified in the stylesheet (e.g. "16x12 CSS
+#  pixels").
+msgid "The tap target %(HTML_TEXT)s is only %(WIDTH)s by %(HEIGHT)s on a typical device (%(WIDTH_PX)sx%(HEIGHT_PX)s CSS pixels)."
+msgstr "標準的な端末（%(WIDTH_PX)s x %(HEIGHT_PX)s CSS ピクセル）の場合、タップ ターゲット %(HTML_TEXT)s が %(WIDTH)s x %(HEIGHT)s しかありません。"
+
+#  A summary to give a general overview of this Page Speed
+#  rule. We encourage people to have large, legible fonts and this text
+#  is shown to them when they succeed at this.
+msgid "The text on your page is legible. Learn more about %(BEGIN_LINK)susing legible font sizes%(END_LINK)s."
+msgstr "ページのテキストは判読可能です。%(BEGIN_LINK)s読みやすいフォント サイズの使用%(END_LINK)sの詳細をご確認ください。"
 
 #  Descriptive header describing a list of CSS resources that
 #  are all served from a single domain (in violation of the
@@ -1004,12 +1378,23 @@ msgstr "%(NUM_FILES)s 個の JavaScript ファイルが %(DOMAIN_NAME)s から�
 msgid "This page makes %(NUM_REQUESTS)s parallelizable requests to %(HOSTNAME)s. Increase download parallelization by distributing these requests across multiple hostnames:"
 msgstr "このページは、%(NUM_REQUESTS)s 件の同時読み込みリクエストを %(HOSTNAME)s に送信します。これらのリクエストを複数のホスト名に分散することで、同時読み込み速度を速めることができます:"
 
+#  Entry of a list of plugins detected on a webpage.
+#  TYPE will be replaced with an identifier like "application/java"
+#  or "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+msgid "Unknown plugin of type %(TYPE)s."
+msgstr "%(TYPE)s タイプの不明なプラグインです。"
+
 #  The name of a Page Speed rule that tells users to make use
 #  of the application cache to achieve faster startup times. This is displayed
 #  in a list of rule names that Page Speed generates. "Application Cache"
 #  should not be translated since it is the name of an HTML 5 feature.
 msgid "Use an Application Cache"
 msgstr "アプリケーション キャッシュを使用する"
+
+#  The name of the PageSpeed rule that tells user to ensure that
+#  the size of their text remains large enough for people to read.
+msgid "Use legible font sizes"
+msgstr "判読可能なフォント サイズの使用"
 
 #  Header at the top of a list of URLs that Page Speed detected
 #  that HTML5 application cache should be used. It tells the user to fix the
@@ -1055,6 +1440,23 @@ msgstr "このページでは、JavaScript コンテンツは縮小されてい�
 msgid "Your images are optimized. Learn more about %(BEGIN_LINK)soptimizing images%(END_LINK)s."
 msgstr "このページでは、画像は最適化されています。詳しくは、%(BEGIN_LINK)s画像の最適化%(END_LINK)sに関する説明をご覧ください。"
 
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page does not appear to use plugins, which would prevent content from being usable on many platforms. Learn more about the importance of %(BEGIN_LINK)savoiding plugins%(END_LINK)s."
+msgstr "このページではプラグインが使用されていないようです。そのため、多数のプラットフォームでコンテンツを利用できないおそれがあります。詳しくは、%(BEGIN_LINK)sプラグインを使用しない%(END_LINK)sルールの重要性に関する説明をご覧ください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page does not have a viewport specified. This causes mobile devices to render your page as it would appear on a desktop browser, scaling it down to fit on a mobile screen. Configure a viewport to allow your page to render properly on all devices."
+msgstr "ページに viewport が指定されていません。指定しない場合、パソコンのブラウザでの表示と同じように携帯端末でページがレンダリングされ、携帯端末の画面に合わせて縮小されます。viewport を使用すると、すべての端末でページが適切にレンダリングされるよう設定できます。"
+
 #  Summary header indicating the number of CSS resources
 #  that are blocking the webpage from rendering while loading.
 msgid "Your page has %(NUM_CSS)s blocking CSS resources. This causes a delay in rendering your page."
@@ -1086,6 +1488,48 @@ msgstr "このページでは、リダイレクトは使用されていません
 #  immediately visible to the reader.)
 msgid "Your page requires additional network round trips to render the above-the-fold content. For best performance, reduce the amount of HTML needed to render above-the-fold content."
 msgstr "スクロールせずに見えるコンテンツをレンダリングするには、このページにネットワーク ラウンド トリップを追加する必要があります。最適なパフォーマンスを得るには、スクロールせずに見えるコンテンツをレンダリングするのに必要な HTML の量を減らしてください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width desktop viewport. Use a responsive viewport to allow your page to render properly on all devices."
+msgstr "ページに固定幅のパソコン用 viewport が指定されています。レスポンシブな viewport を使用すると、すべての端末でページが適切にレンダリングされるよう設定できます。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, suggesting action for improving the user's website.
+#  (A viewport is the size of a webpage when displayed on a phone,
+#  and a responsive viewport is sized correctly for all devices
+#  loading the page.)
+msgid "Your page specifies a fixed-width mobile viewport. Consider using a responsive viewport to allow your page to render properly on all devices."
+msgstr "ページに固定幅のモバイル用 viewport が指定されています。レスポンシブな viewport を使用して、すべての端末でページが適切にレンダリングされるよう設定することをおすすめします。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A viewport is the size of a webpage when displayed on a phone.)
+msgid "Your page specifies a viewport matching the device's size, which allows it to render properly on all devices. Learn more about %(BEGIN_LINK)sconfiguring viewports%(END_LINK)s."
+msgstr "ページに端末のサイズに一致する viewport が指定されており、すべての端末でページが適切にレンダリングされるよう設定されています。%(BEGIN_LINK)sviewport の設定%(END_LINK)sの詳細をご確認ください。"
+
+#  A summary to give a general overview of this Page
+#  Speed rule, informing the user that their webpage is written
+#  correctly.
+#  (A doctype is a feature of HTML that tells browsers how to interpret
+#  a webpage.)
+msgid "Your page uses an XHTML Mobile doctype declaration, which instructs browsers that your page is optimized for mobile and should render properly on all devices."
+msgstr "ページにはモバイル用 XHTML の DOCTYPE 宣言が使用されており、ページをモバイル向けに最適化し、すべての端末で適切にレンダリングする必要があることをブラウザに指定しています。"
+
+#  A summary to give a general overview of this Page Speed
+#  rule. "Plugins" refers to additional software that needs to be
+#  installed to use portions of some web pages, such as Flash or
+#  Silverlight. "Platforms" refer to devices like cell phones, and
+#  browsers like Chrome or Internet Explorer.
+#  The text between BEGIN_LINK and END_LINK will be displayed as a
+#  clickable link in the browser, which takes the user to a document
+#  providing additional information.
+msgid "Your page uses plugins, which prevents portions of your page from being used on many platforms. %(BEGIN_LINK)sFind alternatives for plugin based content%(END_LINK)s to increase compatibility."
+msgstr "このページではプラグインが使用されており、多数のプラットフォームでページの一部を利用できなくなっています。%(BEGIN_LINK)sコンテンツに基づいてプラグインの代わりになるものを見つけて%(END_LINK)s、互換性を改善してください。"
 
 #  A summary to give a general overview of this Page
 #  Speed rule.
