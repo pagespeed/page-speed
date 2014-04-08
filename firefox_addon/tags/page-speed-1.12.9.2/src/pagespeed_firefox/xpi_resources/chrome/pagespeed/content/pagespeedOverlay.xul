@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+
+<!--
+ * Copyright 2007-2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/callbackHolder.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pagespeedContext.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pageLoadTimer.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pagespeedPanel.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/lint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/cssEfficiencyChecker.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/jsCoverageLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/unusedCssLint.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/resultsWriter.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/resultsContainer.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/parallelXhrFlow.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/beaconTraits.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/minimalBeacon.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/fullResultsBeacon.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pagespeedClientApi.js"/>
+  <script type="application/x-javascript"
+          src="chrome://pagespeed/content/pagespeedLibraryRules.js"/>
+
+  <!--
+    Command names exist in a namespace shared by all extensions.  To avoid
+    having our commands overridden by other extensions, their names should
+    have the prefix 'cmd_page_speed_'
+  -->
+
+  <commandset id="mainCommandSet">
+    <command id="cmd_page_speed_performance"
+             oncommand="Firebug.PageSpeedModule.showPerformance()"/>
+    <command id="cmd_page_speed_components"
+             oncommand="Firebug.PageSpeedModule.showComponents()"/>
+    <command id="cmd_page_speed_json_export"
+             oncommand="Firebug.PageSpeedModule.exportMenuItemChosen('psJsonExport')"/>
+    <command id="cmd_page_speed_minimal_beacon"
+             oncommand="Firebug.PageSpeedModule.exportMenuItemChosen('psMinimalBeacon')"/>
+    <command id="cmd_page_speed_full_results_beacon"
+             oncommand="Firebug.PageSpeedModule.exportMenuItemChosen('psFullResultsBeacon')"/>
+    <command id="cmd_page_speed_help"
+             oncommand="Firebug.PageSpeedModule.showHelp()"/>
+    <command id="cmd_page_speed_report_issues"
+             oncommand="Firebug.PageSpeedModule.reportIssues()"/>
+  </commandset>
+
+  <toolbar id="fbToolbar" align="center">
+    <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1"
+          align="center">
+      <hbox id="fbPageSpeedButtons" insertafter="fbNetButtons" flex="100"
+            collapsed="true" align="center">
+        <toolbarseparator/>
+        <spacer width="2px"/>
+        <toolbarbutton id="psPerfButton" label="Performance"
+                       class="toolbar-text-button" group="pagespeedButtons"
+		       type="radio" checked="true"
+                       command="cmd_page_speed_performance"/>
+
+        <spacer width="5px"/>
+
+        <toolbarbutton id="psCompButton" label="Resources"
+                       class="toolbar-text-button" group="pagespeedButtons"
+		       type="radio"
+                       command="cmd_page_speed_components"/>
+
+        <spacer width="5px"/>
+
+        <toolbarbutton id="psExportMenu"
+                       label="Export"
+                       group="pagespeedButtons"
+                       type="menu"
+                       disabled="true">
+          <menupopup>
+            <menuitem id="psJsonExport"
+                      label="Write Results in JSON Format"
+                      command="cmd_page_speed_json_export"/>
+            <menuitem id="psMinimalBeacon"
+                      label="Send scores to service"
+                      command="cmd_page_speed_minimal_beacon"
+                      collapsed="true"/>
+            <menuitem id="psFullResultsBeacon"
+                      label="Send all results to service"
+                      command="cmd_page_speed_full_results_beacon"
+                      collapsed="true"/>
+          </menupopup>
+        </toolbarbutton>
+
+        <spacer width="5px"/>
+
+        <toolbarbutton id="psHelpMenu"
+                       label="Help"
+                       group="pagespeedButtons"
+                       type="menu">
+          <menupopup>
+            <menuitem id="psDocumentationButton" label="Documentation"
+                      command="cmd_page_speed_help"/>
+            <menuitem id="psReportButton" label="Report an issue"
+                      command="cmd_page_speed_report_issues"/>
+          </menupopup>
+        </toolbarbutton>
+
+        <spacer width="5px"/>
+
+        <spacer flex="1"/>
+
+        <hbox id="psContentAnalyzeMenu" align="center">
+          <label value="Analyze:"/>
+          <menulist id="psAnalyzeMenu" group="pagespeedButtons"
+                    oncommand="Firebug.PageSpeedModule.analyzePerformance()">
+            <menupopup>
+              <menuitem id="psAnalyzeAll"
+                        label="Entire page"
+                        value="noFilter"/>
+              <menuseparator/>
+              <menuitem id="psAnalyzeAds"
+                        label="Ads only"
+                        value="onlyAds"/>
+              <menuitem id="psAnalyzeTrackers"
+                        label="Trackers only"
+                        value="onlyTrackers"/>
+              <menuitem id="psAnalyzeContent"
+                        label="Content only"
+                        value="onlyContent"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+      </hbox>
+    </hbox>
+  </toolbar>
+</overlay>
