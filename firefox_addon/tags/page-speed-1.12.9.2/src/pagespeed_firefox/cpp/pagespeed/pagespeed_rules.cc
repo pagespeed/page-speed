@@ -28,7 +28,7 @@
 #include "base/json/json_writer.h"  // for base::JSONWriter::Write
 #include "base/logging.h"
 #include "base/md5.h"
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/string_number_conversions.h"  // for base::IntToString
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
@@ -42,6 +42,7 @@
 #include "pagespeed/core/serializer.h"
 #include "pagespeed/dom/json_dom.h"
 #include "pagespeed/filters/ad_filter.h"
+#include "pagespeed/filters/landing_page_redirection_filter.h"
 #include "pagespeed/filters/response_byte_result_filter.h"
 #include "pagespeed/filters/tracker_filter.h"
 #include "pagespeed/formatters/proto_formatter.h"
@@ -192,7 +193,7 @@ bool PluginSerializer::CreateFileForResource(const std::string& content_url,
   }
 
   const std::string filename =
-      pagespeed::ChooseOutputFilename(url, mime_type, MD5String(body));
+      pagespeed::ChooseOutputFilename(url, mime_type, base::MD5String(body));
 #if defined(OS_WIN)
   std::wstring w_base_dir;
   if (!UTF8ToWide(base_dir_.c_str(), base_dir_.size(), &w_base_dir)) {
@@ -398,7 +399,7 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
 
   // Compute and format the results.  Keep the Results around so that we can
   // serialize optimized content.
-  pagespeed::Results results;
+  pagespeed::Results filtered_results;
   pagespeed::FormattedResults formatted_results;
   {
     std::vector<pagespeed::Rule*> rules;
@@ -408,7 +409,13 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
     pagespeed::Engine engine(&rules);
     engine.Init();
 
-    engine.ComputeResults(*input, &results);
+    pagespeed::Results unfiltered_results;
+    engine.ComputeResults(*input, &unfiltered_results);
+    // Filter the landing page redirection result, so that we do not flag
+    // redirection from foo.com to www.foo.com.
+    pagespeed::LandingPageRedirectionFilter redirection_filter;
+    engine.FilterResults(unfiltered_results, redirection_filter,
+                         &filtered_results);
 
     formatted_results.set_locale(localizer->GetLocale());
     pagespeed::formatters::ProtoFormatter formatter(
@@ -416,7 +423,7 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
 
     // Filter the results (matching the code in Page Speed Online).
     pagespeed::ResponseByteResultFilter result_filter;
-    if (!engine.FormatResults(results, result_filter, &formatter)) {
+    if (!engine.FormatResults(filtered_results, result_filter, &formatter)) {
       LOG(ERROR) << "error formatting results in locale: " << locale;
       return NULL;
     }
@@ -435,7 +442,6 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
       pagespeed::FormattedRuleResults* rule_results =
           formatted_results.mutable_rule_results(i);
       if (rule_results->url_blocks_size() == 0) {
-        rule_results->set_rule_score(100);
         rule_results->set_rule_impact(0.0);
       } else {
         has_any_results = true;
@@ -459,8 +465,9 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
   scoped_ptr<DictionaryValue> paths(new DictionaryValue);
   if (output_dir) {
     PluginSerializer serializer(output_dir);
-    for (int i = 0; i < results.rule_results_size(); ++i) {
-      const pagespeed::RuleResults& rule_results = results.rule_results(i);
+    for (int i = 0; i < filtered_results.rule_results_size(); ++i) {
+      const pagespeed::RuleResults& rule_results =
+          filtered_results.rule_results(i);
       for (int j = 0; j < rule_results.results_size(); ++j) {
         const pagespeed::Result& result = rule_results.results(j);
         if (result.has_optimized_content() && result.resource_urls_size() > 0) {
@@ -484,7 +491,7 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
     scoped_ptr<DictionaryValue> root(new DictionaryValue);
     root->Set("results", json_results.release());
     root->Set("optimized_content", paths.release());
-    base::JSONWriter::Write(root.get(), false, &output_string);
+    base::JSONWriter::Write(root.get(), &output_string);
   }
 
   return MallocString(output_string);
