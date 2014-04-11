@@ -68,6 +68,31 @@ var generateIconHtml = function(iconStyle, sizerStyle, titleText) {
             );
 };
 
+var generateOverallIconHtml = function(iconStyle, sizerStyle, titleText) {
+  if (PAGESPEED.Utils.getBoolPref('extensions.PageSpeed.show_score')) {
+    return generateIconHtml(iconStyle, sizerStyle, titleText);
+  }
+  return ' ';
+};
+
+var generateScoreText = function(overallScore) {
+  if (PAGESPEED.Utils.getBoolPref('extensions.PageSpeed.show_score')) {
+    return 'Page Speed Score: ' + overallScore + '/100';
+  }
+  return ' ';
+};
+
+
+var generateExapandAllButtonHtml = function() {
+  var margin_left = '';
+  if (PAGESPEED.Utils.getBoolPref('extensions.PageSpeed.show_score')) {
+    margin_left = 'margin-left:30px;';
+  }
+  return INPUT({'type': 'button', 'value': 'Expand All',
+                'style': 'margin-right:10px;' + margin_left +
+                'padding: 2px 0', 'onclick': '$expandAll'});
+};
+
 /**
  * @param {number} colorCode One of PAGESPEED.Utils.SCORE_CODE_*.
  * @return {string} The CSS style for the given color code.
@@ -143,59 +168,55 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
   // Initial domplate that is displayed when the panel is opened.
   welcomePageTag:
       DIV({'class': 'moduleManagerBox',
-           'style': 'padding: 0 10px;'},
-        H1({'class': 'moduleManagerHead', 'style': 'font-style:italic'},
-             IMG({'src': 'chrome://pagespeed/content/pagespeed-32.png',
-                  'style': 'vertical-align:middle;padding-bottom:5px'}),
-             ' Page Speed'
-           ),
-          INPUT({'type': 'button', 'value': 'Analyze Performance',
-                 'style': 'margin-top:8px;margin-left:10px;margin-bottom:10px;' +
-                 'padding: 2px 0',
-                 'onclick': '$analyzePerformance'}),
-          H3("What's new in Page Speed 1.12?"),
+           'style': 'padding: 0'},
+        DIV({'class': 'control-bar'},
+          INPUT({'type': 'button', 'value': 'Analyze',
+               'class': 'kd-button kd-button-action',
+               'onclick': '$analyzePerformance'})
+        ),
+        DIV({'class': 'whatsnew'},
+          IMG({'src': 'chrome://pagespeed/content/pagespeed-128.png',
+               'id': 'logo-img'}),
+          DIV({'class': 'welcome'},
+            H1({'class': 'title'}, 'Make the web faster'),
+            H3({'class': 'subtitle'}, 'PageSpeed Insights for Firefox'),
+            H3({'class': 'whatsnew-header'}, 'What\'s new in this version?'),
 
-          UL(B(LI('New rules (',
-                A({'href': 'http://code.google.com/' +
-                           'speed/page-speed/docs/using_chrome.html',
-                   'onclick': '$openLink'},
-                  'Page Speed for Google Chrome'
-                  ), ' and ',
-                A({'href': 'http://pagespeed.googlelabs.com/',
-                   'onclick': '$openLink'},
-                  'Page Speed Online'
-                  ), ' only):')),
-             OL(LI(B('Avoid excess serialization')),
-                LI(B('Avoid long-running scripts')),
-                LI(B('Eliminate unnecessary reflows'))),
-             LI(B('More accurate minification savings computation for gzip-compressible resources')),
-             LI(B('Ignore data URIs in Specify image dimensions')),
-             LI(B('Improved tracking pixel detection')),
-             LI(B('Improved percentage computations'))
-            ),
-          P({'style': 'padding-top:5px'},
-            'See the ',
-            A({'href': 'http://code.google.com/' +
-                       'speed/page-speed/docs/rules_intro.html',
-               'onclick': '$openLink'},
-              'Page Speed documentation'
+            UL(
+              LI({'class': 'bullet bullet-1'},
+                H3({'class': 'whatsnew-item-header'},
+                  'PageSpeed Insights for Firefox score now hidden by default'),
+                SPAN({'class': 'whatsnew-item-header'},
+                  'While PageSpeed Insights for Firefox still provides ' +
+                  'helpful recommendations to speed up your site, the most ' +
+                  'up to date PageSpeed Insights analysis is not supported ' +
+                  'in Firefox. Please use ',
+                  A({'href': 'https://developers.google.com/speed/pagespeed/' +
+                     'insights/', 'onclick': '$openLink'},
+                     'https://developers.google.com/speed/pagespeed/insights/'),
+                  ' for the most recent PageSpeed Insights analysis. To ' +
+                  'continue to see the old PageSpeed Insights for Firefox ' +
+                  'score, please set the extensions.PageSpeed.show_score ' +
+                  'preference to true in about:config.'
+                )
               ),
-            ' for detailed information on the rules used to evaluate web pages.'
+              LI({'class': 'bullet bullet-2'},
+                H3({'class': 'whatsnew-item-header'},
+                  'Redesigned welcome page')
+              )
             ),
-          P({'class': 'moduleManagerDecription'},
-            'Page Speed Copyright &copy; 2012 Google Inc.'
-           ),
-          DIV({'style': 'padding-top:5px'},
-              FOR('dep', '$dependencies',
-                  P('Page Speed has not been tested with the version ' +
-                    'of $dep.name currently running in Firefox.<br/>' +
-                    'If you encounter problems, please install $dep.name ' +
-                    'version $dep.maximumVersion'
-                   )
-                 )
-             )
-         ),
-
+            P({'style': 'padding-top:5px'},
+              'See the ',
+              A({'href': 'https://developers.google.com/speed/docs/' +
+                 'best-practices/rules_intro', 'onclick': '$openLink'},
+                'PageSpeed documentation'
+                ),
+              ' for detailed information on the rules used to evaluate web ' +
+              'pages.'
+              )
+          )
+        )
+      ),
   // Main domplate for the rules view.
   // params: overallStyle, overallSummary
   tableTag: TABLE({'class': 'netTable', 'cellpadding': '0', 'cellspacing': '0',
@@ -206,7 +227,7 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                            'style': 'vertical-align:middle;text-align:center;' +
                            'background:-moz-linear-gradient(top,#eee,#ccc);' +
                            'min-width:30px;max-width:30px'},
-                          generateIconHtml(
+                          generateOverallIconHtml(
                               '$overallStyle',
                               CSS_STYLE_SCORE_SIZER_OVERALL_,
                               '$overallSummary')
@@ -215,11 +236,8 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
                            'colspan': '2',
                            'style': 'padding: 3px 20px;vertical-align:middle;' +
                            'background:-moz-linear-gradient(top,#eee,#ccc)'},
-                          'Page Speed Score: $overallScore/100',
-                          INPUT({'type': 'button', 'value': 'Expand All',
-                                 'style': 'margin-right:10px;margin-left:30px;' +
-                                 'padding: 2px 0',
-                                 'onclick': '$expandAll'}),
+                          generateScoreText('$overallScore'),
+                          generateExapandAllButtonHtml(),
                           INPUT({'type': 'button', 'value': 'Collapse All',
                                  'style': 'margin-right:10px;padding:2px 0',
                                  'onclick': '$collapseAll'}),
@@ -504,6 +522,11 @@ PageSpeedPanel.prototype = domplate(Firebug.Panel, {
     // Display the welcome page.
     this.welcomePageTag.replace(
         {'dependencies': mismatchedDependencies}, this.panelNode);
+
+    var doc = this.panelNode.ownerDocument;
+    var styleSheet = createStyleSheet(doc,
+            "chrome://pagespeed/content/pagespeed-panel.css");
+    addStyleSheet(doc, styleSheet);
   },
 
   /** @override */
