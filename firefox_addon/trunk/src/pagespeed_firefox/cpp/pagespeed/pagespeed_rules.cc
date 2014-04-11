@@ -442,7 +442,6 @@ const char* PageSpeed_ComputeAndFormatResults(const char* locale,
       pagespeed::FormattedRuleResults* rule_results =
           formatted_results.mutable_rule_results(i);
       if (rule_results->url_blocks_size() == 0) {
-        rule_results->set_rule_score(100);
         rule_results->set_rule_impact(0.0);
       } else {
         has_any_results = true;
