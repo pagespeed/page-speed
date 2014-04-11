@@ -43,9 +43,13 @@
       '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedOverlay.xul',
       '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeedUtilOverlay.xul',
 
+      # CSS files
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-panel.css',
+
       # PNG resources
       '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-32.png',
       '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-64.png',
+      '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/pagespeed-128.png',
       '<(DEPTH)/pagespeed_firefox/xpi_resources/chrome/pagespeed/content/scoreIcon.png',
 
       # JavaScript files

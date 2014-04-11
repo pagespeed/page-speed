@@ -10,3 +10,4 @@ pref('extensions.PageSpeed.beacon.minimal.enabled', true);
 pref('extensions.PageSpeed.beacon.full_results.url', '');
 pref('extensions.PageSpeed.beacon.full_results.enabled', true);
 pref('extensions.PageSpeed.locale', '');
+pref('extensions.PageSpeed.show_score', false);
