@@ -53,8 +53,7 @@ function formatUrlBlocks(url_blocks, optimized_content_map) {
     if (!url) {
       return;
     }
-    strings.push('  See <a href="', url,
-                 '" onclick="document.openLink(this);return false;">',
+    strings.push('  See <a href="', url, '" target=_blank>',
                  'optimized version</a> or <a href="', url,
                  '" onclick="document.saveLink(this);return false;"',
                  ' type="application/octet-stream">Save as</a>.');
