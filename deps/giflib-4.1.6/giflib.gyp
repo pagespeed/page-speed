@@ -83,6 +83,7 @@
         # same assumption made in basictypes.h.
         'UINT32=unsigned int',
         '_GBA_NO_FILEIO',
+        'HAVE_FCNTL_H',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
